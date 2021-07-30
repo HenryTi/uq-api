@@ -98,6 +98,7 @@ export class EntityRunner {
 	}
 
 	async setCompileTick(compileTick: number) {
+        if (compileTick === undefined) return;
 		if (this.compileTick === compileTick) return;
 		this.compileTick = compileTick;
 		await this.reset();

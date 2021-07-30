@@ -39,7 +39,8 @@ function init() {
                     process.exit();
                 }
                 tool_1.logger.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
-                let connection = config.get("connection");
+                //let connection = config.get<any>("connection");
+                let connection = core_1.env.getConnection();
                 if (connection === undefined || connection.host === '0.0.0.0') {
                     tool_1.logger.log("mysql connection must defined in config/default.json or config/production.json");
                     return;
@@ -93,7 +94,7 @@ function init() {
                     yield res_1.createResDb();
                     yield core_1.create$UqDb();
                     tool_1.logger.log('UQ-API ' + uq_api_version + ' listening on port ' + port);
-                    let connection = config.get("connection");
+                    //let connection = config.get<any>("connection");
                     let { host, user } = connection;
                     tool_1.logger.log('DB host: %s, user: %s', host, user);
                     tool_1.logger.log('Tonva uq-api started!');
@@ -110,7 +111,10 @@ exports.init = init;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        //Jobs.start();
+        if (core_1.env.isDevelopment === true) {
+            let uqDbNames = ['ebpayment'];
+            yield jobs_1.debugUqJob(uqDbNames);
+        }
         yield jobs_1.startJobsLoop();
     });
 }

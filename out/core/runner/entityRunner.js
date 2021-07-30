@@ -45,6 +45,8 @@ class EntityRunner {
     }
     setCompileTick(compileTick) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (compileTick === undefined)
+                return;
             if (this.compileTick === compileTick)
                 return;
             this.compileTick = compileTick;

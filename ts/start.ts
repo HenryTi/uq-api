@@ -9,9 +9,9 @@ import {authCheck, authUnitx, RouterBuilder,
 	uqProdRouterBuilder, uqTestRouterBuilder, 
 	unitxTestRouterBuilder, unitxProdRouterBuilder, 
 	compileProdRouterBuilder, compileTestRouterBuilder, CompileRouterBuilder, 
-	create$UqDb} from './core';
+	create$UqDb, env} from './core';
 import { authJoint, authUpBuild } from './core/auth';
-import { startJobsLoop } from './jobs';
+import { debugUqJob, startJobsLoop } from './jobs';
 import { buildProcRouter } from './router/proc';
 
 const {version: uq_api_version} = require('../package.json');
@@ -35,7 +35,8 @@ export async function init():Promise<void> {
 
             logger.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
             
-            let connection = config.get<any>("connection");
+            //let connection = config.get<any>("connection");
+            let connection = env.getConnection();
             if (connection === undefined || connection.host === '0.0.0.0') {
                 logger.log("mysql connection must defined in config/default.json or config/production.json");
                 return;
@@ -93,7 +94,7 @@ export async function init():Promise<void> {
                 await createResDb();
                 await create$UqDb();
                 logger.log('UQ-API ' + uq_api_version + ' listening on port ' + port);
-                let connection = config.get<any>("connection");
+                //let connection = config.get<any>("connection");
                 let {host, user} = connection;
                 logger.log('DB host: %s, user: %s', host, user);
 				logger.log('Tonva uq-api started!');
@@ -108,7 +109,10 @@ export async function init():Promise<void> {
 
 export async function start() {
     await init();
-    //Jobs.start();
+    if (env.isDevelopment === true) {
+        let uqDbNames = ['ebpayment'];
+        await debugUqJob(uqDbNames);
+    }
     await startJobsLoop();
 }
 
