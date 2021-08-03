@@ -822,10 +822,14 @@ class EntityRunner {
                         };
                         break;
                     case 'ix':
+                        // 下面这句，以后可以去掉。schema.idIsUser会改成ixIsUser
                         if (schemaObj.idIsUser === true) {
                             ixUserArr.push(schemaObj);
                         }
                         ;
+                        if (schemaObj.ixIsUser === true) {
+                            ixUserArr.push(schemaObj);
+                        }
                         break;
                 }
                 this.entityColl[id] = {
