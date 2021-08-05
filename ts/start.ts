@@ -110,7 +110,7 @@ export async function init():Promise<void> {
 export async function start() {
     await init();
     if (env.isDevelopment === true) {
-        let uqDbNames = ['ebpayment'];
+        let uqDbNames = env.configDebugging.uqs;
         await debugUqJob(uqDbNames);
     }
     await startJobsLoop();

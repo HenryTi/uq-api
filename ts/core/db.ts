@@ -24,7 +24,8 @@ interface ConfigDebugging {
 		test: string; 
 		prod: string;
 	};
-	"uq-api": string, 
+	"uq-api": string;
+    "uqs": string[];
 }
 
 class Env {

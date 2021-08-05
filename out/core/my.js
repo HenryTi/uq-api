@@ -266,21 +266,25 @@ class MyDbServer extends dbServer_1.DbServer {
             if (needBuildProc === true) {
                 let procLower = proc.toLowerCase();
                 let p = this.procColl[procLower];
-                if (p !== true) {
+                if (p === undefined) {
                     let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
                     let ret = results[0];
                     if (ret.length === 0) {
-                        debugger;
+                        //debugger;
+                        console.error(`proc not defined: ${db}.${proc}`);
+                        this.procColl[procLower] = false;
                         throw new Error(`proc not defined: ${db}.${proc}`);
                     }
-                    let r0 = ret[0];
-                    let changed = r0['changed'];
-                    if (changed === 1) {
-                        // await this.sqlDropProc(db, proc);
-                        let sql = r0['proc'];
-                        yield this.buildProc(db, proc, sql);
+                    else {
+                        let r0 = ret[0];
+                        let changed = r0['changed'];
+                        if (changed === 1) {
+                            // await this.sqlDropProc(db, proc);
+                            let sql = r0['proc'];
+                            yield this.buildProc(db, proc, sql);
+                        }
+                        this.procColl[procLower] = true;
                     }
-                    this.procColl[procLower] = true;
                 }
             }
             return yield this.execProcBase(db, proc, params);
