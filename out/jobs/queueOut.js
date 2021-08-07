@@ -167,7 +167,7 @@ function bus(runner, unit, id, to, bus, content) {
         }
         let { schema: busSchema, busOwner, busName } = schema.call;
         let { uqOwner, uq } = runner;
-        let { body, version } = toBusMessage(busSchema, face, content);
+        let { body, version, local } = toBusMessage(busSchema, face, content);
         function buildMessage(u) {
             let message = {
                 unit: u,
@@ -175,11 +175,11 @@ function bus(runner, unit, id, to, bus, content) {
                 queueId: id,
                 to,
                 from: uqOwner + '/' + uq,
-                busOwner: busOwner,
+                busOwner,
                 bus: busName,
-                face: face,
-                version: version,
-                body: body,
+                face,
+                version,
+                body,
             };
             return message;
         }
@@ -187,15 +187,23 @@ function bus(runner, unit, id, to, bus, content) {
             let unitXArr = yield unitx_1.getUserX(runner, to, bus, busOwner, busName, face);
             if (!unitXArr || unitXArr.length === 0)
                 return;
-            let promises = unitXArr.map(v => {
+            let promises = unitXArr.map((v) => __awaiter(this, void 0, void 0, function* () {
                 let message = buildMessage(v);
-                runner.net.sendToUnitx(v, message);
-            });
+                yield runner.net.sendToUnitx(v, message);
+                if (local === true) {
+                    let msgId = 0;
+                    yield runner.call('$queue_in_add', [v, to, msgId, bus, face, body]);
+                }
+            }));
             yield Promise.all(promises);
         }
         else {
             let message = buildMessage(unit);
             yield runner.net.sendToUnitx(unit, message);
+            if (local === true) {
+                let msgId = 0;
+                yield runner.call('$queue_in_add', [unit, to, msgId, bus, face, body]);
+            }
         }
     });
 }
@@ -235,6 +243,7 @@ function toBusMessage(busSchema, face, content) {
     let p = 0;
     let part;
     let busVersion;
+    let local = false;
     for (;;) {
         let t = content.indexOf('\t', p);
         if (t < 0)
@@ -243,22 +252,28 @@ function toBusMessage(busSchema, face, content) {
         ++t;
         let n = content.indexOf('\n', t);
         let sec = content.substring(t, n < 0 ? undefined : n);
-        if (key === '#') {
-            busVersion = Number(sec);
-        }
-        else if (key === '$') {
-            if (part !== undefined)
-                data.push(part);
-            part = { $: [sec] };
-        }
-        else {
-            if (part !== undefined) {
-                let arr = part[key];
-                if (arr === undefined) {
-                    part[key] = arr = [];
+        switch (key) {
+            case '#':
+                busVersion = Number(sec);
+                break;
+            case '+#':
+                busVersion = Number(sec);
+                local = true;
+                break;
+            case '$':
+                if (part !== undefined)
+                    data.push(part);
+                part = { $: [sec] };
+                break;
+            default:
+                if (part !== undefined) {
+                    let arr = part[key];
+                    if (arr === undefined) {
+                        part[key] = arr = [];
+                    }
+                    arr.push(sec);
                 }
-                arr.push(sec);
-            }
+                break;
         }
         if (n < 0)
             break;
@@ -284,6 +299,6 @@ function toBusMessage(busSchema, face, content) {
         // ret += '\n'; 
         // 多个bus array，不需要三个回车结束。自动取完，超过长度，自动结束。这样便于之后附加busQuery
     }
-    return { body: ret, version: busVersion };
+    return { body: ret, version: busVersion, local };
 }
 //# sourceMappingURL=queueOut.js.map

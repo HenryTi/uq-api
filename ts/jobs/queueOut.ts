@@ -149,7 +149,7 @@ async function bus(runner:EntityRunner, unit:number, id:number, to:number, bus:s
 
     let {uqOwner, uq} = runner;
 
-	let {body, version} = toBusMessage(busSchema, face, content);
+	let {body, version, local} = toBusMessage(busSchema, face, content);
 	
 	function buildMessage(u:number):BusMessage {
 		let message: BusMessage = {
@@ -158,11 +158,11 @@ async function bus(runner:EntityRunner, unit:number, id:number, to:number, bus:s
 			queueId: id,
 			to,
 			from: uqOwner + '/' + uq,           // from uq
-			busOwner: busOwner,
+			busOwner,
 			bus: busName,
-			face: face,
-			version: version,
-			body: body,
+			face,
+			version,
+			body,
 		};
 		return message;
 	}
@@ -170,16 +170,24 @@ async function bus(runner:EntityRunner, unit:number, id:number, to:number, bus:s
 	if (to > 0) {
 		let unitXArr:number[] = await getUserX(runner, to, bus, busOwner, busName, face);
 		if (!unitXArr || unitXArr.length === 0) return;
-		let promises = unitXArr.map(v => {
+		let promises = unitXArr.map(async (v) => {
 			let message: BusMessage = buildMessage(v);
-			runner.net.sendToUnitx(v, message);
-		});		
+			await runner.net.sendToUnitx(v, message);
+            if (local === true) {
+                let msgId = 0;
+                await runner.call('$queue_in_add', [v, to, msgId, bus, face, body]);
+            }
+        });
 		await Promise.all(promises);
 	}
 	else {
 		let message: BusMessage = buildMessage(unit);
 		await runner.net.sendToUnitx(unit, message);
-	}
+        if (local === true) {
+            let msgId = 0;
+            await runner.call('$queue_in_add', [unit, to, msgId, bus, face, body]);
+        }
+    }
 }
 
 async function sheet(runner: EntityRunner, content:string):Promise<void> {
@@ -205,7 +213,9 @@ function stringFromSections(sections:string[], values: any):string {
     return ret.join('');
 }
 
-function toBusMessage(busSchema:any, face:string, content:string):{body:string;version:number} {
+function toBusMessage(busSchema:any, face:string, content:string):{
+    body:string; version:number; local:boolean;
+} {
     if (!content) return undefined;
     let faceSchema = busSchema[face];
     if (faceSchema === undefined) {
@@ -216,6 +226,7 @@ function toBusMessage(busSchema:any, face:string, content:string):{body:string;v
     let p = 0;
     let part:{[key:string]: string[]};
     let busVersion:number;
+    let local = false;
     for (;;) {
         let t = content.indexOf('\t', p);
         if (t<0) break;
@@ -223,21 +234,27 @@ function toBusMessage(busSchema:any, face:string, content:string):{body:string;v
         ++t;
         let n = content.indexOf('\n', t);
         let sec = content.substring(t, n<0? undefined: n);
-        if (key === '#') {
-            busVersion = Number(sec);
-        }
-        else if (key === '$') {
-            if (part !== undefined) data.push(part);
-            part = {$: [sec]};
-        }
-        else {
-            if (part !== undefined) {
-                let arr = part[key];
-                if (arr === undefined) {
-                    part[key] = arr = [];
+        switch (key) {
+            case '#':
+                busVersion = Number(sec);
+                break;
+            case '+#':
+                busVersion = Number(sec);
+                local = true;
+                break;
+            case '$':
+                if (part !== undefined) data.push(part);
+                part = {$: [sec]};
+                break;
+            default:
+                if (part !== undefined) {
+                    let arr = part[key];
+                    if (arr === undefined) {
+                        part[key] = arr = [];
+                    }
+                    arr.push(sec);
                 }
-                arr.push(sec);
-            }
+                break;
         }
         if (n<0) break;
         p = n+1;
@@ -262,5 +279,5 @@ function toBusMessage(busSchema:any, face:string, content:string):{body:string;v
         // 多个bus array，不需要三个回车结束。自动取完，超过长度，自动结束。这样便于之后附加busQuery
     }
 
-    return {body:ret, version:busVersion};
+    return {body:ret, version:busVersion, local};
 }
