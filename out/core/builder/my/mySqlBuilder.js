@@ -180,30 +180,44 @@ class MySqlBuilder {
             else {
                 sql += `set @id=\`tv_${name}$id\`(@unit,@user,1`;
                 let updateOverride = { id: '@id' };
-                for (let k of keys) {
-                    let { name: kn, type } = k;
-                    let v = value[kn];
-                    sql += ',';
-                    if (type === 'textid') {
-                        sql += `tv_$textid('${v}')`;
-                    }
-                    else if (kn === 'no') {
-                        sql += v ? `'${v}'` : `tv_$no(@unit, '${name}')`;
-                    }
-                    else if (v === undefined) {
-                        switch (type) {
-                            default:
-                                sql += `@user`;
-                                break;
-                            case 'timestamp':
-                                sql += `CURRENT_TIMESTAMP()`;
-                                break;
+                if (keys.length > 0) {
+                    function sqlFromKey(keyName, type, v) {
+                        sql += ',';
+                        if (type === 'textid') {
+                            sql += `tv_$textid('${v}')`;
                         }
+                        else if (keyName === 'no') {
+                            sql += v ? `'${v}'` : `tv_$no(@unit, '${name}')`;
+                        }
+                        else if (v === undefined) {
+                            switch (type) {
+                                default:
+                                    sql += `@user`;
+                                    break;
+                                case 'timestamp':
+                                    sql += `CURRENT_TIMESTAMP()`;
+                                    break;
+                            }
+                        }
+                        else {
+                            sql += `'${v}'`;
+                        }
+                        updateOverride[keyName] = null;
                     }
-                    else {
-                        sql += `'${v}'`;
+                    switch (typeof value) {
+                        case 'number':
+                        case 'string':
+                            let { name: kn, type } = keys[0];
+                            sqlFromKey(kn, type, value);
+                            break;
+                        case 'object':
+                            for (let k of keys) {
+                                let { name: kn, type } = keys[0];
+                                let v = value[kn];
+                                sqlFromKey(kn, type, v);
+                            }
+                            break;
                     }
-                    updateOverride[kn] = null;
                 }
                 sql += ');\n';
                 if (fields.length > keys.length + 1) {
