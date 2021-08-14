@@ -266,7 +266,7 @@ class MyDbServer extends dbServer_1.DbServer {
             if (needBuildProc === true) {
                 let procLower = proc.toLowerCase();
                 let p = this.procColl[procLower];
-                if (p === undefined) {
+                if (p !== true) {
                     let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
                     let ret = results[0];
                     if (ret.length === 0) {

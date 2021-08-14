@@ -203,10 +203,10 @@ function buildBuildRouter(router, rb) {
                 promises.push(runner.setSetting(0, i, v));
             }
             yield Promise.all(promises);
-            // 取units，还有xuid的start和end
+            // 取units，还有id的start和end
             let units = yield core_1.centerApi.serviceUnit(service);
             yield runner.setUnitAdmin(units);
-            // sectionCount 从已经保存的当前xuid，和xuid-section-end 来计算
+            // sectionCount 从已经保存的当前id，和id-section-end 来计算
             yield runner.refreshIDSection(service);
             res.json({
                 ok: true,

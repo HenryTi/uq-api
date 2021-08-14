@@ -198,10 +198,10 @@ export function buildBuildRouter(router:Router, rb: RouterBuilder) {
 			}
 			await Promise.all(promises);
 
-			// 取units，还有xuid的start和end
+			// 取units，还有id的start和end
 			let units = await centerApi.serviceUnit(service);
 			await runner.setUnitAdmin(units);			
-			// sectionCount 从已经保存的当前xuid，和xuid-section-end 来计算
+			// sectionCount 从已经保存的当前id，和id-section-end 来计算
 			await runner.refreshIDSection(service);
 
             res.json({
