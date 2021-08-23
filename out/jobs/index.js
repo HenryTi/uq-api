@@ -22,7 +22,7 @@ export function startSync() {
 
 async function sync() {
     try {
-        logger.log('sync at: ' + new Date().toLocaleTimeString());
+        logger.debug('sync at: ' + new Date().toLocaleTimeString());
         await syncDbs();
     }
     catch (err) {

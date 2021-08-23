@@ -6,18 +6,18 @@ import { BuildRunner } from '../../core';
 export function buildBuildRouter(router:Router, rb: RouterBuilder) {
     router.post('/start', async (req:Request, res:Response) => {
         try {
-			logger.log('buildBuildRouter step 1');
+			logger.debug('buildBuildRouter step 1');
             let dbName:string = req.params.db;
 			let db = Db.db(rb.getDbName(dbName));
 			await prodNet.runnerCompiling(db);
-			logger.log('buildBuildRouter step 2');
+			logger.debug('buildBuildRouter step 2');
 			await testNet.runnerCompiling(db);
-			logger.log('buildBuildRouter step 3');
+			logger.debug('buildBuildRouter step 3');
 			let {enc} = req.body;
 			setUqBuildSecret(enc);
 			let runner = new BuildRunner(db);
 			let exists = await runner.buildDatabase();
-			logger.log('buildBuildRouter step 4');
+			logger.debug('buildBuildRouter step 4');
             res.json({
                 ok: true,
                 res: exists

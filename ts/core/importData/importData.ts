@@ -155,7 +155,7 @@ export abstract class ImportData {
             }
             let ownerIndex = header[owner];
             if (ownerIndex === undefined) {
-                this.logger.log(`${div} of ${owner} not exists`);
+                this.logger.debug(`${div} of ${owner} not exists`);
                 return false;
             }
             header[div+'$owner'] = ownerIndex;
@@ -163,7 +163,7 @@ export abstract class ImportData {
 
         let neededFields = this.checkHeader(header);
         if (neededFields !== undefined) {
-            this.logger.log('导入表必须包含字段：', neededFields);
+            this.logger.debug('导入表必须包含字段：', neededFields);
             return false;
         }
 
@@ -239,7 +239,7 @@ export abstract class ImportData {
     }
 
     protected async saveItem(values:any[]): Promise<void> {
-        this.logger.log('to be saved: ', values);
+        this.logger.debug('to be saved: ', values);
     }
 }
 
@@ -260,7 +260,7 @@ class ImportTuidDiv extends ImportTuid {
 class ImportMap extends ImportData {
     protected async saveItem(values:any[]): Promise<void> {
         await this.runner.mapSave(this.entity, this.unit, undefined, values);
-        logger.log('import map ', values);
+        logger.debug('import map ', values);
     }
 }
 

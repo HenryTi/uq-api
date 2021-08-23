@@ -14,7 +14,7 @@ export function buildAccessRouter(router:Router, rb:RouterBuilder) {
                 accs = acc.split('|');
                 if (accs.length === 1 && accs[0].trim().length === 0) accs = undefined;
             }
-            logger.log('getAccesses: ' + runner.getDb());
+            logger.debug('getAccesses: ' + runner.getDb());
             let access = await runner.getAccesses(unit, user, accs);
             return access;
         }

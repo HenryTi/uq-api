@@ -33,7 +33,7 @@ function pullBus(runner) {
                     let { length: messagesLen } = messages;
                     if (messagesLen > 0) {
                         // 新版：bus读来，直接写入queue_in。然后在队列里面处理
-                        tool_1.logger.log(`total ${messagesLen} arrived from unitx`);
+                        tool_1.logger.debug(`total ${messagesLen} arrived from unitx`);
                         for (let row of messages) {
                             let { to, face: faceUrl, id: msgId, body, version } = row;
                             let face = coll[faceUrl.toLowerCase()];

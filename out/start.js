@@ -26,23 +26,24 @@ function init() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
             try {
+                tool_1.logger.debug("UQ-API init...\n");
                 process.on('uncaughtException', function (err) {
                     tool_1.logger.error('uncaughtException', err);
                     reject(err);
                 });
                 process.on('unhandledRejection', (err, promise) => {
-                    tool_1.logger.log('unhandledRejection', err);
+                    tool_1.logger.debug('unhandledRejection', err);
                     reject(err);
                 });
                 if (!process.env.NODE_ENV) {
                     tool_1.logger.error('NODE_ENV not defined, exit');
                     process.exit();
                 }
-                tool_1.logger.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
+                tool_1.logger.debug('process.env.NODE_ENV: ', process.env.NODE_ENV);
                 //let connection = config.get<any>("connection");
                 let connection = core_1.env.getConnection();
                 if (connection === undefined || connection.host === '0.0.0.0') {
-                    tool_1.logger.log("mysql connection must defined in config/default.json or config/production.json");
+                    tool_1.logger.debug("mysql connection must defined in config/default.json or config/production.json");
                     return;
                 }
                 res_1.initResPath();
@@ -72,8 +73,8 @@ function init() {
                             p = p.substr(0, 100);
                     }
                     let t = new Date();
-                    tool_1.logger.log(req.method, req.originalUrl, p);
-                    tool_1.logger.log('%s %s %s', req.method, req.originalUrl, p);
+                    tool_1.logger.debug(req.method, req.originalUrl, p);
+                    tool_1.logger.debug('%s %s %s', req.method, req.originalUrl, p);
                     try {
                         next();
                     }
@@ -93,11 +94,11 @@ function init() {
                 app.listen(port, () => __awaiter(this, void 0, void 0, function* () {
                     yield res_1.createResDb();
                     yield core_1.create$UqDb();
-                    tool_1.logger.log('UQ-API ' + uq_api_version + ' listening on port ' + port);
+                    tool_1.logger.debug('a', 'UQ-API ' + uq_api_version + ' listening on port ' + port);
                     //let connection = config.get<any>("connection");
                     let { host, user } = connection;
-                    tool_1.logger.log('DB host: %s, user: %s', host, user);
-                    tool_1.logger.log('Tonva uq-api started!');
+                    tool_1.logger.debug('DB host: %s, user: %s', host, user);
+                    tool_1.logger.debug('Tonva uq-api started!');
                     resolve();
                 }));
             }

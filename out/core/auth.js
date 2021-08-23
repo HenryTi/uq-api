@@ -41,13 +41,13 @@ class Auth {
         }
         if (token === undefined) {
             let err = 'not authorized request';
-            tool_1.logger.log(err);
+            tool_1.logger.debug(err);
             if (res !== undefined)
                 res.end(err);
             return;
         }
         let secret = config.get('secret'); // .appSecret;
-        //logger.log('auth check: secret=%s, token=%s', secret, token);
+        //logger.debug('auth check: secret=%s, token=%s', secret, token);
         jwt.verify(token, secret, (err, decoded) => {
             if (err === null) {
                 decoded.db = req.params.db;
@@ -156,10 +156,10 @@ function setUqBuildSecret(ubs) {
 }
 exports.setUqBuildSecret = setUqBuildSecret;
 function middlewareUqBuild(req, res, next) {
-    tool_1.logger.log('middlewareUqBuild req.uql /start');
+    tool_1.logger.debug('middlewareUqBuild req.uql /start');
     if (req.url === '/start') {
-        tool_1.logger.log('middlewareUqBuild req.uql /start');
-        tool_1.logger.log('middlewareUqBuild req.uql /start');
+        tool_1.logger.debug('middlewareUqBuild req.uql /start');
+        tool_1.logger.debug('middlewareUqBuild req.uql /start');
         next();
         return;
     }
@@ -169,7 +169,7 @@ function middlewareUqBuild(req, res, next) {
     }
     if (token === undefined) {
         let err = 'not authorized request';
-        tool_1.logger.log(err);
+        tool_1.logger.debug(err);
         if (res !== undefined)
             res.end(err);
         return;

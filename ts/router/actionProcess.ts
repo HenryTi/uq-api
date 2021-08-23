@@ -13,10 +13,10 @@ export async function actionProcess(unit:number, user:number, name:string, db:st
 export async function actionReturns(unit:number, user:number, name:string, db:string, urlParams:any, runner:EntityRunner, body:any, schema:any, run:any):Promise<any[][]> {
     let {data} = body;
     if (typeof data === 'object') {
-        logger.log('action process data: ', body);
+        logger.debug('action process data: ', body);
         data = packParam(schema, data);
     }
-    logger.log('action process param: ', data);
+    logger.debug('action process param: ', data);
     let result = await runner.action(name, unit, user, data);
     return result;
 }

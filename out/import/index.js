@@ -38,7 +38,7 @@ function importData(net) {
                     continue;
                 yield runner.importData(unit, user, source, entity, filePath);
             }
-            tool_1.logger.log('files imported!');
+            tool_1.logger.debug('files imported!');
         }
         catch (err) {
             tool_1.logger.error(err);

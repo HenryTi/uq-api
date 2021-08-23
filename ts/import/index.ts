@@ -27,7 +27,7 @@ export async function importData(net: Net) {
             if (filePath === undefined) continue;
             await runner.importData(unit, user, source, entity, filePath);
         }
-        logger.log('files imported!');
+        logger.debug('files imported!');
     }
     catch (err) {
         logger.error(err);

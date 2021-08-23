@@ -51,12 +51,12 @@ export default class Auth {
         }
         if (token === undefined) {
             let err = 'not authorized request';
-            logger.log(err);
+            logger.debug(err);
             if (res !== undefined) res.end(err);
             return;
         }
         let secret = config.get<string>('secret'); // .appSecret;
-        //logger.log('auth check: secret=%s, token=%s', secret, token);
+        //logger.debug('auth check: secret=%s, token=%s', secret, token);
         jwt.verify(token, secret, 
             (err, decoded:AuthUser) => 
         {
@@ -171,10 +171,10 @@ export function setUqBuildSecret(ubs: string) {
 }
 
 function middlewareUqBuild(req:Request, res:Response, next:NextFunction) {
-	logger.log('middlewareUqBuild req.uql /start');
+	logger.debug('middlewareUqBuild req.uql /start');
     if (req.url === '/start') {
-        logger.log('middlewareUqBuild req.uql /start');
-        logger.log('middlewareUqBuild req.uql /start');
+        logger.debug('middlewareUqBuild req.uql /start');
+        logger.debug('middlewareUqBuild req.uql /start');
         next();
         return;
     }
@@ -184,7 +184,7 @@ function middlewareUqBuild(req:Request, res:Response, next:NextFunction) {
     }
     if (token === undefined) {
         let err = 'not authorized request';
-        logger.log(err);
+        logger.debug(err);
         if (res !== undefined) res.end(err);
         return;
     }

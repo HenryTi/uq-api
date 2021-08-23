@@ -33,16 +33,16 @@ const tool_1 = require("../tool");
         });
         if (node_env)
             process.env.NODE_ENV = node_env;
-        tool_1.logger.log('node_env=' + node_env + ', ' + 'db = ' + db);
+        tool_1.logger.debug('node_env=' + node_env + ', ' + 'db = ' + db);
         const config = require('config');
-        tool_1.logger.log('NODE_ENV ' + process.env.NODE_ENV);
+        tool_1.logger.debug('NODE_ENV ' + process.env.NODE_ENV);
         if (!process.env.NODE_ENV) {
             tool_1.logger.error('node out/cli/charset-collate-routines node_env=???');
             process.exit(0);
         }
         const const_connection = 'connection';
         const config_connection = config.get(const_connection);
-        tool_1.logger.log(config_connection);
+        tool_1.logger.debug(config_connection);
         const pool = mysql_1.createPool(config_connection);
         function runSql(sql) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -60,11 +60,11 @@ const tool_1 = require("../tool");
         }
         function charsetCollateRoutine(dbName, routineName, type, sql) {
             return __awaiter(this, void 0, void 0, function* () {
-                tool_1.logger.log('ROUTINE: ' + routineName);
+                tool_1.logger.debug('ROUTINE: ' + routineName);
                 let sqlDrop = `DROP ${type} IF EXISTS \`${dbName}\`.\`${routineName}\`;`;
                 yield runSql(sqlDrop);
                 yield runSql(sql);
-                // logger.log('-');
+                // logger.debug('-');
             });
         }
         function charsetCollateDb(dbName, charset, collate) {
@@ -72,11 +72,11 @@ const tool_1 = require("../tool");
                 let sqlDbFileNames = `select SCHEMA_NAME from information_schema.SCHEMATA where SCHEMA_NAME=LOWER('${dbName}')`;
                 let dbFileNames = yield runSql(sqlDbFileNames);
                 if (dbFileNames.length === 0) {
-                    tool_1.logger.log(`Database ${dbName} not exists`);
+                    tool_1.logger.debug(`Database ${dbName} not exists`);
                     return;
                 }
                 dbName = dbFileNames[0]['SCHEMA_NAME'];
-                tool_1.logger.log('=== charsetCollateDb: ' + dbName + ' ' + charset + ' ' + collate);
+                tool_1.logger.debug('=== charsetCollateDb: ' + dbName + ' ' + charset + ' ' + collate);
                 yield runSql(`use \`${dbName}\`;`);
                 let sqlRoutines = `
 		SELECT \`name\`, \`type\`, sql_stmt 
@@ -131,8 +131,8 @@ const tool_1 = require("../tool");
                     let { name, type, sql_stmt } = routineRow;
                     yield charsetCollateRoutine(dbName, name, type, sql_stmt);
                 }
-                tool_1.logger.log('-');
-                tool_1.logger.log('-');
+                tool_1.logger.debug('-');
+                tool_1.logger.debug('-');
             });
         }
         function charsetCollateAllUqs(charset, collate, dbIdStart) {
@@ -165,9 +165,9 @@ const tool_1 = require("../tool");
         }
         try {
             let params = yield dbServerParams();
-            tool_1.logger.log(params);
-            tool_1.logger.log('');
-            tool_1.logger.log('========================================');
+            tool_1.logger.debug(params);
+            tool_1.logger.debug('');
+            tool_1.logger.debug('========================================');
             let charset = params['character_set_connection']; //'utf8mb4';
             let collate = params['collation_connection']; //'utf8mb4_general_ci';
             if (db) {
@@ -181,7 +181,7 @@ const tool_1 = require("../tool");
                 }
                 yield charsetCollateAllUqs(charset, collate, dbIdStart);
             }
-            tool_1.logger.log('=== Job done!');
+            tool_1.logger.debug('=== Job done!');
         }
         catch (err) {
             tool_1.logger.error(err);

@@ -31,6 +31,9 @@ function buildUnitxRouter(rb) {
                     tos = [from];
                 sheetMessage.to = tos;
             }
+            if (type === 'bus') {
+                tool_1.logger.error(msg);
+            }
             let mp = messageProcesser_1.messageProcesser(msg);
             yield mp(unitxRunner, msg);
             res.json({

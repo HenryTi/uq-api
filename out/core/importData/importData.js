@@ -151,14 +151,14 @@ class ImportData {
             }
             let ownerIndex = header[owner];
             if (ownerIndex === undefined) {
-                this.logger.log(`${div} of ${owner} not exists`);
+                this.logger.debug(`${div} of ${owner} not exists`);
                 return false;
             }
             header[div + '$owner'] = ownerIndex;
         }
         let neededFields = this.checkHeader(header);
         if (neededFields !== undefined) {
-            this.logger.log('导入表必须包含字段：', neededFields);
+            this.logger.debug('导入表必须包含字段：', neededFields);
             return false;
         }
         for (let i = 0; i < len; i++) {
@@ -237,7 +237,7 @@ class ImportData {
     }
     saveItem(values) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.logger.log('to be saved: ', values);
+            this.logger.debug('to be saved: ', values);
         });
     }
 }
@@ -262,7 +262,7 @@ class ImportMap extends ImportData {
     saveItem(values) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.runner.mapSave(this.entity, this.unit, undefined, values);
-            tool_1.logger.log('import map ', values);
+            tool_1.logger.debug('import map ', values);
         });
     }
 }

@@ -23,14 +23,14 @@ import { logger } from '../tool';
 
 	const config:any = require('config');
 
-	logger.log('NODE_ENV ' + process.env.NODE_ENV);
+	logger.debug('NODE_ENV ' + process.env.NODE_ENV);
 	if (!process.env.NODE_ENV) {
 		logger.error('node out/cli/charset-collate node_env=???');
 		process.exit(0);
 	}
 	const const_connection = 'connection';
 	const config_connection = config.get(const_connection);
-	logger.log(config_connection);
+	logger.debug(config_connection);
 	const pool = createPool(config_connection);
 	async function runSql(sql:string):Promise<any> {
 		return new Promise<any>((resolve, reject) => {
@@ -46,14 +46,14 @@ import { logger } from '../tool';
 	}
 	
 	async function charsetCollateColumn(dbName:string, tableName:string, columnName:string, datatype:string, charset:string, collate:string) {
-		logger.log('Column: ' + columnName + ' ' + datatype);
+		logger.debug('Column: ' + columnName + ' ' + datatype);
 		let sql = `ALTER TABLE \`${dbName}\`.\`${tableName}\` MODIFY \`${columnName}\` ${datatype} CHARACTER SET ${charset} COLLATE ${collate};`;
 		await runSql(sql);
 	}
 	
 	const stringTypes = ['varchar', 'char', 'tinytext', 'text', 'mediumtext', 'longtext'];
 	async function charsetCollateTable(dbName:string, tableName:string, charset:string, collate:string) {
-		logger.log('Table: ' + tableName);
+		logger.debug('Table: ' + tableName);
 		let sql = `ALTER TABLE \`${dbName}\`.\`${tableName}\` CONVERT TO CHARACTER SET ${charset} COLLATE ${collate};`;
 		await runSql(sql);
 		let sqlColumns = `select COLUMN_NAME, DATA_TYPE, COLUMN_TYPE from information_schema.COLUMNS where TABLE_SCHEMA='${dbName}' and TABLE_NAME='${tableName}'`;
@@ -64,31 +64,31 @@ import { logger } from '../tool';
 				await charsetCollateColumn(dbName, tableName, COLUMN_NAME, COLUMN_TYPE, charset, collate);
 			}
 		}
-		logger.log('-');
+		logger.debug('-');
 	}
 	
 	async function charsetCollateDb(dbName:string, charset:string, collate:string) {
 		let sqlDbFileNames = `select SCHEMA_NAME from information_schema.SCHEMATA where SCHEMA_NAME=LOWER('${dbName}')`;
 		let dbFileNames:any[] = await runSql(sqlDbFileNames);
 		if (dbFileNames.length === 0) {
-			logger.log(`Database ${dbName} not exists`);
+			logger.debug(`Database ${dbName} not exists`);
 			return;
 		}
 		dbName = dbFileNames[0]['SCHEMA_NAME'];
 
-		logger.log('=== charsetCollateDb: ' + dbName + ' ' + charset + ' ' + collate);
+		logger.debug('=== charsetCollateDb: ' + dbName + ' ' + charset + ' ' + collate);
 		let sql = `ALTER DATABASE \`${dbName}\` CHARACTER SET ${charset} COLLATE ${collate};`;
-		logger.log('runing... ' + sql);
+		logger.debug('runing... ' + sql);
 		await runSql(sql);
-		logger.log('done! ' + sql);
+		logger.debug('done! ' + sql);
 	
 		let sqlTables = `select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA='${dbName}' AND TABLE_TYPE='BASE TABLE'`;
 		let tables:any[] = await runSql(sqlTables);
 		for (let tblRow of tables) {
 			await charsetCollateTable(dbName, tblRow['TABLE_NAME'], charset, collate);
 		}
-		logger.log('-');
-		logger.log('-');
+		logger.debug('-');
+		logger.debug('-');
 	}
 	
 	async function charsetCollateAllUqs(charset:string, collate:string, dbIdStart:number) {
@@ -133,10 +133,10 @@ import { logger } from '../tool';
 	
 	try {
 		let params = await dbServerParams();
-		logger.log(params);
+		logger.debug(params);
 		
-		logger.log('');
-		logger.log('========================================');
+		logger.debug('');
+		logger.debug('========================================');
 
 		let charset = params['character_set_connection']; //'utf8mb4';
 		let collate = params['collation_connection']; //'utf8mb4_general_ci';
@@ -154,7 +154,7 @@ import { logger } from '../tool';
 			await charsetCollateAllUqs(charset, collate, dbIdStart);
 		}
 
-		logger.log('=== Job done!');
+		logger.debug('=== Job done!');
 	}
 	catch (err) {
 		logger.error(err);

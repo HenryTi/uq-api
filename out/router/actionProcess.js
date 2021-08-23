@@ -29,10 +29,10 @@ function actionReturns(unit, user, name, db, urlParams, runner, body, schema, ru
     return __awaiter(this, void 0, void 0, function* () {
         let { data } = body;
         if (typeof data === 'object') {
-            tool_1.logger.log('action process data: ', body);
+            tool_1.logger.debug('action process data: ', body);
             data = core_1.packParam(schema, data);
         }
-        tool_1.logger.log('action process param: ', data);
+        tool_1.logger.debug('action process param: ', data);
         let result = yield runner.action(name, unit, user, data);
         return result;
     });

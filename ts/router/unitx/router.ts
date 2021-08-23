@@ -20,6 +20,9 @@ export function buildUnitxRouter(rb: RouterBuilder):Router {
                 if (tos === undefined || tos.length === 0) tos = [from];
                 sheetMessage.to = tos;
             }
+            if (type === 'bus') {
+                logger.error(msg);
+            }
             let mp = messageProcesser(msg);
             await mp(unitxRunner, msg);
             res.json({

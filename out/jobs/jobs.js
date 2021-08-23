@@ -31,24 +31,24 @@ function startJobsLoop() {
     return __awaiter(this, void 0, void 0, function* () {
         let $uqDb = core_1.Db.db(core_1.consts.$uq);
         if (core_1.env.isDevelopment === true) {
-            // 只有在开发状态下，才可以屏蔽jobs
-            //logger.log('jobs loop: developing, no loop!');
-            //return;
+            // 只有在开发状态下，才可以屏蔽jobs        
+            tool_1.logger.debug('jobs loop: developing, no loop!');
+            return;
             if (core_1.env.isDevdo === true)
                 return;
-            tool_1.logger.log(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
+            tool_1.logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
             yield $uqDb.setDebugJobs();
-            tool_1.logger.log('========= set debugging jobs =========');
+            tool_1.logger.debug('========= set debugging jobs =========');
             yield sleep(waitForOtherStopJobs);
         }
         else {
             yield sleep(firstRun);
         }
-        tool_1.logger.log('\n');
-        tool_1.logger.log('\n');
+        tool_1.logger.debug('\n');
+        tool_1.logger.debug('\n');
         tool_1.logger.error('====== Jobs loop started! ======');
         for (;;) {
-            tool_1.logger.log('\n');
+            tool_1.logger.debug('\n');
             tool_1.logger.info(`====== ${process.env.NODE_ENV} one loop at ${new Date().toLocaleString()} ======`);
             try {
                 yield uqsJob($uqDb);

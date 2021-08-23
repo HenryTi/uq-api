@@ -741,7 +741,7 @@ class EntityRunner {
             let uu = setting['uniqueunit'];
             this.uniqueUnit = uu ? uu : 0;
             if (db_1.env.isDevelopment)
-                tool_1.logger.log('init schemas: ', this.uq, this.author, this.version);
+                tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
             this.schemas = {};
             this.accessSchemaArr = [];
             this.tuids = {};
@@ -1021,7 +1021,7 @@ class EntityRunner {
             }
         }
         if (db_1.env.isDevelopment)
-            tool_1.logger.log('access: ', this.access);
+            tool_1.logger.debug('access: ', this.access);
     }
     getUserAccess(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {

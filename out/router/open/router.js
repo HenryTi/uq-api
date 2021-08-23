@@ -66,7 +66,7 @@ function buildOpenRouter(router, rb) {
     }));
     rb.post(router, '/tuid-main/:tuid', (runner, body, params) => __awaiter(this, void 0, void 0, function* () {
         body.$ = 'open/tuid-main/';
-        tool_1.logger.log(body);
+        tool_1.logger.debug(body);
         let { tuid } = params;
         let { unit, id, all } = body;
         if (runner.isTuidOpen(tuid) === false)
@@ -78,7 +78,7 @@ function buildOpenRouter(router, rb) {
     }));
     rb.post(router, '/tuid-div/:tuid/:div', (runner, body, params) => __awaiter(this, void 0, void 0, function* () {
         body.$ = 'open/tuid-div/';
-        tool_1.logger.log(body);
+        tool_1.logger.debug(body);
         let { tuid, div } = params;
         let { unit, id, ownerId, all } = body;
         if (runner.isTuidOpen(tuid) === false)

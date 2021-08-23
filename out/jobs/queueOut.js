@@ -28,7 +28,7 @@ function queueOut(runner) {
                 for (let row of ret) {
                     // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
                     let { $unit, id, to, action, subject, content, tries, update_time, now } = row;
-                    tool_1.logger.log('queueOut 1: ', action, subject, content, update_time);
+                    tool_1.logger.debug('queueOut 1: ', action, subject, content, update_time);
                     start = id;
                     if (!$unit)
                         $unit = runner.uniqueUnit;
@@ -104,7 +104,7 @@ function processItem(runner, unit, id, action, subject, content, update_time) {
             let parts = item.split('\n');
             json[parts[0]] = parts[1];
         }
-        tool_1.logger.log('queue item: ', unit, id, action, subject, json);
+        tool_1.logger.debug('queue item: ', unit, id, action, subject, json);
     });
 }
 function jsonValues(content) {

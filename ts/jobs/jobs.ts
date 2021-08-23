@@ -23,24 +23,24 @@ let loopWait: boolean = true;
 export async function startJobsLoop(): Promise<void> {
 	let $uqDb = Db.db(consts.$uq);
     if (env.isDevelopment === true) {
-		// 只有在开发状态下，才可以屏蔽jobs
-		//logger.log('jobs loop: developing, no loop!');
-		//return;
+		// 只有在开发状态下，才可以屏蔽jobs        
+		logger.debug('jobs loop: developing, no loop!');
+		return;
 		if (env.isDevdo === true) return;
-        logger.log(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
+        logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
 		await $uqDb.setDebugJobs();
-		logger.log('========= set debugging jobs =========');
+		logger.debug('========= set debugging jobs =========');
         await sleep(waitForOtherStopJobs);
     }
     else {
         await sleep(firstRun);
     }
 
-	logger.log('\n');
-	logger.log('\n');
+	logger.debug('\n');
+	logger.debug('\n');
     logger.error('====== Jobs loop started! ======');
     for (;;) {
-        logger.log('\n');
+        logger.debug('\n');
         logger.info(`====== ${process.env.NODE_ENV} one loop at ${new Date().toLocaleString()} ======`);
         try {
             await uqsJob($uqDb);

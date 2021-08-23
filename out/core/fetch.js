@@ -45,7 +45,7 @@ class Fetch {
     }
     innerFetch(url, method, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            tool_1.logger.log('innerFetch ' + method + '  ' + this.baseUrl + url);
+            tool_1.logger.debug('innerFetch ' + method + '  ' + this.baseUrl + url);
             var headers = new node_fetch_1.Headers();
             headers.append('Accept', 'application/json'); // This one is enough for GET requests
             headers.append('Content-Type', 'application/json'); // This one sends body
@@ -65,8 +65,8 @@ class Fetch {
                     error: res.statusText,
                     code: res.status,
                 };
-                //logger.log('statusCode=', response.statusCode);
-                //logger.log('statusMessage=', response.statusMessage);
+                //logger.debug('statusCode=', response.statusCode);
+                //logger.debug('statusMessage=', response.statusMessage);
             }
             let json = yield res.json();
             if (json.error !== undefined) {

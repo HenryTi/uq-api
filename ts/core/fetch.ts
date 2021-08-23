@@ -29,7 +29,7 @@ export abstract class Fetch {
     }
 
     private async innerFetch(url: string, method:string, body?:any): Promise<any> {
-        logger.log('innerFetch ' + method + '  ' + this.baseUrl + url);
+        logger.debug('innerFetch ' + method + '  ' + this.baseUrl + url);
         var headers = new Headers();
         headers.append('Accept', 'application/json'); // This one is enough for GET requests
         headers.append('Content-Type', 'application/json'); // This one sends body
@@ -52,8 +52,8 @@ export abstract class Fetch {
                 error: res.statusText,
                 code: res.status,
             };
-            //logger.log('statusCode=', response.statusCode);
-            //logger.log('statusMessage=', response.statusMessage);
+            //logger.debug('statusCode=', response.statusCode);
+            //logger.debug('statusMessage=', response.statusMessage);
         }
         let json = await res.json();
         if (json.error !== undefined) {

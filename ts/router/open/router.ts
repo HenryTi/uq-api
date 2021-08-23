@@ -69,7 +69,7 @@ export function buildOpenRouter(router:Router, rb: RouterBuilder) {
     rb.post(router, '/tuid-main/:tuid',
     async (runner:EntityRunner, body:any, params:any):Promise<any> => {
         body.$ = 'open/tuid-main/';
-        logger.log(body);
+        logger.debug(body);
         let {tuid} = params;
         let {unit, id, all} = body;
         if (runner.isTuidOpen(tuid) === false) return;
@@ -82,7 +82,7 @@ export function buildOpenRouter(router:Router, rb: RouterBuilder) {
     rb.post(router, '/tuid-div/:tuid/:div',
     async (runner:EntityRunner, body:any, params:any):Promise<any> => {
         body.$ = 'open/tuid-div/';
-        logger.log(body);
+        logger.debug(body);
         let {tuid, div} = params;
         let {unit, id, ownerId, all} = body;
         if (runner.isTuidOpen(tuid) === false) return;

@@ -3,7 +3,7 @@ import { testNet } from "../core";
 import { queueOut } from "../jobs/queueOut";
 
 (async function() {
-	logger.log('test-queue-out');
+	logger.debug('test-queue-out');
 
 	// 停掉其它服务器操作消息队列
 	//let db = Db.db(undefined);
@@ -11,7 +11,7 @@ import { queueOut } from "../jobs/queueOut";
 
 	let dbName = 'order';
 	let node_env = process.env.NODE_ENV;
-	logger.log('node_env=' + node_env + ', ' + 'db = ' + dbName);
+	logger.debug('node_env=' + node_env + ', ' + 'db = ' + dbName);
 	//let net = prodNet;
 	let net = testNet;
 	let runner = await net.getRunner(dbName);

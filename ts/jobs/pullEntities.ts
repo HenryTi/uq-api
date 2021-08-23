@@ -21,13 +21,13 @@ enum FromNewSet {ok=1, bad=2, moreTry=3}
 async function pullNew(runner:EntityRunner) {
     let {net} = runner;
 	let count = 0;
-	logger.log(`== pullNew start ==`);
+	logger.debug(`== pullNew start ==`);
     for (;count<200;) {
         let items = await runner.tableFromProc('$from_new', undefined);
         if (items.length === 0) {
             break;
         }
-		logger.log(`== pullNew count=${items.length} ==`);
+		logger.debug(`== pullNew count=${items.length} ==`);
         for (let item of items) {
             count++;
             let {id, unit, entity, key, tries, update_time, now} = item;
@@ -57,7 +57,7 @@ async function pullNew(runner:EntityRunner) {
                 await runner.call('$from_new_set', [unit, id, fns]);
             }
         }
-		logger.log(`## pullNew end ##`);
+		logger.debug(`## pullNew end ##`);
     }
 }
 
@@ -71,11 +71,11 @@ interface UnitOpenApiItems {
 }
 
 async function pullModify(runner:EntityRunner) {
-	logger.log(`== pullModify start ==`);
+	logger.debug(`== pullModify start ==`);
     let {net} = runner;
     let items = await runner.tableFromProc('$sync_from', undefined);
     if (items.length === 0) return;
-	logger.log(`== pullModify count=${items.length} ==`);
+	logger.debug(`== pullModify count=${items.length} ==`);
     let unitOpenApiItems:UnitOpenApiItems = {};
     // 把访问同一个openApi的整理到一起
     let promises:Promise<OpenApi>[] = [];
@@ -182,7 +182,7 @@ async function pullModify(runner:EntityRunner) {
                 logger.error(err);
             }
         }
-		logger.log(`## pullModify end ##`);
+		logger.debug(`## pullModify end ##`);
     }
 }
 
@@ -244,6 +244,6 @@ async function setTuid(runner:EntityRunner, tuidName:string, schema:any, unit:nu
         await runner.tuidSave(tuidName, unit as any, user, paramMain);
     }
     catch (err) {
-        logger.log(err.message);
+        logger.debug(err.message);
     }
 }

@@ -41,13 +41,13 @@ function pullNew(runner) {
     return __awaiter(this, void 0, void 0, function* () {
         let { net } = runner;
         let count = 0;
-        tool_1.logger.log(`== pullNew start ==`);
+        tool_1.logger.debug(`== pullNew start ==`);
         for (; count < 200;) {
             let items = yield runner.tableFromProc('$from_new', undefined);
             if (items.length === 0) {
                 break;
             }
-            tool_1.logger.log(`== pullNew count=${items.length} ==`);
+            tool_1.logger.debug(`== pullNew count=${items.length} ==`);
             for (let item of items) {
                 count++;
                 let { id, unit, entity, key, tries, update_time, now } = item;
@@ -82,18 +82,18 @@ function pullNew(runner) {
                     yield runner.call('$from_new_set', [unit, id, fns]);
                 }
             }
-            tool_1.logger.log(`## pullNew end ##`);
+            tool_1.logger.debug(`## pullNew end ##`);
         }
     });
 }
 function pullModify(runner) {
     return __awaiter(this, void 0, void 0, function* () {
-        tool_1.logger.log(`== pullModify start ==`);
+        tool_1.logger.debug(`== pullModify start ==`);
         let { net } = runner;
         let items = yield runner.tableFromProc('$sync_from', undefined);
         if (items.length === 0)
             return;
-        tool_1.logger.log(`== pullModify count=${items.length} ==`);
+        tool_1.logger.debug(`== pullModify count=${items.length} ==`);
         let unitOpenApiItems = {};
         // 把访问同一个openApi的整理到一起
         let promises = [];
@@ -200,7 +200,7 @@ function pullModify(runner) {
                     tool_1.logger.error(err);
                 }
             }
-            tool_1.logger.log(`## pullModify end ##`);
+            tool_1.logger.debug(`## pullModify end ##`);
         }
     });
 }
@@ -267,7 +267,7 @@ function setTuid(runner, tuidName, schema, unit, values) {
             yield runner.tuidSave(tuidName, unit, user, paramMain);
         }
         catch (err) {
-            tool_1.logger.log(err.message);
+            tool_1.logger.debug(err.message);
         }
     });
 }

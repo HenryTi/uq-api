@@ -19,12 +19,13 @@ const {version: uq_api_version} = require('../package.json');
 export async function init():Promise<void> {
     return new Promise<void>((resolve, reject) => {
         try {
+            logger.debug("UQ-API init...\n");
 			process.on('uncaughtException', function(err:any) {				
 				logger.error('uncaughtException', err);
 				reject(err);
 			});
 			process.on('unhandledRejection', (err:any, promise:any) => {
-				logger.log('unhandledRejection', err);
+				logger.debug('unhandledRejection', err);
 				reject(err);
 			});
 
@@ -33,12 +34,12 @@ export async function init():Promise<void> {
 				process.exit();
 			}
 
-            logger.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
+            logger.debug('process.env.NODE_ENV: ', process.env.NODE_ENV);
             
             //let connection = config.get<any>("connection");
             let connection = env.getConnection();
             if (connection === undefined || connection.host === '0.0.0.0') {
-                logger.log("mysql connection must defined in config/default.json or config/production.json");
+                logger.debug("mysql connection must defined in config/default.json or config/production.json");
                 return;
             }
             initResPath();
@@ -68,8 +69,8 @@ export async function init():Promise<void> {
 					if (p.length > 100) p = p.substr(0, 100);
 				}
                 let t = new Date();
-				logger.log(req.method, req.originalUrl, p);
-                logger.log('%s %s %s', req.method, req.originalUrl, p);
+				logger.debug(req.method, req.originalUrl, p);
+                logger.debug('%s %s %s', req.method, req.originalUrl, p);
                 try {
                     next();
                 }
@@ -93,11 +94,11 @@ export async function init():Promise<void> {
             app.listen(port, async ()=>{
                 await createResDb();
                 await create$UqDb();
-                logger.log('UQ-API ' + uq_api_version + ' listening on port ' + port);
+                logger.debug('a', 'UQ-API ' + uq_api_version + ' listening on port ' + port);
                 //let connection = config.get<any>("connection");
                 let {host, user} = connection;
-                logger.log('DB host: %s, user: %s', host, user);
-				logger.log('Tonva uq-api started!');
+                logger.debug('DB host: %s, user: %s', host, user);
+				logger.debug('Tonva uq-api started!');
                 resolve();
             });
         }

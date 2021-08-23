@@ -15,7 +15,7 @@ export async function queueOut(runner: EntityRunner): Promise<void> {
             for (let row of ret) {
                 // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
                 let {$unit, id, to, action, subject, content, tries, update_time, now} = row;
-                logger.log('queueOut 1: ', action, subject, content, update_time);
+                logger.debug('queueOut 1: ', action, subject, content, update_time);
                 start = id;
                 if (!$unit) $unit = runner.uniqueUnit;
                 if (tries > 0) {
@@ -85,7 +85,7 @@ async function processItem(runner:EntityRunner, unit:number, id:number, action:s
         let parts = item.split('\n');
         json[parts[0]] = parts[1];
     }
-    logger.log('queue item: ', unit, id, action, subject, json);
+    logger.debug('queue item: ', unit, id, action, subject, json);
 }
 
 function jsonValues(content:string):any {

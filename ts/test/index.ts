@@ -52,10 +52,10 @@ const $test = '$test';
     let ret = await runner.tableFromProc('customer', [24, undefined, 431]);
 
     await pullEntities(runner);
-    logger.log(' ');
-    logger.log('===========================================================');
-    logger.log('=  End of test');
-    logger.log('===========================================================');
+    logger.debug(' ');
+    logger.debug('===========================================================');
+    logger.debug('=  End of test');
+    logger.debug('===========================================================');
     */
 
     process.exit();
