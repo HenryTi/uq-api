@@ -354,17 +354,19 @@ export class MyDbServer extends DbServer {
 		this.resetProcColl();
 		let exists = this.sqlExists(db);
 		// `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
-        let ret = await this.exec(exists, []);
-        if (ret.length > 0) return true;
-		try {
-			let sql = `CREATE DATABASE IF NOT EXISTS \`${db}\``; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci`;
-			await this.exec(sql, undefined);
-		}
-		catch (err) {
-			console.error(err);
+        let retExists = await this.exec(exists, []);
+		let ret = retExists.length > 0;
+        if (ret === false) {
+			try {
+				let sql = `CREATE DATABASE IF NOT EXISTS \`${db}\``; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci`;
+				await this.exec(sql, undefined);
+			}
+			catch (err) {
+				console.error(err);
+			}
 		}
         await this.insertInto$Uq(db);
-        return false;
+        return ret;
     }
 	async createProcObjs(db:string): Promise<void> {
 		//let useDb = 'use `' + db + '`;';

@@ -384,18 +384,19 @@ class MyDbServer extends dbServer_1.DbServer {
             this.resetProcColl();
             let exists = this.sqlExists(db);
             // `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
-            let ret = yield this.exec(exists, []);
-            if (ret.length > 0)
-                return true;
-            try {
-                let sql = `CREATE DATABASE IF NOT EXISTS \`${db}\``; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci`;
-                yield this.exec(sql, undefined);
-            }
-            catch (err) {
-                console.error(err);
+            let retExists = yield this.exec(exists, []);
+            let ret = retExists.length > 0;
+            if (ret === false) {
+                try {
+                    let sql = `CREATE DATABASE IF NOT EXISTS \`${db}\``; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci`;
+                    yield this.exec(sql, undefined);
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
             yield this.insertInto$Uq(db);
-            return false;
+            return ret;
         });
     }
     createProcObjs(db) {
