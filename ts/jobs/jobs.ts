@@ -24,8 +24,8 @@ export async function startJobsLoop(): Promise<void> {
 	let $uqDb = Db.db(consts.$uq);
     if (env.isDevelopment === true) {
 		// 只有在开发状态下，才可以屏蔽jobs        
-		logger.debug('jobs loop: developing, no loop!');
-		return;
+		// logger.debug('jobs loop: developing, no loop!');
+		// return;
 		if (env.isDevdo === true) return;
         logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
 		await $uqDb.setDebugJobs();
@@ -160,6 +160,7 @@ async function uqsJob($uqDb: Db) {
             logger.error('debugging_jobs=yes, stop jobs loop');
             return;
         }
+        
         for (let uqRow of uqs) {
             let {db:uqDbName, compile_tick} = uqRow;
             await uqJob($uqDb, uqDbName, compile_tick);
