@@ -23,13 +23,14 @@ class UnitxApi extends fetch_1.Fetch {
             return ret;
         });
     }
-    fetchBus(unit, msgStart, faces) {
+    fetchBus(unit, msgStart, faces, defer) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let ret = yield this.post('fetch-bus', {
-                    unit: unit,
+                    unit,
                     msgStart: msgStart,
                     faces: faces,
+                    defer,
                 });
                 return ret;
             }

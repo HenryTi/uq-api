@@ -12,12 +12,13 @@ export class UnitxApi extends Fetch {
         let ret:number[] = await this.post('', msg);
         return ret;
     }
-    async fetchBus(unit:number, msgStart:number, faces:string):Promise<any[][]> {
+    async fetchBus(unit:number, msgStart:number, faces:string, defer:number):Promise<any[][]> {
 		try {
 			let ret = await this.post('fetch-bus', {
-				unit: unit,
+				unit,
 				msgStart: msgStart,
 				faces: faces,
+				defer,
 			});
 			return ret;
 		}

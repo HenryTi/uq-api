@@ -40,6 +40,7 @@ export interface MsgMessage extends ClientMessage {
 }
 
 export interface BusMessage extends Message {
+    defer: number;
 	type: 'bus';
 	to: number;
     from: string;           // from uq

@@ -700,6 +700,9 @@ class EntityRunner {
                 return;
             try {
                 yield this.initInternal();
+                if (this.hasStatements === true) {
+                    yield this.runUqStatements();
+                }
             }
             catch (err) {
                 this.schemas = undefined;
@@ -735,6 +738,7 @@ class EntityRunner {
             if (this.uqVersion === undefined)
                 this.uqVersion = 1;
             this.hasUnit = !(setting['hasunit'] === 0);
+            this.hasStatements = setting['hasstatements'] === 1;
             this.dbServer.hasUnit = this.hasUnit;
             this.dbServer.setBuilder();
             let ixUserArr = [];
@@ -753,7 +757,6 @@ class EntityRunner {
                 let { name, id, version, schema, run, from } = row;
                 if (!schema)
                     continue;
-                //name = name.toLowerCase();
                 let tuidFroms;
                 let schemaObj = JSON.parse(schema);
                 let sName = schemaObj.name;
@@ -761,7 +764,6 @@ class EntityRunner {
                 schemaObj.typeId = id;
                 schemaObj.version = version;
                 let { type, sync } = schemaObj;
-                //if (url !== undefined) url = url.toLowerCase();
                 this.schemas[name] = {
                     type: type,
                     from: from,
@@ -1162,6 +1164,11 @@ class EntityRunner {
             this.getTableSchemas(names, types)
             :
                 [this.getTableSchema(names, types)];
+    }
+    runUqStatements() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.procCall('tv_$uq', []);
+        });
     }
     Acts(unit, user, param) {
         for (let i in param) {

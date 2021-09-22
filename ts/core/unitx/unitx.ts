@@ -94,13 +94,13 @@ export abstract class Unitx {
         return toArr;
 	}
 	
-	async pullBus(unit:number, maxId:number, faces:string): Promise<any[][]> {
+	async pullBus(unit:number, maxId:number, faces:string, defer:number): Promise<any[][]> {
 		let unitxApi = await this.getPullUnitxApi(unit);
 		if (!unitxApi) {
 			logger.error(`getUnitxApi unit=${unit}, pull return nothing`);
 			return;
 		}
-		let ret = await unitxApi.fetchBus(unit, maxId, faces);
+		let ret = await unitxApi.fetchBus(unit, maxId, faces, defer);
 		if (ret === undefined) {
 			logger.error(`unitxApi.fetchBus  url=${unitxApi.url} unit=${unit}`);
 			return;

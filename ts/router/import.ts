@@ -1,9 +1,9 @@
 import { Router, Response, Request } from 'express';
 import * as fs from 'fs';
 import * as config from 'config';
-import multer = require('multer');
+import * as multer from 'multer';
+//import multer = require('multer');
 import { User, RouterBuilder } from '../core';
-//import { User, checkRunner } from './router';
 
 export function buildImportRouter(router:Router, rb:RouterBuilder) {
     router.post('/import/', async (req:Request, res:Response) => {

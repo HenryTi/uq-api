@@ -26,14 +26,14 @@ interface SheetRun {
     }
 }
 
-interface Buses {
+export interface Buses {
     faces: string;
     outCount: number;
     coll: {[url:string]:Face}
     hasError: boolean;
 }
 
-interface Face {
+export interface Face {
     bus: string;
     faceName: string;
     version: number;
@@ -69,6 +69,7 @@ export class EntityRunner {
     // tuid的值，第一个是tuidname，随后用tab分隔的map
     froms: {[from:string]:{[tuid:string]:{tuid?:string, maps?:string[], tuidObj?:any, mapObjs?:{[map:string]:any}}}};
     hasUnit: boolean;
+    hasStatements: boolean;
     uqId: number;
     uqVersion: number;  // uq compile changes
     uniqueUnit: number;
@@ -599,6 +600,9 @@ export class EntityRunner {
         if (this.schemas !== undefined) return;
         try {
             await this.initInternal();
+            if (this.hasStatements === true) {
+                await this.runUqStatements();
+            }
         }
         catch (err) {
             this.schemas = undefined;
@@ -631,6 +635,7 @@ export class EntityRunner {
         this.uqVersion = setting['uqversion'] as number;    // compile changed
         if (this.uqVersion === undefined) this.uqVersion = 1;
 		this.hasUnit = !(setting['hasunit'] as number === 0);
+        this.hasStatements = setting['hasstatements'] as number === 1;
 		this.dbServer.hasUnit = this.hasUnit;
 		this.dbServer.setBuilder();
 		let ixUserArr = [];
@@ -650,7 +655,6 @@ export class EntityRunner {
         for (let row of schemaTable) {
             let {name, id, version, schema, run, from} = row;
             if (!schema) continue;
-            //name = name.toLowerCase();
             let tuidFroms:{[tuid:string]:{tuid?:string, maps?:string[], tuidObj?:any, mapObjs?:{[map:string]:any}}};
             let schemaObj = JSON.parse(schema);
             let sName = schemaObj.name;
@@ -658,7 +662,6 @@ export class EntityRunner {
             schemaObj.typeId = id;
             schemaObj.version = version;
             let {type, sync} = schemaObj;
-            //if (url !== undefined) url = url.toLowerCase();
             this.schemas[name] = {
                 type: type,
                 from: from,
@@ -1031,6 +1034,10 @@ export class EntityRunner {
 			:
 			[this.getTableSchema(names as string, types)];
 	}
+
+    private async runUqStatements() {
+        await this.procCall('tv_$uq', []);
+    }
 
 	Acts(unit:number, user:number, param:ParamActs): Promise<any[]> {
 		for (let i in param) {

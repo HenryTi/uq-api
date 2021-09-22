@@ -13,7 +13,6 @@ exports.buildImportRouter = void 0;
 const fs = require("fs");
 const config = require("config");
 const multer = require("multer");
-//import { User, checkRunner } from './router';
 function buildImportRouter(router, rb) {
     router.post('/import/', (req, res) => __awaiter(this, void 0, void 0, function* () {
         let userToken = req.user;

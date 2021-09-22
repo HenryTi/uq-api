@@ -228,9 +228,9 @@ class Net {
             return yield this.unitx.sendToUnitx(unit, msg);
         });
     }
-    pullBus(unit, maxId, faces) {
+    pullBus(unit, maxId, faces, defer) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitx.pullBus(unit, maxId, faces);
+            return yield this.unitx.pullBus(unit, maxId, faces, defer);
         });
     }
     uqUrl(unit, uq) {

@@ -99,14 +99,14 @@ class Unitx {
             return toArr;
         });
     }
-    pullBus(unit, maxId, faces) {
+    pullBus(unit, maxId, faces, defer) {
         return __awaiter(this, void 0, void 0, function* () {
             let unitxApi = yield this.getPullUnitxApi(unit);
             if (!unitxApi) {
                 tool_1.logger.error(`getUnitxApi unit=${unit}, pull return nothing`);
                 return;
             }
-            let ret = yield unitxApi.fetchBus(unit, maxId, faces);
+            let ret = yield unitxApi.fetchBus(unit, maxId, faces, defer);
             if (ret === undefined) {
                 tool_1.logger.error(`unitxApi.fetchBus  url=${unitxApi.url} unit=${unit}`);
                 return;

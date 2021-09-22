@@ -204,8 +204,8 @@ export abstract class Net {
 		return await this.unitx.sendToUnitx(unit, msg);
 	}
 	
-	async pullBus(unit:number, maxId:number, faces:string): Promise<any[][]> {
-		return await this.unitx.pullBus(unit, maxId, faces);
+	async pullBus(unit:number, maxId:number, faces:string, defer:number): Promise<any[][]> {
+		return await this.unitx.pullBus(unit, maxId, faces, defer);
 	}
 
     async uqUrl(unit:number, uq:number):Promise<string> {

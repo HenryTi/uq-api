@@ -41,24 +41,24 @@ export function buildUnitxRouter(rb: RouterBuilder):Router {
     });
 
     let fetchBus = async (runner:EntityRunner, body:any):Promise<any[][]> => {
-		let {unit, msgStart, faces} = body;
-		let ret = await runner.unitUserTablesFromProc('tv_GetBusMessages', unit, undefined, msgStart, faces);
+		let {unit, msgStart, defer, faces} = body;
+		let ret = await runner.unitUserTablesFromProc('tv_GetBusMessages', unit, undefined, msgStart, defer??0, faces);
 		return ret;
     }
     rb.post(router, '/fetch-bus', fetchBus);
 
     let jointReadBus = async (runner:EntityRunner, body:any):Promise<any> => {
-        let {unit, face, queue} = body;
+        let {unit, face, queue, defer} = body;
         if (queue === undefined) queue = busQueueSeed();
-        let ret = await runner.unitUserCall('tv_BusMessageFromQueue', unit, undefined, face, queue);
+        let ret = await runner.unitUserCall('tv_BusMessageFromQueue', unit, undefined, face, defer??0, queue);
         if (ret.length === 0) return;
         return ret[0];
     }
     rb.post(router, '/joint-read-bus',jointReadBus);
 
     let jointWriteBus = async (runner:EntityRunner, body:any):Promise<any> => {
-        let {unit, face, to, from, fromQueueId, version, body:message} = body;
-        let ret = await writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message);
+        let {unit, face, defer, to, from, fromQueueId, version, body:message} = body;
+        let ret = await writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer??0);
 		if (ret < 0) {
 			logger.error('writeDataToBus message duplicated!', body, -ret);
 		}

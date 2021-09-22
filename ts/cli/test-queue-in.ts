@@ -1,6 +1,6 @@
 import { logger } from '../tool';
 import { testNet } from "../core";
-import { queueOut } from "../jobs/queueOut";
+import { QueueOut } from "../jobs/queueOut";
 
 (async function() {
 	logger.debug('test-queue-out');
@@ -20,7 +20,8 @@ import { queueOut } from "../jobs/queueOut";
 	if (buses !== undefined) {
 		let {outCount, faces} = buses;
 		if (outCount > 0 || runner.hasSheet === true) {
-			await queueOut(runner);
+			let queueOut = new QueueOut(runner);
+			await queueOut.run();
 		}
 		if (faces !== undefined) {
 			//await pullBus(runner);
@@ -28,6 +29,4 @@ import { queueOut } from "../jobs/queueOut";
 		}
 	}
 
-	
-	// process.exit();
 })();

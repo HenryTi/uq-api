@@ -112,11 +112,12 @@ exports.init = init;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
+        let jobs = new jobs_1.Jobs();
         if (core_1.env.isDevelopment === true) {
             let uqDbNames = core_1.env.configDebugging.uqs;
-            yield jobs_1.debugUqJob(uqDbNames);
+            yield jobs.debugUqJob(uqDbNames);
         }
-        yield jobs_1.startJobsLoop();
+        yield jobs.run();
     });
 }
 exports.start = start;

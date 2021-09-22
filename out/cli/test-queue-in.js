@@ -28,14 +28,14 @@ const queueOut_1 = require("../jobs/queueOut");
         if (buses !== undefined) {
             let { outCount, faces } = buses;
             if (outCount > 0 || runner.hasSheet === true) {
-                yield queueOut_1.queueOut(runner);
+                let queueOut = new queueOut_1.QueueOut(runner);
+                yield queueOut.run();
             }
             if (faces !== undefined) {
                 //await pullBus(runner);
                 //await queueIn(runner);
             }
         }
-        // process.exit();
     });
 })();
 //# sourceMappingURL=test-queue-in.js.map

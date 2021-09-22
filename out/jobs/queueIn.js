@@ -9,83 +9,97 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queueIn = void 0;
+exports.QueueIn = void 0;
 const tool_1 = require("../tool");
-const finish_1 = require("./finish");
+const consts_1 = require("./consts");
 const tool_2 = require("../tool");
-function queueIn(runner) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let start = 0;
-        let { buses } = runner;
-        let { hasError } = buses;
-        let count = 0;
-        while (hasError === false && count < 200) {
-            try {
-                let queueInArr = yield runner.call('$queue_in_get', [start]);
-                if (queueInArr.length === 0)
+class QueueIn {
+    constructor(runner) {
+        this.runner = runner;
+    }
+    run() {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let defer = 0; defer < consts_1.deferMax; defer++) {
+                let { buses } = this.runner;
+                let { hasError } = buses;
+                if (hasError === true)
                     break;
-                for (let queueIn of queueInArr) {
-                    let { bus, faceName, id, unit, to, data, tries, update_time, now } = queueIn;
-                    start = id;
-                    if (!unit)
-                        unit = runner.uniqueUnit;
-                    if (tries > 0) {
-                        // 上次尝试之后十分钟内不尝试
-                        if (now - update_time < tries * 10 * 60)
-                            continue;
-                    }
-                    let finish;
+                this.queuePointer = 0;
+                let count = consts_1.deferQueueCounts[defer];
+                for (let i = 0; i < count;) {
                     try {
-                        if (!bus) {
-                            yield runner.call('$queue_in_set', [id, finish_1.Finish.done]);
+                        let queueInArr = yield this.runner.call('$queue_in_get', [this.queuePointer, defer, 10]);
+                        if (queueInArr.length === 0)
+                            break;
+                        for (let queueIn of queueInArr) {
+                            yield this.processOneRow(queueIn);
+                            ++i;
                         }
-                        else {
-                            yield runner.bus(bus, faceName, unit, to, id, data);
-                        }
-                        finish = finish_1.Finish.done;
-                        ++count;
                     }
                     catch (err) {
-                        if (tries < 5) {
-                            finish = finish_1.Finish.retry; // retry
-                        }
-                        else {
-                            finish = finish_1.Finish.bad; // fail
-                        }
-                        let errSubject = `error queue_in on ${bus}/${faceName}:${id}`;
-                        let error = errorText(err);
-                        yield runner.log(unit, errSubject, error);
-                    }
-                    if (finish !== finish_1.Finish.done) {
-                        // 操作错误，retry++ or bad
-                        yield runner.call('$queue_in_set', [id, finish]);
+                        buses.hasError = true;
+                        tool_1.logger.error(err);
+                        yield this.runner.log(0, 'jobs queueIn loop at ' + this.queuePointer, tool_2.getErrorString(err));
+                        break;
                     }
                 }
             }
-            catch (err) {
-                hasError = buses.hasError = true;
-                tool_1.logger.error(err);
-                yield runner.log(0, 'jobs queueIn loop at ' + start, tool_2.getErrorString(err));
-                break;
+        });
+    }
+    processOneRow(row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { bus, faceName, id, unit, to, data, tries, update_time, now } = row;
+            this.queuePointer = id;
+            if (!unit)
+                unit = this.runner.uniqueUnit;
+            if (tries > 0) {
+                // 上次尝试之后十分钟内不尝试
+                if (now - update_time < tries * 10 * 60)
+                    return;
             }
+            let finish;
+            try {
+                if (!bus) {
+                    yield this.runner.call('$queue_in_set', [id, consts_1.Finish.done]);
+                }
+                else {
+                    yield this.runner.bus(bus, faceName, unit, to, id, data);
+                }
+                finish = consts_1.Finish.done;
+            }
+            catch (err) {
+                if (tries < 5) {
+                    finish = consts_1.Finish.retry; // retry
+                }
+                else {
+                    finish = consts_1.Finish.bad; // fail
+                }
+                let errSubject = `error queue_in on ${bus}/${faceName}:${id}`;
+                let error = this.errorText(err);
+                yield this.runner.log(unit, errSubject, error);
+            }
+            if (finish !== consts_1.Finish.done) {
+                // 操作错误，retry++ or bad
+                yield this.runner.call('$queue_in_set', [id, finish]);
+            }
+        });
+    }
+    errorText(err) {
+        let errType = typeof err;
+        switch (errType) {
+            default: return errType + ': ' + err;
+            case 'undefined': return 'undefined';
+            case 'string': return err;
+            case 'object': break;
         }
-    });
-}
-exports.queueIn = queueIn;
-function errorText(err) {
-    let errType = typeof err;
-    switch (errType) {
-        default: return errType + ': ' + err;
-        case 'undefined': return 'undefined';
-        case 'string': return err;
-        case 'object': break;
+        if (err === null)
+            return 'null';
+        let ret = '';
+        for (let i in err) {
+            ret += i + ':' + err[i];
+        }
+        return ret;
     }
-    if (err === null)
-        return 'null';
-    let ret = '';
-    for (let i in err) {
-        ret += i + ':' + err[i];
-    }
-    return ret;
 }
+exports.QueueIn = QueueIn;
 //# sourceMappingURL=queueIn.js.map

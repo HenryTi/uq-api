@@ -11,7 +11,7 @@ import {authCheck, authUnitx, RouterBuilder,
 	compileProdRouterBuilder, compileTestRouterBuilder, CompileRouterBuilder, 
 	create$UqDb, env} from './core';
 import { authJoint, authUpBuild } from './core/auth';
-import { debugUqJob, startJobsLoop } from './jobs';
+import { Jobs } from './jobs';
 import { buildProcRouter } from './router/proc';
 
 const {version: uq_api_version} = require('../package.json');
@@ -110,11 +110,12 @@ export async function init():Promise<void> {
 
 export async function start() {
     await init();
+    let jobs = new Jobs();
     if (env.isDevelopment === true) {
         let uqDbNames = env.configDebugging.uqs;
-        await debugUqJob(uqDbNames);
+        await jobs.debugUqJob(uqDbNames);
     }
-    await startJobsLoop();
+    await jobs.run();
 }
 
 function dbHello(req:Request, res:Response) {
