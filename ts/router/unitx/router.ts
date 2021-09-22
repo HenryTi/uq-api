@@ -41,6 +41,8 @@ export function buildUnitxRouter(rb: RouterBuilder):Router {
     });
 
     let fetchBus = async (runner:EntityRunner, body:any):Promise<any[][]> => {
+        debugger;
+        throw new Error('fetch bus');
 		let {unit, msgStart, defer, faces} = body;
 		let ret = await runner.unitUserTablesFromProc('tv_GetBusMessages', unit, undefined, msgStart, defer??0, faces);
 		return ret;

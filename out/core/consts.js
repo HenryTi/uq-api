@@ -9,6 +9,5 @@ exports.consts = {
     Face: 'Face',
     BusFrom: 'BusFrom',
     BusQueue: 'BusQueue',
-    // GetBusMessages: 'GetBusMessages',
 };
 //# sourceMappingURL=consts.js.map

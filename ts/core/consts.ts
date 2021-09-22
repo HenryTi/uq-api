@@ -7,5 +7,4 @@ export const consts = {
     Face: 'Face',
     BusFrom: 'BusFrom',
     BusQueue: 'BusQueue',
-    // GetBusMessages: 'GetBusMessages',
 };
