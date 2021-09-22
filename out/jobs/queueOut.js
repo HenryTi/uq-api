@@ -203,7 +203,7 @@ class QueueOut {
                     yield this.runner.net.sendToUnitx(v, message);
                     if (local === true) {
                         let msgId = 0;
-                        yield this.runner.call('$queue_in_add', [v, to, msgId, bus, face, body]);
+                        yield this.runner.call('$queue_in_add', [v, to, defer, msgId, bus, face, body]);
                     }
                 }));
                 yield Promise.all(promises);
@@ -213,7 +213,7 @@ class QueueOut {
                 yield this.runner.net.sendToUnitx(unit, message);
                 if (local === true) {
                     let msgId = 0;
-                    yield this.runner.call('$queue_in_add', [unit, to, msgId, bus, face, body]);
+                    yield this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, face, body]);
                 }
             }
         });
