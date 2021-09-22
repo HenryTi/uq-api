@@ -51,8 +51,6 @@ function buildUnitxRouter(rb) {
         }
     }));
     let fetchBus = (runner, body) => __awaiter(this, void 0, void 0, function* () {
-        debugger;
-        throw new Error('fetch bus');
         let { unit, msgStart, defer, faces } = body;
         let ret = yield runner.unitUserTablesFromProc('tv_GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
         return ret;
