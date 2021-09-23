@@ -37,6 +37,10 @@ class Unitx {
             let { prev, current } = yield this.getUnitxApiBox(unit);
             if (prev === undefined)
                 return current;
+            // 2021-9-23：我没有很明白。只是强行用localhost来取bus
+            if (db_1.env.isDevelopment === true) {
+                return prev;
+            }
             // 小于10分钟
             let delta = Date.now() / 1000 - current.tickCreate;
             let minutes = delta / 60;

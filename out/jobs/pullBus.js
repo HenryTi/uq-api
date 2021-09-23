@@ -36,7 +36,7 @@ class PullBus {
                             break;
                         let count = consts_1.deferQueueCounts[defer];
                         let pullId = pullIds[defer];
-                        this.pullFromUnitx(unit, pullId !== null && pullId !== void 0 ? pullId : 0, defer, count);
+                        yield this.pullFromUnitx(unit, pullId !== null && pullId !== void 0 ? pullId : 0, defer, count);
                     }
                 }
             }
@@ -55,6 +55,8 @@ class PullBus {
                 if (!ret)
                     break;
                 let { maxMsgId, maxRows } = ret[0][0];
+                if (maxMsgId === 0)
+                    break;
                 let messages = ret[1];
                 let { length: messagesLen } = messages;
                 let maxPullId = 0;
@@ -74,6 +76,8 @@ class PullBus {
                     yield this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined]);
                     break;
                 }
+                if (messagesLen === 0)
+                    break;
             }
         });
     }

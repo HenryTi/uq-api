@@ -32,7 +32,7 @@ export class QueueOut {
                 let ret = await this.runner.call('$message_queue_get',  [this.messagePointer, defer, 10]);
                 if (ret.length === 0) break;
                 for (let row of ret) {
-                    this.processOneRow(row, defer);
+                    await this.processOneRow(row, defer);
                     i++;
                 }
             }

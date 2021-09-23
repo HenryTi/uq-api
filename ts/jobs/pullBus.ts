@@ -11,6 +11,7 @@ export class PullBus {
 	private readonly coll: {[url:string]:Face};
 	private hasError:boolean;
 
+
 	constructor(runner: EntityRunner) {
 		this.runner = runner;
 		this.net = runner.net;
@@ -31,7 +32,7 @@ export class PullBus {
 					if (this.hasError as any === true) break;
 					let count = deferQueueCounts[defer];
 					let pullId = pullIds[defer];
-					this.pullFromUnitx(unit, pullId??0, defer, count);
+					await this.pullFromUnitx(unit, pullId??0, defer, count);
 				}
 			}
 		}
@@ -48,6 +49,7 @@ export class PullBus {
 			if (!ret) break;
 
 			let {maxMsgId, maxRows} = ret[0][0];
+			if (maxMsgId === 0) break;
 			let messages = ret[1];
 			let {length: messagesLen} = messages;
 			let maxPullId:number = 0;
@@ -66,6 +68,7 @@ export class PullBus {
 				await this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined]);
 				break;
 			}
+			if (messagesLen === 0) break;
 		}
 	}
 
