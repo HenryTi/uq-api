@@ -156,13 +156,13 @@ function setUqBuildSecret(ubs) {
 }
 exports.setUqBuildSecret = setUqBuildSecret;
 function middlewareUqBuild(req, res, next) {
-    tool_1.logger.debug('middlewareUqBuild req.uql /start');
     if (req.url === '/start') {
         tool_1.logger.debug('middlewareUqBuild req.uql /start');
-        tool_1.logger.debug('middlewareUqBuild req.uql /start');
-        next();
+        if (next !== undefined)
+            next();
         return;
     }
+    tool_1.logger.debug('middlewareUqBuild req.uql ' + req.url);
     let token = req.header('Authorization');
     if (token === undefined) {
         token = req.header('sec-websocket-protocol');
