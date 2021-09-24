@@ -162,7 +162,7 @@ function middlewareUqBuild(req, res, next) {
             next();
         return;
     }
-    tool_1.logger.debug('middlewareUqBuild req.uql ' + req.url);
+    //logger.debug('middlewareUqBuild req.uql ' + req.url);
     let token = req.header('Authorization');
     if (token === undefined) {
         token = req.header('sec-websocket-protocol');

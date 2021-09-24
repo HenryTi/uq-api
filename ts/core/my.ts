@@ -89,7 +89,9 @@ export class MyDbServer extends DbServer {
 	private async getPool(): Promise<Pool> {
 		for (let p of pools) {
 			let {config, pool} = p;
-			if (_.isEqual(this.dbConfig, config) === true) return pool;
+			if (_.isEqual(this.dbConfig, config) === true) {
+				return pool;
+			}
 		}
 		let conf = _.clone(this.dbConfig);
 		conf.timezone = 'UTC';
@@ -166,20 +168,6 @@ export class MyDbServer extends DbServer {
                 }
             }
 			this.pool.query(sql, values, handleResponse);
-			/*
-			this.pool.getConnection(function(err, connection) {
-				if (err) {
-					logger.error(err);
-					debugger;
-					reject(err);
-					return;
-				}
-				connection.query(sql, values, function(error, results) {
-					connection.release();
-					handleResponse(error, results);
-				});
-			})
-			*/
         });
     }
     async sql(sql:string, params:any[]): Promise<any> {
@@ -353,7 +341,6 @@ export class MyDbServer extends DbServer {
     async buildDatabase(db:string): Promise<boolean> {
 		this.resetProcColl();
 		let exists = this.sqlExists(db);
-		// `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
         let retExists = await this.exec(exists, []);
 		let ret = retExists.length > 0;
         if (ret === false) {
@@ -621,7 +608,6 @@ END
     }
     async existsDatabase(db:string): Promise<boolean> {
 		let sql = this.sqlExists(db);
-		// 'SELECT SCHEMA_NAME as sname FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'' + db + '\'';
         let rows:any[] = await this.exec(sql, undefined);
         return rows.length > 0;
     }

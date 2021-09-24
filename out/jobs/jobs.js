@@ -21,14 +21,17 @@ const firstRun = core_1.env.isDevelopment === true ? 3000 : 30 * 1000;
 const runGap = core_1.env.isDevelopment === true ? 15 * 1000 : 30 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
-const debugUqs = undefined;
-[
+const uqsInclude = [
     'deliver',
     'collectpayment',
     'order',
     'warehouse',
     'me',
     'bridge',
+];
+const uqsExclude = [
+    'rms',
+    'thirdpartyadapter',
 ];
 class Jobs {
     constructor() {
@@ -187,10 +190,16 @@ class Jobs {
             // 2020-7-1：我太蠢了。居然带着这一句发布了 ？！！！
             // if (dbName !== 'bi') continue;
             if (core_1.env.isDevelopment === true) {
-                // 只有develop状态下,才做uq排除操作
-                if (debugUqs && debugUqs.length > 0) {
-                    let index = debugUqs.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
-                    if (index <= 0)
+                // 只有develop状态下,才做uqsInclude排除操作
+                if (uqsInclude && uqsInclude.length > 0) {
+                    let index = uqsInclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+                    if (index < 0)
+                        return;
+                }
+                // uqsExclude操作
+                if (uqsExclude && uqsExclude.length > 0) {
+                    let index = uqsExclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+                    if (index >= 0)
                         return;
                 }
                 yield $uqDb.setDebugJobs();

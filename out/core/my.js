@@ -84,8 +84,9 @@ class MyDbServer extends dbServer_1.DbServer {
         return __awaiter(this, void 0, void 0, function* () {
             for (let p of pools) {
                 let { config, pool } = p;
-                if (_.isEqual(this.dbConfig, config) === true)
+                if (_.isEqual(this.dbConfig, config) === true) {
                     return pool;
+                }
             }
             let conf = _.clone(this.dbConfig);
             conf.timezone = 'UTC';
@@ -164,20 +165,6 @@ class MyDbServer extends dbServer_1.DbServer {
                     }
                 };
                 this.pool.query(sql, values, handleResponse);
-                /*
-                this.pool.getConnection(function(err, connection) {
-                    if (err) {
-                        logger.error(err);
-                        debugger;
-                        reject(err);
-                        return;
-                    }
-                    connection.query(sql, values, function(error, results) {
-                        connection.release();
-                        handleResponse(error, results);
-                    });
-                })
-                */
             });
         });
     }
@@ -383,7 +370,6 @@ class MyDbServer extends dbServer_1.DbServer {
         return __awaiter(this, void 0, void 0, function* () {
             this.resetProcColl();
             let exists = this.sqlExists(db);
-            // `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
             let retExists = yield this.exec(exists, []);
             let ret = retExists.length > 0;
             if (ret === false) {
@@ -654,7 +640,6 @@ END
     existsDatabase(db) {
         return __awaiter(this, void 0, void 0, function* () {
             let sql = this.sqlExists(db);
-            // 'SELECT SCHEMA_NAME as sname FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'' + db + '\'';
             let rows = yield this.exec(sql, undefined);
             return rows.length > 0;
         });

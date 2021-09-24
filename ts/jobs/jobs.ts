@@ -11,7 +11,7 @@ const firstRun: number = env.isDevelopment === true? 3000 : 30*1000;
 const runGap: number = env.isDevelopment === true? 15*1000 : 30*1000;
 const waitForOtherStopJobs = 1*1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
-const debugUqs:string[] = undefined; 
+const uqsInclude:string[] = 
 [
     'deliver',
     'collectpayment',
@@ -19,6 +19,12 @@ const debugUqs:string[] = undefined;
     'warehouse',
     'me',
     'bridge',
+];
+
+const uqsExclude:string[] = //undefined;
+[
+    'rms',
+    'thirdpartyadapter',
 ];
 
 export class Jobs {
@@ -160,11 +166,17 @@ export class Jobs {
         // if (dbName !== 'bi') continue;
 
         if (env.isDevelopment === true) {
-            // 只有develop状态下,才做uq排除操作
-            if (debugUqs && debugUqs.length > 0) {
-                let index = debugUqs.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
-                if (index <= 0) return;
+            // 只有develop状态下,才做uqsInclude排除操作
+            if (uqsInclude && uqsInclude.length > 0) {
+                let index = uqsInclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+                if (index < 0) return;
             }
+            // uqsExclude操作
+            if (uqsExclude && uqsExclude.length > 0) {
+                let index = uqsExclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+                if (index >= 0) return;
+            }
+
             await $uqDb.setDebugJobs();
             logger.info('========= set debugging jobs =========');
         }
