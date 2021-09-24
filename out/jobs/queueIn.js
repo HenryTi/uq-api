@@ -32,7 +32,7 @@ class QueueIn {
                         if (queueInArr.length === 0)
                             break;
                         for (let queueIn of queueInArr) {
-                            yield this.processOneRow(queueIn);
+                            yield this.processOneRow(queueIn, defer);
                             ++i;
                         }
                     }
@@ -46,7 +46,7 @@ class QueueIn {
             }
         });
     }
-    processOneRow(row) {
+    processOneRow(row, defer) {
         return __awaiter(this, void 0, void 0, function* () {
             let { bus, faceName, id, unit, to, data, tries, update_time, now } = row;
             this.queuePointer = id;
@@ -60,7 +60,7 @@ class QueueIn {
             let finish;
             try {
                 if (!bus) {
-                    yield this.runner.call('$queue_in_set', [id, consts_1.Finish.done]);
+                    yield this.runner.call('$queue_in_set', [id, defer, consts_1.Finish.done]);
                 }
                 else {
                     yield this.runner.bus(bus, faceName, unit, to, id, data);
@@ -80,7 +80,7 @@ class QueueIn {
             }
             if (finish !== consts_1.Finish.done) {
                 // 操作错误，retry++ or bad
-                yield this.runner.call('$queue_in_set', [id, finish]);
+                yield this.runner.call('$queue_in_set', [id, defer, finish]);
             }
         });
     }

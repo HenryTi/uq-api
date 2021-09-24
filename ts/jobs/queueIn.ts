@@ -22,7 +22,7 @@ export class QueueIn {
                     let queueInArr:any[] = await this.runner.call('$queue_in_get',[this.queuePointer, defer, 10]);
                     if (queueInArr.length === 0) break;
                     for (let queueIn of queueInArr) {
-                        await this.processOneRow(queueIn);
+                        await this.processOneRow(queueIn, defer);
                         ++i;
                     }
                 }
@@ -36,7 +36,7 @@ export class QueueIn {
         }
     }
     
-    private async processOneRow(row: any) {
+    private async processOneRow(row: any, defer:number) {
         let {bus, faceName, id, unit, to, data, tries, update_time, now} = row;
         this.queuePointer = id;
         if (!unit) unit = this.runner.uniqueUnit;
@@ -47,7 +47,7 @@ export class QueueIn {
         let finish:Finish;
         try {
             if (!bus) {
-                await this.runner.call('$queue_in_set', [id, Finish.done]); 
+                await this.runner.call('$queue_in_set', [id, defer, Finish.done]); 
             }
             else {
                 await this.runner.bus(bus, faceName, unit, to, id, data);
@@ -67,7 +67,7 @@ export class QueueIn {
         }
         if (finish !== Finish.done) {
             // 操作错误，retry++ or bad
-            await this.runner.call('$queue_in_set', [id, finish]); 
+            await this.runner.call('$queue_in_set', [id, defer, finish]); 
         }
     }
 
