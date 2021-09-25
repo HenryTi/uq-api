@@ -393,6 +393,7 @@ CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
 	\`name\` VARCHAR(200) NOT NULL,
 	\`proc\` TEXT NULL, 
 	\`changed\` TINYINT(4) NULL DEFAULT NULL,
+	update_time timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (\`name\`));
 `;
             // CHARACTER SET utf8 COLLATE utf8_unicode_ci
