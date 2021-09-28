@@ -504,7 +504,7 @@ class EntityRunner {
                 return;
             //let actionName = sheet + '$verify';
             let inBusAction = this.getSheetVerifyParametersBus(sheet);
-            let inBusResult = yield inBusAction.buildData(unit, user, data);
+            let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
             let inBusActionData = data + inBusResult;
             let ret = yield this.unitUserCall('tv_' + sheet + '$verify', unit, user, inBusActionData);
             if (length === 1) {
@@ -549,7 +549,7 @@ class EntityRunner {
             let inBusAction = this.getSheetActionParametersBus(sheet, state, action);
             if (inBusAction === undefined)
                 return [`state ${state} is not sheet ${sheet} state`];
-            let inBusActionData = yield inBusAction.buildData(unit, user, id);
+            let inBusActionData = yield inBusAction.busQueryAll(unit, user, id);
             //await this.log(unit, 'sheetAct', 'before ' + inBusActionName);
             let ret = inBusActionData === '' ?
                 yield this.unitUserCallEx('tv_' + inBusActionName, unit, user, id, flow, action)
@@ -619,7 +619,7 @@ class EntityRunner {
     action(actionName, unit, user, data) {
         return __awaiter(this, void 0, void 0, function* () {
             let inBusAction = this.getActionParametersBus(actionName);
-            let inBusResult = yield inBusAction.buildData(unit, user, data);
+            let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
             let actionData = data + inBusResult;
             let result = yield this.unitUserCallEx('tv_' + actionName, unit, user, actionData);
             return result;
@@ -661,9 +661,17 @@ class EntityRunner {
     bus(bus, face, unit, to, msgId, body) {
         return __awaiter(this, void 0, void 0, function* () {
             let inBusAction = this.getAcceptParametersBus(bus, face);
-            let inBusResult = yield inBusAction.buildData(unit, to, body);
+            let inBusResult = yield inBusAction.busQueryAll(unit, to, body);
             let data = body + inBusResult;
-            yield this.unitUserCall('tv_' + bus + '_' + face, unit, to, msgId, data);
+            yield this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data);
+        });
+    }
+    busAcceptFromQuery(bus, face, unit, body) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //let inBusAction = this.getAcceptParametersBus(bus, face);
+            //let inBusResult = await inBusAction.busQueryAll(unit, to, body);
+            //let data = body + inBusResult;
+            yield this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body);
         });
     }
     checkPull(unit, entity, entityType, modifies) {

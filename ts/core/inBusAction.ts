@@ -21,7 +21,6 @@ export abstract class ParametersBus {
     protected runner: EntityRunner;
     protected entityName: string;
 	protected schema: any;
-	//protected run: any;
     private paramBuses:ParamBus[];
 
     constructor(runner:EntityRunner, entityName:string) {
@@ -62,7 +61,7 @@ export abstract class ParametersBus {
         });
     }
 
-    async buildData(unit:number, user:number, data:any):Promise<string> {
+    async busQueryAll(unit:number, user:number, data:any):Promise<string> {
         if (this.paramBuses === undefined) return '';
 
         let retBusQuery:any[] = [];
@@ -76,7 +75,7 @@ export abstract class ParametersBus {
 
     async buildDataFromObj(unit:number, user:number, obj:any):Promise<string> {
         let data = packParam(this.schema, obj);
-        let ret = await this.buildData(unit, user, data);
+        let ret = await this.busQueryAll(unit, user, data);
         return data + ret;
     }
 

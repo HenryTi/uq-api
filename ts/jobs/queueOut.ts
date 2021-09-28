@@ -72,6 +72,10 @@ export class QueueOut {
                         await this.bus($unit, id, defer, to, subject, content);
                         finish = Finish.done;
                         break;
+                    case 'bus-query':
+                        await this.busQuery($unit, subject, content);
+                        finish = Finish.done;
+                        break;
                     case 'sheet':
                         await this.sheet(content);
                         await this.runner.log($unit, 'sheet-action', content);
@@ -205,6 +209,57 @@ export class QueueOut {
                 await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, face, body]);
             }
         }
+    }
+
+    // bus参数，调用的时候，就是project
+    async busQuery(unit:number, bus:string, content:string): Promise<void> {
+        if (!unit) return;
+        
+        let parts = bus.split('/');
+        let busEntityName = parts[0];
+        let face = parts[1];
+
+        let schema = this.runner.getSchema(busEntityName);
+        if (schema === undefined) {
+            let err = `schema ${busEntityName} not exists`;
+            logger.error(err);
+            debugger;
+            throw err;
+        }
+        let {schema:busSchema, busOwner, busName} = schema.call;
+        let faceSchema = busSchema[face];
+        let {returns} = faceSchema;
+
+        //let {uqOwner, uq} = this.runner;
+
+        //let {body, version, local} = this.toBusMessage(busSchema, face, content);
+        
+
+        //let {bus, face, busOwner, busName, param, returns} = inBus;
+        //let {busOwner, busName} = bus;
+        let openApi = await this.runner.net.openApiUnitFace(unit, busOwner, busName, face);
+        if (openApi === undefined) {
+            throw 'error await this.runner.net.openApiUnitFace nothing returned';
+        }
+
+        let params = content; // content in message queue is params;
+        let ret = await openApi.busQuery(unit, busOwner, busName, face, [params]);
+        let data = this.buildDataFromBusQueryReturn(returns.fields, ret[0]);
+        await this.runner.busAcceptFromQuery(busEntityName, face, unit, data);
+    }
+
+    private buildDataFromBusQueryReturn(fields:{name:string;type:string}[], results:any[]):string {
+        let ret = '';
+        let len = fields.length;
+        for (let result of results) {
+            ret += result[fields[0].name];
+            for (let i=1; i<len; i++) {
+                let field = fields[i];
+                ret += '\t' + result[field.name];
+            }
+            ret += '\n';
+        }
+        return ret + '\n';
     }
 
     async sheet(content:string):Promise<void> {

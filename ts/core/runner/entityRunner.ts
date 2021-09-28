@@ -440,7 +440,7 @@ export class EntityRunner {
 
         //let actionName = sheet + '$verify';
         let inBusAction = this.getSheetVerifyParametersBus(sheet);
-        let inBusResult =  await inBusAction.buildData(unit, user, data);
+        let inBusResult =  await inBusAction.busQueryAll(unit, user, data);
         let inBusActionData = data + inBusResult;
 		let ret = await this.unitUserCall('tv_' + sheet + '$verify', unit, user, inBusActionData);	
 
@@ -476,7 +476,7 @@ export class EntityRunner {
         let inBusActionName = sheet + '_' + (state === '$'?  action : state + '_' + action);
 		let inBusAction = this.getSheetActionParametersBus(sheet, state, action);
 		if (inBusAction === undefined) return [`state ${state} is not sheet ${sheet} state`];
-        let inBusActionData = await inBusAction.buildData(unit, user, id);
+        let inBusActionData = await inBusAction.busQueryAll(unit, user, id);
         //await this.log(unit, 'sheetAct', 'before ' + inBusActionName);
         let ret = inBusActionData === ''?
             await this.unitUserCallEx('tv_' + inBusActionName, unit, user, id, flow, action)
@@ -533,7 +533,7 @@ export class EntityRunner {
     }
     async action(actionName:string, unit:number, user:number, data:string): Promise<any[][]> {
         let inBusAction = this.getActionParametersBus(actionName);
-        let inBusResult =  await inBusAction.buildData(unit, user, data);
+        let inBusResult =  await inBusAction.busQueryAll(unit, user, data);
         let actionData = data + inBusResult;
         let result = await this.unitUserCallEx('tv_' + actionName, unit, user, actionData);
         return result;
@@ -571,9 +571,15 @@ export class EntityRunner {
     }
     async bus(bus:string, face:string, unit:number, to:number, msgId:number, body:string): Promise<void> {
         let inBusAction = this.getAcceptParametersBus(bus, face);
-        let inBusResult = await inBusAction.buildData(unit, to, body);
+        let inBusResult = await inBusAction.busQueryAll(unit, to, body);
         let data = body + inBusResult;
-        await this.unitUserCall('tv_' + bus + '_' + face, unit, to, msgId, data);
+        await this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data);
+    }
+    async busAcceptFromQuery(bus:string, face:string, unit:number, body:string): Promise<void> {
+        //let inBusAction = this.getAcceptParametersBus(bus, face);
+        //let inBusResult = await inBusAction.busQueryAll(unit, to, body);
+        //let data = body + inBusResult;
+        await this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body);
     }
     async checkPull(unit:number, entity:string, entityType:string, modifies:string): Promise<any[]> {
         let proc:string;

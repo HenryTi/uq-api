@@ -48,7 +48,7 @@ class ParametersBus {
             };
         });
     }
-    buildData(unit, user, data) {
+    busQueryAll(unit, user, data) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.paramBuses === undefined)
                 return '';
@@ -64,7 +64,7 @@ class ParametersBus {
     buildDataFromObj(unit, user, obj) {
         return __awaiter(this, void 0, void 0, function* () {
             let data = packParam_1.packParam(this.schema, obj);
-            let ret = yield this.buildData(unit, user, data);
+            let ret = yield this.busQueryAll(unit, user, data);
             return data + ret;
         });
     }

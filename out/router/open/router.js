@@ -61,8 +61,15 @@ function buildOpenRouter(router, rb) {
         let faceUrl = `${busOwner}/${busName}/${faceName}`;
         let face = runner.buses.coll[faceUrl];
         let { bus } = face;
-        let ret = yield runner.tablesFromProc(bus + '_' + faceName, [unit, 0, ...params]);
-        return ret;
+        // 之前的编译，BUS accept和query存储过程没有分开
+        try {
+            let ret = yield runner.tablesFromProc(bus + '$q_' + faceName, [unit, 0, ...params]);
+            return ret;
+        }
+        catch (_a) {
+            let ret = yield runner.tablesFromProc(bus + '_' + faceName, [unit, 0, ...params]);
+            return ret;
+        }
     }));
     rb.post(router, '/tuid-main/:tuid', (runner, body, params) => __awaiter(this, void 0, void 0, function* () {
         body.$ = 'open/tuid-main/';

@@ -85,6 +85,10 @@ class QueueOut {
                             yield this.bus($unit, id, defer, to, subject, content);
                             finish = consts_1.Finish.done;
                             break;
+                        case 'bus-query':
+                            yield this.busQuery($unit, subject, content);
+                            finish = consts_1.Finish.done;
+                            break;
                         case 'sheet':
                             yield this.sheet(content);
                             yield this.runner.log($unit, 'sheet-action', content);
@@ -217,6 +221,51 @@ class QueueOut {
                 }
             }
         });
+    }
+    // bus参数，调用的时候，就是project
+    busQuery(unit, bus, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!unit)
+                return;
+            let parts = bus.split('/');
+            let busEntityName = parts[0];
+            let face = parts[1];
+            let schema = this.runner.getSchema(busEntityName);
+            if (schema === undefined) {
+                let err = `schema ${busEntityName} not exists`;
+                tool_1.logger.error(err);
+                debugger;
+                throw err;
+            }
+            let { schema: busSchema, busOwner, busName } = schema.call;
+            let faceSchema = busSchema[face];
+            let { returns } = faceSchema;
+            //let {uqOwner, uq} = this.runner;
+            //let {body, version, local} = this.toBusMessage(busSchema, face, content);
+            //let {bus, face, busOwner, busName, param, returns} = inBus;
+            //let {busOwner, busName} = bus;
+            let openApi = yield this.runner.net.openApiUnitFace(unit, busOwner, busName, face);
+            if (openApi === undefined) {
+                throw 'error await this.runner.net.openApiUnitFace nothing returned';
+            }
+            let params = content; // content in message queue is params;
+            let ret = yield openApi.busQuery(unit, busOwner, busName, face, [params]);
+            let data = this.buildDataFromBusQueryReturn(returns.fields, ret[0]);
+            yield this.runner.busAcceptFromQuery(busEntityName, face, unit, data);
+        });
+    }
+    buildDataFromBusQueryReturn(fields, results) {
+        let ret = '';
+        let len = fields.length;
+        for (let result of results) {
+            ret += result[fields[0].name];
+            for (let i = 1; i < len; i++) {
+                let field = fields[i];
+                ret += '\t' + result[field.name];
+            }
+            ret += '\n';
+        }
+        return ret + '\n';
     }
     sheet(content) {
         return __awaiter(this, void 0, void 0, function* () {
