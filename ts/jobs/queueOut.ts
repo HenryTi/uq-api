@@ -255,7 +255,7 @@ export class QueueOut {
             ret += result[fields[0].name];
             for (let i=1; i<len; i++) {
                 let field = fields[i];
-                ret += '\t' + result[field.name];
+                ret += '\t' + (result[field.name]??'');
             }
             ret += '\n';
         }

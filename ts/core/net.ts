@@ -185,6 +185,23 @@ export abstract class Net {
         if (ret === undefined) {
             throw `openApi unit face not exists: unit=${unit}, face=${busOwner}/${busName}/${face}`;
         }
+        let row:any;
+        let len = ret.length;
+        for (let i=0; i<len; i++) {
+            let r = ret[i];
+            let {method} = r;
+            // 2 is query bus
+            if ((method & 2) === 2) {
+                if (row !== undefined) {
+                    throw `multiple bus-query for unit=${unit} bus=${busOwner}/${busName}/${face}`;
+                }
+                row = r;
+            }
+        }
+        if (row === undefined) {
+            throw `no bus-query for unit=${unit} bus=${busOwner}/${busName}/${face}`;
+        }
+        /*
         switch (ret.length) {
             case 0:
                 throw `no bus-query for unit=${unit} bus=${busOwner}/${busName}/${face}`;
@@ -192,7 +209,8 @@ export abstract class Net {
             default:
                 throw `multiple bus-query for unit=${unit} bus=${busOwner}/${busName}/${face}`;
         }
-        let uqUrl = ret[0];
+        */
+        let uqUrl = row;
         let {uq} = uqUrl;
         let openApi = this.getOpenApiFromCache(uq, unit);
         if (openApi !== undefined) return openApi;

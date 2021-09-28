@@ -255,13 +255,14 @@ class QueueOut {
         });
     }
     buildDataFromBusQueryReturn(fields, results) {
+        var _a;
         let ret = '';
         let len = fields.length;
         for (let result of results) {
             ret += result[fields[0].name];
             for (let i = 1; i < len; i++) {
                 let field = fields[i];
-                ret += '\t' + result[field.name];
+                ret += '\t' + ((_a = result[field.name]) !== null && _a !== void 0 ? _a : '');
             }
             ret += '\n';
         }
