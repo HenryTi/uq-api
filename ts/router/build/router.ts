@@ -220,11 +220,11 @@ export function buildBuildRouter(router:Router, rb: RouterBuilder) {
 			let dbName:string = req.params.db;
 			let db = Db.db(rb.getDbName(dbName));
 			let runner = new BuildRunner(db);
-			let ret = await runner.getSetting(0, req.body.name);
-			if (ret.length===0) return undefined;
+			let ret = await runner.getSetting(0, req.query['name'] as string);
+			//if (ret.length===0) return undefined;
             res.json({
 				ok: true,
-				result: ret[0].value
+				res: ret
             });
 		}
 		catch (err) {

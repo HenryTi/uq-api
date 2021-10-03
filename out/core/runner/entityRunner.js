@@ -82,6 +82,14 @@ class EntityRunner {
             return ret;
         });
     }
+    getAdmins(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let tbl = yield this.tableFromProc('$get_admins', [unit, user]);
+            if (tbl.length === 0)
+                return;
+            return tbl;
+        });
+    }
     getMyRoles(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.roleNames)

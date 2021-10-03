@@ -31,10 +31,12 @@ export class BuildRunner {
         let ret = await this.unitTableFromProc('tv_$get_setting', unit, name);
         if (ret.length===0) return undefined;
         let v = ret[0].value;
+        /*
         if (unit === 0) {
             let n = Number(v);
             v = this.setting[name] = isNaN(n)===true? v : n;
         }
+        */
         return v;
 	}
     async setSettingInt(unit:number, name: string, int: number, big: number): Promise<void> {

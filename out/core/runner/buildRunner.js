@@ -42,10 +42,12 @@ class BuildRunner {
             if (ret.length === 0)
                 return undefined;
             let v = ret[0].value;
+            /*
             if (unit === 0) {
                 let n = Number(v);
-                v = this.setting[name] = isNaN(n) === true ? v : n;
+                v = this.setting[name] = isNaN(n)===true? v : n;
             }
+            */
             return v;
         });
     }

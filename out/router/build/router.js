@@ -223,12 +223,11 @@ function buildBuildRouter(router, rb) {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
             let runner = new core_2.BuildRunner(db);
-            let ret = yield runner.getSetting(0, req.body.name);
-            if (ret.length === 0)
-                return undefined;
+            let ret = yield runner.getSetting(0, req.query['name']);
+            //if (ret.length===0) return undefined;
             res.json({
                 ok: true,
-                result: ret[0].value
+                res: ret
             });
         }
         catch (err) {
