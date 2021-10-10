@@ -196,7 +196,7 @@ export class QueueOut {
                 await this.runner.net.sendToUnitx(v, message);
                 if (local === true) {
                     defer = -1;
-                    await this.runner.call('$queue_in_add', [v, to, defer, id, bus, face, body]);
+                    await this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body]);
                 }
             });
             await Promise.all(promises);
@@ -206,7 +206,7 @@ export class QueueOut {
             await this.runner.net.sendToUnitx(unit, message);
             if (local === true) {
                 defer = -1;
-                await this.runner.call('$queue_in_add', [unit, to, defer, id, bus, face, body]);
+                await this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body]);
             }
         }
     }

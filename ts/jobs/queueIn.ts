@@ -80,7 +80,8 @@ export class QueueIn {
             case 'object': break;
         }
         if (err === null) return 'null';
-        let ret:string = '';
+        let ret:string = err.message ?? '';
+        ret += ' ';
         for (let i in err) {
             ret += i + ':' + err[i];
         }

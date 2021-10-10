@@ -47,7 +47,7 @@ export class PullBus {
 			if (this.hasError === true) break;
 			let ret = await this.net.pullBus(unit, pullId, this.faces, defer);
 			if (!ret) break;
-
+			
 			let {maxMsgId, maxRows} = ret[0][0];
 			if (maxMsgId === 0) break;
 			let messages = ret[1];

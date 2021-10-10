@@ -85,6 +85,7 @@ class QueueIn {
         });
     }
     errorText(err) {
+        var _a;
         let errType = typeof err;
         switch (errType) {
             default: return errType + ': ' + err;
@@ -94,7 +95,8 @@ class QueueIn {
         }
         if (err === null)
             return 'null';
-        let ret = '';
+        let ret = (_a = err.message) !== null && _a !== void 0 ? _a : '';
+        ret += ' ';
         for (let i in err) {
             ret += i + ':' + err[i];
         }
