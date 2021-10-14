@@ -16,6 +16,17 @@ const consts_1 = require("../consts");
 const db_1 = require("../db");
 const getUrlDebug_1 = require("../getUrlDebug");
 const unitxApi_1 = require("./unitxApi");
+/*
+interface UnitxApiBox {
+    prev: UnitxApi;
+    current: UnitxApi;
+}
+
+interface UnitxUrlServerBox {
+    prev: UnitxUrlServer;
+    current: UnitxUrlServer;
+}
+*/
 class Unitx {
     constructor() {
         this.unitUnitxApis = {};
@@ -23,57 +34,66 @@ class Unitx {
     }
     get db() { return this._db; }
     ;
-    getUnitxApiBox(unit) {
+    getUnitxApi(unit) {
         return __awaiter(this, void 0, void 0, function* () {
-            let unitxApiBox = this.unitUnitxApis[unit];
-            if (unitxApiBox === undefined) {
-                this.unitUnitxApis[unit] = unitxApiBox = yield this.buildUnitxApiBox(unit);
+            let unitxApi = this.unitUnitxApis[unit];
+            if (unitxApi === undefined) {
+                this.unitUnitxApis[unit] = unitxApi = yield this.buildUnitxApi(unit);
             }
-            return unitxApiBox;
+            return unitxApi;
         });
     }
     getPullUnitxApi(unit) {
         return __awaiter(this, void 0, void 0, function* () {
-            let { prev, current } = yield this.getUnitxApiBox(unit);
-            if (prev === undefined)
-                return current;
+            //let {prev, current} = await this.getUnitxApi(unit);
+            //if (prev === undefined) return current;
+            let unitxApi = yield this.getUnitxApi(unit);
+            //if (env.isDevelopment === true) {
+            //}
+            return unitxApi;
+            /*
             // 2021-9-23：我没有很明白。只是强行用localhost来取bus
-            if (db_1.env.isDevelopment === true) {
+            if (env.isDevelopment === true) {
                 return prev;
             }
             // 小于10分钟
-            let delta = Date.now() / 1000 - current.tickCreate;
+            let delta = Date.now()/1000 - current.tickCreate;
             let minutes = delta / 60;
             if (minutes < 10) {
                 // 用老的unitx拉
-                return prev;
+                return prev ;
             }
             else {
                 // 用新的unitx拉
                 return current;
             }
+            */
         });
     }
     getPushUnitxApi(unit) {
         return __awaiter(this, void 0, void 0, function* () {
-            let { current } = yield this.getUnitxApiBox(unit);
-            return current;
+            let unitxApi = yield this.getUnitxApi(unit);
+            return unitxApi;
         });
     }
-    buildUnitxApiBox(unit) {
+    /*
+    private async buildUnitxApiBox(unit:number): Promise<UnitxApiBox> {
+        let unitxUrls = await centerApi.unitUnitx(unit);
+        let {prev, current} = this.boxFromUrls(unitxUrls);
+        return {
+            prev: await this.buildUnitxApi(prev),
+            current: await this.buildUnitxApi(current),
+        }
+    }
+    */
+    buildUnitxApi(unit) {
         return __awaiter(this, void 0, void 0, function* () {
             let unitxUrls = yield centerApi_1.centerApi.unitUnitx(unit);
-            let { prev, current } = this.boxFromUrls(unitxUrls);
-            return {
-                prev: yield this.buildUnitxApi(prev),
-                current: yield this.buildUnitxApi(current),
-            };
-        });
-    }
-    buildUnitxApi(uus) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (uus === undefined)
+            let uus = this.boxFromUrls(unitxUrls);
+            if (uus === undefined) {
+                debugger;
                 return undefined;
+            }
             let { url, server, create } = uus;
             if (db_1.env.isDevelopment === true) {
                 if (server === this._db.serverId) {
@@ -128,16 +148,8 @@ class UnitxProd extends Unitx {
     unitxUrl(url) { return url + 'uq/unitx-prod/'; }
     ;
     boxFromUrls(unitxUrls) {
-        let { tv, prod: current } = unitxUrls;
-        if (current !== undefined)
-            return {
-                prev: tv,
-                current,
-            };
-        return {
-            prev: undefined,
-            current: tv,
-        };
+        let { prod } = unitxUrls;
+        return prod;
     }
 }
 exports.UnitxProd = UnitxProd;
@@ -149,16 +161,8 @@ class UnitxTest extends Unitx {
     unitxUrl(url) { return url + 'uq/unitx-test/'; }
     ;
     boxFromUrls(unitxUrls) {
-        let { tv, test: current } = unitxUrls;
-        if (current !== undefined)
-            return {
-                prev: tv,
-                current,
-            };
-        return {
-            prev: undefined,
-            current: tv,
-        };
+        let { test } = unitxUrls;
+        return test;
     }
 }
 exports.UnitxTest = UnitxTest;

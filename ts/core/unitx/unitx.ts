@@ -6,6 +6,7 @@ import { getUrlDebug } from '../getUrlDebug';
 import { Message } from '../model';
 import { UnitxApi } from "./unitxApi";
 
+/*
 interface UnitxApiBox {
 	prev: UnitxApi;
 	current: UnitxApi;
@@ -15,7 +16,7 @@ interface UnitxUrlServerBox {
 	prev: UnitxUrlServer;
 	current: UnitxUrlServer;
 }
-
+*/
 export abstract class Unitx {
 	protected _db: UnitxDb;
 
@@ -25,19 +26,23 @@ export abstract class Unitx {
 	protected abstract buildUnitxDb():void;
 	get db(): UnitxDb {return this._db};
 
-	private unitUnitxApis: {[unit:number]:UnitxApiBox} = {};
-	private async getUnitxApiBox(unit:number):Promise<UnitxApiBox> {
-		let unitxApiBox = this.unitUnitxApis[unit];
-		if (unitxApiBox === undefined) {
-			this.unitUnitxApis[unit] = unitxApiBox = await this.buildUnitxApiBox(unit);
+	private unitUnitxApis: {[unit:number]:UnitxApi} = {};
+	private async getUnitxApi(unit:number):Promise<UnitxApi> {
+		let unitxApi = this.unitUnitxApis[unit];
+		if (unitxApi === undefined) {
+			this.unitUnitxApis[unit] = unitxApi = await this.buildUnitxApi(unit);
 		}
-		return unitxApiBox;
+		return unitxApi;
 	}
 
     private async getPullUnitxApi(unit:number):Promise<UnitxApi> {
-		let {prev, current} = await this.getUnitxApiBox(unit);
-		if (prev === undefined) return current;
-		
+		//let {prev, current} = await this.getUnitxApi(unit);
+		//if (prev === undefined) return current;
+		let unitxApi = await this.getUnitxApi(unit);
+		//if (env.isDevelopment === true) {
+		//}
+		return unitxApi;
+		/*
 		// 2021-9-23：我没有很明白。只是强行用localhost来取bus
 		if (env.isDevelopment === true) {
 			return prev;
@@ -53,13 +58,14 @@ export abstract class Unitx {
 			// 用新的unitx拉
 			return current;
 		}
+		*/
 	}
 
     private async getPushUnitxApi(unit:number):Promise<UnitxApi> {
-		let {current} = await this.getUnitxApiBox(unit);
-		return current;
+		let unitxApi = await this.getUnitxApi(unit);
+		return unitxApi;
 	}
-
+	/*
 	private async buildUnitxApiBox(unit:number): Promise<UnitxApiBox> {
 		let unitxUrls = await centerApi.unitUnitx(unit);
 		let {prev, current} = this.boxFromUrls(unitxUrls);
@@ -68,9 +74,15 @@ export abstract class Unitx {
 			current: await this.buildUnitxApi(current),
 		}
 	}
+	*/
 
-	private async buildUnitxApi(uus: UnitxUrlServer): Promise<UnitxApi> {
-		if (uus === undefined) return undefined;
+	private async buildUnitxApi(unit:number): Promise<UnitxApi> {
+		let unitxUrls = await centerApi.unitUnitx(unit);
+		let uus: UnitxUrlServer = this.boxFromUrls(unitxUrls);
+		if (uus === undefined) {
+			debugger;
+			return undefined;
+		}
 		let {url, server, create} = uus;
         if (env.isDevelopment === true) {
 			if (server === this._db.serverId) {
@@ -113,7 +125,7 @@ export abstract class Unitx {
 	}
 
 	protected abstract unitxUrl(url:string):string;
-	protected abstract boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServerBox;
+	protected abstract boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServer;
 }
 
 export class UnitxProd extends Unitx {
@@ -122,16 +134,9 @@ export class UnitxProd extends Unitx {
 		this._db = new UnitxProdDb(dbName)
 	}
     protected unitxUrl(url:string):string {return url + 'uq/unitx-prod/'};
-	protected boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServerBox {
-		let {tv, prod:current} = unitxUrls;
-		if (current !== undefined) return {
-			prev: tv,
-			current,
-		};
-		return {
-			prev: undefined,
-			current: tv,
-		}
+	protected boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServer {
+		let {prod} = unitxUrls;
+		return prod;
 	}
 }
 
@@ -141,15 +146,8 @@ export class UnitxTest extends Unitx {
 		this._db = new UnitxTestDb(dbName);
 	}
     protected unitxUrl(url:string):string {return url + 'uq/unitx-test/'};
-	protected boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServerBox {
-		let {tv, test:current} = unitxUrls;
-		if (current !== undefined) return {
-			prev: tv,
-			current,
-		};
-		return {
-			prev: undefined,
-			current: tv,
-		}
+	protected boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServer {
+		let {test} = unitxUrls;
+		return test;
 	}
 }
