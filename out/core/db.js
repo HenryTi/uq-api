@@ -213,12 +213,12 @@ class Db {
             yield this.dbServer.create$UqDb();
         });
     }
-    isProxyAuthProcBuilt(proxy, auth) {
-        return this.dbServer.isProxyAuthProcBuilt(proxy, auth);
+    isExistsProcInDb(proc) {
+        return this.dbServer.isExistsProcInDb(proc);
     }
-    buildProxyAuth(proxy, auth) {
+    createProcInDb(proc) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.dbServer.buildProxyAuth(this.dbName, proxy, auth);
+            yield this.dbServer.createProcInDb(this.dbName, proc);
         });
     }
 }

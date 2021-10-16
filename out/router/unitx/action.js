@@ -63,7 +63,7 @@ function saveEntityOpPost(unit, user, name, db, urlParams, runner, body, schema,
         let url = yield net.uqUrl(unit, uq);
         let ret = yield actionProcess_1.actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
         if (opName === '$') {
-            let users = yield runner.query('getEntityAccess', false, unit, user, [uq, entityName, opName]);
+            let users = yield runner.query('getEntityAccess', unit, user, [uq, entityName, opName]);
             let uqApi = new UqApi(url);
             // 设置uq里面entity的access之后，才写unitx中的entity access
             yield uqApi.setAccessUser(unit, entityName, users.map(v => v.to).join(','));

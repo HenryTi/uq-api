@@ -15,7 +15,7 @@ export function buildHistoryRouter(router:Router, rb:RouterBuilder) {
         for (let i=0; i<len; i++) {
             params.push(body[fields[i].name]);
         }
-        let result = await runner.query(name, false, unit, user, params);
+        let result = await runner.query(name, unit, user, params);
         let data = packReturn(schema, result);
         return data;
     });

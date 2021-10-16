@@ -34,11 +34,24 @@ function actionReturns(unit, user, name, db, urlParams, runner, body, schema, ru
         }
         tool_1.logger.debug('action process param: ', data);
         let { proxy, auth } = schema;
-        if (runner.isProxyAuthProcBuilt(proxy, auth) === false) {
-            yield runner.buildProxyAuth(proxy, auth);
+        if (auth !== undefined) {
+            auth = 'tv_' + auth;
+            if (runner.isExistsProcInDb(auth) === false) {
+                yield runner.createProcInDb(auth);
+            }
         }
-        let result = yield runner.action(name, unit, user, data);
-        return result;
+        if (proxy !== undefined) {
+            proxy = 'tv_' + proxy;
+            if (runner.isExistsProcInDb(proxy) === false) {
+                yield runner.createProcInDb(proxy);
+            }
+            let result = yield runner.actionProxy(name, unit, user, body.$$user, data);
+            return result;
+        }
+        else {
+            let result = yield runner.action(name, unit, user, data);
+            return result;
+        }
     });
 }
 exports.actionReturns = actionReturns;

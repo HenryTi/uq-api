@@ -23,11 +23,24 @@ const queryProcess = (unit, user, name, db, urlParams, runner, body, schema) => 
     for (let i = 0; i < len; i++) {
         params.push(body[fields[i].name]);
     }
+    let result;
     let { proxy, auth } = schema;
-    if (runner.isProxyAuthProcBuilt(proxy, auth) === false) {
-        yield runner.buildProxyAuth(proxy, auth);
+    if (auth !== undefined) {
+        auth = 'tv_' + auth;
+        if (runner.isExistsProcInDb(auth) === false) {
+            yield runner.createProcInDb(auth);
+        }
     }
-    let result = yield runner.query(name, proxy !== undefined, unit, user, params);
+    if (proxy !== undefined) {
+        proxy = 'tv_' + proxy;
+        if (runner.isExistsProcInDb(proxy) === false) {
+            yield runner.createProcInDb(proxy);
+        }
+        result = yield runner.queryProxy(name, unit, user, body.$$user, params);
+    }
+    else {
+        result = yield runner.query(name, unit, user, params);
+    }
     let data = core_1.packReturn(schema, result);
     return data;
 });
@@ -55,13 +68,29 @@ const pageQueryProcess = (unit, user, name, db, urlParams, runner, body, schema)
     for (let i = 0; i < len; i++) {
         params.push(body[fields[i].name]);
     }
+    let result;
     let { proxy, auth } = schema;
-    if (runner.isProxyAuthProcBuilt(proxy, auth) === false) {
-        yield runner.buildProxyAuth(proxy, auth);
+    if (auth !== undefined) {
+        auth = 'tv_' + auth;
+        if (runner.isExistsProcInDb(auth) === false) {
+            yield runner.createProcInDb(auth);
+        }
     }
-    let result = yield runner.query(name, proxy !== undefined, unit, user, params);
+    if (proxy !== undefined) {
+        proxy = 'tv_' + proxy;
+        if (runner.isExistsProcInDb(proxy) === false) {
+            yield runner.createProcInDb(proxy);
+        }
+        result = yield runner.queryProxy(name, unit, user, body.$$user, params);
+    }
+    else {
+        result = yield runner.query(name, unit, user, params);
+    }
     let data = core_1.packReturn(schema, result);
     return data;
+    //let result = await runner.query(name, proxy!==undefined, unit, user, params);
+    //let data = packReturn(schema, result);
+    //return data;
 });
 exports.pageQueryProcess = pageQueryProcess;
 //# sourceMappingURL=query.js.map

@@ -235,32 +235,6 @@ class MyDbServer extends dbServer_1.DbServer {
             yield this.callProcBase(db, 'tv_$proc_save', [db, proc, undefined]);
         });
     }
-    buildStoredProcedure(db, proc) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let procLower = proc.toLowerCase();
-            let p = this.procColl[procLower];
-            if (p !== true) {
-                let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
-                let ret = results[0];
-                if (ret.length === 0) {
-                    //debugger;
-                    console.error(`proc not defined: ${db}.${proc}`);
-                    this.procColl[procLower] = false;
-                    throw new Error(`proc not defined: ${db}.${proc}`);
-                }
-                else {
-                    let r0 = ret[0];
-                    let changed = r0['changed'];
-                    if (changed === 1) {
-                        // await this.sqlDropProc(db, proc);
-                        let sql = r0['proc'];
-                        yield this.buildProc(db, proc, sql);
-                    }
-                    this.procColl[procLower] = true;
-                }
-            }
-        });
-    }
     execProc(db, proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
             let needBuildProc;
@@ -732,25 +706,32 @@ END
             }
         });
     }
-    isProxyAuthProcBuilt(proxy, auth) {
-        let ret = true;
-        if (proxy) {
-            if (this.procColl[proxy.toLowerCase()] !== true)
-                ret = false;
-        }
-        if (auth) {
-            if (this.procColl[auth.toLowerCase()] !== true)
-                ret = false;
-        }
-        return ret;
+    isExistsProcInDb(proc) {
+        return this.procColl[proc.toLowerCase()] === true;
     }
-    buildProxyAuth(db, proxy, auth) {
+    createProcInDb(db, proc) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (proxy) {
-                yield this.buildStoredProcedure(db, proxy);
-            }
-            if (auth) {
-                yield this.buildStoredProcedure(db, auth);
+            let procLower = proc.toLowerCase();
+            let p = this.procColl[procLower];
+            if (p !== true) {
+                let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+                let ret = results[0];
+                if (ret.length === 0) {
+                    //debugger;
+                    console.error(`proc not defined: ${db}.${proc}`);
+                    this.procColl[procLower] = false;
+                    throw new Error(`proc not defined: ${db}.${proc}`);
+                }
+                else {
+                    let r0 = ret[0];
+                    let changed = r0['changed'];
+                    if (changed === 1) {
+                        // await this.sqlDropProc(db, proc);
+                        let sql = r0['proc'];
+                        yield this.buildProc(db, proc, sql);
+                    }
+                    this.procColl[procLower] = true;
+                }
             }
         });
     }

@@ -80,6 +80,6 @@ async function getSheetTos(unitxRunner:EntityRunner, sheetMessage:SheetMessage):
     let sheetName = name;
     let stateName = state;
     let paramsGetSheetTo:any[] = [uq, sheetName, stateName];
-    let tos:{to:number}[] = await unitxRunner.query(uqGetSheetTo, false, unit, user, paramsGetSheetTo);
+    let tos:{to:number}[] = await unitxRunner.query(uqGetSheetTo, unit, user, paramsGetSheetTo);
     return tos.map(v=>v.to);
 }

@@ -16,11 +16,13 @@ export const queryProcess = async (unit:number, user:number, name:string, db:str
     let result:any;
     let {proxy, auth} = schema;
     if (auth !== undefined) {
+        auth = 'tv_' + auth;
         if (runner.isExistsProcInDb(auth) === false) {
             await runner.createProcInDb(auth);
         }
     }
     if (proxy !== undefined) {
+        proxy = 'tv_' + proxy;
         if (runner.isExistsProcInDb(proxy) === false) {
             await runner.createProcInDb(proxy);
         }
@@ -57,11 +59,13 @@ export const pageQueryProcess = async (unit:number, user:number, name:string, db
     let result:any;
     let {proxy, auth} = schema;
     if (auth !== undefined) {
+        auth = 'tv_' + auth;
         if (runner.isExistsProcInDb(auth) === false) {
             await runner.createProcInDb(auth);
         }
     }
     if (proxy !== undefined) {
+        proxy = 'tv_' + proxy;
         if (runner.isExistsProcInDb(proxy) === false) {
             await runner.createProcInDb(proxy);
         }

@@ -91,7 +91,7 @@ function getSheetTos(unitxRunner, sheetMessage) {
         let sheetName = name;
         let stateName = state;
         let paramsGetSheetTo = [uq, sheetName, stateName];
-        let tos = yield unitxRunner.query(uqGetSheetTo, false, unit, user, paramsGetSheetTo);
+        let tos = yield unitxRunner.query(uqGetSheetTo, unit, user, paramsGetSheetTo);
         return tos.map(v => v.to);
     });
 }

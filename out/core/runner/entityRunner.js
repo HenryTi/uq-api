@@ -222,7 +222,6 @@ class EntityRunner {
     unitUserCallEx(proc, unit, user, ...params) {
         return __awaiter(this, void 0, void 0, function* () {
             let p = [];
-            //if (this.hasUnit === true) 
             p.push(unit);
             p.push(user);
             if (params !== undefined)
@@ -233,7 +232,6 @@ class EntityRunner {
     unitTableFromProc(proc, unit, ...params) {
         return __awaiter(this, void 0, void 0, function* () {
             let p = [];
-            //if (this.hasUnit === true) 
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
@@ -244,7 +242,6 @@ class EntityRunner {
     unitUserTableFromProc(proc, unit, user, ...params) {
         return __awaiter(this, void 0, void 0, function* () {
             let p = [];
-            //if (this.hasUnit === true) 
             p.push(unit);
             p.push(user);
             if (params !== undefined)
@@ -256,7 +253,6 @@ class EntityRunner {
     unitTablesFromProc(proc, unit, ...params) {
         return __awaiter(this, void 0, void 0, function* () {
             let p = [];
-            //if (this.hasUnit === true) 
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
@@ -267,7 +263,6 @@ class EntityRunner {
     unitUserTablesFromProc(proc, unit, user, ...params) {
         return __awaiter(this, void 0, void 0, function* () {
             let p = [];
-            //if (this.hasUnit === true) 
             p.push(unit);
             p.push(user);
             if (params !== undefined)
@@ -280,12 +275,12 @@ class EntityRunner {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }
-    isProxyAuthProcBuilt(proxy, auth) {
-        return this.db.isProxyAuthProcBuilt(proxy, auth);
+    isExistsProcInDb(proc) {
+        return this.db.isExistsProcInDb(proc);
     }
-    buildProxyAuth(proxy, auth) {
+    createProcInDb(proc) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.buildProxyAuth(proxy, auth);
+            yield this.db.createProcInDb(proc);
         });
     }
     start(unit, user) {
@@ -641,6 +636,15 @@ class EntityRunner {
             return result;
         });
     }
+    actionProxy(actionName, unit, user, proxyUser, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let inBusAction = this.getActionParametersBus(actionName);
+            let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
+            let actionData = data + inBusResult;
+            let result = yield this.unitUserCallEx('tv_' + actionName, unit, user, proxyUser, actionData);
+            return result;
+        });
+    }
     actionFromObj(actionName, unit, user, obj) {
         return __awaiter(this, void 0, void 0, function* () {
             let inBusAction = this.getActionParametersBus(actionName);
@@ -655,9 +659,15 @@ class EntityRunner {
             return result;
         });
     }
-    query(query, hasProxy, unit, user, params) {
+    query(query, unit, user, params) {
         return __awaiter(this, void 0, void 0, function* () {
             let ret = yield this.unitUserCall('tv_' + query, unit, user, ...params);
+            return ret;
+        });
+    }
+    queryProxy(query, unit, user, proxyUser, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.unitUserCall('tv_' + query, unit, user, proxyUser, ...params);
             return ret;
         });
     }
