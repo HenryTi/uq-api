@@ -668,6 +668,34 @@ END
 			console.error(err);
 		}
     }
+
+	isExistsProcInDb(proc:string):boolean {
+		return this.procColl[proc.toLowerCase()] === true
+	}
+    async createProcInDb(db:string, proc:string): Promise<void> {
+		let procLower = proc.toLowerCase();
+		let p = this.procColl[procLower];
+		if (p !== true) {
+			let results = await this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+			let ret = results[0];
+			if (ret.length === 0) {
+				//debugger;
+				console.error(`proc not defined: ${db}.${proc}`);
+				this.procColl[procLower] = false;
+				throw new Error(`proc not defined: ${db}.${proc}`);
+			}
+			else {
+				let r0 = ret[0];
+				let changed = r0['changed'];
+				if (changed === 1) {
+					// await this.sqlDropProc(db, proc);
+					let sql = r0['proc'];
+					await this.buildProc(db, proc, sql);
+				}
+				this.procColl[procLower] = true;
+			}
+		}
+    }
 }
 
 const castField:TypeCast = (field:any, next) =>{

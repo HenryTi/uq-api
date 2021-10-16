@@ -17,8 +17,23 @@ export async function actionReturns(unit:number, user:number, name:string, db:st
         data = packParam(schema, data);
     }
     logger.debug('action process param: ', data);
-    let result = await runner.action(name, unit, user, data);
-    return result;
+    let {proxy, auth} = schema;
+    if (auth !== undefined) {
+        if (runner.isExistsProcInDb(auth) === false) {
+            await runner.createProcInDb(auth);
+        }
+    }
+    if (proxy !== undefined) {
+        if (runner.isExistsProcInDb(proxy) === false) {
+            await runner.createProcInDb(proxy);
+        }
+        let result = await runner.actionProxy(name, unit, user, body.$$user, data);
+        return result;
+    }
+    else {
+        let result = await runner.action(name, unit, user, data);
+        return result;
+    }
 }
 
 export async function actionConvert(unit:number, user:number, entityName:string, db:string, urlParams:any, runner:EntityRunner, body:any, schema:any, run:any):Promise<any> {

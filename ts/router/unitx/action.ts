@@ -52,7 +52,7 @@ async function saveEntityOpPost(unit:number, user:number, name:string, db:string
     let ret = await actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
     if (opName === '$') {
         let users:{to:number}[] = await runner.query(
-            'getEntityAccess', unit, user, 
+            'getEntityAccess', false, unit, user, 
             [uq, entityName, opName]);
         let uqApi = new UqApi(url);
         // 设置uq里面entity的access之后，才写unitx中的entity access

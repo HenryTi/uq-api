@@ -201,6 +201,14 @@ export abstract class Db {
     async create$UqDb():Promise<void> {
         await this.dbServer.create$UqDb();
     }
+
+    isExistsProcInDb(proc:string):boolean {
+        return this.dbServer.isExistsProcInDb(proc);
+    }
+
+    async createProcInDb(proc:string) {
+        await this.dbServer.createProcInDb(this.dbName, proc);
+    }
 }
 
 export class UqDb extends Db {

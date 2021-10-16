@@ -28,6 +28,8 @@ class MsDbServer extends dbServer_1.DbServer {
     uqDbs() { return; }
     createResDb(resDbName) { return; }
     create$UqDb() { return; }
+    isProxyAuthProcBuilt(proxy, auth) { return false; }
+    buildProxyAuth(db, proxy, auth) { return; }
 }
 exports.MsDbServer = MsDbServer;
 //# sourceMappingURL=ms.js.map

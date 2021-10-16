@@ -33,6 +33,10 @@ function actionReturns(unit, user, name, db, urlParams, runner, body, schema, ru
             data = core_1.packParam(schema, data);
         }
         tool_1.logger.debug('action process param: ', data);
+        let { proxy, auth } = schema;
+        if (runner.isProxyAuthProcBuilt(proxy, auth) === false) {
+            yield runner.buildProxyAuth(proxy, auth);
+        }
         let result = yield runner.action(name, unit, user, data);
         return result;
     });

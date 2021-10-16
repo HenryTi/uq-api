@@ -21,7 +21,7 @@ function buildBookRouter(router, rb) {
         for (let i = 0; i < len; i++) {
             params.push(body[fields[i].name]);
         }
-        let result = yield runner.query(name, unit, user, params);
+        let result = yield runner.query(name, false, unit, user, params);
         let data = core_1.packReturn(schema, result);
         return data;
     }));

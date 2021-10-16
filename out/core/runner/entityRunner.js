@@ -280,6 +280,14 @@ class EntityRunner {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }
+    isProxyAuthProcBuilt(proxy, auth) {
+        return this.db.isProxyAuthProcBuilt(proxy, auth);
+    }
+    buildProxyAuth(proxy, auth) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.db.buildProxyAuth(proxy, auth);
+        });
+    }
     start(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.unitUserCall('tv_$start', unit, user);
@@ -647,7 +655,7 @@ class EntityRunner {
             return result;
         });
     }
-    query(query, unit, user, params) {
+    query(query, hasProxy, unit, user, params) {
         return __awaiter(this, void 0, void 0, function* () {
             let ret = yield this.unitUserCall('tv_' + query, unit, user, ...params);
             return ret;

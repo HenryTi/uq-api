@@ -213,6 +213,14 @@ class Db {
             yield this.dbServer.create$UqDb();
         });
     }
+    isProxyAuthProcBuilt(proxy, auth) {
+        return this.dbServer.isProxyAuthProcBuilt(proxy, auth);
+    }
+    buildProxyAuth(proxy, auth) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.dbServer.buildProxyAuth(this.dbName, proxy, auth);
+        });
+    }
 }
 exports.Db = Db;
 Db.dbs = {};

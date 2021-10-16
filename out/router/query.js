@@ -23,7 +23,11 @@ const queryProcess = (unit, user, name, db, urlParams, runner, body, schema) => 
     for (let i = 0; i < len; i++) {
         params.push(body[fields[i].name]);
     }
-    let result = yield runner.query(name, unit, user, params);
+    let { proxy, auth } = schema;
+    if (runner.isProxyAuthProcBuilt(proxy, auth) === false) {
+        yield runner.buildProxyAuth(proxy, auth);
+    }
+    let result = yield runner.query(name, proxy !== undefined, unit, user, params);
     let data = core_1.packReturn(schema, result);
     return data;
 });
@@ -51,7 +55,11 @@ const pageQueryProcess = (unit, user, name, db, urlParams, runner, body, schema)
     for (let i = 0; i < len; i++) {
         params.push(body[fields[i].name]);
     }
-    let result = yield runner.query(name, unit, user, params);
+    let { proxy, auth } = schema;
+    if (runner.isProxyAuthProcBuilt(proxy, auth) === false) {
+        yield runner.buildProxyAuth(proxy, auth);
+    }
+    let result = yield runner.query(name, proxy !== undefined, unit, user, params);
     let data = core_1.packReturn(schema, result);
     return data;
 });

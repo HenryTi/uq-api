@@ -237,7 +237,6 @@ export class EntityRunner {
 
 	async unitUserCallEx(proc:string, unit:number, user:number, ...params:any[]): Promise<any> {
         let p:any[] = [];
-        //if (this.hasUnit === true) 
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
@@ -246,7 +245,6 @@ export class EntityRunner {
 
     async unitTableFromProc(proc:string, unit:number, ...params:any[]):Promise<any[]> {
         let p:any[] = [];
-        //if (this.hasUnit === true) 
         p.push(unit);
         if (params !== undefined) p.push(...params);
         let ret = await this.db.tableFromProc(proc, p);
@@ -254,7 +252,6 @@ export class EntityRunner {
     }
     async unitUserTableFromProc(proc:string, unit:number, user:number, ...params:any[]):Promise<any[]> {
         let p:any[] = [];
-        //if (this.hasUnit === true) 
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
@@ -264,7 +261,6 @@ export class EntityRunner {
 
     async unitTablesFromProc(proc:string, unit:number, ...params:any[]):Promise<any[][]> {
         let p:any[] = [];
-        //if (this.hasUnit === true) 
         p.push(unit);
         if (params !== undefined) p.push(...params);
         let ret = await this.db.tablesFromProc(proc, p);
@@ -272,7 +268,6 @@ export class EntityRunner {
     }
     async unitUserTablesFromProc(proc:string, unit:number, user:number, ...params:any[]):Promise<any[][]> {
         let p:any[] = [];
-        //if (this.hasUnit === true) 
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
@@ -280,8 +275,15 @@ export class EntityRunner {
         return ret;
 	}
 	async buildProc(proc:string):Promise<void> {
-		
 	}
+
+    isExistsProcInDb(proc:string):boolean {
+        return this.db.isExistsProcInDb(proc);
+    }
+
+    async createProcInDb(proc:string) {
+        await this.db.createProcInDb(proc);
+    }
 
     async start(unit:number, user:number): Promise<void> {
         return await this.unitUserCall('tv_$start', unit, user);
@@ -543,6 +545,13 @@ export class EntityRunner {
         let result = await this.unitUserCallEx('tv_' + actionName, unit, user, actionData);
         return result;
     }
+    async actionProxy(actionName:string, unit:number, user:number, proxyUser:number, data:string): Promise<any[][]> {
+        let inBusAction = this.getActionParametersBus(actionName);
+        let inBusResult =  await inBusAction.busQueryAll(unit, user, data);
+        let actionData = data + inBusResult;
+        let result = await this.unitUserCallEx('tv_' + actionName, unit, user, proxyUser, actionData);
+        return result;
+    }
 
     async actionFromObj(actionName:string, unit:number, user:number, obj:any): Promise<any[][]> {
         let inBusAction = this.getActionParametersBus(actionName);
@@ -558,6 +567,10 @@ export class EntityRunner {
 
     async query(query:string, unit:number, user:number, params:any[]): Promise<any> {
         let ret = await this.unitUserCall('tv_' + query, unit, user, ...params);
+        return ret;
+    }
+    async queryProxy(query:string, unit:number, user:number, proxyUser:number, params:any[]): Promise<any> {
+        let ret = await this.unitUserCall('tv_' + query, unit, user, proxyUser, ...params);
         return ret;
     }
 

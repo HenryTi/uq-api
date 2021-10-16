@@ -27,4 +27,6 @@ export class MsDbServer extends DbServer {
     uqDbs():Promise<any[]> {return}
     createResDb(resDbName:string):Promise<void> {return}
     create$UqDb():Promise<void> {return}
+    isExistsProcInDb(proc:string):boolean {return false;}
+    createProcInDb(db:string, proc:string): Promise<void> {return;}
 }

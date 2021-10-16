@@ -13,7 +13,22 @@ export const queryProcess = async (unit:number, user:number, name:string, db:str
     for (let i=0; i<len; i++) {
         params.push(body[fields[i].name]);
     }
-    let result = await runner.query(name, unit, user, params);
+    let result:any;
+    let {proxy, auth} = schema;
+    if (auth !== undefined) {
+        if (runner.isExistsProcInDb(auth) === false) {
+            await runner.createProcInDb(auth);
+        }
+    }
+    if (proxy !== undefined) {
+        if (runner.isExistsProcInDb(proxy) === false) {
+            await runner.createProcInDb(proxy);
+        }
+        result = await runner.queryProxy(name, unit, user, body.$$user, params);
+    }
+    else {
+        result = await runner.query(name, unit, user, params);
+    }
     let data = packReturn(schema, result);
     return data;
 }
@@ -39,7 +54,25 @@ export const pageQueryProcess = async (unit:number, user:number, name:string, db
     for (let i=0; i<len; i++) {
         params.push(body[fields[i].name]);
     }
-    let result = await runner.query(name, unit, user, params);
+    let result:any;
+    let {proxy, auth} = schema;
+    if (auth !== undefined) {
+        if (runner.isExistsProcInDb(auth) === false) {
+            await runner.createProcInDb(auth);
+        }
+    }
+    if (proxy !== undefined) {
+        if (runner.isExistsProcInDb(proxy) === false) {
+            await runner.createProcInDb(proxy);
+        }
+        result = await runner.queryProxy(name, unit, user, body.$$user, params);
+    }
+    else {
+        result = await runner.query(name, unit, user, params);
+    }
     let data = packReturn(schema, result);
     return data;
+    //let result = await runner.query(name, proxy!==undefined, unit, user, params);
+    //let data = packReturn(schema, result);
+    //return data;
 }
