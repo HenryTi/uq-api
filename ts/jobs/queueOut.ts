@@ -41,7 +41,7 @@ export class QueueOut {
 
     private async processOneRow(row: any, defer: number) {
         // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
-        let {$unit, id, to, action, subject, content, tries, update_time, now} = row;
+        let {$unit, id, to, action, subject, content, tries, update_time, now, stamp} = row;
         logger.debug('queueOut 1: ', action, subject, content, update_time);
         this.messagePointer = id;
         if (!$unit) $unit = this.runner.uniqueUnit;
@@ -69,7 +69,7 @@ export class QueueOut {
                         finish = Finish.done;
                         break;
                     case 'bus':
-                        await this.bus($unit, id, defer, to, subject, content);
+                        await this.bus($unit, id, defer, to, subject, content, stamp);
                         finish = Finish.done;
                         break;
                     case 'bus-query':
@@ -151,7 +151,7 @@ export class QueueOut {
     }
 
     // bus参数，调用的时候，就是project
-    async bus(unit:number, id:number, defer:number, to:number, bus:string, content:string): Promise<void> {
+    async bus(unit:number, id:number, defer:number, to:number, bus:string, content:string, stamp:number): Promise<void> {
         if (!unit && !to) return;
         
         let parts = bus.split('/');
@@ -184,6 +184,7 @@ export class QueueOut {
                 face,
                 version,
                 body,
+                stamp,
             };
             return message;
         }

@@ -48,4 +48,5 @@ export interface BusMessage extends Message {
     bus: string,
     face: string,
     version: number,
+    stamp: number,
 }

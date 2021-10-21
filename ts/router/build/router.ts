@@ -193,6 +193,8 @@ export function buildBuildRouter(router:Router, rb: RouterBuilder) {
 			let service:any;
 			for (let i in body) {
 				let v = body[i];
+				// 如果要设置null值，则必须传进null
+				if (v === undefined) continue;
 				if (i === 'service') service = v;
 				promises.push(runner.setSetting(0, i, v));
 			}
@@ -200,7 +202,7 @@ export function buildBuildRouter(router:Router, rb: RouterBuilder) {
 
 			// 取units，还有id的start和end
 			let units = await centerApi.serviceUnit(service);
-			await runner.setUnitAdmin(units);			
+			await runner.setUnitAdmin(units);
 			// sectionCount 从已经保存的当前id，和id-section-end 来计算
 			await runner.refreshIDSection(service);
 

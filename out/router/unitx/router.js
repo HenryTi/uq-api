@@ -67,8 +67,8 @@ function buildUnitxRouter(rb) {
     });
     rb.post(router, '/joint-read-bus', jointReadBus);
     let jointWriteBus = (runner, body) => __awaiter(this, void 0, void 0, function* () {
-        let { unit, face, defer, to, from, fromQueueId, version, body: message } = body;
-        let ret = yield processBusMessage_1.writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer !== null && defer !== void 0 ? defer : 0);
+        let { unit, face, defer, to, from, fromQueueId, version, body: message, stamp } = body;
+        let ret = yield processBusMessage_1.writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer !== null && defer !== void 0 ? defer : 0, stamp);
         if (ret < 0) {
             tool_1.logger.error('writeDataToBus message duplicated!', body, -ret);
         }

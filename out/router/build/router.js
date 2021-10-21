@@ -198,6 +198,9 @@ function buildBuildRouter(router, rb) {
             let service;
             for (let i in body) {
                 let v = body[i];
+                // 如果要设置null值，则必须传进null
+                if (v === undefined)
+                    continue;
                 if (i === 'service')
                     service = v;
                 promises.push(runner.setSetting(0, i, v));

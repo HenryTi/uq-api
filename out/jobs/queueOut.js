@@ -52,7 +52,7 @@ class QueueOut {
     processOneRow(row, defer) {
         return __awaiter(this, void 0, void 0, function* () {
             // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
-            let { $unit, id, to, action, subject, content, tries, update_time, now } = row;
+            let { $unit, id, to, action, subject, content, tries, update_time, now, stamp } = row;
             tool_1.logger.debug('queueOut 1: ', action, subject, content, update_time);
             this.messagePointer = id;
             if (!$unit)
@@ -82,7 +82,7 @@ class QueueOut {
                             finish = consts_1.Finish.done;
                             break;
                         case 'bus':
-                            yield this.bus($unit, id, defer, to, subject, content);
+                            yield this.bus($unit, id, defer, to, subject, content, stamp);
                             finish = consts_1.Finish.done;
                             break;
                         case 'bus-query':
@@ -165,7 +165,7 @@ class QueueOut {
         });
     }
     // bus参数，调用的时候，就是project
-    bus(unit, id, defer, to, bus, content) {
+    bus(unit, id, defer, to, bus, content, stamp) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!unit && !to)
                 return;
@@ -195,6 +195,7 @@ class QueueOut {
                     face,
                     version,
                     body,
+                    stamp,
                 };
                 return message;
             }

@@ -57,8 +57,8 @@ export function buildUnitxRouter(rb: RouterBuilder):Router {
     rb.post(router, '/joint-read-bus',jointReadBus);
 
     let jointWriteBus = async (runner:EntityRunner, body:any):Promise<any> => {
-        let {unit, face, defer, to, from, fromQueueId, version, body:message} = body;
-        let ret = await writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer??0);
+        let {unit, face, defer, to, from, fromQueueId, version, body:message, stamp} = body;
+        let ret = await writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer??0, stamp);
 		if (ret < 0) {
 			logger.error('writeDataToBus message duplicated!', body, -ret);
 		}
