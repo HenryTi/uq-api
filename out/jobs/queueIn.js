@@ -48,7 +48,7 @@ class QueueIn {
     }
     processOneRow(row, defer) {
         return __awaiter(this, void 0, void 0, function* () {
-            let { bus, faceName, id, unit, to, data, tries, update_time, now } = row;
+            let { bus, faceName, id, unit, to, data, tries, update_time, now, stamp } = row;
             this.queuePointer = id;
             if (!unit)
                 unit = this.runner.uniqueUnit;
@@ -63,7 +63,7 @@ class QueueIn {
                     yield this.runner.call('$queue_in_set', [id, defer, consts_1.Finish.done]);
                 }
                 else {
-                    yield this.runner.bus(bus, faceName, unit, to, id, data);
+                    yield this.runner.bus(bus, faceName, unit, to, id, data, stamp);
                 }
                 finish = consts_1.Finish.done;
             }

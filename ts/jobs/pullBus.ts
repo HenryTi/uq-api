@@ -65,7 +65,7 @@ export class PullBus {
 			}
 			if (messagesLen < maxRows && maxPullId < maxMsgId) {
 				// 如果unit的所有mssage都处理完成了，则设为unit的最大msg，下次查找可以快些
-				await this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined]);
+				await this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined, undefined]);
 				break;
 			}
 			if (messagesLen === 0) break;
@@ -73,7 +73,7 @@ export class PullBus {
 	}
 
 	private async processMessage(unit:number, defer:number, message:any) {
-		let {to, face:faceUrl, id:msgId, body, version} = message;
+		let {to, face:faceUrl, id:msgId, body, version, stamp} = message;
 		let face = this.coll[(faceUrl as string).toLowerCase()];
 		if (face === undefined) return;
 		let {bus, faceName, version:runnerBusVersion} = face;
@@ -84,7 +84,7 @@ export class PullBus {
 				// 但是，现在先不处理
 				// 2019-07-23
 			}
-			await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body]);
+			await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, stamp]);
 		}
 		catch (toQueueInErr) {
 			this.hasError = this.buses.hasError = true;

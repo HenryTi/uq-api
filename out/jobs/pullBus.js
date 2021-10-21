@@ -73,7 +73,7 @@ class PullBus {
                 }
                 if (messagesLen < maxRows && maxPullId < maxMsgId) {
                     // 如果unit的所有mssage都处理完成了，则设为unit的最大msg，下次查找可以快些
-                    yield this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined]);
+                    yield this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined, undefined]);
                     break;
                 }
                 if (messagesLen === 0)
@@ -83,7 +83,7 @@ class PullBus {
     }
     processMessage(unit, defer, message) {
         return __awaiter(this, void 0, void 0, function* () {
-            let { to, face: faceUrl, id: msgId, body, version } = message;
+            let { to, face: faceUrl, id: msgId, body, version, stamp } = message;
             let face = this.coll[faceUrl.toLowerCase()];
             if (face === undefined)
                 return;
@@ -95,7 +95,7 @@ class PullBus {
                     // 但是，现在先不处理
                     // 2019-07-23
                 }
-                yield this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body]);
+                yield this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, stamp]);
             }
             catch (toQueueInErr) {
                 this.hasError = this.buses.hasError = true;

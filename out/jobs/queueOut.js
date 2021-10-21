@@ -208,7 +208,7 @@ class QueueOut {
                     yield this.runner.net.sendToUnitx(v, message);
                     if (local === true) {
                         defer = -1;
-                        yield this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body]);
+                        yield this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body, stamp]);
                     }
                 }));
                 yield Promise.all(promises);
@@ -218,7 +218,7 @@ class QueueOut {
                 yield this.runner.net.sendToUnitx(unit, message);
                 if (local === true) {
                     defer = -1;
-                    yield this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body]);
+                    yield this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, stamp]);
                 }
             }
         });

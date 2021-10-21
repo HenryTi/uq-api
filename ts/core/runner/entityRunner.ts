@@ -587,17 +587,14 @@ export class EntityRunner {
         }
         return inBusAction;
     }
-    async bus(bus:string, face:string, unit:number, to:number, msgId:number, body:string): Promise<void> {
+    async bus(bus:string, face:string, unit:number, to:number, msgId:number, body:string, stamp:number): Promise<void> {
         let inBusAction = this.getAcceptParametersBus(bus, face);
         let inBusResult = await inBusAction.busQueryAll(unit, to, body);
         let data = body + inBusResult;
-        await this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data);
+        await this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, stamp);
     }
     async busAcceptFromQuery(bus:string, face:string, unit:number, body:string): Promise<void> {
-        //let inBusAction = this.getAcceptParametersBus(bus, face);
-        //let inBusResult = await inBusAction.busQueryAll(unit, to, body);
-        //let data = body + inBusResult;
-        await this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body);
+        await this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body, undefined);
     }
     async checkPull(unit:number, entity:string, entityType:string, modifies:string): Promise<any[]> {
         let proc:string;

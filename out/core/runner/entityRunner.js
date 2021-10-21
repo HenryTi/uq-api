@@ -684,20 +684,17 @@ class EntityRunner {
         }
         return inBusAction;
     }
-    bus(bus, face, unit, to, msgId, body) {
+    bus(bus, face, unit, to, msgId, body, stamp) {
         return __awaiter(this, void 0, void 0, function* () {
             let inBusAction = this.getAcceptParametersBus(bus, face);
             let inBusResult = yield inBusAction.busQueryAll(unit, to, body);
             let data = body + inBusResult;
-            yield this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data);
+            yield this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, stamp);
         });
     }
     busAcceptFromQuery(bus, face, unit, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            //let inBusAction = this.getAcceptParametersBus(bus, face);
-            //let inBusResult = await inBusAction.busQueryAll(unit, to, body);
-            //let data = body + inBusResult;
-            yield this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body);
+            yield this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body, undefined);
         });
     }
     checkPull(unit, entity, entityType, modifies) {

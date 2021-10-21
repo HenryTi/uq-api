@@ -37,7 +37,7 @@ export class QueueIn {
     }
     
     private async processOneRow(row: any, defer:number) {
-        let {bus, faceName, id, unit, to, data, tries, update_time, now} = row;
+        let {bus, faceName, id, unit, to, data, tries, update_time, now, stamp} = row;
         this.queuePointer = id;
         if (!unit) unit = this.runner.uniqueUnit;
         if (tries > 0) {
@@ -50,7 +50,7 @@ export class QueueIn {
                 await this.runner.call('$queue_in_set', [id, defer, Finish.done]); 
             }
             else {
-                await this.runner.bus(bus, faceName, unit, to, id, data);
+                await this.runner.bus(bus, faceName, unit, to, id, data, stamp);
             }
             finish = Finish.done;
         }
