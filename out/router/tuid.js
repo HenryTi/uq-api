@@ -15,17 +15,18 @@ const core_1 = require("../core");
 const tuidType = 'tuid';
 function buildTuidRouter(router, rb) {
     rb.post(router, '/queue-modify', (runner, body, params, userToken) => __awaiter(this, void 0, void 0, function* () {
-        let { db, unit } = userToken;
-        let { start, page, entities } = body;
-        if (runner === undefined)
-            return;
-        let ret = yield runner.unitTablesFromProc('tv_$modify_queue', unit, start, page, entities);
+        /*
+        let {db, unit} = userToken;
+        let {start, page, entities} = body;
+        if (runner === undefined) return;
+        let ret = await runner.unitTablesFromProc('tv_$modify_queue', unit, start, page, entities);
         let ret1 = ret[1];
-        let modifyMax = ret1.length === 0 ? 0 : ret1[0].max;
+        let modifyMax = ret1.length===0? 0: ret1[0].max;
         runner.setModifyMax(unit, modifyMax);
+        */
         return {
-            queue: ret[0],
-            queueMax: modifyMax
+            queue: [],
+            queueMax: 0, //modifyMax
         };
     }));
     rb.entityGet(router, tuidType, '/:name/:id', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {

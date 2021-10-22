@@ -8,6 +8,7 @@ const tuidType = 'tuid';
 export function buildTuidRouter(router: Router, rb: RouterBuilder) {
     rb.post(router, '/queue-modify',
     async (runner:EntityRunner, body:any, params:any, userToken:User) => {
+        /*
         let {db, unit} = userToken;
         let {start, page, entities} = body;
         if (runner === undefined) return;
@@ -15,9 +16,10 @@ export function buildTuidRouter(router: Router, rb: RouterBuilder) {
         let ret1 = ret[1];
         let modifyMax = ret1.length===0? 0: ret1[0].max;
         runner.setModifyMax(unit, modifyMax);
+        */
         return {            
-            queue: ret[0],
-            queueMax: modifyMax
+            queue: [], // ret[0],
+            queueMax: 0, //modifyMax
         };
     });
 

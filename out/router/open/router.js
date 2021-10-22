@@ -46,14 +46,16 @@ function buildOpenRouter(router, rb) {
         }
     }));
     rb.post(router, '/queue-modify', (runner, body) => __awaiter(this, void 0, void 0, function* () {
-        let { unit, start, page, entities } = body;
-        let ret = yield runner.unitTablesFromProc('tv_$modify_queue', unit, start, page, entities);
+        /*
+        let {unit, start, page, entities} = body;
+        let ret = await runner.unitTablesFromProc('tv_$modify_queue', unit, start, page, entities);
         let ret1 = ret[1];
-        let modifyMax = ret1.length === 0 ? 0 : ret1[0].max;
+        let modifyMax = ret1.length===0? 0: ret1[0].max;
         runner.setModifyMax(unit, modifyMax);
+        */
         return {
-            queue: ret[0],
-            queueMax: modifyMax
+            queue: [],
+            queueMax: 0, //modifyMax
         };
     }));
     rb.post(router, '/bus-query', (runner, body) => __awaiter(this, void 0, void 0, function* () {
