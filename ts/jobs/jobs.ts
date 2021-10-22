@@ -205,7 +205,8 @@ export class Jobs {
         }
         logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
         if (env.isDevelopment === false) {
-            await pullEntities(runner);
+            // uq 间的entity同步，暂时屏蔽
+            // await pullEntities(runner);
         }
         else {
             logger.error('为了调试程序，pullEntities暂时屏蔽');

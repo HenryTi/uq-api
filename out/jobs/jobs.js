@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Jobs = void 0;
 const tool_1 = require("../tool");
 const core_1 = require("../core");
-const pullEntities_1 = require("./pullEntities");
 const pullBus_1 = require("./pullBus");
 const queueIn_1 = require("./queueIn");
 const queueOut_1 = require("./queueOut");
@@ -230,7 +229,8 @@ class Jobs {
             }
             tool_1.logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
             if (core_1.env.isDevelopment === false) {
-                yield pullEntities_1.pullEntities(runner);
+                // uq 间的entity同步，暂时屏蔽
+                // await pullEntities(runner);
             }
             else {
                 tool_1.logger.error('为了调试程序，pullEntities暂时屏蔽');
