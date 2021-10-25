@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.processBusMessage = exports.writeDataToBus = void 0;
 const tool_1 = require("../../tool");
-function writeDataToBus(runner, face, unit, to, from, fromQueueId, version, body, stamp, defer) {
+function writeDataToBus(runner, face, unit, to, from, fromQueueId, version, body, defer, stamp) {
     return __awaiter(this, void 0, void 0, function* () {
         let ret = yield runner.actionDirect('writebusqueue', unit, undefined, face, defer, to, from, fromQueueId, version, body, stamp);
         if (ret && ret.length > 0) {

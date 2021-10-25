@@ -3,7 +3,7 @@ import { EntityRunner, BusMessage } from '../../core';
 
 export async function writeDataToBus(runner:EntityRunner, face:string, unit:number, to:number
     , from:string, fromQueueId:number
-	, version:number, body:string, stamp:number, defer:number):Promise<number>
+	, version:number, body:string, defer:number, stamp:number):Promise<number>
 {
 	let ret = await runner.actionDirect('writebusqueue', unit, undefined, face, defer, to, from, fromQueueId, version, body, stamp);
 	if (ret && ret.length > 0) {
