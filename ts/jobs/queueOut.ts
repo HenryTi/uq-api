@@ -170,7 +170,7 @@ export class QueueOut {
         let {uqOwner, uq} = this.runner;
 
         let {body, version, local} = this.toBusMessage(busSchema, face, content);
-        
+        /*
         function buildMessage(u:number):BusMessage {
             let message: BusMessage = {
                 unit: u,
@@ -188,27 +188,61 @@ export class QueueOut {
             };
             return message;
         }
+        */
+        async function sendToUnitxAndLocal(runner:EntityRunner, unitOrPerson:number) {
+            //let message: BusMessage = buildMessage(unitOrPerson);
+            let message: BusMessage = {
+                unit: unitOrPerson,
+                type: 'bus',
+                queueId: id,
+                defer,
+                to,
+                from: uqOwner + '/' + uq,           // from uq
+                busOwner,
+                bus: busName,
+                face,
+                version,
+                body,
+                stamp,
+            };
+            await runner.net.sendToUnitx(unitOrPerson, message);
+            if (local === true) {
+                defer = -1;
+                await runner.call('$queue_in_add', [
+                    unitOrPerson, to, defer, id
+                    , busEntityName
+                    , face
+                    , body
+                    , stamp ?? Date.now()/1000]);
+            }
+        }
 
         if (to > 0) {
             let unitXArr:number[] = await getUserX(this.runner, to, bus, busOwner, busName, face);
             if (!unitXArr || unitXArr.length === 0) return;
             let promises = unitXArr.map(async (v) => {
+                await sendToUnitxAndLocal(this.runner, v);
+                /*
                 let message: BusMessage = buildMessage(v);
                 await this.runner.net.sendToUnitx(v, message);
                 if (local === true) {
                     defer = -1;
                     await this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body, stamp]);
                 }
+                */
             });
             await Promise.all(promises);
         }
         else {
+            await sendToUnitxAndLocal(this.runner, unit);
+            /*
             let message: BusMessage = buildMessage(unit);
             await this.runner.net.sendToUnitx(unit, message);
             if (local === true) {
                 defer = -1;
                 await this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, stamp]);
             }
+            */
         }
     }
 

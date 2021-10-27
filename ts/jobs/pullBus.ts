@@ -69,6 +69,7 @@ export class PullBus {
 				break;
 			}
 			if (messagesLen === 0) break;
+			pullId = maxMsgId;
 		}
 	}
 

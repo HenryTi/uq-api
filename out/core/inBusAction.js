@@ -146,7 +146,9 @@ class AcceptParametersBus extends ParametersBus {
         let schema = this.runner.getSchema(this.entityName);
         this.schema = schema.call.schema[this.faceName];
         let { accept } = this.schema;
-        this.schema.inBuses = accept.inBuses;
+        if (accept) {
+            this.schema.inBuses = accept.inBuses;
+        }
         return true;
     }
 }

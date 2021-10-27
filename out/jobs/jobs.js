@@ -20,8 +20,9 @@ const firstRun = core_1.env.isDevelopment === true ? 3000 : 30 * 1000;
 const runGap = core_1.env.isDevelopment === true ? 15 * 1000 : 30 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
-const uqsInclude = [
-    'coupon',
+const uqsInclude = undefined;
+[
+    'me', 'order', 'coupon', 'deliver'
     /*
     'deliver',
     'collectpayment',

@@ -78,6 +78,7 @@ class PullBus {
                 }
                 if (messagesLen === 0)
                     break;
+                pullId = maxMsgId;
             }
         });
     }

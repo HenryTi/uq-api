@@ -182,14 +182,15 @@ class QueueOut {
             let { schema: busSchema, busOwner, busName } = schema.call;
             let { uqOwner, uq } = this.runner;
             let { body, version, local } = this.toBusMessage(busSchema, face, content);
-            function buildMessage(u) {
-                let message = {
+            /*
+            function buildMessage(u:number):BusMessage {
+                let message: BusMessage = {
                     unit: u,
                     type: 'bus',
                     queueId: id,
                     defer,
                     to,
-                    from: uqOwner + '/' + uq,
+                    from: uqOwner + '/' + uq,           // from uq
                     busOwner,
                     bus: busName,
                     face,
@@ -199,27 +200,64 @@ class QueueOut {
                 };
                 return message;
             }
+            */
+            function sendToUnitxAndLocal(runner, unitOrPerson) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    //let message: BusMessage = buildMessage(unitOrPerson);
+                    let message = {
+                        unit: unitOrPerson,
+                        type: 'bus',
+                        queueId: id,
+                        defer,
+                        to,
+                        from: uqOwner + '/' + uq,
+                        busOwner,
+                        bus: busName,
+                        face,
+                        version,
+                        body,
+                        stamp,
+                    };
+                    yield runner.net.sendToUnitx(unitOrPerson, message);
+                    if (local === true) {
+                        defer = -1;
+                        yield runner.call('$queue_in_add', [
+                            unitOrPerson, to, defer, id,
+                            busEntityName,
+                            face,
+                            body,
+                            stamp !== null && stamp !== void 0 ? stamp : Date.now() / 1000
+                        ]);
+                    }
+                });
+            }
             if (to > 0) {
                 let unitXArr = yield unitx_1.getUserX(this.runner, to, bus, busOwner, busName, face);
                 if (!unitXArr || unitXArr.length === 0)
                     return;
                 let promises = unitXArr.map((v) => __awaiter(this, void 0, void 0, function* () {
-                    let message = buildMessage(v);
-                    yield this.runner.net.sendToUnitx(v, message);
+                    yield sendToUnitxAndLocal(this.runner, v);
+                    /*
+                    let message: BusMessage = buildMessage(v);
+                    await this.runner.net.sendToUnitx(v, message);
                     if (local === true) {
                         defer = -1;
-                        yield this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body, stamp]);
+                        await this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body, stamp]);
                     }
+                    */
                 }));
                 yield Promise.all(promises);
             }
             else {
-                let message = buildMessage(unit);
-                yield this.runner.net.sendToUnitx(unit, message);
+                yield sendToUnitxAndLocal(this.runner, unit);
+                /*
+                let message: BusMessage = buildMessage(unit);
+                await this.runner.net.sendToUnitx(unit, message);
                 if (local === true) {
                     defer = -1;
-                    yield this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, stamp]);
+                    await this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, stamp]);
                 }
+                */
             }
         });
     }
