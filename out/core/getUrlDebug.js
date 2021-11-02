@@ -40,7 +40,7 @@ exports.getUrlDebug = getUrlDebug;
 function fetchHello(url) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            let ret = yield node_fetch_1.default(url + 'hello');
+            let ret = yield (0, node_fetch_1.default)(url + 'hello');
             if (ret.status !== 200)
                 throw 'not ok';
             let text = yield ret.text();

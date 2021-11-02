@@ -524,7 +524,7 @@ class EntityRunner {
             }
             if (this.isVerifyArrOk(ret) === true)
                 return;
-            let failed = packReturn_1.packReturns(returns, ret);
+            let failed = (0, packReturn_1.packReturns)(returns, ret);
             return failed;
         });
     }

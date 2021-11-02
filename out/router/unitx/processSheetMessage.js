@@ -40,9 +40,9 @@ function processSheetMessage(unitxRunner, sheetMsg) {
         let user = 0;
         // 保存单据消息
         // 保存之后，发送desk消息到home
-        yield actionProcess_1.actionProcess(unit, user, sheetMessage, $unitx, undefined, unitxRunner, msgBody, call, run);
+        yield (0, actionProcess_1.actionProcess)(unit, user, sheetMessage, $unitx, undefined, unitxRunner, msgBody, call, run);
         // 单据处理的消息发送到前台
-        yield pushToClient_1.pushToClient(unitxRunner, sheetMsg);
+        yield (0, pushToClient_1.pushToClient)(unitxRunner, sheetMsg);
     });
 }
 exports.processSheetMessage = processSheetMessage;

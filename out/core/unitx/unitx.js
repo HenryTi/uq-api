@@ -97,7 +97,7 @@ class Unitx {
             let { url, server, create } = uus;
             if (db_1.env.isDevelopment === true) {
                 if (server === this._db.serverId) {
-                    let urlDebug = yield getUrlDebug_1.getUrlDebug();
+                    let urlDebug = yield (0, getUrlDebug_1.getUrlDebug)();
                     if (urlDebug !== undefined)
                         url = urlDebug;
                 }

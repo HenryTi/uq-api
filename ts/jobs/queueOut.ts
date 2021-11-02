@@ -329,25 +329,48 @@ export class QueueOut {
             debugger;
             throw 'toBusMessage something wrong';
         }
+        let busHeadCommand:string = undefined;
         let data:{[key:string]: string[]}[] = [];
         let p = 0;
         let part:{[key:string]: string[]};
         let busVersion:number;
         let local = false;
+        let n:number;
+        function getBusHeadCommand():string {
+            if (content[n] !== '\r') return;
+            let pREnd = content.indexOf('\r', n+1);
+            if (pREnd < 0) throw new Error('bus head command error. no end \\r found');
+            ++pREnd;
+            let ret = content.substring(n, pREnd);
+            n = pREnd;
+            return ret;
+        }
         for (;;) {
             let t = content.indexOf('\t', p);
             if (t<0) break;
             let key = content.substring(p, t);
             ++t;
-            let n = content.indexOf('\n', t);
-            let sec = content.substring(t, n<0? undefined: n);
+            n = content.indexOf('\n', t);
+            let exitLoop:boolean;
+            let sec:string;
+            if (n<0) {
+                sec = content.substring(t);
+                exitLoop = true;
+            }
+            else {
+                sec = content.substring(t, n);
+                exitLoop = false;
+            }
+            ++n;
             switch (key) {
                 case '#':
                     busVersion = Number(sec);
+                    busHeadCommand = getBusHeadCommand();
                     break;
                 case '+#':
                     busVersion = Number(sec);
                     local = true;
+                    busHeadCommand = getBusHeadCommand();
                     break;
                 case '$':
                     if (part !== undefined) data.push(part);
@@ -363,13 +386,13 @@ export class QueueOut {
                     }
                     break;
             }
-            if (n<0) break;
-            p = n+1;
+            if (exitLoop === true) break;
+            p = n;
         }
         if (part !== undefined) data.push(part);
 
         let {fields, arrs} = faceSchema;
-        let ret:string = '';
+        let ret:string = busHeadCommand ?? '';
         for (let item of data) {
             ret += item['$'] + '\n';
             if (arrs === undefined) continue;

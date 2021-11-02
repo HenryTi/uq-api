@@ -17,21 +17,21 @@ const actionType = 'action';
 function buildActionRouter(router, rb) {
     rb.entityPost(router, actionType, '/:name', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         if (db === core_1.consts.$unitx)
-            return yield unitx_1.unitxActionProcess(unit, user, name, db, urlParams, runner, body, schema, run, net);
-        return yield actionProcess_1.actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
+            return yield (0, unitx_1.unitxActionProcess)(unit, user, name, db, urlParams, runner, body, schema, run, net);
+        return yield (0, actionProcess_1.actionProcess)(unit, user, name, db, urlParams, runner, body, schema, run);
     }));
     rb.entityPost(router, actionType, '/:name/returns', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         if (db === core_1.consts.$unitx)
-            return yield unitx_1.unitxActionProcess(unit, user, name, db, urlParams, runner, body, schema, run, net);
-        return yield actionProcess_1.actionReturns(unit, user, name, db, urlParams, runner, body, schema, run);
+            return yield (0, unitx_1.unitxActionProcess)(unit, user, name, db, urlParams, runner, body, schema, run, net);
+        return yield (0, actionProcess_1.actionReturns)(unit, user, name, db, urlParams, runner, body, schema, run);
     }));
     rb.entityPost(router, actionType, '-json/:name', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         if (db === core_1.consts.$unitx)
-            return yield unitx_1.unitxActionProcess(unit, user, name, db, urlParams, runner, body, schema, run, net);
-        return yield actionProcess_1.actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
+            return yield (0, unitx_1.unitxActionProcess)(unit, user, name, db, urlParams, runner, body, schema, run, net);
+        return yield (0, actionProcess_1.actionProcess)(unit, user, name, db, urlParams, runner, body, schema, run);
     }));
     rb.entityPost(router, actionType, '-convert/:name', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
-        return yield actionProcess_1.actionConvert(unit, user, name, db, urlParams, runner, body, schema, run);
+        return yield (0, actionProcess_1.actionConvert)(unit, user, name, db, urlParams, runner, body, schema, run);
     }));
 }
 exports.buildActionRouter = buildActionRouter;

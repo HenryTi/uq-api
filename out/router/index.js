@@ -28,18 +28,18 @@ const map_1 = require("./map");
 const tag_1 = require("./tag");
 const ID_1 = require("./ID");
 function buildEntityRouter(router, rb) {
-    access_1.buildAccessRouter(router, rb);
-    action_1.buildActionRouter(router, rb);
-    book_1.buildBookRouter(router, rb);
-    history_1.buildHistoryRouter(router, rb);
-    query_1.buildQueryRouter(router, rb);
-    schema_1.buildSchemaRouter(router, rb);
-    tuid_1.buildTuidRouter(router, rb);
-    sheet_1.buildSheetRouter(router, rb);
-    import_1.buildImportRouter(router, rb);
-    map_1.buildMapRouter(router, rb);
-    tag_1.buildTagRouter(router, rb);
-    ID_1.buildIDRouter(router, rb);
+    (0, access_1.buildAccessRouter)(router, rb);
+    (0, action_1.buildActionRouter)(router, rb);
+    (0, book_1.buildBookRouter)(router, rb);
+    (0, history_1.buildHistoryRouter)(router, rb);
+    (0, query_1.buildQueryRouter)(router, rb);
+    (0, schema_1.buildSchemaRouter)(router, rb);
+    (0, tuid_1.buildTuidRouter)(router, rb);
+    (0, sheet_1.buildSheetRouter)(router, rb);
+    (0, import_1.buildImportRouter)(router, rb);
+    (0, map_1.buildMapRouter)(router, rb);
+    (0, tag_1.buildTagRouter)(router, rb);
+    (0, ID_1.buildIDRouter)(router, rb);
 }
 exports.buildEntityRouter = buildEntityRouter;
 //# sourceMappingURL=index.js.map

@@ -97,7 +97,7 @@ class MyDbServer extends dbServer_1.DbServer {
             conf.multipleStatements = true;
             //conf.charset = 'utf8mb4';
             //let newPool = await this.createPool(conf);
-            let newPool = mysql_1.createPool(conf);
+            let newPool = (0, mysql_1.createPool)(conf);
             pools.push({ config: this.dbConfig, pool: newPool });
             return newPool;
         });

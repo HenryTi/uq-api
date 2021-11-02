@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const start_1 = require("./start");
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
-        yield start_1.start();
+        yield (0, start_1.start)();
     });
 })();
 //# sourceMappingURL=index.js.map

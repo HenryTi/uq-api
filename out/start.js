@@ -46,7 +46,7 @@ function init() {
                     tool_1.logger.debug("mysql connection must defined in config/default.json or config/production.json");
                     return;
                 }
-                res_1.initResPath();
+                (0, res_1.initResPath)();
                 var cors = require('cors');
                 let app = express();
                 app.use(express.static('public'));
@@ -85,15 +85,15 @@ function init() {
                 app.use('/res', res_1.router);
                 app.use('/hello', dbHello);
                 app.use('/uq/hello', dbHello);
-                app.use('/proc/:db/:proc', proc_1.buildProcRouter());
+                app.use('/proc/:db/:proc', (0, proc_1.buildProcRouter)());
                 app.use('/uq/prod/:db/', buildUqRouter(core_1.uqProdRouterBuilder, core_1.compileProdRouterBuilder));
                 app.use('/uq/test/:db/', buildUqRouter(core_1.uqTestRouterBuilder, core_1.compileTestRouterBuilder));
-                app.use('/uq/unitx-prod/', router_1.buildUnitxRouter(core_1.unitxProdRouterBuilder));
-                app.use('/uq/unitx-test/', router_1.buildUnitxRouter(core_1.unitxTestRouterBuilder));
+                app.use('/uq/unitx-prod/', (0, router_1.buildUnitxRouter)(core_1.unitxProdRouterBuilder));
+                app.use('/uq/unitx-test/', (0, router_1.buildUnitxRouter)(core_1.unitxTestRouterBuilder));
                 let port = config.get('port');
                 app.listen(port, () => __awaiter(this, void 0, void 0, function* () {
-                    yield res_1.createResDb();
-                    yield core_1.create$UqDb();
+                    yield (0, res_1.createResDb)();
+                    yield (0, core_1.create$UqDb)();
                     tool_1.logger.debug('a', 'UQ-API ' + uq_api_version + ' listening on port ' + port);
                     //let connection = config.get<any>("connection");
                     let { host, user } = connection;
@@ -130,15 +130,15 @@ function dbHello(req, res) {
 }
 function buildUqRouter(rb, rbCompile) {
     // 正常的tonva uq接口 uqRouter
-    let uqRouter = express_1.Router({ mergeParams: true });
-    let openRouter = express_1.Router({ mergeParams: true });
-    router_1.buildOpenRouter(openRouter, rb);
+    let uqRouter = (0, express_1.Router)({ mergeParams: true });
+    let openRouter = (0, express_1.Router)({ mergeParams: true });
+    (0, router_1.buildOpenRouter)(openRouter, rb);
     uqRouter.use('/open', [core_1.authUnitx, openRouter]);
-    let buildRouter = express_1.Router({ mergeParams: true });
-    router_1.buildBuildRouter(buildRouter, rbCompile);
+    let buildRouter = (0, express_1.Router)({ mergeParams: true });
+    (0, router_1.buildBuildRouter)(buildRouter, rbCompile);
     uqRouter.use('/build', [auth_1.authUpBuild, buildRouter]);
-    let entityRouter = express_1.Router({ mergeParams: true });
-    router_1.buildEntityRouter(entityRouter, rb);
+    let entityRouter = (0, express_1.Router)({ mergeParams: true });
+    (0, router_1.buildEntityRouter)(entityRouter, rb);
     uqRouter.use('/tv', [core_1.authCheck, entityRouter]);
     uqRouter.use('/debug', [core_1.authCheck, entityRouter]);
     uqRouter.use('/joint', [auth_1.authJoint, entityRouter]);

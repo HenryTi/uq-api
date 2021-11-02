@@ -228,7 +228,7 @@ function setMap(runner, mapName, schema, unit, values) {
             //__id: id,
             arr1: values
         };
-        let param = core_1.packParam(sync, data);
+        let param = (0, core_1.packParam)(sync, data);
         yield runner.action(sync.name, unit, undefined, param);
         return;
     });

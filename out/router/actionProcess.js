@@ -30,7 +30,7 @@ function actionReturns(unit, user, name, db, urlParams, runner, body, schema, ru
         let { data } = body;
         if (typeof data === 'object') {
             tool_1.logger.debug('action process data: ', body);
-            data = core_1.packParam(schema, data);
+            data = (0, core_1.packParam)(schema, data);
         }
         tool_1.logger.debug('action process param: ', data);
         let { proxy, auth } = schema;
@@ -93,7 +93,7 @@ function actionConvert(unit, user, entityName, db, urlParams, runner, body, sche
             let returnSchema = returns[i];
             let { convert } = returnSchema;
             if (convert === 'license') {
-                ret.push(convert_1.buildLicense(result));
+                ret.push((0, convert_1.buildLicense)(result));
             }
             else {
                 ret.push(result);
@@ -105,7 +105,7 @@ function actionConvert(unit, user, entityName, db, urlParams, runner, body, sche
 exports.actionConvert = actionConvert;
 ;
 function expressionConvert(data, exp, to) {
-    data[to[0]] = convert_1.buildExpVar(exp);
-    data[to[1]] = convert_1.buildExpCalc(exp);
+    data[to[0]] = (0, convert_1.buildExpVar)(exp);
+    data[to[1]] = (0, convert_1.buildExpCalc)(exp);
 }
 //# sourceMappingURL=actionProcess.js.map

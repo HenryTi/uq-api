@@ -26,7 +26,7 @@ class QueueOut {
                 yield this.internalRun();
             }
             catch (err) {
-                yield this.runner.log(0, 'jobs queueOut loop', tool_2.getErrorString(err));
+                yield this.runner.log(0, 'jobs queueOut loop', (0, tool_2.getErrorString)(err));
                 if (core_1.env.isDevelopment === true)
                     tool_1.logger.error(err);
             }
@@ -104,7 +104,7 @@ class QueueOut {
                         finish = consts_1.Finish.bad; // fail
                     }
                     let errSubject = `error on ${action}:  ${subject}`;
-                    let error = tool_2.getErrorString(err);
+                    let error = (0, tool_2.getErrorString)(err);
                     yield this.runner.log($unit, errSubject, error);
                 }
             }
@@ -232,7 +232,7 @@ class QueueOut {
                 });
             }
             if (to > 0) {
-                let unitXArr = yield unitx_1.getUserX(this.runner, to, bus, busOwner, busName, face);
+                let unitXArr = yield (0, unitx_1.getUserX)(this.runner, to, bus, busOwner, busName, face);
                 if (!unitXArr || unitXArr.length === 0)
                     return;
                 let promises = unitXArr.map((v) => __awaiter(this, void 0, void 0, function* () {
@@ -339,26 +339,51 @@ class QueueOut {
             debugger;
             throw 'toBusMessage something wrong';
         }
+        let busHeadCommand = undefined;
         let data = [];
         let p = 0;
         let part;
         let busVersion;
         let local = false;
+        let n;
+        function getBusHeadCommand() {
+            if (content[n] !== '\r')
+                return;
+            let pREnd = content.indexOf('\r', n + 1);
+            if (pREnd < 0)
+                throw new Error('bus head command error. no end \\r found');
+            ++pREnd;
+            let ret = content.substring(n, pREnd);
+            n = pREnd;
+            return ret;
+        }
         for (;;) {
             let t = content.indexOf('\t', p);
             if (t < 0)
                 break;
             let key = content.substring(p, t);
             ++t;
-            let n = content.indexOf('\n', t);
-            let sec = content.substring(t, n < 0 ? undefined : n);
+            n = content.indexOf('\n', t);
+            let exitLoop;
+            let sec;
+            if (n < 0) {
+                sec = content.substring(t);
+                exitLoop = true;
+            }
+            else {
+                sec = content.substring(t, n);
+                exitLoop = false;
+            }
+            ++n;
             switch (key) {
                 case '#':
                     busVersion = Number(sec);
+                    busHeadCommand = getBusHeadCommand();
                     break;
                 case '+#':
                     busVersion = Number(sec);
                     local = true;
+                    busHeadCommand = getBusHeadCommand();
                     break;
                 case '$':
                     if (part !== undefined)
@@ -375,14 +400,14 @@ class QueueOut {
                     }
                     break;
             }
-            if (n < 0)
+            if (exitLoop === true)
                 break;
-            p = n + 1;
+            p = n;
         }
         if (part !== undefined)
             data.push(part);
         let { fields, arrs } = faceSchema;
-        let ret = '';
+        let ret = busHeadCommand !== null && busHeadCommand !== void 0 ? busHeadCommand : '';
         for (let item of data) {
             ret += item['$'] + '\n';
             if (arrs === undefined)

@@ -16,7 +16,7 @@ const path = require("path");
 const express_1 = require("express");
 const multer = require("multer");
 const resDb_1 = require("./resDb");
-exports.router = express_1.Router({ mergeParams: true });
+exports.router = (0, express_1.Router)({ mergeParams: true });
 function initResPath() {
     const resPath = 'res-path';
     let resFilesPath;
@@ -60,7 +60,7 @@ function initResPath() {
                 let file0 = req.files[0];
                 let { filename, originalname, mimetype } = file0;
                 let path = uploadPath + filename;
-                let resDbRunner = yield resDb_1.getResDbRunner();
+                let resDbRunner = yield (0, resDb_1.getResDbRunner)();
                 let ret = yield resDbRunner.procCall('createItem', [originalname, mimetype]);
                 let id = ret[0].id;
                 let dir = String(Math.floor(id / 10000));

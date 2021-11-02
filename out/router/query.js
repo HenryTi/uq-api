@@ -41,7 +41,7 @@ const queryProcess = (unit, user, name, db, urlParams, runner, body, schema) => 
     else {
         result = yield runner.query(name, unit, user, params);
     }
-    let data = core_1.packReturn(schema, result);
+    let data = (0, core_1.packReturn)(schema, result);
     return data;
 });
 exports.queryProcess = queryProcess;
@@ -86,7 +86,7 @@ const pageQueryProcess = (unit, user, name, db, urlParams, runner, body, schema)
     else {
         result = yield runner.query(name, unit, user, params);
     }
-    let data = core_1.packReturn(schema, result);
+    let data = (0, core_1.packReturn)(schema, result);
     return data;
     //let result = await runner.query(name, proxy!==undefined, unit, user, params);
     //let data = packReturn(schema, result);

@@ -262,7 +262,7 @@ class Net {
             let url;
             let { db } = urls;
             if (db_1.env.isDevelopment === true) {
-                let urlDebug = yield getUrlDebug_1.getUrlDebug();
+                let urlDebug = yield (0, getUrlDebug_1.getUrlDebug)();
                 if (urlDebug !== undefined)
                     url = urlDebug;
             }

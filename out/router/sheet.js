@@ -163,7 +163,7 @@ function buildSheetRouter(router, rb) {
         if (main === undefined)
             return;
         let data = main.data;
-        let json = core_1.unpack(schema, data);
+        let json = (0, core_1.unpack)(schema, data);
         main.data = json;
         return main;
     }));

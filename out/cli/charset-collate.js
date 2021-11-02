@@ -39,7 +39,7 @@ const tool_1 = require("../tool");
         const const_connection = 'connection';
         const config_connection = config.get(const_connection);
         tool_1.logger.debug(config_connection);
-        const pool = mysql_1.createPool(config_connection);
+        const pool = (0, mysql_1.createPool)(config_connection);
         function runSql(sql) {
             return __awaiter(this, void 0, void 0, function* () {
                 return new Promise((resolve, reject) => {

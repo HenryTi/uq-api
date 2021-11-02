@@ -18,28 +18,28 @@ function buildMapRouter(router, rb) {
         let actionName = name + '$add$';
         let actionSchema = runner.getSchema(actionName);
         //return await actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
-        return yield actionProcess_1.actionProcess(unit, user, actionName, db, urlParams, runner, body, actionSchema.call, run);
+        return yield (0, actionProcess_1.actionProcess)(unit, user, actionName, db, urlParams, runner, body, actionSchema.call, run);
     }));
     rb.entityPost(router, actionType, '/:name/del', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         let actionName = name + '$del$';
         let actionSchema = runner.getSchema(actionName);
         //return await actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
-        return yield actionProcess_1.actionProcess(unit, user, actionName, db, urlParams, runner, body, actionSchema.call, run);
+        return yield (0, actionProcess_1.actionProcess)(unit, user, actionName, db, urlParams, runner, body, actionSchema.call, run);
     }));
     rb.entityPost(router, actionType, '/:name/all', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         let queryName = name + '$all$';
         let querySchema = runner.getSchema(queryName);
-        return yield query_1.pageQueryProcess(unit, user, queryName, db, urlParams, runner, body, querySchema.call);
+        return yield (0, query_1.pageQueryProcess)(unit, user, queryName, db, urlParams, runner, body, querySchema.call);
     }));
     rb.entityPost(router, actionType, '/:name/page', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         let queryName = name + '$page$';
         let querySchema = runner.getSchema(queryName);
-        return yield query_1.pageQueryProcess(unit, user, queryName, db, urlParams, runner, body, querySchema.call);
+        return yield (0, query_1.pageQueryProcess)(unit, user, queryName, db, urlParams, runner, body, querySchema.call);
     }));
     rb.entityPost(router, actionType, '/:name/query', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         let queryName = name + '$query$';
         let querySchema = runner.getSchema(queryName);
-        let ret = yield query_1.queryProcess(unit, user, queryName, db, urlParams, runner, body, querySchema.call);
+        let ret = yield (0, query_1.queryProcess)(unit, user, queryName, db, urlParams, runner, body, querySchema.call);
         return ret;
     }));
 }

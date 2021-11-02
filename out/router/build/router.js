@@ -24,7 +24,7 @@ function buildBuildRouter(router, rb) {
             yield core_1.testNet.runnerCompiling(db);
             tool_1.logger.debug('buildBuildRouter step 3');
             let { enc } = req.body;
-            core_1.setUqBuildSecret(enc);
+            (0, core_1.setUqBuildSecret)(enc);
             let runner = new core_2.BuildRunner(db);
             let exists = yield runner.buildDatabase();
             tool_1.logger.debug('buildBuildRouter step 4');

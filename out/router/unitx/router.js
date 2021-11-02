@@ -16,7 +16,7 @@ const core_1 = require("../../core");
 const messageProcesser_1 = require("./messageProcesser");
 const processBusMessage_1 = require("./processBusMessage");
 function buildUnitxRouter(rb) {
-    let router = express_1.Router();
+    let router = (0, express_1.Router)();
     router.post('/', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
         try {
             let msg = req.body;
@@ -34,7 +34,7 @@ function buildUnitxRouter(rb) {
             if (type === 'bus') {
                 tool_1.logger.error(msg);
             }
-            let mp = messageProcesser_1.messageProcesser(msg);
+            let mp = (0, messageProcesser_1.messageProcesser)(msg);
             yield mp(unitxRunner, msg);
             res.json({
                 ok: true,
@@ -59,7 +59,7 @@ function buildUnitxRouter(rb) {
     let jointReadBus = (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { unit, face, queue, defer } = body;
         if (queue === undefined)
-            queue = core_1.busQueueSeed();
+            queue = (0, core_1.busQueueSeed)();
         let ret = yield runner.unitUserCall('tv_BusMessageFromQueue', unit, undefined, face, defer !== null && defer !== void 0 ? defer : 0, queue);
         if (ret.length === 0)
             return;
@@ -68,7 +68,7 @@ function buildUnitxRouter(rb) {
     rb.post(router, '/joint-read-bus', jointReadBus);
     let jointWriteBus = (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { unit, face, defer, to, from, fromQueueId, version, body: message, stamp } = body;
-        let ret = yield processBusMessage_1.writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer !== null && defer !== void 0 ? defer : 0, stamp);
+        let ret = yield (0, processBusMessage_1.writeDataToBus)(runner, face, unit, to, from, fromQueueId, version, message, defer !== null && defer !== void 0 ? defer : 0, stamp);
         if (ret < 0) {
             tool_1.logger.error('writeDataToBus message duplicated!', body, -ret);
         }

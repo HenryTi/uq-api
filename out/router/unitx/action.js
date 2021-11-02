@@ -27,7 +27,7 @@ function unitxActionProcess(unit, user, name, db, urlParams, runner, body, schem
                 yield entityOpUserFully$del$(net, unit, body, schema);
                 break;
         }
-        return yield actionProcess_1.actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
+        return yield (0, actionProcess_1.actionProcess)(unit, user, name, db, urlParams, runner, body, schema, run);
     });
 }
 exports.unitxActionProcess = unitxActionProcess;
@@ -58,10 +58,10 @@ return await actionProcess(unit, user, name, db, urlParams, runner, body, schema
 */
 function saveEntityOpPost(unit, user, name, db, urlParams, runner, body, schema, run, net) {
     return __awaiter(this, void 0, void 0, function* () {
-        let actionParam = core_1.unpack(schema, body.data);
+        let actionParam = (0, core_1.unpack)(schema, body.data);
         let { uq, entityName, opName } = actionParam;
         let url = yield net.uqUrl(unit, uq);
-        let ret = yield actionProcess_1.actionProcess(unit, user, name, db, urlParams, runner, body, schema, run);
+        let ret = yield (0, actionProcess_1.actionProcess)(unit, user, name, db, urlParams, runner, body, schema, run);
         if (opName === '$') {
             let users = yield runner.query('getEntityAccess', unit, user, [uq, entityName, opName]);
             let uqApi = new UqApi(url);
@@ -80,7 +80,7 @@ function buildUqApi(net, unit, uq) {
 }
 function setAccessFully(net, unit, body, schema, flag) {
     return __awaiter(this, void 0, void 0, function* () {
-        let actionParam = core_1.unpack(schema, body.data);
+        let actionParam = (0, core_1.unpack)(schema, body.data);
         let { _uq, arr1 } = actionParam;
         let uqApi = yield buildUqApi(net, unit, _uq);
         for (let arr of arr1) {
@@ -101,7 +101,7 @@ function entityOpUserFully$del$(net, unit, body, schema) {
 }
 function setAccessEntity(net, unit, body, schema) {
     return __awaiter(this, void 0, void 0, function* () {
-        let actionParam = core_1.unpack(schema, body.data);
+        let actionParam = (0, core_1.unpack)(schema, body.data);
         let { uq, entities } = actionParam;
         let entityNames = entities.map(v => v.entity).join(',');
         let uqApi = yield buildUqApi(net, unit, uq);

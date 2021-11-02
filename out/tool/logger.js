@@ -14,7 +14,7 @@ DEBUG	500
 TRACE	600
 ALL	Integer.MAX_VALUE
 */
-log4js_1.configure({
+(0, log4js_1.configure)({
     appenders: {
         console: { type: 'console' }
     },
@@ -25,7 +25,7 @@ log4js_1.configure({
         }
     }
 });
-exports.logger = log4js_1.getLogger();
+exports.logger = (0, log4js_1.getLogger)();
 // logger.level = 'debug';
 exports.logger.debug('log4js replace console.');
 //# sourceMappingURL=logger.js.map

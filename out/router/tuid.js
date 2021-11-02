@@ -160,7 +160,7 @@ function buildTuidRouter(router, rb) {
                     if ($update === true)
                         exFields.push('$update');
                 }
-                core_1.packArr(ret, mainFields, result, exFields);
+                (0, core_1.packArr)(ret, mainFields, result, exFields);
                 return ret.join('');
             }
         }
@@ -170,7 +170,7 @@ function buildTuidRouter(router, rb) {
             let { mainFields } = arrSchema;
             if (mainFields !== undefined) {
                 let ret = [];
-                core_1.packArr(ret, mainFields, result);
+                (0, core_1.packArr)(ret, mainFields, result);
                 return ret.join('');
             }
         }

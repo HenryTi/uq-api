@@ -17,8 +17,8 @@ const $test = '$test';
         //process.env.NODE_ENV = 'developement';
         //let runner = await testNet.getUnitxRunner();
         //await writeDataToBus(runner, 'test', 24, 'a', 101, 8, '{a:1}');
-        yield start_1.init();
-        let res = yield node_fetch_1.default('http://localhost:3015/uq/unitx-test/joint-read-bus', {
+        yield (0, start_1.init)();
+        let res = yield (0, node_fetch_1.default)('http://localhost:3015/uq/unitx-test/joint-read-bus', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

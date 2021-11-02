@@ -237,7 +237,7 @@ class Jobs {
                 tool_1.logger.error('为了调试程序，pullEntities暂时屏蔽');
             }
             tool_1.logger.info(`==== in loop ${uqDbName}: execQueueAct ====`);
-            yield execQueueAct_1.execQueueAct(runner);
+            yield (0, execQueueAct_1.execQueueAct)(runner);
             tool_1.logger.info(`###### end loop ${uqDbName} ######`);
         });
     }

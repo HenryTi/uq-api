@@ -13,7 +13,7 @@ exports.buildProcRouter = void 0;
 const express_1 = require("express");
 const core_1 = require("../core");
 function buildProcRouter() {
-    const router = express_1.Router({ mergeParams: true });
+    const router = (0, express_1.Router)({ mergeParams: true });
     router.get('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
         let { db, proc } = req.params;
         function buildProc(dbName) {

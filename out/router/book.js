@@ -22,7 +22,7 @@ function buildBookRouter(router, rb) {
             params.push(body[fields[i].name]);
         }
         let result = yield runner.query(name, unit, user, params);
-        let data = core_1.packReturn(schema, result);
+        let data = (0, core_1.packReturn)(schema, result);
         return data;
     }));
 }
