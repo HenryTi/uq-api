@@ -243,7 +243,7 @@ function buildBuildRouter(router, rb) {
     }));
     rb.post(router, '/entity', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { id, name, type, schema, run, source, from, open } = body;
-        let ret = yield runner.saveSchema(0, 0, id, name, type, schema, run, source, from, open);
+        let ret = yield runner.saveSchema(0, 0, id, name, type, schema, run, source, from, open, body['private']);
         return ret;
     }));
     rb.get(router, '/const-strs', (runner, body) => __awaiter(this, void 0, void 0, function* () {

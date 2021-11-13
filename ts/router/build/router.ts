@@ -243,7 +243,7 @@ export function buildBuildRouter(router:Router, rb: RouterBuilder) {
     rb.post(router, '/entity',
     async (runner:EntityRunner, body:any):Promise<any> => {
 		let {id, name, type, schema, run, source, from, open} = body;
-		let ret = await runner.saveSchema(0, 0, id, name, type, schema, run, source, from, open);
+		let ret = await runner.saveSchema(0, 0, id, name, type, schema, run, source, from, open, body['private']);
 		return ret;
 	});
 

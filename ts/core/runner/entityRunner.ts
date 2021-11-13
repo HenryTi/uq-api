@@ -297,8 +297,8 @@ export class EntityRunner {
     async loadSchemas(hasSource:number): Promise<any[][]> {
         return await this.db.tablesFromProc('tv_$entitys', [hasSource]);
     }
-    async saveSchema(unit:number, user:number, id:number, name:string, type:number, schema:string, run:string, source:string, from:string, open:number):Promise<any> {
-        return await this.unitUserCall('tv_$entity', unit, user, id, name, type, schema, run, source, from, open);
+    async saveSchema(unit:number, user:number, id:number, name:string, type:number, schema:string, run:string, source:string, from:string, open:number, isPrivate:number):Promise<any> {
+        return await this.unitUserCall('tv_$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
     }
     async loadConstStrs(): Promise<{[name:string]:number}[]> {
         return await this.db.call('tv_$const_strs', []);
@@ -634,7 +634,7 @@ export class EntityRunner {
 
     private async initInternal() {
         let rows = await this.loadSchemas(0);
-        let schemaTable:{id:number, name:string, type:number, version:number, schema:string, run:string, from:string}[] = rows[0];
+        let schemaTable:{id:number, name:string, type:number, version:number, schema:string, run:string, from:string, isPrivate:number}[] = rows[0];
         let settingTable:{name:string, value:string}[] = rows[1];
         let setting:{[name:string]:string|number} = {};
         for (let row of settingTable) {
@@ -745,16 +745,18 @@ export class EntityRunner {
                     }
                     break;
             }
-            this.entityColl[id] = {
-                name: sName,
-                access: type !== 'sheet'?
-                    type + '|' + id :
-                    {
-                        $: type, 
-                        id: id,
-                        ops: schemaObj.states && schemaObj.states.map(v => v.name)
-                    }
-            };
+            if (row['private'] === 0) {
+                this.entityColl[id] = {
+                    name: sName,
+                    access: type !== 'sheet'?
+                        type + '|' + id :
+                        {
+                            $: type, 
+                            id: id,
+                            ops: schemaObj.states && schemaObj.states.map(v => v.name)
+                        }
+                };
+            }
         }
 		this.ixOfUsers = ixUserArr.map(v => v.name).join('|');
         for (let i in this.froms) {

@@ -303,9 +303,9 @@ class EntityRunner {
             return yield this.db.tablesFromProc('tv_$entitys', [hasSource]);
         });
     }
-    saveSchema(unit, user, id, name, type, schema, run, source, from, open) {
+    saveSchema(unit, user, id, name, type, schema, run, source, from, open, isPrivate) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_$entity', unit, user, id, name, type, schema, run, source, from, open);
+            return yield this.unitUserCall('tv_$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
         });
     }
     loadConstStrs() {
@@ -865,16 +865,18 @@ class EntityRunner {
                         }
                         break;
                 }
-                this.entityColl[id] = {
-                    name: sName,
-                    access: type !== 'sheet' ?
-                        type + '|' + id :
-                        {
-                            $: type,
-                            id: id,
-                            ops: schemaObj.states && schemaObj.states.map(v => v.name)
-                        }
-                };
+                if (row['private'] === 0) {
+                    this.entityColl[id] = {
+                        name: sName,
+                        access: type !== 'sheet' ?
+                            type + '|' + id :
+                            {
+                                $: type,
+                                id: id,
+                                ops: schemaObj.states && schemaObj.states.map(v => v.name)
+                            }
+                    };
+                }
             }
             this.ixOfUsers = ixUserArr.map(v => v.name).join('|');
             for (let i in this.froms) {
