@@ -78,7 +78,7 @@ export class PullBus {
 			}
 			if (messagesLen < maxRows && maxPullId < maxMsgId) {
 				// 如果unit的所有mssage都处理完成了，则设为unit的最大msg，下次查找可以快些
-				await this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined, undefined]);
+				await this.runner.call('$queue_in_add', [unit, undefined, defer, maxMsgId, undefined, undefined, undefined, undefined, undefined]);
 				break;
 			}
 			if (messagesLen === 0) break;

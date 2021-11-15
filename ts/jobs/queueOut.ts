@@ -213,6 +213,7 @@ export class QueueOut {
                     , busEntityName
                     , face
                     , body
+                    , 0
                     , stamp ?? Date.now()/1000]);
             }
         }
@@ -240,7 +241,7 @@ export class QueueOut {
             await this.runner.net.sendToUnitx(unit, message);
             if (local === true) {
                 defer = -1;
-                await this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, stamp]);
+                await this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, 0, stamp]);
             }
             */
         }
