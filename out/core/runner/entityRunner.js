@@ -805,7 +805,8 @@ class EntityRunner {
                 let sName = schemaObj.name;
                 let runObj = JSON.parse(run);
                 schemaObj.typeId = id;
-                schemaObj.entityVersion = version;
+                schemaObj.busVersion = schemaObj.version;
+                schemaObj.version = version;
                 let { type, sync } = schemaObj;
                 this.schemas[name] = {
                     type: type,
@@ -954,7 +955,7 @@ class EntityRunner {
             let urlColl = {};
             let busColl = {};
             for (let busSchema of this.busArr) {
-                let { name: bus, busOwner, busName, schema, outCount, version } = busSchema;
+                let { name: bus, busOwner, busName, schema, outCount, busVersion } = busSchema;
                 for (let i in schema) {
                     let { accept, query } = schema[i];
                     let faceName = i.toLowerCase();
@@ -963,10 +964,10 @@ class EntityRunner {
                         continue;
                     if (accept !== undefined) {
                         faces.push(url);
-                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceAccept(url, bus, faceName, version, accept);
+                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceAccept(url, bus, faceName, busVersion, accept);
                     }
                     else if (query === true) {
-                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceQuery(url, bus, faceName, version);
+                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceQuery(url, bus, faceName, busVersion);
                     }
                 }
                 busOutCount += (outCount !== null && outCount !== void 0 ? outCount : 0);
