@@ -37,7 +37,7 @@ export class QueueIn {
     }
     
     private async processOneRow(row: any, defer:number) {
-        let {bus, faceName, id, unit, to, data, tries, update_time, now, stamp} = row;
+        let {bus, faceName, id, unit, to, data, version, tries, update_time, now, stamp} = row;
         this.queuePointer = id;
         if (!unit) unit = this.runner.uniqueUnit;
         if (tries > 0) {
@@ -47,10 +47,22 @@ export class QueueIn {
         let finish:Finish;
         try {
             if (!bus) {
-                await this.runner.call('$queue_in_set', [id, defer, Finish.done]); 
+                await this.runner.call('$queue_in_set', [id, defer, Finish.done, version]); 
             }
             else {
-                await this.runner.bus(bus, faceName, unit, to, id, data, stamp);
+                let face = this.runner.buses.busColl[bus];
+                if (face === undefined) return;
+                if (face.version !== version) {
+                    // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
+                    // 不同需要做数据转换
+                    // 但是，现在先不处理
+                    // 2019-07-23
+    
+                    // 2021-11-14：实现bus间的版本转换
+                    // 针对不同version的bus做转换
+                    data = await face.convert(data, version);
+                }
+                await this.runner.bus(bus, faceName, unit, to, id, data, version, stamp);
             }
             finish = Finish.done;
         }
@@ -67,7 +79,7 @@ export class QueueIn {
         }
         if (finish !== Finish.done) {
             // 操作错误，retry++ or bad
-            await this.runner.call('$queue_in_set', [id, defer, finish]); 
+            await this.runner.call('$queue_in_set', [id, defer, finish, version]); 
         }
     }
 

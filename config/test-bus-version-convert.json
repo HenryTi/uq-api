@@ -1,0 +1,20 @@
+{
+    "connection.ligsh.test.ssh": {
+        "host": "127.0.0.1",
+        "user": "henry",
+        "port": 3307,
+        "password": "jk@20180402!@#"
+    },
+	"connection": {
+        "host": "127.0.0.1",
+        "user": "henry",
+        "port": 3307,
+        "password": "jk@20180402!@#"
+    },
+    "connection_$unitx": {
+        "host": "127.0.0.1",
+        "user": "henry",
+        "port": 3307,
+        "password": "jk@20180402!@#"
+    }
+}

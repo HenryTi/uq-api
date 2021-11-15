@@ -19,7 +19,7 @@ class PullBus {
         this.net = runner.net;
         this.buses = runner.buses;
         this.faces = this.buses.faces;
-        this.coll = this.buses.coll;
+        this.coll = this.buses.urlColl;
         this.hasError = this.buses.hasError;
     }
     run() {
@@ -30,19 +30,33 @@ class PullBus {
                     if (this.hasError === true)
                         break;
                     let { unit, maxId, maxId1 } = row;
-                    let pullIds = [maxId, maxId1];
-                    for (let defer = 0; defer < consts_1.deferMax; defer++) {
-                        if (this.hasError === true)
-                            break;
-                        let count = consts_1.deferQueueCounts[defer];
+                    yield this.pullRun(unit, maxId, maxId1);
+                    /*
+                    let pullIds:number[] = [maxId, maxId1];
+                    for (let defer=0; defer<deferMax; defer++) {
+                        if (this.hasError as any === true) break;
+                        let count = deferQueueCounts[defer];
                         let pullId = pullIds[defer];
-                        yield this.pullFromUnitx(unit, pullId !== null && pullId !== void 0 ? pullId : 0, defer, count);
+                        await this.pullFromUnitx(unit, pullId??0, defer, count);
                     }
+                    */
                 }
             }
             catch (err) {
                 tool_1.logger.error(err);
                 yield this.runner.log(0, 'jobs pullBus loop error: ', (0, tool_2.getErrorString)(err));
+            }
+        });
+    }
+    pullRun(unit, maxId, maxId1) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let pullIds = [maxId, maxId1];
+            for (let defer = 0; defer < consts_1.deferMax; defer++) {
+                if (this.hasError === true)
+                    break;
+                let count = consts_1.deferQueueCounts[defer];
+                let pullId = pullIds[defer];
+                yield this.pullFromUnitx(unit, pullId !== null && pullId !== void 0 ? pullId : 0, defer, count);
             }
         });
     }
@@ -88,15 +102,9 @@ class PullBus {
             let face = this.coll[faceUrl.toLowerCase()];
             if (face === undefined)
                 return;
-            let { bus, faceName, version: runnerBusVersion } = face;
+            let { bus, faceName } = face;
             try {
-                if (runnerBusVersion !== version) {
-                    // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
-                    // 不同需要做数据转换
-                    // 但是，现在先不处理
-                    // 2019-07-23
-                }
-                yield this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, stamp]);
+                yield this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, version, stamp]);
             }
             catch (toQueueInErr) {
                 this.hasError = this.buses.hasError = true;

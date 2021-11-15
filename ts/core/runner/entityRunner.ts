@@ -12,6 +12,7 @@ import { ParametersBus, ActionParametersBus, SheetVerifyParametersBus
 	, SheetActionParametersBus, AcceptParametersBus } from '../inBusAction';
 import { Net } from '../net';
 import { centerApi } from '../centerApi';
+import { BusFace, BusFaceAccept, BusFaceQuery } from './BusFace';
 
 interface EntityAccess {
     name: string;
@@ -29,10 +30,11 @@ interface SheetRun {
 export interface Buses {
     faces: string;
     outCount: number;
-    coll: {[url:string]:Face}
+    urlColl: {[url:string]:BusFace};
+    busColl: {[bus:string]:BusFace};
     hasError: boolean;
 }
-
+/*
 export interface Face {
     bus: string;
     faceName: string;
@@ -42,6 +44,7 @@ export interface Face {
     };
     query?: boolean;
 }
+*/
 
 export class EntityRunner {
 	protected readonly db: Db;
@@ -587,11 +590,11 @@ export class EntityRunner {
         }
         return inBusAction;
     }
-    async bus(bus:string, face:string, unit:number, to:number, msgId:number, body:string, stamp:number): Promise<void> {
+    async bus(bus:string, face:string, unit:number, to:number, msgId:number, body:string, version:number, stamp:number): Promise<void> {
         let inBusAction = this.getAcceptParametersBus(bus, face);
         let inBusResult = await inBusAction.busQueryAll(unit, to, body);
         let data = body + inBusResult;
-        await this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, stamp);
+        await this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, version, stamp);
     }
     async busAcceptFromQuery(bus:string, face:string, unit:number, body:string): Promise<void> {
         await this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body, undefined);
@@ -681,7 +684,7 @@ export class EntityRunner {
             let sName = schemaObj.name;
             let runObj = JSON.parse(run);
             schemaObj.typeId = id;
-            schemaObj.version = version;
+            schemaObj.entityVersion = version;
             let {type, sync} = schemaObj;
             this.schemas[name] = {
                 type: type,
@@ -819,31 +822,28 @@ export class EntityRunner {
 
         let faces:string[] = [];
         let busOutCount = 0;
-        let coll:{[url:string]:Face} = {};
+        let urlColl:{[url:string]:BusFace} = {};
+        let busColl:{[bus:string]:BusFace} = {};
         for (let busSchema of this.busArr) {
-            let {name:bus, busOwner, busName, schema, outCount} = busSchema;
-            //let hasAccept:boolean = false;
+            let {name:bus, busOwner, busName, schema, outCount, version} = busSchema;
             for (let i in schema) {
-                let {version, accept, query} = schema[i];
+                let {accept, query} = schema[i];
                 let faceName = i.toLowerCase();
-                let url = busOwner.toLowerCase() + '/' + busName.toLowerCase() + '/' + faceName;
-                if (coll[url]) continue;
+                let url = `${busOwner.toLowerCase()}/${busName.toLowerCase()}/${faceName}`;
+                if (urlColl[url]) continue;
                 if (accept !== undefined) {
                     faces.push(url);
-                    coll[url] = { bus, faceName, version, accept, };
-                    //hasAccept = true;
+                    busColl[bus] = urlColl[url] = new BusFaceAccept(url, bus, faceName, version, accept);
                 }
                 else if (query === true) {
-                    coll[url] = {
+                    busColl[bus] = urlColl[url] = new BusFaceQuery(
+                        url,
                         bus,
                         faceName,
                         version,
-                        query: true,
-                    };
+                    );
                 }
             }
-            //if (hasAccept === false) ++outCount;
-			//if (hasOut === true) ++outCount;
 			busOutCount += (outCount ?? 0);
         }
         let faceText:string;
@@ -851,7 +851,8 @@ export class EntityRunner {
         this.buses = {
             faces: faceText, 
             outCount: busOutCount,
-            coll,
+            urlColl,
+            busColl,
             hasError: false,
         };
         this.buildAccesses();

@@ -48,7 +48,7 @@ class QueueIn {
     }
     processOneRow(row, defer) {
         return __awaiter(this, void 0, void 0, function* () {
-            let { bus, faceName, id, unit, to, data, tries, update_time, now, stamp } = row;
+            let { bus, faceName, id, unit, to, data, version, tries, update_time, now, stamp } = row;
             this.queuePointer = id;
             if (!unit)
                 unit = this.runner.uniqueUnit;
@@ -60,10 +60,22 @@ class QueueIn {
             let finish;
             try {
                 if (!bus) {
-                    yield this.runner.call('$queue_in_set', [id, defer, consts_1.Finish.done]);
+                    yield this.runner.call('$queue_in_set', [id, defer, consts_1.Finish.done, version]);
                 }
                 else {
-                    yield this.runner.bus(bus, faceName, unit, to, id, data, stamp);
+                    let face = this.runner.buses.busColl[bus];
+                    if (face === undefined)
+                        return;
+                    if (face.version !== version) {
+                        // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
+                        // 不同需要做数据转换
+                        // 但是，现在先不处理
+                        // 2019-07-23
+                        // 2021-11-14：实现bus间的版本转换
+                        // 针对不同version的bus做转换
+                        data = yield face.convert(data, version);
+                    }
+                    yield this.runner.bus(bus, faceName, unit, to, id, data, version, stamp);
                 }
                 finish = consts_1.Finish.done;
             }
@@ -80,7 +92,7 @@ class QueueIn {
             }
             if (finish !== consts_1.Finish.done) {
                 // 操作错误，retry++ or bad
-                yield this.runner.call('$queue_in_set', [id, defer, finish]);
+                yield this.runner.call('$queue_in_set', [id, defer, finish, version]);
             }
         });
     }

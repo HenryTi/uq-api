@@ -62,7 +62,7 @@ export function buildOpenRouter(router:Router, rb: RouterBuilder) {
     async (runner:EntityRunner, body:any):Promise<any> => {
         let {unit, busOwner, busName, face:faceName, params} = body;
         let faceUrl = `${busOwner}/${busName}/${faceName}`;
-        let face = runner.buses.coll[faceUrl];
+        let face = runner.buses.urlColl[faceUrl];
         let {bus} = face;
         // 之前的编译，BUS accept和query存储过程没有分开
         try {

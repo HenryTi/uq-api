@@ -17,6 +17,18 @@ const packReturn_1 = require("../packReturn");
 const importData_1 = require("../importData");
 const inBusAction_1 = require("../inBusAction");
 const centerApi_1 = require("../centerApi");
+const BusFace_1 = require("./BusFace");
+/*
+export interface Face {
+    bus: string;
+    faceName: string;
+    version: number;
+    accept?: {
+        inBuses: any[];
+    };
+    query?: boolean;
+}
+*/
 class EntityRunner {
     constructor(name, db, net = undefined) {
         this.roleVersions = {};
@@ -684,12 +696,12 @@ class EntityRunner {
         }
         return inBusAction;
     }
-    bus(bus, face, unit, to, msgId, body, stamp) {
+    bus(bus, face, unit, to, msgId, body, version, stamp) {
         return __awaiter(this, void 0, void 0, function* () {
             let inBusAction = this.getAcceptParametersBus(bus, face);
             let inBusResult = yield inBusAction.busQueryAll(unit, to, body);
             let data = body + inBusResult;
-            yield this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, stamp);
+            yield this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, version, stamp);
         });
     }
     busAcceptFromQuery(bus, face, unit, body) {
@@ -793,7 +805,7 @@ class EntityRunner {
                 let sName = schemaObj.name;
                 let runObj = JSON.parse(run);
                 schemaObj.typeId = id;
-                schemaObj.version = version;
+                schemaObj.entityVersion = version;
                 let { type, sync } = schemaObj;
                 this.schemas[name] = {
                     type: type,
@@ -939,32 +951,24 @@ class EntityRunner {
             }
             let faces = [];
             let busOutCount = 0;
-            let coll = {};
+            let urlColl = {};
+            let busColl = {};
             for (let busSchema of this.busArr) {
-                let { name: bus, busOwner, busName, schema, outCount } = busSchema;
-                //let hasAccept:boolean = false;
+                let { name: bus, busOwner, busName, schema, outCount, version } = busSchema;
                 for (let i in schema) {
-                    let { version, accept, query } = schema[i];
+                    let { accept, query } = schema[i];
                     let faceName = i.toLowerCase();
-                    let url = busOwner.toLowerCase() + '/' + busName.toLowerCase() + '/' + faceName;
-                    if (coll[url])
+                    let url = `${busOwner.toLowerCase()}/${busName.toLowerCase()}/${faceName}`;
+                    if (urlColl[url])
                         continue;
                     if (accept !== undefined) {
                         faces.push(url);
-                        coll[url] = { bus, faceName, version, accept, };
-                        //hasAccept = true;
+                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceAccept(url, bus, faceName, version, accept);
                     }
                     else if (query === true) {
-                        coll[url] = {
-                            bus,
-                            faceName,
-                            version,
-                            query: true,
-                        };
+                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceQuery(url, bus, faceName, version);
                     }
                 }
-                //if (hasAccept === false) ++outCount;
-                //if (hasOut === true) ++outCount;
                 busOutCount += (outCount !== null && outCount !== void 0 ? outCount : 0);
             }
             let faceText;
@@ -973,7 +977,8 @@ class EntityRunner {
             this.buses = {
                 faces: faceText,
                 outCount: busOutCount,
-                coll,
+                urlColl,
+                busColl,
                 hasError: false,
             };
             this.buildAccesses();

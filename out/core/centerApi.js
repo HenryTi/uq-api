@@ -22,9 +22,9 @@ class CenterApi extends fetch_1.Fetch {
     constructor() {
         super(centerUrl);
     }
-    busSchema(owner, bus) {
+    busSchema(owner, bus, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.get('open/bus', { owner: owner, bus: bus });
+            let ret = yield this.get('open/bus', { owner, bus, version });
             return ret.schema;
         });
     }

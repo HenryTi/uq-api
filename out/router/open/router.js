@@ -61,7 +61,7 @@ function buildOpenRouter(router, rb) {
     rb.post(router, '/bus-query', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { unit, busOwner, busName, face: faceName, params } = body;
         let faceUrl = `${busOwner}/${busName}/${faceName}`;
-        let face = runner.buses.coll[faceUrl];
+        let face = runner.buses.urlColl[faceUrl];
         let { bus } = face;
         // 之前的编译，BUS accept和query存储过程没有分开
         try {

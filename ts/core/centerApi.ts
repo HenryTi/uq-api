@@ -26,8 +26,8 @@ class CenterApi extends Fetch {
         super(centerUrl);
     }
 
-    async busSchema(owner:string, bus:string):Promise<string> {
-        let ret = await this.get('open/bus', {owner: owner, bus: bus});
+    async busSchema(owner:string, bus:string, version:number):Promise<string> {
+        let ret = await this.get('open/bus', {owner, bus, version});
         return ret.schema;
     }
 

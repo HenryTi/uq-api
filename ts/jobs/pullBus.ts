@@ -1,5 +1,5 @@
 import { logger } from '../tool';
-import { EntityRunner, Buses, Net, Face } from "../core";
+import { EntityRunner, Buses, Net, BusFace } from "../core";
 import { getErrorString } from "../tool";
 import { deferMax, deferQueueCounts } from './consts';
 
@@ -8,7 +8,7 @@ export class PullBus {
 	private readonly net: Net;
 	private readonly buses: Buses;
 	private readonly faces: string;
-	private readonly coll: {[url:string]:Face};
+	private readonly coll: {[url:string]:BusFace};
 	private hasError:boolean;
 
 
@@ -17,7 +17,7 @@ export class PullBus {
 		this.net = runner.net;
 		this.buses = runner.buses;
 		this.faces = this.buses.faces;
-		this.coll = this.buses.coll;
+		this.coll = this.buses.urlColl;
 		this.hasError = this.buses.hasError;
 	}
 
@@ -27,6 +27,8 @@ export class PullBus {
 			for (let row of unitMaxIds) {
 				if (this.hasError === true) break;
 				let {unit, maxId, maxId1} = row;
+				await this.pullRun(unit, maxId, maxId1);
+				/*
 				let pullIds:number[] = [maxId, maxId1];
 				for (let defer=0; defer<deferMax; defer++) {
 					if (this.hasError as any === true) break;
@@ -34,11 +36,22 @@ export class PullBus {
 					let pullId = pullIds[defer];
 					await this.pullFromUnitx(unit, pullId??0, defer, count);
 				}
+				*/
 			}
 		}
 		catch (err) {
 			logger.error(err);
 			await this.runner.log(0, 'jobs pullBus loop error: ', getErrorString(err));
+		}
+	}
+
+	async pullRun(unit:number, maxId:number, maxId1:number) {
+		let pullIds:number[] = [maxId, maxId1];
+		for (let defer=0; defer<deferMax; defer++) {
+			if (this.hasError as any === true) break;
+			let count = deferQueueCounts[defer];
+			let pullId = pullIds[defer];
+			await this.pullFromUnitx(unit, pullId??0, defer, count);
 		}
 	}
 
@@ -77,15 +90,9 @@ export class PullBus {
 		let {to, face:faceUrl, id:msgId, body, version, stamp} = message;
 		let face = this.coll[(faceUrl as string).toLowerCase()];
 		if (face === undefined) return;
-		let {bus, faceName, version:runnerBusVersion} = face;
+		let {bus, faceName} = face;
 		try {
-			if (runnerBusVersion !== version) {
-				// 也就是说，bus消息的version，跟runner本身的bus version有可能不同
-				// 不同需要做数据转换
-				// 但是，现在先不处理
-				// 2019-07-23
-			}
-			await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, stamp]);
+			await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, version, stamp]);
 		}
 		catch (toQueueInErr) {
 			this.hasError = this.buses.hasError = true;
