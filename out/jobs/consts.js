@@ -8,5 +8,5 @@ var Finish;
     Finish[Finish["bad"] = 3] = "bad";
 })(Finish = exports.Finish || (exports.Finish = {}));
 exports.deferMax = 2;
-exports.deferQueueCounts = [100, 20];
+exports.deferQueueCounts = [100, 50];
 //# sourceMappingURL=consts.js.map

@@ -5,11 +5,19 @@
         "port": 3307,
         "password": "jk@20180402!@#"
     },
-	"connection": {
+    "j&k.prod.ssh": {
+        "server-id": 18,
         "host": "127.0.0.1",
-        "user": "henry",
-        "port": 3307,
-        "password": "jk@20180402!@#"
+        "user": "erp_login",
+        "port": 3308,
+        "password": "j&k$*#Am$"
+    },
+    "connection": {
+        "server-id": 18,
+        "host": "127.0.0.1",
+        "user": "erp_login",
+        "port": 3308,
+        "password": "j&k$*#Am$"
     },
     "connection_$unitx": {
         "host": "127.0.0.1",
