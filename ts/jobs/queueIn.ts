@@ -52,38 +52,35 @@ export class QueueIn {
             else {
                 let face = this.runner.buses.busColl[bus];
                 if (face === undefined) return;
-                try {
-                    /*
-                    if (face.version !== version) {
-                        // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
-                        // 不同需要做数据转换
-                        // 但是，现在先不处理
-                        // 2019-07-23
-        
-                        // 2021-11-14：实现bus间的版本转换
-                        // 针对不同version的bus做转换
-                        data = await face.convert(data, version);
+                let errText:string;
+                let busData: string = data;
+                if (face.version !== version) {
+                    // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
+                    // 不同需要做数据转换
+                    // 但是，现在先不处理
+                    // 2019-07-23
+    
+                    // 2021-11-14：实现bus间的版本转换
+                    // 针对不同version的bus做转换
+                    try {
+                        busData = await face.convert(data, version);
                     }
-                    else {
-                        let busData = await face.convert(data, version);
-                        if (busData === data) {
-                            console.error('converted is the same as original bus');
-                        }
-                        else {
-                            console.error(`converted is not the same as original bus
-    org: ${data}
-    new: ${busData}
-                            `);
-                        }
+                    catch (err) {
+                        errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}`;
                     }
-                    */
-                    await this.runner.bus(bus, faceName, unit, to, id, data, version, stamp);
                 }
-                catch (errConvert) {
-                    debugger;
-                    console.error(errConvert);
-                    throw errConvert;
+                else {
+                    try {
+                        busData = await face.convert(data, version);
+                    }
+                    catch (err) {
+                        errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err:${err?.message}, equ:${busData === data}`;
+                    }
                 }
+                if (errText) {
+                    await this.runner.log(unit, 'face convert error', errText);
+                }
+                await this.runner.bus(bus, faceName, unit, to, id, busData, version, stamp);
             }
             finish = Finish.done;
         }
