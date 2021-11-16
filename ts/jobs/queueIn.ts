@@ -52,6 +52,7 @@ export class QueueIn {
             else {
                 let face = this.runner.buses.busColl[bus];
                 if (face === undefined) return;
+                /*
                 if (face.version !== version) {
                     // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
                     // 不同需要做数据转换
@@ -74,6 +75,7 @@ new: ${busData}
                         `);
                     }
                 }
+                */
                 await this.runner.bus(bus, faceName, unit, to, id, data, version, stamp);
             }
             finish = Finish.done;
