@@ -66,36 +66,26 @@ class QueueIn {
                     let face = this.runner.buses.faceColl[`${bus.toLowerCase()}/${faceName.toLowerCase()}`];
                     if (face === undefined)
                         return;
-                    let errText;
-                    let busData = data;
-                    if (version > 0) {
-                        if (face.version !== version) {
-                            // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
-                            // 不同需要做数据转换
-                            // 但是，现在先不处理
-                            // 2019-07-23
-                            // 2021-11-14：实现bus间的版本转换
-                            // 针对不同version的bus做转换
-                            try {
-                                busData = yield face.convert(data, version);
-                            }
-                            catch (err) {
-                                errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err === null || err === void 0 ? void 0 : err.message}\nstack:${err.stack}`;
-                            }
+                    if (version > 0 && face.version !== version) {
+                        // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
+                        // 不同需要做数据转换
+                        // 但是，现在先不处理
+                        // 2019-07-23
+                        // 2021-11-14：实现bus间的版本转换
+                        // 针对不同version的bus做转换
+                        try {
+                            let busData = yield face.convert(data, version);
+                            yield this.runner.bus(bus, faceName, unit, to, id, busData, version, stamp);
                         }
-                        else {
-                            try {
-                                busData = yield face.convert(data, version);
-                            }
-                            catch (err) {
-                                errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, equ:${busData === data}, err:${err === null || err === void 0 ? void 0 : err.message}\nstack:${err.stack}`;
-                            }
+                        catch (err) {
+                            let errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err === null || err === void 0 ? void 0 : err.message}\nstack:${err.stack}`;
+                            yield this.runner.log(unit, 'face convert error', errText);
+                            throw err;
                         }
                     }
-                    if (errText) {
-                        yield this.runner.log(unit, 'face convert error', errText);
+                    else {
+                        yield this.runner.bus(bus, faceName, unit, to, id, data, version, stamp);
                     }
-                    yield this.runner.bus(bus, faceName, unit, to, id, busData, version, stamp);
                 }
                 finish = consts_1.Finish.done;
             }
