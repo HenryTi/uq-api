@@ -73,7 +73,7 @@ class BusFace {
                 case 'array':
                     let { name, fields } = field;
                     _.push(field);
-                    face[name] = bus[fields].$;
+                    face[name] = bus[fields.toLowerCase()].$;
                     break;
                 default:
                     $.push(field);

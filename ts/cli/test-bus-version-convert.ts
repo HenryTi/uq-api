@@ -9,7 +9,7 @@ import { PullBus } from '../jobs/pullBus';
 	//let db = Db.db(undefined);
 	//await db.setDebugJobs();
 
-	let dbName = 'pointshop';
+	let dbName = 'webuser';
 	let node_env = process.env.NODE_ENV;
 	logger.debug('node_env=' + node_env + ', ' + 'db = ' + dbName);
 	let net = prodNet;
@@ -22,11 +22,10 @@ import { PullBus } from '../jobs/pullBus';
 		if (faces !== undefined) {
 			//let pullBus = new PullBus(runner);
             //await pullBus.pullRun(24, 0, 0);
-
-			let faceUrl = 'pobus/orderpointchanged';
+			let faceUrl = 'orderbus/order';
 			let face = runner.buses.faceColl[faceUrl];
 			if (face === undefined) return;
-			let version = 5;
+			let version = 17;
 			let data = `1	32331896	20437	211116000030	68563		411543	22082	165096	165096	1	665040	12.00	0.00	74.00	5		0.00	0.00	0		1
 32331897	66512	177771	1	62	62
 

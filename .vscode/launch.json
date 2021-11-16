@@ -16,9 +16,9 @@
                 "runtimeExecutable": "npm.cmd"
             },
             "runtimeArgs": [
-                "run-script", "debug",
+                //"run-script", "debug",
 				//"run-script", "devdo",
-				//"run-script", "test-bus-version-convert",
+				"run-script", "test-bus-version-convert",
             ],
 			"restart": true,
 			/*
