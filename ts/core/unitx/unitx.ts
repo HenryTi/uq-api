@@ -95,7 +95,6 @@ export abstract class Unitx {
 	}
 	
     async sendToUnitx(unit:number, msg:Message):Promise<number[]|string> {
-		logger.error('sendToUnitx', unit, msg);
         let unitxApi = await this.getPushUnitxApi(unit);
         if (!unitxApi) {
             let err = `Center unit ${unit} not binding $unitx service!!!`;

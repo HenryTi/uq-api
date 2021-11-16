@@ -108,7 +108,6 @@ class Unitx {
     }
     sendToUnitx(unit, msg) {
         return __awaiter(this, void 0, void 0, function* () {
-            tool_1.logger.error('sendToUnitx', unit, msg);
             let unitxApi = yield this.getPushUnitxApi(unit);
             if (!unitxApi) {
                 let err = `Center unit ${unit} not binding $unitx service!!!`;
