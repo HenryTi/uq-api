@@ -63,7 +63,7 @@ class QueueIn {
                     yield this.runner.call('$queue_in_set', [id, defer, consts_1.Finish.done, version]);
                 }
                 else {
-                    let face = this.runner.buses.busColl[bus];
+                    let face = this.runner.buses.faceColl[`${bus.toLowerCase()}/${faceName.toLowerCase()}`];
                     if (face === undefined)
                         return;
                     let errText;

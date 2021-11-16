@@ -1,3 +1,4 @@
+import { EntityRunner } from "./entityRunner";
 import { centerApi } from "../centerApi";
 
 type FieldType = 'id'|'string'|'number'|'array';
@@ -20,13 +21,15 @@ export const allBuses: {
 };
 
 export abstract class BusFace {
+    protected readonly entityRunner: EntityRunner;
     readonly busUrl: string;
     readonly bus: string;
     readonly busOwner: string;
     readonly busName: string;
     readonly faceName: string;
     readonly version: number;
-    protected constructor(url:string, bus:string, faceName:string, version:number) {
+    protected constructor(entityRunner: EntityRunner, url:string, bus:string, faceName:string, version:number) {
+        this.entityRunner = entityRunner;
         this.bus = bus;
         let parts = url.split('/');
         this.busOwner = parts[0];
@@ -62,14 +65,14 @@ export abstract class BusFace {
         let bus:Bus = {};
         let schemas = JSON.parse(schemaText);
         for (let i in schemas) {
-            bus[i] = {
+            bus[i.toLowerCase()] = {
                 _: [{name:'$', type: 'array'}],
                 $: [],
             }
         }
         for (let i in schemas) {
             let schema = schemas[i];
-            let face = bus[i];
+            let face = bus[i.toLowerCase()];
             this.buildFace(bus, face, schema);
         }
         return bus;
@@ -101,8 +104,8 @@ interface BusContent {
 }
 export class BusFaceAccept extends BusFace {
     readonly accept: { inBuses: any[]; };
-    constructor(url:string, bus:string, faceName:string, version:number, accept: {inBuses: any[]}) {
-        super(url, bus, faceName, version);
+    constructor(entityRunner: EntityRunner, url:string, bus:string, faceName:string, version:number, accept: {inBuses: any[]}) {
+        super(entityRunner, url, bus, faceName, version);
         this.accept = accept;
     }
 
@@ -204,8 +207,8 @@ export class BusFaceAccept extends BusFace {
 
 export class BusFaceQuery extends BusFace {
     readonly query: boolean;
-    constructor(url:string, bus:string, faceName:string, version:number) {
-        super(url, bus, faceName, version);
+    constructor(entityRunner: EntityRunner, url:string, bus:string, faceName:string, version:number) {
+        super(entityRunner, url, bus, faceName, version);
         this.query = true;
     }
 }

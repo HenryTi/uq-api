@@ -31,7 +31,7 @@ export interface Buses {
     faces: string;
     outCount: number;
     urlColl: {[url:string]:BusFace};
-    busColl: {[bus:string]:BusFace};
+    faceColl: {[bus:string]:BusFace};
     hasError: boolean;
 }
 /*
@@ -824,7 +824,7 @@ export class EntityRunner {
         let faces:string[] = [];
         let busOutCount = 0;
         let urlColl:{[url:string]:BusFace} = {};
-        let busColl:{[bus:string]:BusFace} = {};
+        let faceColl:{[bus:string]:BusFace} = {};
         for (let busSchema of this.busArr) {
             let {name:bus, busOwner, busName, schema, outCount, busVersion} = busSchema;
             for (let i in schema) {
@@ -832,12 +832,16 @@ export class EntityRunner {
                 let faceName = i.toLowerCase();
                 let url = `${busOwner.toLowerCase()}/${busName.toLowerCase()}/${faceName}`;
                 if (urlColl[url]) continue;
+                let faceUrl = `${bus.toLowerCase()}/${faceName}`;
                 if (accept !== undefined) {
                     faces.push(url);
-                    busColl[bus] = urlColl[url] = new BusFaceAccept(url, bus, faceName, busVersion, accept);
+                    faceColl[faceUrl] = urlColl[url] = new BusFaceAccept(
+                        this, url, bus, faceName, busVersion, accept
+                    );
                 }
                 else if (query === true) {
-                    busColl[bus] = urlColl[url] = new BusFaceQuery(
+                    faceColl[faceUrl] = urlColl[url] = new BusFaceQuery(
+                        this,
                         url,
                         bus,
                         faceName,
@@ -853,7 +857,7 @@ export class EntityRunner {
             faces: faceText, 
             outCount: busOutCount,
             urlColl,
-            busColl,
+            faceColl,
             hasError: false,
         };
         this.buildAccesses();

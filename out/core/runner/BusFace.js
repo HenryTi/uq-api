@@ -15,7 +15,8 @@ const centerApi_1 = require("../centerApi");
 ;
 exports.allBuses = {};
 class BusFace {
-    constructor(url, bus, faceName, version) {
+    constructor(entityRunner, url, bus, faceName, version) {
+        this.entityRunner = entityRunner;
         this.bus = bus;
         let parts = url.split('/');
         this.busOwner = parts[0];
@@ -52,14 +53,14 @@ class BusFace {
         let bus = {};
         let schemas = JSON.parse(schemaText);
         for (let i in schemas) {
-            bus[i] = {
+            bus[i.toLowerCase()] = {
                 _: [{ name: '$', type: 'array' }],
                 $: [],
             };
         }
         for (let i in schemas) {
             let schema = schemas[i];
-            let face = bus[i];
+            let face = bus[i.toLowerCase()];
             this.buildFace(bus, face, schema);
         }
         return bus;
@@ -83,8 +84,8 @@ class BusFace {
 }
 exports.BusFace = BusFace;
 class BusFaceAccept extends BusFace {
-    constructor(url, bus, faceName, version, accept) {
-        super(url, bus, faceName, version);
+    constructor(entityRunner, url, bus, faceName, version, accept) {
+        super(entityRunner, url, bus, faceName, version);
         this.accept = accept;
     }
     convert(busBody, version) {
@@ -182,8 +183,8 @@ class BusFaceAccept extends BusFace {
 }
 exports.BusFaceAccept = BusFaceAccept;
 class BusFaceQuery extends BusFace {
-    constructor(url, bus, faceName, version) {
-        super(url, bus, faceName, version);
+    constructor(entityRunner, url, bus, faceName, version) {
+        super(entityRunner, url, bus, faceName, version);
         this.query = true;
     }
 }

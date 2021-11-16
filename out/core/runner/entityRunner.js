@@ -953,7 +953,7 @@ class EntityRunner {
             let faces = [];
             let busOutCount = 0;
             let urlColl = {};
-            let busColl = {};
+            let faceColl = {};
             for (let busSchema of this.busArr) {
                 let { name: bus, busOwner, busName, schema, outCount, busVersion } = busSchema;
                 for (let i in schema) {
@@ -962,12 +962,13 @@ class EntityRunner {
                     let url = `${busOwner.toLowerCase()}/${busName.toLowerCase()}/${faceName}`;
                     if (urlColl[url])
                         continue;
+                    let faceUrl = `${bus.toLowerCase()}/${faceName}`;
                     if (accept !== undefined) {
                         faces.push(url);
-                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceAccept(url, bus, faceName, busVersion, accept);
+                        faceColl[faceUrl] = urlColl[url] = new BusFace_1.BusFaceAccept(this, url, bus, faceName, busVersion, accept);
                     }
                     else if (query === true) {
-                        busColl[bus] = urlColl[url] = new BusFace_1.BusFaceQuery(url, bus, faceName, busVersion);
+                        faceColl[faceUrl] = urlColl[url] = new BusFace_1.BusFaceQuery(this, url, bus, faceName, busVersion);
                     }
                 }
                 busOutCount += (outCount !== null && outCount !== void 0 ? outCount : 0);
@@ -979,7 +980,7 @@ class EntityRunner {
                 faces: faceText,
                 outCount: busOutCount,
                 urlColl,
-                busColl,
+                faceColl,
                 hasError: false,
             };
             this.buildAccesses();
