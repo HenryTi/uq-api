@@ -80,7 +80,7 @@ class QueueIn {
                                 busData = yield face.convert(data, version);
                             }
                             catch (err) {
-                                errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err === null || err === void 0 ? void 0 : err.message}`;
+                                errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err === null || err === void 0 ? void 0 : err.message}\nstack:${err.stack}`;
                             }
                         }
                         else {
@@ -88,7 +88,7 @@ class QueueIn {
                                 busData = yield face.convert(data, version);
                             }
                             catch (err) {
-                                errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err:${err === null || err === void 0 ? void 0 : err.message}, equ:${busData === data}`;
+                                errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, equ:${busData === data}, err:${err === null || err === void 0 ? void 0 : err.message}\nstack:${err.stack}`;
                             }
                         }
                     }

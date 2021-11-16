@@ -67,7 +67,7 @@ export class QueueIn {
                             busData = await face.convert(data, version);
                         }
                         catch (err) {
-                            errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}`;
+                            errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}\nstack:${err.stack}`;
                         }
                     }
                     else {
@@ -75,7 +75,7 @@ export class QueueIn {
                             busData = await face.convert(data, version);
                         }
                         catch (err) {
-                            errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err:${err?.message}, equ:${busData === data}`;
+                            errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, equ:${busData === data}, err:${err?.message}\nstack:${err.stack}`;
                         }
                     }
                 }
