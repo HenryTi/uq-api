@@ -54,27 +54,29 @@ export class QueueIn {
                 if (face === undefined) return;
                 let errText:string;
                 let busData: string = data;
-                if (face.version !== version) {
-                    // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
-                    // 不同需要做数据转换
-                    // 但是，现在先不处理
-                    // 2019-07-23
-    
-                    // 2021-11-14：实现bus间的版本转换
-                    // 针对不同version的bus做转换
-                    try {
-                        busData = await face.convert(data, version);
+                if (version > 0) {
+                    if (face.version !== version) {
+                        // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
+                        // 不同需要做数据转换
+                        // 但是，现在先不处理
+                        // 2019-07-23
+        
+                        // 2021-11-14：实现bus间的版本转换
+                        // 针对不同version的bus做转换
+                        try {
+                            busData = await face.convert(data, version);
+                        }
+                        catch (err) {
+                            errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}`;
+                        }
                     }
-                    catch (err) {
-                        errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}`;
-                    }
-                }
-                else {
-                    try {
-                        busData = await face.convert(data, version);
-                    }
-                    catch (err) {
-                        errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err:${err?.message}, equ:${busData === data}`;
+                    else {
+                        try {
+                            busData = await face.convert(data, version);
+                        }
+                        catch (err) {
+                            errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err:${err?.message}, equ:${busData === data}`;
+                        }
                     }
                 }
                 if (errText) {
