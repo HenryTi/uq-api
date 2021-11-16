@@ -75,6 +75,18 @@ class QueueIn {
                         // 针对不同version的bus做转换
                         data = yield face.convert(data, version);
                     }
+                    else {
+                        let busData = yield face.convert(data, version);
+                        if (busData === data) {
+                            console.error('converted is the same as original bus');
+                        }
+                        else {
+                            console.error(`converted is not the same as original bus
+org: ${data}
+new: ${busData}
+                        `);
+                        }
+                    }
                     yield this.runner.bus(bus, faceName, unit, to, id, data, version, stamp);
                 }
                 finish = consts_1.Finish.done;

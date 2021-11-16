@@ -43,8 +43,8 @@ export class Jobs {
         let $uqDb = Db.db(consts.$uq);
         if (env.isDevelopment === true) {
             // 只有在开发状态下，才可以屏蔽jobs        
-            logger.debug('jobs loop: developing, no loop!');
-            return;
+            // logger.debug('jobs loop: developing, no loop!');
+            // return;
             if (env.isDevdo === true) return;
             logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
             await $uqDb.setDebugJobs();
