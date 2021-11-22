@@ -17,7 +17,7 @@ const queueIn_1 = require("./queueIn");
 const queueOut_1 = require("./queueOut");
 const execQueueAct_1 = require("./execQueueAct");
 const firstRun = core_1.env.isDevelopment === true ? 3000 : 30 * 1000;
-const runGap = core_1.env.isDevelopment === true ? 15 * 1000 : 30 * 1000;
+const runGap = core_1.env.isDevelopment === true ? 5 * 1000 : 10 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
 const uqsInclude = undefined;
