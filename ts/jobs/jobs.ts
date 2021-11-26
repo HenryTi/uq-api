@@ -86,7 +86,7 @@ export class Jobs {
                     try {
                         // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                         // 执行这个sleep的时候，出现问题，从而跳出loop
-                        await this.sleep(runGap);
+                        //await this.sleep(runGap);
                     }
                     catch (errSleep) {
                         logger.error('=========================');
@@ -138,7 +138,8 @@ export class Jobs {
                 try {
                     // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                     // 执行这个sleep的时候，出现问题，从而跳出loop
-                    // await this.sleep(runGap);
+                    //await this.sleep(runGap);
+                    await this.sleep(1);
                 }
                 catch (errSleep) {
                     logger.error('=========================');
