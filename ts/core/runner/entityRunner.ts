@@ -209,6 +209,9 @@ export class EntityRunner {
     async call(proc:string, params:any[]): Promise<any> {
         return await this.db.call('tv_' + proc, params);
 	}
+    async sql(sql:string, params:any[]): Promise<any> {
+        return await this.db.sql(sql, params);
+    }
     async buildTuidAutoId(): Promise<void> {
         await this.db.buildTuidAutoId();
 	}

@@ -189,6 +189,11 @@ class EntityRunner {
             return yield this.db.call('tv_' + proc, params);
         });
     }
+    sql(sql, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.db.sql(sql, params);
+        });
+    }
     buildTuidAutoId() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.db.buildTuidAutoId();

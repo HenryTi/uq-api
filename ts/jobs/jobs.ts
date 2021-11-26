@@ -11,9 +11,9 @@ const firstRun: number = env.isDevelopment === true? 3000 : 30*1000;
 const runGap: number = env.isDevelopment === true? 5*1000 : 5*1000;
 const waitForOtherStopJobs = 1*1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
-const uqsInclude:string[] = undefined;
+const uqsInclude:string[] = 
 [
-    'me', 'order', 'coupon', 'deliver'
+    'me' //, 'order', 'coupon', 'deliver'
     /*
     'deliver',
     'collectpayment',
