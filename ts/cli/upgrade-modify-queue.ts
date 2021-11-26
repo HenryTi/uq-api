@@ -4,12 +4,12 @@ import { logger } from '../tool';
 //process.env.NODE_ENV = 'development';
 //process.env.NODE_ENV = 'devdo';
 
-(async function() {
-	let node_env:string;
-	let db:string;
+(async function () {
+	let node_env: string;
+	let db: string;
 
 	process.argv.forEach(v => {
-		let parts:string[] = v.split('=');
+		let parts: string[] = v.split('=');
 		if (parts.length === 2) {
 			let v = parts[1].trim().toLowerCase();
 			switch (parts[0].trim().toLowerCase()) {
@@ -22,7 +22,7 @@ import { logger } from '../tool';
 			}
 		}
 	});
-	
+
 	if (!node_env && !process.env.NODE_ENV) {
 		logger.error('node out/cli/upgrade-modify-queue node_env=???');
 		process.exit(0);
@@ -34,14 +34,14 @@ import { logger } from '../tool';
 
 	logger.debug('NODE_ENV ' + process.env.NODE_ENV);
 
-	const config:any = require('config');
+	const config: any = require('config');
 
 	const const_connection = 'connection';
 	const config_connection = config.get(const_connection);
 	logger.debug(config_connection);
 	const pool = createPool(config_connection);
 
-	async function runSql(sql:string):Promise<any> {
+	async function runSql(sql: string): Promise<any> {
 		return new Promise<any>((resolve, reject) => {
 			let handler = (err: MysqlError | null, results?: any) => {
 				if (err) {
@@ -53,16 +53,16 @@ import { logger } from '../tool';
 			pool.query(sql, handler);
 		});
 	}
-		
+
 	try {
 		logger.debug('');
 		logger.debug('========================================');
 
 		let sqlDbs = `select name from \`$uq\`.uq`;
-		let dbs:any[] = await runSql(sqlDbs);
+		let dbs: any[] = await runSql(sqlDbs);
 		for (let db of dbs) {
 			try {
-				let {name:dbName} = db;
+				let { name: dbName } = db;
 				dbName = dbName.toLowerCase();
 				let sqlHasModifyQueueMax = `SELECT * FROM information_schema.COLUMNS WHERE table_SCHEMA='${dbName}' AND TABLE_NAME='tv_$unit' AND COLUMN_NAME='modifyQueueMax'`;
 				let colModifyQueue = await runSql(sqlHasModifyQueueMax);

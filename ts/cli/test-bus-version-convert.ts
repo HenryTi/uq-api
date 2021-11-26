@@ -2,7 +2,7 @@ import { logger } from '../tool';
 import { prodNet, testNet } from "../core";
 import { PullBus } from '../jobs/pullBus';
 
-(async function() {
+(async function () {
 	logger.debug('test-bus-version-convert');
 
 	// 停掉其它服务器操作消息队列
@@ -15,13 +15,13 @@ import { PullBus } from '../jobs/pullBus';
 	let net = prodNet;
 	//let net = testNet;
 	let runner = await net.getRunner(dbName);
-	
-	let {buses} = runner;
+
+	let { buses } = runner;
 	if (buses !== undefined) {
-		let {faces} = buses;
+		let { faces } = buses;
 		if (faces !== undefined) {
 			//let pullBus = new PullBus(runner);
-            //await pullBus.pullRun(24, 0, 0);
+			//await pullBus.pullRun(24, 0, 0);
 			let faceUrl = 'orderbus/order';
 			let face = runner.buses.faceColl[faceUrl];
 			if (face === undefined) return;

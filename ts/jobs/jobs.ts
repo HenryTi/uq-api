@@ -7,31 +7,31 @@ import { QueueIn } from './queueIn';
 import { QueueOut } from './queueOut';
 import { execQueueAct } from './execQueueAct';
 
-const firstRun: number = env.isDevelopment === true? 3000 : 30*1000;
-const runGap: number = env.isDevelopment === true? 5*1000 : 5*1000;
-const waitForOtherStopJobs = 1*1000; // 等1分钟，等其它服务器uq-api停止jobs
+const firstRun: number = env.isDevelopment === true ? 3000 : 30 * 1000;
+const runGap: number = env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
+const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
-const uqsInclude:string[] = 
-[
-    'me' //, 'order', 'coupon', 'deliver'
-    /*
-    'deliver',
-    'collectpayment',
-    'order',
-    'warehouse',
-    'me',
-    'bridge',
-    */
-];
+const uqsInclude: string[] =
+    [
+        'me' //, 'order', 'coupon', 'deliver'
+        /*
+        'deliver',
+        'collectpayment',
+        'order',
+        'warehouse',
+        'me',
+        'bridge',
+        */
+    ];
 
-const uqsExclude:string[] = //undefined;
-[
-    'rms',
-    'thirdpartyadapter',
-];
+const uqsExclude: string[] = //undefined;
+    [
+        'rms',
+        'thirdpartyadapter',
+    ];
 
 export class Jobs {
-    sleep(ms: number):Promise<void> {
+    sleep(ms: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             setTimeout(resolve, ms);
         });
@@ -58,7 +58,7 @@ export class Jobs {
         logger.debug('\n');
         logger.debug('\n');
         logger.error('====== Jobs loop started! ======');
-        for (;;) {
+        for (; ;) {
             logger.debug('\n');
             logger.info(`====== ${process.env.NODE_ENV} one loop at ${new Date().toLocaleString()} ======`);
             try {
@@ -67,7 +67,7 @@ export class Jobs {
             catch (err) {
                 logger.error('jobs loop error!!!!');
                 logger.error(err);
-                let errText:string = '';
+                let errText: string = '';
                 if (err === null) {
                     errText = 'null';
                 }
@@ -110,16 +110,16 @@ export class Jobs {
                 logger.error('debugging_jobs=yes, stop jobs loop');
                 return;
             }
-            
+
             for (let uqRow of uqs) {
-                let {db:uqDbName, compile_tick} = uqRow;
+                let { db: uqDbName, compile_tick } = uqRow;
                 await this.uqJob($uqDb, uqDbName, compile_tick);
             }
         }
         catch (err) {
             logger.error('jobs loop error!!!!');
             logger.error(err);
-            let errText:string = '';
+            let errText: string = '';
             if (err === null) {
                 errText = 'null';
             }
@@ -155,8 +155,8 @@ export class Jobs {
 
     // uqDbName可能包含$test，以此区分测试库或者生产库
     private async uqJob($uqDb: Db, uqDbName: string, compile_tick: number) {
-        let net:Net;
-        let dbName:string;;
+        let net: Net;
+        let dbName: string;;
         if (uqDbName.endsWith($test) === true) {
             dbName = uqDbName.substr(0, uqDbName.length - $test.length);
             net = testNet;
@@ -188,9 +188,9 @@ export class Jobs {
         let runner = await net.getRunner(dbName);
         if (runner === undefined) return;
         await runner.setCompileTick(compile_tick);
-        let {buses} = runner;
+        let { buses } = runner;
         if (buses !== undefined) {
-            let {outCount, faces} = buses;
+            let { outCount, faces } = buses;
             if (outCount > 0 || runner.hasSheet === true) {
                 logger.info(`==== in loop ${uqDbName}: queueOut out bus number=${outCount} ====`);
                 await new QueueOut(runner).run();
