@@ -34,7 +34,6 @@ CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
                         sql = `UPDATE \`${db}\`.tv_$queue_act AS a 
 						SET a.exec_time=date_add(GREATEST(a.exec_time, CURRENT_TIMESTAMP()), interval a.interval minute)
 							, a.repeat=a.repeat-1
-							, a.running=1
 						WHERE a.unit=${unit} AND a.entity=${entity};
 					`;
                     }

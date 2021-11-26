@@ -160,7 +160,7 @@ class Jobs {
                     try {
                         // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                         // 执行这个sleep的时候，出现问题，从而跳出loop
-                        yield this.sleep(runGap);
+                        // await this.sleep(runGap);
                     }
                     catch (errSleep) {
                         tool_1.logger.error('=========================');
