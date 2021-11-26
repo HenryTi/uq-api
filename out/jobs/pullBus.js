@@ -24,13 +24,14 @@ class PullBus {
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
             try {
                 let unitMaxIds = yield this.getSyncUnits();
                 for (let row of unitMaxIds) {
                     if (this.hasError === true)
                         break;
                     let { unit, maxId, maxId1 } = row;
-                    yield this.pullRun(unit, maxId, maxId1);
+                    retCount += yield this.pullRun(unit, maxId, maxId1);
                     /*
                     let pullIds:number[] = [maxId, maxId1];
                     for (let defer=0; defer<deferMax; defer++) {
@@ -46,22 +47,26 @@ class PullBus {
                 tool_1.logger.error(err);
                 yield this.runner.log(0, 'jobs pullBus loop error: ', (0, tool_2.getErrorString)(err));
             }
+            return retCount;
         });
     }
     pullRun(unit, maxId, maxId1) {
         return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
             let pullIds = [maxId, maxId1];
             for (let defer = 0; defer < consts_1.deferMax; defer++) {
                 if (this.hasError === true)
                     break;
                 let count = consts_1.deferQueueCounts[defer];
                 let pullId = pullIds[defer];
-                yield this.pullFromUnitx(unit, pullId !== null && pullId !== void 0 ? pullId : 0, defer, count);
+                retCount += yield this.pullFromUnitx(unit, pullId !== null && pullId !== void 0 ? pullId : 0, defer, count);
             }
+            return retCount;
         });
     }
     pullFromUnitx(unit, pullId, defer, count) {
         return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
             for (let i = 0; i < count;) {
                 if (this.hasError === true)
                     break;
@@ -80,6 +85,7 @@ class PullBus {
                     for (let row of messages) {
                         yield this.processMessage(unit, defer, row);
                         maxPullId = row.id;
+                        ++retCount;
                         ++i;
                     }
                     if (this.hasError === true)
@@ -94,6 +100,7 @@ class PullBus {
                     break;
                 pullId = maxMsgId;
             }
+            return retCount;
         });
     }
     processMessage(unit, defer, message) {

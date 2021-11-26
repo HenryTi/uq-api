@@ -8,8 +8,8 @@ export class PullBus {
 	private readonly net: Net;
 	private readonly buses: Buses;
 	private readonly faces: string;
-	private readonly coll: {[url:string]:BusFace};
-	private hasError:boolean;
+	private readonly coll: { [url: string]: BusFace };
+	private hasError: boolean;
 
 
 	constructor(runner: EntityRunner) {
@@ -21,13 +21,14 @@ export class PullBus {
 		this.hasError = this.buses.hasError;
 	}
 
-	async run() {
+	async run(): Promise<number> {
+		let retCount: number = 0;
 		try {
-			let unitMaxIds:{unit:number; maxId:number; maxId1:number;}[] = await this.getSyncUnits();
+			let unitMaxIds: { unit: number; maxId: number; maxId1: number; }[] = await this.getSyncUnits();
 			for (let row of unitMaxIds) {
 				if (this.hasError === true) break;
-				let {unit, maxId, maxId1} = row;
-				await this.pullRun(unit, maxId, maxId1);
+				let { unit, maxId, maxId1 } = row;
+				retCount += await this.pullRun(unit, maxId, maxId1);
 				/*
 				let pullIds:number[] = [maxId, maxId1];
 				for (let defer=0; defer<deferMax; defer++) {
@@ -43,35 +44,40 @@ export class PullBus {
 			logger.error(err);
 			await this.runner.log(0, 'jobs pullBus loop error: ', getErrorString(err));
 		}
+		return retCount;
 	}
 
-	async pullRun(unit:number, maxId:number, maxId1:number) {
-		let pullIds:number[] = [maxId, maxId1];
-		for (let defer=0; defer<deferMax; defer++) {
+	async pullRun(unit: number, maxId: number, maxId1: number): Promise<number> {
+		let retCount: number = 0;
+		let pullIds: number[] = [maxId, maxId1];
+		for (let defer = 0; defer < deferMax; defer++) {
 			if (this.hasError as any === true) break;
 			let count = deferQueueCounts[defer];
 			let pullId = pullIds[defer];
-			await this.pullFromUnitx(unit, pullId??0, defer, count);
+			retCount += await this.pullFromUnitx(unit, pullId ?? 0, defer, count);
 		}
+		return retCount;
 	}
 
-	private async pullFromUnitx(unit:number, pullId:number, defer:number, count:number) {
-		for (let i=0; i<count;) {
+	private async pullFromUnitx(unit: number, pullId: number, defer: number, count: number): Promise<number> {
+		let retCount: number = 0;
+		for (let i = 0; i < count;) {
 			if (this.hasError === true) break;
 			let ret = await this.net.pullBus(unit, pullId, this.faces, defer);
 			if (!ret) break;
-			
-			let {maxMsgId, maxRows} = ret[0][0];
+
+			let { maxMsgId, maxRows } = ret[0][0];
 			if (maxMsgId === 0) break;
 			let messages = ret[1];
-			let {length: messagesLen} = messages;
-			let maxPullId:number = 0;
+			let { length: messagesLen } = messages;
+			let maxPullId: number = 0;
 			if (messagesLen > 0) {
 				// 新版：bus读来，直接写入queue_in。然后在队列里面处理
 				logger.debug(`total ${messagesLen} arrived from unitx`);
 				for (let row of messages) {
 					await this.processMessage(unit, defer, row);
 					maxPullId = row.id;
+					++retCount;
 					++i;
 				}
 				if (this.hasError as any === true) break;
@@ -84,20 +90,21 @@ export class PullBus {
 			if (messagesLen === 0) break;
 			pullId = maxMsgId;
 		}
+		return retCount;
 	}
 
-	private async processMessage(unit:number, defer:number, message:any) {
-		let {to, face:faceUrl, id:msgId, body, version, stamp} = message;
+	private async processMessage(unit: number, defer: number, message: any) {
+		let { to, face: faceUrl, id: msgId, body, version, stamp } = message;
 		let face = this.coll[(faceUrl as string).toLowerCase()];
 		if (face === undefined) return;
-		let {bus, faceName} = face;
+		let { bus, faceName } = face;
 		try {
 			await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, version, stamp]);
 		}
 		catch (toQueueInErr) {
 			this.hasError = this.buses.hasError = true;
 			logger.error(toQueueInErr);
-			await this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId='+msgId, getErrorString(toQueueInErr));
+			await this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, getErrorString(toQueueInErr));
 		}
 	}
 

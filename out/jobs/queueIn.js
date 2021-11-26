@@ -19,6 +19,7 @@ class QueueIn {
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
             for (let defer = 0; defer < consts_1.deferMax; defer++) {
                 let { buses } = this.runner;
                 let { hasError } = buses;
@@ -33,6 +34,7 @@ class QueueIn {
                             break;
                         for (let queueIn of queueInArr) {
                             yield this.processOneRow(queueIn, defer);
+                            ++retCount;
                             ++i;
                         }
                     }
@@ -44,6 +46,7 @@ class QueueIn {
                     }
                 }
             }
+            return retCount;
         });
     }
     processOneRow(row, defer) {

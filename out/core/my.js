@@ -660,8 +660,8 @@ END
     uqDbs() {
         return __awaiter(this, void 0, void 0, function* () {
             let sql = db_1.env.isDevelopment === true ?
-                `select name as db, compile_tick from $uq.uq WHERE name<>'$uid';` :
-                `select name as db, compile_tick
+                `select id, name as db, compile_tick from $uq.uq WHERE name<>'$uid';` :
+                `select id, name as db, compile_tick
 	            from $uq.uq 
 				where name<>'$uid' AND
 					not exists(SELECT \`name\` FROM $uq.setting WHERE \`name\`='debugging_jobs' AND \`value\`='yes' AND UNIX_TIMESTAMP()-unix_timestamp(update_time)<600);`;

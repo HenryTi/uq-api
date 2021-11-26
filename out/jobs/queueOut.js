@@ -22,18 +22,21 @@ class QueueOut {
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
             try {
-                yield this.internalRun();
+                retCount += yield this.internalRun();
             }
             catch (err) {
                 yield this.runner.log(0, 'jobs queueOut loop', (0, tool_2.getErrorString)(err));
                 if (core_1.env.isDevelopment === true)
                     tool_1.logger.error(err);
             }
+            return retCount;
         });
     }
     internalRun() {
         return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
             for (let defer = 0; defer < consts_1.deferMax; defer++) {
                 this.messagePointer = 0;
                 let count = consts_1.deferQueueCounts[defer];
@@ -43,10 +46,12 @@ class QueueOut {
                         break;
                     for (let row of ret) {
                         yield this.processOneRow(row, defer);
+                        ret++;
                         i++;
                     }
                 }
             }
+            return retCount;
         });
     }
     processOneRow(row, defer) {

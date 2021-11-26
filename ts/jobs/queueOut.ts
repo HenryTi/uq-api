@@ -14,34 +14,39 @@ export class QueueOut {
         this.runner = runner;
     }
 
-    async run() {
+    async run(): Promise<number> {
+        let retCount: number = 0;
         try {
-            await this.internalRun();
+            retCount += await this.internalRun();
         }
         catch (err) {
             await this.runner.log(0, 'jobs queueOut loop', getErrorString(err));
-            if (env.isDevelopment===true) logger.error(err);
+            if (env.isDevelopment === true) logger.error(err);
         }
+        return retCount;
     }
 
-    private async internalRun() {
-        for (let defer=0; defer<deferMax; defer++) {
+    private async internalRun(): Promise<number> {
+        let retCount: number = 0;
+        for (let defer = 0; defer < deferMax; defer++) {
             this.messagePointer = 0;
             let count = deferQueueCounts[defer];
-            for (let i=0; i<count;) {
-                let ret = await this.runner.call('$message_queue_get',  [this.messagePointer, defer, 10]);
+            for (let i = 0; i < count;) {
+                let ret = await this.runner.call('$message_queue_get', [this.messagePointer, defer, 10]);
                 if (ret.length === 0) break;
                 for (let row of ret) {
                     await this.processOneRow(row, defer);
+                    ret++;
                     i++;
                 }
             }
         }
+        return retCount;
     }
 
     private async processOneRow(row: any, defer: number) {
         // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
-        let {$unit, id, to, action, subject, content, tries, update_time, now, stamp} = row;
+        let { $unit, id, to, action, subject, content, tries, update_time, now, stamp } = row;
         logger.debug('queueOut 1: ', action, subject, content, update_time);
         this.messagePointer = id;
         if (!$unit) $unit = this.runner.uniqueUnit;
@@ -49,7 +54,7 @@ export class QueueOut {
             // 上次尝试之后十分钟内不尝试，按次数，时间递增
             if (now - update_time < tries * 10 * 60) return;
         }
-        let finish:Finish;
+        let finish: Finish;
         if (!content) {
             // 如果没有内容，直接进入failed
             finish = Finish.bad;
@@ -95,11 +100,11 @@ export class QueueOut {
                 await this.runner.log($unit, errSubject, error);
             }
         }
-        if (finish !== undefined) await this.runner.unitCall(procMessageQueueSet, $unit, id, defer, finish); 
+        if (finish !== undefined) await this.runner.unitCall(procMessageQueueSet, $unit, id, defer, finish);
     }
 
-    private processItem(unit:number, id:number, action:string, subject:string, content:string, update_time:Date): void {
-        let json:any = {};
+    private processItem(unit: number, id: number, action: string, subject: string, content: string, update_time: Date): void {
+        let json: any = {};
         let items = content.split('\n\t\n');
         for (let item of items) {
             let parts = item.split('\n');
@@ -108,8 +113,8 @@ export class QueueOut {
         logger.debug('queue item: ', unit, id, action, subject, json);
     }
 
-    private jsonValues(content:string):any {
-        let json:any = {};
+    private jsonValues(content: string): any {
+        let json: any = {};
         let items = content.split('\n\t\n');
         for (let item of items) {
             let parts = item.split('\n');
@@ -118,7 +123,7 @@ export class QueueOut {
         return json;
     }
 
-    async app(unit:number, id:number, content:string):Promise<void> {
+    async app(unit: number, id: number, content: string): Promise<void> {
         await centerApi.send({
             type: 'app',
             unit: unit,
@@ -126,16 +131,16 @@ export class QueueOut {
         });
     }
 
-    async email(unit:number, id:number, content:string): Promise<void> {
+    async email(unit: number, id: number, content: string): Promise<void> {
         let values = this.jsonValues(content);
-        let {$isUser, $to, $cc, $bcc, $templet} = values;
+        let { $isUser, $to, $cc, $bcc, $templet } = values;
         if (!$to) return;
         let schema = this.runner.getSchema($templet);
         if (schema === undefined) {
             debugger;
             throw 'something wrong';
         }
-        let {subjectSections, sections} = schema.call;
+        let { subjectSections, sections } = schema.call;
         let mailSubject = this.stringFromSections(subjectSections, values);
         let mailBody = this.stringFromSections(sections, values);
 
@@ -151,9 +156,9 @@ export class QueueOut {
     }
 
     // bus参数，调用的时候，就是project
-    async bus(unit:number, id:number, defer:number, to:number, bus:string, content:string, stamp:number): Promise<void> {
+    async bus(unit: number, id: number, defer: number, to: number, bus: string, content: string, stamp: number): Promise<void> {
         if (!unit && !to) return;
-        
+
         let parts = bus.split('/');
         let busEntityName = parts[0];
         let face = parts[1];
@@ -165,11 +170,11 @@ export class QueueOut {
             debugger;
             throw err;
         }
-        let {schema:busSchema, busOwner, busName} = schema.call;
+        let { schema: busSchema, busOwner, busName } = schema.call;
 
-        let {uqOwner, uq} = this.runner;
+        let { uqOwner, uq } = this.runner;
 
-        let {body, version, local} = this.toBusMessage(busSchema, face, content);
+        let { body, version, local } = this.toBusMessage(busSchema, face, content);
         /*
         function buildMessage(u:number):BusMessage {
             let message: BusMessage = {
@@ -189,7 +194,7 @@ export class QueueOut {
             return message;
         }
         */
-        async function sendToUnitxAndLocal(runner:EntityRunner, unitOrPerson:number) {
+        async function sendToUnitxAndLocal(runner: EntityRunner, unitOrPerson: number) {
             //let message: BusMessage = buildMessage(unitOrPerson);
             let message: BusMessage = {
                 unit: unitOrPerson,
@@ -214,12 +219,12 @@ export class QueueOut {
                     , face
                     , body
                     , 0
-                    , stamp ?? Date.now()/1000]);
+                    , stamp ?? Date.now() / 1000]);
             }
         }
 
         if (to > 0) {
-            let unitXArr:number[] = await getUserX(this.runner, to, bus, busOwner, busName, face);
+            let unitXArr: number[] = await getUserX(this.runner, to, bus, busOwner, busName, face);
             if (!unitXArr || unitXArr.length === 0) return;
             let promises = unitXArr.map(async (v) => {
                 await sendToUnitxAndLocal(this.runner, v);
@@ -248,9 +253,9 @@ export class QueueOut {
     }
 
     // bus参数，调用的时候，就是project
-    async busQuery(unit:number, bus:string, content:string): Promise<void> {
+    async busQuery(unit: number, bus: string, content: string): Promise<void> {
         if (!unit) return;
-        
+
         let parts = bus.split('/');
         let busEntityName = parts[0];
         let face = parts[1];
@@ -262,14 +267,14 @@ export class QueueOut {
             debugger;
             throw err;
         }
-        let {schema:busSchema, busOwner, busName} = schema.call;
+        let { schema: busSchema, busOwner, busName } = schema.call;
         let faceSchema = busSchema[face];
-        let {returns} = faceSchema;
+        let { returns } = faceSchema;
 
         //let {uqOwner, uq} = this.runner;
 
         //let {body, version, local} = this.toBusMessage(busSchema, face, content);
-        
+
 
         //let {bus, face, busOwner, busName, param, returns} = inBus;
         //let {busOwner, busName} = bus;
@@ -284,30 +289,30 @@ export class QueueOut {
         await this.runner.busAcceptFromQuery(busEntityName, face, unit, data);
     }
 
-    private buildDataFromBusQueryReturn(fields:{name:string;type:string}[], results:any[]):string {
+    private buildDataFromBusQueryReturn(fields: { name: string; type: string }[], results: any[]): string {
         let ret = '';
         let len = fields.length;
         for (let result of results) {
             ret += result[fields[0].name];
-            for (let i=1; i<len; i++) {
+            for (let i = 1; i < len; i++) {
                 let field = fields[i];
-                ret += '\t' + (result[field.name]??'');
+                ret += '\t' + (result[field.name] ?? '');
             }
             ret += '\n';
         }
         return ret + '\n';
     }
 
-    async sheet(content:string):Promise<void> {
-        let sheetQueueData:SheetQueueData = JSON.parse(content);
-        let {id, sheet, state, action, unit, user, flow} = sheetQueueData;
+    async sheet(content: string): Promise<void> {
+        let sheetQueueData: SheetQueueData = JSON.parse(content);
+        let { id, sheet, state, action, unit, user, flow } = sheetQueueData;
         let result = await this.runner.sheetAct(sheet, state, action, unit, user, id, flow);
     }
 
-    stringFromSections(sections:string[], values: any):string {
+    stringFromSections(sections: string[], values: any): string {
         if (sections === undefined) return;
-        let ret:string[] = [];
-        let isValue:boolean = false;
+        let ret: string[] = [];
+        let isValue: boolean = false;
         for (let section of sections) {
             if (isValue === true) {
                 ret.push(values[section] || '');
@@ -321,8 +326,8 @@ export class QueueOut {
         return ret.join('');
     }
 
-    toBusMessage(busSchema:any, face:string, content:string):{
-        body:string; version:number; local:boolean;
+    toBusMessage(busSchema: any, face: string, content: string): {
+        body: string; version: number; local: boolean;
     } {
         if (!content) return undefined;
         let faceSchema = busSchema[face];
@@ -330,31 +335,31 @@ export class QueueOut {
             debugger;
             throw 'toBusMessage something wrong';
         }
-        let busHeadCommand:string = undefined;
-        let data:{[key:string]: string[]}[] = [];
+        let busHeadCommand: string = undefined;
+        let data: { [key: string]: string[] }[] = [];
         let p = 0;
-        let part:{[key:string]: string[]};
-        let busVersion:number;
+        let part: { [key: string]: string[] };
+        let busVersion: number;
         let local = false;
-        let n:number;
-        function getBusHeadCommand():string {
+        let n: number;
+        function getBusHeadCommand(): string {
             if (content[n] !== '\r') return;
-            let pREnd = content.indexOf('\r', n+1);
+            let pREnd = content.indexOf('\r', n + 1);
             if (pREnd < 0) throw new Error('bus head command error. no end \\r found');
             ++pREnd;
             let ret = content.substring(n, pREnd);
             n = pREnd;
             return ret;
         }
-        for (;;) {
+        for (; ;) {
             let t = content.indexOf('\t', p);
-            if (t<0) break;
+            if (t < 0) break;
             let key = content.substring(p, t);
             ++t;
             n = content.indexOf('\n', t);
-            let exitLoop:boolean;
-            let sec:string;
-            if (n<0) {
+            let exitLoop: boolean;
+            let sec: string;
+            if (n < 0) {
                 sec = content.substring(t);
                 exitLoop = true;
             }
@@ -375,7 +380,7 @@ export class QueueOut {
                     break;
                 case '$':
                     if (part !== undefined) data.push(part);
-                    part = {$: [sec]};
+                    part = { $: [sec] };
                     break;
                 default:
                     if (part !== undefined) {
@@ -392,8 +397,8 @@ export class QueueOut {
         }
         if (part !== undefined) data.push(part);
 
-        let {fields, arrs} = faceSchema;
-        let ret:string = busHeadCommand ?? '';
+        let { fields, arrs } = faceSchema;
+        let ret: string = busHeadCommand ?? '';
         for (let item of data) {
             ret += item['$'] + '\n';
             if (arrs === undefined) continue;
@@ -410,6 +415,6 @@ export class QueueOut {
             // 多个bus array，不需要三个回车结束。自动取完，超过长度，自动结束。这样便于之后附加busQuery
         }
 
-        return {body:ret, version:busVersion, local};
+        return { body: ret, version: busVersion, local };
     }
 }

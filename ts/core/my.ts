@@ -1,4 +1,4 @@
-import {createPool, Pool, MysqlError, TypeCast} from 'mysql';
+import { createPool, Pool, MysqlError, TypeCast } from 'mysql';
 import * as _ from 'lodash';
 import { logger } from '../tool';
 import { DbServer } from './dbServer';
@@ -16,8 +16,8 @@ const ER_LOCK_TIMEOUT = 1213;
 const ER_LOCK_DEADLOCK = 1213;
 
 interface DbConfigPool {
-    config: any;
-    pool: Pool;
+	config: any;
+	pool: Pool;
 }
 
 const pools: DbConfigPool[] = [];
@@ -71,8 +71,8 @@ const sysProcColl = {
 
 export class MyDbServer extends DbServer {
 	private dbConfig: any;
-    private pool: Pool;
-    constructor(dbName:string, dbConfig:any) {
+	private pool: Pool;
+	constructor(dbName: string, dbConfig: any) {
 		super(dbName);
 		this.dbConfig = dbConfig;
 		this.resetProcColl();
@@ -84,11 +84,11 @@ export class MyDbServer extends DbServer {
 		this.procColl = _.merge({}, sysProcColl);
 	}
 
-	reset():void { this.resetProcColl();};
+	reset(): void { this.resetProcColl(); };
 
 	private async getPool(): Promise<Pool> {
 		for (let p of pools) {
-			let {config, pool} = p;
+			let { config, pool } = p;
 			if (_.isEqual(this.dbConfig, config) === true) {
 				return pool;
 			}
@@ -103,103 +103,103 @@ export class MyDbServer extends DbServer {
 		//conf.charset = 'utf8mb4';
 		//let newPool = await this.createPool(conf);
 		let newPool = createPool(conf);
-		pools.push({config: this.dbConfig, pool: newPool});
+		pools.push({ config: this.dbConfig, pool: newPool });
 		return newPool;
 	}
 
-	private sqlExists(db:string):string {
+	private sqlExists(db: string): string {
 		return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
 	}
 
-    private async exec(sql:string, values:any[], log?: SpanLog): Promise<any> {
+	private async exec(sql: string, values: any[], log?: SpanLog): Promise<any> {
 		if (this.pool === undefined) {
 			this.pool = await this.getPool();
 			// await this.assertPool();
 		}
-        return await new Promise<any>((resolve, reject) => {
+		return await new Promise<any>((resolve, reject) => {
 			let retryCount = 0;
 			let isDevelopment = env.isDevelopment;
-            let handleResponse = (err:MysqlError, result:any) => {
-                if (err === null) {
-                    if (log !== undefined) {
-                        log.tries = retryCount;
-                        log.close();
-                    }
-                    resolve(result);
-                    return;
-                }
-                switch (+err.errno) {
-                case +ER_LOCK_WAIT_TIMEOUT:
-                case +ER_LOCK_TIMEOUT:
-                case +ER_LOCK_DEADLOCK:
-                    if (isDevelopment===true) logger.error(`ERROR - ${ err.errno } ${ err.message }`);
-                    ++retryCount;
-                    if (retryCount > retries) {    
-                        if (isDevelopment===true) logger.error(`Out of retries so just returning the error.`);
-                        if (log !== undefined) {
-                            log.tries = retryCount;
-                            log.error = err.sqlMessage;
-                            log.close();
-                        }
-                        reject(err);
-                        return;
-                    }
-                    let sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis)
-                    if (isDevelopment===true) {
-                        logger.error(sql + ': ---- Retrying request with',retries-retryCount,'retries left. Timeout',sleepMillis);
-                    }    
-                    return setTimeout(() => {
-						debugger;
-                        this.pool.query(sql, values, handleResponse);
-                    }, sleepMillis);
-                default:
-                    if (isDevelopment===true) {
-						debugger;
-                        logger.error(err);
-                        logger.error(sql);
-                    }
-                    if (log !== undefined) {
-                        log.tries = retryCount;
-                        log.error = err.sqlMessage;
-                        log.close();
-                    }
-                    reject(err);
-                    return;
-                }
-            }
+			let handleResponse = (err: MysqlError, result: any) => {
+				if (err === null) {
+					if (log !== undefined) {
+						log.tries = retryCount;
+						log.close();
+					}
+					resolve(result);
+					return;
+				}
+				switch (+err.errno) {
+					case +ER_LOCK_WAIT_TIMEOUT:
+					case +ER_LOCK_TIMEOUT:
+					case +ER_LOCK_DEADLOCK:
+						if (isDevelopment === true) logger.error(`ERROR - ${err.errno} ${err.message}`);
+						++retryCount;
+						if (retryCount > retries) {
+							if (isDevelopment === true) logger.error(`Out of retries so just returning the error.`);
+							if (log !== undefined) {
+								log.tries = retryCount;
+								log.error = err.sqlMessage;
+								log.close();
+							}
+							reject(err);
+							return;
+						}
+						let sleepMillis = Math.floor((Math.random() * maxMillis) + minMillis)
+						if (isDevelopment === true) {
+							logger.error(sql + ': ---- Retrying request with', retries - retryCount, 'retries left. Timeout', sleepMillis);
+						}
+						return setTimeout(() => {
+							debugger;
+							this.pool.query(sql, values, handleResponse);
+						}, sleepMillis);
+					default:
+						if (isDevelopment === true) {
+							debugger;
+							logger.error(err);
+							logger.error(sql);
+						}
+						if (log !== undefined) {
+							log.tries = retryCount;
+							log.error = err.sqlMessage;
+							log.close();
+						}
+						reject(err);
+						return;
+				}
+			}
 			this.pool.query(sql, values, handleResponse);
-        });
-    }
-    async sql(sql:string, params:any[]): Promise<any> {
+		});
+	}
+	async sql(sql: string, params: any[]): Promise<any> {
 		let result = await this.exec(sql, params);
 		return result;
 	}
-	async sqlDropProc(db:string, procName:string, isFunc:boolean): Promise<any> {
-		let type = isFunc === true? 'FUNCTION' : 'PROCEDURE';
+	async sqlDropProc(db: string, procName: string, isFunc: boolean): Promise<any> {
+		let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
 		let sql = `DROP ${type} IF EXISTS  \`${db}\`.\`${procName}\``;
 		await this.exec(sql, []);
 	}
 
-	private procColl:{[procName:string]:boolean};
-	private buidlCallProcSql(db:string, proc:string, params:any[]):string {
-        let c = 'call `'+db+'`.`'+proc+'`(';
-        let sql = c;
-        if (params !== undefined) {
-            let len = params.length;
-            if (len > 0) {
-                sql += '?';
-                for (let i=1;i<len;i++) sql += ',?';
-            }
-        }
-        sql += ')';
+	private procColl: { [procName: string]: boolean };
+	private buidlCallProcSql(db: string, proc: string, params: any[]): string {
+		let c = 'call `' + db + '`.`' + proc + '`(';
+		let sql = c;
+		if (params !== undefined) {
+			let len = params.length;
+			if (len > 0) {
+				sql += '?';
+				for (let i = 1; i < len; i++) sql += ',?';
+			}
+		}
+		sql += ')';
 		return sql;
 	}
-	private async callProcBase(db:string, proc:string, params:any[]): Promise<any> {
+	private async callProcBase(db: string, proc: string, params: any[]): Promise<any> {
 		let sql = this.buidlCallProcSql(db, proc, params);
 		let ret = await this.exec(sql, params);
 		return ret;
 	}
-	async sqlProc(db:string, procName:string, procSql:string): Promise<any> {
+	async sqlProc(db: string, procName: string, procSql: string): Promise<any> {
 		let ret = await this.callProcBase(db, 'tv_$proc_save', [db, procName, procSql]);
 		let t0 = ret[0];
 		let changed = t0[0]['changed'];
@@ -207,15 +207,15 @@ export class MyDbServer extends DbServer {
 		this.procColl[procName.toLowerCase()] = isOk;
 	}
 
-	async buildProc(db:string, procName:string, procSql:string, isFunc:boolean=false):Promise<any> {
-		let type = isFunc === true? 'FUNCTION' : 'PROCEDURE';
+	async buildProc(db: string, procName: string, procSql: string, isFunc: boolean = false): Promise<any> {
+		let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
 		let drop = `USE \`${db}\`; DROP ${type} IF EXISTS \`${db}\`.\`${procName}\`;`;
 		await this.sql(drop + /*collationConnection + */procSql, undefined);
 		// clear changed flag
 		await this.callProcBase(db, 'tv_$proc_save', [db, procName, undefined]);
 	}
 
-	async buildRealProcFrom$ProcTable(db:string, proc:string): Promise<void> {
+	async buildRealProcFrom$ProcTable(db: string, proc: string): Promise<void> {
 		let results = await this.callProcBase(db, 'tv_$proc_get', [db, proc]);
 		let ret = results[0];
 		if (ret.length === 0) {
@@ -229,8 +229,8 @@ export class MyDbServer extends DbServer {
 		await this.callProcBase(db, 'tv_$proc_save', [db, proc, undefined]);
 	}
 
-    private async execProc(db:string, proc:string, params:any[]): Promise<any> {
-		let needBuildProc:boolean;
+	private async execProc(db: string, proc: string, params: any[]): Promise<any> {
+		let needBuildProc: boolean;
 		let dbFirstChar = db[0];
 		if (dbFirstChar === '$') {
 			if (db.startsWith(consts.$unitx) === true) {
@@ -268,40 +268,40 @@ export class MyDbServer extends DbServer {
 			}
 		}
 		return await this.execProcBase(db, proc, params);
-    }
-	private async execProcBase(db:string, proc:string, params:any[]): Promise<any> {
-        let c = 'call `'+db+'`.`'+proc+'`(';
-        let sql = c;
-        if (params !== undefined) {
-            let len = params.length;
-            if (len > 0) {
-                sql += '?';
-                for (let i=1;i<len;i++) sql += ',?';
-            }
-        }
-        sql += ')';
-        let spanLog:SpanLog;
-        if (db !== '$uq') {
-            let log = c;
-            if (params !== undefined) {
-                let len = params.length;
-                for (let i=0; i<len; i++) {
-                    if (i>0) log += ',';
-                    let v = params[i];
-                    if (v === undefined) log += 'null';
-                    else if (v === null) log += 'null';
-                    else {
-                        log += '\'' + v + '\'';
-                    }
-                }
-            }
-            log += ')';
-            spanLog = await dbLogger.open(log);
-        }
-        return await this.exec(sql, params, spanLog);
 	}
-    async buildTuidAutoId(db:string): Promise<void> {
-        let sql1 = `UPDATE \`${db}\`.tv_$entity a 
+	private async execProcBase(db: string, proc: string, params: any[]): Promise<any> {
+		let c = 'call `' + db + '`.`' + proc + '`(';
+		let sql = c;
+		if (params !== undefined) {
+			let len = params.length;
+			if (len > 0) {
+				sql += '?';
+				for (let i = 1; i < len; i++) sql += ',?';
+			}
+		}
+		sql += ')';
+		let spanLog: SpanLog;
+		if (db !== '$uq') {
+			let log = c;
+			if (params !== undefined) {
+				let len = params.length;
+				for (let i = 0; i < len; i++) {
+					if (i > 0) log += ',';
+					let v = params[i];
+					if (v === undefined) log += 'null';
+					else if (v === null) log += 'null';
+					else {
+						log += '\'' + v + '\'';
+					}
+				}
+			}
+			log += ')';
+			spanLog = await dbLogger.open(log);
+		}
+		return await this.exec(sql, params, spanLog);
+	}
+	async buildTuidAutoId(db: string): Promise<void> {
+		let sql1 = `UPDATE \`${db}\`.tv_$entity a 
 			SET a.tuidVid=(
 				select b.AUTO_INCREMENT 
 					from information_schema.tables b
@@ -310,40 +310,40 @@ export class MyDbServer extends DbServer {
 				)
 			WHERE a.tuidVid IS NULL;
         `;
-        await this.exec(sql1, []);
-    }
-    async tableFromProc(db:string, proc:string, params:any[]): Promise<any[]> {
-        let res = await this.execProc(db, proc, params);
-        if (Array.isArray(res) === false) return [];
-        switch (res.length) {
-            case 0: return [];
-            default: return res[0];
-        }
-    }
-    async tablesFromProc(db:string, proc:string, params:any[]): Promise<any[][]> {
-        return await this.execProc(db, proc, params);
-    }
-    async call(db:string, proc:string, params:any[]): Promise<any> {
-        let result:any[][] = await this.execProc(db, proc, params);
-        if (Array.isArray(result) === false) return [];
-        result.pop();
-        if (result.length === 1) return result[0];
-        return result;
-    }
-    async callEx(db:string, proc:string, params:any[]): Promise<any> {
-        //return await this.execProc(db, proc, params);
-        let result:any[][] = await this.execProc(db, proc, params);
-        if (Array.isArray(result) === false) return [];
-        result.pop();
-        return result;
-    }
-    // return exists
-    async buildDatabase(db:string): Promise<boolean> {
+		await this.exec(sql1, []);
+	}
+	async tableFromProc(db: string, proc: string, params: any[]): Promise<any[]> {
+		let res = await this.execProc(db, proc, params);
+		if (Array.isArray(res) === false) return [];
+		switch (res.length) {
+			case 0: return [];
+			default: return res[0];
+		}
+	}
+	async tablesFromProc(db: string, proc: string, params: any[]): Promise<any[][]> {
+		return await this.execProc(db, proc, params);
+	}
+	async call(db: string, proc: string, params: any[]): Promise<any> {
+		let result: any[][] = await this.execProc(db, proc, params);
+		if (Array.isArray(result) === false) return [];
+		result.pop();
+		if (result.length === 1) return result[0];
+		return result;
+	}
+	async callEx(db: string, proc: string, params: any[]): Promise<any> {
+		//return await this.execProc(db, proc, params);
+		let result: any[][] = await this.execProc(db, proc, params);
+		if (Array.isArray(result) === false) return [];
+		result.pop();
+		return result;
+	}
+	// return exists
+	async buildDatabase(db: string): Promise<boolean> {
 		this.resetProcColl();
 		let exists = this.sqlExists(db);
-        let retExists = await this.exec(exists, []);
+		let retExists = await this.exec(exists, []);
 		let ret = retExists.length > 0;
-        if (ret === false) {
+		if (ret === false) {
 			try {
 				let sql = `CREATE DATABASE IF NOT EXISTS \`${db}\``; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci`;
 				await this.exec(sql, undefined);
@@ -352,10 +352,10 @@ export class MyDbServer extends DbServer {
 				console.error(err);
 			}
 		}
-        await this.insertInto$Uq(db);
-        return ret;
-    }
-	async createProcObjs(db:string): Promise<void> {
+		await this.insertInto$Uq(db);
+		return ret;
+	}
+	async createProcObjs(db: string): Promise<void> {
 		//let useDb = 'use `' + db + '`;';
 		const createProcTable = `
 CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
@@ -365,9 +365,9 @@ CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
 	update_time timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (\`name\`));
 `;
- // CHARACTER SET utf8 COLLATE utf8_unicode_ci
+		// CHARACTER SET utf8 COLLATE utf8_unicode_ci
 
-        await this.exec(createProcTable, undefined);
+		await this.exec(createProcTable, undefined);
 		const getProc = `
 DROP PROCEDURE IF EXISTS \`${db}\`.tv_$proc_get;
 CREATE PROCEDURE \`${db}\`.tv_$proc_get(
@@ -381,7 +381,7 @@ CREATE PROCEDURE \`${db}\`.tv_$proc_get(
 	WHERE 1=1 AND name=_name FOR UPDATE;
 END
 `;
-//WHERE 1=1 AND ROUTINE_SCHEMA COLLATE utf8_general_ci=_schema COLLATE utf8_general_ci AND ROUTINE_NAME COLLATE utf8_general_ci=_name COLLATE utf8_general_ci))) THEN 1 ELSE 0 END AS changed
+		//WHERE 1=1 AND ROUTINE_SCHEMA COLLATE utf8_general_ci=_schema COLLATE utf8_general_ci AND ROUTINE_NAME COLLATE utf8_general_ci=_name COLLATE utf8_general_ci))) THEN 1 ELSE 0 END AS changed
 		await this.exec(getProc, undefined);
 
 		const saveProc = `
@@ -415,15 +415,15 @@ __proc_exit: BEGIN
 	WHERE 1=1 AND ROUTINE_SCHEMA=_schema AND ROUTINE_NAME=_name))) THEN 1 ELSE 0 END AS changed;
 END
 `;
-//WHERE 1=1 AND ROUTINE_SCHEMA COLLATE utf8_general_ci=_schema COLLATE utf8_general_ci AND ROUTINE_NAME COLLATE utf8_general_ci=_name COLLATE utf8_general_ci))) THEN 1 ELSE 0 END AS changed;
+		//WHERE 1=1 AND ROUTINE_SCHEMA COLLATE utf8_general_ci=_schema COLLATE utf8_general_ci AND ROUTINE_NAME COLLATE utf8_general_ci=_name COLLATE utf8_general_ci))) THEN 1 ELSE 0 END AS changed;
 		await this.exec(saveProc, undefined);
 
 		return;
 	}
-    async create$UqDb():Promise<void> {
+	async create$UqDb(): Promise<void> {
 		let exists = this.sqlExists('$uq');
 		// 'SELECT SCHEMA_NAME as sname FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = \'$uq\'';
-        let rows:any[] = await this.exec(exists, undefined);
+		let rows: any[] = await this.exec(exists, undefined);
 		try {
 			if (rows.length == 0) {
 				let sql = 'CREATE DATABASE IF NOT EXISTS $uq'; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci';
@@ -494,7 +494,7 @@ END
 			if (retPerformanceExists.length === 0) {
 				await this.exec(performanceLog, undefined);
 			}
-			
+
 			let uid = `
 	CREATE FUNCTION $uq.uid(uqName VARCHAR(200))
 	RETURNS bigint(20)
@@ -599,20 +599,20 @@ END
 		await this.exec(sql, undefined);
 	}
 
-    private async insertInto$Uq(db:string): Promise<void> {
-        let insertUqDb = `insert into $uq.uq (\`name\`) values ('${db}') on duplicate key update create_time=current_timestamp();`;
-        await this.exec(insertUqDb, undefined);
-    }
-    async createDatabase(db:string): Promise<void> {
-        let sql = 'CREATE DATABASE IF NOT EXISTS `'+db+'` default CHARACTER SET utf8 '; //COLLATE utf8_unicode_ci';
-        await this.exec(sql, undefined);
-    }
-    async existsDatabase(db:string): Promise<boolean> {
+	private async insertInto$Uq(db: string): Promise<void> {
+		let insertUqDb = `insert into $uq.uq (\`name\`) values ('${db}') on duplicate key update create_time=current_timestamp();`;
+		await this.exec(insertUqDb, undefined);
+	}
+	async createDatabase(db: string): Promise<void> {
+		let sql = 'CREATE DATABASE IF NOT EXISTS `' + db + '` default CHARACTER SET utf8 '; //COLLATE utf8_unicode_ci';
+		await this.exec(sql, undefined);
+	}
+	async existsDatabase(db: string): Promise<boolean> {
 		let sql = this.sqlExists(db);
-        let rows:any[] = await this.exec(sql, undefined);
-        return rows.length > 0;
-    }
-    async setDebugJobs():Promise<void> {
+		let rows: any[] = await this.exec(sql, undefined);
+		return rows.length > 0;
+	}
+	async setDebugJobs(): Promise<void> {
 		try {
 			let sql = `insert into $uq.setting (\`name\`, \`value\`) VALUES ('debugging_jobs', 'yes') 
 			ON DUPLICATE KEY UPDATE update_time=current_timestamp;`;
@@ -621,18 +621,18 @@ END
 		catch (err) {
 			console.error(err);
 		}
-    }
-    async uqDbs():Promise<any[]> {
-        let sql = env.isDevelopment===true?
-        `select name as db, compile_tick from $uq.uq WHERE name<>'$uid';` :
-        `select name as db, compile_tick
+	}
+	async uqDbs(): Promise<any[]> {
+		let sql = env.isDevelopment === true ?
+			`select id, name as db, compile_tick from $uq.uq WHERE name<>'$uid';` :
+			`select id, name as db, compile_tick
 	            from $uq.uq 
 				where name<>'$uid' AND
 					not exists(SELECT \`name\` FROM $uq.setting WHERE \`name\`='debugging_jobs' AND \`value\`='yes' AND UNIX_TIMESTAMP()-unix_timestamp(update_time)<600);`;
-        let rows:any[] = await this.exec(sql, undefined);
-        return rows;
-    }
-    async createResDb(resDbName:string):Promise<void> {
+		let rows: any[] = await this.exec(sql, undefined);
+		return rows;
+	}
+	async createResDb(resDbName: string): Promise<void> {
 		try {
 			await this.createDatabase(resDbName);
 			let sql = `
@@ -667,12 +667,12 @@ END
 		catch (err) {
 			console.error(err);
 		}
-    }
+	}
 
-	isExistsProcInDb(proc:string):boolean {
+	isExistsProcInDb(proc: string): boolean {
 		return this.procColl[proc.toLowerCase()] === true
 	}
-    async createProcInDb(db:string, proc:string): Promise<void> {
+	async createProcInDb(db: string, proc: string): Promise<void> {
 		let procLower = proc.toLowerCase();
 		let p = this.procColl[procLower];
 		if (p !== true) {
@@ -695,43 +695,43 @@ END
 				this.procColl[procLower] = true;
 			}
 		}
-    }
+	}
 }
 
-const castField:TypeCast = (field:any, next) =>{
-    switch (field.type) {
-        default: return next();
-        case 'DATE': return castDate(field);
-        case 'DATETIME': return castDateTime(field);
-    }
-    /*
-    if (( field.type === "BIT" ) && ( field.length === 1 ) ) {
-        var bytes = field.buffer();
-        // A Buffer in Node represents a collection of 8-bit unsigned integers.
-        // Therefore, our single "bit field" comes back as the bits '0000 0001',
-        // which is equivalent to the number 1.
-        return( bytes[ 0 ] === 1 );
-    }
-    return next();
-    */
+const castField: TypeCast = (field: any, next) => {
+	switch (field.type) {
+		default: return next();
+		case 'DATE': return castDate(field);
+		case 'DATETIME': return castDateTime(field);
+	}
+	/*
+	if (( field.type === "BIT" ) && ( field.length === 1 ) ) {
+		var bytes = field.buffer();
+		// A Buffer in Node represents a collection of 8-bit unsigned integers.
+		// Therefore, our single "bit field" comes back as the bits '0000 0001',
+		// which is equivalent to the number 1.
+		return( bytes[ 0 ] === 1 );
+	}
+	return next();
+	*/
 }
 
 // 确保服务器里面保存的时间是UTC时间
-const timezoneOffset = new Date().getTimezoneOffset()*60000;
-function castDate(field:any) {
-    // 这个地方也许有某种方法加速吧
-    let text = field.string();
-    return text;
+const timezoneOffset = new Date().getTimezoneOffset() * 60000;
+function castDate(field: any) {
+	// 这个地方也许有某种方法加速吧
+	let text = field.string();
+	return text;
 }
-function castDateTime(field:any) {
-    // 这个地方也许有某种方法加速吧
-    let text = field.string();;
-    return text;
-    /*
-    let text = field.string();
-    if (text === null) return null;
-    if (text === undefined) return undefined;
-    let d = new Date(new Date(text).getTime() - timezoneOffset);
-    return d;
-    */
+function castDateTime(field: any) {
+	// 这个地方也许有某种方法加速吧
+	let text = field.string();;
+	return text;
+	/*
+	let text = field.string();
+	if (text === null) return null;
+	if (text === undefined) return undefined;
+	let d = new Date(new Date(text).getTime() - timezoneOffset);
+	return d;
+	*/
 }
