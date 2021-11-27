@@ -3,14 +3,14 @@ import { logger } from "../tool";
 
 export async function execQueueAct(runner: EntityRunner): Promise<void> {
 	if (runner.execQueueActError === true) return;
+	let sql: string;
 	try {
-		// for (let i=0; i<20; i++) {
 		let ret: any[] = await runner.call('$exec_queue_act', []);
 		if (ret) {
 			let db = runner.getDb();
 			for (let row of ret) {
 				let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
-				let sql = `
+				sql = `
 CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
 	ON SCHEDULE AT CURRENT_TIMESTAMP DO CALL \`${db}\`.\`tv_${entityName}\`(${unit}, 0);
 `;
@@ -32,7 +32,8 @@ CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
 	}
 	catch (err) {
 		let $uqDb = Db.db(consts.$uq);
-		await $uqDb.log(0, runner.getDb(), 'Error execQueueAct', err.message);
+		await $uqDb.log(0, runner.getDb(), 'Error execQueueAct'
+			, (err.message ?? '') + ': ' + sql);
 		logger.error(`execQueueAct: `, err);
 		runner.execQueueActError = true;
 	}

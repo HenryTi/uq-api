@@ -13,17 +13,18 @@ exports.execQueueAct = void 0;
 const core_1 = require("../core");
 const tool_1 = require("../tool");
 function execQueueAct(runner) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         if (runner.execQueueActError === true)
             return;
+        let sql;
         try {
-            // for (let i=0; i<20; i++) {
             let ret = yield runner.call('$exec_queue_act', []);
             if (ret) {
                 let db = runner.getDb();
                 for (let row of ret) {
                     let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
-                    let sql = `
+                    sql = `
 CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
 	ON SCHEDULE AT CURRENT_TIMESTAMP DO CALL \`${db}\`.\`tv_${entityName}\`(${unit}, 0);
 `;
@@ -45,7 +46,7 @@ CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
         }
         catch (err) {
             let $uqDb = core_1.Db.db(core_1.consts.$uq);
-            yield $uqDb.log(0, runner.getDb(), 'Error execQueueAct', err.message);
+            yield $uqDb.log(0, runner.getDb(), 'Error execQueueAct', ((_a = err.message) !== null && _a !== void 0 ? _a : '') + ': ' + sql);
             tool_1.logger.error(`execQueueAct: `, err);
             runner.execQueueActError = true;
         }
