@@ -127,7 +127,7 @@ export class Jobs {
                 let now = Date.now();
                 if (now > uq.runTick) {
                     let doneRows = await this.uqJob($uqDb, uqDbName, compile_tick);
-                    await $uqDb.log(0, '$uid', `Job ${uqDbName}`, `total ${doneRows} rows`);
+                    await $uqDb.log(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
                     totalCount += doneRows;
                     uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
                 }

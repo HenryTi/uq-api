@@ -138,7 +138,7 @@ class Jobs {
                     let now = Date.now();
                     if (now > uq.runTick) {
                         let doneRows = yield this.uqJob($uqDb, uqDbName, compile_tick);
-                        yield $uqDb.log(0, '$uid', `Job ${uqDbName}`, `total ${doneRows} rows`);
+                        yield $uqDb.log(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
                         totalCount += doneRows;
                         uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
                     }
