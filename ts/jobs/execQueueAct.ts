@@ -1,4 +1,4 @@
-import { EntityRunner } from "../core";
+import { consts, Db, EntityRunner } from "../core";
 import { logger } from "../tool";
 
 export async function execQueueAct(runner: EntityRunner): Promise<void> {
@@ -31,6 +31,8 @@ CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
 		//}
 	}
 	catch (err) {
+		let $uqDb = Db.db(consts.$uq);
+		await $uqDb.log(0, runner.getDb(), 'Error execQueueAct', err.message);
 		logger.error(`execQueueAct: `, err);
 		runner.execQueueActError = true;
 	}

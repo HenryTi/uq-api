@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.execQueueAct = void 0;
+const core_1 = require("../core");
 const tool_1 = require("../tool");
 function execQueueAct(runner) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -43,6 +44,8 @@ CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
             //}
         }
         catch (err) {
+            let $uqDb = core_1.Db.db(core_1.consts.$uq);
+            yield $uqDb.log(0, runner.getDb(), 'Error execQueueAct', err.message);
             tool_1.logger.error(`execQueueAct: `, err);
             runner.execQueueActError = true;
         }
