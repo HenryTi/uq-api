@@ -25,15 +25,16 @@ function execQueueAct(runner) {
                 for (let row of ret) {
                     let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
                     sql = `
-CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
-	ON SCHEDULE AT CURRENT_TIMESTAMP DO CALL \`${db}\`.\`tv_${entityName}\`(${unit}, 0);
+USE \`${db}\`;
+CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
+	ON SCHEDULE AT CURRENT_TIMESTAMP DO CALL \`tv_${entityName}\`(${unit}, 0);
 `;
                     yield runner.sql(sql, []);
                     if (repeat === 1) {
-                        sql = `DELETE a FROM \`${db}\`.tv_$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
+                        sql = `use \`${db}\`; DELETE a FROM tv_$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
                     }
                     else {
-                        sql = `UPDATE \`${db}\`.tv_$queue_act AS a 
+                        sql = `use \`${db}\`; UPDATE tv_$queue_act AS a 
 						SET a.exec_time=date_add(GREATEST(a.exec_time, CURRENT_TIMESTAMP()), interval a.interval minute)
 							, a.repeat=a.repeat-1
 						WHERE a.unit=${unit} AND a.entity=${entity};
@@ -42,7 +43,6 @@ CREATE EVENT IF NOT EXISTS \`${db}\`.\`tv_${entityName}\`
                     yield runner.sql(sql, []);
                 }
             }
-            //}
         }
         catch (err) {
             let $uqDb = core_1.Db.db(core_1.consts.$uq);
