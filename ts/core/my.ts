@@ -454,7 +454,7 @@ END
 			if not exists(select \`unit\` from \`log\` where \`time\`=_time) then
 				insert into \`log\` (\`time\`, unit, uq, subject, content) 
 					values (_time, _unit, 
-						(select id from uq where \`name\`=_uq), 
+						(select id from uq where name=_uq),
 						_subject, 
 						_content);
 				leave _exit;

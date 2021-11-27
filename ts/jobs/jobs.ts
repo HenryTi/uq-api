@@ -11,24 +11,24 @@ const firstRun: number = env.isDevelopment === true ? 3000 : 30 * 1000;
 const runGap: number = env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
-const uqsInclude: string[] =
-    [
-        'me' //, 'order', 'coupon', 'deliver'
-        /*
-        'deliver',
-        'collectpayment',
-        'order',
-        'warehouse',
-        'me',
-        'bridge',
-        */
-    ];
+const uqsInclude: string[] = undefined;
+[
+    'me' //, 'order', 'coupon', 'deliver'
+    /*
+    'deliver',
+    'collectpayment',
+    'order',
+    'warehouse',
+    'me',
+    'bridge',
+    */
+];
 
-const uqsExclude: string[] = //undefined;
-    [
-        'rms',
-        'thirdpartyadapter',
-    ];
+const uqsExclude: string[] = undefined;
+[
+    'rms',
+    'thirdpartyadapter',
+];
 
 interface Uq {
     runTick: number;
@@ -110,7 +110,7 @@ export class Jobs {
     }
 
     private async uqsJob($uqDb: Db) {
-        let retCount: number = 0;
+        let totalCount: number = 0;
         try {
             let uqs = await $uqDb.uqDbs();
             if (uqs.length === 0) {
@@ -127,9 +127,9 @@ export class Jobs {
                 let now = Date.now();
                 if (now > uq.runTick) {
                     let doneRows = await this.uqJob($uqDb, uqDbName, compile_tick);
-                    await $uqDb.log(0, '$jobs', `UQ ${uqDbName} Job`, `total ${doneRows} rows`);
-                    retCount += doneRows;
-                    uq.runTick = now + ((doneRows > 0) ? 0 : 30000);
+                    await $uqDb.log(0, '$uid', `Job ${uqDbName}`, `total ${doneRows} rows`);
+                    totalCount += doneRows;
+                    uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
                 }
             }
         }
@@ -155,7 +155,7 @@ export class Jobs {
                 try {
                     // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                     // 执行这个sleep的时候，出现问题，从而跳出loop
-                    if (retCount === 0) {
+                    if (totalCount === 0) {
                         await $uqDb.log(0, '$jobs', 'Nothing to do', `sleep for ${runGap}ms`);
                         await this.sleep(runGap);
                     }

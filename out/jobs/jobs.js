@@ -20,7 +20,8 @@ const firstRun = core_1.env.isDevelopment === true ? 3000 : 30 * 1000;
 const runGap = core_1.env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
-const uqsInclude = [
+const uqsInclude = undefined;
+[
     'me' //, 'order', 'coupon', 'deliver'
     /*
     'deliver',
@@ -31,7 +32,8 @@ const uqsInclude = [
     'bridge',
     */
 ];
-const uqsExclude = [
+const uqsExclude = undefined;
+[
     'rms',
     'thirdpartyadapter',
 ];
@@ -120,7 +122,7 @@ class Jobs {
     }
     uqsJob($uqDb) {
         return __awaiter(this, void 0, void 0, function* () {
-            let retCount = 0;
+            let totalCount = 0;
             try {
                 let uqs = yield $uqDb.uqDbs();
                 if (uqs.length === 0) {
@@ -136,9 +138,9 @@ class Jobs {
                     let now = Date.now();
                     if (now > uq.runTick) {
                         let doneRows = yield this.uqJob($uqDb, uqDbName, compile_tick);
-                        yield $uqDb.log(0, '$jobs', `UQ ${uqDbName} Job`, `total ${doneRows} rows`);
-                        retCount += doneRows;
-                        uq.runTick = now + ((doneRows > 0) ? 0 : 30000);
+                        yield $uqDb.log(0, '$uid', `Job ${uqDbName}`, `total ${doneRows} rows`);
+                        totalCount += doneRows;
+                        uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
                     }
                 }
             }
@@ -172,7 +174,7 @@ class Jobs {
                     try {
                         // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                         // 执行这个sleep的时候，出现问题，从而跳出loop
-                        if (retCount === 0) {
+                        if (totalCount === 0) {
                             yield $uqDb.log(0, '$jobs', 'Nothing to do', `sleep for ${runGap}ms`);
                             yield this.sleep(runGap);
                         }
