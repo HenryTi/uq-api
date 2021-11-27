@@ -96,7 +96,7 @@ class Jobs {
                                 break;
                         }
                     }
-                    yield $uqDb.log(0, '$jobs', '$jobs loop error', errText);
+                    yield $uqDb.log(0, '$uid', '$jobs loop error', errText);
                 }
                 finally {
                     if (this.loopWait === true) {
@@ -175,7 +175,7 @@ class Jobs {
                         // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                         // 执行这个sleep的时候，出现问题，从而跳出loop
                         if (totalCount === 0) {
-                            yield $uqDb.log(0, '$jobs', 'Nothing to do', `sleep for ${runGap}ms`);
+                            yield $uqDb.log(0, '$uid', 'No jobs to do', `sleep for ${runGap}ms`);
                             yield this.sleep(runGap);
                         }
                     }
