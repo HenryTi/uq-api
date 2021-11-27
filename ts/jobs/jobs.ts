@@ -47,6 +47,7 @@ export class Jobs {
 
     async run(): Promise<void> {
         let $uqDb = Db.db(consts.$uq);
+        $uqDb.log(0, '$uid', '+++++++++++', '********** start ***********');
         if (env.isDevelopment === true) {
             // 只有在开发状态下，才可以屏蔽jobs        
             // logger.debug('jobs loop: developing, no loop!');

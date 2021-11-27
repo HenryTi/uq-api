@@ -50,6 +50,7 @@ class Jobs {
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             let $uqDb = core_1.Db.db(core_1.consts.$uq);
+            $uqDb.log(0, '$uid', '+++++++++++', '********** start ***********');
             if (core_1.env.isDevelopment === true) {
                 // 只有在开发状态下，才可以屏蔽jobs        
                 // logger.debug('jobs loop: developing, no loop!');
