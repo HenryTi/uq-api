@@ -1066,9 +1066,9 @@ export class EntityRunner {
         let events = await this.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
         let eventsText = '';
         for (let ev of events) {
-            let { Db, Name } = ev;
-            eventsText += ` ${Db}.${Name}`;
-            let sql = `DROP EVENT IF EXISTS \`${Db}\`.\`${Name}\`;`;
+            let { db, name } = ev;
+            eventsText += ` ${db}.${name}`;
+            let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
             await this.sql(sql, []);
         }
         await this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
