@@ -643,6 +643,7 @@ export class EntityRunner {
     }
 
     private async initInternal() {
+        await this.removeAllScheduleEvents();
         let rows = await this.loadSchemas(0);
         let schemaTable: { id: number, name: string, type: number, version: number, schema: string, run: string, from: string, isPrivate: number }[] = rows[0];
         let settingTable: { name: string, value: string }[] = rows[1];
@@ -1010,22 +1011,6 @@ export class EntityRunner {
     getSchema(name: string): any {
         return this.schemas[name.toLowerCase()];
     }
-    async tagValues(unit: number, type: string) {
-        type = type.toLowerCase();
-        let schema = this.schemas[type];
-        if (schema === undefined) return;
-        let { call } = schema as any;
-        let isSys = call.hasValue === true ? 1 : 0;
-        let result = await this.db.tableFromProc('tv_$tag_values', [unit, isSys, type]);
-        let ret = '';
-        for (let row of result) {
-            let { id, name, ext } = row;
-            if (ext === null) ext = '';
-            if (ret.length > 0) ret += '\n';
-            ret += `${id}\t${name}\t${ext}`;
-        }
-        return ret;
-    }
 
     private actionConvertSchemas: { [name: string]: any } = {};
     getActionConvertSchema(name: string): any {
@@ -1073,6 +1058,17 @@ export class EntityRunner {
 
     private async runUqStatements() {
         await this.procCall('tv_$uq', []);
+    }
+
+    private async removeAllScheduleEvents() {
+        let db = this.getDb();
+        let events = await this.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
+        for (let ev of events) {
+            let { Db, Name } = ev;
+            let sql = `DROP EVENT IF EXISTS \`${Db}\`.\`${Name}\`;`;
+            await this.sql(sql, []);
+        }
+        await this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
     }
 
     Acts(unit: number, user: number, param: ParamActs): Promise<any[]> {

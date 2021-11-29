@@ -381,6 +381,7 @@ class MyDbServer extends dbServer_1.DbServer {
                     console.error(err);
                 }
             }
+            let retTry = yield this.exec('select 1', undefined);
             yield this.insertInto$Uq(db);
             return ret;
         });

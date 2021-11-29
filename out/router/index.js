@@ -25,7 +25,6 @@ const tuid_1 = require("./tuid");
 const sheet_1 = require("./sheet");
 const import_1 = require("./import");
 const map_1 = require("./map");
-const tag_1 = require("./tag");
 const ID_1 = require("./ID");
 function buildEntityRouter(router, rb) {
     (0, access_1.buildAccessRouter)(router, rb);
@@ -38,7 +37,7 @@ function buildEntityRouter(router, rb) {
     (0, sheet_1.buildSheetRouter)(router, rb);
     (0, import_1.buildImportRouter)(router, rb);
     (0, map_1.buildMapRouter)(router, rb);
-    (0, tag_1.buildTagRouter)(router, rb);
+    // buildTagRouter(router, rb);
     (0, ID_1.buildIDRouter)(router, rb);
 }
 exports.buildEntityRouter = buildEntityRouter;

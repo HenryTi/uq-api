@@ -352,6 +352,7 @@ export class MyDbServer extends DbServer {
 				console.error(err);
 			}
 		}
+		let retTry = await this.exec('select 1', undefined);
 		await this.insertInto$Uq(db);
 		return ret;
 	}

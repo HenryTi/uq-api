@@ -762,6 +762,7 @@ class EntityRunner {
     initInternal() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.removeAllScheduleEvents();
             let rows = yield this.loadSchemas(0);
             let schemaTable = rows[0];
             let settingTable = rows[1];
@@ -1147,27 +1148,6 @@ class EntityRunner {
     getSchema(name) {
         return this.schemas[name.toLowerCase()];
     }
-    tagValues(unit, type) {
-        return __awaiter(this, void 0, void 0, function* () {
-            type = type.toLowerCase();
-            let schema = this.schemas[type];
-            if (schema === undefined)
-                return;
-            let { call } = schema;
-            let isSys = call.hasValue === true ? 1 : 0;
-            let result = yield this.db.tableFromProc('tv_$tag_values', [unit, isSys, type]);
-            let ret = '';
-            for (let row of result) {
-                let { id, name, ext } = row;
-                if (ext === null)
-                    ext = '';
-                if (ret.length > 0)
-                    ret += '\n';
-                ret += `${id}\t${name}\t${ext}`;
-            }
-            return ret;
-        });
-    }
     getActionConvertSchema(name) {
         return this.actionConvertSchemas[name];
     }
@@ -1213,6 +1193,18 @@ class EntityRunner {
     runUqStatements() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.procCall('tv_$uq', []);
+        });
+    }
+    removeAllScheduleEvents() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let db = this.getDb();
+            let events = yield this.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
+            for (let ev of events) {
+                let { Db, Name } = ev;
+                let sql = `DROP EVENT IF EXISTS \`${Db}\`.\`${Name}\`;`;
+                yield this.sql(sql, []);
+            }
+            yield this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
         });
     }
     Acts(unit, user, param) {

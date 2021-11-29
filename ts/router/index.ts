@@ -4,21 +4,21 @@ export * from './unitx';
 export * from './build';
 
 import { Router } from 'express';
-import {buildAccessRouter} from './access';
-import {buildActionRouter} from './action';
-import {buildBookRouter} from './book';
-import {buildHistoryRouter} from './history';
-import {buildQueryRouter} from './query';
-import {buildSchemaRouter} from './schema';
-import {buildTuidRouter} from './tuid';
-import {buildSheetRouter} from './sheet';
-import {buildImportRouter} from './import';
-import {buildMapRouter} from './map';
-import {buildTagRouter} from './tag';
+import { buildAccessRouter } from './access';
+import { buildActionRouter } from './action';
+import { buildBookRouter } from './book';
+import { buildHistoryRouter } from './history';
+import { buildQueryRouter } from './query';
+import { buildSchemaRouter } from './schema';
+import { buildTuidRouter } from './tuid';
+import { buildSheetRouter } from './sheet';
+import { buildImportRouter } from './import';
+import { buildMapRouter } from './map';
+// import {buildTagRouter} from './tag';
 import { RouterBuilder } from '../core';
 import { buildIDRouter } from './ID';
 
-export function buildEntityRouter(router:Router, rb: RouterBuilder) {
+export function buildEntityRouter(router: Router, rb: RouterBuilder) {
     buildAccessRouter(router, rb);
     buildActionRouter(router, rb);
     buildBookRouter(router, rb);
@@ -29,6 +29,6 @@ export function buildEntityRouter(router:Router, rb: RouterBuilder) {
     buildSheetRouter(router, rb);
     buildImportRouter(router, rb);
     buildMapRouter(router, rb);
-	buildTagRouter(router, rb);
-	buildIDRouter(router, rb);
+    // buildTagRouter(router, rb);
+    buildIDRouter(router, rb);
 }
