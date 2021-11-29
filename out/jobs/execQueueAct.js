@@ -27,7 +27,7 @@ function execQueueAct(runner) {
                     sql = `
 USE \`${db}\`;
 CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
-	ON SCHEDULE AT CURRENT_TIMESTAMP DO CALL \`tv_${entityName}\`(${unit}, 0);
+	ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`tv_${entityName}\`(${unit}, 0);
 `;
                     yield runner.sql(sql, []);
                     if (repeat === 1) {
