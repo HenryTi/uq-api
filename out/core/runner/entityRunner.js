@@ -1197,6 +1197,7 @@ class EntityRunner {
     }
     removeAllScheduleEvents() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
             let db = this.getDb();
             let events = yield this.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
             for (let ev of events) {
@@ -1205,6 +1206,7 @@ class EntityRunner {
                 yield this.sql(sql, []);
             }
             yield this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
+            this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents');
         });
     }
     Acts(unit, user, param) {

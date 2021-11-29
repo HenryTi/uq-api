@@ -1061,6 +1061,7 @@ export class EntityRunner {
     }
 
     private async removeAllScheduleEvents() {
+        this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
         let db = this.getDb();
         let events = await this.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
         for (let ev of events) {
@@ -1069,6 +1070,7 @@ export class EntityRunner {
             await this.sql(sql, []);
         }
         await this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
+        this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents');
     }
 
     Acts(unit: number, user: number, param: ParamActs): Promise<any[]> {
