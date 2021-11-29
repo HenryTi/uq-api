@@ -482,7 +482,7 @@ END
 		set _time=current_timestamp(6);
 		_exit: loop
 			if not exists(select \`unit\` from \`log\` where \`time\`=_time) then
-				insert into \`log\` (\`time\`, unit, uq, subject, content) 
+				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
 					values (_time, _unit, 
 						(select id from uq where name=_uq),
 						_subject, 
