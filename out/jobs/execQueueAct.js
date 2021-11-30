@@ -26,6 +26,7 @@ function execQueueAct(runner) {
                     let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
                     sql = `
 USE \`${db}\`;
+DROP EVENT IF EXISTS \`tv_${entityName}\`;
 CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
 	ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`tv_${entityName}\`(${unit}, 0);
 `;
