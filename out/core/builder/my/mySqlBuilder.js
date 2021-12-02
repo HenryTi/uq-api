@@ -223,8 +223,10 @@ class MySqlBuilder {
                 if (fields.length > keys.length + 1) {
                     sql += this.buildUpdate(ts, value, updateOverride);
                 }
-                if (withRet === true)
-                    sql += exports.retTab;
+                if (withRet === true) {
+                    let retTabId = `set @ret=CONCAT(@ret, @id, '\\t', tv_${name}$, '\\t');\n`;
+                    sql += retTabId;
+                }
             }
         }
         if (withRet === true)

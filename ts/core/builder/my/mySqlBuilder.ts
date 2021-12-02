@@ -6,26 +6,26 @@ export const retLn = "set @ret=CONCAT(@ret, '\\n');\n";
 export const retTab = "set @ret=CONCAT(@ret, @id, '\\t');\n";
 
 export abstract class MySqlBuilder implements ISqlBuilder {
-	protected readonly dbName:string;
-	protected readonly hasUnit:boolean;
+	protected readonly dbName: string;
+	protected readonly hasUnit: boolean;
 
 
 	constructor(builder: Builders) {
-		let {dbName, hasUnit} = builder;
+		let { dbName, hasUnit } = builder;
 		this.dbName = dbName;
 		this.hasUnit = false; // hasUnit; ID, IDX, IX表，都没有$unit字段，所以当hasUnit=false处理
 	}
 
-	abstract build():string;
+	abstract build(): string;
 
-	protected buildSumSelect(param:ParamSum):string {
-		let {IDX, far, near, field} = param;
-		let {name, schema} = IDX;
+	protected buildSumSelect(param: ParamSum): string {
+		let { IDX, far, near, field } = param;
+		let { name, schema } = IDX;
 		if (!far) far = 0;
 		if (!near) near = Number.MAX_SAFE_INTEGER;
 		let sql = 'select t.id';
 		for (let f of field) {
-			let {exFields} = schema;
+			let { exFields } = schema;
 			let exField = exFields?.find(v => v.field === f);
 			if (exField === undefined) {
 				return `select '${f} is not logged' as error`;
@@ -37,44 +37,44 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql;
 	}
 
-	protected buildIXrIDX(IX: TableSchema, IDX: TableSchema[]): {cols: string; tables: string;} {
+	protected buildIXrIDX(IX: TableSchema, IDX: TableSchema[]): { cols: string; tables: string; } {
 		let b = new IXrTablesBuilder(this.dbName, IX, IDX);
 		b.build();
 		return b;
 	}
 
-	protected buildIXrIXIDX(IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]): {cols: string; tables: string;} {
+	protected buildIXrIXIDX(IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]): { cols: string; tables: string; } {
 		let b = new IXrIXTablesBuilder(this.dbName, IX, IX1, IDX);
 		b.build();
 		return b;
 	}
 
-	protected buildIXIDX(IX: TableSchema, IDX: TableSchema[]): {cols: string; tables: string;} {
+	protected buildIXIDX(IX: TableSchema, IDX: TableSchema[]): { cols: string; tables: string; } {
 		let b = new IXTablesBuilder(this.dbName, IX, IDX);
 		b.build();
 		return b;
 	}
 
-	protected buildIXIXIDX(IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]): {cols: string; tables: string;} {
+	protected buildIXIXIDX(IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]): { cols: string; tables: string; } {
 		let b = new IXIXTablesBuilder(this.dbName, IX, IX1, IDX);
 		b.build();
 		return b;
 	}
 
-	protected buildIDX(IDX: TableSchema[]): {cols: string; tables: string;} {
+	protected buildIDX(IDX: TableSchema[]): { cols: string; tables: string; } {
 		let b = new TablesBuilder(this.dbName, IDX);
 		b.build();
 		return b;
 	}
 
-	protected buildInsert(ts:TableSchema, override: any, valueItem?: any): string {
+	protected buildInsert(ts: TableSchema, override: any, valueItem?: any): string {
 		if (!ts) return '';
-		let {name, schema, values} = ts;
-		let {fields, owner} = schema;
+		let { name, schema, values } = ts;
+		let { fields, owner } = schema;
 		if (!override) override = {};
 		let sql = 'set @row=0;\n';
-		let cols:string, valsInit:string, valsFirst: boolean;
-		let first:boolean;
+		let cols: string, valsInit: string, valsFirst: boolean;
+		let first: boolean;
 		if (this.hasUnit === true) {
 			cols = '`$unit`';
 			valsInit = '@unit';
@@ -86,7 +86,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			valsFirst = first = true;
 		}
 		for (let f of fields) {
-			let {name} = f;
+			let { name } = f;
 			if (first === true) {
 				first = false;
 			}
@@ -108,7 +108,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			let fieldFirst = valsFirst;
 			let vals = valsInit;
 			for (let f of fields) {
-				let {name, type} = f;
+				let { name, type } = f;
 				if (fieldFirst === true) {
 					fieldFirst = false;
 				}
@@ -122,7 +122,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				let v = value[name];
 				let ov = override[name];
 				if (v !== undefined) {
-					vals += (type==='textid'? `tv_$textid('${v}')`: `'${v}'`);
+					vals += (type === 'textid' ? `tv_$textid('${v}')` : `'${v}'`);
 				}
 				else if (ov !== undefined) {
 					vals += ov;
@@ -143,7 +143,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql;
 	}
 
-	protected buildDetailSelect(ts:TableSchema, whereId:string):string {
+	protected buildDetailSelect(ts: TableSchema, whereId: string): string {
 		if (ts === undefined) return '';
 		let sql = 'SELECT ';
 		let first = true;
@@ -154,8 +154,8 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			else {
 				sql += ',';
 			}
-			let {name, type} = f;
-			sql += (type === 'textid')?
+			let { name, type } = f;
+			sql += (type === 'textid') ?
 				`tv_$idtext(\`${name}\`)`
 				:
 				`\`${name}\``;
@@ -168,18 +168,18 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql + ';\n';
 	}
 
-	private buildSaveID(ts:TableSchema, withRet: boolean, idValue?:any): string {
+	private buildSaveID(ts: TableSchema, withRet: boolean, idValue?: any): string {
 		let sql = '';
-		let {values, name, schema} = ts;
+		let { values, name, schema } = ts;
 		if (idValue !== undefined) {
 			values = [idValue];
 		}
-		let {keys, fields} = schema;
+		let { keys, fields } = schema;
 		for (let value of values) {
-			let {id} = value;
+			let { id } = value;
 			if (id) {
 				sql += `set @id=${id};`;
-				if (id<0) {
+				if (id < 0) {
 					sql += this.buildIDDelete(ts, -id);
 				}
 				else {
@@ -188,15 +188,15 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			}
 			else {
 				sql += `set @id=\`tv_${name}$id\`(@unit,@user,1`;
-				let updateOverride = {id: '@id'};
+				let updateOverride = { id: '@id' };
 				if (keys.length > 0) {
-					function sqlFromKey(keyName: string, type: string, v:any) {
+					function sqlFromKey(keyName: string, type: string, v: any) {
 						sql += ',';
 						if (type === 'textid') {
 							sql += `tv_$textid('${v}')`;
 						}
 						else if (keyName === 'no') {
-							sql += v? `'${v}'` : `tv_$no(@unit, '${name}')`;
+							sql += v ? `'${v}'` : `tv_$no(@unit, '${name}')`;
 						}
 						else if (v === undefined) {
 							switch (type) {
@@ -212,12 +212,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					switch (typeof value) {
 						case 'number':
 						case 'string':
-							let {name:kn, type} = keys[0];
+							let { name: kn, type } = keys[0];
 							sqlFromKey(kn, type, value);
 							break;
 						case 'object':
 							for (let k of keys) {
-								let {name:kn, type} = keys[0];
+								let { name: kn, type } = keys[0];
 								let v = value[kn];
 								sqlFromKey(kn, type, v);
 							}
@@ -228,28 +228,31 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				if (fields.length > keys.length + 1) {
 					sql += this.buildUpdate(ts, value, updateOverride);
 				}
-				if (withRet === true) sql += retTab;
+				if (withRet === true) {
+					let retTabId = `set @ret=CONCAT(@ret, @id, '\\t', tv_${name}$, '\\t');\n`;
+					sql += retTabId;
+				}
 			}
 		}
 		if (withRet === true) sql += retLn;
 		return sql;
 	}
 
-	protected buildSaveIDWithRet(ts:TableSchema, idValue?:any): string {
+	protected buildSaveIDWithRet(ts: TableSchema, idValue?: any): string {
 		let sql = this.buildSaveID(ts, true, idValue);
 		return sql;
 	}
 
-	protected buildSaveIDWithoutRet(ts:TableSchema, idValue?:any): string {
+	protected buildSaveIDWithoutRet(ts: TableSchema, idValue?: any): string {
 		let sql = this.buildSaveID(ts, false, idValue);
 		return sql;
 	}
 
-	protected buildSaveIDX(ts:TableSchema): string {
+	protected buildSaveIDX(ts: TableSchema): string {
 		let sql = '';
-		let {values} = ts;
+		let { values } = ts;
 		for (let value of values) {
-			let {id} = value;
+			let { id } = value;
 			if (id < 0) {
 				sql += this.buildIDDelete(ts, -id);
 			}
@@ -262,15 +265,15 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql;
 	}
 
-	protected buildSaveIX(ts:TableSchema, ixValue?:any): string {
+	protected buildSaveIX(ts: TableSchema, ixValue?: any): string {
 		let sql = '';
-		let {schema, values} = ts;
-		let {hasId, name} = schema as any;
+		let { schema, values } = ts;
+		let { hasId, name } = schema as any;
 		if (ixValue !== undefined) {
 			values = [ixValue];
 		}
 		for (let value of values) {
-			let {ix, xi} = value;
+			let { ix, xi } = value;
 			if (xi < 0) {
 				sql += this.buildIXDelete(ts, ix, -xi);
 			}
@@ -296,13 +299,13 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql;
 	}
 
-	protected buildUpsert(ts:TableSchema, value:any): string {
-		let {name:tableName, schema} = ts;
-		let {keys, fields, exFields} = schema;
-		let cols:string, vals:string, dup = '';
-		let sqlBefore:string = '';
-		let sqlWriteEx:string[] = [];
-		let first:boolean;
+	protected buildUpsert(ts: TableSchema, value: any): string {
+		let { name: tableName, schema } = ts;
+		let { keys, fields, exFields } = schema;
+		let cols: string, vals: string, dup = '';
+		let sqlBefore: string = '';
+		let sqlWriteEx: string[] = [];
+		let first: boolean;
 		if (this.hasUnit === true) {
 			first = false;
 			cols = '`$unit`';
@@ -314,18 +317,18 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			vals = '';
 		}
 		for (let f of fields) {
-			let {name, type} = f;
+			let { name, type } = f;
 			let v = value[name];
 			if (v === undefined) continue;
 			let act = 0;
-			let val:string;
+			let val: string;
 			act = value.$act;
 			if (act === undefined || act === null) act = 0;
 			if (v === null) {
 				val = 'null';
 			}
 			else {
-				let time:number;
+				let time: number;
 				let setAdd: string;
 				if (typeof v === 'object') {
 					setAdd = v.setAdd;
@@ -333,27 +336,27 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					v = v.value;
 				}
 
-				let sum:boolean;
+				let sum: boolean;
 				if (exFields) {
 					let exField = exFields.find(v => v.field === name);
 					if (exField) {
-						let {field, track, memo, time:timeCanSet} = exField;
+						let { field, track, memo, time: timeCanSet } = exField;
 						sum = exField.sum;
 						let valueId = value['id'];
 						let sqlEx = `set @dxValue=\`tv_${tableName}$${field}\`(@unit,@user,${valueId},${act},'${v}'`;
 						if (timeCanSet === true) {
 							sqlEx += ',';
-							sqlEx += time !== undefined? time : 'null';
+							sqlEx += time !== undefined ? time : 'null';
 						}
 						if (track === true) {
 							let vTrack = value['$track'];
 							sqlEx += ',';
-							sqlEx += (vTrack? vTrack : 'null');
+							sqlEx += (vTrack ? vTrack : 'null');
 						}
 						if (memo === true) {
 							let vMemo = value['$memo'];
 							sqlEx += ',';
-							sqlEx += (vMemo? `'${vMemo}'` : 'null');
+							sqlEx += (vMemo ? `'${vMemo}'` : 'null');
 						}
 						sqlEx += `);\n`;
 						sqlWriteEx.push(sqlEx);
@@ -410,22 +413,22 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql + sqlWriteEx.join('');
 	}
 
-	protected buildUpdate(ts:TableSchema, value:any, override:any = {}): string {
-		let {name, schema} = ts;
-		let {fields} = schema;
+	protected buildUpdate(ts: TableSchema, value: any, override: any = {}): string {
+		let { name, schema } = ts;
+		let { fields } = schema;
 		let sql = 'update `tv_' + name + '` set ';
 		let where = ' where 1=1';
 		if (this.hasUnit === true) {
 			where += ' and `$unit`=@unit';
-		} 
+		}
 		let first = true;
 		for (let f of fields) {
-			let {name, type} = f;
+			let { name, type } = f;
 			let ov = override[name];
 			if (ov === null) continue;
 			let v = value[name];
 			switch (name) {
-				default: 
+				default:
 					if (first === true) {
 						first = false;
 					}
@@ -439,7 +442,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 						v = 'null';
 					}
 					else {
-						v = (type==='textid'? `tv_$textid('${v}')`: `'${v}'`);
+						v = (type === 'textid' ? `tv_$textid('${v}')` : `'${v}'`);
 					}
 					sql += v;
 					break;
@@ -454,13 +457,13 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql + where + ';\n';
 	}
 
-	protected buildIXDelete(ts:TableSchema, ix:number, xi:number):string {
-		let {name, schema} = ts;
-		let {type, exFields} = schema;
+	protected buildIXDelete(ts: TableSchema, ix: number, xi: number): string {
+		let { name, schema } = ts;
+		let { type, exFields } = schema;
 		let sql = '';
 		if (exFields) {
 			for (let exField of exFields) {
-				let {field, track, memo} = exField;
+				let { field, track, memo } = exField;
 				let sqlEx = `set @dxValue=\`tv_${name}$${field}\`(@unit,@user,${ix},-1,null`;
 				if (track === true) {
 					sqlEx += ',null';
@@ -491,8 +494,8 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		return sql;
 	}
 
-	protected buildIDDelete(ts:TableSchema, id:number):string {
-		let {name, schema} = ts;
+	protected buildIDDelete(ts: TableSchema, id: number): string {
+		let { name, schema } = ts;
 		let sql = '';
 		if (id) {
 			if (id < 0) id = -id;
