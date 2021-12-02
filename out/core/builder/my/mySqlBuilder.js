@@ -175,6 +175,8 @@ class MySqlBuilder {
                 }
                 else {
                     sql += this.buildUpdate(ts, value);
+                    // 写tv_$id(_local)表
+                    sql += `set @$id_name=tv_${name}$(${id})\n`;
                 }
             }
             else {
@@ -223,9 +225,10 @@ class MySqlBuilder {
                 if (fields.length > keys.length + 1) {
                     sql += this.buildUpdate(ts, value, updateOverride);
                 }
+                // 写tv_$id(_local)表
+                sql += `set @$id_name=tv_${name}$(${id})\n`;
                 if (withRet === true) {
-                    let retTabId = `set @ret=CONCAT(@ret, @id, '\\t', tv_${name}$, '\\t');\n`;
-                    sql += retTabId;
+                    sql += exports.retTab;
                 }
             }
         }
