@@ -185,7 +185,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				else {
 					sql += this.buildUpdate(ts, value);
 					// 写tv_$id(_local)表
-					sql += `set @$id_name=tv_${name}$(${id})\n`;
+					sql += `set @$id_name=\`tv_${name}$\`(${id})\n`;
 				}
 			}
 			else {
@@ -231,7 +231,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					sql += this.buildUpdate(ts, value, updateOverride);
 				}
 				// 写tv_$id(_local)表
-				sql += `set @$id_name=tv_${name}$(${id})\n`;
+				sql += `set @$id_name=\`tv_${name}$\`(@id);\n`;
 				if (withRet === true) {
 					sql += retTab;
 				}
