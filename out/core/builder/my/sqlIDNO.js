@@ -8,8 +8,8 @@ class SqlIDNO extends mySqlBuilder_1.MySqlBuilder {
         this.param = param;
     }
     build() {
-        let { ID } = this.param;
-        let sql = `SELECT tv_$no(@unit, '${ID.name}') as no;`;
+        let { ID, stamp } = this.param;
+        let sql = `SELECT tv_$no(@unit, '${ID.name}', stamp) as no;`;
         return sql;
     }
 }

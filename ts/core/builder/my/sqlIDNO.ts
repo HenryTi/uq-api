@@ -10,9 +10,9 @@ export class SqlIDNO extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {ID} = this.param;
-		let sql = `SELECT tv_$no(@unit, '${ID.name}') as no;`;
+	build(): string {
+		let { ID, stamp } = this.param;
+		let sql = `SELECT tv_$no(@unit, '${ID.name}', stamp) as no;`;
 		return sql;
 	}
 }
