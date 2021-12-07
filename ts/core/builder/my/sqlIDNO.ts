@@ -12,7 +12,7 @@ export class SqlIDNO extends MySqlBuilder {
 
 	build(): string {
 		let { ID, stamp } = this.param;
-		let sql = `SELECT tv_$no(@unit, '${ID.name}', stamp) as no;`;
+		let sql = `SELECT tv_$no(@unit, '${ID.name}', ${stamp}) as no;`;
 		return sql;
 	}
 }
