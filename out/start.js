@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.start = exports.init = void 0;
 const express = require("express");
 const express_1 = require("express");
-const bodyParser = require("body-parser");
 const config = require("config");
 const tool_1 = require("./tool");
 const router_1 = require("./router");
@@ -47,8 +46,11 @@ function init() {
                     return;
                 }
                 (0, res_1.initResPath)();
-                var cors = require('cors');
                 let app = express();
+                var cors = require('cors');
+                app.use(cors({
+                    origin: '*'
+                }));
                 app.use(express.static('public'));
                 app.use((err, req, res, next) => {
                     res.status(err.status || 500);
@@ -57,8 +59,7 @@ function init() {
                         error: err
                     });
                 });
-                app.use(bodyParser.json());
-                app.use(cors());
+                app.use(express.json({ limit: '1mb' }));
                 app.set('json replacer', (key, value) => {
                     if (value === null)
                         return undefined;

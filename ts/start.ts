@@ -1,41 +1,42 @@
 import * as express from 'express';
 import { Request, Response, NextFunction, Router } from 'express';
-import * as bodyParser from 'body-parser';
 import * as config from 'config';
 import { logger } from './tool';
-import {buildOpenRouter, buildEntityRouter, buildUnitxRouter, buildBuildRouter} from './router';
-import {createResDb, router as resRouter, initResPath} from './res';
-import {authCheck, authUnitx, RouterBuilder, 
-	uqProdRouterBuilder, uqTestRouterBuilder, 
-	unitxTestRouterBuilder, unitxProdRouterBuilder, 
-	compileProdRouterBuilder, compileTestRouterBuilder, CompileRouterBuilder, 
-	create$UqDb, env} from './core';
+import { buildOpenRouter, buildEntityRouter, buildUnitxRouter, buildBuildRouter } from './router';
+import { createResDb, router as resRouter, initResPath } from './res';
+import {
+    authCheck, authUnitx, RouterBuilder,
+    uqProdRouterBuilder, uqTestRouterBuilder,
+    unitxTestRouterBuilder, unitxProdRouterBuilder,
+    compileProdRouterBuilder, compileTestRouterBuilder, CompileRouterBuilder,
+    create$UqDb, env
+} from './core';
 import { authJoint, authUpBuild } from './core/auth';
 import { Jobs } from './jobs';
 import { buildProcRouter } from './router/proc';
 
-const {version: uq_api_version} = require('../package.json');
+const { version: uq_api_version } = require('../package.json');
 
-export async function init():Promise<void> {
+export async function init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         try {
             logger.debug("UQ-API init...\n");
-			process.on('uncaughtException', function(err:any) {				
-				logger.error('uncaughtException', err);
-				reject(err);
-			});
-			process.on('unhandledRejection', (err:any, promise:any) => {
-				logger.debug('unhandledRejection', err);
-				reject(err);
-			});
+            process.on('uncaughtException', function (err: any) {
+                logger.error('uncaughtException', err);
+                reject(err);
+            });
+            process.on('unhandledRejection', (err: any, promise: any) => {
+                logger.debug('unhandledRejection', err);
+                reject(err);
+            });
 
-			if (!process.env.NODE_ENV) {
-				logger.error('NODE_ENV not defined, exit');
-				process.exit();
-			}
+            if (!process.env.NODE_ENV) {
+                logger.error('NODE_ENV not defined, exit');
+                process.exit();
+            }
 
             logger.debug('process.env.NODE_ENV: ', process.env.NODE_ENV);
-            
+
             //let connection = config.get<any>("connection");
             let connection = env.getConnection();
             if (connection === undefined || connection.host === '0.0.0.0') {
@@ -43,9 +44,12 @@ export async function init():Promise<void> {
                 return;
             }
             initResPath();
-            
-            var cors = require('cors')
+
             let app = express();
+            var cors = require('cors')
+            app.use(cors({
+                origin: '*'
+            }));
             app.use(express.static('public'));
             app.use((err: any, req: Request, res: Response, next: NextFunction) => {
                 res.status(err.status || 500);
@@ -54,22 +58,21 @@ export async function init():Promise<void> {
                     error: err
                 });
             });
-            app.use(bodyParser.json());
-            app.use(cors());
-            app.set('json replacer', (key:any, value:any) => {
+            app.use(express.json({ limit: '1mb' }));
+            app.set('json replacer', (key: any, value: any) => {
                 if (value === null) return undefined;
                 return value;
             });
 
-            app.use(async (req:Request, res:Response, next:NextFunction) => {
-                let s= req.socket;
+            app.use(async (req: Request, res: Response, next: NextFunction) => {
+                let s = req.socket;
                 let p = '';
                 if (req.method !== 'GET') {
-					p = JSON.stringify(req.body);
-					if (p.length > 100) p = p.substr(0, 100);
-				}
+                    p = JSON.stringify(req.body);
+                    if (p.length > 100) p = p.substr(0, 100);
+                }
                 let t = new Date();
-				logger.debug(req.method, req.originalUrl, p);
+                logger.debug(req.method, req.originalUrl, p);
                 logger.debug('%s %s %s', req.method, req.originalUrl, p);
                 try {
                     next();
@@ -81,8 +84,8 @@ export async function init():Promise<void> {
 
             app.use('/res', resRouter);
             app.use('/hello', dbHello);
-			app.use('/uq/hello', dbHello);
-			app.use('/proc/:db/:proc', buildProcRouter())
+            app.use('/uq/hello', dbHello);
+            app.use('/proc/:db/:proc', buildProcRouter())
 
             app.use('/uq/prod/:db/', buildUqRouter(uqProdRouterBuilder, compileProdRouterBuilder));
             app.use('/uq/test/:db/', buildUqRouter(uqTestRouterBuilder, compileTestRouterBuilder));
@@ -91,14 +94,14 @@ export async function init():Promise<void> {
 
             let port = config.get<number>('port');
 
-            app.listen(port, async ()=>{
+            app.listen(port, async () => {
                 await createResDb();
                 await create$UqDb();
                 logger.debug('a', 'UQ-API ' + uq_api_version + ' listening on port ' + port);
                 //let connection = config.get<any>("connection");
-                let {host, user} = connection;
+                let { host, user } = connection;
                 logger.debug('DB host: %s, user: %s', host, user);
-				logger.debug('Tonva uq-api started!');
+                logger.debug('Tonva uq-api started!');
                 resolve();
             });
         }
@@ -118,11 +121,11 @@ export async function start() {
     await jobs.run();
 }
 
-function dbHello(req:Request, res:Response) {
-	let {db} = req.params;
-	let text = 'uq-api: hello';
-	if (db) text += ', db is ' + db;
-    res.json({"hello": text});
+function dbHello(req: Request, res: Response) {
+    let { db } = req.params;
+    let text = 'uq-api: hello';
+    if (db) text += ', db is ' + db;
+    res.json({ "hello": text });
 }
 
 function buildUqRouter(rb: RouterBuilder, rbCompile: CompileRouterBuilder): Router {
