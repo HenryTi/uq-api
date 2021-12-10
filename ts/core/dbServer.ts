@@ -227,6 +227,7 @@ export abstract class DbServer {
 	abstract create$UqDb(): Promise<void>;
 	abstract isExistsProcInDb(proc: string): boolean;
 	abstract createProcInDb(db: string, proc: string): Promise<void>;
+	abstract getEvents(db: string): Promise<{ db: string; name: string }[]>;
 
 	private async execSql(unit: number, user: number, sql: string): Promise<any[]> {
 		let ret = await this.call(this.dbName, 'tv_$exec_sql', [unit, user, sql]);

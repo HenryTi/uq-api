@@ -30,6 +30,7 @@ class MsDbServer extends dbServer_1.DbServer {
     create$UqDb() { return; }
     isExistsProcInDb(proc) { return false; }
     createProcInDb(db, proc) { return; }
+    getEvents(db) { return; }
 }
 exports.MsDbServer = MsDbServer;
 //# sourceMappingURL=ms.js.map

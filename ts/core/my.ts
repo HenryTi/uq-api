@@ -28,6 +28,7 @@ const sqls = {
 	uidExists: undefined as string,
 	dateToUidExists: undefined as string,
 	uidToDateExists: undefined as string,
+	eventExists: undefined as string,
 };
 
 const sqls_8 = {
@@ -36,6 +37,7 @@ const sqls_8 = {
 	uidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uid';`,
 	dateToUidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='datetouid';`,
 	uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
+	eventExists: `SELECT EVENT_SCHEMA as db, EVENT_NAME as name FROM information_schema.events WHERE event_schema = ?;`,
 };
 
 const sqls_5 = {
@@ -44,6 +46,7 @@ const sqls_5 = {
 	uidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='uid';`,
 	dateToUidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='datetouid';`,
 	uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
+	eventExists: `SELECT db, name FROM mysql.event WHERE db = ?;`,
 };
 
 /*
@@ -354,6 +357,10 @@ export class MyDbServer extends DbServer {
 		}
 		let retTry = await this.exec('select 1', undefined);
 		await this.insertInto$Uq(db);
+		return ret;
+	}
+	async getEvents(db: string): Promise<{ db: string; name: string; }[]> {
+		let ret = await this.exec(sqls.eventExists, [db]);
 		return ret;
 	}
 	async createProcObjs(db: string): Promise<void> {

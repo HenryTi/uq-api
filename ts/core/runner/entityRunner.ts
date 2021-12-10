@@ -1062,7 +1062,7 @@ export class EntityRunner {
 
     private async removeAllScheduleEvents() {
         let db = this.getDb();
-        let events = await this.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
+        let events = await this.dbServer.getEvents(db); //.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
         if ((!events) || events.length === 0) return;
         this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
         let eventsText = '';

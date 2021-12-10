@@ -1198,7 +1198,7 @@ class EntityRunner {
     removeAllScheduleEvents() {
         return __awaiter(this, void 0, void 0, function* () {
             let db = this.getDb();
-            let events = yield this.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
+            let events = yield this.dbServer.getEvents(db); //.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
             if ((!events) || events.length === 0)
                 return;
             this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');

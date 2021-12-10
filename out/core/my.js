@@ -31,6 +31,7 @@ const sqls = {
     uidExists: undefined,
     dateToUidExists: undefined,
     uidToDateExists: undefined,
+    eventExists: undefined,
 };
 const sqls_8 = {
     procExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log';`,
@@ -38,6 +39,7 @@ const sqls_8 = {
     uidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uid';`,
     dateToUidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
+    eventExists: `SELECT EVENT_SCHEMA as db, EVENT_NAME as name FROM information_schema.events WHERE event_schema = ?;`,
 };
 const sqls_5 = {
     procExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log';`,
@@ -45,6 +47,7 @@ const sqls_5 = {
     uidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='uid';`,
     dateToUidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
+    eventExists: `SELECT db, name FROM mysql.event WHERE db = ?;`,
 };
 /*
 const collationConnection = `
@@ -383,6 +386,12 @@ class MyDbServer extends dbServer_1.DbServer {
             }
             let retTry = yield this.exec('select 1', undefined);
             yield this.insertInto$Uq(db);
+            return ret;
+        });
+    }
+    getEvents(db) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.exec(sqls.eventExists, [db]);
             return ret;
         });
     }
