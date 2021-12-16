@@ -1068,6 +1068,7 @@ export class EntityRunner {
         let eventsText = '';
         for (let ev of events) {
             let { db, name } = ev;
+            if (name.startsWith('tv_') === true) continue;
             eventsText += ` ${db}.${name}`;
             let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
             await this.sql(sql, []);
