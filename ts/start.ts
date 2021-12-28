@@ -113,6 +113,23 @@ export async function init(): Promise<void> {
 
 export async function start() {
     await init();
+    await runJobsForever();
+}
+
+async function runJobsForever() {
+    try {
+        await runJobs();
+    }
+    catch (err) {
+        console.error('runJobsForever error: ', err);
+    }
+    finally {
+        // 如果发生错误，退出循环，60秒钟之后，重新启动
+        setTimeout(runJobsForever, 60000);
+    }
+}
+
+async function runJobs() {
     let jobs = new Jobs();
     if (env.isDevelopment === true) {
         let uqDbNames = env.configDebugging.uqs;

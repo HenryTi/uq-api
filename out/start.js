@@ -113,6 +113,26 @@ exports.init = init;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
+        yield runJobsForever();
+    });
+}
+exports.start = start;
+function runJobsForever() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield runJobs();
+        }
+        catch (err) {
+            console.error('runJobsForever error: ', err);
+        }
+        finally {
+            // 如果发生错误，退出循环，60秒钟之后，重新启动
+            setTimeout(runJobsForever, 60000);
+        }
+    });
+}
+function runJobs() {
+    return __awaiter(this, void 0, void 0, function* () {
         let jobs = new jobs_1.Jobs();
         if (core_1.env.isDevelopment === true) {
             let uqDbNames = core_1.env.configDebugging.uqs;
@@ -121,7 +141,6 @@ function start() {
         yield jobs.run();
     });
 }
-exports.start = start;
 function dbHello(req, res) {
     let { db } = req.params;
     let text = 'uq-api: hello';
