@@ -782,7 +782,7 @@ class WriteLogBase {
 		set _time=current_timestamp(6);
 		_exit: loop
 			if not exists(select \`unit\` from \`${this.tableName}\` where \`time\`=_time for update) then
-				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
+				insert ignore into \`${this.tableName}\` (\`time\`, unit, uq, subject, content) 
 					values (_time, _unit, 
 						(select id from uq where name=_uq),
 						_subject, 
