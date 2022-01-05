@@ -777,22 +777,24 @@ function castDateTime(field) {
 }
 class WriteLogBase {
     sql() {
-        return `create procedure $uq.${this.procName}(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
+        return `create procedure $uq.${this.procName}(
+	_unit int, _uq varchar(50), _subject varchar(100), _content text) 
+begin
 	declare _time timestamp(6);
-		set _time=current_timestamp(6);
-		_exit: loop
-			if not exists(select \`unit\` from \`${this.tableName}\` where \`time\`=_time for update) then
-				insert ignore into \`${this.tableName}\` (\`time\`, unit, uq, subject, content) 
-					values (_time, _unit, 
-						(select id from uq where name=_uq),
-						_subject, 
-						_content);
-				leave _exit;
-			else
-				set _time = ADDDATE(_time,interval 1 microsecond );
-			end if;
-		end loop;
-	end;
+	set _time=current_timestamp(6);
+	_exit: loop
+		if not exists(select \`unit\` from \`${this.tableName}\` where \`time\`=_time for update) then
+			insert ignore into \`${this.tableName}\` (\`time\`, unit, uq, subject, content) 
+				values (_time, _unit, 
+					(select id from uq where name=_uq),
+					_subject, 
+					_content);
+			leave _exit;
+		else
+			set _time = ADDDATE(_time,interval 1 microsecond );
+		end if;
+	end loop;
+end;
 `;
     }
 }
