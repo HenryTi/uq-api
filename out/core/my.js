@@ -490,23 +490,6 @@ END
                 let createLocal = 'CREATE TABLE IF NOT EXISTS $uq.local (id smallint not null auto_increment, `name` varchar(50), discription varchar(100), primary key(`id`), unique key unique_name (`name`))';
                 yield this.exec(createLocal, undefined);
                 yield this.initBuildLocal();
-                let writeLog = `(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
-	declare _time timestamp(6);
-		set _time=current_timestamp(6);
-		_exit: loop
-			if not exists(select \`unit\` from \`log\` where \`time\`=_time for update) then
-				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
-					values (_time, _unit, 
-						(select id from uq where name=_uq),
-						_subject, 
-						_content);
-				leave _exit;
-			else
-				set _time = ADDDATE(_time,interval 1 microsecond );
-			end if;
-		end loop;
-	end;
-			`;
                 let performanceLog = `
 	create procedure $uq.performance(_tick bigint, _log text, _ms int) begin
 		declare _t timestamp(6);
@@ -531,11 +514,11 @@ END
                 }
                 let retProcLogExists = yield this.exec(sqls.procLogExists, undefined);
                 if (retProcLogExists.length === 0) {
-                    yield this.exec('create procedure $uq.log' + writeLog, undefined);
+                    yield this.exec(new WriteLog().sql(), undefined);
                 }
                 let retProcLogErrorExists = yield this.exec(sqls.procLogErrorExists, undefined);
                 if (retProcLogErrorExists.length === 0) {
-                    yield this.exec('create procedure $uq.log_error' + writeLog, undefined);
+                    yield this.exec(new WriteLogError().sql(), undefined);
                 }
                 let retPerformanceExists = yield this.exec(sqls.performanceExists, undefined);
                 if (retPerformanceExists.length === 0) {
@@ -791,5 +774,34 @@ function castDateTime(field) {
     let d = new Date(new Date(text).getTime() - timezoneOffset);
     return d;
     */
+}
+class WriteLogBase {
+    sql() {
+        return `create procedure $uq.${this.procName}(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
+	declare _time timestamp(6);
+		set _time=current_timestamp(6);
+		_exit: loop
+			if not exists(select \`unit\` from \`${this.tableName}\` where \`time\`=_time for update) then
+				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
+					values (_time, _unit, 
+						(select id from uq where name=_uq),
+						_subject, 
+						_content);
+				leave _exit;
+			else
+				set _time = ADDDATE(_time,interval 1 microsecond );
+			end if;
+		end loop;
+	end;
+`;
+    }
+}
+class WriteLog extends WriteLogBase {
+    get procName() { return 'log'; }
+    get tableName() { return 'log'; }
+}
+class WriteLogError extends WriteLogBase {
+    get procName() { return 'log_error'; }
+    get tableName() { return 'error'; }
 }
 //# sourceMappingURL=my.js.map

@@ -459,23 +459,6 @@ END
 			await this.exec(createLocal, undefined);
 			await this.initBuildLocal();
 
-			let writeLog = `(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
-	declare _time timestamp(6);
-		set _time=current_timestamp(6);
-		_exit: loop
-			if not exists(select \`unit\` from \`log\` where \`time\`=_time for update) then
-				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
-					values (_time, _unit, 
-						(select id from uq where name=_uq),
-						_subject, 
-						_content);
-				leave _exit;
-			else
-				set _time = ADDDATE(_time,interval 1 microsecond );
-			end if;
-		end loop;
-	end;
-			`;
 			let performanceLog = `
 	create procedure $uq.performance(_tick bigint, _log text, _ms int) begin
 		declare _t timestamp(6);
@@ -500,11 +483,11 @@ END
 			}
 			let retProcLogExists = await this.exec(sqls.procLogExists, undefined);
 			if (retProcLogExists.length === 0) {
-				await this.exec('create procedure $uq.log' + writeLog, undefined);
+				await this.exec(new WriteLog().sql(), undefined);
 			}
 			let retProcLogErrorExists = await this.exec(sqls.procLogErrorExists, undefined);
 			if (retProcLogErrorExists.length === 0) {
-				await this.exec('create procedure $uq.log_error' + writeLog, undefined);
+				await this.exec(new WriteLogError().sql(), undefined);
 			}
 
 			let retPerformanceExists = await this.exec(sqls.performanceExists, undefined);
@@ -751,4 +734,38 @@ function castDateTime(field: any) {
 	let d = new Date(new Date(text).getTime() - timezoneOffset);
 	return d;
 	*/
+}
+
+abstract class WriteLogBase {
+	protected abstract get procName(): string;
+	protected abstract get tableName(): string;
+	sql(): string {
+		return `create procedure $uq.${this.procName}(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
+	declare _time timestamp(6);
+		set _time=current_timestamp(6);
+		_exit: loop
+			if not exists(select \`unit\` from \`${this.tableName}\` where \`time\`=_time for update) then
+				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
+					values (_time, _unit, 
+						(select id from uq where name=_uq),
+						_subject, 
+						_content);
+				leave _exit;
+			else
+				set _time = ADDDATE(_time,interval 1 microsecond );
+			end if;
+		end loop;
+	end;
+`;
+	}
+}
+
+class WriteLog extends WriteLogBase {
+	protected get procName(): string { return 'log' }
+	protected get tableName(): string { return 'log' }
+}
+
+class WriteLogError extends WriteLogBase {
+	protected get procName(): string { return 'log_error' }
+	protected get tableName(): string { return 'error' }
 }
