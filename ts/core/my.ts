@@ -23,7 +23,8 @@ interface DbConfigPool {
 const pools: DbConfigPool[] = [];
 
 const sqls = {
-	procExists: undefined as string,
+	procLogExists: undefined as string,
+	procLogErrorExists: undefined as string,
 	performanceExists: undefined as string,
 	uidExists: undefined as string,
 	dateToUidExists: undefined as string,
@@ -32,7 +33,8 @@ const sqls = {
 };
 
 const sqls_8 = {
-	procExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log';`,
+	procLogExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log';`,
+	procLogErrorExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log_error';`,
 	performanceExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='performance';`,
 	uidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uid';`,
 	dateToUidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='datetouid';`,
@@ -41,7 +43,8 @@ const sqls_8 = {
 };
 
 const sqls_5 = {
-	procExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log';`,
+	procLogExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log';`,
+	procLogErrorExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log_error';`,
 	performanceExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='performance';`,
 	uidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='uid';`,
 	dateToUidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='datetouid';`,
@@ -446,6 +449,8 @@ END
 			}
 			let createLog = 'CREATE TABLE IF NOT EXISTS $uq.log (`time` timestamp(6) not null, uq int, unit int, subject varchar(100), content text, primary key(`time`))';
 			await this.exec(createLog, undefined);
+			let createErrorLog = 'CREATE TABLE IF NOT EXISTS $uq.error (`time` timestamp(6) not null, uq int, unit int, subject varchar(100), content text, primary key(`time`))';
+			await this.exec(createErrorLog, undefined);
 			let createSetting = 'CREATE TABLE IF NOT EXISTS $uq.setting (`name` varchar(100) not null, `value` varchar(100), update_time timestamp default current_timestamp on update current_timestamp, primary key(`name`))';
 			await this.exec(createSetting, undefined);
 			let createPerformance = 'CREATE TABLE IF NOT EXISTS $uq.performance (`time` timestamp(6) not null, ms int, log text, primary key(`time`))';
@@ -454,12 +459,11 @@ END
 			await this.exec(createLocal, undefined);
 			await this.initBuildLocal();
 
-			let writeLog = `
-	create procedure $uq.log(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
+			let writeLog = `(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
 	declare _time timestamp(6);
 		set _time=current_timestamp(6);
 		_exit: loop
-			if not exists(select \`unit\` from \`log\` where \`time\`=_time) then
+			if not exists(select \`unit\` from \`log\` where \`time\`=_time for update) then
 				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
 					values (_time, _unit, 
 						(select id from uq where name=_uq),
@@ -494,10 +498,15 @@ END
 			else {
 				_.merge(sqls, sqls_5);
 			}
-			let retProcExists = await this.exec(sqls.procExists, undefined);
-			if (retProcExists.length === 0) {
-				await this.exec(writeLog, undefined);
+			let retProcLogExists = await this.exec(sqls.procLogExists, undefined);
+			if (retProcLogExists.length === 0) {
+				await this.exec('create procedure $uq.log' + writeLog, undefined);
 			}
+			let retProcLogErrorExists = await this.exec(sqls.procLogErrorExists, undefined);
+			if (retProcLogErrorExists.length === 0) {
+				await this.exec('create procedure $uq.log_error' + writeLog, undefined);
+			}
+
 			let retPerformanceExists = await this.exec(sqls.performanceExists, undefined);
 			if (retPerformanceExists.length === 0) {
 				await this.exec(performanceLog, undefined);

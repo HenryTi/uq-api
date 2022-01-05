@@ -26,7 +26,8 @@ const ER_LOCK_TIMEOUT = 1213;
 const ER_LOCK_DEADLOCK = 1213;
 const pools = [];
 const sqls = {
-    procExists: undefined,
+    procLogExists: undefined,
+    procLogErrorExists: undefined,
     performanceExists: undefined,
     uidExists: undefined,
     dateToUidExists: undefined,
@@ -34,7 +35,8 @@ const sqls = {
     eventExists: undefined,
 };
 const sqls_8 = {
-    procExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log';`,
+    procLogExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log';`,
+    procLogErrorExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log_error';`,
     performanceExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='performance';`,
     uidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uid';`,
     dateToUidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='datetouid';`,
@@ -42,7 +44,8 @@ const sqls_8 = {
     eventExists: `SELECT EVENT_SCHEMA as db, EVENT_NAME as name FROM information_schema.events WHERE event_schema = ?;`,
 };
 const sqls_5 = {
-    procExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log';`,
+    procLogExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log';`,
+    procLogErrorExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log_error';`,
     performanceExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='performance';`,
     uidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='uid';`,
     dateToUidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='datetouid';`,
@@ -478,6 +481,8 @@ END
                 }
                 let createLog = 'CREATE TABLE IF NOT EXISTS $uq.log (`time` timestamp(6) not null, uq int, unit int, subject varchar(100), content text, primary key(`time`))';
                 yield this.exec(createLog, undefined);
+                let createErrorLog = 'CREATE TABLE IF NOT EXISTS $uq.error (`time` timestamp(6) not null, uq int, unit int, subject varchar(100), content text, primary key(`time`))';
+                yield this.exec(createErrorLog, undefined);
                 let createSetting = 'CREATE TABLE IF NOT EXISTS $uq.setting (`name` varchar(100) not null, `value` varchar(100), update_time timestamp default current_timestamp on update current_timestamp, primary key(`name`))';
                 yield this.exec(createSetting, undefined);
                 let createPerformance = 'CREATE TABLE IF NOT EXISTS $uq.performance (`time` timestamp(6) not null, ms int, log text, primary key(`time`))';
@@ -485,12 +490,11 @@ END
                 let createLocal = 'CREATE TABLE IF NOT EXISTS $uq.local (id smallint not null auto_increment, `name` varchar(50), discription varchar(100), primary key(`id`), unique key unique_name (`name`))';
                 yield this.exec(createLocal, undefined);
                 yield this.initBuildLocal();
-                let writeLog = `
-	create procedure $uq.log(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
+                let writeLog = `(_unit int, _uq varchar(50), _subject varchar(100), _content text) begin
 	declare _time timestamp(6);
 		set _time=current_timestamp(6);
 		_exit: loop
-			if not exists(select \`unit\` from \`log\` where \`time\`=_time) then
+			if not exists(select \`unit\` from \`log\` where \`time\`=_time for update) then
 				insert ignore into \`log\` (\`time\`, unit, uq, subject, content) 
 					values (_time, _unit, 
 						(select id from uq where name=_uq),
@@ -525,9 +529,13 @@ END
                 else {
                     _.merge(sqls, sqls_5);
                 }
-                let retProcExists = yield this.exec(sqls.procExists, undefined);
-                if (retProcExists.length === 0) {
-                    yield this.exec(writeLog, undefined);
+                let retProcLogExists = yield this.exec(sqls.procLogExists, undefined);
+                if (retProcLogExists.length === 0) {
+                    yield this.exec('create procedure $uq.log' + writeLog, undefined);
+                }
+                let retProcLogErrorExists = yield this.exec(sqls.procLogErrorExists, undefined);
+                if (retProcLogErrorExists.length === 0) {
+                    yield this.exec('create procedure $uq.log_error' + writeLog, undefined);
                 }
                 let retPerformanceExists = yield this.exec(sqls.performanceExists, undefined);
                 if (retPerformanceExists.length === 0) {
