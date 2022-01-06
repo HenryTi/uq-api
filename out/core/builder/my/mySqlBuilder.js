@@ -165,7 +165,7 @@ class MySqlBuilder {
         if (idValue !== undefined) {
             values = [idValue];
         }
-        let { keys, fields } = schema;
+        let { keys, fields, nameNoVice } = schema;
         for (let value of values) {
             let { id } = value;
             if (id) {
@@ -176,7 +176,9 @@ class MySqlBuilder {
                 else {
                     sql += this.buildUpdate(ts, value);
                     // 写tv_$id(_local)表
-                    sql += `set @$id_name=\`tv_${name}$\`(${id})\n`;
+                    if (nameNoVice !== undefined) {
+                        sql += `set @$id_name=\`tv_${name}$\`(${id})\n`;
+                    }
                 }
             }
             else {
@@ -226,7 +228,9 @@ class MySqlBuilder {
                     sql += this.buildUpdate(ts, value, updateOverride);
                 }
                 // 写tv_$id(_local)表
-                sql += `set @$id_name=\`tv_${name}$\`(@id);\n`;
+                if (nameNoVice !== undefined) {
+                    sql += `set @$id_name=\`tv_${name}$\`(@id);\n`;
+                }
                 if (withRet === true) {
                     sql += exports.retTab;
                 }

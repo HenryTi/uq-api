@@ -25,6 +25,7 @@ export interface EntitySchema {
 	type: string;
 	keys: Field[];
 	fields: Field[];
+	nameNoVice: string[];
 	owner: boolean;
 	create: boolean;
 	update: boolean;
