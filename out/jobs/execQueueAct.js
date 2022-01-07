@@ -49,7 +49,7 @@ CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
             let $uqDb = core_1.Db.db(core_1.consts.$uq);
             yield $uqDb.log(0, runner.getDb(), 'Error execQueueAct', ((_a = err.message) !== null && _a !== void 0 ? _a : '') + ': ' + sql);
             tool_1.logger.error(`execQueueAct: `, err);
-            runner.execQueueActError = true;
+            // runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
         }
     });
 }

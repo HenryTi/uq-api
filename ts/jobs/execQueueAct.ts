@@ -36,6 +36,6 @@ CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
 		await $uqDb.log(0, runner.getDb(), 'Error execQueueAct'
 			, (err.message ?? '') + ': ' + sql);
 		logger.error(`execQueueAct: `, err);
-		runner.execQueueActError = true;
+		// runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
 	}
 }
