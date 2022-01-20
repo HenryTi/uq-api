@@ -80,6 +80,7 @@ export class EntityRunner {
     uqId: number;
     uqVersion: number;  // uq compile changes
     uniqueUnit: number;
+    service: number;
     buses: Buses; //{[url:string]:any}; // 直接查找bus
     hasPullEntities: boolean = false;
     net: Net;
@@ -668,6 +669,7 @@ export class EntityRunner {
         if (this.uqVersion === undefined) this.uqVersion = 1;
         this.hasUnit = !(setting['hasunit'] as number === 0);
         this.hasStatements = setting['hasstatements'] as number === 1;
+        this.service = setting['service'] as number;
         this.dbServer.hasUnit = this.hasUnit;
         this.dbServer.setBuilder();
         let ixUserArr = [];

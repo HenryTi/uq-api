@@ -788,6 +788,7 @@ class EntityRunner {
                 this.uqVersion = 1;
             this.hasUnit = !(setting['hasunit'] === 0);
             this.hasStatements = setting['hasstatements'] === 1;
+            this.service = setting['service'];
             this.dbServer.hasUnit = this.hasUnit;
             this.dbServer.setBuilder();
             let ixUserArr = [];
