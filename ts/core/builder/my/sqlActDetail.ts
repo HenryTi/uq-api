@@ -10,12 +10,12 @@ export class SqlActDetail extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {main, detail, detail2, detail3} = this.param;
+	build(): string {
+		let { main, detail, detail2, detail3 } = this.param;
 		//let {values} = main;
 		let mainOverride = {
 			id: `(@main:=@id:=tv_$id(${main.schema.typeId}))`,
-			no: `(@no:=tv_$no(@unit, '${main.name}'))`,
+			no: `(@no:=tv_$no(@unit, '${main.name}', unix_timestamp()))`,
 		}
 		let sql = 'SET @ret=\'\';\n';
 		sql += this.buildInsert(main, mainOverride);

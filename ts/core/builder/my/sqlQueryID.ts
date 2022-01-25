@@ -70,8 +70,7 @@ export class SqlQueryID extends MySqlBuilder {
 		//ID key must be with key, ID table stay after other tabble
 		let { ID, key, id } = this.param;
 		if (!ID) return;
-		let t = this.t;
-		++this.t;
+		let t = this.t++;
 		let { name, schema } = ID;
 		let { keys } = schema;
 		this.tables.push({
@@ -82,10 +81,10 @@ export class SqlQueryID extends MySqlBuilder {
 			fieldRight: 'id',
 		});
 		if (this.hasUnit === true) {
-			this.wheres.push(`t${this.t}.$unit=@unit`);
+			this.wheres.push(`t${t}.$unit=@unit`);
 		}
 		if (id !== undefined) {
-			let where = `t${this.t}.id`;
+			let where = `t${t}.id`;
 			if (Array.isArray(id) === true) {
 				let ids: any[] = id as any[];
 				let len = ids.length;
@@ -121,16 +120,16 @@ export class SqlQueryID extends MySqlBuilder {
 		let IX = IXArr[0];
 		let { isXi } = IX;
 		let ixField = isXi === true ? 'xi' : 'ix';
+		let t = this.t;
 		if (ix !== undefined) {
-			this.wheres.push(`t${this.t}.${ixField}='${ix}'`);
+			this.wheres.push(`t${t}.${ixField}='${ix}'`);
 		}
 		else if (key === undefined) {
-			this.wheres.push(`t${this.t}.${ixField}=@user`);
+			this.wheres.push(`t${t}.${ixField}=@user`);
 		}
 		for (let IX of IXArr) {
 			let { name, isXi } = IX;
-			let t = this.t;
-			++this.t;
+			t = this.t;
 			this.tables.push(Object.assign(
 				{
 					name,
@@ -151,6 +150,7 @@ export class SqlQueryID extends MySqlBuilder {
 					}
 				)
 			));
+			++this.t;
 		}
 	}
 
@@ -158,8 +158,9 @@ export class SqlQueryID extends MySqlBuilder {
 		let { IDX: IDXArr, keyx, idx } = this.param;
 		if (!IDXArr) return;
 		if (IDXArr.length === 0) return;
+		let t = this.t;
 		if (idx !== undefined) {
-			let where = `t${this.t}.id`;
+			let where = `t${t}.id`;
 			if (Array.isArray(idx) === true) {
 				let ids: any[] = idx as any[];
 				let len = ids.length;
@@ -183,21 +184,22 @@ export class SqlQueryID extends MySqlBuilder {
 				let v = keyx[name];
 				if (v === undefined) {
 					if (type === 'id' && tuid === '$user') {
-						this.wheres.push(`t${this.t}.\`${k.name}\`=@user`);
+						this.wheres.push(`t${t}.\`${k.name}\`=@user`);
 					}
 					continue;
 				}
-				this.wheres.push(`t${this.t}.\`${k.name}\`='${v}'`);
+				this.wheres.push(`t${t}.\`${k.name}\`='${v}'`);
 			}
 		}
-		let idCol = `, t${this.t}.id`;
+		let idCol = `, t${t}.id`;
 		let len = IDXArr.length;
 		for (let i = 0; i < len; i++) {
+			t = this.t;
 			let IDX = IDXArr[i];
 			let { name, schema } = IDX;
 			this.tables.push({
 				name,
-				alias: 't' + this.t,
+				alias: 't' + t,
 				join: 'left',
 				fieldLeft: 'id',
 				fieldRight: 'id',

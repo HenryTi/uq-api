@@ -191,7 +191,7 @@ class MySqlBuilder {
                             sql += `tv_$textid('${v}')`;
                         }
                         else if (keyName === 'no') {
-                            sql += v ? `'${v}'` : `tv_$no(@unit, '${name}')`;
+                            sql += v ? `'${v}'` : `tv_$no(@unit, '${name}', unix_timestamp())`;
                         }
                         else if (v === undefined) {
                             switch (type) {
