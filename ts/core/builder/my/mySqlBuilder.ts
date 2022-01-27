@@ -191,7 +191,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				}
 			}
 			else {
-				sql += `set @id=\`tv_${name}$id\`(@unit,@user,1`;
+				sql += `set @id=\`tv_${name}$id\`(@unit,@user,1, null`;
 				let updateOverride = { id: '@id' };
 				if (keys.length > 0) {
 					function sqlFromKey(keyName: string, type: string, v: any) {

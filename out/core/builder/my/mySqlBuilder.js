@@ -182,7 +182,7 @@ class MySqlBuilder {
                 }
             }
             else {
-                sql += `set @id=\`tv_${name}$id\`(@unit,@user,1`;
+                sql += `set @id=\`tv_${name}$id\`(@unit,@user,1, null`;
                 let updateOverride = { id: '@id' };
                 if (keys.length > 0) {
                     function sqlFromKey(keyName, type, v) {
