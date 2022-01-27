@@ -20,7 +20,7 @@ const { version: uq_api_version } = require('../package.json');
 export async function init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         try {
-            logger.debug("UQ-API init 1.1.5.2 ...\n");
+            logger.debug("UQ-API init 1.1.5.3 ...\n");
             process.on('uncaughtException', function (err: any) {
                 logger.error('uncaughtException', err);
                 reject(err);
