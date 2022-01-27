@@ -177,7 +177,7 @@ class MySqlBuilder {
                     sql += this.buildUpdate(ts, value);
                     // 写tv_$id(_local)表
                     if (nameNoVice !== undefined) {
-                        sql += `set @$id_name=\`tv_${name}$\`(${id})\n`;
+                        sql += `set @$id_name=\`tv_${name}$\`(${id});\n`;
                     }
                 }
             }
