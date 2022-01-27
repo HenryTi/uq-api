@@ -2,6 +2,7 @@ config/production.json
 config/development.json
 config/devdo.json
 config/test_queue_in.json
+config/test-bus-version-convert.json
 npm-debug.log
 npm-debug.log.*
 /node_modules
