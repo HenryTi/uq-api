@@ -223,8 +223,8 @@ class SqlQueryID extends mySqlBuilder_1.MySqlBuilder {
         }
         //let tbl = this.tables[this.tables.length-1];
         let tbl = this.tables[0];
-        let { alias, fieldLeft } = tbl;
-        this.order = `\n\tORDER BY ${alias}.${fieldLeft} ${ord}`;
+        let { alias, fieldRight } = tbl;
+        this.order = `\n\tORDER BY ${alias}.${fieldRight} ${ord}`;
     }
     buildCols(schema) {
         let { fields, type, exFields } = schema;
