@@ -25,7 +25,7 @@ function init() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
             try {
-                tool_1.logger.debug("UQ-API init 1.1.5 ...\n");
+                tool_1.logger.debug("UQ-API init 1.1.5.1 ...\n");
                 process.on('uncaughtException', function (err) {
                     tool_1.logger.error('uncaughtException', err);
                     reject(err);
