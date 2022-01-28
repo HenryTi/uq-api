@@ -1,6 +1,6 @@
 import { ParamActIX, TableSchema } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
+import { MySqlBuilder, retTab, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlActIX extends MySqlBuilder {
 	private param: ParamActIX;
@@ -19,6 +19,7 @@ export class SqlActIX extends MySqlBuilder {
 			let ixValue = { ix: ix ?? { value: '@user' }, xi: undefined };
 			if (typeof xi === 'object') {
 				sql += this.buildSaveIDWithoutRet(ID, xi);
+				sql += retTab;
 				ixValue.xi = { value: '@id' };
 			}
 			else {

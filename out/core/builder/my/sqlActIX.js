@@ -17,6 +17,7 @@ class SqlActIX extends mySqlBuilder_1.MySqlBuilder {
             let ixValue = { ix: ix !== null && ix !== void 0 ? ix : { value: '@user' }, xi: undefined };
             if (typeof xi === 'object') {
                 sql += this.buildSaveIDWithoutRet(ID, xi);
+                sql += mySqlBuilder_1.retTab;
                 ixValue.xi = { value: '@id' };
             }
             else {
