@@ -1,6 +1,6 @@
 import { ParamIX } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlIX extends MySqlBuilder {
 	private param: ParamIX;
@@ -10,9 +10,9 @@ export class SqlIX extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {IX, IX1, ix, IDX, page, order} = this.param;
-		let colsTables: {cols: string; tables: string;};
+	build(): string {
+		let { IX, IX1, ix, IDX, page, order } = this.param;
+		let colsTables: { cols: string; tables: string; };
 		let itemTable: number;
 		if (IX1) {
 			itemTable = 1;
@@ -22,7 +22,7 @@ export class SqlIX extends MySqlBuilder {
 			itemTable = 0;
 			colsTables = this.buildIXIDX(IX, IDX);
 		}
-		let {cols, tables} = colsTables;
+		let { cols, tables } = colsTables;
 		let where = '';
 		if (ix === undefined || ix === null) {
 			where = ` AND t0.ix=@user`;
@@ -38,14 +38,14 @@ export class SqlIX extends MySqlBuilder {
 			}
 		}
 		if (page) {
-			let {start} = page;
+			let { start } = page;
 			if (!start) start = 0;
 			where += ` AND t${itemTable}.xi>${start}`;
 		}
 		let sql = `SELECT ${cols} FROM ${tables} WHERE 1=1${where}`;
 		sql += ` ORDER BY t${itemTable}.xi ${this.buildOrder(order)}`;
 		if (page) sql += ' LIMIT ' + page.size;
-		sql += ';\n';
+		sql += sqlEndStatement;
 		return sql;
 	}
 }

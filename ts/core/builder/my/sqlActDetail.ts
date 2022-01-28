@@ -1,6 +1,6 @@
 import { ParamActDetail } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlActDetail extends MySqlBuilder {
 	private param: ParamActDetail;
@@ -17,7 +17,7 @@ export class SqlActDetail extends MySqlBuilder {
 			id: `(@main:=@id:=tv_$id(${main.schema.typeId}))`,
 			no: `(@no:=tv_$no(@unit, '${main.name}', unix_timestamp()))`,
 		}
-		let sql = 'SET @ret=\'\';\n';
+		let sql = 'SET @ret=\'\'' + sqlEndStatement;
 		sql += this.buildInsert(main, mainOverride);
 		let detailOverride = {
 			id: `(@id:=tv_$id(${detail.schema.typeId}))`,
@@ -39,7 +39,7 @@ export class SqlActDetail extends MySqlBuilder {
 			}
 			sql += this.buildInsert(detail3, detailOverride3);
 		}
-		sql += 'SELECT @ret as ret;\n';
+		sql += 'SELECT @ret as ret' + sqlEndStatement;
 		return sql;
 	}
 }

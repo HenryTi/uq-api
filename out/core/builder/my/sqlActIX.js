@@ -9,7 +9,7 @@ class SqlActIX extends mySqlBuilder_1.MySqlBuilder {
     }
     build() {
         let { IX, ID, IXs, values } = this.param;
-        let sql = 'set @ret=\'\';\n';
+        let sql = 'set @ret=\'\'' + mySqlBuilder_1.sqlEndStatement;
         for (let value of values) {
             let { ix, xi } = value;
             if (!xi)
@@ -25,7 +25,7 @@ class SqlActIX extends mySqlBuilder_1.MySqlBuilder {
             sql += this.buildSaveIX(IX, ixValue);
             sql += this.buildIXs(IXs, ixValue);
         }
-        return sql + 'select @ret as ret;\n';
+        return sql + 'select @ret as ret' + mySqlBuilder_1.sqlEndStatement;
     }
     buildIXs(IXs, ixValue) {
         if (!IXs)

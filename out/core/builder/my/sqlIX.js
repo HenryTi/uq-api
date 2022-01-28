@@ -44,7 +44,7 @@ class SqlIX extends mySqlBuilder_1.MySqlBuilder {
         sql += ` ORDER BY t${itemTable}.xi ${this.buildOrder(order)}`;
         if (page)
             sql += ' LIMIT ' + page.size;
-        sql += ';\n';
+        sql += mySqlBuilder_1.sqlEndStatement;
         return sql;
     }
 }

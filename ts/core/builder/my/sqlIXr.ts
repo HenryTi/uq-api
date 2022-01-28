@@ -1,6 +1,6 @@
 import { ParamIX } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlIXr extends MySqlBuilder {
 	private param: ParamIX;
@@ -10,9 +10,9 @@ export class SqlIXr extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {IX, ix, IDX, page} = this.param;
-		let {cols, tables} = this.buildIXrIDX(IX, IDX);
+	build(): string {
+		let { IX, ix, IDX, page } = this.param;
+		let { cols, tables } = this.buildIXrIDX(IX, IDX);
 		let where = '';
 		if (ix) {
 			if (Array.isArray(ix) === true) {
@@ -25,14 +25,14 @@ export class SqlIXr extends MySqlBuilder {
 			}
 		}
 		if (page) {
-			let {start} = page;
+			let { start } = page;
 			if (!start) start = 0;
 			where += ' AND t0.ix>' + start;
 		}
 		let sql = `SELECT distinct ${cols} FROM ${tables} WHERE 1=1${where}`;
 		sql += ' ORDER BY t0.ix ASC';
 		if (page) sql += ' LIMIT ' + page.size;
-		sql += ';\n';
+		sql += sqlEndStatement;
 		return sql;
 	}
 }

@@ -1,6 +1,6 @@
 import { ParamKeyIDSum } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlKeyIDSum extends MySqlBuilder {
 	private param: ParamKeyIDSum;
@@ -10,11 +10,11 @@ export class SqlKeyIDSum extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {ID, key, page} = this.param;
+	build(): string {
+		let { ID, key, page } = this.param;
 		let sql = this.buildSumSelect(this.param);
-		let {schema} = ID;
-		let {keys} = schema;
+		let { schema } = ID;
+		let { keys } = schema;
 		sql += ` RIGHT JOIN \`tv_${ID.name}\` as t0 ON t0.id=t.id WHERE 1=1`;
 		if (this.hasUnit === true) {
 			sql += ' AND t0.$unit=@unit';
@@ -25,13 +25,13 @@ export class SqlKeyIDSum extends MySqlBuilder {
 			sql += ' AND t0.`' + k.name + '`=\'' + v + '\'';
 		}
 		if (page) {
-			let {start} = page;
+			let { start } = page;
 			if (!start) start = 0;
 			sql += ' AND t0.id>' + start;
 		}
 		sql += ' ORDER BY t0.id ASC';
 		if (page) sql += ' LIMIT ' + page.size;
-		sql += ';\n';
+		sql += sqlEndStatement;
 		return sql;
 	}
 }

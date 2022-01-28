@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SqlQueryID = exports.retTab = exports.retLn = void 0;
+exports.SqlQueryID = void 0;
 const mySqlBuilder_1 = require("./mySqlBuilder");
-exports.retLn = "set @ret=CONCAT(@ret, '\\n');\n";
-exports.retTab = "set @ret=CONCAT(@ret, @id, '\\t');\n";
 class SqlQueryID extends mySqlBuilder_1.MySqlBuilder {
     constructor(builder, param) {
         super(builder);
@@ -46,7 +44,7 @@ class SqlQueryID extends mySqlBuilder_1.MySqlBuilder {
         if (this.limit.length > 0) {
             sql += `\n\tLIMIT ${this.limit}`;
         }
-        return sql + ';\n';
+        return sql + mySqlBuilder_1.sqlEndStatement;
     }
     sqlID() {
         //ID key must be with key, ID table stay after other tabble

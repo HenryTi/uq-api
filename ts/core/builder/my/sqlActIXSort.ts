@@ -1,6 +1,6 @@
 import { ParamActIXSort } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlActIXSort extends MySqlBuilder {
 	private param: ParamActIXSort;
@@ -10,16 +10,16 @@ export class SqlActIXSort extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {IX, ix, xi: id, after} = this.param;
-		let {name, schema} = IX;
-		let {hasSort} = schema as any;
+	build(): string {
+		let { IX, ix, xi: id, after } = this.param;
+		let { name, schema } = IX;
+		let { hasSort } = schema as any;
 		if (hasSort === true) {
-			let sql = `set @ret=\`${this.dbName}\`.tv_${name}$sort(${ix},${id},${after});\n`;
-			return sql + 'select @ret as ret;\n';
+			let sql = `set @ret=\`${this.dbName}\`.tv_${name}$sort(${ix},${id},${after})` + sqlEndStatement;
+			return sql + 'select @ret as ret' + sqlEndStatement;
 		}
 		else {
-			return 'select 0 as ret;\n';
+			return 'select 0 as ret' + sqlEndStatement;
 		}
 	}
 }

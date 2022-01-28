@@ -1,6 +1,6 @@
 import { ParamActs } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlActs extends MySqlBuilder {
 	private param: ParamActs;
@@ -10,11 +10,11 @@ export class SqlActs extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {$} = this.param;
+	build(): string {
+		let { $ } = this.param;
 		let arr = $ as unknown as string[];
-		let sql = 'set @ret=\'\';\n';
-		for (let i=0; i<arr.length; i++) {
+		let sql = 'set @ret=\'\'' + sqlEndStatement;
+		for (let i = 0; i < arr.length; i++) {
 			let p = this.param[arr[i]];
 			switch (p.schema.type) {
 				case 'id': sql += this.buildSaveIDWithRet(p); break;
@@ -22,6 +22,6 @@ export class SqlActs extends MySqlBuilder {
 				case 'ix': sql += this.buildSaveIX(p); break;
 			}
 		}
-		return sql + 'select @ret as ret;\n';
+		return sql + 'select @ret as ret' + sqlEndStatement;
 	}
 }

@@ -1,9 +1,6 @@
 import { ParamQueryID, EntitySchema } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
-
-export const retLn = "set @ret=CONCAT(@ret, '\\n');\n";
-export const retTab = "set @ret=CONCAT(@ret, @id, '\\t');\n";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 interface Table {
 	name: string;
@@ -63,7 +60,7 @@ export class SqlQueryID extends MySqlBuilder {
 		if (this.limit.length > 0) {
 			sql += `\n\tLIMIT ${this.limit}`;
 		}
-		return sql + ';\n';
+		return sql + sqlEndStatement;
 	}
 
 	private sqlID() {

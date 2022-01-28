@@ -31,7 +31,7 @@ class SqlIXr extends mySqlBuilder_1.MySqlBuilder {
         sql += ' ORDER BY t0.ix ASC';
         if (page)
             sql += ' LIMIT ' + page.size;
-        sql += ';\n';
+        sql += mySqlBuilder_1.sqlEndStatement;
         return sql;
     }
 }

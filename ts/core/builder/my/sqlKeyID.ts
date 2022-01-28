@@ -1,6 +1,6 @@
 import { ParamKeyID } from "../../dbServer";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlKeyID extends MySqlBuilder {
 	private param: ParamKeyID;
@@ -10,8 +10,8 @@ export class SqlKeyID extends MySqlBuilder {
 		this.param = param;
 	}
 
-	build():string {
-		let {ID, IX, key, ix, IDX, page} = this.param;
+	build(): string {
+		let { ID, IX, key, ix, IDX, page } = this.param;
 		let arr = [];
 		let tID: number, tIX: number;
 		let where = '';
@@ -36,16 +36,16 @@ export class SqlKeyID extends MySqlBuilder {
 			arr.push(...IDX);
 		}
 
-		let {cols, tables} = this.buildIDX(arr);
-		let {schema} = ID;
-		let {keys} = schema;
+		let { cols, tables } = this.buildIDX(arr);
+		let { schema } = ID;
+		let { keys } = schema;
 		for (let k of keys) {
 			let v = key[k.name];
 			if (v === undefined) continue;
 			where += ` AND t${tID}.\`${k.name}\`='${v}'`;
 		}
 		if (page) {
-			let {start, size} = page;
+			let { start, size } = page;
 			if (!start) start = 0;
 			where += ` AND t${tID}.id>${start}`;
 		}
@@ -53,7 +53,7 @@ export class SqlKeyID extends MySqlBuilder {
 		let sql = `SELECT ${cols} FROM ${tables} WHERE 1=1${where}`;
 		sql += ` ORDER BY t${tID}.id ASC`;
 		if (page) sql += ' LIMIT ' + page.size;
-		sql += ';\n';
+		sql += sqlEndStatement;
 		return sql;
 	}
 }

@@ -2,8 +2,9 @@ import { Field, ParamSum, TableSchema } from "../../dbServer";
 import { Builders, ISqlBuilder } from "../builders";
 import { IXIXTablesBuilder, IXrIXTablesBuilder, IXrTablesBuilder, IXTablesBuilder, TablesBuilder } from "./tablesBuilder";
 
-export const retLn = "set @ret=CONCAT(@ret, '\\n');\n";
-export const retTab = "set @ret=CONCAT(@ret, @id, '\\t');\n";
+export const sqlEndStatement = '\x0c\n';
+export const retLn = "set @ret=CONCAT(@ret, '\\n')" + sqlEndStatement;
+export const retTab = "set @ret=CONCAT(@ret, @id, '\\t')" + sqlEndStatement;
 
 export abstract class MySqlBuilder implements ISqlBuilder {
 	protected readonly dbName: string;
@@ -72,7 +73,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		let { name, schema, values } = ts;
 		let { fields, owner } = schema;
 		if (!override) override = {};
-		let sql = 'set @row=0;\n';
+		let sql = 'set @row=0' + sqlEndStatement;
 		let cols: string, valsInit: string, valsFirst: boolean;
 		let first: boolean;
 		if (this.hasUnit === true) {
@@ -136,7 +137,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				vals += ',@user';
 			}
 			*/
-			sql += `(${vals});\n`;
+			sql += `(${vals})` + sqlEndStatement;
 			sql += retTab;
 		}
 		sql += retLn;
@@ -165,7 +166,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			sql += ' AND `$unit`=@unit'
 		}
 		sql += ' AND ' + whereId;
-		return sql + ';\n';
+		return sql + sqlEndStatement;
 	}
 
 	private buildSaveID(ts: TableSchema, withRet: boolean, idValue?: any): string {
@@ -186,7 +187,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					sql += this.buildUpdate(ts, value);
 					// 写tv_$id(_local)表
 					if (nameNoVice !== undefined) {
-						sql += `set @$id_name=\`tv_${name}$\`(${id});\n`;
+						sql += `set @$id_name=\`tv_${name}$\`(${id})` + sqlEndStatement;
 					}
 				}
 			}
@@ -228,13 +229,13 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 							break;
 					}
 				}
-				sql += ');\n'
+				sql += ')' + sqlEndStatement;
 				if (fields.length > keys.length + 1) {
 					sql += this.buildUpdate(ts, value, updateOverride);
 				}
 				// 写tv_$id(_local)表
 				if (nameNoVice !== undefined) {
-					sql += `set @$id_name=\`tv_${name}$\`(@id);\n`;
+					sql += `set @$id_name=\`tv_${name}$\`(@id)` + sqlEndStatement;
 				}
 				if (withRet === true) {
 					sql += retTab;
@@ -294,8 +295,8 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					xiValue = xi.value;
 				}
 				if (hasId === true) {
-					sql += `SET @ixid = tv_${name}$id(@unit, @user, ${ix}, ${xiValue});\n`;
-					sql += `SET @ret = CONCAT(@ret, @ixid, '\\t');\n`;
+					sql += `SET @ixid = tv_${name}$id(@unit, @user, ${ix}, ${xiValue})` + sqlEndStatement;
+					sql += `SET @ret = CONCAT(@ret, @ixid, '\\t')` + sqlEndStatement;
 				}
 				else {
 					sql += this.buildUpsert(ts, value);
@@ -365,7 +366,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 							sqlEx += ',';
 							sqlEx += (vMemo ? `'${vMemo}'` : 'null');
 						}
-						sqlEx += `);\n`;
+						sqlEx += `);` + sqlEndStatement;
 						sqlWriteEx.push(sqlEx);
 					}
 				}
@@ -416,7 +417,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			ignore = ' ignore';
 		}
 		let sql = sqlBefore +
-			`insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup};\n`;
+			`insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup}` + sqlEndStatement;
 		return sql + sqlWriteEx.join('');
 	}
 
@@ -461,7 +462,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					break;
 			}
 		}
-		return sql + where + ';\n';
+		return sql + where + sqlEndStatement;
 	}
 
 	protected buildIXDelete(ts: TableSchema, ix: number, xi: number): string {
@@ -478,7 +479,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				if (memo === true) {
 					sqlEx += ',null';
 				}
-				sqlEx += `);\n`;
+				sqlEx += `)` + sqlEndStatement;
 				sql += sqlEx;
 			}
 		}
@@ -497,7 +498,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 			sql += xi;
 		}
 		if (this.hasUnit === true) sql += ' AND `$unit`=@unit';
-		sql += ';\n';
+		sql += sqlEndStatement;
 		return sql;
 	}
 
@@ -512,7 +513,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				sql += id;
 			}
 		}
-		sql += ';\n';
+		sql += sqlEndStatement;
 		return sql;
 	}
 

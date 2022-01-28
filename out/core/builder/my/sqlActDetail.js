@@ -14,7 +14,7 @@ class SqlActDetail extends mySqlBuilder_1.MySqlBuilder {
             id: `(@main:=@id:=tv_$id(${main.schema.typeId}))`,
             no: `(@no:=tv_$no(@unit, '${main.name}', unix_timestamp()))`,
         };
-        let sql = 'SET @ret=\'\';\n';
+        let sql = 'SET @ret=\'\'' + mySqlBuilder_1.sqlEndStatement;
         sql += this.buildInsert(main, mainOverride);
         let detailOverride = {
             id: `(@id:=tv_$id(${detail.schema.typeId}))`,
@@ -30,7 +30,7 @@ class SqlActDetail extends mySqlBuilder_1.MySqlBuilder {
             let detailOverride3 = Object.assign(Object.assign({}, detailOverride), { id: `(@id:=tv_$id(${detail3.schema.typeId}))` });
             sql += this.buildInsert(detail3, detailOverride3);
         }
-        sql += 'SELECT @ret as ret;\n';
+        sql += 'SELECT @ret as ret' + mySqlBuilder_1.sqlEndStatement;
         return sql;
     }
 }

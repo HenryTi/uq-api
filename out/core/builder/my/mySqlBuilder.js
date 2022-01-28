@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MySqlBuilder = exports.retTab = exports.retLn = void 0;
+exports.MySqlBuilder = exports.retTab = exports.retLn = exports.sqlEndStatement = void 0;
 const tablesBuilder_1 = require("./tablesBuilder");
-exports.retLn = "set @ret=CONCAT(@ret, '\\n');\n";
-exports.retTab = "set @ret=CONCAT(@ret, @id, '\\t');\n";
+exports.sqlEndStatement = '\x0c\n';
+exports.retLn = "set @ret=CONCAT(@ret, '\\n')" + exports.sqlEndStatement;
+exports.retTab = "set @ret=CONCAT(@ret, @id, '\\t')" + exports.sqlEndStatement;
 class MySqlBuilder {
     constructor(builder) {
         let { dbName, hasUnit } = builder;
@@ -62,7 +63,7 @@ class MySqlBuilder {
         let { fields, owner } = schema;
         if (!override)
             override = {};
-        let sql = 'set @row=0;\n';
+        let sql = 'set @row=0' + exports.sqlEndStatement;
         let cols, valsInit, valsFirst;
         let first;
         if (this.hasUnit === true) {
@@ -128,7 +129,7 @@ class MySqlBuilder {
                 vals += ',@user';
             }
             */
-            sql += `(${vals});\n`;
+            sql += `(${vals})` + exports.sqlEndStatement;
             sql += exports.retTab;
         }
         sql += exports.retLn;
@@ -157,7 +158,7 @@ class MySqlBuilder {
             sql += ' AND `$unit`=@unit';
         }
         sql += ' AND ' + whereId;
-        return sql + ';\n';
+        return sql + exports.sqlEndStatement;
     }
     buildSaveID(ts, withRet, idValue) {
         let sql = '';
@@ -177,7 +178,7 @@ class MySqlBuilder {
                     sql += this.buildUpdate(ts, value);
                     // 写tv_$id(_local)表
                     if (nameNoVice !== undefined) {
-                        sql += `set @$id_name=\`tv_${name}$\`(${id});\n`;
+                        sql += `set @$id_name=\`tv_${name}$\`(${id})` + exports.sqlEndStatement;
                     }
                 }
             }
@@ -223,13 +224,13 @@ class MySqlBuilder {
                             break;
                     }
                 }
-                sql += ');\n';
+                sql += ')' + exports.sqlEndStatement;
                 if (fields.length > keys.length + 1) {
                     sql += this.buildUpdate(ts, value, updateOverride);
                 }
                 // 写tv_$id(_local)表
                 if (nameNoVice !== undefined) {
-                    sql += `set @$id_name=\`tv_${name}$\`(@id);\n`;
+                    sql += `set @$id_name=\`tv_${name}$\`(@id)` + exports.sqlEndStatement;
                 }
                 if (withRet === true) {
                     sql += exports.retTab;
@@ -285,8 +286,8 @@ class MySqlBuilder {
                     xiValue = xi.value;
                 }
                 if (hasId === true) {
-                    sql += `SET @ixid = tv_${name}$id(@unit, @user, ${ix}, ${xiValue});\n`;
-                    sql += `SET @ret = CONCAT(@ret, @ixid, '\\t');\n`;
+                    sql += `SET @ixid = tv_${name}$id(@unit, @user, ${ix}, ${xiValue})` + exports.sqlEndStatement;
+                    sql += `SET @ret = CONCAT(@ret, @ixid, '\\t')` + exports.sqlEndStatement;
                 }
                 else {
                     sql += this.buildUpsert(ts, value);
@@ -356,7 +357,7 @@ class MySqlBuilder {
                             sqlEx += ',';
                             sqlEx += (vMemo ? `'${vMemo}'` : 'null');
                         }
-                        sqlEx += `);\n`;
+                        sqlEx += `);` + exports.sqlEndStatement;
                         sqlWriteEx.push(sqlEx);
                     }
                 }
@@ -413,7 +414,7 @@ class MySqlBuilder {
             ignore = ' ignore';
         }
         let sql = sqlBefore +
-            `insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup};\n`;
+            `insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup}` + exports.sqlEndStatement;
         return sql + sqlWriteEx.join('');
     }
     buildUpdate(ts, value, override = {}) {
@@ -458,7 +459,7 @@ class MySqlBuilder {
                     break;
             }
         }
-        return sql + where + ';\n';
+        return sql + where + exports.sqlEndStatement;
     }
     buildIXDelete(ts, ix, xi) {
         let { name, schema } = ts;
@@ -474,7 +475,7 @@ class MySqlBuilder {
                 if (memo === true) {
                     sqlEx += ',null';
                 }
-                sqlEx += `);\n`;
+                sqlEx += `)` + exports.sqlEndStatement;
                 sql += sqlEx;
             }
         }
@@ -494,7 +495,7 @@ class MySqlBuilder {
         }
         if (this.hasUnit === true)
             sql += ' AND `$unit`=@unit';
-        sql += ';\n';
+        sql += exports.sqlEndStatement;
         return sql;
     }
     buildIDDelete(ts, id) {
@@ -509,7 +510,7 @@ class MySqlBuilder {
                 sql += id;
             }
         }
-        sql += ';\n';
+        sql += exports.sqlEndStatement;
         return sql;
     }
     buildOrder(order) {
