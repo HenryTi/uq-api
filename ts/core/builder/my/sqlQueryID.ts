@@ -37,6 +37,7 @@ export class SqlQueryID extends MySqlBuilder {
 		sql += '\n\tFROM ';
 
 		let t0 = this.tables[0];
+		let tPrev = t0;
 		sql += 'tv_' + t0.name + ' as ' + t0.alias;
 		let tLen = this.tables.length;
 		for (let i = 1; i < tLen; i++) {
@@ -44,10 +45,10 @@ export class SqlQueryID extends MySqlBuilder {
 			let { name, alias, join, fieldLeft } = t;
 			sql += `\n\t\t${join} JOIN tv_${name} AS ${alias} ON `;
 			if (this.hasUnit === true) {
-				sql += `${t0.alias}.\`$unit\`=${alias}.\`$unit\` AND `;
+				sql += `${tPrev.alias}.\`$unit\`=${alias}.\`$unit\` AND `;
 			}
-			sql += `${t0.alias}.${t0.fieldRight}=${alias}.${fieldLeft}`;
-			// t0 = t;
+			sql += `${tPrev.alias}.${tPrev.fieldRight}=${alias}.${fieldLeft}`;
+			tPrev = t;
 		}
 
 		if (this.wheres.length > 0) {
