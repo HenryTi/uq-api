@@ -56,8 +56,8 @@ class DbServer {
     }
     ActIDProp(unit, user, param) {
         return __awaiter(this, void 0, void 0, function* () {
-            let { ID, name, value } = param;
-            yield this.call(this.dbName, `tv_${ID}$prop`, [unit, user, name, value]);
+            let { ID, id, name, value } = param;
+            yield this.call(this.dbName, `tv_${ID}$prop`, [unit, user, id, name, value]);
         });
     }
     ActDetail(unit, user, param) {

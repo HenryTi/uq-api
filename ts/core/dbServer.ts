@@ -260,9 +260,9 @@ export abstract class DbServer {
 		return await this.execSqlTrans(unit, user, sql);
 	}
 
-	async ActIDProp(unit: number, user: number, param: { ID: string; name: string; value: any }): Promise<void> {
-		let { ID, name, value } = param;
-		await this.call(this.dbName, `tv_${ID}$prop`, [unit, user, name, value]);
+	async ActIDProp(unit: number, user: number, param: { ID: string; id: number; name: string; value: any }): Promise<void> {
+		let { ID, id, name, value } = param;
+		await this.call(this.dbName, `tv_${ID}$prop`, [unit, user, id, name, value]);
 	}
 
 	async ActDetail(unit: number, user: number, param: ParamActDetail): Promise<any[]> {
