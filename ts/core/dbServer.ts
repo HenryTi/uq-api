@@ -262,7 +262,7 @@ export abstract class DbServer {
 
 	async ActIDProp(unit: number, user: number, param: { ID: string; name: string; value: any }): Promise<void> {
 		let { ID, name, value } = param;
-		let result: any[][] = await this.call(this.dbName, `tv_${ID}$prop`, []);
+		await this.call(this.dbName, `tv_${ID}$prop`, [unit, user, name, value]);
 	}
 
 	async ActDetail(unit: number, user: number, param: ParamActDetail): Promise<any[]> {
