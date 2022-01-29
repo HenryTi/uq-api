@@ -54,6 +54,12 @@ class DbServer {
             return yield this.execSqlTrans(unit, user, sql);
         });
     }
+    ActIDProp(unit, user, param) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { ID, name, value } = param;
+            let result = yield this.call(this.dbName, `tv_${ID}$prop`, []);
+        });
+    }
     ActDetail(unit, user, param) {
         return __awaiter(this, void 0, void 0, function* () {
             let sql = this.builder.ActDetail(param).build();

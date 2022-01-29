@@ -1111,6 +1111,10 @@ export class EntityRunner {
         return this.dbServer.ActIXSort(unit, user, param);
     }
 
+    ActIDProp(unit: number, user: number, param: { ID: string; name: string; value: any }): Promise<void> {
+        return this.dbServer.ActIDProp(unit, user, param);
+    }
+
     ActDetail(unit: number, user: number, param: ParamActDetail): Promise<any[]> {
         let { main, detail, detail2, detail3 } = param;
         let types = ['id'];
