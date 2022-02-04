@@ -19,38 +19,33 @@ class TablesBuilder {
         this.buildIdCol();
     }
     buildCols(schema) {
-        let { fields, type, exFields } = schema;
+        let { fields, type, exFields, create, update } = schema;
         let $fieldBuilt = false;
         for (let f of fields) {
             let { name: fn, type: ft } = f;
             if (fn === 'id')
                 continue;
-            if (fn === '$create') {
-                if (this.$fieldBuilt === true)
-                    continue;
-                this.cols += `, unix_timestamp(t${this.i}.$create) as $create`;
-                $fieldBuilt = true;
-                continue;
-            }
-            if (fn === '$update') {
-                if (this.$fieldBuilt === true)
-                    continue;
-                this.cols += `, unix_timestamp(t${this.i}.$update) as $update`;
-                $fieldBuilt = true;
-                continue;
-            }
-            if (fn === '$owner') {
-                if (this.$fieldBuilt === true)
-                    continue;
-                this.cols += `, t${this.i}.$owner`;
-                $fieldBuilt = true;
-                continue;
-            }
             let fv = `t${this.i}.\`${fn}\``;
             if (this.cols.length > 0)
                 this.cols += ',';
             this.cols += ft === 'textid' ? `tv_$idtext(${fv})` : fv;
             this.cols += ' as `' + fn + '`';
+        }
+        if (this.$fieldBuilt !== true) {
+            if (create === true) {
+                this.cols += `, unix_timestamp(t${this.i}.$create) as $create`;
+                $fieldBuilt = true;
+            }
+            if (update === true) {
+                this.cols += `, unix_timestamp(t${this.i}.$update) as $update`;
+                $fieldBuilt = true;
+            }
+            /*
+            if (owner === true) {
+                this.cols += `, t${this.i}.$owner`;
+                $fieldBuilt = true;
+            }
+            */
         }
         this.$fieldBuilt = $fieldBuilt;
         if (type === 'idx' && this.doneTimeField === false && exFields) {

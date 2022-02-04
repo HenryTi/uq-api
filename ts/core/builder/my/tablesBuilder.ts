@@ -11,7 +11,7 @@ export class TablesBuilder {
 	cols: string;
 	tables: string;
 
-	constructor(dbName:string, IDX: TableSchema[]) {
+	constructor(dbName: string, IDX: TableSchema[]) {
 		this.dbName = dbName;
 		this.IDX = IDX;
 		this.cols = '';
@@ -27,40 +27,40 @@ export class TablesBuilder {
 		this.buildIdCol();
 	}
 
-	protected buildCols(schema:EntitySchema): void {
-		let {fields, type, exFields} = schema;
+	protected buildCols(schema: EntitySchema): void {
+		let { fields, type, exFields, create, update } = schema;
 		let $fieldBuilt = false;
 		for (let f of fields) {
-			let {name:fn, type:ft} = f;
+			let { name: fn, type: ft } = f;
 			if (fn === 'id') continue;
-			if (fn === '$create') {
-				if (this.$fieldBuilt === true) continue;
-				this.cols += `, unix_timestamp(t${this.i}.$create) as $create`;
-				$fieldBuilt = true;
-				continue;
-			}
-			if (fn === '$update') {
-				if (this.$fieldBuilt === true) continue;
-				this.cols += `, unix_timestamp(t${this.i}.$update) as $update`;
-				$fieldBuilt = true;
-				continue;
-			}
-			if (fn === '$owner') {
-				if (this.$fieldBuilt === true) continue;
-				this.cols += `, t${this.i}.$owner`;
-				$fieldBuilt = true;
-				continue;
-			}
 			let fv = `t${this.i}.\`${fn}\``;
 			if (this.cols.length > 0) this.cols += ',';
-			this.cols += ft === 'textid'? `tv_$idtext(${fv})` : fv;
+			this.cols += ft === 'textid' ? `tv_$idtext(${fv})` : fv;
 			this.cols += ' as `' + fn + '`';
 		}
+		if (this.$fieldBuilt !== true) {
+			if (create === true) {
+				this.cols += `, unix_timestamp(t${this.i}.$create) as $create`;
+				$fieldBuilt = true;
+			}
+
+			if (update === true) {
+				this.cols += `, unix_timestamp(t${this.i}.$update) as $update`;
+				$fieldBuilt = true;
+			}
+			/*
+			if (owner === true) {
+				this.cols += `, t${this.i}.$owner`;
+				$fieldBuilt = true;
+			}
+			*/
+		}
+
 		this.$fieldBuilt = $fieldBuilt;
 		if (type === 'idx' && this.doneTimeField === false && exFields) {
 			let hasLog = false;
 			for (let exField of exFields) {
-				let {log} = exField;
+				let { log } = exField;
 				if (log === true) {
 					hasLog = true;
 					break;
@@ -77,8 +77,8 @@ export class TablesBuilder {
 
 	protected buildIDX(): void {
 		if (!this.IDX) return;
-		if (this.IDX.length === 0) return;		
-		let {name, schema} = this.IDX[0];
+		if (this.IDX.length === 0) return;
+		let { name, schema } = this.IDX[0];
 		let tbl = `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
 		if (this.i === 0) {
 			this.tables += tbl;
@@ -90,8 +90,8 @@ export class TablesBuilder {
 		this.buildCols(schema);
 		++this.i;
 		let len = this.IDX.length;
-		for (let i=1; i<len; i++) {
-			let {name, schema} = this.IDX[i];
+		for (let i = 1; i < len; i++) {
+			let { name, schema } = this.IDX[i];
 			this.tables += ` left join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.iId}.${this.idJoin}=t${this.i}.id`;
 			this.buildCols(schema);
 			++this.i;
@@ -99,14 +99,14 @@ export class TablesBuilder {
 	}
 
 	protected buildIdCol(): void {
-		this.cols += `, t${this.i-1}.id`;
+		this.cols += `, t${this.i - 1}.id`;
 	}
 }
 
 export class IXTablesBuilder extends TablesBuilder {
 	protected readonly IX: TableSchema;
 
-	constructor(dbName:string, IX: TableSchema, IDX: TableSchema[]) {
+	constructor(dbName: string, IX: TableSchema, IDX: TableSchema[]) {
 		super(dbName, IDX);
 		this.IX = IX;
 	}
@@ -120,7 +120,7 @@ export class IXTablesBuilder extends TablesBuilder {
 	}
 
 	protected buildIX() {
-		let {name, schema} = this.IX;
+		let { name, schema } = this.IX;
 		this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
 		this.buildCols(schema);
 		++this.i;
@@ -136,7 +136,7 @@ export class IXTablesBuilder extends TablesBuilder {
 export class IXIXTablesBuilder extends IXTablesBuilder {
 	private readonly IX1: TableSchema;
 
-	constructor(dbName:string, IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]) {
+	constructor(dbName: string, IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]) {
 		super(dbName, IX, IDX);
 		this.IX1 = IX1;
 	}
@@ -152,13 +152,13 @@ export class IXIXTablesBuilder extends IXTablesBuilder {
 	}
 
 	protected buildIX() {
-		let {name} = this.IX;
+		let { name } = this.IX;
 		this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
 		++this.i;
 	}
 	protected buildIX1() {
-		let {name, schema} = this.IX1;
-		this.tables += ` join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.i-1}.xi=t${this.i}.ix`;
+		let { name, schema } = this.IX1;
+		this.tables += ` join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.i - 1}.xi=t${this.i}.ix`;
 		this.buildCols(schema);
 		++this.i;
 	}
@@ -167,7 +167,7 @@ export class IXIXTablesBuilder extends IXTablesBuilder {
 export class IXrTablesBuilder extends TablesBuilder {
 	protected readonly IX: TableSchema;
 
-	constructor(dbName:string, IX: TableSchema, IDX: TableSchema[]) {
+	constructor(dbName: string, IX: TableSchema, IDX: TableSchema[]) {
 		super(dbName, IDX);
 		this.IX = IX;
 	}
@@ -181,7 +181,7 @@ export class IXrTablesBuilder extends TablesBuilder {
 	}
 
 	protected buildIXr() {
-		let {name, schema} = this.IX;
+		let { name, schema } = this.IX;
 		this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
 		this.buildCols(schema);
 		++this.i;
@@ -191,7 +191,7 @@ export class IXrTablesBuilder extends TablesBuilder {
 export class IXrIXTablesBuilder extends IXrTablesBuilder {
 	private readonly IX1: TableSchema;
 
-	constructor(dbName:string, IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]) {
+	constructor(dbName: string, IX: TableSchema, IX1: TableSchema, IDX: TableSchema[]) {
 		super(dbName, IX, IDX);
 		this.IX1 = IX1;
 	}
@@ -206,15 +206,15 @@ export class IXrIXTablesBuilder extends IXrTablesBuilder {
 	}
 
 	protected buildIXr() {
-		let {name} = this.IX;
+		let { name } = this.IX;
 		this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
 		//this.buildCols(schema);
 		++this.i;
 	}
 
 	protected buildIX1() {
-		let {name, schema} = this.IX1;
-		this.tables += ` join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.i-1}.ix=t${this.i}.ix`;
+		let { name, schema } = this.IX1;
+		this.tables += ` join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.i - 1}.ix=t${this.i}.ix`;
 		this.buildCols(schema);
 		++this.i;
 	}
