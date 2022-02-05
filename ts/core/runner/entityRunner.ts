@@ -38,17 +38,6 @@ export interface Buses {
     faceColl: { [bus: string]: BusFace };
     hasError: boolean;
 }
-/*
-export interface Face {
-    bus: string;
-    faceName: string;
-    version: number;
-    accept?: {
-        inBuses: any[];
-    };
-    query?: boolean;
-}
-*/
 
 export class EntityRunner {
     protected readonly db: Db;
@@ -58,6 +47,7 @@ export class EntityRunner {
     private accessSchemaArr: any[];
     private role: any;
     private roleNames: string;
+    private ids: { [name: string]: any };
     private tuids: { [name: string]: any };
     private busArr: any[];
     private entityColl: { [id: number]: EntityAccess };
@@ -714,6 +704,9 @@ export class EntityRunner {
                 case 'bus':
                     this.busArr.push(schemaObj);
                     break;
+                case 'id':
+                    this.ids[name] = schemaObj;
+                    break;
                 case 'tuid':
                     this.tuids[name] = schemaObj;
                     if (from) {
@@ -985,6 +978,7 @@ export class EntityRunner {
         return {
             version: this.uqVersion,
             access: entityAccess,
+            ids: this.ids,
             tuids: this.tuids,
             role: this.role,
         };

@@ -18,17 +18,6 @@ const importData_1 = require("../importData");
 const inBusAction_1 = require("../inBusAction");
 const centerApi_1 = require("../centerApi");
 const BusFace_1 = require("./BusFace");
-/*
-export interface Face {
-    bus: string;
-    faceName: string;
-    version: number;
-    accept?: {
-        inBuses: any[];
-    };
-    query?: boolean;
-}
-*/
 class EntityRunner {
     constructor(name, db, net = undefined) {
         this.roleVersions = {};
@@ -832,6 +821,9 @@ class EntityRunner {
                     case 'bus':
                         this.busArr.push(schemaObj);
                         break;
+                    case 'id':
+                        this.ids[name] = schemaObj;
+                        break;
                     case 'tuid':
                         this.tuids[name] = schemaObj;
                         if (from) {
@@ -1119,6 +1111,7 @@ class EntityRunner {
             return {
                 version: this.uqVersion,
                 access: entityAccess,
+                ids: this.ids,
                 tuids: this.tuids,
                 role: this.role,
             };
