@@ -787,6 +787,7 @@ class EntityRunner {
                 tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
             this.schemas = {};
             this.accessSchemaArr = [];
+            this.ids = {};
             this.tuids = {};
             this.busArr = [];
             this.entityColl = {};
@@ -1129,6 +1130,7 @@ class EntityRunner {
             return {
                 version: this.uqVersion,
                 access: entityAccess,
+                ids: this.ids,
                 tuids: this.tuids,
                 role: this.role,
             };

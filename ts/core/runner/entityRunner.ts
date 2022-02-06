@@ -671,6 +671,7 @@ export class EntityRunner {
 
         this.schemas = {};
         this.accessSchemaArr = [];
+        this.ids = {};
         this.tuids = {};
         this.busArr = [];
         this.entityColl = {};
@@ -995,6 +996,7 @@ export class EntityRunner {
         return {
             version: this.uqVersion,
             access: entityAccess,
+            ids: this.ids,
             tuids: this.tuids,
             role: this.role,
         };
