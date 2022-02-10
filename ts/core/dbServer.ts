@@ -123,6 +123,13 @@ export interface ParamIX {
 	page?: ParamPage;
 }
 
+export interface ParamIXValues {
+	IX: TableSchema;
+	ix: number;
+	order?: 'asc' | 'desc';
+	page?: ParamPage;
+}
+
 export interface ParamKeyIX {
 	ID: TableSchema;
 	key: { [key: string]: number | string };

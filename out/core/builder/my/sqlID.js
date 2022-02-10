@@ -28,6 +28,9 @@ class SqlID extends mySqlBuilder_1.MySqlBuilder {
             where += ` AND t0.id>${start}`;
             limit = ` limit ${size}`;
         }
+        else {
+            limit = ' limit 1000';
+        }
         let sql = `SELECT ${cols} FROM ${tables} WHERE ${where} `;
         if (order)
             sql += ` ORDER BY t0.id ${this.buildOrder(order)}`;
