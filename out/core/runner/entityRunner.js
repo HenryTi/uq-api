@@ -823,7 +823,9 @@ class EntityRunner {
                         this.busArr.push(schemaObj);
                         break;
                     case 'id':
-                        this.ids[name] = schemaObj;
+                        if (schemaObj.private !== true) {
+                            this.ids[name] = schemaObj;
+                        }
                         break;
                     case 'tuid':
                         this.tuids[name] = schemaObj;
