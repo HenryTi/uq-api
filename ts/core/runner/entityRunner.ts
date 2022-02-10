@@ -77,6 +77,7 @@ export class EntityRunner {
     hasSheet: boolean = false;
     isCompiling: boolean = false;
     execQueueActError: boolean = false;
+    devBuildSys: boolean = false;
 
     constructor(name: string, db: Db, net: Net = undefined) {
         this.name = name;
@@ -660,6 +661,7 @@ export class EntityRunner {
         this.hasUnit = !(setting['hasunit'] as number === 0);
         this.hasStatements = setting['hasstatements'] as number === 1;
         this.service = setting['service'] as number;
+        this.devBuildSys = setting['dev-build-sys'] as string !== null;
         this.dbServer.hasUnit = this.hasUnit;
         this.dbServer.setBuilder();
         let ixUserArr = [];

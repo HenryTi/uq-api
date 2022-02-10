@@ -26,6 +26,7 @@ class EntityRunner {
         this.hasSheet = false;
         this.isCompiling = false;
         this.execQueueActError = false;
+        this.devBuildSys = false;
         this.parametersBusCache = {};
         this.actionConvertSchemas = {};
         this.name = name;
@@ -778,6 +779,7 @@ class EntityRunner {
             this.hasUnit = !(setting['hasunit'] === 0);
             this.hasStatements = setting['hasstatements'] === 1;
             this.service = setting['service'];
+            this.devBuildSys = setting['dev-build-sys'] !== null;
             this.dbServer.hasUnit = this.hasUnit;
             this.dbServer.setBuilder();
             let ixUserArr = [];

@@ -227,7 +227,6 @@ function buildBuildRouter(router, rb) {
             let db = core_1.Db.db(rb.getDbName(dbName));
             let runner = new core_2.BuildRunner(db);
             let ret = yield runner.getSetting(0, req.query['name']);
-            //if (ret.length===0) return undefined;
             res.json({
                 ok: true,
                 res: ret
