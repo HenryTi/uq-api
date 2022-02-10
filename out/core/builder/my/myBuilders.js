@@ -23,6 +23,7 @@ const sqlKeyIDSum_1 = require("./sqlKeyIDSum");
 const sqlActIXSort_1 = require("./sqlActIXSort");
 const sqlQueryID_1 = require("./sqlQueryID");
 const sqlIDTv_1 = require("./sqlIDTv");
+const sqlIXValues_1 = require("./sqlIXValues");
 class MyBuilders extends builders_1.Builders {
     Acts(param) {
         return new sqlActs_1.SqlActs(this, param);
@@ -59,6 +60,9 @@ class MyBuilders extends builders_1.Builders {
     }
     IXr(param) {
         return new sqlIXr_1.SqlIXr(this, param);
+    }
+    IXValues(param) {
+        return new sqlIXValues_1.SqlIXValues(this, param);
     }
     KeyIX(param) {
         return new sqlKeyIX_1.SqlKeyIX(this, param);

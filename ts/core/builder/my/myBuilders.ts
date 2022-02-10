@@ -1,8 +1,10 @@
-import { ParamID, ParamIX, ParamActs, ParamActDetail
+import {
+	ParamID, ParamIX, ParamActs, ParamActDetail
 	, ParamIDDetailGet, ParamIDLog, ParamKeyID, ParamKeyIX
 	, ParamIDxID, ParamIDSum, ParamKeyIDSum, ParamIXSum
 	, ParamKeyIXSum
-	, ParamIDinIX, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID} from "../../dbServer";
+	, ParamIDinIX, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
+} from "../../dbServer";
 import { Builders, ISqlBuilder } from "../builders";
 import { SqlActDetail } from "./sqlActDetail";
 import { SqlActIX } from "./sqlActIX";
@@ -25,9 +27,10 @@ import { SqlKeyIDSum } from "./sqlKeyIDSum";
 import { SqlActIXSort } from "./sqlActIXSort";
 import { SqlQueryID } from "./sqlQueryID";
 import { SqlIDTv } from "./sqlIDTv";
+import { SqlIXValues } from "./sqlIXValues";
 
 export class MyBuilders extends Builders {
-	Acts(param:ParamActs): ISqlBuilder {
+	Acts(param: ParamActs): ISqlBuilder {
 		return new SqlActs(this, param);
 	}
 
@@ -39,7 +42,7 @@ export class MyBuilders extends Builders {
 		return new SqlActIXSort(this, param);
 	}
 
-	ActDetail(param:ParamActDetail): ISqlBuilder {
+	ActDetail(param: ParamActDetail): ISqlBuilder {
 		return new SqlActDetail(this, param);
 	}
 
@@ -47,11 +50,11 @@ export class MyBuilders extends Builders {
 		return new SqlQueryID(this, param);
 	}
 
-	IDNO(param:ParamIDNO): ISqlBuilder {
+	IDNO(param: ParamIDNO): ISqlBuilder {
 		return new SqlIDNO(this, param);
 	}
 
-	IDDetailGet(param:ParamIDDetailGet): ISqlBuilder {
+	IDDetailGet(param: ParamIDDetailGet): ISqlBuilder {
 		return new SqlIDDetail(this, param);
 	}
 
@@ -70,15 +73,19 @@ export class MyBuilders extends Builders {
 	IX(param: ParamIX): ISqlBuilder {
 		return new SqlIX(this, param);
 	}
-	
+
 	IXr(param: ParamIX): ISqlBuilder {
 		return new SqlIXr(this, param);
 	}
-	
+
+	IXValues(param: ParamIXValues): ISqlBuilder {
+		return new SqlIXValues(this, param);
+	}
+
 	KeyIX(param: ParamKeyIX): ISqlBuilder {
 		return new SqlKeyIX(this, param);
 	}
-	
+
 	IDLog(param: ParamIDLog): ISqlBuilder {
 		return new SqlIDLog(this, param);
 	}
@@ -106,7 +113,7 @@ export class MyBuilders extends Builders {
 	IDxID(param: ParamIDxID): ISqlBuilder {
 		return new SqlIDxID(this, param);
 	}
-	
+
 	IDTree(param: ParamIDTree): ISqlBuilder {
 		return new SqlIDTree(this, param);
 	}

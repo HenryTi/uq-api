@@ -11,6 +11,9 @@ class MySqlBuilder {
         this.dbName = dbName;
         this.hasUnit = false; // hasUnit; ID, IDX, IX表，都没有$unit字段，所以当hasUnit=false处理
     }
+    buildCall() {
+        return;
+    }
     buildSumSelect(param) {
         let { IDX, far, near, field } = param;
         let { name, schema } = IDX;

@@ -134,6 +134,18 @@ class DbServer {
             return yield this.execSql(unit, user, sql);
         });
     }
+    IXValues(unit, user, param) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (param.$sql === true) {
+                let sql = this.builder.IXValues(param).build();
+                return sql;
+            }
+            let { proc, params } = this.builder.IXValues(param).buildCall();
+            params.unshift(user);
+            params.unshift(unit);
+            return yield this.call(this.dbName, proc, params);
+        });
+    }
     KeyIX(unit, user, param) {
         return __awaiter(this, void 0, void 0, function* () {
             let sql = this.builder.KeyIX(param).build();

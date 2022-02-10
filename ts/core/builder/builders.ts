@@ -1,25 +1,28 @@
-import { ParamID, ParamIX, ParamIXSum, ParamActs
+import {
+	ParamID, ParamIX, ParamIXSum, ParamActs
 	, ParamActDetail, ParamIDinIX, ParamIDLog, ParamIDSum
 	, ParamKeyID, ParamKeyIX, ParamKeyIXSum
-	, ParamKeyIDSum, ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID } from "../dbServer";
+	, ParamKeyIDSum, ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
+} from "../dbServer";
 
 export interface ISqlBuilder {
 	build(): string;
+	buildCall(): { proc: string; params: any[] };
 }
 
 export abstract class Builders {
-	dbName:string;
-	hasUnit:boolean;
-	constructor(dbName:string, hasUnit:boolean) {
+	dbName: string;
+	hasUnit: boolean;
+	constructor(dbName: string, hasUnit: boolean) {
 		this.dbName = dbName;
 		this.hasUnit = hasUnit;
 	}
 
-	Acts(param:ParamActs): ISqlBuilder {
+	Acts(param: ParamActs): ISqlBuilder {
 		return
 	}
 
-	ActIX(param:ParamActIX): ISqlBuilder {
+	ActIX(param: ParamActIX): ISqlBuilder {
 		return
 	}
 
@@ -27,7 +30,7 @@ export abstract class Builders {
 		return;
 	}
 
-	ActDetail(param:ParamActDetail): ISqlBuilder {
+	ActDetail(param: ParamActDetail): ISqlBuilder {
 		return
 	}
 
@@ -35,11 +38,11 @@ export abstract class Builders {
 		return;
 	}
 
-	IDNO(param:ParamIDNO): ISqlBuilder {
+	IDNO(param: ParamIDNO): ISqlBuilder {
 		return
 	}
 
-	IDDetailGet(param:ParamActDetail): ISqlBuilder {
+	IDDetailGet(param: ParamActDetail): ISqlBuilder {
 		return
 	}
 
@@ -58,31 +61,35 @@ export abstract class Builders {
 	IX(param: ParamIX): ISqlBuilder {
 		return
 	}
-	
+
 	IXr(param: ParamIX): ISqlBuilder {
 		return
 	}
-	
+
+	IXValues(param: ParamIXValues): ISqlBuilder {
+		return
+	}
+
 	KeyIX(param: ParamKeyIX): ISqlBuilder {
 		return
 	}
-	
+
 	IDLog(param: ParamIDLog): ISqlBuilder {
 		return
 	}
-	
+
 	IDSum(param: ParamIDSum): ISqlBuilder {
 		return
 	}
-	
+
 	KeyIDSum(param: ParamKeyIDSum): ISqlBuilder {
 		return
 	}
-	
+
 	IXSum(param: ParamIXSum): ISqlBuilder {
 		return
 	}
-	
+
 	KeyIXSum(param: ParamKeyIXSum): ISqlBuilder {
 		return
 	}
@@ -94,7 +101,7 @@ export abstract class Builders {
 	IDxID(param: ParamIDxID): ISqlBuilder {
 		return;
 	}
-	
+
 	IDTree(param: ParamIDTree): ISqlBuilder {
 		return;
 	}

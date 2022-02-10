@@ -328,6 +328,17 @@ export abstract class DbServer {
 		return await this.execSql(unit, user, sql);
 	}
 
+	async IXValues(unit: number, user: number, param: ParamIXValues): Promise<any[]> {
+		if ((param as any).$sql === true) {
+			let sql = this.builder.IXValues(param).build();
+			return sql as any;
+		}
+		let { proc, params } = this.builder.IXValues(param).buildCall();
+		params.unshift(user);
+		params.unshift(unit);
+		return await this.call(this.dbName, proc, params);
+	}
+
 	async KeyIX(unit: number, user: number, param: ParamKeyIX): Promise<any[]> {
 		let sql = this.builder.KeyIX(param).build();
 		if ((param as any).$sql === true) return sql as any;

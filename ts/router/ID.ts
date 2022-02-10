@@ -126,6 +126,19 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
             return result;
         });
 
+    rb.entityPost(router, 'ix-values', '',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
+            let result = await runner.IXValues(unit, user, body);
+            return result;
+        });
+
+    rb.entityPost(router, sqlResultProfix + 'ix-values', '',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
+            body.$sql = true;
+            let result = await runner.IXValues(unit, user, body);
+            return result;
+        });
+
     rb.entityPost(router, 'ixr', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             let result = await runner.IXr(unit, user, body);

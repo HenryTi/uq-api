@@ -18,6 +18,9 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 	}
 
 	abstract build(): string;
+	buildCall(): { proc: string; params: any[]; } {
+		return;
+	}
 
 	protected buildSumSelect(param: ParamSum): string {
 		let { IDX, far, near, field } = param;

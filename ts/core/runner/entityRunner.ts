@@ -6,7 +6,7 @@ import {
     , ParamActs, ParamActDetail, ParamIDDetailGet, ParamIDinIX
     , ParamIDLog, ParamIDSum, ParamKeyID, ParamKeyIX
     , ParamKeyIXSum, ParamKeyIDSum, ParamSum, TableSchema
-    , ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID
+    , ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
 } from '../dbServer';
 import { packReturns } from '../packReturn';
 import { ImportData } from '../importData';
@@ -1189,6 +1189,12 @@ export class EntityRunner {
         let types = ['id', 'idx'];
         param.IDX = this.getTableSchemaArray(IDX as unknown as any, types);
         return this.dbServer.IXr(unit, user, param);
+    }
+
+    IXValues(unit: number, user: number, param: ParamIXValues): Promise<any[]> {
+        let { IX } = param;
+        param.IX = this.getTableSchema((IX as unknown) as string, ['ix']) as TableSchema;
+        return this.dbServer.IXValues(unit, user, param);
     }
 
     KeyIX(unit: number, user: number, param: ParamKeyIX): Promise<any[]> {
