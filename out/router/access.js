@@ -43,6 +43,9 @@ function buildAccessRouter(router, rb) {
         let roles = yield runner.getAdmins(unit, user);
         return roles;
     }));
+    rb.entityGet(router, 'set-me-admin', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        yield runner.setMeAdmin(unit, user);
+    }));
     rb.entityGet(router, 'get-roles', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let roles = yield runner.getMyRoles(unit, user);
         return roles;

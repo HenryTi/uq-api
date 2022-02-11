@@ -92,6 +92,11 @@ class EntityRunner {
             return tbl;
         });
     }
+    setMeAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_me_admin', [unit, user]);
+        });
+    }
     getMyRoles(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.roleNames)
