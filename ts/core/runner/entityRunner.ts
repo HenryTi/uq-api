@@ -137,6 +137,10 @@ export class EntityRunner {
     async setMeAdmin(unit: number, user: number): Promise<void> {
         await this.call('$set_me_admin', [unit, user]);
     }
+    async setAdmin(unit: number, $user: number, user: number, role: number, name: string, nick: string, icon: string, assigned: string): Promise<void> {
+        await this.call('$set_admin', [unit, $user, user, role, name, nick, icon, assigned]);
+    }
+
     async getMyRoles(unit: number, user: number): Promise<string> {
         if (!this.roleNames) return;
         let tbl = await this.tableFromProc('$get_my_roles', [unit, user]);
