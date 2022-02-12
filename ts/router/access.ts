@@ -53,6 +53,11 @@ export function buildAccessRouter(router: Router, rb: RouterBuilder) {
             await runner.setAdmin(unit, $user, user, role, name, nick, icon, assigned);
         });
 
+    rb.entityGet(router, 'is-admin', '',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
+            return await runner.isAdmin(unit, user);
+        });
+
     rb.entityGet(router, 'get-roles', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             let roles = await runner.getMyRoles(unit, user);

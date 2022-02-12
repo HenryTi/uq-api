@@ -102,6 +102,11 @@ class EntityRunner {
             yield this.call('$set_admin', [unit, $user, user, role, name, nick, icon, assigned]);
         });
     }
+    isAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.call('$is_admin', [unit, user]);
+        });
+    }
     getMyRoles(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.roleNames)
