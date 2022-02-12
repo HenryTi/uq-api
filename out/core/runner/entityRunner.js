@@ -104,7 +104,8 @@ class EntityRunner {
     }
     isAdmin(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.call('$is_admin', [unit, user]);
+            let ret = yield this.tableFromProc('$is_admin', [unit, user]);
+            return ret.length > 0;
         });
     }
     getMyRoles(unit, user) {
