@@ -13,9 +13,7 @@ class SqlIDLog extends mySqlBuilder_1.MySqlBuilder {
         let { start, size } = page;
         if (!start)
             start = Number.MAX_SAFE_INTEGER;
-        let { name, schema } = IDX;
-        let { exFields } = schema;
-        let exField = exFields === null || exFields === void 0 ? void 0 : exFields.find(v => v.field === field);
+        let { name } = IDX;
         let span = '';
         if (far)
             span += ` AND a.t>=${far}`;
@@ -23,18 +21,6 @@ class SqlIDLog extends mySqlBuilder_1.MySqlBuilder {
             span += ` AND a.t<${near}`;
         let table = '`tv_' + name + '$' + field + '`';
         let cols = 'a.t, a.v, a.u, a.a';
-        if (exField) {
-            let { log, track, memo, sum } = exField;
-            if (log !== true) {
-                return `select 'IDX ${name} ${field}' is not loged`;
-            }
-            if (sum === true)
-                cols += ',a.s';
-            if (track === true)
-                cols += ',a.k';
-            if (memo === true)
-                cols += ',a.m';
-        }
         let group;
         let time = `from_unixtime(a.t/1000+${timeZone}*3600)`;
         switch (log) {

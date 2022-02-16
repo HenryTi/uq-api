@@ -23,11 +23,11 @@ export abstract class Unitx {
 	constructor() {
 		this.buildUnitxDb();
 	}
-	protected abstract buildUnitxDb():void;
-	get db(): UnitxDb {return this._db};
+	protected abstract buildUnitxDb(): void;
+	get db(): UnitxDb { return this._db };
 
-	private unitUnitxApis: {[unit:number]:UnitxApi} = {};
-	private async getUnitxApi(unit:number):Promise<UnitxApi> {
+	private unitUnitxApis: { [unit: number]: UnitxApi } = {};
+	private async getUnitxApi(unit: number): Promise<UnitxApi> {
 		let unitxApi = this.unitUnitxApis[unit];
 		if (unitxApi === undefined) {
 			this.unitUnitxApis[unit] = unitxApi = await this.buildUnitxApi(unit);
@@ -35,7 +35,7 @@ export abstract class Unitx {
 		return unitxApi;
 	}
 
-    private async getPullUnitxApi(unit:number):Promise<UnitxApi> {
+	private async getPullUnitxApi(unit: number): Promise<UnitxApi> {
 		//let {prev, current} = await this.getUnitxApi(unit);
 		//if (prev === undefined) return current;
 		let unitxApi = await this.getUnitxApi(unit);
@@ -61,7 +61,7 @@ export abstract class Unitx {
 		*/
 	}
 
-    private async getPushUnitxApi(unit:number):Promise<UnitxApi> {
+	private async getPushUnitxApi(unit: number): Promise<UnitxApi> {
 		let unitxApi = await this.getUnitxApi(unit);
 		return unitxApi;
 	}
@@ -76,15 +76,15 @@ export abstract class Unitx {
 	}
 	*/
 
-	private async buildUnitxApi(unit:number): Promise<UnitxApi> {
+	private async buildUnitxApi(unit: number): Promise<UnitxApi> {
 		let unitxUrls = await centerApi.unitUnitx(unit);
 		let uus: UnitxUrlServer = this.boxFromUrls(unitxUrls);
 		if (uus === undefined) {
-			debugger;
+			// debugger;
 			return undefined;
 		}
-		let {url, server, create} = uus;
-        if (env.isDevelopment === true) {
+		let { url, server, create } = uus;
+		if (env.isDevelopment === true) {
 			if (server === this._db.serverId) {
 				let urlDebug = await getUrlDebug();
 				if (urlDebug !== undefined) url = urlDebug;
@@ -93,23 +93,23 @@ export abstract class Unitx {
 		let unitxUrl = this.unitxUrl(url);
 		return new UnitxApi(unitxUrl, create);
 	}
-	
-    async sendToUnitx(unit:number, msg:Message):Promise<number[]|string> {
-        let unitxApi = await this.getPushUnitxApi(unit);
-        if (!unitxApi) {
-            let err = `Center unit ${unit} not binding $unitx service!!!`;
-            //return ret;
-            logger.error(err);
-            throw new Error(err);
+
+	async sendToUnitx(unit: number, msg: Message): Promise<number[] | string> {
+		let unitxApi = await this.getPushUnitxApi(unit);
+		if (!unitxApi) {
+			let err = `Center unit ${unit} not binding $unitx service!!!`;
+			//return ret;
+			logger.error(err);
+			throw new Error(err);
 		}
 		else {
-			logger.error('get unitx push url in sendToUnitx: ',  unitxApi.url);
+			logger.error('get unitx push url in sendToUnitx: ', unitxApi.url);
 		}
-        let toArr:number[] = await unitxApi.send(msg);
-        return toArr;
+		let toArr: number[] = await unitxApi.send(msg);
+		return toArr;
 	}
-	
-	async pullBus(unit:number, maxId:number, faces:string, defer:number): Promise<any[][]> {
+
+	async pullBus(unit: number, maxId: number, faces: string, defer: number): Promise<any[][]> {
 		let unitxApi = await this.getPullUnitxApi(unit);
 		if (!unitxApi) {
 			logger.error(`getUnitxApi unit=${unit}, pull return nothing`);
@@ -123,30 +123,30 @@ export abstract class Unitx {
 		return ret;
 	}
 
-	protected abstract unitxUrl(url:string):string;
-	protected abstract boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServer;
+	protected abstract unitxUrl(url: string): string;
+	protected abstract boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer;
 }
 
 export class UnitxProd extends Unitx {
-	protected buildUnitxDb():void {
+	protected buildUnitxDb(): void {
 		let dbName = consts.$unitx;
 		this._db = new UnitxProdDb(dbName)
 	}
-    protected unitxUrl(url:string):string {return url + 'uq/unitx-prod/'};
-	protected boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServer {
-		let {prod} = unitxUrls;
+	protected unitxUrl(url: string): string { return url + 'uq/unitx-prod/' };
+	protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {
+		let { prod } = unitxUrls;
 		return prod;
 	}
 }
 
 export class UnitxTest extends Unitx {
-	protected buildUnitxDb():void {
+	protected buildUnitxDb(): void {
 		let dbName = consts.$unitx + '$test';
 		this._db = new UnitxTestDb(dbName);
 	}
-    protected unitxUrl(url:string):string {return url + 'uq/unitx-test/'};
-	protected boxFromUrls(unitxUrls: CenterUnitxUrls):UnitxUrlServer {
-		let {test} = unitxUrls;
+	protected unitxUrl(url: string): string { return url + 'uq/unitx-test/' };
+	protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {
+		let { test } = unitxUrls;
 		return test;
 	}
 }

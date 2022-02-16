@@ -28,7 +28,7 @@ export class TablesBuilder {
 	}
 
 	protected buildCols(schema: EntitySchema): void {
-		let { fields, type, exFields, create, update } = schema;
+		let { fields, type, create, update } = schema;
 		let $fieldBuilt = false;
 		for (let f of fields) {
 			let { name: fn, type: ft } = f;
@@ -57,22 +57,6 @@ export class TablesBuilder {
 		}
 
 		this.$fieldBuilt = $fieldBuilt;
-		if (type === 'idx' && this.doneTimeField === false && exFields) {
-			let hasLog = false;
-			for (let exField of exFields) {
-				let { log } = exField;
-				if (log === true) {
-					hasLog = true;
-					break;
-				}
-			}
-			if (hasLog === true) {
-				this.cols += `,t${this.i}.\`$time\` as \`$time\``;
-				this.cols += `,tv_$idtext(t${this.i}.\`$field\`) as \`$field\``;
-				this.cols += `,t${this.i}.\`$value\` as \`$value\``;
-				this.doneTimeField = true;
-			}
-		}
 	}
 
 	protected buildIDX(): void {

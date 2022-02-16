@@ -29,7 +29,6 @@ export interface EntitySchema {
 	owner: boolean;
 	create: boolean;
 	update: boolean;
-	exFields: ExField[];
 }
 
 export interface TableSchema {

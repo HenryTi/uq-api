@@ -24,17 +24,11 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 
 	protected buildSumSelect(param: ParamSum): string {
 		let { IDX, far, near, field } = param;
-		let { name, schema } = IDX;
+		let { name } = IDX;
 		if (!far) far = 0;
 		if (!near) near = Number.MAX_SAFE_INTEGER;
 		let sql = 'select t.id';
 		for (let f of field) {
-			let { exFields } = schema;
-			let exField = exFields?.find(v => v.field === f);
-			if (exField === undefined) {
-				return `select '${f} is not logged' as error`;
-			}
-			//f = f.toLowerCase();
 			sql += `,\`tv_${name}$${f}$sum\`(t.id,${far},${near}) as ${f}`;
 		}
 		sql += ` from \`tv_${name}\` as t`;
@@ -312,7 +306,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 
 	protected buildUpsert(ts: TableSchema, value: any): string {
 		let { name: tableName, schema } = ts;
-		let { keys, fields, exFields } = schema;
+		let { keys, fields } = schema;
 		let cols: string, vals: string, dup = '';
 		let sqlBefore: string = '';
 		let sqlWriteEx: string[] = [];
@@ -348,31 +342,6 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				}
 
 				let sum: boolean;
-				if (exFields) {
-					let exField = exFields.find(v => v.field === name);
-					if (exField) {
-						let { field, track, memo, time: timeCanSet } = exField;
-						sum = exField.sum;
-						let valueId = value['id'];
-						let sqlEx = `set @dxValue=\`tv_${tableName}$${field}\`(@unit,@user,${valueId},${act},'${v}'`;
-						if (timeCanSet === true) {
-							sqlEx += ',';
-							sqlEx += time !== undefined ? time : 'null';
-						}
-						if (track === true) {
-							let vTrack = value['$track'];
-							sqlEx += ',';
-							sqlEx += (vTrack ? vTrack : 'null');
-						}
-						if (memo === true) {
-							let vMemo = value['$memo'];
-							sqlEx += ',';
-							sqlEx += (vMemo ? `'${vMemo}'` : 'null');
-						}
-						sqlEx += `);` + sqlEndStatement;
-						sqlWriteEx.push(sqlEx);
-					}
-				}
 				let dupAdd = '';
 				if (type === 'textid') {
 					val = `tv_$textid('${v}')`;
@@ -385,12 +354,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 						case '+': dupAdd = '+ifnull(`' + name + '`, 0)'; break;
 						case '=': dupAdd = ''; break;
 					}
-					if (time === undefined) {
-						val = `${v}`;
-					}
-					else {
-						val = `'${v}'`;
-					}
+					//if (time === undefined) {
+					//	val = `${v}`;
+					//}
+					//else {
+					val = `'${v}'`;
+					//}
 				}
 				switch (name) {
 					default:
@@ -470,22 +439,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 
 	protected buildIXDelete(ts: TableSchema, ix: number, xi: number): string {
 		let { name, schema } = ts;
-		let { type, exFields } = schema;
 		let sql = '';
-		if (exFields) {
-			for (let exField of exFields) {
-				let { field, track, memo } = exField;
-				let sqlEx = `set @dxValue=\`tv_${name}$${field}\`(@unit,@user,${ix},-1,null`;
-				if (track === true) {
-					sqlEx += ',null';
-				}
-				if (memo === true) {
-					sqlEx += ',null';
-				}
-				sqlEx += `)` + sqlEndStatement;
-				sql += sqlEx;
-			}
-		}
 		sql += 'delete from `tv_' + name + '` where ix=';
 		if (typeof ix === 'object') {
 			sql += (ix as any).value;

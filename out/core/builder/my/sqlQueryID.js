@@ -226,7 +226,7 @@ class SqlQueryID extends mySqlBuilder_1.MySqlBuilder {
         this.order = `\n\tORDER BY ${alias}.${fieldRight} ${ord}`;
     }
     buildCols(schema) {
-        let { fields, type, exFields } = schema;
+        let { fields } = schema;
         let $fieldBuilt = false;
         for (let f of fields) {
             let { name: fn, type: ft } = f;
@@ -260,22 +260,6 @@ class SqlQueryID extends mySqlBuilder_1.MySqlBuilder {
             this.cols += ' as `' + fn + '`';
         }
         this.$fieldBuilt = $fieldBuilt;
-        if (type === 'idx' && this.doneTimeField === false && exFields) {
-            let hasLog = false;
-            for (let exField of exFields) {
-                let { log } = exField;
-                if (log === true) {
-                    hasLog = true;
-                    break;
-                }
-            }
-            if (hasLog === true) {
-                this.cols += `,t${this.t}.\`$time\` as \`$time\``;
-                this.cols += `,tv_$idtext(t${this.t}.\`$field\`) as \`$field\``;
-                this.cols += `,t${this.t}.\`$value\` as \`$value\``;
-                this.doneTimeField = true;
-            }
-        }
     }
 }
 exports.SqlQueryID = SqlQueryID;
