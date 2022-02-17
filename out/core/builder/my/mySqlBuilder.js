@@ -263,8 +263,7 @@ class MySqlBuilder {
     }
     buildSaveIX(ts, ixValue) {
         let sql = '';
-        let { schema, values } = ts;
-        let { hasId, name } = schema;
+        let { values } = ts;
         if (ixValue !== undefined) {
             values = [ixValue];
         }
@@ -282,13 +281,7 @@ class MySqlBuilder {
                 if (typeof xi === 'object') {
                     xiValue = xi.value;
                 }
-                if (hasId === true) {
-                    sql += `SET @ixid = tv_${name}$id(@unit, @user, ${ix}, ${xiValue})` + exports.sqlEndStatement;
-                    sql += `SET @ret = CONCAT(@ret, @ixid, '\\t')` + exports.sqlEndStatement;
-                }
-                else {
-                    sql += this.buildUpsert(ts, value);
-                }
+                sql += this.buildUpsert(ts, value);
             }
         }
         sql += exports.retLn;
@@ -350,12 +343,12 @@ class MySqlBuilder {
                             dupAdd = '';
                             break;
                     }
-                    //if (time === undefined) {
-                    //	val = `${v}`;
-                    //}
-                    //else {
-                    val = `'${v}'`;
-                    //}
+                    if (time === undefined) {
+                        val = `${v}`;
+                    }
+                    else {
+                        val = `'${v}'`;
+                    }
                 }
                 switch (name) {
                     default:

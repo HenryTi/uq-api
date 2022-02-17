@@ -272,8 +272,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 
 	protected buildSaveIX(ts: TableSchema, ixValue?: any): string {
 		let sql = '';
-		let { schema, values } = ts;
-		let { hasId, name } = schema as any;
+		let { values } = ts;
 		if (ixValue !== undefined) {
 			values = [ixValue];
 		}
@@ -291,13 +290,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				if (typeof xi === 'object') {
 					xiValue = xi.value;
 				}
-				if (hasId === true) {
-					sql += `SET @ixid = tv_${name}$id(@unit, @user, ${ix}, ${xiValue})` + sqlEndStatement;
-					sql += `SET @ret = CONCAT(@ret, @ixid, '\\t')` + sqlEndStatement;
-				}
-				else {
-					sql += this.buildUpsert(ts, value);
-				}
+				sql += this.buildUpsert(ts, value);
 			}
 		}
 		sql += retLn;
@@ -354,12 +347,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 						case '+': dupAdd = '+ifnull(`' + name + '`, 0)'; break;
 						case '=': dupAdd = ''; break;
 					}
-					//if (time === undefined) {
-					//	val = `${v}`;
-					//}
-					//else {
-					val = `'${v}'`;
-					//}
+					if (time === undefined) {
+						val = `${v}`;
+					}
+					else {
+						val = `'${v}'`;
+					}
 				}
 				switch (name) {
 					default:
