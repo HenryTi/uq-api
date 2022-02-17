@@ -226,7 +226,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 							break;
 					}
 				}
-				sql += ')' + sqlEndStatement;
+				sql += ', null)' + sqlEndStatement;
 				if (fields.length > keys.length + 1) {
 					sql += this.buildUpdate(ts, value, updateOverride);
 				}

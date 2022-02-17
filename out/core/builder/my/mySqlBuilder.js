@@ -221,7 +221,7 @@ class MySqlBuilder {
                             break;
                     }
                 }
-                sql += ')' + exports.sqlEndStatement;
+                sql += ', null)' + exports.sqlEndStatement;
                 if (fields.length > keys.length + 1) {
                     sql += this.buildUpdate(ts, value, updateOverride);
                 }
