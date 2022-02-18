@@ -24,7 +24,7 @@ class Net {
         this.uqOpenApis = {};
         this.executingNet = executingNet;
         this.id = id;
-        this.buildUnitx();
+        this.unitx = this.createUnitx();
     }
     innerRunner(name) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -275,7 +275,7 @@ class Net {
 }
 exports.Net = Net;
 class ProdNet extends Net {
-    buildUnitx() { this.unitx = new unitx_1.UnitxProd(); }
+    createUnitx() { return new unitx_1.UnitxProd(); }
     get isTesting() { return false; }
     getDbName(name) { return name; }
     getUqFullName(uq) { return uq; }
@@ -285,7 +285,7 @@ class ProdNet extends Net {
     chooseUrl(urls) { return urls.url; }
 }
 class TestNet extends Net {
-    buildUnitx() { this.unitx = new unitx_1.UnitxTest(); }
+    createUnitx() { return new unitx_1.UnitxTest(); }
     get isTesting() { return true; }
     getDbName(name) { return name + '$test'; }
     getUqFullName(uq) { return uq + '$test'; }
