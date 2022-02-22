@@ -1,4 +1,4 @@
-import { Field, ParamSum, TableSchema } from "../../dbServer";
+import { EnumIdType, Field, ParamSum, TableSchema } from "../../dbServer";
 import { Builders, ISqlBuilder } from "../builders";
 import { IXIXTablesBuilder, IXrIXTablesBuilder, IXrTablesBuilder, IXTablesBuilder, TablesBuilder } from "./tablesBuilder";
 
@@ -172,7 +172,8 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		if (idValue !== undefined) {
 			values = [idValue];
 		}
-		let { keys, fields, nameNoVice } = schema;
+		let { keys, fields, nameNoVice, idType } = schema;
+		let isMinute = (idType === EnumIdType.MU || idType === EnumIdType.Minute || EnumIdType.MinuteId);
 		for (let value of values) {
 			let { id } = value;
 			if (id) {
@@ -226,7 +227,10 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 							break;
 					}
 				}
-				sql += ', null)' + sqlEndStatement;
+				if (isMinute === true) {
+					sql += ', null';
+				}
+				sql += ')' + sqlEndStatement;
 				if (fields.length > keys.length + 1) {
 					sql += this.buildUpdate(ts, value, updateOverride);
 				}

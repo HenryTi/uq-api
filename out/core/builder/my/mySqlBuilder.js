@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MySqlBuilder = exports.retTab = exports.retLn = exports.sqlEndStatement = void 0;
+const dbServer_1 = require("../../dbServer");
 const tablesBuilder_1 = require("./tablesBuilder");
 exports.sqlEndStatement = '\x0c\n';
 exports.retLn = "set @ret=CONCAT(@ret, '\\n')" + exports.sqlEndStatement;
@@ -163,7 +164,8 @@ class MySqlBuilder {
         if (idValue !== undefined) {
             values = [idValue];
         }
-        let { keys, fields, nameNoVice } = schema;
+        let { keys, fields, nameNoVice, idType } = schema;
+        let isMinute = (idType === dbServer_1.EnumIdType.MU || idType === dbServer_1.EnumIdType.Minute || dbServer_1.EnumIdType.MinuteId);
         for (let value of values) {
             let { id } = value;
             if (id) {
@@ -221,7 +223,10 @@ class MySqlBuilder {
                             break;
                     }
                 }
-                sql += ', null)' + exports.sqlEndStatement;
+                if (isMinute === true) {
+                    sql += ', null';
+                }
+                sql += ')' + exports.sqlEndStatement;
                 if (fields.length > keys.length + 1) {
                     sql += this.buildUpdate(ts, value, updateOverride);
                 }

@@ -9,7 +9,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DbServer = void 0;
+exports.DbServer = exports.EnumIdType = void 0;
+var EnumIdType;
+(function (EnumIdType) {
+    EnumIdType[EnumIdType["None"] = 0] = "None";
+    EnumIdType[EnumIdType["UU"] = 1] = "UU"; // universally unique identifier (UUID)
+    EnumIdType[EnumIdType["NU"] = 2] = "NU"; // native unique identifier
+    EnumIdType[EnumIdType["MU"] = 3] = "MU"; // minute unique identifier
+    EnumIdType[EnumIdType["Global"] = 11] = "Global";
+    EnumIdType[EnumIdType["Local"] = 12] = "Local";
+    EnumIdType[EnumIdType["Minute"] = 13] = "Minute";
+    EnumIdType[EnumIdType["MinuteId"] = 21] = "MinuteId";
+})(EnumIdType = exports.EnumIdType || (exports.EnumIdType = {})); // Minute: unique in uq
 class DbServer {
     constructor(dbName) {
         this.dbName = dbName;

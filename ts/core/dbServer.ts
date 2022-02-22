@@ -20,6 +20,15 @@ export interface ExField {
 	memo: boolean;
 }
 
+export enum EnumIdType {
+	None = 0
+	, UU = 1	// universally unique identifier (UUID)
+	, NU = 2	// native unique identifier
+	, MU = 3	// minute unique identifier
+	, Global = 11, Local = 12, Minute = 13
+	, MinuteId = 21
+} // Minute: unique in uq
+
 export interface EntitySchema {
 	typeId: number;
 	type: string;
@@ -27,6 +36,7 @@ export interface EntitySchema {
 	fields: Field[];
 	nameNoVice: string[];
 	owner: boolean;
+	idType: EnumIdType;
 	create: boolean;
 	update: boolean;
 }

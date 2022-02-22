@@ -103,10 +103,10 @@ class QueueIn {
                 let error = this.errorText(err);
                 yield this.runner.log(unit, errSubject, error);
             }
-            //if (finish !== Finish.done) {
-            // 操作错误，retry++ or bad
-            yield this.runner.call('$queue_in_set', [id, defer, finish, version]);
-            //}
+            if (finish !== consts_1.Finish.done) {
+                // 操作错误，retry++ or bad
+                yield this.runner.call('$queue_in_set', [id, defer, finish, version]);
+            }
         });
     }
     errorText(err) {
