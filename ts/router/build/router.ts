@@ -274,16 +274,4 @@ export function buildBuildRouter(router: Router, rb: RouterBuilder) {
 			let { entities, valid } = body;
 			return await runner.setEntityValid(entities, valid);
 		});
-
-	rb.post(router, '/tag-type',
-		async (runner: EntityRunner, body: { names: string }): Promise<void> => {
-			let { names } = body;
-			await runner.tagType(names);
-		});
-
-	rb.post(router, '/tag-save-sys',
-		async (runner: EntityRunner, body: { data: string }): Promise<void> => {
-			let { data } = body;
-			await runner.tagSaveSys(data);
-		});
 };

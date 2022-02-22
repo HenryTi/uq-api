@@ -113,10 +113,17 @@ exports.init = init;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
+        yield forDebug();
         yield runJobsForever();
     });
 }
 exports.start = start;
+function forDebug() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let net = core_1.testNet;
+        let runner = yield net.getRunner('workshop_bus_test');
+    });
+}
 function runJobsForever() {
     return __awaiter(this, void 0, void 0, function* () {
         try {

@@ -101,6 +101,9 @@ class Unitx {
                         url = urlDebug;
                 }
             }
+            if (url.endsWith('/') === false) {
+                url += '/';
+            }
             let unitxUrl = this.unitxUrl(url);
             return new unitxApi_1.UnitxApi(unitxUrl, create);
         });
@@ -146,8 +149,8 @@ class UnitxProd extends Unitx {
     unitxUrl(url) { return url + 'uq/unitx-prod/'; }
     ;
     boxFromUrls(unitxUrls) {
-        let { prod } = unitxUrls;
-        return prod;
+        let { prod, tv } = unitxUrls;
+        return prod !== null && prod !== void 0 ? prod : tv;
     }
 }
 exports.UnitxProd = UnitxProd;
@@ -159,8 +162,8 @@ class UnitxTest extends Unitx {
     unitxUrl(url) { return url + 'uq/unitx-test/'; }
     ;
     boxFromUrls(unitxUrls) {
-        let { test } = unitxUrls;
-        return test;
+        let { test, tv } = unitxUrls;
+        return test !== null && test !== void 0 ? test : tv;
     }
 }
 exports.UnitxTest = UnitxTest;

@@ -90,6 +90,9 @@ export abstract class Unitx {
 				if (urlDebug !== undefined) url = urlDebug;
 			}
 		}
+		if (url.endsWith('/') === false) {
+			url += '/';
+		}
 		let unitxUrl = this.unitxUrl(url);
 		return new UnitxApi(unitxUrl, create);
 	}
@@ -134,8 +137,8 @@ export class UnitxProd extends Unitx {
 	}
 	protected unitxUrl(url: string): string { return url + 'uq/unitx-prod/' };
 	protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {
-		let { prod } = unitxUrls;
-		return prod;
+		let { prod, tv } = unitxUrls;
+		return prod ?? tv;
 	}
 }
 
@@ -146,7 +149,7 @@ export class UnitxTest extends Unitx {
 	}
 	protected unitxUrl(url: string): string { return url + 'uq/unitx-test/' };
 	protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {
-		let { test } = unitxUrls;
-		return test;
+		let { test, tv } = unitxUrls;
+		return test ?? tv;
 	}
 }

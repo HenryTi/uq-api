@@ -871,7 +871,7 @@ export class EntityRunner {
             busOutCount += (outCount ?? 0);
         }
         let faceText: string;
-        if (faces.length > 0) faceText = faces.join('\n');
+        if (faces.length > 0) faceText = '\n' + faces.join('\n') + '\n';
         this.buses = {
             faces: faceText,
             outCount: busOutCount,

@@ -21,15 +21,15 @@ const runGap = core_1.env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
 const uqsInclude = [
-    'me' //, 'order', 'coupon', 'deliver'
-    /*
-    'deliver',
-    'collectpayment',
-    'order',
-    'warehouse',
-    'me',
-    'bridge',
-    */
+//'order', 'coupon', 'deliver'
+/*
+'deliver',
+'collectpayment',
+'order',
+'warehouse',
+'me',
+'bridge',
+*/
 ];
 const uqsExclude = undefined;
 [

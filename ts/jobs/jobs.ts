@@ -13,7 +13,7 @@ const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api�
 const $test = '$test';
 const uqsInclude: string[] =
     [
-        'me' //, 'order', 'coupon', 'deliver'
+        //'order', 'coupon', 'deliver'
         /*
         'deliver',
         'collectpayment',

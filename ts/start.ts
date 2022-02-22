@@ -9,7 +9,7 @@ import {
     uqProdRouterBuilder, uqTestRouterBuilder,
     unitxTestRouterBuilder, unitxProdRouterBuilder,
     compileProdRouterBuilder, compileTestRouterBuilder, CompileRouterBuilder,
-    create$UqDb, env
+    create$UqDb, env, testNet
 } from './core';
 import { authJoint, authUpBuild } from './core/auth';
 import { Jobs } from './jobs';
@@ -113,7 +113,13 @@ export async function init(): Promise<void> {
 
 export async function start() {
     await init();
+    await forDebug();
     await runJobsForever();
+}
+
+async function forDebug() {
+    let net = testNet;
+    let runner = await net.getRunner('workshop_bus_test');
 }
 
 async function runJobsForever() {

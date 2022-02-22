@@ -264,14 +264,6 @@ function buildBuildRouter(router, rb) {
         let { entities, valid } = body;
         return yield runner.setEntityValid(entities, valid);
     }));
-    rb.post(router, '/tag-type', (runner, body) => __awaiter(this, void 0, void 0, function* () {
-        let { names } = body;
-        yield runner.tagType(names);
-    }));
-    rb.post(router, '/tag-save-sys', (runner, body) => __awaiter(this, void 0, void 0, function* () {
-        let { data } = body;
-        yield runner.tagSaveSys(data);
-    }));
 }
 exports.buildBuildRouter = buildBuildRouter;
 ;
