@@ -39,14 +39,17 @@ export class QueueIn {
         return retCount;
     }
 
-    private async processOneRow(row: any, defer: number) {
+    private async processOneRow(row: any, defer: number): Promise<void> {
         let { bus, faceName, id, unit, to, data, version, tries, update_time, now, stamp } = row;
-        this.queuePointer = id;
         if (!unit) unit = this.runner.uniqueUnit;
+        /*
+        不满足条件的，不会get出来
         if (tries > 0) {
             // 上次尝试之后十分钟内不尝试
             if (now - update_time < tries * 10 * 60) return;
         }
+        */
+        this.queuePointer = id;
         let finish: Finish;
         try {
             if (!bus) {

@@ -75,7 +75,8 @@ export class PullBus {
 				// 新版：bus读来，直接写入queue_in。然后在队列里面处理
 				logger.debug(`total ${messagesLen} arrived from unitx`);
 				for (let row of messages) {
-					await this.processMessage(unit, defer, row);
+					let ok = await this.processMessage(unit, defer, row);
+					if (ok === false) return retCount;
 					maxPullId = row.id;
 					++retCount;
 					++i;
@@ -93,18 +94,20 @@ export class PullBus {
 		return retCount;
 	}
 
-	private async processMessage(unit: number, defer: number, message: any) {
+	private async processMessage(unit: number, defer: number, message: any): Promise<boolean> {
 		let { to, face: faceUrl, id: msgId, body, version, stamp } = message;
 		let face = this.coll[(faceUrl as string).toLowerCase()];
 		if (face === undefined) return;
 		let { bus, faceName } = face;
 		try {
 			await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, version, stamp]);
+			return true;
 		}
 		catch (toQueueInErr) {
 			this.hasError = this.buses.hasError = true;
 			logger.error(toQueueInErr);
 			await this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, getErrorString(toQueueInErr));
+			return false;
 		}
 	}
 

@@ -83,7 +83,9 @@ class PullBus {
                     // 新版：bus读来，直接写入queue_in。然后在队列里面处理
                     tool_1.logger.debug(`total ${messagesLen} arrived from unitx`);
                     for (let row of messages) {
-                        yield this.processMessage(unit, defer, row);
+                        let ok = yield this.processMessage(unit, defer, row);
+                        if (ok === false)
+                            return retCount;
                         maxPullId = row.id;
                         ++retCount;
                         ++i;
@@ -112,11 +114,13 @@ class PullBus {
             let { bus, faceName } = face;
             try {
                 yield this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, version, stamp]);
+                return true;
             }
             catch (toQueueInErr) {
                 this.hasError = this.buses.hasError = true;
                 tool_1.logger.error(toQueueInErr);
                 yield this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, (0, tool_2.getErrorString)(toQueueInErr));
+                return false;
             }
         });
     }
