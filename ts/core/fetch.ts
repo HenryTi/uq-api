@@ -1,12 +1,15 @@
-import fetch, {Headers} from 'node-fetch';
+import fetch, { Headers } from 'node-fetch';
 import { logger } from '../tool';
 
 export abstract class Fetch {
-    protected readonly baseUrl:string;
-    constructor(baseUrl:string) {
+    protected readonly baseUrl: string;
+    constructor(baseUrl: string) {
+        if (baseUrl.endsWith('/') === false) {
+            baseUrl += '/';
+        }
         this.baseUrl = baseUrl;
     }
-    get url():string {return this.baseUrl};
+    get url(): string { return this.baseUrl };
     protected async get(url: string, params: any = undefined): Promise<any> {
         if (params) {
             let keys = Object.keys(params);
@@ -14,8 +17,8 @@ export abstract class Fetch {
                 let c = '?';
                 for (let k of keys) {
                     let v = params[k];
-					if (v === undefined) continue;
-					if (v === null) continue;
+                    if (v === undefined) continue;
+                    if (v === null) continue;
                     url += c + k + '=' + encodeURIComponent(params[k]);
                     c = '&';
                 }
@@ -28,13 +31,13 @@ export abstract class Fetch {
         return await this.innerFetch(url, 'POST', params);
     }
 
-    private async innerFetch(url: string, method:string, body?:any): Promise<any> {
+    private async innerFetch(url: string, method: string, body?: any): Promise<any> {
         logger.debug('innerFetch ' + method + '  ' + this.baseUrl + url);
         var headers = new Headers();
         headers.append('Accept', 'application/json'); // This one is enough for GET requests
         headers.append('Content-Type', 'application/json'); // This one sends body
         let res = await fetch(
-            this.baseUrl + url, 
+            this.baseUrl + url,
             {
                 headers: {
                     "Content-Type": 'application/json',

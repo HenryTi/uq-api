@@ -14,6 +14,9 @@ const node_fetch_1 = require("node-fetch");
 const tool_1 = require("../tool");
 class Fetch {
     constructor(baseUrl) {
+        if (baseUrl.endsWith('/') === false) {
+            baseUrl += '/';
+        }
         this.baseUrl = baseUrl;
     }
     get url() { return this.baseUrl; }
