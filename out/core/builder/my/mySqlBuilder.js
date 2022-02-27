@@ -323,11 +323,11 @@ class MySqlBuilder {
                 val = 'null';
             }
             else {
-                let time;
+                //let time: number;
                 let setAdd;
                 if (typeof v === 'object') {
                     setAdd = v.setAdd;
-                    time = v.$time;
+                    //time = v.$time;
                     v = v.value;
                 }
                 let sum;
@@ -348,12 +348,12 @@ class MySqlBuilder {
                             dupAdd = '';
                             break;
                     }
-                    if (time === undefined) {
-                        val = `${v}`;
-                    }
-                    else {
-                        val = `'${v}'`;
-                    }
+                    //if (time === undefined) {
+                    //	val = `${v}`;
+                    //}
+                    //else {
+                    val = `'${v}'`;
+                    //}
                 }
                 switch (name) {
                     default:

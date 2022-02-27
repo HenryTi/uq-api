@@ -330,11 +330,11 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 				val = 'null';
 			}
 			else {
-				let time: number;
+				//let time: number;
 				let setAdd: string;
 				if (typeof v === 'object') {
 					setAdd = v.setAdd;
-					time = v.$time;
+					//time = v.$time;
 					v = v.value;
 				}
 
@@ -351,12 +351,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 						case '+': dupAdd = '+ifnull(`' + name + '`, 0)'; break;
 						case '=': dupAdd = ''; break;
 					}
-					if (time === undefined) {
-						val = `${v}`;
-					}
-					else {
-						val = `'${v}'`;
-					}
+					//if (time === undefined) {
+					//	val = `${v}`;
+					//}
+					//else {
+					val = `'${v}'`;
+					//}
 				}
 				switch (name) {
 					default:
