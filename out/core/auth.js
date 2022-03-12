@@ -84,14 +84,12 @@ class Auth {
         });
     }
     middleware() {
-        let self = this;
-        return function (req, res, next) {
-            self.check(req, res, next);
+        return (req, res, next) => {
+            this.check(req, res, next);
         };
     }
     middlewareDebug() {
-        let self = this;
-        return function (req, res, next) {
+        return (req, res, next) => {
             req.user = {
                 db: req.params.db,
                 //id: debugUser,

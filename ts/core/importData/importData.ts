@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { logger } from '../../tool';
-import { Db } from "../db";
+import { Db } from "../dbCaller/db";
 import { EntityRunner } from '../runner';
 import { Field, Header } from './field';
 
@@ -15,13 +15,13 @@ import { Field, Header } from './field';
 export abstract class ImportData {
     // entity: 'product';
     // entity: 'product-pack'
-    static async exec(runner:EntityRunner, unit:number, db: Db, source:string, entity:string, filePath: string): Promise<void> {
-        let importData:ImportData;
+    static async exec(runner: EntityRunner, unit: number, db: Db, source: string, entity: string, filePath: string): Promise<void> {
+        let importData: ImportData;
         let parts = entity.split('.');
         entity = parts[0];
         let div = parts[1];
 
-        let schema:any = runner.getSchema(entity);
+        let schema: any = runner.getSchema(entity);
         let logger = console;
 
         if (schema === undefined) {
@@ -29,7 +29,7 @@ export abstract class ImportData {
             return;
         }
 
-        let {type} = schema;
+        let { type } = schema;
         switch (type) {
             case 'tuid':
                 if (div === undefined)
@@ -68,14 +68,14 @@ export abstract class ImportData {
     protected div: string;
     protected runner: EntityRunner;
 
-    private readLine():any[] {
-        let ret:string[] = [];
+    private readLine(): any[] {
+        let ret: string[] = [];
         let loop: boolean = true;
         while (loop) {
             let len = this.buffer.length;
-            let cur:number, c:number = 0;
+            let cur: number, c: number = 0;
             let i = this.p;
-            for (; i<len; i++) {
+            for (; i < len; i++) {
                 c = this.buffer.charCodeAt(i);
                 if (c === 65279) continue;  // UTF8-BOM
                 if (c === 9) {
@@ -88,7 +88,7 @@ export abstract class ImportData {
                     break;
                 }
             }
-            let val:string;
+            let val: string;
             if (i === len) {
                 if (this.p === 0)
                     this.bufferPrev = this.bufferPrev + this.buffer;
@@ -110,7 +110,7 @@ export abstract class ImportData {
                     val = this.buffer.substring(this.p, cur);
                 }
                 if (c === 10) val = val.trim();
-                this.p = cur+1;
+                this.p = cur + 1;
             }
             if (val === 'NULL') val = undefined;
             ret.push(val);
@@ -119,7 +119,7 @@ export abstract class ImportData {
         return ret;
     }
 
-    private to(type:string, val:string):any {
+    private to(type: string, val: string): any {
         if (val === undefined || val === '') return undefined;
         switch (type) {
             default: return val;
@@ -131,25 +131,25 @@ export abstract class ImportData {
         }
     }
 
-    private buildHeader(line: string[]):boolean {
+    private buildHeader(line: string[]): boolean {
         let header: Header = {};
         let len = line.length;
-        let divOwner:{div:string; owner:string}[] = [];
-        for (let i=0; i<len; i++) {
+        let divOwner: { div: string; owner: string }[] = [];
+        for (let i = 0; i < len; i++) {
             let f = line[i];
             let pos = f.indexOf('@');
             if (pos > 0) {
                 let p0 = f.substr(0, pos);
-                let p1 = f.substr(pos+1);
+                let p1 = f.substr(pos + 1);
                 header[p0] = i;
-                divOwner.push({div:p0, owner:p1});
+                divOwner.push({ div: p0, owner: p1 });
             }
             else {
                 header[line[i]] = i;
             }
         }
-        for (let i=0; i<divOwner.length; i++) {
-            let {div, owner} = divOwner[i];
+        for (let i = 0; i < divOwner.length; i++) {
+            let { div, owner } = divOwner[i];
             if (owner[0] === '/') {
                 owner = owner.substr(1);
             }
@@ -158,7 +158,7 @@ export abstract class ImportData {
                 this.logger.debug(`${div} of ${owner} not exists`);
                 return false;
             }
-            header[div+'$owner'] = ownerIndex;
+            header[div + '$owner'] = ownerIndex;
         }
 
         let neededFields = this.checkHeader(header);
@@ -167,8 +167,8 @@ export abstract class ImportData {
             return false;
         }
 
-        for (let i=0; i<len; i++) {
-            let field:Field;
+        for (let i = 0; i < len; i++) {
+            let field: Field;
             let fieldName = line[i];
             switch (fieldName) {
                 case '$id':
@@ -186,7 +186,7 @@ export abstract class ImportData {
                     field.name = fieldName;
                     field.colIndex = header[fieldName];
                     break;
-                default: 
+                default:
                     field = Field.create(this.runner, this.schema, fieldName, header, this.source);
                     break;
             }
@@ -202,15 +202,15 @@ export abstract class ImportData {
         this.p = 0;
 
         // build header
-        for (;;) {
+        for (; ;) {
             let line = this.readLine();
             if (line === undefined) break;
             if (line.length === 0) continue;
             if (this.buildHeader(line) === false) return;
             break;
         }
-        
-        for (;;) {
+
+        for (; ;) {
             let line = this.readLine();
             if (line === undefined) break;
             if (line.length === 0) continue;
@@ -219,14 +219,14 @@ export abstract class ImportData {
         }
     }
 
-    protected checkHeader(header:Header):string[] {return undefined};
+    protected checkHeader(header: Header): string[] { return undefined };
 
-    private async mapValues(line:any[]):Promise<any[]> {
-        let values:any[] = [];
+    private async mapValues(line: any[]): Promise<any[]> {
+        let values: any[] = [];
         let len = line.length;
-        for (let i=0; i<len; i++) {
+        for (let i = 0; i < len; i++) {
             let field = this.fields[i];
-            let v:any;
+            let v: any;
             if (field !== undefined) {
                 v = field.getValue(line);
                 if (v === null) {
@@ -238,19 +238,19 @@ export abstract class ImportData {
         return values;
     }
 
-    protected async saveItem(values:any[]): Promise<void> {
+    protected async saveItem(values: any[]): Promise<void> {
         this.logger.debug('to be saved: ', values);
     }
 }
 
 class ImportTuid extends ImportData {
-    protected async saveItem(values:any[]): Promise<void> {
+    protected async saveItem(values: any[]): Promise<void> {
         await this.runner.tuidSave(this.entity, this.unit, undefined, values);
     }
 }
 
 class ImportTuidDiv extends ImportTuid {
-    protected checkHeader(header:Header):string[] {
+    protected checkHeader(header: Header): string[] {
         let $owner = header['$owner'];
         if ($owner !== undefined) return undefined;
         return ['$owner'];
@@ -258,16 +258,16 @@ class ImportTuidDiv extends ImportTuid {
 }
 
 class ImportMap extends ImportData {
-    protected async saveItem(values:any[]): Promise<void> {
+    protected async saveItem(values: any[]): Promise<void> {
         await this.runner.mapSave(this.entity, this.unit, undefined, values);
         logger.debug('import map ', values);
     }
 }
 
-async function readFileAsync(filename?:string, code?:string) {
+async function readFileAsync(filename?: string, code?: string) {
     return new Promise<string>(function (resolve, reject) {
         try {
-            fs.readFile(filename, code, function(err, buffer){
+            fs.readFile(filename, code, function (err, buffer) {
                 if (err) reject(err); else resolve(buffer);
             });
         } catch (err) {

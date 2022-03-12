@@ -1,4 +1,4 @@
-import {Router, Request, Response, NextFunction} from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import * as config from 'config';
 import * as crypto from 'crypto';
@@ -40,7 +40,7 @@ export default class Auth {
         return false;
     }
     */
-    check(req:Request, res:Response, next:NextFunction) {
+    check(req: Request, res: Response, next: NextFunction) {
         if (this.noUser === true) {
             if (next !== undefined) next();
             return;
@@ -57,54 +57,51 @@ export default class Auth {
         }
         let secret = config.get<string>('secret'); // .appSecret;
         //logger.debug('auth check: secret=%s, token=%s', secret, token);
-        jwt.verify(token, secret, 
-            (err, decoded:AuthUser) => 
-        {
-            if (err === null) {
-                decoded.db = req.params.db;
-                (req as any).user = decoded;
-                next();
-                return;
-                /*
-                if (this.hasRole(decoded.roles) === true) {
-                    if (next !== undefined) next();
+        jwt.verify(token, secret,
+            (err, decoded: AuthUser) => {
+                if (err === null) {
+                    decoded.db = req.params.db;
+                    (req as any).user = decoded;
+                    next();
                     return;
+                    /*
+                    if (this.hasRole(decoded.roles) === true) {
+                        if (next !== undefined) next();
+                        return;
+                    }
+                    */
                 }
-                */
-            }
-			if ((decoded as any).id === 0 ) {
-                res.status(401);
-                res.json(
-                    {
-                        error: {
-                            type: 'unauthorized',
-                            unauthorized: true,
-                            message: 'Unauthorized user=0 unit=' + (decoded as any).unit,
-                        }
-                    });
-			}
-            if (res !== undefined) {
-                res.status(401);
-                res.json(
-                    {
-                        error: {
-                            type: 'unauthorized',
-                            unauthorized: true,
-                            message: 'Unauthorized'
-                        }
-                    });
-            }
-        });
+                if ((decoded as any).id === 0) {
+                    res.status(401);
+                    res.json(
+                        {
+                            error: {
+                                type: 'unauthorized',
+                                unauthorized: true,
+                                message: 'Unauthorized user=0 unit=' + (decoded as any).unit,
+                            }
+                        });
+                }
+                if (res !== undefined) {
+                    res.status(401);
+                    res.json(
+                        {
+                            error: {
+                                type: 'unauthorized',
+                                unauthorized: true,
+                                message: 'Unauthorized'
+                            }
+                        });
+                }
+            });
     }
     middleware() {
-        let self = this;
-        return function (req:Request, res:Response, next:NextFunction) {
-            self.check(req, res, next);
+        return (req: Request, res: Response, next: NextFunction) => {
+            this.check(req, res, next);
         }
     }
     middlewareDebug() {
-        let self = this;
-        return function (req:Request, res:Response, next:NextFunction) {
+        return (req: Request, res: Response, next: NextFunction) => {
             (req as any).user = {
                 db: req.params.db,
                 //id: debugUser,
@@ -116,7 +113,7 @@ export default class Auth {
     }
     middlewareUnitx() {
         let self = this;
-        return function (req:Request, res:Response, next:NextFunction) {
+        return function (req: Request, res: Response, next: NextFunction) {
             (req as any).user = {
                 db: req.params.db,
             }
@@ -125,7 +122,7 @@ export default class Auth {
     }
     middlewareJoint() {
         let self = this;
-        return function (req:Request, res:Response, next:NextFunction) {
+        return function (req: Request, res: Response, next: NextFunction) {
             let unit = req.header('unit');
             (req as any).user = {
                 db: req.params.db,
@@ -158,19 +155,19 @@ xQgjLRiW0VhmoWJFM/Sm/CECAwEAAQ==
 `;
 let uqBuildSecret: string;
 
-var decryptStringWithRsaPublicKey = function(toDecrypt:string):string {
+var decryptStringWithRsaPublicKey = function (toDecrypt: string): string {
     //var absolutePath = path.resolve(relativeOrAbsolutePathtoPrivateKey);
     //var privateKey = fs.readFileSync(absolutePath, "utf8");
     var buffer = Buffer.from(toDecrypt, "base64");
     //var decrypted = crypto.privateDecrypt(privateKey, buffer);
-    const decrypted = crypto.publicDecrypt(uqBuildPublicKey,buffer);
+    const decrypted = crypto.publicDecrypt(uqBuildPublicKey, buffer);
     return decrypted.toString("utf8");
 };
 export function setUqBuildSecret(ubs: string) {
     uqBuildSecret = decryptStringWithRsaPublicKey(ubs);
 }
 
-function middlewareUqBuild(req:Request, res:Response, next:NextFunction) {
+function middlewareUqBuild(req: Request, res: Response, next: NextFunction) {
     if (req.url === '/start') {
         logger.debug('middlewareUqBuild req.uql /start');
         if (next !== undefined) next();
@@ -188,24 +185,23 @@ function middlewareUqBuild(req:Request, res:Response, next:NextFunction) {
         return;
     }
     let secret = uqBuildSecret;
-    jwt.verify(token, secret, 
-        (err, decoded:{value:string}) => 
-    {
-        if (err === null) {
-            if (next !== undefined) next();
-            return;
-        }
-        if (res !== undefined) {
-            res.status(401);
-            res.json(
-                {
-                    error: {
-                        unauthorized: true,
-                        message: 'Unauthorized'
-                    }
-                });
-        }
-    });
+    jwt.verify(token, secret,
+        (err, decoded: { value: string }) => {
+            if (err === null) {
+                if (next !== undefined) next();
+                return;
+            }
+            if (res !== undefined) {
+                res.status(401);
+                res.json(
+                    {
+                        error: {
+                            unauthorized: true,
+                            message: 'Unauthorized'
+                        }
+                    });
+            }
+        });
 }
 
 export const authUpBuild = middlewareUqBuild;

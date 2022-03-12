@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { logger } from '../tool';
-import { EntityRunner, RouterBuilder } from '../core';
+import { EntityRunner } from '../core';
+import { RouterBuilder } from './routerBuilder';
 
 const accessType = 'access';
 
@@ -49,8 +50,8 @@ export function buildAccessRouter(router: Router, rb: RouterBuilder) {
 
     rb.entityPost(router, 'set-admin', '',
         async (unit: number, $user: number, _name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
-            let { user, role, name, nick, icon, assigned } = body;
-            await runner.setAdmin(unit, $user, user, role, name, nick, icon, assigned);
+            let { user, role, assigned } = body;
+            await runner.setAdmin(unit, $user, user, role, assigned);
         });
 
     rb.entityGet(router, 'is-admin', '',

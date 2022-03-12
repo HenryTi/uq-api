@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildBuildRouter = void 0;
 const tool_1 = require("../../tool");
 const core_1 = require("../../core");
-const core_2 = require("../../core");
 function buildBuildRouter(router, rb) {
     router.post('/start', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
@@ -25,7 +24,7 @@ function buildBuildRouter(router, rb) {
             tool_1.logger.debug('buildBuildRouter step 3');
             let { enc } = req.body;
             (0, core_1.setUqBuildSecret)(enc);
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let exists = yield runner.buildDatabase();
             tool_1.logger.debug('buildBuildRouter step 4');
             res.json({
@@ -44,7 +43,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let exists = yield runner.buildDatabase();
             res.json({
                 ok: true,
@@ -61,7 +60,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let { uqId: paramUqId, uqVersion } = req.body;
             yield Promise.all([
                 runner.setSetting(0, 'uqId', String(paramUqId)),
@@ -84,7 +83,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let { sql, params } = req.body;
             let result = yield runner.sql(sql, params);
             res.json({
@@ -108,7 +107,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let { name, proc } = req.body;
             let result = yield runner.procSql(name, proc);
             res.json({
@@ -132,7 +131,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let { name, proc, isFunc } = req.body;
             let result = yield runner.procCoreSql(name, proc, isFunc);
             res.json({
@@ -148,7 +147,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let result = yield runner.createDatabase();
             res.json({
                 ok: true,
@@ -169,7 +168,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let result = yield runner.existsDatabase();
             res.json({
                 ok: true,
@@ -192,7 +191,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let promises = [];
             let { body } = req;
             let service;
@@ -225,7 +224,7 @@ function buildBuildRouter(router, rb) {
         try {
             let dbName = req.params.db;
             let db = core_1.Db.db(rb.getDbName(dbName));
-            let runner = new core_2.BuildRunner(db);
+            let runner = new core_1.BuildRunner(db);
             let ret = yield runner.getSetting(0, req.query['name']);
             res.json({
                 ok: true,

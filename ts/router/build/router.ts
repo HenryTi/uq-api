@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { logger } from '../../tool';
-import { EntityRunner, RouterBuilder, setUqBuildSecret, Db, prodNet, testNet, centerApi } from '../../core';
-import { BuildRunner } from '../../core';
+import { BuildRunner, EntityRunner, setUqBuildSecret, Db, prodNet, testNet, centerApi } from '../../core';
+import { RouterWebBuilder } from "../routerBuilder";
 
-export function buildBuildRouter(router: Router, rb: RouterBuilder) {
+export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 	router.post('/start', async (req: Request, res: Response) => {
 		try {
 			logger.debug('buildBuildRouter step 1');

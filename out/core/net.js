@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.testCompileNet = exports.prodCompileNet = exports.testNet = exports.prodNet = exports.Net = void 0;
 const tool_1 = require("../tool");
 const runner_1 = require("./runner");
-const db_1 = require("./db");
+const db_1 = require("./dbCaller/db");
 const openApi_1 = require("./openApi");
 const centerApi_1 = require("./centerApi");
 const getUrlDebug_1 = require("./getUrlDebug");

@@ -1,13 +1,7 @@
 import * as _ from 'lodash';
 import { logger } from '../../tool';
-import { Db, env } from '../db';
-import {
-    DbServer, ParamID, ParamIX, ParamIXSum
-    , ParamActs, ParamActDetail, ParamIDDetailGet, ParamIDinIX
-    , ParamIDLog, ParamIDSum, ParamKeyID, ParamKeyIX
-    , ParamKeyIXSum, ParamKeyIDSum, ParamSum, TableSchema
-    , ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
-} from '../dbServer';
+import { Db, env } from '../dbCaller';
+import { DbCaller } from '../dbCaller';
 import { packReturns } from '../packReturn';
 import { ImportData } from '../importData';
 import {
@@ -17,6 +11,7 @@ import {
 import { Net } from '../net';
 import { centerApi } from '../centerApi';
 import { BusFace, BusFaceAccept, BusFaceQuery } from './BusFace';
+import { IDRunner } from './IDRunner';
 
 interface EntityAccess {
     name: string;
@@ -41,9 +36,8 @@ export interface Buses {
 
 export class EntityRunner {
     protected readonly db: Db;
-    protected readonly dbServer: DbServer;
+    protected readonly dbCaller: DbCaller;
     private access: any;
-    private schemas: { [entity: string]: { type: string; from: string; call: any; run: any; } };
     private accessSchemaArr: any[];
     private role: any;
     private roleNames: string;
@@ -57,6 +51,8 @@ export class EntityRunner {
     private ixOfUsers: string;
     private compileTick: number = 0;
 
+    readonly IDRunner: IDRunner;
+    schemas: { [entity: string]: { type: string; from: string; call: any; run: any; } };
     name: string;
     uqOwner: string;
     uq: string;
@@ -84,7 +80,8 @@ export class EntityRunner {
         this.db = db;
         this.net = net;
         this.modifyMaxes = {};
-        this.dbServer = db.dbServer;
+        this.dbCaller = db.dbCaller;
+        this.IDRunner = new IDRunner(this, this.dbCaller);
     }
 
     getDb(): string { return this.db.getDbName() }
@@ -137,8 +134,8 @@ export class EntityRunner {
     async setMeAdmin(unit: number, user: number): Promise<void> {
         await this.call('$set_me_admin', [unit, user]);
     }
-    async setAdmin(unit: number, $user: number, user: number, role: number, name: string, nick: string, icon: string, assigned: string): Promise<void> {
-        await this.call('$set_admin', [unit, $user, user, role, name, nick, icon, assigned]);
+    async setAdmin(unit: number, $user: number, user: number, role: number, assigned: string): Promise<void> {
+        await this.call('$set_admin', [unit, $user, user, role, assigned]);
     }
     async isAdmin(unit: number, user: number): Promise<boolean> {
         let ret = await this.tableFromProc('$is_admin', [unit, user]);
@@ -673,8 +670,8 @@ export class EntityRunner {
         this.hasStatements = setting['hasstatements'] as number === 1;
         this.service = setting['service'] as number;
         this.devBuildSys = setting['dev-build-sys'] as string !== null;
-        this.dbServer.hasUnit = this.hasUnit;
-        this.dbServer.setBuilder();
+        this.dbCaller.hasUnit = this.hasUnit;
+        this.dbCaller.setBuilder();
         let ixUserArr = [];
 
         let uu = setting['uniqueunit'];
@@ -1033,49 +1030,13 @@ export class EntityRunner {
         this.actionConvertSchemas[name] = value;
     }
 
-    private throwErr(err: string) {
-        logger.error(err);
-        throw new Error(err);
-    }
-
-    private getTableSchema(name: string, types: string[], values?: any[]): TableSchema {
-        if (name === undefined) return undefined;
-        let isXi: boolean;
-        if (name[0] === '!') {
-            isXi = true;
-            name = name.substr(1);
-        }
-        let lowerName = name.toLowerCase();
-        let ts = this.schemas[lowerName]?.call;
-        if (ts === undefined) {
-            this.throwErr(`${name} is not a valid Entity`);
-        }
-        let { type } = ts;
-        if (types.indexOf(type) < 0) {
-            this.throwErr(`TableSchema only support ${types.map(v => v.toUpperCase()).join(', ')}`);
-        }
-        let db = this.db.getDbName();
-        return { name: lowerName, schema: ts, values, isXi };
-    }
-    private getTableSchemas(names: string[], types: string[]): TableSchema[] {
-        return names.map(v => this.getTableSchema(v, types));
-    }
-
-    private getTableSchemaArray(names: string | string[], types: string[]): TableSchema[] {
-        if (names === undefined) return;
-        return Array.isArray(names) === true ?
-            this.getTableSchemas(names as string[], types)
-            :
-            [this.getTableSchema(names as string, types)];
-    }
-
     private async runUqStatements() {
         await this.procCall('tv_$uq', []);
     }
 
     private async removeAllScheduleEvents() {
         let db = this.getDb();
-        let events = await this.dbServer.getEvents(db); //.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
+        let events = await this.dbCaller.getEvents(db); //.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
         if ((!events) || events.length === 0) return;
         this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
         let eventsText = '';
@@ -1088,199 +1049,5 @@ export class EntityRunner {
         }
         await this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
         this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
-    }
-
-    Acts(unit: number, user: number, param: ParamActs): Promise<any[]> {
-        for (let i in param) {
-            if (i === '$') continue;
-            let ts = this.getTableSchema(i, ['id', 'idx', 'ix']);
-            let values = (param[i] as unknown) as any[];
-            if (values) {
-                ts.values = values;
-                param[i] = ts;
-            }
-        }
-        return this.dbServer.Acts(unit, user, param);
-    }
-
-    ActIX(unit: number, user: number, param: ParamActIX): Promise<any[]> {
-        let { IX, ID: ID, IXs } = param;
-        param.IX = this.getTableSchema(IX as unknown as string, ['ix']);
-        param.ID = this.getTableSchema(ID as unknown as string, ['id']);
-        if (IXs) {
-            param.IXs = IXs.map(v => {
-                let { IX, ix } = v;
-                return { IX: this.getTableSchema(IX as unknown as string, ['ix']), ix }
-            })
-        }
-        return this.dbServer.ActIX(unit, user, param);
-    }
-
-    ActIXSort(unit: number, user: number, param: ParamActIXSort): Promise<any[]> {
-        let { IX } = param;
-        param.IX = this.getTableSchema(IX as unknown as string, ['ix']);
-        return this.dbServer.ActIXSort(unit, user, param);
-    }
-
-    ActIDProp(unit: number, user: number, param: { ID: string; id: number; name: string; value: any }): Promise<void> {
-        return this.dbServer.ActIDProp(unit, user, param);
-    }
-
-    ActDetail(unit: number, user: number, param: ParamActDetail): Promise<any[]> {
-        let { main, detail, detail2, detail3 } = param;
-        let types = ['id'];
-        param.main = this.getTableSchema(main.name as unknown as string, types, [(main as any).value as any]);
-        param.detail = this.getTableSchema(detail.name as unknown as string, types, detail.values);
-        if (detail2) {
-            param.detail2 = this.getTableSchema(detail2.name as unknown as string, types, detail2.values);
-        }
-        if (detail3) {
-            param.detail3 = this.getTableSchema(detail3.name as unknown as string, types, detail3.values);
-        }
-        return this.dbServer.ActDetail(unit, user, param);
-    }
-
-    QueryID(unit: number, user: number, param: ParamQueryID): Promise<any[]> {
-        let { ID, IDX, IX } = param;
-        param.ID = this.getTableSchema(ID as unknown as string, ['id']);
-        param.IDX = this.getTableSchemaArray(IDX as unknown as any, ['id', 'idx']);
-        param.IX = this.getTableSchemaArray(IX as unknown as any, ['ix']);
-        return this.dbServer.QueryID(unit, user, param);
-    }
-
-    IDNO(unit: number, user: number, param: ParamIDNO): Promise<string> {
-        let { ID } = param;
-        let types = ['id'];
-        param.ID = this.getTableSchema(ID as unknown as string, types);
-        return this.dbServer.IDNO(unit, user, param);
-    }
-
-    IDDetailGet(unit: number, user: number, param: ParamIDDetailGet): Promise<any[]> {
-        let { main, detail, detail2, detail3 } = param;
-        let types = ['id'];
-        param.main = this.getTableSchema(main as unknown as string, types);
-        param.detail = this.getTableSchema(detail as unknown as string, types);
-        if (detail2) {
-            param.detail2 = this.getTableSchema(detail2 as unknown as string, types);
-        }
-        if (detail3) {
-            param.detail3 = this.getTableSchema(detail3 as unknown as string, types);
-        }
-        return this.dbServer.IDDetailGet(unit, user, param);
-    }
-
-    ID(unit: number, user: number, param: ParamID): Promise<any[]> {
-        let { IDX } = param;
-        let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX as unknown as any, types);
-        return this.dbServer.ID(unit, user, param);
-    }
-
-    IDTv(unit: number, user: number, ids: number[]): Promise<any[]> {
-        return this.dbServer.IDTv(unit, user, ids);
-    }
-
-    KeyID(unit: number, user: number, param: ParamKeyID): Promise<any[]> {
-        let { ID, IDX } = param;
-        let types = ['id', 'idx'];
-        param.ID = this.getTableSchema(ID as unknown as string, ['id']);
-        param.IDX = this.getTableSchemaArray(IDX as unknown as any, types);
-        return this.dbServer.KeyID(unit, user, param);
-    }
-
-    IX(unit: number, user: number, param: ParamIX): Promise<any[]> {
-        let { IX, IX1, IDX } = param;
-        param.IX = this.getTableSchema((IX as unknown) as string, ['ix']) as TableSchema;
-        param.IX1 = this.getTableSchema((IX1 as unknown) as string, ['ix']) as TableSchema;
-        let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX as unknown as any, types);
-        return this.dbServer.IX(unit, user, param);
-    }
-
-    IXr(unit: number, user: number, param: ParamIX): Promise<any[]> {
-        let { IX, IX1, IDX } = param;
-        param.IX = this.getTableSchema((IX as unknown) as string, ['ix']) as TableSchema;
-        param.IX1 = this.getTableSchema((IX1 as unknown) as string, ['ix']) as TableSchema;
-        let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX as unknown as any, types);
-        return this.dbServer.IXr(unit, user, param);
-    }
-
-    IXValues(unit: number, user: number, param: ParamIXValues): Promise<any[]> {
-        let { IX } = param;
-        param.IX = this.getTableSchema((IX as unknown) as string, ['ix']) as TableSchema;
-        return this.dbServer.IXValues(unit, user, param);
-    }
-
-    KeyIX(unit: number, user: number, param: ParamKeyIX): Promise<any[]> {
-        let { ID, IX, IDX } = param;
-        param.ID = this.getTableSchema((ID as unknown) as string, ['id']);
-        param.IX = this.getTableSchema((IX as unknown) as string, ['ix']);
-        param.IDX = this.getTableSchemaArray(IDX as unknown as any, ['id', 'idx']);
-        return this.dbServer.KeyIX(unit, user, param);
-    }
-
-    IDLog(unit: number, user: number, param: ParamIDLog): Promise<any[]> {
-        let { IDX, field } = param;
-        let ts = this.getTableSchema((IDX as unknown) as string, ['idx']);
-        param.IDX = ts;
-        let fLower = field.toLowerCase();
-        if (ts.schema.fields.findIndex(v => v.name.toLowerCase() === fLower) < 0) {
-            this.throwErr(`ID ${IDX} has no Field ${field}`);
-        }
-        return this.dbServer.IDLog(unit, user, param);
-    }
-
-    private checkIDXSumField(param: ParamSum) {
-        let { IDX, field } = param;
-        let ts = this.getTableSchema((IDX as unknown) as string, ['idx']);
-        param.IDX = ts;
-        for (let f of field) {
-            let fLower = f.toLowerCase();
-            if (ts.schema.fields.findIndex(v => v.name.toLowerCase() === fLower) < 0) {
-                this.throwErr(`ID ${IDX} has no Field ${f}`);
-            }
-        }
-    }
-
-    IDSum(unit: number, user: number, param: ParamIDSum): Promise<any[]> {
-        this.checkIDXSumField(param);
-        return this.dbServer.IDSum(unit, user, param);
-    }
-
-    KeyIDSum(unit: number, user: number, param: ParamKeyIDSum): Promise<any[]> {
-        this.checkIDXSumField(param);
-        return this.dbServer.KeyIDSum(unit, user, param);
-    }
-
-    IXSum(unit: number, user: number, param: ParamIXSum): Promise<any[]> {
-        this.checkIDXSumField(param);
-        return this.dbServer.IXSum(unit, user, param);
-    }
-
-    KeyIXSum(unit: number, user: number, param: ParamKeyIXSum): Promise<any[]> {
-        this.checkIDXSumField(param);
-        return this.dbServer.KeyIXSum(unit, user, param);
-    }
-
-    IDinIX(unit: number, user: number, param: ParamIDinIX): Promise<any[]> {
-        let { IX, ID } = param;
-        param.IX = this.getTableSchema((IX as unknown) as string, ['ix']);
-        param.ID = this.getTableSchema((ID as unknown) as string, ['id']);
-        return this.dbServer.IDinIX(unit, user, param);
-    }
-
-    IDxID(unit: number, user: number, param: ParamIDxID): Promise<any[]> {
-        let { ID, IX, ID2 } = param;
-        param.ID = this.getTableSchema((ID as unknown) as string, ['id']);
-        param.IX = this.getTableSchema((IX as unknown) as string, ['ix']);
-        param.ID2 = this.getTableSchema((ID2 as unknown) as string, ['id']);
-        return this.dbServer.IDxID(unit, user, param);
-    }
-
-    IDTree(unit: number, user: number, param: ParamIDTree): Promise<any[]> {
-        let { ID } = param;
-        param.ID = this.getTableSchema((ID as unknown) as string, ['id']);
-        return this.dbServer.IDTree(unit, user, param);
     }
 }

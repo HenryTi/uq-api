@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
-import { env } from "./db";
+import { env } from "./dbCaller/db";
 
-const urlDebugPromises:{[url:string]: Promise<string>|boolean} = {};
-export async function getUrlDebug():Promise<string> {
+const urlDebugPromises: { [url: string]: Promise<string> | boolean } = {};
+export async function getUrlDebug(): Promise<string> {
 	let urlDebug = `http://${env.localhost}/`; //urlSetUqHost();
 	let urlDebugPromise = urlDebugPromises[urlDebug];
 	if (urlDebugPromise === true) return urlDebug;
@@ -23,7 +23,7 @@ export async function getUrlDebug():Promise<string> {
 
 }
 
-async function fetchHello(url:string):Promise<string> {
+async function fetchHello(url: string): Promise<string> {
 	try {
 		let ret = await fetch(url + 'hello');
 		if (ret.status !== 200) throw 'not ok';

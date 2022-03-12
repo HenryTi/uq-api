@@ -47,8 +47,8 @@ function buildAccessRouter(router, rb) {
         yield runner.setMeAdmin(unit, user);
     }));
     rb.entityPost(router, 'set-admin', '', (unit, $user, _name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
-        let { user, role, name, nick, icon, assigned } = body;
-        yield runner.setAdmin(unit, $user, user, role, name, nick, icon, assigned);
+        let { user, role, assigned } = body;
+        yield runner.setAdmin(unit, $user, user, role, assigned);
     }));
     rb.entityGet(router, 'is-admin', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         return yield runner.isAdmin(unit, user);

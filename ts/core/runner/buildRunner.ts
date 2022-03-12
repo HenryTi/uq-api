@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { logger } from '../../tool';
 import { centerApi } from '../centerApi';
-import { Db } from '../db';
+import { Db } from '../dbCaller';
 
 export class BuildRunner {
     private readonly db: Db;

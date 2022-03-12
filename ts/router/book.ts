@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { EntityRunner, packReturn, RouterBuilder } from '../core';
-//import { entityPost } from './entityProcess';
+import { EntityRunner, packReturn } from '../core';
+import { RouterBuilder } from './routerBuilder';
 
 export function buildBookRouter(router: Router, rb: RouterBuilder) {
     rb.entityPost(router, 'book', '/:name',

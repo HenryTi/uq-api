@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildBookRouter = void 0;
 const core_1 = require("../core");
-//import { entityPost } from './entityProcess';
 function buildBookRouter(router, rb) {
     rb.entityPost(router, 'book', '/:name', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let pageStart = body['$pageStart'];

@@ -12,12 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EntityRunner = void 0;
 const _ = require("lodash");
 const tool_1 = require("../../tool");
-const db_1 = require("../db");
+const dbCaller_1 = require("../dbCaller");
 const packReturn_1 = require("../packReturn");
 const importData_1 = require("../importData");
 const inBusAction_1 = require("../inBusAction");
 const centerApi_1 = require("../centerApi");
 const BusFace_1 = require("./BusFace");
+const IDRunner_1 = require("./IDRunner");
 class EntityRunner {
     constructor(name, db, net = undefined) {
         this.roleVersions = {};
@@ -33,7 +34,8 @@ class EntityRunner {
         this.db = db;
         this.net = net;
         this.modifyMaxes = {};
-        this.dbServer = db.dbServer;
+        this.dbCaller = db.dbCaller;
+        this.IDRunner = new IDRunner_1.IDRunner(this, this.dbCaller);
     }
     getDb() { return this.db.getDbName(); }
     reset() {
@@ -97,9 +99,9 @@ class EntityRunner {
             yield this.call('$set_me_admin', [unit, user]);
         });
     }
-    setAdmin(unit, $user, user, role, name, nick, icon, assigned) {
+    setAdmin(unit, $user, user, role, assigned) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.call('$set_admin', [unit, $user, user, role, name, nick, icon, assigned]);
+            yield this.call('$set_admin', [unit, $user, user, role, assigned]);
         });
     }
     isAdmin(unit, user) {
@@ -796,12 +798,12 @@ class EntityRunner {
             this.hasStatements = setting['hasstatements'] === 1;
             this.service = setting['service'];
             this.devBuildSys = setting['dev-build-sys'] !== null;
-            this.dbServer.hasUnit = this.hasUnit;
-            this.dbServer.setBuilder();
+            this.dbCaller.hasUnit = this.hasUnit;
+            this.dbCaller.setBuilder();
             let ixUserArr = [];
             let uu = setting['uniqueunit'];
             this.uniqueUnit = uu ? uu : 0;
-            if (db_1.env.isDevelopment)
+            if (dbCaller_1.env.isDevelopment)
                 tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
             this.schemas = {};
             this.accessSchemaArr = [];
@@ -1082,7 +1084,7 @@ class EntityRunner {
                     };
             }
         }
-        if (db_1.env.isDevelopment)
+        if (dbCaller_1.env.isDevelopment)
             tool_1.logger.debug('access: ', this.access);
     }
     getUserAccess(unit, user) {
@@ -1170,42 +1172,6 @@ class EntityRunner {
     setActionConvertSchema(name, value) {
         this.actionConvertSchemas[name] = value;
     }
-    throwErr(err) {
-        tool_1.logger.error(err);
-        throw new Error(err);
-    }
-    getTableSchema(name, types, values) {
-        var _a;
-        if (name === undefined)
-            return undefined;
-        let isXi;
-        if (name[0] === '!') {
-            isXi = true;
-            name = name.substr(1);
-        }
-        let lowerName = name.toLowerCase();
-        let ts = (_a = this.schemas[lowerName]) === null || _a === void 0 ? void 0 : _a.call;
-        if (ts === undefined) {
-            this.throwErr(`${name} is not a valid Entity`);
-        }
-        let { type } = ts;
-        if (types.indexOf(type) < 0) {
-            this.throwErr(`TableSchema only support ${types.map(v => v.toUpperCase()).join(', ')}`);
-        }
-        let db = this.db.getDbName();
-        return { name: lowerName, schema: ts, values, isXi };
-    }
-    getTableSchemas(names, types) {
-        return names.map(v => this.getTableSchema(v, types));
-    }
-    getTableSchemaArray(names, types) {
-        if (names === undefined)
-            return;
-        return Array.isArray(names) === true ?
-            this.getTableSchemas(names, types)
-            :
-                [this.getTableSchema(names, types)];
-    }
     runUqStatements() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.procCall('tv_$uq', []);
@@ -1214,7 +1180,7 @@ class EntityRunner {
     removeAllScheduleEvents() {
         return __awaiter(this, void 0, void 0, function* () {
             let db = this.getDb();
-            let events = yield this.dbServer.getEvents(db); //.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
+            let events = yield this.dbCaller.getEvents(db); //.sql(`SELECT * FROM mysql.event WHERE db = '${db}';`, []);
             if ((!events) || events.length === 0)
                 return;
             this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
@@ -1230,177 +1196,6 @@ class EntityRunner {
             yield this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
             this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
         });
-    }
-    Acts(unit, user, param) {
-        for (let i in param) {
-            if (i === '$')
-                continue;
-            let ts = this.getTableSchema(i, ['id', 'idx', 'ix']);
-            let values = param[i];
-            if (values) {
-                ts.values = values;
-                param[i] = ts;
-            }
-        }
-        return this.dbServer.Acts(unit, user, param);
-    }
-    ActIX(unit, user, param) {
-        let { IX, ID: ID, IXs } = param;
-        param.IX = this.getTableSchema(IX, ['ix']);
-        param.ID = this.getTableSchema(ID, ['id']);
-        if (IXs) {
-            param.IXs = IXs.map(v => {
-                let { IX, ix } = v;
-                return { IX: this.getTableSchema(IX, ['ix']), ix };
-            });
-        }
-        return this.dbServer.ActIX(unit, user, param);
-    }
-    ActIXSort(unit, user, param) {
-        let { IX } = param;
-        param.IX = this.getTableSchema(IX, ['ix']);
-        return this.dbServer.ActIXSort(unit, user, param);
-    }
-    ActIDProp(unit, user, param) {
-        return this.dbServer.ActIDProp(unit, user, param);
-    }
-    ActDetail(unit, user, param) {
-        let { main, detail, detail2, detail3 } = param;
-        let types = ['id'];
-        param.main = this.getTableSchema(main.name, types, [main.value]);
-        param.detail = this.getTableSchema(detail.name, types, detail.values);
-        if (detail2) {
-            param.detail2 = this.getTableSchema(detail2.name, types, detail2.values);
-        }
-        if (detail3) {
-            param.detail3 = this.getTableSchema(detail3.name, types, detail3.values);
-        }
-        return this.dbServer.ActDetail(unit, user, param);
-    }
-    QueryID(unit, user, param) {
-        let { ID, IDX, IX } = param;
-        param.ID = this.getTableSchema(ID, ['id']);
-        param.IDX = this.getTableSchemaArray(IDX, ['id', 'idx']);
-        param.IX = this.getTableSchemaArray(IX, ['ix']);
-        return this.dbServer.QueryID(unit, user, param);
-    }
-    IDNO(unit, user, param) {
-        let { ID } = param;
-        let types = ['id'];
-        param.ID = this.getTableSchema(ID, types);
-        return this.dbServer.IDNO(unit, user, param);
-    }
-    IDDetailGet(unit, user, param) {
-        let { main, detail, detail2, detail3 } = param;
-        let types = ['id'];
-        param.main = this.getTableSchema(main, types);
-        param.detail = this.getTableSchema(detail, types);
-        if (detail2) {
-            param.detail2 = this.getTableSchema(detail2, types);
-        }
-        if (detail3) {
-            param.detail3 = this.getTableSchema(detail3, types);
-        }
-        return this.dbServer.IDDetailGet(unit, user, param);
-    }
-    ID(unit, user, param) {
-        let { IDX } = param;
-        let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX, types);
-        return this.dbServer.ID(unit, user, param);
-    }
-    IDTv(unit, user, ids) {
-        return this.dbServer.IDTv(unit, user, ids);
-    }
-    KeyID(unit, user, param) {
-        let { ID, IDX } = param;
-        let types = ['id', 'idx'];
-        param.ID = this.getTableSchema(ID, ['id']);
-        param.IDX = this.getTableSchemaArray(IDX, types);
-        return this.dbServer.KeyID(unit, user, param);
-    }
-    IX(unit, user, param) {
-        let { IX, IX1, IDX } = param;
-        param.IX = this.getTableSchema(IX, ['ix']);
-        param.IX1 = this.getTableSchema(IX1, ['ix']);
-        let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX, types);
-        return this.dbServer.IX(unit, user, param);
-    }
-    IXr(unit, user, param) {
-        let { IX, IX1, IDX } = param;
-        param.IX = this.getTableSchema(IX, ['ix']);
-        param.IX1 = this.getTableSchema(IX1, ['ix']);
-        let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX, types);
-        return this.dbServer.IXr(unit, user, param);
-    }
-    IXValues(unit, user, param) {
-        let { IX } = param;
-        param.IX = this.getTableSchema(IX, ['ix']);
-        return this.dbServer.IXValues(unit, user, param);
-    }
-    KeyIX(unit, user, param) {
-        let { ID, IX, IDX } = param;
-        param.ID = this.getTableSchema(ID, ['id']);
-        param.IX = this.getTableSchema(IX, ['ix']);
-        param.IDX = this.getTableSchemaArray(IDX, ['id', 'idx']);
-        return this.dbServer.KeyIX(unit, user, param);
-    }
-    IDLog(unit, user, param) {
-        let { IDX, field } = param;
-        let ts = this.getTableSchema(IDX, ['idx']);
-        param.IDX = ts;
-        let fLower = field.toLowerCase();
-        if (ts.schema.fields.findIndex(v => v.name.toLowerCase() === fLower) < 0) {
-            this.throwErr(`ID ${IDX} has no Field ${field}`);
-        }
-        return this.dbServer.IDLog(unit, user, param);
-    }
-    checkIDXSumField(param) {
-        let { IDX, field } = param;
-        let ts = this.getTableSchema(IDX, ['idx']);
-        param.IDX = ts;
-        for (let f of field) {
-            let fLower = f.toLowerCase();
-            if (ts.schema.fields.findIndex(v => v.name.toLowerCase() === fLower) < 0) {
-                this.throwErr(`ID ${IDX} has no Field ${f}`);
-            }
-        }
-    }
-    IDSum(unit, user, param) {
-        this.checkIDXSumField(param);
-        return this.dbServer.IDSum(unit, user, param);
-    }
-    KeyIDSum(unit, user, param) {
-        this.checkIDXSumField(param);
-        return this.dbServer.KeyIDSum(unit, user, param);
-    }
-    IXSum(unit, user, param) {
-        this.checkIDXSumField(param);
-        return this.dbServer.IXSum(unit, user, param);
-    }
-    KeyIXSum(unit, user, param) {
-        this.checkIDXSumField(param);
-        return this.dbServer.KeyIXSum(unit, user, param);
-    }
-    IDinIX(unit, user, param) {
-        let { IX, ID } = param;
-        param.IX = this.getTableSchema(IX, ['ix']);
-        param.ID = this.getTableSchema(ID, ['id']);
-        return this.dbServer.IDinIX(unit, user, param);
-    }
-    IDxID(unit, user, param) {
-        let { ID, IX, ID2 } = param;
-        param.ID = this.getTableSchema(ID, ['id']);
-        param.IX = this.getTableSchema(IX, ['ix']);
-        param.ID2 = this.getTableSchema(ID2, ['id']);
-        return this.dbServer.IDxID(unit, user, param);
-    }
-    IDTree(unit, user, param) {
-        let { ID } = param;
-        param.ID = this.getTableSchema(ID, ['id']);
-        return this.dbServer.IDTree(unit, user, param);
     }
 }
 exports.EntityRunner = EntityRunner;

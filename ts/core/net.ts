@@ -1,6 +1,6 @@
 import { logger } from '../tool';
 import { EntityRunner } from "./runner";
-import { Db, env } from "./db";
+import { Db, env } from "./dbCaller/db";
 import { OpenApi } from "./openApi";
 import { centerApi } from "./centerApi";
 import { Message } from "./model";
