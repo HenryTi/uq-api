@@ -18,7 +18,7 @@ class SqlIDTv extends mySqlBuilder_1.MySqlBuilder {
 SELECT a.id, b.name as $type, a.name as $tv 
 	FROM tv_${idTbl} as a 
 		JOIN tv_$entity as b ON a.entity=b.id 
-	WHERE a.id in (${this.ids.join(',')});`;
+	WHERE a.id in (${this.ids.join(',')})` + mySqlBuilder_1.sqlEndStatement;
         return sql;
     }
 }

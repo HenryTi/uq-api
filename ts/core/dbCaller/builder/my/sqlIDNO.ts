@@ -1,6 +1,6 @@
 import { ParamIDNO } from "../../dbCaller";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlIDNO extends MySqlBuilder {
 	private param: ParamIDNO;
@@ -12,7 +12,7 @@ export class SqlIDNO extends MySqlBuilder {
 
 	build(): string {
 		let { ID, stamp } = this.param;
-		let sql = `SELECT tv_$no(@unit, '${ID.name}', ${stamp ?? null}) as no;`;
+		let sql = `SELECT tv_$no(@unit, '${ID.name}', ${stamp ?? null}) as no` + sqlEndStatement;
 		return sql;
 	}
 }

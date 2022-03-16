@@ -401,7 +401,6 @@ class MyDbCaller extends dbCaller_1.DbCaller {
     }
     createProcObjs(db) {
         return __awaiter(this, void 0, void 0, function* () {
-            //let useDb = 'use `' + db + '`;';
             const createProcTable = `
 CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
 	\`name\` VARCHAR(200) NOT NULL,

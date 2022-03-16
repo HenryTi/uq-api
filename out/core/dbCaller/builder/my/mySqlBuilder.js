@@ -169,7 +169,7 @@ class MySqlBuilder {
         for (let value of values) {
             let { id } = value;
             if (id) {
-                sql += `set @id=${id};`;
+                sql += `set @id=${id}` + exports.sqlEndStatement;
                 if (id < 0) {
                     sql += this.buildIDDelete(ts, -id);
                 }

@@ -177,7 +177,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 		for (let value of values) {
 			let { id } = value;
 			if (id) {
-				sql += `set @id=${id};`;
+				sql += `set @id=${id}` + sqlEndStatement;
 				if (id < 0) {
 					sql += this.buildIDDelete(ts, -id);
 				}

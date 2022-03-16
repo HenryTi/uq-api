@@ -367,7 +367,6 @@ export class MyDbCaller extends DbCaller {
 		return ret;
 	}
 	async createProcObjs(db: string): Promise<void> {
-		//let useDb = 'use `' + db + '`;';
 		const createProcTable = `
 CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
 	\`name\` VARCHAR(200) NOT NULL,

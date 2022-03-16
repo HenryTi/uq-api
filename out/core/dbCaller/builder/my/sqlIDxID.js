@@ -21,11 +21,11 @@ class SqlIDxID extends mySqlBuilder_1.MySqlBuilder {
         limit = `limit ${size}`;
         let { cols: cols2, tables: tables2 } = this.buildIDX([ID2]);
         let sql = '';
-        sql += `DROP TEMPORARY TABLE IF EXISTS ids;`;
-        sql += '\nCREATE TEMPORARY TABLE ids (id BIGINT, primary key (id));';
-        sql += `\nINSERT INTO ids (id) SELECT t0.id FROM ${tables} WHERE ${where} ${limit};`;
-        sql += `\nSELECT ${cols} FROM ${tables} JOIN ids as z ON t0.id=z.id;`;
-        sql += `\nSELECT x.id as \`$xid\`, ${cols2} FROM ${tables2} JOIN \`tv_${IX.name}\` as x ON t0.id=x.id JOIN ids as z ON x.id=z.id;`;
+        sql += `DROP TEMPORARY TABLE IF EXISTS ids` + mySqlBuilder_1.sqlEndStatement;
+        sql += '\nCREATE TEMPORARY TABLE ids (id BIGINT, primary key (id))' + mySqlBuilder_1.sqlEndStatement;
+        sql += `\nINSERT INTO ids (id) SELECT t0.id FROM ${tables} WHERE ${where} ${limit}` + mySqlBuilder_1.sqlEndStatement;
+        sql += `\nSELECT ${cols} FROM ${tables} JOIN ids as z ON t0.id=z.id` + mySqlBuilder_1.sqlEndStatement;
+        sql += `\nSELECT x.id as \`$xid\`, ${cols2} FROM ${tables2} JOIN \`tv_${IX.name}\` as x ON t0.id=x.id JOIN ids as z ON x.id=z.id` + mySqlBuilder_1.sqlEndStatement;
         return sql;
     }
 }

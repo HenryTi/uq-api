@@ -1,6 +1,6 @@
 import { ParamIDxID } from "../../dbCaller";
 import { Builders } from "../builders";
-import { MySqlBuilder } from "./mySqlBuilder";
+import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
 
 export class SqlIDxID extends MySqlBuilder {
 	private param: ParamIDxID;
@@ -25,11 +25,11 @@ export class SqlIDxID extends MySqlBuilder {
 		let { cols: cols2, tables: tables2 } = this.buildIDX([ID2]);
 
 		let sql = '';
-		sql += `DROP TEMPORARY TABLE IF EXISTS ids;`
-		sql += '\nCREATE TEMPORARY TABLE ids (id BIGINT, primary key (id));';
-		sql += `\nINSERT INTO ids (id) SELECT t0.id FROM ${tables} WHERE ${where} ${limit};`;
-		sql += `\nSELECT ${cols} FROM ${tables} JOIN ids as z ON t0.id=z.id;`;
-		sql += `\nSELECT x.id as \`$xid\`, ${cols2} FROM ${tables2} JOIN \`tv_${IX.name}\` as x ON t0.id=x.id JOIN ids as z ON x.id=z.id;`;
+		sql += `DROP TEMPORARY TABLE IF EXISTS ids` + sqlEndStatement;
+		sql += '\nCREATE TEMPORARY TABLE ids (id BIGINT, primary key (id))' + sqlEndStatement;
+		sql += `\nINSERT INTO ids (id) SELECT t0.id FROM ${tables} WHERE ${where} ${limit}` + sqlEndStatement;
+		sql += `\nSELECT ${cols} FROM ${tables} JOIN ids as z ON t0.id=z.id` + sqlEndStatement;
+		sql += `\nSELECT x.id as \`$xid\`, ${cols2} FROM ${tables2} JOIN \`tv_${IX.name}\` as x ON t0.id=x.id JOIN ids as z ON x.id=z.id` + sqlEndStatement;
 		return sql;
 	}
 }
