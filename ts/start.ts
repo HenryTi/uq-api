@@ -17,6 +17,8 @@ import { buildProcRouter } from './router/proc';
 
 const { version: uq_api_version } = require('../package.json');
 
+export const debug_change = '1.0.7';
+
 export async function init(): Promise<void> {
     process.on('uncaughtException', function (err: any) {
         logger.error('uncaughtException', err);

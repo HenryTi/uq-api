@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.start = exports.init = void 0;
+exports.start = exports.init = exports.debug_change = void 0;
 const express = require("express");
 const express_1 = require("express");
 const config = require("config");
@@ -21,6 +21,7 @@ const auth_1 = require("./core/auth");
 const jobs_1 = require("./jobs");
 const proc_1 = require("./router/proc");
 const { version: uq_api_version } = require('../package.json');
+exports.debug_change = '1.0.7';
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         process.on('uncaughtException', function (err) {
