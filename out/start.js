@@ -21,7 +21,7 @@ const auth_1 = require("./core/auth");
 const jobs_1 = require("./jobs");
 const proc_1 = require("./router/proc");
 const { version: uq_api_version } = require('../package.json');
-exports.debug_change = '1.0.7';
+exports.debug_change = '1.0.8';
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
         process.on('uncaughtException', function (err) {
