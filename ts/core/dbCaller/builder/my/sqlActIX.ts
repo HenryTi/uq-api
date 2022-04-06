@@ -17,13 +17,15 @@ export class SqlActIX extends MySqlBuilder {
 			let { ix, xi } = value;
 			if (!xi) continue;
 			let ixValue = { ix: ix ?? { value: '@user' }, xi: undefined };
-			if (typeof xi === 'object') {
-				sql += this.buildSaveIDWithoutRet(ID, xi);
-				sql += retTab;
-				ixValue.xi = { value: '@id' };
-			}
-			else {
-				ixValue.xi = xi;
+			switch (typeof xi) {
+				case 'object':
+					sql += this.buildSaveIDWithoutRet(ID, xi);
+					sql += retTab;
+					ixValue.xi = { value: '@id' };
+					break;
+				default:
+					ixValue.xi = xi;
+					break;
 			}
 			sql += this.buildSaveIX(IX, ixValue);
 			sql += this.buildIXs(IXs, ixValue);

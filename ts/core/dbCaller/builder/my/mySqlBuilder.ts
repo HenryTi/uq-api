@@ -290,9 +290,11 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					ix = '@user';
 					value.ix = ix;
 				}
-				let xiValue: any = xi;
 				if (typeof xi === 'object') {
-					xiValue = xi.value;
+					value.xi = xi.value;
+				}
+				else {
+					value.xi = `'${xi}'`;
 				}
 				sql += this.buildUpsert(ts, value);
 			}
@@ -355,7 +357,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 					//	val = `${v}`;
 					//}
 					//else {
-					val = `'${v}'`;
+					val = `${v}`;
 					//}
 				}
 				switch (name) {

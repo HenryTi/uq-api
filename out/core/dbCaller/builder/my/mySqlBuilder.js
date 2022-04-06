@@ -282,9 +282,11 @@ class MySqlBuilder {
                     ix = '@user';
                     value.ix = ix;
                 }
-                let xiValue = xi;
                 if (typeof xi === 'object') {
-                    xiValue = xi.value;
+                    value.xi = xi.value;
+                }
+                else {
+                    value.xi = `'${xi}'`;
                 }
                 sql += this.buildUpsert(ts, value);
             }
@@ -352,7 +354,7 @@ class MySqlBuilder {
                     //	val = `${v}`;
                     //}
                     //else {
-                    val = `'${v}'`;
+                    val = `${v}`;
                     //}
                 }
                 switch (name) {
