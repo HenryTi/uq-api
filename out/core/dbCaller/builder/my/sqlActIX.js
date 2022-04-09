@@ -20,7 +20,7 @@ class SqlActIX extends mySqlBuilder_1.MySqlBuilder {
                     ixValue.ix = { value: '@user' };
                     break;
                 case 'object':
-                    sql += this.buildSaveIDWithoutRet(ID, xi);
+                    sql += this.buildSaveIDWithoutRet(ID, ix);
                     sql += mySqlBuilder_1.retTab;
                     ixValue.ix = { value: '@id' };
                     break;
