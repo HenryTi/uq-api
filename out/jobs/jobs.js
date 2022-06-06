@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Jobs = void 0;
 const tool_1 = require("../tool");
 const core_1 = require("../core");
+//import { pullEntities } from './pullEntities';
 const pullBus_1 = require("./pullBus");
 const queueIn_1 = require("./queueIn");
 const queueOut_1 = require("./queueOut");
@@ -38,8 +39,9 @@ const uqsExclude = undefined;
 ];
 class Jobs {
     constructor() {
-        this.uqs = {};
         this.loopWait = true;
+        this.$uqDb = core_1.Db.db(core_1.consts.$uq);
+        this.uqs = {};
     }
     sleep(ms) {
         return new Promise((resolve, reject) => {
@@ -48,8 +50,7 @@ class Jobs {
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
-            let $uqDb = core_1.Db.db(core_1.consts.$uq);
-            $uqDb.log(0, '$uid', '+++++++++++', '********** start ***********');
+            this.$uqDb.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
             if (core_1.env.isDevelopment === true) {
                 // 只有在开发状态下，才可以屏蔽jobs        
                 // logger.debug('jobs loop: developing, no loop!');
@@ -57,7 +58,7 @@ class Jobs {
                 if (core_1.env.isDevdo === true)
                     return;
                 tool_1.logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
-                yield $uqDb.setDebugJobs();
+                yield this.$uqDb.setDebugJobs();
                 tool_1.logger.debug('========= set debugging jobs =========');
                 yield this.sleep(waitForOtherStopJobs);
             }
@@ -71,7 +72,7 @@ class Jobs {
                 tool_1.logger.debug('\n');
                 tool_1.logger.info(`====== ${process.env.NODE_ENV} one loop at ${new Date().toLocaleString()} ======`);
                 try {
-                    yield this.uqsJob($uqDb);
+                    yield this.uqsJob();
                 }
                 catch (err) {
                     tool_1.logger.error('jobs loop error!!!!');
@@ -96,7 +97,7 @@ class Jobs {
                                 break;
                         }
                     }
-                    yield $uqDb.log(0, '$uid', '$jobs loop error', errText);
+                    yield this.$uqDb.uqLogError(0, '$uid', '$jobs loop error', errText);
                 }
                 finally {
                     if (this.loopWait === true) {
@@ -120,11 +121,11 @@ class Jobs {
             }
         });
     }
-    uqsJob($uqDb) {
+    uqsJob() {
         return __awaiter(this, void 0, void 0, function* () {
             let totalCount = 0;
             try {
-                let uqs = yield $uqDb.uqDbs();
+                let uqs = yield this.$uqDb.uqDbs();
                 if (uqs.length === 0) {
                     tool_1.logger.error('debugging_jobs=yes, stop jobs loop');
                     return;
@@ -137,8 +138,8 @@ class Jobs {
                     }
                     let now = Date.now();
                     if (now > uq.runTick) {
-                        let doneRows = yield this.uqJob($uqDb, uqDbName, compile_tick);
-                        yield $uqDb.log(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
+                        let doneRows = yield this.uqJob(uqDbName, compile_tick);
+                        yield this.$uqDb.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
                         totalCount += doneRows;
                         uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
                     }
@@ -167,7 +168,7 @@ class Jobs {
                             break;
                     }
                 }
-                yield $uqDb.log(0, '$jobs', '$jobs loop error', errText);
+                yield this.$uqDb.uqLog(0, '$jobs', '$jobs loop error', errText);
             }
             finally {
                 if (this.loopWait === true) {
@@ -175,7 +176,7 @@ class Jobs {
                         // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                         // 执行这个sleep的时候，出现问题，从而跳出loop
                         if (totalCount === 0) {
-                            yield $uqDb.log(0, '$uid', 'No jobs to do', `sleep for ${runGap}ms`);
+                            yield this.$uqDb.uqLog(0, '$uid', 'No jobs to do', `sleep for ${runGap}ms`);
                             yield this.sleep(runGap);
                         }
                     }
@@ -192,22 +193,44 @@ class Jobs {
             }
         });
     }
-    // uqDbName可能包含$test，以此区分测试库或者生产库
-    uqJob($uqDb, uqDbName, compile_tick) {
+    getRunnerFromDbName(uqDbName) {
         return __awaiter(this, void 0, void 0, function* () {
-            let retCount = 0;
             let net;
             let dbName;
             ;
             if (uqDbName.endsWith($test) === true) {
-                dbName = uqDbName.substr(0, uqDbName.length - $test.length);
+                dbName = uqDbName.substring(0, uqDbName.length - $test.length);
                 net = core_1.testNet;
             }
             else {
                 dbName = uqDbName;
                 net = core_1.prodNet;
             }
+            let runner = yield net.getRunner(dbName);
+            return runner;
+        });
+    }
+    // uqDbName可能包含$test，以此区分测试库或者生产库
+    uqJob(uqDbName, compile_tick) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
+            let runner = yield this.getRunnerFromDbName(uqDbName);
+            if (runner === undefined)
+                return retCount;
+            /*
+            let net: Net;
+            let dbName: string;;
+            if (uqDbName.endsWith($test) === true) {
+                dbName = uqDbName.substring(0, uqDbName.length - $test.length);
+                net = testNet;
+            }
+            else {
+                dbName = uqDbName;
+                net = prodNet;
+            }
+            */
             if (core_1.env.isDevelopment === true) {
+                let dbName = runner.getDb();
                 // 只有develop状态下,才做uqsInclude排除操作
                 if (uqsInclude && uqsInclude.length > 0) {
                     let index = uqsInclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
@@ -220,13 +243,10 @@ class Jobs {
                     if (index >= 0)
                         return retCount;
                 }
-                yield $uqDb.setDebugJobs();
+                yield this.$uqDb.setDebugJobs();
                 tool_1.logger.info('========= set debugging jobs =========');
             }
             tool_1.logger.info('====== loop for ' + uqDbName + '======');
-            let runner = yield net.getRunner(dbName);
-            if (runner === undefined)
-                return retCount;
             yield runner.setCompileTick(compile_tick);
             let { buses } = runner;
             if (buses !== undefined) {
@@ -263,9 +283,15 @@ class Jobs {
                 return;
             if (uqDbNames.length === 0)
                 return;
-            let $uqDb = core_1.Db.db(core_1.consts.$uq);
+            //let $uqDb = Db.db(consts.$uq);
             for (let uqDbName of uqDbNames) {
-                yield this.uqJob($uqDb, uqDbName, undefined);
+                let runner = yield this.getRunnerFromDbName(uqDbName);
+                if (!runner)
+                    continue;
+                let pullBus = new pullBus_1.PullBus(runner);
+                yield pullBus.run();
+                // await pullBus.debugPull(24, 458700000005432, 0);
+                // await this.uqJob(uqDbName, undefined);
             }
         });
     }

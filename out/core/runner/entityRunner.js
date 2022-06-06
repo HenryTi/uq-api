@@ -184,7 +184,12 @@ class EntityRunner {
     }
     log(unit, subject, content) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.log(unit, this.net.getUqFullName(this.uq), subject, content);
+            yield this.db.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
+        });
+    }
+    logError(unit, subject, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.db.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
         });
     }
     procCall(proc, params) {

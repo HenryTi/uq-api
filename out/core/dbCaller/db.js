@@ -110,9 +110,14 @@ class Db {
             yield this.dbCaller.buildTuidAutoId(this.dbName);
         });
     }
-    log(unit, uq, subject, content) {
+    uqLog(unit, uq, subject, content) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.dbCaller.call('$uq', 'log', [unit, uq, subject, content]);
+        });
+    }
+    uqLogError(unit, uq, subject, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbCaller.call('$uq', 'log_error', [unit, uq, subject, content]);
         });
     }
     logPerformance(tick, log, ms) {

@@ -175,42 +175,10 @@ export class QueueOut {
         let { uqOwner, uq } = this.runner;
 
         let { body, version, local } = this.toBusMessage(busSchema, face, content);
-        /*
-        function buildMessage(u:number):BusMessage {
-            let message: BusMessage = {
-                unit: u,
-                type: 'bus',
-                queueId: id,
-                defer,
-                to,
-                from: uqOwner + '/' + uq,           // from uq
-                busOwner,
-                bus: busName,
-                face,
-                version,
-                body,
-                stamp,
-            };
-            return message;
-        }
-        */
+
+        // send Local bus-face，自己发送，自己处理。
+        // 也可以对外发送，然后自己接收回来处理。
         async function sendToUnitxAndLocal(runner: EntityRunner, unitOrPerson: number) {
-            //let message: BusMessage = buildMessage(unitOrPerson);
-            let message: BusMessage = {
-                unit: unitOrPerson,
-                type: 'bus',
-                queueId: id,
-                defer,
-                to,
-                from: uqOwner + '/' + uq,           // from uq
-                busOwner,
-                bus: busName,
-                face,
-                version,
-                body,
-                stamp,
-            };
-            await runner.net.sendToUnitx(unitOrPerson, message);
             if (local === true) {
                 defer = -1;
                 await runner.call('$queue_in_add', [
@@ -220,6 +188,23 @@ export class QueueOut {
                     , body
                     , 0
                     , stamp ?? Date.now() / 1000]);
+            }
+            else {
+                let message: BusMessage = {
+                    unit: unitOrPerson,
+                    type: 'bus',
+                    queueId: id,
+                    defer,
+                    to,
+                    from: uqOwner + '/' + uq,           // from uq
+                    busOwner,
+                    bus: busName,
+                    face,
+                    version,
+                    body,
+                    stamp,
+                };
+                await runner.net.sendToUnitx(unitOrPerson, message);
             }
         }
 

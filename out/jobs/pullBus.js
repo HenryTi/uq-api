@@ -119,7 +119,7 @@ class PullBus {
             catch (toQueueInErr) {
                 this.hasError = this.buses.hasError = true;
                 tool_1.logger.error(toQueueInErr);
-                yield this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, (0, tool_2.getErrorString)(toQueueInErr));
+                yield this.runner.logError(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, (0, tool_2.getErrorString)(toQueueInErr));
                 return false;
             }
         });
@@ -128,6 +128,51 @@ class PullBus {
         return __awaiter(this, void 0, void 0, function* () {
             let syncUnits = yield this.runner.call('$sync_units', []);
             return syncUnits;
+        });
+    }
+    debugPull(unit, pullId, defer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.net.pullBus(unit, pullId, this.faces, defer);
+            console.log(ret);
+            if (!ret)
+                return;
+            let { maxMsgId, maxRows } = ret[0][0];
+            if (maxMsgId === 0)
+                return;
+            let messages = ret[1];
+            let { length: messagesLen } = messages;
+            let maxPullId = 0;
+            if (messagesLen > 0) {
+                // 新版：bus读来，直接写入queue_in。然后在队列里面处理
+                tool_1.logger.debug(`total ${messagesLen} arrived from unitx`);
+                for (let row of messages) {
+                    let ok = yield this.debugProcessMessage(unit, defer, row);
+                    if (ok === false)
+                        return 0;
+                    maxPullId = row.id;
+                }
+                if (this.hasError === true)
+                    return;
+            }
+        });
+    }
+    debugProcessMessage(unit, defer, message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { to, face: faceUrl, id: msgId, body, version, stamp } = message;
+            let face = this.coll[faceUrl.toLowerCase()];
+            if (face === undefined)
+                return;
+            let { bus, faceName } = face;
+            try {
+                // await this.runner.call('$queue_in_add', [unit, to, defer, msgId, bus, faceName, body, version, stamp]);
+                return true;
+            }
+            catch (toQueueInErr) {
+                this.hasError = this.buses.hasError = true;
+                tool_1.logger.error(toQueueInErr);
+                yield this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, (0, tool_2.getErrorString)(toQueueInErr));
+                return false;
+            }
         });
     }
 }

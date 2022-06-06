@@ -134,8 +134,11 @@ export abstract class Db {
     async buildTuidAutoId(): Promise<void> {
         await this.dbCaller.buildTuidAutoId(this.dbName);
     }
-    async log(unit: number, uq: string, subject: string, content: string): Promise<void> {
+    async uqLog(unit: number, uq: string, subject: string, content: string): Promise<void> {
         return await this.dbCaller.call('$uq', 'log', [unit, uq, subject, content]);
+    }
+    async uqLogError(unit: number, uq: string, subject: string, content: string): Promise<void> {
+        return await this.dbCaller.call('$uq', 'log_error', [unit, uq, subject, content]);
     }
     async logPerformance(tick: number, log: string, ms: number): Promise<void> {
         try {

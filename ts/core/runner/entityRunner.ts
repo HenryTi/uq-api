@@ -205,7 +205,10 @@ export class EntityRunner {
         }
     }
     async log(unit: number, subject: string, content: string): Promise<void> {
-        await this.db.log(unit, this.net.getUqFullName(this.uq), subject, content);
+        await this.db.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
+    }
+    async logError(unit: number, subject: string, content: string): Promise<void> {
+        await this.db.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
     }
     async procCall(proc: string, params: any[]): Promise<any> {
         return await this.db.call(proc, params);

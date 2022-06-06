@@ -187,43 +187,10 @@ class QueueOut {
             let { schema: busSchema, busOwner, busName } = schema.call;
             let { uqOwner, uq } = this.runner;
             let { body, version, local } = this.toBusMessage(busSchema, face, content);
-            /*
-            function buildMessage(u:number):BusMessage {
-                let message: BusMessage = {
-                    unit: u,
-                    type: 'bus',
-                    queueId: id,
-                    defer,
-                    to,
-                    from: uqOwner + '/' + uq,           // from uq
-                    busOwner,
-                    bus: busName,
-                    face,
-                    version,
-                    body,
-                    stamp,
-                };
-                return message;
-            }
-            */
+            // send Local bus-face，自己发送，自己处理。
+            // 也可以对外发送，然后自己接收回来处理。
             function sendToUnitxAndLocal(runner, unitOrPerson) {
                 return __awaiter(this, void 0, void 0, function* () {
-                    //let message: BusMessage = buildMessage(unitOrPerson);
-                    let message = {
-                        unit: unitOrPerson,
-                        type: 'bus',
-                        queueId: id,
-                        defer,
-                        to,
-                        from: uqOwner + '/' + uq,
-                        busOwner,
-                        bus: busName,
-                        face,
-                        version,
-                        body,
-                        stamp,
-                    };
-                    yield runner.net.sendToUnitx(unitOrPerson, message);
                     if (local === true) {
                         defer = -1;
                         yield runner.call('$queue_in_add', [
@@ -234,6 +201,23 @@ class QueueOut {
                             0,
                             stamp !== null && stamp !== void 0 ? stamp : Date.now() / 1000
                         ]);
+                    }
+                    else {
+                        let message = {
+                            unit: unitOrPerson,
+                            type: 'bus',
+                            queueId: id,
+                            defer,
+                            to,
+                            from: uqOwner + '/' + uq,
+                            busOwner,
+                            bus: busName,
+                            face,
+                            version,
+                            body,
+                            stamp,
+                        };
+                        yield runner.net.sendToUnitx(unitOrPerson, message);
                     }
                 });
             }
