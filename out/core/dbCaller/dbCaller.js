@@ -13,9 +13,10 @@ exports.DbCaller = exports.EnumIdType = void 0;
 var EnumIdType;
 (function (EnumIdType) {
     EnumIdType[EnumIdType["None"] = 0] = "None";
-    EnumIdType[EnumIdType["UU"] = 1] = "UU"; // universally unique identifier (UUID)
-    EnumIdType[EnumIdType["NU"] = 2] = "NU"; // native unique identifier
-    EnumIdType[EnumIdType["MU"] = 3] = "MU"; // minute unique identifier
+    EnumIdType[EnumIdType["UID"] = 1] = "UID"; // UUID or ULocal or UMinute
+    EnumIdType[EnumIdType["UUID"] = 2] = "UUID"; // universally unique identifier (UUID)
+    EnumIdType[EnumIdType["ULocal"] = 3] = "ULocal"; // local unique identifier
+    EnumIdType[EnumIdType["UMinute"] = 4] = "UMinute"; // minute unique identifier
     EnumIdType[EnumIdType["Global"] = 11] = "Global";
     EnumIdType[EnumIdType["Local"] = 12] = "Local";
     EnumIdType[EnumIdType["Minute"] = 13] = "Minute";

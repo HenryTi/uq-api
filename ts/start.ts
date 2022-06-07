@@ -109,11 +109,13 @@ export async function init(): Promise<void> {
 
         let localApp = express();
         let localPort = config.get<number>('local-port');
-        localApp.use('/prod/:db/', buildLocalRouter(uqProdRouterLocalBuilder));
-        localApp.use('/test/:db/', buildLocalRouter(uqTestRouterLocalBuilder));
-        localApp.listen(localPort, async () => {
-            logger.debug('UQ-LOCAL ' + uq_api_version + ' listening on port ' + localPort);
-        });
+        if (localPort) {
+            localApp.use('/prod/:db/', buildLocalRouter(uqProdRouterLocalBuilder));
+            localApp.use('/test/:db/', buildLocalRouter(uqTestRouterLocalBuilder));
+            localApp.listen(localPort, async () => {
+                logger.debug('UQ-LOCAL ' + uq_api_version + ' listening on port ' + localPort);
+            });
+        }
     }
     catch (err) {
         logger.error(err);

@@ -165,7 +165,9 @@ class MySqlBuilder {
             values = [idValue];
         }
         let { keys, fields, nameNoVice, idType } = schema;
-        let isMinute = (idType === dbCaller_1.EnumIdType.MU || idType === dbCaller_1.EnumIdType.Minute || dbCaller_1.EnumIdType.MinuteId);
+        let isMinute = (idType === dbCaller_1.EnumIdType.UMinute)
+            || (idType === dbCaller_1.EnumIdType.Minute)
+            || (idType === dbCaller_1.EnumIdType.MinuteId);
         for (let value of values) {
             let { id } = value;
             if (id) {

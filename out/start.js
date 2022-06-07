@@ -105,11 +105,13 @@ function init() {
             }));
             let localApp = express();
             let localPort = config.get('local-port');
-            localApp.use('/prod/:db/', buildLocalRouter(router_1.uqProdRouterLocalBuilder));
-            localApp.use('/test/:db/', buildLocalRouter(router_1.uqTestRouterLocalBuilder));
-            localApp.listen(localPort, () => __awaiter(this, void 0, void 0, function* () {
-                tool_1.logger.debug('UQ-LOCAL ' + uq_api_version + ' listening on port ' + localPort);
-            }));
+            if (localPort) {
+                localApp.use('/prod/:db/', buildLocalRouter(router_1.uqProdRouterLocalBuilder));
+                localApp.use('/test/:db/', buildLocalRouter(router_1.uqTestRouterLocalBuilder));
+                localApp.listen(localPort, () => __awaiter(this, void 0, void 0, function* () {
+                    tool_1.logger.debug('UQ-LOCAL ' + uq_api_version + ' listening on port ' + localPort);
+                }));
+            }
         }
         catch (err) {
             tool_1.logger.error(err);
