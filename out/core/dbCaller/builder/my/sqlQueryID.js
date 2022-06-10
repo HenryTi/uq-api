@@ -93,7 +93,9 @@ class SqlQueryID extends mySqlBuilder_1.MySqlBuilder {
                     }
                     continue;
                 }
-                this.wheres.push(`t${t}.\`${k.name}\`='${v}'`);
+                if (v !== '') {
+                    this.wheres.push(`t${t}.\`${k.name}\`='${v}'`);
+                }
             }
         }
     }
@@ -171,7 +173,9 @@ class SqlQueryID extends mySqlBuilder_1.MySqlBuilder {
                     }
                     continue;
                 }
-                this.wheres.push(`t${t}.\`${k.name}\`='${v}'`);
+                if (v !== '') {
+                    this.wheres.push(`t${t}.\`${k.name}\`='${v}'`);
+                }
             }
         }
         let idCol = `, t${t}.id`;
