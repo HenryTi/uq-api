@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IDRunner = void 0;
 const tool_1 = require("../../tool");
@@ -80,10 +89,40 @@ class IDRunner {
         return this.dbCaller.IDDetailGet(unit, user, param);
     }
     ID(unit, user, param) {
-        let { IDX } = param;
-        let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX, types);
-        return this.dbCaller.ID(unit, user, param);
+        return __awaiter(this, void 0, void 0, function* () {
+            let { id, IDX } = param;
+            let types = ['id', 'idx'];
+            let IDTypes;
+            IDTypes = IDX;
+            let idTypes;
+            if (IDTypes === undefined) {
+                let retIdTypes = yield this.dbCaller.idTypes(unit, user, id);
+                let coll = {};
+                for (let r of retIdTypes) {
+                    let { id, $type } = r;
+                    coll[id] = $type;
+                }
+                if (typeof (id) === 'number') {
+                    IDTypes = coll[id];
+                    idTypes = [IDTypes];
+                }
+                else {
+                    IDTypes = idTypes = [];
+                    for (let v of id) {
+                        idTypes.push(coll[v]);
+                    }
+                }
+            }
+            param.IDX = this.getTableSchemaArray(IDTypes, types);
+            let ret = yield this.dbCaller.ID(unit, user, param);
+            if (idTypes) {
+                let len = ret.length;
+                for (let i = 0; i < len; i++) {
+                    ret[i]['$type'] = idTypes[i];
+                }
+            }
+            return ret;
+        });
     }
     IDTv(unit, user, ids) {
         return this.dbCaller.IDTv(unit, user, ids);

@@ -1,108 +1,112 @@
 import {
-	ParamID, ParamIX, ParamIXSum, ParamActs
-	, ParamActDetail, ParamIDinIX, ParamIDLog, ParamIDSum
-	, ParamKeyID, ParamKeyIX, ParamKeyIXSum
-	, ParamKeyIDSum, ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
+    ParamID, ParamIX, ParamIXSum, ParamActs
+    , ParamActDetail, ParamIDinIX, ParamIDLog, ParamIDSum
+    , ParamKeyID, ParamKeyIX, ParamKeyIXSum
+    , ParamKeyIDSum, ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
 } from "../dbCaller";
 
 export interface ISqlBuilder {
-	build(): string;
-	buildCall(): { proc: string; params: any[] };
+    build(): string;
+    buildCall(): { proc: string; params: any[] };
 }
 
 export abstract class Builders {
-	dbName: string;
-	hasUnit: boolean;
-	constructor(dbName: string, hasUnit: boolean) {
-		this.dbName = dbName;
-		this.hasUnit = hasUnit;
-	}
+    dbName: string;
+    hasUnit: boolean;
+    constructor(dbName: string, hasUnit: boolean) {
+        this.dbName = dbName;
+        this.hasUnit = hasUnit;
+    }
 
-	Acts(param: ParamActs): ISqlBuilder {
-		return
-	}
+    Acts(param: ParamActs): ISqlBuilder {
+        return
+    }
 
-	ActIX(param: ParamActIX): ISqlBuilder {
-		return
-	}
+    ActIX(param: ParamActIX): ISqlBuilder {
+        return
+    }
 
-	ActIXSort(param: ParamActIXSort): ISqlBuilder {
-		return;
-	}
+    ActIXSort(param: ParamActIXSort): ISqlBuilder {
+        return;
+    }
 
-	ActDetail(param: ParamActDetail): ISqlBuilder {
-		return
-	}
+    ActDetail(param: ParamActDetail): ISqlBuilder {
+        return
+    }
 
-	QueryID(param: ParamQueryID): ISqlBuilder {
-		return;
-	}
+    QueryID(param: ParamQueryID): ISqlBuilder {
+        return;
+    }
 
-	IDNO(param: ParamIDNO): ISqlBuilder {
-		return
-	}
+    IDNO(param: ParamIDNO): ISqlBuilder {
+        return
+    }
 
-	IDDetailGet(param: ParamActDetail): ISqlBuilder {
-		return
-	}
+    IDDetailGet(param: ParamActDetail): ISqlBuilder {
+        return
+    }
 
-	ID(param: ParamID): ISqlBuilder {
-		return;
-	}
+    ID(param: ParamID): ISqlBuilder {
+        return;
+    }
 
-	IDTv(ids: number[]): ISqlBuilder {
-		return;
-	}
+    idTypes(id: number | (number[])): ISqlBuilder {
+        return;
+    }
 
-	KeyID(param: ParamKeyID): ISqlBuilder {
-		return
-	}
+    IDTv(ids: number[]): ISqlBuilder {
+        return;
+    }
 
-	IX(param: ParamIX): ISqlBuilder {
-		return
-	}
+    KeyID(param: ParamKeyID): ISqlBuilder {
+        return
+    }
 
-	IXr(param: ParamIX): ISqlBuilder {
-		return
-	}
+    IX(param: ParamIX): ISqlBuilder {
+        return
+    }
 
-	IXValues(param: ParamIXValues): ISqlBuilder {
-		return
-	}
+    IXr(param: ParamIX): ISqlBuilder {
+        return
+    }
 
-	KeyIX(param: ParamKeyIX): ISqlBuilder {
-		return
-	}
+    IXValues(param: ParamIXValues): ISqlBuilder {
+        return
+    }
 
-	IDLog(param: ParamIDLog): ISqlBuilder {
-		return
-	}
+    KeyIX(param: ParamKeyIX): ISqlBuilder {
+        return
+    }
 
-	IDSum(param: ParamIDSum): ISqlBuilder {
-		return
-	}
+    IDLog(param: ParamIDLog): ISqlBuilder {
+        return
+    }
 
-	KeyIDSum(param: ParamKeyIDSum): ISqlBuilder {
-		return
-	}
+    IDSum(param: ParamIDSum): ISqlBuilder {
+        return
+    }
 
-	IXSum(param: ParamIXSum): ISqlBuilder {
-		return
-	}
+    KeyIDSum(param: ParamKeyIDSum): ISqlBuilder {
+        return
+    }
 
-	KeyIXSum(param: ParamKeyIXSum): ISqlBuilder {
-		return
-	}
+    IXSum(param: ParamIXSum): ISqlBuilder {
+        return
+    }
 
-	IDinIX(param: ParamIDinIX): ISqlBuilder {
-		return;
-	}
+    KeyIXSum(param: ParamKeyIXSum): ISqlBuilder {
+        return
+    }
 
-	IDxID(param: ParamIDxID): ISqlBuilder {
-		return;
-	}
+    IDinIX(param: ParamIDinIX): ISqlBuilder {
+        return;
+    }
 
-	IDTree(param: ParamIDTree): ISqlBuilder {
-		return;
-	}
+    IDxID(param: ParamIDxID): ISqlBuilder {
+        return;
+    }
+
+    IDTree(param: ParamIDTree): ISqlBuilder {
+        return;
+    }
 }

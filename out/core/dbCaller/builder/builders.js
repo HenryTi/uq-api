@@ -30,6 +30,9 @@ class Builders {
     ID(param) {
         return;
     }
+    idTypes(id) {
+        return;
+    }
     IDTv(ids) {
         return;
     }

@@ -95,11 +95,39 @@ export class IDRunner {
         return this.dbCaller.IDDetailGet(unit, user, param);
     }
 
-    ID(unit: number, user: number, param: ParamID): Promise<any[]> {
-        let { IDX } = param;
+    async ID(unit: number, user: number, param: ParamID): Promise<any[]> {
+        let { id, IDX } = param;
         let types = ['id', 'idx'];
-        param.IDX = this.getTableSchemaArray(IDX as unknown as any, types);
-        return this.dbCaller.ID(unit, user, param);
+        let IDTypes: string | (string[]);
+        IDTypes = IDX as unknown as any;
+        let idTypes: string[];
+        if (IDTypes === undefined) {
+            let retIdTypes = await this.dbCaller.idTypes(unit, user, id);
+            let coll: { [id: number]: string } = {};
+            for (let r of retIdTypes) {
+                let { id, $type } = r;
+                coll[id] = $type;
+            }
+            if (typeof (id) === 'number') {
+                IDTypes = coll[id];
+                idTypes = [IDTypes];
+            }
+            else {
+                IDTypes = idTypes = [];
+                for (let v of id as number[]) {
+                    idTypes.push(coll[v]);
+                }
+            }
+        }
+        param.IDX = this.getTableSchemaArray(IDTypes, types);
+        let ret = await this.dbCaller.ID(unit, user, param);
+        if (idTypes) {
+            let len = ret.length;
+            for (let i = 0; i < len; i++) {
+                ret[i]['$type'] = idTypes[i];
+            }
+        }
+        return ret;
     }
 
     IDTv(unit: number, user: number, ids: number[]): Promise<any[]> {

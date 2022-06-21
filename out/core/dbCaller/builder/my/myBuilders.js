@@ -49,6 +49,9 @@ class MyBuilders extends builders_1.Builders {
     ID(param) {
         return new sqlID_1.SqlID(this, param);
     }
+    idTypes(id) {
+        return new sqlID_1.SqlIdTypes(this, id);
+    }
     IDTv(ids) {
         return new sqlIDTv_1.SqlIDTv(this, ids);
     }

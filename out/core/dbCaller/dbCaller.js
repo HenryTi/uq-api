@@ -114,6 +114,12 @@ class DbCaller {
             return yield this.execSql(unit, user, sql);
         });
     }
+    idTypes(unit, user, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = this.builder.idTypes(id).build();
+            return yield this.execSql(unit, user, sql);
+        });
+    }
     IDTv(unit, user, ids) {
         return __awaiter(this, void 0, void 0, function* () {
             let sql = this.builder.IDTv(ids).build();

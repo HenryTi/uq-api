@@ -314,6 +314,11 @@ export abstract class DbCaller {
         return await this.execSql(unit, user, sql);
     }
 
+    async idTypes(unit: number, user: number, id: number | (number[])): Promise<{ id: number; $type: string; }[]> {
+        let sql = this.builder.idTypes(id).build();
+        return await this.execSql(unit, user, sql);
+    }
+
     async IDTv(unit: number, user: number, ids: number[]): Promise<any[]> {
         let sql = this.builder.IDTv(ids).build();
         if ((ids as any).$sql === true) return sql as any;
