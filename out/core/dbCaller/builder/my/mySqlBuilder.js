@@ -218,7 +218,7 @@ class MySqlBuilder {
                             break;
                         case 'object':
                             for (let k of keys) {
-                                let { name: kn, type } = keys[0];
+                                let { name: kn, type } = k;
                                 let v = value[kn];
                                 sqlFromKey(kn, type, v);
                             }
