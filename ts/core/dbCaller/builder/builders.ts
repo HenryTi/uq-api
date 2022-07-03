@@ -2,7 +2,7 @@ import {
     ParamID, ParamIX, ParamIXSum, ParamActs
     , ParamActDetail, ParamIDinIX, ParamIDLog, ParamIDSum
     , ParamKeyID, ParamKeyIX, ParamKeyIXSum
-    , ParamKeyIDSum, ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
+    , ParamKeyIDSum, ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues, ParamActID
 } from "../dbCaller";
 
 export interface ISqlBuilder {
@@ -27,6 +27,10 @@ export abstract class Builders {
     }
 
     ActIXSort(param: ParamActIXSort): ISqlBuilder {
+        return;
+    }
+
+    ActID(param: ParamActID): ISqlBuilder {
         return;
     }
 

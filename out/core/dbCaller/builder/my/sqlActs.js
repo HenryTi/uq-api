@@ -10,7 +10,7 @@ class SqlActs extends mySqlBuilder_1.MySqlBuilder {
     build() {
         let { $ } = this.param;
         let arr = $;
-        let sql = 'set @ret=\'\'' + mySqlBuilder_1.sqlEndStatement;
+        let sql = 'set @ret=\'\'' + mySqlBuilder_1.sqlLineEnd;
         for (let i = 0; i < arr.length; i++) {
             let p = this.param[arr[i]];
             switch (p.schema.type) {
@@ -25,7 +25,7 @@ class SqlActs extends mySqlBuilder_1.MySqlBuilder {
                     break;
             }
         }
-        return sql + 'select @ret as ret' + mySqlBuilder_1.sqlEndStatement;
+        return sql + 'select @ret as ret' + mySqlBuilder_1.sqlLineEnd;
     }
 }
 exports.SqlActs = SqlActs;

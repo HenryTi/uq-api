@@ -30,6 +30,19 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
             return result;
         });
 
+    rb.entityPost(router, 'act-id', '',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
+            let result = await runner.IDRunner.ActID(unit, user, body);
+            return result;
+        });
+
+    rb.entityPost(router, sqlResultProfix + 'act-id', '',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
+            body.$sql = true;
+            let result = await runner.IDRunner.ActID(unit, user, body);
+            return result;
+        });
+
     rb.entityPost(router, 'act-ix-sort', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             let result = await runner.IDRunner.ActIXSort(unit, user, body);

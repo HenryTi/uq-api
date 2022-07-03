@@ -1,6 +1,6 @@
 import { ParamQueryID, EntitySchema } from "../../dbCaller";
 import { Builders } from "../builders";
-import { MySqlBuilder, sqlEndStatement } from "./mySqlBuilder";
+import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 interface Table {
     name: string;
@@ -61,7 +61,7 @@ export class SqlQueryID extends MySqlBuilder {
         if (this.limit.length > 0) {
             sql += `\n\tLIMIT ${this.limit}`;
         }
-        return sql + sqlEndStatement;
+        return sql + sqlLineEnd;
     }
 
     private sqlID() {

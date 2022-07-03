@@ -768,7 +768,7 @@ export class EntityRunner {
                     }
                     break;
             }
-            if (row['private'] === 0) {
+            if (row['private'] === 0 || type === 'id') {
                 this.entityColl[id] = {
                     name: sName,
                     access: type !== 'sheet' ?

@@ -66,6 +66,15 @@ class DbCaller {
             return yield this.execSqlTrans(unit, user, sql);
         });
     }
+    ActID(unit, user, param) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = this.builder.ActID(param).build();
+            if (param.$sql === true)
+                return sql;
+            let ret = yield this.execSqlTrans(unit, user, sql);
+            return ret;
+        });
+    }
     ActIDProp(unit, user, param) {
         return __awaiter(this, void 0, void 0, function* () {
             let { ID, id, name, value } = param;

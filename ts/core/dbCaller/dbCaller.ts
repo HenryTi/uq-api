@@ -67,6 +67,13 @@ export interface ParamActIXSort {
     after: number;				// insert after id. if before first, then 0
 }
 
+export interface ParamActID {
+    ID: TableSchema;
+    value: object;
+    IX: TableSchema[];
+    ix: (number | object)[];
+}
+
 export interface ParamActDetail {
     main: TableSchema;
     detail: TableSchema;
@@ -275,6 +282,13 @@ export abstract class DbCaller {
         let sql = this.builder.ActIXSort(param).build();
         if ((param as any).$sql === true) return sql as any;
         return await this.execSqlTrans(unit, user, sql);
+    }
+
+    async ActID(unit: number, user: number, param: ParamActID): Promise<any> {
+        let sql = this.builder.ActID(param).build();
+        if ((param as any).$sql === true) return sql as any;
+        let ret = await this.execSqlTrans(unit, user, sql);
+        return ret;
     }
 
     async ActIDProp(unit: number, user: number, param: { ID: string; id: number; name: string; value: any }): Promise<void> {

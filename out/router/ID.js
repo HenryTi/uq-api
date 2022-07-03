@@ -30,6 +30,15 @@ function buildIDRouter(router, rb) {
         let result = yield runner.IDRunner.ActIX(unit, user, body);
         return result;
     }));
+    rb.entityPost(router, 'act-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        let result = yield runner.IDRunner.ActID(unit, user, body);
+        return result;
+    }));
+    rb.entityPost(router, sqlResultProfix + 'act-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        body.$sql = true;
+        let result = yield runner.IDRunner.ActID(unit, user, body);
+        return result;
+    }));
     rb.entityPost(router, 'act-ix-sort', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let result = yield runner.IDRunner.ActIXSort(unit, user, body);
         return result;

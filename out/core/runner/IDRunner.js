@@ -23,14 +23,30 @@ class IDRunner {
             let ts = this.getTableSchema(i, ['id', 'idx', 'ix']);
             let values = param[i];
             if (values) {
-                ts.values = values;
+                ts.values = values.map(v => this.buildValueTableSchema(v));
                 param[i] = ts;
             }
         }
         return this.dbCaller.Acts(unit, user, param);
     }
+    buildValueTableSchema(values) {
+        let ret = {};
+        for (let i in values) {
+            if (i === 'ID') {
+                ret[i] = this.getTableSchema(values[i], ['id']);
+            }
+            else {
+                let val = values[i];
+                if (typeof val === 'object') {
+                    val = this.buildValueTableSchema(val);
+                }
+                ret[i] = val;
+            }
+        }
+        return ret;
+    }
     ActIX(unit, user, param) {
-        let { IX, ID: ID, IXs } = param;
+        let { IX, ID: ID, IXs, values } = param;
         param.IX = this.getTableSchema(IX, ['ix']);
         param.ID = this.getTableSchema(ID, ['id']);
         if (IXs) {
@@ -39,12 +55,23 @@ class IDRunner {
                 return { IX: this.getTableSchema(IX, ['ix']), ix };
             });
         }
+        if (values) {
+            param.values = values.map(v => this.buildValueTableSchema(v));
+        }
         return this.dbCaller.ActIX(unit, user, param);
     }
     ActIXSort(unit, user, param) {
         let { IX } = param;
         param.IX = this.getTableSchema(IX, ['ix']);
         return this.dbCaller.ActIXSort(unit, user, param);
+    }
+    ActID(unit, user, param) {
+        let { ID, value, IX, ix } = param;
+        param.ID = this.getTableSchema(ID, ['id']);
+        param.value = this.buildValueTableSchema(value);
+        param.IX = IX === null || IX === void 0 ? void 0 : IX.map(v => this.getTableSchema(v, ['ix']));
+        param.ix = ix === null || ix === void 0 ? void 0 : ix.map(v => this.buildValueTableSchema(v));
+        return this.dbCaller.ActID(unit, user, param);
     }
     ActIDProp(unit, user, param) {
         return this.dbCaller.ActIDProp(unit, user, param);
@@ -224,7 +251,7 @@ class IDRunner {
         let isXi;
         if (name[0] === '!') {
             isXi = true;
-            name = name.substr(1);
+            name = name.substring(1);
         }
         let lowerName = name.toLowerCase();
         let ts = (_a = this.entityRunner.schemas[lowerName]) === null || _a === void 0 ? void 0 : _a.call;

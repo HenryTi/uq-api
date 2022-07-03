@@ -4,7 +4,7 @@ import {
     , ParamActs, ParamActDetail, ParamIDDetailGet, ParamIDinIX
     , ParamIDLog, ParamIDSum, ParamKeyID, ParamKeyIX
     , ParamKeyIXSum, ParamKeyIDSum, ParamSum, TableSchema
-    , ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues
+    , ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues, ParamActID
 } from '../dbCaller';
 import { EntityRunner } from "./entityRunner";
 
@@ -22,15 +22,32 @@ export class IDRunner {
             let ts = this.getTableSchema(i, ['id', 'idx', 'ix']);
             let values = (param[i] as unknown) as any[];
             if (values) {
-                ts.values = values;
+                ts.values = values.map(v => this.buildValueTableSchema(v));
                 param[i] = ts;
             }
         }
         return this.dbCaller.Acts(unit, user, param);
     }
 
+    private buildValueTableSchema(values: any): any {
+        let ret = {};
+        for (let i in values) {
+            if (i === 'ID') {
+                ret[i] = this.getTableSchema(values[i], ['id']);
+            }
+            else {
+                let val = values[i];
+                if (typeof val === 'object') {
+                    val = this.buildValueTableSchema(val);
+                }
+                ret[i] = val;
+            }
+        }
+        return ret;
+    }
+
     ActIX(unit: number, user: number, param: ParamActIX): Promise<any[]> {
-        let { IX, ID: ID, IXs } = param;
+        let { IX, ID: ID, IXs, values } = param;
         param.IX = this.getTableSchema(IX as unknown as string, ['ix']);
         param.ID = this.getTableSchema(ID as unknown as string, ['id']);
         if (IXs) {
@@ -39,6 +56,9 @@ export class IDRunner {
                 return { IX: this.getTableSchema(IX as unknown as string, ['ix']), ix }
             })
         }
+        if (values) {
+            param.values = values.map(v => this.buildValueTableSchema(v));
+        }
         return this.dbCaller.ActIX(unit, user, param);
     }
 
@@ -46,6 +66,15 @@ export class IDRunner {
         let { IX } = param;
         param.IX = this.getTableSchema(IX as unknown as string, ['ix']);
         return this.dbCaller.ActIXSort(unit, user, param);
+    }
+
+    ActID(unit: number, user: number, param: ParamActID): Promise<any[]> {
+        let { ID, value, IX, ix } = param;
+        param.ID = this.getTableSchema(ID as unknown as string, ['id']);
+        param.value = this.buildValueTableSchema(value);
+        param.IX = IX?.map(v => this.getTableSchema(v as unknown as string, ['ix']));
+        param.ix = ix?.map(v => this.buildValueTableSchema(v));
+        return this.dbCaller.ActID(unit, user, param);
     }
 
     ActIDProp(unit: number, user: number, param: { ID: string; id: number; name: string; value: any }): Promise<void> {
@@ -243,7 +272,7 @@ export class IDRunner {
         let isXi: boolean;
         if (name[0] === '!') {
             isXi = true;
-            name = name.substr(1);
+            name = name.substring(1);
         }
         let lowerName = name.toLowerCase();
         let ts = this.entityRunner.schemas[lowerName]?.call;

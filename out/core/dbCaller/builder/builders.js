@@ -15,6 +15,9 @@ class Builders {
     ActIXSort(param) {
         return;
     }
+    ActID(param) {
+        return;
+    }
     ActDetail(param) {
         return;
     }

@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MySqlBuilder = exports.retTab = exports.retLn = exports.sqlEndStatement = void 0;
+exports.MySqlBuilder = exports.retTab = exports.retLn = exports.sqlLineEnd = void 0;
 const dbCaller_1 = require("../../dbCaller");
 const tablesBuilder_1 = require("./tablesBuilder");
-exports.sqlEndStatement = '\x0c\n';
-exports.retLn = "set @ret=CONCAT(@ret, '\\n')" + exports.sqlEndStatement;
-exports.retTab = "set @ret=CONCAT(@ret, @id, '\\t')" + exports.sqlEndStatement;
+exports.sqlLineEnd = '\x0c\n';
+exports.retLn = "set @ret=CONCAT(@ret, '\\n')" + exports.sqlLineEnd;
+exports.retTab = "set @ret=CONCAT(@ret, @id, '\\t')" + exports.sqlLineEnd;
 class MySqlBuilder {
     constructor(builder) {
         let { dbName, hasUnit } = builder;
@@ -61,7 +61,7 @@ class MySqlBuilder {
         let { fields, owner } = schema;
         if (!override)
             override = {};
-        let sql = 'set @row=0' + exports.sqlEndStatement;
+        let sql = 'set @row=0' + exports.sqlLineEnd;
         let cols, valsInit, valsFirst;
         let first;
         if (this.hasUnit === true) {
@@ -127,7 +127,7 @@ class MySqlBuilder {
                 vals += ',@user';
             }
             */
-            sql += `(${vals})` + exports.sqlEndStatement;
+            sql += `(${vals})` + exports.sqlLineEnd;
             sql += exports.retTab;
         }
         sql += exports.retLn;
@@ -156,7 +156,7 @@ class MySqlBuilder {
             sql += ' AND `$unit`=@unit';
         }
         sql += ' AND ' + whereId;
-        return sql + exports.sqlEndStatement;
+        return sql + exports.sqlLineEnd;
     }
     buildSaveID(ts, withRet, idValue) {
         let sql = '';
@@ -171,7 +171,7 @@ class MySqlBuilder {
         for (let value of values) {
             let { id } = value;
             if (id) {
-                sql += `set @id=${id}` + exports.sqlEndStatement;
+                sql += `set @id=${id}` + exports.sqlLineEnd;
                 if (id < 0) {
                     sql += this.buildIDDelete(ts, -id);
                 }
@@ -179,7 +179,7 @@ class MySqlBuilder {
                     sql += this.buildUpdate(ts, value);
                     // 写tv_$id(_local)表
                     if (nameNoVice !== undefined) {
-                        sql += `set @$id_name=\`tv_${name}$\`(${id})` + exports.sqlEndStatement;
+                        sql += `set @$id_name=\`tv_${name}$\`(${id})` + exports.sqlLineEnd;
                     }
                 }
             }
@@ -187,7 +187,7 @@ class MySqlBuilder {
                 sql += `set @id=\`tv_${name}$id\`(@unit,@user,1`; // 2022-1-27 , null 之前好像要加上这个。现在不要加。？？
                 let updateOverride = { id: '@id' };
                 if (keys.length > 0) {
-                    function sqlFromKey(keyName, type, v) {
+                    let sqlFromKey = (keyName, type, v) => {
                         sql += ',';
                         if (type === 'textid') {
                             sql += `tv_$textid('${v}')`;
@@ -205,11 +205,14 @@ class MySqlBuilder {
                                     break;
                             }
                         }
+                        else if (typeof (v) === 'object') {
+                            sql += this.buildValue(v);
+                        }
                         else {
                             sql += `'${v}'`;
                         }
                         updateOverride[keyName] = null;
-                    }
+                    };
                     switch (typeof value) {
                         case 'number':
                         case 'string':
@@ -228,13 +231,13 @@ class MySqlBuilder {
                 if (isMinute === true) {
                     sql += ', null';
                 }
-                sql += ')' + exports.sqlEndStatement;
+                sql += ')' + exports.sqlLineEnd;
                 if (fields.length > keys.length + 1) {
                     sql += this.buildUpdate(ts, value, updateOverride);
                 }
                 // 写tv_$id(_local)表
                 if (nameNoVice !== undefined) {
-                    sql += `set @$id_name=\`tv_${name}$\`(@id)` + exports.sqlEndStatement;
+                    sql += `set @$id_name=\`tv_${name}$\`(@id)` + exports.sqlLineEnd;
                 }
                 if (withRet === true) {
                     sql += exports.retTab;
@@ -276,15 +279,22 @@ class MySqlBuilder {
         }
         for (let value of values) {
             let { ix, xi } = value;
-            if (xi < 0) {
+            if (typeof xi === 'number' && xi < 0) {
                 sql += this.buildIXDelete(ts, ix, -xi);
             }
             else {
-                if (!ix) {
+                if (ix === null) {
+                    ix = '@id';
+                    value.ix = ix;
+                }
+                else if (!ix) {
                     ix = '@user';
                     value.ix = ix;
                 }
-                if (typeof xi === 'object') {
+                if (xi === null) {
+                    value.xi = '@id';
+                }
+                else if (typeof xi === 'object') {
                     value.xi = xi.value;
                 }
                 else {
@@ -332,7 +342,12 @@ class MySqlBuilder {
                 if (typeof v === 'object') {
                     setAdd = v.setAdd;
                     //time = v.$time;
-                    v = v.value;
+                    if (v.value !== undefined) {
+                        v = v.value;
+                    }
+                    else {
+                        v = this.buildValue(v);
+                    }
                 }
                 let sum;
                 let dupAdd = '';
@@ -388,7 +403,7 @@ class MySqlBuilder {
             ignore = ' ignore';
         }
         let sql = sqlBefore +
-            `insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup}` + exports.sqlEndStatement;
+            `insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup}` + exports.sqlLineEnd;
         return sql + sqlWriteEx.join('');
     }
     buildUpdate(ts, value, override = {}) {
@@ -421,7 +436,7 @@ class MySqlBuilder {
                         v = 'null';
                     }
                     else {
-                        v = (type === 'textid' ? `tv_$textid('${v}')` : `'${v}'`);
+                        v = (type === 'textid' ? `tv_$textid('${v}')` : this.buildValue(v));
                     }
                     sql += v;
                     break;
@@ -433,7 +448,7 @@ class MySqlBuilder {
                     break;
             }
         }
-        return sql + where + exports.sqlEndStatement;
+        return sql + where + exports.sqlLineEnd;
     }
     buildIXDelete(ts, ix, xi) {
         let { name, schema } = ts;
@@ -454,7 +469,7 @@ class MySqlBuilder {
         }
         if (this.hasUnit === true)
             sql += ' AND `$unit`=@unit';
-        sql += exports.sqlEndStatement;
+        sql += exports.sqlLineEnd;
         return sql;
     }
     buildIDDelete(ts, id) {
@@ -469,7 +484,7 @@ class MySqlBuilder {
                 sql += id;
             }
         }
-        sql += exports.sqlEndStatement;
+        sql += exports.sqlLineEnd;
         return sql;
     }
     buildOrder(order) {
@@ -485,6 +500,26 @@ class MySqlBuilder {
             case 'desc': break;
         }
         return order;
+    }
+    buildValue(val) {
+        if (typeof val !== 'object')
+            return `'${val}'`;
+        let ret = '';
+        let { ID } = val;
+        if (ID === undefined)
+            throw Error('ID needed in ACTS ID field');
+        let { name, schema } = ID;
+        let { keys } = schema;
+        ret += ` tv_${name}$id(@unit,@user, 1`;
+        for (let key of keys) {
+            let v = val[key.name];
+            if (typeof v === 'number')
+                ret += ',' + v;
+            else
+                ret += `,'${v}'`;
+        }
+        ret += ') ';
+        return ret;
     }
 }
 exports.MySqlBuilder = MySqlBuilder;

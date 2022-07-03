@@ -9,7 +9,7 @@ class SqlIDNO extends mySqlBuilder_1.MySqlBuilder {
     }
     build() {
         let { ID, stamp } = this.param;
-        let sql = `SELECT tv_$no(@unit, '${ID.name}', ${stamp !== null && stamp !== void 0 ? stamp : null}) as no` + mySqlBuilder_1.sqlEndStatement;
+        let sql = `SELECT tv_$no(@unit, '${ID.name}', ${stamp !== null && stamp !== void 0 ? stamp : null}) as no` + mySqlBuilder_1.sqlLineEnd;
         return sql;
     }
 }

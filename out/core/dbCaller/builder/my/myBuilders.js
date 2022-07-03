@@ -4,6 +4,7 @@ exports.MyBuilders = void 0;
 const builders_1 = require("../builders");
 const sqlActDetail_1 = require("./sqlActDetail");
 const sqlActIX_1 = require("./sqlActIX");
+const sqlActID_1 = require("./sqlActID");
 const sqlActs_1 = require("./sqlActs");
 const sqlKeyID_1 = require("./sqlKeyID");
 const sqlID_1 = require("./sqlID");
@@ -33,6 +34,9 @@ class MyBuilders extends builders_1.Builders {
     }
     ActIXSort(param) {
         return new sqlActIXSort_1.SqlActIXSort(this, param);
+    }
+    ActID(param) {
+        return new sqlActID_1.SqlActID(this, param);
     }
     ActDetail(param) {
         return new sqlActDetail_1.SqlActDetail(this, param);
