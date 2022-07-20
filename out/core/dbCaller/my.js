@@ -221,8 +221,9 @@ class MyDbCaller extends dbCaller_1.DbCaller {
     buildProc(db, procName, procSql, isFunc = false) {
         return __awaiter(this, void 0, void 0, function* () {
             let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-            let drop = `USE \`${db}\`; DROP ${type} IF EXISTS \`${db}\`.\`${procName}\`;`;
-            yield this.sql(drop + /*collationConnection + */ procSql, undefined);
+            let drop = `DROP ${type} IF EXISTS \`${db}\`.\`${procName}\`;`;
+            yield this.sql(drop, undefined);
+            yield this.sql(procSql, undefined);
             // clear changed flag
             yield this.callProcBase(db, 'tv_$proc_save', [db, procName, undefined]);
         });
@@ -259,27 +260,31 @@ class MyDbCaller extends dbCaller_1.DbCaller {
                 needBuildProc = true;
             }
             if (needBuildProc === true) {
-                let procLower = proc.toLowerCase();
-                let p = this.procColl[procLower];
-                if (p !== true) {
-                    let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
-                    let ret = results[0];
-                    if (ret.length === 0) {
-                        //debugger;
-                        console.error(`proc not defined: ${db}.${proc}`);
-                        this.procColl[procLower] = false;
-                        throw new Error(`proc not defined: ${db}.${proc}`);
-                    }
-                    else {
-                        let r0 = ret[0];
-                        let changed = r0['changed'];
-                        if (changed === 1) {
-                            // await this.sqlDropProc(db, proc);
-                            let sql = r0['proc'];
-                            yield this.buildProc(db, proc, sql);
+                try {
+                    let procLower = proc.toLowerCase();
+                    let p = this.procColl[procLower];
+                    if (p !== true) {
+                        let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+                        let ret = results[0];
+                        if (ret.length === 0) {
+                            //debugger;
+                            console.error(`proc not defined: ${db}.${proc}`);
+                            this.procColl[procLower] = false;
+                            throw new Error(`proc not defined: ${db}.${proc}`);
                         }
-                        this.procColl[procLower] = true;
+                        else {
+                            let r0 = ret[0];
+                            let changed = r0['changed'];
+                            if (changed === 1) {
+                                // await this.sqlDropProc(db, proc);
+                                let sql = r0['proc'];
+                                yield this.buildProc(db, proc, sql);
+                            }
+                            this.procColl[procLower] = true;
+                        }
                     }
+                }
+                catch (_a) {
                 }
             }
             return yield this.execProcBase(db, proc, params);

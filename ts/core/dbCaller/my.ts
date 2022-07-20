@@ -215,8 +215,9 @@ export class MyDbCaller extends DbCaller {
 
     async buildProc(db: string, procName: string, procSql: string, isFunc: boolean = false): Promise<any> {
         let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-        let drop = `USE \`${db}\`; DROP ${type} IF EXISTS \`${db}\`.\`${procName}\`;`;
-        await this.sql(drop + /*collationConnection + */procSql, undefined);
+        let drop = `DROP ${type} IF EXISTS \`${db}\`.\`${procName}\`;`;
+        await this.sql(drop, undefined);
+        await this.sql(procSql, undefined);
         // clear changed flag
         await this.callProcBase(db, 'tv_$proc_save', [db, procName, undefined]);
     }
@@ -251,27 +252,31 @@ export class MyDbCaller extends DbCaller {
             needBuildProc = true;
         }
         if (needBuildProc === true) {
-            let procLower = proc.toLowerCase();
-            let p = this.procColl[procLower];
-            if (p !== true) {
-                let results = await this.callProcBase(db, 'tv_$proc_get', [db, proc]);
-                let ret = results[0];
-                if (ret.length === 0) {
-                    //debugger;
-                    console.error(`proc not defined: ${db}.${proc}`);
-                    this.procColl[procLower] = false;
-                    throw new Error(`proc not defined: ${db}.${proc}`);
-                }
-                else {
-                    let r0 = ret[0];
-                    let changed = r0['changed'];
-                    if (changed === 1) {
-                        // await this.sqlDropProc(db, proc);
-                        let sql = r0['proc'];
-                        await this.buildProc(db, proc, sql);
+            try {
+                let procLower = proc.toLowerCase();
+                let p = this.procColl[procLower];
+                if (p !== true) {
+                    let results = await this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+                    let ret = results[0];
+                    if (ret.length === 0) {
+                        //debugger;
+                        console.error(`proc not defined: ${db}.${proc}`);
+                        this.procColl[procLower] = false;
+                        throw new Error(`proc not defined: ${db}.${proc}`);
                     }
-                    this.procColl[procLower] = true;
+                    else {
+                        let r0 = ret[0];
+                        let changed = r0['changed'];
+                        if (changed === 1) {
+                            // await this.sqlDropProc(db, proc);
+                            let sql = r0['proc'];
+                            await this.buildProc(db, proc, sql);
+                        }
+                        this.procColl[procLower] = true;
+                    }
                 }
+            }
+            catch {
             }
         }
         return await this.execProcBase(db, proc, params);
