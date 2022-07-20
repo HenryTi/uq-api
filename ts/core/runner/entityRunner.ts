@@ -172,6 +172,40 @@ export class EntityRunner {
     async deleteUserRoles(unit: number, user: number, theUser: number): Promise<any> {
         await this.call('$delete_user_roles', [unit, user, theUser]);
     }
+
+    async roleGetAdmins(unit: number, user: number): Promise<any[]> {
+        let tbl = await this.tableFromProc('$get_admins', [unit, user]);
+        if (tbl.length === 0) return;
+        return tbl;
+    }
+    async roleSetMeAdmin(unit: number, user: number): Promise<void> {
+        await this.call('$set_me_admin', [unit, user]);
+    }
+    async roleSetAdmin(unit: number, $user: number, user: number, role: number, assigned: string): Promise<void> {
+        await this.call('$set_admin', [unit, $user, user, role, assigned]);
+    }
+    async roleIsAdmin(unit: number, user: number): Promise<boolean> {
+        let ret = await this.tableFromProc('$is_admin', [unit, user]);
+        return ret.length > 0;
+    }
+
+    async roleGetMy(unit: number, user: number): Promise<any[][]> {
+        let ret = await this.tablesFromProc('$role_my_roles', [unit, user]);
+        return ret;
+    }
+    async roleGetAllUsers(unit: number, user: number): Promise<any[]> {
+        // row 0 返回 ixOfUsers
+        let tbl = await this.tableFromProc('$get_all_role_users', [unit, user]);
+        tbl.unshift({ user: 0, roles: this.ixOfUsers });
+        return tbl;
+    }
+    async roleSetUser(unit: number, user: number, theUser: number, roles: string): Promise<any> {
+        await this.call('$set_user_roles', [unit, user, theUser, roles]);
+    }
+    async roleDeleteUser(unit: number, user: number, theUser: number): Promise<any> {
+        await this.call('$delete_user_roles', [unit, user, theUser]);
+    }
+
     checkUqVersion(uqVersion: number) {
         //if (this.uqVersion === undefined) return;
         //if (uqVersion !== this.uqVersion) 
@@ -318,6 +352,9 @@ export class EntityRunner {
     }
     async saveConstStr(type: string): Promise<number> {
         return await this.db.call('tv_$const_str', [type]);
+    }
+    async saveTextId(text: string): Promise<number> {
+        return await this.db.sql('select tv_$textid(?)', [text]);
     }
     async loadSchemaVersion(name: string, version: string): Promise<string> {
         return await this.db.call('tv_$entity_version', [name, version]);

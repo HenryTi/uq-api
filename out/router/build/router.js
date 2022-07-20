@@ -255,6 +255,9 @@ function buildBuildRouter(router, rb) {
     rb.post(router, '/const-str', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         return yield runner.saveConstStr(body.type);
     }));
+    rb.post(router, '/text-id', (runner, body) => __awaiter(this, void 0, void 0, function* () {
+        return yield runner.saveTextId(body.text);
+    }));
     rb.get(router, '/entity-version', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { name, version } = body;
         return yield runner.loadSchemaVersion(name, version);

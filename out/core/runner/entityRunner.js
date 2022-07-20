@@ -149,6 +149,54 @@ class EntityRunner {
             yield this.call('$delete_user_roles', [unit, user, theUser]);
         });
     }
+    roleGetAdmins(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let tbl = yield this.tableFromProc('$get_admins', [unit, user]);
+            if (tbl.length === 0)
+                return;
+            return tbl;
+        });
+    }
+    roleSetMeAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_me_admin', [unit, user]);
+        });
+    }
+    roleSetAdmin(unit, $user, user, role, assigned) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_admin', [unit, $user, user, role, assigned]);
+        });
+    }
+    roleIsAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.tableFromProc('$is_admin', [unit, user]);
+            return ret.length > 0;
+        });
+    }
+    roleGetMy(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.tablesFromProc('$role_my_roles', [unit, user]);
+            return ret;
+        });
+    }
+    roleGetAllUsers(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // row 0 返回 ixOfUsers
+            let tbl = yield this.tableFromProc('$get_all_role_users', [unit, user]);
+            tbl.unshift({ user: 0, roles: this.ixOfUsers });
+            return tbl;
+        });
+    }
+    roleSetUser(unit, user, theUser, roles) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_user_roles', [unit, user, theUser, roles]);
+        });
+    }
+    roleDeleteUser(unit, user, theUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$delete_user_roles', [unit, user, theUser]);
+        });
+    }
     checkUqVersion(uqVersion) {
         //if (this.uqVersion === undefined) return;
         //if (uqVersion !== this.uqVersion) 
@@ -346,6 +394,11 @@ class EntityRunner {
     saveConstStr(type) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.db.call('tv_$const_str', [type]);
+        });
+    }
+    saveTextId(text) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.db.sql('select tv_$textid(?)', [text]);
         });
     }
     loadSchemaVersion(name, version) {

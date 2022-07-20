@@ -11,6 +11,7 @@ import { buildImportRouter } from './import';
 import { buildMapRouter } from './map';
 import { buildIDRouter } from './ID';
 import { RouterBuilder } from './routerBuilder';
+import { buildRoleRouter } from './role';
 
 export function buildEntityRouter(router: Router, rb: RouterBuilder) {
     buildAccessRouter(router, rb);
@@ -24,4 +25,5 @@ export function buildEntityRouter(router: Router, rb: RouterBuilder) {
     buildImportRouter(router, rb);
     buildMapRouter(router, rb);
     buildIDRouter(router, rb);
+    buildRoleRouter(router, rb);
 }

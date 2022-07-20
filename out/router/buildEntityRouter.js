@@ -12,6 +12,7 @@ const sheet_1 = require("./sheet");
 const import_1 = require("./import");
 const map_1 = require("./map");
 const ID_1 = require("./ID");
+const role_1 = require("./role");
 function buildEntityRouter(router, rb) {
     (0, access_1.buildAccessRouter)(router, rb);
     (0, action_1.buildActionRouter)(router, rb);
@@ -24,6 +25,7 @@ function buildEntityRouter(router, rb) {
     (0, import_1.buildImportRouter)(router, rb);
     (0, map_1.buildMapRouter)(router, rb);
     (0, ID_1.buildIDRouter)(router, rb);
+    (0, role_1.buildRoleRouter)(router, rb);
 }
 exports.buildEntityRouter = buildEntityRouter;
 //# sourceMappingURL=buildEntityRouter.js.map
