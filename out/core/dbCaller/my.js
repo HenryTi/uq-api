@@ -237,8 +237,9 @@ class MyDbCaller extends dbCaller_1.DbCaller {
             }
             let r0 = ret[0];
             let procSql = r0['proc'];
-            let drop = `USE \`${db}\`; DROP PROCEDURE IF EXISTS \`${db}\`.\`${proc}\`;`;
-            yield this.sql(drop + procSql, undefined);
+            let drop = `DROP PROCEDURE IF EXISTS \`${db}\`.\`${proc}\`;`;
+            yield this.sql(drop, undefined);
+            yield this.sql(procSql, undefined);
             yield this.callProcBase(db, 'tv_$proc_save', [db, proc, undefined]);
         });
     }
