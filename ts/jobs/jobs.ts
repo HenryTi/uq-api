@@ -32,7 +32,7 @@ const uqsExclude: string[] = undefined;
 
 interface Uq {
     runTick: number;
-    hasError: boolean;
+    errorTick: number;
 }
 
 export class Jobs {
@@ -128,16 +128,16 @@ export class Jobs {
                 let { id, db: uqDbName, compile_tick } = uqRow;
                 let uq = this.uqs[id];
                 if (uq === undefined) {
-                    this.uqs[id] = uq = { runTick: 0, hasError: false };
+                    this.uqs[id] = uq = { runTick: 0, errorTick: Date.now() };
                 }
                 else {
-                    if (uq.hasError === true) continue;
+                    if (Date.now() - uq.errorTick < 60 * 1000) continue;
                 }
                 let now = Date.now();
                 if (now > uq.runTick) {
                     let doneRows = await this.uqJob(uqDbName, compile_tick);
                     if (doneRows < 0) {
-                        uq.hasError = true;
+                        uq.errorTick = Date.now();
                         continue;
                     }
                     await this.$uqDb.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
