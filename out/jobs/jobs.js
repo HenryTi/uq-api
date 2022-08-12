@@ -131,26 +131,28 @@ class Jobs {
                     return;
                 }
                 for (let uqRow of uqs) {
+                    let now = Date.now();
                     let { id, db: uqDbName, compile_tick } = uqRow;
                     let uq = this.uqs[id];
                     if (uq === undefined) {
-                        this.uqs[id] = uq = { runTick: 0, errorTick: Date.now() };
+                        this.uqs[id] = uq = { runTick: 0, errorTick: 0 };
                     }
-                    else {
-                        if (Date.now() - uq.errorTick < 60 * 1000)
-                            continue;
+                    let { runTick, errorTick } = uq;
+                    if (now - errorTick < 3 * 60 * 1000) {
+                        debugger;
+                        continue;
                     }
-                    let now = Date.now();
-                    if (now > uq.runTick) {
-                        let doneRows = yield this.uqJob(uqDbName, compile_tick);
-                        if (doneRows < 0) {
-                            uq.errorTick = Date.now();
-                            continue;
-                        }
-                        yield this.$uqDb.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
-                        totalCount += doneRows;
-                        uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
+                    if (now < runTick)
+                        continue;
+                    let doneRows = yield this.uqJob(uqDbName, compile_tick);
+                    now = Date.now();
+                    if (doneRows < 0) {
+                        uq.errorTick = now;
+                        continue;
                     }
+                    yield this.$uqDb.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
+                    totalCount += doneRows;
+                    uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
                 }
             }
             catch (err) {
