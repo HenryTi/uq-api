@@ -30,6 +30,7 @@ class QueueOut {
                 yield this.runner.log(0, 'jobs queueOut loop', (0, tool_2.getErrorString)(err));
                 if (core_1.env.isDevelopment === true)
                     tool_1.logger.error(err);
+                return -1;
             }
             return retCount;
         });

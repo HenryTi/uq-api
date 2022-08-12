@@ -398,7 +398,8 @@ class EntityRunner {
     }
     saveTextId(text) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.sql('select tv_$textid(?)', [text]);
+            let sql = `select \`${this.db.getDbName()}\`.tv_$textid(?)`;
+            return yield this.db.sql(sql, [text]);
         });
     }
     loadSchemaVersion(name, version) {

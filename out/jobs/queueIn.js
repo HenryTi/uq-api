@@ -42,7 +42,7 @@ class QueueIn {
                         buses.hasError = true;
                         tool_1.logger.error(err);
                         yield this.runner.log(0, 'jobs queueIn loop at ' + this.queuePointer, (0, tool_2.getErrorString)(err));
-                        break;
+                        return -1;
                     }
                 }
             }

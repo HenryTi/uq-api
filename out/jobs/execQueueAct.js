@@ -16,7 +16,7 @@ function execQueueAct(runner) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         if (runner.execQueueActError === true)
-            return;
+            return -1;
         let sql;
         try {
             let ret = yield runner.call('$exec_queue_act', []);
@@ -44,12 +44,14 @@ CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
                     yield runner.sql(sql, []);
                 }
             }
+            return 0;
         }
         catch (err) {
             let $uqDb = core_1.Db.db(core_1.consts.$uq);
             yield $uqDb.uqLog(0, runner.getDb(), 'Error execQueueAct', ((_a = err.message) !== null && _a !== void 0 ? _a : '') + ': ' + sql);
             tool_1.logger.error(`execQueueAct: `, err);
             // runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
+            return -1;
         }
     });
 }

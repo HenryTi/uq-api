@@ -1,8 +1,8 @@
 import { consts, Db, EntityRunner } from "../core";
 import { logger } from "../tool";
 
-export async function execQueueAct(runner: EntityRunner): Promise<void> {
-    if (runner.execQueueActError === true) return;
+export async function execQueueAct(runner: EntityRunner): Promise<number> {
+    if (runner.execQueueActError === true) return -1;
     let sql: string;
     try {
         let ret: any[] = await runner.call('$exec_queue_act', []);
@@ -30,6 +30,7 @@ CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
                 await runner.sql(sql, []);
             }
         }
+        return 0;
     }
     catch (err) {
         let $uqDb = Db.db(consts.$uq);
@@ -37,5 +38,6 @@ CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
             , (err.message ?? '') + ': ' + sql);
         logger.error(`execQueueAct: `, err);
         // runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
+        return -1;
     }
 }

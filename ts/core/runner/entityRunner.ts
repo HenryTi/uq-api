@@ -354,7 +354,8 @@ export class EntityRunner {
         return await this.db.call('tv_$const_str', [type]);
     }
     async saveTextId(text: string): Promise<number> {
-        return await this.db.sql('select tv_$textid(?)', [text]);
+        let sql = `select \`${this.db.getDbName()}\`.tv_$textid(?)`;
+        return await this.db.sql(sql, [text]);
     }
     async loadSchemaVersion(name: string, version: string): Promise<string> {
         return await this.db.call('tv_$entity_version', [name, version]);

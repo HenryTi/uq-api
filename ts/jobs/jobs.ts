@@ -32,6 +32,7 @@ const uqsExclude: string[] = undefined;
 
 interface Uq {
     runTick: number;
+    hasError: boolean;
 }
 
 export class Jobs {
@@ -127,11 +128,18 @@ export class Jobs {
                 let { id, db: uqDbName, compile_tick } = uqRow;
                 let uq = this.uqs[id];
                 if (uq === undefined) {
-                    this.uqs[id] = uq = { runTick: 0 };
+                    this.uqs[id] = uq = { runTick: 0, hasError: false };
+                }
+                else {
+                    if (uq.hasError === true) continue;
                 }
                 let now = Date.now();
                 if (now > uq.runTick) {
                     let doneRows = await this.uqJob(uqDbName, compile_tick);
+                    if (doneRows < 0) {
+                        uq.hasError = true;
+                        continue;
+                    }
                     await this.$uqDb.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
                     totalCount += doneRows;
                     uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
@@ -234,14 +242,19 @@ export class Jobs {
             let { outCount, faces } = buses;
             if (outCount > 0 || runner.hasSheet === true) {
                 logger.info(`==== in loop ${uqDbName}: queueOut out bus number=${outCount} ====`);
-                retCount += await new QueueOut(runner).run();
-                //await queueOut(runner);
+                let ret = await new QueueOut(runner).run();
+                if (ret < 0) return -1;
+                retCount += ret;
             }
             if (faces !== undefined) {
                 logger.info(`==== in loop ${uqDbName}: pullBus faces: ${faces} ====`);
-                retCount += await new PullBus(runner).run();
+                let ret = await new PullBus(runner).run();
+                if (ret < 0) return -1;
+                retCount += ret;
                 logger.info(`==== in loop ${uqDbName}: queueIn faces: ${faces} ====`);
-                retCount += await new QueueIn(runner).run();
+                ret = await new QueueIn(runner).run();
+                if (ret < 0) return -1;
+                retCount += ret;
             }
         }
         logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
@@ -253,7 +266,7 @@ export class Jobs {
             logger.error('为了调试程序，pullEntities暂时屏蔽');
         }
         logger.info(`==== in loop ${uqDbName}: execQueueAct ====`);
-        await execQueueAct(runner);
+        if (await execQueueAct(runner) < 0) return -1;
         logger.info(`###### end loop ${uqDbName} ######`);
         return retCount;
     }

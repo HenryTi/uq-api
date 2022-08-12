@@ -134,11 +134,19 @@ class Jobs {
                     let { id, db: uqDbName, compile_tick } = uqRow;
                     let uq = this.uqs[id];
                     if (uq === undefined) {
-                        this.uqs[id] = uq = { runTick: 0 };
+                        this.uqs[id] = uq = { runTick: 0, hasError: false };
+                    }
+                    else {
+                        if (uq.hasError === true)
+                            continue;
                     }
                     let now = Date.now();
                     if (now > uq.runTick) {
                         let doneRows = yield this.uqJob(uqDbName, compile_tick);
+                        if (doneRows < 0) {
+                            uq.hasError = true;
+                            continue;
+                        }
                         yield this.$uqDb.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
                         totalCount += doneRows;
                         uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
@@ -253,14 +261,22 @@ class Jobs {
                 let { outCount, faces } = buses;
                 if (outCount > 0 || runner.hasSheet === true) {
                     tool_1.logger.info(`==== in loop ${uqDbName}: queueOut out bus number=${outCount} ====`);
-                    retCount += yield new queueOut_1.QueueOut(runner).run();
-                    //await queueOut(runner);
+                    let ret = yield new queueOut_1.QueueOut(runner).run();
+                    if (ret < 0)
+                        return -1;
+                    retCount += ret;
                 }
                 if (faces !== undefined) {
                     tool_1.logger.info(`==== in loop ${uqDbName}: pullBus faces: ${faces} ====`);
-                    retCount += yield new pullBus_1.PullBus(runner).run();
+                    let ret = yield new pullBus_1.PullBus(runner).run();
+                    if (ret < 0)
+                        return -1;
+                    retCount += ret;
                     tool_1.logger.info(`==== in loop ${uqDbName}: queueIn faces: ${faces} ====`);
-                    retCount += yield new queueIn_1.QueueIn(runner).run();
+                    ret = yield new queueIn_1.QueueIn(runner).run();
+                    if (ret < 0)
+                        return -1;
+                    retCount += ret;
                 }
             }
             tool_1.logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
@@ -272,7 +288,8 @@ class Jobs {
                 tool_1.logger.error('为了调试程序，pullEntities暂时屏蔽');
             }
             tool_1.logger.info(`==== in loop ${uqDbName}: execQueueAct ====`);
-            yield (0, execQueueAct_1.execQueueAct)(runner);
+            if ((yield (0, execQueueAct_1.execQueueAct)(runner)) < 0)
+                return -1;
             tool_1.logger.info(`###### end loop ${uqDbName} ######`);
             return retCount;
         });

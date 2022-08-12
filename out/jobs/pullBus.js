@@ -46,6 +46,7 @@ class PullBus {
             catch (err) {
                 tool_1.logger.error(err);
                 yield this.runner.log(0, 'jobs pullBus loop error: ', (0, tool_2.getErrorString)(err));
+                return -1;
             }
             return retCount;
         });

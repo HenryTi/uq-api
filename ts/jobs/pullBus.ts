@@ -43,6 +43,7 @@ export class PullBus {
         catch (err) {
             logger.error(err);
             await this.runner.log(0, 'jobs pullBus loop error: ', getErrorString(err));
+            return -1;
         }
         return retCount;
     }

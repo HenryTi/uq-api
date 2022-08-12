@@ -32,7 +32,7 @@ export class QueueIn {
                     buses.hasError = true;
                     logger.error(err);
                     await this.runner.log(0, 'jobs queueIn loop at ' + this.queuePointer, getErrorString(err));
-                    break;
+                    return -1;
                 }
             }
         }

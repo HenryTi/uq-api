@@ -22,6 +22,7 @@ export class QueueOut {
         catch (err) {
             await this.runner.log(0, 'jobs queueOut loop', getErrorString(err));
             if (env.isDevelopment === true) logger.error(err);
+            return -1;
         }
         return retCount;
     }
