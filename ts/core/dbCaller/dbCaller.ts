@@ -38,6 +38,7 @@ export interface EntitySchema {
     nameNoVice: string[];
     owner: boolean;
     idType: EnumIdType;
+    isMinute: boolean;
     create: boolean;
     update: boolean;
 }

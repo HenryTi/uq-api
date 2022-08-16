@@ -172,10 +172,11 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         if (idValue !== undefined) {
             values = [idValue];
         }
-        let { keys, fields, nameNoVice, idType } = schema;
+        let { keys, fields, nameNoVice, idType, isMinute: isMinuteId } = schema;
         let isMinute = (idType === EnumIdType.UMinute)
             || (idType === EnumIdType.Minute)
-            || (idType === EnumIdType.MinuteId);
+            || (idType === EnumIdType.MinuteId)
+            || (isMinuteId === true);
         for (let value of values) {
             let { id } = value;
             if (id) {
@@ -193,6 +194,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
             }
             else {
                 sql += `set @id=\`tv_${name}$id\`(@unit,@user,1`;  // 2022-1-27 , null 之前好像要加上这个。现在不要加。？？
+                if (idType === EnumIdType.UUID) {
+                    sql += ', null';
+                }
+                if (isMinute === true) {
+                    sql += ', null';
+                }
                 let updateOverride = { id: '@id' };
                 if (keys.length > 0) {
                     let sqlFromKey = (keyName: string, type: string, v: any) => {
@@ -231,9 +238,6 @@ export abstract class MySqlBuilder implements ISqlBuilder {
                             }
                             break;
                     }
-                }
-                if (isMinute === true) {
-                    sql += ', null';
                 }
                 sql += ')' + sqlLineEnd;
                 if (fields.length > keys.length + 1) {
