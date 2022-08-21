@@ -1,7 +1,7 @@
-import { EntityRunner } from "./entityRunner";
+import { EntityRunner } from "./EntityRunner";
 import { centerApi } from "../centerApi";
 
-type FieldType = 'id'|'string'|'number'|'array';
+type FieldType = 'id' | 'string' | 'number' | 'array';
 interface Field {
     name: string;
     type: FieldType;
@@ -10,12 +10,12 @@ interface Field {
 interface Face {
     // _: [] fieldArr[]，各表排序
     // $: [] field[] 主表
-    [name:string]: Field[];
+    [name: string]: Field[];
 };
-interface Bus {[face:string]: Face};
+interface Bus { [face: string]: Face };
 export const allBuses: {
-    [url:string]: {
-        [version:number]: Bus;
+    [url: string]: {
+        [version: number]: Bus;
     };
 } = {
 };
@@ -28,7 +28,7 @@ export abstract class BusFace {
     readonly busName: string;
     readonly faceName: string;
     readonly version: number;
-    protected constructor(entityRunner: EntityRunner, url:string, bus:string, faceName:string, version:number) {
+    protected constructor(entityRunner: EntityRunner, url: string, bus: string, faceName: string, version: number) {
         this.entityRunner = entityRunner;
         this.bus = bus;
         let parts = url.split('/');
@@ -39,12 +39,12 @@ export abstract class BusFace {
         this.version = version;
     }
 
-	async convert(busBody:string, version:number):Promise<string> {
-		return busBody;
-	}
+    async convert(busBody: string, version: number): Promise<string> {
+        return busBody;
+    }
 
-    protected async getFaceSchema(version:number):Promise<Face> {
-        let bus:Bus;
+    protected async getFaceSchema(version: number): Promise<Face> {
+        let bus: Bus;
         let busAllVersions = allBuses[this.busUrl];
         if (busAllVersions) {
             bus = busAllVersions[version];
@@ -61,12 +61,12 @@ export abstract class BusFace {
         return bus[this.faceName];
     }
 
-    private buildBus(schemaText:string):Bus  {
-        let bus:Bus = {};
+    private buildBus(schemaText: string): Bus {
+        let bus: Bus = {};
         let schemas = JSON.parse(schemaText);
         for (let i in schemas) {
             bus[i.toLowerCase()] = {
-                _: [{name:'$', type: 'array'}],
+                _: [{ name: '$', type: 'array' }],
                 $: [],
             }
         }
@@ -79,12 +79,12 @@ export abstract class BusFace {
     }
 
     private buildFace(bus: Bus, face: Face, schema: Field[]) {
-        let {_, $} = face;
+        let { _, $ } = face;
         for (let field of schema) {
-            let {type} = field;
+            let { type } = field;
             switch (type) {
                 case 'array':
-                    let {name, fields} = field;
+                    let { name, fields } = field;
                     _.push(field);
                     face[name] = bus[fields.toLowerCase()].$;
                     break;
@@ -99,34 +99,34 @@ export abstract class BusFace {
 interface BusContent {
     $: object;
     arrs: {
-        [arr:string]: object[];
+        [arr: string]: object[];
     }
 }
 export class BusFaceAccept extends BusFace {
     readonly accept: { inBuses: any[]; };
-    constructor(entityRunner: EntityRunner, url:string, bus:string, faceName:string, version:number, accept: {inBuses: any[]}) {
+    constructor(entityRunner: EntityRunner, url: string, bus: string, faceName: string, version: number, accept: { inBuses: any[] }) {
         super(entityRunner, url, bus, faceName, version);
         this.accept = accept;
     }
 
-	async convert(busBody:string, version:number):Promise<string> {
+    async convert(busBody: string, version: number): Promise<string> {
         let face = await this.getFaceSchema(version);
         let body = this.parseBusBody(busBody, face);
         let faceThisVersion = await this.getFaceSchema(this.version);
         let busText = this.buildBusBody(body, faceThisVersion);
-		return busText;
-	}
+        return busText;
+    }
 
-    private parseBusBody(busBody:string, face: Face): BusContent[] {
-        let ret:BusContent[] = [];
+    private parseBusBody(busBody: string, face: Face): BusContent[] {
+        let ret: BusContent[] = [];
         let p = 0, bodyLen = busBody.length;
-        function parseRow(fields:Field[]):object {
-            let ret:object = {};
+        function parseRow(fields: Field[]): object {
+            let ret: object = {};
             let len = fields.length - 1;
-            for (let i=0; i<len; i++) {
-                let {name} = fields[i];
+            for (let i = 0; i < len; i++) {
+                let { name } = fields[i];
                 let tPos = busBody.indexOf('\t', p);
-                if (tPos<0) {
+                if (tPos < 0) {
                     throw new Error('not \\t in parseRow in parseBusBody');
                 }
                 ret[name] = busBody.substring(p, tPos);
@@ -140,9 +140,9 @@ export class BusFaceAccept extends BusFace {
             p = nPos + 1;
             return ret;
         }
-        function parseArr(fields:Field[]):object[] {
+        function parseArr(fields: Field[]): object[] {
             let ret = [];
-            for (;p<bodyLen;) {
+            for (; p < bodyLen;) {
                 ret.push(parseRow(fields));
                 if (busBody.charCodeAt(p) === 10) {
                     ++p;
@@ -151,33 +151,33 @@ export class BusFaceAccept extends BusFace {
             }
             return ret;
         }
-        function parseArrs():{[arr:string]:object[]} {
-            let ret:{[arr:string]:object[]} = {};
-            let {_} = face;
+        function parseArrs(): { [arr: string]: object[] } {
+            let ret: { [arr: string]: object[] } = {};
+            let { _ } = face;
             let len = _.length;
-            for (let i=1; i<len; i++) {
-                let {name} = _[i];
+            for (let i = 1; i < len; i++) {
+                let { name } = _[i];
                 let fields = face[name];
                 ret[name] = parseArr(fields);
             }
             return ret;
         }
-        for (;p<bodyLen;) {
+        for (; p < bodyLen;) {
             let $ = parseRow(face.$);
             let arrs = parseArrs();
-            ret.push({$, arrs});
+            ret.push({ $, arrs });
         }
         return ret;
     }
 
-    private buildBusBody(content: BusContent[], face: Face):string {
-        let ret:string = '';
+    private buildBusBody(content: BusContent[], face: Face): string {
+        let ret: string = '';
         for (let bc of content) {
             ret += this.buildRow(bc.$, face.$) + '\n';
-            let {_} = face;
+            let { _ } = face;
             let len = _.length;
-            for (let i=1; i<len; i++) {
-                let {name} = _[i];
+            for (let i = 1; i < len; i++) {
+                let { name } = _[i];
                 ret += this.buildArr(bc.arrs[name], face[name]) + '\n';
             }
         }
@@ -188,7 +188,7 @@ export class BusFaceAccept extends BusFace {
         let ret = '';
         let sep = '';
         for (let f of fields) {
-            let {name} = f;
+            let { name } = f;
             let v = c[name];
             ret += sep + (v ?? '');
             sep = '\t';
@@ -196,7 +196,7 @@ export class BusFaceAccept extends BusFace {
         return ret;
     }
 
-    private buildArr(arr: object[], fields: Field[]): string {        
+    private buildArr(arr: object[], fields: Field[]): string {
         let ret = '';
         for (let row of arr) {
             ret += this.buildRow(row, fields) + '\n';
@@ -207,7 +207,7 @@ export class BusFaceAccept extends BusFace {
 
 export class BusFaceQuery extends BusFace {
     readonly query: boolean;
-    constructor(entityRunner: EntityRunner, url:string, bus:string, faceName:string, version:number) {
+    constructor(entityRunner: EntityRunner, url: string, bus: string, faceName: string, version: number) {
         super(entityRunner, url, bus, faceName, version);
         this.query = true;
     }

@@ -19,8 +19,10 @@ const inBusAction_1 = require("../inBusAction");
 const centerApi_1 = require("../centerApi");
 const BusFace_1 = require("./BusFace");
 const IDRunner_1 = require("./IDRunner");
-class EntityRunner {
+const Runner_1 = require("./Runner");
+class EntityRunner extends Runner_1.Runner {
     constructor(name, db, net = undefined) {
+        super(db);
         this.roleVersions = {};
         this.compileTick = 0;
         this.hasPullEntities = false;
@@ -31,7 +33,6 @@ class EntityRunner {
         this.parametersBusCache = {};
         this.actionConvertSchemas = {};
         this.name = name;
-        this.db = db;
         this.net = net;
         this.modifyMaxes = {};
         this.dbCaller = db.dbCaller;
@@ -827,7 +828,7 @@ class EntityRunner {
         });
     }
     initInternal() {
-        var _a, _b;
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             yield this.removeAllScheduleEvents();
             let rows = yield this.loadSchemas(0);
@@ -893,7 +894,7 @@ class EntityRunner {
                 switch (type) {
                     case '$role':
                         this.role = schemaObj;
-                        this.roleNames = (_a = schemaObj === null || schemaObj === void 0 ? void 0 : schemaObj.names) === null || _a === void 0 ? void 0 : _a.join('|');
+                        this.roleNames = schemaObj === null || schemaObj === void 0 ? void 0 : schemaObj.names;
                         break;
                     case 'access':
                         this.accessSchemaArr.push(schemaObj);
@@ -944,7 +945,7 @@ class EntityRunner {
                     case 'sheet':
                         this.hasSheet = true;
                         this.sheetRuns[name] = {
-                            onsave: ((_b = runObj === null || runObj === void 0 ? void 0 : runObj.run['$']) === null || _b === void 0 ? void 0 : _b['$onsave']) !== undefined,
+                            onsave: ((_a = runObj === null || runObj === void 0 ? void 0 : runObj.run['$']) === null || _a === void 0 ? void 0 : _a['$onsave']) !== undefined,
                             verify: schemaObj.verify,
                         };
                         break;
@@ -1258,4 +1259,4 @@ class EntityRunner {
     }
 }
 exports.EntityRunner = EntityRunner;
-//# sourceMappingURL=entityRunner.js.map
+//# sourceMappingURL=EntityRunner.js.map

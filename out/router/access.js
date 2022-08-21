@@ -39,6 +39,10 @@ function buildAccessRouter(router, rb) {
         let entities = yield runner.getAllSchemas();
         return entities;
     }));
+    rb.post(router, '/sync-user', (runner, body) => __awaiter(this, void 0, void 0, function* () {
+        let { user } = body;
+        return yield runner.syncCenterUser(user);
+    }));
     rb.entityGet(router, 'get-admins', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let roles = yield runner.getAdmins(unit, user);
         return roles;

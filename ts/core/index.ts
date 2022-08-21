@@ -1,4 +1,4 @@
-export { default as Auth, AuthUser, authCheck, authDebug, authUnitx, authUpBuild, setUqBuildSecret } from './auth';
+export { default as Auth, AuthUser, authCheck, authDebug, authUnitx, setUqBuildSecret } from './auth';
 export * from './centerApi';
 export { packReturnsFromSchema as packReturn, packBus, packParam, unpack, packReturns, packArr } from './packReturn';
 export { Fetch } from './fetch';

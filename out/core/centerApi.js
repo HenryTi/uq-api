@@ -87,6 +87,11 @@ class CenterApi extends fetch_1.Fetch {
             return yield this.get('open/user-id-from-name', { user: user });
         });
     }
+    userFromId(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('user/user-name-nick-icon-from-id', { userId: id });
+        });
+    }
     send(param) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.post('send', param);

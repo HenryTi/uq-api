@@ -62,6 +62,15 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 
             await prodNet.resetRunnerAfterCompile(db);
             await testNet.resetRunnerAfterCompile(db);
+
+            let { user } = req as any;
+            if (user) {
+                let id = user.id;
+                if (id) {
+                    await runner.setUqOwner(id);
+                    await runner.syncCenterUser(id);
+                }
+            }
             res.json({
                 ok: true,
             });

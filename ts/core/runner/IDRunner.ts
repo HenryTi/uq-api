@@ -6,7 +6,7 @@ import {
     , ParamKeyIXSum, ParamKeyIDSum, ParamSum, TableSchema
     , ParamIDxID, ParamIDTree, ParamIDNO, ParamActIX, ParamActIXSort, ParamQueryID, ParamIXValues, ParamActID
 } from '../dbCaller';
-import { EntityRunner } from "./entityRunner";
+import { EntityRunner } from "./EntityRunner";
 
 export class IDRunner {
     private readonly entityRunner: EntityRunner;

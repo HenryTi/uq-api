@@ -9,14 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildTagRouter = void 0;
-function buildTagRouter(router, rb) {
-    rb.get(router, '/tag/values/:name', (runner, body, urlParams, userToken) => __awaiter(this, void 0, void 0, function* () {
-        let { id: userId, unit } = userToken;
-        let { name } = urlParams;
-        let values = yield runner.tagValues(unit, name);
-        return values;
-    }));
+exports.Runner = void 0;
+const centerApi_1 = require("../centerApi");
+class Runner {
+    constructor(db) {
+        this.db = db;
+    }
+    getDb() { return this.db.getDbName(); }
+    syncCenterUser(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let user = yield centerApi_1.centerApi.userFromId(userId);
+            let { id, name, nick, icon } = user;
+            yield this.db.call('tv_$set_user', [id, name, nick, icon]);
+            return user;
+        });
+    }
 }
-exports.buildTagRouter = buildTagRouter;
-//# sourceMappingURL=tag.js.map
+exports.Runner = Runner;
+//# sourceMappingURL=Runner.js.map

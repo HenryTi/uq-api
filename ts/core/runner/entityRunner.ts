@@ -12,6 +12,7 @@ import { Net } from '../net';
 import { centerApi } from '../centerApi';
 import { BusFace, BusFaceAccept, BusFaceQuery } from './BusFace';
 import { IDRunner } from './IDRunner';
+import { Runner } from './Runner';
 
 interface EntityAccess {
     name: string;
@@ -34,13 +35,12 @@ export interface Buses {
     hasError: boolean;
 }
 
-export class EntityRunner {
-    protected readonly db: Db;
+export class EntityRunner extends Runner {
     protected readonly dbCaller: DbCaller;
     private access: any;
     private accessSchemaArr: any[];
     private role: any;
-    private roleNames: string;
+    private roleNames: { [role: string]: string[] };
     private ids: { [name: string]: any };
     private tuids: { [name: string]: any };
     private busArr: any[];
@@ -76,8 +76,8 @@ export class EntityRunner {
     devBuildSys: boolean = false;
 
     constructor(name: string, db: Db, net: Net = undefined) {
+        super(db);
         this.name = name;
-        this.db = db;
         this.net = net;
         this.modifyMaxes = {};
         this.dbCaller = db.dbCaller;
@@ -748,7 +748,7 @@ export class EntityRunner {
             switch (type) {
                 case '$role':
                     this.role = schemaObj;
-                    this.roleNames = schemaObj?.names?.join('|');
+                    this.roleNames = schemaObj?.names;
                     break;
                 case 'access':
                     this.accessSchemaArr.push(schemaObj);

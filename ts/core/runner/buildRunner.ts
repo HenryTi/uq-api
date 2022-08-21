@@ -1,17 +1,10 @@
 import * as _ from 'lodash';
 import { logger } from '../../tool';
 import { centerApi } from '../centerApi';
-import { Db } from '../dbCaller';
+import { Runner } from './Runner';
 
-export class BuildRunner {
-    private readonly db: Db;
+export class BuildRunner extends Runner {
     private readonly setting: { [name: string]: any } = {};
-
-    constructor(db: Db) {
-        this.db = db;
-    }
-
-    getDb(): string { return this.db.getDbName() }
 
     async initSetting(): Promise<void> {
         await this.db.call('tv_$init_setting', []);
@@ -46,7 +39,10 @@ export class BuildRunner {
         let ret = await this.unitTableFromProc('tv_$get_setting_int', unit, name);
         return ret[0];
     }
-
+    async setUqOwner(userId: number): Promise<boolean> {
+        let ret = await this.db.call('tv_$setUqOwner', [userId]);
+        return ret.length > 0;
+    }
     async setUnitAdmin(unitAdmin: { unit: number, admin: number }[]) {
         try {
             for (let ua of unitAdmin) {

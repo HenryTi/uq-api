@@ -12,12 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BuildRunner = void 0;
 const tool_1 = require("../../tool");
 const centerApi_1 = require("../centerApi");
-class BuildRunner {
-    constructor(db) {
+const Runner_1 = require("./Runner");
+class BuildRunner extends Runner_1.Runner {
+    constructor() {
+        super(...arguments);
         this.setting = {};
-        this.db = db;
     }
-    getDb() { return this.db.getDbName(); }
     initSetting() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.db.call('tv_$init_setting', []);
@@ -60,6 +60,12 @@ class BuildRunner {
         return __awaiter(this, void 0, void 0, function* () {
             let ret = yield this.unitTableFromProc('tv_$get_setting_int', unit, name);
             return ret[0];
+        });
+    }
+    setUqOwner(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.db.call('tv_$setUqOwner', [userId]);
+            return ret.length > 0;
         });
     }
     setUnitAdmin(unitAdmin) {
@@ -283,4 +289,4 @@ class BuildRunner {
     }
 }
 exports.BuildRunner = BuildRunner;
-//# sourceMappingURL=buildRunner.js.map
+//# sourceMappingURL=BuildRunner.js.map

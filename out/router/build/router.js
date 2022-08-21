@@ -69,6 +69,14 @@ function buildBuildRouter(router, rb) {
             yield runner.initSetting();
             yield core_1.prodNet.resetRunnerAfterCompile(db);
             yield core_1.testNet.resetRunnerAfterCompile(db);
+            let { user } = req;
+            if (user) {
+                let id = user.id;
+                if (id) {
+                    yield runner.setUqOwner(id);
+                    yield runner.syncCenterUser(id);
+                }
+            }
             res.json({
                 ok: true,
             });

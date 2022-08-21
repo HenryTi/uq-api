@@ -13,6 +13,8 @@ export interface AuthUser {
     roles?: string,
 }
 
+let userTokenSecret = config.get<string>('secret');
+
 export default class Auth {
     //private roles: string[];
     //private anyRole: boolean;
@@ -55,9 +57,9 @@ export default class Auth {
             if (res !== undefined) res.end(err);
             return;
         }
-        let secret = config.get<string>('secret'); // .appSecret;
+        //let secret = config.get<string>('secret'); // .appSecret;
         //logger.debug('auth check: secret=%s, token=%s', secret, token);
-        jwt.verify(token, secret,
+        jwt.verify(token, userTokenSecret,
             (err, decoded: AuthUser) => {
                 if (err === null) {
                     decoded.db = req.params.db;
@@ -166,14 +168,40 @@ var decryptStringWithRsaPublicKey = function (toDecrypt: string): string {
 export function setUqBuildSecret(ubs: string) {
     uqBuildSecret = decryptStringWithRsaPublicKey(ubs);
 }
+/*
+function middlewareUqBuildUserToken(req: Request, res: Response, next: NextFunction) {
+    let userToken = req.header('user-token');
+    if (userToken) {
+        let ret = jwt.decode(userToken);
+        jwt.verify(userToken, userTokenSecret, (err, decoded) => {
+            if (err === null) {
+                (req as any).user = decoded;
+                if (next !== undefined) next();
+                return;
+            }
+            res.status(401);
+            res.json({
+                error: {
+                    unauthorized: true,
+                    message: 'Unauthorized'
+                }
+            });
+        });
+    }
+}
+*/
 
 function middlewareUqBuild(req: Request, res: Response, next: NextFunction) {
+    let userToken = req.header('user-token');
+    if (userToken) {
+        let user = jwt.decode(userToken);
+        (req as any).user = user;
+    }
     if (req.url === '/start') {
         logger.debug('middlewareUqBuild req.uql /start');
         if (next !== undefined) next();
         return;
     }
-    //logger.debug('middlewareUqBuild req.uql ' + req.url);
     let token = req.header('Authorization');
     if (token === undefined) {
         token = req.header('sec-websocket-protocol');
@@ -204,4 +232,5 @@ function middlewareUqBuild(req: Request, res: Response, next: NextFunction) {
         });
 }
 
+//export const authUpBuildUserToken = middlewareUqBuildUserToken;
 export const authUpBuild = middlewareUqBuild;
