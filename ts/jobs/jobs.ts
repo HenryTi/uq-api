@@ -133,7 +133,7 @@ export class Jobs {
                 }
                 let { runTick, errorTick } = uq;
                 if (now - errorTick < 3 * 60 * 1000) {
-                    debugger;
+                    // debugger;
                     continue;
                 }
                 if (now < runTick) continue;

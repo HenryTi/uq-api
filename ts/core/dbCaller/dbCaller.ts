@@ -41,6 +41,7 @@ export interface EntitySchema {
     isMinute: boolean;
     create: boolean;
     update: boolean;
+    hasSort: boolean;
 }
 
 export interface TableSchema {

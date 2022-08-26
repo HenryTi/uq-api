@@ -321,7 +321,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
 
     protected buildUpsert(ts: TableSchema, value: any): string {
         let { name: tableName, schema } = ts;
-        let { keys, fields } = schema;
+        let { keys, fields, type, hasSort } = schema;
         let cols: string, vals: string, dup = '';
         let sqlBefore: string = '';
         let sqlWriteEx: string[] = [];
@@ -401,6 +401,15 @@ export abstract class MySqlBuilder implements ISqlBuilder {
             cols += '\`' + name + '\`';
             vals += val;
         }
+        let sqlSeq: string;
+        if (hasSort === true) {
+            sqlSeq = `\nset @seq=ifnull((select max(seq) from \`tv_${tableName}\` where ix=${value['ix']} and xi=${value['xi']}), 0)+1` + sqlLineEnd;
+            cols += ',\`seq\`';
+            vals += `,@seq`;
+        }
+        else {
+            sqlSeq = '';
+        }
         let ignore = '', onDup = '';
         if (dup.length > 0) {
             onDup = `\non duplicate key update ${dup}`;
@@ -408,7 +417,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         else {
             ignore = ' ignore';
         }
-        let sql = sqlBefore +
+        let sql = sqlBefore + sqlSeq +
             `insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup}` + sqlLineEnd;
         return sql + sqlWriteEx.join('');
     }

@@ -312,7 +312,7 @@ class MySqlBuilder {
     }
     buildUpsert(ts, value) {
         let { name: tableName, schema } = ts;
-        let { keys, fields } = schema;
+        let { keys, fields, type, hasSort } = schema;
         let cols, vals, dup = '';
         let sqlBefore = '';
         let sqlWriteEx = [];
@@ -399,6 +399,15 @@ class MySqlBuilder {
             cols += '\`' + name + '\`';
             vals += val;
         }
+        let sqlSeq;
+        if (hasSort === true) {
+            sqlSeq = `\nset @seq=ifnull((select max(seq) from \`tv_${tableName}\` where ix=${value['ix']} and xi=${value['xi']}), 0)+1` + exports.sqlLineEnd;
+            cols += ',\`seq\`';
+            vals += `,@seq`;
+        }
+        else {
+            sqlSeq = '';
+        }
         let ignore = '', onDup = '';
         if (dup.length > 0) {
             onDup = `\non duplicate key update ${dup}`;
@@ -406,7 +415,7 @@ class MySqlBuilder {
         else {
             ignore = ' ignore';
         }
-        let sql = sqlBefore +
+        let sql = sqlBefore + sqlSeq +
             `insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup}` + exports.sqlLineEnd;
         return sql + sqlWriteEx.join('');
     }
