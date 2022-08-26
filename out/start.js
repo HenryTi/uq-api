@@ -98,10 +98,9 @@ function init() {
             let port = config.get('port');
             app.listen(port, () => __awaiter(this, void 0, void 0, function* () {
                 tool_1.logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
-                //let connection = config.get<any>("connection");
                 let { host, user } = connection;
                 tool_1.logger.debug('DB host: %s, user: %s', host, user);
-                tool_1.logger.debug('Tonva uq-api started!');
+                tool_1.logger.debug('Tonwa uq-api started!');
             }));
             let localApp = express();
             let localPort = config.get('local-port');
@@ -165,7 +164,7 @@ function dbHello(req, res) {
     res.json({ "hello": text });
 }
 function buildUqRouter(rb, rbCompile) {
-    // 正常的tonva uq接口 uqRouter
+    // 正常的tonwa uq接口 uqRouter
     let uqRouter = (0, express_1.Router)({ mergeParams: true });
     let openRouter = (0, express_1.Router)({ mergeParams: true });
     (0, router_1.buildOpenRouter)(openRouter, rb);

@@ -45,7 +45,10 @@ export abstract class RouterBuilder {
     protected async routerRunner(req: Request): Promise<EntityRunner> {
         let db: string = req.params.db;
         let runner = await this.checkRunner(db);
-        let uqVersion = req.header('tonva-uq-version');
+        let uqVersion = req.header('tonwa-uq-version');
+        if (uqVersion === undefined) {
+            uqVersion = req.header('tonva-uq-version');
+        }
         if (uqVersion !== undefined) {
             let n = Number(uqVersion);
             if (n !== NaN) {

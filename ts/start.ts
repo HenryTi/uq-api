@@ -101,10 +101,9 @@ export async function init(): Promise<void> {
         let port = config.get<number>('port');
         app.listen(port, async () => {
             logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
-            //let connection = config.get<any>("connection");
             let { host, user } = connection;
             logger.debug('DB host: %s, user: %s', host, user);
-            logger.debug('Tonva uq-api started!');
+            logger.debug('Tonwa uq-api started!');
         });
 
         let localApp = express();
@@ -163,7 +162,7 @@ function dbHello(req: Request, res: Response) {
 }
 
 function buildUqRouter(rb: RouterBuilder, rbCompile: CompileRouterBuilder): Router {
-    // 正常的tonva uq接口 uqRouter
+    // 正常的tonwa uq接口 uqRouter
     let uqRouter = Router({ mergeParams: true });
 
     let openRouter = Router({ mergeParams: true });

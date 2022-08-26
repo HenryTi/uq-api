@@ -60,7 +60,10 @@ class RouterBuilder {
         return __awaiter(this, void 0, void 0, function* () {
             let db = req.params.db;
             let runner = yield this.checkRunner(db);
-            let uqVersion = req.header('tonva-uq-version');
+            let uqVersion = req.header('tonwa-uq-version');
+            if (uqVersion === undefined) {
+                uqVersion = req.header('tonva-uq-version');
+            }
             if (uqVersion !== undefined) {
                 let n = Number(uqVersion);
                 if (n !== NaN) {
