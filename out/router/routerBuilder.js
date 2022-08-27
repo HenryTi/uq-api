@@ -136,7 +136,18 @@ class RouterWebBuilder extends RouterBuilder {
                 let { params } = req;
                 let { name } = params;
                 let call, run;
+                let result;
                 if (name !== undefined) {
+                    if (name === '$user') {
+                        call = runner.$userSchema;
+                        run = {};
+                        result = yield processer(unit, userId, name, db, params, runner, req.body, call, run, this.net);
+                        res.json({
+                            ok: true,
+                            res: result,
+                        });
+                        return;
+                    }
                     name = name.toLowerCase();
                     let schema = runner.getSchema(name);
                     if (schema === undefined) {
@@ -144,10 +155,10 @@ class RouterWebBuilder extends RouterBuilder {
                     }
                     call = schema.call;
                     run = schema.run;
-                    if (this.validEntity(res, call, entityType) === false)
+                    if (this.validEntity(res, call, entityType) === false) {
                         return;
+                    }
                 }
-                let result;
                 let modifyMax;
                 let $uq;
                 let app = req.header('app');

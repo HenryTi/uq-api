@@ -923,26 +923,8 @@ export class EntityRunner extends Runner {
     private buildTuid$User() {
         let $user = this.tuids['$user'];
         if ($user !== undefined) return;
-        $user = {
-            "name": "$user",
-            "type": "tuid",
-            "private": false,
-            "fields": [
-                { "name": "name", "type": "char", "size": 100 },
-                { "name": "nick", "type": "char", "size": 100 },
-                { "name": "icon", "type": "char", "size": 200 },
-                { "name": "assigned", "type": "char", "size": 100 },
-                { "name": "poke", "type": "tinyint" },
-                { "name": "timezone", "type": "tinyint" }
-            ],
-            "global": false,
-            "sync": false,
-            "id": "id",
-            "main": [
-                "name", "nick", "icon", "assigned", "poke", "timezone"
-            ]
-        };
-        this.tuids['$user'] = $user;
+        this.buildTuidMainFields(this.$userSchema);
+        this.tuids['$user'] = this.$userSchema;
     }
 
     private buildTuidMainFields(tuidSchema: any) {
@@ -1116,4 +1098,24 @@ export class EntityRunner extends Runner {
         await this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
         this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
     }
+
+    readonly $userSchema = {
+        "name": "$user",
+        "type": "tuid",
+        "private": false,
+        "fields": [
+            { "name": "name", "type": "char", "size": 100 },
+            { "name": "nick", "type": "char", "size": 100 },
+            { "name": "icon", "type": "char", "size": 200 },
+            { "name": "assigned", "type": "char", "size": 100 },
+            { "name": "poke", "type": "tinyint" },
+            { "name": "timezone", "type": "tinyint" }
+        ],
+        "global": false,
+        "sync": false,
+        "id": "id",
+        "main": [
+            "name", "nick", "icon", "assigned", "poke", "timezone"
+        ]
+    };
 }

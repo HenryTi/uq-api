@@ -32,6 +32,25 @@ class EntityRunner extends Runner_1.Runner {
         this.devBuildSys = false;
         this.parametersBusCache = {};
         this.actionConvertSchemas = {};
+        this.$userSchema = {
+            "name": "$user",
+            "type": "tuid",
+            "private": false,
+            "fields": [
+                { "name": "name", "type": "char", "size": 100 },
+                { "name": "nick", "type": "char", "size": 100 },
+                { "name": "icon", "type": "char", "size": 200 },
+                { "name": "assigned", "type": "char", "size": 100 },
+                { "name": "poke", "type": "tinyint" },
+                { "name": "timezone", "type": "tinyint" }
+            ],
+            "global": false,
+            "sync": false,
+            "id": "id",
+            "main": [
+                "name", "nick", "icon", "assigned", "poke", "timezone"
+            ]
+        };
         this.name = name;
         this.net = net;
         this.modifyMaxes = {};
@@ -1073,26 +1092,8 @@ class EntityRunner extends Runner_1.Runner {
         let $user = this.tuids['$user'];
         if ($user !== undefined)
             return;
-        $user = {
-            "name": "$user",
-            "type": "tuid",
-            "private": false,
-            "fields": [
-                { "name": "name", "type": "char", "size": 100 },
-                { "name": "nick", "type": "char", "size": 100 },
-                { "name": "icon", "type": "char", "size": 200 },
-                { "name": "assigned", "type": "char", "size": 100 },
-                { "name": "poke", "type": "tinyint" },
-                { "name": "timezone", "type": "tinyint" }
-            ],
-            "global": false,
-            "sync": false,
-            "id": "id",
-            "main": [
-                "name", "nick", "icon", "assigned", "poke", "timezone"
-            ]
-        };
-        this.tuids['$user'] = $user;
+        this.buildTuidMainFields(this.$userSchema);
+        this.tuids['$user'] = this.$userSchema;
     }
     buildTuidMainFields(tuidSchema) {
         let { id, base, fields, main, arrs } = tuidSchema;
