@@ -1065,7 +1065,7 @@ class EntityRunner extends Runner_1.Runner {
                 faceColl,
                 hasError: false,
             };
-            // this.buildTuid$User();
+            this.buildTuid$User();
             this.buildAccesses();
         });
     }

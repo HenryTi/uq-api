@@ -916,7 +916,7 @@ export class EntityRunner extends Runner {
             faceColl,
             hasError: false,
         };
-        // this.buildTuid$User();
+        this.buildTuid$User();
         this.buildAccesses();
     }
 
