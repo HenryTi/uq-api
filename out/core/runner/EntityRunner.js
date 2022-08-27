@@ -1065,8 +1065,34 @@ class EntityRunner extends Runner_1.Runner {
                 faceColl,
                 hasError: false,
             };
+            // this.buildTuid$User();
             this.buildAccesses();
         });
+    }
+    buildTuid$User() {
+        let $user = this.tuids['$user'];
+        if ($user !== undefined)
+            return;
+        $user = {
+            "name": "$user",
+            "type": "tuid",
+            "private": false,
+            "fields": [
+                { "name": "name", "type": "char", "size": 100 },
+                { "name": "nick", "type": "char", "size": 100 },
+                { "name": "icon", "type": "char", "size": 200 },
+                { "name": "assigned", "type": "char", "size": 100 },
+                { "name": "poke", "type": "tinyint" },
+                { "name": "timezone", "type": "tinyint" }
+            ],
+            "global": false,
+            "sync": false,
+            "id": "id",
+            "main": [
+                "name", "nick", "icon", "assigned", "poke", "timezone"
+            ]
+        };
+        this.tuids['$user'] = $user;
     }
     buildTuidMainFields(tuidSchema) {
         let { id, base, fields, main, arrs } = tuidSchema;
