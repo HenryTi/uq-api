@@ -378,7 +378,16 @@ export abstract class MySqlBuilder implements ISqlBuilder {
                     //	val = `${v}`;
                     //}
                     //else {
-                    val = `${v}`;
+                    switch (type) {
+                        default:
+                            val = `${v}`;
+                            break;
+                        case 'date':
+                        case 'datetime':
+                        case 'time':
+                            val = `'${v}'`;
+                            break;
+                    }
                     //}
                 }
                 switch (name) {
