@@ -91,6 +91,12 @@ export abstract class Db {
         return Db.dbCollection[name] || name;
     }
     */
+
+    /**
+     * 
+     * @param name uq(即数据库)的名称
+     * @returns 返回uqDb(这是什么？) 
+     */
     static db(name: string): Db {
         let db = Db.dbs[name]; //.getCacheDb(name);
         if (db !== undefined) return db;
@@ -105,6 +111,10 @@ export abstract class Db {
     serverId: number;
     isTesting: boolean;
 
+    /**
+     * Db: 对应某个数据库，提供调用该数据库中存储过程等的一般功能 
+     * @param dbName  uq(即数据库)的名称
+     */
     constructor(dbName: string) {
         this.dbName = dbName;
         this.dbCaller = this.createDbServer();
@@ -127,10 +137,15 @@ export abstract class Db {
         this.dbCaller.reset();
     }
 
+    /**
+     * 判断本db在服务器上是否存在
+     * @returns 
+     */
     async exists(): Promise<boolean> {
         if (this.isExists === true) return true;
         return this.isExists = await this.dbCaller.existsDatabase(this.dbName);
     }
+
     async buildTuidAutoId(): Promise<void> {
         await this.dbCaller.buildTuidAutoId(this.dbName);
     }
@@ -193,6 +208,11 @@ export abstract class Db {
     async setDebugJobs(): Promise<void> {
         await this.dbCaller.setDebugJobs();
     }
+
+    /**
+     * 从$uq.uq表中获取（服务器上配置的） 所有的uq（即DB）名称
+     * @returns 
+     */
     async uqDbs(): Promise<any[]> {
         return await this.dbCaller.uqDbs();
     }

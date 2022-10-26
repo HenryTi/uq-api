@@ -23,6 +23,11 @@ export abstract class Net {
     protected abstract get isTesting(): boolean;
     abstract getUqFullName(uq: string): string;
 
+    /**
+     * 
+     * @param name uq(即数据库)的名称
+     * @returns 
+     */
     protected async innerRunner(name: string): Promise<EntityRunner> {
         name = name.toLowerCase();
         let runner = this.runners[name];
@@ -37,6 +42,11 @@ export abstract class Net {
         return runner;
     }
 
+    /**
+     * 
+     * @param name  uq(即数据库)的名称
+     * @returns 返回该uq的runner(可以执行该uq的存储过程等)
+     */
     async getRunner(name: string): Promise<EntityRunner> {
         let runner = await this.innerRunner(name);
         if (runner === undefined) return;
@@ -104,6 +114,13 @@ export abstract class Net {
     }
 
     private createRunnerFromDbPromises: { [name: string]: { resolve: (value?: any) => void, reject: (reason?: any) => void }[] } = {};
+
+    /**
+     * 
+     * @param name uq(即数据库)的名称
+     * @param db 
+     * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等) 
+     */
     protected async createRunnerFromDb(name: string, db: Db): Promise<EntityRunner> {
         return await new Promise<EntityRunner>((resolve, reject) => {
             let promiseArr = this.createRunnerFromDbPromises[name];
@@ -137,6 +154,10 @@ export abstract class Net {
         });
     }
 
+    /**
+     * 返回db的真实名称，即测试服务器上，在name后再附加上 "$test" 
+     * @param name uq(即数据库)的名称
+     */
     abstract getDbName(name: string): string;
 
     private uqOpenApis: { [uqFullName: string]: { [unit: number]: OpenApi } } = {};

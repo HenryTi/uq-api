@@ -40,6 +40,9 @@ export class Jobs {
     private readonly $uqDb: Db;
     private loopWait: boolean = true;
 
+    /**
+     * 所有Job的容器类，用于从db中获取job定义，运行job
+     */
     constructor() {
         this.$uqDb = Db.db(consts.$uq);
         this.uqs = {};
@@ -51,6 +54,10 @@ export class Jobs {
         });
     }
 
+    /**
+     * 在for死循环中运行所有job 
+     * @returns 
+     */
     async run(): Promise<void> {
         this.$uqDb.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
         if (env.isDevelopment === true) {
@@ -115,6 +122,10 @@ export class Jobs {
         }
     }
 
+    /**
+     * 
+     * @returns 
+     */
     private async uqsJob() {
         let totalCount: number = 0;
         try {
@@ -189,6 +200,11 @@ export class Jobs {
         }
     }
 
+    /**
+     * 
+     * @param uqDbName uq(即数据库)的名称
+     * @returns 返回该uq的runner(可以执行该uq的存储过程等)
+     */
     private async getRunnerFromDbName(uqDbName: string): Promise<EntityRunner> {
         let net: Net;
         let dbName: string;;
@@ -204,7 +220,13 @@ export class Jobs {
         return runner;
     }
 
-    // uqDbName可能包含$test，以此区分测试库或者生产库
+    /**
+     * 
+     * uqDbName可能包含$test，以此区分测试库或者生产库
+     * @param uqDbName uq（即数据库上DB）的名称 
+     * @param compile_tick 
+     * @returns 
+     */
     private async uqJob(uqDbName: string, compile_tick: number): Promise<number> {
         let retCount: number = 0;
         let runner = await this.getRunnerFromDbName(uqDbName);

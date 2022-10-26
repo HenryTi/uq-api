@@ -10,10 +10,20 @@ export class QueueOut {
     private runner: EntityRunner;
     private messagePointer: number;
 
+    /**
+     * QueueOut: 指的是处理message_queue中的数据，其中最重要的数据应该是bus消息
+     * 处理bus消息就是发送bus，因为发送bus是发出去，所有名称中带有Out
+     * @param runner 
+     */
     constructor(runner: EntityRunner) {
         this.runner = runner;
     }
 
+    /**
+     * 调用tv_$message_queue_out从$message_queue中获取数据，依次执行其对应的存储过程
+     * 其中经常使用的是bus消息，然后发送bus 
+     * @returns 
+     */
     async run(): Promise<number> {
         let retCount: number = 0;
         try {
@@ -45,6 +55,12 @@ export class QueueOut {
         return retCount;
     }
 
+    /**
+     * 
+     * @param row message_queue中的一行
+     * @param defer 
+     * @returns 
+     */
     private async processOneRow(row: any, defer: number) {
         // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
         let { $unit, id, to, action, subject, content, tries, update_time, now, stamp } = row;

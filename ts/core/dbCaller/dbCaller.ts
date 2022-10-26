@@ -246,6 +246,11 @@ export abstract class DbCaller {
     abstract tableFromProc(db: string, proc: string, params: any[]): Promise<any[]>;
     abstract tablesFromProc(db: string, proc: string, params: any[]): Promise<any[][]>;
     abstract buildDatabase(db: string): Promise<boolean>;
+    /**
+     * 判断db在服务器上是否存在
+     * @param db db名称 
+     * @returns 
+     */
     abstract existsDatabase(db: string): Promise<boolean>;
     abstract createDatabase(db: string): Promise<void>;
     abstract setDebugJobs(): Promise<void>;

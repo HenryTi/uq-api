@@ -118,6 +118,9 @@ function init() {
     });
 }
 exports.init = init;
+/**
+ * uq-api运行的总入口点
+ */
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
@@ -132,6 +135,9 @@ function forDebug() {
         let runner = yield net.getRunner('workshop_bus_test');
     });
 }
+/**
+ * 所有Job运行的总入口点
+ */
 function runJobsForever() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -146,6 +152,9 @@ function runJobsForever() {
         }
     });
 }
+/**
+ * 运行job，在总入口点调用
+ */
 function runJobs() {
     return __awaiter(this, void 0, void 0, function* () {
         let jobs = new jobs_1.Jobs();

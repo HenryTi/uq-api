@@ -113,6 +113,11 @@ export class MyDbCaller extends DbCaller {
         return newPool;
     }
 
+    /**
+     * 判断db在服务器上是否存在
+     * @param db db名称 
+     * @returns 
+     */
     private sqlExists(db: string): string {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }

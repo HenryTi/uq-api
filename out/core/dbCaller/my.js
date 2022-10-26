@@ -108,6 +108,11 @@ class MyDbCaller extends dbCaller_1.DbCaller {
             return newPool;
         });
     }
+    /**
+     * 判断db在服务器上是否存在
+     * @param db db名称
+     * @returns
+     */
     sqlExists(db) {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }

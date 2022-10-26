@@ -62,6 +62,10 @@ Env.const_development = 'development';
 Env.const_devdo = 'devdo';
 exports.env = new Env();
 class Db {
+    /**
+     * Db: 对应某个数据库，提供调用该数据库中存储过程等的一般功能
+     * @param dbName  uq(即数据库)的名称
+     */
     constructor(dbName) {
         this.isExists = false;
         this.dbName = dbName;
@@ -75,6 +79,11 @@ class Db {
         return Db.dbCollection[name] || name;
     }
     */
+    /**
+     *
+     * @param name uq(即数据库)的名称
+     * @returns 返回uqDb(这是什么？)
+     */
     static db(name) {
         let db = Db.dbs[name]; //.getCacheDb(name);
         if (db !== undefined)
@@ -98,6 +107,10 @@ class Db {
     reset() {
         this.dbCaller.reset();
     }
+    /**
+     * 判断本db在服务器上是否存在
+     * @returns
+     */
     exists() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.isExists === true)
@@ -203,6 +216,10 @@ class Db {
             yield this.dbCaller.setDebugJobs();
         });
     }
+    /**
+     * 从$uq.uq表中获取（服务器上配置的） 所有的uq（即DB）名称
+     * @returns
+     */
     uqDbs() {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.dbCaller.uqDbs();

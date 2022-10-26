@@ -121,6 +121,9 @@ export async function init(): Promise<void> {
     }
 }
 
+/**
+ * uq-api运行的总入口点
+ */
 export async function start() {
     await init();
     await forDebug();
@@ -132,6 +135,9 @@ async function forDebug() {
     let runner = await net.getRunner('workshop_bus_test');
 }
 
+/**
+ * 所有Job运行的总入口点
+ */
 async function runJobsForever() {
     try {
         await runJobs();
@@ -145,6 +151,9 @@ async function runJobsForever() {
     }
 }
 
+/**
+ * 运行job，在总入口点调用
+ */
 async function runJobs() {
     let jobs = new Jobs();
     if (env.isDevelopment === true) {
