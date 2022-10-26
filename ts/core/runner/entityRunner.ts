@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import * as config from 'config';
 import { logger } from '../../tool';
 import { Db, env, DbCaller } from '../dbCaller';
 import { packReturns } from '../packReturn';
@@ -25,6 +26,10 @@ interface SheetRun {
         inBuses: any[];
     }
 }
+
+// 整个服务器，可以单独设置一个unit id。跟老版本兼容。
+// 新版本会去掉uq里面的唯一unit的概念。
+const uniqueUnitInConfig = config.get<number>('unique-unit') ?? 0;
 
 export interface Buses {
     faces: string;
@@ -714,8 +719,9 @@ export class EntityRunner extends Runner {
         this.dbCaller.setBuilder();
         let ixUserArr = [];
 
-        let uu = setting['uniqueunit'];
-        this.uniqueUnit = uu ? uu as number : 0;
+        let uu = setting['uniqueunit'] as number;
+
+        this.uniqueUnit = uu ?? uniqueUnitInConfig;
 
         if (env.isDevelopment) logger.debug('init schemas: ', this.uq, this.author, this.version);
 
