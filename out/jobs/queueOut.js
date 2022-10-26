@@ -37,7 +37,7 @@ class QueueOut {
                 retCount += yield this.internalRun();
             }
             catch (err) {
-                yield this.runner.log(0, 'jobs queueOut loop', (0, tool_2.getErrorString)(err));
+                yield this.runner.logError(0, 'jobs queueOut loop', (0, tool_2.getErrorString)(err));
                 if (core_1.env.isDevelopment === true)
                     tool_1.logger.error(err);
                 return -1;
@@ -127,7 +127,7 @@ class QueueOut {
                     }
                     let errSubject = `error on ${action}:  ${subject}`;
                     let error = (0, tool_2.getErrorString)(err);
-                    yield this.runner.log($unit, errSubject, error);
+                    yield this.runner.logError($unit, errSubject, error);
                 }
             }
             if (finish !== undefined)
@@ -244,27 +244,11 @@ class QueueOut {
                     return;
                 let promises = unitXArr.map((v) => __awaiter(this, void 0, void 0, function* () {
                     yield sendToUnitxAndLocal(this.runner, v);
-                    /*
-                    let message: BusMessage = buildMessage(v);
-                    await this.runner.net.sendToUnitx(v, message);
-                    if (local === true) {
-                        defer = -1;
-                        await this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body, stamp]);
-                    }
-                    */
                 }));
                 yield Promise.all(promises);
             }
             else {
                 yield sendToUnitxAndLocal(this.runner, unit);
-                /*
-                let message: BusMessage = buildMessage(unit);
-                await this.runner.net.sendToUnitx(unit, message);
-                if (local === true) {
-                    defer = -1;
-                    await this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, 0, stamp]);
-                }
-                */
             }
         });
     }

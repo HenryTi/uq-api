@@ -10,25 +10,26 @@
             "name": "启动程序",
             "protocol": "inspector",
             "cwd": "${workspaceRoot}",
-            "stopOnEntry": false,        
+            "stopOnEntry": false,
             "runtimeExecutable": null,
             "windows": {
                 "runtimeExecutable": "npm.cmd"
             },
             "runtimeArgs": [
-                "run-script", "debug",
-				//"run-script", "devdo",
-				//"run-script", "test-bus-version-convert",
+                "run-script",
+                "debug",
+                //"run-script", "devdo",
+                //"run-script", "test-bus-version-convert",
             ],
-			"restart": true,
-			/*
+            "restart": true,
+            /*
             "env": {
                 "NODE_ENV": "stage"
 			},
 			*/
             //"port": 5857,
-			//"program": "${workspaceRoot}/out/cli/test-queue-in.js",
-			//"program": "${workspaceRoot}/out/index.js",
+            //"program": "${workspaceRoot}/out/cli/test-queue-in.js",
+            //"program": "${workspaceRoot}/out/index.js",
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceRoot}/out/**/*.js"

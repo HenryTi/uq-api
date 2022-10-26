@@ -49,7 +49,7 @@ export function buildSheetRouter(router: Router, rb: RouterBuilder) {
                 return sheetRet;
             }
             catch (err) {
-                await runner.log(unit, 'sheet save ' + name, data);
+                await runner.logError(unit, 'sheet save ' + name, data);
             }
         });
 
@@ -85,7 +85,7 @@ export function buildSheetRouter(router: Router, rb: RouterBuilder) {
                 return sheetRet;
             }
             catch (err) {
-                await runner.log(unit, 'sheet save ' + name, data);
+                await runner.logError(unit, 'sheet save ' + name, data);
             }
         });
 

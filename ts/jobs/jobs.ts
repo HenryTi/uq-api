@@ -54,12 +54,7 @@ export class Jobs {
         });
     }
 
-    /**
-     * 在for死循环中运行所有job 
-     * @returns 
-     */
-    async run(): Promise<void> {
-        this.$uqDb.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
+    async beforeRun() {
         if (env.isDevelopment === true) {
             // 只有在开发状态下，才可以屏蔽jobs        
             // logger.debug('jobs loop: developing, no loop!');
@@ -73,7 +68,15 @@ export class Jobs {
         else {
             await this.sleep(firstRun);
         }
+    }
 
+    /**
+     * 在for死循环中运行所有job 
+     * @returns 
+     */
+    async run(): Promise<void> {
+        this.$uqDb.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
+        await this.beforeRun();
         logger.debug('\n');
         logger.debug('\n');
         logger.error('====== Jobs loop started! ======');
@@ -299,14 +302,33 @@ export class Jobs {
     async debugUqJob(uqDbNames: string[]) {
         if (!uqDbNames) return;
         if (uqDbNames.length === 0) return;
-        //let $uqDb = Db.db(consts.$uq);
         for (let uqDbName of uqDbNames) {
             let runner = await this.getRunnerFromDbName(uqDbName);
             if (!runner) continue;
-            let pullBus = new PullBus(runner);
-            await pullBus.run()
-            // await pullBus.debugPull(24, 458700000005432, 0);
-            // await this.uqJob(uqDbName, undefined);
+            // let queueOut = new QueueOut(runner);
+            // await queueOut.run();
+            /*
+            let row = {
+                $unit: 24,
+                id: -39,
+                to: -1,
+                action: 'bus',
+                subject: 'partnermappedbus/partnerordercreated',
+                content: `#	2
+$		13	20220906091418173873	2022-09-06 09:14:18
+`,
+                tries: 0,
+                update_time: '2021-1-1',
+                now: '2021-1-2',
+                stamp: null,
+            }
+            await queueOut.processOneRow(row, 0);
+            */
+            // let pullBus = new PullBus(runner);
+            // await pullBus.run()
+
+            let queueIn = new QueueIn(runner);
+            await queueIn.run();
         }
     }
 }

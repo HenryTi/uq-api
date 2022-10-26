@@ -7,7 +7,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "debug": "SET NODE_ENV=development&&node out/index.js",
         "devdo": "SET NODE_ENV=devdo&&node out/index.js",
-        "test_queue_in": "SET NODE_ENV=test_queue_in&&node out/cli/test-queue-in.js",
+        "test_queue_out": "SET NODE_ENV=test_queue_in&&node out/cli/test-queue-out.js",
         "test-bus-version-convert": "SET NODE_ENV=test-bus-version-convert&&node out/cli/test-bus-version-convert.js"
     },
     "keywords": [],

@@ -53,11 +53,17 @@ export abstract class BusFace {
             busAllVersions = {};
             allBuses[this.busUrl] = busAllVersions;
         }
-        if (!bus) {
+        if (bus === undefined) {
             let schemaText = await centerApi.busSchema(this.busOwner, this.busName, version);
-            bus = this.buildBus(schemaText);
+            if (!schemaText) {
+                bus = null;
+            }
+            else {
+                bus = this.buildBus(schemaText);
+            }
             busAllVersions[version] = bus;
         }
+        if (bus === null) return null;
         return bus[this.faceName];
     }
 
@@ -73,7 +79,12 @@ export abstract class BusFace {
         for (let i in schemas) {
             let schema = schemas[i];
             let face = bus[i.toLowerCase()];
-            this.buildFace(bus, face, schema);
+            if (Array.isArray(schema) === true) {
+                this.buildFace(bus, face, schema);
+            }
+            else {
+                Object.assign(face, schema);
+            }
         }
         return bus;
     }
@@ -102,6 +113,7 @@ interface BusContent {
         [arr: string]: object[];
     }
 }
+
 export class BusFaceAccept extends BusFace {
     readonly accept: { inBuses: any[]; };
     constructor(entityRunner: EntityRunner, url: string, bus: string, faceName: string, version: number, accept: { inBuses: any[] }) {
@@ -111,10 +123,20 @@ export class BusFaceAccept extends BusFace {
 
     async convert(busBody: string, version: number): Promise<string> {
         let face = await this.getFaceSchema(version);
+        if (face === null) {
+            throw new Error(this.busNotExists(version));
+        }
         let body = this.parseBusBody(busBody, face);
         let faceThisVersion = await this.getFaceSchema(this.version);
+        if (faceThisVersion === null) {
+            throw new Error(this.busNotExists(this.version));
+        }
         let busText = this.buildBusBody(body, faceThisVersion);
         return busText;
+    }
+
+    private busNotExists(version: number) {
+        return `bus ${this.busOwner}.${this.busName}.${this.faceName} version ${version} not exists`;
     }
 
     private parseBusBody(busBody: string, face: Face): BusContent[] {

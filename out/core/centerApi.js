@@ -25,7 +25,7 @@ class CenterApi extends fetch_1.Fetch {
     busSchema(owner, bus, version) {
         return __awaiter(this, void 0, void 0, function* () {
             let ret = yield this.get('open/bus', { owner, bus, version });
-            return ret.schema;
+            return ret === null || ret === void 0 ? void 0 : ret.schema;
         });
     }
     serviceBus(serviceUID, serviceBuses) {

@@ -31,7 +31,7 @@ export class QueueIn {
                 catch (err) {
                     buses.hasError = true;
                     logger.error(err);
-                    await this.runner.log(0, 'jobs queueIn loop at ' + this.queuePointer, getErrorString(err));
+                    await this.runner.logError(0, 'jobs queueIn loop at ' + this.queuePointer, getErrorString(err));
                     return -1;
                 }
             }
@@ -72,7 +72,7 @@ export class QueueIn {
                     }
                     catch (err) {
                         let errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}\nstack:${err.stack}`;
-                        await this.runner.log(unit, 'face convert error', errText);
+                        await this.runner.logError(unit, 'face convert error', errText);
                         throw err;
                     }
                 }
@@ -91,7 +91,7 @@ export class QueueIn {
             }
             let errSubject = `error queue_in on ${bus}/${faceName}:${id}`;
             let error = this.errorText(err);
-            await this.runner.log(unit, errSubject, error);
+            await this.runner.logError(unit, errSubject, error);
         }
         if (finish !== Finish.done) {
             // 操作错误，retry++ or bad

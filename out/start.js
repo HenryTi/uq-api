@@ -124,17 +124,17 @@ exports.init = init;
 function start() {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        yield forDebug();
+        // await forDebug();
         yield runJobsForever();
     });
 }
 exports.start = start;
-function forDebug() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let net = core_1.testNet;
-        let runner = yield net.getRunner('workshop_bus_test');
-    });
+/*
+async function forDebug() {
+    let net = testNet;
+    let runner = await net.getRunner('workshop_bus_test');
 }
+*/
 /**
  * 所有Job运行的总入口点
  */
@@ -158,6 +158,7 @@ function runJobsForever() {
 function runJobs() {
     return __awaiter(this, void 0, void 0, function* () {
         let jobs = new jobs_1.Jobs();
+        yield jobs.beforeRun();
         if (core_1.env.isDevelopment === true) {
             let uqDbNames = core_1.env.configDebugging.uqs;
             yield jobs.debugUqJob(uqDbNames);
