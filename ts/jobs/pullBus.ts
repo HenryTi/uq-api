@@ -42,7 +42,7 @@ export class PullBus {
         }
         catch (err) {
             logger.error(err);
-            await this.runner.log(0, 'jobs pullBus loop error: ', getErrorString(err));
+            await this.runner.logError(0, 'jobs pullBus loop error: ', getErrorString(err));
             return -1;
         }
         return retCount;
@@ -151,7 +151,7 @@ export class PullBus {
         catch (toQueueInErr) {
             this.hasError = this.buses.hasError = true;
             logger.error(toQueueInErr);
-            await this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, getErrorString(toQueueInErr));
+            await this.runner.logError(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, getErrorString(toQueueInErr));
             return false;
         }
     }

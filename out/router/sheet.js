@@ -59,7 +59,7 @@ function buildSheetRouter(router, rb) {
             return sheetRet;
         }
         catch (err) {
-            yield runner.log(unit, 'sheet save ' + name, data);
+            yield runner.logError(unit, 'sheet save ' + name, data);
         }
     }));
     rb.entityPost(router, constSheet, '/:name/direct', (unit, user, name, db, urlParams, runner, body, schema, run) => __awaiter(this, void 0, void 0, function* () {
@@ -94,7 +94,7 @@ function buildSheetRouter(router, rb) {
             return sheetRet;
         }
         catch (err) {
-            yield runner.log(unit, 'sheet save ' + name, data);
+            yield runner.logError(unit, 'sheet save ' + name, data);
         }
     }));
     rb.entityPut(router, constSheet, '/:name', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {

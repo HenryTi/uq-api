@@ -20,7 +20,7 @@ export class QueueOut {
             retCount += await this.internalRun();
         }
         catch (err) {
-            await this.runner.log(0, 'jobs queueOut loop', getErrorString(err));
+            await this.runner.logError(0, 'jobs queueOut loop', getErrorString(err));
             if (env.isDevelopment === true) logger.error(err);
             return -1;
         }
@@ -45,7 +45,7 @@ export class QueueOut {
         return retCount;
     }
 
-    private async processOneRow(row: any, defer: number) {
+    async processOneRow(row: any, defer: number) {
         // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
         let { $unit, id, to, action, subject, content, tries, update_time, now, stamp } = row;
         logger.debug('queueOut 1: ', action, subject, content, update_time);
@@ -98,7 +98,7 @@ export class QueueOut {
                 }
                 let errSubject = `error on ${action}:  ${subject}`;
                 let error = getErrorString(err);
-                await this.runner.log($unit, errSubject, error);
+                await this.runner.logError($unit, errSubject, error);
             }
         }
         if (finish !== undefined) await this.runner.unitCall(procMessageQueueSet, $unit, id, defer, finish);
@@ -214,27 +214,11 @@ export class QueueOut {
             if (!unitXArr || unitXArr.length === 0) return;
             let promises = unitXArr.map(async (v) => {
                 await sendToUnitxAndLocal(this.runner, v);
-                /*
-                let message: BusMessage = buildMessage(v);
-                await this.runner.net.sendToUnitx(v, message);
-                if (local === true) {
-                    defer = -1;
-                    await this.runner.call('$queue_in_add', [v, to, defer, id, busEntityName, face, body, stamp]);
-                }
-                */
             });
             await Promise.all(promises);
         }
         else {
             await sendToUnitxAndLocal(this.runner, unit);
-            /*
-            let message: BusMessage = buildMessage(unit);
-            await this.runner.net.sendToUnitx(unit, message);
-            if (local === true) {
-                defer = -1;
-                await this.runner.call('$queue_in_add', [unit, to, defer, id, busEntityName, face, body, 0, stamp]);
-            }
-            */
         }
     }
 

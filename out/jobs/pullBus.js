@@ -45,7 +45,7 @@ class PullBus {
             }
             catch (err) {
                 tool_1.logger.error(err);
-                yield this.runner.log(0, 'jobs pullBus loop error: ', (0, tool_2.getErrorString)(err));
+                yield this.runner.logError(0, 'jobs pullBus loop error: ', (0, tool_2.getErrorString)(err));
                 return -1;
             }
             return retCount;
@@ -171,7 +171,7 @@ class PullBus {
             catch (toQueueInErr) {
                 this.hasError = this.buses.hasError = true;
                 tool_1.logger.error(toQueueInErr);
-                yield this.runner.log(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, (0, tool_2.getErrorString)(toQueueInErr));
+                yield this.runner.logError(unit, 'jobs pullBus loop to QueueInErr msgId=' + msgId, (0, tool_2.getErrorString)(toQueueInErr));
                 return false;
             }
         });

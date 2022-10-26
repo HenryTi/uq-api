@@ -41,11 +41,18 @@ class BusFace {
                 busAllVersions = {};
                 exports.allBuses[this.busUrl] = busAllVersions;
             }
-            if (!bus) {
+            if (bus === undefined) {
                 let schemaText = yield centerApi_1.centerApi.busSchema(this.busOwner, this.busName, version);
-                bus = this.buildBus(schemaText);
+                if (!schemaText) {
+                    bus = null;
+                }
+                else {
+                    bus = this.buildBus(schemaText);
+                }
                 busAllVersions[version] = bus;
             }
+            if (bus === null)
+                return null;
             return bus[this.faceName];
         });
     }
@@ -61,7 +68,12 @@ class BusFace {
         for (let i in schemas) {
             let schema = schemas[i];
             let face = bus[i.toLowerCase()];
-            this.buildFace(bus, face, schema);
+            if (Array.isArray(schema) === true) {
+                this.buildFace(bus, face, schema);
+            }
+            else {
+                Object.assign(face, schema);
+            }
         }
         return bus;
     }
@@ -91,11 +103,20 @@ class BusFaceAccept extends BusFace {
     convert(busBody, version) {
         return __awaiter(this, void 0, void 0, function* () {
             let face = yield this.getFaceSchema(version);
+            if (face === null) {
+                throw new Error(this.busNotExists(version));
+            }
             let body = this.parseBusBody(busBody, face);
             let faceThisVersion = yield this.getFaceSchema(this.version);
+            if (faceThisVersion === null) {
+                throw new Error(this.busNotExists(this.version));
+            }
             let busText = this.buildBusBody(body, faceThisVersion);
             return busText;
         });
+    }
+    busNotExists(version) {
+        return `bus ${this.busOwner}.${this.busName}.${this.faceName} version ${version} not exists`;
     }
     parseBusBody(busBody, face) {
         let ret = [];
