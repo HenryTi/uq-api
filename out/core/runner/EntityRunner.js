@@ -26,12 +26,6 @@ const Runner_1 = require("./Runner");
 // 新版本会去掉uq里面的唯一unit的概念。
 const uniqueUnitInConfig = (_a = config.get('unique-unit')) !== null && _a !== void 0 ? _a : 0;
 class EntityRunner extends Runner_1.Runner {
-    /**
-     * EntityRunner: 提供调用某个db中存储过程 / 缓存某db中配置数据 的类？
-     * @param name uq(即数据库)的名称
-     * @param db
-     * @param net
-     */
     constructor(name, db, net = undefined) {
         super(db);
         this.roleVersions = {};
@@ -78,11 +72,6 @@ class EntityRunner extends Runner_1.Runner {
             yield this.init();
         });
     }
-    /**
-     * 设置runner的compileTick，但是这个compileTick好像没看到有什么用
-     * @param compileTick
-     * @returns
-     */
     setCompileTick(compileTick) {
         return __awaiter(this, void 0, void 0, function* () {
             if (compileTick === undefined)
@@ -412,11 +401,6 @@ class EntityRunner extends Runner_1.Runner {
             yield this.db.create$UqDb();
         });
     }
-    /**
-     * 读取runner对应的uq的entity表和setting表
-     * @param hasSource 表示是否读取entity的源代码
-     * @returns array[0]对应的是entity表的记录；array[1]对应的是setting表的记录
-     */
     loadSchemas(hasSource) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.db.tablesFromProc('tv_$entitys', [hasSource]);
