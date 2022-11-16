@@ -166,6 +166,13 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         return sql + sqlLineEnd;
     }
 
+    /**
+     * 构建 新增 ID 的sql 
+     * @param ts 
+     * @param withRet 
+     * @param idValue 
+     * @returns 
+     */
     private buildSaveID(ts: TableSchema, withRet: boolean, idValue?: any): string {
         let sql = '';
         let { values, name, schema } = ts;
@@ -256,6 +263,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         return sql;
     }
 
+    /**
+     * 构建 新增？ ID的sql 
+     * @param ts 
+     * @param idValue 
+     * @returns 
+     */
     protected buildSaveIDWithRet(ts: TableSchema, idValue?: any): string {
         let sql = this.buildSaveID(ts, true, idValue);
         return sql;
@@ -266,6 +279,11 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         return sql;
     }
 
+    /**
+     * 构建 增删改 IDX的sql 
+     * @param ts 
+     * @returns 
+     */
     protected buildSaveIDX(ts: TableSchema): string {
         let sql = '';
         let { values } = ts;
@@ -283,6 +301,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         return sql;
     }
 
+    /**
+     * 
+     * @param ts 
+     * @param ixValue 
+     * @returns 
+     */
     protected buildSaveIX(ts: TableSchema, ixValue?: any): string {
         let sql = '';
         let { values } = ts;
@@ -319,6 +343,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         return sql;
     }
 
+    /**
+     * 构建 新增或修改 IDX的sql 
+     * @param ts 
+     * @param value 
+     * @returns 
+     */
     protected buildUpsert(ts: TableSchema, value: any): string {
         let { name: tableName, schema } = ts;
         let { keys, fields, type, hasSort } = schema;

@@ -6,10 +6,19 @@ import { getErrorString } from "../tool";
 export class QueueIn {
     private runner: EntityRunner;
     private queuePointer: number;
+
+    /**
+     * QueueIn: 是从本地$queue_in中获取接收到的bus消息，并进一步处理
+     * @param runner 
+     */
     constructor(runner: EntityRunner) {
         this.runner = runner;
     }
 
+    /**
+     * 调用$queue_in_get从$queue_in中获取接收的bus消息，并进一步处理。
+     * @returns 
+     */
     async run(): Promise<number> {
         let retCount: number = 0;
         for (let defer = 0; defer < deferMax; defer++) {
@@ -39,6 +48,12 @@ export class QueueIn {
         return retCount;
     }
 
+    /**
+     * 处理bus消息 
+     * @param row 从$queue_in中获取的bus消息
+     * @param defer 
+     * @returns 
+     */
     private async processOneRow(row: any, defer: number): Promise<void> {
         let { bus, faceName, id, unit, to, data, version, tries, update_time, now, stamp } = row;
         if (!unit) unit = this.runner.uniqueUnit;

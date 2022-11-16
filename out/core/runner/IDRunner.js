@@ -16,6 +16,13 @@ class IDRunner {
         this.entityRunner = entityRunner;
         this.dbCaller = dbCaller;
     }
+    /**
+     * 对ID进行增删改的操作？
+     * @param unit
+     * @param user
+     * @param param JSON, 从（joint?）中传送过来的数据
+     * @returns
+     */
     Acts(unit, user, param) {
         for (let i in param) {
             if (i === '$')
@@ -45,6 +52,13 @@ class IDRunner {
         }
         return ret;
     }
+    /**
+     * 对IX进行增删改的操作？
+     * @param unit
+     * @param user
+     * @param param
+     * @returns
+     */
     ActIX(unit, user, param) {
         let { IX, ID: ID, IXs, values } = param;
         param.IX = this.getTableSchema(IX, ['ix']);

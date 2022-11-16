@@ -40,6 +40,13 @@ class DbCaller {
             return ret;
         });
     }
+    /**
+     * 执行构建的sql语句
+     * @param unit
+     * @param user
+     * @param param 带有数据和schema
+     * @returns
+     */
     Acts(unit, user, param) {
         return __awaiter(this, void 0, void 0, function* () {
             let sql = this.builder.Acts(param).build();

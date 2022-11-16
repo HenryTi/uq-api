@@ -14,9 +14,17 @@ const tool_1 = require("../tool");
 const consts_1 = require("./consts");
 const tool_2 = require("../tool");
 class QueueIn {
+    /**
+     * QueueIn: 是从本地$queue_in中获取接收到的bus消息，并进一步处理
+     * @param runner
+     */
     constructor(runner) {
         this.runner = runner;
     }
+    /**
+     * 调用$queue_in_get从$queue_in中获取接收的bus消息，并进一步处理。
+     * @returns
+     */
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
@@ -49,6 +57,12 @@ class QueueIn {
             return retCount;
         });
     }
+    /**
+     * 处理bus消息
+     * @param row 从$queue_in中获取的bus消息
+     * @param defer
+     * @returns
+     */
     processOneRow(row, defer) {
         return __awaiter(this, void 0, void 0, function* () {
             let { bus, faceName, id, unit, to, data, version, tries, update_time, now, stamp } = row;

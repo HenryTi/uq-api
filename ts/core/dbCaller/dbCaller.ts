@@ -271,6 +271,13 @@ export abstract class DbCaller {
         return ret;
     }
 
+    /**
+     * 执行构建的sql语句 
+     * @param unit 
+     * @param user 
+     * @param param 带有数据和schema 
+     * @returns 
+     */
     async Acts(unit: number, user: number, param: ParamActs): Promise<any[]> {
         let sql = this.builder.Acts(param).build();
         if ((param as any).$sql === true) return sql as any;

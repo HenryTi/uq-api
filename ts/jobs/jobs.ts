@@ -224,7 +224,7 @@ export class Jobs {
     }
 
     /**
-     * 
+     * 运行指定uq中的job，包括：1.uq中定义了bus， 
      * uqDbName可能包含$test，以此区分测试库或者生产库
      * @param uqDbName uq（即数据库上DB）的名称 
      * @param compile_tick 

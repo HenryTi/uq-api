@@ -3,6 +3,7 @@
     "centerhost": "localhost:3000",
     "port": 3015,
     "local-port": 3016,
+    "unique-unit": 24,
     "secret": "xxx-yyy-zzz-00110",
     "sqlType": "mysql",
     "uploadPath": "../uploads/",
