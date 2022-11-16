@@ -11,7 +11,10 @@ export class PullBus {
     private readonly coll: { [url: string]: BusFace };
     private hasError: boolean;
 
-
+    /**
+     * PullBus: 从unitx上获取指定runner（即指定uq）中定义的bus消息，并写入本uq的$queue_in表中（等待进一步处理） 
+     * @param runner 
+     */
     constructor(runner: EntityRunner) {
         this.runner = runner;
         this.net = runner.net;
@@ -21,6 +24,10 @@ export class PullBus {
         this.hasError = this.buses.hasError;
     }
 
+    /**
+     * 
+     * @returns 
+     */
     async run(): Promise<number> {
         let retCount: number = 0;
         try {
@@ -48,6 +55,13 @@ export class PullBus {
         return retCount;
     }
 
+    /**
+     * 
+     * @param unit 
+     * @param maxId 
+     * @param maxId1 
+     * @returns 
+     */
     async pullRun(unit: number, maxId: number, maxId1: number): Promise<number> {
         let retCount: number = 0;
         let pullIds: number[] = [maxId, maxId1];
@@ -60,6 +74,14 @@ export class PullBus {
         return retCount;
     }
 
+    /**
+     * 使用http从unitx上获取指定faces的bus消息，并处理（） 
+     * @param unit 
+     * @param pullId 
+     * @param defer 
+     * @param count 
+     * @returns 
+     */
     private async pullFromUnitx(unit: number, pullId: number, defer: number, count: number): Promise<number> {
         let retCount: number = 0;
         for (let i = 0; i < count;) {
@@ -95,6 +117,13 @@ export class PullBus {
         return retCount;
     }
 
+    /**
+     * 处理从unitx上获取的bus消息(写入$queue_in表)
+     * @param unit 
+     * @param defer 
+     * @param message 
+     * @returns 
+     */
     private async processMessage(unit: number, defer: number, message: any): Promise<boolean> {
         let { to, face: faceUrl, id: msgId, body, version, stamp } = message;
         let face = this.coll[(faceUrl as string).toLowerCase()];

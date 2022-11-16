@@ -32,7 +32,13 @@ interface SheetRun {
 const uniqueUnitInConfig = config.get<number>('unique-unit') ?? 0;
 
 export interface Buses {
+    /**
+     * 一个uq的bus中定义的所有face的完整名称（ownername/busname/facename），用\n分隔
+     */
     faces: string;
+    /**
+     * 一个uq中定义的bus的个数 
+     */
     outCount: number;
     urlColl: { [url: string]: BusFace };
     faceColl: { [bus: string]: BusFace };
@@ -47,6 +53,10 @@ export class EntityRunner extends Runner {
     private roleNames: { [role: string]: string[] };
     private ids: { [name: string]: any };
     private tuids: { [name: string]: any };
+
+    /**
+     * entity表中bus的定义集合
+     */
     private busArr: any[];
     private entityColl: { [id: number]: EntityAccess };
     private sheetRuns: { [sheet: string]: SheetRun };
@@ -71,6 +81,10 @@ export class EntityRunner extends Runner {
     uqVersion: number;  // uq compile changes
     uniqueUnit: number;
     service: number;
+
+    /**
+     * 一个uq定义的bus的信息
+     */
     buses: Buses; //{[url:string]:any}; // 直接查找bus
     hasPullEntities: boolean = false;
     net: Net;
@@ -79,6 +93,12 @@ export class EntityRunner extends Runner {
     execQueueActError: boolean = false;
     devBuildSys: boolean = false;
 
+    /**
+     * EntityRunner: 提供调用某个db中存储过程 / 缓存某db中配置数据 的类？
+     * @param name uq(即数据库)的名称
+     * @param db 
+     * @param net 
+     */
     constructor(name: string, db: Db, net: Net = undefined) {
         super(db);
         this.name = name;
@@ -98,6 +118,11 @@ export class EntityRunner extends Runner {
         await this.init();
     }
 
+    /**
+     * 设置runner的compileTick，但是这个compileTick好像没看到有什么用
+     * @param compileTick 
+     * @returns 
+     */
     async setCompileTick(compileTick: number) {
         if (compileTick === undefined) return;
         if (this.compileTick === compileTick) return;
@@ -345,9 +370,16 @@ export class EntityRunner extends Runner {
     async create$UqDb(): Promise<void> {
         await this.db.create$UqDb();
     }
+
+    /**
+     * 读取runner对应的uq的entity表和setting表
+     * @param hasSource 表示是否读取entity的源代码 
+     * @returns array[0]对应的是entity表的记录；array[1]对应的是setting表的记录 
+     */
     async loadSchemas(hasSource: number): Promise<any[][]> {
         return await this.db.tablesFromProc('tv_$entitys', [hasSource]);
     }
+
     async saveSchema(unit: number, user: number, id: number, name: string, type: number, schema: string, run: string, source: string, from: string, open: number, isPrivate: number): Promise<any> {
         return await this.unitUserCall('tv_$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
     }
@@ -690,7 +722,10 @@ export class EntityRunner extends Runner {
     private async initInternal() {
         await this.removeAllScheduleEvents();
         let rows = await this.loadSchemas(0);
-        let schemaTable: { id: number, name: string, type: number, version: number, schema: string, run: string, from: string, isPrivate: number }[] = rows[0];
+        let schemaTable: {
+            id: number, name: string, type: number, version: number,
+            schema: string, run: string, from: string, isPrivate: number
+        }[] = rows[0];
         let settingTable: { name: string, value: string }[] = rows[1];
         let setting: { [name: string]: string | number } = {};
         for (let row of settingTable) {
@@ -720,8 +755,8 @@ export class EntityRunner extends Runner {
         let ixUserArr = [];
 
         let uu = setting['uniqueunit'] as number;
-
         this.uniqueUnit = uu ?? uniqueUnitInConfig;
+
 
         if (env.isDevelopment) logger.debug('init schemas: ', this.uq, this.author, this.version);
 
