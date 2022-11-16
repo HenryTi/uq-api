@@ -404,21 +404,26 @@ export abstract class MySqlBuilder implements ISqlBuilder {
                         case '+': dupAdd = '+ifnull(`' + name + '`, 0)'; break;
                         case '=': dupAdd = ''; break;
                     }
-                    //if (time === undefined) {
-                    //	val = `${v}`;
-                    //}
-                    //else {
+                    if (v === undefined || v === null) {
+                        val = 'null';
+                    }
+                    else {
+                        val = `'${v}'`;
+                    }
+                    /*
                     switch (type) {
                         default:
                             val = `${v}`;
                             break;
+                        case 'number':
+                        case 'string':
                         case 'date':
                         case 'datetime':
                         case 'time':
                             val = `'${v}'`;
                             break;
                     }
-                    //}
+                    */
                 }
                 switch (name) {
                     default:
