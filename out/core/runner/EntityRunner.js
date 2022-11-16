@@ -8,11 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EntityRunner = void 0;
 const _ = require("lodash");
-const config = require("config");
 const tool_1 = require("../../tool");
 const dbCaller_1 = require("../dbCaller");
 const packReturn_1 = require("../packReturn");
@@ -22,9 +20,6 @@ const centerApi_1 = require("../centerApi");
 const BusFace_1 = require("./BusFace");
 const IDRunner_1 = require("./IDRunner");
 const Runner_1 = require("./Runner");
-// 整个服务器，可以单独设置一个unit id。跟老版本兼容。
-// 新版本会去掉uq里面的唯一unit的概念。
-const uniqueUnitInConfig = (_a = config.get('unique-unit')) !== null && _a !== void 0 ? _a : 0;
 class EntityRunner extends Runner_1.Runner {
     /**
      * EntityRunner: 提供调用某个db中存储过程 / 缓存某db中配置数据 的类？
@@ -902,7 +897,7 @@ class EntityRunner extends Runner_1.Runner {
             this.dbCaller.setBuilder();
             let ixUserArr = [];
             let uu = setting['uniqueunit'];
-            this.uniqueUnit = uu !== null && uu !== void 0 ? uu : uniqueUnitInConfig;
+            this.uniqueUnit = uu ? uu : 0;
             if (dbCaller_1.env.isDevelopment)
                 tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
             this.schemas = {};
