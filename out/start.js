@@ -105,6 +105,7 @@ function init() {
             let localApp = express();
             let localPort = config.get('local-port');
             if (localPort) {
+                localApp.use('/hello', dbHello);
                 localApp.use('/prod/:db/', buildLocalRouter(router_1.uqProdRouterLocalBuilder));
                 localApp.use('/test/:db/', buildLocalRouter(router_1.uqTestRouterLocalBuilder));
                 localApp.listen(localPort, () => __awaiter(this, void 0, void 0, function* () {

@@ -76,23 +76,23 @@ export abstract class RouterBuilder {
 
     entityPost(router: Router, entityType: string, path: string, processer: EntityProcesser) {
         router.post(`/${entityType}${path}`, async (req: Request, res: Response) => {
-            await this.entityProcess(req, res, entityType, processer, false);
+            await this.entityHttpProcess(req, res, entityType, processer, false);
         });
     };
 
     entityGet(router: Router, entityType: string, path: string, processer: EntityProcesser) {
         router.get(`/${entityType}${path}`, async (req: Request, res: Response) => {
-            await this.entityProcess(req, res, entityType, processer, true);
+            await this.entityHttpProcess(req, res, entityType, processer, true);
         });
     };
 
     entityPut(router: Router, entityType: string, path: string, processer: EntityProcesser) {
         router.put(`/${entityType}${path}`, async (req: Request, res: Response) => {
-            await this.entityProcess(req, res, entityType, processer, false);
+            await this.entityHttpProcess(req, res, entityType, processer, false);
         });
     };
 
-    protected abstract entityProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void>;
+    protected abstract entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void>;
 
     protected async checkRunner(db: string): Promise<EntityRunner> {
         let runner = await this.net.getRunner(db);
@@ -122,7 +122,7 @@ export abstract class RouterBuilder {
 }
 
 export class RouterWebBuilder extends RouterBuilder {
-    protected async entityProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
+    protected async entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
         try {
             let userToken: User = (req as any).user;
             let { db, id: userId, unit, roles } = userToken;
@@ -197,7 +197,7 @@ export class RouterWebBuilder extends RouterBuilder {
 }
 
 export class RouterLocalBuilder extends RouterBuilder {
-    protected async entityProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
+    protected async entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
         try {
             //let userToken: User = (req as any).user;
             //let { db, id: userId, unit, roles } = userToken;

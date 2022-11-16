@@ -109,6 +109,7 @@ export async function init(): Promise<void> {
         let localApp = express();
         let localPort = config.get<number>('local-port');
         if (localPort) {
+            localApp.use('/hello', dbHello);
             localApp.use('/prod/:db/', buildLocalRouter(uqProdRouterLocalBuilder));
             localApp.use('/test/:db/', buildLocalRouter(uqTestRouterLocalBuilder));
             localApp.listen(localPort, async () => {

@@ -75,19 +75,19 @@ class RouterBuilder {
     }
     entityPost(router, entityType, path, processer) {
         router.post(`/${entityType}${path}`, (req, res) => __awaiter(this, void 0, void 0, function* () {
-            yield this.entityProcess(req, res, entityType, processer, false);
+            yield this.entityHttpProcess(req, res, entityType, processer, false);
         }));
     }
     ;
     entityGet(router, entityType, path, processer) {
         router.get(`/${entityType}${path}`, (req, res) => __awaiter(this, void 0, void 0, function* () {
-            yield this.entityProcess(req, res, entityType, processer, true);
+            yield this.entityHttpProcess(req, res, entityType, processer, true);
         }));
     }
     ;
     entityPut(router, entityType, path, processer) {
         router.put(`/${entityType}${path}`, (req, res) => __awaiter(this, void 0, void 0, function* () {
-            yield this.entityProcess(req, res, entityType, processer, false);
+            yield this.entityHttpProcess(req, res, entityType, processer, false);
         }));
     }
     ;
@@ -123,7 +123,7 @@ class RouterBuilder {
 }
 exports.RouterBuilder = RouterBuilder;
 class RouterWebBuilder extends RouterBuilder {
-    entityProcess(req, res, entityType, processer, isGet) {
+    entityHttpProcess(req, res, entityType, processer, isGet) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let userToken = req.user;
@@ -202,7 +202,7 @@ class RouterWebBuilder extends RouterBuilder {
 }
 exports.RouterWebBuilder = RouterWebBuilder;
 class RouterLocalBuilder extends RouterBuilder {
-    entityProcess(req, res, entityType, processer, isGet) {
+    entityHttpProcess(req, res, entityType, processer, isGet) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 //let userToken: User = (req as any).user;

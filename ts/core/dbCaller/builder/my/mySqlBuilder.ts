@@ -408,6 +408,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
                         default:
                             val = `${v}`;
                             break;
+                        case 'char':
                         case 'date':
                         case 'datetime':
                         case 'time':

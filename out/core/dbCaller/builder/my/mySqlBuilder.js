@@ -405,6 +405,7 @@ class MySqlBuilder {
                         default:
                             val = `${v}`;
                             break;
+                        case 'char':
                         case 'date':
                         case 'datetime':
                         case 'time':
