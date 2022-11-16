@@ -401,26 +401,16 @@ class MySqlBuilder {
                             dupAdd = '';
                             break;
                     }
-                    if (v === undefined || v === null) {
-                        val = 'null';
-                    }
-                    else {
-                        val = `'${v}'`;
-                    }
-                    /*
                     switch (type) {
                         default:
                             val = `${v}`;
                             break;
-                        case 'number':
-                        case 'string':
                         case 'date':
                         case 'datetime':
                         case 'time':
                             val = `'${v}'`;
                             break;
                     }
-                    */
                 }
                 switch (name) {
                     default:
