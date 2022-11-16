@@ -17,9 +17,19 @@ const tool_2 = require("../tool");
 const unitx_1 = require("../core/unitx");
 const procMessageQueueSet = 'tv_$message_queue_set';
 class QueueOut {
+    /**
+     * QueueOut: 指的是处理message_queue中的数据，其中最重要的数据应该是bus消息
+     * 处理bus消息就是发送bus，因为发送bus是发出去，所有名称中带有Out
+     * @param runner
+     */
     constructor(runner) {
         this.runner = runner;
     }
+    /**
+     * 调用tv_$message_queue_out从$message_queue中获取数据，依次执行其对应的存储过程
+     * 其中经常使用的是bus消息，然后发送bus
+     * @returns
+     */
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
@@ -55,6 +65,12 @@ class QueueOut {
             return retCount;
         });
     }
+    /**
+     *
+     * @param row message_queue中的一行
+     * @param defer
+     * @returns
+     */
     processOneRow(row, defer) {
         return __awaiter(this, void 0, void 0, function* () {
             // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值

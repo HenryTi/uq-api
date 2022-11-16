@@ -26,6 +26,11 @@ class Net {
         this.id = id;
         this.unitx = this.createUnitx();
     }
+    /**
+     *
+     * @param name uq(即数据库)的名称
+     * @returns
+     */
     innerRunner(name) {
         return __awaiter(this, void 0, void 0, function* () {
             name = name.toLowerCase();
@@ -43,6 +48,11 @@ class Net {
             return runner;
         });
     }
+    /**
+     *
+     * @param name  uq(即数据库)的名称
+     * @returns 返回该uq的runner(可以执行该uq的存储过程等)
+     */
     getRunner(name) {
         return __awaiter(this, void 0, void 0, function* () {
             let runner = yield this.innerRunner(name);
@@ -120,6 +130,12 @@ class Net {
             return runner;
         });
     }
+    /**
+     *
+     * @param name uq(即数据库)的名称
+     * @param db
+     * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等)
+     */
     createRunnerFromDb(name, db) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield new Promise((resolve, reject) => {

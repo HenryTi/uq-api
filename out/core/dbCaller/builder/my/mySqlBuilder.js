@@ -158,6 +158,13 @@ class MySqlBuilder {
         sql += ' AND ' + whereId;
         return sql + exports.sqlLineEnd;
     }
+    /**
+     * 构建 新增 ID 的sql
+     * @param ts
+     * @param withRet
+     * @param idValue
+     * @returns
+     */
     buildSaveID(ts, withRet, idValue) {
         let sql = '';
         let { values, name, schema } = ts;
@@ -252,6 +259,12 @@ class MySqlBuilder {
             sql += exports.retLn;
         return sql;
     }
+    /**
+     * 构建 新增？ ID的sql
+     * @param ts
+     * @param idValue
+     * @returns
+     */
     buildSaveIDWithRet(ts, idValue) {
         let sql = this.buildSaveID(ts, true, idValue);
         return sql;
@@ -260,6 +273,11 @@ class MySqlBuilder {
         let sql = this.buildSaveID(ts, false, idValue);
         return sql;
     }
+    /**
+     * 构建 增删改 IDX的sql
+     * @param ts
+     * @returns
+     */
     buildSaveIDX(ts) {
         let sql = '';
         let { values } = ts;
@@ -275,6 +293,12 @@ class MySqlBuilder {
         sql += exports.retLn;
         return sql;
     }
+    /**
+     *
+     * @param ts
+     * @param ixValue
+     * @returns
+     */
     buildSaveIX(ts, ixValue) {
         let sql = '';
         let { values } = ts;
@@ -310,6 +334,12 @@ class MySqlBuilder {
         sql += exports.retLn;
         return sql;
     }
+    /**
+     * 构建 新增或修改 IDX的sql
+     * @param ts
+     * @param value
+     * @returns
+     */
     buildUpsert(ts, value) {
         let { name: tableName, schema } = ts;
         let { keys, fields, type, hasSort } = schema;

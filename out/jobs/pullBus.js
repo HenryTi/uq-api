@@ -14,6 +14,10 @@ const tool_1 = require("../tool");
 const tool_2 = require("../tool");
 const consts_1 = require("./consts");
 class PullBus {
+    /**
+     * PullBus: 从unitx上获取指定runner（即指定uq）中定义的bus消息，并写入本uq的$queue_in表中（等待进一步处理）
+     * @param runner
+     */
     constructor(runner) {
         this.runner = runner;
         this.net = runner.net;
@@ -22,6 +26,10 @@ class PullBus {
         this.coll = this.buses.urlColl;
         this.hasError = this.buses.hasError;
     }
+    /**
+     *
+     * @returns
+     */
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
@@ -51,6 +59,13 @@ class PullBus {
             return retCount;
         });
     }
+    /**
+     *
+     * @param unit
+     * @param maxId
+     * @param maxId1
+     * @returns
+     */
     pullRun(unit, maxId, maxId1) {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
@@ -65,6 +80,14 @@ class PullBus {
             return retCount;
         });
     }
+    /**
+     * 使用http从unitx上获取指定faces的bus消息，并处理（）
+     * @param unit
+     * @param pullId
+     * @param defer
+     * @param count
+     * @returns
+     */
     pullFromUnitx(unit, pullId, defer, count) {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
@@ -106,6 +129,13 @@ class PullBus {
             return retCount;
         });
     }
+    /**
+     * 处理从unitx上获取的bus消息(写入$queue_in表)
+     * @param unit
+     * @param defer
+     * @param message
+     * @returns
+     */
     processMessage(unit, defer, message) {
         return __awaiter(this, void 0, void 0, function* () {
             let { to, face: faceUrl, id: msgId, body, version, stamp } = message;

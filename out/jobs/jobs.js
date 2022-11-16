@@ -38,6 +38,9 @@ const uqsExclude = undefined;
     'thirdpartyadapter',
 ];
 class Jobs {
+    /**
+     * 所有Job的容器类，用于从db中获取job定义，运行job
+     */
     constructor() {
         this.loopWait = true;
         this.$uqDb = core_1.Db.db(core_1.consts.$uq);
@@ -66,6 +69,10 @@ class Jobs {
             }
         });
     }
+    /**
+     * 在for死循环中运行所有job
+     * @returns
+     */
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             this.$uqDb.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
@@ -126,6 +133,10 @@ class Jobs {
             }
         });
     }
+    /**
+     *
+     * @returns
+     */
     uqsJob() {
         return __awaiter(this, void 0, void 0, function* () {
             let totalCount = 0;
@@ -208,6 +219,11 @@ class Jobs {
             }
         });
     }
+    /**
+     *
+     * @param uqDbName uq(即数据库)的名称
+     * @returns 返回该uq的runner(可以执行该uq的存储过程等)
+     */
     getRunnerFromDbName(uqDbName) {
         return __awaiter(this, void 0, void 0, function* () {
             let net;
@@ -225,7 +241,13 @@ class Jobs {
             return runner;
         });
     }
-    // uqDbName可能包含$test，以此区分测试库或者生产库
+    /**
+     * 运行指定uq中的job，包括：1.uq中定义了bus，
+     * uqDbName可能包含$test，以此区分测试库或者生产库
+     * @param uqDbName uq（即数据库上DB）的名称
+     * @param compile_tick
+     * @returns
+     */
     uqJob(uqDbName, compile_tick) {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
