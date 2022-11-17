@@ -409,6 +409,8 @@ export abstract class MySqlBuilder implements ISqlBuilder {
                             val = `${v}`;
                             break;
                         case 'char':
+                            val = `${sqlStringEscape(v)}`
+                            break;
                         case 'date':
                         case 'datetime':
                         case 'time':
@@ -567,4 +569,27 @@ export abstract class MySqlBuilder implements ISqlBuilder {
         ret += ') ';
         return ret;
     }
+}
+
+const esc = /\\|\'/;
+const chars = '\\\'';
+const cSplash = chars.charCodeAt(0);
+const cQuote = chars.charCodeAt(1);
+function sqlStringEscape(s: string): string {
+    if (s.search(esc) < 0) return s;
+    let ret = '';
+    let len = s.length;
+    let p = 0;
+    for (let i = 0; i < len; i++) {
+        let c = s.charCodeAt(i);
+        if (c === cSplash) {
+            ret += s.substring(p, i) + '\\\\';
+            p = i + 1;
+        }
+        else if (c === cQuote) {
+            ret += s.substring(p, i) + '\\\'';
+            p = i + 1;
+        }
+    }
+    return ret + s.substring(p);
 }
