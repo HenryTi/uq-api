@@ -406,7 +406,7 @@ class MySqlBuilder {
                             val = `${v}`;
                             break;
                         case 'char':
-                            val = `${sqlStringEscape(v)}`;
+                            val = `'${sqlStringEscape(v)}'`;
                             break;
                         case 'date':
                         case 'datetime':
