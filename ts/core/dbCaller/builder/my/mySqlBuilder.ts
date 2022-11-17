@@ -488,7 +488,12 @@ export abstract class MySqlBuilder implements ISqlBuilder {
                         v = 'null';
                     }
                     else {
-                        v = (type === 'textid' ? `tv_$textid('${v}')` : this.buildValue(v));
+                        if (type === 'textid') {
+                            v = `tv_$textid('${v}')`;
+                        }
+                        else if (typeof v === 'string') {
+                            v = this.buildValue(v);
+                        }
                     }
                     sql += v;
                     break;
@@ -552,7 +557,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
     }
 
     protected buildValue(val: any) {
-        if (typeof val !== 'object') return `'${val}'`;
+        if (typeof val !== 'object') return `'${sqlStringEscape(val)}'`;
         let ret = '';
         let { ID } = val;
         if (ID === undefined) throw Error('ID needed in ACTS ID field');
@@ -564,7 +569,7 @@ export abstract class MySqlBuilder implements ISqlBuilder {
             if (typeof v === 'number')
                 ret += ',' + v;
             else
-                ret += `,'${v}'`;
+                ret += `,'${sqlStringEscape(v)}'`;
         }
         ret += ') ';
         return ret;

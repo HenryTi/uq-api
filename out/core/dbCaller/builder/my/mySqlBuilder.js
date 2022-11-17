@@ -486,7 +486,12 @@ class MySqlBuilder {
                         v = 'null';
                     }
                     else {
-                        v = (type === 'textid' ? `tv_$textid('${v}')` : this.buildValue(v));
+                        if (type === 'textid') {
+                            v = `tv_$textid('${v}')`;
+                        }
+                        else if (typeof v === 'string') {
+                            v = this.buildValue(v);
+                        }
                     }
                     sql += v;
                     break;
@@ -553,7 +558,7 @@ class MySqlBuilder {
     }
     buildValue(val) {
         if (typeof val !== 'object')
-            return `'${val}'`;
+            return `'${sqlStringEscape(val)}'`;
         let ret = '';
         let { ID } = val;
         if (ID === undefined)
@@ -566,7 +571,7 @@ class MySqlBuilder {
             if (typeof v === 'number')
                 ret += ',' + v;
             else
-                ret += `,'${v}'`;
+                ret += `,'${sqlStringEscape(v)}'`;
         }
         ret += ') ';
         return ret;
