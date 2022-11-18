@@ -73,6 +73,8 @@ export class QueueIn {
             else {
                 let face = this.runner.buses.faceColl[`${bus.toLowerCase()}/${faceName.toLowerCase()}`];
                 if (face === undefined) return;
+                let { accept } = face;
+                let dup = accept?.dup;
                 if (version > 0 && face.version !== version) {
                     // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
                     // 不同需要做数据转换
@@ -83,7 +85,7 @@ export class QueueIn {
                     // 针对不同version的bus做转换
                     try {
                         let busData = await face.convert(data, version);
-                        await this.runner.bus(bus, faceName, unit, to, id, busData, version, stamp);
+                        await this.runner.bus(bus, faceName, unit, to, id, busData, version, stamp, dup);
                     }
                     catch (err) {
                         let errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}\nstack:${err.stack}`;
@@ -92,7 +94,7 @@ export class QueueIn {
                     }
                 }
                 else {
-                    await this.runner.bus(bus, faceName, unit, to, id, data, version, stamp);
+                    await this.runner.bus(bus, faceName, unit, to, id, data, version, stamp, dup);
                 }
             }
             finish = Finish.done;

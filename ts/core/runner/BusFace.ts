@@ -22,6 +22,7 @@ export const allBuses: {
 
 export abstract class BusFace {
     protected readonly entityRunner: EntityRunner;
+    accept: BusAccept;
     readonly busUrl: string;
     readonly bus: string;
     readonly busOwner: string;
@@ -114,9 +115,12 @@ interface BusContent {
     }
 }
 
+interface BusAccept {
+    inBuses: any[];
+    dup: number;
+}
 export class BusFaceAccept extends BusFace {
-    readonly accept: { inBuses: any[]; };
-    constructor(entityRunner: EntityRunner, url: string, bus: string, faceName: string, version: number, accept: { inBuses: any[] }) {
+    constructor(entityRunner: EntityRunner, url: string, bus: string, faceName: string, version: number, accept: BusAccept) {
         super(entityRunner, url, bus, faceName, version);
         this.accept = accept;
     }
