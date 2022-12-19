@@ -37,7 +37,11 @@ export abstract class Net {
             let db = Db.db(dbName);
             db.isTesting = this.isTesting;
             runner = await this.createRunnerFromDb(name, db);
-            if (runner === undefined) return;
+            if (runner === undefined) {
+                this.runners[name] = null;
+                return;
+            }
+            this.runners[name] = runner;
         }
         return runner;
     }
@@ -100,11 +104,18 @@ export abstract class Net {
 
     async getUnitxRunner(): Promise<EntityRunner> {
         let name = '$unitx';
-        let runner = this.runners[name];
+        let $name = '$' + name;
+        let runner = this.runners[$name];
         if (runner === null) return;
         if (runner === undefined) {
             runner = await this.createRunnerFromDb(name, this.unitx.db);
-            if (runner === undefined) return;
+            if (runner === undefined) {
+                this.runners[$name] = null;
+                return;
+            }
+            else {
+                this.runners[$name] = runner;
+            }
         }
         // 执行版的net，this.execeutingNet undefined，所以需要init
         if (this.executingNet === undefined) {
@@ -122,35 +133,37 @@ export abstract class Net {
      * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等) 
      */
     protected async createRunnerFromDb(name: string, db: Db): Promise<EntityRunner> {
-        return await new Promise<EntityRunner>((resolve, reject) => {
+        return await new Promise<EntityRunner>(async (resolve, reject) => {
             let promiseArr = this.createRunnerFromDbPromises[name];
             if (promiseArr !== undefined) {
                 promiseArr.push({ resolve, reject });
-                return;
+                return undefined;
             }
             this.createRunnerFromDbPromises[name] = promiseArr = [{ resolve, reject }];
-            db.exists().then(isExists => {
-                let runner: EntityRunner;
+            let runner: EntityRunner;
+            try {
+                let isExists = await db.exists();
                 if (isExists === false) {
-                    //logger.error('??? === ??? === ' + name + ' not exists in new Runner');
-                    this.runners[name] = null;
+                    // this.runners[name] = null;
                     runner = undefined;
                 }
                 else {
                     //logger.error('+++ === +++ === ' + name + ' new Runner(name, db, this)');
                     runner = new EntityRunner(name, db, this);
-                    this.runners[name] = runner;
+                    //this.runners[name] = runner;
                 }
                 for (let promiseItem of this.createRunnerFromDbPromises[name]) {
                     promiseItem.resolve(runner);
                 }
                 this.createRunnerFromDbPromises[name] = undefined;
-            }).catch(reason => {
+            }
+            catch (reason) {
                 for (let promiseItem of this.createRunnerFromDbPromises[name]) {
                     promiseItem.reject(reason);
                 }
                 this.createRunnerFromDbPromises[name] = undefined;
-            });
+            }
+            return runner;
         });
     }
 

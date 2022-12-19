@@ -42,8 +42,11 @@ class Net {
                 let db = db_1.Db.db(dbName);
                 db.isTesting = this.isTesting;
                 runner = yield this.createRunnerFromDb(name, db);
-                if (runner === undefined)
+                if (runner === undefined) {
+                    this.runners[name] = null;
                     return;
+                }
+                this.runners[name] = runner;
             }
             return runner;
         });
@@ -115,13 +118,19 @@ class Net {
     getUnitxRunner() {
         return __awaiter(this, void 0, void 0, function* () {
             let name = '$unitx';
-            let runner = this.runners[name];
+            let $name = '$' + name;
+            let runner = this.runners[$name];
             if (runner === null)
                 return;
             if (runner === undefined) {
                 runner = yield this.createRunnerFromDb(name, this.unitx.db);
-                if (runner === undefined)
+                if (runner === undefined) {
+                    this.runners[$name] = null;
                     return;
+                }
+                else {
+                    this.runners[$name] = runner;
+                }
             }
             // 执行版的net，this.execeutingNet undefined，所以需要init
             if (this.executingNet === undefined) {
@@ -138,36 +147,38 @@ class Net {
      */
     createRunnerFromDb(name, db) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield new Promise((resolve, reject) => {
+            return yield new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let promiseArr = this.createRunnerFromDbPromises[name];
                 if (promiseArr !== undefined) {
                     promiseArr.push({ resolve, reject });
-                    return;
+                    return undefined;
                 }
                 this.createRunnerFromDbPromises[name] = promiseArr = [{ resolve, reject }];
-                db.exists().then(isExists => {
-                    let runner;
+                let runner;
+                try {
+                    let isExists = yield db.exists();
                     if (isExists === false) {
-                        //logger.error('??? === ??? === ' + name + ' not exists in new Runner');
-                        this.runners[name] = null;
+                        // this.runners[name] = null;
                         runner = undefined;
                     }
                     else {
                         //logger.error('+++ === +++ === ' + name + ' new Runner(name, db, this)');
                         runner = new runner_1.EntityRunner(name, db, this);
-                        this.runners[name] = runner;
+                        //this.runners[name] = runner;
                     }
                     for (let promiseItem of this.createRunnerFromDbPromises[name]) {
                         promiseItem.resolve(runner);
                     }
                     this.createRunnerFromDbPromises[name] = undefined;
-                }).catch(reason => {
+                }
+                catch (reason) {
                     for (let promiseItem of this.createRunnerFromDbPromises[name]) {
                         promiseItem.reject(reason);
                     }
                     this.createRunnerFromDbPromises[name] = undefined;
-                });
-            });
+                }
+                return runner;
+            }));
         });
     }
     getOpenApiFromCache(uqFullName, unit) {

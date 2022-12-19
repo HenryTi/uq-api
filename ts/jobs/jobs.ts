@@ -234,18 +234,8 @@ export class Jobs {
         let retCount: number = 0;
         let runner = await this.getRunnerFromDbName(uqDbName);
         if (runner === undefined) return retCount;
-        /*
-        let net: Net;
-        let dbName: string;;
-        if (uqDbName.endsWith($test) === true) {
-            dbName = uqDbName.substring(0, uqDbName.length - $test.length);
-            net = testNet;
-        }
-        else {
-            dbName = uqDbName;
-            net = prodNet;
-        }
-        */
+        if (runner.isCompiling === true) return retCount;
+
         if (env.isDevelopment === true) {
             let dbName = runner.getDb();
             // 只有develop状态下,才做uqsInclude排除操作

@@ -33,7 +33,6 @@ function init() {
             throw err;
         });
         try {
-            tool_1.logger.debug("UQ-API init 1.1.5.3 ...\n");
             if (!process.env.NODE_ENV) {
                 tool_1.logger.error('NODE_ENV not defined, exit');
                 process.exit();

@@ -43,6 +43,7 @@ export function buildUnitxRouter(rb: RouterWebBuilder): Router {
 
     let fetchBus = async (runner: EntityRunner, body: any): Promise<any[][]> => {
         let { unit, msgStart, defer, faces } = body;
+        if (msgStart < 0) debugger;
         let ret = await runner.unitUserTablesFromProc('tv_GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
         return ret;
     }

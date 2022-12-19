@@ -678,10 +678,11 @@ export class EntityRunner extends Runner {
         let inBusAction = this.getAcceptParametersBus(bus, face);
         let inBusResult = await inBusAction.busQueryAll(unit, to, body);
         let data = body + inBusResult;
-        await this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, version, stamp);
+        const proc = `tv_${bus}_${face}`;
+        await this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
         if (dup !== undefined) {
             for (let i = 1; i < dup; i++) {
-                await this.unitUserCall(`tv_${bus}_${face}_${i}`, unit, to, msgId, data, version, stamp);
+                await this.unitUserCall(`${proc}_${i}`, unit, to, msgId, data, version, stamp);
             }
         }
     }

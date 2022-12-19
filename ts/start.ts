@@ -29,8 +29,6 @@ export async function init(): Promise<void> {
         throw err;
     });
     try {
-        logger.debug("UQ-API init 1.1.5.3 ...\n");
-
         if (!process.env.NODE_ENV) {
             logger.error('NODE_ENV not defined, exit');
             process.exit();

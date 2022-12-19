@@ -814,10 +814,11 @@ class EntityRunner extends Runner_1.Runner {
             let inBusAction = this.getAcceptParametersBus(bus, face);
             let inBusResult = yield inBusAction.busQueryAll(unit, to, body);
             let data = body + inBusResult;
-            yield this.unitUserCall(`tv_${bus}_${face}`, unit, to, msgId, data, version, stamp);
+            const proc = `tv_${bus}_${face}`;
+            yield this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
             if (dup !== undefined) {
                 for (let i = 1; i < dup; i++) {
-                    yield this.unitUserCall(`tv_${bus}_${face}_1`, unit, to, msgId, data, version, stamp);
+                    yield this.unitUserCall(`${proc}_${i}`, unit, to, msgId, data, version, stamp);
                 }
             }
         });
