@@ -115,6 +115,9 @@ class PullQueue {
         this.init();
     }
     init() {
+        this.positiveUnit = this.unit;
+        if (this.cur === null)
+            this.cur = 0;
     }
     checkOverEnd(msgId) {
         return __awaiter(this, void 0, void 0, function* () { return false; });
@@ -177,8 +180,16 @@ class PullQueue {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.pullBus.buses.hasError === true)
                 return;
+            if (this.cur >= this.end) {
+                debugger;
+                return;
+            }
             let { net, faces } = this.pullBus;
-            let ret = yield net.pullBus(this.unit, this.cur, faces, this.defer);
+            if (this.unit < 0)
+                debugger;
+            let ret = yield net.pullBus(this.positiveUnit, this.cur, faces, this.defer);
+            if (this.unit < 0)
+                debugger;
             if (!ret)
                 return;
             let { maxMsgId, maxRows } = ret[0][0];
@@ -203,7 +214,7 @@ class PullQueue {
             if (runner.isCompiling === true)
                 return false;
             try {
-                if (this.defer === 1)
+                if (this.unit < 0)
                     debugger;
                 if ((yield this.checkOverEnd(msgId)) === true) {
                     // 结束处理消息
@@ -233,10 +244,11 @@ const busHourSeed = 1000000000;
 const hourMilliSeconds = 3600 * 1000;
 class PullQueueAgo extends PullQueue {
     init() {
+        this.positiveUnit = -this.unit;
         if (this.cur === null) {
             let startDate = new Date(this.end / busHourSeed * hourMilliSeconds);
-            //startDate.setMonth(startDate.getMonth() - 2);
-            startDate.setDate(startDate.getDate() - 1);
+            startDate.setMonth(startDate.getMonth() - 1);
+            // startDate.setDate(startDate.getDate() - 1);
             this.cur = Math.floor(startDate.getTime() / hourMilliSeconds * busHourSeed);
         }
     }
