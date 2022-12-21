@@ -28,19 +28,23 @@ class QueueIn {
     run() {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
-            for (let defer = 0; defer < consts_1.deferMax; defer++) {
+            for (let defer = 0; defer < consts_1.constDeferMax; defer++) {
+                if (this.runner.isCompiling === true)
+                    break;
                 let { buses } = this.runner;
                 let { hasError } = buses;
                 if (hasError === true)
                     break;
                 this.queuePointer = 0;
-                let count = consts_1.deferQueueCounts[defer];
+                let count = consts_1.constQueueSizeArr[defer];
                 for (let i = 0; i < count;) {
                     try {
                         let queueInArr = yield this.runner.call('$queue_in_get', [this.queuePointer, defer, 10]);
                         if (queueInArr.length === 0)
                             break;
                         for (let queueIn of queueInArr) {
+                            if (this.runner.isCompiling === true)
+                                break;
                             yield this.processOneRow(queueIn, defer);
                             ++retCount;
                             ++i;

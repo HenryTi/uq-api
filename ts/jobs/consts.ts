@@ -4,5 +4,5 @@ export enum Finish {
     bad = 3,
 }
 
-export const deferMax = 2;
-export const deferQueueCounts = [100, 50];
+export const constDeferMax = 2;
+export const constQueueSizeArr = [100, 50];

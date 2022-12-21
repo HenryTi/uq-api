@@ -157,11 +157,6 @@ async function runJobsForever() {
  */
 async function runJobs() {
     let jobs = new Jobs();
-    await jobs.beforeRun();
-    if (env.isDevelopment === true) {
-        let uqDbNames = env.configDebugging.uqs;
-        await jobs.debugUqJob(uqDbNames);
-    }
     await jobs.run();
 }
 

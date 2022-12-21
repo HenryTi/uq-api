@@ -48,14 +48,20 @@ class QueueOut {
     internalRun() {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
-            for (let defer = 0; defer < consts_1.deferMax; defer++) {
+            for (let defer = 0; defer < consts_1.constDeferMax; defer++) {
+                if (this.runner.isCompiling === true)
+                    break;
                 this.messagePointer = 0;
-                let count = consts_1.deferQueueCounts[defer];
+                let count = consts_1.constQueueSizeArr[defer];
                 for (let i = 0; i < count;) {
+                    if (this.runner.isCompiling === true)
+                        break;
                     let ret = yield this.runner.call('$message_queue_get', [this.messagePointer, defer, 10]);
                     if (ret.length === 0)
                         break;
                     for (let row of ret) {
+                        if (this.runner.isCompiling === true)
+                            break;
                         yield this.processOneRow(row, defer);
                         ret++;
                         i++;

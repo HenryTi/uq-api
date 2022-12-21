@@ -158,11 +158,6 @@ function runJobsForever() {
 function runJobs() {
     return __awaiter(this, void 0, void 0, function* () {
         let jobs = new jobs_1.Jobs();
-        yield jobs.beforeRun();
-        if (core_1.env.isDevelopment === true) {
-            let uqDbNames = core_1.env.configDebugging.uqs;
-            yield jobs.debugUqJob(uqDbNames);
-        }
         yield jobs.run();
     });
 }

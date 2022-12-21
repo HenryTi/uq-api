@@ -63,6 +63,8 @@ class Jobs {
                 yield this.$uqDb.setDebugJobs();
                 tool_1.logger.debug('========= set debugging jobs =========');
                 yield this.sleep(waitForOtherStopJobs);
+                let uqDbNames = core_1.env.configDebugging.uqs;
+                yield this.debugUqJob(uqDbNames);
             }
             else {
                 yield this.sleep(firstRun);

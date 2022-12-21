@@ -1,6 +1,6 @@
 import { logger } from '../tool';
 import { EntityRunner } from "../core";
-import { deferMax, deferQueueCounts, Finish } from "./consts";
+import { constDeferMax, constQueueSizeArr, Finish } from "./consts";
 import { getErrorString } from "../tool";
 
 export class QueueIn {
@@ -21,17 +21,19 @@ export class QueueIn {
      */
     async run(): Promise<number> {
         let retCount: number = 0;
-        for (let defer = 0; defer < deferMax; defer++) {
+        for (let defer = 0; defer < constDeferMax; defer++) {
+            if (this.runner.isCompiling === true) break;
             let { buses } = this.runner;
             let { hasError } = buses;
             if (hasError === true) break;
             this.queuePointer = 0;
-            let count = deferQueueCounts[defer];
+            let count = constQueueSizeArr[defer];
             for (let i = 0; i < count;) {
                 try {
                     let queueInArr: any[] = await this.runner.call('$queue_in_get', [this.queuePointer, defer, 10]);
                     if (queueInArr.length === 0) break;
                     for (let queueIn of queueInArr) {
+                        if (this.runner.isCompiling === true as any) break;
                         await this.processOneRow(queueIn, defer);
                         ++retCount;
                         ++i;

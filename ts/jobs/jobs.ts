@@ -64,6 +64,9 @@ export class Jobs {
             await this.$uqDb.setDebugJobs();
             logger.debug('========= set debugging jobs =========');
             await this.sleep(waitForOtherStopJobs);
+
+            let uqDbNames = env.configDebugging.uqs;
+            await this.debugUqJob(uqDbNames);
         }
         else {
             await this.sleep(firstRun);

@@ -1,6 +1,6 @@
 import { logger } from '../tool';
 import { EntityRunner, centerApi, SheetQueueData, BusMessage, env } from "../core";
-import { deferMax, deferQueueCounts, Finish } from "./consts";
+import { constDeferMax, constQueueSizeArr, Finish } from "./consts";
 import { getErrorString } from "../tool";
 import { getUserX } from "../core/unitx";
 
@@ -39,13 +39,16 @@ export class QueueOut {
 
     private async internalRun(): Promise<number> {
         let retCount: number = 0;
-        for (let defer = 0; defer < deferMax; defer++) {
+        for (let defer = 0; defer < constDeferMax; defer++) {
+            if (this.runner.isCompiling === true as any) break;
             this.messagePointer = 0;
-            let count = deferQueueCounts[defer];
+            let count = constQueueSizeArr[defer];
             for (let i = 0; i < count;) {
+                if (this.runner.isCompiling === true as any) break;
                 let ret = await this.runner.call('$message_queue_get', [this.messagePointer, defer, 10]);
                 if (ret.length === 0) break;
                 for (let row of ret) {
+                    if (this.runner.isCompiling === true as any) break;
                     await this.processOneRow(row, defer);
                     ret++;
                     i++;

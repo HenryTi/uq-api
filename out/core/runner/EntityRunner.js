@@ -1294,9 +1294,16 @@ class EntityRunner extends Runner_1.Runner {
     removeAllScheduleEvents() {
         return __awaiter(this, void 0, void 0, function* () {
             let db = this.getDb();
-            let events = yield this.dbCaller.getEvents(db);
-            if ((!events) || events.length === 0)
+            let events;
+            try {
+                events = yield this.dbCaller.getEvents(db);
+                if ((!events) || events.length === 0)
+                    return;
+            }
+            catch (err) {
+                debugger;
                 return;
+            }
             this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
             let eventsText = '';
             for (let ev of events) {

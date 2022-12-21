@@ -31,7 +31,7 @@ class BuildRunner extends Runner_1.Runner {
             yield this.unitCall('tv_$set_setting', unit, name, value);
             if (unit === 0) {
                 let n = Number(value);
-                this.setting[name] = n === NaN ? value : n;
+                this.setting[name] = n === Number.NaN ? value : n;
             }
         });
     }
