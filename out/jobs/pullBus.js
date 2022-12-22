@@ -180,16 +180,10 @@ class PullQueue {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.pullBus.buses.hasError === true)
                 return;
-            if (this.cur >= this.end) {
-                debugger;
+            if (this.cur >= this.end)
                 return;
-            }
             let { net, faces } = this.pullBus;
-            if (this.unit < 0)
-                debugger;
             let ret = yield net.pullBus(this.positiveUnit, this.cur, faces, this.defer);
-            if (this.unit < 0)
-                debugger;
             if (!ret)
                 return;
             let { maxMsgId, maxRows } = ret[0][0];
@@ -214,8 +208,6 @@ class PullQueue {
             if (runner.isCompiling === true)
                 return false;
             try {
-                if (this.unit < 0)
-                    debugger;
                 if ((yield this.checkOverEnd(msgId)) === true) {
                     // 结束处理消息
                     return false;
