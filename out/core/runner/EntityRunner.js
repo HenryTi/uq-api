@@ -809,18 +809,13 @@ class EntityRunner extends Runner_1.Runner {
         }
         return inBusAction;
     }
-    bus(bus, face, unit, to, msgId, body, version, stamp, dup) {
+    bus(bus, face, unit, to, msgId, body, version, stamp) {
         return __awaiter(this, void 0, void 0, function* () {
             let inBusAction = this.getAcceptParametersBus(bus, face);
             let inBusResult = yield inBusAction.busQueryAll(unit, to, body);
             let data = body + inBusResult;
             const proc = `tv_${bus}_${face}`;
             yield this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
-            if (dup !== undefined) {
-                for (let i = 1; i < dup; i++) {
-                    yield this.unitUserCall(`${proc}_${i}`, unit, to, msgId, data, version, stamp);
-                }
-            }
         });
     }
     busAcceptFromQuery(bus, face, unit, body) {

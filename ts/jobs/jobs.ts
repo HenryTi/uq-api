@@ -2,10 +2,11 @@ import * as _ from 'lodash';
 import { logger } from '../tool';
 import { Net, Db, prodNet, testNet, env, consts, EntityRunner } from '../core';
 //import { pullEntities } from './pullEntities';
-import { PullBus } from './pullBus';
+// import { PullBus } from './pullBus';
 import { QueueIn } from './queueIn';
-import { QueueOut } from './queueOut';
-import { execQueueAct } from './execQueueAct';
+// import { QueueOut } from './queueOut';
+// import { execQueueAct } from './execQueueAct';
+import { UqJob } from './uqJob';
 
 const firstRun: number = env.isDevelopment === true ? 3000 : 10 * 1000;
 const runGap: number = env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
@@ -54,7 +55,7 @@ export class Jobs {
         });
     }
 
-    async beforeRun() {
+    private async beforeRun() {
         if (env.isDevelopment === true) {
             // 只有在开发状态下，才可以屏蔽jobs        
             // logger.debug('jobs loop: developing, no loop!');
@@ -66,10 +67,43 @@ export class Jobs {
             await this.sleep(waitForOtherStopJobs);
 
             let uqDbNames = env.configDebugging.uqs;
-            await this.debugUqJob(uqDbNames);
+            await this.debugUqJobs(uqDbNames);
         }
         else {
             await this.sleep(firstRun);
+        }
+    }
+
+    private async debugUqJobs(uqDbNames: string[]) {
+        if (!uqDbNames) return;
+        if (uqDbNames.length === 0) return;
+        for (let uqDbName of uqDbNames) {
+            let runner = await this.getRunnerFromDbName(uqDbName);
+            if (!runner) continue;
+            // let queueOut = new QueueOut(runner);
+            // await queueOut.run();
+            /*
+            let row = {
+                $unit: 24,
+                id: -39,
+                to: -1,
+                action: 'bus',
+                subject: 'partnermappedbus/partnerordercreated',
+                content: `#	2
+$		13	20220906091418173873	2022-09-06 09:14:18
+`,
+                tries: 0,
+                update_time: '2021-1-1',
+                now: '2021-1-2',
+                stamp: null,
+            }
+            await queueOut.processOneRow(row, 0);
+            */
+            // let pullBus = new PullBus(runner);
+            // await pullBus.run()
+
+            let queueIn = new QueueIn(runner);
+            await queueIn.run();
         }
     }
 
@@ -144,6 +178,7 @@ export class Jobs {
             for (let uqRow of uqs) {
                 let now = Date.now();
                 let { id, db: uqDbName, compile_tick } = uqRow;
+                if (uqDbName.startsWith('$unitx') === true) continue;
                 let uq = this.uqs[id];
                 if (uq === undefined) {
                     this.uqs[id] = uq = { runTick: 0, errorTick: 0 };
@@ -155,7 +190,17 @@ export class Jobs {
                 }
                 if (now < runTick) continue;
 
-                let doneRows = await this.uqJob(uqDbName, compile_tick);
+                let uqJob = await this.createUqJob(uqDbName, compile_tick);
+                if (uqJob === undefined) continue;
+                if (env.isDevelopment === true) {
+                    await this.$uqDb.setDebugJobs();
+                    logger.info('========= set debugging jobs =========');
+                }
+                now = Date.now();
+                logger.info(`====== ${uqDbName} job start: ${new Date(now)}`);
+                let doneRows = await uqJob.run();
+                logger.info(`====== ${uqDbName} job end: ${(Date.now() - now)}`);
+                // let doneRows = await this.uqJob(uqDbName, compile_tick);
                 now = Date.now();
                 if (doneRows < 0) {
                     uq.errorTick = now;
@@ -206,6 +251,16 @@ export class Jobs {
         }
     }
 
+    private async createUqJob(uqDbName: string, compile_tick: number): Promise<UqJob> {
+        let runner = await this.getRunnerFromDbName(uqDbName);
+        if (runner === undefined) return undefined;
+        let dbName = runner.getDb();
+        if (this.shouldUqJob(dbName) === false) return undefined;
+        await runner.setCompileTick(compile_tick);
+        let uqJob = new UqJob(runner);
+        return uqJob;
+    }
+
     /**
      * 
      * @param uqDbName uq(即数据库)的名称
@@ -239,6 +294,8 @@ export class Jobs {
         if (runner === undefined) return retCount;
         if (runner.isCompiling === true) return retCount;
 
+        // if (await this.devCheckJob(runner) === false) return retCount;
+        /*
         if (env.isDevelopment === true) {
             let dbName = runner.getDb();
             // 只有develop状态下,才做uqsInclude排除操作
@@ -255,9 +312,11 @@ export class Jobs {
             await this.$uqDb.setDebugJobs();
             logger.info('========= set debugging jobs =========');
         }
+        */
         logger.info('====== loop for ' + uqDbName + '======');
 
         await runner.setCompileTick(compile_tick);
+        /*
         let { buses } = runner;
         if (buses !== undefined) {
             let { outCount, faces } = buses;
@@ -278,50 +337,43 @@ export class Jobs {
                 retCount += ret;
             }
         }
-        logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
         if (env.isDevelopment === false) {
+            // logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
             // uq 间的entity同步，暂时屏蔽
             // await pullEntities(runner);
         }
         else {
-            logger.error('为了调试程序，pullEntities暂时屏蔽');
+            // logger.error('为了调试程序，pullEntities暂时屏蔽');
         }
         logger.info(`==== in loop ${uqDbName}: execQueueAct ====`);
         if (await execQueueAct(runner) < 0) return -1;
         logger.info(`###### end loop ${uqDbName} ######`);
+        */
         return retCount;
     }
 
-    async debugUqJob(uqDbNames: string[]) {
-        if (!uqDbNames) return;
-        if (uqDbNames.length === 0) return;
-        for (let uqDbName of uqDbNames) {
-            let runner = await this.getRunnerFromDbName(uqDbName);
-            if (!runner) continue;
-            // let queueOut = new QueueOut(runner);
-            // await queueOut.run();
-            /*
-            let row = {
-                $unit: 24,
-                id: -39,
-                to: -1,
-                action: 'bus',
-                subject: 'partnermappedbus/partnerordercreated',
-                content: `#	2
-$		13	20220906091418173873	2022-09-06 09:14:18
-`,
-                tries: 0,
-                update_time: '2021-1-1',
-                now: '2021-1-2',
-                stamp: null,
-            }
-            await queueOut.processOneRow(row, 0);
-            */
-            // let pullBus = new PullBus(runner);
-            // await pullBus.run()
-
-            let queueIn = new QueueIn(runner);
-            await queueIn.run();
+    private shouldUqJob(dbName: string): boolean {
+        if (uqsInclude && uqsInclude.length > 0) {
+            let index = uqsInclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+            if (index < 0) return false;
         }
+        // uqsExclude操作
+        if (uqsExclude && uqsExclude.length > 0) {
+            let index = uqsExclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+            if (index >= 0) return false;
+        }
+        return true;
     }
+    /*
+        private async devCheckJob(runner: EntityRunner): Promise<boolean> {
+            if (env.isDevelopment === false) return true;
+            let dbName = runner.getDb();
+            // 只有develop状态下,才做uqsInclude排除操作
+            if (this.shouldUqJob(dbName) === false) return false;
+    
+            await this.$uqDb.setDebugJobs();
+            logger.info('========= set debugging jobs =========');
+            return true;
+        }
+    */
 }

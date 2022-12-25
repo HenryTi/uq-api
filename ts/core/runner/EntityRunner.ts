@@ -674,17 +674,12 @@ export class EntityRunner extends Runner {
         }
         return inBusAction;
     }
-    async bus(bus: string, face: string, unit: number, to: number, msgId: number, body: string, version: number, stamp: number, dup: number): Promise<void> {
+    async bus(bus: string, face: string, unit: number, to: number, msgId: number, body: string, version: number, stamp: number): Promise<void> {
         let inBusAction = this.getAcceptParametersBus(bus, face);
         let inBusResult = await inBusAction.busQueryAll(unit, to, body);
         let data = body + inBusResult;
         const proc = `tv_${bus}_${face}`;
         await this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
-        if (dup !== undefined) {
-            for (let i = 1; i < dup; i++) {
-                await this.unitUserCall(`${proc}_${i}`, unit, to, msgId, data, version, stamp);
-            }
-        }
     }
     async busAcceptFromQuery(bus: string, face: string, unit: number, body: string): Promise<void> {
         await this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body, undefined);

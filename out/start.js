@@ -70,11 +70,10 @@ function init() {
                 if (req.method !== 'GET') {
                     p = JSON.stringify(req.body);
                     if (p.length > 100)
-                        p = p.substr(0, 100);
+                        p = p.substring(0, 100);
                 }
-                let t = new Date();
-                tool_1.logger.debug(req.method, req.originalUrl, p);
-                tool_1.logger.debug('%s %s %s', req.method, req.originalUrl, p);
+                const ipAddress = req.header('x-forwarded-for') || req.socket.remoteAddress;
+                tool_1.logger.debug(req.method, ipAddress, req.originalUrl, p);
                 try {
                     next();
                 }

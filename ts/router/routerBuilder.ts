@@ -51,7 +51,7 @@ export abstract class RouterBuilder {
         }
         if (uqVersion !== undefined) {
             let n = Number(uqVersion);
-            if (n !== NaN) {
+            if (n !== Number.NaN) {
                 runner.checkUqVersion(n);
             }
         }

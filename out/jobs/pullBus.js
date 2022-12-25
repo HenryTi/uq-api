@@ -14,6 +14,16 @@ const tool_1 = require("../tool");
 const tool_2 = require("../tool");
 const consts_1 = require("./consts");
 const constQueueAgoPullCountArr = consts_1.constQueueSizeArr.map(v => (v / 5));
+const busHourSeed = 1000000000;
+const hourMilliSeconds = 3600 * 1000;
+function messageId(daysFromNow, startId) {
+    let startDate = startId ? new Date(startId / busHourSeed * hourMilliSeconds) : new Date();
+    startDate.setDate(startDate.getDate() - daysFromNow);
+    return Math.floor(startDate.getTime() / hourMilliSeconds * busHourSeed);
+}
+const defaultStartDays = 6; // 从当下开始，前推天数，开始拉bus数据
+let defaultAgoDays = 6; // 从开始拉数据日子，再前推天数，开始拉更久远的数据
+// const defaultStartPullMessageId = messageId(startDays);
 class PullBus {
     /**
      * PullBus: 从unitx上获取指定runner（即指定uq）中定义的bus消息，并写入本uq的$queue_in表中（等待进一步处理）
@@ -52,11 +62,13 @@ class PullBus {
                     if (this.buses.hasError === true)
                         break;
                     let { unit, maxId, maxId1, start, start1 } = row;
+                    if (maxId !== null && maxId < 10000)
+                        maxId1 = maxId;
                     let queuePropsDefers = [
                         { start: start, cur: maxId, },
                         { start: start1, cur: maxId1, },
                     ];
-                    yield this.pullBus(PullQueue, unit, queuePropsDefers, consts_1.constQueueSizeArr);
+                    retCount += yield this.pullBus(PullQueue, unit, queuePropsDefers, consts_1.constQueueSizeArr);
                     unitPulls[unit] = queuePropsDefers;
                 }
                 for (let row of rowsAgo) {
@@ -71,7 +83,16 @@ class PullBus {
                     let end1 = queueProps[1].start;
                     if (!end || !end1)
                         continue;
-                    yield this.pullBus(PullQueueAgo, unit, [
+                    // 直接在-unit的表行上，设置前取天数
+                    if (maxId !== null && maxId < 10000) {
+                        // maxId应该是负值。
+                        // 有时候，脑子会转不过来，设成正值。会引发问题。所以也处理一下政治
+                        maxId1 = maxId;
+                        // agoDays = maxId > 0 ? maxId : -maxId;
+                        // maxId = maxId1 = null;
+                        // start = start1 = -1;
+                    }
+                    retCount += yield this.pullBus(PullQueueAgo, unit, [
                         { start: start, cur: maxId, end, },
                         { start: start1, cur: maxId1, end: end1, },
                     ], constQueueAgoPullCountArr);
@@ -116,12 +137,21 @@ class PullQueue {
     }
     init() {
         this.positiveUnit = this.unit;
-        if (this.cur === null)
-            this.cur = 0;
+        this.initCur(defaultStartDays, undefined);
     }
-    checkOverEnd(msgId) {
-        return __awaiter(this, void 0, void 0, function* () { return false; });
+    initCur(agoDays, startId) {
+        if (this.cur === null) {
+        }
+        else if (this.cur < 10000) {
+            agoDays = this.cur > 0 ? this.cur : -this.cur;
+        }
+        else {
+            return;
+        }
+        this.cur = messageId(agoDays, startId);
+        this.start = -1;
     }
+    checkOverEnd(msgId) { return false; }
     /**
      * 使用http从unitx上获取指定faces的bus消息，并处理（）
      * @param unit
@@ -134,46 +164,87 @@ class PullQueue {
         return __awaiter(this, void 0, void 0, function* () {
             let retCount = 0;
             let { runner } = this.pullBus;
-            for (let i = 0; i < this.pullCount;) {
+            let breakLoop = false;
+            for (let i = 0; i < this.pullCount && breakLoop === false;) {
                 if (runner.isCompiling === true)
                     break;
                 let retPull = yield this.onetimePull();
-                if (retPull === undefined)
-                    break;
-                let { maxMsgId, maxRows, messages } = retPull;
-                let messagesLen = messages.length;
-                let maxPullId = 0;
-                if (messagesLen > 0) {
-                    // 新版：bus读来，直接写入queue_in。然后在队列里面处理
-                    tool_1.logger.debug(`total ${messagesLen} arrived from unitx`);
-                    for (let row of messages) {
-                        let { id: rowId, face: faceUrl } = row;
-                        let { coll } = this.pullBus;
-                        let face = coll[faceUrl.toLowerCase()];
-                        if (face !== undefined) {
-                            let ok = yield this.processMessage(face, row);
-                            if (ok === false)
-                                return retCount;
-                        }
-                        maxPullId = rowId;
-                        ++retCount;
-                        ++i;
+                if (retPull !== undefined) {
+                    let { maxMsgId, maxRows, messages } = retPull;
+                    let messagesLen = messages.length;
+                    if (this.unit >= 0) {
+                        if (this.end === undefined)
+                            this.end = maxMsgId;
                     }
-                    // if (this.pullBus.buses.hasError as any === true) break;
+                    if (messagesLen > 0) {
+                        // 新版：bus读来，直接写入queue_in。然后在队列里面处理
+                        tool_1.logger.debug(`total ${messagesLen} arrived from unitx`);
+                        for (let row of messages) {
+                            let { id: rowId, face: faceUrl } = row;
+                            let { coll } = this.pullBus;
+                            let face = coll[faceUrl.toLowerCase()];
+                            if (face !== undefined) {
+                                let ok = yield this.processMessage(face, row);
+                                if (ok === false)
+                                    return retCount;
+                            }
+                            this.cur = rowId;
+                            ++retCount;
+                            ++i;
+                        }
+                        // if (this.pullBus.buses.hasError as any === true) break;
+                    }
+                    if (messagesLen < maxRows && this.cur < maxMsgId) {
+                        // this.cur < maxMsgId 如果上次已经是max了，就不用调用这次了
+                        // 如果unit的所有mssage都处理完成了，则设为unit的最大msg，下次查找可以快些
+                        /*
+                        await runner.call('$queue_in_add', [
+                            this.unit, undefined, this.defer, maxMsgId,
+                            undefined, undefined, undefined, undefined, undefined
+                        ]);
+                        */
+                        let pointer;
+                        if (this.start < 0) {
+                            pointer = this.cur;
+                            this.start = this.cur;
+                        }
+                        else {
+                            pointer = maxMsgId;
+                        }
+                        yield this.setQueuePointer(pointer);
+                        this.cur = maxMsgId;
+                        breakLoop = true;
+                    }
+                    if (messagesLen === 0) {
+                        breakLoop = true;
+                    }
                 }
-                if (messagesLen < maxRows && maxPullId < maxMsgId) {
-                    // 如果unit的所有mssage都处理完成了，则设为unit的最大msg，下次查找可以快些
-                    yield runner.call('$queue_in_add', [
-                        this.unit, undefined, this.defer, maxMsgId,
+                else {
+                    breakLoop = true;
+                }
+                if (this.unit < 0 && this.checkOverEnd(this.cur) === true && this.end > 0) {
+                    // ago 队列处理完成
+                    /*
+                    await runner.call('$queue_in_add', [
+                        this.unit, undefined, this.defer, this.cur,
                         undefined, undefined, undefined, undefined, undefined
                     ]);
-                    break;
+                    */
+                    yield this.setQueuePointer(this.cur);
+                    // 所有往前取的消息都做完了。去掉往前取消息的-unit记录行
+                    yield runner.call('$queue_in_done_ago', [this.unit]);
+                    this.end = -1;
                 }
-                if (messagesLen === 0)
-                    break;
-                this.cur = maxMsgId;
             }
             return retCount;
+        });
+    }
+    setQueuePointer(pointer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.pullBus.runner.call('$queue_in_add', [
+                this.unit, undefined, this.defer, pointer,
+                undefined, undefined, undefined, undefined, undefined
+            ]);
         });
     }
     onetimePull() {
@@ -208,19 +279,13 @@ class PullQueue {
             if (runner.isCompiling === true)
                 return false;
             try {
-                if ((yield this.checkOverEnd(msgId)) === true) {
+                if (this.checkOverEnd(msgId) === true) {
                     // 结束处理消息
-                    return false;
+                    return true;
                 }
                 yield runner.call('$queue_in_add', [this.unit, to, this.defer, msgId, bus, faceName, body, version, stamp]);
-                if (this.start === null) {
-                    // -100+defer 表示只修改 start
-                    yield runner.call('$queue_in_add', [
-                        this.unit, to, -100 + this.defer, msgId,
-                        undefined, undefined, undefined, undefined, undefined
-                    ]);
+                if (this.start === null)
                     this.start = msgId;
-                }
                 return true;
             }
             catch (toQueueInErr) {
@@ -232,26 +297,13 @@ class PullQueue {
         });
     }
 }
-const busHourSeed = 1000000000;
-const hourMilliSeconds = 3600 * 1000;
 class PullQueueAgo extends PullQueue {
     init() {
         this.positiveUnit = -this.unit;
-        if (this.cur === null) {
-            let startDate = new Date(this.end / busHourSeed * hourMilliSeconds);
-            startDate.setMonth(startDate.getMonth() - 1);
-            // startDate.setDate(startDate.getDate() - 1);
-            this.cur = Math.floor(startDate.getTime() / hourMilliSeconds * busHourSeed);
-        }
+        this.initCur(defaultAgoDays, this.end);
     }
     checkOverEnd(msgId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (msgId < this.end)
-                return false;
-            // 所有往前取的消息都做完了。去掉往前取消息的-unit记录行
-            yield this.pullBus.runner.call('$queue_in_done_ago', [this.unit]);
-            return true;
-        });
+        return msgId >= this.end;
     }
 }
 //# sourceMappingURL=pullBus.js.map

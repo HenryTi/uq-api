@@ -117,7 +117,6 @@ interface BusContent {
 
 interface BusAccept {
     inBuses: any[];
-    dup: number;
 }
 export class BusFaceAccept extends BusFace {
     constructor(entityRunner: EntityRunner, url: string, bus: string, faceName: string, version: number, accept: BusAccept) {

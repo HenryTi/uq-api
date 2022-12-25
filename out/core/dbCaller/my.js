@@ -158,7 +158,7 @@ class MyDbCaller extends dbCaller_1.DbCaller {
                                 tool_1.logger.error(sql + ': ---- Retrying request with', retries - retryCount, 'retries left. Timeout', sleepMillis);
                             }
                             return setTimeout(() => {
-                                debugger;
+                                // debugger;
                                 this.pool.query(sql, values, handleResponse);
                             }, sleepMillis);
                         default:
@@ -660,7 +660,7 @@ END
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let sql = `insert into $uq.setting (\`name\`, \`value\`) VALUES ('debugging_jobs', 'yes') 
-			ON DUPLICATE KEY UPDATE update_time=current_timestamp;`;
+			ON DUPLICATE KEY UPDATE value='yes', update_time=current_timestamp;`;
                 yield this.exec(sql, undefined);
             }
             catch (err) {
@@ -796,7 +796,7 @@ begin
 		if not exists(select \`unit\` from \`${this.tableName}\` where \`time\`=_time for update) then
 			insert ignore into \`${this.tableName}\` (\`time\`, unit, uq, subject, content) 
 				values (_time, _unit, 
-					(select id from uq where name=_uq),
+					(select id from uq where name=_uq for update),
 					_subject, 
 					_content);
 			leave _exit;

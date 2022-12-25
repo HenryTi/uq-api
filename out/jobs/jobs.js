@@ -13,10 +13,11 @@ exports.Jobs = void 0;
 const tool_1 = require("../tool");
 const core_1 = require("../core");
 //import { pullEntities } from './pullEntities';
-const pullBus_1 = require("./pullBus");
+// import { PullBus } from './pullBus';
 const queueIn_1 = require("./queueIn");
-const queueOut_1 = require("./queueOut");
-const execQueueAct_1 = require("./execQueueAct");
+// import { QueueOut } from './queueOut';
+// import { execQueueAct } from './execQueueAct';
+const uqJob_1 = require("./uqJob");
 const firstRun = core_1.env.isDevelopment === true ? 3000 : 10 * 1000;
 const runGap = core_1.env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
@@ -64,10 +65,46 @@ class Jobs {
                 tool_1.logger.debug('========= set debugging jobs =========');
                 yield this.sleep(waitForOtherStopJobs);
                 let uqDbNames = core_1.env.configDebugging.uqs;
-                yield this.debugUqJob(uqDbNames);
+                yield this.debugUqJobs(uqDbNames);
             }
             else {
                 yield this.sleep(firstRun);
+            }
+        });
+    }
+    debugUqJobs(uqDbNames) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!uqDbNames)
+                return;
+            if (uqDbNames.length === 0)
+                return;
+            for (let uqDbName of uqDbNames) {
+                let runner = yield this.getRunnerFromDbName(uqDbName);
+                if (!runner)
+                    continue;
+                // let queueOut = new QueueOut(runner);
+                // await queueOut.run();
+                /*
+                let row = {
+                    $unit: 24,
+                    id: -39,
+                    to: -1,
+                    action: 'bus',
+                    subject: 'partnermappedbus/partnerordercreated',
+                    content: `#	2
+    $		13	20220906091418173873	2022-09-06 09:14:18
+    `,
+                    tries: 0,
+                    update_time: '2021-1-1',
+                    now: '2021-1-2',
+                    stamp: null,
+                }
+                await queueOut.processOneRow(row, 0);
+                */
+                // let pullBus = new PullBus(runner);
+                // await pullBus.run()
+                let queueIn = new queueIn_1.QueueIn(runner);
+                yield queueIn.run();
             }
         });
     }
@@ -151,6 +188,8 @@ class Jobs {
                 for (let uqRow of uqs) {
                     let now = Date.now();
                     let { id, db: uqDbName, compile_tick } = uqRow;
+                    if (uqDbName.startsWith('$unitx') === true)
+                        continue;
                     let uq = this.uqs[id];
                     if (uq === undefined) {
                         this.uqs[id] = uq = { runTick: 0, errorTick: 0 };
@@ -162,7 +201,18 @@ class Jobs {
                     }
                     if (now < runTick)
                         continue;
-                    let doneRows = yield this.uqJob(uqDbName, compile_tick);
+                    let uqJob = yield this.createUqJob(uqDbName, compile_tick);
+                    if (uqJob === undefined)
+                        continue;
+                    if (core_1.env.isDevelopment === true) {
+                        yield this.$uqDb.setDebugJobs();
+                        tool_1.logger.info('========= set debugging jobs =========');
+                    }
+                    now = Date.now();
+                    tool_1.logger.info(`====== ${uqDbName} job start: ${new Date(now)}`);
+                    let doneRows = yield uqJob.run();
+                    tool_1.logger.info(`====== ${uqDbName} job end: ${(Date.now() - now)}`);
+                    // let doneRows = await this.uqJob(uqDbName, compile_tick);
                     now = Date.now();
                     if (doneRows < 0) {
                         uq.errorTick = now;
@@ -221,6 +271,19 @@ class Jobs {
             }
         });
     }
+    createUqJob(uqDbName, compile_tick) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let runner = yield this.getRunnerFromDbName(uqDbName);
+            if (runner === undefined)
+                return undefined;
+            let dbName = runner.getDb();
+            if (this.shouldUqJob(dbName) === false)
+                return undefined;
+            yield runner.setCompileTick(compile_tick);
+            let uqJob = new uqJob_1.UqJob(runner);
+            return uqJob;
+        });
+    }
     /**
      *
      * @param uqDbName uq(即数据库)的名称
@@ -258,98 +321,76 @@ class Jobs {
                 return retCount;
             if (runner.isCompiling === true)
                 return retCount;
-            if (core_1.env.isDevelopment === true) {
+            // if (await this.devCheckJob(runner) === false) return retCount;
+            /*
+            if (env.isDevelopment === true) {
                 let dbName = runner.getDb();
                 // 只有develop状态下,才做uqsInclude排除操作
                 if (uqsInclude && uqsInclude.length > 0) {
                     let index = uqsInclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
-                    if (index < 0)
-                        return retCount;
+                    if (index < 0) return retCount;
                 }
                 // uqsExclude操作
                 if (uqsExclude && uqsExclude.length > 0) {
                     let index = uqsExclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
-                    if (index >= 0)
-                        return retCount;
+                    if (index >= 0) return retCount;
                 }
-                yield this.$uqDb.setDebugJobs();
-                tool_1.logger.info('========= set debugging jobs =========');
+    
+                await this.$uqDb.setDebugJobs();
+                logger.info('========= set debugging jobs =========');
             }
+            */
             tool_1.logger.info('====== loop for ' + uqDbName + '======');
             yield runner.setCompileTick(compile_tick);
+            /*
             let { buses } = runner;
             if (buses !== undefined) {
                 let { outCount, faces } = buses;
                 if (outCount > 0 || runner.hasSheet === true) {
-                    tool_1.logger.info(`==== in loop ${uqDbName}: queueOut out bus number=${outCount} ====`);
-                    let ret = yield new queueOut_1.QueueOut(runner).run();
-                    if (ret < 0)
-                        return -1;
+                    logger.info(`==== in loop ${uqDbName}: queueOut out bus number=${outCount} ====`);
+                    let ret = await new QueueOut(runner).run();
+                    if (ret < 0) return -1;
                     retCount += ret;
                 }
                 if (faces !== undefined) {
-                    tool_1.logger.info(`==== in loop ${uqDbName}: pullBus faces: ${faces} ====`);
-                    let ret = yield new pullBus_1.PullBus(runner).run();
-                    if (ret < 0)
-                        return -1;
+                    logger.info(`==== in loop ${uqDbName}: pullBus faces: ${faces} ====`);
+                    let ret = await new PullBus(runner).run();
+                    if (ret < 0) return -1;
                     retCount += ret;
-                    tool_1.logger.info(`==== in loop ${uqDbName}: queueIn faces: ${faces} ====`);
-                    ret = yield new queueIn_1.QueueIn(runner).run();
-                    if (ret < 0)
-                        return -1;
+                    logger.info(`==== in loop ${uqDbName}: queueIn faces: ${faces} ====`);
+                    ret = await new QueueIn(runner).run();
+                    if (ret < 0) return -1;
                     retCount += ret;
                 }
             }
-            tool_1.logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
-            if (core_1.env.isDevelopment === false) {
+            if (env.isDevelopment === false) {
+                // logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
                 // uq 间的entity同步，暂时屏蔽
                 // await pullEntities(runner);
             }
             else {
-                tool_1.logger.error('为了调试程序，pullEntities暂时屏蔽');
+                // logger.error('为了调试程序，pullEntities暂时屏蔽');
             }
-            tool_1.logger.info(`==== in loop ${uqDbName}: execQueueAct ====`);
-            if ((yield (0, execQueueAct_1.execQueueAct)(runner)) < 0)
-                return -1;
-            tool_1.logger.info(`###### end loop ${uqDbName} ######`);
+            logger.info(`==== in loop ${uqDbName}: execQueueAct ====`);
+            if (await execQueueAct(runner) < 0) return -1;
+            logger.info(`###### end loop ${uqDbName} ######`);
+            */
             return retCount;
         });
     }
-    debugUqJob(uqDbNames) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!uqDbNames)
-                return;
-            if (uqDbNames.length === 0)
-                return;
-            for (let uqDbName of uqDbNames) {
-                let runner = yield this.getRunnerFromDbName(uqDbName);
-                if (!runner)
-                    continue;
-                // let queueOut = new QueueOut(runner);
-                // await queueOut.run();
-                /*
-                let row = {
-                    $unit: 24,
-                    id: -39,
-                    to: -1,
-                    action: 'bus',
-                    subject: 'partnermappedbus/partnerordercreated',
-                    content: `#	2
-    $		13	20220906091418173873	2022-09-06 09:14:18
-    `,
-                    tries: 0,
-                    update_time: '2021-1-1',
-                    now: '2021-1-2',
-                    stamp: null,
-                }
-                await queueOut.processOneRow(row, 0);
-                */
-                // let pullBus = new PullBus(runner);
-                // await pullBus.run()
-                let queueIn = new queueIn_1.QueueIn(runner);
-                yield queueIn.run();
-            }
-        });
+    shouldUqJob(dbName) {
+        if (uqsInclude && uqsInclude.length > 0) {
+            let index = uqsInclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+            if (index < 0)
+                return false;
+        }
+        // uqsExclude操作
+        if (uqsExclude && uqsExclude.length > 0) {
+            let index = uqsExclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+            if (index >= 0)
+                return false;
+        }
+        return true;
     }
 }
 exports.Jobs = Jobs;
