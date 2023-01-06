@@ -99,6 +99,7 @@ class Db {
         if (dbConfig === undefined)
             throw 'dbConfig not defined';
         this.serverId = dbConfig['server-id'];
+        delete dbConfig['server-id'];
         switch (sqlType) {
             case 'mysql': return new my_1.MyDbCaller(this.dbName, dbConfig);
             case 'mssql': return new ms_1.MsDbCaller(this.dbName, dbConfig);

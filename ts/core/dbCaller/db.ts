@@ -127,6 +127,7 @@ export abstract class Db {
         let dbConfig = this.getDbConfig();
         if (dbConfig === undefined) throw 'dbConfig not defined';
         this.serverId = dbConfig['server-id'];
+        delete dbConfig['server-id'];
         switch (sqlType) {
             case 'mysql': return new MyDbCaller(this.dbName, dbConfig);
             case 'mssql': return new MsDbCaller(this.dbName, dbConfig);
