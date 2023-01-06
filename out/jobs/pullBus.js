@@ -21,7 +21,7 @@ function messageId(daysFromNow, startId) {
     startDate.setDate(startDate.getDate() - daysFromNow);
     return Math.floor(startDate.getTime() / hourMilliSeconds * busHourSeed);
 }
-const defaultStartDays = 6; // 从当下开始，前推天数，开始拉bus数据
+const defaultStartDays = 4; // 从当下开始，前推天数，开始拉bus数据
 let defaultAgoDays = 6; // 从开始拉数据日子，再前推天数，开始拉更久远的数据
 // const defaultStartPullMessageId = messageId(startDays);
 class PullBus {
@@ -59,7 +59,7 @@ class PullBus {
                 }
                 // pull当下的bus消息
                 for (let row of curRows) {
-                    if (this.buses.hasError === true)
+                    if (this.buses.error !== undefined)
                         break;
                     let { unit, maxId, maxId1, start, start1 } = row;
                     if (maxId !== null && maxId < 10000)
@@ -72,7 +72,7 @@ class PullBus {
                     unitPulls[unit] = queuePropsDefers;
                 }
                 for (let row of rowsAgo) {
-                    if (this.buses.hasError === true)
+                    if (this.buses.error !== undefined)
                         break;
                     let { unit, maxId, maxId1, start, start1 } = row;
                     // 一个新uq开始工作，默认取两个月的bus信息。
@@ -249,7 +249,7 @@ class PullQueue {
     }
     onetimePull() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (this.pullBus.buses.hasError === true)
+            if (this.pullBus.buses.error !== undefined)
                 return;
             if (this.cur >= this.end)
                 return;
@@ -289,7 +289,7 @@ class PullQueue {
                 return true;
             }
             catch (toQueueInErr) {
-                this.pullBus.buses.hasError = true;
+                this.pullBus.buses.error = toQueueInErr;
                 tool_1.logger.error(toQueueInErr);
                 yield runner.logError(this.unit, `jobs pullBus loop to QueueInErr msgId=${msgId}`, (0, tool_2.getErrorString)(toQueueInErr));
                 return false;

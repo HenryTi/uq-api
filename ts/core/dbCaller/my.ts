@@ -1,4 +1,4 @@
-import { createPool, Pool, MysqlError, TypeCast } from 'mysql';
+import { createPool, Pool/*, MysqlError, TypeCast*/ } from 'mysql2';
 import * as _ from 'lodash';
 import { logger } from '../../tool';
 import { DbCaller } from './dbCaller';
@@ -100,11 +100,11 @@ export class MyDbCaller extends DbCaller {
             }
         }
         let conf = _.clone(this.dbConfig);
-        conf.timezone = 'UTC';
-        conf.typeCast = castField;
+        // conf.timezone = 'UTC';
+        // conf.typeCast = castField;
         conf.connectionLimit = 10;
         conf.waitForConnections = true;
-        conf.acquireTimeout = 10000;
+        // conf.acquireTimeout = 10000;
         conf.multipleStatements = true;
         //conf.charset = 'utf8mb4';
         //let newPool = await this.createPool(conf);
@@ -130,7 +130,7 @@ export class MyDbCaller extends DbCaller {
         return await new Promise<any>((resolve, reject) => {
             let retryCount = 0;
             let isDevelopment = env.isDevelopment;
-            let handleResponse = (err: MysqlError, result: any) => {
+            let handleResponse = (err: any, result: any) => {
                 if (err === null) {
                     if (log !== undefined) {
                         log.tries = retryCount;
@@ -707,23 +707,13 @@ END
         }
     }
 }
-
+/*
 const castField: TypeCast = (field: any, next) => {
     switch (field.type) {
         default: return next();
         case 'DATE': return castDate(field);
         case 'DATETIME': return castDateTime(field);
     }
-    /*
-    if (( field.type === "BIT" ) && ( field.length === 1 ) ) {
-        var bytes = field.buffer();
-        // A Buffer in Node represents a collection of 8-bit unsigned integers.
-        // Therefore, our single "bit field" comes back as the bits '0000 0001',
-        // which is equivalent to the number 1.
-        return( bytes[ 0 ] === 1 );
-    }
-    return next();
-    */
 }
 
 // 确保服务器里面保存的时间是UTC时间
@@ -737,15 +727,8 @@ function castDateTime(field: any) {
     // 这个地方也许有某种方法加速吧
     let text = field.string();;
     return text;
-    /*
-    let text = field.string();
-    if (text === null) return null;
-    if (text === undefined) return undefined;
-    let d = new Date(new Date(text).getTime() - timezoneOffset);
-    return d;
-    */
 }
-
+*/
 abstract class WriteLogBase {
     protected abstract get procName(): string;
     protected abstract get tableName(): string;

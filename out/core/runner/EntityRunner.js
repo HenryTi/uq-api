@@ -1104,7 +1104,7 @@ class EntityRunner extends Runner_1.Runner {
                 outCount: busOutCount,
                 urlColl,
                 faceColl,
-                hasError: false,
+                error: undefined,
             };
             this.buildTuid$User();
             this.buildAccesses();

@@ -24,8 +24,8 @@ export class QueueIn {
         for (let defer = 0; defer < constDeferMax; defer++) {
             if (this.runner.isCompiling === true) break;
             let { buses } = this.runner;
-            let { hasError } = buses;
-            if (hasError === true) break;
+            let { error } = buses;
+            if (error !== undefined) break;
             this.queuePointer = 0;
             let count = constQueueSizeArr[defer];
             for (let i = 0; i < count;) {
@@ -40,7 +40,7 @@ export class QueueIn {
                     }
                 }
                 catch (err) {
-                    buses.hasError = true;
+                    buses.error = err;
                     logger.error(err);
                     await this.runner.logError(0, 'jobs queueIn loop at ' + this.queuePointer, getErrorString(err));
                     return -1;

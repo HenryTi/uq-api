@@ -42,7 +42,7 @@ export interface Buses {
     outCount: number;
     urlColl: { [url: string]: BusFace };
     faceColl: { [bus: string]: BusFace };
-    hasError: boolean;
+    error: any;
 }
 
 export class EntityRunner extends Runner {
@@ -955,7 +955,7 @@ export class EntityRunner extends Runner {
             outCount: busOutCount,
             urlColl,
             faceColl,
-            hasError: false,
+            error: undefined,
         };
         this.buildTuid$User();
         this.buildAccesses();

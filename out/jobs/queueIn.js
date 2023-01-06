@@ -32,8 +32,8 @@ class QueueIn {
                 if (this.runner.isCompiling === true)
                     break;
                 let { buses } = this.runner;
-                let { hasError } = buses;
-                if (hasError === true)
+                let { error } = buses;
+                if (error !== undefined)
                     break;
                 this.queuePointer = 0;
                 let count = consts_1.constQueueSizeArr[defer];
@@ -51,7 +51,7 @@ class QueueIn {
                         }
                     }
                     catch (err) {
-                        buses.hasError = true;
+                        buses.error = err;
                         tool_1.logger.error(err);
                         yield this.runner.logError(0, 'jobs queueIn loop at ' + this.queuePointer, (0, tool_2.getErrorString)(err));
                         return -1;

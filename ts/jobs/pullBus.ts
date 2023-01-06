@@ -29,8 +29,8 @@ function messageId(daysFromNow: number, startId?: number): number {
     startDate.setDate(startDate.getDate() - daysFromNow);
     return Math.floor(startDate.getTime() / hourMilliSeconds * busHourSeed);
 }
-const defaultStartDays = 6;            // 从当下开始，前推天数，开始拉bus数据
-let defaultAgoDays = 6;         // 从开始拉数据日子，再前推天数，开始拉更久远的数据
+const defaultStartDays = 4;        // 从当下开始，前推天数，开始拉bus数据
+let defaultAgoDays = 6;             // 从开始拉数据日子，再前推天数，开始拉更久远的数据
 
 // const defaultStartPullMessageId = messageId(startDays);
 
@@ -73,7 +73,7 @@ export class PullBus {
 
             // pull当下的bus消息
             for (let row of curRows) {
-                if (this.buses.hasError === true) break;
+                if (this.buses.error !== undefined) break;
                 let { unit, maxId, maxId1, start, start1 } = row;
                 if (maxId !== null && maxId < 10000) maxId1 = maxId;
                 let queuePropsDefers: QueueProps[] = [
@@ -85,7 +85,7 @@ export class PullBus {
             }
 
             for (let row of rowsAgo) {
-                if (this.buses.hasError === true) break;
+                if (this.buses.error !== undefined) break;
                 let { unit, maxId, maxId1, start, start1 } = row;
                 // 一个新uq开始工作，默认取两个月的bus信息。
                 let queueProps = unitPulls[-unit];
@@ -266,7 +266,7 @@ class PullQueue {
         maxRows: number;
         messages: any[];
     }> {
-        if (this.pullBus.buses.hasError === true) return;
+        if (this.pullBus.buses.error !== undefined) return;
         if (this.cur >= this.end) return;
         let { net, faces } = this.pullBus;
         let ret = await net.pullBus(this.positiveUnit, this.cur, faces, this.defer);
@@ -301,7 +301,7 @@ class PullQueue {
             return true;
         }
         catch (toQueueInErr) {
-            this.pullBus.buses.hasError = true;
+            this.pullBus.buses.error = toQueueInErr;
             logger.error(toQueueInErr);
             await runner.logError(
                 this.unit
