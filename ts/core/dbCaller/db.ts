@@ -6,19 +6,6 @@ import { MsDbCaller } from './ms';
 import { MyDbCaller } from './my';
 import { EntityRunner } from '../runner';
 
-/*
-
-function isNodeEnvEqu(...envs:string[]):boolean {
-    let nodeEnv = process.env.NODE_ENV as string;
-    if (!nodeEnv) return false;
-    let e = nodeEnv.toLowerCase();
-    return envs.findIndex(v => v === e) >= 0;
-}
-
-export const isDevelopment:boolean = isNodeEnvEqu(const_development);
-export const isDevdo:boolean = isNodeEnvEqu(const_devdo);
-export const isDev = isNodeEnvEqu(const_development, const_devdo);
-*/
 interface ConfigDebugging {
     "unitx": {
         test: string;
@@ -145,6 +132,10 @@ export abstract class Db {
     async exists(): Promise<boolean> {
         if (this.isExists === true) return true;
         return this.isExists = await this.dbCaller.existsDatabase(this.dbName);
+    }
+
+    async loadTwProfix(): Promise<void> {
+        await this.dbCaller.loadTwProfix();
     }
 
     async buildTuidAutoId(): Promise<void> {

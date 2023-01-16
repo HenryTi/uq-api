@@ -29,7 +29,7 @@ function messageId(daysFromNow: number, startId?: number): number {
     startDate.setDate(startDate.getDate() - daysFromNow);
     return Math.floor(startDate.getTime() / hourMilliSeconds * busHourSeed);
 }
-const defaultStartDays = 4;        // 从当下开始，前推天数，开始拉bus数据
+const defaultStartDays = 10;        // 从当下开始，前推天数，开始拉bus数据
 let defaultAgoDays = 6;             // 从开始拉数据日子，再前推天数，开始拉更久远的数据
 
 // const defaultStartPullMessageId = messageId(startDays);

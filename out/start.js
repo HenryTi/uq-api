@@ -161,11 +161,17 @@ function runJobs() {
     });
 }
 function dbHello(req, res) {
-    let { db } = req.params;
-    let text = 'uq-api: hello';
-    if (db)
-        text += ', db is ' + db;
-    res.json({ "hello": text });
+    return __awaiter(this, void 0, void 0, function* () {
+        let { db } = req.params;
+        let text = 'uq-api: hello';
+        if (db)
+            text += ', db is ' + db;
+        let uqs = yield core_1.Db.db(core_1.consts.$uq).uqDbs();
+        res.json({
+            "hello": text,
+            uqs
+        });
+    });
 }
 function buildUqRouter(rb, rbCompile) {
     // 正常的tonwa uq接口 uqRouter

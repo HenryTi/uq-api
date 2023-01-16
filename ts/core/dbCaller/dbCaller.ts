@@ -224,15 +224,18 @@ export abstract class DbCaller {
     protected dbName: string;
     hasUnit: boolean;
     protected builder: Builder;
+    protected twProfix: string;
 
     constructor(dbName: string) {
         this.dbName = dbName;
+        this.twProfix = '';
         //this.builder = this.createBuilder();
     }
 
     protected abstract createBuilder(): Builder;
     setBuilder() { this.builder = this.createBuilder(); }
 
+    abstract loadTwProfix(): Promise<void>;
     abstract createProcObjs(db: string): Promise<void>;
     abstract reset(): void;
     abstract sql(sql: string, params: any[]): Promise<any>;

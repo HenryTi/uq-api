@@ -122,6 +122,14 @@ export class MyDbCaller extends DbCaller {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }
 
+    async loadTwProfix(): Promise<void> {
+        this.twProfix = await this.checkIsTwProfix() === true ? '' : 'tv_';
+    }
+
+    private async checkIsTwProfix(): Promise<boolean> {
+        return true;
+    }
+
     private async exec(sql: string, values: any[], log?: SpanLog): Promise<any> {
         if (this.pool === undefined) {
             this.pool = await this.getPool();
@@ -480,15 +488,15 @@ END
 
             let performanceLog = `
 	create procedure $uq.performance(_tick bigint, _log text, _ms int) begin
-		declare _t timestamp(6);
-		set _t = from_unixtime(_tick/1000);
-		_loop: while 1=1 do
-			insert ignore into performance (\`time\`, log, ms) values (_t, _log, _ms);
-			if row_count()>0 then
-				leave _loop; 
-			end if;
-			set _t=date_add(_t, interval 1 microsecond);
-		end while;
+        declare _time, _tmax timestamp(6);
+        set _time=current_timestamp(6);
+        select max(\`time\`) into _tmax from \`performance\` where \`time\`>_time for update;
+        if _tmax is null then
+            set _tmax = _time;
+        else
+            set _tmax = ADDDATE(_tmax,interval 1 microsecond);
+        end if;
+		insert ignore into performance (\`time\`, log, ms) values (_tmax, _log, _ms);
 	end;
 	`;
             let retProcLogExists = await this.exec(sqls.procLogExists, undefined);
@@ -736,20 +744,19 @@ abstract class WriteLogBase {
         return `create procedure $uq.${this.procName}(
 	_unit int, _uq varchar(50), _subject varchar(100), _content text) 
 begin
-	declare _time timestamp(6);
+	declare _time, _tmax timestamp(6);
 	set _time=current_timestamp(6);
-	_exit: loop
-		if not exists(select \`unit\` from \`${this.tableName}\` where \`time\`=_time for update) then
-			insert ignore into \`${this.tableName}\` (\`time\`, unit, uq, subject, content) 
-				values (_time, _unit, 
-					(select id from uq where name=_uq for update),
-					_subject, 
-					_content);
-			leave _exit;
-		else
-			set _time = ADDDATE(_time,interval 1 microsecond );
-		end if;
-	end loop;
+    select max(\`time\`) into _tmax from \`${this.tableName}\` where \`time\`>_time for update;
+    if _tmax is null then
+        set _tmax = _time;
+    else
+        set _tmax = ADDDATE(_tmax,interval 1 microsecond);
+    end if;
+    insert ignore into \`${this.tableName}\` (\`time\`, unit, uq, subject, content) 
+        values (_tmax, _unit, 
+            (select id from uq where name=_uq for update),
+            _subject, 
+            _content);
 end;
 `;
     }

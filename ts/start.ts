@@ -3,7 +3,7 @@ import { Request, Response, NextFunction, Router } from 'express';
 import * as config from 'config';
 import { logger } from './tool';
 import { createResDb, router as resRouter, initResPath } from './res';
-import { authCheck, authUnitx, create$UqDb, env, testNet } from './core';
+import { authCheck, authUnitx, consts, create$UqDb, Db, env, testNet } from './core';
 import {
     buildOpenRouter, buildEntityRouter, buildUnitxRouter, buildBuildRouter,
     uqProdRouterBuilder, uqTestRouterBuilder,
@@ -159,11 +159,15 @@ async function runJobs() {
     await jobs.run();
 }
 
-function dbHello(req: Request, res: Response) {
+async function dbHello(req: Request, res: Response) {
     let { db } = req.params;
     let text = 'uq-api: hello';
     if (db) text += ', db is ' + db;
-    res.json({ "hello": text });
+    let uqs = await Db.db(consts.$uq).uqDbs();
+    res.json({
+        "hello": text,
+        uqs
+    });
 }
 
 function buildUqRouter(rb: RouterBuilder, rbCompile: CompileRouterBuilder): Router {

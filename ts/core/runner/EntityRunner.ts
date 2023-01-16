@@ -360,10 +360,11 @@ export class EntityRunner extends Runner {
     async createProcInDb(proc: string) {
         await this.db.createProcInDb(proc);
     }
-
+    /*
     async start(unit: number, user: number): Promise<void> {
         return await this.unitUserCall('tv_$start', unit, user);
     }
+    */
     async createResDb(resDbName: string): Promise<void> {
         await this.db.createResDb(resDbName);
     }
@@ -403,14 +404,14 @@ export class EntityRunner extends Runner {
     async saveFace(bus: string, busOwner: string, busName: string, faceName: string) {
         await this.db.call('tv_$save_face', [bus, busOwner, busName, faceName]);
     }
-
+    /*
     async tagType(names: string) {
         await this.db.call('tv_$tag_type', [names]);
     }
     async tagSaveSys(data: string) {
         await this.db.call('tv_$tag_save_sys', [data]);
     }
-
+    */
     isTuidOpen(tuid: string) {
         tuid = tuid.toLowerCase();
         let t = this.tuids[tuid];

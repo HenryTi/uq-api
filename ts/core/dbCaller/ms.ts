@@ -8,6 +8,7 @@ export class MsDbCaller extends DbCaller {
 
     protected createBuilder() { return new MsBuilder(this.dbName, this.hasUnit); }
 
+    loadTwProfix(): Promise<void> { return; }
     createProcObjs(db: string): Promise<void> { return }
     reset(): void { };
     sql(sql: string, params: any[]): Promise<any> { return }

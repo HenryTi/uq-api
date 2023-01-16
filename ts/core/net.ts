@@ -144,13 +144,11 @@ export abstract class Net {
             try {
                 let isExists = await db.exists();
                 if (isExists === false) {
-                    // this.runners[name] = null;
                     runner = undefined;
                 }
                 else {
-                    //logger.error('+++ === +++ === ' + name + ' new Runner(name, db, this)');
+                    await db.loadTwProfix();
                     runner = new EntityRunner(name, db, this);
-                    //this.runners[name] = runner;
                 }
                 for (let promiseItem of this.createRunnerFromDbPromises[name]) {
                     promiseItem.resolve(runner);
