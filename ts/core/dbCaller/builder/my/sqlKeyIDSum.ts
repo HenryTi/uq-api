@@ -1,11 +1,11 @@
 import { ParamKeyIDSum } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlKeyIDSum extends MySqlBuilder {
     private param: ParamKeyIDSum;
 
-    constructor(builder: Builders, param: ParamKeyIDSum) {
+    constructor(builder: Builder, param: ParamKeyIDSum) {
         super(builder);
         this.param = param;
     }
@@ -15,7 +15,7 @@ export class SqlKeyIDSum extends MySqlBuilder {
         let sql = this.buildSumSelect(this.param);
         let { schema } = ID;
         let { keys } = schema;
-        sql += ` RIGHT JOIN \`tv_${ID.name}\` as t0 ON t0.id=t.id WHERE 1=1`;
+        sql += ` RIGHT JOIN \`${this.twProfix}${ID.name}\` as t0 ON t0.id=t.id WHERE 1=1`;
         if (this.hasUnit === true) {
             sql += ' AND t0.$unit=@unit';
         }

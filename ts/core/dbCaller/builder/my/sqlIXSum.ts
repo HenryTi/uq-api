@@ -1,11 +1,11 @@
 import { ParamIXSum } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlIXSum extends MySqlBuilder {
     private param: ParamIXSum;
 
-    constructor(builder: Builders, param: ParamIXSum) {
+    constructor(builder: Builder, param: ParamIXSum) {
         super(builder);
         this.param = param;
     }
@@ -13,7 +13,7 @@ export class SqlIXSum extends MySqlBuilder {
     build(): string {
         let { IX, ix, page } = this.param;
         let sql = this.buildSumSelect(this.param);
-        sql += ` RIGHT JOIN \`tv_${IX.name}\` as t0 ON t0.xi=t.id WHERE 1=1`;
+        sql += ` RIGHT JOIN \`${this.twProfix}${IX.name}\` as t0 ON t0.xi=t.id WHERE 1=1`;
         if (this.hasUnit === true) {
             sql += ' AND t0.$unit=@unit';
         }

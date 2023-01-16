@@ -1,11 +1,11 @@
 import { ParamKeyIX } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlKeyIX extends MySqlBuilder {
     private param: ParamKeyIX;
 
-    constructor(builder: Builders, param: ParamKeyIX) {
+    constructor(builder: Builder, param: ParamKeyIX) {
         super(builder);
         this.param = param;
     }
@@ -18,7 +18,7 @@ export class SqlKeyIX extends MySqlBuilder {
 
         let { name, schema } = ID;
         let { keys } = schema;
-        let joinID = ' JOIN `tv_' + name + '` as t ON t.id=t0.id';
+        let joinID = ' JOIN `' + this.twProfix + name + '` as t ON t.id=t0.id';
         let where = '';
         if (this.hasUnit === true) {
             where += 't.$unit=@unit'

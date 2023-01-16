@@ -2,8 +2,8 @@ import * as config from 'config';
 import * as _ from 'lodash';
 import { logger } from '../../tool';
 import { DbCaller } from './dbCaller';
-import { MsDbCaller } from './ms';
-import { MyDbCaller } from './my';
+import { MsDbCaller } from './MsDbCaller';
+import { MyDbCaller } from './MyDbCaller';
 import { EntityRunner } from '../runner';
 
 interface ConfigDebugging {
@@ -199,6 +199,13 @@ export abstract class Db {
     }
     async setDebugJobs(): Promise<void> {
         await this.dbCaller.setDebugJobs();
+    }
+    async saveTextId(text: string): Promise<number> {
+        return await this.dbCaller.saveTextId(text);
+    }
+
+    async execQueueAct(): Promise<number> {
+        return await this.dbCaller.execQueueAct();
     }
 
     /**

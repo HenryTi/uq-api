@@ -6,14 +6,14 @@ const constSheet = 'sheet';
 
 export function buildSheetRouter(router: Router, rb: RouterBuilder) {
     async function queueSheet(runner: EntityRunner, unit: number, name: string, sheetId: number, content: SheetQueueData): Promise<boolean> {
-        let ret = await runner.unitTableFromProc('tv_$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
+        let ret = await runner.unitTableFromProc('$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
         return (ret[0].ret === 1);
     }
 
     async function directSheet(runner: EntityRunner, unit: number, name: string, sheetId: number, content: SheetQueueData): Promise<boolean> {
         let { state, action, flow, user } = content;
         let ret = await runner.sheetAct(name, state, action, unit, user, sheetId, flow);
-        //let ret = await runner.unitTableFromProc('tv_$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
+        //let ret = await runner.unitTableFromProc('$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
         return ret[0];
     }
 

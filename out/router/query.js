@@ -26,13 +26,11 @@ const queryProcess = (unit, user, name, db, urlParams, runner, body, schema) => 
     let result;
     let { proxy, auth } = schema;
     if (auth !== undefined) {
-        auth = 'tv_' + auth;
         if (runner.isExistsProcInDb(auth) === false) {
             yield runner.createProcInDb(auth);
         }
     }
     if (proxy !== undefined) {
-        proxy = 'tv_' + proxy;
         if (runner.isExistsProcInDb(proxy) === false) {
             yield runner.createProcInDb(proxy);
         }
@@ -71,13 +69,11 @@ const pageQueryProcess = (unit, user, name, db, urlParams, runner, body, schema)
     let result;
     let { proxy, auth } = schema;
     if (auth !== undefined) {
-        auth = 'tv_' + auth;
         if (runner.isExistsProcInDb(auth) === false) {
             yield runner.createProcInDb(auth);
         }
     }
     if (proxy !== undefined) {
-        proxy = 'tv_' + proxy;
         if (runner.isExistsProcInDb(proxy) === false) {
             yield runner.createProcInDb(proxy);
         }

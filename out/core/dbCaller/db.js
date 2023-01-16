@@ -13,8 +13,8 @@ exports.dbLogger = exports.create$UqDb = exports.SpanLog = exports.UnitxTestDb =
 const config = require("config");
 const _ = require("lodash");
 const tool_1 = require("../../tool");
-const ms_1 = require("./ms");
-const my_1 = require("./my");
+const MsDbCaller_1 = require("./MsDbCaller");
+const MyDbCaller_1 = require("./MyDbCaller");
 const runner_1 = require("../runner");
 class Env {
     constructor() {
@@ -101,8 +101,8 @@ class Db {
         this.serverId = dbConfig['server-id'];
         delete dbConfig['server-id'];
         switch (sqlType) {
-            case 'mysql': return new my_1.MyDbCaller(this.dbName, dbConfig);
-            case 'mssql': return new ms_1.MsDbCaller(this.dbName, dbConfig);
+            case 'mysql': return new MyDbCaller_1.MyDbCaller(this.dbName, dbConfig);
+            case 'mssql': return new MsDbCaller_1.MsDbCaller(this.dbName, dbConfig);
         }
     }
     reset() {
@@ -117,6 +117,11 @@ class Db {
             if (this.isExists === true)
                 return true;
             return this.isExists = yield this.dbCaller.existsDatabase(this.dbName);
+        });
+    }
+    loadTwProfix() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.dbCaller.loadTwProfix();
         });
     }
     buildTuidAutoId() {
@@ -215,6 +220,16 @@ class Db {
     setDebugJobs() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.dbCaller.setDebugJobs();
+        });
+    }
+    saveTextId(text) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbCaller.saveTextId(text);
+        });
+    }
+    execQueueAct() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbCaller.execQueueAct();
         });
     }
     /**

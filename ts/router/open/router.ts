@@ -25,7 +25,7 @@ export function buildOpenRouter(router: Router, rb: RouterBuilder) {
             let schema = runner.getSchema(entity);
             let { type } = schema;
             if (type === 'tuid') {
-                let tuidRet = await runner.unitUserCall('tv_' + entity, unit, undefined, key);
+                let tuidRet = await runner.unitUserCall(entity, unit, undefined, key);
                 return tuidRet;
             }
             if (type === 'map') {
@@ -39,7 +39,7 @@ export function buildOpenRouter(router: Router, rb: RouterBuilder) {
                 for (let i = len; i < fieldsLen; i++) {
                     keys.push(undefined);
                 }
-                let mapRet = await runner.unitUserCall('tv_' + entity + '$query$', unit, undefined, keys);
+                let mapRet = await runner.unitUserCall(entity + '$query$', unit, undefined, keys);
                 return mapRet;
             }
         });
@@ -48,7 +48,7 @@ export function buildOpenRouter(router: Router, rb: RouterBuilder) {
         async (runner: EntityRunner, body: any): Promise<any> => {
             /*
             let {unit, start, page, entities} = body;
-            let ret = await runner.unitTablesFromProc('tv_$modify_queue', unit, start, page, entities);
+            let ret = await runner.unitTablesFromProc('$modify_queue', unit, start, page, entities);
             let ret1 = ret[1];
             let modifyMax = ret1.length===0? 0: ret1[0].max;
             runner.setModifyMax(unit, modifyMax);
@@ -85,7 +85,7 @@ export function buildOpenRouter(router: Router, rb: RouterBuilder) {
             if (runner.isTuidOpen(tuid) === false) return;
             // maps: tab分隔的map名字
             let suffix = (all === true ? '$id' : '$main');
-            let ret = await runner.unitUserCall('tv_' + tuid + suffix, unit, undefined, id);
+            let ret = await runner.unitUserCall(tuid + suffix, unit, undefined, id);
             return ret;
         });
 
@@ -98,7 +98,7 @@ export function buildOpenRouter(router: Router, rb: RouterBuilder) {
             if (runner.isTuidOpen(tuid) === false) return;
             // maps: tab分隔的map名字
             let suffix = (all === true ? '$id' : '$main');
-            return await runner.unitUserCall(`tv_${tuid}_${div}${suffix}`, unit, undefined, ownerId, id);
+            return await runner.unitUserCall(`${tuid}_${div}${suffix}`, unit, undefined, ownerId, id);
         });
 
     rb.get(router, '/proc/:name',

@@ -244,7 +244,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 
     rb.get(router, '/entitys',
         async (runner: EntityRunner, body: { hasSource: string }): Promise<any[][]> => {
-            //return await this.db.call('tv_$entitys', [hasSource===true? 1:0]);
+            //return await this.db.call('$entitys', [hasSource===true? 1:0]);
             return await runner.loadSchemas(Number(body.hasSource));
         });
 

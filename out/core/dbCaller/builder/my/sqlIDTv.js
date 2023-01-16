@@ -16,8 +16,8 @@ class SqlIDTv extends mySqlBuilder_1.MySqlBuilder {
         }
         let sql = `
 SELECT a.id, b.name as $type, a.name as $tv 
-	FROM tv_${idTbl} as a 
-		JOIN tv_$entity as b ON a.entity=b.id 
+	FROM ${this.twProfix}${idTbl} as a 
+		JOIN ${this.twProfix}$entity as b ON a.entity=b.id 
 	WHERE a.id in (${this.ids.join(',')})` + mySqlBuilder_1.sqlLineEnd;
         return sql;
     }

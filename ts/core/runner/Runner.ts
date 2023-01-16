@@ -13,7 +13,7 @@ export class Runner {
     async syncCenterUser(userId: number) {
         let user = await centerApi.userFromId(userId);
         let { id, name, nick, icon } = user;
-        await this.db.call('tv_$set_user', [id, name, nick, icon]);
+        await this.db.call('$set_user', [id, name, nick, icon]);
         return user;
     }
 }

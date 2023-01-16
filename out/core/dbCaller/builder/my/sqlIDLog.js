@@ -19,7 +19,7 @@ class SqlIDLog extends mySqlBuilder_1.MySqlBuilder {
             span += ` AND a.t>=${far}`;
         if (near)
             span += ` AND a.t<${near}`;
-        let table = '`tv_' + name + '$' + field + '`';
+        let table = '`' + this.twProfix + name + '$' + field + '`';
         let cols = 'a.t, a.v, a.u, a.a';
         let group;
         let time = `from_unixtime(a.t/1000+${timeZone}*3600)`;

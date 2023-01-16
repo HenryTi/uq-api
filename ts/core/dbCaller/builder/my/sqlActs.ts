@@ -1,11 +1,11 @@
 import { ParamActs } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlActs extends MySqlBuilder {
     private param: ParamActs;
 
-    constructor(builder: Builders, param: ParamActs) {
+    constructor(builder: Builder, param: ParamActs) {
         super(builder);
         this.param = param;
     }

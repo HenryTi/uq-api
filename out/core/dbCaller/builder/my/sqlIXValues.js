@@ -18,11 +18,11 @@ class SqlIXValues extends mySqlBuilder_1.MySqlBuilder {
         }
         if (!order)
             order = 'asc';
-        let sql = `call ${this.dbName}.tv_$ix_values(@unit, @user, '${IX.name}', '${xiType}', ${ix}, ${tStart}, ${tSize}, '${order}' )`;
+        let sql = `call ${this.dbName}.${this.twProfix}$ix_values(@unit, @user, '${IX.name}', '${xiType}', ${ix}, ${tStart}, ${tSize}, '${order}' )`;
         return sql;
     }
     buildCall() {
-        let proc = 'tv_$ix_values';
+        let proc = `${this.twProfix}$ix_values`;
         let { IX, ix, page, order } = this.param;
         let xiType = IX.schema.xiType;
         let tStart, tSize;
@@ -36,7 +36,7 @@ class SqlIXValues extends mySqlBuilder_1.MySqlBuilder {
         let callParams = [
             IX.name, xiType, ix, tStart, tSize, order
         ];
-        //let sql = `call ${this.dbName}.tv_$ix_values(@unit, @user, '${IX.name}', '${xiType}', ${ix}, ${tStart}, ${tSize}, '${order}' )`;
+        //let sql = `call ${this.dbName}.${this.twProfix}$ix_values(@unit, @user, '${IX.name}', '${xiType}', ${ix}, ${tStart}, ${tSize}, '${order}' )`;
         return { proc, params: callParams };
     }
 }

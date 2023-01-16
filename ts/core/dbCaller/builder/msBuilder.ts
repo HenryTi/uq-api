@@ -1,4 +1,4 @@
-import { Builders } from "./builders";
+import { Builder } from "./Builder";
 
-export class MsBuilder extends Builders {
+export class MsBuilder extends Builder {
 }

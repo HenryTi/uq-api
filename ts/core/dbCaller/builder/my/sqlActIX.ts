@@ -1,11 +1,11 @@
 import { ParamActIX, TableSchema } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, retTab, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlActIX extends MySqlBuilder {
     private param: ParamActIX;
 
-    constructor(builder: Builders, param: ParamActIX) {
+    constructor(builder: Builder, param: ParamActIX) {
         super(builder);
         this.param = param;
     }

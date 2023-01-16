@@ -59,20 +59,20 @@ const collationConnection = `
 `;
 */
 const sysProcColl = {
-    tv_$entitys: true,
-    tv_$entity: true,
-    tv_$entity_version: true,
-    tv_$entity_validate: true,
-    tv_$entity_no: true,
-    tv_$init_setting: true,
-    tv_$set_setting: true,
-    tv_$get_setting: true,
-    tv_$const_strs: true,
-    tv_$const_str: true,
-    tv_$tag_values: true,
-    tv_$tag_type: true,
-    tv_$tag_save_sys: true,
-    tv_$tag_save: true,
+    $entitys: true,
+    $entity: true,
+    $entity_version: true,
+    $entity_validate: true,
+    $entity_no: true,
+    $init_setting: true,
+    $set_setting: true,
+    $get_setting: true,
+    $const_strs: true,
+    $const_str: true,
+    $tag_values: true,
+    $tag_type: true,
+    $tag_save_sys: true,
+    $tag_save: true,
 };
 
 export class MyDbCaller extends DbCaller {
@@ -84,7 +84,7 @@ export class MyDbCaller extends DbCaller {
         this.resetProcColl();
     }
 
-    protected createBuilder() { return new MyBuilder(this.dbName, this.hasUnit); }
+    protected createBuilder() { return new MyBuilder(this.dbName, this.hasUnit, this.twProfix); }
 
     private resetProcColl() {
         this.procColl = _.merge({}, sysProcColl);
@@ -201,7 +201,7 @@ export class MyDbCaller extends DbCaller {
 
     private procColl: { [procName: string]: boolean };
     private buidlCallProcSql(db: string, proc: string, params: any[]): string {
-        let c = 'call `' + db + '`.`' + proc + '`(';
+        let c = 'call `' + db + '`.`' + this.twProfix + proc + '`(';
         let sql = c;
         if (params !== undefined) {
             let len = params.length;
@@ -219,7 +219,7 @@ export class MyDbCaller extends DbCaller {
         return ret;
     }
     async sqlProc(db: string, procName: string, procSql: string): Promise<any> {
-        let ret = await this.callProcBase(db, 'tv_$proc_save', [db, procName, procSql]);
+        let ret = await this.callProcBase(db, '$proc_save', [db, procName, procSql]);
         let t0 = ret[0];
         let changed = t0[0]['changed'];
         let isOk = changed === 0;
@@ -232,11 +232,11 @@ export class MyDbCaller extends DbCaller {
         await this.sql(drop, undefined);
         await this.sql(procSql, undefined);
         // clear changed flag
-        await this.callProcBase(db, 'tv_$proc_save', [db, procName, undefined]);
+        await this.callProcBase(db, '$proc_save', [db, procName, undefined]);
     }
 
     async buildRealProcFrom$ProcTable(db: string, proc: string): Promise<void> {
-        let results = await this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+        let results = await this.callProcBase(db, '$proc_get', [db, proc]);
         let ret = results[0];
         if (ret.length === 0) {
             debugger;
@@ -247,7 +247,7 @@ export class MyDbCaller extends DbCaller {
         let drop = `DROP PROCEDURE IF EXISTS \`${db}\`.\`${proc}\`;`;
         await this.sql(drop, undefined);
         await this.sql(procSql, undefined);
-        await this.callProcBase(db, 'tv_$proc_save', [db, proc, undefined]);
+        await this.callProcBase(db, '$proc_save', [db, proc, undefined]);
     }
 
     private async execProc(db: string, proc: string, params: any[]): Promise<any> {
@@ -269,7 +269,7 @@ export class MyDbCaller extends DbCaller {
                 let procLower = proc.toLowerCase();
                 let p = this.procColl[procLower];
                 if (p !== true) {
-                    let results = await this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+                    let results = await this.callProcBase(db, '$proc_get', [db, proc]);
                     let ret = results[0];
                     if (ret.length === 0) {
                         //debugger;
@@ -326,11 +326,11 @@ export class MyDbCaller extends DbCaller {
         return await this.exec(sql, params, spanLog);
     }
     async buildTuidAutoId(db: string): Promise<void> {
-        let sql1 = `UPDATE \`${db}\`.tv_$entity a 
+        let sql1 = `UPDATE \`${db}\`.${this.twProfix}$entity a 
 			SET a.tuidVid=(
 				select b.AUTO_INCREMENT 
 					from information_schema.tables b
-					where b.table_name=concat('tv_', a.name)
+					where b.table_name=concat('${this.twProfix}', a.name)
 						AND b.TABLE_SCHEMA='${db}'
 				)
 			WHERE a.tuidVid IS NULL;
@@ -381,13 +381,9 @@ export class MyDbCaller extends DbCaller {
         await this.insertInto$Uq(db);
         return ret;
     }
-    async getEvents(db: string): Promise<{ db: string; name: string; }[]> {
-        let ret = await this.exec(sqls.eventExists, [db]);
-        return ret;
-    }
     async createProcObjs(db: string): Promise<void> {
         const createProcTable = `
-CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
+CREATE TABLE IF NOT EXISTS \`${db}\`.\`${this.twProfix}$proc\` (
 	\`name\` VARCHAR(200) NOT NULL,
 	\`proc\` TEXT NULL, 
 	\`changed\` TINYINT(4) NULL DEFAULT NULL,
@@ -398,15 +394,15 @@ CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
 
         await this.exec(createProcTable, undefined);
         const getProc = `
-DROP PROCEDURE IF EXISTS \`${db}\`.tv_$proc_get;
-CREATE PROCEDURE \`${db}\`.tv_$proc_get(
+DROP PROCEDURE IF EXISTS \`${db}\`.${this.twProfix}$proc_get;
+CREATE PROCEDURE \`${db}\`.${this.twProfix}$proc_get(
 	IN _schema VARCHAR(200),
 	IN _name VARCHAR(200)
 ) BEGIN	
 	SELECT proc, CASE WHEN (changed=1 OR NOT (exists(SELECT ROUTINE_BODY
 	FROM information_schema.routines
 	WHERE 1=1 AND ROUTINE_SCHEMA=_schema AND ROUTINE_NAME=_name))) THEN 1 ELSE 0 END AS changed
-	FROM tv_$proc
+	FROM ${this.twProfix}$proc
 	WHERE 1=1 AND name=_name FOR UPDATE;
 END
 `;
@@ -414,8 +410,8 @@ END
         await this.exec(getProc, undefined);
 
         const saveProc = `
-DROP PROCEDURE IF EXISTS \`${db}\`.tv_$proc_save;
-CREATE PROCEDURE \`${db}\`.tv_$proc_save(
+DROP PROCEDURE IF EXISTS \`${db}\`.${this.twProfix}$proc_save;
+CREATE PROCEDURE \`${db}\`.${this.twProfix}$proc_save(
 	_schema VARCHAR(200),
 	_name VARCHAR(200),
 	_proc TEXT
@@ -423,20 +419,20 @@ CREATE PROCEDURE \`${db}\`.tv_$proc_save(
 __proc_exit: BEGIN
 	DECLARE _procOld TEXT;DECLARE _changed TINYINT;
 	IF _proc IS NULL THEN
-	UPDATE tv_$proc SET changed=0 WHERE name=_name;
+	UPDATE ${this.twProfix}$proc SET changed=0 WHERE name=_name;
 	LEAVE __proc_exit;
 	END IF;
 	SELECT proc INTO _procOld
-	FROM tv_$proc
+	FROM ${this.twProfix}$proc
 	WHERE 1=1 AND name=_name FOR UPDATE;
 	SET _changed=1;
 	IF _procOld IS NULL THEN
-	INSERT INTO tv_$proc (name, proc, changed) 
+	INSERT INTO ${this.twProfix}$proc (name, proc, changed) 
 		VALUES (_name, _proc, 1);
 	ELSEIF binary _proc=_procOld THEN
 		SET _changed=0;
 	ELSE
-	UPDATE tv_$proc SET proc=_proc, changed=1 
+	UPDATE ${this.twProfix}$proc SET proc=_proc, changed=1 
 		WHERE name=_name;
 	END IF;
 	SELECT CASE WHEN (_changed=1 OR NOT (exists(SELECT ROUTINE_BODY
@@ -640,6 +636,11 @@ END
             console.error(err);
         }
     }
+    async saveTextId(text: string): Promise<number> {
+        let sql = `select \`${this.dbName}\`.${this.twProfix}$textid(?) as a`;
+        let ret = await this.exec(sql, [text]);
+        return ret[0]['a'];
+    }
     async uqDbs(): Promise<any[]> {
         let sql = env.isDevelopment === true ?
             `select id, name as db, compile_tick from $uq.uq WHERE name<>'$uid';` :
@@ -694,7 +695,7 @@ END
         let procLower = proc.toLowerCase();
         let p = this.procColl[procLower];
         if (p !== true) {
-            let results = await this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+            let results = await this.callProcBase(db, '$proc_get', [db, proc]);
             let ret = results[0];
             if (ret.length === 0) {
                 //debugger;
@@ -713,6 +714,79 @@ END
                 this.procColl[procLower] = true;
             }
         }
+    }
+
+    private execQueueActError: boolean = false;
+    private events: Set<string> = new Set<string>();
+    async execQueueAct(): Promise<number> {
+        if (this.execQueueActError === true) return -1;
+        let sql: string;
+        // try {
+        let db = this.dbName;
+        let ret: any[] = await this.call(this.dbName, '$exec_queue_act', []);
+        if (ret) {
+            // let db = runner.getDb();
+            for (let row of ret) {
+                let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
+                if (this.events.has(entityName) === false) {
+                    this.events.add(entityName);
+                }
+                sql = `
+    USE \`${db}\`;
+    DROP EVENT IF EXISTS \`${this.twProfix}${entityName}\`;
+    CREATE EVENT IF NOT EXISTS \`${this.twProfix}${entityName}\`
+        ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`${this.twProfix}${entityName}\`(${unit}, 0);
+    `;
+                await this.exec(sql, []);
+                if (repeat === 1) {
+                    sql = `use \`${db}\`; DELETE a FROM ${this.twProfix}$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
+                }
+                else {
+                    sql = `use \`${db}\`; UPDATE ${this.twProfix}$queue_act AS a 
+                            SET a.exec_time=date_add(GREATEST(a.exec_time, CURRENT_TIMESTAMP()), interval a.interval minute)
+                                , a.repeat=a.repeat-1
+                            WHERE a.unit=${unit} AND a.entity=${entity};
+                        `;
+                }
+                await this.exec(sql, []);
+            }
+        }
+        return 0;
+        /*
+    }
+    catch (err) {
+        let $uqDb = Db.db(consts.$uq);
+        await $uqDb.uqLog(0, runner.getDb(), 'Error execQueueAct'
+            , (err.message ?? '') + ': ' + sql);
+        logger.error(`execQueueAct: `, err);
+        // runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
+        return -1;
+    }
+    */
+    }
+
+    async removeAllScheduleEvents(): Promise<string> {
+        let db = this.dbName; // .getDb();
+        let events: { db: string; name: string }[];
+        try {
+            events = await this.exec(sqls.eventExists, [db]);
+            if ((!events) || events.length === 0) return;
+        }
+        catch (err) {
+            debugger;
+            return;
+        }
+        let eventsText = '';
+        for (let ev of events) {
+            let { db, name } = ev;
+            //if (name.startsWith('t v_') === true) continue;
+            if (this.events.has(name) === false) continue;
+            eventsText += ` ${db}.${name}`;
+            let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
+            await this.sql(sql, []);
+        }
+        await this.sql(`TRUNCATE TABLE \`${db}\`.${this.twProfix}$queue_act;`, []);
+        return eventsText;
     }
 }
 /*

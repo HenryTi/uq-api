@@ -59,28 +59,30 @@ const collationConnection = `
 `;
 */
 const sysProcColl = {
-    tv_$entitys: true,
-    tv_$entity: true,
-    tv_$entity_version: true,
-    tv_$entity_validate: true,
-    tv_$entity_no: true,
-    tv_$init_setting: true,
-    tv_$set_setting: true,
-    tv_$get_setting: true,
-    tv_$const_strs: true,
-    tv_$const_str: true,
-    tv_$tag_values: true,
-    tv_$tag_type: true,
-    tv_$tag_save_sys: true,
-    tv_$tag_save: true,
+    $entitys: true,
+    $entity: true,
+    $entity_version: true,
+    $entity_validate: true,
+    $entity_no: true,
+    $init_setting: true,
+    $set_setting: true,
+    $get_setting: true,
+    $const_strs: true,
+    $const_str: true,
+    $tag_values: true,
+    $tag_type: true,
+    $tag_save_sys: true,
+    $tag_save: true,
 };
 class MyDbCaller extends dbCaller_1.DbCaller {
     constructor(dbName, dbConfig) {
         super(dbName);
+        this.execQueueActError = false;
+        this.events = new Set();
         this.dbConfig = dbConfig;
         this.resetProcColl();
     }
-    createBuilder() { return new builder_1.MyBuilder(this.dbName, this.hasUnit); }
+    createBuilder() { return new builder_1.MyBuilder(this.dbName, this.hasUnit, this.twProfix); }
     resetProcColl() {
         this.procColl = _.merge({}, sysProcColl);
     }
@@ -115,6 +117,16 @@ class MyDbCaller extends dbCaller_1.DbCaller {
      */
     sqlExists(db) {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
+    }
+    loadTwProfix() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.twProfix = (yield this.checkIsTwProfix()) === true ? '' : 'tv_';
+        });
+    }
+    checkIsTwProfix() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return true;
+        });
     }
     exec(sql, values, log) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -194,7 +206,7 @@ class MyDbCaller extends dbCaller_1.DbCaller {
         });
     }
     buidlCallProcSql(db, proc, params) {
-        let c = 'call `' + db + '`.`' + proc + '`(';
+        let c = 'call `' + db + '`.`' + this.twProfix + proc + '`(';
         let sql = c;
         if (params !== undefined) {
             let len = params.length;
@@ -216,7 +228,7 @@ class MyDbCaller extends dbCaller_1.DbCaller {
     }
     sqlProc(db, procName, procSql) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.callProcBase(db, 'tv_$proc_save', [db, procName, procSql]);
+            let ret = yield this.callProcBase(db, '$proc_save', [db, procName, procSql]);
             let t0 = ret[0];
             let changed = t0[0]['changed'];
             let isOk = changed === 0;
@@ -230,12 +242,12 @@ class MyDbCaller extends dbCaller_1.DbCaller {
             yield this.sql(drop, undefined);
             yield this.sql(procSql, undefined);
             // clear changed flag
-            yield this.callProcBase(db, 'tv_$proc_save', [db, procName, undefined]);
+            yield this.callProcBase(db, '$proc_save', [db, procName, undefined]);
         });
     }
     buildRealProcFrom$ProcTable(db, proc) {
         return __awaiter(this, void 0, void 0, function* () {
-            let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+            let results = yield this.callProcBase(db, '$proc_get', [db, proc]);
             let ret = results[0];
             if (ret.length === 0) {
                 debugger;
@@ -246,7 +258,7 @@ class MyDbCaller extends dbCaller_1.DbCaller {
             let drop = `DROP PROCEDURE IF EXISTS \`${db}\`.\`${proc}\`;`;
             yield this.sql(drop, undefined);
             yield this.sql(procSql, undefined);
-            yield this.callProcBase(db, 'tv_$proc_save', [db, proc, undefined]);
+            yield this.callProcBase(db, '$proc_save', [db, proc, undefined]);
         });
     }
     execProc(db, proc, params) {
@@ -269,7 +281,7 @@ class MyDbCaller extends dbCaller_1.DbCaller {
                     let procLower = proc.toLowerCase();
                     let p = this.procColl[procLower];
                     if (p !== true) {
-                        let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+                        let results = yield this.callProcBase(db, '$proc_get', [db, proc]);
                         let ret = results[0];
                         if (ret.length === 0) {
                             //debugger;
@@ -334,11 +346,11 @@ class MyDbCaller extends dbCaller_1.DbCaller {
     }
     buildTuidAutoId(db) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql1 = `UPDATE \`${db}\`.tv_$entity a 
+            let sql1 = `UPDATE \`${db}\`.${this.twProfix}$entity a 
 			SET a.tuidVid=(
 				select b.AUTO_INCREMENT 
 					from information_schema.tables b
-					where b.table_name=concat('tv_', a.name)
+					where b.table_name=concat('${this.twProfix}', a.name)
 						AND b.TABLE_SCHEMA='${db}'
 				)
 			WHERE a.tuidVid IS NULL;
@@ -404,16 +416,10 @@ class MyDbCaller extends dbCaller_1.DbCaller {
             return ret;
         });
     }
-    getEvents(db) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.exec(sqls.eventExists, [db]);
-            return ret;
-        });
-    }
     createProcObjs(db) {
         return __awaiter(this, void 0, void 0, function* () {
             const createProcTable = `
-CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
+CREATE TABLE IF NOT EXISTS \`${db}\`.\`${this.twProfix}$proc\` (
 	\`name\` VARCHAR(200) NOT NULL,
 	\`proc\` TEXT NULL, 
 	\`changed\` TINYINT(4) NULL DEFAULT NULL,
@@ -423,23 +429,23 @@ CREATE TABLE IF NOT EXISTS \`${db}\`.\`tv_$proc\` (
             // CHARACTER SET utf8 COLLATE utf8_unicode_ci
             yield this.exec(createProcTable, undefined);
             const getProc = `
-DROP PROCEDURE IF EXISTS \`${db}\`.tv_$proc_get;
-CREATE PROCEDURE \`${db}\`.tv_$proc_get(
+DROP PROCEDURE IF EXISTS \`${db}\`.${this.twProfix}$proc_get;
+CREATE PROCEDURE \`${db}\`.${this.twProfix}$proc_get(
 	IN _schema VARCHAR(200),
 	IN _name VARCHAR(200)
 ) BEGIN	
 	SELECT proc, CASE WHEN (changed=1 OR NOT (exists(SELECT ROUTINE_BODY
 	FROM information_schema.routines
 	WHERE 1=1 AND ROUTINE_SCHEMA=_schema AND ROUTINE_NAME=_name))) THEN 1 ELSE 0 END AS changed
-	FROM tv_$proc
+	FROM ${this.twProfix}$proc
 	WHERE 1=1 AND name=_name FOR UPDATE;
 END
 `;
             //WHERE 1=1 AND ROUTINE_SCHEMA COLLATE utf8_general_ci=_schema COLLATE utf8_general_ci AND ROUTINE_NAME COLLATE utf8_general_ci=_name COLLATE utf8_general_ci))) THEN 1 ELSE 0 END AS changed
             yield this.exec(getProc, undefined);
             const saveProc = `
-DROP PROCEDURE IF EXISTS \`${db}\`.tv_$proc_save;
-CREATE PROCEDURE \`${db}\`.tv_$proc_save(
+DROP PROCEDURE IF EXISTS \`${db}\`.${this.twProfix}$proc_save;
+CREATE PROCEDURE \`${db}\`.${this.twProfix}$proc_save(
 	_schema VARCHAR(200),
 	_name VARCHAR(200),
 	_proc TEXT
@@ -447,20 +453,20 @@ CREATE PROCEDURE \`${db}\`.tv_$proc_save(
 __proc_exit: BEGIN
 	DECLARE _procOld TEXT;DECLARE _changed TINYINT;
 	IF _proc IS NULL THEN
-	UPDATE tv_$proc SET changed=0 WHERE name=_name;
+	UPDATE ${this.twProfix}$proc SET changed=0 WHERE name=_name;
 	LEAVE __proc_exit;
 	END IF;
 	SELECT proc INTO _procOld
-	FROM tv_$proc
+	FROM ${this.twProfix}$proc
 	WHERE 1=1 AND name=_name FOR UPDATE;
 	SET _changed=1;
 	IF _procOld IS NULL THEN
-	INSERT INTO tv_$proc (name, proc, changed) 
+	INSERT INTO ${this.twProfix}$proc (name, proc, changed) 
 		VALUES (_name, _proc, 1);
 	ELSEIF binary _proc=_procOld THEN
 		SET _changed=0;
 	ELSE
-	UPDATE tv_$proc SET proc=_proc, changed=1 
+	UPDATE ${this.twProfix}$proc SET proc=_proc, changed=1 
 		WHERE name=_name;
 	END IF;
 	SELECT CASE WHEN (_changed=1 OR NOT (exists(SELECT ROUTINE_BODY
@@ -668,6 +674,13 @@ END
             }
         });
     }
+    saveTextId(text) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = `select \`${this.dbName}\`.${this.twProfix}$textid(?) as a`;
+            let ret = yield this.exec(sql, [text]);
+            return ret[0]['a'];
+        });
+    }
     uqDbs() {
         return __awaiter(this, void 0, void 0, function* () {
             let sql = db_1.env.isDevelopment === true ?
@@ -725,7 +738,7 @@ END
             let procLower = proc.toLowerCase();
             let p = this.procColl[procLower];
             if (p !== true) {
-                let results = yield this.callProcBase(db, 'tv_$proc_get', [db, proc]);
+                let results = yield this.callProcBase(db, '$proc_get', [db, proc]);
                 let ret = results[0];
                 if (ret.length === 0) {
                     //debugger;
@@ -744,6 +757,82 @@ END
                     this.procColl[procLower] = true;
                 }
             }
+        });
+    }
+    execQueueAct() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.execQueueActError === true)
+                return -1;
+            let sql;
+            // try {
+            let db = this.dbName;
+            let ret = yield this.call(this.dbName, '$exec_queue_act', []);
+            if (ret) {
+                // let db = runner.getDb();
+                for (let row of ret) {
+                    let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
+                    if (this.events.has(entityName) === false) {
+                        this.events.add(entityName);
+                    }
+                    sql = `
+    USE \`${db}\`;
+    DROP EVENT IF EXISTS \`${this.twProfix}${entityName}\`;
+    CREATE EVENT IF NOT EXISTS \`${this.twProfix}${entityName}\`
+        ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`${this.twProfix}${entityName}\`(${unit}, 0);
+    `;
+                    yield this.exec(sql, []);
+                    if (repeat === 1) {
+                        sql = `use \`${db}\`; DELETE a FROM ${this.twProfix}$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
+                    }
+                    else {
+                        sql = `use \`${db}\`; UPDATE ${this.twProfix}$queue_act AS a 
+                            SET a.exec_time=date_add(GREATEST(a.exec_time, CURRENT_TIMESTAMP()), interval a.interval minute)
+                                , a.repeat=a.repeat-1
+                            WHERE a.unit=${unit} AND a.entity=${entity};
+                        `;
+                    }
+                    yield this.exec(sql, []);
+                }
+            }
+            return 0;
+            /*
+        }
+        catch (err) {
+            let $uqDb = Db.db(consts.$uq);
+            await $uqDb.uqLog(0, runner.getDb(), 'Error execQueueAct'
+                , (err.message ?? '') + ': ' + sql);
+            logger.error(`execQueueAct: `, err);
+            // runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
+            return -1;
+        }
+        */
+        });
+    }
+    removeAllScheduleEvents() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let db = this.dbName; // .getDb();
+            let events;
+            try {
+                events = yield this.exec(sqls.eventExists, [db]);
+                if ((!events) || events.length === 0)
+                    return;
+            }
+            catch (err) {
+                debugger;
+                return;
+            }
+            let eventsText = '';
+            for (let ev of events) {
+                let { db, name } = ev;
+                //if (name.startsWith('t v_') === true) continue;
+                if (this.events.has(name) === false)
+                    continue;
+                eventsText += ` ${db}.${name}`;
+                let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
+                yield this.sql(sql, []);
+            }
+            yield this.sql(`TRUNCATE TABLE \`${db}\`.${this.twProfix}$queue_act;`, []);
+            return eventsText;
         });
     }
 }
@@ -800,4 +889,4 @@ class WriteLogError extends WriteLogBase {
     get procName() { return 'log_error'; }
     get tableName() { return 'error'; }
 }
-//# sourceMappingURL=my.js.map
+//# sourceMappingURL=MyDbCaller.js.map

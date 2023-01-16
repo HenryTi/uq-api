@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IXrIXTablesBuilder = exports.IXrTablesBuilder = exports.IXIXTablesBuilder = exports.IXTablesBuilder = exports.TablesBuilder = void 0;
 class TablesBuilder {
-    constructor(dbName, IDX) {
+    constructor(dbName, twProfix, IDX) {
         this.$fieldBuilt = false;
         this.doneTimeField = false;
         this.dbName = dbName;
@@ -10,6 +10,7 @@ class TablesBuilder {
         this.cols = '';
         this.tables = '';
         this.iId = 0;
+        this.twProfix = twProfix;
     }
     build() {
         this.i = 0;
@@ -28,7 +29,7 @@ class TablesBuilder {
             let fv = `t${this.i}.\`${fn}\``;
             if (this.cols.length > 0)
                 this.cols += ',';
-            this.cols += ft === 'textid' ? `tv_$idtext(${fv})` : fv;
+            this.cols += ft === 'textid' ? `${this.twProfix}$idtext(${fv})` : fv;
             this.cols += ' as `' + fn + '`';
         }
         if (this.$fieldBuilt !== true) {
@@ -55,7 +56,7 @@ class TablesBuilder {
         if (this.IDX.length === 0)
             return;
         let { name, schema } = this.IDX[0];
-        let tbl = `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
+        let tbl = `\`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i}`;
         if (this.i === 0) {
             this.tables += tbl;
         }
@@ -67,7 +68,7 @@ class TablesBuilder {
         let len = this.IDX.length;
         for (let i = 1; i < len; i++) {
             let { name, schema } = this.IDX[i];
-            this.tables += ` left join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.iId}.${this.idJoin}=t${this.i}.id`;
+            this.tables += ` left join \`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i} on t${this.iId}.${this.idJoin}=t${this.i}.id`;
             this.buildCols(schema);
             ++this.i;
         }
@@ -78,8 +79,8 @@ class TablesBuilder {
 }
 exports.TablesBuilder = TablesBuilder;
 class IXTablesBuilder extends TablesBuilder {
-    constructor(dbName, IX, IDX) {
-        super(dbName, IDX);
+    constructor(dbName, twProfix, IX, IDX) {
+        super(dbName, twProfix, IDX);
         this.IX = IX;
     }
     build() {
@@ -91,7 +92,7 @@ class IXTablesBuilder extends TablesBuilder {
     }
     buildIX() {
         let { name, schema } = this.IX;
-        this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
+        this.tables += `\`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i}`;
         this.buildCols(schema);
         ++this.i;
     }
@@ -105,8 +106,8 @@ class IXTablesBuilder extends TablesBuilder {
 }
 exports.IXTablesBuilder = IXTablesBuilder;
 class IXIXTablesBuilder extends IXTablesBuilder {
-    constructor(dbName, IX, IX1, IDX) {
-        super(dbName, IX, IDX);
+    constructor(dbName, twProfix, IX, IX1, IDX) {
+        super(dbName, twProfix, IX, IDX);
         this.IX1 = IX1;
     }
     build() {
@@ -120,20 +121,20 @@ class IXIXTablesBuilder extends IXTablesBuilder {
     }
     buildIX() {
         let { name } = this.IX;
-        this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
+        this.tables += `\`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i}`;
         ++this.i;
     }
     buildIX1() {
         let { name, schema } = this.IX1;
-        this.tables += ` join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.i - 1}.xi=t${this.i}.ix`;
+        this.tables += ` join \`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i} on t${this.i - 1}.xi=t${this.i}.ix`;
         this.buildCols(schema);
         ++this.i;
     }
 }
 exports.IXIXTablesBuilder = IXIXTablesBuilder;
 class IXrTablesBuilder extends TablesBuilder {
-    constructor(dbName, IX, IDX) {
-        super(dbName, IDX);
+    constructor(dbName, twProfix, IX, IDX) {
+        super(dbName, twProfix, IDX);
         this.IX = IX;
     }
     build() {
@@ -145,15 +146,15 @@ class IXrTablesBuilder extends TablesBuilder {
     }
     buildIXr() {
         let { name, schema } = this.IX;
-        this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
+        this.tables += `\`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i}`;
         this.buildCols(schema);
         ++this.i;
     }
 }
 exports.IXrTablesBuilder = IXrTablesBuilder;
 class IXrIXTablesBuilder extends IXrTablesBuilder {
-    constructor(dbName, IX, IX1, IDX) {
-        super(dbName, IX, IDX);
+    constructor(dbName, twProfix, IX, IX1, IDX) {
+        super(dbName, twProfix, IX, IDX);
         this.IX1 = IX1;
     }
     build() {
@@ -166,13 +167,13 @@ class IXrIXTablesBuilder extends IXrTablesBuilder {
     }
     buildIXr() {
         let { name } = this.IX;
-        this.tables += `\`${this.dbName}\`.\`tv_${name}\` as t${this.i}`;
+        this.tables += `\`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i}`;
         //this.buildCols(schema);
         ++this.i;
     }
     buildIX1() {
         let { name, schema } = this.IX1;
-        this.tables += ` join \`${this.dbName}\`.\`tv_${name}\` as t${this.i} on t${this.i - 1}.ix=t${this.i}.ix`;
+        this.tables += ` join \`${this.dbName}\`.\`${this.twProfix}${name}\` as t${this.i} on t${this.i - 1}.ix=t${this.i}.ix`;
         this.buildCols(schema);
         ++this.i;
     }

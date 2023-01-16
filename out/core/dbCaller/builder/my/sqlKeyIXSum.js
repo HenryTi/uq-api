@@ -12,8 +12,8 @@ class SqlKeyIXSum extends mySqlBuilder_1.MySqlBuilder {
         let sql = this.buildSumSelect(this.param);
         let { schema } = ID;
         let { keys } = schema;
-        sql += ` RIGHT JOIN \`tv_${ID.name}\` as t0 ON t0.id=t.id`;
-        sql += ` RIGHT JOIN \`tv_${IX.name}\` as t1 ON t0.id=t1.xi`;
+        sql += ` RIGHT JOIN \`${this.twProfix}${ID.name}\` as t0 ON t0.id=t.id`;
+        sql += ` RIGHT JOIN \`${this.twProfix}${IX.name}\` as t1 ON t0.id=t1.xi`;
         if (this.hasUnit === true) {
             sql += ' AND t0.$unit=t1.$unit';
         }

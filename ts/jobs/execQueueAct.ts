@@ -1,6 +1,6 @@
 import { consts, Db, EntityRunner } from "../core";
 import { logger } from "../tool";
-
+/*
 export async function execQueueAct(runner: EntityRunner): Promise<number> {
     if (runner.execQueueActError === true) return -1;
     let sql: string;
@@ -14,7 +14,7 @@ export async function execQueueAct(runner: EntityRunner): Promise<number> {
 USE \`${db}\`;
 DROP EVENT IF EXISTS \`tv_${entityName}\`;
 CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
-	ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`tv_${entityName}\`(${unit}, 0);
+    ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`tv_${entityName}\`(${unit}, 0);
 `;
                 await runner.sql(sql, []);
                 if (repeat === 1) {
@@ -22,10 +22,10 @@ CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
                 }
                 else {
                     sql = `use \`${db}\`; UPDATE tv_$queue_act AS a 
-						SET a.exec_time=date_add(GREATEST(a.exec_time, CURRENT_TIMESTAMP()), interval a.interval minute)
-							, a.repeat=a.repeat-1
-						WHERE a.unit=${unit} AND a.entity=${entity};
-					`;
+                        SET a.exec_time=date_add(GREATEST(a.exec_time, CURRENT_TIMESTAMP()), interval a.interval minute)
+                            , a.repeat=a.repeat-1
+                        WHERE a.unit=${unit} AND a.entity=${entity};
+                    `;
                 }
                 await runner.sql(sql, []);
             }
@@ -41,3 +41,4 @@ CREATE EVENT IF NOT EXISTS \`tv_${entityName}\`
         return -1;
     }
 }
+*/

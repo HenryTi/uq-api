@@ -50,7 +50,7 @@ class SqlIdTypes extends mySqlBuilder_1.MySqlBuilder {
         }
     }
     build() {
-        let sql = `SELECT a.id, b.name as $type FROM tv_$id_u as a JOIN tv_$entity as b ON a.entity=b.id WHERE a.id IN (${this.id.join(',')});`;
+        let sql = `SELECT a.id, b.name as $type FROM ${this.twProfix}$id_u as a JOIN ${this.twProfix}$entity as b ON a.entity=b.id WHERE a.id IN (${this.id.join(',')});`;
         return sql;
     }
 }

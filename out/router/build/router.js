@@ -244,7 +244,7 @@ function buildBuildRouter(router, rb) {
         }
     }));
     rb.get(router, '/entitys', (runner, body) => __awaiter(this, void 0, void 0, function* () {
-        //return await this.db.call('tv_$entitys', [hasSource===true? 1:0]);
+        //return await this.db.call('$entitys', [hasSource===true? 1:0]);
         return yield runner.loadSchemas(Number(body.hasSource));
     }));
     rb.post(router, '/entity', (runner, body) => __awaiter(this, void 0, void 0, function* () {

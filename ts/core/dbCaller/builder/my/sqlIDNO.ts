@@ -1,18 +1,18 @@
 import { ParamIDNO } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlIDNO extends MySqlBuilder {
     private param: ParamIDNO;
 
-    constructor(builder: Builders, param: ParamIDNO) {
+    constructor(builder: Builder, param: ParamIDNO) {
         super(builder);
         this.param = param;
     }
 
     build(): string {
         let { ID, stamp } = this.param;
-        let sql = `SELECT tv_$no(@unit, '${ID.name}', ${stamp ?? null}) as no` + sqlLineEnd;
+        let sql = `SELECT ${this.twProfix}$no(@unit, '${ID.name}', ${stamp ?? null}) as no` + sqlLineEnd;
         return sql;
     }
 }

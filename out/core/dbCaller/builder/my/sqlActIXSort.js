@@ -12,7 +12,7 @@ class SqlActIXSort extends mySqlBuilder_1.MySqlBuilder {
         let { name, schema } = IX;
         let { hasSort } = schema;
         if (hasSort === true) {
-            let sql = `set @ret=\`${this.dbName}\`.tv_${name}$sort(${ix},${id},${after})` + mySqlBuilder_1.sqlLineEnd;
+            let sql = `set @ret=\`${this.dbName}\`.${this.twProfix}${name}$sort(${ix},${id},${after})` + mySqlBuilder_1.sqlLineEnd;
             return sql + 'select @ret as ret' + mySqlBuilder_1.sqlLineEnd;
         }
         else {

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyBuilders = void 0;
-const builders_1 = require("../builders");
+const Builder_1 = require("../Builder");
 const sqlActDetail_1 = require("./sqlActDetail");
 const sqlActIX_1 = require("./sqlActIX");
 const sqlActID_1 = require("./sqlActID");
@@ -25,7 +25,7 @@ const sqlActIXSort_1 = require("./sqlActIXSort");
 const sqlQueryID_1 = require("./sqlQueryID");
 const sqlIDTv_1 = require("./sqlIDTv");
 const sqlIXValues_1 = require("./sqlIXValues");
-class MyBuilders extends builders_1.Builders {
+class MyBuilders extends Builder_1.Builder {
     Acts(param) {
         return new sqlActs_1.SqlActs(this, param);
     }

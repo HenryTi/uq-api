@@ -26,7 +26,7 @@ function buildOpenRouter(router, rb) {
         let schema = runner.getSchema(entity);
         let { type } = schema;
         if (type === 'tuid') {
-            let tuidRet = yield runner.unitUserCall('tv_' + entity, unit, undefined, key);
+            let tuidRet = yield runner.unitUserCall(entity, unit, undefined, key);
             return tuidRet;
         }
         if (type === 'map') {
@@ -41,14 +41,14 @@ function buildOpenRouter(router, rb) {
             for (let i = len; i < fieldsLen; i++) {
                 keys.push(undefined);
             }
-            let mapRet = yield runner.unitUserCall('tv_' + entity + '$query$', unit, undefined, keys);
+            let mapRet = yield runner.unitUserCall(entity + '$query$', unit, undefined, keys);
             return mapRet;
         }
     }));
     rb.post(router, '/queue-modify', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         /*
         let {unit, start, page, entities} = body;
-        let ret = await runner.unitTablesFromProc('tv_$modify_queue', unit, start, page, entities);
+        let ret = await runner.unitTablesFromProc('$modify_queue', unit, start, page, entities);
         let ret1 = ret[1];
         let modifyMax = ret1.length===0? 0: ret1[0].max;
         runner.setModifyMax(unit, modifyMax);
@@ -82,7 +82,7 @@ function buildOpenRouter(router, rb) {
             return;
         // maps: tab分隔的map名字
         let suffix = (all === true ? '$id' : '$main');
-        let ret = yield runner.unitUserCall('tv_' + tuid + suffix, unit, undefined, id);
+        let ret = yield runner.unitUserCall(tuid + suffix, unit, undefined, id);
         return ret;
     }));
     rb.post(router, '/tuid-div/:tuid/:div', (runner, body, params) => __awaiter(this, void 0, void 0, function* () {
@@ -94,7 +94,7 @@ function buildOpenRouter(router, rb) {
             return;
         // maps: tab分隔的map名字
         let suffix = (all === true ? '$id' : '$main');
-        return yield runner.unitUserCall(`tv_${tuid}_${div}${suffix}`, unit, undefined, ownerId, id);
+        return yield runner.unitUserCall(`${tuid}_${div}${suffix}`, unit, undefined, ownerId, id);
     }));
     rb.get(router, '/proc/:name', (runner, body, params) => __awaiter(this, void 0, void 0, function* () {
         let { name } = params;

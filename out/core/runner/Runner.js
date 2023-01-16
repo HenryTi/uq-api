@@ -20,7 +20,7 @@ class Runner {
         return __awaiter(this, void 0, void 0, function* () {
             let user = yield centerApi_1.centerApi.userFromId(userId);
             let { id, name, nick, icon } = user;
-            yield this.db.call('tv_$set_user', [id, name, nick, icon]);
+            yield this.db.call('$set_user', [id, name, nick, icon]);
             return user;
         });
     }

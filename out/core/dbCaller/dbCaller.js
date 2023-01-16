@@ -25,18 +25,19 @@ var EnumIdType;
 class DbCaller {
     constructor(dbName) {
         this.dbName = dbName;
+        this.twProfix = '';
         //this.builder = this.createBuilder();
     }
     setBuilder() { this.builder = this.createBuilder(); }
     execSql(unit, user, sql) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.call(this.dbName, 'tv_$exec_sql', [unit, user, sql]);
+            let ret = yield this.call(this.dbName, '$exec_sql', [unit, user, sql]);
             return ret;
         });
     }
     execSqlTrans(unit, user, sql) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.call(this.dbName, 'tv_$exec_sql_trans', [unit, user, sql]);
+            let ret = yield this.call(this.dbName, '$exec_sql_trans', [unit, user, sql]);
             return ret;
         });
     }
@@ -85,7 +86,7 @@ class DbCaller {
     ActIDProp(unit, user, param) {
         return __awaiter(this, void 0, void 0, function* () {
             let { ID, id, name, value } = param;
-            yield this.call(this.dbName, `tv_${ID}$prop`, [unit, user, id, name, value]);
+            yield this.call(this.dbName, `${ID}$prop`, [unit, user, id, name, value]);
         });
     }
     ActDetail(unit, user, param) {

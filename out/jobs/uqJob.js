@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UqJob = void 0;
 const core_1 = require("../core");
 const tool_1 = require("../tool");
-const execQueueAct_1 = require("./execQueueAct");
+// import { execQueueAct } from "./execQueueAct";
 const pullBus_1 = require("./pullBus");
 const queueIn_1 = require("./queueIn");
 const queueOut_1 = require("./queueOut");
@@ -65,8 +65,9 @@ class UqJob {
                 // logger.error('为了调试程序，pullEntities暂时屏蔽');
             }
             tool_1.logger.info(`==== in loop ${this.uqDbName}: execQueueAct ====`);
-            if ((yield (0, execQueueAct_1.execQueueAct)(this.runner)) < 0)
+            if ((yield this.runner.execQueueAct()) < 0)
                 return -1;
+            // if (await execQueueAct(this.runner) < 0) return -1;
             tool_1.logger.info(`###### end loop ${this.uqDbName} ######`);
             return retCount;
         });

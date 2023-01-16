@@ -20,7 +20,7 @@ class BuildRunner extends Runner_1.Runner {
     }
     initSetting() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('tv_$init_setting', []);
+            yield this.db.call('$init_setting', []);
             let updateCompileTick = `update $uq.uq set compile_tick=unix_timestamp() where name='${this.db.getDbName()}'`;
             yield this.db.sql(updateCompileTick, undefined);
         });
@@ -28,7 +28,7 @@ class BuildRunner extends Runner_1.Runner {
     setSetting(unit, name, value) {
         return __awaiter(this, void 0, void 0, function* () {
             name = name.toLowerCase();
-            yield this.unitCall('tv_$set_setting', unit, name, value);
+            yield this.unitCall('$set_setting', unit, name, value);
             if (unit === 0) {
                 let n = Number(value);
                 this.setting[name] = n === Number.NaN ? value : n;
@@ -38,7 +38,7 @@ class BuildRunner extends Runner_1.Runner {
     getSetting(unit, name) {
         return __awaiter(this, void 0, void 0, function* () {
             name = name.toLowerCase();
-            let ret = yield this.unitTableFromProc('tv_$get_setting', unit, name);
+            let ret = yield this.unitTableFromProc('$get_setting', unit, name);
             if (ret.length === 0)
                 return undefined;
             let v = ret[0].value;
@@ -53,18 +53,18 @@ class BuildRunner extends Runner_1.Runner {
     }
     setSettingInt(unit, name, int, big) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.unitCall('tv_$set_setting_int', unit, name, int, big);
+            yield this.unitCall('$set_setting_int', unit, name, int, big);
         });
     }
     getSettingInt(unit, name) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.unitTableFromProc('tv_$get_setting_int', unit, name);
+            let ret = yield this.unitTableFromProc('$get_setting_int', unit, name);
             return ret[0];
         });
     }
     setUqOwner(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.call('tv_$setUqOwner', [userId]);
+            let ret = yield this.db.call('$setUqOwner', [userId]);
             return ret.length > 0;
         });
     }
@@ -73,7 +73,7 @@ class BuildRunner extends Runner_1.Runner {
             try {
                 for (let ua of unitAdmin) {
                     let { unit, admin } = ua;
-                    yield this.db.call('tv_$set_unit_admin', [unit, admin]);
+                    yield this.db.call('$set_unit_admin', [unit, admin]);
                 }
             }
             catch (err) {
@@ -84,7 +84,7 @@ class BuildRunner extends Runner_1.Runner {
     // type: 1=prod, 2=test
     refreshIDSection(service) {
         return __awaiter(this, void 0, void 0, function* () {
-            let tbl = yield this.db.tableFromProc('tv_$id_section_get', []);
+            let tbl = yield this.db.tableFromProc('$id_section_get', []);
             let { section, sectionCount } = tbl[0];
             if (sectionCount <= 0 || sectionCount > 8) {
                 return;
@@ -94,7 +94,7 @@ class BuildRunner extends Runner_1.Runner {
             if (ret) {
                 let { start, end, section_max, service_max } = ret;
                 if (start) {
-                    yield this.db.call('tv_$id_section_set', [start, end - start]);
+                    yield this.db.call('$id_section_set', [start, end - start]);
                 }
                 else {
                     let err = `ID Section unmatch: here_max:${section_max} center_max here: ${service_max}`;
@@ -150,7 +150,7 @@ class BuildRunner extends Runner_1.Runner {
     }
     call(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('tv_' + proc, params);
+            return yield this.db.call(proc, params);
         });
     }
     buildDatabase() {
@@ -179,12 +179,12 @@ class BuildRunner extends Runner_1.Runner {
     }
     tableFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.tableFromProc('tv_' + proc, params);
+            return yield this.db.tableFromProc(proc, params);
         });
     }
     tablesFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.tablesFromProc('tv_' + proc, params);
+            let ret = yield this.db.tablesFromProc(proc, params);
             let len = ret.length;
             if (len === 0)
                 return ret;
@@ -272,11 +272,11 @@ class BuildRunner extends Runner_1.Runner {
             return ret;
         });
     }
-    start(unit, user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_$start', unit, user);
-        });
+    /*
+    async start(unit: number, user: number): Promise<void> {
+        return await this.unitUserCall('$start', unit, user);
     }
+    */
     createResDb(resDbName) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.db.createResDb(resDbName);

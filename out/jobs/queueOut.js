@@ -15,7 +15,7 @@ const core_1 = require("../core");
 const consts_1 = require("./consts");
 const tool_2 = require("../tool");
 const unitx_1 = require("../core/unitx");
-const procMessageQueueSet = 'tv_$message_queue_set';
+const procMessageQueueSet = '$message_queue_set';
 class QueueOut {
     /**
      * QueueOut: 指的是处理message_queue中的数据，其中最重要的数据应该是bus消息

@@ -7,7 +7,10 @@ class MsDbCaller extends dbCaller_1.DbCaller {
     constructor(dbName, dbConfig) {
         super(dbName);
     }
-    createBuilder() { return new builder_1.MsBuilder(this.dbName, this.hasUnit); }
+    createBuilder() { return new builder_1.MsBuilder(this.dbName, this.hasUnit, this.twProfix); }
+    loadTwProfix() { return; }
+    execQueueAct() { return; }
+    removeAllScheduleEvents() { return; }
     createProcObjs(db) { return; }
     reset() { }
     ;
@@ -25,6 +28,7 @@ class MsDbCaller extends dbCaller_1.DbCaller {
     createDatabase(db) { return; }
     existsDatabase(db) { return; }
     setDebugJobs() { return; }
+    saveTextId(text) { return; }
     uqDbs() { return; }
     createResDb(resDbName) { return; }
     create$UqDb() { return; }
@@ -33,4 +37,4 @@ class MsDbCaller extends dbCaller_1.DbCaller {
     getEvents(db) { return; }
 }
 exports.MsDbCaller = MsDbCaller;
-//# sourceMappingURL=ms.js.map
+//# sourceMappingURL=MsDbCaller.js.map

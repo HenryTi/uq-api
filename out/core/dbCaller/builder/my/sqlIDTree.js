@@ -13,11 +13,11 @@ class SqlIDTree extends mySqlBuilder_1.MySqlBuilder {
             level = 1;
         let keyField = ID.schema.keys[1];
         let { name: keyName, type } = keyField;
-        let table = `\`tv_${ID.name}\``;
+        let table = `\`${this.twProfix}${ID.name}\``;
         let eq, as;
         if (type === 'textid') {
-            eq = `tv_$textid('${key}')`;
-            as = `tv_$idtext(a.\`${keyName}\`) as \`${keyName}\``;
+            eq = `${this.twProfix}$textid('${key}')`;
+            as = `${this.twProfix}$idtext(a.\`${keyName}\`) as \`${keyName}\``;
         }
         else {
             eq = `'${key}'`;

@@ -10,12 +10,14 @@ export interface ISqlBuilder {
     buildCall(): { proc: string; params: any[] };
 }
 
-export abstract class Builders {
-    dbName: string;
-    hasUnit: boolean;
-    constructor(dbName: string, hasUnit: boolean) {
+export abstract class Builder {
+    readonly dbName: string;
+    readonly hasUnit: boolean;
+    readonly twProfix: string;
+    constructor(dbName: string, hasUnit: boolean, twProfix: string) {
         this.dbName = dbName;
         this.hasUnit = hasUnit;
+        this.twProfix = twProfix;
     }
 
     Acts(param: ParamActs): ISqlBuilder {

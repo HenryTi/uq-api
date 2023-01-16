@@ -12,7 +12,7 @@ class SqlKeyIDSum extends mySqlBuilder_1.MySqlBuilder {
         let sql = this.buildSumSelect(this.param);
         let { schema } = ID;
         let { keys } = schema;
-        sql += ` RIGHT JOIN \`tv_${ID.name}\` as t0 ON t0.id=t.id WHERE 1=1`;
+        sql += ` RIGHT JOIN \`${this.twProfix}${ID.name}\` as t0 ON t0.id=t.id WHERE 1=1`;
         if (this.hasUnit === true) {
             sql += ' AND t0.$unit=@unit';
         }

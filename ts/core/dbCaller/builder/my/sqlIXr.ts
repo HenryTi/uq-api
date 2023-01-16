@@ -1,11 +1,11 @@
 import { ParamIX } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlIXr extends MySqlBuilder {
     private param: ParamIX;
 
-    constructor(builder: Builders, param: ParamIX) {
+    constructor(builder: Builder, param: ParamIX) {
         super(builder);
         this.param = param;
     }

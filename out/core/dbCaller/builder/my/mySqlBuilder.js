@@ -8,9 +8,10 @@ exports.retLn = "set @ret=CONCAT(@ret, '\\n')" + exports.sqlLineEnd;
 exports.retTab = "set @ret=CONCAT(@ret, @id, '\\t')" + exports.sqlLineEnd;
 class MySqlBuilder {
     constructor(builder) {
-        let { dbName, hasUnit } = builder;
+        let { dbName, hasUnit, twProfix } = builder;
         this.dbName = dbName;
         this.hasUnit = false; // hasUnit; ID, IDX, IX表，都没有$unit字段，所以当hasUnit=false处理
+        this.twProfix = twProfix;
     }
     buildCall() {
         return;
@@ -24,33 +25,33 @@ class MySqlBuilder {
             near = Number.MAX_SAFE_INTEGER;
         let sql = 'select t.id';
         for (let f of field) {
-            sql += `,\`tv_${name}$${f}$sum\`(t.id,${far},${near}) as ${f}`;
+            sql += `,\`${this.twProfix}${name}$${f}$sum\`(t.id,${far},${near}) as ${f}`;
         }
-        sql += ` from \`tv_${name}\` as t`;
+        sql += ` from \`${this.twProfix}${name}\` as t`;
         return sql;
     }
     buildIXrIDX(IX, IDX) {
-        let b = new tablesBuilder_1.IXrTablesBuilder(this.dbName, IX, IDX);
+        let b = new tablesBuilder_1.IXrTablesBuilder(this.dbName, this.twProfix, IX, IDX);
         b.build();
         return b;
     }
     buildIXrIXIDX(IX, IX1, IDX) {
-        let b = new tablesBuilder_1.IXrIXTablesBuilder(this.dbName, IX, IX1, IDX);
+        let b = new tablesBuilder_1.IXrIXTablesBuilder(this.dbName, this.twProfix, IX, IX1, IDX);
         b.build();
         return b;
     }
     buildIXIDX(IX, IDX) {
-        let b = new tablesBuilder_1.IXTablesBuilder(this.dbName, IX, IDX);
+        let b = new tablesBuilder_1.IXTablesBuilder(this.dbName, this.twProfix, IX, IDX);
         b.build();
         return b;
     }
     buildIXIXIDX(IX, IX1, IDX) {
-        let b = new tablesBuilder_1.IXIXTablesBuilder(this.dbName, IX, IX1, IDX);
+        let b = new tablesBuilder_1.IXIXTablesBuilder(this.dbName, this.twProfix, IX, IX1, IDX);
         b.build();
         return b;
     }
     buildIDX(IDX) {
-        let b = new tablesBuilder_1.TablesBuilder(this.dbName, IDX);
+        let b = new tablesBuilder_1.TablesBuilder(this.dbName, this.twProfix, IDX);
         b.build();
         return b;
     }
@@ -94,7 +95,7 @@ class MySqlBuilder {
             values = [valueItem];
         }
         for (let value of values) {
-            sql += `insert into \`tv_${name}\`\n\t(${cols})\n\tvalues\n\t`;
+            sql += `insert into \`${this.twProfix}${name}\`\n\t(${cols})\n\tvalues\n\t`;
             let fieldFirst = valsFirst;
             let vals = valsInit;
             for (let f of fields) {
@@ -113,7 +114,7 @@ class MySqlBuilder {
                 let v = value[name];
                 let ov = override[name];
                 if (v !== undefined) {
-                    vals += (type === 'textid' ? `tv_$textid('${v}')` : `'${v}'`);
+                    vals += (type === 'textid' ? `${this.twProfix}$textid('${v}')` : `'${v}'`);
                 }
                 else if (ov !== undefined) {
                     vals += ov;
@@ -147,11 +148,11 @@ class MySqlBuilder {
             }
             let { name, type } = f;
             sql += (type === 'textid') ?
-                `tv_$idtext(\`${name}\`)`
+                `${this.twProfix}$idtext(\`${name}\`)`
                 :
                     `\`${name}\``;
         }
-        sql += ' FROM `tv_' + ts.name + '` WHERE 1=1';
+        sql += ' FROM `' + this.twProfix + ts.name + '` WHERE 1=1';
         if (this.hasUnit === true) {
             sql += ' AND `$unit`=@unit';
         }
@@ -187,12 +188,12 @@ class MySqlBuilder {
                     sql += this.buildUpdate(ts, value);
                     // 写tv_$id(_local)表
                     if (nameNoVice !== undefined) {
-                        sql += `set @$id_name=\`tv_${name}$\`(${id})` + exports.sqlLineEnd;
+                        sql += `set @$id_name=\`${this.twProfix}${name}$\`(${id})` + exports.sqlLineEnd;
                     }
                 }
             }
             else {
-                sql += `set @id=\`tv_${name}$id\`(@unit,@user,1`; // 2022-1-27 , null 之前好像要加上这个。现在不要加。？？
+                sql += `set @id=\`${this.twProfix}${name}$id\`(@unit,@user,1`; // 2022-1-27 , null 之前好像要加上这个。现在不要加。？？
                 if (idType === dbCaller_1.EnumIdType.UUID) {
                     sql += ', null';
                 }
@@ -204,10 +205,10 @@ class MySqlBuilder {
                     let sqlFromKey = (keyName, type, v) => {
                         sql += ',';
                         if (type === 'textid') {
-                            sql += `tv_$textid('${v}')`;
+                            sql += `${this.twProfix}$textid('${v}')`;
                         }
                         else if (keyName === 'no') {
-                            sql += v ? `'${v}'` : `tv_$no(@unit, '${name}', unix_timestamp())`;
+                            sql += v ? `'${v}'` : `${this.twProfix}$no(@unit, '${name}', unix_timestamp())`;
                         }
                         else if (v === undefined) {
                             switch (type) {
@@ -248,7 +249,7 @@ class MySqlBuilder {
                 }
                 // 写tv_$id(_local)表
                 if (nameNoVice !== undefined) {
-                    sql += `set @$id_name=\`tv_${name}$\`(@id)` + exports.sqlLineEnd;
+                    sql += `set @$id_name=\`${this.twProfix}${name}$\`(@id)` + exports.sqlLineEnd;
                 }
                 if (withRet === true) {
                     sql += exports.retTab;
@@ -386,7 +387,7 @@ class MySqlBuilder {
                 let sum;
                 let dupAdd = '';
                 if (type === 'textid') {
-                    val = `tv_$textid('${v}')`;
+                    val = `${this.twProfix}$textid('${v}')`;
                 }
                 else {
                     switch (setAdd) {
@@ -438,7 +439,7 @@ class MySqlBuilder {
         }
         let sqlSeq;
         if (hasSort === true) {
-            sqlSeq = `\nset @seq=ifnull((select max(seq) from \`tv_${tableName}\` where ix=${value['ix']} and xi=${value['xi']}), 0)+1` + exports.sqlLineEnd;
+            sqlSeq = `\nset @seq=ifnull((select max(seq) from \`${this.twProfix}${tableName}\` where ix=${value['ix']} and xi=${value['xi']}), 0)+1` + exports.sqlLineEnd;
             cols += ',\`seq\`';
             vals += `,@seq`;
         }
@@ -453,13 +454,13 @@ class MySqlBuilder {
             ignore = ' ignore';
         }
         let sql = sqlBefore + sqlSeq +
-            `insert${ignore} into \`tv_${tableName}\` (${cols})\nvalues (${vals})${onDup}` + exports.sqlLineEnd;
+            `insert${ignore} into \`${this.twProfix}${tableName}\` (${cols})\nvalues (${vals})${onDup}` + exports.sqlLineEnd;
         return sql + sqlWriteEx.join('');
     }
     buildUpdate(ts, value, override = {}) {
         let { name, schema } = ts;
         let { fields } = schema;
-        let sql = 'update `tv_' + name + '` set ';
+        let sql = 'update `' + this.twProfix + name + '` set ';
         let where = ' where 1=1';
         if (this.hasUnit === true) {
             where += ' and `$unit`=@unit';
@@ -487,7 +488,7 @@ class MySqlBuilder {
                     }
                     else {
                         if (type === 'textid') {
-                            v = `tv_$textid('${v}')`;
+                            v = `${this.twProfix}$textid('${v}')`;
                         }
                         else if (typeof v === 'string') {
                             v = this.buildValue(v);
@@ -508,7 +509,7 @@ class MySqlBuilder {
     buildIXDelete(ts, ix, xi) {
         let { name, schema } = ts;
         let sql = '';
-        sql += 'delete from `tv_' + name + '` where ix=';
+        sql += 'delete from `' + this.twProfix + name + '` where ix=';
         if (typeof ix === 'object') {
             sql += ix.value;
         }
@@ -533,7 +534,7 @@ class MySqlBuilder {
         if (id) {
             if (id < 0)
                 id = -id;
-            sql += 'delete from `tv_' + name + '` where id=' + id;
+            sql += 'delete from `' + this.twProfix + name + '` where id=' + id;
             if (id) {
                 sql += ' AND id=';
                 sql += id;
@@ -565,7 +566,7 @@ class MySqlBuilder {
             throw Error('ID needed in ACTS ID field');
         let { name, schema } = ID;
         let { keys } = schema;
-        ret += ` tv_${name}$id(@unit,@user, 1`;
+        ret += ` ${this.twProfix}${name}$id(@unit,@user, 1`;
         for (let key of keys) {
             let v = val[key.name];
             if (typeof v === 'number')

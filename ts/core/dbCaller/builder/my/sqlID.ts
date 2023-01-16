@@ -1,11 +1,11 @@
 import { ParamID } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder } from "./mySqlBuilder";
 
 export class SqlID extends MySqlBuilder {
     private param: ParamID;
 
-    constructor(builder: Builders, param: ParamID) {
+    constructor(builder: Builder, param: ParamID) {
         super(builder);
         this.param = param;
     }
@@ -42,7 +42,7 @@ export class SqlID extends MySqlBuilder {
 
 export class SqlIdTypes extends MySqlBuilder {
     private id: number[];
-    constructor(builder: Builders, id: number | (number[])) {
+    constructor(builder: Builder, id: number | (number[])) {
         super(builder);
         if (Array.isArray(id) === false) {
             this.id = [id as number];
@@ -53,7 +53,7 @@ export class SqlIdTypes extends MySqlBuilder {
     }
 
     build(): string {
-        let sql = `SELECT a.id, b.name as $type FROM tv_$id_u as a JOIN tv_$entity as b ON a.entity=b.id WHERE a.id IN (${this.id.join(',')});`;
+        let sql = `SELECT a.id, b.name as $type FROM ${this.twProfix}$id_u as a JOIN ${this.twProfix}$entity as b ON a.entity=b.id WHERE a.id IN (${this.id.join(',')});`;
         return sql;
     }
 }

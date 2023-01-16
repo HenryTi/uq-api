@@ -257,20 +257,23 @@ export abstract class DbCaller {
     abstract existsDatabase(db: string): Promise<boolean>;
     abstract createDatabase(db: string): Promise<void>;
     abstract setDebugJobs(): Promise<void>;
+    abstract saveTextId(text: string): Promise<number>;
     abstract uqDbs(): Promise<any[]>;
     abstract createResDb(resDbName: string): Promise<void>;
     abstract create$UqDb(): Promise<void>;
     abstract isExistsProcInDb(proc: string): boolean;
     abstract createProcInDb(db: string, proc: string): Promise<void>;
-    abstract getEvents(db: string): Promise<{ db: string; name: string }[]>;
+    //abstract getEvents(db: string): Promise<{ db: string; name: string }[]>;
+    abstract execQueueAct(): Promise<number>;
+    abstract removeAllScheduleEvents(): Promise<string>;
 
     private async execSql(unit: number, user: number, sql: string): Promise<any[]> {
-        let ret = await this.call(this.dbName, 'tv_$exec_sql', [unit, user, sql]);
+        let ret = await this.call(this.dbName, '$exec_sql', [unit, user, sql]);
         return ret;
     }
 
     private async execSqlTrans(unit: number, user: number, sql: string): Promise<any[]> {
-        let ret = await this.call(this.dbName, 'tv_$exec_sql_trans', [unit, user, sql]);
+        let ret = await this.call(this.dbName, '$exec_sql_trans', [unit, user, sql]);
         return ret;
     }
 
@@ -310,7 +313,7 @@ export abstract class DbCaller {
 
     async ActIDProp(unit: number, user: number, param: { ID: string; id: number; name: string; value: any }): Promise<void> {
         let { ID, id, name, value } = param;
-        await this.call(this.dbName, `tv_${ID}$prop`, [unit, user, id, name, value]);
+        await this.call(this.dbName, `${ID}$prop`, [unit, user, id, name, value]);
     }
 
     async ActDetail(unit: number, user: number, param: ParamActDetail): Promise<any[]> {

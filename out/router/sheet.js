@@ -15,7 +15,7 @@ const constSheet = 'sheet';
 function buildSheetRouter(router, rb) {
     function queueSheet(runner, unit, name, sheetId, content) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield runner.unitTableFromProc('tv_$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
+            let ret = yield runner.unitTableFromProc('$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
             return (ret[0].ret === 1);
         });
     }
@@ -23,7 +23,7 @@ function buildSheetRouter(router, rb) {
         return __awaiter(this, void 0, void 0, function* () {
             let { state, action, flow, user } = content;
             let ret = yield runner.sheetAct(name, state, action, unit, user, sheetId, flow);
-            //let ret = await runner.unitTableFromProc('tv_$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
+            //let ret = await runner.unitTableFromProc('$sheet_to_queue', unit, name, sheetId, JSON.stringify(content));
             return ret[0];
         });
     }

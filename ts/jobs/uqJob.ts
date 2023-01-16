@@ -1,6 +1,6 @@
 import { Buses, EntityRunner, env } from "../core";
 import { logger } from "../tool";
-import { execQueueAct } from "./execQueueAct";
+// import { execQueueAct } from "./execQueueAct";
 import { PullBus } from "./pullBus";
 import { QueueIn } from "./queueIn";
 import { QueueOut } from "./queueOut";
@@ -56,7 +56,8 @@ export class UqJob {
             // logger.error('为了调试程序，pullEntities暂时屏蔽');
         }
         logger.info(`==== in loop ${this.uqDbName}: execQueueAct ====`);
-        if (await execQueueAct(this.runner) < 0) return -1;
+        if (await this.runner.execQueueAct() < 0) return -1;
+        // if (await execQueueAct(this.runner) < 0) return -1;
         logger.info(`###### end loop ${this.uqDbName} ######`);
         return retCount;
     }

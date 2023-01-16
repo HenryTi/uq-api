@@ -6,9 +6,11 @@ export class MsDbCaller extends DbCaller {
         super(dbName);
     }
 
-    protected createBuilder() { return new MsBuilder(this.dbName, this.hasUnit); }
+    protected createBuilder() { return new MsBuilder(this.dbName, this.hasUnit, this.twProfix); }
 
     loadTwProfix(): Promise<void> { return; }
+    execQueueAct(): Promise<number> { return; }
+    removeAllScheduleEvents(): Promise<string> { return; }
     createProcObjs(db: string): Promise<void> { return }
     reset(): void { };
     sql(sql: string, params: any[]): Promise<any> { return }
@@ -25,6 +27,7 @@ export class MsDbCaller extends DbCaller {
     createDatabase(db: string): Promise<void> { return }
     existsDatabase(db: string): Promise<boolean> { return }
     setDebugJobs(): Promise<void> { return }
+    saveTextId(text: string): Promise<number> { return; }
     uqDbs(): Promise<any[]> { return }
     createResDb(resDbName: string): Promise<void> { return }
     create$UqDb(): Promise<void> { return }

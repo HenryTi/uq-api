@@ -18,7 +18,7 @@ function buildTuidRouter(router, rb) {
         let {db, unit} = userToken;
         let {start, page, entities} = body;
         if (runner === undefined) return;
-        let ret = await runner.unitTablesFromProc('tv_$modify_queue', unit, start, page, entities);
+        let ret = await runner.unitTablesFromProc('$modify_queue', unit, start, page, entities);
         let ret1 = ret[1];
         let modifyMax = ret1.length===0? 0: ret1[0].max;
         runner.setModifyMax(unit, modifyMax);

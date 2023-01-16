@@ -4,7 +4,7 @@ import { constDeferMax, constQueueSizeArr, Finish } from "./consts";
 import { getErrorString } from "../tool";
 import { getUserX } from "../core/unitx";
 
-const procMessageQueueSet = 'tv_$message_queue_set';
+const procMessageQueueSet = '$message_queue_set';
 
 export class QueueOut {
     private runner: EntityRunner;

@@ -1,11 +1,11 @@
 import { ParamIDxID } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlIDxID extends MySqlBuilder {
     private param: ParamIDxID;
 
-    constructor(builder: Builders, param: ParamIDxID) {
+    constructor(builder: Builder, param: ParamIDxID) {
         super(builder);
         this.param = param;
     }
@@ -29,7 +29,7 @@ export class SqlIDxID extends MySqlBuilder {
         sql += '\nCREATE TEMPORARY TABLE ids (id BIGINT, primary key (id))' + sqlLineEnd;
         sql += `\nINSERT INTO ids (id) SELECT t0.id FROM ${tables} WHERE ${where} ${limit}` + sqlLineEnd;
         sql += `\nSELECT ${cols} FROM ${tables} JOIN ids as z ON t0.id=z.id` + sqlLineEnd;
-        sql += `\nSELECT x.id as \`$xid\`, ${cols2} FROM ${tables2} JOIN \`tv_${IX.name}\` as x ON t0.id=x.id JOIN ids as z ON x.id=z.id` + sqlLineEnd;
+        sql += `\nSELECT x.id as \`$xid\`, ${cols2} FROM ${tables2} JOIN \`${this.twProfix}${IX.name}\` as x ON t0.id=x.id JOIN ids as z ON x.id=z.id` + sqlLineEnd;
         return sql;
     }
 }

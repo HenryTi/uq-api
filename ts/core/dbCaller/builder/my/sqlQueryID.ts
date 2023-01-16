@@ -1,5 +1,5 @@
 import { ParamQueryID, EntitySchema } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 interface Table {
@@ -19,7 +19,7 @@ export class SqlQueryID extends MySqlBuilder {
     private limit: string = '';
     private t: number; // table 编号
 
-    constructor(builder: Builders, param: ParamQueryID) {
+    constructor(builder: Builder, param: ParamQueryID) {
         super(builder);
         this.param = param;
     }
@@ -38,12 +38,12 @@ export class SqlQueryID extends MySqlBuilder {
 
         let t0 = this.tables[0];
         let tPrev = t0;
-        sql += 'tv_' + t0.name + ' as ' + t0.alias;
+        sql += this.twProfix + t0.name + ' as ' + t0.alias;
         let tLen = this.tables.length;
         for (let i = 1; i < tLen; i++) {
             let t = this.tables[i];
             let { name, alias, join, fieldLeft } = t;
-            sql += `\n\t\t${join} JOIN tv_${name} AS ${alias} ON `;
+            sql += `\n\t\t${join} JOIN ${this.twProfix}${name} AS ${alias} ON `;
             if (this.hasUnit === true) {
                 sql += `${tPrev.alias}.\`$unit\`=${alias}.\`$unit\` AND `;
             }
@@ -267,7 +267,7 @@ export class SqlQueryID extends MySqlBuilder {
             }
             let fv = `t${this.t}.\`${fn}\``;
             if (this.cols.length > 0) this.cols += ',';
-            this.cols += ft === 'textid' ? `tv_$idtext(${fv})` : fv;
+            this.cols += ft === 'textid' ? `${this.twProfix}$idtext(${fv})` : fv;
             this.cols += ' as `' + fn + '`';
         }
         this.$fieldBuilt = $fieldBuilt;

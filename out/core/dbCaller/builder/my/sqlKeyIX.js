@@ -15,7 +15,7 @@ class SqlKeyIX extends mySqlBuilder_1.MySqlBuilder {
         let { cols, tables } = this.buildIDX(arr);
         let { name, schema } = ID;
         let { keys } = schema;
-        let joinID = ' JOIN `tv_' + name + '` as t ON t.id=t0.id';
+        let joinID = ' JOIN `' + this.twProfix + name + '` as t ON t.id=t0.id';
         let where = '';
         if (this.hasUnit === true) {
             where += 't.$unit=@unit';

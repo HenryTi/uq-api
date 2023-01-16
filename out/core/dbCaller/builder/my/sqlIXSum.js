@@ -10,7 +10,7 @@ class SqlIXSum extends mySqlBuilder_1.MySqlBuilder {
     build() {
         let { IX, ix, page } = this.param;
         let sql = this.buildSumSelect(this.param);
-        sql += ` RIGHT JOIN \`tv_${IX.name}\` as t0 ON t0.xi=t.id WHERE 1=1`;
+        sql += ` RIGHT JOIN \`${this.twProfix}${IX.name}\` as t0 ON t0.xi=t.id WHERE 1=1`;
         if (this.hasUnit === true) {
             sql += ' AND t0.$unit=@unit';
         }

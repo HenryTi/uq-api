@@ -1,11 +1,11 @@
 import { ParamActID, TableSchema } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, retTab, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlActID extends MySqlBuilder {
     private param: ParamActID;
 
-    constructor(builder: Builders, param: ParamActID) {
+    constructor(builder: Builder, param: ParamActID) {
         super(builder);
         this.param = param;
     }

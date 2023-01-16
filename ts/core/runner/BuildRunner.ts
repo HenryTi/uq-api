@@ -7,13 +7,13 @@ export class BuildRunner extends Runner {
     private readonly setting: { [name: string]: any } = {};
 
     async initSetting(): Promise<void> {
-        await this.db.call('tv_$init_setting', []);
+        await this.db.call('$init_setting', []);
         let updateCompileTick = `update $uq.uq set compile_tick=unix_timestamp() where name='${this.db.getDbName()}'`;
         await this.db.sql(updateCompileTick, undefined);
     }
     async setSetting(unit: number, name: string, value: string): Promise<void> {
         name = name.toLowerCase();
-        await this.unitCall('tv_$set_setting', unit, name, value);
+        await this.unitCall('$set_setting', unit, name, value);
         if (unit === 0) {
             let n = Number(value);
             this.setting[name] = n === Number.NaN ? value : n;
@@ -21,7 +21,7 @@ export class BuildRunner extends Runner {
     }
     async getSetting(unit: number, name: string): Promise<any> {
         name = name.toLowerCase();
-        let ret = await this.unitTableFromProc('tv_$get_setting', unit, name);
+        let ret = await this.unitTableFromProc('$get_setting', unit, name);
         if (ret.length === 0) return undefined;
         let v = ret[0].value;
         /*
@@ -33,21 +33,21 @@ export class BuildRunner extends Runner {
         return v;
     }
     async setSettingInt(unit: number, name: string, int: number, big: number): Promise<void> {
-        await this.unitCall('tv_$set_setting_int', unit, name, int, big);
+        await this.unitCall('$set_setting_int', unit, name, int, big);
     }
     async getSettingInt(unit: number, name: string): Promise<{ int: number; big: number }> {
-        let ret = await this.unitTableFromProc('tv_$get_setting_int', unit, name);
+        let ret = await this.unitTableFromProc('$get_setting_int', unit, name);
         return ret[0];
     }
     async setUqOwner(userId: number): Promise<boolean> {
-        let ret = await this.db.call('tv_$setUqOwner', [userId]);
+        let ret = await this.db.call('$setUqOwner', [userId]);
         return ret.length > 0;
     }
     async setUnitAdmin(unitAdmin: { unit: number, admin: number }[]) {
         try {
             for (let ua of unitAdmin) {
                 let { unit, admin } = ua;
-                await this.db.call('tv_$set_unit_admin', [unit, admin]);
+                await this.db.call('$set_unit_admin', [unit, admin]);
             }
         }
         catch (err) {
@@ -57,7 +57,7 @@ export class BuildRunner extends Runner {
 
     // type: 1=prod, 2=test
     async refreshIDSection(service: number) {
-        let tbl = await this.db.tableFromProc('tv_$id_section_get', []);
+        let tbl = await this.db.tableFromProc('$id_section_get', []);
         let { section, sectionCount } = tbl[0];
         if (sectionCount <= 0 || sectionCount > 8) {
             return;
@@ -67,7 +67,7 @@ export class BuildRunner extends Runner {
         if (ret) {
             let { start, end, section_max, service_max } = ret;
             if (start) {
-                await this.db.call('tv_$id_section_set', [start, end - start]);
+                await this.db.call('$id_section_set', [start, end - start]);
             }
             else {
                 let err = `ID Section unmatch: here_max:${section_max} center_max here: ${service_max}`;
@@ -112,7 +112,7 @@ export class BuildRunner extends Runner {
         return await this.db.call(proc, params);
     }
     async call(proc: string, params: any[]): Promise<any> {
-        return await this.db.call('tv_' + proc, params);
+        return await this.db.call(proc, params);
     }
 
     async buildDatabase(): Promise<boolean> {
@@ -132,10 +132,10 @@ export class BuildRunner extends Runner {
         await this.db.buildTuidAutoId();
     }
     async tableFromProc(proc: string, params: any[]): Promise<any[]> {
-        return await this.db.tableFromProc('tv_' + proc, params);
+        return await this.db.tableFromProc(proc, params);
     }
     async tablesFromProc(proc: string, params: any[]): Promise<any[][]> {
-        let ret = await this.db.tablesFromProc('tv_' + proc, params);
+        let ret = await this.db.tablesFromProc(proc, params);
         let len = ret.length;
         if (len === 0) return ret;
         let pl = ret[len - 1];
@@ -202,10 +202,11 @@ export class BuildRunner extends Runner {
         let ret = await this.db.tablesFromProc(proc, p);
         return ret;
     }
-
+    /*
     async start(unit: number, user: number): Promise<void> {
-        return await this.unitUserCall('tv_$start', unit, user);
+        return await this.unitUserCall('$start', unit, user);
     }
+    */
     async createResDb(resDbName: string): Promise<void> {
         await this.db.createResDb(resDbName);
     }

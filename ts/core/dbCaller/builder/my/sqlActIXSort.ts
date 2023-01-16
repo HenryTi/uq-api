@@ -1,11 +1,11 @@
 import { ParamActIXSort } from "../../dbCaller";
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlActIXSort extends MySqlBuilder {
     private param: ParamActIXSort;
 
-    constructor(builder: Builders, param: ParamActIXSort) {
+    constructor(builder: Builder, param: ParamActIXSort) {
         super(builder);
         this.param = param;
     }
@@ -15,7 +15,7 @@ export class SqlActIXSort extends MySqlBuilder {
         let { name, schema } = IX;
         let { hasSort } = schema as any;
         if (hasSort === true) {
-            let sql = `set @ret=\`${this.dbName}\`.tv_${name}$sort(${ix},${id},${after})` + sqlLineEnd;
+            let sql = `set @ret=\`${this.dbName}\`.${this.twProfix}${name}$sort(${ix},${id},${after})` + sqlLineEnd;
             return sql + 'select @ret as ret' + sqlLineEnd;
         }
         else {

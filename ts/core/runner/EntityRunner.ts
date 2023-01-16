@@ -90,7 +90,6 @@ export class EntityRunner extends Runner {
     net: Net;
     hasSheet: boolean = false;
     isCompiling: boolean = false;
-    execQueueActError: boolean = false;
     devBuildSys: boolean = false;
 
     /**
@@ -112,7 +111,6 @@ export class EntityRunner extends Runner {
 
     async reset() {
         this.isCompiling = false;
-        this.execQueueActError = false;
         this.db.reset();
         this.schemas = undefined;
         await this.init();
@@ -277,7 +275,7 @@ export class EntityRunner extends Runner {
         return await this.db.call(proc, params);
     }
     async call(proc: string, params: any[]): Promise<any> {
-        return await this.db.call('tv_' + proc, params);
+        return await this.db.call(proc, params);
     }
     async sql(sql: string, params: any[]): Promise<any> {
         return await this.db.sql(sql, params);
@@ -286,10 +284,10 @@ export class EntityRunner extends Runner {
         await this.db.buildTuidAutoId();
     }
     async tableFromProc(proc: string, params: any[]): Promise<any[]> {
-        return await this.db.tableFromProc('tv_' + proc, params);
+        return await this.db.tableFromProc(proc, params);
     }
     async tablesFromProc(proc: string, params: any[]): Promise<any[][]> {
-        let ret = await this.db.tablesFromProc('tv_' + proc, params);
+        let ret = await this.db.tablesFromProc(proc, params);
         let len = ret.length;
         if (len === 0) return ret;
         let pl = ret[len - 1];
@@ -362,7 +360,7 @@ export class EntityRunner extends Runner {
     }
     /*
     async start(unit: number, user: number): Promise<void> {
-        return await this.unitUserCall('tv_$start', unit, user);
+        return await this.unitUserCall('$start', unit, user);
     }
     */
     async createResDb(resDbName: string): Promise<void> {
@@ -378,38 +376,41 @@ export class EntityRunner extends Runner {
      * @returns array[0]对应的是entity表的记录；array[1]对应的是setting表的记录 
      */
     async loadSchemas(hasSource: number): Promise<any[][]> {
-        return await this.db.tablesFromProc('tv_$entitys', [hasSource]);
+        return await this.db.tablesFromProc('$entitys', [hasSource]);
     }
 
     async saveSchema(unit: number, user: number, id: number, name: string, type: number, schema: string, run: string, source: string, from: string, open: number, isPrivate: number): Promise<any> {
-        return await this.unitUserCall('tv_$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
+        return await this.unitUserCall('$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
     }
     async loadConstStrs(): Promise<{ [name: string]: number }[]> {
-        return await this.db.call('tv_$const_strs', []);
+        return await this.db.call('$const_strs', []);
     }
     async saveConstStr(type: string): Promise<number> {
-        return await this.db.call('tv_$const_str', [type]);
+        return await this.db.call('$const_str', [type]);
     }
     async saveTextId(text: string): Promise<number> {
-        let sql = `select \`${this.db.getDbName()}\`.tv_$textid(?)`;
-        return await this.db.sql(sql, [text]);
+        return await this.db.saveTextId(text);
     }
     async loadSchemaVersion(name: string, version: string): Promise<string> {
-        return await this.db.call('tv_$entity_version', [name, version]);
+        return await this.db.call('$entity_version', [name, version]);
     }
     async setEntityValid(entities: string, valid: number): Promise<any[]> {
-        let ret = await this.db.call('tv_$entity_validate', [entities, valid]);
+        let ret = await this.db.call('$entity_validate', [entities, valid]);
         return ret;
     }
     async saveFace(bus: string, busOwner: string, busName: string, faceName: string) {
-        await this.db.call('tv_$save_face', [bus, busOwner, busName, faceName]);
+        await this.db.call('$save_face', [bus, busOwner, busName, faceName]);
+    }
+
+    async execQueueAct(): Promise<number> {
+        return await this.db.execQueueAct();
     }
     /*
     async tagType(names: string) {
-        await this.db.call('tv_$tag_type', [names]);
+        await this.db.call('$tag_type', [names]);
     }
     async tagSaveSys(data: string) {
-        await this.db.call('tv_$tag_save_sys', [data]);
+        await this.db.call('$tag_save_sys', [data]);
     }
     */
     isTuidOpen(tuid: string) {
@@ -444,64 +445,64 @@ export class EntityRunner extends Runner {
         return await this.call('$entity_no', [unit, entity, `${year}-${month}-${date}`]);
     }
     async tuidGet(tuid: string, unit: number, user: number, id: number): Promise<any> {
-        return await this.unitUserCallEx('tv_' + tuid, unit, user, id);
+        return await this.unitUserCallEx(tuid, unit, user, id);
     }
     async tuidArrGet(tuid: string, arr: string, unit: number, user: number, owner: number, id: number): Promise<any> {
-        return await this.unitUserCall('tv_' + tuid + '_' + arr + '$id', unit, user, owner, id);
+        return await this.unitUserCall(tuid + '_' + arr + '$id', unit, user, owner, id);
     }
     async tuidGetAll(tuid: string, unit: number, user: number): Promise<any> {
-        return await this.unitUserCall('tv_' + tuid + '$all', unit, user);
+        return await this.unitUserCall(tuid + '$all', unit, user);
     }
     async tuidVid(tuid: string, unit: number, uniqueValue: any): Promise<any> {
-        let proc = `tv_${tuid}$vid`;
+        let proc = `${tuid}$vid`;
         return await this.unitCall(proc, unit, uniqueValue);
     }
     async tuidArrVid(tuid: string, arr: string, unit: number, uniqueValue: any): Promise<any> {
-        let proc = `tv_${tuid}_${arr}$vid`;
+        let proc = `${tuid}_${arr}$vid`;
         return await this.unitCall(proc, unit, uniqueValue);
     }
     async tuidGetArrAll(tuid: string, arr: string, unit: number, user: number, owner: number): Promise<any> {
-        return await this.unitUserCall('tv_' + tuid + '_' + arr + '$all', unit, user, owner);
+        return await this.unitUserCall(tuid + '_' + arr + '$all', unit, user, owner);
     }
     async tuidIds(tuid: string, arr: string, unit: number, user: number, ids: string): Promise<any> {
-        let proc = 'tv_' + tuid;
+        let proc = tuid;
         if (arr !== '$') proc += '_' + arr;
         proc += '$ids';
         let ret = await this.unitUserCall(proc, unit, user, ids);
         return ret;
     }
     async tuidMain(tuid: string, unit: number, user: number, id: number): Promise<any> {
-        return await this.unitUserCall('tv_' + tuid + '$main', unit, user, id);
+        return await this.unitUserCall(tuid + '$main', unit, user, id);
     }
     async tuidSave(tuid: string, unit: number, user: number, params: any[]): Promise<any> {
-        return await this.unitUserCall('tv_' + tuid + '$save', unit, user, ...params);
+        return await this.unitUserCall(tuid + '$save', unit, user, ...params);
     }
     async tuidSetStamp(tuid: string, unit: number, params: any[]): Promise<void> {
-        return await this.unitCall('tv_' + tuid + '$stamp', unit, ...params);
+        return await this.unitCall(tuid + '$stamp', unit, ...params);
     }
     async tuidArrSave(tuid: string, arr: string, unit: number, user: number, params: any[]): Promise<any> {
-        return await this.unitUserCall('tv_' + tuid + '_' + arr + '$save', unit, user, ...params);
+        return await this.unitUserCall(tuid + '_' + arr + '$save', unit, user, ...params);
     }
     async tuidArrPos(tuid: string, arr: string, unit: number, user: number, params: any[]): Promise<any> {
-        return await this.unitUserCall('tv_' + tuid + '_' + arr + '$pos', unit, user, ...params);
+        return await this.unitUserCall(tuid + '_' + arr + '$pos', unit, user, ...params);
     }
     async tuidSeach(tuid: string, unit: number, user: number, arr: string, key: string, pageStart: number, pageSize: number): Promise<any> {
-        let proc = 'tv_' + tuid + '$search';
+        let proc = tuid + '$search';
         return await this.unitUserTablesFromProc(proc, unit, user, key || '', pageStart, pageSize);
     }
     async saveProp(tuid: string, unit: number, user: number, id: number, prop: string, value: any) {
-        let proc = 'tv_' + tuid + '$prop';
+        let proc = tuid + '$prop';
         await this.unitUserCall(proc, unit, user, id, prop, value);
     }
     async tuidArrSeach(tuid: string, unit: number, user: number, arr: string, ownerId: number, key: string, pageStart: number, pageSize: number): Promise<any> {
-        let proc = `tv_${tuid}_${arr}$search`;
+        let proc = `${tuid}_${arr}$search`;
         return await this.unitUserTablesFromProc(proc, unit, user, ownerId, key || '', pageStart, pageSize);
     }
     async mapSave(map: string, unit: number, user: number, params: any[]): Promise<any> {
-        return await this.unitUserCall('tv_' + map + '$save', unit, user, ...params);
+        return await this.unitUserCall(map + '$save', unit, user, ...params);
     }
     async importVId(unit: number, user: number, source: string, tuid: string, arr: string, no: string): Promise<number> {
-        let proc = `tv_$import_vid`;
+        let proc = `$import_vid`;
         let ret = await this.unitUserTableFromProc(proc, unit, user, source, tuid, arr, no);
         return ret[0].vid;
     }
@@ -537,7 +538,7 @@ export class EntityRunner extends Runner {
         let inBusAction = this.getSheetVerifyParametersBus(sheet);
         let inBusResult = await inBusAction.busQueryAll(unit, user, data);
         let inBusActionData = data + inBusResult;
-        let ret = await this.unitUserCall('tv_' + sheet + '$verify', unit, user, inBusActionData);
+        let ret = await this.unitUserCall(sheet + '$verify', unit, user, inBusActionData);
 
         if (length === 1) {
             if (this.isVerifyItemOk(ret) === true) return;
@@ -548,13 +549,13 @@ export class EntityRunner extends Runner {
         return failed;
     }
     async sheetSave(sheet: string, unit: number, user: number, app: number, discription: string, data: string): Promise<{}> {
-        return await this.unitUserCall('tv_$sheet_save', unit, user, sheet, app, discription, data);
+        return await this.unitUserCall('$sheet_save', unit, user, sheet, app, discription, data);
     }
     async sheetTo(unit: number, user: number, sheetId: number, toArr: number[]) {
-        await this.unitUserCall('tv_$sheet_to', unit, user, sheetId, toArr.join(','));
+        await this.unitUserCall('$sheet_to', unit, user, sheetId, toArr.join(','));
     }
     async sheetProcessing(sheetId: number): Promise<void> {
-        await this.db.call('tv_$sheet_processing', [sheetId]);
+        await this.db.call('$sheet_processing', [sheetId]);
     }
     private getSheetActionParametersBus(sheetName: string, stateName: string, actionName: string): ParametersBus {
         let name = `${sheetName}_${stateName}_${actionName}`;
@@ -574,44 +575,44 @@ export class EntityRunner extends Runner {
         let inBusActionData = await inBusAction.busQueryAll(unit, user, id);
         //await this.log(unit, 'sheetAct', 'before ' + inBusActionName);
         let ret = inBusActionData === '' ?
-            await this.unitUserCallEx('tv_' + inBusActionName, unit, user, id, flow, action)
-            : await this.unitUserCallEx('tv_' + inBusActionName, unit, user, id, flow, action, inBusActionData);
+            await this.unitUserCallEx(inBusActionName, unit, user, id, flow, action)
+            : await this.unitUserCallEx(inBusActionName, unit, user, id, flow, action, inBusActionData);
         //await this.log(unit, 'sheetAct', 'after ' + inBusActionName);
         return ret;
     }
     async sheetStates(sheet: string, state: string, unit: number, user: number, pageStart: number, pageSize: number) {
-        let sql = 'tv_$sheet_state';
+        let sql = '$sheet_state';
         return await this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
     }
     async sheetStateCount(sheet: string, unit: number, user: number) {
-        let sql = 'tv_$sheet_state_count';
+        let sql = '$sheet_state_count';
         return await this.unitUserCall(sql, unit, user, sheet);
     }
     async userSheets(sheet: string, state: string, unit: number, user: number, sheetUser: number, pageStart: number, pageSize: number) {
-        let sql = 'tv_$sheet_state_user';
+        let sql = '$sheet_state_user';
         return await this.unitUserCall(sql, unit, user, sheet, state, sheetUser, pageStart, pageSize);
     }
     async mySheets(sheet: string, state: string, unit: number, user: number, pageStart: number, pageSize: number) {
-        let sql = 'tv_$sheet_state_my';
+        let sql = '$sheet_state_my';
         return await this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
     }
     async getSheet(sheet: string, unit: number, user: number, id: number) {
-        let sql = 'tv_$sheet_id';
+        let sql = '$sheet_id';
         return await this.unitUserCall(sql, unit, user, sheet, id);
     }
 
     async sheetScan(sheet: string, unit: number, user: number, id: number) {
-        let sql = 'tv_$sheet_scan';
+        let sql = '$sheet_scan';
         return await this.unitUserCall(sql, unit, user, sheet, id);
     }
 
     async sheetArchives(sheet: string, unit: number, user: number, pageStart: number, pageSize: number) {
-        let sql = 'tv_$archives';
+        let sql = '$archives';
         return await this.unitUserCall(sql, unit, user, sheet, pageStart, pageSize);
     }
 
     async sheetArchive(unit: number, user: number, sheet: string, id: number) {
-        let sql = 'tv_$archive_id';
+        let sql = '$archive_id';
         return await this.unitUserCall(sql, unit, user, sheet, id);
     }
 
@@ -630,35 +631,35 @@ export class EntityRunner extends Runner {
         let inBusAction = this.getActionParametersBus(actionName);
         let inBusResult = await inBusAction.busQueryAll(unit, user, data);
         let actionData = data + inBusResult;
-        let result = await this.unitUserCallEx('tv_' + actionName, unit, user, actionData);
+        let result = await this.unitUserCallEx(actionName, unit, user, actionData);
         return result;
     }
     async actionProxy(actionName: string, unit: number, user: number, proxyUser: number, data: string): Promise<any[][]> {
         let inBusAction = this.getActionParametersBus(actionName);
         let inBusResult = await inBusAction.busQueryAll(unit, user, data);
         let actionData = data + inBusResult;
-        let result = await this.unitUserCallEx('tv_' + actionName, unit, user, proxyUser, actionData);
+        let result = await this.unitUserCallEx(actionName, unit, user, proxyUser, actionData);
         return result;
     }
 
     async actionFromObj(actionName: string, unit: number, user: number, obj: any): Promise<any[][]> {
         let inBusAction = this.getActionParametersBus(actionName);
         let actionData = await inBusAction.buildDataFromObj(unit, user, obj);
-        let result = await this.unitUserCallEx('tv_' + actionName, unit, user, actionData);
+        let result = await this.unitUserCallEx(actionName, unit, user, actionData);
         return result;
     }
 
     async actionDirect(actionName: string, unit: number, user: number, ...params: any[]): Promise<any[][]> {
-        let result = await this.unitUserCallEx('tv_' + actionName, unit, user, ...params);
+        let result = await this.unitUserCallEx(actionName, unit, user, ...params);
         return result;
     }
 
     async query(query: string, unit: number, user: number, params: any[]): Promise<any> {
-        let ret = await this.unitUserCall('tv_' + query, unit, user, ...params);
+        let ret = await this.unitUserCall(query, unit, user, ...params);
         return ret;
     }
     async queryProxy(query: string, unit: number, user: number, proxyUser: number, params: any[]): Promise<any> {
-        let ret = await this.unitUserCall('tv_' + query, unit, user, proxyUser, ...params);
+        let ret = await this.unitUserCall(query, unit, user, proxyUser, ...params);
         return ret;
     }
 
@@ -679,18 +680,18 @@ export class EntityRunner extends Runner {
         let inBusAction = this.getAcceptParametersBus(bus, face);
         let inBusResult = await inBusAction.busQueryAll(unit, to, body);
         let data = body + inBusResult;
-        const proc = `tv_${bus}_${face}`;
+        const proc = `${bus}_${face}`;
         await this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
     }
     async busAcceptFromQuery(bus: string, face: string, unit: number, body: string): Promise<void> {
-        await this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body, undefined);
+        await this.unitUserCall(`${bus}_${face}`, unit, 0, 0, body, undefined);
     }
     async checkPull(unit: number, entity: string, entityType: string, modifies: string): Promise<any[]> {
         let proc: string;
         switch (entityType) {
             default: throw 'error entityType';
-            case 'tuid': proc = `tv_${entity}$pull_check`; break;
-            case 'map': proc = 'tv_$map_pull_check'; break;
+            case 'tuid': proc = `${entity}$pull_check`; break;
+            case 'map': proc = '$map_pull_check'; break;
         }
         return await this.unitTableFromProc(proc, unit as number, entity, modifies);
     }
@@ -722,7 +723,10 @@ export class EntityRunner extends Runner {
     }
 
     private async initInternal() {
-        await this.removeAllScheduleEvents();
+        this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
+        let eventsText = await this.dbCaller.removeAllScheduleEvents();
+        this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
+
         let rows = await this.loadSchemas(0);
         let schemaTable: {
             id: number, name: string, type: number, version: number,
@@ -1040,7 +1044,7 @@ export class EntityRunner extends Runner {
         if (env.isDevelopment) logger.debug('access: ', this.access);
     }
     private async getUserAccess(unit: number, user: number): Promise<number[]> {
-        let result = await this.db.tablesFromProc('tv_$get_access', [unit]);
+        let result = await this.db.tablesFromProc('$get_access', [unit]);
         let ret = _.union(result[0].map(v => v.entity), result[1].map(v => v.entity));
         return ret;
     }
@@ -1121,31 +1125,7 @@ export class EntityRunner extends Runner {
     }
 
     private async runUqStatements() {
-        await this.procCall('tv_$uq', []);
-    }
-
-    private async removeAllScheduleEvents() {
-        let db = this.getDb();
-        let events: { db: string; name: string }[];
-        try {
-            events = await this.dbCaller.getEvents(db);
-            if ((!events) || events.length === 0) return;
-        }
-        catch (err) {
-            debugger;
-            return;
-        }
-        this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
-        let eventsText = '';
-        for (let ev of events) {
-            let { db, name } = ev;
-            if (name.startsWith('tv_') === true) continue;
-            eventsText += ` ${db}.${name}`;
-            let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
-            await this.sql(sql, []);
-        }
-        await this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
-        this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
+        await this.procCall('$uq', []);
     }
 
     readonly $userSchema = {

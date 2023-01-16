@@ -1,10 +1,10 @@
-import { Builders } from "../builders";
+import { Builder } from "../Builder";
 import { MySqlBuilder, sqlLineEnd } from "./mySqlBuilder";
 
 export class SqlIDTv extends MySqlBuilder {
     private ids: number[];
 
-    constructor(builder: Builders, ids: number[]) {
+    constructor(builder: Builder, ids: number[]) {
         super(builder);
         this.ids = ids;
     }
@@ -17,8 +17,8 @@ export class SqlIDTv extends MySqlBuilder {
         }
         let sql = `
 SELECT a.id, b.name as $type, a.name as $tv 
-	FROM tv_${idTbl} as a 
-		JOIN tv_$entity as b ON a.entity=b.id 
+	FROM ${this.twProfix}${idTbl} as a 
+		JOIN ${this.twProfix}$entity as b ON a.entity=b.id 
 	WHERE a.id in (${this.ids.join(',')})` + sqlLineEnd;
         return sql;
     }

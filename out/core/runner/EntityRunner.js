@@ -39,7 +39,6 @@ class EntityRunner extends Runner_1.Runner {
         this.hasPullEntities = false;
         this.hasSheet = false;
         this.isCompiling = false;
-        this.execQueueActError = false;
         this.devBuildSys = false;
         this.parametersBusCache = {};
         this.actionConvertSchemas = {};
@@ -72,7 +71,6 @@ class EntityRunner extends Runner_1.Runner {
     reset() {
         return __awaiter(this, void 0, void 0, function* () {
             this.isCompiling = false;
-            this.execQueueActError = false;
             this.db.reset();
             this.schemas = undefined;
             yield this.init();
@@ -283,7 +281,7 @@ class EntityRunner extends Runner_1.Runner {
     }
     call(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('tv_' + proc, params);
+            return yield this.db.call(proc, params);
         });
     }
     sql(sql, params) {
@@ -298,12 +296,12 @@ class EntityRunner extends Runner_1.Runner {
     }
     tableFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.tableFromProc('tv_' + proc, params);
+            return yield this.db.tableFromProc(proc, params);
         });
     }
     tablesFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.tablesFromProc('tv_' + proc, params);
+            let ret = yield this.db.tablesFromProc(proc, params);
             let len = ret.length;
             if (len === 0)
                 return ret;
@@ -397,11 +395,11 @@ class EntityRunner extends Runner_1.Runner {
             yield this.db.createProcInDb(proc);
         });
     }
-    start(unit, user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_$start', unit, user);
-        });
+    /*
+    async start(unit: number, user: number): Promise<void> {
+        return await this.unitUserCall('$start', unit, user);
     }
+    */
     createResDb(resDbName) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.db.createResDb(resDbName);
@@ -419,56 +417,58 @@ class EntityRunner extends Runner_1.Runner {
      */
     loadSchemas(hasSource) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.tablesFromProc('tv_$entitys', [hasSource]);
+            return yield this.db.tablesFromProc('$entitys', [hasSource]);
         });
     }
     saveSchema(unit, user, id, name, type, schema, run, source, from, open, isPrivate) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
+            return yield this.unitUserCall('$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
         });
     }
     loadConstStrs() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('tv_$const_strs', []);
+            return yield this.db.call('$const_strs', []);
         });
     }
     saveConstStr(type) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('tv_$const_str', [type]);
+            return yield this.db.call('$const_str', [type]);
         });
     }
     saveTextId(text) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = `select \`${this.db.getDbName()}\`.tv_$textid(?)`;
-            return yield this.db.sql(sql, [text]);
+            return yield this.db.saveTextId(text);
         });
     }
     loadSchemaVersion(name, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('tv_$entity_version', [name, version]);
+            return yield this.db.call('$entity_version', [name, version]);
         });
     }
     setEntityValid(entities, valid) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.call('tv_$entity_validate', [entities, valid]);
+            let ret = yield this.db.call('$entity_validate', [entities, valid]);
             return ret;
         });
     }
     saveFace(bus, busOwner, busName, faceName) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('tv_$save_face', [bus, busOwner, busName, faceName]);
+            yield this.db.call('$save_face', [bus, busOwner, busName, faceName]);
         });
     }
-    tagType(names) {
+    execQueueAct() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('tv_$tag_type', [names]);
+            return yield this.db.execQueueAct();
         });
     }
-    tagSaveSys(data) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('tv_$tag_save_sys', [data]);
-        });
+    /*
+    async tagType(names: string) {
+        await this.db.call('$tag_type', [names]);
     }
+    async tagSaveSys(data: string) {
+        await this.db.call('$tag_save_sys', [data]);
+    }
+    */
     isTuidOpen(tuid) {
         tuid = tuid.toLowerCase();
         let t = this.tuids[tuid];
@@ -510,39 +510,39 @@ class EntityRunner extends Runner_1.Runner {
     }
     tuidGet(tuid, unit, user, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCallEx('tv_' + tuid, unit, user, id);
+            return yield this.unitUserCallEx(tuid, unit, user, id);
         });
     }
     tuidArrGet(tuid, arr, unit, user, owner, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + tuid + '_' + arr + '$id', unit, user, owner, id);
+            return yield this.unitUserCall(tuid + '_' + arr + '$id', unit, user, owner, id);
         });
     }
     tuidGetAll(tuid, unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + tuid + '$all', unit, user);
+            return yield this.unitUserCall(tuid + '$all', unit, user);
         });
     }
     tuidVid(tuid, unit, uniqueValue) {
         return __awaiter(this, void 0, void 0, function* () {
-            let proc = `tv_${tuid}$vid`;
+            let proc = `${tuid}$vid`;
             return yield this.unitCall(proc, unit, uniqueValue);
         });
     }
     tuidArrVid(tuid, arr, unit, uniqueValue) {
         return __awaiter(this, void 0, void 0, function* () {
-            let proc = `tv_${tuid}_${arr}$vid`;
+            let proc = `${tuid}_${arr}$vid`;
             return yield this.unitCall(proc, unit, uniqueValue);
         });
     }
     tuidGetArrAll(tuid, arr, unit, user, owner) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + tuid + '_' + arr + '$all', unit, user, owner);
+            return yield this.unitUserCall(tuid + '_' + arr + '$all', unit, user, owner);
         });
     }
     tuidIds(tuid, arr, unit, user, ids) {
         return __awaiter(this, void 0, void 0, function* () {
-            let proc = 'tv_' + tuid;
+            let proc = tuid;
             if (arr !== '$')
                 proc += '_' + arr;
             proc += '$ids';
@@ -552,55 +552,55 @@ class EntityRunner extends Runner_1.Runner {
     }
     tuidMain(tuid, unit, user, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + tuid + '$main', unit, user, id);
+            return yield this.unitUserCall(tuid + '$main', unit, user, id);
         });
     }
     tuidSave(tuid, unit, user, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + tuid + '$save', unit, user, ...params);
+            return yield this.unitUserCall(tuid + '$save', unit, user, ...params);
         });
     }
     tuidSetStamp(tuid, unit, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitCall('tv_' + tuid + '$stamp', unit, ...params);
+            return yield this.unitCall(tuid + '$stamp', unit, ...params);
         });
     }
     tuidArrSave(tuid, arr, unit, user, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + tuid + '_' + arr + '$save', unit, user, ...params);
+            return yield this.unitUserCall(tuid + '_' + arr + '$save', unit, user, ...params);
         });
     }
     tuidArrPos(tuid, arr, unit, user, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + tuid + '_' + arr + '$pos', unit, user, ...params);
+            return yield this.unitUserCall(tuid + '_' + arr + '$pos', unit, user, ...params);
         });
     }
     tuidSeach(tuid, unit, user, arr, key, pageStart, pageSize) {
         return __awaiter(this, void 0, void 0, function* () {
-            let proc = 'tv_' + tuid + '$search';
+            let proc = tuid + '$search';
             return yield this.unitUserTablesFromProc(proc, unit, user, key || '', pageStart, pageSize);
         });
     }
     saveProp(tuid, unit, user, id, prop, value) {
         return __awaiter(this, void 0, void 0, function* () {
-            let proc = 'tv_' + tuid + '$prop';
+            let proc = tuid + '$prop';
             yield this.unitUserCall(proc, unit, user, id, prop, value);
         });
     }
     tuidArrSeach(tuid, unit, user, arr, ownerId, key, pageStart, pageSize) {
         return __awaiter(this, void 0, void 0, function* () {
-            let proc = `tv_${tuid}_${arr}$search`;
+            let proc = `${tuid}_${arr}$search`;
             return yield this.unitUserTablesFromProc(proc, unit, user, ownerId, key || '', pageStart, pageSize);
         });
     }
     mapSave(map, unit, user, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_' + map + '$save', unit, user, ...params);
+            return yield this.unitUserCall(map + '$save', unit, user, ...params);
         });
     }
     importVId(unit, user, source, tuid, arr, no) {
         return __awaiter(this, void 0, void 0, function* () {
-            let proc = `tv_$import_vid`;
+            let proc = `$import_vid`;
             let ret = yield this.unitUserTableFromProc(proc, unit, user, source, tuid, arr, no);
             return ret[0].vid;
         });
@@ -642,7 +642,7 @@ class EntityRunner extends Runner_1.Runner {
             let inBusAction = this.getSheetVerifyParametersBus(sheet);
             let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
             let inBusActionData = data + inBusResult;
-            let ret = yield this.unitUserCall('tv_' + sheet + '$verify', unit, user, inBusActionData);
+            let ret = yield this.unitUserCall(sheet + '$verify', unit, user, inBusActionData);
             if (length === 1) {
                 if (this.isVerifyItemOk(ret) === true)
                     return;
@@ -655,17 +655,17 @@ class EntityRunner extends Runner_1.Runner {
     }
     sheetSave(sheet, unit, user, app, discription, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.unitUserCall('tv_$sheet_save', unit, user, sheet, app, discription, data);
+            return yield this.unitUserCall('$sheet_save', unit, user, sheet, app, discription, data);
         });
     }
     sheetTo(unit, user, sheetId, toArr) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.unitUserCall('tv_$sheet_to', unit, user, sheetId, toArr.join(','));
+            yield this.unitUserCall('$sheet_to', unit, user, sheetId, toArr.join(','));
         });
     }
     sheetProcessing(sheetId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('tv_$sheet_processing', [sheetId]);
+            yield this.db.call('$sheet_processing', [sheetId]);
         });
     }
     getSheetActionParametersBus(sheetName, stateName, actionName) {
@@ -688,57 +688,57 @@ class EntityRunner extends Runner_1.Runner {
             let inBusActionData = yield inBusAction.busQueryAll(unit, user, id);
             //await this.log(unit, 'sheetAct', 'before ' + inBusActionName);
             let ret = inBusActionData === '' ?
-                yield this.unitUserCallEx('tv_' + inBusActionName, unit, user, id, flow, action)
-                : yield this.unitUserCallEx('tv_' + inBusActionName, unit, user, id, flow, action, inBusActionData);
+                yield this.unitUserCallEx(inBusActionName, unit, user, id, flow, action)
+                : yield this.unitUserCallEx(inBusActionName, unit, user, id, flow, action, inBusActionData);
             //await this.log(unit, 'sheetAct', 'after ' + inBusActionName);
             return ret;
         });
     }
     sheetStates(sheet, state, unit, user, pageStart, pageSize) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$sheet_state';
+            let sql = '$sheet_state';
             return yield this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
         });
     }
     sheetStateCount(sheet, unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$sheet_state_count';
+            let sql = '$sheet_state_count';
             return yield this.unitUserCall(sql, unit, user, sheet);
         });
     }
     userSheets(sheet, state, unit, user, sheetUser, pageStart, pageSize) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$sheet_state_user';
+            let sql = '$sheet_state_user';
             return yield this.unitUserCall(sql, unit, user, sheet, state, sheetUser, pageStart, pageSize);
         });
     }
     mySheets(sheet, state, unit, user, pageStart, pageSize) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$sheet_state_my';
+            let sql = '$sheet_state_my';
             return yield this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
         });
     }
     getSheet(sheet, unit, user, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$sheet_id';
+            let sql = '$sheet_id';
             return yield this.unitUserCall(sql, unit, user, sheet, id);
         });
     }
     sheetScan(sheet, unit, user, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$sheet_scan';
+            let sql = '$sheet_scan';
             return yield this.unitUserCall(sql, unit, user, sheet, id);
         });
     }
     sheetArchives(sheet, unit, user, pageStart, pageSize) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$archives';
+            let sql = '$archives';
             return yield this.unitUserCall(sql, unit, user, sheet, pageStart, pageSize);
         });
     }
     sheetArchive(unit, user, sheet, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let sql = 'tv_$archive_id';
+            let sql = '$archive_id';
             return yield this.unitUserCall(sql, unit, user, sheet, id);
         });
     }
@@ -757,7 +757,7 @@ class EntityRunner extends Runner_1.Runner {
             let inBusAction = this.getActionParametersBus(actionName);
             let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
             let actionData = data + inBusResult;
-            let result = yield this.unitUserCallEx('tv_' + actionName, unit, user, actionData);
+            let result = yield this.unitUserCallEx(actionName, unit, user, actionData);
             return result;
         });
     }
@@ -766,7 +766,7 @@ class EntityRunner extends Runner_1.Runner {
             let inBusAction = this.getActionParametersBus(actionName);
             let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
             let actionData = data + inBusResult;
-            let result = yield this.unitUserCallEx('tv_' + actionName, unit, user, proxyUser, actionData);
+            let result = yield this.unitUserCallEx(actionName, unit, user, proxyUser, actionData);
             return result;
         });
     }
@@ -774,25 +774,25 @@ class EntityRunner extends Runner_1.Runner {
         return __awaiter(this, void 0, void 0, function* () {
             let inBusAction = this.getActionParametersBus(actionName);
             let actionData = yield inBusAction.buildDataFromObj(unit, user, obj);
-            let result = yield this.unitUserCallEx('tv_' + actionName, unit, user, actionData);
+            let result = yield this.unitUserCallEx(actionName, unit, user, actionData);
             return result;
         });
     }
     actionDirect(actionName, unit, user, ...params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let result = yield this.unitUserCallEx('tv_' + actionName, unit, user, ...params);
+            let result = yield this.unitUserCallEx(actionName, unit, user, ...params);
             return result;
         });
     }
     query(query, unit, user, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.unitUserCall('tv_' + query, unit, user, ...params);
+            let ret = yield this.unitUserCall(query, unit, user, ...params);
             return ret;
         });
     }
     queryProxy(query, unit, user, proxyUser, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.unitUserCall('tv_' + query, unit, user, proxyUser, ...params);
+            let ret = yield this.unitUserCall(query, unit, user, proxyUser, ...params);
             return ret;
         });
     }
@@ -814,13 +814,13 @@ class EntityRunner extends Runner_1.Runner {
             let inBusAction = this.getAcceptParametersBus(bus, face);
             let inBusResult = yield inBusAction.busQueryAll(unit, to, body);
             let data = body + inBusResult;
-            const proc = `tv_${bus}_${face}`;
+            const proc = `${bus}_${face}`;
             yield this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
         });
     }
     busAcceptFromQuery(bus, face, unit, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.unitUserCall(`tv_${bus}_${face}`, unit, 0, 0, body, undefined);
+            yield this.unitUserCall(`${bus}_${face}`, unit, 0, 0, body, undefined);
         });
     }
     checkPull(unit, entity, entityType, modifies) {
@@ -829,10 +829,10 @@ class EntityRunner extends Runner_1.Runner {
             switch (entityType) {
                 default: throw 'error entityType';
                 case 'tuid':
-                    proc = `tv_${entity}$pull_check`;
+                    proc = `${entity}$pull_check`;
                     break;
                 case 'map':
-                    proc = 'tv_$map_pull_check';
+                    proc = '$map_pull_check';
                     break;
             }
             return yield this.unitTableFromProc(proc, unit, entity, modifies);
@@ -871,7 +871,9 @@ class EntityRunner extends Runner_1.Runner {
     initInternal() {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.removeAllScheduleEvents();
+            this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
+            let eventsText = yield this.dbCaller.removeAllScheduleEvents();
+            this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
             let rows = yield this.loadSchemas(0);
             let schemaTable = rows[0];
             let settingTable = rows[1];
@@ -1198,7 +1200,7 @@ class EntityRunner extends Runner_1.Runner {
     }
     getUserAccess(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            let result = yield this.db.tablesFromProc('tv_$get_access', [unit]);
+            let result = yield this.db.tablesFromProc('$get_access', [unit]);
             let ret = _.union(result[0].map(v => v.entity), result[1].map(v => v.entity));
             return ret;
         });
@@ -1283,34 +1285,7 @@ class EntityRunner extends Runner_1.Runner {
     }
     runUqStatements() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.procCall('tv_$uq', []);
-        });
-    }
-    removeAllScheduleEvents() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let db = this.getDb();
-            let events;
-            try {
-                events = yield this.dbCaller.getEvents(db);
-                if ((!events) || events.length === 0)
-                    return;
-            }
-            catch (err) {
-                debugger;
-                return;
-            }
-            this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
-            let eventsText = '';
-            for (let ev of events) {
-                let { db, name } = ev;
-                if (name.startsWith('tv_') === true)
-                    continue;
-                eventsText += ` ${db}.${name}`;
-                let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
-                yield this.sql(sql, []);
-            }
-            yield this.sql(`TRUNCATE TABLE \`${db}\`.tv_$queue_act;`, []);
-            this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
+            yield this.procCall('$uq', []);
         });
     }
 }

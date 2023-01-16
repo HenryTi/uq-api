@@ -29,9 +29,11 @@ function buildProcRouter() {
                 }
             });
         }
-        if (proc.toLowerCase().startsWith('tv_') === false) {
-            proc = 'tv_' + proc;
+        /*
+        if (proc.toLowerCase().startsWith('t v_') === false) {
+            proc = 't v_' + proc;
         }
+        */
         let dbProd = db;
         let dbTest = db + '$test';
         let errProd = yield buildProc(db);
@@ -50,7 +52,7 @@ function buildProcRouter() {
             message = undefined;
         }
         if (message) {
-            message += ` stored procedure tv_${proc} built successfully`;
+            message += ` stored procedure ${proc} built successfully`;
         }
         else {
             message = `faild to build ${proc} in ${dbProd} and ${dbTest}`;
