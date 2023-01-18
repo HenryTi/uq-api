@@ -60,6 +60,7 @@ export class EntityRunner extends Runner {
     private compileTick: number = 0;
 
     // readonly IDRunner: IDRunner;
+    readonly net: Net;
     readonly sqlFactory: SqlFactory
     readonly dbName: string;
     schemas: { [entity: string]: { type: string; from: string; call: any; run: any; } };
@@ -93,7 +94,8 @@ export class EntityRunner extends Runner {
      * @param net 
      */
     constructor(dbUq: DbUq, net: Net) {
-        super(dbUq, net);
+        super(dbUq);
+        this.net = net;
         this.modifyMaxes = {};
         this.dbName = dbUq.name;
         // this.IDRunner = new IDRunner(this, new Builder(), this.dbCaller);

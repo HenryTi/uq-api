@@ -4,11 +4,9 @@ import { Net } from '../net';
 // import { DbContainer } from '../db';
 
 export class Runner {
-    readonly net: Net;
     protected readonly dbUq: DbUq;
 
-    constructor(dbUq: DbUq, net: Net) {
-        this.net = net;
+    constructor(dbUq: DbUq) {
         this.dbUq = dbUq;
     }
     // protected readonly dbContainer: DbContainer;
