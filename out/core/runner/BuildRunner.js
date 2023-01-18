@@ -272,21 +272,6 @@ class BuildRunner extends Runner_1.Runner {
             return ret;
         });
     }
-    /*
-    async start(unit: number, user: number): Promise<void> {
-        return await this.unitUserCall('$start', unit, user);
-    }
-    */
-    createResDb(resDbName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.createResDb(resDbName);
-        });
-    }
-    create$UqDb() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.create$UqDb();
-        });
-    }
 }
 exports.BuildRunner = BuildRunner;
 //# sourceMappingURL=BuildRunner.js.map

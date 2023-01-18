@@ -4,6 +4,7 @@ exports.consts = void 0;
 exports.consts = {
     $unitx: '$unitx',
     $uq: '$uq',
+    $res: '$res',
     $$$unitx: '$$$/$unitx',
     sheetMessage: 'sheetMessage',
     Face: 'Face',

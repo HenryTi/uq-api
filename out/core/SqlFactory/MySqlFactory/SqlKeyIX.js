@@ -1,0 +1,44 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SqlKeyIX = void 0;
+const MySqlBuilder_1 = require("./MySqlBuilder");
+class SqlKeyIX extends MySqlBuilder_1.MySqlBuilder {
+    constructor(factory, param) {
+        super(factory);
+        this.param = this.convertParam(param);
+    }
+    build() {
+        let { ID, IX, key, IDX, page } = this.param;
+        let arr = [IX];
+        if (IDX)
+            arr.push(...IDX);
+        let { cols, tables } = this.buildIDX(arr);
+        let { name, schema } = ID;
+        let { keys } = schema;
+        let joinID = ' JOIN `' + this.twProfix + name + '` as t ON t.id=t0.id';
+        let where = '';
+        if (this.hasUnit === true) {
+            where += 't.$unit=@unit';
+        }
+        for (let k of keys) {
+            let v = key[k.name];
+            if (v === undefined)
+                continue;
+            where += ' AND t.`' + k.name + '`=\'' + v + '\'';
+        }
+        if (page) {
+            let { start } = page;
+            if (!start)
+                start = 0;
+            where += ' AND t0.id>' + start;
+        }
+        let sql = `SELECT ${cols} FROM ${tables}${joinID} WHERE 1=1${where}`;
+        sql += ' ORDER BY t0.id ASC';
+        if (page)
+            sql += ' LIMIT ' + page.size;
+        sql += MySqlBuilder_1.sqlLineEnd;
+        return sql;
+    }
+}
+exports.SqlKeyIX = SqlKeyIX;
+//# sourceMappingURL=SqlKeyIX.js.map

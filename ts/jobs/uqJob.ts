@@ -11,7 +11,7 @@ export class UqJob {
 
     constructor(runner: EntityRunner) {
         this.runner = runner;
-        this.uqDbName = runner.getDb();
+        this.uqDbName = runner.name;
     }
 
     async run(): Promise<number> {

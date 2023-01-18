@@ -44,7 +44,7 @@ class Jobs {
      */
     constructor() {
         this.loopWait = true;
-        this.$uqDb = core_1.Db.db(core_1.consts.$uq);
+        this.$uqDb = core_1.$uqDb;
         this.uqs = {};
     }
     sleep(ms) {
@@ -276,7 +276,7 @@ class Jobs {
             let runner = yield this.getRunnerFromDbName(uqDbName);
             if (runner === undefined)
                 return undefined;
-            let dbName = runner.getDb();
+            let dbName = runner.name;
             if (this.shouldUqJob(dbName) === false)
                 return undefined;
             yield runner.setCompileTick(compile_tick);

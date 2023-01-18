@@ -8,7 +8,7 @@ export class Runner {
         this.db = db;
     }
 
-    getDb(): string { return this.db.getDbName() }
+    // getDb(): string { return this.db.getDbName() }
 
     async syncCenterUser(userId: number) {
         let user = await centerApi.userFromId(userId);

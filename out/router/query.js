@@ -26,13 +26,13 @@ const queryProcess = (unit, user, name, db, urlParams, runner, body, schema) => 
     let result;
     let { proxy, auth } = schema;
     if (auth !== undefined) {
-        if (runner.isExistsProcInDb(auth) === false) {
-            yield runner.createProcInDb(auth);
+        if (runner.isExistsProc(auth) === false) {
+            yield runner.createProc(auth);
         }
     }
     if (proxy !== undefined) {
-        if (runner.isExistsProcInDb(proxy) === false) {
-            yield runner.createProcInDb(proxy);
+        if (runner.isExistsProc(proxy) === false) {
+            yield runner.createProc(proxy);
         }
         result = yield runner.queryProxy(name, unit, user, body.$$user, params);
     }
@@ -69,13 +69,13 @@ const pageQueryProcess = (unit, user, name, db, urlParams, runner, body, schema)
     let result;
     let { proxy, auth } = schema;
     if (auth !== undefined) {
-        if (runner.isExistsProcInDb(auth) === false) {
-            yield runner.createProcInDb(auth);
+        if (runner.isExistsProc(auth) === false) {
+            yield runner.createProc(auth);
         }
     }
     if (proxy !== undefined) {
-        if (runner.isExistsProcInDb(proxy) === false) {
-            yield runner.createProcInDb(proxy);
+        if (runner.isExistsProc(proxy) === false) {
+            yield runner.createProc(proxy);
         }
         result = yield runner.queryProxy(name, unit, user, body.$$user, params);
     }

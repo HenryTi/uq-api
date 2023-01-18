@@ -85,7 +85,7 @@ export abstract class Unitx {
         }
         let { url, server, create } = uus;
         if (env.isDevelopment === true) {
-            if (server === this.db.serverId) {
+            if (Number(server) === this.db.serverId) {
                 let urlDebug = await getUrlDebug();
                 if (urlDebug !== undefined) url = urlDebug;
             }

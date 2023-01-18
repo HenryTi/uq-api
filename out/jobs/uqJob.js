@@ -19,7 +19,7 @@ const queueOut_1 = require("./queueOut");
 class UqJob {
     constructor(runner) {
         this.runner = runner;
-        this.uqDbName = runner.getDb();
+        this.uqDbName = runner.name;
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {

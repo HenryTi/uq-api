@@ -17,13 +17,13 @@ export const queryProcess = async (unit: number, user: number, name: string, db:
     let result: any;
     let { proxy, auth } = schema;
     if (auth !== undefined) {
-        if (runner.isExistsProcInDb(auth) === false) {
-            await runner.createProcInDb(auth);
+        if (runner.isExistsProc(auth) === false) {
+            await runner.createProc(auth);
         }
     }
     if (proxy !== undefined) {
-        if (runner.isExistsProcInDb(proxy) === false) {
-            await runner.createProcInDb(proxy);
+        if (runner.isExistsProc(proxy) === false) {
+            await runner.createProc(proxy);
         }
         result = await runner.queryProxy(name, unit, user, body.$$user, params);
     }
@@ -58,13 +58,13 @@ export const pageQueryProcess = async (unit: number, user: number, name: string,
     let result: any;
     let { proxy, auth } = schema;
     if (auth !== undefined) {
-        if (runner.isExistsProcInDb(auth) === false) {
-            await runner.createProcInDb(auth);
+        if (runner.isExistsProc(auth) === false) {
+            await runner.createProc(auth);
         }
     }
     if (proxy !== undefined) {
-        if (runner.isExistsProcInDb(proxy) === false) {
-            await runner.createProcInDb(proxy);
+        if (runner.isExistsProc(proxy) === false) {
+            await runner.createProc(proxy);
         }
         result = await runner.queryProxy(name, unit, user, body.$$user, params);
     }

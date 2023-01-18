@@ -12,11 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.testCompileNet = exports.prodCompileNet = exports.testNet = exports.prodNet = exports.Net = void 0;
 const tool_1 = require("../tool");
 const runner_1 = require("./runner");
-const db_1 = require("./dbCaller/db");
+const dbCaller_1 = require("./dbCaller");
 const openApi_1 = require("./openApi");
 const centerApi_1 = require("./centerApi");
 const getUrlDebug_1 = require("./getUrlDebug");
 const unitx_1 = require("./unitx");
+const dbCaller_2 = require("./dbCaller");
 class Net {
     constructor(executingNet, id) {
         this.runners = {};
@@ -39,9 +40,9 @@ class Net {
                 return;
             if (runner === undefined) {
                 let dbName = this.getDbName(name);
-                let db = db_1.Db.db(dbName);
+                let db = (0, dbCaller_2.getDb)(dbName);
                 db.isTesting = this.isTesting;
-                runner = yield this.createRunnerFromDb(name, db);
+                runner = yield this.createRunnerFromDb(db);
                 if (runner === undefined) {
                     this.runners[name] = null;
                     return;
@@ -123,7 +124,7 @@ class Net {
             if (runner === null)
                 return;
             if (runner === undefined) {
-                runner = yield this.createRunnerFromDb(name, this.unitx.db);
+                runner = yield this.createRunnerFromDb(this.unitx.db);
                 if (runner === undefined) {
                     this.runners[$name] = null;
                     return;
@@ -145,8 +146,9 @@ class Net {
      * @param db
      * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等)
      */
-    createRunnerFromDb(name, db) {
+    createRunnerFromDb(db) {
         return __awaiter(this, void 0, void 0, function* () {
+            let name = db.getDbName();
             return yield new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 let promiseArr = this.createRunnerFromDbPromises[name];
                 if (promiseArr !== undefined) {
@@ -161,8 +163,8 @@ class Net {
                         runner = undefined;
                     }
                     else {
-                        yield db.loadTwProfix();
-                        runner = new runner_1.EntityRunner(name, db, this);
+                        yield db.init();
+                        runner = new runner_1.EntityRunner(db, this);
                     }
                     for (let promiseItem of this.createRunnerFromDbPromises[name]) {
                         promiseItem.resolve(runner);
@@ -286,7 +288,7 @@ class Net {
         return __awaiter(this, void 0, void 0, function* () {
             let url;
             let { db } = urls;
-            if (db_1.env.isDevelopment === true) {
+            if (dbCaller_1.env.isDevelopment === true) {
                 let urlDebug = yield (0, getUrlDebug_1.getUrlDebug)();
                 if (urlDebug !== undefined)
                     url = urlDebug;

@@ -1,9 +1,8 @@
 import * as express from 'express';
 import { Request, Response, NextFunction, Router } from 'express';
-import * as config from 'config';
 import { logger } from './tool';
-import { createResDb, router as resRouter, initResPath } from './res';
-import { authCheck, authUnitx, consts, create$UqDb, Db, env, testNet } from './core';
+import { create$ResDb, router as resRouter, initResPath } from './res';
+import { $uqDb, authCheck, authUnitx, consts, create$UqDb, Db, dbStart, env } from './core';
 import {
     buildOpenRouter, buildEntityRouter, buildUnitxRouter, buildBuildRouter,
     uqProdRouterBuilder, uqTestRouterBuilder,
@@ -37,8 +36,9 @@ export async function init(): Promise<void> {
         logger.debug('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
         //let connection = config.get<any>("connection");
-        let connection = env.getConnection();
-        if (connection === undefined || connection.host === '0.0.0.0') {
+        //let connection = env.connection;
+        //if (connection === undefined || connection.host === '0.0.0.0') {
+        if (env.connection === null) {
             logger.debug("mysql connection must defined in config/default.json or config/production.json");
             return;
         }
@@ -90,12 +90,14 @@ export async function init(): Promise<void> {
         app.use('/uq/unitx-prod/', buildUnitxRouter(unitxProdRouterBuilder));
         app.use('/uq/unitx-test/', buildUnitxRouter(unitxTestRouterBuilder));
 
+        await dbStart();
+
         await Promise.all([
-            createResDb(),
+            create$ResDb(),
             create$UqDb()
         ]);
 
-        let port = config.get<number>('port');
+        let { port, localPort, connection } = env;
         app.listen(port, async () => {
             logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
             let { host, user } = connection;
@@ -104,7 +106,6 @@ export async function init(): Promise<void> {
         });
 
         let localApp = express();
-        let localPort = config.get<number>('local-port');
         if (localPort) {
             localApp.use('/hello', dbHello);
             localApp.use('/prod/:db/', buildLocalRouter(uqProdRouterLocalBuilder));
@@ -163,7 +164,7 @@ async function dbHello(req: Request, res: Response) {
     let { db } = req.params;
     let text = 'uq-api: hello';
     if (db) text += ', db is ' + db;
-    let uqs = await Db.db(consts.$uq).uqDbs();
+    let uqs = await $uqDb.uqDbs();
     res.json({
         "hello": text,
         uqs

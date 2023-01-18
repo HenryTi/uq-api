@@ -10,11 +10,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IDRunner = void 0;
+const dbCaller_1 = require("../dbCaller");
 const tool_1 = require("../../tool");
 class IDRunner {
-    constructor(entityRunner, dbCaller) {
+    // private readonly dbCaller: DbCaller;
+    constructor(entityRunner, builder, dbCaller) {
         this.entityRunner = entityRunner;
-        this.dbCaller = dbCaller;
+        // this.dbCaller = dbCaller;
+        this.dbCaller = new dbCaller_1.BuilderCaller(builder, dbCaller);
     }
     /**
      * 对ID进行增删改的操作？

@@ -9,23 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getResDbRunner = exports.createResDb = void 0;
+exports.getResDbRunner = exports.create$ResDb = void 0;
 const core_1 = require("../core");
-const resDbName = '$res';
-function createResDb() {
+function create$ResDb() {
     return __awaiter(this, void 0, void 0, function* () {
-        let db = core_1.Db.db(resDbName);
-        let runner = new core_1.EntityRunner(resDbName, db);
-        yield runner.createResDb(resDbName);
+        yield core_1.$resDb.createDatabase();
     });
 }
-exports.createResDb = createResDb;
+exports.create$ResDb = create$ResDb;
 let resDbRunner;
 function getResDbRunner() {
     return __awaiter(this, void 0, void 0, function* () {
         if (resDbRunner === undefined) {
-            let db = core_1.Db.db(resDbName);
-            resDbRunner = new core_1.EntityRunner(resDbName, db);
+            resDbRunner = new core_1.EntityRunner(core_1.$resDb);
         }
         return resDbRunner;
     });

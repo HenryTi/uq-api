@@ -1,11 +1,12 @@
 import { logger } from '../tool';
 import { EntityRunner } from "./runner";
-import { Db, env } from "./dbCaller/db";
+import { Db, env } from "./dbCaller";
 import { OpenApi } from "./openApi";
 import { centerApi } from "./centerApi";
 import { Message } from "./model";
 import { getUrlDebug } from "./getUrlDebug";
 import { Unitx, UnitxProd, UnitxTest } from "./unitx";
+import { getDb } from './dbCaller';
 
 export abstract class Net {
     private readonly id: string;
@@ -34,9 +35,9 @@ export abstract class Net {
         if (runner === null) return;
         if (runner === undefined) {
             let dbName = this.getDbName(name);
-            let db = Db.db(dbName);
+            let db = getDb(dbName);
             db.isTesting = this.isTesting;
-            runner = await this.createRunnerFromDb(name, db);
+            runner = await this.createRunnerFromDb(db);
             if (runner === undefined) {
                 this.runners[name] = null;
                 return;
@@ -108,7 +109,7 @@ export abstract class Net {
         let runner = this.runners[$name];
         if (runner === null) return;
         if (runner === undefined) {
-            runner = await this.createRunnerFromDb(name, this.unitx.db);
+            runner = await this.createRunnerFromDb(this.unitx.db);
             if (runner === undefined) {
                 this.runners[$name] = null;
                 return;
@@ -132,7 +133,8 @@ export abstract class Net {
      * @param db 
      * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等) 
      */
-    protected async createRunnerFromDb(name: string, db: Db): Promise<EntityRunner> {
+    protected async createRunnerFromDb(db: Db): Promise<EntityRunner> {
+        let name = db.getDbName();
         return await new Promise<EntityRunner>(async (resolve, reject) => {
             let promiseArr = this.createRunnerFromDbPromises[name];
             if (promiseArr !== undefined) {
@@ -147,8 +149,8 @@ export abstract class Net {
                     runner = undefined;
                 }
                 else {
-                    await db.loadTwProfix();
-                    runner = new EntityRunner(name, db, this);
+                    await db.init();
+                    runner = new EntityRunner(db, this);
                 }
                 for (let promiseItem of this.createRunnerFromDbPromises[name]) {
                     promiseItem.resolve(runner);

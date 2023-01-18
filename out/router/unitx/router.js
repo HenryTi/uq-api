@@ -52,7 +52,7 @@ function buildUnitxRouter(rb) {
     }));
     let fetchBus = (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { unit, msgStart, defer, faces } = body;
-        let ret = yield runner.unitUserTablesFromProc('tv_GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
+        let ret = yield runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
         return ret;
     });
     rb.post(router, '/fetch-bus', fetchBus);
@@ -60,7 +60,7 @@ function buildUnitxRouter(rb) {
         let { unit, face, queue, defer } = body;
         if (queue === undefined)
             queue = (0, core_1.busQueueSeed)();
-        let ret = yield runner.unitUserCall('tv_BusMessageFromQueue', unit, undefined, face, defer !== null && defer !== void 0 ? defer : 0, queue);
+        let ret = yield runner.unitUserCall('BusMessageFromQueue', unit, undefined, face, defer !== null && defer !== void 0 ? defer : 0, queue);
         if (ret.length === 0)
             return;
         return ret[0];

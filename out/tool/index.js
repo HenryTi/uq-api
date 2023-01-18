@@ -13,4 +13,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./tools"), exports);
 __exportStar(require("./cache"), exports);
 __exportStar(require("./logger"), exports);
+__exportStar(require("./env"), exports);
 //# sourceMappingURL=index.js.map

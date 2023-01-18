@@ -19,7 +19,7 @@ function buildProcRouter() {
         function buildProc(dbName) {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
-                    let db = core_1.Db.db(dbName);
+                    let db = (0, core_1.getDb)(dbName);
                     let runner = new core_1.BuildRunner(db);
                     yield runner.buildProc(proc);
                     return;

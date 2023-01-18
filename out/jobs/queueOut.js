@@ -26,7 +26,7 @@ class QueueOut {
         this.runner = runner;
     }
     /**
-     * 调用tv_$message_queue_out从$message_queue中获取数据，依次执行其对应的存储过程
+     * 调用$message_queue_out从$message_queue中获取数据，依次执行其对应的存储过程
      * 其中经常使用的是bus消息，然后发送bus
      * @returns
      */

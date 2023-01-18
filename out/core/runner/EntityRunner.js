@@ -32,7 +32,7 @@ class EntityRunner extends Runner_1.Runner {
      * @param db
      * @param net
      */
-    constructor(name, db, net = undefined) {
+    constructor(db, net = undefined) {
         super(db);
         this.roleVersions = {};
         this.compileTick = 0;
@@ -61,13 +61,14 @@ class EntityRunner extends Runner_1.Runner {
                 "name", "nick", "icon", "assigned", "poke", "timezone"
             ]
         };
-        this.name = name;
         this.net = net;
         this.modifyMaxes = {};
         this.dbCaller = db.dbCaller;
-        this.IDRunner = new IDRunner_1.IDRunner(this, this.dbCaller);
+        this.name = db.getDbName();
+        this.IDRunner = new IDRunner_1.IDRunner(this, new dbCaller_1.Builder(), this.dbCaller);
+        this.$uqDb = dbCaller_1.$uqDb;
     }
-    getDb() { return this.db.getDbName(); }
+    // getDb(): string { return this.db.getDbName() }
     reset() {
         return __awaiter(this, void 0, void 0, function* () {
             this.isCompiling = false;
@@ -266,14 +267,39 @@ class EntityRunner extends Runner_1.Runner {
     }
     log(unit, subject, content) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
+            // await this.$uqDb.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
+            const uq = this.net.getUqFullName(this.uq);
+            yield this.$uqDb.call('log', [unit, uq, subject, content]);
         });
     }
     logError(unit, subject, content) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
+            //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
+            const uq = this.net.getUqFullName(this.uq);
+            yield this.$uqDb.call('log_error', [unit, uq, subject, content]);
         });
     }
+    /*
+        async uqLog(unit: number, uq: string, subject: string, content: string): Promise<void> {
+            return await this.dbCaller.call('$uq', 'log', [unit, uq, subject, content]);
+        }
+        async uqLogError(unit: number, uq: string, subject: string, content: string): Promise<void> {
+            return await this.dbCaller.call('$uq', 'log_error', [unit, uq, subject, content]);
+        }
+        async logPerformance(tick: number, log: string, ms: number): Promise<void> {
+            try {
+                await this.dbCaller.call('$uq', 'performance', [tick, log, ms]);
+            }
+            catch (err) {
+                logger.error(err);
+                let { message, sqlMessage } = err;
+                let msg = '';
+                if (message) msg += message;
+                if (sqlMessage) msg += ' ' + sqlMessage;
+                await this.dbCaller.call('$uq', 'performance', [Date.now(), msg, 0]);
+            }
+        }
+    */
     procCall(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.db.call(proc, params);
@@ -387,27 +413,12 @@ class EntityRunner extends Runner_1.Runner {
         return __awaiter(this, void 0, void 0, function* () {
         });
     }
-    isExistsProcInDb(proc) {
-        return this.db.isExistsProcInDb(proc);
+    isExistsProc(proc) {
+        return this.db.isExistsProc(proc);
     }
-    createProcInDb(proc) {
+    createProc(proc) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.createProcInDb(proc);
-        });
-    }
-    /*
-    async start(unit: number, user: number): Promise<void> {
-        return await this.unitUserCall('$start', unit, user);
-    }
-    */
-    createResDb(resDbName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.createResDb(resDbName);
-        });
-    }
-    create$UqDb() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.create$UqDb();
+            yield this.db.createProc(proc);
         });
     }
     /**
@@ -902,7 +913,7 @@ class EntityRunner extends Runner_1.Runner {
             this.service = setting['service'];
             this.devBuildSys = setting['dev-build-sys'] !== null;
             this.dbCaller.hasUnit = this.hasUnit;
-            this.dbCaller.setBuilder();
+            // this.dbCaller.setBuilder();
             let ixUserArr = [];
             let uu = setting['uniqueunit'];
             this.uniqueUnit = uu !== null && uu !== void 0 ? uu : uniqueUnitInConfig;

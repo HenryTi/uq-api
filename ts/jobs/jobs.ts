@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { logger } from '../tool';
-import { Net, Db, prodNet, testNet, env, consts, EntityRunner } from '../core';
+import { Net, Db, prodNet, testNet, env, consts, EntityRunner, $UqDb, $uqDb } from '../core';
 //import { pullEntities } from './pullEntities';
 // import { PullBus } from './pullBus';
 import { QueueIn } from './queueIn';
@@ -38,14 +38,14 @@ interface Uq {
 
 export class Jobs {
     private readonly uqs: { [id: number]: Uq };
-    private readonly $uqDb: Db;
+    private readonly $uqDb: $UqDb;
     private loopWait: boolean = true;
 
     /**
      * 所有Job的容器类，用于从db中获取job定义，运行job
      */
     constructor() {
-        this.$uqDb = Db.db(consts.$uq);
+        this.$uqDb = $uqDb;
         this.uqs = {};
     }
 
@@ -254,7 +254,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
     private async createUqJob(uqDbName: string, compile_tick: number): Promise<UqJob> {
         let runner = await this.getRunnerFromDbName(uqDbName);
         if (runner === undefined) return undefined;
-        let dbName = runner.getDb();
+        let dbName = runner.name;
         if (this.shouldUqJob(dbName) === false) return undefined;
         await runner.setCompileTick(compile_tick);
         let uqJob = new UqJob(runner);

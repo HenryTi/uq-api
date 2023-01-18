@@ -202,15 +202,4 @@ export class BuildRunner extends Runner {
         let ret = await this.db.tablesFromProc(proc, p);
         return ret;
     }
-    /*
-    async start(unit: number, user: number): Promise<void> {
-        return await this.unitUserCall('$start', unit, user);
-    }
-    */
-    async createResDb(resDbName: string): Promise<void> {
-        await this.db.createResDb(resDbName);
-    }
-    async create$UqDb(): Promise<void> {
-        await this.db.create$UqDb();
-    }
 }

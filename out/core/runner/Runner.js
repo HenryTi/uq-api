@@ -15,7 +15,7 @@ class Runner {
     constructor(db) {
         this.db = db;
     }
-    getDb() { return this.db.getDbName(); }
+    // getDb(): string { return this.db.getDbName() }
     syncCenterUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             let user = yield centerApi_1.centerApi.userFromId(userId);

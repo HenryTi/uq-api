@@ -43,7 +43,7 @@ export function buildUnitxRouter(rb: RouterWebBuilder): Router {
 
     let fetchBus = async (runner: EntityRunner, body: any): Promise<any[][]> => {
         let { unit, msgStart, defer, faces } = body;
-        let ret = await runner.unitUserTablesFromProc('tv_GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
+        let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
         return ret;
     }
     rb.post(router, '/fetch-bus', fetchBus);
@@ -51,7 +51,7 @@ export function buildUnitxRouter(rb: RouterWebBuilder): Router {
     let jointReadBus = async (runner: EntityRunner, body: any): Promise<any> => {
         let { unit, face, queue, defer } = body;
         if (queue === undefined) queue = busQueueSeed();
-        let ret = await runner.unitUserCall('tv_BusMessageFromQueue', unit, undefined, face, defer ?? 0, queue);
+        let ret = await runner.unitUserCall('BusMessageFromQueue', unit, undefined, face, defer ?? 0, queue);
         if (ret.length === 0) return;
         return ret[0];
     }

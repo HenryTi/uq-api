@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
 import * as config from 'config';
 import { logger } from '../../tool';
-import { Db, env, DbCaller } from '../dbCaller';
+import { createSqlFactory, SqlBuilder, SqlFactory } from '../SqlFactory';
+import { Db, env, DbCaller, $uqDb } from '../dbCaller';
 import { packReturns } from '../packReturn';
 import { ImportData } from '../importData';
 import {
@@ -11,7 +12,6 @@ import {
 import { Net } from '../net';
 import { centerApi } from '../centerApi';
 import { BusFace, BusFaceAccept, BusFaceQuery } from './BusFace';
-import { IDRunner } from './IDRunner';
 import { Runner } from './Runner';
 
 interface EntityAccess {
@@ -62,12 +62,14 @@ export class EntityRunner extends Runner {
     private sheetRuns: { [sheet: string]: SheetRun };
     private readonly modifyMaxes: { [unit: number]: number };
     private readonly roleVersions: { [unit: number]: { [app: number]: { version: number, tick: number } } } = {};
+    private readonly $uqDb: Db;
     private ixOfUsers: string;
     private compileTick: number = 0;
 
-    readonly IDRunner: IDRunner;
+    // readonly IDRunner: IDRunner;
+    readonly sqlFactory: SqlFactory
+    readonly name: string;
     schemas: { [entity: string]: { type: string; from: string; call: any; run: any; } };
-    name: string;
     uqOwner: string;
     uq: string;
     author: string;
@@ -98,16 +100,28 @@ export class EntityRunner extends Runner {
      * @param db 
      * @param net 
      */
-    constructor(name: string, db: Db, net: Net = undefined) {
+    constructor(db: Db, net: Net = undefined) {
         super(db);
-        this.name = name;
         this.net = net;
         this.modifyMaxes = {};
         this.dbCaller = db.dbCaller;
-        this.IDRunner = new IDRunner(this, this.dbCaller);
+        this.name = db.getDbName();
+        // this.IDRunner = new IDRunner(this, new Builder(), this.dbCaller);
+        this.sqlFactory = createSqlFactory({
+            getTableSchema: this.getTableSchema,
+            sqlType: env.sqlType,
+            dbName: this.name,
+            hasUnit: false,
+            twProfix: this.dbCaller.twProfix,
+        });
+        this.$uqDb = $uqDb;
     }
 
-    getDb(): string { return this.db.getDbName() }
+    private getTableSchema = (lowerName: string): any => {
+        return this.schemas[lowerName]?.call;
+    }
+
+    // getDb(): string { return this.db.getDbName() }
 
     async reset() {
         this.isCompiling = false;
@@ -126,6 +140,10 @@ export class EntityRunner extends Runner {
         if (this.compileTick === compileTick) return;
         this.compileTick = compileTick;
         await this.reset();
+    }
+
+    async IDSql(unit: number, user: number, sqlBuilder: SqlBuilder<any>) {
+
     }
 
     getEntityNameList() {
@@ -266,11 +284,36 @@ export class EntityRunner extends Runner {
         }
     }
     async log(unit: number, subject: string, content: string): Promise<void> {
-        await this.db.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
+        // await this.$uqDb.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
+        const uq = this.net.getUqFullName(this.uq);
+        await this.$uqDb.call('log', [unit, uq, subject, content]);
     }
     async logError(unit: number, subject: string, content: string): Promise<void> {
-        await this.db.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
+        //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
+        const uq = this.net.getUqFullName(this.uq);
+        await this.$uqDb.call('log_error', [unit, uq, subject, content]);
     }
+    /*
+        async uqLog(unit: number, uq: string, subject: string, content: string): Promise<void> {
+            return await this.dbCaller.call('$uq', 'log', [unit, uq, subject, content]);
+        }
+        async uqLogError(unit: number, uq: string, subject: string, content: string): Promise<void> {
+            return await this.dbCaller.call('$uq', 'log_error', [unit, uq, subject, content]);
+        }
+        async logPerformance(tick: number, log: string, ms: number): Promise<void> {
+            try {
+                await this.dbCaller.call('$uq', 'performance', [tick, log, ms]);
+            }
+            catch (err) {
+                logger.error(err);
+                let { message, sqlMessage } = err;
+                let msg = '';
+                if (message) msg += message;
+                if (sqlMessage) msg += ' ' + sqlMessage;
+                await this.dbCaller.call('$uq', 'performance', [Date.now(), msg, 0]);
+            }
+        }
+    */
     async procCall(proc: string, params: any[]): Promise<any> {
         return await this.db.call(proc, params);
     }
@@ -351,23 +394,12 @@ export class EntityRunner extends Runner {
     async buildProc(proc: string): Promise<void> {
     }
 
-    isExistsProcInDb(proc: string): boolean {
-        return this.db.isExistsProcInDb(proc);
+    isExistsProc(proc: string): boolean {
+        return this.db.isExistsProc(proc);
     }
 
-    async createProcInDb(proc: string) {
-        await this.db.createProcInDb(proc);
-    }
-    /*
-    async start(unit: number, user: number): Promise<void> {
-        return await this.unitUserCall('$start', unit, user);
-    }
-    */
-    async createResDb(resDbName: string): Promise<void> {
-        await this.db.createResDb(resDbName);
-    }
-    async create$UqDb(): Promise<void> {
-        await this.db.create$UqDb();
+    async createProc(proc: string) {
+        await this.db.createProc(proc);
     }
 
     /**
@@ -757,7 +789,7 @@ export class EntityRunner extends Runner {
         this.service = setting['service'] as number;
         this.devBuildSys = setting['dev-build-sys'] as string !== null;
         this.dbCaller.hasUnit = this.hasUnit;
-        this.dbCaller.setBuilder();
+        // this.dbCaller.setBuilder();
         let ixUserArr = [];
 
         let uu = setting['uniqueunit'] as number;

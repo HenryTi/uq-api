@@ -35,13 +35,13 @@ function actionReturns(unit, user, name, db, urlParams, runner, body, schema, ru
         tool_1.logger.debug('action process param: ', data);
         let { proxy, auth } = schema;
         if (auth !== undefined) {
-            if (runner.isExistsProcInDb(auth) === false) {
-                yield runner.createProcInDb(auth);
+            if (runner.isExistsProc(auth) === false) {
+                yield runner.createProc(auth);
             }
         }
         if (proxy !== undefined) {
-            if (runner.isExistsProcInDb(proxy) === false) {
-                yield runner.createProcInDb(proxy);
+            if (runner.isExistsProc(proxy) === false) {
+                yield runner.createProc(proxy);
             }
             let result = yield runner.actionProxy(name, unit, user, body.$$user, data);
             return result;

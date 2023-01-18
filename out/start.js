@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.start = exports.init = exports.debug_change = void 0;
 const express = require("express");
 const express_1 = require("express");
-const config = require("config");
 const tool_1 = require("./tool");
 const res_1 = require("./res");
 const core_1 = require("./core");
@@ -39,8 +38,9 @@ function init() {
             }
             tool_1.logger.debug('process.env.NODE_ENV: ', process.env.NODE_ENV);
             //let connection = config.get<any>("connection");
-            let connection = core_1.env.getConnection();
-            if (connection === undefined || connection.host === '0.0.0.0') {
+            //let connection = env.connection;
+            //if (connection === undefined || connection.host === '0.0.0.0') {
+            if (core_1.env.connection === null) {
                 tool_1.logger.debug("mysql connection must defined in config/default.json or config/production.json");
                 return;
             }
@@ -89,11 +89,12 @@ function init() {
             app.use('/uq/test/:db/', buildUqRouter(router_1.uqTestRouterBuilder, router_1.compileTestRouterBuilder));
             app.use('/uq/unitx-prod/', (0, router_1.buildUnitxRouter)(router_1.unitxProdRouterBuilder));
             app.use('/uq/unitx-test/', (0, router_1.buildUnitxRouter)(router_1.unitxTestRouterBuilder));
+            yield (0, core_1.dbStart)();
             yield Promise.all([
-                (0, res_1.createResDb)(),
+                (0, res_1.create$ResDb)(),
                 (0, core_1.create$UqDb)()
             ]);
-            let port = config.get('port');
+            let { port, localPort, connection } = core_1.env;
             app.listen(port, () => __awaiter(this, void 0, void 0, function* () {
                 tool_1.logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
                 let { host, user } = connection;
@@ -101,7 +102,6 @@ function init() {
                 tool_1.logger.debug('Tonwa uq-api started!');
             }));
             let localApp = express();
-            let localPort = config.get('local-port');
             if (localPort) {
                 localApp.use('/hello', dbHello);
                 localApp.use('/prod/:db/', buildLocalRouter(router_1.uqProdRouterLocalBuilder));
@@ -166,7 +166,7 @@ function dbHello(req, res) {
         let text = 'uq-api: hello';
         if (db)
             text += ', db is ' + db;
-        let uqs = yield core_1.Db.db(core_1.consts.$uq).uqDbs();
+        let uqs = yield core_1.$uqDb.uqDbs();
         res.json({
             "hello": text,
             uqs
