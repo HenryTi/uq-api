@@ -30,7 +30,7 @@ Object.defineProperty(exports, "Fetch", { enumerable: true, get: function () { r
 __exportStar(require("./consts"), exports);
 __exportStar(require("./busQueueSeed"), exports);
 __exportStar(require("./runner"), exports);
-__exportStar(require("./dbCaller"), exports);
+__exportStar(require("./db"), exports);
 __exportStar(require("./model"), exports);
 __exportStar(require("./net"), exports);
 __exportStar(require("./getUrlDebug"), exports);

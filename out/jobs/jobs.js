@@ -18,8 +18,9 @@ const queueIn_1 = require("./queueIn");
 // import { QueueOut } from './queueOut';
 // import { execQueueAct } from './execQueueAct';
 const uqJob_1 = require("./uqJob");
-const firstRun = core_1.env.isDevelopment === true ? 3000 : 10 * 1000;
-const runGap = core_1.env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
+const core_2 = require("../core");
+const firstRun = tool_1.env.isDevelopment === true ? 3000 : 10 * 1000;
+const runGap = tool_1.env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
 const waitForOtherStopJobs = 1 * 1000; // 等1分钟，等其它服务器uq-api停止jobs
 const $test = '$test';
 const uqsInclude = [
@@ -44,7 +45,7 @@ class Jobs {
      */
     constructor() {
         this.loopWait = true;
-        this.$uqDb = core_1.$uqDb;
+        this.$uqDbContainer = core_2.dbs.db$Uq; //.$uqDbContainer;
         this.uqs = {};
     }
     sleep(ms) {
@@ -54,17 +55,17 @@ class Jobs {
     }
     beforeRun() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (core_1.env.isDevelopment === true) {
+            if (tool_1.env.isDevelopment === true) {
                 // 只有在开发状态下，才可以屏蔽jobs        
                 // logger.debug('jobs loop: developing, no loop!');
                 // return;
-                if (core_1.env.isDevdo === true)
+                if (tool_1.env.isDevdo === true)
                     return;
                 tool_1.logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
-                yield this.$uqDb.setDebugJobs();
+                yield this.$uqDbContainer.setDebugJobs();
                 tool_1.logger.debug('========= set debugging jobs =========');
                 yield this.sleep(waitForOtherStopJobs);
-                let uqDbNames = core_1.env.configDebugging.uqs;
+                let uqDbNames = tool_1.env.configDebugging.uqs;
                 yield this.debugUqJobs(uqDbNames);
             }
             else {
@@ -114,7 +115,7 @@ class Jobs {
      */
     run() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.$uqDb.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
+            this.$uqDbContainer.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
             yield this.beforeRun();
             tool_1.logger.debug('\n');
             tool_1.logger.debug('\n');
@@ -148,7 +149,7 @@ class Jobs {
                                 break;
                         }
                     }
-                    yield this.$uqDb.uqLogError(0, '$uid', '$jobs loop error', errText);
+                    yield this.$uqDbContainer.uqLogError(0, '$uid', '$jobs loop error', errText);
                 }
                 finally {
                     if (this.loopWait === true) {
@@ -180,7 +181,7 @@ class Jobs {
         return __awaiter(this, void 0, void 0, function* () {
             let totalCount = 0;
             try {
-                let uqs = yield this.$uqDb.uqDbs();
+                let uqs = yield core_2.dbs.db$Uq.uqDbs();
                 if (uqs.length === 0) {
                     tool_1.logger.error('debugging_jobs=yes, stop jobs loop');
                     return;
@@ -204,8 +205,8 @@ class Jobs {
                     let uqJob = yield this.createUqJob(uqDbName, compile_tick);
                     if (uqJob === undefined)
                         continue;
-                    if (core_1.env.isDevelopment === true) {
-                        yield this.$uqDb.setDebugJobs();
+                    if (tool_1.env.isDevelopment === true) {
+                        yield this.$uqDbContainer.setDebugJobs();
                         tool_1.logger.info('========= set debugging jobs =========');
                     }
                     now = Date.now();
@@ -218,7 +219,7 @@ class Jobs {
                         uq.errorTick = now;
                         continue;
                     }
-                    yield this.$uqDb.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
+                    yield this.$uqDbContainer.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
                     totalCount += doneRows;
                     uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
                 }
@@ -246,7 +247,7 @@ class Jobs {
                             break;
                     }
                 }
-                yield this.$uqDb.uqLog(0, '$jobs', '$jobs loop error', errText);
+                yield this.$uqDbContainer.uqLog(0, '$jobs', '$jobs loop error', errText);
             }
             finally {
                 if (this.loopWait === true) {
@@ -254,7 +255,7 @@ class Jobs {
                         // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                         // 执行这个sleep的时候，出现问题，从而跳出loop
                         if (totalCount === 0) {
-                            yield this.$uqDb.uqLog(0, '$uid', 'No jobs to do', `sleep for ${runGap}ms`);
+                            yield this.$uqDbContainer.uqLog(0, '$uid', 'No jobs to do', `sleep for ${runGap}ms`);
                             yield this.sleep(runGap);
                         }
                     }
@@ -276,7 +277,7 @@ class Jobs {
             let runner = yield this.getRunnerFromDbName(uqDbName);
             if (runner === undefined)
                 return undefined;
-            let dbName = runner.name;
+            let dbName = runner.dbName;
             if (this.shouldUqJob(dbName) === false)
                 return undefined;
             yield runner.setCompileTick(compile_tick);

@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { logger } from '../../tool';
 import { centerApi } from '../centerApi';
 import { Runner } from './Runner';
@@ -7,9 +6,9 @@ export class BuildRunner extends Runner {
     private readonly setting: { [name: string]: any } = {};
 
     async initSetting(): Promise<void> {
-        await this.db.call('$init_setting', []);
-        let updateCompileTick = `update $uq.uq set compile_tick=unix_timestamp() where name='${this.db.getDbName()}'`;
-        await this.db.sql(updateCompileTick, undefined);
+        await this.dbUq.call('$init_setting', []);
+        let updateCompileTick = `update $uq.uq set compile_tick=unix_timestamp() where name='${this.dbUq.name}'`;
+        await this.dbUq.sql(updateCompileTick, undefined);
     }
     async setSetting(unit: number, name: string, value: string): Promise<void> {
         name = name.toLowerCase();
@@ -40,14 +39,14 @@ export class BuildRunner extends Runner {
         return ret[0];
     }
     async setUqOwner(userId: number): Promise<boolean> {
-        let ret = await this.db.call('$setUqOwner', [userId]);
+        let ret = await this.dbUq.call('$setUqOwner', [userId]);
         return ret.length > 0;
     }
     async setUnitAdmin(unitAdmin: { unit: number, admin: number }[]) {
         try {
             for (let ua of unitAdmin) {
                 let { unit, admin } = ua;
-                await this.db.call('$set_unit_admin', [unit, admin]);
+                await this.dbUq.call('$set_unit_admin', [unit, admin]);
             }
         }
         catch (err) {
@@ -57,17 +56,17 @@ export class BuildRunner extends Runner {
 
     // type: 1=prod, 2=test
     async refreshIDSection(service: number) {
-        let tbl = await this.db.tableFromProc('$id_section_get', []);
+        let tbl = await this.dbUq.tableFromProc('$id_section_get', []);
         let { section, sectionCount } = tbl[0];
         if (sectionCount <= 0 || sectionCount > 8) {
             return;
         }
-        let type: 1 | 2 = this.db.isTesting === true ? 2 : 1;
+        let type: 1 | 2 = this.net.isTesting === true ? 2 : 1;
         let ret = await centerApi.IDSectionApply(service, type, section, sectionCount);
         if (ret) {
             let { start, end, section_max, service_max } = ret;
             if (start) {
-                await this.db.call('$id_section_set', [start, end - start]);
+                await this.dbUq.call('$id_section_set', [start, end - start]);
             }
             else {
                 let err = `ID Section unmatch: here_max:${section_max} center_max here: ${service_max}`;
@@ -79,7 +78,7 @@ export class BuildRunner extends Runner {
 
     async sql(sql: string, params: any[]): Promise<any> {
         try {
-            return await this.db.sql(sql, params || []);
+            return await this.dbUq.sql(sql, params || []);
         }
         catch (err) {
             debugger;
@@ -88,7 +87,7 @@ export class BuildRunner extends Runner {
     }
     async procSql(procName: string, procSql: string): Promise<any> {
         try {
-            return await this.db.sqlProc(procName, procSql);
+            return await this.dbUq.uqProc(procName, procSql);
         }
         catch (err) {
             debugger;
@@ -97,8 +96,8 @@ export class BuildRunner extends Runner {
     }
     async procCoreSql(procName: string, procSql: string, isFunc: boolean): Promise<any> {
         try {
-            await this.db.sqlProc(procName, procSql);
-            await this.db.buildProc(procName, procSql, isFunc);
+            await this.dbUq.uqProc(procName, procSql);
+            await this.dbUq.buildUqProc(procName, procSql, isFunc);
         }
         catch (err) {
             debugger;
@@ -106,36 +105,36 @@ export class BuildRunner extends Runner {
         }
     }
     async buildProc(proc: string): Promise<any> {
-        await this.db.buildRealProcFrom$ProcTable(proc);
+        await this.dbUq.buildUqRealProcFrom$ProcTable(proc);
     }
     async procCall(proc: string, params: any[]): Promise<any> {
-        return await this.db.call(proc, params);
+        return await this.dbUq.call(proc, params);
     }
     async call(proc: string, params: any[]): Promise<any> {
-        return await this.db.call(proc, params);
+        return await this.dbUq.call(proc, params);
     }
 
     async buildDatabase(): Promise<boolean> {
-        let ret = await this.db.buildDatabase();
-        await this.db.createProcObjs();
+        let ret = await this.dbUq.buildDatabase();
+        await this.dbUq.createProcObjs();
         return ret;
     }
     async createDatabase(): Promise<void> {
-        let ret = await this.db.createDatabase();
-        await this.db.createProcObjs();
+        let ret = await this.dbUq.createDatabase();
+        await this.dbUq.createProcObjs();
         return ret;
     }
     async existsDatabase(): Promise<boolean> {
-        return await this.db.exists();
+        return await this.dbUq.existsDatabase();
     }
     async buildTuidAutoId(): Promise<void> {
-        await this.db.buildTuidAutoId();
+        await this.dbUq.buildTuidAutoId();
     }
     async tableFromProc(proc: string, params: any[]): Promise<any[]> {
-        return await this.db.tableFromProc(proc, params);
+        return await this.dbUq.tableFromProc(proc, params);
     }
     async tablesFromProc(proc: string, params: any[]): Promise<any[][]> {
-        let ret = await this.db.tablesFromProc(proc, params);
+        let ret = await this.dbUq.tablesFromProc(proc, params);
         let len = ret.length;
         if (len === 0) return ret;
         let pl = ret[len - 1];
@@ -147,7 +146,7 @@ export class BuildRunner extends Runner {
         //if (this.hasUnit === true) 
         p.push(unit);
         if (params !== undefined) p.push(...params);
-        return await this.db.call(proc, p);
+        return await this.dbUq.call(proc, p);
     }
     async unitUserCall(proc: string, unit: number, user: number, ...params: any[]): Promise<any> {
         let p: any[] = [];
@@ -155,7 +154,7 @@ export class BuildRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        return await this.db.call(proc, p);
+        return await this.dbUq.call(proc, p);
     }
 
     private async unitUserCallEx(proc: string, unit: number, user: number, ...params: any[]): Promise<any> {
@@ -164,7 +163,7 @@ export class BuildRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        return await this.db.callEx(proc, p);
+        return await this.dbUq.callEx(proc, p);
     }
 
     async unitTableFromProc(proc: string, unit: number, ...params: any[]): Promise<any[]> {
@@ -172,7 +171,7 @@ export class BuildRunner extends Runner {
         //if (this.hasUnit === true) 
         p.push(unit);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tableFromProc(proc, p);
+        let ret = await this.dbUq.tableFromProc(proc, p);
         return ret;
     }
     async unitUserTableFromProc(proc: string, unit: number, user: number, ...params: any[]): Promise<any[]> {
@@ -181,7 +180,7 @@ export class BuildRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tableFromProc(proc, p);
+        let ret = await this.dbUq.tableFromProc(proc, p);
         return ret;
     }
 
@@ -190,7 +189,7 @@ export class BuildRunner extends Runner {
         //if (this.hasUnit === true) 
         p.push(unit);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tablesFromProc(proc, p);
+        let ret = await this.dbUq.tablesFromProc(proc, p);
         return ret;
     }
     async unitUserTablesFromProc(proc: string, unit: number, user: number, ...params: any[]): Promise<any[][]> {
@@ -199,7 +198,7 @@ export class BuildRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tablesFromProc(proc, p);
+        let ret = await this.dbUq.tablesFromProc(proc, p);
         return ret;
     }
 }

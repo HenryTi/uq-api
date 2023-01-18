@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlKeyIDSum = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
-class SqlKeyIDSum extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+const SqlIDSum_1 = require("./SqlIDSum");
+class SqlKeyIDSum extends SqlIDSum_1.SqlSum {
+    convertParam(p) {
+        return this.checkIDXSumField(p);
     }
     build() {
         let { ID, key, page } = this.param;

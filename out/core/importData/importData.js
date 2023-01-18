@@ -135,8 +135,8 @@ class ImportData {
             let f = line[i];
             let pos = f.indexOf('@');
             if (pos > 0) {
-                let p0 = f.substr(0, pos);
-                let p1 = f.substr(pos + 1);
+                let p0 = f.substring(0, pos);
+                let p1 = f.substring(pos + 1);
                 header[p0] = i;
                 divOwner.push({ div: p0, owner: p1 });
             }
@@ -147,7 +147,7 @@ class ImportData {
         for (let i = 0; i < divOwner.length; i++) {
             let { div, owner } = divOwner[i];
             if (owner[0] === '/') {
-                owner = owner.substr(1);
+                owner = owner.substring(1);
             }
             let ownerIndex = header[owner];
             if (ownerIndex === undefined) {

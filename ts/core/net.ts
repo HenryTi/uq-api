@@ -1,12 +1,12 @@
-import { logger } from '../tool';
+import { env, logger } from '../tool';
 import { EntityRunner } from "./runner";
-import { Db, env } from "./dbCaller";
+import { Db, dbs, DbUq } from "./db";
 import { OpenApi } from "./openApi";
 import { centerApi } from "./centerApi";
 import { Message } from "./model";
 import { getUrlDebug } from "./getUrlDebug";
 import { Unitx, UnitxProd, UnitxTest } from "./unitx";
-import { getDb } from './dbCaller';
+import { consts } from './consts';
 
 export abstract class Net {
     private readonly id: string;
@@ -21,7 +21,7 @@ export abstract class Net {
     }
 
     protected abstract createUnitx(): Unitx;
-    protected abstract get isTesting(): boolean;
+    abstract get isTesting(): boolean;
     abstract getUqFullName(uq: string): string;
 
     /**
@@ -34,10 +34,9 @@ export abstract class Net {
         let runner = this.runners[name];
         if (runner === null) return;
         if (runner === undefined) {
-            let dbName = this.getDbName(name);
-            let db = getDb(dbName);
-            db.isTesting = this.isTesting;
-            runner = await this.createRunnerFromDb(db);
+            // let db = getDbContainer(dbName);
+            // db.isTesting = this.isTesting;
+            runner = await this.createRunnerFromDbName(name);
             if (runner === undefined) {
                 this.runners[name] = null;
                 return;
@@ -81,17 +80,17 @@ export abstract class Net {
         for (let runner of runners) {
             await runner.buildTuidAutoId();
             await this.resetRunner(runner);
-            logger.error('=== resetRunnerAfterCompile: ' + runner.name);
+            logger.error('=== resetRunnerAfterCompile: ' + runner.dbName);
         }
 
         if (this.executingNet !== undefined) {
             this.executingNet.resetRunnerAfterCompile(db);
-            logger.error('=== executingNet resetRunnerAfterCompile: ' + db.getDbName());
+            logger.error('=== executingNet resetRunnerAfterCompile: ' + db.name);
         }
     }
 
     private async resetRunner(runner: EntityRunner) {
-        let runnerName = runner.name;
+        let runnerName = runner.dbName;
         for (let i in this.runners) {
             if (i !== runnerName) continue;
             let runner = this.runners[i];
@@ -104,12 +103,12 @@ export abstract class Net {
     }
 
     async getUnitxRunner(): Promise<EntityRunner> {
-        let name = '$unitx';
+        let name = consts.$unitx;
         let $name = '$' + name;
         let runner = this.runners[$name];
         if (runner === null) return;
         if (runner === undefined) {
-            runner = await this.createRunnerFromDb(this.unitx.db);
+            runner = await this.createRunnerFromDbName(name);
             if (runner === undefined) {
                 this.runners[$name] = null;
                 return;
@@ -129,39 +128,45 @@ export abstract class Net {
 
     /**
      * 
-     * @param name uq(即数据库)的名称
+     * @param dbName uq(即数据库)的名称
      * @param db 
      * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等) 
      */
-    protected async createRunnerFromDb(db: Db): Promise<EntityRunner> {
-        let name = db.getDbName();
+    protected async createRunnerFromDbName(name: string): Promise<EntityRunner> {
+        let dbName = this.getDbName(name);
+        let db = dbs.getDbUq(dbName);
+        return await this.createRunnerFromDb(db);
+    }
+
+    protected async createRunnerFromDb(db: DbUq): Promise<EntityRunner> {
         return await new Promise<EntityRunner>(async (resolve, reject) => {
-            let promiseArr = this.createRunnerFromDbPromises[name];
+            const dbName = db.name;
+            let promiseArr = this.createRunnerFromDbPromises[dbName];
             if (promiseArr !== undefined) {
                 promiseArr.push({ resolve, reject });
                 return undefined;
             }
-            this.createRunnerFromDbPromises[name] = promiseArr = [{ resolve, reject }];
+            this.createRunnerFromDbPromises[dbName] = promiseArr = [{ resolve, reject }];
             let runner: EntityRunner;
             try {
-                let isExists = await db.exists();
+                let isExists = await db.existsDatabase();
                 if (isExists === false) {
                     runner = undefined;
                 }
                 else {
-                    await db.init();
+                    await db.initLoad();
                     runner = new EntityRunner(db, this);
                 }
-                for (let promiseItem of this.createRunnerFromDbPromises[name]) {
+                for (let promiseItem of this.createRunnerFromDbPromises[dbName]) {
                     promiseItem.resolve(runner);
                 }
-                this.createRunnerFromDbPromises[name] = undefined;
+                this.createRunnerFromDbPromises[dbName] = undefined;
             }
             catch (reason) {
-                for (let promiseItem of this.createRunnerFromDbPromises[name]) {
+                for (let promiseItem of this.createRunnerFromDbPromises[dbName]) {
                     promiseItem.reject(reason);
                 }
-                this.createRunnerFromDbPromises[name] = undefined;
+                this.createRunnerFromDbPromises[dbName] = undefined;
             }
             return runner;
         });
@@ -284,7 +289,7 @@ export abstract class Net {
 
 class ProdNet extends Net {
     protected createUnitx(): Unitx { return new UnitxProd(); }
-    protected get isTesting(): boolean { return false; }
+    get isTesting(): boolean { return false; }
     getDbName(name: string): string { return name }
     getUqFullName(uq: string): string { return uq }
     protected getUrl(db: string, url: string): string {
@@ -295,7 +300,7 @@ class ProdNet extends Net {
 
 class TestNet extends Net {
     protected createUnitx(): Unitx { return new UnitxTest(); }
-    protected get isTesting(): boolean { return true; }
+    get isTesting(): boolean { return true; }
     getDbName(name: string): string { return name + '$test' }
     getUqFullName(uq: string): string { return uq + '$test' }
     protected getUrl(db: string, url: string): string {

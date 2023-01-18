@@ -1,7 +1,7 @@
 import { logger } from '../tool';
-import { EntityRunner, centerApi, SheetQueueData, BusMessage, env } from "../core";
+import { EntityRunner, centerApi, SheetQueueData, BusMessage } from "../core";
 import { constDeferMax, constQueueSizeArr, Finish } from "./consts";
-import { getErrorString } from "../tool";
+import { getErrorString, env } from "../tool";
 import { getUserX } from "../core/unitx";
 
 const procMessageQueueSet = '$message_queue_set';

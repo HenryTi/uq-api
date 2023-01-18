@@ -3,9 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlIDNO = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlIDNO extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { ID } = p;
+        let param = Object.assign({}, p);
+        let types = ['id'];
+        param.ID = this.getTableSchema(ID, types);
+        return param;
     }
     build() {
         let { ID, stamp } = this.param;

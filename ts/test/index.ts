@@ -6,11 +6,11 @@ import fetch from "node-fetch";
 
 const $test = '$test';
 
-(async function() {
+(async function () {
     //process.env.NODE_ENV = 'developement';
     //let runner = await testNet.getUnitxRunner();
     //await writeDataToBus(runner, 'test', 24, 'a', 101, 8, '{a:1}');
-    
+
     await init();
 
     let res = await fetch('http://localhost:3015/uq/unitx-test/joint-read-bus', {
@@ -20,8 +20,8 @@ const $test = '$test';
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            unit:24,
-            face: '百灵威系统工程部/WebUser/WebUser', 
+            unit: 24,
+            face: '百灵威系统工程部/WebUser/WebUser',
             queue: 434898000000023
         })
     });
@@ -39,7 +39,7 @@ const $test = '$test';
     let net:Net;
     let dbName:string;;
     if (uqDb.endsWith($test) === true) {
-        dbName = uqDb.substr(0, uqDb.length - $test.length);
+        dbName = uqDb.substring(0, uqDb.length - $test.length);
         net = testNet;
     }
     else {

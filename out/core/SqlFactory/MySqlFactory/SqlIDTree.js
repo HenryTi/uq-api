@@ -3,9 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlIDTree = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlIDTree extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { ID } = p;
+        let param = Object.assign({}, p);
+        param.ID = this.getTableSchema(ID, ['id']);
+        return param;
     }
     build() {
         let { ID, parent, key, level, page } = this.param;

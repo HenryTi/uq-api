@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UnitxTest = exports.UnitxProd = exports.Unitx = void 0;
+const db_1 = require("core/db");
 const tool_1 = require("../../tool");
 const centerApi_1 = require("../centerApi");
-const consts_1 = require("../consts");
-const db_1 = require("../dbCaller/db");
+// import { UnitxDbContainer, UnitxProdDbContainer, UnitxTestDbContainer } from '../db/UnitxDbContainer';
 const getUrlDebug_1 = require("../getUrlDebug");
 const unitxApi_1 = require("./unitxApi");
 /*
@@ -94,7 +94,7 @@ class Unitx {
                 return undefined;
             }
             let { url, server, create } = uus;
-            if (db_1.env.isDevelopment === true) {
+            if (tool_1.env.isDevelopment === true) {
                 if (Number(server) === this.db.serverId) {
                     let urlDebug = yield (0, getUrlDebug_1.getUrlDebug)();
                     if (urlDebug !== undefined)
@@ -143,8 +143,9 @@ class Unitx {
 exports.Unitx = Unitx;
 class UnitxProd extends Unitx {
     createDb() {
-        let dbName = consts_1.consts.$unitx;
-        return new db_1.UnitxProdDb(dbName);
+        return db_1.dbs.db$UnitxProd;
+        // let dbName = consts.$unitx;
+        // return new UnitxProdDbContainer(dbName)
     }
     unitxUrl(url) { return url + 'uq/unitx-prod/'; }
     ;
@@ -156,8 +157,9 @@ class UnitxProd extends Unitx {
 exports.UnitxProd = UnitxProd;
 class UnitxTest extends Unitx {
     createDb() {
-        let dbName = consts_1.consts.$unitx + '$test';
-        return new db_1.UnitxTestDb(dbName);
+        return db_1.dbs.db$UnitxProd;
+        //let dbName = consts.$unitx + '$test';
+        //return new UnitxTestDbContainer(dbName);
     }
     unitxUrl(url) { return url + 'uq/unitx-test/'; }
     ;

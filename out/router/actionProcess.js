@@ -55,7 +55,7 @@ function actionReturns(unit, user, name, db, urlParams, runner, body, schema, ru
 exports.actionReturns = actionReturns;
 function actionConvert(unit, user, entityName, db, urlParams, runner, body, schema, run) {
     return __awaiter(this, void 0, void 0, function* () {
-        let data = _.clone(body.data);
+        let data = Object.assign({}, body.data);
         let { paramConvert, returns } = schema;
         let actionConvertSchema;
         if (paramConvert !== undefined) {

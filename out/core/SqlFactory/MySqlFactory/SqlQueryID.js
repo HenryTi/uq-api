@@ -3,14 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlQueryID = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlQueryID extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
+    constructor() {
+        super(...arguments);
         this.cols = '';
         this.tables = [];
         this.wheres = [];
         this.order = '';
         this.limit = '';
-        this.param = this.convertParam(param);
+    }
+    convertParam(p) {
+        let { ID, IDX, IX } = p;
+        let param = Object.assign({}, p);
+        param.ID = this.getTableSchema(ID, ['id']);
+        param.IDX = this.getTableSchemaArray(IDX, ['id', 'idx']);
+        param.IX = this.getTableSchemaArray(IX, ['ix']);
+        return param;
     }
     build() {
         //let {ID, IX, IDX, id, key, ix, page, order} = this.param;
@@ -128,10 +135,10 @@ class SqlQueryID extends MySqlBuilder_1.MySqlBuilder {
                     fieldRight: 'ix',
                 }
                 :
-                {
-                    fieldLeft: 'ix',
-                    fieldRight: 'xi',
-                })));
+                    {
+                        fieldLeft: 'ix',
+                        fieldRight: 'xi',
+                    })));
             ++this.t;
         }
     }

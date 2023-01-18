@@ -3,9 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlIXValues = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlIXValues extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { IX } = p;
+        let param = Object.assign({}, p);
+        param.IX = this.getTableSchema(IX, ['ix']);
+        return param;
     }
     build() {
         let { IX, ix, page, order } = this.param;
@@ -38,7 +40,7 @@ class SqlIXValues extends MySqlBuilder_1.MySqlBuilder {
         ];
         //let sql = `call ${this.dbName}.${this.twProfix}$ix_values(@unit, @user, '${IX.name}', '${xiType}', ${ix}, ${tStart}, ${tSize}, '${order}' )`;
         this.proc = proc;
-        this.params = callParams;
+        this.procParameters = callParams;
     }
 }
 exports.SqlIXValues = SqlIXValues;

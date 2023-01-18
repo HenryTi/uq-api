@@ -22,7 +22,7 @@ function buildAccessRouter(router, rb) {
                 if (accs.length === 1 && accs[0].trim().length === 0)
                     accs = undefined;
             }
-            tool_1.logger.debug('getAccesses: ' + runner.name);
+            tool_1.logger.debug('getAccesses: ' + runner.dbName);
             let access = yield runner.getAccesses(unit, user, accs);
             return access;
         }

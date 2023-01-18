@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildImportRouter = void 0;
 const fs = require("fs");
-const config = require("config");
 const multer = require("multer");
+const tool_1 = require("../tool");
 function buildImportRouter(router, rb) {
     router.post('/import/', (req, res) => __awaiter(this, void 0, void 0, function* () {
         let userToken = req.user;
@@ -44,7 +44,7 @@ function buildImportRouter(router, rb) {
                     return;
                 }
                 try {
-                    let parseResult = yield eachUploadSourceFile(uploadPath, req.files, (fileContent, file) => {
+                    let parseResult = yield eachUploadSourceFile(tool_1.env.uploadPath, req.files, (fileContent, file) => {
                         try {
                             res.write('parsing ' + file + '\r\n');
                             res.write(fileContent);
@@ -67,9 +67,8 @@ function buildImportRouter(router, rb) {
     }));
 }
 exports.buildImportRouter = buildImportRouter;
-const uploadPath = config.get("uploadPath");
 var upload = (function () {
-    return multer({ dest: uploadPath });
+    return multer({ dest: tool_1.env.uploadPath });
 })();
 /*
 async function uploadImport(req:Request, res:Response) {

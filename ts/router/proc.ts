@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Db, BuildRunner, getDb } from "../core";
+import { BuildRunner } from "../core";
 
 export function buildProcRouter() {
     const router: Router = Router({ mergeParams: true });
@@ -9,7 +9,7 @@ export function buildProcRouter() {
 
         async function buildProc(dbName: string): Promise<any> {
             try {
-                let db = getDb(dbName);
+                let db = getDbContainer(dbName);
                 let runner = new BuildRunner(db);
                 await runner.buildProc(proc);
                 return;

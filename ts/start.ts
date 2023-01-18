@@ -1,8 +1,8 @@
 import * as express from 'express';
 import { Request, Response, NextFunction, Router } from 'express';
-import { logger } from './tool';
-import { create$ResDb, router as resRouter, initResPath } from './res';
-import { $uqDb, authCheck, authUnitx, consts, create$UqDb, Db, dbStart, env } from './core';
+import { env, logger } from './tool';
+import { router as resRouter, initResPath } from './res';
+import { authCheck, authUnitx, createDbs, dbs } from './core';
 import {
     buildOpenRouter, buildEntityRouter, buildUnitxRouter, buildBuildRouter,
     uqProdRouterBuilder, uqTestRouterBuilder,
@@ -13,6 +13,7 @@ import {
 import { authJoint, authUpBuild } from './core/auth';
 import { Jobs } from './jobs';
 import { buildProcRouter } from './router/proc';
+// import { create$UqDb, dbs } from './core/dbs';
 
 const { version: uq_api_version } = require('../package.json');
 
@@ -90,13 +91,14 @@ export async function init(): Promise<void> {
         app.use('/uq/unitx-prod/', buildUnitxRouter(unitxProdRouterBuilder));
         app.use('/uq/unitx-test/', buildUnitxRouter(unitxTestRouterBuilder));
 
-        await dbStart();
-
+        let dbs = createDbs();
+        await dbs.start();
+        /*
         await Promise.all([
             create$ResDb(),
             create$UqDb()
         ]);
-
+        */
         let { port, localPort, connection } = env;
         app.listen(port, async () => {
             logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
@@ -164,7 +166,7 @@ async function dbHello(req: Request, res: Response) {
     let { db } = req.params;
     let text = 'uq-api: hello';
     if (db) text += ', db is ' + db;
-    let uqs = await $uqDb.uqDbs();
+    let uqs = await dbs.db$Uq.uqDbs();
     res.json({
         "hello": text,
         uqs

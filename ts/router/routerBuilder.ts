@@ -109,7 +109,7 @@ export abstract class RouterBuilder {
     }
 
     protected unknownEntity(res: Response, name: string, runner: EntityRunner) {
-        res.json({ error: `uq:${runner.name} unknown entity ${name} all entities:${runner.getEntityNameList()}` });
+        res.json({ error: `uq:${runner.dbName} unknown entity ${name} all entities:${runner.getEntityNameList()}` });
     }
 
     protected validEntity(res: Response, schema: any, type: string): boolean {

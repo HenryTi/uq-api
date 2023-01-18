@@ -6,6 +6,7 @@ exports.consts = {
     $uq: '$uq',
     $res: '$res',
     $$$unitx: '$$$/$unitx',
+    $test: '$test',
     sheetMessage: 'sheetMessage',
     Face: 'Face',
     BusFrom: 'BusFrom',

@@ -3,9 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlActIX = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlActIX extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { IX, ID: ID, IXs, values } = p;
+        let ret = Object.assign({}, p);
+        ret.IX = this.getTableSchema(IX, ['ix']);
+        ret.ID = this.getTableSchema(ID, ['id']);
+        if (IXs) {
+            ret.IXs = IXs.map(v => {
+                let { IX, ix } = v;
+                return { IX: this.getTableSchema(IX, ['ix']), ix };
+            });
+        }
+        if (values) {
+            ret.values = values.map(v => this.buildValueTableSchema(v));
+        }
+        return ret;
     }
     build() {
         let { IX, ID, IXs, values } = this.param;

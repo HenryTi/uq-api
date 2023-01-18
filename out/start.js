@@ -19,6 +19,7 @@ const router_1 = require("./router");
 const auth_1 = require("./core/auth");
 const jobs_1 = require("./jobs");
 const proc_1 = require("./router/proc");
+// import { create$UqDb, dbs } from './core/dbs';
 const { version: uq_api_version } = require('../package.json');
 exports.debug_change = '1.0.8';
 function init() {
@@ -40,7 +41,7 @@ function init() {
             //let connection = config.get<any>("connection");
             //let connection = env.connection;
             //if (connection === undefined || connection.host === '0.0.0.0') {
-            if (core_1.env.connection === null) {
+            if (tool_1.env.connection === null) {
                 tool_1.logger.debug("mysql connection must defined in config/default.json or config/production.json");
                 return;
             }
@@ -89,12 +90,15 @@ function init() {
             app.use('/uq/test/:db/', buildUqRouter(router_1.uqTestRouterBuilder, router_1.compileTestRouterBuilder));
             app.use('/uq/unitx-prod/', (0, router_1.buildUnitxRouter)(router_1.unitxProdRouterBuilder));
             app.use('/uq/unitx-test/', (0, router_1.buildUnitxRouter)(router_1.unitxTestRouterBuilder));
-            yield (0, core_1.dbStart)();
-            yield Promise.all([
-                (0, res_1.create$ResDb)(),
-                (0, core_1.create$UqDb)()
+            let dbs = (0, core_1.createDbs)();
+            yield dbs.start();
+            /*
+            await Promise.all([
+                create$ResDb(),
+                create$UqDb()
             ]);
-            let { port, localPort, connection } = core_1.env;
+            */
+            let { port, localPort, connection } = tool_1.env;
             app.listen(port, () => __awaiter(this, void 0, void 0, function* () {
                 tool_1.logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
                 let { host, user } = connection;
@@ -166,7 +170,7 @@ function dbHello(req, res) {
         let text = 'uq-api: hello';
         if (db)
             text += ', db is ' + db;
-        let uqs = yield core_1.$uqDb.uqDbs();
+        let uqs = yield core_1.dbs.db$Uq.uqDbs();
         res.json({
             "hello": text,
             uqs

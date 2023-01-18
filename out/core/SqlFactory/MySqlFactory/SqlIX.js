@@ -3,9 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlIX = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlIX extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { IX, IX1, IDX } = p;
+        let param = Object.assign({}, p);
+        param.IX = this.getTableSchema(IX, ['ix']);
+        param.IX1 = this.getTableSchema(IX1, ['ix']);
+        let types = ['id', 'idx'];
+        param.IDX = this.getTableSchemaArray(IDX, types);
+        return param;
     }
     build() {
         let { IX, IX1, ix, IDX, page, order } = this.param;

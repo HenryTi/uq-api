@@ -74,15 +74,15 @@ class Field {
         let pos = fieldName.indexOf('@');
         if (pos < 0)
             return;
-        let name = fieldName.substr(0, pos);
+        let name = fieldName.substring(0, pos);
         let owner;
         let divUnqiue;
         if (fieldName[pos + 1] === '/') {
-            owner = fieldName.substr(pos + 2);
+            owner = fieldName.substring(pos + 2);
             divUnqiue = false;
         }
         else {
-            owner = fieldName.substr(pos + 1);
+            owner = fieldName.substring(pos + 1);
             divUnqiue = true;
         }
         let schemaField = schema.fields.find(v => v.name === fieldName);

@@ -11,16 +11,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Runner = void 0;
 const centerApi_1 = require("../centerApi");
+// import { DbContainer } from '../db';
 class Runner {
-    constructor(db) {
-        this.db = db;
+    constructor(dbUq, net) {
+        this.net = net;
+        this.dbUq = dbUq;
     }
+    // protected readonly dbContainer: DbContainer;
+    /*
+    constructor(db: DbContainer) {
+        this.dbContainer = db;
+    }
+    */
     // getDb(): string { return this.db.getDbName() }
     syncCenterUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             let user = yield centerApi_1.centerApi.userFromId(userId);
             let { id, name, nick, icon } = user;
-            yield this.db.call('$set_user', [id, name, nick, icon]);
+            yield this.dbUq.call('$set_user', [id, name, nick, icon]);
             return user;
         });
     }

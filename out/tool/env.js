@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.env = exports.SqlType = void 0;
 const config = require("config");
-const _ = require("lodash");
 var SqlType;
 (function (SqlType) {
     SqlType[SqlType["mysql"] = 0] = "mysql";
@@ -10,7 +9,8 @@ var SqlType;
 })(SqlType = exports.SqlType || (exports.SqlType = {}));
 class Env {
     constructor() {
-        var _a;
+        var _a, _b;
+        this.server_id = 'server-id';
         this.isDevelopment = false;
         this.isDevdo = false;
         let nodeEnv = process.env.NODE_ENV;
@@ -35,9 +35,16 @@ class Env {
             // show error message
             this.connection = null;
         }
-        this.serverId = Number((_a = this.connection['server-id']) !== null && _a !== void 0 ? _a : 0);
+        this.serverId = Number((_a = this.connection[this.server_id]) !== null && _a !== void 0 ? _a : 0);
+        delete this.connection[this.server_id]; // MySql connection 不允许多余的属性出现
         this.port = config.get('port');
         this.localPort = config.get('local-port');
+        this.uniqueUnitInConfig = (_b = config.get('unique-unit')) !== null && _b !== void 0 ? _b : 0;
+        this.uploadPath = config.get("uploadPath");
+        const resPath = 'res-path';
+        if (config.has(resPath) === true) {
+            this.resFilesPath = config.get(resPath);
+        }
     }
     loadSqlType() {
         switch (config.get('sqlType')) {
@@ -63,8 +70,9 @@ class Env {
         if (!conn) {
             throw `connection need to be defined in config.json`;
         }
+        conn = Object.assign({}, conn);
         conn.flags = '-FOUND_ROWS';
-        return _.clone(conn);
+        return conn;
     }
     loadUnitxConnection(dev) {
         var _a, _b;

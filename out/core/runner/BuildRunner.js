@@ -20,9 +20,9 @@ class BuildRunner extends Runner_1.Runner {
     }
     initSetting() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('$init_setting', []);
-            let updateCompileTick = `update $uq.uq set compile_tick=unix_timestamp() where name='${this.db.getDbName()}'`;
-            yield this.db.sql(updateCompileTick, undefined);
+            yield this.dbUq.call('$init_setting', []);
+            let updateCompileTick = `update $uq.uq set compile_tick=unix_timestamp() where name='${this.dbUq.name}'`;
+            yield this.dbUq.sql(updateCompileTick, undefined);
         });
     }
     setSetting(unit, name, value) {
@@ -64,7 +64,7 @@ class BuildRunner extends Runner_1.Runner {
     }
     setUqOwner(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.call('$setUqOwner', [userId]);
+            let ret = yield this.dbUq.call('$setUqOwner', [userId]);
             return ret.length > 0;
         });
     }
@@ -73,7 +73,7 @@ class BuildRunner extends Runner_1.Runner {
             try {
                 for (let ua of unitAdmin) {
                     let { unit, admin } = ua;
-                    yield this.db.call('$set_unit_admin', [unit, admin]);
+                    yield this.dbUq.call('$set_unit_admin', [unit, admin]);
                 }
             }
             catch (err) {
@@ -84,17 +84,17 @@ class BuildRunner extends Runner_1.Runner {
     // type: 1=prod, 2=test
     refreshIDSection(service) {
         return __awaiter(this, void 0, void 0, function* () {
-            let tbl = yield this.db.tableFromProc('$id_section_get', []);
+            let tbl = yield this.dbUq.tableFromProc('$id_section_get', []);
             let { section, sectionCount } = tbl[0];
             if (sectionCount <= 0 || sectionCount > 8) {
                 return;
             }
-            let type = this.db.isTesting === true ? 2 : 1;
+            let type = this.net.isTesting === true ? 2 : 1;
             let ret = yield centerApi_1.centerApi.IDSectionApply(service, type, section, sectionCount);
             if (ret) {
                 let { start, end, section_max, service_max } = ret;
                 if (start) {
-                    yield this.db.call('$id_section_set', [start, end - start]);
+                    yield this.dbUq.call('$id_section_set', [start, end - start]);
                 }
                 else {
                     let err = `ID Section unmatch: here_max:${section_max} center_max here: ${service_max}`;
@@ -107,7 +107,7 @@ class BuildRunner extends Runner_1.Runner {
     sql(sql, params) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.db.sql(sql, params || []);
+                return yield this.dbUq.sql(sql, params || []);
             }
             catch (err) {
                 debugger;
@@ -118,7 +118,7 @@ class BuildRunner extends Runner_1.Runner {
     procSql(procName, procSql) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.db.sqlProc(procName, procSql);
+                return yield this.dbUq.uqProc(procName, procSql);
             }
             catch (err) {
                 debugger;
@@ -129,8 +129,8 @@ class BuildRunner extends Runner_1.Runner {
     procCoreSql(procName, procSql, isFunc) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this.db.sqlProc(procName, procSql);
-                yield this.db.buildProc(procName, procSql, isFunc);
+                yield this.dbUq.uqProc(procName, procSql);
+                yield this.dbUq.buildUqProc(procName, procSql, isFunc);
             }
             catch (err) {
                 debugger;
@@ -140,51 +140,51 @@ class BuildRunner extends Runner_1.Runner {
     }
     buildProc(proc) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.buildRealProcFrom$ProcTable(proc);
+            yield this.dbUq.buildUqRealProcFrom$ProcTable(proc);
         });
     }
     procCall(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call(proc, params);
+            return yield this.dbUq.call(proc, params);
         });
     }
     call(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call(proc, params);
+            return yield this.dbUq.call(proc, params);
         });
     }
     buildDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.buildDatabase();
-            yield this.db.createProcObjs();
+            let ret = yield this.dbUq.buildDatabase();
+            yield this.dbUq.createProcObjs();
             return ret;
         });
     }
     createDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.createDatabase();
-            yield this.db.createProcObjs();
+            let ret = yield this.dbUq.createDatabase();
+            yield this.dbUq.createProcObjs();
             return ret;
         });
     }
     existsDatabase() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.exists();
+            return yield this.dbUq.existsDatabase();
         });
     }
     buildTuidAutoId() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.buildTuidAutoId();
+            yield this.dbUq.buildTuidAutoId();
         });
     }
     tableFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.tableFromProc(proc, params);
+            return yield this.dbUq.tableFromProc(proc, params);
         });
     }
     tablesFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.tablesFromProc(proc, params);
+            let ret = yield this.dbUq.tablesFromProc(proc, params);
             let len = ret.length;
             if (len === 0)
                 return ret;
@@ -201,7 +201,7 @@ class BuildRunner extends Runner_1.Runner {
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
-            return yield this.db.call(proc, p);
+            return yield this.dbUq.call(proc, p);
         });
     }
     unitUserCall(proc, unit, user, ...params) {
@@ -212,7 +212,7 @@ class BuildRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            return yield this.db.call(proc, p);
+            return yield this.dbUq.call(proc, p);
         });
     }
     unitUserCallEx(proc, unit, user, ...params) {
@@ -223,7 +223,7 @@ class BuildRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            return yield this.db.callEx(proc, p);
+            return yield this.dbUq.callEx(proc, p);
         });
     }
     unitTableFromProc(proc, unit, ...params) {
@@ -233,7 +233,7 @@ class BuildRunner extends Runner_1.Runner {
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tableFromProc(proc, p);
+            let ret = yield this.dbUq.tableFromProc(proc, p);
             return ret;
         });
     }
@@ -245,7 +245,7 @@ class BuildRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tableFromProc(proc, p);
+            let ret = yield this.dbUq.tableFromProc(proc, p);
             return ret;
         });
     }
@@ -256,7 +256,7 @@ class BuildRunner extends Runner_1.Runner {
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tablesFromProc(proc, p);
+            let ret = yield this.dbUq.tablesFromProc(proc, p);
             return ret;
         });
     }
@@ -268,7 +268,7 @@ class BuildRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tablesFromProc(proc, p);
+            let ret = yield this.dbUq.tablesFromProc(proc, p);
             return ret;
         });
     }

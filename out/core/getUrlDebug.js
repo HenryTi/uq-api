@@ -11,11 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUrlDebug = void 0;
 const node_fetch_1 = require("node-fetch");
-const db_1 = require("./dbCaller/db");
+const tool_1 = require("../tool");
 const urlDebugPromises = {};
 function getUrlDebug() {
     return __awaiter(this, void 0, void 0, function* () {
-        let urlDebug = `http://${db_1.env.localhost}/`; //urlSetUqHost();
+        let urlDebug = `http://${tool_1.env.localhost}/`; //urlSetUqHost();
         let urlDebugPromise = urlDebugPromises[urlDebug];
         if (urlDebugPromise === true)
             return urlDebug;

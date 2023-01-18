@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UqJob = void 0;
-const core_1 = require("../core");
 const tool_1 = require("../tool");
 // import { execQueueAct } from "./execQueueAct";
 const pullBus_1 = require("./pullBus");
@@ -19,7 +18,7 @@ const queueOut_1 = require("./queueOut");
 class UqJob {
     constructor(runner) {
         this.runner = runner;
-        this.uqDbName = runner.name;
+        this.uqDbName = runner.dbName;
     }
     run() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -56,7 +55,7 @@ class UqJob {
                     return -1;
                 retCount += ret;
             }
-            if (core_1.env.isDevelopment === false) {
+            if (tool_1.env.isDevelopment === false) {
                 // logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
                 // uq 间的entity同步，暂时屏蔽
                 // await pullEntities(runner);

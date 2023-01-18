@@ -1,8 +1,6 @@
-import * as _ from 'lodash';
-import * as config from 'config';
-import { logger } from '../../tool';
+import { env, logger } from '../../tool';
 import { createSqlFactory, SqlBuilder, SqlFactory } from '../SqlFactory';
-import { Db, env, DbCaller, $uqDb } from '../dbCaller';
+import { Db, Db$Uq, dbs, DbUq } from '../db';
 import { packReturns } from '../packReturn';
 import { ImportData } from '../importData';
 import {
@@ -27,10 +25,6 @@ interface SheetRun {
     }
 }
 
-// 整个服务器，可以单独设置一个unit id。跟老版本兼容。
-// 新版本会去掉uq里面的唯一unit的概念。
-const uniqueUnitInConfig = config.get<number>('unique-unit') ?? 0;
-
 export interface Buses {
     /**
      * 一个uq的bus中定义的所有face的完整名称（ownername/busname/facename），用\n分隔
@@ -46,7 +40,6 @@ export interface Buses {
 }
 
 export class EntityRunner extends Runner {
-    protected readonly dbCaller: DbCaller;
     private access: any;
     private accessSchemaArr: any[];
     private role: any;
@@ -62,13 +55,13 @@ export class EntityRunner extends Runner {
     private sheetRuns: { [sheet: string]: SheetRun };
     private readonly modifyMaxes: { [unit: number]: number };
     private readonly roleVersions: { [unit: number]: { [app: number]: { version: number, tick: number } } } = {};
-    private readonly $uqDb: Db;
+    private readonly db$Uq: Db$Uq;
     private ixOfUsers: string;
     private compileTick: number = 0;
 
     // readonly IDRunner: IDRunner;
     readonly sqlFactory: SqlFactory
-    readonly name: string;
+    readonly dbName: string;
     schemas: { [entity: string]: { type: string; from: string; call: any; run: any; } };
     uqOwner: string;
     uq: string;
@@ -89,7 +82,6 @@ export class EntityRunner extends Runner {
      */
     buses: Buses; //{[url:string]:any}; // 直接查找bus
     hasPullEntities: boolean = false;
-    net: Net;
     hasSheet: boolean = false;
     isCompiling: boolean = false;
     devBuildSys: boolean = false;
@@ -97,24 +89,22 @@ export class EntityRunner extends Runner {
     /**
      * EntityRunner: 提供调用某个db中存储过程 / 缓存某db中配置数据 的类？
      * @param name uq(即数据库)的名称
-     * @param db 
+     * @param dbContainer 
      * @param net 
      */
-    constructor(db: Db, net: Net = undefined) {
-        super(db);
-        this.net = net;
+    constructor(dbUq: DbUq, net: Net) {
+        super(dbUq, net);
         this.modifyMaxes = {};
-        this.dbCaller = db.dbCaller;
-        this.name = db.getDbName();
+        this.dbName = dbUq.name;
         // this.IDRunner = new IDRunner(this, new Builder(), this.dbCaller);
         this.sqlFactory = createSqlFactory({
             getTableSchema: this.getTableSchema,
             sqlType: env.sqlType,
-            dbName: this.name,
+            dbName: this.dbName,
             hasUnit: false,
-            twProfix: this.dbCaller.twProfix,
+            twProfix: this.dbUq.twProfix,
         });
-        this.$uqDb = $uqDb;
+        this.db$Uq = dbs.db$Uq;
     }
 
     private getTableSchema = (lowerName: string): any => {
@@ -125,7 +115,7 @@ export class EntityRunner extends Runner {
 
     async reset() {
         this.isCompiling = false;
-        this.db.reset();
+        this.dbUq.reset();
         this.schemas = undefined;
         await this.init();
     }
@@ -143,7 +133,20 @@ export class EntityRunner extends Runner {
     }
 
     async IDSql(unit: number, user: number, sqlBuilder: SqlBuilder<any>) {
+        sqlBuilder.build();
+        let { sql, proc, procParameters } = sqlBuilder;
+        let ret: any;
+        if (proc !== undefined) {
+            ret = await this.call(proc, procParameters);
+        }
+        else {
+            ret = await this.sql(sql, [unit, user]);
+        }
+        return ret;
+    }
 
+    async ActIDProp(unit: number, user: number, ID: string, id: number, propName: string, value: string) {
+        return await this.call(`tv_${ID}$prop`, [unit, user, id, propName, value]);
     }
 
     getEntityNameList() {
@@ -286,12 +289,12 @@ export class EntityRunner extends Runner {
     async log(unit: number, subject: string, content: string): Promise<void> {
         // await this.$uqDb.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
         const uq = this.net.getUqFullName(this.uq);
-        await this.$uqDb.call('log', [unit, uq, subject, content]);
+        await this.db$Uq.proc('log', [unit, uq, subject, content]);
     }
     async logError(unit: number, subject: string, content: string): Promise<void> {
         //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
         const uq = this.net.getUqFullName(this.uq);
-        await this.$uqDb.call('log_error', [unit, uq, subject, content]);
+        await this.db$Uq.proc('log_error', [unit, uq, subject, content]);
     }
     /*
         async uqLog(unit: number, uq: string, subject: string, content: string): Promise<void> {
@@ -315,22 +318,22 @@ export class EntityRunner extends Runner {
         }
     */
     async procCall(proc: string, params: any[]): Promise<any> {
-        return await this.db.call(proc, params);
+        return await this.dbUq.call(proc, params);
     }
     async call(proc: string, params: any[]): Promise<any> {
-        return await this.db.call(proc, params);
+        return await this.dbUq.call(proc, params);
     }
     async sql(sql: string, params: any[]): Promise<any> {
-        return await this.db.sql(sql, params);
+        return await this.dbUq.sql(sql, params);
     }
     async buildTuidAutoId(): Promise<void> {
-        await this.db.buildTuidAutoId();
+        await this.dbUq.buildTuidAutoId();
     }
     async tableFromProc(proc: string, params: any[]): Promise<any[]> {
-        return await this.db.tableFromProc(proc, params);
+        return await this.dbUq.tableFromProc(proc, params);
     }
     async tablesFromProc(proc: string, params: any[]): Promise<any[][]> {
-        let ret = await this.db.tablesFromProc(proc, params);
+        let ret = await this.dbUq.tablesFromProc(proc, params);
         let len = ret.length;
         if (len === 0) return ret;
         let pl = ret[len - 1];
@@ -341,7 +344,7 @@ export class EntityRunner extends Runner {
         let p: any[] = [];
         p.push(unit);
         if (params !== undefined) p.push(...params);
-        return await this.db.call(proc, p);
+        return await this.dbUq.call(proc, p);
     }
     async unitUserCall(proc: string, unit: number, user: number, ...params: any[]): Promise<any> {
         let p: any[] = [];
@@ -349,7 +352,7 @@ export class EntityRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        return await this.db.call(proc, p);
+        return await this.dbUq.call(proc, p);
     }
 
     async unitUserCallEx(proc: string, unit: number, user: number, ...params: any[]): Promise<any> {
@@ -357,14 +360,14 @@ export class EntityRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        return await this.db.callEx(proc, p);
+        return await this.dbUq.callEx(proc, p);
     }
 
     async unitTableFromProc(proc: string, unit: number, ...params: any[]): Promise<any[]> {
         let p: any[] = [];
         p.push(unit);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tableFromProc(proc, p);
+        let ret = await this.dbUq.tableFromProc(proc, p);
         return ret;
     }
     async unitUserTableFromProc(proc: string, unit: number, user: number, ...params: any[]): Promise<any[]> {
@@ -372,7 +375,7 @@ export class EntityRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tableFromProc(proc, p);
+        let ret = await this.dbUq.tableFromProc(proc, p);
         return ret;
     }
 
@@ -380,7 +383,7 @@ export class EntityRunner extends Runner {
         let p: any[] = [];
         p.push(unit);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tablesFromProc(proc, p);
+        let ret = await this.dbUq.tablesFromProc(proc, p);
         return ret;
     }
     async unitUserTablesFromProc(proc: string, unit: number, user: number, ...params: any[]): Promise<any[][]> {
@@ -388,18 +391,18 @@ export class EntityRunner extends Runner {
         p.push(unit);
         p.push(user);
         if (params !== undefined) p.push(...params);
-        let ret = await this.db.tablesFromProc(proc, p);
+        let ret = await this.dbUq.tablesFromProc(proc, p);
         return ret;
     }
     async buildProc(proc: string): Promise<void> {
     }
 
     isExistsProc(proc: string): boolean {
-        return this.db.isExistsProc(proc);
+        return this.dbUq.isExistsProc(proc);
     }
 
     async createProc(proc: string) {
-        await this.db.createProc(proc);
+        await this.dbUq.createProc(proc);
     }
 
     /**
@@ -408,34 +411,34 @@ export class EntityRunner extends Runner {
      * @returns array[0]对应的是entity表的记录；array[1]对应的是setting表的记录 
      */
     async loadSchemas(hasSource: number): Promise<any[][]> {
-        return await this.db.tablesFromProc('$entitys', [hasSource]);
+        return await this.dbUq.tablesFromProc('$entitys', [hasSource]);
     }
 
     async saveSchema(unit: number, user: number, id: number, name: string, type: number, schema: string, run: string, source: string, from: string, open: number, isPrivate: number): Promise<any> {
         return await this.unitUserCall('$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
     }
     async loadConstStrs(): Promise<{ [name: string]: number }[]> {
-        return await this.db.call('$const_strs', []);
+        return await this.dbUq.call('$const_strs', []);
     }
     async saveConstStr(type: string): Promise<number> {
-        return await this.db.call('$const_str', [type]);
+        return await this.dbUq.call('$const_str', [type]);
     }
     async saveTextId(text: string): Promise<number> {
-        return await this.db.saveTextId(text);
+        return await this.dbUq.saveTextId(text);
     }
     async loadSchemaVersion(name: string, version: string): Promise<string> {
-        return await this.db.call('$entity_version', [name, version]);
+        return await this.dbUq.call('$entity_version', [name, version]);
     }
     async setEntityValid(entities: string, valid: number): Promise<any[]> {
-        let ret = await this.db.call('$entity_validate', [entities, valid]);
+        let ret = await this.dbUq.call('$entity_validate', [entities, valid]);
         return ret;
     }
     async saveFace(bus: string, busOwner: string, busName: string, faceName: string) {
-        await this.db.call('$save_face', [bus, busOwner, busName, faceName]);
+        await this.dbUq.call('$save_face', [bus, busOwner, busName, faceName]);
     }
 
     async execQueueAct(): Promise<number> {
-        return await this.db.execQueueAct();
+        return await this.dbUq.execQueueAct();
     }
     /*
     async tagType(names: string) {
@@ -587,7 +590,7 @@ export class EntityRunner extends Runner {
         await this.unitUserCall('$sheet_to', unit, user, sheetId, toArr.join(','));
     }
     async sheetProcessing(sheetId: number): Promise<void> {
-        await this.db.call('$sheet_processing', [sheetId]);
+        await this.dbUq.call('$sheet_processing', [sheetId]);
     }
     private getSheetActionParametersBus(sheetName: string, stateName: string, actionName: string): ParametersBus {
         let name = `${sheetName}_${stateName}_${actionName}`;
@@ -728,11 +731,11 @@ export class EntityRunner extends Runner {
         return await this.unitTableFromProc(proc, unit as number, entity, modifies);
     }
     async importData(unit: number, user: number, source: string, entity: string, filePath: string): Promise<void> {
-        await ImportData.exec(this, unit, this.db, source, entity, filePath);
+        await ImportData.exec(this, unit, this.dbUq, source, entity, filePath);
     }
 
-    equDb(db: Db) {
-        return this.db === db;
+    equDb(dbContainer: Db) {
+        return this.dbUq === dbContainer;
     }
     /*
         async reset() {
@@ -756,7 +759,7 @@ export class EntityRunner extends Runner {
 
     private async initInternal() {
         this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
-        let eventsText = await this.dbCaller.removeAllScheduleEvents();
+        let eventsText = await this.dbUq.removeAllScheduleEvents();
         this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
 
         let rows = await this.loadSchemas(0);
@@ -788,12 +791,12 @@ export class EntityRunner extends Runner {
         this.hasStatements = setting['hasstatements'] as number === 1;
         this.service = setting['service'] as number;
         this.devBuildSys = setting['dev-build-sys'] as string !== null;
-        this.dbCaller.hasUnit = this.hasUnit;
+        // this.db.hasUnit = this.hasUnit;
         // this.dbCaller.setBuilder();
         let ixUserArr = [];
 
         let uu = setting['uniqueunit'] as number;
-        this.uniqueUnit = uu ?? uniqueUnitInConfig;
+        this.uniqueUnit = uu ?? env.uniqueUnitInConfig;
 
         if (env.isDevelopment) logger.debug('init schemas: ', this.uq, this.author, this.version);
 
@@ -1076,8 +1079,8 @@ export class EntityRunner extends Runner {
         if (env.isDevelopment) logger.debug('access: ', this.access);
     }
     private async getUserAccess(unit: number, user: number): Promise<number[]> {
-        let result = await this.db.tablesFromProc('$get_access', [unit]);
-        let ret = _.union(result[0].map(v => v.entity), result[1].map(v => v.entity));
+        let result = await this.dbUq.tablesFromProc('$get_access', [unit]);
+        let ret = [...result[0].map(v => v.entity), ...result[1].map(v => v.entity)];
         return ret;
     }
     async getAccesses(unit: number, user: number, acc: string[]): Promise<any> {
@@ -1095,7 +1098,7 @@ export class EntityRunner extends Runner {
                     access[i] = v;
                     continue;
                 }
-                dst.ops = _.union(dst.ops, v.ops);
+                dst.ops = [...dst.ops, ...v.ops];
             }
         }
         if (acc === undefined) {

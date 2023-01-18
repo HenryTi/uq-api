@@ -10,27 +10,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initResPath = exports.router = void 0;
-const config = require("config");
 const fs = require("fs");
 const path = require("path");
 const express_1 = require("express");
 const multer = require("multer");
-const resDb_1 = require("./resDb");
+// import { getResDbRunner } from './resDb';
+const tool_1 = require("../tool");
+const core_1 = require("core");
 exports.router = (0, express_1.Router)({ mergeParams: true });
 function initResPath() {
-    const resPath = 'res-path';
-    let resFilesPath;
-    let uploadPath;
-    if (config.has(resPath) === false) {
+    let { resFilesPath } = tool_1.env;
+    if (resFilesPath === undefined) {
         resFilesPath = path.resolve('../res-files');
-    }
-    else {
-        resFilesPath = config.get(resPath);
     }
     if (fs.existsSync(resFilesPath) === false) {
         fs.mkdirSync(resFilesPath);
     }
-    uploadPath = resFilesPath + '/upload/';
+    let uploadPath = resFilesPath + '/upload/';
     let upload = multer({ dest: uploadPath });
     exports.router.get('/hello', (req, res) => {
         res.end('hello! ' + req.method + '#' + req.originalUrl);
@@ -60,11 +56,12 @@ function initResPath() {
                 let file0 = req.files[0];
                 let { filename, originalname, mimetype } = file0;
                 let path = uploadPath + filename;
-                let resDbRunner = yield (0, resDb_1.getResDbRunner)();
-                let ret = yield resDbRunner.procCall('createItem', [originalname, mimetype]);
+                // let resDbRunner = await getResDbRunner();
+                const { db$Res } = core_1.dbs;
+                let ret = yield db$Res.proc('createItem', [originalname, mimetype]);
                 let id = ret[0].id;
                 let dir = String(Math.floor(id / 10000));
-                let file = String(10000 + (id % 10000)).substr(1);
+                let file = String(10000 + (id % 10000)).substring(1);
                 let dirPath = resFilesPath + '/' + dir;
                 if (fs.existsSync(dirPath) === false) {
                     fs.mkdirSync(dirPath);
@@ -72,7 +69,7 @@ function initResPath() {
                 let pos = originalname.lastIndexOf('.');
                 let suffix;
                 if (pos >= 0)
-                    suffix = originalname.substr(pos);
+                    suffix = originalname.substring(pos);
                 let toPath = dirPath + '/' + file + suffix;
                 yield copyFile(path, toPath);
                 res.json({

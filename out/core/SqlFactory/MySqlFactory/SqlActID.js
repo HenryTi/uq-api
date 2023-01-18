@@ -3,9 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlActID = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlActID extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { ID, value, IX, ix } = p;
+        let ret = Object.assign({}, p);
+        ret.ID = this.getTableSchema(ID, ['id']);
+        ret.value = this.buildValueTableSchema(value);
+        ret.IX = IX === null || IX === void 0 ? void 0 : IX.map(v => this.getTableSchema(v, ['ix']));
+        ret.ix = ix === null || ix === void 0 ? void 0 : ix.map(v => this.buildValueTableSchema(v));
+        return ret;
     }
     build() {
         let { ID, value, IX, ix } = this.param;

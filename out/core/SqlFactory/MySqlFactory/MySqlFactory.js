@@ -16,7 +16,7 @@ const SqlIXr_1 = require("./SqlIXr");
 const SqlIDLog_1 = require("./SqlIDLog");
 const SqlIDTree_1 = require("./SqlIDTree");
 const SqlIDxID_1 = require("./SqlIDxID");
-const sqlIDinIX_1 = require("./sqlIDinIX");
+const SqlIDinIX_1 = require("./SqlIDinIX");
 const SqlKeyIX_1 = require("./SqlKeyIX");
 const SqlIDSum_1 = require("./SqlIDSum");
 const SqlKeyIXSum_1 = require("./SqlKeyIXSum");
@@ -91,7 +91,7 @@ class MySqlFactory extends SqlFactory_1.SqlFactory {
         return new SqlKeyIXSum_1.SqlKeyIXSum(this, param);
     }
     IDinIX(param) {
-        return new sqlIDinIX_1.SqlIDinIX(this, param);
+        return new SqlIDinIX_1.SqlIDinIX(this, param);
     }
     IDxID(param) {
         return new SqlIDxID_1.SqlIDxID(this, param);

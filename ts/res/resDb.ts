@@ -1,5 +1,5 @@
-import { EntityRunner, $resDb } from "../core";
-
+//import { EntityRunner, $resDb } from "../core";
+/*
 export async function create$ResDb() {
     await $resDb.createDatabase();
 }
@@ -7,7 +7,8 @@ export async function create$ResDb() {
 let resDbRunner: EntityRunner;
 export async function getResDbRunner(): Promise<EntityRunner> {
     if (resDbRunner === undefined) {
-        resDbRunner = new EntityRunner($resDb);
+        resDbRunner = new EntityRunner($resDb, undefined);
     }
     return resDbRunner;
 }
+*/

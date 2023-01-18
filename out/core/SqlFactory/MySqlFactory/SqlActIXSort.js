@@ -3,9 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlActIXSort = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlActIXSort extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { IX } = p;
+        let ret = Object.assign({}, p);
+        ret.IX = this.getTableSchema(IX, ['ix']);
+        return ret;
     }
     build() {
         let { IX, ix, xi: id, after } = this.param;

@@ -1,7 +1,8 @@
-import { logger } from '../../tool';
+import { Db$Unitx, dbs } from 'core/db';
+import { logger, env } from '../../tool';
 import { centerApi, CenterUnitxUrls, UnitxUrlServer } from '../centerApi';
 import { consts } from '../consts';
-import { env, UnitxDb, UnitxProdDb, UnitxTestDb } from "../dbCaller/db";
+// import { UnitxDbContainer, UnitxProdDbContainer, UnitxTestDbContainer } from '../db/UnitxDbContainer';
 import { getUrlDebug } from '../getUrlDebug';
 import { Message } from '../model';
 import { UnitxApi } from "./unitxApi";
@@ -18,12 +19,12 @@ interface UnitxUrlServerBox {
 }
 */
 export abstract class Unitx {
-    readonly db: UnitxDb;
+    readonly db: Db$Unitx; // DbContainer;
 
     constructor() {
         this.db = this.createDb();
     }
-    protected abstract createDb(): UnitxDb;
+    protected abstract createDb(): Db$Unitx; // UnitxDbContainer;
     // get db(): UnitxDb { return this._db };
 
     private unitUnitxApis: { [unit: number]: UnitxApi } = {};
@@ -131,9 +132,10 @@ export abstract class Unitx {
 }
 
 export class UnitxProd extends Unitx {
-    protected createDb(): UnitxDb {
-        let dbName = consts.$unitx;
-        return new UnitxProdDb(dbName)
+    protected createDb(): Db$Unitx {
+        return dbs.db$UnitxProd;
+        // let dbName = consts.$unitx;
+        // return new UnitxProdDbContainer(dbName)
     }
     protected unitxUrl(url: string): string { return url + 'uq/unitx-prod/' };
     protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {
@@ -143,9 +145,10 @@ export class UnitxProd extends Unitx {
 }
 
 export class UnitxTest extends Unitx {
-    protected createDb(): UnitxDb {
-        let dbName = consts.$unitx + '$test';
-        return new UnitxTestDb(dbName);
+    protected createDb(): Db$Unitx {
+        return dbs.db$UnitxProd;
+        //let dbName = consts.$unitx + '$test';
+        //return new UnitxTestDbContainer(dbName);
     }
     protected unitxUrl(url: string): string { return url + 'uq/unitx-test/' };
     protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {

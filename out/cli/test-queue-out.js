@@ -12,13 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tool_1 = require("../tool");
 const core_1 = require("../core");
 const queueOut_1 = require("../jobs/queueOut");
+// import { create$UqDb } from '../core/dbs';
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
         tool_1.logger.debug('test-queue-out');
         // 停掉其它服务器操作消息队列
         //let db = Db.db(undefined);
         //await db.setDebugJobs();
-        yield (0, core_1.create$UqDb)();
+        let dbs = (0, core_1.createDbs)();
+        yield dbs.start();
+        // await create$UqDb();
         let dbName = 'joint-uq-platform'; //$test';
         let node_env = process.env.NODE_ENV;
         tool_1.logger.debug('node_env=' + node_env + ', ' + 'db = ' + dbName);

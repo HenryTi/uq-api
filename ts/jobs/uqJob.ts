@@ -1,5 +1,5 @@
-import { Buses, EntityRunner, env } from "../core";
-import { logger } from "../tool";
+import { Buses, EntityRunner } from "../core";
+import { logger, env } from "../tool";
 // import { execQueueAct } from "./execQueueAct";
 import { PullBus } from "./pullBus";
 import { QueueIn } from "./queueIn";
@@ -11,7 +11,7 @@ export class UqJob {
 
     constructor(runner: EntityRunner) {
         this.runner = runner;
-        this.uqDbName = runner.name;
+        this.uqDbName = runner.dbName;
     }
 
     async run(): Promise<number> {

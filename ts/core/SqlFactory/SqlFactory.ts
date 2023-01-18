@@ -28,7 +28,7 @@ export abstract class SqlFactory {
         this.twProfix = twProfix;
     }
 
-    abstract Acts<P>(param: ParamActs): SqlBuilder;
+    abstract Acts(param: ParamActs): SqlBuilder;
     abstract ActIX(param: ParamActIX): SqlBuilder;
     abstract ActIXSort(param: ParamActIXSort): SqlBuilder;
     abstract ActID(param: ParamActID): SqlBuilder;

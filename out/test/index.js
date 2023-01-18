@@ -43,7 +43,7 @@ const $test = '$test';
         let net:Net;
         let dbName:string;;
         if (uqDb.endsWith($test) === true) {
-            dbName = uqDb.substr(0, uqDb.length - $test.length);
+            dbName = uqDb.substring(0, uqDb.length - $test.length);
             net = testNet;
         }
         else {

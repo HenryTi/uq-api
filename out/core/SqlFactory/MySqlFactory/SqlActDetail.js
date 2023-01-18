@@ -3,9 +3,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlActDetail = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlActDetail extends MySqlBuilder_1.MySqlBuilder {
-    constructor(sqlFactory, param) {
-        super(sqlFactory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { main, detail, detail2, detail3 } = p;
+        let ret = Object.assign({}, p);
+        let types = ['id'];
+        ret.main = this.getTableSchema(main.name, types, [main.value]);
+        ret.detail = this.getTableSchema(detail.name, types, detail.values);
+        if (detail2) {
+            ret.detail2 = this.getTableSchema(detail2.name, types, detail2.values);
+        }
+        if (detail3) {
+            ret.detail3 = this.getTableSchema(detail3.name, types, detail3.values);
+        }
+        return ret;
     }
     build() {
         let { main, detail, detail2, detail3 } = this.param;

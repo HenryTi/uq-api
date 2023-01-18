@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import * as _ from 'lodash';
 import { EntityRunner } from '../core';
 import { RouterBuilder } from './routerBuilder';
 
@@ -51,16 +50,8 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
 
     rb.entityPost(router, 'act-id-prop', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
-            let sqlBuilder = runner.sqlFactory.ActIDProp(body);
-            let result = await runner.IDSql(unit, user, sqlBuilder);
-            return result;
-        });
-
-    rb.entityPost(router, 'act-id-prop', '',
-        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
-            body.$sql = true;
-            let sqlBuilder = runner.sqlFactory.ActIDProp(body);
-            let result = await runner.IDSql(unit, user, sqlBuilder);
+            let { ID, id, name: propName, value } = body;
+            let result = await runner.ActIDProp(unit, user, ID, id, propName, value);
             return result;
         });
 
@@ -109,8 +100,34 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
             return result;
         });
 
+    async function loadIDTypes(runner: EntityRunner, unit: number, user: number, id: number) {
+        let IDTypes: string | (string[]);
+        let idTypes: string[];
+
+        let sqlBuilder = runner.sqlFactory.idTypes(id);
+        let retIdTypes = await runner.IDSql(unit, user, sqlBuilder);
+        // let retIdTypes = await this.dbCaller.idTypes(unit, user, id);
+        let coll: { [id: number]: string } = {};
+        for (let r of retIdTypes) {
+            let { id, $type } = r;
+            coll[id] = $type;
+        }
+        if (typeof (id) === 'number') {
+            IDTypes = coll[id];
+            idTypes = [IDTypes];
+        }
+        else {
+            IDTypes = idTypes = [];
+            for (let v of id as number[]) {
+                idTypes.push(coll[v]);
+            }
+        }
+        return IDTypes;
+    }
+
     rb.entityPost(router, 'id', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
+            body.IDX = await loadIDTypes(runner, unit, user, body.id);
             let sqlBuilder = runner.sqlFactory.ID(body);
             let result = await runner.IDSql(unit, user, sqlBuilder);
             return result;
@@ -119,6 +136,7 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
     rb.entityPost(router, sqlResultProfix + 'id', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             body.$sql = true;
+            body.IDX = await loadIDTypes(runner, unit, user, body.id);
             let sqlBuilder = runner.sqlFactory.ID(body);
             let result = await runner.IDSql(unit, user, sqlBuilder);
             return result;

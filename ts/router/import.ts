@@ -1,8 +1,8 @@
 import { Router, Response, Request } from 'express';
 import * as fs from 'fs';
-import * as config from 'config';
 import * as multer from 'multer';
 import { User, RouterBuilder } from './routerBuilder';
+import { env } from '../tool';
 
 export function buildImportRouter(router: Router, rb: RouterBuilder) {
     router.post('/import/', async (req: Request, res: Response) => {
@@ -31,7 +31,7 @@ export function buildImportRouter(router: Router, rb: RouterBuilder) {
                 return;
             }
             try {
-                let parseResult = await eachUploadSourceFile(uploadPath, req.files, (fileContent: string, file: string) => {
+                let parseResult = await eachUploadSourceFile(env.uploadPath, req.files, (fileContent: string, file: string) => {
                     try {
                         res.write('parsing ' + file + '\r\n');
                         res.write(fileContent);
@@ -53,9 +53,8 @@ export function buildImportRouter(router: Router, rb: RouterBuilder) {
     });
 }
 
-const uploadPath = config.get<string>("uploadPath");
 var upload = (function () {
-    return multer({ dest: uploadPath });
+    return multer({ dest: env.uploadPath });
 })();
 
 /*

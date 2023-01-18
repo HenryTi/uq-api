@@ -37,7 +37,7 @@ export async function actionReturns(unit: number, user: number, name: string, db
 }
 
 export async function actionConvert(unit: number, user: number, entityName: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any): Promise<any> {
-    let data = _.clone(body.data);
+    let data = Object.assign({}, body.data);
     let { paramConvert, returns } = schema;
     let actionConvertSchema: any;
     if (paramConvert !== undefined) {

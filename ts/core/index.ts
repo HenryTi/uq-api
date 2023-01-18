@@ -5,7 +5,7 @@ export { Fetch } from './fetch';
 export * from './consts';
 export * from './busQueueSeed';
 export * from './runner';
-export * from './dbCaller';
+export * from './db';
 export * from './model';
 export * from './net';
 export * from './getUrlDebug';

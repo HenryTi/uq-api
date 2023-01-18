@@ -3,9 +3,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlIDLog = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlIDLog extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { IDX, field } = p;
+        let param = Object.assign({}, p);
+        let ts = this.getTableSchema(IDX, ['idx']);
+        param.IDX = ts;
+        let fLower = field.toLowerCase();
+        if (ts.schema.fields.findIndex(v => v.name.toLowerCase() === fLower) < 0) {
+            this.throwErr(`ID ${IDX} has no Field ${field}`);
+        }
+        return param;
     }
     build() {
         let { IDX, field, id, log, timeZone, page, far, near } = this.param;

@@ -1,6 +1,7 @@
 import { logger } from '../tool';
-import { create$UqDb, testNet } from "../core";
+import { createDbs, dbs, testNet } from "../core";
 import { QueueOut } from "../jobs/queueOut";
+// import { create$UqDb } from '../core/dbs';
 
 (async function () {
     logger.debug('test-queue-out');
@@ -8,7 +9,9 @@ import { QueueOut } from "../jobs/queueOut";
     // 停掉其它服务器操作消息队列
     //let db = Db.db(undefined);
     //await db.setDebugJobs();
-    await create$UqDb();
+    let dbs = createDbs();
+    await dbs.start();
+    // await create$UqDb();
 
     let dbName = 'joint-uq-platform'; //$test';
     let node_env = process.env.NODE_ENV;

@@ -1,5 +1,4 @@
 import * as config from 'config';
-import * as _ from 'lodash';
 
 interface ConfigDebugging {
     "unitx": {
@@ -24,6 +23,7 @@ class Env {
     private static const_connection = 'connection';
     private static const_development = 'development';
     private static const_devdo = 'devdo';
+    readonly server_id: string = 'server-id';
 
     readonly isDevelopment: boolean = false;
     readonly isDevdo: boolean = false;
@@ -37,6 +37,11 @@ class Env {
     readonly serverId: number;
     readonly port: number;
     readonly localPort: number;
+    // 整个服务器，可以单独设置一个unit id。跟老版本兼容。
+    // 新版本会去掉uq里面的唯一unit的概念。
+    readonly uniqueUnitInConfig: number;
+    readonly uploadPath: string;
+    readonly resFilesPath: string;
 
     constructor() {
         let nodeEnv = process.env.NODE_ENV as string;
@@ -61,9 +66,18 @@ class Env {
             // show error message
             this.connection = null;
         }
-        this.serverId = Number(this.connection['server-id'] ?? 0);
+        this.serverId = Number(this.connection[this.server_id] ?? 0);
+        delete this.connection[this.server_id]; // MySql connection 不允许多余的属性出现
+
         this.port = config.get<number>('port');
         this.localPort = config.get<number>('local-port');
+        this.uniqueUnitInConfig = config.get<number>('unique-unit') ?? 0;
+        this.uploadPath = config.get<string>("uploadPath");
+
+        const resPath = 'res-path';
+        if (config.has(resPath) === true) {
+            this.resFilesPath = config.get<string>(resPath);
+        }
     }
 
     private loadSqlType(): SqlType {
@@ -91,8 +105,9 @@ class Env {
         if (!conn) {
             throw `connection need to be defined in config.json`;
         }
+        conn = Object.assign({}, conn);
         conn.flags = '-FOUND_ROWS';
-        return _.clone(conn);
+        return conn;
     }
 
     private loadUnitxConnection(dev: 'test' | 'prod'): DbConnection {

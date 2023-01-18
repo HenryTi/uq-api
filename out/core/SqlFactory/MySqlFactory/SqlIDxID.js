@@ -3,9 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlIDxID = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlIDxID extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { ID, IX, ID2 } = p;
+        let param = Object.assign({}, p);
+        param.ID = this.getTableSchema(ID, ['id']);
+        param.IX = this.getTableSchema(IX, ['ix']);
+        param.ID2 = this.getTableSchema(ID2, ['id']);
+        return param;
     }
     build() {
         let { ID, IX, ID2, page } = this.param;

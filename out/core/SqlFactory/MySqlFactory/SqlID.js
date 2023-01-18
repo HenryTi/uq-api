@@ -3,9 +3,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlIdTypes = exports.SqlID = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlID extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, param) {
-        super(factory);
-        this.param = this.convertParam(param);
+    convertParam(p) {
+        let { /*id, */ IDX } = p;
+        let ret = Object.assign({}, p);
+        let types = ['id', 'idx'];
+        let IDTypes = IDX;
+        /*
+        let IDTypes: string | (string[]);
+        IDTypes = IDX as unknown as any;
+        let idTypes: string[];
+        if (IDTypes === undefined) {
+            let retIdTypes = await this.dbCaller.idTypes(unit, user, id);
+            let coll: { [id: number]: string } = {};
+            for (let r of retIdTypes) {
+                let { id, $type } = r;
+                coll[id] = $type;
+            }
+            if (typeof (id) === 'number') {
+                IDTypes = coll[id];
+                idTypes = [IDTypes];
+            }
+            else {
+                IDTypes = idTypes = [];
+                for (let v of id as number[]) {
+                    idTypes.push(coll[v]);
+                }
+            }
+        }
+        ret.IDX = this.getTableSchemaArray(IDTypes, types);
+        */
+        ret.IDX = this.getTableSchemaArray(IDTypes, types);
+        return ret;
     }
     build() {
         let { IDX, id, page, order } = this.param;
@@ -16,7 +44,7 @@ class SqlID extends MySqlBuilder_1.MySqlBuilder {
             where = 't0.id' + (typeof id === 'number' ?
                 '=' + id
                 :
-                ` in (${(id.join(','))})`);
+                    ` in (${(id.join(','))})`);
         }
         else {
             where = '1=1';
@@ -40,14 +68,25 @@ class SqlID extends MySqlBuilder_1.MySqlBuilder {
 }
 exports.SqlID = SqlID;
 class SqlIdTypes extends MySqlBuilder_1.MySqlBuilder {
-    constructor(factory, id) {
+    /*
+    constructor(factory: SqlFactory, id: number | (number[])) {
         super(factory);
         if (Array.isArray(id) === false) {
-            this.id = [id];
+            this.id = [id as number];
         }
         else {
-            this.id = id;
+            this.id = id as number[];
         }
+    }
+    */
+    convertParam(param) {
+        if (Array.isArray(param) === false) {
+            this.id = [param];
+        }
+        else {
+            this.id = param;
+        }
+        return;
     }
     build() {
         let sql = `SELECT a.id, b.name as $type FROM ${this.twProfix}$id_u as a JOIN ${this.twProfix}$entity as b ON a.entity=b.id WHERE a.id IN (${this.id.join(',')});`;

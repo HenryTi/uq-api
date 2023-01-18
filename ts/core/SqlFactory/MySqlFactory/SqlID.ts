@@ -3,9 +3,11 @@ import { MySqlBuilder } from "./MySqlBuilder";
 
 export class SqlID extends MySqlBuilder<ParamID> {
     protected convertParam(p: ParamID): ParamID {
-        let { id, IDX } = p;
+        let { /*id, */IDX } = p;
         let ret = Object.assign({}, p);
         let types = ['id', 'idx'];
+        let IDTypes: string | (string[]) = IDX as unknown as any;
+        /*
         let IDTypes: string | (string[]);
         IDTypes = IDX as unknown as any;
         let idTypes: string[];
@@ -27,6 +29,8 @@ export class SqlID extends MySqlBuilder<ParamID> {
                 }
             }
         }
+        ret.IDX = this.getTableSchemaArray(IDTypes, types);
+        */
         ret.IDX = this.getTableSchemaArray(IDTypes, types);
         return ret;
     }

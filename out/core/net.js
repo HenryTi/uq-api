@@ -12,12 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.testCompileNet = exports.prodCompileNet = exports.testNet = exports.prodNet = exports.Net = void 0;
 const tool_1 = require("../tool");
 const runner_1 = require("./runner");
-const dbCaller_1 = require("./dbCaller");
+const db_1 = require("./db");
 const openApi_1 = require("./openApi");
 const centerApi_1 = require("./centerApi");
 const getUrlDebug_1 = require("./getUrlDebug");
 const unitx_1 = require("./unitx");
-const dbCaller_2 = require("./dbCaller");
+const consts_1 = require("./consts");
 class Net {
     constructor(executingNet, id) {
         this.runners = {};
@@ -39,10 +39,9 @@ class Net {
             if (runner === null)
                 return;
             if (runner === undefined) {
-                let dbName = this.getDbName(name);
-                let db = (0, dbCaller_2.getDb)(dbName);
-                db.isTesting = this.isTesting;
-                runner = yield this.createRunnerFromDb(db);
+                // let db = getDbContainer(dbName);
+                // db.isTesting = this.isTesting;
+                runner = yield this.createRunnerFromDbName(name);
                 if (runner === undefined) {
                     this.runners[name] = null;
                     return;
@@ -93,17 +92,17 @@ class Net {
             for (let runner of runners) {
                 yield runner.buildTuidAutoId();
                 yield this.resetRunner(runner);
-                tool_1.logger.error('=== resetRunnerAfterCompile: ' + runner.name);
+                tool_1.logger.error('=== resetRunnerAfterCompile: ' + runner.dbName);
             }
             if (this.executingNet !== undefined) {
                 this.executingNet.resetRunnerAfterCompile(db);
-                tool_1.logger.error('=== executingNet resetRunnerAfterCompile: ' + db.getDbName());
+                tool_1.logger.error('=== executingNet resetRunnerAfterCompile: ' + db.name);
             }
         });
     }
     resetRunner(runner) {
         return __awaiter(this, void 0, void 0, function* () {
-            let runnerName = runner.name;
+            let runnerName = runner.dbName;
             for (let i in this.runners) {
                 if (i !== runnerName)
                     continue;
@@ -118,13 +117,13 @@ class Net {
     }
     getUnitxRunner() {
         return __awaiter(this, void 0, void 0, function* () {
-            let name = '$unitx';
+            let name = consts_1.consts.$unitx;
             let $name = '$' + name;
             let runner = this.runners[$name];
             if (runner === null)
                 return;
             if (runner === undefined) {
-                runner = yield this.createRunnerFromDb(this.unitx.db);
+                runner = yield this.createRunnerFromDbName(name);
                 if (runner === undefined) {
                     this.runners[$name] = null;
                     return;
@@ -142,40 +141,47 @@ class Net {
     }
     /**
      *
-     * @param name uq(即数据库)的名称
+     * @param dbName uq(即数据库)的名称
      * @param db
      * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等)
      */
+    createRunnerFromDbName(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let dbName = this.getDbName(name);
+            let db = db_1.dbs.getDbUq(dbName);
+            return yield this.createRunnerFromDb(db);
+        });
+    }
     createRunnerFromDb(db) {
         return __awaiter(this, void 0, void 0, function* () {
-            let name = db.getDbName();
             return yield new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                let promiseArr = this.createRunnerFromDbPromises[name];
+                const dbName = db.name;
+                let promiseArr = this.createRunnerFromDbPromises[dbName];
                 if (promiseArr !== undefined) {
                     promiseArr.push({ resolve, reject });
                     return undefined;
                 }
-                this.createRunnerFromDbPromises[name] = promiseArr = [{ resolve, reject }];
+                this.createRunnerFromDbPromises[dbName] = promiseArr = [{ resolve, reject }];
                 let runner;
                 try {
-                    let isExists = yield db.exists();
+                    let isExists = yield db.existsDatabase();
                     if (isExists === false) {
                         runner = undefined;
                     }
                     else {
-                        yield db.init();
+                        yield db.initLoad();
                         runner = new runner_1.EntityRunner(db, this);
                     }
-                    for (let promiseItem of this.createRunnerFromDbPromises[name]) {
+                    for (let promiseItem of this.createRunnerFromDbPromises[dbName]) {
                         promiseItem.resolve(runner);
                     }
-                    this.createRunnerFromDbPromises[name] = undefined;
+                    this.createRunnerFromDbPromises[dbName] = undefined;
                 }
                 catch (reason) {
-                    for (let promiseItem of this.createRunnerFromDbPromises[name]) {
+                    for (let promiseItem of this.createRunnerFromDbPromises[dbName]) {
                         promiseItem.reject(reason);
                     }
-                    this.createRunnerFromDbPromises[name] = undefined;
+                    this.createRunnerFromDbPromises[dbName] = undefined;
                 }
                 return runner;
             }));
@@ -288,7 +294,7 @@ class Net {
         return __awaiter(this, void 0, void 0, function* () {
             let url;
             let { db } = urls;
-            if (dbCaller_1.env.isDevelopment === true) {
+            if (tool_1.env.isDevelopment === true) {
                 let urlDebug = yield (0, getUrlDebug_1.getUrlDebug)();
                 if (urlDebug !== undefined)
                     url = urlDebug;

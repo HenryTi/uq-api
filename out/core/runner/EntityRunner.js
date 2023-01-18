@@ -8,38 +8,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EntityRunner = void 0;
-const _ = require("lodash");
-const config = require("config");
 const tool_1 = require("../../tool");
-const dbCaller_1 = require("../dbCaller");
+const SqlFactory_1 = require("../SqlFactory");
+const db_1 = require("../db");
 const packReturn_1 = require("../packReturn");
 const importData_1 = require("../importData");
 const inBusAction_1 = require("../inBusAction");
 const centerApi_1 = require("../centerApi");
 const BusFace_1 = require("./BusFace");
-const IDRunner_1 = require("./IDRunner");
 const Runner_1 = require("./Runner");
-// 整个服务器，可以单独设置一个unit id。跟老版本兼容。
-// 新版本会去掉uq里面的唯一unit的概念。
-const uniqueUnitInConfig = (_a = config.get('unique-unit')) !== null && _a !== void 0 ? _a : 0;
 class EntityRunner extends Runner_1.Runner {
     /**
      * EntityRunner: 提供调用某个db中存储过程 / 缓存某db中配置数据 的类？
      * @param name uq(即数据库)的名称
-     * @param db
+     * @param dbContainer
      * @param net
      */
-    constructor(db, net = undefined) {
-        super(db);
+    constructor(dbUq, net) {
+        super(dbUq, net);
         this.roleVersions = {};
         this.compileTick = 0;
         this.hasPullEntities = false;
         this.hasSheet = false;
         this.isCompiling = false;
         this.devBuildSys = false;
+        this.getTableSchema = (lowerName) => {
+            var _a;
+            return (_a = this.schemas[lowerName]) === null || _a === void 0 ? void 0 : _a.call;
+        };
         this.parametersBusCache = {};
         this.actionConvertSchemas = {};
         this.$userSchema = {
@@ -61,18 +59,23 @@ class EntityRunner extends Runner_1.Runner {
                 "name", "nick", "icon", "assigned", "poke", "timezone"
             ]
         };
-        this.net = net;
         this.modifyMaxes = {};
-        this.dbCaller = db.dbCaller;
-        this.name = db.getDbName();
-        this.IDRunner = new IDRunner_1.IDRunner(this, new dbCaller_1.Builder(), this.dbCaller);
-        this.$uqDb = dbCaller_1.$uqDb;
+        this.dbName = dbUq.name;
+        // this.IDRunner = new IDRunner(this, new Builder(), this.dbCaller);
+        this.sqlFactory = (0, SqlFactory_1.createSqlFactory)({
+            getTableSchema: this.getTableSchema,
+            sqlType: tool_1.env.sqlType,
+            dbName: this.dbName,
+            hasUnit: false,
+            twProfix: this.dbUq.twProfix,
+        });
+        this.db$Uq = db_1.dbs.db$Uq;
     }
     // getDb(): string { return this.db.getDbName() }
     reset() {
         return __awaiter(this, void 0, void 0, function* () {
             this.isCompiling = false;
-            this.db.reset();
+            this.dbUq.reset();
             this.schemas = undefined;
             yield this.init();
         });
@@ -90,6 +93,25 @@ class EntityRunner extends Runner_1.Runner {
                 return;
             this.compileTick = compileTick;
             yield this.reset();
+        });
+    }
+    IDSql(unit, user, sqlBuilder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            sqlBuilder.build();
+            let { sql, proc, procParameters } = sqlBuilder;
+            let ret;
+            if (proc !== undefined) {
+                ret = yield this.call(proc, procParameters);
+            }
+            else {
+                ret = yield this.sql(sql, [unit, user]);
+            }
+            return ret;
+        });
+    }
+    ActIDProp(unit, user, ID, id, propName, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.call(`tv_${ID}$prop`, [unit, user, id, propName, value]);
         });
     }
     getEntityNameList() {
@@ -269,14 +291,14 @@ class EntityRunner extends Runner_1.Runner {
         return __awaiter(this, void 0, void 0, function* () {
             // await this.$uqDb.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
             const uq = this.net.getUqFullName(this.uq);
-            yield this.$uqDb.call('log', [unit, uq, subject, content]);
+            yield this.db$Uq.proc('log', [unit, uq, subject, content]);
         });
     }
     logError(unit, subject, content) {
         return __awaiter(this, void 0, void 0, function* () {
             //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
             const uq = this.net.getUqFullName(this.uq);
-            yield this.$uqDb.call('log_error', [unit, uq, subject, content]);
+            yield this.db$Uq.proc('log_error', [unit, uq, subject, content]);
         });
     }
     /*
@@ -302,32 +324,32 @@ class EntityRunner extends Runner_1.Runner {
     */
     procCall(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call(proc, params);
+            return yield this.dbUq.call(proc, params);
         });
     }
     call(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call(proc, params);
+            return yield this.dbUq.call(proc, params);
         });
     }
     sql(sql, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.sql(sql, params);
+            return yield this.dbUq.sql(sql, params);
         });
     }
     buildTuidAutoId() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.buildTuidAutoId();
+            yield this.dbUq.buildTuidAutoId();
         });
     }
     tableFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.tableFromProc(proc, params);
+            return yield this.dbUq.tableFromProc(proc, params);
         });
     }
     tablesFromProc(proc, params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.tablesFromProc(proc, params);
+            let ret = yield this.dbUq.tablesFromProc(proc, params);
             let len = ret.length;
             if (len === 0)
                 return ret;
@@ -343,7 +365,7 @@ class EntityRunner extends Runner_1.Runner {
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
-            return yield this.db.call(proc, p);
+            return yield this.dbUq.call(proc, p);
         });
     }
     unitUserCall(proc, unit, user, ...params) {
@@ -354,7 +376,7 @@ class EntityRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            return yield this.db.call(proc, p);
+            return yield this.dbUq.call(proc, p);
         });
     }
     unitUserCallEx(proc, unit, user, ...params) {
@@ -364,7 +386,7 @@ class EntityRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            return yield this.db.callEx(proc, p);
+            return yield this.dbUq.callEx(proc, p);
         });
     }
     unitTableFromProc(proc, unit, ...params) {
@@ -373,7 +395,7 @@ class EntityRunner extends Runner_1.Runner {
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tableFromProc(proc, p);
+            let ret = yield this.dbUq.tableFromProc(proc, p);
             return ret;
         });
     }
@@ -384,7 +406,7 @@ class EntityRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tableFromProc(proc, p);
+            let ret = yield this.dbUq.tableFromProc(proc, p);
             return ret;
         });
     }
@@ -394,7 +416,7 @@ class EntityRunner extends Runner_1.Runner {
             p.push(unit);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tablesFromProc(proc, p);
+            let ret = yield this.dbUq.tablesFromProc(proc, p);
             return ret;
         });
     }
@@ -405,7 +427,7 @@ class EntityRunner extends Runner_1.Runner {
             p.push(user);
             if (params !== undefined)
                 p.push(...params);
-            let ret = yield this.db.tablesFromProc(proc, p);
+            let ret = yield this.dbUq.tablesFromProc(proc, p);
             return ret;
         });
     }
@@ -414,11 +436,11 @@ class EntityRunner extends Runner_1.Runner {
         });
     }
     isExistsProc(proc) {
-        return this.db.isExistsProc(proc);
+        return this.dbUq.isExistsProc(proc);
     }
     createProc(proc) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.createProc(proc);
+            yield this.dbUq.createProc(proc);
         });
     }
     /**
@@ -428,7 +450,7 @@ class EntityRunner extends Runner_1.Runner {
      */
     loadSchemas(hasSource) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.tablesFromProc('$entitys', [hasSource]);
+            return yield this.dbUq.tablesFromProc('$entitys', [hasSource]);
         });
     }
     saveSchema(unit, user, id, name, type, schema, run, source, from, open, isPrivate) {
@@ -438,38 +460,38 @@ class EntityRunner extends Runner_1.Runner {
     }
     loadConstStrs() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('$const_strs', []);
+            return yield this.dbUq.call('$const_strs', []);
         });
     }
     saveConstStr(type) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('$const_str', [type]);
+            return yield this.dbUq.call('$const_str', [type]);
         });
     }
     saveTextId(text) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.saveTextId(text);
+            return yield this.dbUq.saveTextId(text);
         });
     }
     loadSchemaVersion(name, version) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.call('$entity_version', [name, version]);
+            return yield this.dbUq.call('$entity_version', [name, version]);
         });
     }
     setEntityValid(entities, valid) {
         return __awaiter(this, void 0, void 0, function* () {
-            let ret = yield this.db.call('$entity_validate', [entities, valid]);
+            let ret = yield this.dbUq.call('$entity_validate', [entities, valid]);
             return ret;
         });
     }
     saveFace(bus, busOwner, busName, faceName) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('$save_face', [bus, busOwner, busName, faceName]);
+            yield this.dbUq.call('$save_face', [bus, busOwner, busName, faceName]);
         });
     }
     execQueueAct() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.db.execQueueAct();
+            return yield this.dbUq.execQueueAct();
         });
     }
     /*
@@ -676,7 +698,7 @@ class EntityRunner extends Runner_1.Runner {
     }
     sheetProcessing(sheetId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.db.call('$sheet_processing', [sheetId]);
+            yield this.dbUq.call('$sheet_processing', [sheetId]);
         });
     }
     getSheetActionParametersBus(sheetName, stateName, actionName) {
@@ -851,11 +873,11 @@ class EntityRunner extends Runner_1.Runner {
     }
     importData(unit, user, source, entity, filePath) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield importData_1.ImportData.exec(this, unit, this.db, source, entity, filePath);
+            yield importData_1.ImportData.exec(this, unit, this.dbUq, source, entity, filePath);
         });
     }
-    equDb(db) {
-        return this.db === db;
+    equDb(dbContainer) {
+        return this.dbUq === dbContainer;
     }
     /*
         async reset() {
@@ -883,7 +905,7 @@ class EntityRunner extends Runner_1.Runner {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
-            let eventsText = yield this.dbCaller.removeAllScheduleEvents();
+            let eventsText = yield this.dbUq.removeAllScheduleEvents();
             this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
             let rows = yield this.loadSchemas(0);
             let schemaTable = rows[0];
@@ -912,12 +934,12 @@ class EntityRunner extends Runner_1.Runner {
             this.hasStatements = setting['hasstatements'] === 1;
             this.service = setting['service'];
             this.devBuildSys = setting['dev-build-sys'] !== null;
-            this.dbCaller.hasUnit = this.hasUnit;
+            // this.db.hasUnit = this.hasUnit;
             // this.dbCaller.setBuilder();
             let ixUserArr = [];
             let uu = setting['uniqueunit'];
-            this.uniqueUnit = uu !== null && uu !== void 0 ? uu : uniqueUnitInConfig;
-            if (dbCaller_1.env.isDevelopment)
+            this.uniqueUnit = uu !== null && uu !== void 0 ? uu : tool_1.env.uniqueUnitInConfig;
+            if (tool_1.env.isDevelopment)
                 tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
             this.schemas = {};
             this.accessSchemaArr = [];
@@ -1206,13 +1228,13 @@ class EntityRunner extends Runner_1.Runner {
                     };
             }
         }
-        if (dbCaller_1.env.isDevelopment)
+        if (tool_1.env.isDevelopment)
             tool_1.logger.debug('access: ', this.access);
     }
     getUserAccess(unit, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            let result = yield this.db.tablesFromProc('$get_access', [unit]);
-            let ret = _.union(result[0].map(v => v.entity), result[1].map(v => v.entity));
+            let result = yield this.dbUq.tablesFromProc('$get_access', [unit]);
+            let ret = [...result[0].map(v => v.entity), ...result[1].map(v => v.entity)];
             return ret;
         });
     }
@@ -1232,7 +1254,7 @@ class EntityRunner extends Runner_1.Runner {
                         access[i] = v;
                         continue;
                     }
-                    dst.ops = _.union(dst.ops, v.ops);
+                    dst.ops = [...dst.ops, ...v.ops];
                 }
             }
             if (acc === undefined) {
