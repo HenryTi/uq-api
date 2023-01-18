@@ -9,5 +9,5 @@ export interface Dbs {
     readonly dbUqs: { [name: string]: DbUq };
 
     start(): Promise<void>;
-    getDbUq(dbName: string): DbUq;      // dbName = uqName [+ $test]
+    getDbUq(dbName: string, isTesting: boolean): DbUq;      // dbName = uqName [+ $test]
 }

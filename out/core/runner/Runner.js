@@ -13,8 +13,7 @@ exports.Runner = void 0;
 const centerApi_1 = require("../centerApi");
 // import { DbContainer } from '../db';
 class Runner {
-    constructor(dbUq, net) {
-        this.net = net;
+    constructor(dbUq) {
         this.dbUq = dbUq;
     }
     // protected readonly dbContainer: DbContainer;

@@ -134,7 +134,7 @@ export abstract class Net {
      */
     protected async createRunnerFromDbName(name: string): Promise<EntityRunner> {
         let dbName = this.getDbName(name);
-        let db = dbs.getDbUq(dbName);
+        let db = dbs.getDbUq(dbName, this.isTesting);
         return await this.createRunnerFromDb(db);
     }
 

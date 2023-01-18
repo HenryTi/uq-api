@@ -36,8 +36,9 @@ export interface DbNoName extends DbBase {
 }
 
 export interface DbUq extends Db {
-    initLoad(): Promise<void>;
     get twProfix(): string;
+    get isTesting(): boolean;
+    initLoad(): Promise<void>;
     createProcObjs(): Promise<void>;
     reset(): void;
     buildTuidAutoId(): Promise<void>;

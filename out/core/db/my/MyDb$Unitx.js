@@ -5,8 +5,8 @@ const tool_1 = require("../../../tool");
 const consts_1 = require("../../consts");
 const MyDbUq_1 = require("./MyDbUq");
 class MyDb$Unitx extends MyDbUq_1.MyDbUq {
-    constructor(dbName) {
-        super(dbName);
+    constructor(dbName, isTesting) {
+        super(dbName, isTesting);
         this.serverId = this.dbConfig[tool_1.env.server_id];
     }
     connectionConfig() {
@@ -31,14 +31,14 @@ class MyDb$Unitx extends MyDbUq_1.MyDbUq {
 }
 class MyDb$UnitxProd extends MyDb$Unitx {
     constructor() {
-        super(consts_1.consts.$unitx);
+        super(consts_1.consts.$unitx, false);
     }
     getDebugConfigName(unitx) { return unitx.prod; }
 }
 exports.MyDb$UnitxProd = MyDb$UnitxProd;
 class MyDb$UnitxTest extends MyDb$Unitx {
     constructor() {
-        super(consts_1.consts.$unitx + consts_1.consts.$test);
+        super(consts_1.consts.$unitx + consts_1.consts.$test, true);
     }
     getDebugConfigName(unitx) { return unitx.test; }
 }

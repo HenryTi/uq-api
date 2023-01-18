@@ -27,7 +27,7 @@ class EntityRunner extends Runner_1.Runner {
      * @param net
      */
     constructor(dbUq, net) {
-        super(dbUq, net);
+        super(dbUq);
         this.roleVersions = {};
         this.compileTick = 0;
         this.hasPullEntities = false;
@@ -59,6 +59,7 @@ class EntityRunner extends Runner_1.Runner {
                 "name", "nick", "icon", "assigned", "poke", "timezone"
             ]
         };
+        this.net = net;
         this.modifyMaxes = {};
         this.dbName = dbUq.name;
         // this.IDRunner = new IDRunner(this, new Builder(), this.dbCaller);

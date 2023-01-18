@@ -32,10 +32,11 @@ const sysProcColl = {
     $tag_save: true,
 };
 class MyDbUq extends MyDb_1.MyDb {
-    constructor(dbName) {
+    constructor(dbName, isTesting) {
         super(dbName);
         this.execQueueActError = false;
         this.events = new Set();
+        this.isTesting = isTesting;
         this.resetProcColl();
     }
     connectionConfig() { return tool_1.env.connection; }

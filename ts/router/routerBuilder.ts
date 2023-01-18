@@ -3,6 +3,7 @@ import { logger } from '../tool';
 import { EntityRunner } from '../core/runner';
 import { consts } from "../core/consts";
 import { prodNet, testNet, Net, prodCompileNet, testCompileNet } from '../core/net';
+import { dbs, DbUq } from 'core';
 
 type Processer = (runner: EntityRunner, body: any, urlParams: any, userToken?: User) => Promise<any>;
 type EntityProcesser = (unit: number, user: number, name: string, db: string, urlParams: any,
@@ -19,6 +20,11 @@ export abstract class RouterBuilder {
     protected net: Net;
     constructor(net: Net) {
         this.net = net;
+    }
+
+    getDbUq(uqName: string): DbUq {
+        let db = dbs.getDbUq(this.getDbName(uqName), this.net.isTesting);
+        return db;
     }
 
     post(router: Router, path: string, processer: Processer) {

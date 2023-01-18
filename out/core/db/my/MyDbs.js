@@ -24,10 +24,10 @@ class MyDbs {
         this.dbNoName = new MyDbNoName_1.MyDbNoName();
         this.dbUqs = {};
     }
-    getDbUq(uqName) {
+    getDbUq(uqName, isTesting) {
         let dbUq = this.dbUqs[uqName];
         if (dbUq === undefined) {
-            dbUq = new MyDbUq_1.MyDbUq(uqName);
+            dbUq = new MyDbUq_1.MyDbUq(uqName, isTesting);
             this.dbUqs[uqName] = dbUq;
         }
         return dbUq;

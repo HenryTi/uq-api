@@ -13,6 +13,7 @@ exports.compileTestRouterBuilder = exports.compileProdRouterBuilder = exports.un
 const tool_1 = require("../tool");
 const consts_1 = require("../core/consts");
 const net_1 = require("../core/net");
+const core_1 = require("core");
 ;
 class RouterBuilder {
     constructor(net) {
@@ -33,6 +34,10 @@ class RouterBuilder {
             }
         });
         this.net = net;
+    }
+    getDbUq(uqName) {
+        let db = core_1.dbs.getDbUq(this.getDbName(uqName), this.net.isTesting);
+        return db;
     }
     post(router, path, processer) {
         router.post(path, (req, res) => __awaiter(this, void 0, void 0, function* () {

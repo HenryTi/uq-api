@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DbLogger = exports.SpanLog = void 0;
+const dbsGlobal_1 = require("./dbsGlobal");
 class SpanLog {
     constructor(logger, log) {
         this.logger = logger;
@@ -40,11 +41,11 @@ exports.SpanLog = SpanLog;
 const tSep = '\r';
 const nSep = '\r\r';
 class DbLogger {
-    constructor($uqDb, minSpan = 0) {
+    constructor(minSpan = 0) {
         this.tick = Date.now();
         this.spans = [];
         this.minSpan = minSpan;
-        this.$uqDb = $uqDb;
+        this.db$Uq = dbsGlobal_1.dbs.db$Uq;
     }
     open(log) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -77,7 +78,7 @@ class DbLogger {
             if (tick > now || tick < now - 1000000) {
                 //debugger;
             }
-            this.$uqDb.logPerformance(tick, log, ms);
+            this.db$Uq.logPerformance(tick, log, ms);
         }
     }
 }

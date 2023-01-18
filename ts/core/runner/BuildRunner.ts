@@ -61,7 +61,7 @@ export class BuildRunner extends Runner {
         if (sectionCount <= 0 || sectionCount > 8) {
             return;
         }
-        let type: 1 | 2 = this.net.isTesting === true ? 2 : 1;
+        let type: 1 | 2 = this.dbUq.isTesting === true ? 2 : 1;
         let ret = await centerApi.IDSectionApply(service, type, section, sectionCount);
         if (ret) {
             let { start, end, section_max, service_max } = ret;

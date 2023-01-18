@@ -24,10 +24,10 @@ export class MyDbs implements Dbs {
         this.dbUqs = {};
     }
 
-    getDbUq(uqName: string): DbUq {
+    getDbUq(uqName: string, isTesting: boolean): DbUq {
         let dbUq = this.dbUqs[uqName];
         if (dbUq === undefined) {
-            dbUq = new MyDbUq(uqName);
+            dbUq = new MyDbUq(uqName, isTesting);
             this.dbUqs[uqName] = dbUq;
         }
         return dbUq;

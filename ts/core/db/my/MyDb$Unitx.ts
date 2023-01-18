@@ -6,8 +6,8 @@ import { MyDbUq } from "./MyDbUq";
 abstract class MyDb$Unitx extends MyDbUq implements Db$Unitx {
     readonly serverId: number;
 
-    constructor(dbName: string) {
-        super(dbName);
+    constructor(dbName: string, isTesting: boolean) {
+        super(dbName, isTesting);
         this.serverId = this.dbConfig[env.server_id];
     }
 
@@ -35,14 +35,14 @@ abstract class MyDb$Unitx extends MyDbUq implements Db$Unitx {
 
 export class MyDb$UnitxProd extends MyDb$Unitx {
     constructor() {
-        super(consts.$unitx);
+        super(consts.$unitx, false);
     }
     protected getDebugConfigName(unitx: any): string { return unitx.prod }
 }
 
 export class MyDb$UnitxTest extends MyDb$Unitx {
     constructor() {
-        super(consts.$unitx + consts.$test);
+        super(consts.$unitx + consts.$test, true);
     }
     protected getDebugConfigName(unitx: any): string { return unitx.test }
 }

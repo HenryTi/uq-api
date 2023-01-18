@@ -25,11 +25,13 @@ const sysProcColl = {
 
 export class MyDbUq extends MyDb implements DbUq {
     private procColl: { [procName: string]: boolean };
+    readonly isTesting: boolean;
     hasUnit: boolean;
     twProfix: string;
 
-    constructor(dbName: string) {
+    constructor(dbName: string, isTesting: boolean) {
         super(dbName);
+        this.isTesting = isTesting;
         this.resetProcColl();
     }
 

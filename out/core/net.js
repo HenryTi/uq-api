@@ -148,7 +148,7 @@ class Net {
     createRunnerFromDbName(name) {
         return __awaiter(this, void 0, void 0, function* () {
             let dbName = this.getDbName(name);
-            let db = db_1.dbs.getDbUq(dbName);
+            let db = db_1.dbs.getDbUq(dbName, this.isTesting);
             return yield this.createRunnerFromDb(db);
         });
     }
