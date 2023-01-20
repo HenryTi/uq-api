@@ -34,7 +34,7 @@ class SqlIDSum extends SqlSum {
                 sql += `=${id}`;
             }
         }
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlIDSum = SqlIDSum;

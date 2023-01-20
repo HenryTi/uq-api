@@ -7,7 +7,7 @@ export class SqlKeyIXSum extends SqlSum<ParamKeyIXSum> {
         return this.checkIDXSumField(p);
     }
 
-    build(): string {
+    override build(): void {
         let { ID, IX, key, IDX, page } = this.param;
         let sql = this.buildSumSelect(this.param);
         let { schema } = ID;
@@ -34,6 +34,6 @@ export class SqlKeyIXSum extends SqlSum<ParamKeyIXSum> {
         sql += ' ORDER BY t0.id ASC';
         if (page) sql += ' LIMIT ' + page.size;
         sql += sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }

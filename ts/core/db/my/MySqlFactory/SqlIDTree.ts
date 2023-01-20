@@ -9,7 +9,7 @@ export class SqlIDTree extends MySqlBuilder<ParamIDTree> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         let { ID, parent, key, level, page } = this.param;
         if (!level) level = 1;
         let keyField = ID.schema.keys[1];
@@ -42,6 +42,6 @@ export class SqlIDTree extends MySqlBuilder<ParamIDTree> {
             if (!start) start = 0;
             sql += ` AND a.id>${start} limit ${size}`;
         }
-        return sql;
+        this.sql = sql;
     }
 }

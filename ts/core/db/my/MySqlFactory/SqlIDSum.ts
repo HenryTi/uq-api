@@ -22,7 +22,7 @@ export class SqlIDSum extends SqlSum<ParamIDSum> {
         return this.checkIDXSumField(p);
     }
 
-    build(): string {
+    override build(): void {
         let { id } = this.param;
         let sql = this.buildSumSelect(this.param);
         if (id !== undefined) {
@@ -34,6 +34,6 @@ export class SqlIDSum extends SqlSum<ParamIDSum> {
                 sql += `=${id}`;
             }
         }
-        return sql;
+        this.sql = sql;
     }
 }

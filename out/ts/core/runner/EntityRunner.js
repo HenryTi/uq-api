@@ -87,8 +87,11 @@ class EntityRunner extends Runner_1.Runner {
         if (proc !== undefined) {
             ret = await this.call(proc, procParameters);
         }
+        else if (sql !== undefined) {
+            ret = await this.call('$exec_sql_trans', [unit, user, sql]);
+        }
         else {
-            ret = await this.sql(sql, [unit, user]);
+            throw new Error('error on build sql');
         }
         return ret;
     }

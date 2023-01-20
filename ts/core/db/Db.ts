@@ -1,5 +1,7 @@
+import { SpanLog } from "./dbLogger";
+
 export interface DbBase {
-    sql(sql: string, params: any[]): Promise<any>;
+    sql(sql: string, params?: any[], spanLog?: SpanLog): Promise<any>;
 }
 
 export interface Db extends DbBase {

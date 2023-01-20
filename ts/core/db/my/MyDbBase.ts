@@ -50,7 +50,7 @@ export abstract class MyDbBase implements DbBase {
         pools.push({ config: this.dbConfig, pool: newPool });
         return newPool;
     }
-    protected async exec(sql: string, values: any[], log?: SpanLog): Promise<any> {
+    async sql(sql: string, params?: any[], log?: SpanLog): Promise<any> {
         if (this.pool === undefined) {
             this.pool = await this.getPool();
         }
@@ -89,7 +89,7 @@ export abstract class MyDbBase implements DbBase {
                         }
                         return setTimeout(() => {
                             // debugger;
-                            this.pool.query(sql, values, handleResponse);
+                            this.pool.query(sql, params, handleResponse);
                         }, sleepMillis);
                     default:
                         if (isDevelopment === true) {
@@ -106,11 +106,13 @@ export abstract class MyDbBase implements DbBase {
                         return;
                 }
             }
-            this.pool.query(sql, values, handleResponse);
+            this.pool.query(sql, params, handleResponse);
         });
     }
+    /*
     async sql(sql: string, params: any[]): Promise<any> {
         let result = await this.exec(sql, params);
         return result;
     }
+    */
 }

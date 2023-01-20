@@ -7,7 +7,7 @@ export class SqlIXSum extends SqlSum<ParamIXSum> {
         return this.checkIDXSumField(p);
     }
 
-    build(): string {
+    override build(): void {
         let { IX, ix, page } = this.param;
         let sql = this.buildSumSelect(this.param);
         sql += ` RIGHT JOIN \`${this.twProfix}${IX.name}\` as t0 ON t0.xi=t.id WHERE 1=1`;
@@ -26,6 +26,6 @@ export class SqlIXSum extends SqlSum<ParamIXSum> {
         sql += ' ORDER BY t0.xi ASC';
         if (page) sql += ' LIMIT ' + page.size;
         sql += sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }

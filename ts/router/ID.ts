@@ -127,7 +127,10 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
 
     rb.entityPost(router, 'id', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
-            body.IDX = await loadIDTypes(runner, unit, user, body.id);
+            let { IDX } = body;
+            if (IDX === undefined) {
+                body.IDX = await loadIDTypes(runner, unit, user, body.id);
+            }
             let sqlBuilder = runner.sqlFactory.ID(body);
             let result = await runner.IDSql(unit, user, sqlBuilder);
             return result;
@@ -136,7 +139,10 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
     rb.entityPost(router, sqlResultProfix + 'id', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             body.$sql = true;
-            body.IDX = await loadIDTypes(runner, unit, user, body.id);
+            let { IDX } = body;
+            if (IDX === undefined) {
+                body.IDX = await loadIDTypes(runner, unit, user, body.id);
+            }
             let sqlBuilder = runner.sqlFactory.ID(body);
             let result = await runner.IDSql(unit, user, sqlBuilder);
             return result;

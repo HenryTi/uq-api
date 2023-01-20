@@ -45,7 +45,7 @@ class SqlIDTree extends MySqlBuilder_1.MySqlBuilder {
                 start = 0;
             sql += ` AND a.id>${start} limit ${size}`;
         }
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlIDTree = SqlIDTree;

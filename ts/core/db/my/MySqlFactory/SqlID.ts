@@ -35,7 +35,7 @@ export class SqlID extends MySqlBuilder<ParamID> {
         return ret;
     }
 
-    build(): string {
+    override build(): void {
         let { IDX, id, page, order } = this.param;
         let { cols, tables } = this.buildIDX(IDX);
         let where: string = '';
@@ -61,7 +61,7 @@ export class SqlID extends MySqlBuilder<ParamID> {
         let sql = `SELECT ${cols} FROM ${tables} WHERE ${where} `;
         if (order) sql += ` ORDER BY t0.id ${this.buildOrder(order)}`;
         sql += `${limit}`;
-        return sql;
+        this.sql = sql;
     }
 }
 
@@ -89,8 +89,8 @@ export class SqlIdTypes extends MySqlBuilder<number | (number[])> {
         return;
     }
 
-    build(): string {
+    build(): void {
         let sql = `SELECT a.id, b.name as $type FROM ${this.twProfix}$id_u as a JOIN ${this.twProfix}$entity as b ON a.entity=b.id WHERE a.id IN (${this.id.join(',')});`;
-        return sql;
+        this.sql = sql;
     }
 }

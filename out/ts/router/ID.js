@@ -98,14 +98,20 @@ function buildIDRouter(router, rb) {
         return IDTypes;
     }
     rb.entityPost(router, 'id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
-        body.IDX = await loadIDTypes(runner, unit, user, body.id);
+        let { IDX } = body;
+        if (IDX === undefined) {
+            body.IDX = await loadIDTypes(runner, unit, user, body.id);
+        }
         let sqlBuilder = runner.sqlFactory.ID(body);
         let result = await runner.IDSql(unit, user, sqlBuilder);
         return result;
     });
     rb.entityPost(router, sqlResultProfix + 'id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
         body.$sql = true;
-        body.IDX = await loadIDTypes(runner, unit, user, body.id);
+        let { IDX } = body;
+        if (IDX === undefined) {
+            body.IDX = await loadIDTypes(runner, unit, user, body.id);
+        }
         let sqlBuilder = runner.sqlFactory.ID(body);
         let result = await runner.IDSql(unit, user, sqlBuilder);
         return result;

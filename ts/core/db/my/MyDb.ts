@@ -24,7 +24,7 @@ export abstract class MyDb extends MyDbBase implements Db {
     async sqlDropProc(procName: string, isFunc: boolean): Promise<any> {
         let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
         let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${procName}\``;
-        await this.exec(sql, []);
+        await this.sql(sql);
     }
 
     protected buildCallProc(proc: string) {
@@ -46,7 +46,7 @@ export abstract class MyDb extends MyDbBase implements Db {
     }
     async proc(proc: string, params: any[]): Promise<any> {
         let sql = this.buildCallProc(proc) + this.buildCallProcParameters(params);
-        let ret = await this.exec(sql, params);
+        let ret = await this.sql(sql, params);
         return ret;
     }
 
@@ -71,39 +71,39 @@ export abstract class MyDb extends MyDbBase implements Db {
             log += ')';
             spanLog = await this.dbLogger.open(log);
         }
-        return await this.exec(sql, params, spanLog);
+        return await this.sql(sql, params, spanLog);
     }
 
     // return exists
     async buildDatabase(): Promise<boolean> {
         let exists = this.sqlExists(this.name);
-        let retExists = await this.exec(exists, []);
+        let retExists = await this.sql(exists);
         let ret = retExists.length > 0;
         if (ret === false) {
             try {
                 let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\``; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci`;
-                await this.exec(sql, undefined);
+                await this.sql(sql);
             }
             catch (err) {
                 console.error(err);
             }
         }
-        let retTry = await this.exec('select 1', undefined);
+        // let retTry = await this.sql('select 1');
         await this.insertInto$Uq(this.name);
         return ret;
     }
 
     private async insertInto$Uq(db: string): Promise<void> {
         let insertUqDb = `insert into $uq.uq (\`name\`) values ('${db}') on duplicate key update create_time=current_timestamp();`;
-        await this.exec(insertUqDb, undefined);
+        await this.sql(insertUqDb);
     }
     async createDatabase(): Promise<void> {
         let sql = 'CREATE DATABASE IF NOT EXISTS `' + this.name + '` default CHARACTER SET utf8 '; //COLLATE utf8_unicode_ci';
-        await this.exec(sql, undefined);
+        await this.sql(sql);
     }
     async existsDatabase(): Promise<boolean> {
         let sql = this.sqlExists(this.name);
-        let rows: any[] = await this.exec(sql, undefined);
+        let rows: any[] = await this.sql(sql);
         return rows.length > 0;
     }
 }

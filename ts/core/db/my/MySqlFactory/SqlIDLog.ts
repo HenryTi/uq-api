@@ -14,7 +14,7 @@ export class SqlIDLog extends MySqlBuilder<ParamIDLog> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         let { IDX, field, id, log, timeZone, page, far, near } = this.param;
         field = field.toLowerCase();
         let { start, size } = page;
@@ -29,15 +29,16 @@ export class SqlIDLog extends MySqlBuilder<ParamIDLog> {
         let time = `from_unixtime(a.t/1000+${timeZone}*3600)`;
         switch (log) {
             default:
-                return `select 'IDX ${name} ${field}' log ${log} unknown`;
+                this.sql = `select 'IDX ${name} ${field}' log ${log} unknown`;
+                return;
             case 'each':
-                return `SELECT ${cols} FROM ${table} as a WHERE a.id=${id} AND a.t<${start} ${span} ORDER BY a.t DESC LIMIT ${size}`;
+                this.sql = `SELECT ${cols} FROM ${table} as a WHERE a.id=${id} AND a.t<${start} ${span} ORDER BY a.t DESC LIMIT ${size}`;
+                return;
             case 'day': group = `DATE_FORMAT(${time}, '%Y-%m-%d')`;; break;
             case 'week': group = `YEARWEEK(${time}, 2)`; break;
             case 'month': group = `DATE_FORMAT(${time}, '%Y-%m-01')`; break;
             case 'year': group = `DATE_FORMAT(${time}, '%Y-01-01')`; break;
         }
-        let sql = `select ${group} as t, sum(a.v) as v from ${table} as a where a.t<${start} and a.id=${id} ${span} group by ${group} order by t limit ${size}`;
-        return sql;
+        this.sql = `select ${group} as t, sum(a.v) as v from ${table} as a where a.t<${start} and a.id=${id} ${span} group by ${group} order by t limit ${size}`;
     }
 }

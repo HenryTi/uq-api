@@ -293,7 +293,7 @@ class MyDbUq extends MyDb_1.MyDb {
     CREATE EVENT IF NOT EXISTS \`${this.twProfix}${entityName}\`
         ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`${this.twProfix}${entityName}\`(${unit}, 0);
     `;
-                await this.exec(sql, []);
+                await this.sql(sql);
                 if (repeat === 1) {
                     sql = `use \`${db}\`; DELETE a FROM ${this.twProfix}$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
                 }
@@ -304,7 +304,7 @@ class MyDbUq extends MyDb_1.MyDb {
                             WHERE a.unit=${unit} AND a.entity=${entity};
                         `;
                 }
-                await this.exec(sql, []);
+                await this.sql(sql);
             }
         }
         return 0;
@@ -325,7 +325,7 @@ class MyDbUq extends MyDb_1.MyDb {
         let events;
         try {
             const sqls = sqlsVersion_1.sqlsVersion;
-            events = await this.exec(sqls.eventExists, [db]);
+            events = await this.sql(sqls.eventExists, [db]);
             if ((!events) || events.length === 0)
                 return;
         }
@@ -356,7 +356,7 @@ class MyDbUq extends MyDb_1.MyDb {
 				)
 			WHERE a.tuidVid IS NULL;
         `;
-        await this.exec(sql, []);
+        await this.sql(sql);
     }
     async tableFromProc(proc, params) {
         let res = await this.execUqProc(proc, params);
@@ -389,7 +389,7 @@ class MyDbUq extends MyDb_1.MyDb {
     }
     async saveTextId(text) {
         let sql = `select \`${this.name}\`.${this.twProfix}$textid(?) as a`;
-        let ret = await this.exec(sql, [text]);
+        let ret = await this.sql(sql, [text]);
         return ret[0]['a'];
     }
 }

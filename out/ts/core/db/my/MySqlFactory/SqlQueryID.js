@@ -52,7 +52,7 @@ class SqlQueryID extends MySqlBuilder_1.MySqlBuilder {
         if (this.limit.length > 0) {
             sql += `\n\tLIMIT ${this.limit}`;
         }
-        return sql + MySqlBuilder_1.sqlLineEnd;
+        this.sql = sql + MySqlBuilder_1.sqlLineEnd;
     }
     sqlID() {
         //ID key must be with key, ID table stay after other tabble

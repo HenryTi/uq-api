@@ -37,7 +37,7 @@ class MyDbBase {
         pools.push({ config: this.dbConfig, pool: newPool });
         return newPool;
     }
-    async exec(sql, values, log) {
+    async sql(sql, params, log) {
         if (this.pool === undefined) {
             this.pool = await this.getPool();
         }
@@ -79,7 +79,7 @@ class MyDbBase {
                         }
                         return setTimeout(() => {
                             // debugger;
-                            this.pool.query(sql, values, handleResponse);
+                            this.pool.query(sql, params, handleResponse);
                         }, sleepMillis);
                     default:
                         if (isDevelopment === true) {
@@ -96,12 +96,8 @@ class MyDbBase {
                         return;
                 }
             };
-            this.pool.query(sql, values, handleResponse);
+            this.pool.query(sql, params, handleResponse);
         });
-    }
-    async sql(sql, params) {
-        let result = await this.exec(sql, params);
-        return result;
     }
 }
 exports.MyDbBase = MyDbBase;

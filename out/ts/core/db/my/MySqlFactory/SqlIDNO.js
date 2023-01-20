@@ -12,8 +12,7 @@ class SqlIDNO extends MySqlBuilder_1.MySqlBuilder {
     }
     build() {
         let { ID, stamp } = this.param;
-        let sql = `SELECT ${this.twProfix}$no(@unit, '${ID.name}', ${stamp !== null && stamp !== void 0 ? stamp : null}) as no` + MySqlBuilder_1.sqlLineEnd;
-        return sql;
+        this.sql = `SELECT ${this.twProfix}$no(@unit, '${ID.name}', ${stamp !== null && stamp !== void 0 ? stamp : null}) as no` + MySqlBuilder_1.sqlLineEnd;
     }
 }
 exports.SqlIDNO = SqlIDNO;

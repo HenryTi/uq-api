@@ -63,7 +63,7 @@ class SqlID extends MySqlBuilder_1.MySqlBuilder {
         if (order)
             sql += ` ORDER BY t0.id ${this.buildOrder(order)}`;
         sql += `${limit}`;
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlID = SqlID;
@@ -90,7 +90,7 @@ class SqlIdTypes extends MySqlBuilder_1.MySqlBuilder {
     }
     build() {
         let sql = `SELECT a.id, b.name as $type FROM ${this.twProfix}$id_u as a JOIN ${this.twProfix}$entity as b ON a.entity=b.id WHERE a.id IN (${this.id.join(',')});`;
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlIdTypes = SqlIdTypes;

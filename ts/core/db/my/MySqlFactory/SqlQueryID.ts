@@ -26,7 +26,7 @@ export class SqlQueryID extends MySqlBuilder<ParamQueryID> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         //let {ID, IX, IDX, id, key, ix, page, order} = this.param;
         this.t = 0;
         this.sqlID();
@@ -63,7 +63,7 @@ export class SqlQueryID extends MySqlBuilder<ParamQueryID> {
         if (this.limit.length > 0) {
             sql += `\n\tLIMIT ${this.limit}`;
         }
-        return sql + sqlLineEnd;
+        this.sql = sql + sqlLineEnd;
     }
 
     private sqlID() {

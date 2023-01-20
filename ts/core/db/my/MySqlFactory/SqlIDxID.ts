@@ -11,7 +11,7 @@ export class SqlIDxID extends MySqlBuilder<ParamIDxID> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         let { ID, IX, ID2, page } = this.param;
         page = page ?? { start: 0, size: 100 };
         let { cols, tables } = this.buildIDX([ID]);
@@ -31,6 +31,6 @@ export class SqlIDxID extends MySqlBuilder<ParamIDxID> {
         sql += `\nINSERT INTO ids (id) SELECT t0.id FROM ${tables} WHERE ${where} ${limit}` + sqlLineEnd;
         sql += `\nSELECT ${cols} FROM ${tables} JOIN ids as z ON t0.id=z.id` + sqlLineEnd;
         sql += `\nSELECT x.id as \`$xid\`, ${cols2} FROM ${tables2} JOIN \`${this.twProfix}${IX.name}\` as x ON t0.id=x.id JOIN ids as z ON x.id=z.id` + sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }

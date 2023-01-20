@@ -10,7 +10,7 @@ export class SqlIDinIX extends MySqlBuilder<ParamIDinIX> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         let { IX, ID, ix, page } = this.param;
         let { cols, tables } = this.buildIDX([ID]);
         let where: string = '';
@@ -24,7 +24,6 @@ export class SqlIDinIX extends MySqlBuilder<ParamIDinIX> {
         }
         cols += `,case when exists(select id from \`${this.twProfix}${IX.name}\` where ix=${ix ?? '@user'} and id=t0.id) then 1 else 0 end as $in`;
 
-        let sql = `SELECT ${cols} FROM ${tables} WHERE ${where} ${limit}`;
-        return sql;
+        this.sql = `SELECT ${cols} FROM ${tables} WHERE ${where} ${limit}`;
     }
 }

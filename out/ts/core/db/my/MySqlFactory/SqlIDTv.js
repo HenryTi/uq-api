@@ -18,7 +18,7 @@ SELECT a.id, b.name as $type, a.name as $tv
 	FROM ${this.twProfix}${idTbl} as a 
 		JOIN ${this.twProfix}$entity as b ON a.entity=b.id 
 	WHERE a.id in (${this.param.join(',')})` + MySqlBuilder_1.sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlIDTv = SqlIDTv;

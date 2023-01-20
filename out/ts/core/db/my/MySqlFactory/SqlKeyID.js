@@ -56,7 +56,7 @@ class SqlKeyID extends MySqlBuilder_1.MySqlBuilder {
         if (page)
             sql += ' LIMIT ' + page.size;
         sql += MySqlBuilder_1.sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlKeyID = SqlKeyID;

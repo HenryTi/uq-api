@@ -5,6 +5,8 @@ const IDDefines_1 = require("../../IDDefines");
 // import { Builder, ISqlBuilder } from "../Builder";
 const TablesBuilder_1 = require("./TablesBuilder");
 const SqlBuilder_1 = require("../../SqlBuilder");
+// 不理解，为什么当时选择\x0c作为行结尾
+// 解决：MySqlBuilder生成的sql，都要经过 $exec_sql_trans来转换执行。\x0c转换为; 加上@user和@unit
 exports.sqlLineEnd = '\x0c\n';
 exports.retLn = "set @ret=CONCAT(@ret, '\\n')" + exports.sqlLineEnd;
 exports.retTab = "set @ret=CONCAT(@ret, @id, '\\t')" + exports.sqlLineEnd;
@@ -22,6 +24,9 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
             this.twProfix = twProfix;
         }
     */
+    dbObjectName(obj) {
+        return `\`${this.dbName}\`.\`${this.twProfix}${obj}\``;
+    }
     buildSumSelect(param) {
         let { IDX, far, near, field } = param;
         let { name } = IDX;
@@ -31,33 +36,33 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
             near = Number.MAX_SAFE_INTEGER;
         let sql = 'select t.id';
         for (let f of field) {
-            sql += `,\`${this.twProfix}${name}$${f}$sum\`(t.id,${far},${near}) as ${f}`;
+            sql += `,${this.dbObjectName(`${name}$${f}$sum`)}(t.id,${far},${near}) as ${f}`;
         }
-        sql += ` from \`${this.twProfix}${name}\` as t`;
+        sql += ` from ${this.dbObjectName(name)} as t`;
         return sql;
     }
     buildIXrIDX(IX, IDX) {
-        let b = new TablesBuilder_1.IXrTablesBuilder(this.dbName, this.twProfix, IX, IDX);
+        let b = new TablesBuilder_1.IXrTablesBuilder(this, IX, IDX);
         b.build();
         return b;
     }
     buildIXrIXIDX(IX, IX1, IDX) {
-        let b = new TablesBuilder_1.IXrIXTablesBuilder(this.dbName, this.twProfix, IX, IX1, IDX);
+        let b = new TablesBuilder_1.IXrIXTablesBuilder(this, IX, IX1, IDX);
         b.build();
         return b;
     }
     buildIXIDX(IX, IDX) {
-        let b = new TablesBuilder_1.IXTablesBuilder(this.dbName, this.twProfix, IX, IDX);
+        let b = new TablesBuilder_1.IXTablesBuilder(this, IX, IDX);
         b.build();
         return b;
     }
     buildIXIXIDX(IX, IX1, IDX) {
-        let b = new TablesBuilder_1.IXIXTablesBuilder(this.dbName, this.twProfix, IX, IX1, IDX);
+        let b = new TablesBuilder_1.IXIXTablesBuilder(this, IX, IX1, IDX);
         b.build();
         return b;
     }
     buildIDX(IDX) {
-        let b = new TablesBuilder_1.TablesBuilder(this.dbName, this.twProfix, IDX);
+        let b = new TablesBuilder_1.TablesBuilder(this, IDX);
         b.build();
         return b;
     }
@@ -101,7 +106,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
             values = [valueItem];
         }
         for (let value of values) {
-            sql += `insert into \`${this.twProfix}${name}\`\n\t(${cols})\n\tvalues\n\t`;
+            sql += `insert into ${this.dbObjectName(name)}\n\t(${cols})\n\tvalues\n\t`;
             let fieldFirst = valsFirst;
             let vals = valsInit;
             for (let f of fields) {
@@ -120,7 +125,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
                 let v = value[name];
                 let ov = override[name];
                 if (v !== undefined) {
-                    vals += (type === 'textid' ? `${this.twProfix}$textid('${v}')` : `'${v}'`);
+                    vals += (type === 'textid' ? `${this.dbObjectName('$textid')}('${v}')` : `'${v}'`);
                 }
                 else if (ov !== undefined) {
                     vals += ov;
@@ -154,11 +159,11 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
             }
             let { name, type } = f;
             sql += (type === 'textid') ?
-                `${this.twProfix}$idtext(\`${name}\`)`
+                `${this.dbObjectName('$idtext')}(\`${name}\`)`
                 :
                     `\`${name}\``;
         }
-        sql += ' FROM `' + this.twProfix + ts.name + '` WHERE 1=1';
+        sql += ` FROM ${this.dbObjectName(ts.name)} WHERE 1=1`;
         if (this.hasUnit === true) {
             sql += ' AND `$unit`=@unit';
         }
@@ -194,12 +199,12 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
                     sql += this.buildUpdate(ts, value);
                     // 写$id(_local)表
                     if (nameNoVice !== undefined) {
-                        sql += `set @$id_name=\`${this.twProfix}${name}$\`(${id})` + exports.sqlLineEnd;
+                        sql += `set @$id_name=${this.dbObjectName(name + '$')}(${id})` + exports.sqlLineEnd;
                     }
                 }
             }
             else {
-                sql += `set @id=\`${this.twProfix}${name}$id\`(@unit,@user,1`; // 2022-1-27 , null 之前好像要加上这个。现在不要加。？？
+                sql += `set @id=${this.dbObjectName(name + '$id')}(@unit,@user,1`; // 2022-1-27 , null 之前好像要加上这个。现在不要加。？？
                 if (idType === IDDefines_1.EnumIdType.UUID) {
                     sql += ', null';
                 }
@@ -211,10 +216,10 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
                     let sqlFromKey = (keyName, type, v) => {
                         sql += ',';
                         if (type === 'textid') {
-                            sql += `${this.twProfix}$textid('${v}')`;
+                            sql += `${this.dbObjectName('$textid')}('${v}')`;
                         }
                         else if (keyName === 'no') {
-                            sql += v ? `'${v}'` : `${this.twProfix}$no(@unit, '${name}', unix_timestamp())`;
+                            sql += v ? `'${v}'` : `${this.dbObjectName('$no')}(@unit, '${name}', unix_timestamp())`;
                         }
                         else if (v === undefined) {
                             switch (type) {
@@ -255,7 +260,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
                 }
                 // 写$id(_local)表
                 if (nameNoVice !== undefined) {
-                    sql += `set @$id_name=\`${this.twProfix}${name}$\`(@id)` + exports.sqlLineEnd;
+                    sql += `set @$id_name=${this.dbObjectName(name + '$')}(@id)` + exports.sqlLineEnd;
                 }
                 if (withRet === true) {
                     sql += exports.retTab;
@@ -393,7 +398,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
                 let sum;
                 let dupAdd = '';
                 if (type === 'textid') {
-                    val = `${this.twProfix}$textid('${v}')`;
+                    val = `${this.dbObjectName('$textid')}('${v}')`;
                 }
                 else {
                     switch (setAdd) {
@@ -445,7 +450,11 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
         }
         let sqlSeq;
         if (hasSort === true) {
-            sqlSeq = `\nset @seq=ifnull((select max(seq) from \`${this.twProfix}${tableName}\` where ix=${value['ix']} and xi=${value['xi']}), 0)+1` + exports.sqlLineEnd;
+            let ixValue = value['ix'];
+            if (typeof ixValue === 'object') {
+                ixValue = ixValue.value;
+            }
+            sqlSeq = `\nset @seq=ifnull((select max(seq) from ${this.dbObjectName(tableName)} where ix=${ixValue} and xi=${value['xi']}), 0)+1` + exports.sqlLineEnd;
             cols += ',\`seq\`';
             vals += `,@seq`;
         }
@@ -460,13 +469,13 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
             ignore = ' ignore';
         }
         let sql = sqlBefore + sqlSeq +
-            `insert${ignore} into \`${this.twProfix}${tableName}\` (${cols})\nvalues (${vals})${onDup}` + exports.sqlLineEnd;
+            `insert${ignore} into ${this.dbObjectName(tableName)} (${cols})\nvalues (${vals})${onDup}` + exports.sqlLineEnd;
         return sql + sqlWriteEx.join('');
     }
     buildUpdate(ts, value, override = {}) {
         let { name, schema } = ts;
         let { fields } = schema;
-        let sql = 'update `' + this.twProfix + name + '` set ';
+        let sql = `update ${this.dbObjectName(name)} set `;
         let where = ' where 1=1';
         if (this.hasUnit === true) {
             where += ' and `$unit`=@unit';
@@ -494,7 +503,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
                     }
                     else {
                         if (type === 'textid') {
-                            v = `${this.twProfix}$textid('${v}')`;
+                            v = `${this.dbObjectName('$textid')}('${v}')`;
                         }
                         else if (typeof v === 'string') {
                             v = this.buildValue(v);
@@ -515,7 +524,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
     buildIXDelete(ts, ix, xi) {
         let { name, schema } = ts;
         let sql = '';
-        sql += 'delete from `' + this.twProfix + name + '` where ix=';
+        sql += `delete from ${this.dbObjectName(name)} where ix=`;
         if (typeof ix === 'object') {
             sql += ix.value;
         }
@@ -540,7 +549,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
         if (id) {
             if (id < 0)
                 id = -id;
-            sql += 'delete from `' + this.twProfix + name + '` where id=' + id;
+            sql += `delete from ${this.dbObjectName(name)} where id=${id}`;
             if (id) {
                 sql += ' AND id=';
                 sql += id;
@@ -572,7 +581,7 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
             throw Error('ID needed in ACTS ID field');
         let { name, schema } = ID;
         let { keys } = schema;
-        ret += ` ${this.twProfix}${name}$id(@unit,@user, 1`;
+        ret += ` ${this.dbObjectName(name + '$id')}(@unit,@user, 1`;
         for (let key of keys) {
             let v = val[key.name];
             if (typeof v === 'number')

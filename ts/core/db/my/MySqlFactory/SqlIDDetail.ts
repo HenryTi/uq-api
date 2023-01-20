@@ -17,13 +17,13 @@ export class SqlIDDetail extends MySqlBuilder<ParamIDDetailGet> {
         return ret;
     }
 
-    build(): string {
+    override build(): void {
         let { id, main, detail, detail2, detail3 } = this.param;
         let sql = this.buildDetailSelect(main, '`id`=' + id);
         let whereMain = '`main`=' + id;
         sql += this.buildDetailSelect(detail, whereMain);
         sql += this.buildDetailSelect(detail2, whereMain);
         sql += this.buildDetailSelect(detail3, whereMain);
-        return sql;
+        this.sql = sql;
     }
 }

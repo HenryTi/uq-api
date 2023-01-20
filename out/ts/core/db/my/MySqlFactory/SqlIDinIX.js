@@ -24,8 +24,7 @@ class SqlIDinIX extends MySqlBuilder_1.MySqlBuilder {
             limit = `limit ${size}`;
         }
         cols += `,case when exists(select id from \`${this.twProfix}${IX.name}\` where ix=${ix !== null && ix !== void 0 ? ix : '@user'} and id=t0.id) then 1 else 0 end as $in`;
-        let sql = `SELECT ${cols} FROM ${tables} WHERE ${where} ${limit}`;
-        return sql;
+        this.sql = `SELECT ${cols} FROM ${tables} WHERE ${where} ${limit}`;
     }
 }
 exports.SqlIDinIX = SqlIDinIX;

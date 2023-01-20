@@ -24,7 +24,7 @@ class SqlIDDetail extends MySqlBuilder_1.MySqlBuilder {
         sql += this.buildDetailSelect(detail, whereMain);
         sql += this.buildDetailSelect(detail2, whereMain);
         sql += this.buildDetailSelect(detail3, whereMain);
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlIDDetail = SqlIDDetail;

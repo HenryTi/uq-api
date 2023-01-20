@@ -312,7 +312,7 @@ export class MyDbUq extends MyDb implements DbUq {
     CREATE EVENT IF NOT EXISTS \`${this.twProfix}${entityName}\`
         ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`${this.twProfix}${entityName}\`(${unit}, 0);
     `;
-                await this.exec(sql, []);
+                await this.sql(sql);
                 if (repeat === 1) {
                     sql = `use \`${db}\`; DELETE a FROM ${this.twProfix}$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
                 }
@@ -323,7 +323,7 @@ export class MyDbUq extends MyDb implements DbUq {
                             WHERE a.unit=${unit} AND a.entity=${entity};
                         `;
                 }
-                await this.exec(sql, []);
+                await this.sql(sql);
             }
         }
         return 0;
@@ -345,7 +345,7 @@ export class MyDbUq extends MyDb implements DbUq {
         let events: { db: string; name: string }[];
         try {
             const sqls = sqlsVersion;
-            events = await this.exec(sqls.eventExists, [db]);
+            events = await this.sql(sqls.eventExists, [db]);
             if ((!events) || events.length === 0) return;
         }
         catch (err) {
@@ -375,7 +375,7 @@ export class MyDbUq extends MyDb implements DbUq {
 				)
 			WHERE a.tuidVid IS NULL;
         `;
-        await this.exec(sql, []);
+        await this.sql(sql);
     }
 
     async tableFromProc(proc: string, params: any[]): Promise<any[]> {
@@ -405,7 +405,7 @@ export class MyDbUq extends MyDb implements DbUq {
     }
     async saveTextId(text: string): Promise<number> {
         let sql = `select \`${this.name}\`.${this.twProfix}$textid(?) as a`;
-        let ret = await this.exec(sql, [text]);
+        let ret = await this.sql(sql, [text]);
         return ret[0]['a'];
     }
 }

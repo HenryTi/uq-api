@@ -10,9 +10,8 @@ export class SqlIDNO extends MySqlBuilder<ParamIDNO> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         let { ID, stamp } = this.param;
-        let sql = `SELECT ${this.twProfix}$no(@unit, '${ID.name}', ${stamp ?? null}) as no` + sqlLineEnd;
-        return sql;
+        this.sql = `SELECT ${this.twProfix}$no(@unit, '${ID.name}', ${stamp ?? null}) as no` + sqlLineEnd;
     }
 }

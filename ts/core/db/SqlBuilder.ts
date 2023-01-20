@@ -23,6 +23,7 @@ export abstract class SqlBuilder<P = any> {
 
     protected abstract convertParam(p: P): P;
     abstract build(): void;
+    abstract dbObjectName(obj: string): string;
 
     protected getTableSchema(name: string, types: string[], values?: any[]): TableSchema {
         if (name === undefined) return undefined;

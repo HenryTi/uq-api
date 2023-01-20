@@ -28,7 +28,7 @@ class SqlIXSum extends SqlIDSum_1.SqlSum {
         if (page)
             sql += ' LIMIT ' + page.size;
         sql += MySqlBuilder_1.sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }
 exports.SqlIXSum = SqlIXSum;

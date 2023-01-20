@@ -11,7 +11,7 @@ export class SqlKeyIX extends MySqlBuilder<ParamKeyIX> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         let { ID, IX, key, IDX, page } = this.param;
         let arr = [IX];
         if (IDX) arr.push(...IDX);
@@ -38,6 +38,6 @@ export class SqlKeyIX extends MySqlBuilder<ParamKeyIX> {
         sql += ' ORDER BY t0.id ASC';
         if (page) sql += ' LIMIT ' + page.size;
         sql += sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }

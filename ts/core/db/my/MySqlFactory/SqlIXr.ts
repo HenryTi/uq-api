@@ -12,7 +12,7 @@ export class SqlIXr extends MySqlBuilder<ParamIX> {
         return param;
     }
 
-    build(): string {
+    override build(): void {
         let { IX, ix, IDX, page } = this.param;
         let { cols, tables } = this.buildIXrIDX(IX, IDX);
         let where = '';
@@ -35,6 +35,6 @@ export class SqlIXr extends MySqlBuilder<ParamIX> {
         sql += ' ORDER BY t0.ix ASC';
         if (page) sql += ' LIMIT ' + page.size;
         sql += sqlLineEnd;
-        return sql;
+        this.sql = sql;
     }
 }
