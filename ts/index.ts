@@ -1,7 +1,7 @@
 import { startApi, startJobs } from './start';
 
 /**
- * uq-api运行的总入口点
+ * uq-api 运行的总入口点
  */
 (async function () {
     await startApi();
