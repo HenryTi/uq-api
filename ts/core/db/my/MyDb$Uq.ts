@@ -56,7 +56,7 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
     private async create$UqDb(): Promise<void> {
         // let exists = this.sqlExists('$uq');
         // let rows: any[] = await this.exec(exists, undefined);
-        let sqls = await sqlsVersion();
+        let sqls = sqlsVersion;
         try {
             // if (rows.length == 0) {
             //    let sql = 'CREATE DATABASE IF NOT EXISTS $uq'; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci';

@@ -1,12 +1,12 @@
 import { env, logger } from '../tool';
-import { Net, prodNet, testNet, EntityRunner, Db$Uq } from '../core';
+import { EntityRunner, Db$Uq, Net, getNet } from '../core';
 //import { pullEntities } from './pullEntities';
 // import { PullBus } from './pullBus';
 import { QueueIn } from './queueIn';
 // import { QueueOut } from './queueOut';
 // import { execQueueAct } from './execQueueAct';
 import { UqJob } from './uqJob';
-import { dbs } from '../core';
+import { getDbs } from '../core';
 
 const firstRun: number = env.isDevelopment === true ? 3000 : 10 * 1000;
 const runGap: number = env.isDevelopment === true ? 5 * 1000 : 5 * 1000;
@@ -37,15 +37,17 @@ interface Uq {
 }
 
 export class Jobs {
+    private readonly net: Net;
     private readonly uqs: { [id: number]: Uq };
-    private readonly $uqDbContainer: Db$Uq; // $UqDbContainer;
+    private readonly db$Uq: Db$Uq; // $UqDbContainer;
     private loopWait: boolean = true;
 
     /**
      * 所有Job的容器类，用于从db中获取job定义，运行job
      */
     constructor() {
-        this.$uqDbContainer = dbs.db$Uq; //.$uqDbContainer;
+        this.net = getNet();
+        this.db$Uq = getDbs().db$Uq; //.$uqDbContainer;
         this.uqs = {};
     }
 
@@ -62,7 +64,7 @@ export class Jobs {
             // return;
             if (env.isDevdo === true) return;
             logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
-            await this.$uqDbContainer.setDebugJobs();
+            await this.db$Uq.setDebugJobs();
             logger.debug('========= set debugging jobs =========');
             await this.sleep(waitForOtherStopJobs);
 
@@ -112,7 +114,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
      * @returns 
      */
     async run(): Promise<void> {
-        this.$uqDbContainer.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
+        this.db$Uq.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
         await this.beforeRun();
         logger.debug('\n');
         logger.debug('\n');
@@ -138,7 +140,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                         case 'object': errText = 'object: ' + err.messsage; break;
                     }
                 }
-                await this.$uqDbContainer.uqLogError(0, '$uid', '$jobs loop error', errText);
+                await this.db$Uq.uqLogError(0, '$uid', '$jobs loop error', errText);
             }
             finally {
                 if (this.loopWait === true) {
@@ -169,7 +171,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
     private async uqsJob() {
         let totalCount: number = 0;
         try {
-            let uqs = await dbs.db$Uq.uqDbs();
+            let uqs = await this.db$Uq.uqDbs();
             if (uqs.length === 0) {
                 logger.error('debugging_jobs=yes, stop jobs loop');
                 return;
@@ -193,7 +195,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                 let uqJob = await this.createUqJob(uqDbName, compile_tick);
                 if (uqJob === undefined) continue;
                 if (env.isDevelopment === true) {
-                    await this.$uqDbContainer.setDebugJobs();
+                    await this.db$Uq.setDebugJobs();
                     logger.info('========= set debugging jobs =========');
                 }
                 now = Date.now();
@@ -206,7 +208,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                     uq.errorTick = now;
                     continue;
                 }
-                await this.$uqDbContainer.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
+                await this.db$Uq.uqLog(0, '$uid', `Job ${uqDbName} `, `total ${doneRows} rows `);
                 totalCount += doneRows;
                 uq.runTick = now + ((doneRows > 0) ? 0 : 60000);
             }
@@ -226,7 +228,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                     case 'object': errText = 'object: ' + err.messsage; break;
                 }
             }
-            await this.$uqDbContainer.uqLog(0, '$jobs', '$jobs loop error', errText);
+            await this.db$Uq.uqLog(0, '$jobs', '$jobs loop error', errText);
         }
         finally {
             if (this.loopWait === true) {
@@ -234,7 +236,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                     // 在测试服务器上，jobs loop经常会断掉出来。看来只有这一种可能了。
                     // 执行这个sleep的时候，出现问题，从而跳出loop
                     if (totalCount === 0) {
-                        await this.$uqDbContainer.uqLog(0, '$uid', 'No jobs to do', `sleep for ${runGap}ms`);
+                        await this.db$Uq.uqLog(0, '$uid', 'No jobs to do', `sleep for ${runGap}ms`);
                         await this.sleep(runGap);
                     }
                 }
@@ -267,17 +269,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
      * @returns 返回该uq的runner(可以执行该uq的存储过程等)
      */
     private async getRunnerFromDbName(uqDbName: string): Promise<EntityRunner> {
-        let net: Net;
-        let dbName: string;;
-        if (uqDbName.endsWith($test) === true) {
-            dbName = uqDbName.substring(0, uqDbName.length - $test.length);
-            net = testNet;
-        }
-        else {
-            dbName = uqDbName;
-            net = prodNet;
-        }
-        let runner = await net.getRunner(dbName);
+        let runner = await this.net.getRunner(uqDbName);
         return runner;
     }
 

@@ -4,11 +4,12 @@ import { Router } from "express";
 import * as multer from 'multer';
 // import { getResDbRunner } from './resDb';
 import { env } from '../tool';
-import { dbs } from 'core';
+import { getDbs } from '../core';
 
 export const router: Router = Router({ mergeParams: true });
 
 export function initResPath() {
+    let dbs = getDbs();
     let { resFilesPath } = env;
 
     if (resFilesPath === undefined) {

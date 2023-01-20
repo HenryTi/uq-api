@@ -1,4 +1,4 @@
-import { dbs } from "../dbsGlobal";
+import { getDbs } from "../Dbs";
 
 export interface DbSqlsVersion {
     procLogExists: string;
@@ -8,6 +8,7 @@ export interface DbSqlsVersion {
     dateToUidExists: string;
     uidToDateExists: string;
     eventExists: string;
+    tv$entityExists: string;
 }
 
 const sqls_8: DbSqlsVersion = {
@@ -18,6 +19,7 @@ const sqls_8: DbSqlsVersion = {
     dateToUidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
     eventExists: `SELECT EVENT_SCHEMA as db, EVENT_NAME as name FROM information_schema.events WHERE event_schema = ?;`,
+    tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='tv_$entity'`,
 };
 
 const sqls_5: DbSqlsVersion = {
@@ -28,25 +30,19 @@ const sqls_5: DbSqlsVersion = {
     dateToUidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
     eventExists: `SELECT db, name FROM mysql.event WHERE db = ?;`,
+    tv$entityExists: `SELECT 1`,
 };
 
-let sqls: DbSqlsVersion;
-export async function sqlsVersion(): Promise<DbSqlsVersion> {
-    if (sqls === undefined) {
-        await checkVersion();
-    }
-    return sqls;
-}
-
-async function checkVersion() {
-    let db = dbs.dbNoName;
+export let sqlsVersion: DbSqlsVersion;
+export async function checkSqlVersion() {
+    let db = getDbs().dbNoName;
     let versionResults = await db.sql('use information_schema; select version() as v', []);
     let versionRows = versionResults[1];
     let version = versionRows[0]['v'];
     if (version >= '8.0') {
-        sqls = sqls_8;
+        sqlsVersion = sqls_8;
     }
     else {
-        sqls = sqls_5;
+        sqlsVersion = sqls_5;
     }
 }

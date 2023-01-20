@@ -2,6 +2,7 @@ import { createPool, Pool/*, MysqlError, TypeCast*/ } from 'mysql2';
 import * as _ from 'lodash';
 import { logger, env } from '../../../tool';
 import { DbBase } from '../Db';
+import { SpanLog } from '../dbLogger';
 
 const retries = 5;
 const minMillis = 1;
@@ -49,7 +50,7 @@ export abstract class MyDbBase implements DbBase {
         pools.push({ config: this.dbConfig, pool: newPool });
         return newPool;
     }
-    protected async exec(sql: string, values: any[], log?: any /* SpanLog*/): Promise<any> {
+    protected async exec(sql: string, values: any[], log?: SpanLog): Promise<any> {
         if (this.pool === undefined) {
             this.pool = await this.getPool();
         }

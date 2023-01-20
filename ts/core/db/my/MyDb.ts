@@ -1,18 +1,15 @@
-import { createPool, Pool/*, MysqlError, TypeCast*/ } from 'mysql2';
 import * as _ from 'lodash';
-import { logger, env } from '../../../tool';
 import { Db } from '../Db';
 import { MyDbBase } from './MyDbBase';
-// import { DbLogger, SpanLog } from './dbLogger';
-// import { $uqDb } from './$uqDb';
+import { DbLogger, SpanLog } from '../dbLogger';
 
 export abstract class MyDb extends MyDbBase implements Db {
     readonly name: string;
-    //private readonly dbLogger: DbLogger;
+    private readonly dbLogger: DbLogger;
     constructor(dbName: string) {
         super();
         this.name = dbName;
-        //this.dbLogger = new DbLogger(dbs.$uqDb);
+        this.dbLogger = new DbLogger();
     }
 
     /**
@@ -23,15 +20,7 @@ export abstract class MyDb extends MyDbBase implements Db {
     private sqlExists(db: string): string {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }
-    /*
-        async loadTwProfix(): Promise<void> {
-            this.twProfix = await this.checkIsTwProfix() === true ? oldTwProfix : '';
-        }
-    
-        private async checkIsTwProfix(): Promise<boolean> {
-            return true;
-        }
-        */
+
     async sqlDropProc(procName: string, isFunc: boolean): Promise<any> {
         let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
         let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${procName}\``;
@@ -64,7 +53,7 @@ export abstract class MyDb extends MyDbBase implements Db {
     async procWithLog(proc: string, params: any[]): Promise<any> {
         let c = this.buildCallProc(proc);
         let sql = c + this.buildCallProcParameters(params);
-        //let spanLog: SpanLog;
+        let spanLog: SpanLog;
         if (this.name !== '$uq') {
             let log = c;
             if (params !== undefined) {
@@ -80,9 +69,9 @@ export abstract class MyDb extends MyDbBase implements Db {
                 }
             }
             log += ')';
-            // spanLog = await this.dbLogger.open(log);
+            spanLog = await this.dbLogger.open(log);
         }
-        return await this.exec(sql, params/*, spanLog*/);
+        return await this.exec(sql, params, spanLog);
     }
 
     // return exists

@@ -1,14 +1,15 @@
 import { logger } from '../tool';
-import { EntityRunner, centerApi, SheetQueueData, BusMessage } from "../core";
+import { EntityRunner, centerApi, SheetQueueData, BusMessage, unitxTest, unitxProd } from "../core";
 import { constDeferMax, constQueueSizeArr, Finish } from "./consts";
 import { getErrorString, env } from "../tool";
-import { getUserX } from "../core/unitx";
+import { getUserX, Unitx } from "../core";
 
 const procMessageQueueSet = '$message_queue_set';
 
 export class QueueOut {
     private runner: EntityRunner;
     private messagePointer: number;
+    private readonly unitx: Unitx;
 
     /**
      * QueueOut: 指的是处理message_queue中的数据，其中最重要的数据应该是bus消息
@@ -17,6 +18,7 @@ export class QueueOut {
      */
     constructor(runner: EntityRunner) {
         this.runner = runner;
+        this.unitx = runner.dbUq.isTesting === true ? unitxTest : unitxProd;
     }
 
     /**
@@ -198,7 +200,7 @@ export class QueueOut {
 
         // send Local bus-face，自己发送，自己处理。
         // 也可以对外发送，然后自己接收回来处理。
-        async function sendToUnitxAndLocal(runner: EntityRunner, unitOrPerson: number) {
+        async function sendToUnitxAndLocal(runner: EntityRunner, unitx: Unitx, unitOrPerson: number) {
             if (local === true) {
                 defer = -1;
                 await runner.call('$queue_in_add', [
@@ -224,7 +226,7 @@ export class QueueOut {
                     body,
                     stamp,
                 };
-                await runner.net.sendToUnitx(unitOrPerson, message);
+                await unitx.sendToUnitx(unitOrPerson, message);
             }
         }
 
@@ -232,12 +234,12 @@ export class QueueOut {
             let unitXArr: number[] = await getUserX(this.runner, to, bus, busOwner, busName, face);
             if (!unitXArr || unitXArr.length === 0) return;
             let promises = unitXArr.map(async (v) => {
-                await sendToUnitxAndLocal(this.runner, v);
+                await sendToUnitxAndLocal(this.runner, this.unitx, v);
             });
             await Promise.all(promises);
         }
         else {
-            await sendToUnitxAndLocal(this.runner, unit);
+            await sendToUnitxAndLocal(this.runner, this.unitx, unit);
         }
     }
 
@@ -267,7 +269,7 @@ export class QueueOut {
 
         //let {bus, face, busOwner, busName, param, returns} = inBus;
         //let {busOwner, busName} = bus;
-        let openApi = await this.runner.net.openApiUnitFace(unit, busOwner, busName, face);
+        let openApi = await this.runner.net.openApiUnitFace(this.runner, unit, busOwner, busName, face);
         if (openApi === undefined) {
             throw 'error await this.runner.net.openApiUnitFace nothing returned';
         }

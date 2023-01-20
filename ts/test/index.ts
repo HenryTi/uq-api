@@ -1,17 +1,12 @@
-import { Net, testNet, prodNet } from "../core";
-import { pullEntities } from "../jobs/pullEntities";
-import { init } from "../start";
-import { writeDataToBus } from "../router/unitx/processBusMessage";
+import { startApi } from "../start";
 import fetch from "node-fetch";
-
-const $test = '$test';
 
 (async function () {
     //process.env.NODE_ENV = 'developement';
     //let runner = await testNet.getUnitxRunner();
     //await writeDataToBus(runner, 'test', 24, 'a', 101, 8, '{a:1}');
 
-    await init();
+    await startApi();
 
     let res = await fetch('http://localhost:3015/uq/unitx-test/joint-read-bus', {
         method: 'POST',

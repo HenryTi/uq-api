@@ -1,4 +1,6 @@
+import { env, SqlType } from "../../tool";
 import { Db$Res, Db$Unitx, Db$Uq, DbUq, DbNoName } from "./Db";
+import { MyDbs } from "./my";
 
 export interface Dbs {
     readonly db$Uq: Db$Uq;
@@ -9,5 +11,20 @@ export interface Dbs {
     readonly dbUqs: { [name: string]: DbUq };
 
     start(): Promise<void>;
-    getDbUq(dbName: string, isTesting: boolean): DbUq;      // dbName = uqName [+ $test]
+    getDbUq(dbName: string): Promise<DbUq>;      // dbName = uqName [+ $test]
+}
+
+
+let dbs: Dbs;
+
+export function getDbs(): Dbs {
+    if (dbs !== undefined) return dbs;
+    switch (env.sqlType) {
+        default:
+        case SqlType.mssql:
+            throw new Error('sqltype mssql not implemented');
+        case SqlType.mysql:
+            dbs = new MyDbs();
+    }
+    return dbs;
 }

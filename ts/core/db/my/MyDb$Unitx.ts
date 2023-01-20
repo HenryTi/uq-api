@@ -1,13 +1,14 @@
-import { env } from "../../../tool";
 import { consts } from "../../consts";
+import { env } from "../../../tool";
 import { Db$Unitx } from "../Db";
 import { MyDbUq } from "./MyDbUq";
 
-abstract class MyDb$Unitx extends MyDbUq implements Db$Unitx {
+export class MyDb$Unitx extends MyDbUq implements Db$Unitx {
     readonly serverId: number;
 
-    constructor(dbName: string, isTesting: boolean) {
-        super(dbName, isTesting);
+    constructor(isTesting: boolean) {
+        const { $unitx, $test } = consts;
+        super(isTesting === true ? $unitx + $test : $unitx);
         this.serverId = this.dbConfig[env.server_id];
     }
 
@@ -30,19 +31,9 @@ abstract class MyDb$Unitx extends MyDbUq implements Db$Unitx {
         return conn;
     }
 
-    protected abstract getDebugConfigName(unitx: any): string;
-}
-
-export class MyDb$UnitxProd extends MyDb$Unitx {
-    constructor() {
-        super(consts.$unitx, false);
+    protected getDebugConfigName(unitx: any): string {
+        if (this.isTesting === true) return unitx.test;
+        return unitx.prod;
     }
-    protected getDebugConfigName(unitx: any): string { return unitx.prod }
-}
 
-export class MyDb$UnitxTest extends MyDb$Unitx {
-    constructor() {
-        super(consts.$unitx + consts.$test, true);
-    }
-    protected getDebugConfigName(unitx: any): string { return unitx.test }
 }

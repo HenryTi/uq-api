@@ -1,21 +1,27 @@
 import { Router, Request, Response } from 'express';
 import { logger } from '../../tool';
-import { BuildRunner, EntityRunner, setUqBuildSecret, prodNet, testNet, centerApi, dbs } from '../../core';
+import { BuildRunner, EntityRunner, setUqBuildSecret, centerApi, getDbs, getNet, consts } from '../../core';
 import { RouterWebBuilder } from "../routerBuilder";
 
 export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
+    let net = getNet();
+    let dbs = getDbs();
+    async function createBuildRunner(req: Request): Promise<BuildRunner> {
+        let uqName: string = req.params.db;
+        if (req.baseUrl.indexOf('/test/') >= 0) uqName += consts.$test;
+        let db = await dbs.getDbUq(uqName);
+        return new BuildRunner(db);
+    }
     router.post('/start', async (req: Request, res: Response) => {
         try {
             logger.debug('buildBuildRouter step 1');
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            await prodNet.runnerCompiling(db);
-            logger.debug('buildBuildRouter step 2');
-            await testNet.runnerCompiling(db);
+            let runner = await createBuildRunner(req);
+            await net.runnerSetCompiling(runner.dbUq);
+            // logger.debug('buildBuildRouter step 2');
+            // await net.runnerCompiling(db);
             logger.debug('buildBuildRouter step 3');
             let { enc } = req.body;
             setUqBuildSecret(enc);
-            let runner = new BuildRunner(db);
             let exists = await runner.buildDatabase();
             logger.debug('buildBuildRouter step 4');
             res.json({
@@ -32,9 +38,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     });
     router.post('/build-database', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let exists = await runner.buildDatabase();
             res.json({
                 ok: true,
@@ -50,9 +54,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 
     router.post('/finish', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let { uqId: paramUqId, uqVersion } = req.body;
             await Promise.all([
                 runner.setSetting(0, 'uqId', String(paramUqId)),
@@ -60,8 +62,8 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
             ]);
             await runner.initSetting();
 
-            await prodNet.resetRunnerAfterCompile(db);
-            await testNet.resetRunnerAfterCompile(db);
+            await net.resetRunnerAfterCompile(runner.dbUq);
+            // await net.resetRunnerAfterCompile(db);
 
             let { user } = req as any;
             if (user) {
@@ -84,9 +86,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 
     router.post('/sql', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let { sql, params } = req.body;
             let result = await runner.sql(sql, params);
             res.json({
@@ -95,6 +95,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
             });
         }
         catch (err) {
+            debugger;
             res.json({ error: err });
         }
     });
@@ -109,9 +110,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 
     router.post('/proc-sql', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let { name, proc } = req.body;
             let result = await runner.procSql(name, proc);
             res.json({
@@ -120,6 +119,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
             });
         }
         catch (err) {
+            debugger;
             res.json({ error: err });
         }
     });
@@ -133,9 +133,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     */
     router.post('/proc-core-sql', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let { name, proc, isFunc } = req.body;
             let result = await runner.procCoreSql(name, proc, isFunc);
             res.json({
@@ -144,14 +142,13 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
             });
         }
         catch (err) {
+            debugger;
             res.json({ error: err });
         }
     });
     router.post('/create-database', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let result = await runner.createDatabase();
             res.json({
                 ok: true,
@@ -170,9 +167,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     */
     router.post('/exists-database', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let result = await runner.existsDatabase();
             res.json({
                 ok: true,
@@ -194,9 +189,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     //async (runner:EntityRunner, body: {[name:string]: any}): Promise<void> => {
     router.post('/set-setting', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let promises: Promise<any>[] = [];
             let { body } = req;
             let service: any;
@@ -228,9 +221,7 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     //async (runner:EntityRunner, body: {name:string}):Promise<string> => {
     router.get('/setting', async (req: Request, res: Response) => {
         try {
-            let uqName: string = req.params.db;
-            let db = rb.getDbUq(uqName);
-            let runner = new BuildRunner(db);
+            let runner = await createBuildRunner(req);
             let ret = await runner.getSetting(0, req.query['name'] as string);
             res.json({
                 ok: true,

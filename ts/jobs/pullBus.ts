@@ -1,5 +1,5 @@
 import { logger } from '../tool';
-import { EntityRunner, Buses, Net, BusFace } from "../core";
+import { EntityRunner, Buses, Net, BusFace, Unitx, unitxTest, unitxProd } from "../core";
 import { getErrorString } from "../tool";
 import { constQueueSizeArr } from './consts';
 
@@ -40,6 +40,7 @@ export class PullBus {
     readonly buses: Buses;
     readonly faces: string;
     readonly coll: { [url: string]: BusFace };
+    readonly unitx: Unitx;
 
     /**
      * PullBus: 从unitx上获取指定runner（即指定uq）中定义的bus消息，并写入本uq的$queue_in表中（等待进一步处理） 
@@ -51,6 +52,7 @@ export class PullBus {
         this.buses = runner.buses;
         this.faces = this.buses.faces;
         this.coll = this.buses.urlColl;
+        this.unitx = runner.dbUq.isTesting === true ? unitxTest : unitxProd;
     }
 
     /**
@@ -268,8 +270,8 @@ class PullQueue {
     }> {
         if (this.pullBus.buses.error !== undefined) return;
         if (this.cur >= this.end) return;
-        let { net, faces } = this.pullBus;
-        let ret = await net.pullBus(this.positiveUnit, this.cur, faces, this.defer);
+        let { faces, unitx } = this.pullBus;
+        let ret = await unitx.pullBus(this.positiveUnit, this.cur, faces, this.defer);
         if (!ret) return;
 
         let { maxMsgId, maxRows } = ret[0][0];

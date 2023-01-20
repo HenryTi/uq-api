@@ -18,15 +18,8 @@ export async function actionReturns(unit: number, user: number, name: string, db
     }
     logger.debug('action process param: ', data);
     let { proxy, auth } = schema;
-    if (auth !== undefined) {
-        if (runner.isExistsProc(auth) === false) {
-            await runner.createProc(auth);
-        }
-    }
+    await runner.buildUqStoreProcedureIfNotExists(proxy, auth);
     if (proxy !== undefined) {
-        if (runner.isExistsProc(proxy) === false) {
-            await runner.createProc(proxy);
-        }
         let result = await runner.actionProxy(name, unit, user, body.$$user, data);
         return result;
     }

@@ -2,8 +2,7 @@ import { Router, Request, Response } from 'express';
 import { logger } from '../tool';
 import { EntityRunner } from '../core/runner';
 import { consts } from "../core/consts";
-import { prodNet, testNet, Net, prodCompileNet, testCompileNet } from '../core/net';
-import { dbs, DbUq } from 'core';
+import { Net, } from '../core/net';
 
 type Processer = (runner: EntityRunner, body: any, urlParams: any, userToken?: User) => Promise<any>;
 type EntityProcesser = (unit: number, user: number, name: string, db: string, urlParams: any,
@@ -21,11 +20,12 @@ export abstract class RouterBuilder {
     constructor(net: Net) {
         this.net = net;
     }
-
+    /*
     getDbUq(uqName: string): DbUq {
         let db = dbs.getDbUq(this.getDbName(uqName), this.net.isTesting);
         return db;
     }
+    */
 
     post(router: Router, path: string, processer: Processer) {
         router.post(path, async (req: Request, res: Response) => {
@@ -47,7 +47,7 @@ export abstract class RouterBuilder {
             await this.process(req, res, processer, body, params);
         });
     };
-    getDbName(name: string): string { return this.net.getDbName(name); }
+    // getDbName(name: string): string { return this.net.getDbName(name); }
     protected async routerRunner(req: Request): Promise<EntityRunner> {
         let db: string = req.params.db;
         let runner = await this.checkRunner(db);
@@ -103,7 +103,7 @@ export abstract class RouterBuilder {
     protected async checkRunner(db: string): Promise<EntityRunner> {
         let runner = await this.net.getRunner(db);
         if (runner !== undefined) return runner;
-        throw `Database ${this.net.getDbName(db)} 不存在`;
+        throw `Database ${db} 不存在`;
     }
 
     async getRunner(name: string): Promise<EntityRunner> {
@@ -244,21 +244,10 @@ export class RouterLocalBuilder extends RouterBuilder {
 export class CompileRouterBuilder extends RouterWebBuilder {
 }
 
-class UnitxRouterBuilder extends RouterWebBuilder {
+export class UnitxRouterBuilder extends RouterWebBuilder {
     protected async routerRunner(req: Request): Promise<EntityRunner> {
         let runner = await this.net.getUnitxRunner();
         if (runner !== undefined) return runner;
-        throw `Database ${this.net.getDbName('$unitx')} 不存在`;
+        throw `Database ${runner.dbName} 不存在`;
     }
 }
-
-export const uqProdRouterBuilder = new RouterWebBuilder(prodNet);
-export const uqProdRouterLocalBuilder = new RouterLocalBuilder(prodNet);
-export const uqTestRouterBuilder = new RouterWebBuilder(testNet);
-export const uqTestRouterLocalBuilder = new RouterLocalBuilder(testNet);
-export const unitxProdRouterBuilder = new UnitxRouterBuilder(prodNet);
-export const unitxTestRouterBuilder = new UnitxRouterBuilder(testNet);
-
-
-export const compileProdRouterBuilder = new CompileRouterBuilder(prodCompileNet);
-export const compileTestRouterBuilder = new CompileRouterBuilder(testCompileNet);

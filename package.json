@@ -1,14 +1,14 @@
 {
     "name": "uq-api",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "description": "uq-api 1.1.9",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "debug": "SET NODE_ENV=development&&node out/index.js",
-        "devdo": "SET NODE_ENV=devdo&&node out/index.js",
-        "test_queue_out": "SET NODE_ENV=test_queue_in&&node out/cli/test-queue-out.js",
-        "test-bus-version-convert": "SET NODE_ENV=test-bus-version-convert&&node out/cli/test-bus-version-convert.js"
+        "debug": "SET NODE_ENV=development&&node out/ts/index.js",
+        "devdo": "SET NODE_ENV=devdo&&node out/ts/index.js",
+        "test_queue_out": "SET NODE_ENV=test_queue_in&&node out/ts/cli/test-queue-out.js",
+        "test-bus-version-convert": "SET NODE_ENV=test-bus-version-convert&&node out/ts/cli/test-bus-version-convert.js"
     },
     "keywords": [],
     "author": "henry",

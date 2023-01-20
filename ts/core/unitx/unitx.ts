@@ -1,7 +1,6 @@
-import { Db$Unitx, dbs } from 'core/db';
+import { Db$Unitx, getDbs } from '../../core';
 import { logger, env } from '../../tool';
 import { centerApi, CenterUnitxUrls, UnitxUrlServer } from '../centerApi';
-import { consts } from '../consts';
 // import { UnitxDbContainer, UnitxProdDbContainer, UnitxTestDbContainer } from '../db/UnitxDbContainer';
 import { getUrlDebug } from '../getUrlDebug';
 import { Message } from '../model';
@@ -19,13 +18,21 @@ interface UnitxUrlServerBox {
 }
 */
 export abstract class Unitx {
-    readonly db: Db$Unitx; // DbContainer;
-
+    // readonly db: Db$Unitx; // DbContainer;
+    /*
     constructor() {
         this.db = this.createDb();
     }
-    protected abstract createDb(): Db$Unitx; // UnitxDbContainer;
-    // get db(): UnitxDb { return this._db };
+    */
+    // protected abstract createDb(): Db$Unitx; // UnitxDbContainer;
+    private _serverId: number;
+    get serverId(): number {
+        if (this._serverId === undefined) {
+            this._serverId = this.db.serverId;
+        }
+        return this._serverId;
+    }
+    protected abstract get db(): Db$Unitx;
 
     private unitUnitxApis: { [unit: number]: UnitxApi } = {};
     private async getUnitxApi(unit: number): Promise<UnitxApi> {
@@ -131,12 +138,8 @@ export abstract class Unitx {
     protected abstract boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer;
 }
 
-export class UnitxProd extends Unitx {
-    protected createDb(): Db$Unitx {
-        return dbs.db$UnitxProd;
-        // let dbName = consts.$unitx;
-        // return new UnitxProdDbContainer(dbName)
-    }
+class UnitxProd extends Unitx {
+    protected get db(): Db$Unitx { return getDbs().db$UnitxProd; }
     protected unitxUrl(url: string): string { return url + 'uq/unitx-prod/' };
     protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {
         let { prod, tv } = unitxUrls;
@@ -144,15 +147,15 @@ export class UnitxProd extends Unitx {
     }
 }
 
-export class UnitxTest extends Unitx {
-    protected createDb(): Db$Unitx {
-        return dbs.db$UnitxProd;
-        //let dbName = consts.$unitx + '$test';
-        //return new UnitxTestDbContainer(dbName);
-    }
+export const unitxProd = new UnitxProd();
+
+class UnitxTest extends Unitx {
+    protected get db(): Db$Unitx { return getDbs().db$UnitxTest; }
     protected unitxUrl(url: string): string { return url + 'uq/unitx-test/' };
     protected boxFromUrls(unitxUrls: CenterUnitxUrls): UnitxUrlServer {
         let { test, tv } = unitxUrls;
         return test ?? tv;
     }
 }
+
+export const unitxTest = new UnitxTest();

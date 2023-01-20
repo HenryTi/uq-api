@@ -1,5 +1,5 @@
 import { Db$Uq } from "./Db";
-import { dbs } from "./dbsGlobal";
+import { getDbs } from "./Dbs";
 
 export class SpanLog {
     private logger: DbLogger
@@ -38,15 +38,12 @@ export class SpanLog {
 const tSep = '\r';
 const nSep = '\r\r';
 export class DbLogger {
-    // private db: Db;
-    private readonly db$Uq: Db$Uq;
     private minSpan: number; // 10ms
     private tick: number = Date.now();
     private spans: SpanLog[] = [];
 
     constructor(minSpan: number = 0) {
         this.minSpan = minSpan;
-        this.db$Uq = dbs.db$Uq;
     }
 
     async open(log: string): Promise<SpanLog> {
@@ -70,6 +67,7 @@ export class DbLogger {
     }
 
     private save(spans: SpanLog[]): void {
+        const { db$Uq } = getDbs();
         for (let span of spans) {
             let now = Date.now();
             let { log, tick, ms } = span;
@@ -79,7 +77,7 @@ export class DbLogger {
             if (tick > now || tick < now - 1000000) {
                 //debugger;
             }
-            this.db$Uq.logPerformance(tick, log, ms);
+            db$Uq.logPerformance(tick, log, ms);
         }
     }
 }

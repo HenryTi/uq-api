@@ -1,3 +1,4 @@
+import { ProcType } from '../../core';
 import { logger } from '../../tool';
 import { centerApi } from '../centerApi';
 import { Runner } from './Runner';
@@ -87,7 +88,7 @@ export class BuildRunner extends Runner {
     }
     async procSql(procName: string, procSql: string): Promise<any> {
         try {
-            return await this.dbUq.uqProc(procName, procSql);
+            return await this.dbUq.uqProc(procName, procSql, ProcType.proc);
         }
         catch (err) {
             debugger;
@@ -96,8 +97,8 @@ export class BuildRunner extends Runner {
     }
     async procCoreSql(procName: string, procSql: string, isFunc: boolean): Promise<any> {
         try {
-            await this.dbUq.uqProc(procName, procSql);
-            await this.dbUq.buildUqProc(procName, procSql, isFunc);
+            let procType: ProcType = isFunc === true ? ProcType.func : ProcType.core;
+            await this.dbUq.uqProc(procName, procSql, procType);
         }
         catch (err) {
             debugger;
@@ -105,7 +106,7 @@ export class BuildRunner extends Runner {
         }
     }
     async buildProc(proc: string): Promise<any> {
-        await this.dbUq.buildUqRealProcFrom$ProcTable(proc);
+        await this.dbUq.buildUqStoreProcedure(proc);
     }
     async procCall(proc: string, params: any[]): Promise<any> {
         return await this.dbUq.call(proc, params);
@@ -155,15 +156,6 @@ export class BuildRunner extends Runner {
         p.push(user);
         if (params !== undefined) p.push(...params);
         return await this.dbUq.call(proc, p);
-    }
-
-    private async unitUserCallEx(proc: string, unit: number, user: number, ...params: any[]): Promise<any> {
-        let p: any[] = [];
-        //if (this.hasUnit === true) 
-        p.push(unit);
-        p.push(user);
-        if (params !== undefined) p.push(...params);
-        return await this.dbUq.callEx(proc, p);
     }
 
     async unitTableFromProc(proc: string, unit: number, ...params: any[]): Promise<any[]> {

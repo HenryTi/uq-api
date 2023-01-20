@@ -1,15 +1,15 @@
 import { Router, Request, Response } from 'express';
-import { BuildRunner } from "../core";
+import { BuildRunner, consts, getDbs } from "../core";
 
 export function buildProcRouter() {
     const router: Router = Router({ mergeParams: true });
-
+    const dbs = getDbs();
     router.get('/', async (req: Request, res: Response) => {
         let { db, proc } = req.params;
 
         async function buildProc(dbName: string): Promise<any> {
             try {
-                let db = getDbContainer(dbName);
+                let db = await dbs.getDbUq(dbName);
                 let runner = new BuildRunner(db);
                 await runner.buildProc(proc);
                 return;
@@ -26,9 +26,9 @@ export function buildProcRouter() {
         */
 
         let dbProd = db;
-        let dbTest = db + '$test';
-        let errProd = await buildProc(db);
-        let errTest = await buildProc(db + '$test');
+        let dbTest = db + consts.$test;
+        let errProd = await buildProc(dbProd);
+        let errTest = await buildProc(dbTest);
         let message: string;
         if (!errProd && !errTest) {
             message = `${dbProd} and ${dbTest}`;

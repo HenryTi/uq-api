@@ -1,11 +1,11 @@
-import { consts } from "../../consts";
 import { Db$Res, Db$Unitx, Db$Uq, DbNoName, DbUq } from "../Db";
 import { Dbs } from "../Dbs";
 import { MyDb$Res } from "./MyDb$Res";
-import { MyDb$UnitxProd, MyDb$UnitxTest } from "./MyDb$Unitx";
+import { MyDb$Unitx } from "./MyDb$Unitx";
 import { MyDb$Uq } from "./MyDb$Uq";
 import { MyDbNoName } from "./MyDbNoName";
 import { MyDbUq } from "./MyDbUq";
+import { checkSqlVersion } from "./sqlsVersion";
 
 export class MyDbs implements Dbs {
     readonly db$Uq: Db$Uq;
@@ -18,17 +18,18 @@ export class MyDbs implements Dbs {
     constructor() {
         this.db$Uq = new MyDb$Uq();
         this.db$Res = new MyDb$Res();
-        this.db$UnitxTest = new MyDb$UnitxTest();
-        this.db$UnitxProd = new MyDb$UnitxProd();
+        this.db$UnitxTest = new MyDb$Unitx(true);
+        this.db$UnitxProd = new MyDb$Unitx(false);
         this.dbNoName = new MyDbNoName();
         this.dbUqs = {};
     }
 
-    getDbUq(uqName: string, isTesting: boolean): DbUq {
+    async getDbUq(uqName: string): Promise<DbUq> {
         let dbUq = this.dbUqs[uqName];
         if (dbUq === undefined) {
-            dbUq = new MyDbUq(uqName, isTesting);
+            dbUq = new MyDbUq(uqName);
             this.dbUqs[uqName] = dbUq;
+            await dbUq.initLoad();
         }
         return dbUq;
     }
@@ -37,6 +38,7 @@ export class MyDbs implements Dbs {
         // create$ResDb(),
         // create$UqDb()
         await Promise.all([
+            checkSqlVersion(),
             this.db$Uq.createDatabase(),
             this.db$Res.createDatabase(),
         ]);

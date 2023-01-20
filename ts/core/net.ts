@@ -1,29 +1,34 @@
 import { env, logger } from '../tool';
 import { EntityRunner } from "./runner";
-import { Db, dbs, DbUq } from "./db";
+import { Db, getDbs, DbUq } from "./db";
 import { OpenApi } from "./openApi";
 import { centerApi } from "./centerApi";
-import { Message } from "./model";
 import { getUrlDebug } from "./getUrlDebug";
-import { Unitx, UnitxProd, UnitxTest } from "./unitx";
+// import { Unitx } from "./unitx";
 import { consts } from './consts';
+import { Dbs } from './db/Dbs';
 
-export abstract class Net {
-    private readonly id: string;
-    private runners: { [name: string]: EntityRunner } = {};
-    private executingNet: Net;  // 编译Net指向对应的执行Net，编译完成后，reset runner
-    protected readonly unitx: Unitx;
+export class Net {
+    // private readonly id: string;
+    private readonly runners: { [name: string]: EntityRunner } = {};
+    private readonly executingNet: Net;  // 编译Net指向对应的执行Net，编译完成后，reset runner
+    private readonly dbs: Dbs;
+    //protected readonly unitx: Unitx;
 
-    constructor(executingNet: Net, id: string) {
+    constructor(executingNet: Net) {
         this.executingNet = executingNet;
-        this.id = id;
-        this.unitx = this.createUnitx();
+        this.dbs = getDbs();
+        // this.id = id;
+        //        this.unitx = this.createUnitx();
     }
-
-    protected abstract createUnitx(): Unitx;
-    abstract get isTesting(): boolean;
-    abstract getUqFullName(uq: string): string;
-
+    /*
+        protected abstract createUnitx(): Unitx;
+        protected abstract getUrl(db: string, url: string): string;
+        protected abstract chooseUrl(urls: { url: string; urlTest: string }): string;
+        abstract get isTesting(): boolean;
+        abstract getUqFullName(uq: string): string;
+        abstract getDbName(name: string): string;
+    */
     /**
      * 
      * @param name uq(即数据库)的名称
@@ -61,7 +66,7 @@ export abstract class Net {
         return runner;
     }
 
-    async runnerCompiling(db: Db) {
+    async runnerSetCompiling(db: Db) {
         for (let i in this.runners) {
             let runner: EntityRunner = this.runners[i];
             if (!runner) continue;
@@ -96,7 +101,7 @@ export abstract class Net {
             let runner = this.runners[i];
             if (runner) {
                 await runner.reset();
-                logger.error('--- === --- === ' + runnerName + ' resetRunner ' + ' net is ' + this.id);
+                logger.error('--- === --- === ' + runnerName + ' resetRunner ' + ' net');
                 this.runners[i] = undefined;
             }
         }
@@ -132,9 +137,9 @@ export abstract class Net {
      * @param db 
      * @returns 返回该db的EntityRunner(可以执行有关该db的存储过程等) 
      */
-    protected async createRunnerFromDbName(name: string): Promise<EntityRunner> {
-        let dbName = this.getDbName(name);
-        let db = dbs.getDbUq(dbName, this.isTesting);
+    protected async createRunnerFromDbName(dbName: string): Promise<EntityRunner> {
+        // let dbName = this.getDbName(name);
+        let db = await this.dbs.getDbUq(dbName);
         return await this.createRunnerFromDb(db);
     }
 
@@ -154,7 +159,6 @@ export abstract class Net {
                     runner = undefined;
                 }
                 else {
-                    await db.initLoad();
                     runner = new EntityRunner(db, this);
                 }
                 for (let promiseItem of this.createRunnerFromDbPromises[dbName]) {
@@ -172,12 +176,6 @@ export abstract class Net {
         });
     }
 
-    /**
-     * 返回db的真实名称，即测试服务器上，在name后再附加上 "$test" 
-     * @param name uq(即数据库)的名称
-     */
-    abstract getDbName(name: string): string;
-
     private uqOpenApis: { [uqFullName: string]: { [unit: number]: OpenApi } } = {};
     private getOpenApiFromCache(uqFullName: string, unit: number): OpenApi {
         let openApis = this.uqOpenApis[uqFullName];
@@ -192,15 +190,15 @@ export abstract class Net {
         }
         return undefined;
     }
-    private async buildOpenApiFrom(uqFullName: string, unit: number, uqUrl: { db: string, url: string, urlTest: string }): Promise<OpenApi> {
+    private async buildOpenApiFrom(runner: EntityRunner, uqFullName: string, unit: number, uqUrl: { db: string, url: string, urlTest: string }): Promise<OpenApi> {
         let openApis = this.uqOpenApis[uqFullName];
-        let url = await this.getUqUrlOrDebug(uqUrl);
+        let url = await this.getUqUrlOrDebug(runner, uqUrl);
         url = url.toLowerCase();
         let openApi = new OpenApi(url);
         openApis[unit] = openApi;
         return openApi;
     }
-    async openApiUnitUq(unit: number, uqFullName: string): Promise<OpenApi> {
+    async openApiUnitUq(runner: EntityRunner, unit: number, uqFullName: string): Promise<OpenApi> {
         let openApi = this.getOpenApiFromCache(uqFullName, unit);
         if (openApi === null) {
             logger.error('openApiUnitUq null ', uqFullName, unit);
@@ -216,10 +214,10 @@ export abstract class Net {
             }
             return null;
         }
-        return await this.buildOpenApiFrom(uqFullName, unit, uqUrl);
+        return await this.buildOpenApiFrom(runner, uqFullName, unit, uqUrl);
     }
 
-    async openApiUnitFace(unit: number, busOwner: string, busName: string, face: string): Promise<OpenApi> {
+    async openApiUnitFace(runner: EntityRunner, unit: number, busOwner: string, busName: string, face: string): Promise<OpenApi> {
         let ret = await centerApi.unitFaceUrl(unit, busOwner, busName, face);
         if (ret === undefined) {
             throw `openApi unit face not exists: unit=${unit}, face=${busOwner}/${busName}/${face}`;
@@ -253,40 +251,46 @@ export abstract class Net {
         let { uq } = uqUrl;
         let openApi = this.getOpenApiFromCache(uq, unit);
         if (openApi !== undefined) return openApi;
-        openApi = await this.buildOpenApiFrom(uq, unit, uqUrl);
+        openApi = await this.buildOpenApiFrom(runner, uq, unit, uqUrl);
         return openApi;
     }
-
-    async sendToUnitx(unit: number, msg: Message): Promise<number[] | string> {
-        return await this.unitx.sendToUnitx(unit, msg);
-    }
-
-    async pullBus(unit: number, maxId: number, faces: string, defer: number): Promise<any[][]> {
-        return await this.unitx.pullBus(unit, maxId, faces, defer);
-    }
+    /*
+        async sendToUnitx(unit: number, msg: Message): Promise<number[] | string> {
+            return await this.unitx.sendToUnitx(unit, msg);
+        }
+    
+        async pullBus(unit: number, maxId: number, faces: string, defer: number): Promise<any[][]> {
+            return await this.unitx.pullBus(unit, maxId, faces, defer);
+        }
 
     async uqUrl(unit: number, uq: number): Promise<string> {
         let uqUrl = await centerApi.uqUrl(unit, uq);
         return await this.getUqUrlOrDebug(uqUrl);
     }
-
-    private async getUqUrlOrDebug(urls: { db: string; url: string; urlTest: string }): Promise<string> {
+    */
+    private async getUqUrlOrDebug(runner: EntityRunner, urls: { db: string; url: string; urlTest: string }): Promise<string> {
+        let { isTesting } = runner.dbUq;
+        let { db, urlTest, url: urlProd } = urls;
+        let testOrProd: string;
         let url: string;
-        let { db } = urls;
+        if (isTesting === true) {
+            testOrProd = 'test';
+            url = urlTest;
+        }
+        else {
+            testOrProd = 'prod';
+            url = urlProd;
+        }
+
         if (env.isDevelopment === true) {
             let urlDebug = await getUrlDebug();
             if (urlDebug !== undefined) url = urlDebug;
         }
-        else {
-            url = this.chooseUrl(urls);
-        }
-        return this.getUrl(db, url);
+        // return this.getUrl(db, url);
+        return `${url}uq/${testOrProd}/${db}/`;
     }
-
-    protected abstract getUrl(db: string, url: string): string;
-    protected abstract chooseUrl(urls: { url: string; urlTest: string }): string;
 }
-
+/*
 class ProdNet extends Net {
     protected createUnitx(): Unitx { return new UnitxProd(); }
     get isTesting(): boolean { return false; }
@@ -316,3 +320,18 @@ export const testNet = new TestNet(undefined, 'testNet');
 // runner在编译状态下，database可能还没有创建，不需要init，也就是不需要loadSchema
 export const prodCompileNet = new ProdNet(prodNet, 'prodCompileNet');
 export const testCompileNet = new TestNet(testNet, 'testCompileNet');
+*/
+
+let net: Net;
+let compileNet: Net;
+export function getNet(): Net {
+    if (net === undefined) {
+        net = new Net(undefined);
+        compileNet = new Net(net);
+    }
+    return net;
+}
+export function getCompileNet(): Net {
+    getNet();
+    return compileNet;
+}

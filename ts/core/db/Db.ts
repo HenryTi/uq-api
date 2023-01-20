@@ -35,25 +35,28 @@ export interface Db extends DbBase {
 export interface DbNoName extends DbBase {
 }
 
+export enum ProcType {
+    proc, core, func
+}
 export interface DbUq extends Db {
     get twProfix(): string;
     get isTesting(): boolean;
     initLoad(): Promise<void>;
-    createProcObjs(): Promise<void>;
     reset(): void;
-    buildTuidAutoId(): Promise<void>;
-    uqProc(procName: string, procSql: string): Promise<any>;
-    buildUqProc(procName: string, procSql: string, isFunc: boolean): Promise<void>;
-    buildUqRealProcFrom$ProcTable(proc: string): Promise<void>;
-    saveTextId(text: string): Promise<number>;
-    isExistsProc(proc: string): boolean;
-    createProc(proc: string): Promise<void>;
+
+    createProcObjs(): Promise<void>;
+    uqProc(procName: string, procSql: string, procType: ProcType): Promise<any>;
+    buildUqStoreProcedure(proc: string): Promise<void>;
+    buildUqStoreProcedureIfNotExists(...procNames: string[]): Promise<void>
     execQueueAct(): Promise<number>;
     removeAllScheduleEvents(): Promise<string>;
     call(proc: string, params: any[]): Promise<any>;
     callEx(proc: string, params: any[]): Promise<any>;
     tableFromProc(proc: string, params: any[]): Promise<any[]>;
     tablesFromProc(proc: string, params: any[]): Promise<any[][]>;
+
+    saveTextId(text: string): Promise<number>;
+    buildTuidAutoId(): Promise<void>;
 }
 
 export interface Db$Uq extends Db {

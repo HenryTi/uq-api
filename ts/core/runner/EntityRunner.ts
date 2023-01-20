@@ -1,6 +1,6 @@
 import { env, logger } from '../../tool';
-import { createSqlFactory, SqlBuilder, SqlFactory } from '../SqlFactory';
-import { Db, Db$Uq, dbs, DbUq } from '../db';
+import { createSqlFactory, SqlBuilder, SqlFactory } from '../db';
+import { Db, Db$Uq, getDbs, DbUq } from '../db';
 import { packReturns } from '../packReturn';
 import { ImportData } from '../importData';
 import {
@@ -98,22 +98,18 @@ export class EntityRunner extends Runner {
         this.net = net;
         this.modifyMaxes = {};
         this.dbName = dbUq.name;
-        // this.IDRunner = new IDRunner(this, new Builder(), this.dbCaller);
         this.sqlFactory = createSqlFactory({
             getTableSchema: this.getTableSchema,
-            sqlType: env.sqlType,
             dbName: this.dbName,
             hasUnit: false,
             twProfix: this.dbUq.twProfix,
         });
-        this.db$Uq = dbs.db$Uq;
+        this.db$Uq = getDbs().db$Uq;
     }
 
     private getTableSchema = (lowerName: string): any => {
         return this.schemas[lowerName]?.call;
     }
-
-    // getDb(): string { return this.db.getDbName() }
 
     async reset() {
         this.isCompiling = false;
@@ -148,7 +144,7 @@ export class EntityRunner extends Runner {
     }
 
     async ActIDProp(unit: number, user: number, ID: string, id: number, propName: string, value: string) {
-        return await this.call(`tv_${ID}$prop`, [unit, user, id, propName, value]);
+        return await this.call(`${this.dbUq.twProfix}${ID}$prop`, [unit, user, id, propName, value]);
     }
 
     getEntityNameList() {
@@ -290,13 +286,11 @@ export class EntityRunner extends Runner {
     }
     async log(unit: number, subject: string, content: string): Promise<void> {
         // await this.$uqDb.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
-        const uq = this.net.getUqFullName(this.uq);
-        await this.db$Uq.proc('log', [unit, uq, subject, content]);
+        await this.db$Uq.proc('log', [unit, this.dbName, subject, content]);
     }
     async logError(unit: number, subject: string, content: string): Promise<void> {
         //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
-        const uq = this.net.getUqFullName(this.uq);
-        await this.db$Uq.proc('log_error', [unit, uq, subject, content]);
+        await this.db$Uq.proc('log_error', [unit, this.dbName, subject, content]);
     }
     /*
         async uqLog(unit: number, uq: string, subject: string, content: string): Promise<void> {
@@ -399,13 +393,14 @@ export class EntityRunner extends Runner {
     async buildProc(proc: string): Promise<void> {
     }
 
-    isExistsProc(proc: string): boolean {
-        return this.dbUq.isExistsProc(proc);
+    async buildUqStoreProcedureIfNotExists(...procs: string[]): Promise<void> {
+        await this.dbUq.buildUqStoreProcedureIfNotExists(...procs);
     }
-
+    /*
     async createProc(proc: string) {
         await this.dbUq.createProc(proc);
     }
+    */
 
     /**
      * 读取runner对应的uq的entity表和setting表

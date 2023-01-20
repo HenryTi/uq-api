@@ -1,0 +1,89 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UqJob = void 0;
+const tool_1 = require("../tool");
+// import { execQueueAct } from "./execQueueAct";
+const pullBus_1 = require("./pullBus");
+const queueIn_1 = require("./queueIn");
+const queueOut_1 = require("./queueOut");
+class UqJob {
+    constructor(runner) {
+        this.runner = runner;
+        this.uqDbName = runner.dbName;
+    }
+    async run() {
+        let retCount = 0;
+        // let runner = await this.getRunnerFromDbName(uqDbName);
+        // await this.buildRunnerFromDbName();
+        // if (this.runner === undefined) return retCount;
+        if (this.runner.isCompiling === true)
+            return retCount;
+        // if (await this.devCheckJob() === false) return retCount;
+        /*
+        if (env.isDevelopment === true) {
+            let dbName = runner.getDb();
+            // 只有develop状态下,才做uqsInclude排除操作
+            if (uqsInclude && uqsInclude.length > 0) {
+                let index = uqsInclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+                if (index < 0) return retCount;
+            }
+            // uqsExclude操作
+            if (uqsExclude && uqsExclude.length > 0) {
+                let index = uqsExclude.findIndex(v => v.toLocaleLowerCase() === dbName.toLocaleLowerCase());
+                if (index >= 0) return retCount;
+            }
+
+            await this.$uqDb.setDebugJobs();
+            logger.info('========= set debugging jobs =========');
+        }
+        */
+        // await this.runner.setCompileTick(this.compile_tick);
+        let { buses } = this.runner;
+        if (buses !== undefined) {
+            let ret = await this.runBusesJob(buses);
+            if (ret < 0)
+                return -1;
+            retCount += ret;
+        }
+        if (tool_1.env.isDevelopment === false) {
+            // logger.info(`==== in loop ${uqDbName}: pullEntities ====`);
+            // uq 间的entity同步，暂时屏蔽
+            // await pullEntities(runner);
+        }
+        else {
+            // logger.error('为了调试程序，pullEntities暂时屏蔽');
+        }
+        tool_1.logger.info(`==== in loop ${this.uqDbName}: execQueueAct ====`);
+        if (await this.runner.execQueueAct() < 0)
+            return -1;
+        // if (await execQueueAct(this.runner) < 0) return -1;
+        tool_1.logger.info(`###### end loop ${this.uqDbName} ######`);
+        return retCount;
+    }
+    async runBusesJob(buses) {
+        let retCount = 0;
+        let { outCount, faces } = buses;
+        if (outCount > 0 || this.runner.hasSheet === true) {
+            tool_1.logger.info(`==== in loop ${this.uqDbName}: queueOut out bus number=${outCount} ====`);
+            let ret = await new queueOut_1.QueueOut(this.runner).run();
+            if (ret < 0)
+                return -1;
+            retCount += ret;
+        }
+        if (faces !== undefined) {
+            // logger.info(`==== in loop ${this.uqDbName}: pullBus faces: ${faces} ====`);
+            let ret = await new pullBus_1.PullBus(this.runner).run();
+            if (ret < 0)
+                return -1;
+            retCount += ret;
+            // logger.info(`==== in loop ${this.uqDbName}: queueIn faces: ${faces} ====`);
+            ret = await new queueIn_1.QueueIn(this.runner).run();
+            if (ret < 0)
+                return -1;
+            retCount += ret;
+        }
+        return retCount;
+    }
+}
+exports.UqJob = UqJob;
+//# sourceMappingURL=uqJob.js.map

@@ -1,5 +1,5 @@
 import { logger } from '../tool';
-import { createDbs, dbs, testNet } from "../core";
+import { getDbs, getNet } from "../core";
 import { QueueOut } from "../jobs/queueOut";
 // import { create$UqDb } from '../core/dbs';
 
@@ -9,15 +9,14 @@ import { QueueOut } from "../jobs/queueOut";
     // 停掉其它服务器操作消息队列
     //let db = Db.db(undefined);
     //await db.setDebugJobs();
-    let dbs = createDbs();
+    let dbs = getDbs();
     await dbs.start();
     // await create$UqDb();
 
     let dbName = 'joint-uq-platform'; //$test';
     let node_env = process.env.NODE_ENV;
     logger.debug('node_env=' + node_env + ', ' + 'db = ' + dbName);
-    //let net = prodNet;
-    let net = testNet;
+    let net = getNet();
     let runner = await net.getRunner(dbName);
 
     let { buses } = runner;

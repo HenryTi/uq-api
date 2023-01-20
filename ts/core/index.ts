@@ -9,3 +9,4 @@ export * from './db';
 export * from './model';
 export * from './net';
 export * from './getUrlDebug';
+export * from './unitx';

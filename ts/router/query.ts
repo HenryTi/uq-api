@@ -8,30 +8,30 @@ export function buildQueryRouter(router: Router, rb: RouterBuilder) {
 }
 
 export const queryProcess = async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
-    let params: any[] = [];
-    let fields = schema.fields;
-    let len = fields.length;
-    for (let i = 0; i < len; i++) {
-        params.push(body[fields[i].name]);
-    }
-    let result: any;
-    let { proxy, auth } = schema;
-    if (auth !== undefined) {
-        if (runner.isExistsProc(auth) === false) {
-            await runner.createProc(auth);
+    try {
+        let params: any[] = [];
+        let fields = schema.fields;
+        let len = fields.length;
+        for (let i = 0; i < len; i++) {
+            params.push(body[fields[i].name]);
         }
-    }
-    if (proxy !== undefined) {
-        if (runner.isExistsProc(proxy) === false) {
-            await runner.createProc(proxy);
+        let result: any;
+        let { proxy, auth } = schema;
+        await runner.buildUqStoreProcedureIfNotExists(proxy, auth);
+        if (proxy !== undefined) {
+            result = await runner.queryProxy(name, unit, user, body.$$user, params);
         }
-        result = await runner.queryProxy(name, unit, user, body.$$user, params);
+        else {
+            result = await runner.query(name, unit, user, params);
+        }
+        let data = packReturn(schema, result);
+        return data;
     }
-    else {
-        result = await runner.query(name, unit, user, params);
+    catch (err) {
+        debugger;
+        console.error(err);
+        throw err;
     }
-    let data = packReturn(schema, result);
-    return data;
 }
 
 export const pageQueryProcess = async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
@@ -57,15 +57,8 @@ export const pageQueryProcess = async (unit: number, user: number, name: string,
     }
     let result: any;
     let { proxy, auth } = schema;
-    if (auth !== undefined) {
-        if (runner.isExistsProc(auth) === false) {
-            await runner.createProc(auth);
-        }
-    }
+    await runner.buildUqStoreProcedureIfNotExists(proxy, auth);
     if (proxy !== undefined) {
-        if (runner.isExistsProc(proxy) === false) {
-            await runner.createProc(proxy);
-        }
         result = await runner.queryProxy(name, unit, user, body.$$user, params);
     }
     else {

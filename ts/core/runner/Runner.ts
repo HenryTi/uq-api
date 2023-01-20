@@ -1,14 +1,14 @@
 import { DbUq } from '../db';
 import { centerApi } from '../centerApi';
-import { Net } from '../net';
 // import { DbContainer } from '../db';
 
 export class Runner {
-    protected readonly dbUq: DbUq;
+    readonly dbUq: DbUq;
 
     constructor(dbUq: DbUq) {
         this.dbUq = dbUq;
     }
+
     // protected readonly dbContainer: DbContainer;
     /*
     constructor(db: DbContainer) {

@@ -1,5 +1,5 @@
 import { env } from "../../../tool";
-import { DbUq } from "../Db";
+import { DbUq, ProcType } from "../Db";
 import { MyDb } from "./MyDb";
 import { consts } from '../../consts';
 import { sqlsVersion } from './sqlsVersion';
@@ -29,20 +29,19 @@ export class MyDbUq extends MyDb implements DbUq {
     hasUnit: boolean;
     twProfix: string;
 
-    constructor(dbName: string, isTesting: boolean) {
+    constructor(dbName: string) {
         super(dbName);
-        this.isTesting = isTesting;
+        this.isTesting = dbName.endsWith(consts.$test);
         this.resetProcColl();
     }
 
     protected override connectionConfig() { return env.connection; }
 
     async initLoad() {
-        this.twProfix = await this.checkIsTwProfix() === true ? oldTwProfix : '';
-    }
-
-    private async checkIsTwProfix(): Promise<boolean> {
-        return true;
+        if (this.twProfix !== undefined) return;
+        const { tv$entityExists } = sqlsVersion;
+        let ret = await this.sql(tv$entityExists, [this.name]);
+        this.twProfix = ret.length > 0 ? oldTwProfix : '';
     }
 
     private resetProcColl() {
@@ -124,14 +123,22 @@ export class MyDbUq extends MyDb implements DbUq {
     }
 
 
-    async uqProc(procName: string, procSql: string): Promise<any> {
+    async uqProc(procName: string, procSql: string, procType: ProcType): Promise<any> {
         let ret = await this.proc('$proc_save', [this.name, procName, procSql]);
         let t0 = ret[0];
         let changed = t0[0]['changed'];
         let isOk = changed === 0;
         this.procColl[procName.toLowerCase()] = isOk;
+        if (procType === ProcType.proc) return;
+        let isFunc = (procType === ProcType.func);
+        await this.buildUqProc(procName, procSql, isFunc);
     }
-
+    /*
+    async uqCoreProc(procName: string, procSql: string, isFunc: boolean): Promise<any> {
+        await this.uqProc(procName, procSql);
+        await this.buildUqProc(procName, procSql, isFunc);
+    }
+    */
     async buildUqProc(procName: string, procSql: string, isFunc: boolean = false): Promise<any> {
         let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
         let drop = `DROP ${type} IF EXISTS \`${this.name}\`.\`${procName}\`;`;
@@ -142,22 +149,40 @@ export class MyDbUq extends MyDb implements DbUq {
     }
 
     private async uqProcGet(proc: string): Promise<{ proc: string; changed: number; }> {
-        let results = await this.proc('$proc_get', [this.name, proc]);
+        proc = this.twProfix + proc;
+        let results = await super.proc('$proc_get', [this.name, proc]);
         let ret = results[0];
         if (ret.length === 0) {
-            results = await this.proc('$proc_get', [this.name, oldTwProfix + proc]);
+            debugger;
+            throw new Error(`proc not defined: ${this.name}.${proc}`);
+        }
+        /*
+        if (ret.length === 0) {
+            results = await super.proc('$proc_get', [this.name, oldTwProfix + proc]);
             if (results[0].length === 0) {
                 debugger;
                 throw new Error(`proc not defined: ${this.name}.${proc}`);
             }
+            ret = results[0];
         }
-        let r0 = ret[0];
-        return r0;
+        */
+        return ret[0];
+        // let r0 = ret[0];
+        // return r0;
         // let procSql = r0['proc'];
         // return procSql;
     }
 
-    async buildUqRealProcFrom$ProcTable(proc: string): Promise<void> {
+    async buildUqStoreProcedureIfNotExists(...procNames: string[]): Promise<void> {
+        if (procNames === undefined) return;
+        for (let procName of procNames) {
+            if (this.isExistsProc(procName) === false) {
+                await this.createProc(procName);
+            }
+        }
+    }
+
+    async buildUqStoreProcedure(procName: string): Promise<void> {
         /*
         let results = await this.callProcBase(this.dbName, '$proc_get', [this.dbName, proc]);
         let ret = results[0];
@@ -171,11 +196,15 @@ export class MyDbUq extends MyDb implements DbUq {
         let r0 = ret[0];
         let procSql = r0['proc'];
         */
-        const { proc: procSql } = await this.uqProcGet(proc);
-        const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${proc}\`;`;
+        const { proc: procSql } = await this.uqProcGet(procName);
+        const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${procName}\`;`;
         await this.sql(drop, undefined);
         await this.sql(procSql, undefined);
-        await this.proc('$proc_save', [this.name, proc, undefined]);
+        await this.proc('$proc_save', [this.name, procName, undefined]);
+    }
+
+    async existsDatabase(): Promise<boolean> {
+        return await super.existsDatabase();
     }
 
     async buildDatabase(): Promise<boolean> {
@@ -231,10 +260,10 @@ export class MyDbUq extends MyDb implements DbUq {
         return await this.procWithLog(proc, params);
     }
 
-    isExistsProc(proc: string): boolean {
+    private isExistsProc(proc: string): boolean {
         return this.procColl[proc.toLowerCase()] === true
     }
-    async createProc(proc: string): Promise<void> {
+    private async createProc(proc: string): Promise<void> {
         let procLower = proc.toLowerCase();
         let p = this.procColl[procLower];
         if (p !== true) {
@@ -315,7 +344,7 @@ export class MyDbUq extends MyDb implements DbUq {
         let db = this.name; // .getDb();
         let events: { db: string; name: string }[];
         try {
-            const sqls = await sqlsVersion();
+            const sqls = sqlsVersion;
             events = await this.exec(sqls.eventExists, [db]);
             if ((!events) || events.length === 0) return;
         }
