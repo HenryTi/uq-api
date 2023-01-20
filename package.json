@@ -27,7 +27,7 @@
     },
     "dependencies": {
         "@types/body-parser": "^1.19.0",
-        "@types/cors": "^2.8.7",
+        "@types/cors": "^2.8.13",
         "@types/log4js": "^2.3.5",
         "@types/mysql": "^2.15.15",
         "body-parser": "^1.19.0",

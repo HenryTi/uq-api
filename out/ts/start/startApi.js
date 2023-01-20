@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.startApi = void 0;
 const express = require("express");
 const express_1 = require("express");
+const cors = require("cors");
 const tool_1 = require("../tool");
 const res_1 = require("../res");
 const core_1 = require("../core");
@@ -34,7 +35,6 @@ async function startApi() {
         }
         (0, res_1.initResPath)();
         let app = express();
-        var cors = require('cors');
         app.use(cors({
             origin: '*'
         }));

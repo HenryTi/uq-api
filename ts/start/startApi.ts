@@ -1,5 +1,6 @@
 import * as express from 'express';
 import { Request, Response, NextFunction, Router } from 'express';
+import * as cors from 'cors';
 import { env, logger } from '../tool';
 import { router as resRouter, initResPath } from '../res';
 import { authCheck, authUnitx, getCompileNet, getDbs, getNet } from '../core';
@@ -38,7 +39,6 @@ export async function startApi(): Promise<void> {
         initResPath();
 
         let app = express();
-        var cors = require('cors')
         app.use(cors({
             origin: '*'
         }));
