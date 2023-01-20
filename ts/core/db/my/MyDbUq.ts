@@ -176,6 +176,7 @@ export class MyDbUq extends MyDb implements DbUq {
     async buildUqStoreProcedureIfNotExists(...procNames: string[]): Promise<void> {
         if (procNames === undefined) return;
         for (let procName of procNames) {
+            if (procName === undefined) continue;
             if (this.isExistsProc(procName) === false) {
                 await this.createProc(procName);
             }

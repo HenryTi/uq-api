@@ -164,6 +164,8 @@ class MyDbUq extends MyDb_1.MyDb {
         if (procNames === undefined)
             return;
         for (let procName of procNames) {
+            if (procName === undefined)
+                continue;
             if (this.isExistsProc(procName) === false) {
                 await this.createProc(procName);
             }
