@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import { logger, env } from '../../../tool';
 import { DbBase } from '../Db';
 import { SpanLog } from '../dbLogger';
+import { myCreatePool } from './myCreatePool';
 
 const retries = 5;
 const minMillis = 1;
@@ -37,7 +38,7 @@ export abstract class MyDbBase implements DbBase {
                 return pool;
             }
         }
-        let conf = Object.assign(this.dbConfig);
+        let conf = Object.assign({}, this.dbConfig);
         // conf.timezone = 'UTC';
         // conf.typeCast = castField;
         conf.connectionLimit = 10;
@@ -46,7 +47,7 @@ export abstract class MyDbBase implements DbBase {
         conf.multipleStatements = true;
         //conf.charset = 'utf8mb4';
         //let newPool = await this.createPool(conf);
-        let newPool = createPool(conf);
+        let newPool = myCreatePool(conf);
         pools.push({ config: this.dbConfig, pool: newPool });
         return newPool;
     }

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyDbBase = void 0;
-const mysql2_1 = require("mysql2");
 const _ = require("lodash");
 const tool_1 = require("../../../tool");
+const myCreatePool_1 = require("./myCreatePool");
 const retries = 5;
 const minMillis = 1;
 const maxMillis = 100;
@@ -24,7 +24,7 @@ class MyDbBase {
                 return pool;
             }
         }
-        let conf = Object.assign(this.dbConfig);
+        let conf = Object.assign({}, this.dbConfig);
         // conf.timezone = 'UTC';
         // conf.typeCast = castField;
         conf.connectionLimit = 10;
@@ -33,7 +33,7 @@ class MyDbBase {
         conf.multipleStatements = true;
         //conf.charset = 'utf8mb4';
         //let newPool = await this.createPool(conf);
-        let newPool = (0, mysql2_1.createPool)(conf);
+        let newPool = (0, myCreatePool_1.myCreatePool)(conf);
         pools.push({ config: this.dbConfig, pool: newPool });
         return newPool;
     }
