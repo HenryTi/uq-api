@@ -8,12 +8,13 @@ import { RouterWebBuilder } from "../routerBuilder";
 export function buildUnitxRouter(rb: RouterWebBuilder): Router {
     let router = Router();
 
-    router.get('/hello'),
+    router.get('/hello',
         async function (req: Request, res: Response, next: NextFunction) {
             res.json({
                 text: 'hello',
             });
         }
+    );
 
     const pathIndex = '/';
     router.post(pathIndex,

@@ -8,12 +8,11 @@ const messageProcesser_1 = require("./messageProcesser");
 const processBusMessage_1 = require("./processBusMessage");
 function buildUnitxRouter(rb) {
     let router = (0, express_1.Router)();
-    router.get('/hello'),
-        async function (req, res, next) {
-            res.json({
-                text: 'hello',
-            });
-        };
+    router.get('/hello', async function (req, res, next) {
+        res.json({
+            text: 'hello',
+        });
+    });
     const pathIndex = '/';
     router.post(pathIndex, async function (req, res, next) {
         try {
