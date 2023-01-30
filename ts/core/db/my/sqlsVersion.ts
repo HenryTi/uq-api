@@ -1,6 +1,9 @@
 import { getDbs } from "../Dbs";
 
+const oldTwProfix = 'tv_';  // will be changed to '';
+
 export interface DbSqlsVersion {
+    oldTwProfix: string;
     procLogExists: string;
     procLogErrorExists: string;
     performanceExists: string;
@@ -12,6 +15,7 @@ export interface DbSqlsVersion {
 }
 
 const sqls_8: DbSqlsVersion = {
+    oldTwProfix,
     procLogExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log';`,
     procLogErrorExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log_error';`,
     performanceExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='performance';`,
@@ -19,10 +23,11 @@ const sqls_8: DbSqlsVersion = {
     dateToUidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
     eventExists: `SELECT EVENT_SCHEMA as db, EVENT_NAME as name FROM information_schema.events WHERE event_schema = ?;`,
-    tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='tv_$entity'`,
+    tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='${oldTwProfix}$entity'`,
 };
 
 const sqls_5: DbSqlsVersion = {
+    oldTwProfix,
     procLogExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log';`,
     procLogErrorExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log_error';`,
     performanceExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='performance';`,
@@ -30,7 +35,7 @@ const sqls_5: DbSqlsVersion = {
     dateToUidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
     eventExists: `SELECT db, name FROM mysql.event WHERE db = ?;`,
-    tv$entityExists: `SELECT 1`,
+    tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='${oldTwProfix}$entity'`,
 };
 
 export let sqlsVersion: DbSqlsVersion;

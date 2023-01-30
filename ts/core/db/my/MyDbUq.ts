@@ -4,8 +4,6 @@ import { MyDb } from "./MyDb";
 import { consts } from '../../consts';
 import { sqlsVersion } from './sqlsVersion';
 
-const oldTwProfix = 'tv_';  // will be changed to '';
-
 const sysProcColl = {
     $entitys: true,
     $entity: true,
@@ -39,7 +37,7 @@ export class MyDbUq extends MyDb implements DbUq {
 
     async initLoad() {
         if (this.twProfix !== undefined) return;
-        const { tv$entityExists } = sqlsVersion;
+        const { oldTwProfix, tv$entityExists } = sqlsVersion;
         let ret = await this.sql(tv$entityExists, [this.name]);
         this.twProfix = ret.length > 0 ? oldTwProfix : '';
     }

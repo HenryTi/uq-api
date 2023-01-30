@@ -2,7 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkSqlVersion = exports.sqlsVersion = void 0;
 const Dbs_1 = require("../Dbs");
+const oldTwProfix = 'tv_'; // will be changed to '';
 const sqls_8 = {
+    oldTwProfix,
     procLogExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log';`,
     procLogErrorExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='log_error';`,
     performanceExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='performance';`,
@@ -10,9 +12,10 @@ const sqls_8 = {
     dateToUidExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
     eventExists: `SELECT EVENT_SCHEMA as db, EVENT_NAME as name FROM information_schema.events WHERE event_schema = ?;`,
-    tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='tv_$entity'`,
+    tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='${oldTwProfix}$entity'`,
 };
 const sqls_5 = {
+    oldTwProfix,
     procLogExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log';`,
     procLogErrorExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='log_error';`,
     performanceExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='performance';`,
@@ -20,7 +23,7 @@ const sqls_5 = {
     dateToUidExists: `SELECT name FROM mysql.proc WHERE db='$uq' AND name='datetouid';`,
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
     eventExists: `SELECT db, name FROM mysql.event WHERE db = ?;`,
-    tv$entityExists: `SELECT 1`,
+    tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='${oldTwProfix}$entity'`,
 };
 async function checkSqlVersion() {
     let db = (0, Dbs_1.getDbs)().dbNoName;

@@ -6,7 +6,6 @@ const Db_1 = require("../Db");
 const MyDb_1 = require("./MyDb");
 const consts_1 = require("../../consts");
 const sqlsVersion_1 = require("./sqlsVersion");
-const oldTwProfix = 'tv_'; // will be changed to '';
 const sysProcColl = {
     $entitys: true,
     $entity: true,
@@ -35,7 +34,7 @@ class MyDbUq extends MyDb_1.MyDb {
     async initLoad() {
         if (this.twProfix !== undefined)
             return;
-        const { tv$entityExists } = sqlsVersion_1.sqlsVersion;
+        const { oldTwProfix, tv$entityExists } = sqlsVersion_1.sqlsVersion;
         let ret = await this.sql(tv$entityExists, [this.name]);
         this.twProfix = ret.length > 0 ? oldTwProfix : '';
     }
