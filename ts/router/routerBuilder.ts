@@ -24,6 +24,7 @@ export abstract class RouterBuilder {
     post(router: Router, path: string, processer: Processer) {
         router.post(path, async (req: Request, res: Response, next: NextFunction) => {
             try {
+                console.log('/post ', req.originalUrl);
                 let { body, params } = req;
                 await this.process(req, res, processer, body, params);
             }
