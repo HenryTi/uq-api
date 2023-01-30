@@ -18,6 +18,9 @@ class MyDb extends MyDbBase_1.MyDbBase {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }
     buildCallProc(proc) {
+        if (proc === '$exec_queue_act') {
+            console.error('protected MyDb.buildCallProc(proc: string)', proc);
+        }
         return `call \`${this.name}\`.\`${proc}\``;
     }
     buildCallProcParameters(params) {

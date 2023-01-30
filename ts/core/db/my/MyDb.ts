@@ -22,6 +22,9 @@ export abstract class MyDb extends MyDbBase implements Db {
     }
 
     protected buildCallProc(proc: string) {
+        if (proc === '$exec_queue_act') {
+            console.error('protected MyDb.buildCallProc(proc: string)', proc);
+        }
         return `call \`${this.name}\`.\`${proc}\``;
     }
 
