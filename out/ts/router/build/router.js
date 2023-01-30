@@ -15,19 +15,17 @@ function buildBuildRouter(router, rb) {
     }
     router.post('/start', async (req, res) => {
         try {
-            tool_1.logger.debug('buildBuildRouter step 1');
             let runner = await createBuildRunner(req);
             await net.runnerSetCompiling(runner.dbUq);
-            // logger.debug('buildBuildRouter step 2');
-            // await net.runnerCompiling(db);
-            tool_1.logger.debug('buildBuildRouter step 3');
             let { enc } = req.body;
             (0, core_1.setUqBuildSecret)(enc);
             let exists = await runner.buildDatabase();
-            tool_1.logger.debug('buildBuildRouter step 4');
             res.json({
                 ok: true,
-                res: exists
+                res: {
+                    exists,
+                    twProfix: runner.dbUq.twProfix,
+                }
             });
         }
         catch (err) {
