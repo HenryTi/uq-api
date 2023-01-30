@@ -123,15 +123,9 @@ class MyDbUq extends MyDb_1.MyDb {
         let isFunc = (procType === Db_1.ProcType.func);
         await this.buildUqProc(procName, procSql, isFunc);
     }
-    /*
-    async uqCoreProc(procName: string, procSql: string, isFunc: boolean): Promise<any> {
-        await this.uqProc(procName, procSql);
-        await this.buildUqProc(procName, procSql, isFunc);
-    }
-    */
     async buildUqProc(procName, procSql, isFunc = false) {
         let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-        let drop = `DROP ${type} IF EXISTS \`${this.name}\`.\`${procName}\`;`;
+        let drop = `DROP ${type} IF EXISTS \`${this.name}\`.\`${this.twProfix}${procName}\`;`;
         await this.sql(drop, undefined);
         await this.sql(procSql, undefined);
         // clear changed flag
@@ -187,7 +181,7 @@ class MyDbUq extends MyDb_1.MyDb {
         let procSql = r0['proc'];
         */
         const { proc: procSql } = await this.uqProcGet(procName);
-        const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${procName}\`;`;
+        const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${this.twProfix}${procName}\`;`;
         await this.sql(drop, undefined);
         await this.sql(procSql, undefined);
         await this.proc('$proc_save', [this.name, procName, undefined]);
