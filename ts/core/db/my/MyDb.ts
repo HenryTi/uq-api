@@ -46,7 +46,7 @@ export abstract class MyDb extends MyDbBase implements Db {
         return ret;
     }
 
-    async procWithLog(proc: string, params: any[]): Promise<any> {
+    protected async procWithLog(proc: string, params: any[]): Promise<any> {
         let c = this.buildCallProc(proc);
         let sql = c + this.buildCallProcParameters(params);
         let spanLog: SpanLog;

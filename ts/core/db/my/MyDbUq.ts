@@ -253,6 +253,9 @@ export class MyDbUq extends MyDb implements DbUq {
                 throw err;
             }
         }
+        if (proc === '$exec_queue_act') {
+            console.error('await this.procWithLog(proc, params)');
+        }
         return await this.procWithLog(proc, params);
     }
 

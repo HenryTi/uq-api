@@ -241,6 +241,9 @@ class MyDbUq extends MyDb_1.MyDb {
                 throw err;
             }
         }
+        if (proc === '$exec_queue_act') {
+            console.error('await this.procWithLog(proc, params)');
+        }
         return await this.procWithLog(proc, params);
     }
     isExistsProc(proc) {
