@@ -48,6 +48,9 @@ class MyDbUq extends MyDb_1.MyDb {
     }
     ;
     buildCallProc(proc) {
+        if (proc === '$exec_queue_act') {
+            console.error('protected buildCallProc(proc: string)', proc, this.twProfix);
+        }
         return `call \`${this.name}\`.\`${this.twProfix}${proc}\``;
     }
     async createProcObjs() {

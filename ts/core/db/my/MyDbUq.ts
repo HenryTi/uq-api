@@ -49,6 +49,9 @@ export class MyDbUq extends MyDb implements DbUq {
     };
 
     protected buildCallProc(proc: string) {
+        if (proc === '$exec_queue_act') {
+            console.error('protected buildCallProc(proc: string)', proc, this.twProfix);
+        }
         return `call \`${this.name}\`.\`${this.twProfix}${proc}\``;
     }
 
