@@ -7,17 +7,21 @@ import { getUrlDebug } from "./getUrlDebug";
 // import { Unitx } from "./unitx";
 import { consts } from './consts';
 import { Dbs } from './db/Dbs';
+import { Request } from 'express';
 
 export class Net {
     // private readonly id: string;
     private readonly runners: { [name: string]: EntityRunner } = {};
     private readonly executingNet: Net;  // 编译Net指向对应的执行Net，编译完成后，reset runner
     private readonly dbs: Dbs;
+    private readonly unitxTestName: string;
     //protected readonly unitx: Unitx;
 
     constructor(executingNet: Net) {
         this.executingNet = executingNet;
         this.dbs = getDbs();
+        let { $unitx } = consts;
+        this.unitxTestName = `/${$unitx}-test/`;
         // this.id = id;
         //        this.unitx = this.createUnitx();
     }
@@ -107,9 +111,12 @@ export class Net {
         }
     }
 
-    async getUnitxRunner(): Promise<EntityRunner> {
+    async getUnitxRunner(req: Request): Promise<EntityRunner> {
         let name = consts.$unitx;
         let $name = '$' + name;
+        if (req.baseUrl.indexOf(this.unitxTestName) >= 0) {
+            $name += consts.$test;
+        }
         let runner = this.runners[$name];
         if (runner === null) return;
         if (runner === undefined) {

@@ -13,7 +13,7 @@ function buildUnitxRouter(rb) {
             let msg = req.body;
             let tos = undefined;
             let { type } = msg;
-            let unitxRunner = await rb.getUnitxRunner();
+            let unitxRunner = await rb.getUnitxRunner(req);
             if (type === 'sheet') {
                 let sheetMessage = msg;
                 let { from } = sheetMessage;

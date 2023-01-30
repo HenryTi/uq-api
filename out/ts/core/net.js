@@ -18,6 +18,8 @@ class Net {
         this.uqOpenApis = {};
         this.executingNet = executingNet;
         this.dbs = (0, db_1.getDbs)();
+        let { $unitx } = consts_1.consts;
+        this.unitxTestName = `/${$unitx}-test/`;
         // this.id = id;
         //        this.unitx = this.createUnitx();
     }
@@ -107,9 +109,12 @@ class Net {
             }
         }
     }
-    async getUnitxRunner() {
+    async getUnitxRunner(req) {
         let name = consts_1.consts.$unitx;
         let $name = '$' + name;
+        if (req.baseUrl.indexOf(this.unitxTestName) >= 0) {
+            $name += consts_1.consts.$test;
+        }
         let runner = this.runners[$name];
         if (runner === null)
             return;

@@ -13,7 +13,7 @@ export function buildUnitxRouter(rb: RouterWebBuilder): Router {
             let msg: Message = req.body;
             let tos: number[] = undefined;
             let { type } = msg;
-            let unitxRunner = await rb.getUnitxRunner();
+            let unitxRunner = await rb.getUnitxRunner(req);
             if (type === 'sheet') {
                 let sheetMessage = msg as SheetMessage;
                 let { from } = sheetMessage;

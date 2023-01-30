@@ -123,8 +123,8 @@ export abstract class RouterBuilder {
         return await this.net.getRunner(name);
     }
 
-    async getUnitxRunner(): Promise<EntityRunner> {
-        return await this.net.getUnitxRunner();
+    async getUnitxRunner(req: Request): Promise<EntityRunner> {
+        return await this.net.getUnitxRunner(req);
     }
 
     protected unknownEntity(res: Response, name: string, runner: EntityRunner) {
@@ -260,7 +260,7 @@ export class CompileRouterBuilder extends RouterWebBuilder {
 
 export class UnitxRouterBuilder extends RouterWebBuilder {
     protected async routerRunner(req: Request): Promise<EntityRunner> {
-        let runner = await this.net.getUnitxRunner();
+        let runner = await this.net.getUnitxRunner(req);
         if (runner !== undefined) return runner;
         throw `Database ${runner.dbName} 不存在`;
     }

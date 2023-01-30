@@ -106,8 +106,8 @@ class RouterBuilder {
     async getRunner(name) {
         return await this.net.getRunner(name);
     }
-    async getUnitxRunner() {
-        return await this.net.getUnitxRunner();
+    async getUnitxRunner(req) {
+        return await this.net.getUnitxRunner(req);
     }
     unknownEntity(res, name, runner) {
         res.json({ error: `uq:${runner.dbName} unknown entity ${name} all entities:${runner.getEntityNameList()}` });
@@ -245,7 +245,7 @@ class CompileRouterBuilder extends RouterWebBuilder {
 exports.CompileRouterBuilder = CompileRouterBuilder;
 class UnitxRouterBuilder extends RouterWebBuilder {
     async routerRunner(req) {
-        let runner = await this.net.getUnitxRunner();
+        let runner = await this.net.getUnitxRunner(req);
         if (runner !== undefined)
             return runner;
         throw `Database ${runner.dbName} 不存在`;
