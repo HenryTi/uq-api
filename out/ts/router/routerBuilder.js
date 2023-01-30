@@ -24,30 +24,39 @@ class RouterBuilder {
         };
         this.net = net;
     }
-    /*
-    getDbUq(uqName: string): DbUq {
-        let db = dbs.getDbUq(this.getDbName(uqName), this.net.isTesting);
-        return db;
-    }
-    */
     post(router, path, processer) {
-        router.post(path, async (req, res) => {
-            let { body, params } = req;
-            await this.process(req, res, processer, body, params);
+        router.post(path, async (req, res, next) => {
+            try {
+                let { body, params } = req;
+                await this.process(req, res, processer, body, params);
+            }
+            catch (err) {
+                next(err);
+            }
         });
     }
     ;
     get(router, path, processer) {
-        router.get(path, async (req, res) => {
-            let { query, params } = req;
-            await this.process(req, res, processer, query, params);
+        router.get(path, async (req, res, next) => {
+            try {
+                let { query, params } = req;
+                await this.process(req, res, processer, query, params);
+            }
+            catch (err) {
+                next(err);
+            }
         });
     }
     ;
     put(router, path, processer) {
-        router.put(path, async (req, res) => {
-            let { body, params } = req;
-            await this.process(req, res, processer, body, params);
+        router.put(path, async (req, res, next) => {
+            try {
+                let { body, params } = req;
+                await this.process(req, res, processer, body, params);
+            }
+            catch (err) {
+                next(err);
+            }
         });
     }
     ;

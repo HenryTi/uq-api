@@ -1,7 +1,6 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { logger } from '../tool';
 import { EntityRunner } from '../core/runner';
-import { consts } from "../core/consts";
 import { Net, } from '../core/net';
 import { buildDbNameFromReq } from './buildDbNameFromReq';
 
@@ -21,32 +20,41 @@ export abstract class RouterBuilder {
     constructor(net: Net) {
         this.net = net;
     }
-    /*
-    getDbUq(uqName: string): DbUq {
-        let db = dbs.getDbUq(this.getDbName(uqName), this.net.isTesting);
-        return db;
-    }
-    */
 
     post(router: Router, path: string, processer: Processer) {
-        router.post(path, async (req: Request, res: Response) => {
-            let { body, params } = req;
-            await this.process(req, res, processer, body, params);
+        router.post(path, async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                let { body, params } = req;
+                await this.process(req, res, processer, body, params);
+            }
+            catch (err) {
+                next(err);
+            }
         });
     };
 
     get(router: Router, path: string, processer: Processer) {
-        router.get(path, async (req: Request, res: Response) => {
-            let { query, params } = req;
-            await this.process(req, res, processer, query, params);
-        });
+        router.get(path, async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                let { query, params } = req;
+                await this.process(req, res, processer, query, params);
+            }
+            catch (err) {
+                next(err);
+            }
+        })
     };
 
     put(router: Router, path: string, processer: Processer) {
-        router.put(path, async (req: Request, res: Response) => {
-            let { body, params } = req;
-            await this.process(req, res, processer, body, params);
-        });
+        router.put(path, async (req: Request, res: Response, next: NextFunction) => {
+            try {
+                let { body, params } = req;
+                await this.process(req, res, processer, body, params);
+            }
+            catch (err) {
+                next(err);
+            }
+        })
     };
     // getDbName(name: string): string { return this.net.getDbName(name); }
     protected async routerRunner(req: Request): Promise<EntityRunner> {
