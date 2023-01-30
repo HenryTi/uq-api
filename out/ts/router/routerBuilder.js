@@ -19,6 +19,7 @@ class RouterBuilder {
                 }
                 let userToken = req.user;
                 let result = await processer(runner, queryOrBody, params, userToken);
+                console.error('process in routerBuilder result', result);
                 res.json({
                     ok: true,
                     res: result

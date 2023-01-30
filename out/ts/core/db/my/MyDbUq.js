@@ -194,9 +194,6 @@ class MyDbUq extends MyDb_1.MyDb {
         return await super.buildDatabase();
     }
     async execUqProc(proc, params) {
-        if (proc === 'GetBusMessages') {
-            console.error('execUqProc 1', proc);
-        }
         let needBuildProc;
         let dbFirstChar = this.name[0];
         if (dbFirstChar === '$') {
@@ -210,46 +207,22 @@ class MyDbUq extends MyDb_1.MyDb {
         else {
             needBuildProc = true;
         }
-        if (proc === 'GetBusMessages') {
-            console.error('execUqProc 2', proc);
-        }
         if (needBuildProc === true) {
             try {
                 let procLower = proc.toLowerCase();
                 let p = this.procColl[procLower];
-                if (proc === 'GetBusMessages') {
-                    console.error('execUqProc 2.1', proc);
-                }
                 if (p !== true) {
-                    if (proc === 'GetBusMessages') {
-                        console.error('execUqProc 2.2', proc);
-                    }
                     const { proc: procSql, changed } = await this.uqProcGet(proc);
-                    if (proc === 'GetBusMessages') {
-                        console.error('execUqProc 2.3', proc);
-                    }
                     if (changed === 1) {
-                        if (proc === 'GetBusMessages') {
-                            console.error('execUqProc 2.4', proc);
-                        }
                         await this.buildUqProc(proc, procSql);
-                        if (proc === 'GetBusMessages') {
-                            console.error('execUqProc 2.5', proc);
-                        }
                     }
                     this.procColl[procLower] = true;
-                    if (proc === 'GetBusMessages') {
-                        console.error('execUqProc 2.5', proc);
-                    }
                 }
             }
             catch (err) {
                 console.error('execUqProc', proc, err);
                 throw err;
             }
-        }
-        if (proc === 'GetBusMessages') {
-            console.error('execUqProc 10', proc);
         }
         return await this.procWithLog(proc, params);
     }

@@ -87,6 +87,7 @@ export abstract class RouterBuilder {
             }
             let userToken: User = (req as any).user;
             let result = await processer(runner, queryOrBody, params, userToken);
+            console.error('process in routerBuilder result', result);
             res.json({
                 ok: true,
                 res: result
