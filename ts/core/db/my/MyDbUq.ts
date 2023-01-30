@@ -40,7 +40,6 @@ export class MyDbUq extends MyDb implements DbUq {
         const { oldTwProfix, tv$entityExists } = sqlsVersion;
         let ret = await this.sql(tv$entityExists, [this.name]);
         this.twProfix = ret.length > 0 ? oldTwProfix : '';
-        console.error(this.twProfix);
     }
 
     private resetProcColl() {

@@ -37,7 +37,6 @@ class MyDbUq extends MyDb_1.MyDb {
         const { oldTwProfix, tv$entityExists } = sqlsVersion_1.sqlsVersion;
         let ret = await this.sql(tv$entityExists, [this.name]);
         this.twProfix = ret.length > 0 ? oldTwProfix : '';
-        console.error(this.twProfix);
     }
     resetProcColl() {
         this.procColl = Object.assign({}, sysProcColl);
