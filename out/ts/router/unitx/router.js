@@ -51,6 +51,7 @@ function buildUnitxRouter(rb) {
     rb.post(router, pathFetchBus, async function (runner, body) {
         try {
             let { unit, msgStart, defer, faces } = body;
+            console.error(pathFetchBus, 'GetBusMessages');
             let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
             return ret;
         }
