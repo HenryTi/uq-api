@@ -48,9 +48,6 @@ class MyDbUq extends MyDb_1.MyDb {
     }
     ;
     buildCallProc(proc) {
-        if (proc === '$exec_queue_act') {
-            console.error('protected MyDbUq.buildCallProc(proc: string)', proc, this.twProfix);
-        }
         return `call \`${this.name}\`.\`${this.twProfix}${proc}\``;
     }
     async createProcObjs() {
@@ -241,9 +238,6 @@ class MyDbUq extends MyDb_1.MyDb {
                 throw err;
             }
         }
-        if (proc === '$exec_queue_act') {
-            console.error('await this.procWithLog(proc, params)');
-        }
         return await this.procWithLog(proc, params);
     }
     isExistsProc(proc) {
@@ -282,7 +276,6 @@ class MyDbUq extends MyDb_1.MyDb {
         let sql;
         // try {
         let db = this.name;
-        console.error('$exec_queue_act', this.twProfix);
         let ret = await this.call('$exec_queue_act', []);
         if (ret) {
             // let db = runner.getDb();
