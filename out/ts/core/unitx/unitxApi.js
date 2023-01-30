@@ -14,17 +14,18 @@ class UnitxApi extends fetch_1.Fetch {
     }
     async fetchBus(unit, msgStart, faces, defer) {
         const pathFetchBus = 'fetch-bus';
+        const param = {
+            unit,
+            msgStart: msgStart,
+            faces: faces,
+            defer,
+        };
         try {
-            let ret = await this.post('fetch-bus', {
-                unit,
-                msgStart: msgStart,
-                faces: faces,
-                defer,
-            });
+            let ret = await this.post('fetch-bus', param);
             return ret;
         }
         catch (err) {
-            tool_1.logger.error(err, this.baseUrl + pathFetchBus, unit);
+            tool_1.logger.error(err, this.baseUrl + pathFetchBus, unit, param);
             return undefined;
         }
     }
