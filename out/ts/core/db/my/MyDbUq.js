@@ -148,7 +148,7 @@ class MyDbUq extends MyDb_1.MyDb {
         await this.clearProcChangeFlag(procName);
     }
     async uqProcGet(proc) {
-        let results = await super.proc('$proc_get', [this.name, proc]);
+        let results = await super.proc('$proc_get', [this.name, this.twProfix + proc]);
         let ret = results[0];
         if (ret.length === 0) {
             debugger;

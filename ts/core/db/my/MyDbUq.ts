@@ -157,7 +157,7 @@ export class MyDbUq extends MyDb implements DbUq {
     }
 
     private async uqProcGet(proc: string): Promise<{ proc: string; changed: number; }> {
-        let results = await super.proc('$proc_get', [this.name, proc]);
+        let results = await super.proc('$proc_get', [this.name, this.twProfix + proc]);
         let ret = results[0];
         if (ret.length === 0) {
             debugger;
