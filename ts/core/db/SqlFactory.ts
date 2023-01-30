@@ -1,3 +1,4 @@
+import { DbUq } from "./Db";
 import {
     ParamID, ParamIX, ParamIXSum, ParamActs
     , ParamActDetail, ParamIDinIX, ParamIDLog, ParamIDSum
@@ -7,10 +8,11 @@ import {
 import { SqlBuilder } from "./SqlBuilder";
 
 export interface SqlFactoryProps {
+    dbUq: DbUq;
     getTableSchema: (name: string) => any;
-    dbName: string;
+    // dbName: string;
     hasUnit: boolean;
-    twProfix: string;
+    // twProfix: string;
 }
 
 export abstract class SqlFactory {
@@ -19,10 +21,11 @@ export abstract class SqlFactory {
     readonly twProfix: string;
     readonly getTableSchema: (name: string) => any;
     constructor(props: SqlFactoryProps) {
-        let { getTableSchema, dbName, hasUnit, twProfix } = props;
+        let { getTableSchema, dbUq, hasUnit } = props;
         this.getTableSchema = getTableSchema;
-        this.dbName = dbName;
         this.hasUnit = hasUnit;
+        const { name, twProfix } = dbUq;
+        this.dbName = name;
         this.twProfix = twProfix;
     }
 

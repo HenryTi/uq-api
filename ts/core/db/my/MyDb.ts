@@ -21,15 +21,8 @@ export abstract class MyDb extends MyDbBase implements Db {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }
 
-    async sqlDropProc(procName: string, isFunc: boolean): Promise<any> {
-        let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-        let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${procName}\``;
-        await this.sql(sql);
-    }
-
     protected buildCallProc(proc: string) {
-        let c = 'call `' + this.name + '`.`' + proc + '`';
-        return c;
+        return `call \`${this.name}\`.\`${proc}\``;
     }
 
     private buildCallProcParameters(params: any[]): string {

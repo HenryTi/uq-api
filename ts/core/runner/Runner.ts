@@ -24,4 +24,8 @@ export class Runner {
         await this.dbUq.call('$set_user', [id, name, nick, icon]);
         return user;
     }
+
+    protected async procCall(proc: string, params: any[]): Promise<any> {
+        return await this.dbUq.call(proc, params);
+    }
 }

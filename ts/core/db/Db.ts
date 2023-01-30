@@ -22,7 +22,6 @@ export interface Db extends DbBase {
     // get twProfix(): string;
     // loadTwProfix(): Promise<void>;
     get name(): string;
-    sqlDropProc(procName: string, isFunc: boolean): Promise<any>;
     proc(proc: string, params: any[]): Promise<any>;
     buildDatabase(): Promise<boolean>;
     /**

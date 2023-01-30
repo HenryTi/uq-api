@@ -17,14 +17,8 @@ class MyDb extends MyDbBase_1.MyDbBase {
     sqlExists(db) {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }
-    async sqlDropProc(procName, isFunc) {
-        let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-        let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${procName}\``;
-        await this.sql(sql);
-    }
     buildCallProc(proc) {
-        let c = 'call `' + this.name + '`.`' + proc + '`';
-        return c;
+        return `call \`${this.name}\`.\`${proc}\``;
     }
     buildCallProcParameters(params) {
         let sql = '(';

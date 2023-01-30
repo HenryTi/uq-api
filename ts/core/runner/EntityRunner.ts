@@ -99,10 +99,11 @@ export class EntityRunner extends Runner {
         this.modifyMaxes = {};
         this.dbName = dbUq.name;
         this.sqlFactory = createSqlFactory({
+            dbUq,
             getTableSchema: this.getTableSchema,
-            dbName: this.dbName,
+            // dbName: this.dbName,
             hasUnit: false,
-            twProfix: this.dbUq.twProfix,
+            // twProfix: this.dbUq.twProfix,
         });
         this.db$Uq = getDbs().db$Uq;
     }
@@ -147,7 +148,7 @@ export class EntityRunner extends Runner {
     }
 
     async ActIDProp(unit: number, user: number, ID: string, id: number, propName: string, value: string) {
-        return await this.call(`${this.dbUq.twProfix}${ID}$prop`, [unit, user, id, propName, value]);
+        return await this.call(`${ID}$prop`, [unit, user, id, propName, value]);
     }
 
     getEntityNameList() {
@@ -294,9 +295,6 @@ export class EntityRunner extends Runner {
     async logError(unit: number, subject: string, content: string): Promise<void> {
         //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
         await this.db$Uq.proc('log_error', [unit, this.dbName, subject, content]);
-    }
-    async procCall(proc: string, params: any[]): Promise<any> {
-        return await this.dbUq.call(proc, params);
     }
     async call(proc: string, params: any[]): Promise<any> {
         return await this.dbUq.call(proc, params);

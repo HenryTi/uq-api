@@ -20,6 +20,9 @@ class Runner {
         await this.dbUq.call('$set_user', [id, name, nick, icon]);
         return user;
     }
+    async procCall(proc, params) {
+        return await this.dbUq.call(proc, params);
+    }
 }
 exports.Runner = Runner;
 //# sourceMappingURL=Runner.js.map

@@ -111,9 +111,6 @@ class BuildRunner extends Runner_1.Runner {
     async buildProc(proc) {
         await this.dbUq.buildUqStoreProcedure(proc);
     }
-    async procCall(proc, params) {
-        return await this.dbUq.call(proc, params);
-    }
     async call(proc, params) {
         return await this.dbUq.call(proc, params);
     }

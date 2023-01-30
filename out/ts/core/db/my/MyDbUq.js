@@ -48,8 +48,7 @@ class MyDbUq extends MyDb_1.MyDb {
     }
     ;
     buildCallProc(proc) {
-        let c = 'call `' + this.name + '`.`' + this.twProfix + proc + '`';
-        return c;
+        return `call \`${this.name}\`.\`${this.twProfix}${proc}\``;
     }
     async createProcObjs() {
         const createProcTable = `
@@ -113,7 +112,7 @@ class MyDbUq extends MyDb_1.MyDb {
         return;
     }
     async uqProc(procName, procSql, procType) {
-        let ret = await this.proc('$proc_save', [this.name, procName, procSql]);
+        let ret = await this.saveProc(procName, procSql);
         let t0 = ret[0];
         let changed = t0[0]['changed'];
         let isOk = changed === 0;
@@ -123,16 +122,29 @@ class MyDbUq extends MyDb_1.MyDb {
         let isFunc = (procType === Db_1.ProcType.func);
         await this.buildUqProc(procName, procSql, isFunc);
     }
-    async buildUqProc(procName, procSql, isFunc = false) {
+    async runSqlDropProc(procName, isFunc) {
+        if (procName === '$uq' || procName === 'tv_$uq')
+            debugger;
         let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-        let drop = `DROP ${type} IF EXISTS \`${this.name}\`.\`${this.twProfix}${procName}\`;`;
-        await this.sql(drop, undefined);
+        let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${this.twProfix}${procName}\``;
+        await this.sql(sql);
+    }
+    async saveProc(procName, procSql) {
+        return await this.proc('$proc_save', [this.name, this.twProfix + procName, procSql]);
+    }
+    async clearProcChangeFlag(procName) {
+        await this.proc('$proc_save', [this.name, this.twProfix + procName, undefined]);
+    }
+    async buildUqProc(procName, procSql, isFunc = false) {
+        // let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
+        // let drop = `DROP ${type} IF EXISTS \`${this.name}\`.\`${procName}\`;`;
+        // await this.sql(drop, undefined);
+        await this.runSqlDropProc(procName, isFunc);
         await this.sql(procSql, undefined);
         // clear changed flag
-        await this.proc('$proc_save', [this.name, procName, undefined]);
+        await this.clearProcChangeFlag(procName);
     }
     async uqProcGet(proc) {
-        proc = this.twProfix + proc;
         let results = await super.proc('$proc_get', [this.name, proc]);
         let ret = results[0];
         if (ret.length === 0) {
@@ -181,8 +193,9 @@ class MyDbUq extends MyDb_1.MyDb {
         let procSql = r0['proc'];
         */
         const { proc: procSql } = await this.uqProcGet(procName);
-        const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${this.twProfix}${procName}\`;`;
-        await this.sql(drop, undefined);
+        // const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${procName}\`;`;
+        // await this.sql(drop, undefined);
+        await this.runSqlDropProc(procName, false);
         await this.sql(procSql, undefined);
         await this.proc('$proc_save', [this.name, procName, undefined]);
     }
@@ -193,6 +206,7 @@ class MyDbUq extends MyDb_1.MyDb {
         this.resetProcColl();
         return await super.buildDatabase();
     }
+    // proc no twProfix
     async execUqProc(proc, params) {
         let needBuildProc;
         let dbFirstChar = this.name[0];

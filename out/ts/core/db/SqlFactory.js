@@ -3,10 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SqlFactory = void 0;
 class SqlFactory {
     constructor(props) {
-        let { getTableSchema, dbName, hasUnit, twProfix } = props;
+        let { getTableSchema, dbUq, hasUnit } = props;
         this.getTableSchema = getTableSchema;
-        this.dbName = dbName;
         this.hasUnit = hasUnit;
+        const { name, twProfix } = dbUq;
+        this.dbName = name;
         this.twProfix = twProfix;
     }
 }

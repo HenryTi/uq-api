@@ -108,9 +108,6 @@ export class BuildRunner extends Runner {
     async buildProc(proc: string): Promise<any> {
         await this.dbUq.buildUqStoreProcedure(proc);
     }
-    async procCall(proc: string, params: any[]): Promise<any> {
-        return await this.dbUq.call(proc, params);
-    }
     async call(proc: string, params: any[]): Promise<any> {
         return await this.dbUq.call(proc, params);
     }

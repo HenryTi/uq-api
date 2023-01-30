@@ -8,9 +8,6 @@ class MsDb {
     sql(sql, params) {
         throw new Error('Method not implemented.');
     }
-    sqlDropProc(procName, isFunc) {
-        throw new Error('Method not implemented.');
-    }
     proc(proc, params) {
         throw new Error('Method not implemented.');
     }

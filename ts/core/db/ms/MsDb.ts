@@ -8,9 +8,6 @@ export class MsDb implements Db {
     sql(sql: string, params: any[]): Promise<any> {
         throw new Error('Method not implemented.');
     }
-    sqlDropProc(procName: string, isFunc: boolean): Promise<any> {
-        throw new Error('Method not implemented.');
-    }
     proc(proc: string, params: any[]): Promise<any> {
         throw new Error('Method not implemented.');
     }
