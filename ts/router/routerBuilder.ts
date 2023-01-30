@@ -86,6 +86,7 @@ export abstract class RouterBuilder {
                 return;
             }
             let userToken: User = (req as any).user;
+            console.error('process in routerBuilder before');
             let result = await processer(runner, queryOrBody, params, userToken);
             console.error('process in routerBuilder result', result);
             res.json({
@@ -94,6 +95,7 @@ export abstract class RouterBuilder {
             });
         }
         catch (err) {
+            console.error('process in routerBuilder error', err);
             res.json({ error: err });
         }
     }
