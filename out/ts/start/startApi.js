@@ -101,6 +101,7 @@ async function startApi() {
             let { host, user } = connection;
             tool_1.logger.debug('DB host: %s, user: %s', host, user);
             tool_1.logger.debug('Tonwa uq-api started!');
+            (0, tool_1.expressListRoutes)(app, {});
         });
         let localApp = express();
         if (localPort) {

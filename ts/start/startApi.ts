@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { Request, Response, NextFunction, Router } from 'express';
 import * as cors from 'cors';
-import { env, logger } from '../tool';
+import { env, expressListRoutes, logger } from '../tool';
 import { router as resRouter, initResPath } from '../res';
 import { authCheck, authUnitx, getCompileNet, getDbs, getNet } from '../core';
 import {
@@ -108,6 +108,7 @@ export async function startApi(): Promise<void> {
             let { host, user } = connection;
             logger.debug('DB host: %s, user: %s', host, user);
             logger.debug('Tonwa uq-api started!');
+            expressListRoutes(app, {});
         });
 
         let localApp = express();

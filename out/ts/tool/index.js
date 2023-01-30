@@ -14,4 +14,5 @@ __exportStar(require("./tools"), exports);
 __exportStar(require("./cache"), exports);
 __exportStar(require("./logger"), exports);
 __exportStar(require("./env"), exports);
+__exportStar(require("./expressListRoutes"), exports);
 //# sourceMappingURL=index.js.map
