@@ -49,9 +49,15 @@ function buildUnitxRouter(rb) {
     });
     const pathFetchBus = '/fetch-bus';
     rb.post(router, pathFetchBus, async function (runner, body) {
-        let { unit, msgStart, defer, faces } = body;
-        let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
-        return ret;
+        try {
+            let { unit, msgStart, defer, faces } = body;
+            let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
+            return ret;
+        }
+        catch (err) {
+            console.error(pathFetchBus, err);
+            throw err;
+        }
     });
     const pathJoinReadBus = '/joint-read-bus';
     rb.post(router, pathJoinReadBus, async function (runner, body) {

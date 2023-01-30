@@ -55,9 +55,15 @@ export function buildUnitxRouter(rb: RouterWebBuilder): Router {
     const pathFetchBus = '/fetch-bus';
     rb.post(router, pathFetchBus,
         async function (runner: EntityRunner, body: any): Promise<any[][]> {
-            let { unit, msgStart, defer, faces } = body;
-            let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
-            return ret;
+            try {
+                let { unit, msgStart, defer, faces } = body;
+                let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
+                return ret;
+            }
+            catch (err) {
+                console.error(pathFetchBus, err);
+                throw err;
+            }
         }
     );
 
