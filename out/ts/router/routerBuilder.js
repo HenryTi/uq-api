@@ -18,9 +18,7 @@ class RouterBuilder {
                     return;
                 }
                 let userToken = req.user;
-                console.error('process in routerBuilder before');
                 let result = await processer(runner, queryOrBody, params, userToken);
-                console.error('process in routerBuilder result', result);
                 res.json({
                     ok: true,
                     res: result
@@ -36,7 +34,6 @@ class RouterBuilder {
     post(router, path, processer) {
         router.post(path, async (req, res, next) => {
             try {
-                console.log('/post ', req.originalUrl);
                 let { body, params } = req;
                 await this.process(req, res, processer, body, params);
             }
