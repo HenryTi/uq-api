@@ -57,6 +57,9 @@ export function buildUnitxRouter(rb: RouterWebBuilder): Router {
         async function (runner: EntityRunner, body: any): Promise<any[][]> {
             try {
                 let { unit, msgStart, defer, faces } = body;
+                if (unit === undefined || faces === undefined) {
+                    throw new Error('unknown parameters');
+                }
                 let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
                 return ret;
             }
