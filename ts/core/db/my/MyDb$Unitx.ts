@@ -4,15 +4,15 @@ import { Db$Unitx } from "../Db";
 import { MyDbUq } from "./MyDbUq";
 
 export class MyDb$Unitx extends MyDbUq implements Db$Unitx {
-    readonly serverId: number;
+    serverId: number;
 
     constructor(isTesting: boolean) {
         const { $unitx, $test } = consts;
         super(isTesting === true ? $unitx + $test : $unitx);
-        this.serverId = this.dbConfig[env.server_id];
     }
 
-    protected override connectionConfig() {
+    protected override initConfig(dbName: string) {
+        super.initConfig(dbName);
         let conn: any;
         if (env.isDevelopment === true) {
             let unitx = env.configDebugging?.['unitx'];
@@ -27,6 +27,7 @@ export class MyDb$Unitx extends MyDbUq implements Db$Unitx {
             conn = env.connection;
         }
         conn = Object.assign({}, conn);
+        this.serverId = conn[env.server_id];
         delete conn[env.server_id];
         return conn;
     }

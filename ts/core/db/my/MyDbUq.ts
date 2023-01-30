@@ -23,17 +23,15 @@ const sysProcColl = {
 
 export class MyDbUq extends MyDb implements DbUq {
     private procColl: { [procName: string]: boolean };
-    readonly isTesting: boolean;
+    isTesting: boolean;
     hasUnit: boolean;
     twProfix: string;
 
-    constructor(dbName: string) {
-        super(dbName);
+    protected override initConfig(dbName: string) {
         this.isTesting = dbName.endsWith(consts.$test);
         this.resetProcColl();
+        return env.connection;
     }
-
-    protected override connectionConfig() { return env.connection; }
 
     async initLoad() {
         if (this.twProfix !== undefined) return;
@@ -326,17 +324,6 @@ export class MyDbUq extends MyDb implements DbUq {
             }
         }
         return 0;
-        /*
-    }
-    catch (err) {
-        let $uqDb = Db.db(consts.$uq);
-        await $uqDb.uqLog(0, runner.getDb(), 'Error execQueueAct'
-            , (err.message ?? '') + ': ' + sql);
-        logger.error(`execQueueAct: `, err);
-        // runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
-        return -1;
-    }
-    */
     }
 
     async removeAllScheduleEvents(): Promise<string> {

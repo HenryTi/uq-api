@@ -8,7 +8,14 @@ const messageProcesser_1 = require("./messageProcesser");
 const processBusMessage_1 = require("./processBusMessage");
 function buildUnitxRouter(rb) {
     let router = (0, express_1.Router)();
-    router.post('/', async (req, res, next) => {
+    router.get('/hello'),
+        async function (req, res, next) {
+            res.json({
+                text: 'hello',
+            });
+        };
+    const pathIndex = '/';
+    router.post(pathIndex, async function (req, res, next) {
         try {
             let msg = req.body;
             let tos = undefined;
@@ -41,13 +48,14 @@ function buildUnitxRouter(rb) {
             });
         }
     });
-    let fetchBus = async (runner, body) => {
+    const pathFetchBus = '/fetch-bus';
+    rb.post(router, pathFetchBus, async function (runner, body) {
         let { unit, msgStart, defer, faces } = body;
         let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
         return ret;
-    };
-    rb.post(router, '/fetch-bus', fetchBus);
-    let jointReadBus = async (runner, body) => {
+    });
+    const pathJoinReadBus = '/joint-read-bus';
+    rb.post(router, pathJoinReadBus, async function (runner, body) {
         let { unit, face, queue, defer } = body;
         if (queue === undefined)
             queue = (0, core_1.busQueueSeed)();
@@ -55,17 +63,16 @@ function buildUnitxRouter(rb) {
         if (ret.length === 0)
             return;
         return ret[0];
-    };
-    rb.post(router, '/joint-read-bus', jointReadBus);
-    let jointWriteBus = async (runner, body) => {
+    });
+    let pathJointWriteBus = '/joint-write-bus';
+    rb.post(router, pathJointWriteBus, async function (runner, body) {
         let { unit, face, defer, to, from, fromQueueId, version, body: message, stamp } = body;
         let ret = await (0, processBusMessage_1.writeDataToBus)(runner, face, unit, to, from, fromQueueId, version, message, defer !== null && defer !== void 0 ? defer : 0, stamp);
         if (ret < 0) {
             tool_1.logger.error('writeDataToBus message duplicated!', body, -ret);
         }
         return ret;
-    };
-    rb.post(router, '/joint-write-bus', jointWriteBus);
+    });
     return router;
 }
 exports.buildUnitxRouter = buildUnitxRouter;

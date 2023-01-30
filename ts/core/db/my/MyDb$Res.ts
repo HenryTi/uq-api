@@ -7,7 +7,7 @@ export class MyDb$Res extends MyDb implements Db$Res {
     constructor() {
         super(consts.$res)
     }
-    protected override connectionConfig() { return env.connection; }
+    protected override initConfig(dbName: string) { return env.connection; }
 
     override async createDatabase(): Promise<void> {
         await super.createDatabase();

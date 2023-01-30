@@ -5,7 +5,7 @@ const MyDbBase_1 = require("./MyDbBase");
 const dbLogger_1 = require("../dbLogger");
 class MyDb extends MyDbBase_1.MyDbBase {
     constructor(dbName) {
-        super();
+        super(dbName);
         this.name = dbName;
         this.dbLogger = new dbLogger_1.DbLogger();
     }

@@ -8,64 +8,80 @@ import { RouterWebBuilder } from "../routerBuilder";
 export function buildUnitxRouter(rb: RouterWebBuilder): Router {
     let router = Router();
 
-    router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            let msg: Message = req.body;
-            let tos: number[] = undefined;
-            let { type } = msg;
-            let unitxRunner = await rb.getUnitxRunner(req);
-            if (type === 'sheet') {
-                let sheetMessage = msg as SheetMessage;
-                let { from } = sheetMessage;
-                tos = await getSheetTos(unitxRunner, sheetMessage);
-                if (tos === undefined || tos.length === 0) tos = [from];
-                sheetMessage.to = tos;
-            }
-            if (type === 'bus') {
-                logger.error(msg);
-            }
-            let mp = messageProcesser(msg);
-            await mp(unitxRunner, msg);
+    router.get('/hello'),
+        async function (req: Request, res: Response, next: NextFunction) {
             res.json({
-                ok: true,
-                res: tos,
+                text: 'hello',
             });
         }
-        catch (e) {
-            let err = JSON.stringify(e);
-            logger.error('unitx-error: ', err);
-            res.json({
-                ok: false,
-                error: err,
-            });
+
+    const pathIndex = '/';
+    router.post(pathIndex,
+        async function (req: Request, res: Response, next: NextFunction) {
+            try {
+                let msg: Message = req.body;
+                let tos: number[] = undefined;
+                let { type } = msg;
+                let unitxRunner = await rb.getUnitxRunner(req);
+                if (type === 'sheet') {
+                    let sheetMessage = msg as SheetMessage;
+                    let { from } = sheetMessage;
+                    tos = await getSheetTos(unitxRunner, sheetMessage);
+                    if (tos === undefined || tos.length === 0) tos = [from];
+                    sheetMessage.to = tos;
+                }
+                if (type === 'bus') {
+                    logger.error(msg);
+                }
+                let mp = messageProcesser(msg);
+                await mp(unitxRunner, msg);
+                res.json({
+                    ok: true,
+                    res: tos,
+                });
+            }
+            catch (e) {
+                let err = JSON.stringify(e);
+                logger.error('unitx-error: ', err);
+                res.json({
+                    ok: false,
+                    error: err,
+                });
+            }
         }
-    });
+    );
 
-    let fetchBus = async (runner: EntityRunner, body: any): Promise<any[][]> => {
-        let { unit, msgStart, defer, faces } = body;
-        let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
-        return ret;
-    }
-    rb.post(router, '/fetch-bus', fetchBus);
-
-    let jointReadBus = async (runner: EntityRunner, body: any): Promise<any> => {
-        let { unit, face, queue, defer } = body;
-        if (queue === undefined) queue = busQueueSeed();
-        let ret = await runner.unitUserCall('BusMessageFromQueue', unit, undefined, face, defer ?? 0, queue);
-        if (ret.length === 0) return;
-        return ret[0];
-    }
-    rb.post(router, '/joint-read-bus', jointReadBus);
-
-    let jointWriteBus = async (runner: EntityRunner, body: any): Promise<any> => {
-        let { unit, face, defer, to, from, fromQueueId, version, body: message, stamp } = body;
-        let ret = await writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer ?? 0, stamp);
-        if (ret < 0) {
-            logger.error('writeDataToBus message duplicated!', body, -ret);
+    const pathFetchBus = '/fetch-bus';
+    rb.post(router, pathFetchBus,
+        async function (runner: EntityRunner, body: any): Promise<any[][]> {
+            let { unit, msgStart, defer, faces } = body;
+            let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
+            return ret;
         }
-        return ret;
-    }
-    rb.post(router, '/joint-write-bus', jointWriteBus);
+    );
+
+    const pathJoinReadBus = '/joint-read-bus';
+    rb.post(router, pathJoinReadBus,
+        async function (runner: EntityRunner, body: any): Promise<any> {
+            let { unit, face, queue, defer } = body;
+            if (queue === undefined) queue = busQueueSeed();
+            let ret = await runner.unitUserCall('BusMessageFromQueue', unit, undefined, face, defer ?? 0, queue);
+            if (ret.length === 0) return;
+            return ret[0];
+        }
+    );
+
+    let pathJointWriteBus = '/joint-write-bus';
+    rb.post(router, pathJointWriteBus,
+        async function (runner: EntityRunner, body: any): Promise<any> {
+            let { unit, face, defer, to, from, fromQueueId, version, body: message, stamp } = body;
+            let ret = await writeDataToBus(runner, face, unit, to, from, fromQueueId, version, message, defer ?? 0, stamp);
+            if (ret < 0) {
+                logger.error('writeDataToBus message duplicated!', body, -ret);
+            }
+            return ret;
+        })
+        ;
 
     return router;
 }

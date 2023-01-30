@@ -12,8 +12,8 @@ const ER_LOCK_TIMEOUT = 1213;
 const ER_LOCK_DEADLOCK = 1213;
 const pools = [];
 class MyDbBase {
-    constructor() {
-        this.dbConfig = this.connectionConfig();
+    constructor(dbName) {
+        this.dbConfig = this.initConfig(dbName);
         //this.dbLogger = new DbLogger(dbs.$uqDb);
     }
     // protected createBuilder() { return new MyBuilder(this.dbName, this.hasUnit, this.twProfix); }

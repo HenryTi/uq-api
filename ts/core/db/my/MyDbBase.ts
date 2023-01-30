@@ -23,10 +23,10 @@ const pools: DbConfigPool[] = [];
 export abstract class MyDbBase implements DbBase {
     private pool: Pool;
     protected readonly dbConfig: any;
-    protected abstract connectionConfig(): any;
+    protected abstract initConfig(dbName: string): any;
 
-    constructor() {
-        this.dbConfig = this.connectionConfig();
+    constructor(dbName: string) {
+        this.dbConfig = this.initConfig(dbName);
         //this.dbLogger = new DbLogger(dbs.$uqDb);
     }
     // protected createBuilder() { return new MyBuilder(this.dbName, this.hasUnit, this.twProfix); }

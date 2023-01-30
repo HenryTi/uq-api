@@ -10,7 +10,7 @@ class MyDb$Uq extends MyDb_1.MyDb {
     constructor() {
         super(consts_1.consts.$uq);
     }
-    connectionConfig() { return tool_1.env.connection; }
+    initConfig(dbName) { return tool_1.env.connection; }
     async createDatabase() {
         await super.createDatabase();
         await this.create$UqDb();

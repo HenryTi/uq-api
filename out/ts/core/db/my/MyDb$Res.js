@@ -8,7 +8,7 @@ class MyDb$Res extends MyDb_1.MyDb {
     constructor() {
         super(consts_1.consts.$res);
     }
-    connectionConfig() { return tool_1.env.connection; }
+    initConfig(dbName) { return tool_1.env.connection; }
     async createDatabase() {
         await super.createDatabase();
         let sql = `

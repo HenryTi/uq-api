@@ -117,7 +117,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
         await this.beforeRun();
         logger.debug('\n');
         logger.debug('\n');
-        logger.error('====== Jobs loop started! ======');
+        logger.debug('====== Jobs loop started! ======');
         for (; ;) {
             logger.debug('\n');
             logger.info(`====== ${process.env.NODE_ENV} one loop at ${new Date().toLocaleString()} ======`);
@@ -172,7 +172,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
         try {
             let uqs = await this.db$Uq.uqDbs();
             if (uqs.length === 0) {
-                logger.error('debugging_jobs=yes, stop jobs loop');
+                logger.debug('debugging_jobs=yes, stop jobs loop');
                 return;
             }
 

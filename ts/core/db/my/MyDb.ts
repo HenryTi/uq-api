@@ -7,7 +7,7 @@ export abstract class MyDb extends MyDbBase implements Db {
     readonly name: string;
     private readonly dbLogger: DbLogger;
     constructor(dbName: string) {
-        super();
+        super(dbName);
         this.name = dbName;
         this.dbLogger = new DbLogger();
     }

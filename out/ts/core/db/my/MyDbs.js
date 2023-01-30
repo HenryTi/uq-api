@@ -13,7 +13,7 @@ class MyDbs {
         this.db$Res = new MyDb_Res_1.MyDb$Res();
         this.db$UnitxTest = new MyDb_Unitx_1.MyDb$Unitx(true);
         this.db$UnitxProd = new MyDb_Unitx_1.MyDb$Unitx(false);
-        this.dbNoName = new MyDbNoName_1.MyDbNoName();
+        this.dbNoName = new MyDbNoName_1.MyDbNoName(undefined);
         this.dbUqs = {};
     }
     async getDbUq(dbName) {

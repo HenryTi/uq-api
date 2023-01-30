@@ -9,7 +9,6 @@ function myCreatePool(poolOptions) {
             const { type } = field;
             if (fieldTypes[type] === undefined) {
                 fieldTypes[type] = type;
-                console.error(fieldTypes);
             }
             switch (type) {
                 case "DECIMAL":

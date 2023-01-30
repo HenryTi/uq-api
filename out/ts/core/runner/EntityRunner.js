@@ -243,27 +243,6 @@ class EntityRunner extends Runner_1.Runner {
         //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
         await this.db$Uq.proc('log_error', [unit, this.dbName, subject, content]);
     }
-    /*
-        async uqLog(unit: number, uq: string, subject: string, content: string): Promise<void> {
-            return await this.dbCaller.call('$uq', 'log', [unit, uq, subject, content]);
-        }
-        async uqLogError(unit: number, uq: string, subject: string, content: string): Promise<void> {
-            return await this.dbCaller.call('$uq', 'log_error', [unit, uq, subject, content]);
-        }
-        async logPerformance(tick: number, log: string, ms: number): Promise<void> {
-            try {
-                await this.dbCaller.call('$uq', 'performance', [tick, log, ms]);
-            }
-            catch (err) {
-                logger.error(err);
-                let { message, sqlMessage } = err;
-                let msg = '';
-                if (message) msg += message;
-                if (sqlMessage) msg += ' ' + sqlMessage;
-                await this.dbCaller.call('$uq', 'performance', [Date.now(), msg, 0]);
-            }
-        }
-    */
     async procCall(proc, params) {
         return await this.dbUq.call(proc, params);
     }

@@ -23,14 +23,16 @@ const sysProcColl = {
     $tag_save: true,
 };
 class MyDbUq extends MyDb_1.MyDb {
-    constructor(dbName) {
-        super(dbName);
+    constructor() {
+        super(...arguments);
         this.execQueueActError = false;
         this.events = new Set();
+    }
+    initConfig(dbName) {
         this.isTesting = dbName.endsWith(consts_1.consts.$test);
         this.resetProcColl();
+        return tool_1.env.connection;
     }
-    connectionConfig() { return tool_1.env.connection; }
     async initLoad() {
         if (this.twProfix !== undefined)
             return;
@@ -309,17 +311,6 @@ class MyDbUq extends MyDb_1.MyDb {
             }
         }
         return 0;
-        /*
-    }
-    catch (err) {
-        let $uqDb = Db.db(consts.$uq);
-        await $uqDb.uqLog(0, runner.getDb(), 'Error execQueueAct'
-            , (err.message ?? '') + ': ' + sql);
-        logger.error(`execQueueAct: `, err);
-        // runner.execQueueActError = true; 暂时先不处理这个 2022-1-6
-        return -1;
-    }
-    */
     }
     async removeAllScheduleEvents() {
         let db = this.name; // .getDb();

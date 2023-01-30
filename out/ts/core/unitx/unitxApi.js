@@ -13,6 +13,7 @@ class UnitxApi extends fetch_1.Fetch {
         return ret;
     }
     async fetchBus(unit, msgStart, faces, defer) {
+        const pathFetchBus = 'fetch-bus';
         try {
             let ret = await this.post('fetch-bus', {
                 unit,
@@ -23,8 +24,7 @@ class UnitxApi extends fetch_1.Fetch {
             return ret;
         }
         catch (err) {
-            tool_1.logger.error('fetchBus error: url=%s, unit=%s', this.baseUrl, unit);
-            tool_1.logger.error('fetchBus error: ', err);
+            tool_1.logger.error(err, this.baseUrl + pathFetchBus, unit);
             return undefined;
         }
     }

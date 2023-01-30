@@ -83,7 +83,7 @@ class Unitx {
         }
         let { url, server, create } = uus;
         if (tool_1.env.isDevelopment === true) {
-            if (Number(server) === this.db.serverId) {
+            if (Number(server) === this.serverId) {
                 let urlDebug = await (0, getUrlDebug_1.getUrlDebug)();
                 if (urlDebug !== undefined)
                     url = urlDebug;
@@ -99,12 +99,11 @@ class Unitx {
         let unitxApi = await this.getPushUnitxApi(unit);
         if (!unitxApi) {
             let err = `Center unit ${unit} not binding $unitx service!!!`;
-            //return ret;
             tool_1.logger.error(err);
             throw new Error(err);
         }
         else {
-            tool_1.logger.error('get unitx push url in sendToUnitx: ', unitxApi.url);
+            tool_1.logger.debug('get unitx push url in sendToUnitx: ', unitxApi.url);
         }
         let toArr = await unitxApi.send(msg);
         return toArr;

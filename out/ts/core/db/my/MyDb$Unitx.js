@@ -8,10 +8,10 @@ class MyDb$Unitx extends MyDbUq_1.MyDbUq {
     constructor(isTesting) {
         const { $unitx, $test } = consts_1.consts;
         super(isTesting === true ? $unitx + $test : $unitx);
-        this.serverId = this.dbConfig[tool_1.env.server_id];
     }
-    connectionConfig() {
+    initConfig(dbName) {
         var _a, _b;
+        super.initConfig(dbName);
         let conn;
         if (tool_1.env.isDevelopment === true) {
             let unitx = (_a = tool_1.env.configDebugging) === null || _a === void 0 ? void 0 : _a['unitx'];
@@ -26,6 +26,7 @@ class MyDb$Unitx extends MyDbUq_1.MyDbUq {
             conn = tool_1.env.connection;
         }
         conn = Object.assign({}, conn);
+        this.serverId = conn[tool_1.env.server_id];
         delete conn[tool_1.env.server_id];
         return conn;
     }

@@ -10,7 +10,7 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
         super(consts.$uq);
     }
 
-    protected override connectionConfig() { return env.connection; }
+    protected override initConfig(dbName: string) { return env.connection; }
 
     override async createDatabase(): Promise<void> {
         await super.createDatabase();

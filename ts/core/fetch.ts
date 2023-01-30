@@ -32,12 +32,13 @@ export abstract class Fetch {
     }
 
     private async innerFetch(url: string, method: string, body?: any): Promise<any> {
-        logger.debug('innerFetch ' + method + '  ' + this.baseUrl + url);
-        var headers = new Headers();
-        headers.append('Accept', 'application/json'); // This one is enough for GET requests
-        headers.append('Content-Type', 'application/json'); // This one sends body
+        let fullUrl = this.baseUrl + url;
+        logger.debug('innerFetch ' + method + '  ' + fullUrl);
+        //var headers = new Headers();
+        //headers.append('Accept', 'application/json'); // This one is enough for GET requests
+        //headers.append('Content-Type', 'application/json'); // This one sends body
         let res = await fetch(
-            this.baseUrl + url,
+            fullUrl,
             {
                 headers: {
                     "Content-Type": 'application/json',
@@ -45,18 +46,17 @@ export abstract class Fetch {
                     //"Authorization": 'this.apiToken',
                     //"Access-Control-Allow-Origin": '*'
                 },
-                method: method,
+                method,
                 body: JSON.stringify(body),
             }
         );
         if (res.status !== 200) {
-            logger.error(this.baseUrl + url, res.statusText, res.status);
+            const { statusText, status } = res;
+            logger.error(fullUrl, statusText, status);
             throw {
-                error: res.statusText,
-                code: res.status,
+                error: statusText,
+                code: status,
             };
-            //logger.debug('statusCode=', response.statusCode);
-            //logger.debug('statusMessage=', response.statusMessage);
         }
         let json = await res.json();
         if (json.error !== undefined) {

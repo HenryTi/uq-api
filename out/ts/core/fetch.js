@@ -34,28 +34,28 @@ class Fetch {
         return await this.innerFetch(url, 'POST', params);
     }
     async innerFetch(url, method, body) {
-        tool_1.logger.debug('innerFetch ' + method + '  ' + this.baseUrl + url);
-        var headers = new node_fetch_1.Headers();
-        headers.append('Accept', 'application/json'); // This one is enough for GET requests
-        headers.append('Content-Type', 'application/json'); // This one sends body
-        let res = await (0, node_fetch_1.default)(this.baseUrl + url, {
+        let fullUrl = this.baseUrl + url;
+        tool_1.logger.debug('innerFetch ' + method + '  ' + fullUrl);
+        //var headers = new Headers();
+        //headers.append('Accept', 'application/json'); // This one is enough for GET requests
+        //headers.append('Content-Type', 'application/json'); // This one sends body
+        let res = await (0, node_fetch_1.default)(fullUrl, {
             headers: {
                 "Content-Type": 'application/json',
                 "Accept": 'application/json',
                 //"Authorization": 'this.apiToken',
                 //"Access-Control-Allow-Origin": '*'
             },
-            method: method,
+            method,
             body: JSON.stringify(body),
         });
         if (res.status !== 200) {
-            tool_1.logger.error(this.baseUrl + url, res.statusText, res.status);
+            const { statusText, status } = res;
+            tool_1.logger.error(fullUrl, statusText, status);
             throw {
-                error: res.statusText,
-                code: res.status,
+                error: statusText,
+                code: status,
             };
-            //logger.debug('statusCode=', response.statusCode);
-            //logger.debug('statusMessage=', response.statusMessage);
         }
         let json = await res.json();
         if (json.error !== undefined) {

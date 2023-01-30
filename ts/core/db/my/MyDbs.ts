@@ -20,7 +20,7 @@ export class MyDbs implements Dbs {
         this.db$Res = new MyDb$Res();
         this.db$UnitxTest = new MyDb$Unitx(true);
         this.db$UnitxProd = new MyDb$Unitx(false);
-        this.dbNoName = new MyDbNoName();
+        this.dbNoName = new MyDbNoName(undefined);
         this.dbUqs = {};
     }
 

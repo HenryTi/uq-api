@@ -14,12 +14,11 @@ class Net {
     constructor(executingNet) {
         // private readonly id: string;
         this.runners = {};
+        this.unitxTestName = '/unitx-test';
         this.createRunnerFromDbPromises = {};
         this.uqOpenApis = {};
         this.executingNet = executingNet;
         this.dbs = (0, db_1.getDbs)();
-        let { $unitx } = consts_1.consts;
-        this.unitxTestName = `/${$unitx}-test/`;
         // this.id = id;
         //        this.unitx = this.createUnitx();
     }
@@ -89,11 +88,11 @@ class Net {
         for (let runner of runners) {
             await runner.buildTuidAutoId();
             await this.resetRunner(runner);
-            tool_1.logger.error('=== resetRunnerAfterCompile: ' + runner.dbName);
+            tool_1.logger.debug('=== resetRunnerAfterCompile: ' + runner.dbName);
         }
         if (this.executingNet !== undefined) {
             this.executingNet.resetRunnerAfterCompile(db);
-            tool_1.logger.error('=== executingNet resetRunnerAfterCompile: ' + db.name);
+            tool_1.logger.debug('=== executingNet resetRunnerAfterCompile: ' + db.name);
         }
     }
     async resetRunner(runner) {
@@ -104,28 +103,27 @@ class Net {
             let runner = this.runners[i];
             if (runner) {
                 await runner.reset();
-                tool_1.logger.error('--- === --- === ' + runnerName + ' resetRunner ' + ' net');
+                tool_1.logger.debug('--- === --- === ' + runnerName + ' resetRunner ' + ' net');
                 this.runners[i] = undefined;
             }
         }
     }
     async getUnitxRunner(req) {
         let name = consts_1.consts.$unitx;
-        let $name = '$' + name;
         if (req.baseUrl.indexOf(this.unitxTestName) >= 0) {
-            $name += consts_1.consts.$test;
+            name += consts_1.consts.$test;
         }
-        let runner = this.runners[$name];
+        let runner = this.runners[name];
         if (runner === null)
             return;
         if (runner === undefined) {
             runner = await this.createRunnerFromDbName(name);
             if (runner === undefined) {
-                this.runners[$name] = null;
+                this.runners[name] = null;
                 return;
             }
             else {
-                this.runners[$name] = runner;
+                this.runners[name] = runner;
             }
         }
         // 执行版的net，this.execeutingNet undefined，所以需要init
