@@ -235,7 +235,9 @@ class MyDbUq extends MyDb_1.MyDb {
                     // }
                 }
             }
-            catch (_a) {
+            catch (err) {
+                console.error('execUqProc', proc, err);
+                throw err;
             }
         }
         return await this.procWithLog(proc, params);

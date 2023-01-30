@@ -246,7 +246,9 @@ export class MyDbUq extends MyDb implements DbUq {
                     // }
                 }
             }
-            catch {
+            catch (err) {
+                console.error('execUqProc', proc, err);
+                throw err;
             }
         }
         return await this.procWithLog(proc, params);
