@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UnitxRouterBuilder = exports.CompileRouterBuilder = exports.RouterLocalBuilder = exports.RouterWebBuilder = exports.RouterBuilder = void 0;
 const tool_1 = require("../tool");
-const consts_1 = require("../core/consts");
+const buildDbNameFromReq_1 = require("./buildDbNameFromReq");
 ;
 class RouterBuilder {
     constructor(net) {
@@ -53,8 +53,7 @@ class RouterBuilder {
     ;
     // getDbName(name: string): string { return this.net.getDbName(name); }
     async routerRunner(req) {
-        let db = req.params.db;
-        let runner = await this.checkRunner(db);
+        let runner = await this.checkRunner(req);
         let uqVersion = req.header('tonwa-uq-version');
         if (uqVersion === undefined) {
             uqVersion = req.header('tonva-uq-version');
@@ -85,7 +84,20 @@ class RouterBuilder {
         });
     }
     ;
-    async checkRunner(db) {
+    async checkRunner(req) {
+        /*
+        let { params, path } = req;
+        let { db } = params;
+        const test = '/test/';
+        let p = path.indexOf('/test/');
+        if (p >= 0) {
+            p += test.length;
+            if (path.substring(p, p + db.length) === db) {
+                db += consts.$test;
+            }
+        }
+        */
+        let db = (0, buildDbNameFromReq_1.buildDbNameFromReq)(req);
         let runner = await this.net.getRunner(db);
         if (runner !== undefined)
             return runner;
@@ -114,12 +126,12 @@ class RouterWebBuilder extends RouterBuilder {
     async entityHttpProcess(req, res, entityType, processer, isGet) {
         try {
             let userToken = req.user;
-            let { db, id: userId, unit, roles } = userToken;
-            if (db === undefined)
-                db = consts_1.consts.$unitx;
-            let runner = await this.checkRunner(db);
+            let { /*db, */ id: userId, unit, roles } = userToken;
+            //if (db === undefined) db = consts.$unitx;
+            let runner = await this.checkRunner(req);
             if (runner === undefined)
                 return;
+            let db = runner.dbName;
             let { params } = req;
             let { name } = params;
             let call, run;
@@ -193,11 +205,11 @@ class RouterLocalBuilder extends RouterBuilder {
             //let userToken: User = (req as any).user;
             //let { db, id: userId, unit, roles } = userToken;
             //if (db === undefined) db = consts.$unitx;
-            let db = req.params.db;
+            // let db = req.params.db;
             let sUnit = req.header('unit');
             let unit = sUnit ? Number(sUnit) : 24;
             let userId = 0;
-            let runner = await this.checkRunner(db);
+            let runner = await this.checkRunner(req);
             if (runner === undefined)
                 return;
             let { params } = req;
@@ -215,7 +227,7 @@ class RouterLocalBuilder extends RouterBuilder {
                     return;
             }
             let body = isGet === true ? req.query : req.body;
-            let result = await processer(unit, userId, name, db, params, runner, body, call, run, this.net);
+            let result = await processer(unit, userId, name, runner.dbName, params, runner, body, call, run, this.net);
             res.json({
                 ok: true,
                 res: result,

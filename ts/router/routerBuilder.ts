@@ -3,6 +3,7 @@ import { logger } from '../tool';
 import { EntityRunner } from '../core/runner';
 import { consts } from "../core/consts";
 import { Net, } from '../core/net';
+import { buildDbNameFromReq } from './buildDbNameFromReq';
 
 type Processer = (runner: EntityRunner, body: any, urlParams: any, userToken?: User) => Promise<any>;
 type EntityProcesser = (unit: number, user: number, name: string, db: string, urlParams: any,
@@ -49,8 +50,7 @@ export abstract class RouterBuilder {
     };
     // getDbName(name: string): string { return this.net.getDbName(name); }
     protected async routerRunner(req: Request): Promise<EntityRunner> {
-        let db: string = req.params.db;
-        let runner = await this.checkRunner(db);
+        let runner = await this.checkRunner(req);
         let uqVersion = req.header('tonwa-uq-version');
         if (uqVersion === undefined) {
             uqVersion = req.header('tonva-uq-version');
@@ -100,7 +100,20 @@ export abstract class RouterBuilder {
 
     protected abstract entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void>;
 
-    protected async checkRunner(db: string): Promise<EntityRunner> {
+    protected async checkRunner(req: Request): Promise<EntityRunner> {
+        /*
+        let { params, path } = req;
+        let { db } = params;
+        const test = '/test/';
+        let p = path.indexOf('/test/');
+        if (p >= 0) {
+            p += test.length;
+            if (path.substring(p, p + db.length) === db) {
+                db += consts.$test;
+            }
+        }
+        */
+        let db = buildDbNameFromReq(req);
         let runner = await this.net.getRunner(db);
         if (runner !== undefined) return runner;
         throw `Database ${db} 不存在`;
@@ -131,10 +144,11 @@ export class RouterWebBuilder extends RouterBuilder {
     protected async entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
         try {
             let userToken: User = (req as any).user;
-            let { db, id: userId, unit, roles } = userToken;
-            if (db === undefined) db = consts.$unitx;
-            let runner = await this.checkRunner(db);
+            let { /*db, */id: userId, unit, roles } = userToken;
+            //if (db === undefined) db = consts.$unitx;
+            let runner = await this.checkRunner(req);
             if (runner === undefined) return;
+            let db = runner.dbName;
             let { params } = req;
             let { name } = params;
             let call: any, run: any;
@@ -208,11 +222,11 @@ export class RouterLocalBuilder extends RouterBuilder {
             //let userToken: User = (req as any).user;
             //let { db, id: userId, unit, roles } = userToken;
             //if (db === undefined) db = consts.$unitx;
-            let db = req.params.db;
+            // let db = req.params.db;
             let sUnit = req.header('unit');
             let unit: number = sUnit ? Number(sUnit) : 24;
             let userId = 0;
-            let runner = await this.checkRunner(db);
+            let runner = await this.checkRunner(req);
             if (runner === undefined) return;
             let { params } = req;
             let { name } = params;
@@ -228,7 +242,7 @@ export class RouterLocalBuilder extends RouterBuilder {
                 if (this.validEntity(res, call, entityType) === false) return;
             }
             let body = isGet === true ? (req as any).query : (req as any).body;
-            let result = await processer(unit, userId, name, db, params, runner, body, call, run, this.net);
+            let result = await processer(unit, userId, name, runner.dbName, params, runner, body, call, run, this.net);
             res.json({
                 ok: true,
                 res: result,

@@ -19,11 +19,6 @@ function buildProcRouter() {
                 return err;
             }
         }
-        /*
-        if (proc.toLowerCase().startsWith('t v_') === false) {
-            proc = 't v_' + proc;
-        }
-        */
         let dbProd = db;
         let dbTest = db + core_1.consts.$test;
         let errProd = await buildProc(dbProd);

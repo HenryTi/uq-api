@@ -24,11 +24,11 @@ export class MyDbs implements Dbs {
         this.dbUqs = {};
     }
 
-    async getDbUq(uqName: string): Promise<DbUq> {
-        let dbUq = this.dbUqs[uqName];
+    async getDbUq(dbName: string): Promise<DbUq> {
+        let dbUq = this.dbUqs[dbName];
         if (dbUq === undefined) {
-            dbUq = new MyDbUq(uqName);
-            this.dbUqs[uqName] = dbUq;
+            dbUq = new MyDbUq(dbName);
+            this.dbUqs[dbName] = dbUq;
             await dbUq.initLoad();
         }
         return dbUq;

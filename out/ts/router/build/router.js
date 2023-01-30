@@ -3,14 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildBuildRouter = void 0;
 const tool_1 = require("../../tool");
 const core_1 = require("../../core");
+const buildDbNameFromReq_1 = require("../buildDbNameFromReq");
 function buildBuildRouter(router, rb) {
     let net = (0, core_1.getNet)();
     let dbs = (0, core_1.getDbs)();
     async function createBuildRunner(req) {
-        let uqName = req.params.db;
-        if (req.baseUrl.indexOf('/test/') >= 0)
-            uqName += core_1.consts.$test;
-        let db = await dbs.getDbUq(uqName);
+        // let uqName: string = req.params.db;
+        // if (req.baseUrl.indexOf('/test/') >= 0) uqName += consts.$test;
+        let dbName = (0, buildDbNameFromReq_1.buildDbNameFromReq)(req);
+        let db = await dbs.getDbUq(dbName /*uqName*/);
         return new core_1.BuildRunner(db);
     }
     router.post('/start', async (req, res) => {
@@ -94,14 +95,6 @@ function buildBuildRouter(router, rb) {
             res.json({ error: err });
         }
     });
-    /*
-        rb.post(router, '/sql',
-            async (runner:EntityRunner, body:{sql:string, params:any[]}): Promise<any> => {
-            //return this.db.sql(sql, params);
-            let {sql, params} = body;
-            return await runner.sql(sql, params);
-        });
-    */
     router.post('/proc-sql', async (req, res) => {
         try {
             let runner = await createBuildRunner(req);

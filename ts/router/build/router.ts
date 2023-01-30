@@ -2,14 +2,16 @@ import { Router, Request, Response } from 'express';
 import { logger } from '../../tool';
 import { BuildRunner, EntityRunner, setUqBuildSecret, centerApi, getDbs, getNet, consts } from '../../core';
 import { RouterWebBuilder } from "../routerBuilder";
+import { buildDbNameFromReq } from '../buildDbNameFromReq';
 
 export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     let net = getNet();
     let dbs = getDbs();
     async function createBuildRunner(req: Request): Promise<BuildRunner> {
-        let uqName: string = req.params.db;
-        if (req.baseUrl.indexOf('/test/') >= 0) uqName += consts.$test;
-        let db = await dbs.getDbUq(uqName);
+        // let uqName: string = req.params.db;
+        // if (req.baseUrl.indexOf('/test/') >= 0) uqName += consts.$test;
+        let dbName = buildDbNameFromReq(req);
+        let db = await dbs.getDbUq(dbName/*uqName*/);
         return new BuildRunner(db);
     }
     router.post('/start', async (req: Request, res: Response) => {
@@ -97,14 +99,6 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
             res.json({ error: err });
         }
     });
-    /*
-        rb.post(router, '/sql',
-            async (runner:EntityRunner, body:{sql:string, params:any[]}): Promise<any> => {
-            //return this.db.sql(sql, params);
-            let {sql, params} = body;
-            return await runner.sql(sql, params);
-        });
-    */
 
     router.post('/proc-sql', async (req: Request, res: Response) => {
         try {

@@ -290,37 +290,6 @@ class Net {
     }
 }
 exports.Net = Net;
-/*
-class ProdNet extends Net {
-    protected createUnitx(): Unitx { return new UnitxProd(); }
-    get isTesting(): boolean { return false; }
-    getDbName(name: string): string { return name }
-    getUqFullName(uq: string): string { return uq }
-    protected getUrl(db: string, url: string): string {
-        return url + 'uq/prod/' + db + '/';
-    }
-    protected chooseUrl(urls: { url: string; urlTest: string }): string { return urls.url }
-}
-
-class TestNet extends Net {
-    protected createUnitx(): Unitx { return new UnitxTest(); }
-    get isTesting(): boolean { return true; }
-    getDbName(name: string): string { return name + '$test' }
-    getUqFullName(uq: string): string { return uq + '$test' }
-    protected getUrl(db: string, url: string): string {
-        return url + 'uq/test/' + db + '/';
-    }
-    protected chooseUrl(urls: { url: string; urlTest: string }): string { return urls.urlTest }
-}
-
-// 在entity正常状态下，每个runner都需要init，loadSchema
-export const prodNet = new ProdNet(undefined, 'prodNet');
-export const testNet = new TestNet(undefined, 'testNet');
-
-// runner在编译状态下，database可能还没有创建，不需要init，也就是不需要loadSchema
-export const prodCompileNet = new ProdNet(prodNet, 'prodCompileNet');
-export const testCompileNet = new TestNet(testNet, 'testCompileNet');
-*/
 let net;
 let compileNet;
 function getNet() {

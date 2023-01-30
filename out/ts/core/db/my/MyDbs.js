@@ -16,11 +16,11 @@ class MyDbs {
         this.dbNoName = new MyDbNoName_1.MyDbNoName();
         this.dbUqs = {};
     }
-    async getDbUq(uqName) {
-        let dbUq = this.dbUqs[uqName];
+    async getDbUq(dbName) {
+        let dbUq = this.dbUqs[dbName];
         if (dbUq === undefined) {
-            dbUq = new MyDbUq_1.MyDbUq(uqName);
-            this.dbUqs[uqName] = dbUq;
+            dbUq = new MyDbUq_1.MyDbUq(dbName);
+            this.dbUqs[dbName] = dbUq;
             await dbUq.initLoad();
         }
         return dbUq;
