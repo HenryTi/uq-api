@@ -28,6 +28,7 @@ export abstract class RouterBuilder {
                 await this.process(req, res, processer, body, params);
             }
             catch (err) {
+                console.error('/post error', err);
                 next(err);
             }
         });
