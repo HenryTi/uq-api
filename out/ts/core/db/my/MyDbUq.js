@@ -276,6 +276,7 @@ class MyDbUq extends MyDb_1.MyDb {
         let sql;
         // try {
         let db = this.name;
+        console.error('$exec_queue_act', this.twProfix);
         let ret = await this.call('$exec_queue_act', []);
         if (ret) {
             // let db = runner.getDb();
