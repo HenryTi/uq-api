@@ -59,6 +59,7 @@ export function buildUnitxRouter(rb: RouterWebBuilder): Router {
                 let { unit, msgStart, defer, faces } = body;
                 console.error(pathFetchBus, 'GetBusMessages');
                 let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
+                console.error(pathFetchBus, 'GetBusMessages', ret);
                 return ret;
             }
             catch (err) {
