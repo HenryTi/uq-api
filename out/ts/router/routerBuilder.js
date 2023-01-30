@@ -9,7 +9,7 @@ class RouterBuilder {
         this.process = async (req, res, processer, queryOrBody, params) => {
             try {
                 let runner = await this.routerRunner(req);
-                if (runner === undefined) {
+                if (!runner) {
                     res.json({
                         err: {
                             error: 'runner not found for ' + req.originalUrl,

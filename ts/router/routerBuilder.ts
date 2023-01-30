@@ -77,7 +77,7 @@ export abstract class RouterBuilder {
     private process = async (req: Request, res: Response, processer: Processer, queryOrBody: any, params: any): Promise<void> => {
         try {
             let runner = await this.routerRunner(req);
-            if (runner === undefined) {
+            if (!runner) {
                 res.json({
                     err: {
                         error: 'runner not found for ' + req.originalUrl,
