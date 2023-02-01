@@ -16,6 +16,8 @@ export function myCreatePool(poolOptions: PoolOptions) {
                 case "NEWDECIMAL":
                     let value = field.string();
                     return (value === null) ? null : Number(value);
+                case 'DATE':
+                    return field.string();
             }
             return next();
         }
