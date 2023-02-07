@@ -6,7 +6,7 @@ const consts_1 = require("./consts");
 const tool_2 = require("../tool");
 class QueueIn {
     /**
-     * QueueIn: 是从本地$queue_in中获取接收到的bus消息，并进一步处理
+     * QueueIn: 执行接收bus的逻辑。是从本地$queue_in中获取接收到的bus消息，并进一步处理
      * @param runner
      */
     constructor(runner) {

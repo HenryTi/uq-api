@@ -12,7 +12,7 @@ export class QueueOut {
     private readonly unitx: Unitx;
 
     /**
-     * QueueOut: 指的是处理message_queue中的数据，其中最重要的数据应该是bus消息
+     * QueueOut: 发送bus，指的是处理message_queue中的数据，其中最重要的数据应该是bus消息
      * 处理bus消息就是发送bus，因为发送bus是发出去，所有名称中带有Out
      * @param runner 
      */
