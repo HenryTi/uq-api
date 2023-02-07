@@ -55,7 +55,7 @@ export function initResPath() {
             // let resDbRunner = await getResDbRunner();
             const { db$Res } = dbs;
             let ret = await db$Res.proc('createItem', [originalname, mimetype]);
-            let id = ret[0].id;
+            let id = ret[0][0].id;
             let dir = String(Math.floor(id / 10000));
             let file = String(10000 + (id % 10000)).substring(1);
             let dirPath = resFilesPath + '/' + dir;
