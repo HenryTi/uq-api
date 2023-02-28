@@ -97,26 +97,4 @@ class MyDb extends MyDbBase_1.MyDbBase {
     }
 }
 exports.MyDb = MyDb;
-/*
-const castField: TypeCast = (field: any, next) => {
-    switch (field.type) {
-        default: return next();
-        case 'DATE': return castDate(field);
-        case 'DATETIME': return castDateTime(field);
-    }
-}
-
-// 确保服务器里面保存的时间是UTC时间
-const timezoneOffset = new Date().getTimezoneOffset() * 60000;
-function castDate(field: any) {
-    // 这个地方也许有某种方法加速吧
-    let text = field.string();
-    return text;
-}
-function castDateTime(field: any) {
-    // 这个地方也许有某种方法加速吧
-    let text = field.string();;
-    return text;
-}
-*/
 //# sourceMappingURL=MyDb.js.map

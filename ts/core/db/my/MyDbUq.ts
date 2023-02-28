@@ -52,6 +52,11 @@ export class MyDbUq extends MyDb implements DbUq {
         return `call \`${this.name}\`.\`${this.twProfix}${proc}\``;
     }
 
+    async createDatabase(): Promise<void> {
+        await super.createDatabase();
+        this.twProfix = '';
+    }
+
     async createProcObjs(): Promise<void> {
         const createProcTable = `
     CREATE TABLE IF NOT EXISTS \`${this.name}\`.\`${this.twProfix}$proc\` (

@@ -50,6 +50,10 @@ class MyDbUq extends MyDb_1.MyDb {
     buildCallProc(proc) {
         return `call \`${this.name}\`.\`${this.twProfix}${proc}\``;
     }
+    async createDatabase() {
+        await super.createDatabase();
+        this.twProfix = '';
+    }
     async createProcObjs() {
         const createProcTable = `
     CREATE TABLE IF NOT EXISTS \`${this.name}\`.\`${this.twProfix}$proc\` (
