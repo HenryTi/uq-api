@@ -7,10 +7,18 @@ const pullBus_1 = require("./pullBus");
 const queueIn_1 = require("./queueIn");
 const queueOut_1 = require("./queueOut");
 class UqJob {
+    /**
+     * ssss
+     * @param runner
+     */
     constructor(runner) {
         this.runner = runner;
         this.uqDbName = runner.dbName;
     }
+    /**
+     * 运行某 uq 中的job(主要是bus 的发送，接收和执行)
+     * @returns
+     */
     async run() {
         let retCount = 0;
         // let runner = await this.getRunnerFromDbName(uqDbName);
@@ -60,6 +68,11 @@ class UqJob {
         tool_1.logger.info(`###### end loop ${this.uqDbName} ######`);
         return retCount;
     }
+    /**
+     * 运行bus相关的job，即bus的发送（执行message_queue中的待发送bus）、接收（从unitx获取到本地）和执行 （调用bus对应的存储过程）
+     * @param buses
+     * @returns
+     */
     async runBusesJob(buses) {
         let retCount = 0;
         let { outCount, faces } = buses;

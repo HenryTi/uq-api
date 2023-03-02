@@ -61,6 +61,11 @@ export interface DbUq extends Db {
 }
 
 export interface Db$Uq extends Db {
+
+    /**
+     * 从$uq.uq表中获取（服务器上配置的） 所有的uq（即DB）名称
+     * @returns 
+     */
     uqDbs(): Promise<any[]>;
     setDebugJobs(): Promise<void>;
     logPerformance(tick: number, log: string, ms: number): Promise<void>;

@@ -9,11 +9,19 @@ export class UqJob {
     private readonly uqDbName: string;
     private readonly runner: EntityRunner;
 
+    /**
+     * ssss 
+     * @param runner 
+     */
     constructor(runner: EntityRunner) {
         this.runner = runner;
         this.uqDbName = runner.dbName;
     }
 
+    /**
+     * 运行某 uq 中的job(主要是bus 的发送，接收和执行) 
+     * @returns 
+     */
     async run(): Promise<number> {
         let retCount: number = 0;
         // let runner = await this.getRunnerFromDbName(uqDbName);
@@ -62,6 +70,11 @@ export class UqJob {
         return retCount;
     }
 
+    /**
+     * 运行bus相关的job，即bus的发送（执行message_queue中的待发送bus）、接收（从unitx获取到本地）和执行 （调用bus对应的存储过程）
+     * @param buses 
+     * @returns 
+     */
     private async runBusesJob(buses: Buses): Promise<number> {
         let retCount = 0;
         let { outCount, faces } = buses;

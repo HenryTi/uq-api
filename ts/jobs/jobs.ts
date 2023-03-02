@@ -164,7 +164,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
     }
 
     /**
-     * 
+     * 循环执行所有uq中的job 
      * @returns 
      */
     private async uqsJob() {
@@ -252,6 +252,12 @@ $		13	20220906091418173873	2022-09-06 09:14:18
         }
     }
 
+    /**
+     * 生成指定 uq 的job 
+     * @param uqDbName 所指定的uq名称
+     * @param compile_tick 
+     * @returns {UqJob} 
+     */
     private async createUqJob(uqDbName: string, compile_tick: number): Promise<UqJob> {
         let runner = await this.getRunnerFromDbName(uqDbName);
         if (runner === undefined) return undefined;
