@@ -141,6 +141,7 @@ class RouterBuilder {
 exports.RouterBuilder = RouterBuilder;
 class RouterWebBuilder extends RouterBuilder {
     async entityHttpProcess(req, res, entityType, processer, isGet) {
+        var _a, _b;
         try {
             let userToken = req.user;
             let { /*db, */ id: userId, unit, roles } = userToken;
@@ -182,10 +183,10 @@ class RouterWebBuilder extends RouterBuilder {
             if (roles) {
                 $roles = await runner.getRoles(unit, app, userId, roles);
             }
-            let entityVersion = req.header('en');
-            let uqVersion = req.header('uq');
-            let eqEntity = entityVersion === undefined || call.version === Number(entityVersion);
-            let eqUq = uqVersion === undefined || runner.uqVersion === Number(uqVersion);
+            let entityVersion = Number((_a = req.header('en')) !== null && _a !== void 0 ? _a : 0);
+            let uqVersion = Number((_b = req.header('uq')) !== null && _b !== void 0 ? _b : 0);
+            let eqEntity = (call === null || call === void 0 ? void 0 : call.version) === entityVersion || entityVersion === 0;
+            let eqUq = runner.uqVersion === uqVersion || uqVersion === 0;
             if (eqEntity === true && eqUq === true) {
                 let body = isGet === true ? req.query : req.body;
                 result = await processer(unit, userId, name, db, params, runner, body, call, run, this.net);

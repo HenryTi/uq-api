@@ -199,10 +199,10 @@ export class RouterWebBuilder extends RouterBuilder {
             if (roles) {
                 $roles = await runner.getRoles(unit, app, userId, roles);
             }
-            let entityVersion = req.header('en');
-            let uqVersion = req.header('uq');
-            let eqEntity = entityVersion === undefined || call.version === Number(entityVersion);
-            let eqUq = uqVersion === undefined || runner.uqVersion === Number(uqVersion);
+            let entityVersion = Number(req.header('en') ?? 0);
+            let uqVersion = Number(req.header('uq') ?? 0);
+            let eqEntity = call?.version === entityVersion || entityVersion === 0;
+            let eqUq = runner.uqVersion === uqVersion || uqVersion === 0;
             if (eqEntity === true && eqUq === true) {
                 let body = isGet === true ? (req as any).query : (req as any).body;
                 result = await processer(unit, userId, name, db, params, runner, body, call, run, this.net);
