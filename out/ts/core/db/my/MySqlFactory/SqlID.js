@@ -59,6 +59,10 @@ class SqlID extends MySqlBuilder_1.MySqlBuilder {
         else {
             limit = ' limit 1000';
         }
+        let IDX0 = IDX[0];
+        if (IDX0 !== undefined) {
+            cols += `, '${IDX0.name}' as $entity`;
+        }
         let sql = `SELECT ${cols} FROM ${tables} WHERE ${where} `;
         if (order)
             sql += ` ORDER BY t0.id ${this.buildOrder(order)}`;
