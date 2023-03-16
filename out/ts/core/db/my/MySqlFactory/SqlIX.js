@@ -40,10 +40,17 @@ class SqlIX extends MySqlBuilder_1.MySqlBuilder {
             }
         }
         if (page) {
+            let cmp;
             let { start } = page;
-            if (!start)
-                start = 0;
-            where += ` AND t${itemTable}.xi>${start}`;
+            if (order === 'asc') {
+                cmp = '>';
+                start = start !== null && start !== void 0 ? start : 0;
+            }
+            else {
+                cmp = '<';
+                start = start !== null && start !== void 0 ? start : '0x7fffffffffffffff';
+            }
+            where += ` AND t${itemTable}.xi${cmp}${start}`;
         }
         let sql = `SELECT ${cols} FROM ${tables} WHERE 1=1${where}`;
         sql += ` ORDER BY t${itemTable}.xi ${this.buildOrder(order)}`;

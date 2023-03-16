@@ -40,9 +40,18 @@ export class SqlIX extends MySqlBuilder<ParamIX> {
             }
         }
         if (page) {
+            let cmp: '<' | '>';
             let { start } = page;
-            if (!start) start = 0;
-            where += ` AND t${itemTable}.xi>${start}`;
+            if (order === 'asc') {
+                cmp = '>';
+                start = start ?? 0;
+            }
+            else {
+                cmp = '<';
+                start = start ?? '0x7fffffffffffffff' as any;
+
+            }
+            where += ` AND t${itemTable}.xi${cmp}${start}`;
         }
         let sql = `SELECT ${cols} FROM ${tables} WHERE 1=1${where}`;
         sql += ` ORDER BY t${itemTable}.xi ${this.buildOrder(order)}`;
