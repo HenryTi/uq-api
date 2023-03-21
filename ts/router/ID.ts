@@ -275,6 +275,19 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
             return result;
         });
 
+    rb.entityPost(router, 'id-joins', '',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
+            let { id } = body;
+            let IDType = await loadIDTypes(runner, 0, 0, id);
+            let results = await runner.dbUq.tablesFromProc(`${IDType}$joins`, [id]);
+            let main = results[0];
+            let main0 = main[0];
+            if (main0 !== undefined) {
+                main0.ID = IDType;
+            }
+            return results;
+        });
+
     rb.entityPost(router, sqlResultProfix + 'id-no', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             body.$sql = true;
