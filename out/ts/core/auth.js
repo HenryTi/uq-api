@@ -47,11 +47,17 @@ class Auth {
                 res.end(err);
             return;
         }
+        let unit = req.header('unit');
         //let secret = config.get<string>('secret'); // .appSecret;
         //logger.debug('auth check: secret=%s, token=%s', secret, token);
         jwt.verify(token, userTokenSecret, (err, decoded) => {
             if (err === null) {
                 decoded.db = req.params.db;
+                if (!decoded.unit) {
+                    if (unit !== undefined) {
+                        decoded.unit = Number(unit);
+                    }
+                }
                 req.user = decoded;
                 next();
                 return;

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EntityRunner = void 0;
+const jsonpack = require("jsonpack");
 const tool_1 = require("../../tool");
 const db_1 = require("../db");
 const db_2 = require("../db");
@@ -742,7 +743,13 @@ class EntityRunner extends Runner_1.Runner {
             if (!schema)
                 continue;
             let tuidFroms;
-            let schemaObj = JSON.parse(schema);
+            let schemaObj;
+            if (schema[0] === '{') {
+                schemaObj = JSON.parse(schema);
+            }
+            else {
+                schemaObj = jsonpack.unpack(schema);
+            }
             let sName = schemaObj.name;
             let runObj = JSON.parse(run);
             schemaObj.typeId = id;

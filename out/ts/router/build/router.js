@@ -84,7 +84,15 @@ function buildBuildRouter(router, rb) {
         try {
             let runner = await createBuildRunner(req);
             let { sql, params } = req.body;
-            let result = await runner.sql(sql, params);
+            let result;
+            if (Array.isArray(sql) === true) {
+                for (let s of sql) {
+                    result = await runner.sql(s, params);
+                }
+            }
+            else {
+                result = await runner.sql(sql, params);
+            }
             res.json({
                 ok: true,
                 res: result
