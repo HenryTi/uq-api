@@ -235,7 +235,8 @@ function buildBuildRouter(router, rb) {
         return ret;
     });
     rb.get(router, '/const-strs', async (runner, body) => {
-        return await runner.loadConstStrs();
+        let ret = await runner.loadConstStrs();
+        return ret;
     });
     // to be removed in the future
     // const # is removed when use get
@@ -244,6 +245,9 @@ function buildBuildRouter(router, rb) {
     });
     rb.post(router, '/const-str', async (runner, body) => {
         return await runner.saveConstStr(body.type);
+    });
+    rb.post(router, '/phrases', async (runner, body) => {
+        return await runner.savePhrases(body.phrases);
     });
     rb.post(router, '/text-id', async (runner, body) => {
         return await runner.saveTextId(body.text);

@@ -248,19 +248,25 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 
     rb.get(router, '/const-strs',
         async (runner: EntityRunner, body: any): Promise<{ [name: string]: number }[]> => {
-            return await runner.loadConstStrs();
+            let ret = await runner.loadConstStrs();
+            return ret;
         });
 
     // to be removed in the future
     // const # is removed when use get
     rb.get(router, '/const-str',
         async (runner: EntityRunner, body: { type: string }): Promise<number> => {
-            return await runner.saveConstStr(body.type);
+            return await runner.saveConstStr(body.type) as number;
         });
 
     rb.post(router, '/const-str',
         async (runner: EntityRunner, body: { type: string }): Promise<number> => {
             return await runner.saveConstStr(body.type);
+        });
+
+    rb.post(router, '/phrases',
+        async (runner: EntityRunner, body: { phrases: string }): Promise<string[]> => {
+            return await runner.savePhrases(body.phrases);
         });
 
     rb.post(router, '/text-id',

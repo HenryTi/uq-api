@@ -401,6 +401,10 @@ export class EntityRunner extends Runner {
     async saveConstStr(type: string): Promise<number> {
         return await this.dbUq.call('$const_str', [type]);
     }
+    async savePhrases(phrases: string): Promise<string[]> {
+        let ret: { id: number; name: string }[] = await this.dbUq.call('$save_phrases', [phrases]);
+        return ret.map(v => v.id + '\t' + v.name);
+    }
     async saveTextId(text: string): Promise<number> {
         return await this.dbUq.saveTextId(text);
     }
