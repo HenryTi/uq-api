@@ -350,7 +350,8 @@ class EntityRunner extends Runner_1.Runner {
         return await this.dbUq.call('$const_strs', []);
     }
     async saveConstStr(type) {
-        return await this.dbUq.call('$const_str', [type]);
+        let ret = await this.dbUq.call('$const_str', [type]);
+        return ret.map(v => v.id + '\t' + v.name);
     }
     async savePhrases(phrases) {
         let ret = await this.dbUq.call('$save_phrases', [phrases]);

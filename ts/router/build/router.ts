@@ -235,7 +235,6 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
 
     rb.get(router, '/entitys',
         async (runner: EntityRunner, body: { hasSource: string }): Promise<any[][]> => {
-            //return await this.db.call('$entitys', [hasSource===true? 1:0]);
             return await runner.loadSchemas(Number(body.hasSource));
         });
 
@@ -255,12 +254,12 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     // to be removed in the future
     // const # is removed when use get
     rb.get(router, '/const-str',
-        async (runner: EntityRunner, body: { type: string }): Promise<number> => {
-            return await runner.saveConstStr(body.type) as number;
+        async (runner: EntityRunner, body: { type: string }): Promise<string[]> => {
+            return await runner.saveConstStr(body.type);
         });
 
     rb.post(router, '/const-str',
-        async (runner: EntityRunner, body: { type: string }): Promise<number> => {
+        async (runner: EntityRunner, body: { type: string }): Promise<string[]> => {
             return await runner.saveConstStr(body.type);
         });
 

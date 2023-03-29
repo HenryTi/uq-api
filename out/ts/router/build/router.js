@@ -226,7 +226,6 @@ function buildBuildRouter(router, rb) {
         }
     });
     rb.get(router, '/entitys', async (runner, body) => {
-        //return await this.db.call('$entitys', [hasSource===true? 1:0]);
         return await runner.loadSchemas(Number(body.hasSource));
     });
     rb.post(router, '/entity', async (runner, body) => {

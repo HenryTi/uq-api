@@ -398,8 +398,9 @@ export class EntityRunner extends Runner {
     async loadConstStrs(): Promise<{ [name: string]: number }[]> {
         return await this.dbUq.call('$const_strs', []);
     }
-    async saveConstStr(type: string): Promise<number> {
-        return await this.dbUq.call('$const_str', [type]);
+    async saveConstStr(type: string): Promise<string[]> {
+        let ret: { id: number; name: string }[] = await this.dbUq.call('$const_str', [type]);
+        return ret.map(v => v.id + '\t' + v.name);
     }
     async savePhrases(phrases: string): Promise<string[]> {
         let ret: { id: number; name: string }[] = await this.dbUq.call('$save_phrases', [phrases]);
