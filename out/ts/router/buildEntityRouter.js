@@ -13,7 +13,9 @@ const import_1 = require("./import");
 const map_1 = require("./map");
 const ID_1 = require("./ID");
 const role_1 = require("./role");
+const biz_1 = require("./biz");
 function buildEntityRouter(router, rb) {
+    (0, biz_1.buildBizRouter)(router, rb);
     (0, access_1.buildAccessRouter)(router, rb);
     (0, action_1.buildActionRouter)(router, rb);
     (0, book_1.buildBookRouter)(router, rb);
