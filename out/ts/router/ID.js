@@ -100,7 +100,13 @@ function buildIDRouter(router, rb) {
     rb.entityPost(router, 'id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
         let { IDX } = body;
         if (IDX === undefined) {
-            body.IDX = await loadIDTypes(runner, unit, user, body.id);
+            let { id } = body;
+            let IDX = await loadIDTypes(runner, unit, user, id);
+            if (IDX === undefined) {
+                console.error(`no id type found for id=${id}`);
+                return undefined;
+            }
+            body.IDX = IDX;
         }
         let sqlBuilder = runner.sqlFactory.ID(body);
         let result = await runner.IDSql(unit, user, sqlBuilder);

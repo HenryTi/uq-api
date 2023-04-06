@@ -8,81 +8,52 @@ class SqlID extends MySqlBuilder_1.MySqlBuilder {
         let ret = Object.assign({}, p);
         let types = ['id', 'idx'];
         let IDTypes = IDX;
-        /*
-        let IDTypes: string | (string[]);
-        IDTypes = IDX as unknown as any;
-        let idTypes: string[];
-        if (IDTypes === undefined) {
-            let retIdTypes = await this.dbCaller.idTypes(unit, user, id);
-            let coll: { [id: number]: string } = {};
-            for (let r of retIdTypes) {
-                let { id, $type } = r;
-                coll[id] = $type;
-            }
-            if (typeof (id) === 'number') {
-                IDTypes = coll[id];
-                idTypes = [IDTypes];
-            }
-            else {
-                IDTypes = idTypes = [];
-                for (let v of id as number[]) {
-                    idTypes.push(coll[v]);
-                }
-            }
-        }
-        ret.IDX = this.getTableSchemaArray(IDTypes, types);
-        */
         ret.IDX = this.getTableSchemaArray(IDTypes, types);
         return ret;
     }
     build() {
-        let { IDX, id, page, order } = this.param;
-        let { cols, tables } = this.buildIDX(IDX);
-        let where = '';
-        let limit = '';
-        if (id !== undefined) {
-            where = 't0.id' + (typeof id === 'number' ?
-                '=' + id
-                :
-                    ` in (${(id.join(','))})`);
+        try {
+            let { IDX, id, page, order } = this.param;
+            let { cols, tables } = this.buildIDX(IDX);
+            let where = '';
+            let limit = '';
+            if (id !== undefined) {
+                where = 't0.id' + (typeof id === 'number' ?
+                    '=' + id
+                    :
+                        ` in (${(id.join(','))})`);
+            }
+            else {
+                where = '1=1';
+            }
+            if (page !== undefined) {
+                let { start, size } = page;
+                if (!start)
+                    start = 0;
+                where += ` AND t0.id>${start}`;
+                limit = ` limit ${size}`;
+            }
+            else {
+                limit = ' limit 1000';
+            }
+            let IDX0 = IDX[0];
+            if (IDX0 !== undefined) {
+                cols += `, '${IDX0.name}' as $entity`;
+            }
+            let sql = `SELECT ${cols} FROM ${tables} WHERE ${where} `;
+            if (order)
+                sql += ` ORDER BY t0.id ${this.buildOrder(order)}`;
+            sql += `${limit}`;
+            this.sql = sql;
         }
-        else {
-            where = '1=1';
+        catch (err) {
+            debugger;
+            console.error(err);
         }
-        if (page !== undefined) {
-            let { start, size } = page;
-            if (!start)
-                start = 0;
-            where += ` AND t0.id>${start}`;
-            limit = ` limit ${size}`;
-        }
-        else {
-            limit = ' limit 1000';
-        }
-        let IDX0 = IDX[0];
-        if (IDX0 !== undefined) {
-            cols += `, '${IDX0.name}' as $entity`;
-        }
-        let sql = `SELECT ${cols} FROM ${tables} WHERE ${where} `;
-        if (order)
-            sql += ` ORDER BY t0.id ${this.buildOrder(order)}`;
-        sql += `${limit}`;
-        this.sql = sql;
     }
 }
 exports.SqlID = SqlID;
 class SqlIdTypes extends MySqlBuilder_1.MySqlBuilder {
-    /*
-    constructor(factory: SqlFactory, id: number | (number[])) {
-        super(factory);
-        if (Array.isArray(id) === false) {
-            this.id = [id as number];
-        }
-        else {
-            this.id = id as number[];
-        }
-    }
-    */
     convertParam(param) {
         if (Array.isArray(param) === false) {
             this.id = [param];

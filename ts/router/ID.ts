@@ -129,7 +129,13 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             let { IDX } = body;
             if (IDX === undefined) {
-                body.IDX = await loadIDTypes(runner, unit, user, body.id);
+                let { id } = body;
+                let IDX = await loadIDTypes(runner, unit, user, id);
+                if (IDX === undefined) {
+                    console.error(`no id type found for id=${id}`);
+                    return undefined;
+                }
+                body.IDX = IDX;
             }
             let sqlBuilder = runner.sqlFactory.ID(body);
             let result = await runner.IDSql(unit, user, sqlBuilder);
