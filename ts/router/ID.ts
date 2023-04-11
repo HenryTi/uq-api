@@ -112,13 +112,13 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
             let { id, $type } = r;
             coll[id] = $type;
         }
-        if (typeof (id) === 'number') {
+        if (Array.isArray(id) === false) {
             IDTypes = coll[id];
             idTypes = [IDTypes];
         }
         else {
             IDTypes = idTypes = [];
-            for (let v of id as number[]) {
+            for (let v of id as unknown as number[]) {
                 idTypes.push(coll[v]);
             }
         }

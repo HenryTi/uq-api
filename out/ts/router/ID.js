@@ -85,7 +85,7 @@ function buildIDRouter(router, rb) {
             let { id, $type } = r;
             coll[id] = $type;
         }
-        if (typeof (id) === 'number') {
+        if (Array.isArray(id) === false) {
             IDTypes = coll[id];
             idTypes = [IDTypes];
         }
