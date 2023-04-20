@@ -34,12 +34,7 @@ export class QueueIn {
             let count = constQueueSizeArr[defer];
             for (let i = 0; i < count;) {
                 try {
-                    // ???-???
-
-                    debugger;
-                    // let queueInArr: any[] = await this.runner.call('$queue_in_get', [this.queuePointer, defer, 10]);
-                    let p = 14671607;
-                    let queueInArr: any[] = await this.runner.call('$queue_in_get_n', [p, defer, 10]);
+                    let queueInArr: any[] = await this.runner.call('$queue_in_get', [this.queuePointer, defer, 10]);
                     if (queueInArr.length === 0) break;
                     for (let queueIn of queueInArr) {
                         if (this.runner.isCompiling === true as any) break;
@@ -47,7 +42,6 @@ export class QueueIn {
                         ++retCount;
                         ++i;
                     }
-                    break;
                 }
                 catch (err) {
                     buses.error = err;
@@ -56,7 +50,6 @@ export class QueueIn {
                     return -1;
                 }
             }
-            break;
         }
         return retCount;
     }
