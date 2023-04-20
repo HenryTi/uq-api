@@ -12,6 +12,8 @@ class QueueIn {
     constructor(runner) {
         this.runner = runner;
     }
+    async runOneForTest(id) {
+    }
     /**
      * 调用$queue_in_get从$queue_in中获取接收的bus消息，并进一步处理。
      * @returns
