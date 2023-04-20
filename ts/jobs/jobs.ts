@@ -180,6 +180,11 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                 let now = Date.now();
                 let { id, db: uqDbName, compile_tick } = uqRow;
                 if (uqDbName.startsWith('$unitx') === true) continue;
+
+                // ???-???
+                if (uqDbName !== 'pointshop') continue;
+                debugger;
+
                 let uq = this.uqs[id];
                 if (uq === undefined) {
                     this.uqs[id] = uq = { runTick: 0, errorTick: 0 };

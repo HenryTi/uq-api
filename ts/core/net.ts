@@ -242,15 +242,6 @@ export class Net {
         if (row === undefined) {
             throw `no bus-query for unit=${unit} bus=${busOwner}/${busName}/${face}`;
         }
-        /*
-        switch (ret.length) {
-            case 0:
-                throw `no bus-query for unit=${unit} bus=${busOwner}/${busName}/${face}`;
-            case 1: break;
-            default:
-                throw `multiple bus-query for unit=${unit} bus=${busOwner}/${busName}/${face}`;
-        }
-        */
         let uqUrl = row;
         let { uq } = uqUrl;
         let openApi = this.getOpenApiFromCache(uq, unit);
@@ -258,20 +249,7 @@ export class Net {
         openApi = await this.buildOpenApiFrom(runner, uq, unit, uqUrl);
         return openApi;
     }
-    /*
-        async sendToUnitx(unit: number, msg: Message): Promise<number[] | string> {
-            return await this.unitx.sendToUnitx(unit, msg);
-        }
-    
-        async pullBus(unit: number, maxId: number, faces: string, defer: number): Promise<any[][]> {
-            return await this.unitx.pullBus(unit, maxId, faces, defer);
-        }
 
-    async uqUrl(unit: number, uq: number): Promise<string> {
-        let uqUrl = await centerApi.uqUrl(unit, uq);
-        return await this.getUqUrlOrDebug(uqUrl);
-    }
-    */
     private async getUqUrlOrDebug(runner: EntityRunner, urls: { db: string; url: string; urlTest: string }): Promise<string> {
         let { isTesting } = runner.dbUq;
         let { db, urlTest, url: urlProd } = urls;

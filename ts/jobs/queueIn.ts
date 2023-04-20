@@ -15,6 +15,10 @@ export class QueueIn {
         this.runner = runner;
     }
 
+    async runOneForTest(id: number) {
+
+    }
+
     /**
      * 调用$queue_in_get从$queue_in中获取接收的bus消息，并进一步处理。
      * @returns 
@@ -30,7 +34,12 @@ export class QueueIn {
             let count = constQueueSizeArr[defer];
             for (let i = 0; i < count;) {
                 try {
-                    let queueInArr: any[] = await this.runner.call('$queue_in_get', [this.queuePointer, defer, 10]);
+                    // ???-???
+
+                    debugger;
+                    // let queueInArr: any[] = await this.runner.call('$queue_in_get', [this.queuePointer, defer, 10]);
+                    let p = 14671607;
+                    let queueInArr: any[] = await this.runner.call('$queue_in_get_n', [p, defer, 10]);
                     if (queueInArr.length === 0) break;
                     for (let queueIn of queueInArr) {
                         if (this.runner.isCompiling === true as any) break;
@@ -38,6 +47,7 @@ export class QueueIn {
                         ++retCount;
                         ++i;
                     }
+                    break;
                 }
                 catch (err) {
                     buses.error = err;
@@ -46,6 +56,7 @@ export class QueueIn {
                     return -1;
                 }
             }
+            break;
         }
         return retCount;
     }
@@ -75,6 +86,7 @@ export class QueueIn {
             else {
                 let face = this.runner.buses.faceColl[`${bus.toLowerCase()}/${faceName.toLowerCase()}`];
                 if (face === undefined) return;
+                if (faceName === 'orderpointchanged') debugger;
                 if (version > 0 && face.version !== version) {
                     // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
                     // 不同需要做数据转换
