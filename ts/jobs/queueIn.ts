@@ -79,7 +79,6 @@ export class QueueIn {
             else {
                 let face = this.runner.buses.faceColl[`${bus.toLowerCase()}/${faceName.toLowerCase()}`];
                 if (face === undefined) return;
-                if (faceName === 'orderpointchanged') debugger;
                 if (version > 0 && face.version !== version) {
                     // 也就是说，bus消息的version，跟runner本身的bus version有可能不同
                     // 不同需要做数据转换
