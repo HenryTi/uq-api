@@ -223,6 +223,18 @@ export class MyDbUq extends MyDb implements DbUq {
         return await super.buildDatabase();
     }
 
+    async confirmProc(proc: string) {
+        let procLower = proc.toLowerCase();
+        let p = this.procColl[procLower];
+        if (p !== true) {
+            const { proc: procSql, changed } = await this.uqProcGet(proc);
+            if (changed === 1) {
+                await this.buildUqProc(proc, procSql);
+            }
+            this.procColl[procLower] = true;
+        }
+    }
+
     // proc no twProfix
     private async execUqProc(proc: string, params: any[]): Promise<any> {
         let needBuildProc: boolean;
@@ -240,15 +252,7 @@ export class MyDbUq extends MyDb implements DbUq {
         }
         if (needBuildProc === true) {
             try {
-                let procLower = proc.toLowerCase();
-                let p = this.procColl[procLower];
-                if (p !== true) {
-                    const { proc: procSql, changed } = await this.uqProcGet(proc);
-                    if (changed === 1) {
-                        await this.buildUqProc(proc, procSql);
-                    }
-                    this.procColl[procLower] = true;
-                }
+                await this.confirmProc(proc);
             }
             catch (err) {
                 console.error('execUqProc', proc, err);

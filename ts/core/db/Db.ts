@@ -46,6 +46,7 @@ export interface DbUq extends Db {
     reset(): void;
 
     createProcObjs(): Promise<void>;
+    confirmProc(proc: string): Promise<void>;
     uqProc(procName: string, procSql: string, procType: ProcType): Promise<any>;
     buildUqStoreProcedure(proc: string): Promise<void>;
     buildUqStoreProcedureIfNotExists(...procNames: string[]): Promise<void>

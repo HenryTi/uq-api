@@ -12,9 +12,10 @@ import { buildMapRouter } from './map';
 import { buildIDRouter } from './ID';
 import { RouterBuilder } from './routerBuilder';
 import { buildRoleRouter } from './role';
-import { buildBizRouter } from './biz';
+import { buildBizRouter, buildBizSheetActRouter } from './biz';
 
 export function buildEntityRouter(router: Router, rb: RouterBuilder) {
+    buildBizSheetActRouter(router, rb);
     buildBizRouter(router, rb);
     buildAccessRouter(router, rb);
     buildActionRouter(router, rb);

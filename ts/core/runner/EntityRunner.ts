@@ -297,6 +297,9 @@ export class EntityRunner extends Runner {
         //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
         await this.db$Uq.proc('log_error', [unit, this.dbName, subject, content]);
     }
+    async confirmProc(proc: string) {
+        await this.dbUq.confirmProc(proc);
+    }
     async call(proc: string, params: any[]): Promise<any> {
         return await this.dbUq.call(proc, params);
     }
