@@ -72,6 +72,7 @@ export interface Db$Uq extends Db {
     logPerformance(tick: number, log: string, ms: number): Promise<void>;
     uqLog(unit: number, uq: string, subject: string, content: string): Promise<void>;
     uqLogError(unit: number, uq: string, subject: string, content: string): Promise<void>;
+    isExists(dbName: string): Promise<boolean>;
 }
 
 export interface Db$Res extends Db {

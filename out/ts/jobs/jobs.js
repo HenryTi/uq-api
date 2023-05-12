@@ -186,6 +186,9 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                 }
                 if (now < runTick)
                     continue;
+                let isExists = await this.db$Uq.isExists(uqDbName);
+                if (isExists !== true)
+                    continue;
                 let uqJob = await this.createUqJob(uqDbName, compile_tick);
                 if (uqJob === undefined)
                     continue;

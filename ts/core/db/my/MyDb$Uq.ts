@@ -53,6 +53,12 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
         return rows;
     }
 
+    async isExists(dbName: string): Promise<boolean> {
+        let exists = this.sqlExists(dbName);
+        let rows: any[] = await this.sql(exists, undefined);
+        return rows.length > 0;
+    }
+
     private async create$UqDb(): Promise<void> {
         // let exists = this.sqlExists('$uq');
         // let rows: any[] = await this.exec(exists, undefined);

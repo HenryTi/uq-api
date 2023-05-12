@@ -17,7 +17,7 @@ export abstract class MyDb extends MyDbBase implements Db {
      * @param db db名称 
      * @returns 
      */
-    private sqlExists(db: string): string {
+    protected sqlExists(db: string): string {
         return `SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '${db}';`;
     }
 

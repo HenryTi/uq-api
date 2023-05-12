@@ -50,6 +50,11 @@ class MyDb$Uq extends MyDb_1.MyDb {
         let rows = await this.sql(sql, undefined);
         return rows;
     }
+    async isExists(dbName) {
+        let exists = this.sqlExists(dbName);
+        let rows = await this.sql(exists, undefined);
+        return rows.length > 0;
+    }
     async create$UqDb() {
         // let exists = this.sqlExists('$uq');
         // let rows: any[] = await this.exec(exists, undefined);
