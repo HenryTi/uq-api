@@ -319,7 +319,10 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
         }
         for (let value of values) {
             let { $, ix, xi } = value;
-            if ((typeof xi === 'number' && xi < 0) || $ === '-') {
+            if ($ === '-') {
+                sql += this.buildIXDelete(ts, ix, xi);
+            }
+            else if (typeof xi === 'number' && xi < 0) {
                 sql += this.buildIXDelete(ts, ix, -xi);
             }
             else {
