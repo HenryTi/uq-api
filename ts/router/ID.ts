@@ -130,7 +130,7 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
             let { IDX } = body;
             if (IDX === undefined) {
                 let { id } = body;
-                let IDX = await loadIDTypes(runner, unit, user, id);
+                IDX = await loadIDTypes(runner, unit, user, id);
                 if (IDX === undefined) {
                     console.error(`no id type found for id=${id}`);
                     return undefined;
@@ -139,8 +139,44 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
             }
             let sqlBuilder = runner.sqlFactory.ID(body);
             let result = await runner.IDSql(unit, user, sqlBuilder);
+            let { call: { stars } } = runner.schemas[IDX];
+            let idColl: { [id: number]: boolean } = {};
+            if (stars !== undefined) {
+                let obj = result[0];
+                idColl[obj.id] = true;
+                await loadStars(obj, stars);
+            }
             return result;
-        });
+
+            async function loadStars(obj: object, stars: string[]): Promise<void> {
+                if (obj === undefined) return;
+                if (stars === undefined) return;
+                let promises: Promise<void>[] = [];
+                for (let star of stars) {
+                    promises.push(loadId(obj[star]));
+                }
+                if (promises.length > 0) {
+                    await Promise.all(promises);
+                }
+            }
+
+            async function loadId(id: number): Promise<void> {
+                if (!id) return;
+                if (idColl[id] === true) return;
+                let IDType = await loadIDTypes(runner, unit, user, id);
+                if (IDType === undefined) return;
+                let sqlBuilder = runner.sqlFactory.ID({ IDX: IDType as any, id });
+                let resultFromId = await runner.IDSql(unit, user, sqlBuilder);
+                if (resultFromId !== undefined) {
+                    result.push(...resultFromId);
+                    let { call: { stars } } = runner.schemas[IDType as string];
+                    let obj = resultFromId[0];
+                    await loadStars(obj, stars);
+                }
+                idColl[id] = true;
+            }
+        }
+    );
 
     rb.entityPost(router, sqlResultProfix + 'id', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {

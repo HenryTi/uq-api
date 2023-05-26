@@ -781,6 +781,11 @@ class EntityRunner extends Runner_1.Runner {
                 case 'bus':
                     this.busArr.push(schemaObj);
                     break;
+                case 'biz.spec':
+                    if (schemaObj.private !== true) {
+                        this.ids[name] = schemaObj;
+                    }
+                    break;
                 case 'id':
                     if (schemaObj.private !== true) {
                         this.ids[name] = schemaObj;

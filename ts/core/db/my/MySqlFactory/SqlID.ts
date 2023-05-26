@@ -3,7 +3,7 @@ import { MySqlBuilder } from "./MySqlBuilder";
 
 export class SqlID extends MySqlBuilder<ParamID> {
     protected convertParam(p: ParamID): ParamID {
-        let { /*id, */IDX } = p;
+        let { IDX } = p;
         let ret = Object.assign({}, p);
         let types = ['id', 'idx'];
         let IDTypes: string | (string[]) = IDX as unknown as any;

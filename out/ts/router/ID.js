@@ -101,7 +101,7 @@ function buildIDRouter(router, rb) {
         let { IDX } = body;
         if (IDX === undefined) {
             let { id } = body;
-            let IDX = await loadIDTypes(runner, unit, user, id);
+            IDX = await loadIDTypes(runner, unit, user, id);
             if (IDX === undefined) {
                 console.error(`no id type found for id=${id}`);
                 return undefined;
@@ -110,7 +110,45 @@ function buildIDRouter(router, rb) {
         }
         let sqlBuilder = runner.sqlFactory.ID(body);
         let result = await runner.IDSql(unit, user, sqlBuilder);
+        let { call: { stars } } = runner.schemas[IDX];
+        let idColl = {};
+        if (stars !== undefined) {
+            let obj = result[0];
+            idColl[obj.id] = true;
+            await loadStars(obj, stars);
+        }
         return result;
+        async function loadStars(obj, stars) {
+            if (obj === undefined)
+                return;
+            if (stars === undefined)
+                return;
+            let promises = [];
+            for (let star of stars) {
+                promises.push(loadId(obj[star]));
+            }
+            if (promises.length > 0) {
+                await Promise.all(promises);
+            }
+        }
+        async function loadId(id) {
+            if (!id)
+                return;
+            if (idColl[id] === true)
+                return;
+            let IDType = await loadIDTypes(runner, unit, user, id);
+            if (IDType === undefined)
+                return;
+            let sqlBuilder = runner.sqlFactory.ID({ IDX: IDType, id });
+            let resultFromId = await runner.IDSql(unit, user, sqlBuilder);
+            if (resultFromId !== undefined) {
+                result.push(...resultFromId);
+                let { call: { stars } } = runner.schemas[IDType];
+                let obj = resultFromId[0];
+                await loadStars(obj, stars);
+            }
+            idColl[id] = true;
+        }
     });
     rb.entityPost(router, sqlResultProfix + 'id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
         body.$sql = true;

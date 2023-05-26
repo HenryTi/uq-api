@@ -24,7 +24,7 @@ class TablesBuilder {
         return this.mySqlBuilder.dbObjectName(obj);
     }
     buildCols(schema) {
-        let { fields, type, create, update } = schema;
+        let { fields, type, biz, create, update, name } = schema;
         let $fieldBuilt = false;
         for (let f of fields) {
             let { name: fn, type: ft } = f;
@@ -36,6 +36,11 @@ class TablesBuilder {
             this.cols += ft === 'textid' ? `${this.dbObjectName('$idtext')}(${fv})` : fv;
             this.cols += ' as `' + fn + '`';
         }
+        if (name === 'Atom') {
+            let sitePhrase = this.dbObjectName('sitephrase');
+            let $phrase = this.dbObjectName('$phrase');
+            this.cols += `, (select p1.name from ${sitePhrase} as p0 join ${$phrase} as p1 on p1.id=p0.phrase where p0.id=t${this.i}.base) as $phrase`;
+        }
         if (this.$fieldBuilt !== true) {
             if (create === true) {
                 this.cols += `, unix_timestamp(t${this.i}.$create) as $create`;
@@ -45,12 +50,6 @@ class TablesBuilder {
                 this.cols += `, unix_timestamp(t${this.i}.$update) as $update`;
                 $fieldBuilt = true;
             }
-            /*
-            if (owner === true) {
-                this.cols += `, t${this.i}.$owner`;
-                $fieldBuilt = true;
-            }
-            */
         }
         this.$fieldBuilt = $fieldBuilt;
     }
@@ -59,21 +58,31 @@ class TablesBuilder {
             return;
         if (this.IDX.length === 0)
             return;
-        let { name, schema } = this.IDX[0];
-        let tbl = `${this.dbObjectName(name)} as t${this.i}`;
+        function buildDbName(tableSchema) {
+            let { name, schema } = tableSchema;
+            let { biz } = schema;
+            if (biz === undefined)
+                return name;
+            return `${biz}$${name}`;
+        }
+        let IDX = this.IDX[0];
+        // let { name, schema } = this.IDX[0];
+        let tbl = `${this.dbObjectName(buildDbName(IDX))} as t${this.i}`;
         if (this.i === 0) {
             this.tables += tbl;
         }
         else {
             this.tables += ` left join ${tbl} on t${this.iId}.${this.idJoin}=t${this.i}.id`;
         }
-        this.buildCols(schema);
+        this.buildCols(IDX.schema);
         ++this.i;
         let len = this.IDX.length;
         for (let i = 1; i < len; i++) {
-            let { name, schema } = this.IDX[i];
-            this.tables += ` left join ${this.dbObjectName(name)} as t${this.i} on t${this.iId}.${this.idJoin}=t${this.i}.id`;
-            this.buildCols(schema);
+            // let { name, schema } = this.IDX[i];
+            let IDXi = this.IDX[i];
+            let dbName = buildDbName(IDXi);
+            this.tables += ` left join ${this.dbObjectName(dbName)} as t${this.i} on t${this.iId}.${this.idJoin}=t${this.i}.id`;
+            this.buildCols(IDXi.schema);
             ++this.i;
         }
     }

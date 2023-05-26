@@ -4,7 +4,7 @@ exports.SqlIdTypes = exports.SqlID = void 0;
 const MySqlBuilder_1 = require("./MySqlBuilder");
 class SqlID extends MySqlBuilder_1.MySqlBuilder {
     convertParam(p) {
-        let { /*id, */ IDX } = p;
+        let { IDX } = p;
         let ret = Object.assign({}, p);
         let types = ['id', 'idx'];
         let IDTypes = IDX;

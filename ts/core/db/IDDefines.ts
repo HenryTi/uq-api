@@ -29,8 +29,10 @@ export enum EnumIdType {
 } // Minute: unique in uq
 
 export interface EntitySchema {
+    name: string;
     typeId: number;
     type: string;
+    biz: string;
     keys: Field[];
     fields: Field[];
     nameNoVice: string[];
