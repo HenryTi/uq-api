@@ -101,6 +101,10 @@ function buildIDRouter(router, rb) {
         let { IDX } = body;
         if (IDX === undefined) {
             let { id } = body;
+            if (id === undefined) {
+                console.error(`no IDX, no id`);
+                return undefined;
+            }
             IDX = await loadIDTypes(runner, unit, user, id);
             if (IDX === undefined) {
                 console.error(`no id type found for id=${id}`);
@@ -108,9 +112,17 @@ function buildIDRouter(router, rb) {
             }
             body.IDX = IDX;
         }
+        else {
+            IDX = IDX.toLowerCase();
+        }
+        let { call } = runner.schemas[IDX];
+        if (call === undefined) {
+            console.error(`${IDX} is not a valid ID type`);
+            return undefined;
+        }
+        let { stars } = call;
         let sqlBuilder = runner.sqlFactory.ID(body);
         let result = await runner.IDSql(unit, user, sqlBuilder);
-        let { call: { stars } } = runner.schemas[IDX];
         let idColl = {};
         if (stars !== undefined) {
             let obj = result[0];
