@@ -266,7 +266,7 @@ class UnitxRouterBuilder extends RouterWebBuilder {
         let runner = await this.net.getUnitxRunner(req);
         if (runner !== undefined)
             return runner;
-        throw `Database ${runner.dbName} 不存在`;
+        throw `Database $unitx 不存在`;
     }
 }
 exports.UnitxRouterBuilder = UnitxRouterBuilder;

@@ -110,10 +110,4 @@ export abstract class MyDbBase implements DbBase {
             this.pool.query(sql, params, handleResponse);
         });
     }
-    /*
-    async sql(sql: string, params: any[]): Promise<any> {
-        let result = await this.exec(sql, params);
-        return result;
-    }
-    */
 }

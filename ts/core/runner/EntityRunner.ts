@@ -12,6 +12,7 @@ import { Net } from '../net';
 import { centerApi } from '../centerApi';
 import { BusFace, BusFaceAccept, BusFaceQuery } from './BusFace';
 import { Runner } from './Runner';
+import { sqlsVersion } from '../db/my/sqlsVersion';
 
 interface EntityAccess {
     name: string;
@@ -405,9 +406,19 @@ export class EntityRunner extends Runner {
         let ret: { id: number; name: string }[] = await this.dbUq.call('$const_str', [type]);
         return ret.map(v => v.id + '\t' + v.name);
     }
-    async savePhrases(phrases: string): Promise<string[]> {
+    async savePhrases(phrases: string, rolesJson: string): Promise<string[]> {
+        if (sqlsVersion.version < 8) return [];
         let ret: { id: number; name: string }[] = await this.dbUq.call('$save_phrases', [phrases]);
-        return ret.map(v => v.id + '\t' + v.name);
+        let retStr = ret.map(v => v.id + '\t' + v.name);
+        if (rolesJson !== undefined) {
+            let ixPhrasesRole: string[] = [];
+            let roles: { role: string; permits: string[]; }[] = JSON.parse(rolesJson);
+            for (let { role, permits } of roles) {
+                ixPhrasesRole.push(...permits.map(v => `${role}\t${v}`));
+            }
+            await this.dbUq.call('$save_ixphrases_role', [ixPhrasesRole.join('\n')]);
+        }
+        return retStr;
     }
     async saveTextId(text: string): Promise<number> {
         return await this.dbUq.saveTextId(text);

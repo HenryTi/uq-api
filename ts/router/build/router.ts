@@ -3,6 +3,7 @@ import { logger } from '../../tool';
 import { BuildRunner, EntityRunner, setUqBuildSecret, centerApi, getDbs, getNet, consts } from '../../core';
 import { RouterWebBuilder } from "../routerBuilder";
 import { buildDbNameFromReq } from '../buildDbNameFromReq';
+import { sqlsVersion } from '../../core/db/my/sqlsVersion';
 
 export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
     let net = getNet();
@@ -135,7 +136,14 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
         try {
             let runner = await createBuildRunner(req);
             let { name, proc, isFunc } = req.body;
-            let result = await runner.procCoreSql(name, proc, isFunc);
+            let index = sqlsVersion.unsupportProcs.findIndex(v => v === name);
+            let result: any;
+            if (index < 0) {
+                result = await runner.procCoreSql(name, proc, isFunc);
+            }
+            else {
+                // debugger;
+            }
             res.json({
                 ok: true,
                 res: result
@@ -264,8 +272,9 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
         });
 
     rb.post(router, '/phrases',
-        async (runner: EntityRunner, body: { phrases: string }): Promise<string[]> => {
-            return await runner.savePhrases(body.phrases);
+        async (runner: EntityRunner, body: { phrases: string; roles: string; }): Promise<string[]> => {
+            let { phrases, roles } = body;
+            return await runner.savePhrases(phrases, roles);
         });
 
     rb.post(router, '/text-id',

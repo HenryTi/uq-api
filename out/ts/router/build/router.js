@@ -4,6 +4,7 @@ exports.buildBuildRouter = void 0;
 const tool_1 = require("../../tool");
 const core_1 = require("../../core");
 const buildDbNameFromReq_1 = require("../buildDbNameFromReq");
+const sqlsVersion_1 = require("../../core/db/my/sqlsVersion");
 function buildBuildRouter(router, rb) {
     let net = (0, core_1.getNet)();
     let dbs = (0, core_1.getDbs)();
@@ -130,7 +131,14 @@ function buildBuildRouter(router, rb) {
         try {
             let runner = await createBuildRunner(req);
             let { name, proc, isFunc } = req.body;
-            let result = await runner.procCoreSql(name, proc, isFunc);
+            let index = sqlsVersion_1.sqlsVersion.unsupportProcs.findIndex(v => v === name);
+            let result;
+            if (index < 0) {
+                result = await runner.procCoreSql(name, proc, isFunc);
+            }
+            else {
+                // debugger;
+            }
             res.json({
                 ok: true,
                 res: result
@@ -246,7 +254,8 @@ function buildBuildRouter(router, rb) {
         return await runner.saveConstStr(body.type);
     });
     rb.post(router, '/phrases', async (runner, body) => {
-        return await runner.savePhrases(body.phrases);
+        let { phrases, roles } = body;
+        return await runner.savePhrases(phrases, roles);
     });
     rb.post(router, '/text-id', async (runner, body) => {
         return await runner.saveTextId(body.text);
