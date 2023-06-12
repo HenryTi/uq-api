@@ -14,7 +14,7 @@ const sqls_8 = {
     uidToDateExists: `SELECT routine_name FROM information_schema.routines WHERE routine_schema='$uq' AND routine_name='uidtodate';`,
     eventExists: `SELECT EVENT_SCHEMA as db, EVENT_NAME as name FROM information_schema.events WHERE event_schema = ?;`,
     tv$entityExists: `SELECT 1 FROM information_schema.tables WHERE table_schema=? and TABLE_NAME='${oldTwProfix}$entity'`,
-    unsupportProcs: ['$save_phrases'],
+    unsupportProcs: [],
 };
 const sqls_5 = {
     version: 5,
