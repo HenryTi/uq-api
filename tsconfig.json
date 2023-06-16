@@ -10,7 +10,6 @@
         "module": "commonjs",
         "allowJs": true,
         "checkJs": true,
-        "watch": false,
         "outDir": "out",
         "resolveJsonModule": true,
         //"baseUrl": "ts"

@@ -1,4 +1,4 @@
-import { ProcType } from '../../core';
+import { ProcType, getNet } from '../../core';
 import { logger } from '../../tool';
 import { centerApi } from '../centerApi';
 import { Runner } from './Runner';
@@ -38,10 +38,6 @@ export class BuildRunner extends Runner {
     async getSettingInt(unit: number, name: string): Promise<{ int: number; big: number }> {
         let ret = await this.unitTableFromProc('$get_setting_int', unit, name);
         return ret[0];
-    }
-    async setUqOwner(userId: number): Promise<boolean> {
-        let ret = await this.dbUq.call('$setUqOwner', [userId]);
-        return ret.length > 0;
     }
     async setUnitAdmin(unitAdmin: { unit: number, admin: number }[]) {
         try {
@@ -189,5 +185,39 @@ export class BuildRunner extends Runner {
         if (params !== undefined) p.push(...params);
         let ret = await this.dbUq.tablesFromProc(proc, p);
         return ret;
+    }
+
+    async finishBuildDb(user: { id: number; }, paramUqId: number, uqVersion: number) {
+        let net = getNet();
+
+        await Promise.all([
+            this.setSetting(0, 'uqId', String(paramUqId)),
+            this.setSetting(0, 'uqVersion', String(uqVersion)),
+        ]);
+        await this.initSetting();
+
+        await net.resetRunnerAfterCompile(this.dbUq);
+
+        if (user) {
+            let id = user.id;
+            if (id) {
+                await this.dbUq.call('$finish_build_db', [id]);
+                // await this.setUqOwner(id);
+                await this.syncCenterUser(id);
+            }
+        }
+    }
+    /*
+    private async setUqOwner(userId: number): Promise<boolean> {
+        let ret = await this.dbUq.call('$setUqOwner', [userId]);
+        return ret.length > 0;
+    }
+    */
+
+    private async syncCenterUser(userId: number) {
+        let user = await centerApi.userFromId(userId);
+        let { id, name, nick, icon } = user;
+        await this.dbUq.call('$set_user', [id, name, nick, icon]);
+        return user;
     }
 }

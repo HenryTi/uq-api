@@ -37,11 +37,6 @@ export function buildAccessRouter(router: Router, rb: RouterBuilder) {
             return entities;
         });
 
-    rb.post(router, '/sync-user', async (runner: EntityRunner, body: any): Promise<any> => {
-        let { user } = body;
-        return await runner.syncCenterUser(user);
-    });
-
     rb.entityGet(router, 'get-admins', '',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any) => {
             let roles = await runner.getAdmins(unit, user);

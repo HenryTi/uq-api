@@ -55,22 +55,9 @@ function buildBuildRouter(router, rb) {
     router.post('/finish', async (req, res) => {
         try {
             let runner = await createBuildRunner(req);
-            let { uqId: paramUqId, uqVersion } = req.body;
-            await Promise.all([
-                runner.setSetting(0, 'uqId', String(paramUqId)),
-                runner.setSetting(0, 'uqVersion', String(uqVersion)),
-            ]);
-            await runner.initSetting();
-            await net.resetRunnerAfterCompile(runner.dbUq);
-            // await net.resetRunnerAfterCompile(db);
-            let { user } = req;
-            if (user) {
-                let id = user.id;
-                if (id) {
-                    await runner.setUqOwner(id);
-                    await runner.syncCenterUser(id);
-                }
-            }
+            let { body } = req;
+            let { uqId: paramUqId, uqVersion } = body;
+            await runner.finishBuildDb(req.user, paramUqId, uqVersion);
             res.json({
                 ok: true,
             });
