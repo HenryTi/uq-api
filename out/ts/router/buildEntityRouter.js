@@ -14,8 +14,10 @@ const map_1 = require("./map");
 const ID_1 = require("./ID");
 const role_1 = require("./role");
 const biz_1 = require("./biz");
+const syncUser_1 = require("./syncUser");
 function buildEntityRouter(router, rb) {
     (0, biz_1.buildBizSheetActRouter)(router, rb);
+    (0, syncUser_1.buildSyncUserRouter)(router, rb);
     (0, biz_1.buildBizRouter)(router, rb);
     (0, access_1.buildAccessRouter)(router, rb);
     (0, action_1.buildActionRouter)(router, rb);

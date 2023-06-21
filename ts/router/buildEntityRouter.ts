@@ -13,9 +13,11 @@ import { buildIDRouter } from './ID';
 import { RouterBuilder } from './routerBuilder';
 import { buildRoleRouter } from './role';
 import { buildBizRouter, buildBizSheetActRouter } from './biz';
+import { buildSyncUserRouter } from './syncUser';
 
 export function buildEntityRouter(router: Router, rb: RouterBuilder) {
     buildBizSheetActRouter(router, rb);
+    buildSyncUserRouter(router, rb);
     buildBizRouter(router, rb);
     buildAccessRouter(router, rb);
     buildActionRouter(router, rb);

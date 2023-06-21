@@ -1091,6 +1091,17 @@ export class EntityRunner extends Runner {
         let ret = [...result[0].map(v => v.entity), ...result[1].map(v => v.entity)];
         return ret;
     }
+    async getUser(user: number): Promise<any> {
+        let ret = await this.dbUq.tableFromProc('$getuser', [0, 0, user]);
+        if (ret.length === 0) return undefined;
+        return ret[0];
+    }
+    async saveUser(id: number, name: string, nick: string, icon: string): Promise<any> {
+        let params = [id, name, nick, icon].join('\t') + '\n';
+        let ret = await this.dbUq.tableFromProc('$setuser', [0, 0, params]);
+        if (ret.length === 0) return undefined;
+        return ret[0];
+    }
     async getAccesses(unit: number, user: number, acc: string[]): Promise<any> {
         await this.init();
         let access = {} as any;

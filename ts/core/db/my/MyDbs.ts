@@ -37,8 +37,8 @@ export class MyDbs implements Dbs {
     async start() {
         // create$ResDb(),
         // create$UqDb()
+        await checkSqlVersion();
         await Promise.all([
-            checkSqlVersion(),
             this.db$Uq.createDatabase(),
             this.db$Res.createDatabase(),
         ]);

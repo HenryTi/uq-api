@@ -28,8 +28,8 @@ class MyDbs {
     async start() {
         // create$ResDb(),
         // create$UqDb()
+        await (0, sqlsVersion_1.checkSqlVersion)();
         await Promise.all([
-            (0, sqlsVersion_1.checkSqlVersion)(),
             this.db$Uq.createDatabase(),
             this.db$Res.createDatabase(),
         ]);
