@@ -141,6 +141,9 @@ export function buildIDRouter(router: Router, rb: RouterBuilder) {
                 }
                 body.IDX = IDX;
             }
+            else if (Array.isArray(IDX) === true) {
+                IDX = (IDX[0] as string).toLowerCase();
+            }
             else {
                 IDX = (IDX as string).toLowerCase();
             }

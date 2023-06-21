@@ -112,6 +112,9 @@ function buildIDRouter(router, rb) {
             }
             body.IDX = IDX;
         }
+        else if (Array.isArray(IDX) === true) {
+            IDX = IDX[0].toLowerCase();
+        }
         else {
             IDX = IDX.toLowerCase();
         }
