@@ -135,7 +135,11 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                             break;
                     }
                 }
-                await this.db$Uq.uqLogError(0, '$uid', '$jobs loop error', errText);
+                try {
+                    await this.db$Uq.uqLogError(0, '$uid', '$jobs loop error', errText);
+                }
+                catch (_a) {
+                }
             }
             finally {
                 if (this.loopWait === true) {

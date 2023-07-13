@@ -37,9 +37,9 @@ class TablesBuilder {
             this.cols += ' as `' + fn + '`';
         }
         if (name === 'Atom') {
-            let sitePhrase = this.dbObjectName('sitephrase');
+            let bud = this.dbObjectName('bud');
             let $phrase = this.dbObjectName('$phrase');
-            this.cols += `, (select p1.name from ${sitePhrase} as p0 join ${$phrase} as p1 on p1.id=p0.phrase where p0.id=t${this.i}.base) as $phrase`;
+            this.cols += `, (select p1.name from ${bud} as p0 join ${$phrase} as p1 on p1.id=p0.phrase where p0.id=t${this.i}.base) as $phrase`;
         }
         if (this.$fieldBuilt !== true) {
             if (create === true) {
