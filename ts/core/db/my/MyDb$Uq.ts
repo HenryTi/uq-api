@@ -75,9 +75,9 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
             if (compileTickColumns.length === 0) {
                 await this.sql(`ALTER TABLE $uq.uq ADD compile_tick int NOT NULL default '0';`, undefined);
             }
-            let createLog = 'CREATE TABLE IF NOT EXISTS $uq.log (`time` timestamp(6) not null, uq int, unit int, subject varchar(100), content text, primary key(`time`))';
+            let createLog = 'CREATE TABLE IF NOT EXISTS $uq.log (`time` timestamp(6) not null, uq int, unit bigint, subject varchar(100), content text, primary key(`time`))';
             await this.sql(createLog, undefined);
-            let createErrorLog = 'CREATE TABLE IF NOT EXISTS $uq.error (`time` timestamp(6) not null, uq int, unit int, subject varchar(100), content text, primary key(`time`))';
+            let createErrorLog = 'CREATE TABLE IF NOT EXISTS $uq.error (`time` timestamp(6) not null, uq int, unit bigint, subject varchar(100), content text, primary key(`time`))';
             await this.sql(createErrorLog, undefined);
             let createSetting = 'CREATE TABLE IF NOT EXISTS $uq.setting (`name` varchar(100) not null, `value` varchar(100), update_time timestamp default current_timestamp on update current_timestamp, primary key(`name`))';
             await this.sql(createSetting, undefined);
@@ -85,6 +85,10 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
             await this.sql(createPerformance, undefined);
             let createLocal = 'CREATE TABLE IF NOT EXISTS $uq.local (id smallint not null auto_increment, `name` varchar(50), discription varchar(100), primary key(`id`), unique key unique_name (`name`))';
             await this.sql(createLocal, undefined);
+
+            let upgrade$UqUnit = 'ALTER TABLE $uq.log MODIFY COLUMN unit bigint;ALTER TABLE $uq.error MODIFY COLUMN unit bigint;';
+            await this.sql(upgrade$UqUnit, undefined);
+
             await this.initBuildLocal();
 
             let performanceLog = `
@@ -100,14 +104,14 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
 		insert ignore into performance (\`time\`, log, ms) values (_tmax, _log, _ms);
 	end;
 	`;
-            let retProcLogExists = await this.sql(sqls.procLogExists, undefined);
-            if (retProcLogExists.length === 0) {
-                await this.sql(this.buildLogSql(), undefined);
-            }
-            let retProcLogErrorExists = await this.sql(sqls.procLogErrorExists, undefined);
-            if (retProcLogErrorExists.length === 0) {
-                await this.sql(this.buildLogErrorSql(), undefined);
-            }
+            //let retProcLogExists = await this.sql(sqls.procLogExists, undefined);
+            //if (retProcLogExists.length === 0) {
+            await this.sql(this.buildLogSql(), undefined);
+            //}
+            //let retProcLogErrorExists = await this.sql(sqls.procLogErrorExists, undefined);
+            //if (retProcLogErrorExists.length === 0) {
+            await this.sql(this.buildLogErrorSql(), undefined);
+            //}
 
             let retPerformanceExists = await this.sql(sqls.performanceExists, undefined);
             if (retPerformanceExists.length === 0) {
@@ -238,8 +242,10 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
     }
 
     private logSql(procName: string, tableName: string): string {
-        return `create procedure $uq.${procName}(
-            _unit int, _uq varchar(50), _subject varchar(100), _content text) 
+        return `
+        DROP PROCEDURE IF EXISTS $uq.${procName};
+        create procedure $uq.${procName} (
+            _unit bigint, _uq varchar(50), _subject varchar(100), _content text) 
         begin
             declare _time, _tmax timestamp(6);
             set _time=current_timestamp(6);

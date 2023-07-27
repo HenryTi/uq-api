@@ -127,8 +127,7 @@ class MyDbUq extends MyDb_1.MyDb {
         await this.buildUqProc(procName, procSql, isFunc);
     }
     async runSqlDropProc(procName, isFunc) {
-        if (procName === '$uq' || procName === 'tv_$uq')
-            debugger;
+        //        if (procName === '$uq' || procName === 'tv_$uq') debugger;
         let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
         let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${this.twProfix}${procName}\``;
         await this.sql(sql);
@@ -329,7 +328,6 @@ class MyDbUq extends MyDb_1.MyDb {
         let eventsText = '';
         for (let ev of events) {
             let { db, name } = ev;
-            //if (name.startsWith('t v_') === true) continue;
             if (this.events.has(name) === false)
                 continue;
             eventsText += ` ${db}.${name}`;

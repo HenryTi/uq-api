@@ -788,8 +788,6 @@ export class EntityRunner extends Runner {
         this.hasStatements = setting['hasstatements'] as number === 1;
         this.service = setting['service'] as number;
         this.devBuildSys = setting['dev-build-sys'] as string !== null;
-        // this.db.hasUnit = this.hasUnit;
-        // this.dbCaller.setBuilder();
         let ixUserArr = [];
 
         let uu = setting['uniqueunit'] as number;

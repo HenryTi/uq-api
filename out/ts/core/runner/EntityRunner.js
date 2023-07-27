@@ -743,8 +743,6 @@ class EntityRunner extends Runner_1.Runner {
         this.hasStatements = setting['hasstatements'] === 1;
         this.service = setting['service'];
         this.devBuildSys = setting['dev-build-sys'] !== null;
-        // this.db.hasUnit = this.hasUnit;
-        // this.dbCaller.setBuilder();
         let ixUserArr = [];
         let uu = setting['uniqueunit'];
         this.uniqueUnit = uu !== null && uu !== void 0 ? uu : tool_1.env.uniqueUnitInConfig;
