@@ -71,7 +71,7 @@ class MyDb extends MyDbBase_1.MyDbBase {
         let ret = retExists.length > 0;
         if (ret === false) {
             try {
-                let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\``; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci`;
+                let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\``;
                 await this.sql(sql);
             }
             catch (err) {
@@ -87,7 +87,7 @@ class MyDb extends MyDbBase_1.MyDbBase {
         await this.sql(insertUqDb);
     }
     async createDatabase() {
-        let sql = 'CREATE DATABASE IF NOT EXISTS `' + this.name + '` default CHARACTER SET utf8 '; //COLLATE utf8_unicode_ci';
+        let sql = 'CREATE DATABASE IF NOT EXISTS `' + this.name + '` default CHARACTER SET utf8 ';
         await this.sql(sql);
     }
     async existsDatabase() {

@@ -39,14 +39,9 @@ export abstract class MyDbBase implements DbBase {
             }
         }
         let conf = Object.assign({}, this.dbConfig);
-        // conf.timezone = 'UTC';
-        // conf.typeCast = castField;
         conf.connectionLimit = 10;
         conf.waitForConnections = true;
-        // conf.acquireTimeout = 10000;
         conf.multipleStatements = true;
-        //conf.charset = 'utf8mb4';
-        //let newPool = await this.createPool(conf);
         let newPool = myCreatePool(conf);
         pools.push({ config: this.dbConfig, pool: newPool });
         return newPool;
@@ -94,7 +89,7 @@ export abstract class MyDbBase implements DbBase {
                         }, sleepMillis);
                     default:
                         if (isDevelopment === true) {
-                            debugger;
+                            // debugger;
                             logger.error(err);
                             logger.error(sql);
                         }

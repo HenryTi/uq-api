@@ -25,14 +25,9 @@ class MyDbBase {
             }
         }
         let conf = Object.assign({}, this.dbConfig);
-        // conf.timezone = 'UTC';
-        // conf.typeCast = castField;
         conf.connectionLimit = 10;
         conf.waitForConnections = true;
-        // conf.acquireTimeout = 10000;
         conf.multipleStatements = true;
-        //conf.charset = 'utf8mb4';
-        //let newPool = await this.createPool(conf);
         let newPool = (0, myCreatePool_1.myCreatePool)(conf);
         pools.push({ config: this.dbConfig, pool: newPool });
         return newPool;
@@ -83,7 +78,7 @@ class MyDbBase {
                         }, sleepMillis);
                     default:
                         if (isDevelopment === true) {
-                            debugger;
+                            // debugger;
                             tool_1.logger.error(err);
                             tool_1.logger.error(sql);
                         }

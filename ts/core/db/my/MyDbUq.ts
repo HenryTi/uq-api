@@ -66,8 +66,6 @@ export class MyDbUq extends MyDb implements DbUq {
         update_time timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (\`name\`));
     `;
-        // CHARACTER SET utf8 COLLATE utf8_unicode_ci
-
         await this.sql(createProcTable, undefined);
         const getProc = `
     DROP PROCEDURE IF EXISTS \`${this.name}\`.${this.twProfix}$proc_get;
@@ -82,7 +80,6 @@ export class MyDbUq extends MyDb implements DbUq {
         WHERE 1=1 AND name=_name FOR UPDATE;
     END
     `;
-        //WHERE 1=1 AND ROUTINE_SCHEMA COLLATE utf8_general_ci=_schema COLLATE utf8_general_ci AND ROUTINE_NAME COLLATE utf8_general_ci=_name COLLATE utf8_general_ci))) THEN 1 ELSE 0 END AS changed
         await this.sql(getProc, undefined);
 
         const saveProc = `
@@ -116,7 +113,6 @@ export class MyDbUq extends MyDb implements DbUq {
         WHERE 1=1 AND ROUTINE_SCHEMA=_schema AND ROUTINE_NAME=_name))) THEN 1 ELSE 0 END AS changed;
     END
     `;
-        //WHERE 1=1 AND ROUTINE_SCHEMA COLLATE utf8_general_ci=_schema COLLATE utf8_general_ci AND ROUTINE_NAME COLLATE utf8_general_ci=_name COLLATE utf8_general_ci))) THEN 1 ELSE 0 END AS changed;
         await this.sql(saveProc, undefined);
 
         return;

@@ -149,10 +149,7 @@ xQgjLRiW0VhmoWJFM/Sm/CECAwEAAQ==
 `;
 let uqBuildSecret;
 var decryptStringWithRsaPublicKey = function (toDecrypt) {
-    //var absolutePath = path.resolve(relativeOrAbsolutePathtoPrivateKey);
-    //var privateKey = fs.readFileSync(absolutePath, "utf8");
     var buffer = Buffer.from(toDecrypt, "base64");
-    //var decrypted = crypto.privateDecrypt(privateKey, buffer);
     const decrypted = crypto.publicDecrypt(uqBuildPublicKey, buffer);
     return decrypted.toString("utf8");
 };

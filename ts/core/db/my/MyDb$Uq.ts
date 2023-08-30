@@ -64,10 +64,6 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
         // let rows: any[] = await this.exec(exists, undefined);
         let sqls = sqlsVersion;
         try {
-            // if (rows.length == 0) {
-            //    let sql = 'CREATE DATABASE IF NOT EXISTS $uq'; // default CHARACTER SET utf8 COLLATE utf8_unicode_ci';
-            //    await this.exec(sql, undefined);
-            // }
             let createUqTable = 'CREATE TABLE IF NOT EXISTS $uq.uq (id int not null auto_increment, `name` varchar(50), compile_tick INT, create_time timestamp not null default current_timestamp, uid bigint not null default 0, primary key(`name`), unique key unique_id (id))';
             await this.sql(createUqTable, undefined);
             let existsCompileTick = `SELECT NULL FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'uq' AND table_schema = '$uq' AND column_name = 'compile_tick'`;

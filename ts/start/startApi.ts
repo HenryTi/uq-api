@@ -106,6 +106,11 @@ export async function startApi(): Promise<void> {
         app.listen(port, async () => {
             logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
             let { host, user } = connection;
+
+            let sql = `SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'jksoft_mini_jxc_trial'`;
+            let ret = await getDbs().dbNoName.sql(sql);
+            console.log(ret);
+
             logger.debug('DB host: %s, user: %s', host, user);
             logger.debug('Tonwa uq-api started!');
             expressListRoutes(app, {});
