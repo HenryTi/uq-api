@@ -15,6 +15,7 @@ const ID_1 = require("./ID");
 const role_1 = require("./role");
 const biz_1 = require("./biz");
 const syncUser_1 = require("./syncUser");
+const compile_1 = require("./compile");
 function buildEntityRouter(router, rb) {
     (0, biz_1.buildBizSheetActRouter)(router, rb);
     (0, syncUser_1.buildSyncUserRouter)(router, rb);
@@ -31,6 +32,7 @@ function buildEntityRouter(router, rb) {
     (0, map_1.buildMapRouter)(router, rb);
     (0, ID_1.buildIDRouter)(router, rb);
     (0, role_1.buildRoleRouter)(router, rb);
+    (0, compile_1.buildCompileRouter)(router, rb);
 }
 exports.buildEntityRouter = buildEntityRouter;
 //# sourceMappingURL=buildEntityRouter.js.map

@@ -6,6 +6,7 @@ const consts_1 = require("../../consts");
 const locals_1 = require("../../locals");
 const sqlsVersion_1 = require("./sqlsVersion");
 const MyDb_1 = require("./MyDb");
+const dbUqVersion = '1.0';
 class MyDb$Uq extends MyDb_1.MyDb {
     constructor() {
         super(consts_1.consts.$uq);
@@ -13,7 +14,11 @@ class MyDb$Uq extends MyDb_1.MyDb {
     initConfig(dbName) { return tool_1.env.connection; }
     async createDatabase() {
         await super.createDatabase();
-        await this.create$UqDb();
+        let isNew = await this.isNewVesion();
+        if (isNew === true) {
+            await this.create$UqDb();
+            await this.setNewVersion();
+        }
     }
     async logPerformance(tick, log, ms) {
         try {
@@ -55,9 +60,26 @@ class MyDb$Uq extends MyDb_1.MyDb {
         let rows = await this.sql(exists, undefined);
         return rows.length > 0;
     }
+    async isNewVesion() {
+        var _a;
+        try {
+            let ret = await this.sql(`select value from $uq.setting where name='$uq_version'`);
+            if (((_a = ret[0]) === null || _a === void 0 ? void 0 : _a.value) === dbUqVersion)
+                return false;
+            return true;
+        }
+        catch (_b) {
+            return false;
+        }
+    }
+    async setNewVersion() {
+        try {
+            await this.sql(`insert into $uq.setting (name, value) values ('$uq_version', '${dbUqVersion}');`);
+        }
+        catch (_a) {
+        }
+    }
     async create$UqDb() {
-        // let exists = this.sqlExists('$uq');
-        // let rows: any[] = await this.exec(exists, undefined);
         let sqls = sqlsVersion_1.sqlsVersion;
         try {
             let createUqTable = 'CREATE TABLE IF NOT EXISTS $uq.uq (id int not null auto_increment, `name` varchar(50), compile_tick INT, create_time timestamp not null default current_timestamp, uid bigint not null default 0, primary key(`name`), unique key unique_id (id))';
@@ -93,14 +115,8 @@ class MyDb$Uq extends MyDb_1.MyDb {
 		insert ignore into performance (\`time\`, log, ms) values (_tmax, _log, _ms);
 	end;
 	`;
-            //let retProcLogExists = await this.sql(sqls.procLogExists, undefined);
-            //if (retProcLogExists.length === 0) {
             await this.sql(this.buildLogSql(), undefined);
-            //}
-            //let retProcLogErrorExists = await this.sql(sqls.procLogErrorExists, undefined);
-            //if (retProcLogErrorExists.length === 0) {
             await this.sql(this.buildLogErrorSql(), undefined);
-            //}
             let retPerformanceExists = await this.sql(sqls.performanceExists, undefined);
             if (retPerformanceExists.length === 0) {
                 await this.sql(performanceLog, undefined);

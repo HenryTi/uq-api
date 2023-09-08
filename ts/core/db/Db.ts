@@ -5,22 +5,6 @@ export interface DbBase {
 }
 
 export interface Db extends DbBase {
-    /*
-    protected dbName: string;
-    hasUnit: boolean;
-    twProfix: string;
-
-    constructor(dbName: string) {
-        this.dbName = dbName;
-        this.twProfix = '';
-        //this.builder = this.createBuilder();
-    }
-    */
-    // protected abstract createBuilder(): Builder;
-    // setBuilder() { this.builder = this.createBuilder(); }
-
-    // get twProfix(): string;
-    // loadTwProfix(): Promise<void>;
     get name(): string;
     proc(proc: string, params: any[]): Promise<any>;
     buildDatabase(): Promise<boolean>;

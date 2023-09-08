@@ -1,0 +1,145 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PBiz = void 0;
+const il_1 = require("../../il");
+const space_1 = require("../space");
+const entity_1 = require("../entity/entity");
+const tokens_1 = require("../tokens");
+class PBiz extends entity_1.PEntity {
+    constructor(entity, context) {
+        super(entity, context);
+        this.pRoots = {
+            atom: il_1.BizAtom,
+            spec: il_1.BizSpec,
+            moniker: il_1.BizMoniker,
+            permit: il_1.BizPermit,
+            role: il_1.BizRole,
+            sheet: il_1.BizSheet,
+            main: il_1.BizMain,
+            detail: il_1.BizDetail,
+            pend: il_1.BizPend,
+            tree: il_1.BizTree,
+            tie: il_1.BizTie,
+        };
+    }
+    parse() {
+        var _a;
+        let source = (_a = this.entity.source) !== null && _a !== void 0 ? _a : '';
+        super.parse();
+        source += this.entity.source;
+        this.entity.source = source;
+    }
+    _parse() {
+        const keys = [...Object.keys(this.pRoots), 'act', 'query'];
+        if (this.ts.varBrace === true) {
+            this.ts.expect(...keys);
+        }
+        let Root = this.pRoots[this.ts.lowerVar];
+        if (Root === undefined) {
+            switch (this.ts.lowerVar) {
+                default:
+                    this.ts.expect(...keys);
+                    return;
+                case 'budoptions':
+                    this.parseBudOptions();
+                    return;
+                case 'act':
+                    this.parseAct();
+                    return;
+                case 'query':
+                    this.parseQuery();
+                    return;
+            }
+        }
+        this.ts.readToken();
+        let root = new Root(this.entity);
+        root.parser(this.context).parse();
+        let { bizEntities, bizArr } = this.entity;
+        let { name } = root;
+        if (bizEntities.has(name) === true) {
+            this.ts.error(`duplicate biz entity ${name}`);
+        }
+        bizEntities.set(name, root);
+        bizArr.push(root);
+    }
+    parseAct() {
+        this.ts.readToken();
+        let act = this.context.parseElement(new il_1.BizAct(this.entity));
+        let { uq } = this.entity;
+        let { name } = act;
+        uq.acts[name] = act;
+        let ret = uq.checkEntityName(act);
+        if (ret === undefined)
+            return true;
+        this.error(ret);
+        return false;
+    }
+    parseQuery() {
+        this.ts.readToken();
+        let query = this.context.parseElement(new il_1.BizQuery(this.entity));
+        let { uq } = this.entity;
+        let { name } = query;
+        uq.queries[name] = query;
+        let ret = uq.checkEntityName(query);
+        if (ret === undefined)
+            return true;
+        this.error(ret);
+        return false;
+    }
+    parseBudOptions() {
+        this.ts.readToken();
+        if (this.ts.token !== tokens_1.Token.VAR) {
+            this.ts.expectToken(tokens_1.Token.VAR);
+        }
+        const name = this.ts.lowerVar;
+        this.ts.readToken();
+        let budOptions = this.context.parseElement(new il_1.BizBudOptions(undefined, name, undefined));
+        this.entity.budOptionsMap[name] = budOptions;
+    }
+    scan(space) {
+        let ok = true;
+        let bizSpace = new BizSpace(space, this.entity);
+        for (let [, p] of this.entity.bizEntities) {
+            let { pelement } = p;
+            if (pelement === undefined)
+                continue;
+            if (pelement.scan(bizSpace) === false)
+                ok = false;
+        }
+        this.entity.buildPhrases();
+        return ok;
+    }
+    scan2(uq) {
+        for (let [, p] of this.entity.bizEntities) {
+            let { pelement } = p;
+            if (pelement === undefined)
+                continue;
+            if (pelement.scan2(uq) === false)
+                return false;
+        }
+        return true;
+    }
+    scanDoc2() {
+        return true;
+    }
+}
+exports.PBiz = PBiz;
+class BizSpace extends space_1.Space {
+    constructor(outer, biz) {
+        super(outer);
+        this.varNo = 1;
+        this.biz = biz;
+    }
+    _getEntityTable(name) {
+        return;
+    }
+    _getTableByAlias(alias) {
+        return;
+    }
+    _varPointer(name, isField) {
+        return;
+    }
+    getVarNo() { return this.varNo; }
+    setVarNo(value) { this.varNo = value; }
+}
+//# sourceMappingURL=Biz.js.map

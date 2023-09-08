@@ -10,6 +10,7 @@ import {
 } from '../router';
 import { authJoint, authUpBuild } from '../core/auth';
 import { buildProcRouter } from '../router/proc';
+import { buildCompileRouter } from '../router/compile';
 const { version: uq_api_version } = require('../../package.json');
 
 export async function startApi(): Promise<void> {

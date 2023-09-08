@@ -1,0 +1,1 @@
+{"version":3,"file":"fail.js","sourceRoot":"","sources":["../../../../../ts/uq/builder/bstatement/fail.ts"],"names":[],"mappings":";;;AAAA,6CAA0C;AAI1C,MAAa,cAAe,SAAQ,uBAAU;IAG1C,IAAI,CAAC,IAAU;QACX,IAAI,OAAO,GAAG,IAAI,CAAC,OAAO,CAAC,OAAO,CAAC;QACnC,IAAI,GAAG,GAAG,OAAO,CAAC,eAAe,EAAE,CAAC;QACpC,IAAI,CAAC,IAAI,CAAC,GAAG,CAAC,CAAC;IACnB,CAAC;CACJ;AARD,wCAQC"}

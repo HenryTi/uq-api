@@ -1,0 +1,1 @@
+{"version":3,"file":"tinyint.js","sourceRoot":"","sources":["../../../../../ts/uq/parser/datatype/tinyint.ts"],"names":[],"mappings":";;;AACA,yCAAqC;AAGrC,MAAa,QAAS,SAAQ,oBAAS;IAEnC,YAAY,EAAW,EAAE,OAAiB;QACtC,KAAK,CAAC,EAAE,EAAE,OAAO,CAAC,CAAC;QACnB,IAAI,CAAC,EAAE,GAAG,EAAE,CAAC;IACjB,CAAC;CACJ;AAND,4BAMC"}

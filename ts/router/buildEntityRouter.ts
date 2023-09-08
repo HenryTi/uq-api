@@ -14,6 +14,7 @@ import { RouterBuilder } from './routerBuilder';
 import { buildRoleRouter } from './role';
 import { buildBizRouter, buildBizSheetActRouter } from './biz';
 import { buildSyncUserRouter } from './syncUser';
+import { buildCompileRouter } from './compile';
 
 export function buildEntityRouter(router: Router, rb: RouterBuilder) {
     buildBizSheetActRouter(router, rb);
@@ -31,4 +32,5 @@ export function buildEntityRouter(router: Router, rb: RouterBuilder) {
     buildMapRouter(router, rb);
     buildIDRouter(router, rb);
     buildRoleRouter(router, rb);
+    buildCompileRouter(router, rb);
 }

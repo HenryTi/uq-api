@@ -5,6 +5,8 @@ import { Db$Uq } from "../Db";
 import { sqlsVersion } from "./sqlsVersion";
 import { MyDb } from "./MyDb";
 
+const dbUqVersion = '1.0';
+
 export class MyDb$Uq extends MyDb implements Db$Uq {
     constructor() {
         super(consts.$uq);
@@ -14,7 +16,11 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
 
     override async createDatabase(): Promise<void> {
         await super.createDatabase();
-        await this.create$UqDb();
+        let isNew = await this.isNewVesion();
+        if (isNew === true) {
+            await this.create$UqDb();
+            await this.setNewVersion();
+        }
     }
 
     async logPerformance(tick: number, log: string, ms: number): Promise<void> {
@@ -59,9 +65,26 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
         return rows.length > 0;
     }
 
+    private async isNewVesion() {
+        try {
+            let ret: any[] = await this.sql(`select value from $uq.setting where name='$uq_version'`);
+            if (ret[0]?.value === dbUqVersion) return false;
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
+
+    private async setNewVersion() {
+        try {
+            await this.sql(`insert into $uq.setting (name, value) values ('$uq_version', '${dbUqVersion}');`);
+        }
+        catch {
+        }
+    }
+
     private async create$UqDb(): Promise<void> {
-        // let exists = this.sqlExists('$uq');
-        // let rows: any[] = await this.exec(exists, undefined);
         let sqls = sqlsVersion;
         try {
             let createUqTable = 'CREATE TABLE IF NOT EXISTS $uq.uq (id int not null auto_increment, `name` varchar(50), compile_tick INT, create_time timestamp not null default current_timestamp, uid bigint not null default 0, primary key(`name`), unique key unique_id (id))';
@@ -100,14 +123,8 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
 		insert ignore into performance (\`time\`, log, ms) values (_tmax, _log, _ms);
 	end;
 	`;
-            //let retProcLogExists = await this.sql(sqls.procLogExists, undefined);
-            //if (retProcLogExists.length === 0) {
             await this.sql(this.buildLogSql(), undefined);
-            //}
-            //let retProcLogErrorExists = await this.sql(sqls.procLogErrorExists, undefined);
-            //if (retProcLogErrorExists.length === 0) {
             await this.sql(this.buildLogErrorSql(), undefined);
-            //}
 
             let retPerformanceExists = await this.sql(sqls.performanceExists, undefined);
             if (retPerformanceExists.length === 0) {
