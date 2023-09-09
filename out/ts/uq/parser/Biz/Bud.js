@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudItems = exports.PBizBudAtom = exports.PBizBudID = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudItems = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizBud extends Base_1.PBizBase {
@@ -38,14 +38,17 @@ class PBizBudDate extends PBizBud {
     }
 }
 exports.PBizBudDate = PBizBudDate;
-class PBizBudID extends PBizBud {
-    _parse() {
-        if (this.ts.token === tokens_1.Token.VAR) {
+/*
+export class PBizBudID extends PBizBud<BizBudID> {
+    private idName: string;
+    protected _parse(): void {
+        if (this.ts.token === Token.VAR) {
             this.idName = this.ts.lowerVar;
             this.ts.readToken();
         }
     }
-    scan(space) {
+
+    scan(space: Space): boolean {
         let ok = super.scan(space);
         if (this.idName !== undefined) {
             let ID = super.scanID(space, this.idName);
@@ -59,7 +62,7 @@ class PBizBudID extends PBizBud {
         return ok;
     }
 }
-exports.PBizBudID = PBizBudID;
+*/
 class PBizBudAtom extends PBizBud {
     _parse() {
         if (this.ts.token === tokens_1.Token.VAR) {

@@ -18,7 +18,7 @@ class PElementBase {
     savePos() {
         this.at = this.ts.prevAt;
         this.line = this.ts.prevLine;
-        this.sourceStart = this.ts.LastP - 1;
+        this.sourceStart = this.ts.lastP - 1;
     }
     getSource() {
         return this.ts.getSourceAt(this.sourceStart);

@@ -1,4 +1,8 @@
-import { BizBase, BizAtom, BizBud, BizBudChar, BizBudCheck, BizBudDate, BizBudDec, BizBudID, BizBudInt, BizBudRadio, BizEntity, BizSpec, BizBudNone, ID, BizBudAtom, Uq, IX } from "../../il";
+import {
+    BizBase, BizAtom, BizBud, BizBudChar, BizBudCheck, BizBudDate
+    , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
+    , BizSpec, BizBudNone, ID, BizBudAtom, Uq, IX
+} from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -85,7 +89,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             return Atom as BizAtom;
         }
     }
-
+    /*
     scanID(space: Space, idName: string): ID {
         let entity = space.uq.entities[idName];
         if (entity === undefined || entity.type !== 'id') {
@@ -107,7 +111,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             return entity as IX;
         }
     }
-
+    */
     scanSpec(space: Space, SpecName: string): BizSpec {
         let Spec = space.uq.biz.bizEntities.get(SpecName);
         if (Spec === undefined || Spec.type !== 'spec') {
@@ -139,6 +143,12 @@ const invalidPropNames: { [key: string]: boolean } = (function () {
 })();
 
 export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
+    protected saveSource() {
+        let entityType = this.element.type.toUpperCase();
+        let source = this.getSource();
+        this.element.source = entityType + ' ' + source;
+    }
+
     protected parseSubItem(type: string): BizBud {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
@@ -166,7 +176,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             int: BizBudInt,
             dec: BizBudDec,
             char: BizBudChar,
-            id: BizBudID,
+            // id: BizBudID,
             atom: BizBudAtom,
             date: BizBudDate,
             radio: BizBudRadio,

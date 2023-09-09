@@ -1,14 +1,31 @@
 import { IElement } from "../element";
 
-export enum EnumBizType {
-    atom = 1,
-    sheet = 2,
-    key = 11,
-    prop = 12,
-    assign = 13,
-    permit = 14,
-    with = 15,
-    role = 16,
+export enum BizMonikerType {
+    atom = 11,
+    uom = 12,
+    spec = 13,
+    sheet = 101,
+    role = 201,
+    permit = 202,
+
+    with = 151,
+
+    key = 1001,
+    prop = 1011,
+    assign = 1021,
+};
+
+export enum BudDataType {
+    none = 0,
+    int = 11,                   // bigint
+    atom = 12,                  // atom id
+    radio = 13,                 // single radio ids
+    check = 14,                 // multiple checks
+    ID = 19,
+    dec = 21,                   // dec(18.6)
+    char = 31,                  // varchar(100)
+    str = 32,                   // varchar(100)
+    date = 41,
 };
 
 export abstract class BizBase extends IElement {
@@ -17,6 +34,7 @@ export abstract class BizBase extends IElement {
     ver: number;
     caption: string;
     phrase: string;
+    memo: string;
 
     setJName(jName: string) {
         if (jName === undefined) return;
@@ -35,6 +53,9 @@ export abstract class BizBase extends IElement {
     checkName(name: string): boolean {
         return true;
     }
+    get nameDotType() {
+        return `${this.type}.${this.name}`;
+    }
     get basePhrase(): string { return ''; }
     buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         let phrase = `${prefix}.${this.name}`;
@@ -43,7 +64,7 @@ export abstract class BizBase extends IElement {
     }
 
     getTypeNum(): string {
-        let n = EnumBizType[this.type] ?? 0;
+        let n = BizMonikerType[this.type] ?? 0;
         return String(n);
     }
 

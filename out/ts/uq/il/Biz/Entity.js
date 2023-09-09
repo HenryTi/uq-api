@@ -12,6 +12,7 @@ class BizEntity extends Base_1.BizBase {
         this.keyFields = [];
         this.propFields = [];
         this.entitySchema = undefined;
+        this.source = undefined;
         this.biz = biz;
     }
     buildSchema() {
@@ -103,6 +104,14 @@ class BizEntity extends Base_1.BizBase {
             return bud;
         bud = this.assigns.get(name);
         return bud;
+    }
+    getAllBuds() {
+        let buds = [];
+        for (let [, bud] of this.props)
+            buds.push(bud);
+        for (let [, bud] of this.assigns)
+            buds.push(bud);
+        return buds;
     }
 }
 exports.BizEntity = BizEntity;

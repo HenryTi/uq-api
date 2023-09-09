@@ -25,10 +25,10 @@ export class Biz extends Entity {
         super(uq);
         this.name = '$biz';
         this.bizEntities = new Map();
-        let bizUser = new BizUser(this);
-        this.bizEntities.set(bizUser.name, bizUser);
-        let bizUnit = new BizUnit(this);
-        this.bizEntities.set(bizUnit.name, bizUnit);
+        // let bizUser = new BizUser(this);
+        // this.bizEntities.set(bizUser.name, bizUser);
+        // let bizUnit = new BizUnit(this);
+        // this.bizEntities.set(bizUnit.name, bizUnit);
         this.budOptionsMap = {};
     }
     get global(): boolean { return false; }
@@ -56,6 +56,16 @@ export class Biz extends Entity {
             roles.push({ role: value.phrase, permits: permitNames });
         }
         if (roles.length > 0) this.roles = roles;
+    }
+
+    buildArrPhrases() {
+        let phrases: [string, string, string, string][] = [];
+        for (let item of this.bizArr) {
+            let { type } = item;
+            phrases.push([type, '', '', item.getTypeNum()]);
+            item.buildPhrases(phrases, type);
+        }
+        return phrases;
     }
 
     private buildRoleNames(permitNames: string[], bizRole: BizRole) {

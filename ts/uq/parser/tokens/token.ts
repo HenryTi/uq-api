@@ -2,7 +2,7 @@
 export enum Token {
     NONE = -1,
     _FINISHED = 0,
-    ADD = 1, 
+    ADD = 1,
     SUB = 2,
     MUL = 3,
     DIV = 4,
@@ -18,9 +18,9 @@ export enum Token {
     LT = 14,
     LE = 15,
     NE = 16,
-    EQU = 17, 
-    DOT =18,
-    COMMA =19,
+    EQU = 17,
+    DOT = 18,
+    COMMA = 19,
     COLON = 20,
     SEMICOLON = 21,
     AT = 22,
@@ -28,7 +28,7 @@ export enum Token {
     LPARENTHESE = 24,
     RPARENTHESE = 25,
     LBRACE = 26,
-    RBRACE = 27, 
+    RBRACE = 27,
     NUM = 28,
     VAR = 29,
     HEX = 30,
@@ -40,11 +40,9 @@ export enum Token {
     RBRACKET = 36,
     SHARP = 37,
     CODE = 38,
-	DOLLARVAR = 39,
-	BITWISEINVERT = 40, // ~
+    DOLLARVAR = 39,
+    BITWISEINVERT = 40, // ~
     DoubleGT = 41,
     DoubleLS = 42,
+    Memo = 99,
 }
-
-// QM_GT = 18, QM_GE, QM_LT, QM_LE, QM_EQU, QM_LIKE, QM_BETWEEN,
-// LBBRACE, RBBRACE,

@@ -9,9 +9,10 @@ export abstract class BizEntity extends BizBase {
     readonly assigns: Map<string, BizBud> = new Map();
     readonly keyFields: Field[] = [];
     readonly propFields: Field[] = [];
-
     readonly biz: Biz
     entitySchema: string = undefined;
+    source: string = undefined;
+
     constructor(biz: Biz) {
         super();
         this.biz = biz;
@@ -92,5 +93,12 @@ export abstract class BizEntity extends BizBase {
         if (bud !== undefined) return bud;
         bud = this.assigns.get(name);
         return bud;
+    }
+
+    getAllBuds(): BizBud[] {
+        let buds: BizBud[] = [];
+        for (let [, bud] of this.props) buds.push(bud);
+        for (let [, bud] of this.assigns) buds.push(bud);
+        return buds;
     }
 }

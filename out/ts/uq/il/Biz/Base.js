@@ -1,18 +1,34 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBase = exports.EnumBizType = void 0;
+exports.BizBase = exports.BudDataType = exports.BizMonikerType = void 0;
 const element_1 = require("../element");
-var EnumBizType;
-(function (EnumBizType) {
-    EnumBizType[EnumBizType["atom"] = 1] = "atom";
-    EnumBizType[EnumBizType["sheet"] = 2] = "sheet";
-    EnumBizType[EnumBizType["key"] = 11] = "key";
-    EnumBizType[EnumBizType["prop"] = 12] = "prop";
-    EnumBizType[EnumBizType["assign"] = 13] = "assign";
-    EnumBizType[EnumBizType["permit"] = 14] = "permit";
-    EnumBizType[EnumBizType["with"] = 15] = "with";
-    EnumBizType[EnumBizType["role"] = 16] = "role";
-})(EnumBizType = exports.EnumBizType || (exports.EnumBizType = {}));
+var BizMonikerType;
+(function (BizMonikerType) {
+    BizMonikerType[BizMonikerType["atom"] = 11] = "atom";
+    BizMonikerType[BizMonikerType["uom"] = 12] = "uom";
+    BizMonikerType[BizMonikerType["spec"] = 13] = "spec";
+    BizMonikerType[BizMonikerType["sheet"] = 101] = "sheet";
+    BizMonikerType[BizMonikerType["role"] = 201] = "role";
+    BizMonikerType[BizMonikerType["permit"] = 202] = "permit";
+    BizMonikerType[BizMonikerType["with"] = 151] = "with";
+    BizMonikerType[BizMonikerType["key"] = 1001] = "key";
+    BizMonikerType[BizMonikerType["prop"] = 1011] = "prop";
+    BizMonikerType[BizMonikerType["assign"] = 1021] = "assign";
+})(BizMonikerType = exports.BizMonikerType || (exports.BizMonikerType = {}));
+;
+var BudDataType;
+(function (BudDataType) {
+    BudDataType[BudDataType["none"] = 0] = "none";
+    BudDataType[BudDataType["int"] = 11] = "int";
+    BudDataType[BudDataType["atom"] = 12] = "atom";
+    BudDataType[BudDataType["radio"] = 13] = "radio";
+    BudDataType[BudDataType["check"] = 14] = "check";
+    BudDataType[BudDataType["ID"] = 19] = "ID";
+    BudDataType[BudDataType["dec"] = 21] = "dec";
+    BudDataType[BudDataType["char"] = 31] = "char";
+    BudDataType[BudDataType["str"] = 32] = "str";
+    BudDataType[BudDataType["date"] = 41] = "date";
+})(BudDataType = exports.BudDataType || (exports.BudDataType = {}));
 ;
 class BizBase extends element_1.IElement {
     setJName(jName) {
@@ -34,6 +50,9 @@ class BizBase extends element_1.IElement {
     checkName(name) {
         return true;
     }
+    get nameDotType() {
+        return `${this.type}.${this.name}`;
+    }
     get basePhrase() { return ''; }
     buildPhrases(phrases, prefix) {
         var _a;
@@ -43,7 +62,7 @@ class BizBase extends element_1.IElement {
     }
     getTypeNum() {
         var _a;
-        let n = (_a = EnumBizType[this.type]) !== null && _a !== void 0 ? _a : 0;
+        let n = (_a = BizMonikerType[this.type]) !== null && _a !== void 0 ? _a : 0;
         return String(n);
     }
     getBizBase(bizName) {

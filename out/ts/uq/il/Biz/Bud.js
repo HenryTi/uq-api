@@ -1,9 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudSubItems = exports.BizBudAtom = exports.BizBudID = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudSubItems = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 class BizBud extends Base_1.BizBase {
+    get objName() { return undefined; }
+    get dataTypeNum() {
+        var _a;
+        return (_a = Base_1.BudDataType[this.dataType]) !== null && _a !== void 0 ? _a : 0;
+    }
     constructor(type, name, caption) {
         super();
         this.type = type;
@@ -93,21 +98,19 @@ class BizBudDate extends BizBud {
     }
 }
 exports.BizBudDate = BizBudDate;
-class BizBudID extends BizBud {
-    constructor() {
-        super(...arguments);
-        this.dataType = 'ID';
-    }
-    parser(context) {
-        return new parser_1.PBizBudID(this, context);
+/*
+export class BizBudID extends BizBud {
+    readonly dataType = 'ID';
+    ID: ID;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudID(this, context);
     }
     buildSchema() {
-        var _a;
         let ret = super.buildSchema();
-        return Object.assign(Object.assign({}, ret), { ID: (_a = this.ID) === null || _a === void 0 ? void 0 : _a.name });
+        return { ...ret, ID: this.ID?.name };
     }
 }
-exports.BizBudID = BizBudID;
+*/
 class BizBudAtom extends BizBud {
     constructor() {
         super(...arguments);
@@ -121,6 +124,7 @@ class BizBudAtom extends BizBud {
         let ret = super.buildSchema();
         return Object.assign(Object.assign({}, ret), { atom: (_a = this.atom) === null || _a === void 0 ? void 0 : _a.name });
     }
+    get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
 exports.BizBudAtom = BizBudAtom;
 class BizBudSubItems extends BizBud {

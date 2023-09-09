@@ -18,21 +18,22 @@ export class TokenStream {
     text: string;
     token: Token;
 
-    LastP: number;                  // 上一个符号的开始位置
+    lastP: number;                  // 上一个符号的开始位置
     line: number;                // 当前行号
     at: number;                 // 当前字符
     prevLine: number;
     prevAt: number;
     startLine: number;
     startAt: number;
-    PrevToken: Token;
+    prevToken: Token;
+    memo: string;
 
     file: string;
 
     constructor(log: log, input: string, options?: { bracket: boolean }) {
         if (options !== undefined) this.bracket = options.bracket;
         this.log = log;
-        this.LastP = 1;
+        this.lastP = 1;
         this.buffer = input;
         this.len = input.length;
         this.p = 0;
@@ -42,7 +43,7 @@ export class TokenStream {
     }
 
     getSourceAt(pos: number): string {
-        return this.buffer.substring(pos, this.LastP - 1);
+        return this.buffer.substring(pos, this.lastP - 1);
     }
 
     getSourceNearby(sourceAt: number): string {
@@ -148,7 +149,7 @@ export class TokenStream {
     }
 
     private advance() {
-        this.cur = (this.p >= this.len) ? 0 : this.buffer.charCodeAt(this.p++);
+        this.cur = (this.p >= this.len) ? Char.NULL : this.buffer.charCodeAt(this.p++);
         switch (this.cur) {
             default:
                 this.at++;
@@ -190,11 +191,11 @@ export class TokenStream {
     }
 
     peekToken(): Token {
-        let prevToken: Token = this.PrevToken;
+        let prevToken: Token = this.prevToken;
         let cur = this.cur;
         let _var = this._var;
         let lowerVar = this.lowerVar;
-        let lastP = this.LastP;
+        let lastP = this.lastP;
         let lastLineNum = this.startLine;
         let lastChatAt = this.startAt;
         let token = this.token;
@@ -203,8 +204,8 @@ export class TokenStream {
         let charAt = this.at;
         this.readToken();
         let ret = this.token;
-        this.PrevToken = prevToken;
-        this.LastP = lastP;
+        this.prevToken = prevToken;
+        this.lastP = lastP;
         this.startLine = lastLineNum;
         this.startAt = lastChatAt;
         this.token = token;
@@ -218,19 +219,20 @@ export class TokenStream {
     }
 
     readToken() {
-        this.PrevToken = this.token;
-        this.LastP = this.p;
+        this.prevToken = this.token;
+        this.lastP = this.p;
         this.prevLine = this.startLine;
         this.prevAt = this.startAt;
         this.startLine = this.line;
         this.startAt = this.at;
-        //this.prevSpace = false;
         this._var = undefined;
         this.lowerVar = undefined;
+        this.memo = undefined;
         for (; ;) {
             switch (this.cur) {
                 case Char.NULL:
                     this.token = Token._FINISHED;
+                    this.lastP = this.len + 1;
                     break;
                 case Char.TAB:
                 case Char.SPACE:
@@ -242,8 +244,7 @@ export class TokenStream {
                     this.advance();
                     this.startLine = this.line;
                     this.startAt = this.at;
-                    this.LastP = this.p;
-                    //this.prevSpace = true;
+                    this.lastP = this.p;
                     continue;
                 case Char.PLUS:
                     this.token = Token.ADD; this.advance();
@@ -369,7 +370,15 @@ export class TokenStream {
         }
     }
 
-    private readLineRemark() {
+    readLineEndMemo() {
+        this.memo = undefined;
+        while (true) {
+            if (this.cur !== Char.MINUS) return;
+        }
+        if (this.p < this.len) {
+            if (this.buffer.charCodeAt(this.p) !== Char.MINUS) return;
+            this.peekToken()
+        }
         while (true) {
             this.advance();
             switch (this.cur) {
@@ -378,6 +387,30 @@ export class TokenStream {
                 case Char.R_ENTER:
                 case Char.ENTER_R:
                 case Char.NULL:
+                    return;
+                case Char.MINUS:
+                    this.advance();
+                    if (this.cur === Char.MINUS) {
+                        this.readLineRemark();
+                        return;
+                    }
+                    break;
+            }
+        }
+    }
+
+    private readLineRemark() {
+        let start = this.p;
+        while (true) {
+            let end = this.p;
+            this.advance();
+            switch (this.cur) {
+                case Char._R:
+                case Char.ENTER:
+                case Char.R_ENTER:
+                case Char.ENTER_R:
+                case Char.NULL:
+                    this.memo = this.buffer.substring(start, end);
                     return;
             }
         }
@@ -403,8 +436,11 @@ export class TokenStream {
     }
 
     private readRemark() {
+        let start = this.p;
         this.advance();
+        let end: number;
         while (true) {
+            end = this.p;
             if (this.cur === Char.NULL) break;
             if (this.cur === Char.STAR) {
                 this.advance();
@@ -417,6 +453,7 @@ export class TokenStream {
                 this.advance();
             }
         }
+        this.memo = this.buffer.substring(start, end);
     }
 
     private readSquareVar() {

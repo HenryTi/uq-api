@@ -1,4 +1,4 @@
-import { createPool, Pool/*, MysqlError, TypeCast*/ } from 'mysql2';
+import { Pool } from 'mysql2';
 import * as _ from 'lodash';
 import { logger, env } from '../../../tool';
 import { DbBase } from '../Db';
@@ -27,9 +27,7 @@ export abstract class MyDbBase implements DbBase {
 
     constructor(dbName: string) {
         this.dbConfig = this.initConfig(dbName);
-        //this.dbLogger = new DbLogger(dbs.$uqDb);
     }
-    // protected createBuilder() { return new MyBuilder(this.dbName, this.hasUnit, this.twProfix); }
 
     private async getPool(): Promise<Pool> {
         for (let p of pools) {

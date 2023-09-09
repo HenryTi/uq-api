@@ -15,7 +15,9 @@ class BizSheet extends Entity_1.BizEntity {
     }
     buildSchema() {
         let ret = super.buildSchema();
-        return Object.assign(Object.assign({}, ret), { main: this.main.name, acts: this.acts.map(v => v.buildSchema()) });
+        ret = Object.assign(Object.assign({}, ret), { main: this.main.name, acts: this.acts.map(v => v.buildSchema()) });
+        this.entitySchema = JSON.stringify(ret);
+        return ret;
     }
 }
 exports.BizSheet = BizSheet;

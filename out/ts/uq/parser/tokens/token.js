@@ -47,7 +47,6 @@ var Token;
     Token[Token["BITWISEINVERT"] = 40] = "BITWISEINVERT";
     Token[Token["DoubleGT"] = 41] = "DoubleGT";
     Token[Token["DoubleLS"] = 42] = "DoubleLS";
+    Token[Token["Memo"] = 99] = "Memo";
 })(Token = exports.Token || (exports.Token = {}));
-// QM_GT = 18, QM_GE, QM_LT, QM_LE, QM_EQU, QM_LIKE, QM_BETWEEN,
-// LBBRACE, RBBRACE,
 //# sourceMappingURL=token.js.map

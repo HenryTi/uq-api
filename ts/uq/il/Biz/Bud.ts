@@ -1,12 +1,20 @@
-import { PBizBudAtom, PBizBudChar, PBizBudCheck, PBizBudDate, PBizBudDec, PBizBudID, PBizBudInt, PBizBudItems as PBizBudOptions, PBizBudNone, PBizBudRadio, PContext, PElement } from "../../parser";
+import {
+    PBizBudAtom, PBizBudChar, PBizBudCheck, PBizBudDate
+    , PBizBudDec, /*PBizBudID, */PBizBudInt, PBizBudItems as PBizBudOptions
+    , PBizBudNone, PBizBudRadio, PContext, PElement
+} from "../../parser";
 import { IElement } from "../element";
-import { BizBase } from "./Base";
+import { BizBase, BudDataType } from "./Base";
 import { BizAtom } from "./Atom";
 import { ID, IX } from "../entity";
 
 export abstract class BizBud extends BizBase {
     readonly type: string;
     abstract get dataType(): 'none' | 'int' | 'dec' | 'char' | 'date' | 'ID' | 'atom' | 'radio' | 'check';
+    get objName(): string { return undefined; }
+    get dataTypeNum(): number {
+        return BudDataType[this.dataType] ?? 0;
+    }
     value: string | number;
     hasHistory: boolean;
     hasIndex: boolean;
@@ -84,7 +92,7 @@ export class BizBudDate extends BizBud {
         return ret;
     }
 }
-
+/*
 export class BizBudID extends BizBud {
     readonly dataType = 'ID';
     ID: ID;
@@ -96,7 +104,7 @@ export class BizBudID extends BizBud {
         return { ...ret, ID: this.ID?.name };
     }
 }
-
+*/
 export class BizBudAtom extends BizBud {
     readonly dataType = 'atom';
     atom: BizAtom;
@@ -107,6 +115,7 @@ export class BizBudAtom extends BizBud {
         let ret = super.buildSchema();
         return { ...ret, atom: this.atom?.name };
     }
+    get objName(): string { return this.atom?.phrase; }
 }
 
 export interface BizSubItem {

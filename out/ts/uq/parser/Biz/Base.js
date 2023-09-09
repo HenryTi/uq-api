@@ -80,26 +80,29 @@ class PBizBase extends element_1.PElement {
             return Atom;
         }
     }
-    scanID(space, idName) {
+    /*
+    scanID(space: Space, idName: string): ID {
         let entity = space.uq.entities[idName];
         if (entity === undefined || entity.type !== 'id') {
             this.log(`${idName} is not an ID`);
             return undefined;
         }
         else {
-            return entity;
+            return entity as ID;
         }
     }
-    scanIX(space, ixName) {
+
+    scanIX(space: Space, ixName: string): IX {
         let entity = space.uq.entities[ixName];
         if (entity === undefined || entity.type !== 'ix') {
             this.log(`${ixName} is not an IX`);
             return undefined;
         }
         else {
-            return entity;
+            return entity as IX;
         }
     }
+    */
     scanSpec(space, SpecName) {
         let Spec = space.uq.biz.bizEntities.get(SpecName);
         if (Spec === undefined || Spec.type !== 'spec') {
@@ -140,6 +143,11 @@ class PBizEntity extends PBizBase {
             this.element.assigns.set(prop.name, prop);
         };
     }
+    saveSource() {
+        let entityType = this.element.type.toUpperCase();
+        let source = this.getSource();
+        this.element.source = entityType + ' ' + source;
+    }
     parseSubItem(type) {
         this.ts.assertToken(tokens_1.Token.VAR);
         let name = this.ts.lowerVar;
@@ -165,7 +173,7 @@ class PBizEntity extends PBizBase {
             int: il_1.BizBudInt,
             dec: il_1.BizBudDec,
             char: il_1.BizBudChar,
-            id: il_1.BizBudID,
+            // id: BizBudID,
             atom: il_1.BizBudAtom,
             date: il_1.BizBudDate,
             radio: il_1.BizBudRadio,

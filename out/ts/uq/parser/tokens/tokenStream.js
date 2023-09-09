@@ -8,7 +8,7 @@ class TokenStream {
         if (options !== undefined)
             this.bracket = options.bracket;
         this.log = log;
-        this.LastP = 1;
+        this.lastP = 1;
         this.buffer = input;
         this.len = input.length;
         this.p = 0;
@@ -17,7 +17,7 @@ class TokenStream {
         this.advance();
     }
     getSourceAt(pos) {
-        return this.buffer.substring(pos, this.LastP - 1);
+        return this.buffer.substring(pos, this.lastP - 1);
     }
     getSourceNearby(sourceAt) {
         return ' ...' + this.buffer.substring(sourceAt, sourceAt + 50) + '... ';
@@ -115,7 +115,7 @@ class TokenStream {
         return ret;
     }
     advance() {
-        this.cur = (this.p >= this.len) ? 0 : this.buffer.charCodeAt(this.p++);
+        this.cur = (this.p >= this.len) ? char_1.Char.NULL : this.buffer.charCodeAt(this.p++);
         switch (this.cur) {
             default:
                 this.at++;
@@ -153,11 +153,11 @@ class TokenStream {
         return token_1.Token[this.token];
     }
     peekToken() {
-        let prevToken = this.PrevToken;
+        let prevToken = this.prevToken;
         let cur = this.cur;
         let _var = this._var;
         let lowerVar = this.lowerVar;
-        let lastP = this.LastP;
+        let lastP = this.lastP;
         let lastLineNum = this.startLine;
         let lastChatAt = this.startAt;
         let token = this.token;
@@ -166,8 +166,8 @@ class TokenStream {
         let charAt = this.at;
         this.readToken();
         let ret = this.token;
-        this.PrevToken = prevToken;
-        this.LastP = lastP;
+        this.prevToken = prevToken;
+        this.lastP = lastP;
         this.startLine = lastLineNum;
         this.startAt = lastChatAt;
         this.token = token;
@@ -180,19 +180,20 @@ class TokenStream {
         return ret;
     }
     readToken() {
-        this.PrevToken = this.token;
-        this.LastP = this.p;
+        this.prevToken = this.token;
+        this.lastP = this.p;
         this.prevLine = this.startLine;
         this.prevAt = this.startAt;
         this.startLine = this.line;
         this.startAt = this.at;
-        //this.prevSpace = false;
         this._var = undefined;
         this.lowerVar = undefined;
+        this.memo = undefined;
         for (;;) {
             switch (this.cur) {
                 case char_1.Char.NULL:
                     this.token = token_1.Token._FINISHED;
+                    this.lastP = this.len + 1;
                     break;
                 case char_1.Char.TAB:
                 case char_1.Char.SPACE:
@@ -204,8 +205,7 @@ class TokenStream {
                     this.advance();
                     this.startLine = this.line;
                     this.startAt = this.at;
-                    this.LastP = this.p;
-                    //this.prevSpace = true;
+                    this.lastP = this.p;
                     continue;
                 case char_1.Char.PLUS:
                     this.token = token_1.Token.ADD;
@@ -417,7 +417,17 @@ class TokenStream {
             return;
         }
     }
-    readLineRemark() {
+    readLineEndMemo() {
+        this.memo = undefined;
+        while (true) {
+            if (this.cur !== char_1.Char.MINUS)
+                return;
+        }
+        if (this.p < this.len) {
+            if (this.buffer.charCodeAt(this.p) !== char_1.Char.MINUS)
+                return;
+            this.peekToken();
+        }
         while (true) {
             this.advance();
             switch (this.cur) {
@@ -426,6 +436,29 @@ class TokenStream {
                 case char_1.Char.R_ENTER:
                 case char_1.Char.ENTER_R:
                 case char_1.Char.NULL:
+                    return;
+                case char_1.Char.MINUS:
+                    this.advance();
+                    if (this.cur === char_1.Char.MINUS) {
+                        this.readLineRemark();
+                        return;
+                    }
+                    break;
+            }
+        }
+    }
+    readLineRemark() {
+        let start = this.p;
+        while (true) {
+            let end = this.p;
+            this.advance();
+            switch (this.cur) {
+                case char_1.Char._R:
+                case char_1.Char.ENTER:
+                case char_1.Char.R_ENTER:
+                case char_1.Char.ENTER_R:
+                case char_1.Char.NULL:
+                    this.memo = this.buffer.substring(start, end);
                     return;
             }
         }
@@ -450,8 +483,11 @@ class TokenStream {
         this.text = this.buffer.substring(start, end);
     }
     readRemark() {
+        let start = this.p;
         this.advance();
+        let end;
         while (true) {
+            end = this.p;
             if (this.cur === char_1.Char.NULL)
                 break;
             if (this.cur === char_1.Char.STAR) {
@@ -465,6 +501,7 @@ class TokenStream {
                 this.advance();
             }
         }
+        this.memo = this.buffer.substring(start, end);
     }
     readSquareVar() {
         let start = this.p;

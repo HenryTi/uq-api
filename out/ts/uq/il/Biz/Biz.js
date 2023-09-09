@@ -4,18 +4,16 @@ exports.BizSchemaBuilder = exports.Biz = void 0;
 const parser_1 = require("../../parser");
 const schema_1 = require("../schema");
 const entity_1 = require("../entity/entity");
-const Unit_1 = require("./Unit");
-const User_1 = require("./User");
 class Biz extends entity_1.Entity {
     constructor(uq) {
         super(uq);
         this.bizArr = [];
         this.name = '$biz';
         this.bizEntities = new Map();
-        let bizUser = new User_1.BizUser(this);
-        this.bizEntities.set(bizUser.name, bizUser);
-        let bizUnit = new Unit_1.BizUnit(this);
-        this.bizEntities.set(bizUnit.name, bizUnit);
+        // let bizUser = new BizUser(this);
+        // this.bizEntities.set(bizUser.name, bizUser);
+        // let bizUnit = new BizUnit(this);
+        // this.bizEntities.set(bizUnit.name, bizUnit);
         this.budOptionsMap = {};
     }
     get global() { return false; }
@@ -44,6 +42,15 @@ class Biz extends entity_1.Entity {
         }
         if (roles.length > 0)
             this.roles = roles;
+    }
+    buildArrPhrases() {
+        let phrases = [];
+        for (let item of this.bizArr) {
+            let { type } = item;
+            phrases.push([type, '', '', item.getTypeNum()]);
+            item.buildPhrases(phrases, type);
+        }
+        return phrases;
     }
     buildRoleNames(permitNames, bizRole) {
         let { roles, permitItems, permits } = bizRole;

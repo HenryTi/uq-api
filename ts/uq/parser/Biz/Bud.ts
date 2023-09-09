@@ -1,4 +1,8 @@
-import { BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate, BizBudDec, BizBudID, BizBudInt, BizBudOptions, BizBudNone, BizBudRadio, BizBudSubItems, Uq } from "../../il";
+import {
+    BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
+    , BizBudDec, /*BizBudID, */BizBudInt, BizBudOptions
+    , BizBudNone, BizBudRadio, BizBudSubItems, Uq
+} from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizBase } from "./Base";
@@ -38,7 +42,7 @@ export class PBizBudDate extends PBizBud<BizBudDate> {
     protected _parse(): void {
     }
 }
-
+/*
 export class PBizBudID extends PBizBud<BizBudID> {
     private idName: string;
     protected _parse(): void {
@@ -62,7 +66,7 @@ export class PBizBudID extends PBizBud<BizBudID> {
         return ok;
     }
 }
-
+*/
 export class PBizBudAtom extends PBizBud<BizBudAtom> {
     private atomName: string;
     protected _parse(): void {

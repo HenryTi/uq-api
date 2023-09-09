@@ -14,9 +14,7 @@ const pools = [];
 class MyDbBase {
     constructor(dbName) {
         this.dbConfig = this.initConfig(dbName);
-        //this.dbLogger = new DbLogger(dbs.$uqDb);
     }
-    // protected createBuilder() { return new MyBuilder(this.dbName, this.hasUnit, this.twProfix); }
     async getPool() {
         for (let p of pools) {
             let { config, pool } = p;

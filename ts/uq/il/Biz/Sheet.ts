@@ -17,11 +17,13 @@ export class BizSheet extends BizEntity {
 
     buildSchema() {
         let ret = super.buildSchema();
-        return {
+        ret = {
             ...ret,
             main: this.main.name,
             acts: this.acts.map(v => v.buildSchema()),
         };
+        this.entitySchema = JSON.stringify(ret);
+        return ret;
     }
 }
 
