@@ -176,7 +176,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             int: BizBudInt,
             dec: BizBudDec,
             char: BizBudChar,
-            // id: BizBudID,
             atom: BizBudAtom,
             date: BizBudDate,
             radio: BizBudRadio,
@@ -232,12 +231,12 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let prop = this.parseSubItem('prop');
         this.element.props.set(prop.name, prop);
     }
-
+    /*
     protected parseAssign = () => {
         let prop = this.parseSubItem('assign');
         this.element.assigns.set(prop.name, prop);
     }
-
+    */
     protected scanBud(space: Space, bud: BizBud): boolean {
         let { pelement } = bud;
         if (pelement === undefined) return true;
@@ -255,9 +254,9 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
 
     scan(space: Space): boolean {
         let ok = true;
-        const { props, assigns } = this.element;
+        const { props } = this.element;
         if (this.scanBuds(space, props) === false) ok = false;
-        if (this.scanBuds(space, assigns) === false) ok = false;
+        // if (this.scanBuds(space, assigns) === false) ok = false;
         return ok;
     }
 
@@ -273,9 +272,9 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
 
     scan2(uq: Uq): boolean {
         let ok = true;
-        const { props, assigns } = this.element;
+        const { props } = this.element;
         if (this.scan2Buds(uq, props) === false) ok = false;
-        if (this.scan2Buds(uq, assigns) === false) ok = false;
+        // if (this.scan2Buds(uq, assigns) === false) ok = false;
         return ok;
     }
 }

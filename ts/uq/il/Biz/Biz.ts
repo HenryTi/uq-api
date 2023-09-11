@@ -43,9 +43,9 @@ export class Biz extends Entity {
         let phrases: [string, string, string, string][] = [];
         let roles: Role[] = [];
         for (let [, value] of this.bizEntities) {
-            let { type } = value;
-            phrases.push([type, '', '', value.getTypeNum()]);
-            value.buildPhrases(phrases, type);
+            // let { type } = value;
+            // phrases.push([type, '', '', value.getTypeNum()]);
+            value.buildPhrases(phrases, undefined);
         }
         this.phrases = phrases;
         for (let [, value] of this.bizEntities) {

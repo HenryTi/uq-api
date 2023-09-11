@@ -57,7 +57,7 @@ export class BizAtom extends BizEntity {
     spec: BizSpec;
     uom: boolean;
     uuid: boolean;
-    readonly states: Map<string, BizAtomState> = new Map();
+    // readonly states: Map<string, BizAtomState> = new Map();
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);
@@ -73,11 +73,13 @@ export class BizAtom extends BizEntity {
         if (this.spec !== undefined) {
             spec = this.spec.name;
         }
+        /*
         let states = [];
         for (let [, value] of this.states) {
             states.push(value.buildSchema());
         }
         if (states.length === 0) states = undefined;
+        */
 
         let entitySchema = {
             name: this.name,
@@ -91,7 +93,7 @@ export class BizAtom extends BizEntity {
         };
         this.entitySchema = JSON.stringify(entitySchema);
 
-        return Object.assign(ret, { states, base, spec, uom: this.uom });
+        return Object.assign(ret, { base, spec, uom: this.uom });
     }
     get basePhrase(): string { return this.base === undefined ? '' : this.base.phrase; }
     private getUom(): boolean {
@@ -107,10 +109,11 @@ export class BizAtom extends BizEntity {
     }
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
-        let phrase = `${prefix}.${this.name}`;
+        /*
         for (let [, value] of this.states) {
-            value.buildPhrases(phrases, phrase)
+            value.buildPhrases(phrases, this.phrase)
         }
+        */
     }
 }
 

@@ -8,7 +8,7 @@ export class PBizTie extends PBizEntity<BizTie> {
     protected parseContent(): void {
         const keyColl = {
             prop: this.parseProp,
-            assign: this.parseAssign,
+            // assign: this.parseAssign,
         };
         const keys = Object.keys(keyColl);
         for (; ;) {

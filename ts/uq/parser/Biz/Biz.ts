@@ -40,6 +40,7 @@ export class PBiz extends PEntity<Biz> {
     }
     protected _parse(): void {
         const keys = [...Object.keys(this.pRoots), 'act', 'query'];
+        if (this.ts.isKeyword('biz') === true) this.ts.readToken();
         if (this.ts.varBrace === true) {
             this.ts.expect(...keys);
         }

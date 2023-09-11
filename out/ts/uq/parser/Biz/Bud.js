@@ -101,22 +101,15 @@ class PBizBudSubItems extends PBizBud {
                 caption = this.ts.text;
                 this.ts.readToken();
             }
-            let value;
-            if (this.ts.token === tokens_1.Token.EQU) {
-                this.ts.readToken();
-                switch (this.ts.token) {
-                    default:
-                        this.ts.expect('number', 'string');
-                        break;
-                    case tokens_1.Token.NUM:
-                        value = this.ts.dec;
-                        break;
-                    case tokens_1.Token.STRING:
-                        value = this.ts.text;
-                        break;
-                }
-                this.ts.readToken();
+            this.ts.passToken(tokens_1.Token.EQU);
+            if (this.ts.token !== tokens_1.Token.NUM) {
+                this.ts.expectToken(tokens_1.Token.NUM);
             }
+            if (this.ts.isInteger === false) {
+                this.expect('整数');
+            }
+            let value = this.ts.dec;
+            this.ts.readToken();
             this.element.items.push({ name, caption, value });
             if (this.ts.token === tokens_1.Token.COMMA) {
                 this.ts.readToken();

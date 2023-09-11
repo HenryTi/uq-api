@@ -22,7 +22,7 @@ class BizBud extends Base_1.BizBase {
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
         if (this.hasIndex === true) {
-            let phrase = `${prefix}.${this.name}.$index`;
+            let phrase = this.phrase + '.$index';
             phrases.push([phrase, '', '', '0']);
         }
     }
@@ -142,7 +142,7 @@ class BizBudSubItems extends BizBud {
     buildPhrases(phrases, prefix) {
         var _a;
         super.buildPhrases(phrases, prefix);
-        let phrase = `${prefix}.${this.name}`;
+        let phrase = this.phrase;
         for (let item of this.items) {
             phrases.push([`${phrase}.${item.name}`, (_a = item.caption) !== null && _a !== void 0 ? _a : '', '', this.getTypeNum()]);
         }

@@ -138,10 +138,6 @@ class PBizEntity extends PBizBase {
             let prop = this.parseSubItem('prop');
             this.element.props.set(prop.name, prop);
         };
-        this.parseAssign = () => {
-            let prop = this.parseSubItem('assign');
-            this.element.assigns.set(prop.name, prop);
-        };
     }
     saveSource() {
         let entityType = this.element.type.toUpperCase();
@@ -173,7 +169,6 @@ class PBizEntity extends PBizBase {
             int: il_1.BizBudInt,
             dec: il_1.BizBudDec,
             char: il_1.BizBudChar,
-            // id: BizBudID,
             atom: il_1.BizBudAtom,
             date: il_1.BizBudDate,
             radio: il_1.BizBudRadio,
@@ -226,6 +221,12 @@ class PBizEntity extends PBizBase {
         }
         return bizBud;
     }
+    /*
+    protected parseAssign = () => {
+        let prop = this.parseSubItem('assign');
+        this.element.assigns.set(prop.name, prop);
+    }
+    */
     scanBud(space, bud) {
         let { pelement } = bud;
         if (pelement === undefined)
@@ -244,11 +245,10 @@ class PBizEntity extends PBizBase {
     }
     scan(space) {
         let ok = true;
-        const { props, assigns } = this.element;
+        const { props } = this.element;
         if (this.scanBuds(space, props) === false)
             ok = false;
-        if (this.scanBuds(space, assigns) === false)
-            ok = false;
+        // if (this.scanBuds(space, assigns) === false) ok = false;
         return ok;
     }
     scan2Buds(uq, buds) {
@@ -264,11 +264,10 @@ class PBizEntity extends PBizBase {
     }
     scan2(uq) {
         let ok = true;
-        const { props, assigns } = this.element;
+        const { props } = this.element;
         if (this.scan2Buds(uq, props) === false)
             ok = false;
-        if (this.scan2Buds(uq, assigns) === false)
-            ok = false;
+        // if (this.scan2Buds(uq, assigns) === false) ok = false;
         return ok;
     }
 }

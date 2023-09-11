@@ -56,8 +56,8 @@ class BizAtom extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.type = 'atom';
-        this.states = new Map();
     }
+    // readonly states: Map<string, BizAtomState> = new Map();
     parser(context) {
         return new parser_1.PBizAtom(this, context);
     }
@@ -71,12 +71,13 @@ class BizAtom extends Entity_1.BizEntity {
         if (this.spec !== undefined) {
             spec = this.spec.name;
         }
+        /*
         let states = [];
         for (let [, value] of this.states) {
             states.push(value.buildSchema());
         }
-        if (states.length === 0)
-            states = undefined;
+        if (states.length === 0) states = undefined;
+        */
         let entitySchema = {
             name: this.name,
             type: "id",
@@ -88,7 +89,7 @@ class BizAtom extends Entity_1.BizEntity {
             isMinute: false,
         };
         this.entitySchema = JSON.stringify(entitySchema);
-        return Object.assign(ret, { states, base, spec, uom: this.uom });
+        return Object.assign(ret, { base, spec, uom: this.uom });
     }
     get basePhrase() { return this.base === undefined ? '' : this.base.phrase; }
     getUom() {
@@ -107,10 +108,11 @@ class BizAtom extends Entity_1.BizEntity {
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
-        let phrase = `${prefix}.${this.name}`;
+        /*
         for (let [, value] of this.states) {
-            value.buildPhrases(phrases, phrase);
+            value.buildPhrases(phrases, this.phrase)
         }
+        */
     }
 }
 exports.BizAtom = BizAtom;

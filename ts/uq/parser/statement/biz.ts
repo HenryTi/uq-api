@@ -212,6 +212,7 @@ export class PBizDetailActSubBud extends PElement<BizDetailActSubBud> {
         if (entity === undefined) {
             this.log(`'${this.bizEntity}' is not a Biz Entity`);
             ok = false;
+            return ok;
         }
         let bud = entity.getBud(this.bud);
         if (bud === undefined) {

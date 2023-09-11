@@ -10,7 +10,7 @@ export class PBizSpec extends PBizEntity<BizSpec> {
         const keyColl = {
             prop: this.parseProp,
             key: this.parseKey,
-            assign: this.parseAssign,
+            // assign: this.parseAssign,
         };
         const keys = Object.keys(keyColl);
         for (; ;) {
@@ -73,8 +73,8 @@ export class PBizAtom extends PBizEntity<BizAtom> {
             uom: this.parseUom,
             spec: this.parseSpec,
             prop: this.parseProp,
-            assign: this.parseAssign,
-            state: this.parseState,
+            // assign: this.parseAssign,
+            // state: this.parseState,
         };
         const keys = Object.keys(keyColl);
         for (; ;) {
@@ -105,12 +105,12 @@ export class PBizAtom extends PBizEntity<BizAtom> {
         this.element.uom = true;
         this.ts.passToken(Token.SEMICOLON);
     }
-
+    /*
     private parseState = () => {
         let state = this.context.parse(BizAtomState);
         this.element.states.set(state.name, state);
     }
-
+    */
     private parseSpec = () => {
         if (this.specName !== undefined) {
             this.ts.error('SPEC can only be defined once');

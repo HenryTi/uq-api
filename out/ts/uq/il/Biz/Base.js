@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBase = exports.BudDataType = exports.BizMonikerType = void 0;
+exports.BizBase = exports.BudDataType = exports.BizPhraseType = void 0;
 const element_1 = require("../element");
-var BizMonikerType;
-(function (BizMonikerType) {
-    BizMonikerType[BizMonikerType["atom"] = 11] = "atom";
-    BizMonikerType[BizMonikerType["uom"] = 12] = "uom";
-    BizMonikerType[BizMonikerType["spec"] = 13] = "spec";
-    BizMonikerType[BizMonikerType["sheet"] = 101] = "sheet";
-    BizMonikerType[BizMonikerType["role"] = 201] = "role";
-    BizMonikerType[BizMonikerType["permit"] = 202] = "permit";
-    BizMonikerType[BizMonikerType["with"] = 151] = "with";
-    BizMonikerType[BizMonikerType["key"] = 1001] = "key";
-    BizMonikerType[BizMonikerType["prop"] = 1011] = "prop";
-    BizMonikerType[BizMonikerType["assign"] = 1021] = "assign";
-})(BizMonikerType = exports.BizMonikerType || (exports.BizMonikerType = {}));
+var BizPhraseType;
+(function (BizPhraseType) {
+    BizPhraseType[BizPhraseType["atom"] = 11] = "atom";
+    BizPhraseType[BizPhraseType["uom"] = 12] = "uom";
+    BizPhraseType[BizPhraseType["spec"] = 13] = "spec";
+    BizPhraseType[BizPhraseType["sheet"] = 101] = "sheet";
+    BizPhraseType[BizPhraseType["role"] = 201] = "role";
+    BizPhraseType[BizPhraseType["permit"] = 202] = "permit";
+    BizPhraseType[BizPhraseType["with"] = 151] = "with";
+    BizPhraseType[BizPhraseType["key"] = 1001] = "key";
+    BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";
+    BizPhraseType[BizPhraseType["assign"] = 1021] = "assign";
+})(BizPhraseType = exports.BizPhraseType || (exports.BizPhraseType = {}));
 ;
 var BudDataType;
 (function (BudDataType) {
@@ -50,19 +50,18 @@ class BizBase extends element_1.IElement {
     checkName(name) {
         return true;
     }
-    get nameDotType() {
-        return `${this.type}.${this.name}`;
-    }
     get basePhrase() { return ''; }
+    buildPhrase(prefix) {
+        this.phrase = `${prefix}.${this.name}`;
+    }
     buildPhrases(phrases, prefix) {
         var _a;
-        let phrase = `${prefix}.${this.name}`;
-        phrases.push([phrase, (_a = this.caption) !== null && _a !== void 0 ? _a : '', this.basePhrase, this.getTypeNum()]);
-        this.phrase = phrase;
+        this.buildPhrase(prefix);
+        phrases.push([this.phrase, (_a = this.caption) !== null && _a !== void 0 ? _a : '', this.basePhrase, this.getTypeNum()]);
     }
     getTypeNum() {
         var _a;
-        let n = (_a = BizMonikerType[this.type]) !== null && _a !== void 0 ? _a : 0;
+        let n = (_a = BizPhraseType[this.type]) !== null && _a !== void 0 ? _a : 0;
         return String(n);
     }
     getBizBase(bizName) {

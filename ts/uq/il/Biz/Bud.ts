@@ -6,7 +6,6 @@ import {
 import { IElement } from "../element";
 import { BizBase, BudDataType } from "./Base";
 import { BizAtom } from "./Atom";
-import { ID, IX } from "../entity";
 
 export abstract class BizBud extends BizBase {
     readonly type: string;
@@ -32,7 +31,7 @@ export abstract class BizBud extends BizBase {
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         super.buildPhrases(phrases, prefix);
         if (this.hasIndex === true) {
-            let phrase = `${prefix}.${this.name}.$index`;
+            let phrase = this.phrase + '.$index';
             phrases.push([phrase, '', '', '0']);
         }
     }
@@ -138,7 +137,7 @@ export abstract class BizBudSubItems extends BizBud {
     }
     buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         super.buildPhrases(phrases, prefix);
-        let phrase = `${prefix}.${this.name}`;
+        let phrase = this.phrase;
         for (let item of this.items) {
             phrases.push([`${phrase}.${item.name}`, item.caption ?? '', '', this.getTypeNum()]);
         }

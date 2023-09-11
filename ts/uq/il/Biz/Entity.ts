@@ -6,7 +6,7 @@ import { BizBud } from "./Bud";
 
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBud> = new Map();
-    readonly assigns: Map<string, BizBud> = new Map();
+    // readonly assigns: Map<string, BizBud> = new Map();
     readonly keyFields: Field[] = [];
     readonly propFields: Field[] = [];
     readonly biz: Biz
@@ -24,28 +24,42 @@ export abstract class BizEntity extends BizBase {
         for (let [, value] of this.props) {
             props.push(value.buildSchema());
         }
+        /*
         for (let [, value] of this.assigns) {
             assigns.push(value.buildSchema());
         }
-        if (props.length === 0) props = undefined;
-        if (assigns.length === 0) assigns = undefined;
-        return Object.assign(ret, { props, assigns });
+        */
+        if (props.length > 0) {
+            Object.assign(ret, { props });
+        }
+        /*
+        if (assigns.length > 0) {
+            Object.assign(ret, { assigns })
+        }
+        */
+        return ret;
     }
     checkName(name: string): boolean {
         if (super.checkName(name) === false) return false;
         if (this.props.has(name) === true) return false;
-        return this.assigns.has(name) === false;
+        return true; // this.assigns.has(name) === false;
+    }
+
+    protected buildPhrase(prefix: string) {
+        this.phrase = this.name;
     }
 
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
-        let phrase = `${prefix}.${this.name}`;
+        let phrase = this.phrase;
         for (let [, value] of this.props) {
             value.buildPhrases(phrases, phrase)
         }
+        /*
         for (let [, value] of this.assigns) {
             value.buildPhrases(phrases, phrase)
         }
+        */
     }
 
     getBizBase1(bizName: string): BizBase {
@@ -53,8 +67,8 @@ export abstract class BizEntity extends BizBase {
         if (ret !== undefined) return ret;
         ret = this.props.get(bizName);
         if (ret !== undefined) return ret;
-        ret = this.assigns.get(bizName);
-        if (ret !== undefined) return ret;
+        //ret = this.assigns.get(bizName);
+        // if (ret !== undefined) return ret;
     }
 
     getBizBase(bizName: string[]): BizBase {
@@ -90,15 +104,15 @@ export abstract class BizEntity extends BizBase {
 
     getBud(name: string): BizBud {
         let bud = this.props.get(name);
-        if (bud !== undefined) return bud;
-        bud = this.assigns.get(name);
+        // if (bud !== undefined) return bud;
+        // bud = this.assigns.get(name);
         return bud;
     }
 
     getAllBuds(): BizBud[] {
         let buds: BizBud[] = [];
         for (let [, bud] of this.props) buds.push(bud);
-        for (let [, bud] of this.assigns) buds.push(bud);
+        // for (let [, bud] of this.assigns) buds.push(bud);
         return buds;
     }
 }

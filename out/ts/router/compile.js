@@ -32,6 +32,10 @@ function buildCompileRouter(router, rb) {
         const ret = await compile(runner, source, false, unit, user);
         return ret;
     });
+    rb.entityPost(router, actionType, '/biz', async (unit, user, name, db, urlParams, runner, body, schema, run, net) => {
+        const ret = await compile(runner, undefined, false, unit, user);
+        return ret;
+    });
 }
 exports.buildCompileRouter = buildCompileRouter;
 async function compile(runner, clientSource, override, unit, user) {
@@ -71,7 +75,9 @@ async function compile(runner, clientSource, override, unit, user) {
         props.push(prop);
     }
     biz.bizArr.splice(0);
-    uqRunner.parse(clientSource, 'upload');
+    if (clientSource) {
+        uqRunner.parse(clientSource, 'upload');
+    }
     let bizArr = [...biz.bizArr];
     logStep();
     for (let obj of objs) {
@@ -79,13 +85,18 @@ async function compile(runner, clientSource, override, unit, user) {
         if (!source)
             continue;
         if (override === true) {
-            if (bizArr.find(v => v.nameDotType === phrase) !== undefined) {
+            if (bizArr.find(v => v.name === phrase) !== undefined) {
                 continue;
             }
         }
         uqRunner.parse(source, phrase);
     }
     uqRunner.scan();
+    if (uqRunner.ok === false) {
+        return {
+            logs: msgs,
+        };
+    }
     // const schemas: any[] = [];
     logStep();
     await Promise.all(bizArr.map(entity => {
@@ -99,20 +110,6 @@ async function compile(runner, clientSource, override, unit, user) {
             objNames[phrase] = obj;
         }();
     }));
-    /*
-    for (let entity of bizArr) {
-        // entity.buildSchema();
-        const { phrase, caption, source } = entity;
-        const memo = undefined;
-        // schemas.push(entitySchema);
-        let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject'
-            , unit, user, phrase, caption, entity.getTypeNum(), memo, source
-            , undefined);
-        let obj = { id, phrase };
-        objIds[id] = obj;
-        objNames[phrase] = obj;
-    }
-    */
     logStep();
     await Promise.all(bizArr.map(entity => {
         return async function () {

@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizAtomState = exports.PBizAtom = exports.PBizSpec = void 0;
-const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizSpec extends Base_1.PBizEntity {
@@ -17,7 +16,7 @@ class PBizSpec extends Base_1.PBizEntity {
         const keyColl = {
             prop: this.parseProp,
             key: this.parseKey,
-            assign: this.parseAssign,
+            // assign: this.parseAssign,
         };
         const keys = Object.keys(keyColl);
         for (;;) {
@@ -69,10 +68,12 @@ class PBizAtom extends Base_1.PBizEntity {
             this.element.uom = true;
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
-        this.parseState = () => {
-            let state = this.context.parse(il_1.BizAtomState);
+        /*
+        private parseState = () => {
+            let state = this.context.parse(BizAtomState);
             this.element.states.set(state.name, state);
-        };
+        }
+        */
         this.parseSpec = () => {
             if (this.specName !== undefined) {
                 this.ts.error('SPEC can only be defined once');
@@ -103,8 +104,8 @@ class PBizAtom extends Base_1.PBizEntity {
             uom: this.parseUom,
             spec: this.parseSpec,
             prop: this.parseProp,
-            assign: this.parseAssign,
-            state: this.parseState,
+            // assign: this.parseAssign,
+            // state: this.parseState,
         };
         const keys = Object.keys(keyColl);
         for (;;) {

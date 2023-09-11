@@ -8,7 +8,7 @@ class PBizMoniker extends Base_1.PBizEntity {
     parseContent() {
         const keyColl = {
             prop: this.parseProp,
-            assign: this.parseAssign,
+            // assign: this.parseAssign,
         };
         // const keys = Object.keys(keyColl);
         for (;;) {
@@ -16,7 +16,7 @@ class PBizMoniker extends Base_1.PBizEntity {
                 break;
             let parse = keyColl[this.ts.lowerVar];
             if (this.ts.varBrace === true || parse === undefined) {
-                this.parseAssign();
+                this.parseProp();
                 // this.ts.expect(...keys);
                 continue;
             }

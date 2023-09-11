@@ -17,6 +17,7 @@ export class BizSheet extends BizEntity {
 
     buildSchema() {
         let ret = super.buildSchema();
+        if (this.main === undefined) debugger;
         ret = {
             ...ret,
             main: this.main.name,

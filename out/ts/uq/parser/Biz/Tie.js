@@ -9,7 +9,7 @@ class PBizTie extends Base_1.PBizEntity {
     parseContent() {
         const keyColl = {
             prop: this.parseProp,
-            assign: this.parseAssign,
+            // assign: this.parseAssign,
         };
         const keys = Object.keys(keyColl);
         for (;;) {

@@ -18,7 +18,7 @@ export class BizPermit extends BizEntity {
     }
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
-        let phrase = `${prefix}.${this.name}`;
+        let phrase = this.phrase;
         for (let [, value] of this.items) {
             let { name, caption } = value;
             let itemPhrase = `${phrase}.${name}`;

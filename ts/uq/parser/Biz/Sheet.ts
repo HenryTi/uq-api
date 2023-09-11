@@ -60,6 +60,7 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         }
         let main = this.getBizEntity<BizMain>(space, this.main, 'main');
         if (main === undefined) {
+            this.log(`MAIN ${this.main} is not defined`);
             ok = false;
         }
         else {
@@ -337,15 +338,6 @@ export class PBizDetail extends PBizEntity<BizDetail> {
                 this.log('item can only be ATOM');
                 ok = false;
             }
-            const itemBud: BizBudAtom = item as BizBudAtom;
-            let { atom } = itemBud;
-            if (atom !== undefined) {
-                const { uom } = atom;
-                if (uom === undefined) {
-                    this.log(`ATOM '${atom.name}' does not define UOM, can not be used in DETAIL`);
-                    ok = false;
-                }
-            }
         }
 
         function scanBudValue(bud: BizBud) {
@@ -363,6 +355,22 @@ export class PBizDetail extends PBizEntity<BizDetail> {
         let { acts } = this.element;
         for (let act of acts) {
             if (act.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
+    scan2(uq: Uq): boolean {
+        let ok = true;
+        const { item, value: budValue, amount: budAmount, price: budPrice } = this.element;
+        if (item !== undefined) return ok;
+        const itemBud: BizBudAtom = item as BizBudAtom;
+        let { atom } = itemBud;
+        if (atom !== undefined) {
+            const { uom } = atom;
+            if (uom === undefined) {
+                this.log(`ATOM '${atom.name}' does not define UOM, can not be used in DETAIL`);
                 ok = false;
             }
         }

@@ -264,7 +264,7 @@ class ImportMap extends ImportData {
     }
 }
 
-async function readFileAsync(filename?: string, code?: string) {
+async function readFileAsync(filename?: string, code?: BufferEncoding) {
     return new Promise<string>(function (resolve, reject) {
         try {
             fs.readFile(filename, code, function (err, buffer) {

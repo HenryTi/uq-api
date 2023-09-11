@@ -8,7 +8,7 @@ class BizEntity extends Base_1.BizBase {
     constructor(biz) {
         super();
         this.props = new Map();
-        this.assigns = new Map();
+        // readonly assigns: Map<string, BizBud> = new Map();
         this.keyFields = [];
         this.propFields = [];
         this.entitySchema = undefined;
@@ -21,31 +21,42 @@ class BizEntity extends Base_1.BizBase {
         for (let [, value] of this.props) {
             props.push(value.buildSchema());
         }
+        /*
         for (let [, value] of this.assigns) {
             assigns.push(value.buildSchema());
         }
-        if (props.length === 0)
-            props = undefined;
-        if (assigns.length === 0)
-            assigns = undefined;
-        return Object.assign(ret, { props, assigns });
+        */
+        if (props.length > 0) {
+            Object.assign(ret, { props });
+        }
+        /*
+        if (assigns.length > 0) {
+            Object.assign(ret, { assigns })
+        }
+        */
+        return ret;
     }
     checkName(name) {
         if (super.checkName(name) === false)
             return false;
         if (this.props.has(name) === true)
             return false;
-        return this.assigns.has(name) === false;
+        return true; // this.assigns.has(name) === false;
+    }
+    buildPhrase(prefix) {
+        this.phrase = this.name;
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
-        let phrase = `${prefix}.${this.name}`;
+        let phrase = this.phrase;
         for (let [, value] of this.props) {
             value.buildPhrases(phrases, phrase);
         }
+        /*
         for (let [, value] of this.assigns) {
-            value.buildPhrases(phrases, phrase);
+            value.buildPhrases(phrases, phrase)
         }
+        */
     }
     getBizBase1(bizName) {
         let ret = super.getBizBase1(bizName);
@@ -54,9 +65,8 @@ class BizEntity extends Base_1.BizBase {
         ret = this.props.get(bizName);
         if (ret !== undefined)
             return ret;
-        ret = this.assigns.get(bizName);
-        if (ret !== undefined)
-            return ret;
+        //ret = this.assigns.get(bizName);
+        // if (ret !== undefined) return ret;
     }
     getBizBase(bizName) {
         let ret = super.getBizBase(bizName);
@@ -100,17 +110,15 @@ class BizEntity extends Base_1.BizBase {
     buildFields() { }
     getBud(name) {
         let bud = this.props.get(name);
-        if (bud !== undefined)
-            return bud;
-        bud = this.assigns.get(name);
+        // if (bud !== undefined) return bud;
+        // bud = this.assigns.get(name);
         return bud;
     }
     getAllBuds() {
         let buds = [];
         for (let [, bud] of this.props)
             buds.push(bud);
-        for (let [, bud] of this.assigns)
-            buds.push(bud);
+        // for (let [, bud] of this.assigns) buds.push(bud);
         return buds;
     }
 }

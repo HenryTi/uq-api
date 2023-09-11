@@ -1,6 +1,6 @@
 import { IElement } from "../element";
 
-export enum BizMonikerType {
+export enum BizPhraseType {
     atom = 11,
     uom = 12,
     spec = 13,
@@ -53,18 +53,19 @@ export abstract class BizBase extends IElement {
     checkName(name: string): boolean {
         return true;
     }
-    get nameDotType() {
-        return `${this.type}.${this.name}`;
-    }
     get basePhrase(): string { return ''; }
+
+    protected buildPhrase(prefix: string) {
+        this.phrase = `${prefix}.${this.name}`;
+    }
+
     buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
-        let phrase = `${prefix}.${this.name}`;
-        phrases.push([phrase, this.caption ?? '', this.basePhrase, this.getTypeNum()]);
-        this.phrase = phrase;
+        this.buildPhrase(prefix);
+        phrases.push([this.phrase, this.caption ?? '', this.basePhrase, this.getTypeNum()]);
     }
 
     getTypeNum(): string {
-        let n = BizMonikerType[this.type] ?? 0;
+        let n = BizPhraseType[this.type] ?? 0;
         return String(n);
     }
 
