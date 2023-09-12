@@ -10,10 +10,12 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["sheet"] = 101] = "sheet";
     BizPhraseType[BizPhraseType["role"] = 201] = "role";
     BizPhraseType[BizPhraseType["permit"] = 202] = "permit";
+    BizPhraseType[BizPhraseType["options"] = 301] = "options";
     BizPhraseType[BizPhraseType["with"] = 151] = "with";
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";
     BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";
     BizPhraseType[BizPhraseType["assign"] = 1021] = "assign";
+    BizPhraseType[BizPhraseType["optionsitem"] = 1031] = "optionsitem";
 })(BizPhraseType = exports.BizPhraseType || (exports.BizPhraseType = {}));
 ;
 var BudDataType;
@@ -57,9 +59,9 @@ class BizBase extends element_1.IElement {
     buildPhrases(phrases, prefix) {
         var _a;
         this.buildPhrase(prefix);
-        phrases.push([this.phrase, (_a = this.caption) !== null && _a !== void 0 ? _a : '', this.basePhrase, this.getTypeNum()]);
+        phrases.push([this.phrase, (_a = this.caption) !== null && _a !== void 0 ? _a : '', this.basePhrase, this.typeNum]);
     }
-    getTypeNum() {
+    get typeNum() {
         var _a;
         let n = (_a = BizPhraseType[this.type]) !== null && _a !== void 0 ? _a : 0;
         return String(n);

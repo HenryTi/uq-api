@@ -14,7 +14,7 @@ class Biz extends entity_1.Entity {
         // this.bizEntities.set(bizUser.name, bizUser);
         // let bizUnit = new BizUnit(this);
         // this.bizEntities.set(bizUnit.name, bizUnit);
-        this.budOptionsMap = {};
+        // this.optionsMap = {};
     }
     get global() { return false; }
     get type() { return 'biz'; }
@@ -47,7 +47,7 @@ class Biz extends entity_1.Entity {
         let phrases = [];
         for (let item of this.bizArr) {
             let { type } = item;
-            phrases.push([type, '', '', item.getTypeNum()]);
+            phrases.push([type, '', '', item.typeNum]);
             item.buildPhrases(phrases, type);
         }
         return phrases;

@@ -6,3 +6,4 @@ export * from './Bud';
 export * from './Permit';
 export * from './Tree';
 export * from './Tie';
+export * from './Options';

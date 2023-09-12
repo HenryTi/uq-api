@@ -1,12 +1,11 @@
 import {
     Biz, BizAct, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
     , BizMoniker as BizMoniker, Entity, Pointer, Table, Uq, BizTree, BizTie, BizMain, BizDetail
-    , BizPend, BizSheet, BizSpec, BizBudOptions
+    , BizPend, BizSheet, BizSpec, BizOptions
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
 import { PEntity } from "../entity/entity";
-import { Token } from "../tokens";
 
 export class PBiz extends PEntity<Biz> {
     private readonly pRoots: {
@@ -19,6 +18,7 @@ export class PBiz extends PEntity<Biz> {
             spec: BizSpec,
 
             moniker: BizMoniker,
+            options: BizOptions,
 
             permit: BizPermit,
             role: BizRole,
@@ -44,11 +44,12 @@ export class PBiz extends PEntity<Biz> {
         if (this.ts.varBrace === true) {
             this.ts.expect(...keys);
         }
-        let Root = this.pRoots[this.ts.lowerVar];
+        let entityType = this.ts.lowerVar;
+        let Root = this.pRoots[entityType];
         if (Root === undefined) {
-            switch (this.ts.lowerVar) {
+            switch (entityType) {
                 default: this.ts.expect(...keys); return;
-                case 'budoptions': this.parseBudOptions(); return;
+                // case 'options': this.parseOptions(); return;
                 case 'act': this.parseAct(); return;
                 case 'query': this.parseQuery(); return;
             }
@@ -88,18 +89,18 @@ export class PBiz extends PEntity<Biz> {
         this.error(ret);
         return false;
     }
-
-    private parseBudOptions() {
+    /*
+    private parseOptions() {
         this.ts.readToken();
         if (this.ts.token !== Token.VAR) {
             this.ts.expectToken(Token.VAR);
         }
         const name = this.ts.lowerVar;
         this.ts.readToken();
-        let budOptions = this.context.parseElement(new BizBudOptions(undefined, name, undefined));
-        this.entity.budOptionsMap[name] = budOptions;
+        let options = this.context.parseElement(new BizOptions(this.entity));
+        this.entity.optionsMap[name] = options;
     }
-
+    */
     scan(space: Space): boolean {
         let ok = true;
         let bizSpace = new BizSpace(space, this.entity);

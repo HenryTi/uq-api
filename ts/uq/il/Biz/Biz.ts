@@ -5,10 +5,10 @@ import { Uq } from "../uq";
 import { Entity, EntityAccessibility } from "../entity/entity";
 import { BizBase } from "./Base";
 import { BizEntity } from "./Entity";
-import { BizUnit } from "./Unit";
-import { BizUser } from "./User";
+// import { BizUnit } from "./Unit";
+// import { BizUser } from "./User";
 import { BizPermit, BizRole } from "./Permit";
-import { BizBudOptions } from "./Bud";
+// import { BizOptions } from "./Bud";
 
 interface Role {
     role: string;
@@ -18,7 +18,7 @@ interface Role {
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
     readonly bizArr: BizEntity[] = [];
-    readonly budOptionsMap: { [name: string]: BizBudOptions };
+    // readonly optionsMap: { [name: string]: BizOptions };
     phrases: [string, string, string, string][];
     roles: Role[];
     constructor(uq: Uq) {
@@ -29,7 +29,7 @@ export class Biz extends Entity {
         // this.bizEntities.set(bizUser.name, bizUser);
         // let bizUnit = new BizUnit(this);
         // this.bizEntities.set(bizUnit.name, bizUnit);
-        this.budOptionsMap = {};
+        // this.optionsMap = {};
     }
     get global(): boolean { return false; }
     get type(): string { return 'biz'; }
@@ -62,7 +62,7 @@ export class Biz extends Entity {
         let phrases: [string, string, string, string][] = [];
         for (let item of this.bizArr) {
             let { type } = item;
-            phrases.push([type, '', '', item.getTypeNum()]);
+            phrases.push([type, '', '', item.typeNum]);
             item.buildPhrases(phrases, type);
         }
         return phrases;

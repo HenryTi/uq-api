@@ -97,35 +97,47 @@ async function compile(runner, clientSource, override, unit, user) {
             logs: msgs,
         };
     }
-    // const schemas: any[] = [];
     logStep();
     await Promise.all(bizArr.map(entity => {
         return async function () {
             const { phrase, caption, source } = entity;
             const memo = undefined;
-            // schemas.push(entitySchema);
-            let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject', unit, user, phrase, caption, entity.getTypeNum(), memo, source, undefined);
+            let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject', unit, user, phrase, caption, entity.typeNum, memo, source, undefined);
             let obj = { id, phrase };
             objIds[id] = obj;
             objNames[phrase] = obj;
         }();
     }));
-    logStep();
+    await Promise.all(bizArr.map(entity => {
+        return async function () {
+            const { phrase, caption, source } = entity;
+            const memo = undefined;
+            let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject', unit, user, phrase, caption, entity.typeNum, memo, source, undefined);
+            let obj = { id, phrase };
+            objIds[id] = obj;
+            objNames[phrase] = obj;
+        }();
+    }));
+    const atomPairs = getAtomBasePairs(biz, bizArr);
+    // const pairs = atomPairs.map(v => ([v[0].phrase, v[1].phrase]));
+    await runner.unitUserTableFromProc('SaveBizIX', unit, user, JSON.stringify(atomPairs));
     await Promise.all(bizArr.map(entity => {
         return async function () {
             let { id } = objNames[entity.phrase];
             let buds = entity.getAllBuds();
             await Promise.all(buds.map(v => {
-                const { phrase, caption, memo, dataTypeNum, objName } = v;
-                const typeNum = v.getTypeNum();
-                let objId;
-                if (objName !== undefined) {
-                    const obj = objNames[objName];
-                    if (obj !== undefined) {
-                        objId = obj.id;
+                return async function () {
+                    const { phrase, caption, memo, dataTypeNum, objName } = v;
+                    const typeNum = v.typeNum;
+                    let objId;
+                    if (objName !== undefined) {
+                        const obj = objNames[objName];
+                        if (obj !== undefined) {
+                            objId = obj.id;
+                        }
                     }
-                }
-                return runner.unitUserCall('SaveBizBud', unit, user, id, phrase, caption, typeNum, memo, dataTypeNum, objId);
+                    await runner.unitUserCall('SaveBizBud', unit, user, id, phrase, caption, typeNum, memo, dataTypeNum, objId);
+                }();
             }));
         }();
     }));
@@ -136,5 +148,39 @@ async function compile(runner, clientSource, override, unit, user) {
         schemas: jsonpack.pack(schemas.$biz),
         logs: msgs,
     };
+}
+function getAtomBasePairs(biz, arrNew) {
+    const pairs = [];
+    const coll = {};
+    const pairColl = {};
+    for (const entity of arrNew) {
+        if (entity.type !== 'atom')
+            continue;
+        const bizAtom = entity;
+        const { name } = bizAtom;
+        coll[name] = bizAtom;
+        const { base } = bizAtom;
+        if (base === undefined) {
+            pairs.push(['', bizAtom.phrase]);
+        }
+        else {
+            pairs.push([base.phrase, bizAtom.phrase]);
+        }
+        pairColl[name] = bizAtom;
+    }
+    for (const [, entity] of biz.bizEntities) {
+        if (entity.type !== 'atom')
+            continue;
+        const bizAtom = entity;
+        if (pairColl[bizAtom.name] !== undefined)
+            continue;
+        const { base } = bizAtom;
+        if (base === undefined)
+            continue;
+        if (coll[base.name] === undefined)
+            continue;
+        pairs.push([base.phrase, bizAtom.phrase]);
+    }
+    return pairs;
 }
 //# sourceMappingURL=compile.js.map

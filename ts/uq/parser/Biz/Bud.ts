@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
-    , BizBudDec, /*BizBudID, */BizBudInt, BizBudOptions
-    , BizBudNone, BizBudRadio, BizBudSubItems, Uq
+    , BizBudDec, /*BizBudID, */BizBudInt, BizOptions
+    , BizBudNone, BizBudRadio, BizBudOptions, Uq
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -91,60 +91,30 @@ export class PBizBudAtom extends PBizBud<BizBudAtom> {
     }
 }
 
-class PBizBudSubItems<T extends BizBudSubItems> extends PBizBud<T> {
-    protected _parse(): void {
-        this.ts.passToken(Token.LPARENTHESE);
-        for (; ;) {
-            if (this.ts.token === Token.RPARENTHESE) {
-                this.ts.readToken();
-                break;
-            }
-            this.ts.assertToken(Token.VAR);
-            let name = this.ts.lowerVar;
-            this.ts.readToken();
-            let caption: string;
-            if (this.ts.token === Token.STRING) {
-                caption = this.ts.text;
-                this.ts.readToken();
-            }
-            this.ts.passToken(Token.EQU);
-            if (this.ts.token !== Token.NUM) {
-                this.ts.expectToken(Token.NUM);
-            }
-            if (this.ts.isInteger === false) {
-                this.expect('整数');
-            }
-            let value: number = this.ts.dec;
-            this.ts.readToken();
-            this.element.items.push({ name, caption, value });
-            if (this.ts.token === Token.COMMA) {
-                this.ts.readToken();
-            }
-        }
-    }
-}
+abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extends PBizBud<T> {
+    private optionsName: string;
 
-export class PBizBudItems extends PBizBudSubItems<BizBudOptions> {
-}
-
-abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extends PBizBudSubItems<T> {
     protected _parse(): void {
         if (this.ts.token !== Token.VAR) {
             super._parse();
             return;
         }
-        this.element.budOptionsName = this.ts.lowerVar;
+        this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
     }
-    scan2(uq: Uq): boolean {
-        const { budOptionsName } = this.element;
-        if (budOptionsName === undefined) return true;
-        let budOptions = uq.biz.budOptionsMap[budOptionsName];
-        if (budOptions === undefined) {
-            this.log(`BudOptions ${budOptionsName} not exists`);
+    scan(space: Space): boolean {
+        const { optionsName } = this;
+        if (optionsName === undefined) return true;
+        let options = space.uq.biz.bizEntities.get(optionsName);
+        if (options === undefined) {
+            this.log(`Options ${optionsName} not exists`);
             return false;
         }
-        this.element.items.push(...budOptions.items);
+        if (options.type !== 'options') {
+            this.log(`${optionsName} is not an Options`);
+            return false;
+        }
+        this.element.options = options as BizOptions;
     }
 }
 

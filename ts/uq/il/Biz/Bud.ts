@@ -1,11 +1,12 @@
 import {
     PBizBudAtom, PBizBudChar, PBizBudCheck, PBizBudDate
-    , PBizBudDec, /*PBizBudID, */PBizBudInt, PBizBudItems as PBizBudOptions
+    , PBizBudDec, PBizBudInt
     , PBizBudNone, PBizBudRadio, PContext, PElement
 } from "../../parser";
 import { IElement } from "../element";
 import { BizBase, BudDataType } from "./Base";
 import { BizAtom } from "./Atom";
+import { BizOptions, OptionsItemValueType } from "./Options";
 
 export abstract class BizBud extends BizBase {
     readonly type: string;
@@ -17,6 +18,7 @@ export abstract class BizBud extends BizBase {
     value: string | number;
     hasHistory: boolean;
     hasIndex: boolean;
+    get optionsItemType(): OptionsItemValueType { return; }
     constructor(type: string, name: string, caption: string) {
         super();
         this.type = type;
@@ -123,42 +125,26 @@ export interface BizSubItem {
     value: number | string;
 }
 
-export abstract class BizBudSubItems extends BizBud {
+export abstract class BizBudOptions extends BizBud {
     readonly items: BizSubItem[] = [];
-    budOptionsName: string;
+    options: BizOptions;
     buildSchema() {
         let ret = super.buildSchema();
         return {
-            ...ret, items: this.items.map(v => {
-                let { name, caption, value } = v;
-                return [name, caption, value];
-            })
+            ...ret, options: this.options?.phrase
         };
     }
-    buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
-        super.buildPhrases(phrases, prefix);
-        let phrase = this.phrase;
-        for (let item of this.items) {
-            phrases.push([`${phrase}.${item.name}`, item.caption ?? '', '', this.getTypeNum()]);
-        }
-    }
+    get objName(): string { return this.options?.phrase; }
 }
 
-export class BizBudOptions extends BizBudSubItems {
-    readonly dataType = 'radio';
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudOptions(this, context);
-    }
-}
-
-export class BizBudRadio extends BizBudSubItems {
+export class BizBudRadio extends BizBudOptions {
     readonly dataType = 'radio';
     parser(context: PContext): PElement<IElement> {
         return new PBizBudRadio(this, context);
     }
 }
 
-export class BizBudCheck extends BizBudSubItems {
+export class BizBudCheck extends BizBudOptions {
     readonly dataType = 'check';
     parser(context: PContext): PElement<IElement> {
         return new PBizBudCheck(this, context);

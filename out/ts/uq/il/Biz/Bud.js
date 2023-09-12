@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudSubItems = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 class BizBud extends Base_1.BizBase {
@@ -9,6 +9,7 @@ class BizBud extends Base_1.BizBase {
         var _a;
         return (_a = Base_1.BudDataType[this.dataType]) !== null && _a !== void 0 ? _a : 0;
     }
+    get optionsItemType() { return; }
     constructor(type, name, caption) {
         super();
         this.type = type;
@@ -127,39 +128,20 @@ class BizBudAtom extends BizBud {
     get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
 exports.BizBudAtom = BizBudAtom;
-class BizBudSubItems extends BizBud {
+class BizBudOptions extends BizBud {
     constructor() {
         super(...arguments);
         this.items = [];
     }
     buildSchema() {
-        let ret = super.buildSchema();
-        return Object.assign(Object.assign({}, ret), { items: this.items.map(v => {
-                let { name, caption, value } = v;
-                return [name, caption, value];
-            }) });
-    }
-    buildPhrases(phrases, prefix) {
         var _a;
-        super.buildPhrases(phrases, prefix);
-        let phrase = this.phrase;
-        for (let item of this.items) {
-            phrases.push([`${phrase}.${item.name}`, (_a = item.caption) !== null && _a !== void 0 ? _a : '', '', this.getTypeNum()]);
-        }
+        let ret = super.buildSchema();
+        return Object.assign(Object.assign({}, ret), { options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase });
     }
-}
-exports.BizBudSubItems = BizBudSubItems;
-class BizBudOptions extends BizBudSubItems {
-    constructor() {
-        super(...arguments);
-        this.dataType = 'radio';
-    }
-    parser(context) {
-        return new parser_1.PBizBudItems(this, context);
-    }
+    get objName() { var _a; return (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
 exports.BizBudOptions = BizBudOptions;
-class BizBudRadio extends BizBudSubItems {
+class BizBudRadio extends BizBudOptions {
     constructor() {
         super(...arguments);
         this.dataType = 'radio';
@@ -169,7 +151,7 @@ class BizBudRadio extends BizBudSubItems {
     }
 }
 exports.BizBudRadio = BizBudRadio;
-class BizBudCheck extends BizBudSubItems {
+class BizBudCheck extends BizBudOptions {
     constructor() {
         super(...arguments);
         this.dataType = 'check';

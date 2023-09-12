@@ -19,7 +19,7 @@ class BizPermit extends Entity_1.BizEntity {
         for (let [, value] of this.items) {
             let { name, caption } = value;
             let itemPhrase = `${phrase}.${name}`;
-            phrases.push([itemPhrase, caption !== null && caption !== void 0 ? caption : '', phrase, this.getTypeNum()]);
+            phrases.push([itemPhrase, caption !== null && caption !== void 0 ? caption : '', phrase, this.typeNum]);
             value.phrase = itemPhrase;
         }
     }

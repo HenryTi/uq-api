@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudItems = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizBud extends Base_1.PBizBase {
@@ -85,60 +85,29 @@ class PBizBudAtom extends PBizBud {
     }
 }
 exports.PBizBudAtom = PBizBudAtom;
-class PBizBudSubItems extends PBizBud {
-    _parse() {
-        this.ts.passToken(tokens_1.Token.LPARENTHESE);
-        for (;;) {
-            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                this.ts.readToken();
-                break;
-            }
-            this.ts.assertToken(tokens_1.Token.VAR);
-            let name = this.ts.lowerVar;
-            this.ts.readToken();
-            let caption;
-            if (this.ts.token === tokens_1.Token.STRING) {
-                caption = this.ts.text;
-                this.ts.readToken();
-            }
-            this.ts.passToken(tokens_1.Token.EQU);
-            if (this.ts.token !== tokens_1.Token.NUM) {
-                this.ts.expectToken(tokens_1.Token.NUM);
-            }
-            if (this.ts.isInteger === false) {
-                this.expect('整数');
-            }
-            let value = this.ts.dec;
-            this.ts.readToken();
-            this.element.items.push({ name, caption, value });
-            if (this.ts.token === tokens_1.Token.COMMA) {
-                this.ts.readToken();
-            }
-        }
-    }
-}
-class PBizBudItems extends PBizBudSubItems {
-}
-exports.PBizBudItems = PBizBudItems;
-class PBizBudRadioOrCheck extends PBizBudSubItems {
+class PBizBudRadioOrCheck extends PBizBud {
     _parse() {
         if (this.ts.token !== tokens_1.Token.VAR) {
             super._parse();
             return;
         }
-        this.element.budOptionsName = this.ts.lowerVar;
+        this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
     }
-    scan2(uq) {
-        const { budOptionsName } = this.element;
-        if (budOptionsName === undefined)
+    scan(space) {
+        const { optionsName } = this;
+        if (optionsName === undefined)
             return true;
-        let budOptions = uq.biz.budOptionsMap[budOptionsName];
-        if (budOptions === undefined) {
-            this.log(`BudOptions ${budOptionsName} not exists`);
+        let options = space.uq.biz.bizEntities.get(optionsName);
+        if (options === undefined) {
+            this.log(`Options ${optionsName} not exists`);
             return false;
         }
-        this.element.items.push(...budOptions.items);
+        if (options.type !== 'options') {
+            this.log(`${optionsName} is not an Options`);
+            return false;
+        }
+        this.element.options = options;
     }
 }
 class PBizBudRadio extends PBizBudRadioOrCheck {

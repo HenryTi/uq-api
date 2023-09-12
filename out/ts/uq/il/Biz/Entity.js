@@ -17,7 +17,7 @@ class BizEntity extends Base_1.BizBase {
     }
     buildSchema() {
         let ret = super.buildSchema();
-        let props = [], assigns = [];
+        let props = []; //, assigns = [];
         for (let [, value] of this.props) {
             props.push(value.buildSchema());
         }
@@ -118,7 +118,6 @@ class BizEntity extends Base_1.BizBase {
         let buds = [];
         for (let [, bud] of this.props)
             buds.push(bud);
-        // for (let [, bud] of this.assigns) buds.push(bud);
         return buds;
     }
 }

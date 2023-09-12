@@ -22,7 +22,7 @@ export class BizPermit extends BizEntity {
         for (let [, value] of this.items) {
             let { name, caption } = value;
             let itemPhrase = `${phrase}.${name}`;
-            phrases.push([itemPhrase, caption ?? '', phrase, this.getTypeNum()]);
+            phrases.push([itemPhrase, caption ?? '', phrase, this.typeNum]);
             value.phrase = itemPhrase;
         }
     }

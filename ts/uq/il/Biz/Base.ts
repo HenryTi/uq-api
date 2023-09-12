@@ -7,12 +7,14 @@ export enum BizPhraseType {
     sheet = 101,
     role = 201,
     permit = 202,
+    options = 301,
 
     with = 151,
 
     key = 1001,
     prop = 1011,
     assign = 1021,
+    optionsitem = 1031,
 };
 
 export enum BudDataType {
@@ -61,10 +63,10 @@ export abstract class BizBase extends IElement {
 
     buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         this.buildPhrase(prefix);
-        phrases.push([this.phrase, this.caption ?? '', this.basePhrase, this.getTypeNum()]);
+        phrases.push([this.phrase, this.caption ?? '', this.basePhrase, this.typeNum]);
     }
 
-    getTypeNum(): string {
+    get typeNum(): string {
         let n = BizPhraseType[this.type] ?? 0;
         return String(n);
     }

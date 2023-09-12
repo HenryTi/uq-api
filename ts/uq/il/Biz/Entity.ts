@@ -3,6 +3,18 @@ import { Field } from "../field";
 import { BizBase } from "./Base";
 import { Biz } from "./Biz";
 import { BizBud } from "./Bud";
+import { OptionsItemValueType } from "./Options";
+
+export interface IBud {
+    phrase: string;
+    caption: string;
+    memo: string;
+    dataTypeNum: number;
+    objName: string;
+    typeNum: string;
+    optionsItemType: OptionsItemValueType;
+    value: string | number;
+}
 
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBud> = new Map();
@@ -20,7 +32,7 @@ export abstract class BizEntity extends BizBase {
 
     buildSchema() {
         let ret = super.buildSchema();
-        let props = [], assigns = [];
+        let props = []; //, assigns = [];
         for (let [, value] of this.props) {
             props.push(value.buildSchema());
         }
@@ -109,10 +121,10 @@ export abstract class BizEntity extends BizBase {
         return bud;
     }
 
-    getAllBuds(): BizBud[] {
+
+    getAllBuds(): IBud[] {
         let buds: BizBud[] = [];
         for (let [, bud] of this.props) buds.push(bud);
-        // for (let [, bud] of this.assigns) buds.push(bud);
         return buds;
     }
 }

@@ -10,3 +10,4 @@ export * from './Query';
 export * from './Entity';
 export * from './Tree';
 export * from './Tie';
+export * from './Options';
