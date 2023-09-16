@@ -30,6 +30,14 @@ class UqRunner {
                 this.log(err.message);
         }
     }
+    // 新传入的uq代码，保存已编译好的。后续操作，只处理最新的。
+    // 老的uq代码，随后编译
+    anchorLatest() {
+        this.uq.biz.anchorLatest();
+    }
+    isLatest(phrase) {
+        return this.uq.biz.isLatest(phrase);
+    }
     parseBorn(bornCode) {
         for (let bes of bornCode) {
             try {

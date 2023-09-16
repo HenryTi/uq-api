@@ -9,23 +9,22 @@ import {
 import { Factory } from './sql/factory';
 import { unitFieldName, userParamName } from './sql/sqlBuilder';
 import { MsFactory } from './sql/sqlMs';
-// import { MyFactory } from './sql/sqlMy';
+import { MyFactory } from './sql/sqlMy';
 import * as stat from './bstatement';
 import * as ent from './entity';
 import { Field, Tuid, Entity, Map, intField, bigIntField, charField, Arr, Int, Char, DateTime, Text, Sheet, IArr, IField, DataType, Expression, JoinType, ValueExpression, CompareExpression } from '../il';
 import { EntityTable, VarTable, GlobalTable } from './sql/statementWithFrom';
-// import { UqBuildApi } from '../../core';
-// import { CompileOptions } from '../../compile';
 import { Select, LockType } from './sql/select';
 import { Sqls } from './bstatement';
 import { BBiz } from './Biz';
+import { EntityRunner } from '../../core';
 
 export const max_promises_uq_api = 10;
 
 export function createFactory(dbContext: DbContext, sqlType: string): Factory {
     switch (sqlType) {
         default: throw 'not supported sql type:' + sqlType;
-        // case 'mysql': return new MyFactory(dbContext);
+        case 'mysql': return new MyFactory(dbContext);
         case 'mssql': return new MsFactory(dbContext);
     }
 }
@@ -35,6 +34,16 @@ export interface ObjSchema {
     readonly name: string;
 }
 
+export interface CompileOptions {
+    uqIds: number[];
+    user: number; // User;
+    action: 'thoroughly' | 'inc-only' | 'sys-only';
+
+    autoRemoveTableField?: boolean;          // 必须设置true，才操作
+    autoRemoveTableIndex?: boolean;          // 必须设置true，才操作
+}
+
+
 export class DbObjs {
     private context: DbContext;
     readonly tables: Table[] = [];
@@ -43,8 +52,8 @@ export class DbObjs {
     constructor(context: DbContext) {
         this.context = context;
     }
-    /*
-    async updateDb(runner: UqBuildApi, options: CompileOptions): Promise<boolean> {
+
+    async updateDb(runner: EntityRunner, options: CompileOptions): Promise<boolean> {
         for (let t of this.tables) t.buildIdIndex();
         if (await this.updateTables(runner, options) === false) {
             return false;
@@ -60,7 +69,6 @@ export class DbObjs {
         }
         return true;
     }
-    */
 
     private async afterPromises(objSchemas: ObjSchema[], promises: Promise<string>[]) {
         let log = this.context.log;
@@ -79,8 +87,8 @@ export class DbObjs {
         //tables = [];
         return true;
     }
-    /*
-    private async updateTables(runner: UqBuildApi, options: CompileOptions): Promise<boolean> {
+
+    private async updateTables(runner: EntityRunner, options: CompileOptions): Promise<boolean> {
         let ok = true;
         let log = this.context.log;
         let promises: Promise<string>[] = [];
@@ -104,7 +112,7 @@ export class DbObjs {
         return ok;
     }
 
-    async updateTablesRows(runner: UqBuildApi, options: CompileOptions): Promise<boolean> {
+    async updateTablesRows(runner: EntityRunner, options: CompileOptions): Promise<boolean> {
         let ok = true;
         let log = this.context.log;
         let promises: Promise<string>[] = [];
@@ -129,7 +137,7 @@ export class DbObjs {
         return ok;
     }
 
-    private async updateProcs(runner: UqBuildApi, options: CompileOptions): Promise<boolean> {
+    private async updateProcs(runner: EntityRunner, options: CompileOptions): Promise<boolean> {
         let log = this.context.log;
         let len = this.procedures.length;
         let promises: Promise<string>[] = [];
@@ -159,7 +167,6 @@ export class DbObjs {
 
         return true;
     }
-    */
 }
 
 export enum EnumSysTable {
@@ -226,6 +233,7 @@ export class DbContext implements il.Builder {
     readonly compilerVersion: string;
     readonly varUnit: ExpVar;
     readonly varUser: ExpVar;
+    readonly site: number;
 
     constructor(compilerVersion: string, sqlType: string
         , dbName: string, twProfix: string

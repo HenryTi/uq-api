@@ -103,12 +103,12 @@ class ProcedureUpdater extends procedure_1.ProcedureUpdater {
     async updateProc() {
         let sql = this.buildProcSql();
         let procName = this.getUploadProcName();
-        await this.uqBuildApi.sqlProc(procName, sql);
+        await this.uqBuildApi.procSql(procName, sql);
     }
     async updateCoreProc() {
         let sql = this.buildProcSql();
         let procName = this.getUploadProcName();
-        await this.uqBuildApi.sqlCoreProc(procName, sql, this.proc.returnDataType !== undefined);
+        await this.uqBuildApi.procCoreSql(procName, sql, this.proc.returnDataType !== undefined);
     }
     getUploadProcName() {
         let { isOldUqApi, twProfix } = this.uqBuildApi;

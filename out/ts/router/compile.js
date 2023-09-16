@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildCompileRouter = void 0;
 const jsonpack = require("jsonpack");
 const uq_1 = require("../uq");
+const bizSiteBuilder_1 = require("../uq/bizSiteBuilder");
 const actionType = 'compile';
 function buildCompileRouter(router, rb) {
     router.get('/compile/hello', async (req, res) => {
@@ -39,18 +40,21 @@ function buildCompileRouter(router, rb) {
 }
 exports.buildCompileRouter = buildCompileRouter;
 async function compile(runner, clientSource, override, unit, user) {
-    const uqRunner = new uq_1.UqRunner(undefined, log);
     const msgs = [];
     function log(msg) {
         msgs.push(msg);
         return true;
     }
+    const uqRunner = new uq_1.UqRunner(undefined, log);
     let [objs, props] = await runner.unitUserTablesFromProc('GetBizObjects', unit, user, 'zh', 'cn');
     const { uq } = uqRunner;
     const { biz } = uq;
-    const res = {};
-    let objNames = {};
-    let objIds = {};
+    const bizSiteBuilder = new bizSiteBuilder_1.BizSiteBuilder(biz, runner, unit, user);
+    await bizSiteBuilder.parse(objs, props);
+    /*
+    const res: { [phrase: string]: string } = {};
+    let objNames: { [name: string]: any } = {};
+    let objIds: { [id: number]: any } = {};
     for (let obj of objs) {
         const { id, phrase, caption } = obj;
         objNames[phrase] = obj;
@@ -67,19 +71,21 @@ async function compile(runner, clientSource, override, unit, user) {
         props.push(prop);
         res[phrase] = caption;
     }
-    biz.bizArr.splice(0);
+
+    // biz.bizArr.splice(0);
+    */
     if (clientSource) {
         uqRunner.parse(clientSource, 'upload');
+        uqRunner.anchorLatest();
     }
-    let bizArr = [...biz.bizArr];
+    // let bizArr = [...biz.bizArr];
     for (let obj of objs) {
         const { phrase, source } = obj;
         if (!source)
             continue;
         if (override === true) {
-            if (bizArr.find(v => v.name === phrase) !== undefined) {
+            if (uqRunner.isLatest(phrase) === true)
                 continue;
-            }
         }
         uqRunner.parse(source, phrase);
     }
@@ -89,22 +95,30 @@ async function compile(runner, clientSource, override, unit, user) {
             logs: msgs,
         };
     }
+    /*
+    const hasUnit = false;
+    let context = new DbContext(this.compilerVersion, sqlType, dbSiteName, '', this.log, hasUnit);
+    const bUq = new BUq(this.uq, context);
+
+    await uqRunner.saveLatest(runner);
     await Promise.all(bizArr.map(entity => {
         return async function () {
             const { type, phrase, caption, source } = entity;
             const memo = undefined;
-            let sqlIdFromKeyArr;
-            if (type === 'atom') {
-                sqlIdFromKeyArr = entity.sqlIdFromKeyArr;
+            let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject'
+                , unit, user, phrase, caption, entity.typeNum, memo, source
+                , undefined);
+            if (entity.type === 'atom') {
+
             }
-            let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject', unit, user, phrase, caption, entity.typeNum, memo, source, undefined, sqlIdFromKeyArr);
             let obj = { id, phrase };
             objIds[id] = obj;
             objNames[phrase] = obj;
         }();
     }));
     const atomPairs = getAtomExtendsPairs(biz, bizArr);
-    await runner.unitUserTableFromProc('SaveBizIX', unit, user, JSON.stringify(atomPairs));
+    await runner.unitUserTableFromProc('SaveBizIX'
+        , unit, user, JSON.stringify(atomPairs));
     await Promise.all(bizArr.map(entity => {
         return async function () {
             let { id } = objNames[entity.phrase];
@@ -113,56 +127,28 @@ async function compile(runner, clientSource, override, unit, user) {
                 return async function () {
                     const { phrase, caption, memo, dataTypeNum, objName, flag } = v;
                     const typeNum = v.typeNum;
-                    let objId;
+                    let objId: number;
                     if (objName !== undefined) {
                         const obj = objNames[objName];
                         if (obj !== undefined) {
                             objId = obj.id;
                         }
                     }
-                    await runner.unitUserCall('SaveBizBud', unit, user, id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
+                    await runner.unitUserCall('SaveBizBud'
+                        , unit, user, id, phrase, caption
+                        , typeNum, memo, dataTypeNum, objId, flag
+                    );
                 }();
             }));
         }();
     }));
-    let schemas = uq.buildSchemas(res);
+    */
+    await bizSiteBuilder.build(log);
+    // let schemas = uq.buildSchemas(res);
+    let schemas = bizSiteBuilder.buildSchemas();
     return {
         schemas: jsonpack.pack(schemas.$biz),
         logs: msgs,
     };
-}
-function getAtomExtendsPairs(biz, arrNew) {
-    const pairs = [];
-    const coll = {};
-    const pairColl = {};
-    for (const entity of arrNew) {
-        if (entity.type !== 'atom')
-            continue;
-        const bizAtom = entity;
-        const { name } = bizAtom;
-        coll[name] = bizAtom;
-        const { extends: _extends } = bizAtom;
-        if (_extends === undefined) {
-            pairs.push(['', bizAtom.phrase]);
-        }
-        else {
-            pairs.push([_extends.phrase, bizAtom.phrase]);
-        }
-        pairColl[name] = bizAtom;
-    }
-    for (const [, entity] of biz.bizEntities) {
-        if (entity.type !== 'atom')
-            continue;
-        const bizAtom = entity;
-        if (pairColl[bizAtom.name] !== undefined)
-            continue;
-        const { extends: _extends } = bizAtom;
-        if (_extends === undefined)
-            continue;
-        if (coll[_extends.name] === undefined)
-            continue;
-        pairs.push([_extends.phrase, bizAtom.phrase]);
-    }
-    return pairs;
 }
 //# sourceMappingURL=compile.js.map

@@ -1,6 +1,6 @@
 import * as jsonpack from 'jsonpack';
 import { env, logger } from '../../tool';
-import { createSqlFactory, SqlBuilder, SqlFactory } from '../db';
+import { createSqlFactory, ProcType, SqlBuilder, SqlFactory } from '../db';
 import { Db, Db$Uq, getDbs, DbUq } from '../db';
 import { packReturns } from '../packReturn';
 import { ImportData } from '../importData';
@@ -42,6 +42,9 @@ export interface Buses {
 }
 
 export class EntityRunner extends Runner {
+    readonly twProfix: string = '';
+    readonly isOldUqApi: boolean = false;
+
     private access: any;
     private accessSchemaArr: any[];
     private role: any;
@@ -304,8 +307,18 @@ export class EntityRunner extends Runner {
     async call(proc: string, params: any[]): Promise<any> {
         return await this.dbUq.call(proc, params);
     }
-    async sql(sql: string, params: any[]): Promise<any> {
-        return await this.dbUq.sql(sql, params);
+    async sql(sql: string | string[], params: any[]): Promise<any> {
+        if (Array.isArray(sql) === true) {
+            let rets = [];
+            for (let s of sql) {
+                let ret = await this.dbUq.sql(s, params);
+                rets.push(ret);
+            }
+            return rets;
+        }
+        else {
+            return await this.dbUq.sql(sql as string, params);
+        }
     }
     async buildTuidAutoId(): Promise<void> {
         await this.dbUq.buildTuidAutoId();
@@ -1178,6 +1191,26 @@ export class EntityRunner extends Runner {
 
     private async runUqStatements() {
         await this.procCall('$uq', []);
+    }
+
+    async procSql(procName: string, procSql: string): Promise<any> {
+        try {
+            return await this.dbUq.uqProc(procName, procSql, ProcType.proc);
+        }
+        catch (err) {
+            debugger;
+            throw err;
+        }
+    }
+    async procCoreSql(procName: string, procSql: string, isFunc: boolean): Promise<any> {
+        try {
+            let procType: ProcType = isFunc === true ? ProcType.func : ProcType.core;
+            await this.dbUq.uqProc(procName, procSql, procType);
+        }
+        catch (err) {
+            debugger;
+            throw err;
+        }
     }
 
     readonly $userSchema = {

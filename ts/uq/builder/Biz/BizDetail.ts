@@ -1,13 +1,13 @@
 import { BizDetail, BizDetailAct, Field, Int, ProcParamType, intField } from "../../il";
 import { Sqls } from "../bstatement";
 import { ExpNum, ExpStr, ExpVar } from "../sql";
-import { BBizBase } from "./BizBase";
+import { BBizEntity } from "./BizEntity";
 
-export class BBizDetail extends BBizBase<BizDetail> {
-    buildProcedures() {
+export class BBizDetail extends BBizEntity<BizDetail> {
+    async buildProcedures() {
         let { appObjs } = this.context;
         let { procedures } = appObjs;
-        let { acts } = this.base;
+        let { acts } = this.bizEntity;
         for (let act of acts) {
             let proc = this.buildActProcedure(act);
             procedures.push(proc);
@@ -16,9 +16,9 @@ export class BBizDetail extends BBizBase<BizDetail> {
 
     private buildActProcedure(act: BizDetailAct) {
         let { factory, unitField, userParam } = this.context;
-        let { pend } = this.base;
+        let { pend } = this.bizEntity;
         let { name: actName, idParam } = act;
-        let procName = `${this.base.name}.${actName}`;
+        let procName = `${this.bizEntity.name}.${actName}`;
         let proc = this.context.createProcedure(procName);
         let { parameters, statements } = proc;
         parameters.push(

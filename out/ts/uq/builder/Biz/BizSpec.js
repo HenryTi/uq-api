@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizSpec = void 0;
 const il_1 = require("../../il");
-const BizBase_1 = require("./BizBase");
-class BBizSpec extends BizBase_1.BBizBase {
-    buildTables() {
+const BizEntity_1 = require("./BizEntity");
+class BBizSpec extends BizEntity_1.BBizEntity {
+    async buildTables() {
         let { appObjs } = this.context;
         let { tables } = appObjs;
-        let table = this.context.createTable(`spec$${this.base.name}`);
+        let table = this.context.createTable(`spec$${this.bizEntity.name}`);
         tables.push(table);
         // let { keyFields, propFields } = this.base;
         /*
@@ -27,10 +27,10 @@ class BBizSpec extends BizBase_1.BBizBase {
         table.indexes.push(index);
         */
     }
-    buildProcedures() {
+    async buildProcedures() {
         let { appObjs } = this.context;
         let { procedures } = appObjs;
-        let func = this.context.createFunction(`spec$${this.base.name}$id`, new il_1.BigInt());
+        let func = this.context.createFunction(`spec$${this.bizEntity.name}$id`, new il_1.BigInt());
         procedures.push(func);
         this.buildIdFunc(func);
     }

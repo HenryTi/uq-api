@@ -122,6 +122,9 @@ class BizEntity extends Base_1.BizBase {
             buds.push(bud);
         return buds;
     }
+    db(dbContext) {
+        return undefined;
+    }
 }
 exports.BizEntity = BizEntity;
 //# sourceMappingURL=Entity.js.map

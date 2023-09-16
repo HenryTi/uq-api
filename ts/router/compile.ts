@@ -4,6 +4,8 @@ import { RouterBuilder } from './routerBuilder';
 import { UqRunner } from '../uq';
 import { EntityRunner, Net } from '../core';
 import { Biz, BizAtom, BizEntity } from '../uq/il';
+import { BUq, DbContext } from '../uq/builder';
+import { BizSiteBuilder } from '../uq/bizSiteBuilder';
 
 const actionType = 'compile';
 
@@ -50,15 +52,18 @@ export function buildCompileRouter(router: Router, rb: RouterBuilder) {
 
 
 async function compile(runner: EntityRunner, clientSource: string, override: boolean, unit: number, user: number) {
-    const uqRunner = new UqRunner(undefined, log);
     const msgs: string[] = [];
     function log(msg: string) {
         msgs.push(msg);
         return true;
     }
+    const uqRunner = new UqRunner(undefined, log);
     let [objs, props] = await runner.unitUserTablesFromProc('GetBizObjects', unit, user, 'zh', 'cn');
     const { uq } = uqRunner;
     const { biz } = uq;
+    const bizSiteBuilder = new BizSiteBuilder(biz, runner, unit, user);
+    await bizSiteBuilder.parse(objs, props);
+    /*
     const res: { [phrase: string]: string } = {};
     let objNames: { [name: string]: any } = {};
     let objIds: { [id: number]: any } = {};
@@ -79,18 +84,19 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
         res[phrase] = caption;
     }
 
-    biz.bizArr.splice(0);
+    // biz.bizArr.splice(0);
+    */
+
     if (clientSource) {
         uqRunner.parse(clientSource, 'upload');
+        uqRunner.anchorLatest();
     }
-    let bizArr = [...biz.bizArr];
+    // let bizArr = [...biz.bizArr];
     for (let obj of objs) {
         const { phrase, source } = obj;
         if (!source) continue;
         if (override === true) {
-            if (bizArr.find(v => v.name === phrase) !== undefined) {
-                continue;
-            }
+            if (uqRunner.isLatest(phrase) === true) continue;
         }
         uqRunner.parse(source, phrase);
     }
@@ -101,17 +107,23 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
             logs: msgs,
         }
     }
+
+    /*
+    const hasUnit = false;
+    let context = new DbContext(this.compilerVersion, sqlType, dbSiteName, '', this.log, hasUnit);
+    const bUq = new BUq(this.uq, context);
+
+    await uqRunner.saveLatest(runner);
     await Promise.all(bizArr.map(entity => {
         return async function () {
             const { type, phrase, caption, source } = entity;
             const memo = undefined;
-            let sqlIdFromKeyArr: string;
-            if (type === 'atom') {
-                sqlIdFromKeyArr = (entity as BizAtom).sqlIdFromKeyArr;
-            }
             let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject'
                 , unit, user, phrase, caption, entity.typeNum, memo, source
-                , undefined, sqlIdFromKeyArr);
+                , undefined);
+            if (entity.type === 'atom') {
+
+            }
             let obj = { id, phrase };
             objIds[id] = obj;
             objNames[phrase] = obj;
@@ -143,40 +155,12 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
             }));
         }();
     }));
-    let schemas = uq.buildSchemas(res);
+    */
+    await bizSiteBuilder.build(log);
+    // let schemas = uq.buildSchemas(res);
+    let schemas = bizSiteBuilder.buildSchemas();
     return {
         schemas: jsonpack.pack(schemas.$biz), //: uqRunner.uq.biz.schema, //.bizArr.map(v => v.buildSchema()),
         logs: msgs,
     }
-}
-
-function getAtomExtendsPairs(biz: Biz, arrNew: BizEntity[]) {
-    const pairs: [string, string][] = [];
-    const coll: { [name: string]: BizAtom } = {};
-    const pairColl: { [name: string]: BizAtom } = {};
-    for (const entity of arrNew) {
-        if (entity.type !== 'atom') continue;
-        const bizAtom = entity as BizAtom;
-        const { name } = bizAtom;
-        coll[name] = bizAtom;
-        const { extends: _extends } = bizAtom;
-        if (_extends === undefined) {
-            pairs.push(['', bizAtom.phrase]);
-        }
-        else {
-            pairs.push([_extends.phrase, bizAtom.phrase]);
-        }
-        pairColl[name] = bizAtom;
-    }
-
-    for (const [, entity] of biz.bizEntities) {
-        if (entity.type !== 'atom') continue;
-        const bizAtom = entity as BizAtom;
-        if (pairColl[bizAtom.name] !== undefined) continue;
-        const { extends: _extends } = bizAtom;
-        if (_extends === undefined) continue;
-        if (coll[_extends.name] === undefined) continue;
-        pairs.push([_extends.phrase, bizAtom.phrase]);
-    }
-    return pairs;
 }

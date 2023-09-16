@@ -83,6 +83,16 @@ class Procedure {
             this.param(sb, p);
         }
     }
+    async updateDb(runner, options) {
+        this.checkTrans();
+        let updater = this.createUpdater(runner);
+        return await updater.update(options);
+    }
+    async coreUpdateDb(runner, options) {
+        this.checkTrans();
+        let updater = this.createUpdater(runner);
+        return await updater.updateCore(options);
+    }
     declare(sb, tab, vars) {
         //if (vars.length === 0) return;
         sb.tab(tab);
@@ -111,10 +121,31 @@ class Procedure {
 }
 exports.Procedure = Procedure;
 class ProcedureUpdater {
-    constructor(context, /*uqBuildApi: UqBuildApi, */ proc) {
+    constructor(context, uqBuildApi, proc) {
         this.context = context;
-        // this.uqBuildApi = uqBuildApi;
+        this.uqBuildApi = uqBuildApi;
         this.proc = proc;
+    }
+    async update(options) {
+        try {
+            if (this.proc.isCore === true)
+                await this.updateCoreProc(options);
+            else
+                await this.updateProc(options);
+            return;
+        }
+        catch (err) {
+            return err;
+        }
+    }
+    async updateCore(options) {
+        try {
+            await this.updateCoreProc(options);
+            return;
+        }
+        catch (err) {
+            return err;
+        }
     }
 }
 exports.ProcedureUpdater = ProcedureUpdater;

@@ -5,6 +5,7 @@ import { Uq, UqVersion, Tuid } from '../il';
 import { DbContext } from './dbContext';
 import { Sys } from './sys';
 import { Modified } from './modified';
+import { EntityRunner } from '../../core';
 
 export class BUq {
     private context: DbContext;
@@ -18,6 +19,7 @@ export class BUq {
     }
 
     getTuid(name: string): Tuid { return this.uq.tuids[name]; }
+
     /*
     async updateDb(runner: UqBuildApi, serviceId: number, uqId: number, uqUniqueUnit: number, options: CompileOptions): Promise<{
         ok: boolean,

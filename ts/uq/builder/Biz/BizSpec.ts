@@ -3,13 +3,13 @@ import { EnumSysTable, sysTable } from "../dbContext";
 import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure } from "../sql";
 import { LockType } from "../sql/select";
 import { EntityTable } from "../sql/statementWithFrom";
-import { BBizBase } from "./BizBase";
+import { BBizEntity } from "./BizEntity";
 
-export class BBizSpec extends BBizBase<BizSpec> {
-    buildTables() {
+export class BBizSpec extends BBizEntity<BizSpec> {
+    async buildTables() {
         let { appObjs } = this.context;
         let { tables } = appObjs;
-        let table = this.context.createTable(`spec$${this.base.name}`);
+        let table = this.context.createTable(`spec$${this.bizEntity.name}`);
         tables.push(table);
 
         // let { keyFields, propFields } = this.base;
@@ -31,10 +31,10 @@ export class BBizSpec extends BBizBase<BizSpec> {
         */
     }
 
-    buildProcedures(): void {
+    async buildProcedures() {
         let { appObjs } = this.context;
         let { procedures } = appObjs;
-        let func = this.context.createFunction(`spec$${this.base.name}$id`, new BigInt());
+        let func = this.context.createFunction(`spec$${this.bizEntity.name}$id`, new BigInt());
         procedures.push(func);
         this.buildIdFunc(func);
     }

@@ -65,3 +65,6 @@ export interface Db$Res extends Db {
 export interface Db$Unitx extends Db {
     readonly serverId: number;
 }
+
+export interface Db$Site extends Db {
+}

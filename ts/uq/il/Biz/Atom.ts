@@ -14,7 +14,6 @@ export class BizAtom extends BizEntity {
     spec: BizSpec;
     uom: boolean;
     uuid: boolean;
-    sqlIdFromKeyArr: string;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);

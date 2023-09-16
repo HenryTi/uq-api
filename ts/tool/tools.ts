@@ -1,5 +1,5 @@
 
-export function getErrorString(err:any): string {
+export function getErrorString(err: any): string {
     if (err === null) return 'error=null';
     if (err === undefined) return 'error=undefined';
 

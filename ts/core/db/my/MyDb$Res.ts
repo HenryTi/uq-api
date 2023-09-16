@@ -11,7 +11,7 @@ export class MyDb$Res extends MyDb implements Db$Res {
 
     override async createDatabase(): Promise<void> {
         await super.createDatabase();
-        let sql = `
+        let tableItem = `
         CREATE TABLE if not exists ${this.name}.item(
             id int not null auto_increment primary key,
             fileName varchar(120),
@@ -20,8 +20,8 @@ export class MyDb$Res extends MyDb implements Db$Res {
             useDate datetime
         );
     `;
-        await this.sql(sql, undefined);
-        let proc = `
+        // await this.sql(sql, undefined);
+        let createItem = `
             DROP PROCEDURE IF EXISTS ${this.name}.createItem;
             CREATE PROCEDURE ${this.name}.createItem (\`_fileName\` varchar(120), _mimetype varchar(50))
             BEGIN
@@ -29,15 +29,15 @@ export class MyDb$Res extends MyDb implements Db$Res {
                 select last_insert_id() as id;
             END;
         `;
-        await this.sql(proc, undefined);
+        // await this.sql(proc, undefined);
 
-        proc = `
+        let useItem = `
             DROP PROCEDURE IF EXISTS ${this.name}.useItem;
             CREATE PROCEDURE ${this.name}.useItem(_id int)
             BEGIN
                 update item set useDate=now() where id=_id;
             END;
         `;
-        await this.sql(proc, undefined);
+        await Promise.all([tableItem, createItem, useItem].map(v => this.sql(v, undefined)));
     }
 }

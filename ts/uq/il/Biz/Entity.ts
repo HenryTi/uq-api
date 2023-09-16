@@ -1,3 +1,4 @@
+import { BBizEntity, DbContext } from "../../builder";
 import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
 import { Field } from "../field";
 import { BizBase } from "./Base";
@@ -28,6 +29,7 @@ export abstract class BizEntity extends BizBase {
     readonly biz: Biz
     entitySchema: string = undefined;
     source: string = undefined;
+    id: number;
 
     constructor(biz: Biz) {
         super();
@@ -129,5 +131,9 @@ export abstract class BizEntity extends BizBase {
         let buds: BizBud[] = [];
         for (let [, bud] of this.props) buds.push(bud);
         return buds;
+    }
+
+    db(dbContext: DbContext): BBizEntity {
+        return undefined;
     }
 }

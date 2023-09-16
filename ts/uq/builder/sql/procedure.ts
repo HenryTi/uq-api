@@ -1,11 +1,12 @@
 import { SqlBuilder } from './sqlBuilder';
 import { Statement, Transaction, Commit, LeaveProc } from './statement';
 import { DataType, Field } from '../../il';
-import { DbContext, ObjSchema } from '../dbContext';
+import { CompileOptions, DbContext, ObjSchema } from '../dbContext';
 // import { UqBuildApi } from '../../../core';
 // import { CompileOptions } from '../../../compile';
 import { Statement as SqlStatement } from '../sql';
 import { Exp } from './exp';
+import { EntityRunner } from '../../../core';
 
 export abstract class Procedure implements ObjSchema {
     protected dbContext: DbContext;
@@ -101,21 +102,20 @@ export abstract class Procedure implements ObjSchema {
     }
 
     abstract get dbProcName(): string;
-    /*
-    async updateDb(runner: UqBuildApi, options: CompileOptions): Promise<string> {
+
+    async updateDb(runner: EntityRunner, options: CompileOptions): Promise<string> {
         this.checkTrans();
         let updater = this.createUpdater(runner);
         return await updater.update(options);
     }
 
-    async coreUpdateDb(runner: UqBuildApi, options: CompileOptions): Promise<string> {
+    async coreUpdateDb(runner: EntityRunner, options: CompileOptions): Promise<string> {
         this.checkTrans();
         let updater = this.createUpdater(runner);
         return await updater.updateCore(options);
     }
-    */
 
-    // protected abstract createUpdater(runner: UqBuildApi): ProcedureUpdater;
+    protected abstract createUpdater(runner: EntityRunner): ProcedureUpdater;
     protected abstract start(sb: SqlBuilder): void;
     protected abstract end(sb: SqlBuilder): void;
     protected abstract param(sb: SqlBuilder, p: Field): void;
@@ -160,15 +160,14 @@ export abstract class Procedure implements ObjSchema {
 
 export abstract class ProcedureUpdater {
     protected context: DbContext;
-    // protected uqBuildApi: UqBuildApi;
+    protected uqBuildApi: EntityRunner;
     protected proc: Procedure;
-    constructor(context: DbContext, /*uqBuildApi: UqBuildApi, */proc: Procedure) {
+    constructor(context: DbContext, uqBuildApi: EntityRunner, proc: Procedure) {
         this.context = context;
-        // this.uqBuildApi = uqBuildApi;
+        this.uqBuildApi = uqBuildApi;
         this.proc = proc;
     }
 
-    /*
     async update(options: CompileOptions): Promise<string> {
         try {
             if (this.proc.isCore === true)
@@ -195,5 +194,4 @@ export abstract class ProcedureUpdater {
     protected abstract updateProc(options: CompileOptions): Promise<void>;
 
     protected abstract updateCoreProc(options: CompileOptions): Promise<void>;
-    */
 }

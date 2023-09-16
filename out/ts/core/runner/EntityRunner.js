@@ -21,6 +21,8 @@ class EntityRunner extends Runner_1.Runner {
      */
     constructor(dbUq, net) {
         super(dbUq);
+        this.twProfix = '';
+        this.isOldUqApi = false;
         this.roleVersions = {};
         this.compileTick = 0;
         this.hasPullEntities = false;
@@ -253,7 +255,17 @@ class EntityRunner extends Runner_1.Runner {
         return await this.dbUq.call(proc, params);
     }
     async sql(sql, params) {
-        return await this.dbUq.sql(sql, params);
+        if (Array.isArray(sql) === true) {
+            let rets = [];
+            for (let s of sql) {
+                let ret = await this.dbUq.sql(s, params);
+                rets.push(ret);
+            }
+            return rets;
+        }
+        else {
+            return await this.dbUq.sql(sql, params);
+        }
     }
     async buildTuidAutoId() {
         await this.dbUq.buildTuidAutoId();
@@ -1140,6 +1152,25 @@ class EntityRunner extends Runner_1.Runner {
     }
     async runUqStatements() {
         await this.procCall('$uq', []);
+    }
+    async procSql(procName, procSql) {
+        try {
+            return await this.dbUq.uqProc(procName, procSql, db_1.ProcType.proc);
+        }
+        catch (err) {
+            debugger;
+            throw err;
+        }
+    }
+    async procCoreSql(procName, procSql, isFunc) {
+        try {
+            let procType = isFunc === true ? db_1.ProcType.func : db_1.ProcType.core;
+            await this.dbUq.uqProc(procName, procSql, procType);
+        }
+        catch (err) {
+            debugger;
+            throw err;
+        }
     }
 }
 exports.EntityRunner = EntityRunner;

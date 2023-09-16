@@ -5,20 +5,18 @@ const il = require("../il");
 const sql_1 = require("./sql");
 const sqlBuilder_1 = require("./sql/sqlBuilder");
 const sqlMs_1 = require("./sql/sqlMs");
-// import { MyFactory } from './sql/sqlMy';
+const sqlMy_1 = require("./sql/sqlMy");
 const stat = require("./bstatement");
 const ent = require("./entity");
 const il_1 = require("../il");
 const statementWithFrom_1 = require("./sql/statementWithFrom");
-// import { UqBuildApi } from '../../core';
-// import { CompileOptions } from '../../compile';
 const select_1 = require("./sql/select");
 const Biz_1 = require("./Biz");
 exports.max_promises_uq_api = 10;
 function createFactory(dbContext, sqlType) {
     switch (sqlType) {
         default: throw 'not supported sql type:' + sqlType;
-        // case 'mysql': return new MyFactory(dbContext);
+        case 'mysql': return new sqlMy_1.MyFactory(dbContext);
         case 'mssql': return new sqlMs_1.MsFactory(dbContext);
     }
 }
@@ -30,9 +28,9 @@ class DbObjs {
         this.sqls = [];
         this.context = context;
     }
-    /*
-    async updateDb(runner: UqBuildApi, options: CompileOptions): Promise<boolean> {
-        for (let t of this.tables) t.buildIdIndex();
+    async updateDb(runner, options) {
+        for (let t of this.tables)
+            t.buildIdIndex();
         if (await this.updateTables(runner, options) === false) {
             return false;
         }
@@ -40,14 +38,14 @@ class DbObjs {
             return false;
         }
         let step = 100;
-        for (let i = 0; ; i += step) {
+        for (let i = 0;; i += step) {
             let sqls = this.sqls.slice(i, step);
-            if (sqls.length === 0) break;
+            if (sqls.length === 0)
+                break;
             await runner.sql(sqls, []);
         }
         return true;
     }
-    */
     async afterPromises(objSchemas, promises) {
         let log = this.context.log;
         let all = await Promise.all(promises);
@@ -63,6 +61,89 @@ class DbObjs {
         }
         //promises = [];
         //tables = [];
+        return true;
+    }
+    async updateTables(runner, options) {
+        let ok = true;
+        let log = this.context.log;
+        let promises = [];
+        let tables = [];
+        for (let t of this.tables) {
+            let sb = this.context.createSqlBuilder();
+            t.update(sb);
+            log('///++++++' + t.name); // 压缩界面显示
+            log(sb.sql);
+            log('------///'); // 结束压缩
+            if (promises.length >= exports.max_promises_uq_api) {
+                if (await this.afterPromises(tables, promises) === false)
+                    return false;
+                promises = [];
+                tables = [];
+            }
+            promises.push(t.updateDb(this.context, runner, options));
+            tables.push(t);
+            log();
+        }
+        if (await this.afterPromises(tables, promises) === false)
+            return false;
+        return ok;
+    }
+    async updateTablesRows(runner, options) {
+        let ok = true;
+        let log = this.context.log;
+        let promises = [];
+        let tables = [];
+        for (let t of this.tables) {
+            if (t.fieldsValuesList === undefined)
+                continue;
+            let sb = this.context.createSqlBuilder();
+            t.update(sb);
+            log('///++++++' + t.name); // 压缩界面显示
+            log(sb.sql);
+            log('------///'); // 结束压缩
+            if (promises.length >= exports.max_promises_uq_api) {
+                if (await this.afterPromises(tables, promises) === false)
+                    return false;
+                promises = [];
+                tables = [];
+            }
+            promises.push(t.updateRows(this.context, runner, options));
+            tables.push(t);
+            log();
+        }
+        if (await this.afterPromises(tables, promises) === false)
+            return false;
+        return ok;
+    }
+    async updateProcs(runner, options) {
+        let log = this.context.log;
+        let len = this.procedures.length;
+        let promises = [];
+        let procs = [];
+        for (let i = 0; i < len; i++) {
+            let p = this.procedures[i];
+            let sb = this.context.createSqlBuilder();
+            p.to(sb);
+            log('///++++++' + p.name); // 压缩界面显示
+            log(sb.sql);
+            log('------///'); // 结束压缩
+            if (promises.length >= exports.max_promises_uq_api) {
+                if (await this.afterPromises(procs, promises) === false)
+                    return false;
+                promises = [];
+                procs = [];
+            }
+            if (p.isCore === true) {
+                promises.push(p.coreUpdateDb(runner, options));
+            }
+            else {
+                promises.push(p.updateDb(runner, options));
+            }
+            procs.push(p);
+            log();
+        }
+        if (await this.afterPromises(procs, promises) === false)
+            return false;
         return true;
     }
 }

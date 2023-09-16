@@ -8,6 +8,8 @@ import { BizEntity } from "./Entity";
 // import { BizUnit } from "./Unit";
 // import { BizUser } from "./User";
 import { BizPermit, BizRole } from "./Permit";
+import { EntityRunner } from "../../../core";
+import { BizAtom } from "./Atom";
 // import { BizOptions } from "./Bud";
 
 interface Role {
@@ -18,18 +20,13 @@ interface Role {
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
     readonly bizArr: BizEntity[] = [];
-    // readonly optionsMap: { [name: string]: BizOptions };
+    readonly latestBizArr: BizEntity[] = [];
     phrases: [string, string, string, string][];
     roles: Role[];
     constructor(uq: Uq) {
         super(uq);
         this.name = '$biz';
         this.bizEntities = new Map();
-        // let bizUser = new BizUser(this);
-        // this.bizEntities.set(bizUser.name, bizUser);
-        // let bizUnit = new BizUnit(this);
-        // this.bizEntities.set(bizUnit.name, bizUnit);
-        // this.optionsMap = {};
     }
     get global(): boolean { return false; }
     get type(): string { return 'biz'; }
@@ -38,6 +35,14 @@ export class Biz extends Entity {
     parser(context: PContext) { return new PBiz(this, context); }
     db(db: Builder): object { return db.Biz(this); }
     protected internalCreateSchema(res: { [phrase: string]: string }) { new BizSchemaBuilder(this.uq, this).build(this.schema as any, res); }
+
+    anchorLatest() {
+        this.latestBizArr.push(...this.bizArr);
+    }
+
+    isLatest(phrase: string) {
+        return this.latestBizArr.find(v => v.name === phrase) !== undefined;
+    }
 
     buildPhrases() {
         let phrases: [string, string, string, string][] = [];
@@ -113,6 +118,37 @@ export class Biz extends Entity {
             }
         }
         return ret;
+    }
+
+    getAtomExtendsPairs() {
+        const pairs: [string, string][] = [];
+        const coll: { [name: string]: BizAtom } = {};
+        const pairColl: { [name: string]: BizAtom } = {};
+        for (const entity of this.latestBizArr) {
+            if (entity.type !== 'atom') continue;
+            const bizAtom = entity as BizAtom;
+            const { name } = bizAtom;
+            coll[name] = bizAtom;
+            const { extends: _extends } = bizAtom;
+            if (_extends === undefined) {
+                pairs.push(['', bizAtom.phrase]);
+            }
+            else {
+                pairs.push([_extends.phrase, bizAtom.phrase]);
+            }
+            pairColl[name] = bizAtom;
+        }
+
+        for (const [, entity] of this.bizEntities) {
+            if (entity.type !== 'atom') continue;
+            const bizAtom = entity as BizAtom;
+            if (pairColl[bizAtom.name] !== undefined) continue;
+            const { extends: _extends } = bizAtom;
+            if (_extends === undefined) continue;
+            if (coll[_extends.name] === undefined) continue;
+            pairs.push([_extends.phrase, bizAtom.phrase]);
+        }
+        return pairs;
     }
 }
 

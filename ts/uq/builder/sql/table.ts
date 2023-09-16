@@ -1,11 +1,12 @@
-import { DbContext, ObjSchema } from '../dbContext';
+import { CompileOptions, DbContext, ObjSchema } from '../dbContext';
 import * as il from '../../il';
 import { SqlBuilder } from './sqlBuilder';
 import { DataType, Index, IdDataType, StringType, FieldsValues, Field, DataTypeDef } from '../../il';
 // import { UqBuildApi } from '../../../core';
 // import { CompileOptions } from '../../../compile';
 import { ExpVal } from './exp';
-// import { errorStr } from '../../../tool';
+import { EntityRunner } from '../../../core';
+import { getErrorString } from '../../../tool';
 
 
 export interface TableFieldsValues {
@@ -90,17 +91,15 @@ export abstract class Table implements ObjSchema {
         sb.n();
         this.end(sb);
     }
-    /*
-    async updateDb(context: DbContext, runner: UqBuildApi, options: CompileOptions): Promise<string> {
+    async updateDb(context: DbContext, runner: EntityRunner, options: CompileOptions): Promise<string> {
         let updater = this.createUpdater(context, runner);
         return await updater.updateDb(options);
     }
-    async updateRows(context: DbContext, runner: UqBuildApi, options: CompileOptions): Promise<string> {
+    async updateRows(context: DbContext, runner: EntityRunner, options: CompileOptions): Promise<string> {
         let updater = this.createUpdater(context, runner);
         return await updater.updateRows(options);
     }
-    protected abstract createUpdater(context: DbContext, runner: UqBuildApi): TableUpdater;
-    */
+    protected abstract createUpdater(context: DbContext, runner: EntityRunner): TableUpdater;
     protected abstract start(sb: SqlBuilder): void;
     protected abstract end(sb: SqlBuilder): void;
     protected abstract field(sb: SqlBuilder, field: il.Field): void;
@@ -110,18 +109,18 @@ export abstract class Table implements ObjSchema {
 
 export abstract class TableUpdater {
     protected context: DbContext;
-    // protected runner: UqBuildApi;
+    protected runner: EntityRunner;
     protected table: Table;
     protected field$valid: Field;
-    constructor(context: DbContext, /*runner: UqBuildApi, */table: Table) {
+    constructor(context: DbContext, runner: EntityRunner, table: Table) {
         this.context = context;
-        // this.runner = runner;
+        this.runner = runner;
         this.table = table;
         // 原来的 ID IX 只有 const 才能有初始值。现在都可以定义初值。
         // const 有 $valid 字段，为了在生成存储过程的时候区别，在这里取值
         this.field$valid = table.fields.find(v => v?.name === '$valid');
     }
-    /*
+
     async updateDb(options: CompileOptions): Promise<string> {
         let tblName = this.table.name;
         try {
@@ -318,7 +317,8 @@ export abstract class TableUpdater {
             return undefined;
         }
         catch (err) {
-            let msg = '表[' + tblName + ']update时出错: ' + errorStr(err);
+            getErrorString
+            let msg = '表[' + tblName + ']update时出错: ' + getErrorString(err);
             // this.context.log(msg);
             debugger;
             return msg;
@@ -331,7 +331,7 @@ export abstract class TableUpdater {
             await this.buildRows();
         }
         catch (err) {
-            let msg = '表[' + tblName + '] add rows 时出错: ' + errorStr(err);
+            let msg = '表[' + tblName + '] add rows 时出错: ' + getErrorString(err);
             // this.context.log(msg);
             debugger;
             return msg;
@@ -424,5 +424,4 @@ export abstract class TableUpdater {
     protected abstract createIndex(ind: il.Index): Promise<void>;
     protected abstract alterField(field: il.Field): Promise<void>;
     protected abstract buildRows(): Promise<void>;
-    */
 }

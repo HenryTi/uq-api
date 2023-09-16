@@ -8,13 +8,9 @@ class Biz extends entity_1.Entity {
     constructor(uq) {
         super(uq);
         this.bizArr = [];
+        this.latestBizArr = [];
         this.name = '$biz';
         this.bizEntities = new Map();
-        // let bizUser = new BizUser(this);
-        // this.bizEntities.set(bizUser.name, bizUser);
-        // let bizUnit = new BizUnit(this);
-        // this.bizEntities.set(bizUnit.name, bizUnit);
-        // this.optionsMap = {};
     }
     get global() { return false; }
     get type() { return 'biz'; }
@@ -23,6 +19,12 @@ class Biz extends entity_1.Entity {
     parser(context) { return new parser_1.PBiz(this, context); }
     db(db) { return db.Biz(this); }
     internalCreateSchema(res) { new BizSchemaBuilder(this.uq, this).build(this.schema, res); }
+    anchorLatest() {
+        this.latestBizArr.push(...this.bizArr);
+    }
+    isLatest(phrase) {
+        return this.latestBizArr.find(v => v.name === phrase) !== undefined;
+    }
     buildPhrases() {
         let phrases = [];
         let roles = [];
@@ -98,6 +100,40 @@ class Biz extends entity_1.Entity {
             }
         }
         return ret;
+    }
+    getAtomExtendsPairs() {
+        const pairs = [];
+        const coll = {};
+        const pairColl = {};
+        for (const entity of this.latestBizArr) {
+            if (entity.type !== 'atom')
+                continue;
+            const bizAtom = entity;
+            const { name } = bizAtom;
+            coll[name] = bizAtom;
+            const { extends: _extends } = bizAtom;
+            if (_extends === undefined) {
+                pairs.push(['', bizAtom.phrase]);
+            }
+            else {
+                pairs.push([_extends.phrase, bizAtom.phrase]);
+            }
+            pairColl[name] = bizAtom;
+        }
+        for (const [, entity] of this.bizEntities) {
+            if (entity.type !== 'atom')
+                continue;
+            const bizAtom = entity;
+            if (pairColl[bizAtom.name] !== undefined)
+                continue;
+            const { extends: _extends } = bizAtom;
+            if (_extends === undefined)
+                continue;
+            if (coll[_extends.name] === undefined)
+                continue;
+            pairs.push([_extends.phrase, bizAtom.phrase]);
+        }
+        return pairs;
     }
 }
 exports.Biz = Biz;

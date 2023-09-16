@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TableUpdater = exports.Table = void 0;
 const il_1 = require("../../il");
+const tool_1 = require("../../../tool");
 class Table {
     constructor(dbName, tblName) {
         this.tab = 0;
@@ -73,16 +74,324 @@ class Table {
         sb.n();
         this.end(sb);
     }
+    async updateDb(context, runner, options) {
+        let updater = this.createUpdater(context, runner);
+        return await updater.updateDb(options);
+    }
+    async updateRows(context, runner, options) {
+        let updater = this.createUpdater(context, runner);
+        return await updater.updateRows(options);
+    }
 }
 exports.Table = Table;
 class TableUpdater {
-    constructor(context, /*runner: UqBuildApi, */ table) {
+    constructor(context, runner, table) {
         this.context = context;
-        // this.runner = runner;
+        this.runner = runner;
         this.table = table;
         // 原来的 ID IX 只有 const 才能有初始值。现在都可以定义初值。
         // const 有 $valid 字段，为了在生成存储过程的时候区别，在这里取值
         this.field$valid = table.fields.find(v => (v === null || v === void 0 ? void 0 : v.name) === '$valid');
+    }
+    async updateDb(options) {
+        let tblName = this.table.name;
+        try {
+            let existTable = await this.loadExistTable();
+            if (existTable === undefined) {
+                await this.createTable();
+                this.context.log('TABLE [' + tblName + '] created');
+                //await this.buildRows();
+                return undefined;
+            }
+            if (existTable.hasUnit !== this.table.hasUnit) {
+                let rebuildSucceed = await this.rebuildIfNoData();
+                if (rebuildSucceed === false) {
+                    if (existTable.hasUnit === true) {
+                        //let msg = `表[${tblName}]需要手动处理：原表${existTable.hasUnit === false ? '没' : ''}有$unit字段，新表${this.table.hasUnit === false ? '没' : ''}有$unit字段`;
+                        let msg = `表[${tblName}]需要手动处理：原表有$unit字段，新表'没'有$unit字段`;
+                        return msg;
+                    }
+                    else {
+                        await this.addColumn(this.context.unitField);
+                    }
+                }
+                existTable = await this.loadExistTable();
+            }
+            let ok = true;
+            let changed = false;
+            for (let field of existTable.fields) {
+                let fn = field.name.toLowerCase();
+                let fld = this.table.fields.find(f => f !== undefined && f.name.toLowerCase() === fn);
+                if (fld === undefined) {
+                    if (options.autoRemoveTableField === true) {
+                        //await this.dropColumn(field);
+                        this.context.log('表[' + tblName + ']应该删除字段' + fn);
+                    }
+                    else {
+                        this.context.log('原表[' + tblName + ']中的字段' + fn + '在新表中不存在');
+                    }
+                    changed = true;
+                }
+                else {
+                    let err = this.compareField(field, fld);
+                    if (err !== undefined) {
+                        this.context.log(`表[${tblName}]中的字段${fn}发生变化，${err}. 编译器尝试自动更新`);
+                        changed = true;
+                        debugger;
+                        await this.alterField(fld);
+                        //ok = false;
+                    }
+                }
+            }
+            let charBinaryFields = [];
+            for (let field of this.table.fields) {
+                if (field === undefined)
+                    continue;
+                let dt = field.dataType;
+                if (dt.isString === true) {
+                    if (dt.binary === true)
+                        charBinaryFields.push(field);
+                }
+                let fn = field.name.toLowerCase();
+                let fld = existTable.fields.find(f => f !== undefined && f.name.toLowerCase() === fn);
+                if (fld === undefined) {
+                    await this.addColumn(field);
+                    this.context.log('表[' + tblName + ']已自动添加字段' + fn);
+                    changed = true;
+                    continue;
+                }
+                if (fld.autoInc !== field.autoInc) {
+                    await this.alterField(field);
+                    this.context.log(`表[${tblName}]已改为${field.autoInc === true ? '' : '非'}自增`);
+                }
+                let dtOld = fld.dataType;
+                let cdt = this.compareDataType(dtOld, dt);
+                if (cdt !== undefined) {
+                    try {
+                        this.context.log(cdt);
+                        await this.alterField(field);
+                        this.context.log('表[' + tblName + ']字段' + fn + '类型已改为' + dt.type);
+                    }
+                    catch (err) {
+                        this.context.log('表[' + tblName + ']字段' + fn + '修改类型时错误');
+                        this.context.log(err);
+                    }
+                }
+                if (field.isDefaultEqu(fld.defaultValue) === false) {
+                    try {
+                        await this.alterField(field);
+                        this.context.log('表[' + tblName + ']字段' + fn + '默认值已改为' + field.defaultValue);
+                    }
+                    catch (err) {
+                        this.context.log('表[' + tblName + ']字段' + fn + '修改默认值时错误');
+                        this.context.log(err);
+                    }
+                }
+            }
+            for (let field of charBinaryFields) {
+                await this.alterToBinary(field);
+            }
+            if (existTable.keys === undefined) {
+                if (this.table.keys === undefined) {
+                    // nothing to do
+                }
+                else {
+                    this.context.log('表[' + tblName + ']需要手动增加Primary Key');
+                    changed = true;
+                }
+            }
+            else {
+                if (this.table.keys === undefined) {
+                    this.context.log('原表[' + tblName + ']中有Primary Key，新表中没有');
+                    changed = true;
+                }
+                else {
+                    if (this.compareIndex(existTable.keys, this.table.keys) === false) {
+                        changed = true;
+                        let rebuildSucceed = await this.rebuildIfNoData();
+                        if (rebuildSucceed === true) {
+                            // everything is ok, no index upgrade needed
+                            ok = true;
+                            return undefined;
+                        }
+                        else {
+                            ok = false;
+                            this.context.log(`错误：原表和新表[${tblName}]中的Primary Key定义不同`);
+                            this.context.log('原表 Primary Key：[' + existTable.keys.map(v => v.name).join(', ') + ']');
+                            this.context.log('新表 Primary Key：[' + this.table.keys.map(v => v.name).join(', ') + ']');
+                        }
+                    }
+                }
+            }
+            for (let ind of this.table.indexes) {
+                let indName = ind.name;
+                let ind1 = existTable.indexes.find(i => i.name === indName);
+                if (ind1 === undefined) {
+                    try {
+                        // 质疑：
+                        // 2023-03-23：看不懂
+                        // 如果在现存表中没有index，应该新创建。而不是下面这一句
+                        // --- await this.createIdIndex();
+                        //----- 以下是上面质疑的新修改
+                        await this.createIndex(ind);
+                        //----- 以上是新的修改 ----
+                        if (indName !== '$id_ix') {
+                            this.context.log(`新表[${tblName}]中的索引${indName}已经建立`);
+                            changed = true;
+                        }
+                    }
+                    catch (err) {
+                        console.error('索引创建中发生错误', err);
+                    }
+                }
+            }
+            for (let ind of existTable.indexes) {
+                let indName = ind.name;
+                let ind1 = this.table.indexes.find(i => i.name === indName);
+                if (ind1 === undefined) {
+                    await this.dropExistIndex(ind, options.autoRemoveTableIndex);
+                    changed = true;
+                }
+                else if (ind.unique !== ind1.unique) {
+                    try {
+                        if (ind.unique === true || options.autoRemoveTableIndex === true) {
+                            await this.dropExistIndex(ind, true);
+                            await this.createIndex(ind1);
+                        }
+                        else {
+                            this.context.log(`表${this.table.name}索引${ind.name}需要手动修改`);
+                        }
+                        changed = true;
+                    }
+                    catch (e) {
+                        this.context.log(`修改表${this.table.name}索引${ind.name}时发生错误`);
+                        this.context.log(e);
+                    }
+                }
+                else {
+                    let { fields } = ind;
+                    if (fields.length === 0) {
+                        this.context.log('表[' + tblName + ']中的索引' + indName + '是自建库索引');
+                    }
+                    else if (this.compareIndex(fields, ind1.fields) !== true) {
+                        this.context.log('表[' + tblName + ']中的索引' + indName + '发生变化，需要手动修改');
+                        changed = true;
+                    }
+                }
+            }
+            if (changed !== true) {
+                //this.context.log('表[' + tblName + ']没有变化');
+            }
+            //if (ok === true) await this.buildRows();
+            return undefined;
+        }
+        catch (err) {
+            tool_1.getErrorString;
+            let msg = '表[' + tblName + ']update时出错: ' + (0, tool_1.getErrorString)(err);
+            // this.context.log(msg);
+            debugger;
+            return msg;
+        }
+    }
+    async updateRows(options) {
+        let tblName = this.table.name;
+        try {
+            await this.buildRows();
+        }
+        catch (err) {
+            let msg = '表[' + tblName + '] add rows 时出错: ' + (0, tool_1.getErrorString)(err);
+            // this.context.log(msg);
+            debugger;
+            return msg;
+        }
+    }
+    async dropExistIndex(ind, autoRemoveTableIndex) {
+        let indName = ind.name;
+        let tblName = this.table.name;
+        if (autoRemoveTableIndex === true) {
+            await this.dropIndex(ind);
+            this.context.log('原表[' + tblName + ']中的索引' + indName + '已删除');
+        }
+        else {
+            this.context.log('原表[' + tblName + ']中的索引' + indName + '需要手动删除');
+        }
+    }
+    compareIndex(i1, i2) {
+        let len = i1.length;
+        if (len !== i2.length)
+            return false;
+        for (let i = 0; i < len; i++) {
+            if (i1[i].name !== i2[i].name)
+                return false;
+        }
+        return true;
+    }
+    compareDataType(preDt, newDt) {
+        let preType = preDt.type;
+        let newType = newDt.type;
+        if (newType === 'datatype') {
+            newType = newDt.dataType.type;
+        }
+        switch (newType) {
+            case 'enum':
+                newType = 'smallint';
+                break;
+            case 'textid':
+                newType = 'int';
+                break;
+        }
+        if (preType === newType) {
+            if (newDt.compare(preDt) === true)
+                return undefined;
+            return `${preType} changed`;
+        }
+        if (newType !== 'id') {
+            return `datatype changed: pre-${preType} new-${newType}`;
+        }
+        let idSize = newDt.idSize;
+        let idType;
+        if (this.context.hasUnit === true) {
+            idType = 'bigint';
+        }
+        else {
+            switch (idSize) {
+                default:
+                case '':
+                    idType = 'int';
+                    break;
+                case 'big':
+                    idType = 'bigint';
+                    break;
+                case 'small':
+                    idType = 'smallint';
+                    break;
+                case 'tiny':
+                    idType = 'tinyint';
+                    break;
+            }
+        }
+        if (idType !== preType) {
+            return `datatype changed: pre-${preType} new-${newType} ${idSize}`;
+        }
+        return undefined;
+    }
+    compareField(preField, newField) {
+        if (preField.autoInc !== newField.autoInc) {
+            return `auto inc changed: pre-${preField.autoInc} new-${newField.autoInc}`;
+        }
+        let preDt = preField.dataType, newDt = newField.dataType;
+        // 处理 DataTypeDef 的比较
+        let nndt = newDt.dataType;
+        if (nndt !== undefined) {
+            newDt = nndt;
+        }
+        let cdt = this.compareDataType(preDt, newDt);
+        if (cdt !== undefined)
+            return cdt;
+        if (preDt.compare(newDt) === true)
+            return;
+        return `datatype param changed: pre-${JSON.stringify(preDt)} new-${JSON.stringify(newDt, (key, value) => { if (key !== 'pelement')
+            return value; })}`;
     }
 }
 exports.TableUpdater = TableUpdater;
