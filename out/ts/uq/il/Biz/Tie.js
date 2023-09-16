@@ -11,8 +11,8 @@ class BizTie extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizTie(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return ret;
     }
 }

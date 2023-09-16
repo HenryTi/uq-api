@@ -1,7 +1,7 @@
 import {
     BizBase, BizAtom, BizBud, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizSpec, BizBudNone, ID, BizBudAtom, Uq, IX
+    , BizSpec, BizBudNone, ID, BizBudAtom, Uq, IX, BudFlag, BizBudIntOf
 } from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
@@ -178,6 +178,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             char: BizBudChar,
             atom: BizBudAtom,
             date: BizBudDate,
+            intof: BizBudIntOf,
             radio: BizBudRadio,
             check: BizBudCheck,
         }
@@ -190,7 +191,16 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             if (this.ts.varBrace === true) {
                 this.ts.expect(...keys);
             }
-            this.ts.readToken();
+            if (key === 'int') {
+                this.ts.readToken()
+                if (this.ts.isKeyword('of') === true) {
+                    key = 'intof';
+                    this.ts.readToken();
+                }
+            }
+            else {
+                this.ts.readToken();
+            }
         }
         let Bud = keyColl[key];
         if (Bud === undefined) {
@@ -219,10 +229,14 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         if (this.element.checkName(name) === false) {
             this.ts.error(`${name} can not be used multiple times`);
         }
-
         if (this.ts.isKeyword('index') === true) {
-            bizBud.hasIndex = true;
-            this.ts.readToken();
+            if (bizBud.canIndex === true) {
+                bizBud.flag |= BudFlag.index;
+                this.ts.readToken();
+            }
+            else {
+                this.ts.error('only int or atom can index');
+            }
         }
         return bizBud;
     }
@@ -231,12 +245,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let prop = this.parseSubItem('prop');
         this.element.props.set(prop.name, prop);
     }
-    /*
-    protected parseAssign = () => {
-        let prop = this.parseSubItem('assign');
-        this.element.assigns.set(prop.name, prop);
-    }
-    */
+
     protected scanBud(space: Space, bud: BizBud): boolean {
         let { pelement } = bud;
         if (pelement === undefined) return true;

@@ -7,7 +7,7 @@ class SchemaBuilder {
         this.uq = uq;
         this.entity = entity;
     }
-    build(schema) {
+    build(schema, res) {
         let { sName, type, isSys, isPrivate, keyValuesSchema } = this.entity;
         schema.name = sName;
         schema.type = type;

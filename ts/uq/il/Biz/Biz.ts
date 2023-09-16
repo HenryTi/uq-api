@@ -37,7 +37,7 @@ export class Biz extends Entity {
     get isBiz() { return true; }
     parser(context: PContext) { return new PBiz(this, context); }
     db(db: Builder): object { return db.Biz(this); }
-    protected internalCreateSchema() { new BizSchemaBuilder(this.uq, this).build(this.schema as any); }
+    protected internalCreateSchema(res: { [phrase: string]: string }) { new BizSchemaBuilder(this.uq, this).build(this.schema as any, res); }
 
     buildPhrases() {
         let phrases: [string, string, string, string][] = [];
@@ -120,10 +120,10 @@ interface BizSchema extends Schema {
     biz: any;
 }
 export class BizSchemaBuilder extends SchemaBuilder<Biz> {
-    build(schema: BizSchema) {
+    build(schema: BizSchema, res: { [phrase: string]: string }) {
         const { bizEntities } = this.entity;
         for (let [key, value] of bizEntities) {
-            schema[key] = value.buildSchema();
+            schema[key] = value.buildSchema(res);
         }
     }
 }

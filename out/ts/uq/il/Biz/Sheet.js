@@ -13,11 +13,11 @@ class BizSheet extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizSheet(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         if (this.main === undefined)
             debugger;
-        ret = Object.assign(Object.assign({}, ret), { main: this.main.name, acts: this.acts.map(v => v.buildSchema()) });
+        ret = Object.assign(Object.assign({}, ret), { main: this.main.name, acts: this.acts.map(v => v.buildSchema(res)) });
         this.entitySchema = JSON.stringify(ret);
         return ret;
     }
@@ -31,10 +31,10 @@ class BizMain extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizMain(this, context);
     }
-    buildSchema() {
+    buildSchema(res) {
         var _a;
-        let ret = super.buildSchema();
-        return Object.assign(Object.assign({}, ret), { target: (_a = this.target) === null || _a === void 0 ? void 0 : _a.buildSchema() });
+        let ret = super.buildSchema(res);
+        return Object.assign(Object.assign({}, ret), { target: (_a = this.target) === null || _a === void 0 ? void 0 : _a.buildSchema(res) });
     }
 }
 exports.BizMain = BizMain;
@@ -47,10 +47,10 @@ class BizDetail extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizDetail(this, context);
     }
-    buildSchema() {
+    buildSchema(res) {
         var _a, _b, _c, _d, _e;
-        let ret = super.buildSchema();
-        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend: (_a = this.pend) === null || _a === void 0 ? void 0 : _a.name, item: (_b = this.item) === null || _b === void 0 ? void 0 : _b.buildSchema(), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema() });
+        let ret = super.buildSchema(res);
+        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend: (_a = this.pend) === null || _a === void 0 ? void 0 : _a.name, item: (_b = this.item) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
     }
 }
 exports.BizDetail = BizDetail;
@@ -63,8 +63,8 @@ class BizPend extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizPend(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return Object.assign({}, ret);
     }
 }
@@ -89,8 +89,8 @@ class BizDetailAct extends Base_1.BizBase {
         return true;
     }
     getTableVar(name) { return this.tableVars[name]; }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return Object.assign(Object.assign({}, ret), { 
             // fromPend: this.fromPend?.name,
             detail: this.bizDetail.name });

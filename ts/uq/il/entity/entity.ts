@@ -61,12 +61,12 @@ export abstract class Entity extends IElement {
     keyValuesSchema: { [key: string]: string | number };
     source: string;
     schema: Schema;
-    buildSchema(): void {
+    buildSchema(res?: { [phrase: string]: string }): void {
         if (this.schema !== undefined) return;
         this.schema = {} as any;
-        this.internalCreateSchema();
+        this.internalCreateSchema(res);
     }
-    protected abstract internalCreateSchema(): void;
+    protected abstract internalCreateSchema(res?: { [phrase: string]: string }): void;
     createRun() { return; }
     getArr(arrName: string): EntityWithTable { return; }
     abstract db(db: Builder): object;

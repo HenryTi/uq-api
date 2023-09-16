@@ -171,6 +171,7 @@ class PBizEntity extends PBizBase {
             char: il_1.BizBudChar,
             atom: il_1.BizBudAtom,
             date: il_1.BizBudDate,
+            intof: il_1.BizBudIntOf,
             radio: il_1.BizBudRadio,
             check: il_1.BizBudCheck,
         };
@@ -183,7 +184,16 @@ class PBizEntity extends PBizBase {
             if (this.ts.varBrace === true) {
                 this.ts.expect(...keys);
             }
-            this.ts.readToken();
+            if (key === 'int') {
+                this.ts.readToken();
+                if (this.ts.isKeyword('of') === true) {
+                    key = 'intof';
+                    this.ts.readToken();
+                }
+            }
+            else {
+                this.ts.readToken();
+            }
         }
         let Bud = keyColl[key];
         if (Bud === undefined) {
@@ -216,17 +226,16 @@ class PBizEntity extends PBizBase {
             this.ts.error(`${name} can not be used multiple times`);
         }
         if (this.ts.isKeyword('index') === true) {
-            bizBud.hasIndex = true;
-            this.ts.readToken();
+            if (bizBud.canIndex === true) {
+                bizBud.flag |= il_1.BudFlag.index;
+                this.ts.readToken();
+            }
+            else {
+                this.ts.error('only int or atom can index');
+            }
         }
         return bizBud;
     }
-    /*
-    protected parseAssign = () => {
-        let prop = this.parseSubItem('assign');
-        this.element.assigns.set(prop.name, prop);
-    }
-    */
     scanBud(space, bud) {
         let { pelement } = bud;
         if (pelement === undefined)

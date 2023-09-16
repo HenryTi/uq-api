@@ -5,6 +5,10 @@ import { Biz } from "./Biz";
 import { BizBud } from "./Bud";
 import { OptionsItemValueType } from "./Options";
 
+export enum BudFlag {
+    none = 0x0000,
+    index = 0x0001,
+}
 export interface IBud {
     phrase: string;
     caption: string;
@@ -14,13 +18,13 @@ export interface IBud {
     typeNum: string;
     optionsItemType: OptionsItemValueType;
     value: string | number;
+    flag: BudFlag;
 }
 
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBud> = new Map();
-    // readonly assigns: Map<string, BizBud> = new Map();
-    readonly keyFields: Field[] = [];
-    readonly propFields: Field[] = [];
+    // readonly keyFields: Field[] = [];
+    // readonly propFields: Field[] = [];
     readonly biz: Biz
     entitySchema: string = undefined;
     source: string = undefined;
@@ -30,11 +34,11 @@ export abstract class BizEntity extends BizBase {
         this.biz = biz;
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         let props = []; //, assigns = [];
         for (let [, value] of this.props) {
-            props.push(value.buildSchema());
+            props.push(value.buildSchema(res));
         }
         /*
         for (let [, value] of this.assigns) {
@@ -112,7 +116,7 @@ export abstract class BizEntity extends BizBase {
         return field;
     }
 
-    buildFields() { }
+    // buildFields() { }
 
     getBud(name: string): BizBud {
         let bud = this.props.get(name);
@@ -120,7 +124,6 @@ export abstract class BizEntity extends BizBase {
         // bud = this.assigns.get(name);
         return bud;
     }
-
 
     getAllBuds(): IBud[] {
         let buds: BizBud[] = [];

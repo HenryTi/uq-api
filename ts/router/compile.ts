@@ -3,7 +3,7 @@ import { Router, Request, Response } from 'express';
 import { RouterBuilder } from './routerBuilder';
 import { UqRunner } from '../uq';
 import { EntityRunner, Net } from '../core';
-import { Biz, BizAtom, BizEntity, BizOptions, OptionsItem, OptionsItemValueType } from '../uq/il';
+import { Biz, BizAtom, BizEntity } from '../uq/il';
 
 const actionType = 'compile';
 
@@ -56,34 +56,27 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
         msgs.push(msg);
         return true;
     }
-    let t = Date.now();
-    let now: number;
-    let step = 1;
-    function logStep() {
-        // now = Date.now();
-        // console.log(`step${step++}`, now - t, now);
-        // t = now;
-    }
-    logStep();
-    let [objs, props] = await runner.unitUserTablesFromProc('GetBizObjects', unit, user);
-    logStep();
+    let [objs, props] = await runner.unitUserTablesFromProc('GetBizObjects', unit, user, 'zh', 'cn');
     const { uq } = uqRunner;
     const { biz } = uq;
+    const res: { [phrase: string]: string } = {};
     let objNames: { [name: string]: any } = {};
     let objIds: { [id: number]: any } = {};
     for (let obj of objs) {
-        const { id, phrase } = obj;
+        const { id, phrase, caption } = obj;
         objNames[phrase] = obj;
         objIds[id] = obj;
+        res[phrase] = caption;
     }
     for (let prop of props) {
-        const { id, phrase, base } = prop;
+        const { id, phrase, base, caption } = prop;
         const obj = objIds[base];
         let { props } = obj;
         if (props === undefined) {
             obj.props = props = [];
         }
         props.push(prop);
+        res[phrase] = caption;
     }
 
     biz.bizArr.splice(0);
@@ -91,7 +84,6 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
         uqRunner.parse(clientSource, 'upload');
     }
     let bizArr = [...biz.bizArr];
-    logStep();
     for (let obj of objs) {
         const { phrase, source } = obj;
         if (!source) continue;
@@ -109,33 +101,23 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
             logs: msgs,
         }
     }
-    logStep();
     await Promise.all(bizArr.map(entity => {
         return async function () {
-            const { phrase, caption, source } = entity;
+            const { type, phrase, caption, source } = entity;
             const memo = undefined;
+            let sqlIdFromKeyArr: string;
+            if (type === 'atom') {
+                sqlIdFromKeyArr = (entity as BizAtom).sqlIdFromKeyArr;
+            }
             let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject'
                 , unit, user, phrase, caption, entity.typeNum, memo, source
-                , undefined);
+                , undefined, sqlIdFromKeyArr);
             let obj = { id, phrase };
             objIds[id] = obj;
             objNames[phrase] = obj;
         }();
     }));
-    await Promise.all(bizArr.map(entity => {
-        return async function () {
-            const { phrase, caption, source } = entity;
-            const memo = undefined;
-            let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject'
-                , unit, user, phrase, caption, entity.typeNum, memo, source
-                , undefined);
-            let obj = { id, phrase };
-            objIds[id] = obj;
-            objNames[phrase] = obj;
-        }();
-    }));
-    const atomPairs = getAtomBasePairs(biz, bizArr);
-    // const pairs = atomPairs.map(v => ([v[0].phrase, v[1].phrase]));
+    const atomPairs = getAtomExtendsPairs(biz, bizArr);
     await runner.unitUserTableFromProc('SaveBizIX'
         , unit, user, JSON.stringify(atomPairs));
     await Promise.all(bizArr.map(entity => {
@@ -144,7 +126,7 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
             let buds = entity.getAllBuds();
             await Promise.all(buds.map(v => {
                 return async function () {
-                    const { phrase, caption, memo, dataTypeNum, objName } = v;
+                    const { phrase, caption, memo, dataTypeNum, objName, flag } = v;
                     const typeNum = v.typeNum;
                     let objId: number;
                     if (objName !== undefined) {
@@ -155,22 +137,20 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
                     }
                     await runner.unitUserCall('SaveBizBud'
                         , unit, user, id, phrase, caption
-                        , typeNum, memo, dataTypeNum, objId
+                        , typeNum, memo, dataTypeNum, objId, flag
                     );
                 }();
             }));
         }();
     }));
-    logStep();
-    let schemas = uq.buildSchemas();
-    logStep();
+    let schemas = uq.buildSchemas(res);
     return {
         schemas: jsonpack.pack(schemas.$biz), //: uqRunner.uq.biz.schema, //.bizArr.map(v => v.buildSchema()),
         logs: msgs,
     }
 }
 
-function getAtomBasePairs(biz: Biz, arrNew: BizEntity[]) {
+function getAtomExtendsPairs(biz: Biz, arrNew: BizEntity[]) {
     const pairs: [string, string][] = [];
     const coll: { [name: string]: BizAtom } = {};
     const pairColl: { [name: string]: BizAtom } = {};
@@ -179,12 +159,12 @@ function getAtomBasePairs(biz: Biz, arrNew: BizEntity[]) {
         const bizAtom = entity as BizAtom;
         const { name } = bizAtom;
         coll[name] = bizAtom;
-        const { base } = bizAtom;
-        if (base === undefined) {
+        const { extends: _extends } = bizAtom;
+        if (_extends === undefined) {
             pairs.push(['', bizAtom.phrase]);
         }
         else {
-            pairs.push([base.phrase, bizAtom.phrase]);
+            pairs.push([_extends.phrase, bizAtom.phrase]);
         }
         pairColl[name] = bizAtom;
     }
@@ -193,10 +173,10 @@ function getAtomBasePairs(biz: Biz, arrNew: BizEntity[]) {
         if (entity.type !== 'atom') continue;
         const bizAtom = entity as BizAtom;
         if (pairColl[bizAtom.name] !== undefined) continue;
-        const { base } = bizAtom;
-        if (base === undefined) continue;
-        if (coll[base.name] === undefined) continue;
-        pairs.push([base.phrase, bizAtom.phrase]);
+        const { extends: _extends } = bizAtom;
+        if (_extends === undefined) continue;
+        if (coll[_extends.name] === undefined) continue;
+        pairs.push([_extends.phrase, bizAtom.phrase]);
     }
     return pairs;
 }

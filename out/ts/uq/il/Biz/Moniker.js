@@ -11,8 +11,8 @@ class BizMoniker extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizMoniker(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return Object.assign({}, ret);
     }
 }

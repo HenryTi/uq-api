@@ -117,7 +117,7 @@ export class Uq extends IElement {
         this.entities[name] = ix;
     }
 
-    buildSchemas(): any {
+    buildSchemas(res: { [phrase: string]: string }): any {
         let ret = {};
         for (let i in this.entities) {
             const entity = this.entities[i];
@@ -129,7 +129,7 @@ export class Uq extends IElement {
             if (entity.isPrivate === true) continue;
             ret[i] = entity.schema;
         }
-        this.biz.buildSchema();
+        this.biz.buildSchema(res);
         ret['$biz'] = this.biz.schema;
         return ret;
     }

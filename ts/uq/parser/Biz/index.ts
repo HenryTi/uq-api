@@ -1,5 +1,6 @@
 export { PBiz } from './Biz';
 export * from './Atom';
+export * from './Spec';
 export * from './Sheet';
 export * from './Moniker';
 export * from './Bud';

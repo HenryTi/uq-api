@@ -107,7 +107,7 @@ class Uq extends element_1.IElement {
         this.IXs[name] = ix;
         this.entities[name] = ix;
     }
-    buildSchemas() {
+    buildSchemas(res) {
         let ret = {};
         for (let i in this.entities) {
             const entity = this.entities[i];
@@ -121,7 +121,7 @@ class Uq extends element_1.IElement {
                 continue;
             ret[i] = entity.schema;
         }
-        this.biz.buildSchema();
+        this.biz.buildSchema(res);
         ret['$biz'] = this.biz.schema;
         return ret;
     }

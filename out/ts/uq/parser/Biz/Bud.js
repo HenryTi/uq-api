@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizBud extends Base_1.PBizBase {
@@ -110,6 +110,9 @@ class PBizBudRadioOrCheck extends PBizBud {
         this.element.options = options;
     }
 }
+class PBizBudIntOf extends PBizBudRadioOrCheck {
+}
+exports.PBizBudIntOf = PBizBudIntOf;
 class PBizBudRadio extends PBizBudRadioOrCheck {
 }
 exports.PBizBudRadio = PBizBudRadio;

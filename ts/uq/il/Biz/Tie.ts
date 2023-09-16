@@ -9,8 +9,8 @@ export class BizTie extends BizEntity {
         return new PBizTie(this, context);
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         return ret;
     }
 }

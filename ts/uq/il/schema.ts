@@ -35,7 +35,7 @@ export class SchemaBuilder<E extends Entity> {
         this.entity = entity;
     }
 
-    build(schema: Schema) {
+    build(schema: Schema, res?: { [phrase: string]: string }) {
         let { sName, type, isSys, isPrivate, keyValuesSchema } = this.entity;
         schema.name = sName;
         schema.type = type;

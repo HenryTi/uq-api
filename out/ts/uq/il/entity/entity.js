@@ -22,11 +22,11 @@ class Entity extends element_1.IElement {
     }
     get isBiz() { return false; }
     get sName() { return this.jName || this.name; } // 保持大小写的name
-    buildSchema() {
+    buildSchema(res) {
         if (this.schema !== undefined)
             return;
         this.schema = {};
-        this.internalCreateSchema();
+        this.internalCreateSchema(res);
     }
     createRun() { return; }
     getArr(arrName) { return; }

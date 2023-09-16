@@ -1,4 +1,4 @@
-import { BigInt, BizDetailActStatement, BizDetailActSubPend, BizDetailActSubBud, PendAct, PendValueCalc, SetEqu, IX } from "../../il";
+import { BigInt, BizDetailActStatement, BizDetailActSubPend, BizDetailActSubBud, PendAct, PendValueCalc, SetEqu, IX, BudFlag } from "../../il";
 import { EnumSysTable, sysTable } from "../dbContext";
 import { ColVal, ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpNeg, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -148,7 +148,7 @@ export class BBizDetailActSubBud extends BStatement<BizDetailActSubBud> {
     }
     body(sqls: Sqls) {
         let { setEqu, value, ref, bud, no, obj, toVar } = this.istatement;
-        let { hasHistory, dataType, phrase, hasIndex: indexName } = bud;
+        let { hasHistory, dataType, phrase, flag } = bud;
         let { factory, varUnit, varUser } = this.context;
         let varPhraseId = phraseId + no;
         let varObjId = objId + no;
@@ -182,7 +182,7 @@ export class BBizDetailActSubBud extends BStatement<BizDetailActSubBud> {
         const expSite = new ExpVar('$site');
         const expUser = new ExpVar('$user');
         function buildIxBudIndex() {
-            if (indexName === undefined) return;
+            if ((flag & BudFlag.index) !== BudFlag.index) return;
             let upsert = factory.createUpsert();
             sqls.push(upsert);
             upsert.table = new EntityTable(EnumSysTable.ixBud, false);

@@ -20,6 +20,7 @@ Object.defineProperty(exports, "Biz", { enumerable: true, get: function () { ret
 __exportStar(require("./Base"), exports);
 __exportStar(require("./Sheet"), exports);
 __exportStar(require("./Atom"), exports);
+__exportStar(require("./Spec"), exports);
 __exportStar(require("./Moniker"), exports);
 __exportStar(require("./Bud"), exports);
 __exportStar(require("./Permit"), exports);

@@ -9,8 +9,8 @@ export class BizMoniker extends BizEntity {
         return new PBizMoniker(this, context);
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         return { ...ret, };
     }
 }

@@ -26,8 +26,8 @@ export class BizPermit extends BizEntity {
             value.phrase = itemPhrase;
         }
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         let items = [], permits = [];
         for (let [, value] of this.items) {
             let { phrase, name, caption } = value;

@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudOptions, Uq
+    , BizBudNone, BizBudRadio, BizBudOptions, Uq, BizBudIntOf
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -91,7 +91,7 @@ export class PBizBudAtom extends PBizBud<BizBudAtom> {
     }
 }
 
-abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extends PBizBud<T> {
+abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBudIntOf)> extends PBizBud<T> {
     private optionsName: string;
 
     protected _parse(): void {
@@ -116,6 +116,9 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extend
         }
         this.element.options = options as BizOptions;
     }
+}
+
+export class PBizBudIntOf extends PBizBudRadioOrCheck<BizBudIntOf> {
 }
 
 export class PBizBudRadio extends PBizBudRadioOrCheck<BizBudRadio> {

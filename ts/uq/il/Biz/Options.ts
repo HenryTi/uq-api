@@ -1,7 +1,7 @@
 import { PBizOptions, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizPhraseType } from "./Base";
-import { BizEntity, IBud } from "./Entity";
+import { BizEntity, BudFlag, IBud } from "./Entity";
 
 export enum OptionsItemValueType {
     none = 0,
@@ -30,8 +30,8 @@ export class BizOptions extends BizEntity {
         }
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         let items = [];
         for (let item of this.items) {
             items.push(item);
@@ -42,7 +42,7 @@ export class BizOptions extends BizEntity {
 
     getAllBuds(): IBud[] {
         const buds: IBud[] = [];
-        const typeNum = BizPhraseType['optionsitem'];
+        const typeNum = BizPhraseType.optionsitem;
         for (let item of this.items) {
             const { name, caption, value, type } = item;
             buds.push({
@@ -54,6 +54,7 @@ export class BizOptions extends BizEntity {
                 typeNum: String(typeNum),
                 optionsItemType: type,
                 value,
+                flag: BudFlag.none,
             });
         };
         return buds;

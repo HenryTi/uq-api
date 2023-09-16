@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
+const Entity_1 = require("./Entity");
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     get dataTypeNum() {
@@ -12,20 +13,24 @@ class BizBud extends Base_1.BizBase {
     get optionsItemType() { return; }
     constructor(type, name, caption) {
         super();
+        // hasIndex: boolean;
+        this.flag = Entity_1.BudFlag.none;
         this.type = type;
         this.name = name;
         this.caption = caption;
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: this.value, history: this.hasHistory === true ? true : undefined });
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
+        /*
         if (this.hasIndex === true) {
             let phrase = this.phrase + '.$index';
             phrases.push([phrase, '', '', '0']);
         }
+        */
     }
 }
 exports.BizBud = BizBud;
@@ -33,12 +38,13 @@ class BizBudNone extends BizBud {
     constructor() {
         super(...arguments);
         this.dataType = 'none';
+        this.canIndex = false;
     }
     parser(context) {
         return new parser_1.PBizBudNone(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return ret;
     }
 }
@@ -47,12 +53,13 @@ class BizBudInt extends BizBud {
     constructor() {
         super(...arguments);
         this.dataType = 'int';
+        this.canIndex = true;
     }
     parser(context) {
         return new parser_1.PBizBudInt(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return ret;
     }
 }
@@ -61,12 +68,13 @@ class BizBudDec extends BizBud {
     constructor() {
         super(...arguments);
         this.dataType = 'dec';
+        this.canIndex = false;
     }
     parser(context) {
         return new parser_1.PBizBudDec(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return ret;
     }
 }
@@ -75,12 +83,13 @@ class BizBudChar extends BizBud {
     constructor() {
         super(...arguments);
         this.dataType = 'char';
+        this.canIndex = false;
     }
     parser(context) {
         return new parser_1.PBizBudChar(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return ret;
     }
 }
@@ -89,12 +98,13 @@ class BizBudDate extends BizBud {
     constructor() {
         super(...arguments);
         this.dataType = 'date';
+        this.canIndex = false;
     }
     parser(context) {
         return new parser_1.PBizBudDate(this, context);
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         return ret;
     }
 }
@@ -116,13 +126,14 @@ class BizBudAtom extends BizBud {
     constructor() {
         super(...arguments);
         this.dataType = 'atom';
+        this.canIndex = true;
     }
     parser(context) {
         return new parser_1.PBizBudAtom(this, context);
     }
-    buildSchema() {
+    buildSchema(res) {
         var _a;
-        let ret = super.buildSchema();
+        let ret = super.buildSchema(res);
         return Object.assign(Object.assign({}, ret), { atom: (_a = this.atom) === null || _a === void 0 ? void 0 : _a.name });
     }
     get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
@@ -133,18 +144,30 @@ class BizBudOptions extends BizBud {
         super(...arguments);
         this.items = [];
     }
-    buildSchema() {
+    buildSchema(res) {
         var _a;
-        let ret = super.buildSchema();
+        let ret = super.buildSchema(res);
         return Object.assign(Object.assign({}, ret), { options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase });
     }
     get objName() { var _a; return (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
 exports.BizBudOptions = BizBudOptions;
+class BizBudIntOf extends BizBudOptions {
+    constructor() {
+        super(...arguments);
+        this.dataType = 'intof';
+        this.canIndex = true;
+    }
+    parser(context) {
+        return new parser_1.PBizBudIntOf(this, context);
+    }
+}
+exports.BizBudIntOf = BizBudIntOf;
 class BizBudRadio extends BizBudOptions {
     constructor() {
         super(...arguments);
         this.dataType = 'radio';
+        this.canIndex = false;
     }
     parser(context) {
         return new parser_1.PBizBudRadio(this, context);
@@ -155,6 +178,7 @@ class BizBudCheck extends BizBudOptions {
     constructor() {
         super(...arguments);
         this.dataType = 'check';
+        this.canIndex = false;
     }
     parser(context) {
         return new parser_1.PBizBudCheck(this, context);

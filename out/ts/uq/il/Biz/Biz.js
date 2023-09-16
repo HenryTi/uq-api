@@ -22,7 +22,7 @@ class Biz extends entity_1.Entity {
     get isBiz() { return true; }
     parser(context) { return new parser_1.PBiz(this, context); }
     db(db) { return db.Biz(this); }
-    internalCreateSchema() { new BizSchemaBuilder(this.uq, this).build(this.schema); }
+    internalCreateSchema(res) { new BizSchemaBuilder(this.uq, this).build(this.schema, res); }
     buildPhrases() {
         let phrases = [];
         let roles = [];
@@ -102,10 +102,10 @@ class Biz extends entity_1.Entity {
 }
 exports.Biz = Biz;
 class BizSchemaBuilder extends schema_1.SchemaBuilder {
-    build(schema) {
+    build(schema, res) {
         const { bizEntities } = this.entity;
         for (let [key, value] of bizEntities) {
-            schema[key] = value.buildSchema();
+            schema[key] = value.buildSchema(res);
         }
     }
 }

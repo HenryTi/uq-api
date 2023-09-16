@@ -1,25 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntity = void 0;
+exports.BizEntity = exports.BudFlag = void 0;
 const datatype_1 = require("../datatype");
 const field_1 = require("../field");
 const Base_1 = require("./Base");
+var BudFlag;
+(function (BudFlag) {
+    BudFlag[BudFlag["none"] = 0] = "none";
+    BudFlag[BudFlag["index"] = 1] = "index";
+})(BudFlag = exports.BudFlag || (exports.BudFlag = {}));
 class BizEntity extends Base_1.BizBase {
     constructor(biz) {
         super();
         this.props = new Map();
-        // readonly assigns: Map<string, BizBud> = new Map();
-        this.keyFields = [];
-        this.propFields = [];
         this.entitySchema = undefined;
         this.source = undefined;
         this.biz = biz;
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         let props = []; //, assigns = [];
         for (let [, value] of this.props) {
-            props.push(value.buildSchema());
+            props.push(value.buildSchema(res));
         }
         /*
         for (let [, value] of this.assigns) {
@@ -107,7 +109,7 @@ class BizEntity extends Base_1.BizBase {
         field.dataType = fieldDataType;
         return field;
     }
-    buildFields() { }
+    // buildFields() { }
     getBud(name) {
         let bud = this.props.get(name);
         // if (bud !== undefined) return bud;

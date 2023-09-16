@@ -1,4 +1,4 @@
-import { BigInt, BizBud, BizSpec, Char, DDate, DataType, Dec, Field, Index, bigIntField, tinyIntField } from "../../il";
+import { BigInt, BizSpec, Field, Index, bigIntField, tinyIntField } from "../../il";
 import { EnumSysTable, sysTable } from "../dbContext";
 import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure } from "../sql";
 import { LockType } from "../sql/select";
@@ -12,7 +12,8 @@ export class BBizSpec extends BBizBase<BizSpec> {
         let table = this.context.createTable(`spec$${this.base.name}`);
         tables.push(table);
 
-        let { keyFields, propFields } = this.base;
+        // let { keyFields, propFields } = this.base;
+        /*
         let idField = bigIntField('id');
         table.keys = [idField];
         let baseField = bigIntField('base');
@@ -27,6 +28,7 @@ export class BBizSpec extends BBizBase<BizSpec> {
         let index = new Index('base_keys', true);
         index.fields.push(...indexFields);
         table.indexes.push(index);
+        */
     }
 
     buildProcedures(): void {
@@ -38,6 +40,7 @@ export class BBizSpec extends BBizBase<BizSpec> {
     }
 
     private buildIdFunc(func: Procedure) {
+        /*
         let { factory } = this.context;
         let { parameters, statements } = func;
         parameters.push(
@@ -108,5 +111,6 @@ export class BBizSpec extends BBizBase<BizSpec> {
             cols.push({ col: kName, val: new ExpVar(kName) });
         }
         statements.push(ret$Id);
+        */
     }
 }

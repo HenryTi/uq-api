@@ -146,7 +146,7 @@ class BBizDetailActSubBud extends bstatement_1.BStatement {
     }
     body(sqls) {
         let { setEqu, value, ref, bud, no, obj, toVar } = this.istatement;
-        let { hasHistory, dataType, phrase, hasIndex: indexName } = bud;
+        let { hasHistory, dataType, phrase, flag } = bud;
         let { factory, varUnit, varUser } = this.context;
         let varPhraseId = phraseId + no;
         let varObjId = objId + no;
@@ -179,7 +179,7 @@ class BBizDetailActSubBud extends bstatement_1.BStatement {
         const expSite = new sql_1.ExpVar('$site');
         const expUser = new sql_1.ExpVar('$user');
         function buildIxBudIndex() {
-            if (indexName === undefined)
+            if ((flag & il_1.BudFlag.index) !== il_1.BudFlag.index)
                 return;
             let upsert = factory.createUpsert();
             sqls.push(upsert);

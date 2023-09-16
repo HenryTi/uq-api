@@ -15,13 +15,13 @@ export class BizSheet extends BizEntity {
         return new PBizSheet(this, context);
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         if (this.main === undefined) debugger;
         ret = {
             ...ret,
             main: this.main.name,
-            acts: this.acts.map(v => v.buildSchema()),
+            acts: this.acts.map(v => v.buildSchema(res)),
         };
         this.entitySchema = JSON.stringify(ret);
         return ret;
@@ -36,11 +36,11 @@ export class BizMain extends BizEntity {
         return new PBizMain(this, context);
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         return {
             ...ret,
-            target: this.target?.buildSchema(),
+            target: this.target?.buildSchema(res),
         };
     }
 }
@@ -59,16 +59,16 @@ export class BizDetail extends BizEntity {
         return new PBizDetail(this, context);
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         return {
             ...ret,
             main: this.main.name,
             pend: this.pend?.name,
-            item: this.item?.buildSchema(),
-            value: this.value?.buildSchema(),
-            amount: this.amount?.buildSchema(),
-            price: this.price?.buildSchema(),
+            item: this.item?.buildSchema(res),
+            value: this.value?.buildSchema(res),
+            amount: this.amount?.buildSchema(res),
+            price: this.price?.buildSchema(res),
         }
     }
 }
@@ -81,8 +81,8 @@ export class BizPend extends BizEntity {
         return new PBizPend(this, context);
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         return {
             ...ret,
             // detail: this.detail.name,
@@ -118,8 +118,8 @@ export class BizDetailAct extends BizBase {
 
     getTableVar(name: string): TableVar { return this.tableVars[name] }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         return {
             ...ret,
             // fromPend: this.fromPend?.name,

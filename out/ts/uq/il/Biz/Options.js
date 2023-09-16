@@ -27,8 +27,8 @@ class BizOptions extends Entity_1.BizEntity {
             phrases.push([`${this.basePhrase}`, caption, this.basePhrase, this.typeNum]);
         }
     }
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
         let items = [];
         for (let item of this.items) {
             items.push(item);
@@ -38,7 +38,7 @@ class BizOptions extends Entity_1.BizEntity {
     }
     getAllBuds() {
         const buds = [];
-        const typeNum = Base_1.BizPhraseType['optionsitem'];
+        const typeNum = Base_1.BizPhraseType.optionsitem;
         for (let item of this.items) {
             const { name, caption, value, type } = item;
             buds.push({
@@ -50,6 +50,7 @@ class BizOptions extends Entity_1.BizEntity {
                 typeNum: String(typeNum),
                 optionsItemType: type,
                 value,
+                flag: Entity_1.BudFlag.none,
             });
         }
         ;

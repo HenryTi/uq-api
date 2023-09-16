@@ -8,8 +8,8 @@ export class BizTree extends BizEntity {
         return new PBizTree(this, context);
     }
 
-    buildSchema() {
-        let ret = super.buildSchema();
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
         return { ...ret, };
     }
 }

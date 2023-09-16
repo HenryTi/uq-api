@@ -2,8 +2,8 @@ import { IElement } from "../element";
 
 export enum BizPhraseType {
     atom = 11,
-    uom = 12,
-    spec = 13,
+    // uom = 12,
+    // spec = 13,
     sheet = 101,
     role = 201,
     permit = 202,
@@ -13,7 +13,7 @@ export enum BizPhraseType {
 
     key = 1001,
     prop = 1011,
-    assign = 1021,
+    // assign = 1021,
     optionsitem = 1031,
 };
 
@@ -44,12 +44,13 @@ export abstract class BizBase extends IElement {
         this.jName = jName;
     }
 
-    buildSchema(): any {
+    buildSchema(res: { [phrase: string]: string }): any {
         return {
             name: this.name,
             jName: this.jName,
             type: this.type,
-            caption: this.caption,
+            phrase: this.phrase,
+            caption: res[this.phrase] ?? this.caption,
         }
     };
     checkName(name: string): boolean {

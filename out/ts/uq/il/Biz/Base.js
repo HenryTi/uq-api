@@ -5,8 +5,8 @@ const element_1 = require("../element");
 var BizPhraseType;
 (function (BizPhraseType) {
     BizPhraseType[BizPhraseType["atom"] = 11] = "atom";
-    BizPhraseType[BizPhraseType["uom"] = 12] = "uom";
-    BizPhraseType[BizPhraseType["spec"] = 13] = "spec";
+    // uom = 12,
+    // spec = 13,
     BizPhraseType[BizPhraseType["sheet"] = 101] = "sheet";
     BizPhraseType[BizPhraseType["role"] = 201] = "role";
     BizPhraseType[BizPhraseType["permit"] = 202] = "permit";
@@ -14,7 +14,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["with"] = 151] = "with";
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";
     BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";
-    BizPhraseType[BizPhraseType["assign"] = 1021] = "assign";
+    // assign = 1021,
     BizPhraseType[BizPhraseType["optionsitem"] = 1031] = "optionsitem";
 })(BizPhraseType = exports.BizPhraseType || (exports.BizPhraseType = {}));
 ;
@@ -40,12 +40,14 @@ class BizBase extends element_1.IElement {
             return;
         this.jName = jName;
     }
-    buildSchema() {
+    buildSchema(res) {
+        var _a;
         return {
             name: this.name,
             jName: this.jName,
             type: this.type,
-            caption: this.caption,
+            phrase: this.phrase,
+            caption: (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : this.caption,
         };
     }
     ;
