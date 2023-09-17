@@ -10,6 +10,11 @@ class BBizEntity {
     }
     async buildProcedures() {
     }
+    createProcedure(procName) {
+        const proc = this.context.createProcedure(procName, true);
+        this.context.coreObjs.procedures.push(proc);
+        return proc;
+    }
 }
 exports.BBizEntity = BBizEntity;
 //# sourceMappingURL=BizEntity.js.map

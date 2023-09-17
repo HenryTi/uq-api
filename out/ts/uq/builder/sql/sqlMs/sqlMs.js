@@ -121,6 +121,8 @@ class MsProcedure extends procedure_1.Procedure {
     createUpdater() {
         return;
     }
+    buildDrop(sb) {
+    }
     start(sb) {
     }
     end(sb) {

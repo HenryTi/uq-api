@@ -144,6 +144,11 @@ export class DbObjs {
         let procs: Procedure[] = [];
         for (let i = 0; i < len; i++) {
             let p = this.procedures[i];
+
+            let sbDrop = this.context.createSqlBuilder();
+            p.drop(sbDrop);
+
+
             let sb = this.context.createSqlBuilder();
             p.to(sb);
             log('///++++++' + p.name);  // 压缩界面显示
@@ -234,6 +239,7 @@ export class DbContext implements il.Builder {
     readonly varUnit: ExpVar;
     readonly varUser: ExpVar;
     readonly site: number;
+    ownerDbName: string; // 在$site里面建存储过程，访问uq表的内容
 
     constructor(compilerVersion: string, sqlType: string
         , dbName: string, twProfix: string
@@ -261,17 +267,19 @@ export class DbContext implements il.Builder {
         this.varUser = new ExpVar(userParamName);
     }
 
+    get objDbName(): string { return this.ownerDbName ?? this.dbName; }
+
     createTable(tblName: string): Table {
-        return this.factory.createTable(this.dbName, tblName);
+        return this.factory.createTable(this.objDbName, tblName);
     }
 
     createProcedure(procName: string, isCore: boolean = false): Procedure {
-        return this.factory.createProcedure(this.dbName, procName, isCore);
+        return this.factory.createProcedure(this.objDbName, procName, isCore);
     }
 
     // isCore = true; function必须在编译时刻生成。运行时没有机会生成。
     createFunction(procName: string, returnType: DataType): Procedure {
-        return this.factory.createFunction(this.dbName, procName, returnType);
+        return this.factory.createFunction(this.objDbName, procName, returnType);
     }
 
     createSqlBuilder() {
@@ -282,13 +290,13 @@ export class DbContext implements il.Builder {
     }
 
     createAppProc(name: string, isCore: boolean = false): Procedure {
-        let p = this.factory.createProcedure(this.dbName, name, isCore);
+        let p = this.factory.createProcedure(this.objDbName, name, isCore);
         this.appObjs.procedures.push(p);
         return p;
     }
 
     createAppFunc(name: string, returnType: DataType): Procedure {
-        let p = this.factory.createFunction(this.dbName, name, returnType);
+        let p = this.factory.createFunction(this.objDbName, name, returnType);
         this.appObjs.procedures.push(p);
         return p;
     }

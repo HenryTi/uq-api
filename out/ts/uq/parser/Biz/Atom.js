@@ -20,14 +20,15 @@ class PBizAtom extends Base_1.PBizEntity {
             let name = this.ts.lowerVar;
             this.ts.readToken();
             let caption = this.ts.mayPassString();
+            let bizBud = this.parseBud('prop', name, caption);
+            this.element.keys.push(bizBud);
             if (name !== 'no') {
                 if (this.isValidPropName(name) === false) {
                     return;
                 }
+                this.element.props.set(name, bizBud);
             }
-            let bizBud = this.parseBud('prop', name, caption);
             this.ts.passToken(tokens_1.Token.SEMICOLON);
-            this.element.keys.push(bizBud);
         };
         this.parseEx = () => {
             this.ts.readToken();

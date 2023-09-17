@@ -102,20 +102,31 @@ class BizSiteBuilder {
             logs: msgs,
         }
         */
-        this.buildSiteDbs(log);
+        await this.buildSiteDbs(log);
     }
     async buildSiteDbs(log) {
         const hasUnit = false;
         const compilerVersion = '0.0';
-        let context = new builder_1.DbContext(compilerVersion, sqlType, dbSiteName, '', log, hasUnit);
+        const compileOptions = {
+            uqIds: [],
+            user: 0,
+            action: 'thoroughly',
+            autoRemoveTableField: false,
+            autoRemoveTableIndex: false,
+        };
+        let context = new builder_1.DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
+        context.ownerDbName = '$site';
         //const bUq = new BUq(this.biz.uq, context);
         // let bizDbBuilder = this.biz.db(context);
         //let a = this.biz.db(context) as BBiz;
         //a.buildProcedures();
         for (let bizEntity of this.biz.latestBizArr) {
             let builder = bizEntity.db(context);
+            if (builder === undefined)
+                continue;
             await builder.buildProcedures();
         }
+        await context.coreObjs.updateDb(this.runner, compileOptions);
     }
     buildSchemas() {
         return this.biz.uq.buildSchemas(this.res);

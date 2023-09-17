@@ -156,6 +156,7 @@ class SqlBuilder {
     date() { this.append('DATE'); }
     time() { this.append('TIME'); }
     dateTime(dt) { this.append('DATETIME').l().append(dt.precision).r(); }
+    json() { this.append('JSON'); }
     char(char) {
         this.append('VARCHAR').l().append(char.size).r();
     }

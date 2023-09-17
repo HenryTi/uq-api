@@ -113,13 +113,12 @@ class MyDbUq extends MyDb_1.MyDb {
         return;
     }
     async uqProc(procName, procSql, procType) {
-        let ret = await this.saveProc(procName, procSql);
-        let t0 = ret[0];
-        let changed = t0[0]['changed'];
-        let isOk = changed === 0;
-        this.procColl[procName.toLowerCase()] = isOk;
-        if (procType === Db_1.ProcType.proc)
-            return;
+        // let ret = await this.saveProc(procName, procSql);
+        // let t0 = ret[0];
+        // let changed = t0[0]['changed'];
+        // let isOk = changed === 0;
+        // this.procColl[procName.toLowerCase()] = isOk;
+        // if (procType === ProcType.proc) return;
         let isFunc = (procType === Db_1.ProcType.func);
         await this.buildUqProc(procName, procSql, isFunc);
     }
@@ -136,9 +135,6 @@ class MyDbUq extends MyDb_1.MyDb {
         await this.proc('$proc_save', [this.name, this.twProfix + procName, undefined]);
     }
     async buildUqProc(procName, procSql, isFunc = false) {
-        // let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-        // let drop = `DROP ${type} IF EXISTS \`${this.name}\`.\`${procName}\`;`;
-        // await this.sql(drop, undefined);
         await this.runSqlDropProc(procName, isFunc);
         await this.sql(procSql, undefined);
         // clear changed flag

@@ -1,3 +1,4 @@
+import { BBizAtom, DbContext } from "../../builder";
 import { PBizAtom, PBizAtomState, PBizSpec, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizBase } from "./Base";
@@ -63,6 +64,10 @@ export class BizAtom extends BizEntity {
             value.buildPhrases(phrases, this.phrase)
         }
         */
+    }
+
+    db(dbContext: DbContext): BBizAtom {
+        return new BBizAtom(dbContext, this);
     }
 }
 

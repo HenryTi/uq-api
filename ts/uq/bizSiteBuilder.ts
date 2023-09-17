@@ -1,5 +1,5 @@
 import { EntityRunner } from "../core";
-import { BBiz, BUq, DbContext } from "./builder";
+import { BBiz, BUq, CompileOptions, DbContext } from "./builder";
 import { Biz, BizBud, BizEntity, IBud } from "./il";
 
 const sqlType = 'mysql';
@@ -119,21 +119,32 @@ export class BizSiteBuilder {
             logs: msgs,
         }
         */
-        this.buildSiteDbs(log);
+        await this.buildSiteDbs(log);
     }
 
     private async buildSiteDbs(log: (msg: string) => boolean) {
         const hasUnit = false;
         const compilerVersion = '0.0';
-        let context = new DbContext(compilerVersion, sqlType, dbSiteName, '', log, hasUnit);
+        const compileOptions: CompileOptions = {
+            uqIds: [],
+            user: 0,
+            action: 'thoroughly',
+            autoRemoveTableField: false,
+            autoRemoveTableIndex: false,
+        }
+        let context = new DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
+        context.ownerDbName = '$site';
         //const bUq = new BUq(this.biz.uq, context);
         // let bizDbBuilder = this.biz.db(context);
         //let a = this.biz.db(context) as BBiz;
         //a.buildProcedures();
         for (let bizEntity of this.biz.latestBizArr) {
             let builder = bizEntity.db(context);
+            if (builder === undefined) continue;
             await builder.buildProcedures();
         }
+
+        await context.coreObjs.updateDb(this.runner, compileOptions);
     }
 
     buildSchemas() {

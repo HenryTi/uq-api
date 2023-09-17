@@ -124,11 +124,11 @@ export class MsProcedure extends Procedure {
     protected createUpdater(): ProcedureUpdater {
         return;
     }
+    protected buildDrop(sb: SqlBuilder): void {
+    }
     protected start(sb: SqlBuilder) {
-
     }
     protected end(sb: SqlBuilder) {
-
     }
     protected param(sb: SqlBuilder, p: Field) { sb.append(p.name); }
     protected declareStart(sb: SqlBuilder) {

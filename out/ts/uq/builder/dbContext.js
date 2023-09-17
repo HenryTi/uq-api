@@ -122,6 +122,8 @@ class DbObjs {
         let procs = [];
         for (let i = 0; i < len; i++) {
             let p = this.procedures[i];
+            let sbDrop = this.context.createSqlBuilder();
+            p.drop(sbDrop);
             let sb = this.context.createSqlBuilder();
             p.to(sb);
             log('///++++++' + p.name); // 压缩界面显示
@@ -215,15 +217,16 @@ class DbContext {
         this.userParam = userField;
         this.varUser = new sql_1.ExpVar(sqlBuilder_1.userParamName);
     }
+    get objDbName() { var _a; return (_a = this.ownerDbName) !== null && _a !== void 0 ? _a : this.dbName; }
     createTable(tblName) {
-        return this.factory.createTable(this.dbName, tblName);
+        return this.factory.createTable(this.objDbName, tblName);
     }
     createProcedure(procName, isCore = false) {
-        return this.factory.createProcedure(this.dbName, procName, isCore);
+        return this.factory.createProcedure(this.objDbName, procName, isCore);
     }
     // isCore = true; function必须在编译时刻生成。运行时没有机会生成。
     createFunction(procName, returnType) {
-        return this.factory.createFunction(this.dbName, procName, returnType);
+        return this.factory.createFunction(this.objDbName, procName, returnType);
     }
     createSqlBuilder() {
         let sb = this.factory.createSqlBuilder();
@@ -232,12 +235,12 @@ class DbContext {
         return sb;
     }
     createAppProc(name, isCore = false) {
-        let p = this.factory.createProcedure(this.dbName, name, isCore);
+        let p = this.factory.createProcedure(this.objDbName, name, isCore);
         this.appObjs.procedures.push(p);
         return p;
     }
     createAppFunc(name, returnType) {
-        let p = this.factory.createFunction(this.dbName, name, returnType);
+        let p = this.factory.createFunction(this.objDbName, name, returnType);
         this.appObjs.procedures.push(p);
         return p;
     }

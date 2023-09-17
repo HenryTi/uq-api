@@ -73,8 +73,13 @@ export abstract class Procedure implements ObjSchema {
         this.parameters.push(userParam);
     }
 
+    drop(sb: SqlBuilder) {
+        this.buildDrop(sb);
+    }
+
     to(sb: SqlBuilder) {
         let tab = this.tab + 1;
+        this.buildDrop(sb);
         this.start(sb);
         let vars: { [name: string]: Field } = {};
         for (let s of this.statements) {
@@ -116,6 +121,7 @@ export abstract class Procedure implements ObjSchema {
     }
 
     protected abstract createUpdater(runner: EntityRunner): ProcedureUpdater;
+    protected abstract buildDrop(sb: SqlBuilder): void;
     protected abstract start(sb: SqlBuilder): void;
     protected abstract end(sb: SqlBuilder): void;
     protected abstract param(sb: SqlBuilder, p: Field): void;
@@ -192,6 +198,5 @@ export abstract class ProcedureUpdater {
     }
 
     protected abstract updateProc(options: CompileOptions): Promise<void>;
-
     protected abstract updateCoreProc(options: CompileOptions): Promise<void>;
 }

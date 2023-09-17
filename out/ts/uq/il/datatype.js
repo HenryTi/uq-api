@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createDataType = exports.createDataProtoType = exports.Bin = exports.Text = exports.Char = exports.DateTime = exports.TimeStamp = exports.Time = exports.DDate = exports.Double = exports.Float = exports.BigInt = exports.Int = exports.SmallInt = exports.TinyInt = exports.Dec = exports.Of = exports.EnumDataType = exports.TextId = exports.DataTypeDef = exports.IdDataType = exports.StringType = exports.NumType = exports.UnkownType = exports.DataType = exports.defaultStampOnUpdate = exports.defaultStampCurrent = void 0;
+exports.createDataType = exports.createDataProtoType = exports.Bin = exports.Text = exports.Char = exports.JsonDataType = exports.DateTime = exports.TimeStamp = exports.Time = exports.DDate = exports.Double = exports.Float = exports.BigInt = exports.Int = exports.SmallInt = exports.TinyInt = exports.Dec = exports.Of = exports.EnumDataType = exports.TextId = exports.DataTypeDef = exports.IdDataType = exports.StringType = exports.NumType = exports.UnkownType = exports.DataType = exports.defaultStampOnUpdate = exports.defaultStampCurrent = void 0;
 const parser = require("../parser");
 const element_1 = require("./element");
 const intMax = 4503599627370495;
@@ -338,6 +338,18 @@ class DateTime extends DataType {
     }
 }
 exports.DateTime = DateTime;
+class JsonDataType extends DataType {
+    get type() { return 'json'; }
+    get defaultValue() { return ''; }
+    get isNum() { return false; }
+    parser(context) { return new parser.PJsonDataType(this, context); }
+    sql(dtb) { dtb.json(); }
+    compare(jsonDataType) {
+        let { type } = jsonDataType;
+        return (type === 'json');
+    }
+}
+exports.JsonDataType = JsonDataType;
 class Char extends StringType {
     constructor(size = 50) {
         super();

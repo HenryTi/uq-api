@@ -27,6 +27,7 @@ export interface DataTypeBuilder {
     text(dt: Text): void;
     timestamp(): void;
     bin(b: Bin): void;
+    json(): void;
 }
 
 function compareDateString(cur: string, pre: string) {
@@ -342,6 +343,17 @@ export class DateTime extends DataType {
     min(): any { return '1000-1-1' }
     protected compareDefaultString(cur: string, pre: string) {
         return compareDateString(cur, pre);
+    }
+}
+export class JsonDataType extends DataType {
+    get type(): string { return 'json'; }
+    get defaultValue(): any { return ''; }
+    get isNum() { return false; }
+    parser(context: parser.PContext) { return new parser.PJsonDataType(this, context); }
+    sql(dtb: DataTypeBuilder) { dtb.json(); }
+    compare(jsonDataType: DataType): boolean {
+        let { type } = jsonDataType;
+        return (type === 'json');
     }
 }
 export class Char extends StringType {

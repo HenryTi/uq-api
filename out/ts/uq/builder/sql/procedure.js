@@ -53,8 +53,12 @@ class Procedure {
         this.parameters.push(unitField);
         this.parameters.push(userParam);
     }
+    drop(sb) {
+        this.buildDrop(sb);
+    }
     to(sb) {
         let tab = this.tab + 1;
+        this.buildDrop(sb);
         this.start(sb);
         let vars = {};
         for (let s of this.statements) {

@@ -1,4 +1,4 @@
-import { BizAtom, BizAtomState, BizSpec } from "../../il";
+import { BizAtom, BizAtomState } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizBase, PBizEntity } from "./Base";
@@ -61,14 +61,15 @@ export class PBizAtom extends PBizEntity<BizAtom> {
         let name = this.ts.lowerVar;
         this.ts.readToken();
         let caption: string = this.ts.mayPassString();
+        let bizBud = this.parseBud('prop', name, caption);
+        this.element.keys.push(bizBud);
         if (name !== 'no') {
             if (this.isValidPropName(name) === false) {
                 return;
             }
+            this.element.props.set(name, bizBud);
         }
-        let bizBud = this.parseBud('prop', name, caption);
         this.ts.passToken(Token.SEMICOLON);
-        this.element.keys.push(bizBud);
     }
 
     private parseEx = () => {

@@ -9,6 +9,12 @@ class MyProcedure extends procedure_1.Procedure {
     createUpdater(runner) {
         return new ProcedureUpdater(this.dbContext, runner, this);
     }
+    buildDrop(sb) {
+        sb.append('DROP Procedure IF Exists `')
+            .append(this.dbName)
+            .append('`.`')
+            .append(this.dbProcName).append('`;');
+    }
     start(sb) {
         sb.append('CREATE ');
         sb.append(this.returnDataType === undefined ? 'PROCEDURE' : 'FUNCTION');
@@ -100,12 +106,22 @@ class ProcedureUpdater extends procedure_1.ProcedureUpdater {
         let sql = sb.sql;
         return sql;
     }
+    buildDropSql() {
+        let sb = this.context.factory.createSqlBuilder();
+        this.proc.drop(sb);
+        let sql = sb.sql;
+        return sql;
+    }
     async updateProc() {
+        let sqlDrop = this.buildDropSql();
+        await this.uqBuildApi.sql(sqlDrop, undefined);
         let sql = this.buildProcSql();
         let procName = this.getUploadProcName();
         await this.uqBuildApi.procSql(procName, sql);
     }
     async updateCoreProc() {
+        let sqlDrop = this.buildDropSql();
+        await this.uqBuildApi.sql(sqlDrop, undefined);
         let sql = this.buildProcSql();
         let procName = this.getUploadProcName();
         await this.uqBuildApi.procCoreSql(procName, sql, this.proc.returnDataType !== undefined);

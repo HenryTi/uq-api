@@ -91,4 +91,5 @@ export class SBuilder implements DataTypeBuilder {
     bin(b: Bin) { this.buf += 'varbinary(' + b.size + ')' }
     text(dt: Text) { this.buf += dt.size + 'text' }
     timestamp() { this.buf += 'timestamp' }
+    json(): void { this.buf += 'json'; }
 }

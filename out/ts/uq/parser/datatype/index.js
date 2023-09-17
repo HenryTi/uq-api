@@ -1,4 +1,18 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PDataType = exports.PDataTypeDef = exports.PBin = exports.PText = exports.PChar = exports.PDateTime = exports.PTime = exports.PDate = exports.PDouble = exports.PFloat = exports.PBigInt = exports.PInt = exports.PSmallInt = exports.PTinyInt = exports.PDec = exports.POf = exports.PEnumDataType = exports.PTextId = exports.PId = void 0;
 var id_1 = require("./id");
@@ -28,6 +42,7 @@ var time_1 = require("./time");
 Object.defineProperty(exports, "PTime", { enumerable: true, get: function () { return time_1.PTime; } });
 var datetime_1 = require("./datetime");
 Object.defineProperty(exports, "PDateTime", { enumerable: true, get: function () { return datetime_1.PDateTime; } });
+__exportStar(require("./json"), exports);
 var char_1 = require("./char");
 Object.defineProperty(exports, "PChar", { enumerable: true, get: function () { return char_1.PChar; } });
 var text_1 = require("./text");

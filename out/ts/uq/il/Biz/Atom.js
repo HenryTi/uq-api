@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizAtomState = exports.BizAtom = void 0;
+const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -58,6 +59,9 @@ class BizAtom extends Entity_1.BizEntity {
             value.buildPhrases(phrases, this.phrase)
         }
         */
+    }
+    db(dbContext) {
+        return new builder_1.BBizAtom(dbContext, this);
     }
 }
 exports.BizAtom = BizAtom;

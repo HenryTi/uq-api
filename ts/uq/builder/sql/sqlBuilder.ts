@@ -154,6 +154,7 @@ export abstract class SqlBuilder implements il.DataTypeBuilder {
     date() { this.append('DATE'); }
     time() { this.append('TIME'); }
     dateTime(dt: il.DateTime) { this.append('DATETIME').l().append(dt.precision).r(); }
+    json() { this.append('JSON'); }
     char(char: il.Char) {
         this.append('VARCHAR').l().append(char.size).r();
     }

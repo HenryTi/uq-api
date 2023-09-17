@@ -11,6 +11,7 @@ export { PDouble } from './double';
 export { PDate } from './date';
 export { PTime } from './time';
 export { PDateTime } from './datetime';
+export * from './json';
 export { PChar } from './char';
 export { PText } from './text';
 export { PBin } from './bin';

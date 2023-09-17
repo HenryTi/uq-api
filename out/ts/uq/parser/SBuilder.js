@@ -99,6 +99,7 @@ class SBuilder {
     bin(b) { this.buf += 'varbinary(' + b.size + ')'; }
     text(dt) { this.buf += dt.size + 'text'; }
     timestamp() { this.buf += 'timestamp'; }
+    json() { this.buf += 'json'; }
 }
 exports.SBuilder = SBuilder;
 //# sourceMappingURL=SBuilder.js.map

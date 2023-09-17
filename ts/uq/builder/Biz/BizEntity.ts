@@ -13,4 +13,10 @@ export class BBizEntity<B extends BizEntity = any> {
     }
     async buildProcedures() {
     }
+
+    protected createProcedure(procName: string) {
+        const proc = this.context.createProcedure(procName, true);
+        this.context.coreObjs.procedures.push(proc);
+        return proc;
+    }
 }
