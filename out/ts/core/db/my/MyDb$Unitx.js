@@ -5,9 +5,9 @@ const consts_1 = require("../../consts");
 const tool_1 = require("../../../tool");
 const MyDbUq_1 = require("./MyDbUq");
 class MyDb$Unitx extends MyDbUq_1.MyDbUq {
-    constructor(isTesting) {
+    constructor(myDbs, isTesting) {
         const { $unitx, $test } = consts_1.consts;
-        super(isTesting === true ? $unitx + $test : $unitx);
+        super(myDbs, isTesting === true ? $unitx + $test : $unitx);
     }
     initConfig(dbName) {
         var _a, _b;

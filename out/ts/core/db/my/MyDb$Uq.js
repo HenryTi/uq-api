@@ -4,12 +4,11 @@ exports.MyDb$Uq = void 0;
 const tool_1 = require("../../../tool");
 const consts_1 = require("../../consts");
 const locals_1 = require("../../locals");
-const sqlsVersion_1 = require("./sqlsVersion");
 const MyDb_1 = require("./MyDb");
 const dbUqVersion = '1.0';
 class MyDb$Uq extends MyDb_1.MyDb {
-    constructor() {
-        super(consts_1.consts.$uq);
+    constructor(myDbs) {
+        super(myDbs, consts_1.consts.$uq);
     }
     initConfig(dbName) { return tool_1.env.connection; }
     async createDatabase() {
@@ -80,7 +79,7 @@ class MyDb$Uq extends MyDb_1.MyDb {
         }
     }
     async create$UqDb() {
-        let sqls = sqlsVersion_1.sqlsVersion;
+        let sqls = this.myDbs.sqlsVersion;
         try {
             let createUqTable = 'CREATE TABLE IF NOT EXISTS $uq.uq (id int not null auto_increment, `name` varchar(50), compile_tick INT, create_time timestamp not null default current_timestamp, uid bigint not null default 0, primary key(`name`), unique key unique_id (id))';
             await this.sql(createUqTable, undefined);

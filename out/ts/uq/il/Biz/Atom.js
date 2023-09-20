@@ -1,78 +1,117 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizAtomState = exports.BizAtom = void 0;
+exports.BizPick = exports.BizAtomIDAny = exports.BizAtomBud = exports.BizAtomSpec = exports.BizAtomIDWithBase = exports.BizAtom = exports.BizAtomID = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
-class BizAtom extends Entity_1.BizEntity {
+class BizAtomID extends Entity_1.BizEntity {
+    get basePhrase() { return this.extends === undefined ? '' : this.extends.phrase; }
+    buildPhrases(phrases, prefix) {
+        super.buildPhrases(phrases, prefix);
+    }
+    buildSchema(res) {
+        var _a;
+        let ret = super.buildSchema(res);
+        return Object.assign(ret, { extends: (_a = this.extends) === null || _a === void 0 ? void 0 : _a.name });
+    }
+}
+exports.BizAtomID = BizAtomID;
+class BizAtom extends BizAtomID {
     constructor() {
         super(...arguments);
-        this.type = 'atom';
-        this.keys = [];
+        this.bizPhraseType = Base_1.BizPhraseType.atom;
     }
     parser(context) {
         return new parser_1.PBizAtom(this, context);
     }
     buildSchema(res) {
+        var _a;
         let ret = super.buildSchema(res);
-        let _extends;
-        if (this.extends !== undefined) {
-            _extends = this.extends.name;
-        }
-        let spec;
-        if (this.spec !== undefined) {
-            spec = this.spec.name;
-        }
-        let entitySchema = {
-            name: this.name,
-            type: "id",
-            biz: "atom",
-            private: false,
-            sys: true,
-            global: false,
-            idType: 3,
-            isMinute: false,
-        };
-        this.entitySchema = JSON.stringify(entitySchema);
-        return Object.assign(ret, { extends: _extends, spec, uom: this.uom });
-    }
-    get basePhrase() { return this.extends === undefined ? '' : this.extends.phrase; }
-    getUom() {
-        if (this.uom === true)
-            return true;
-        if (this.extends === undefined)
-            return;
-        return this.extends.getUom();
-    }
-    setUom() {
-        if (this.uom === true)
-            return true;
-        if (this.extends !== undefined) {
-            this.uom = this.extends.getUom();
-        }
-    }
-    buildPhrases(phrases, prefix) {
-        super.buildPhrases(phrases, prefix);
-        /*
-        for (let [, value] of this.states) {
-            value.buildPhrases(phrases, this.phrase)
-        }
-        */
+        return Object.assign(ret, {
+            uuid: this.uuid,
+            uom: this.uom,
+            ex: (_a = this.ex) === null || _a === void 0 ? void 0 : _a.buildSchema(res),
+        });
     }
     db(dbContext) {
         return new builder_1.BBizAtom(dbContext, this);
     }
 }
 exports.BizAtom = BizAtom;
-class BizAtomState extends Base_1.BizBase {
-    constructor() {
-        super(...arguments);
-        this.type = 'atomstate';
-    }
-    parser(context) {
-        return new parser_1.PBizAtomState(this, context);
+class BizAtomIDWithBase extends BizAtomID {
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        return Object.assign(ret, {
+            base: this.base.name,
+        });
     }
 }
-exports.BizAtomState = BizAtomState;
+exports.BizAtomIDWithBase = BizAtomIDWithBase;
+class BizAtomSpec extends BizAtomIDWithBase {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = Base_1.BizPhraseType.spec;
+        this.keys = [];
+    }
+    parser(context) {
+        return new parser_1.PBizAtomSpec(this, context);
+    }
+    buildSchema(res) {
+        var _a;
+        let ret = super.buildSchema(res);
+        return Object.assign(ret, {
+            keys: (_a = this.keys) === null || _a === void 0 ? void 0 : _a.map(v => v.buildSchema(res)),
+        });
+    }
+}
+exports.BizAtomSpec = BizAtomSpec;
+class BizAtomBud extends BizAtomIDWithBase {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = Base_1.BizPhraseType.bud;
+    }
+    parser(context) {
+        return new parser_1.PBizAtomBud(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        return Object.assign(ret, {
+            join: this.join.name,
+        });
+    }
+}
+exports.BizAtomBud = BizAtomBud;
+class BizAtomIDAny extends BizAtomID {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = Base_1.BizPhraseType.any;
+        this.name = '*';
+    }
+    parser(context) { return undefined; }
+}
+BizAtomIDAny.current = new BizAtomIDAny(undefined);
+exports.BizAtomIDAny = BizAtomIDAny;
+class BizPick extends Entity_1.BizEntity {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = Base_1.BizPhraseType.pick;
+        this.atoms = [];
+        this.joins = [];
+    }
+    parser(context) {
+        return new parser_1.PBizPick(this, context);
+    }
+    buildSchema(res) {
+        var _a;
+        let ret = super.buildSchema(res);
+        return Object.assign(ret, {
+            atoms: this.atoms.map(v => v.name),
+            uom: this.uom,
+            spec: (_a = this.spec) === null || _a === void 0 ? void 0 : _a.name,
+            joins: this.joins.map(v => v.name),
+        });
+    }
+}
+exports.BizPick = BizPick;
 //# sourceMappingURL=Atom.js.map

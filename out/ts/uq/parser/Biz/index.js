@@ -18,7 +18,6 @@ exports.PBiz = void 0;
 var Biz_1 = require("./Biz");
 Object.defineProperty(exports, "PBiz", { enumerable: true, get: function () { return Biz_1.PBiz; } });
 __exportStar(require("./Atom"), exports);
-__exportStar(require("./Spec"), exports);
 __exportStar(require("./Sheet"), exports);
 __exportStar(require("./Moniker"), exports);
 __exportStar(require("./Bud"), exports);

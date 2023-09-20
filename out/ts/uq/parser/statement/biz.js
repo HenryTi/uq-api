@@ -223,7 +223,7 @@ class PBizDetailActSubBud extends element_1.PElement {
             this.element.bud = bud;
             let { dataType, hasHistory } = bud;
             if (setEqu === il_1.SetEqu.add || setEqu === il_1.SetEqu.sub) {
-                if (dataType !== 'int' && dataType !== 'dec') {
+                if (dataType !== il_1.BudDataType.int && dataType !== il_1.BudDataType.dec) {
                     this.log('only int or dec support += or -=');
                     ok = false;
                 }

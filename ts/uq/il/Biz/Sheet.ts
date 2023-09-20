@@ -2,12 +2,13 @@ import { PBizDetail, PBizDetailAct, PBizMain, PBizPend, PBizSheet, PContext, PEl
 import { IElement } from "../element";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
-import { BizBase } from "./Base";
+import { BizAtom, BizPick } from "./Atom";
+import { BizBase, BizPhraseType } from "./Base";
 import { BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
-    readonly type = 'sheet';
+    readonly bizPhraseType = BizPhraseType.sheet;
     main: BizMain;
     readonly acts: BizDetailAct[] = [];
 
@@ -23,13 +24,13 @@ export class BizSheet extends BizEntity {
             main: this.main.name,
             acts: this.acts.map(v => v.buildSchema(res)),
         };
-        this.entitySchema = JSON.stringify(ret);
+        // this.entitySchema = JSON.stringify(ret);
         return ret;
     }
 }
 
 export class BizMain extends BizEntity {
-    readonly type = 'main';
+    readonly bizPhraseType = BizPhraseType.main;
     target: BizBud;
 
     parser(context: PContext): PElement<IElement> {
@@ -45,11 +46,17 @@ export class BizMain extends BizEntity {
     }
 }
 
+interface DetailItem {
+    caption: string;
+    atom: string;
+    pick: string;
+}
+
 export class BizDetail extends BizEntity {
-    readonly type = 'detail';
+    readonly bizPhraseType = BizPhraseType.detail;
     readonly acts: BizDetailAct[] = [];
     main: BizMain;
-    item: BizBud;
+    item: DetailItem;
     pend: BizPend;
     value: BizBud;
     price: BizBud;
@@ -65,7 +72,7 @@ export class BizDetail extends BizEntity {
             ...ret,
             main: this.main.name,
             pend: this.pend?.name,
-            item: this.item?.buildSchema(res),
+            item: this.item,
             value: this.value?.buildSchema(res),
             amount: this.amount?.buildSchema(res),
             price: this.price?.buildSchema(res),
@@ -74,7 +81,7 @@ export class BizDetail extends BizEntity {
 }
 
 export class BizPend extends BizEntity {
-    readonly type = 'pend';
+    readonly bizPhraseType = BizPhraseType.pend;
     // detail: BizDetail;
 
     parser(context: PContext): PElement<IElement> {
@@ -91,7 +98,7 @@ export class BizPend extends BizEntity {
 }
 
 export class BizDetailAct extends BizBase {
-    readonly type = 'detailAct';
+    readonly bizPhraseType = BizPhraseType.detailAct;
     readonly bizDetail: BizDetail;
     readonly tableVars: { [name: string]: TableVar } = {};
 

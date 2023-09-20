@@ -4,27 +4,24 @@ import {
     , PBizBudIntOf, PBizBudNone, PBizBudRadio, PContext, PElement
 } from "../../parser";
 import { IElement } from "../element";
-import { BizBase, BudDataType } from "./Base";
-import { BizAtom } from "./Atom";
+import { BizBase, BizPhraseType, BudDataType } from "./Base";
+import { BizAtom, BizAtomID } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BudFlag } from "./Entity";
 
 export abstract class BizBud extends BizBase {
-    readonly type: string;
-    abstract get dataType(): 'none' | 'int' | 'dec' | 'char' | 'date' | 'ID' | 'atom' | 'intof' | 'radio' | 'check';
+    readonly bizPhraseType = BizPhraseType.prop;
+
+    abstract get dataType(): BudDataType;
     abstract get canIndex(): boolean;
     get objName(): string { return undefined; }
-    get dataTypeNum(): number {
-        return BudDataType[this.dataType] ?? 0;
-    }
     value: string | number;
     hasHistory: boolean;
     // hasIndex: boolean;
     flag: BudFlag = BudFlag.none;
     get optionsItemType(): OptionsItemValueType { return; }
-    constructor(type: string, name: string, caption: string) {
+    constructor(name: string, caption: string) {
         super();
-        this.type = type;
         this.name = name;
         this.caption = caption;
     }
@@ -45,7 +42,7 @@ export abstract class BizBud extends BizBase {
 }
 
 export class BizBudNone extends BizBud {
-    readonly dataType = 'none';
+    readonly dataType = BudDataType.none;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudNone(this, context);
@@ -57,7 +54,7 @@ export class BizBudNone extends BizBud {
 }
 
 export class BizBudInt extends BizBud {
-    readonly dataType = 'int';
+    readonly dataType = BudDataType.int;
     readonly canIndex = true;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudInt(this, context);
@@ -69,7 +66,7 @@ export class BizBudInt extends BizBud {
 }
 
 export class BizBudDec extends BizBud {
-    readonly dataType = 'dec';
+    readonly dataType = BudDataType.dec;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDec(this, context);
@@ -81,7 +78,7 @@ export class BizBudDec extends BizBud {
 }
 
 export class BizBudChar extends BizBud {
-    readonly dataType = 'char';
+    readonly dataType = BudDataType.char;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudChar(this, context);
@@ -93,7 +90,7 @@ export class BizBudChar extends BizBud {
 }
 
 export class BizBudDate extends BizBud {
-    readonly dataType = 'date';
+    readonly dataType = BudDataType.date;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDate(this, context);
@@ -103,23 +100,11 @@ export class BizBudDate extends BizBud {
         return ret;
     }
 }
-/*
-export class BizBudID extends BizBud {
-    readonly dataType = 'ID';
-    ID: ID;
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudID(this, context);
-    }
-    buildSchema() {
-        let ret = super.buildSchema();
-        return { ...ret, ID: this.ID?.name };
-    }
-}
-*/
+
 export class BizBudAtom extends BizBud {
-    readonly dataType = 'atom';
+    readonly dataType = BudDataType.atom;
     readonly canIndex = true;
-    atom: BizAtom;
+    atom: BizAtomID;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudAtom(this, context);
     }
@@ -149,7 +134,7 @@ export abstract class BizBudOptions extends BizBud {
 }
 
 export class BizBudIntOf extends BizBudOptions {
-    readonly dataType = 'intof';
+    readonly dataType = BudDataType.intof;
     readonly canIndex = true;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIntOf(this, context);
@@ -157,7 +142,7 @@ export class BizBudIntOf extends BizBudOptions {
 }
 
 export class BizBudRadio extends BizBudOptions {
-    readonly dataType = 'radio';
+    readonly dataType = BudDataType.radio;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudRadio(this, context);
@@ -165,7 +150,7 @@ export class BizBudRadio extends BizBudOptions {
 }
 
 export class BizBudCheck extends BizBudOptions {
-    readonly dataType = 'check';
+    readonly dataType = BudDataType.check;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudCheck(this, context);

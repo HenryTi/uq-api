@@ -52,6 +52,7 @@ export interface Stack {
     func(func: string, n: number, isUqFunc: boolean): void;
     groupFunc(func: string, exp: ValueExpression): void;
     funcUqDefined(func: string, n: number): void;
+    jsonProp(): void;
 
     var(name: string): void;
     field(name: string, tbl?: string): void;
@@ -197,6 +198,9 @@ export class OpNeg extends Atom {
 }
 export class OpParenthese extends Atom {
     to(stack: Stack) { stack.parenthese() }
+}
+export class OpJsonProp extends Atom {
+    to(stack: Stack) { stack.jsonProp(); }
 }
 export class OpAt extends Atom {
     bizName: string[];

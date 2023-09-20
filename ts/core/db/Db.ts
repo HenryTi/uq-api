@@ -43,6 +43,9 @@ export interface DbUq extends Db {
 
     saveTextId(text: string): Promise<number>;
     buildTuidAutoId(): Promise<void>;
+
+    isUnsupportProc(proc: string): boolean;
+    get sqlVersionNumber(): number;
 }
 
 export interface Db$Uq extends Db {

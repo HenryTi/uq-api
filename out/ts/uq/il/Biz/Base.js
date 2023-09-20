@@ -4,17 +4,25 @@ exports.BizBase = exports.BudDataType = exports.BizPhraseType = void 0;
 const element_1 = require("../element");
 var BizPhraseType;
 (function (BizPhraseType) {
+    BizPhraseType[BizPhraseType["any"] = 0] = "any";
     BizPhraseType[BizPhraseType["atom"] = 11] = "atom";
-    // uom = 12,
-    // spec = 13,
+    BizPhraseType[BizPhraseType["spec"] = 12] = "spec";
+    BizPhraseType[BizPhraseType["bud"] = 13] = "bud";
     BizPhraseType[BizPhraseType["sheet"] = 101] = "sheet";
+    BizPhraseType[BizPhraseType["main"] = 102] = "main";
+    BizPhraseType[BizPhraseType["detail"] = 103] = "detail";
+    BizPhraseType[BizPhraseType["pend"] = 104] = "pend";
+    BizPhraseType[BizPhraseType["detailAct"] = 111] = "detailAct";
+    BizPhraseType[BizPhraseType["with"] = 151] = "with";
+    BizPhraseType[BizPhraseType["pick"] = 161] = "pick";
     BizPhraseType[BizPhraseType["role"] = 201] = "role";
     BizPhraseType[BizPhraseType["permit"] = 202] = "permit";
     BizPhraseType[BizPhraseType["options"] = 301] = "options";
-    BizPhraseType[BizPhraseType["with"] = 151] = "with";
+    BizPhraseType[BizPhraseType["tree"] = 401] = "tree";
+    BizPhraseType[BizPhraseType["tie"] = 501] = "tie";
+    BizPhraseType[BizPhraseType["moniker"] = 901] = "moniker";
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";
     BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";
-    // assign = 1021,
     BizPhraseType[BizPhraseType["optionsitem"] = 1031] = "optionsitem";
 })(BizPhraseType = exports.BizPhraseType || (exports.BizPhraseType = {}));
 ;
@@ -25,14 +33,17 @@ var BudDataType;
     BudDataType[BudDataType["atom"] = 12] = "atom";
     BudDataType[BudDataType["radio"] = 13] = "radio";
     BudDataType[BudDataType["check"] = 14] = "check";
+    BudDataType[BudDataType["intof"] = 15] = "intof";
     BudDataType[BudDataType["ID"] = 19] = "ID";
     BudDataType[BudDataType["dec"] = 21] = "dec";
     BudDataType[BudDataType["char"] = 31] = "char";
     BudDataType[BudDataType["str"] = 32] = "str";
     BudDataType[BudDataType["date"] = 41] = "date";
+    BudDataType[BudDataType["datetime"] = 42] = "datetime";
 })(BudDataType = exports.BudDataType || (exports.BudDataType = {}));
 ;
 class BizBase extends element_1.IElement {
+    get type() { return BizPhraseType[this.bizPhraseType]; }
     setJName(jName) {
         if (jName === undefined)
             return;

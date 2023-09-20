@@ -8,7 +8,6 @@ class PBizPermit extends Base_1.PBizBase {
         super(...arguments);
         this.permits = {};
     }
-    get defaultName() { return undefined; }
     parseContent() {
         for (;;) {
             if (this.ts.token !== tokens_1.Token.VAR)
@@ -106,7 +105,6 @@ class PBizRole extends Base_1.PBizBase {
         this.withs = [];
         this.roleNames = [];
     }
-    get defaultName() { return undefined; }
     parseContent() {
         for (;;) {
             if (this.ts.varBrace === true)

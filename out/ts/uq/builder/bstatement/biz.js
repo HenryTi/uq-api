@@ -169,10 +169,10 @@ class BBizDetailActSubBud extends bstatement_1.BStatement {
                 table = dbContext_1.EnumSysTable.ixBudInt;
                 buildIxBudIndex();
                 break;
-            case 'char':
+            case il_1.BudDataType.char:
                 table = dbContext_1.EnumSysTable.ixBudStr;
                 break;
-            case 'dec':
+            case il_1.BudDataType.dec:
                 table = dbContext_1.EnumSysTable.ixBudDec;
                 break;
         }

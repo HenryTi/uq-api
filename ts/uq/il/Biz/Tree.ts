@@ -1,9 +1,10 @@
 import { PBizTree, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
+import { BizPhraseType, BudDataType } from "./Base";
 import { BizEntity } from "./Entity";
 
 export class BizTree extends BizEntity {
-    readonly type = 'tree';
+    readonly bizPhraseType = BizPhraseType.tree;
     parser(context: PContext): PElement<IElement> {
         return new PBizTree(this, context);
     }

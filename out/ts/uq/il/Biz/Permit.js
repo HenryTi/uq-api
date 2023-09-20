@@ -2,10 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizRole = exports.BizPermit = void 0;
 const parser_1 = require("../../parser");
+const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
 class BizPermit extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
+        this.bizPhraseType = Base_1.BizPhraseType.permit;
         this.items = new Map();
         this.permits = new Map();
     }
@@ -40,6 +42,7 @@ exports.BizPermit = BizPermit;
 class BizRole extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
+        this.bizPhraseType = Base_1.BizPhraseType.role;
         this.permitItems = new Map();
         this.permits = new Map();
         this.roles = new Map();

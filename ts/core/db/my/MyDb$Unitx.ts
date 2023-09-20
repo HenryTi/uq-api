@@ -2,13 +2,14 @@ import { consts } from "../../consts";
 import { env } from "../../../tool";
 import { Db$Unitx } from "../Db";
 import { MyDbUq } from "./MyDbUq";
+import { MyDbs } from "./MyDbs";
 
 export class MyDb$Unitx extends MyDbUq implements Db$Unitx {
     serverId: number;
 
-    constructor(isTesting: boolean) {
+    constructor(myDbs: MyDbs, isTesting: boolean) {
         const { $unitx, $test } = consts;
-        super(isTesting === true ? $unitx + $test : $unitx);
+        super(myDbs, isTesting === true ? $unitx + $test : $unitx);
     }
 
     protected override initConfig(dbName: string) {

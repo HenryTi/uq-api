@@ -1,5 +1,5 @@
 import { Space } from '../space';
-import { BizDetailActStatement, BizDetailActSubPend, BizDetailActSubStatement, BizDetailActSubBud, BizPend, BizMoniker, PendAct, PendValueCalc, ValueExpression, Var, VarPointer, SetEqu } from '../../il';
+import { BizDetailActStatement, BizDetailActSubPend, BizDetailActSubStatement, BizDetailActSubBud, BizPend, BizMoniker, PendAct, PendValueCalc, ValueExpression, Var, VarPointer, SetEqu, BudDataType } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
 import { PElement } from '../element';
@@ -223,7 +223,7 @@ export class PBizDetailActSubBud extends PElement<BizDetailActSubBud> {
             this.element.bud = bud;
             let { dataType, hasHistory } = bud;
             if (setEqu === SetEqu.add || setEqu === SetEqu.sub) {
-                if (dataType !== 'int' && dataType !== 'dec') {
+                if (dataType !== BudDataType.int && dataType !== BudDataType.dec) {
                     this.log('only int or dec support += or -=');
                     ok = false;
                 }

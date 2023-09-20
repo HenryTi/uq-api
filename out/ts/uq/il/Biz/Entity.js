@@ -13,7 +13,7 @@ class BizEntity extends Base_1.BizBase {
     constructor(biz) {
         super();
         this.props = new Map();
-        this.entitySchema = undefined;
+        // entitySchema: string = undefined;
         this.source = undefined;
         this.biz = biz;
     }
@@ -92,17 +92,17 @@ class BizEntity extends Base_1.BizBase {
             default:
                 debugger;
                 throw new Error(`unknown BizBud ${dataType}`);
-            case 'int':
-            case 'ID':
+            case Base_1.BudDataType.int:
+            case Base_1.BudDataType.ID:
                 fieldDataType = new datatype_1.BigInt();
                 break;
-            case 'date':
+            case Base_1.BudDataType.date:
                 fieldDataType = new datatype_1.DDate();
                 break;
-            case 'dec':
+            case Base_1.BudDataType.dec:
                 fieldDataType = new datatype_1.Dec(20, 6);
                 break;
-            case 'char':
+            case Base_1.BudDataType.char:
                 fieldDataType = new datatype_1.Char(50);
                 break;
         }

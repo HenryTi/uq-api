@@ -6,16 +6,12 @@ const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
-    get dataTypeNum() {
-        var _a;
-        return (_a = Base_1.BudDataType[this.dataType]) !== null && _a !== void 0 ? _a : 0;
-    }
     get optionsItemType() { return; }
-    constructor(type, name, caption) {
+    constructor(name, caption) {
         super();
+        this.bizPhraseType = Base_1.BizPhraseType.prop;
         // hasIndex: boolean;
         this.flag = Entity_1.BudFlag.none;
-        this.type = type;
         this.name = name;
         this.caption = caption;
     }
@@ -37,7 +33,7 @@ exports.BizBud = BizBud;
 class BizBudNone extends BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = 'none';
+        this.dataType = Base_1.BudDataType.none;
         this.canIndex = false;
     }
     parser(context) {
@@ -52,7 +48,7 @@ exports.BizBudNone = BizBudNone;
 class BizBudInt extends BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = 'int';
+        this.dataType = Base_1.BudDataType.int;
         this.canIndex = true;
     }
     parser(context) {
@@ -67,7 +63,7 @@ exports.BizBudInt = BizBudInt;
 class BizBudDec extends BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = 'dec';
+        this.dataType = Base_1.BudDataType.dec;
         this.canIndex = false;
     }
     parser(context) {
@@ -82,7 +78,7 @@ exports.BizBudDec = BizBudDec;
 class BizBudChar extends BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = 'char';
+        this.dataType = Base_1.BudDataType.char;
         this.canIndex = false;
     }
     parser(context) {
@@ -97,7 +93,7 @@ exports.BizBudChar = BizBudChar;
 class BizBudDate extends BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = 'date';
+        this.dataType = Base_1.BudDataType.date;
         this.canIndex = false;
     }
     parser(context) {
@@ -109,23 +105,10 @@ class BizBudDate extends BizBud {
     }
 }
 exports.BizBudDate = BizBudDate;
-/*
-export class BizBudID extends BizBud {
-    readonly dataType = 'ID';
-    ID: ID;
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudID(this, context);
-    }
-    buildSchema() {
-        let ret = super.buildSchema();
-        return { ...ret, ID: this.ID?.name };
-    }
-}
-*/
 class BizBudAtom extends BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = 'atom';
+        this.dataType = Base_1.BudDataType.atom;
         this.canIndex = true;
     }
     parser(context) {
@@ -155,7 +138,7 @@ exports.BizBudOptions = BizBudOptions;
 class BizBudIntOf extends BizBudOptions {
     constructor() {
         super(...arguments);
-        this.dataType = 'intof';
+        this.dataType = Base_1.BudDataType.intof;
         this.canIndex = true;
     }
     parser(context) {
@@ -166,7 +149,7 @@ exports.BizBudIntOf = BizBudIntOf;
 class BizBudRadio extends BizBudOptions {
     constructor() {
         super(...arguments);
-        this.dataType = 'radio';
+        this.dataType = Base_1.BudDataType.radio;
         this.canIndex = false;
     }
     parser(context) {
@@ -177,7 +160,7 @@ exports.BizBudRadio = BizBudRadio;
 class BizBudCheck extends BizBudOptions {
     constructor() {
         super(...arguments);
-        this.dataType = 'check';
+        this.dataType = Base_1.BudDataType.check;
         this.canIndex = false;
     }
     parser(context) {

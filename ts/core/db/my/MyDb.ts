@@ -2,12 +2,13 @@ import * as _ from 'lodash';
 import { Db } from '../Db';
 import { MyDbBase } from './MyDbBase';
 import { DbLogger, SpanLog } from '../dbLogger';
+import { MyDbs } from './MyDbs';
 
 export abstract class MyDb extends MyDbBase implements Db {
     readonly name: string;
     private readonly dbLogger: DbLogger;
-    constructor(dbName: string) {
-        super(dbName);
+    constructor(myDbs: MyDbs, dbName: string) {
+        super(myDbs, dbName);
         this.name = dbName;
         this.dbLogger = new DbLogger();
     }

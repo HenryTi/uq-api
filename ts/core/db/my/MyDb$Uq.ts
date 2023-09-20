@@ -2,14 +2,14 @@ import { env, logger } from "../../../tool";
 import { consts } from "../../consts";
 import { locals } from "../../locals";
 import { Db$Uq } from "../Db";
-import { sqlsVersion } from "./sqlsVersion";
 import { MyDb } from "./MyDb";
+import { MyDbs } from "./MyDbs";
 
 const dbUqVersion = '1.0';
 
 export class MyDb$Uq extends MyDb implements Db$Uq {
-    constructor() {
-        super(consts.$uq);
+    constructor(myDbs: MyDbs) {
+        super(myDbs, consts.$uq);
     }
 
     protected override initConfig(dbName: string) { return env.connection; }
@@ -85,7 +85,7 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
     }
 
     private async create$UqDb(): Promise<void> {
-        let sqls = sqlsVersion;
+        let sqls = this.myDbs.sqlsVersion;
         try {
             let createUqTable = 'CREATE TABLE IF NOT EXISTS $uq.uq (id int not null auto_increment, `name` varchar(50), compile_tick INT, create_time timestamp not null default current_timestamp, uid bigint not null default 0, primary key(`name`), unique key unique_id (id))';
             await this.sql(createUqTable, undefined);

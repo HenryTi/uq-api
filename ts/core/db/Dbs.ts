@@ -1,6 +1,7 @@
 import { env, SqlType } from "../../tool";
 import { Db$Res, Db$Unitx, Db$Uq, DbUq, DbNoName } from "./Db";
 import { MyDbs } from "./my";
+const { version: uq_api_version } = require('../../../package.json');
 
 export interface Dbs {
     readonly db$Uq: Db$Uq;
@@ -12,6 +13,7 @@ export interface Dbs {
 
     start(): Promise<void>;
     getDbUq(dbName: string): Promise<DbUq>;      // dbName = uqName [+ $test]
+    get uq_api_version(): string;
 }
 
 
@@ -24,7 +26,7 @@ export function getDbs(): Dbs {
         case SqlType.mssql:
             throw new Error('sqltype mssql not implemented');
         case SqlType.mysql:
-            dbs = new MyDbs();
+            dbs = new MyDbs(uq_api_version);
     }
     return dbs;
 }

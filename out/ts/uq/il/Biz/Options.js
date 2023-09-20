@@ -14,7 +14,7 @@ var OptionsItemValueType;
 class BizOptions extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.type = 'options';
+        this.bizPhraseType = Base_1.BizPhraseType.options;
         this.items = [];
     }
     parser(context) {
@@ -45,7 +45,7 @@ class BizOptions extends Entity_1.BizEntity {
                 phrase: `${this.name}.${name}`,
                 caption,
                 memo: undefined,
-                dataTypeNum: undefined,
+                dataType: undefined,
                 objName: undefined,
                 typeNum: String(typeNum),
                 optionsItemType: type,

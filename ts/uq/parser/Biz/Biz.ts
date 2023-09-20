@@ -1,7 +1,7 @@
 import {
     Biz, BizAct, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
     , BizMoniker as BizMoniker, Entity, Pointer, Table, Uq, BizTree, BizTie, BizMain, BizDetail
-    , BizPend, BizSheet, BizSpec, BizOptions
+    , BizPend, BizSheet, BizOptions, BizAtomBud, BizAtomSpec, BizPick
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -15,7 +15,8 @@ export class PBiz extends PEntity<Biz> {
         super(entity, context);
         this.pRoots = {
             atom: BizAtom,
-            spec: BizSpec,
+            spec: BizAtomSpec,
+            bud: BizAtomBud,
 
             moniker: BizMoniker,
             options: BizOptions,
@@ -27,6 +28,7 @@ export class PBiz extends PEntity<Biz> {
             main: BizMain,
             detail: BizDetail,
             pend: BizPend,
+            pick: BizPick,
 
             tree: BizTree,
             tie: BizTie,
@@ -42,14 +44,13 @@ export class PBiz extends PEntity<Biz> {
         const keys = [...Object.keys(this.pRoots), 'act', 'query'];
         if (this.ts.isKeyword('biz') === true) this.ts.readToken();
         if (this.ts.varBrace === true) {
-            this.ts.expect(...keys);
+            this.ts.expect('Biz Entity');
         }
         let entityType = this.ts.lowerVar;
         let Root = this.pRoots[entityType];
         if (Root === undefined) {
             switch (entityType) {
-                default: this.ts.expect(...keys); return;
-                // case 'options': this.parseOptions(); return;
+                default: this.ts.error(`Unknown Biz Entity ${entityType}`); return;
                 case 'act': this.parseAct(); return;
                 case 'query': this.parseQuery(); return;
             }
@@ -104,10 +105,19 @@ export class PBiz extends PEntity<Biz> {
     scan(space: Space): boolean {
         let ok = true;
         let bizSpace = new BizSpace(space, this.entity);
+        let uomAtoms: BizAtom[] = [];
         for (let [, p] of this.entity.bizEntities) {
             let { pelement } = p;
             if (pelement === undefined) continue;
             if (pelement.scan(bizSpace) === false) ok = false;
+            if (p.type === 'atom') {
+                if ((p as BizAtom).uom === true) uomAtoms.push(p as BizAtom);
+            }
+        }
+        if (uomAtoms.length > 1) {
+            this.log('only one ATOM can have UOM');
+            this.log(`${uomAtoms.map(v => v.jName).join(', ')} have UOM`)
+            ok = false;
         }
         this.entity.buildPhrases();
         return ok;

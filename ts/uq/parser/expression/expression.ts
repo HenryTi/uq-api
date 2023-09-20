@@ -331,6 +331,15 @@ export abstract class PExpression extends PElement {
                 return;
             case Token.SUB:
                 this.ts.readToken();
+                if (this.ts.token === Token.GT as any) {
+                    this.ts.readToken();
+                    if (this.ts.token === Token.GT as any) {
+                        this.ts.readToken();
+                        this.f();
+                        this.add(new Exp.OpJsonProp());
+                        return;
+                    }
+                }
                 this.f();
                 this.add(new Exp.OpNeg());
                 return;

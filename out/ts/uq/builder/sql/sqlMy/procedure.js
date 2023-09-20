@@ -115,6 +115,8 @@ class ProcedureUpdater extends procedure_1.ProcedureUpdater {
     async updateProc() {
         let sqlDrop = this.buildDropSql();
         await this.uqBuildApi.sql(sqlDrop, undefined);
+        if (this.proc.dropOnly === true)
+            return;
         let sql = this.buildProcSql();
         let procName = this.getUploadProcName();
         await this.uqBuildApi.procSql(procName, sql);
@@ -122,6 +124,8 @@ class ProcedureUpdater extends procedure_1.ProcedureUpdater {
     async updateCoreProc() {
         let sqlDrop = this.buildDropSql();
         await this.uqBuildApi.sql(sqlDrop, undefined);
+        if (this.proc.dropOnly === true)
+            return;
         let sql = this.buildProcSql();
         let procName = this.getUploadProcName();
         await this.uqBuildApi.procCoreSql(procName, sql, this.proc.returnDataType !== undefined);

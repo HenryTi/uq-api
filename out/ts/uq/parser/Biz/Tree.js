@@ -4,7 +4,6 @@ exports.PBizTree = void 0;
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizTree extends Base_1.PBizEntity {
-    get defaultName() { return undefined; }
     parseContent() {
         const keyColl = {
             prop: this.parseProp,

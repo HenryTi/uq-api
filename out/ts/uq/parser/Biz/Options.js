@@ -5,7 +5,6 @@ const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizOptions extends Base_1.PBizEntity {
-    get defaultName() { return undefined; }
     _parse() {
         let jName;
         const { token } = this.ts;

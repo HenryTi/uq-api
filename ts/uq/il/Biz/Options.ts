@@ -17,7 +17,7 @@ export interface OptionsItem {
 }
 
 export class BizOptions extends BizEntity {
-    readonly type = 'options';
+    readonly bizPhraseType = BizPhraseType.options;
     readonly items: OptionsItem[] = [];
     parser(context: PContext): PElement<IElement> {
         return new PBizOptions(this, context);
@@ -49,7 +49,7 @@ export class BizOptions extends BizEntity {
                 phrase: `${this.name}.${name}`,
                 caption,
                 memo: undefined,
-                dataTypeNum: undefined,
+                dataType: undefined,
                 objName: undefined,
                 typeNum: String(typeNum),
                 optionsItemType: type,

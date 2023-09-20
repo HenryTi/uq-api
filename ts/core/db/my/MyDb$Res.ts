@@ -2,10 +2,11 @@ import { env } from "../../../tool";
 import { consts } from "../../consts";
 import { Db$Res } from "../Db";
 import { MyDb } from "./MyDb";
+import { MyDbs } from "./MyDbs";
 
 export class MyDb$Res extends MyDb implements Db$Res {
-    constructor() {
-        super(consts.$res)
+    constructor(myDbs: MyDbs) {
+        super(myDbs, consts.$res)
     }
     protected override initConfig(dbName: string) { return env.connection; }
 

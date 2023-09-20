@@ -2,7 +2,8 @@ import { env } from "../../../tool";
 import { DbUq, ProcType } from "../Db";
 import { MyDb } from "./MyDb";
 import { consts } from '../../consts';
-import { sqlsVersion } from './sqlsVersion';
+import { MyDbs } from "./MyDbs";
+// import { sqlsVersion } from './sqlsVersion';
 
 const sysProcColl = {
     $entitys: true,
@@ -35,7 +36,7 @@ export class MyDbUq extends MyDb implements DbUq {
 
     async initLoad() {
         if (this.twProfix !== undefined) return;
-        const { oldTwProfix, tv$entityExists } = sqlsVersion;
+        const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
         let ret = await this.sql(tv$entityExists, [this.name]);
         this.twProfix = ret.length > 0 ? oldTwProfix : '';
     }
@@ -324,11 +325,15 @@ export class MyDbUq extends MyDb implements DbUq {
         return 0;
     }
 
+    get sqlsVersion() {
+        return this.myDbs.sqlsVersion;
+    }
+
     async removeAllScheduleEvents(): Promise<string> {
         let db = this.name; // .getDb();
         let events: { db: string; name: string }[];
         try {
-            const sqls = sqlsVersion;
+            const sqls = this.myDbs.sqlsVersion;
             events = await this.sql(sqls.eventExists, [db]);
             if ((!events) || events.length === 0) return;
         }
@@ -390,5 +395,13 @@ export class MyDbUq extends MyDb implements DbUq {
         let sql = `select \`${this.name}\`.${this.twProfix}$textid(?) as a`;
         let ret = await this.sql(sql, [text]);
         return ret[0]['a'];
+    }
+
+    isUnsupportProc(proc: string): boolean {
+        return this.myDbs.sqlsVersion.unsupportProcs.findIndex(v => v === proc) >= 0
+    }
+
+    get sqlVersionNumber(): number {
+        return this.myDbs.sqlsVersion.version;
     }
 }

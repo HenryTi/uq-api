@@ -12,7 +12,8 @@ const ER_LOCK_TIMEOUT = 1213;
 const ER_LOCK_DEADLOCK = 1213;
 const pools = [];
 class MyDbBase {
-    constructor(dbName) {
+    constructor(myDbs, dbName) {
+        this.myDbs = myDbs;
         this.dbConfig = this.initConfig(dbName);
     }
     async getPool() {

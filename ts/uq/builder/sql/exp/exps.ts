@@ -226,6 +226,9 @@ export class ExpDecDiv extends ExpVals {
 export class ExpMod extends ExpVals {
     get op(): string { return '%'; }
 }
+export class ExpJsonProp extends ExpVals {
+    get op(): string { return '->>'; }
+}
 export class ExpBitAnd extends ExpVals {
     get op(): string { return '&'; }
 }

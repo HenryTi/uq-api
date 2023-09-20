@@ -12,7 +12,6 @@ import { Net } from '../net';
 import { centerApi } from '../centerApi';
 import { BusFace, BusFaceAccept, BusFaceQuery } from './BusFace';
 import { Runner } from './Runner';
-import { sqlsVersion } from '../db/my/sqlsVersion';
 
 interface EntityAccess {
     name: string;
@@ -420,7 +419,7 @@ export class EntityRunner extends Runner {
         return ret.map(v => v.id + '\t' + v.name);
     }
     async savePhrases(phrases: string, rolesJson: string): Promise<string[]> {
-        if (sqlsVersion.version < 8) return [];
+        if (this.dbUq.sqlVersionNumber < 8) return [];
         let ret: { id: number; name: string }[] = await this.dbUq.call('$save_phrases', [phrases]);
         let retStr = ret.map(v => v.id + '\t' + v.name);
         if (rolesJson !== undefined) {

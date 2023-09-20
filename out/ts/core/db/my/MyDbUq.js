@@ -5,7 +5,7 @@ const tool_1 = require("../../../tool");
 const Db_1 = require("../Db");
 const MyDb_1 = require("./MyDb");
 const consts_1 = require("../../consts");
-const sqlsVersion_1 = require("./sqlsVersion");
+// import { sqlsVersion } from './sqlsVersion';
 const sysProcColl = {
     $entitys: true,
     $entity: true,
@@ -36,7 +36,7 @@ class MyDbUq extends MyDb_1.MyDb {
     async initLoad() {
         if (this.twProfix !== undefined)
             return;
-        const { oldTwProfix, tv$entityExists } = sqlsVersion_1.sqlsVersion;
+        const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
         let ret = await this.sql(tv$entityExists, [this.name]);
         this.twProfix = ret.length > 0 ? oldTwProfix : '';
     }
@@ -305,11 +305,14 @@ class MyDbUq extends MyDb_1.MyDb {
         }
         return 0;
     }
+    get sqlsVersion() {
+        return this.myDbs.sqlsVersion;
+    }
     async removeAllScheduleEvents() {
         let db = this.name; // .getDb();
         let events;
         try {
-            const sqls = sqlsVersion_1.sqlsVersion;
+            const sqls = this.myDbs.sqlsVersion;
             events = await this.sql(sqls.eventExists, [db]);
             if ((!events) || events.length === 0)
                 return;
@@ -375,6 +378,12 @@ class MyDbUq extends MyDb_1.MyDb {
         let sql = `select \`${this.name}\`.${this.twProfix}$textid(?) as a`;
         let ret = await this.sql(sql, [text]);
         return ret[0]['a'];
+    }
+    isUnsupportProc(proc) {
+        return this.myDbs.sqlsVersion.unsupportProcs.findIndex(v => v === proc) >= 0;
+    }
+    get sqlVersionNumber() {
+        return this.myDbs.sqlsVersion.version;
     }
 }
 exports.MyDbUq = MyDbUq;

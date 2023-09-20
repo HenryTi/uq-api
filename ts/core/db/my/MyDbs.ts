@@ -4,9 +4,8 @@ import { MyDb$Res } from "./MyDb$Res";
 import { MyDb$Site } from "./MyDb$Site";
 import { MyDb$Unitx } from "./MyDb$Unitx";
 import { MyDb$Uq } from "./MyDb$Uq";
-import { MyDbNoName } from "./MyDbNoName";
+import { DbSqlsVersion, MyDbNoName } from "./MyDbNoName";
 import { MyDbUq } from "./MyDbUq";
-import { checkSqlVersion } from "./sqlsVersion";
 
 export class MyDbs implements Dbs {
     readonly db$Uq: Db$Uq;
@@ -14,23 +13,26 @@ export class MyDbs implements Dbs {
     readonly db$Site: Db$Site;
     readonly db$UnitxTest: Db$Unitx;
     readonly db$UnitxProd: Db$Unitx;
-    readonly dbNoName: DbNoName;
+    readonly dbNoName: MyDbNoName;
     readonly dbUqs: { [name: string]: DbUq; };
+    readonly uq_api_version: string;
+    sqlsVersion: DbSqlsVersion;
 
-    constructor() {
-        this.db$Uq = new MyDb$Uq();
-        this.db$Res = new MyDb$Res();
-        this.db$Site = new MyDb$Site();
-        this.db$UnitxTest = new MyDb$Unitx(true);
-        this.db$UnitxProd = new MyDb$Unitx(false);
-        this.dbNoName = new MyDbNoName(undefined);
+    constructor(uq_api_version: string) {
+        this.uq_api_version = uq_api_version;
+        this.db$Uq = new MyDb$Uq(this);
+        this.db$Res = new MyDb$Res(this);
+        this.db$Site = new MyDb$Site(this);
+        this.db$UnitxTest = new MyDb$Unitx(this, true);
+        this.db$UnitxProd = new MyDb$Unitx(this, false);
+        this.dbNoName = new MyDbNoName(this);
         this.dbUqs = {};
     }
 
     async getDbUq(dbName: string): Promise<DbUq> {
         let dbUq = this.dbUqs[dbName];
         if (dbUq === undefined) {
-            dbUq = new MyDbUq(dbName);
+            dbUq = new MyDbUq(this, dbName);
             this.dbUqs[dbName] = dbUq;
             await dbUq.initLoad();
         }
@@ -38,11 +40,16 @@ export class MyDbs implements Dbs {
     }
 
     async start() {
-        await checkSqlVersion();
-        await Promise.all([
-            this.db$Uq.createDatabase(),
-            this.db$Res.createDatabase(),
-            this.db$Site.createDatabase(),
-        ]);
+        const [sqlsVersion, savedUqApiVersion] = await this.dbNoName.versions();
+        this.sqlsVersion = sqlsVersion;
+
+        if (savedUqApiVersion !== this.uq_api_version) {
+            await Promise.all([
+                this.db$Uq.createDatabase(),
+                this.db$Res.createDatabase(),
+                this.db$Site.createDatabase(),
+            ]);
+            await this.dbNoName.saveUqVersion();
+        }
     }
 }

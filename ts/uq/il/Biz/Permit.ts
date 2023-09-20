@@ -1,5 +1,6 @@
 import { PBizPermit, PBizRole, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
+import { BizPhraseType } from "./Base";
 import { BizEntity } from "./Entity";
 
 export interface BizPermitItem {
@@ -10,6 +11,7 @@ export interface BizPermitItem {
 }
 
 export class BizPermit extends BizEntity {
+    readonly bizPhraseType = BizPhraseType.permit;
     readonly items = new Map<string, BizPermitItem>();
     readonly permits = new Map<string, BizPermit>();
     get type(): string { return 'permit'; }
@@ -41,6 +43,7 @@ export class BizPermit extends BizEntity {
 }
 
 export class BizRole extends BizEntity {
+    readonly bizPhraseType = BizPhraseType.role;
     readonly permitItems = new Map<string, BizPermitItem>();
     readonly permits = new Map<string, BizPermit>();
     readonly roles = new Map<string, BizRole>();

@@ -107,7 +107,7 @@ export class Biz extends Entity {
             return this.bizEntities.get(bizName[0]);
         }
     }
-
+    /*
     getEntitys(): { name: string; type: string; schema: string }[] {
         let ret: { name: string; type: string; schema: string }[] = [];
         for (let [, value] of this.bizEntities) {
@@ -119,6 +119,7 @@ export class Biz extends Entity {
         }
         return ret;
     }
+    */
 
     getAtomExtendsPairs() {
         const pairs: [string, string][] = [];

@@ -4,6 +4,7 @@ import { logger, env } from '../../../tool';
 import { DbBase } from '../Db';
 import { SpanLog } from '../dbLogger';
 import { myCreatePool } from './myCreatePool';
+import { MyDbs } from './MyDbs';
 
 const retries = 5;
 const minMillis = 1;
@@ -24,8 +25,10 @@ export abstract class MyDbBase implements DbBase {
     private pool: Pool;
     protected readonly dbConfig: any;
     protected abstract initConfig(dbName: string): any;
+    readonly myDbs: MyDbs;
 
-    constructor(dbName: string) {
+    constructor(myDbs: MyDbs, dbName: string) {
+        this.myDbs = myDbs;
         this.dbConfig = this.initConfig(dbName);
     }
 

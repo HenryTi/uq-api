@@ -2,10 +2,11 @@ import { env } from "../../../tool";
 import { consts } from "../../consts";
 import { Db$Site } from "../Db";
 import { MyDb } from "./MyDb";
+import { MyDbs } from "./MyDbs";
 
 export class MyDb$Site extends MyDb implements Db$Site {
-    constructor() {
-        super(consts.$site)
+    constructor(myDbs: MyDbs) {
+        super(myDbs, consts.$site)
     }
     protected override initConfig(dbName: string) { return env.connection; }
     override async createDatabase(): Promise<void> {

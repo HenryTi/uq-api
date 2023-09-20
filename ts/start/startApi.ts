@@ -10,8 +10,6 @@ import {
 } from '../router';
 import { authJoint, authUpBuild } from '../core/auth';
 import { buildProcRouter } from '../router/proc';
-import { buildCompileRouter } from '../router/compile';
-const { version: uq_api_version } = require('../../package.json');
 
 export async function startApi(): Promise<void> {
     process.on('uncaughtException', function (err: any) {
@@ -27,7 +25,6 @@ export async function startApi(): Promise<void> {
             logger.error('NODE_ENV not defined, exit');
             process.exit();
         }
-
         logger.debug('process.env.NODE_ENV: ', process.env.NODE_ENV);
 
         //let connection = config.get<any>("connection");
@@ -38,6 +35,7 @@ export async function startApi(): Promise<void> {
             return;
         }
         initResPath();
+        let dbs = getDbs();
 
         let app = express();
         app.use(cors({
@@ -94,24 +92,12 @@ export async function startApi(): Promise<void> {
         app.use('/uq/test/:db/', buildUqRouter(uqTestRouterBuilder, compileTestRouterBuilder));
         app.use('/uq/unitx-prod/', buildUnitxRouter(unitxProdRouterBuilder));
         app.use('/uq/unitx-test/', buildUnitxRouter(unitxTestRouterBuilder));
-
-        let dbs = getDbs();
         await dbs.start();
-        /*
-        await Promise.all([
-            create$ResDb(),
-            create$UqDb()
-        ]);
-        */
+        const { uq_api_version } = dbs;
         let { port, localPort, connection } = env;
         app.listen(port, async () => {
             logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
             let { host, user } = connection;
-
-            let sql = `SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'jksoft_mini_jxc_trial'`;
-            let ret = await getDbs().dbNoName.sql(sql);
-            console.log(ret);
-
             logger.debug('DB host: %s, user: %s', host, user);
             logger.debug('Tonwa uq-api started!');
             expressListRoutes(app, {});

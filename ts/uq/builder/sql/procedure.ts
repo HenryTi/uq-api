@@ -27,6 +27,7 @@ export abstract class Procedure implements ObjSchema {
         this.returnDataType = returnType;
     }
 
+    dropOnly: boolean = false;
     hasGroupConcat: boolean = false;
     errLog: { subject?: Exp; content?: Exp } = {}; // 表达式
     logError: boolean | Statement[] = false;

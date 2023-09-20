@@ -1,15 +1,13 @@
 import {
     BizBase, BizAtom, BizBud, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizSpec, BizBudNone, ID, BizBudAtom, Uq, IX, BudFlag, BizBudIntOf
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudFlag, BizBudIntOf, BizAtomID, BizPhraseType
 } from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
 import { Token } from "../tokens";
 
 export abstract class PBizBase<B extends BizBase> extends PElement<B> {
-    protected abstract get defaultName(): string;
-
     protected _parse(): void {
         let jName: string;
         const { token } = this.ts;
@@ -29,11 +27,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             }
         }
         else {
-            let defName = this.defaultName;
-            if (defName === undefined) {
-                this.ts.expect(`name of ${this.element.type}`);
-            }
-            this.element.name = defName;
+            this.ts.expect(`name of ${this.element.type}`);
         }
         if (this.ts.isKeyword('ver') === true) {
             this.ts.readToken();
@@ -79,56 +73,33 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     protected parseDefault(): void {
     }
 
-    scanAtom(space: Space, atomName: string): BizAtom {
+    scanAtomID(space: Space, atomName: string): BizAtomID {
         let Atom = space.uq.biz.bizEntities.get(atomName);
-        if (Atom === undefined || Atom.type !== 'atom') {
-            this.log(`${atomName} is not an Atom`);
+        const types = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.bud];
+        if (Atom === undefined || types.indexOf(Atom.bizPhraseType) < 0) {
+            this.log(`${atomName} is not an Atom ID`);
             return undefined;
         }
         else {
-            return Atom as BizAtom;
-        }
-    }
-    /*
-    scanID(space: Space, idName: string): ID {
-        let entity = space.uq.entities[idName];
-        if (entity === undefined || entity.type !== 'id') {
-            this.log(`${idName} is not an ID`);
-            return undefined;
-        }
-        else {
-            return entity as ID;
+            return Atom as BizAtomID;
         }
     }
 
-    scanIX(space: Space, ixName: string): IX {
-        let entity = space.uq.entities[ixName];
-        if (entity === undefined || entity.type !== 'ix') {
-            this.log(`${ixName} is not an IX`);
-            return undefined;
-        }
-        else {
-            return entity as IX;
-        }
-    }
-    */
-    scanSpec(space: Space, SpecName: string): BizSpec {
-        let Spec = space.uq.biz.bizEntities.get(SpecName);
-        if (Spec === undefined || Spec.type !== 'spec') {
-            this.log(`${SpecName} is not an Spec`);
-            return undefined;
-        }
-        else {
-            return Spec as BizSpec;
-        }
-    }
-
-    getBizEntity<T extends BizEntity>(space: Space, entityName: string, entityType: string): T {
+    getBizEntity<T extends BizEntity>(space: Space, entityName: string, ...bizPhraseType: BizPhraseType[]): T {
         let bizEntity = space.uq.biz.bizEntities.get(entityName);
-        if (bizEntity !== undefined && bizEntity.type === entityType) {
-            return bizEntity as T;
+        if (bizPhraseType === undefined || bizPhraseType.length === 0) {
+            if (bizEntity !== undefined) {
+                return bizEntity as T;
+            }
+            this.log(`${entityName} is not a Biz Entity`);
+            return undefined;
         }
-        this.log(`${entityName} is not a Biz ${entityType.toUpperCase()}`);
+        if (bizEntity !== undefined) {
+            if (bizPhraseType.indexOf(bizEntity.bizPhraseType) >= 0) {
+                return bizEntity as T;
+            }
+        }
+        this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
 }
@@ -149,7 +120,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.element.source = entityType + ' ' + source;
     }
 
-    protected parseSubItem(type: string): BizBud {
+    protected parseSubItem(): BizBud {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
         this.ts.readToken();
@@ -157,7 +128,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             return;
         }
         let caption: string = this.ts.mayPassString();
-        let bizBud = this.parseBud(type, name, caption);
+        let bizBud = this.parseBud(name, caption);
         this.ts.passToken(Token.SEMICOLON);
         return bizBud;
     }
@@ -170,8 +141,8 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return true;
     }
 
-    protected parseBud(type: string, name: string, caption: string): BizBud {
-        const keyColl: { [key: string]: new (type: string, name: string, caption: string) => BizBud } = {
+    protected parseBud(name: string, caption: string): BizBud {
+        const keyColl: { [key: string]: new (name: string, caption: string) => BizBud } = {
             none: BizBudNone,
             int: BizBudInt,
             dec: BizBudDec,
@@ -206,7 +177,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         if (Bud === undefined) {
             this.ts.expect(...keys);
         }
-        let bizBud = new Bud(type, name, caption);
+        let bizBud = new Bud(name, caption);
         bizBud.parser(this.context).parse();
 
         if (this.ts.token === Token.EQU) {
@@ -242,7 +213,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected parseProp = () => {
-        let prop = this.parseSubItem('prop');
+        let prop = this.parseSubItem();
         this.element.props.set(prop.name, prop);
     }
 

@@ -4,7 +4,6 @@ exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBi
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizBud extends Base_1.PBizBase {
-    get defaultName() { return undefined; }
     _parse() {
     }
     scan(space) {
@@ -73,7 +72,7 @@ class PBizBudAtom extends PBizBud {
     scan(space) {
         let ok = super.scan(space);
         if (this.atomName !== undefined) {
-            let Item = super.scanAtom(space, this.atomName);
+            let Item = super.scanAtomID(space, this.atomName);
             if (Item === undefined) {
                 ok = false;
             }

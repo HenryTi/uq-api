@@ -9,7 +9,8 @@ class PBiz extends entity_1.PEntity {
         super(entity, context);
         this.pRoots = {
             atom: il_1.BizAtom,
-            spec: il_1.BizSpec,
+            spec: il_1.BizAtomSpec,
+            bud: il_1.BizAtomBud,
             moniker: il_1.BizMoniker,
             options: il_1.BizOptions,
             permit: il_1.BizPermit,
@@ -18,6 +19,7 @@ class PBiz extends entity_1.PEntity {
             main: il_1.BizMain,
             detail: il_1.BizDetail,
             pend: il_1.BizPend,
+            pick: il_1.BizPick,
             tree: il_1.BizTree,
             tie: il_1.BizTie,
         };
@@ -34,16 +36,15 @@ class PBiz extends entity_1.PEntity {
         if (this.ts.isKeyword('biz') === true)
             this.ts.readToken();
         if (this.ts.varBrace === true) {
-            this.ts.expect(...keys);
+            this.ts.expect('Biz Entity');
         }
         let entityType = this.ts.lowerVar;
         let Root = this.pRoots[entityType];
         if (Root === undefined) {
             switch (entityType) {
                 default:
-                    this.ts.expect(...keys);
+                    this.ts.error(`Unknown Biz Entity ${entityType}`);
                     return;
-                // case 'options': this.parseOptions(); return;
                 case 'act':
                     this.parseAct();
                     return;
@@ -102,12 +103,22 @@ class PBiz extends entity_1.PEntity {
     scan(space) {
         let ok = true;
         let bizSpace = new BizSpace(space, this.entity);
+        let uomAtoms = [];
         for (let [, p] of this.entity.bizEntities) {
             let { pelement } = p;
             if (pelement === undefined)
                 continue;
             if (pelement.scan(bizSpace) === false)
                 ok = false;
+            if (p.type === 'atom') {
+                if (p.uom === true)
+                    uomAtoms.push(p);
+            }
+        }
+        if (uomAtoms.length > 1) {
+            this.log('only one ATOM can have UOM');
+            this.log(`${uomAtoms.map(v => v.jName).join(', ')} have UOM`);
+            ok = false;
         }
         this.entity.buildPhrases();
         return ok;

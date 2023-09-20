@@ -21,8 +21,7 @@ export class BizSiteBuilder {
         this.user = user;
     }
 
-    async parse(objs: any, props: any) {
-        // let [objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+    async loadObjects(objs: any, props: any) {
         for (let obj of objs) {
             const { id, phrase, caption } = obj;
             this.objNames[phrase] = obj;
@@ -41,30 +40,7 @@ export class BizSiteBuilder {
         }
     }
 
-    /*
-        // biz.bizArr.splice(0);
-        if (clientSource) {
-            uqRunner.parse(clientSource, 'upload');
-            uqRunner.anchorLatest();
-        }
-        // let bizArr = [...biz.bizArr];
-        for (let obj of objs) {
-            const { phrase, source } = obj;
-            if (!source) continue;
-            if (override === true) {
-                if (uqRunner.isLatest(phrase) === true) continue;
-            }
-            uqRunner.parse(source, phrase);
-        }
-    
-        uqRunner.scan();
-        if (uqRunner.ok === false) {
-            return {
-                logs: msgs,
-            }
-        }
-        await uqRunner.saveLatest(runner);
-        */
+    get sysEntitySources(): string[] { return sysSiteBizEntities; }
 
     private async saveBizObject(entity: BizEntity) {
         const { type, phrase, caption, source } = entity;
@@ -87,7 +63,7 @@ export class BizSiteBuilder {
     };
 
     private async saveBud(id: number, bud: IBud) {
-        const { phrase, caption, memo, dataTypeNum, objName, flag } = bud;
+        const { phrase, caption, memo, dataType: dataTypeNum, objName, flag } = bud;
         const typeNum = bud.typeNum;
         let objId: number;
         if (objName !== undefined) {
@@ -112,13 +88,6 @@ export class BizSiteBuilder {
         await Promise.all(this.biz.latestBizArr.map(entity => {
             return this.saveBizEntityBuds(entity);
         }));
-        /*
-        let schemas = uq.buildSchemas(this.res);
-        return {
-            schemas: jsonpack.pack(schemas.$biz), //: uqRunner.uq.biz.schema, //.bizArr.map(v => v.buildSchema()),
-            logs: msgs,
-        }
-        */
         await this.buildSiteDbs(log);
     }
 
@@ -134,10 +103,6 @@ export class BizSiteBuilder {
         }
         let context = new DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
         context.ownerDbName = '$site';
-        //const bUq = new BUq(this.biz.uq, context);
-        // let bizDbBuilder = this.biz.db(context);
-        //let a = this.biz.db(context) as BBiz;
-        //a.buildProcedures();
         for (let bizEntity of this.biz.latestBizArr) {
             let builder = bizEntity.db(context);
             if (builder === undefined) continue;
@@ -151,3 +116,18 @@ export class BizSiteBuilder {
         return this.biz.uq.buildSchemas(this.res);
     }
 }
+
+const sysSiteBizEntities: string[] = [
+    /*
+    定义bud等同于atom，所以不再需要下面的定义。
+        `
+        ATOM $UomAtom {
+            -- BASE;                没有定义base，保存的时候，也可以自己设定
+            PROP uom ATOM;
+        };
+        Moniker $ {
+            PROP uom;
+        };
+        `
+    */
+];

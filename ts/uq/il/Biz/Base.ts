@@ -1,19 +1,29 @@
 import { IElement } from "../element";
 
 export enum BizPhraseType {
+    any = 0,
     atom = 11,
-    // uom = 12,
-    // spec = 13,
+    spec = 12,
+    bud = 13,
+
     sheet = 101,
+    main = 102,
+    detail = 103,
+    pend = 104,
+    detailAct = 111,
+    with = 151,
+    pick = 161,
+
     role = 201,
     permit = 202,
     options = 301,
+    tree = 401,
+    tie = 501,
+    moniker = 901,
 
-    with = 151,
 
     key = 1001,
     prop = 1011,
-    // assign = 1021,
     optionsitem = 1031,
 };
 
@@ -23,11 +33,16 @@ export enum BudDataType {
     atom = 12,                  // atom id
     radio = 13,                 // single radio ids
     check = 14,                 // multiple checks
+    intof = 15,
     ID = 19,
+
     dec = 21,                   // dec(18.6)
+
     char = 31,                  // varchar(100)
     str = 32,                   // varchar(100)
+
     date = 41,
+    datetime = 42,
 };
 
 export abstract class BizBase extends IElement {
@@ -37,6 +52,8 @@ export abstract class BizBase extends IElement {
     caption: string;
     phrase: string;
     memo: string;
+    abstract get bizPhraseType(): BizPhraseType;
+    get type(): string { return BizPhraseType[this.bizPhraseType]; }
 
     setJName(jName: string) {
         if (jName === undefined) return;

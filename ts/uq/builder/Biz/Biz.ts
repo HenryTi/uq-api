@@ -1,5 +1,5 @@
 import {
-    BigInt, bigIntField, Biz, BizBase, BizDetail, BizSpec
+    BigInt, bigIntField, Biz, BizBase, BizDetail
     , Char, charField, Dec, intField, JoinType, Text
 } from "../../il";
 import { DbContext, EnumSysTable, sysTable } from "../dbContext";
@@ -15,16 +15,12 @@ import {
 import { EntityTable } from "../sql/statementWithFrom";
 import { BEntity } from "../entity/entity";
 import { BBizDetail } from "./BizDetail";
-import { BBizSpec } from "./BizSpec";
 
 export class BBiz extends BEntity<Biz> {
     protected readonly bDetails: BBizDetail[];
-    protected readonly bSpecs: BBizSpec[];
     constructor(context: DbContext, entity: Biz) {
         super(context, entity);
-        // this.bSheets = [];
         this.bDetails = [];
-        this.bSpecs = [];
         for (let [, value] of this.entity.bizEntities) {
             switch (value.type) {
                 /*
@@ -37,17 +33,12 @@ export class BBiz extends BEntity<Biz> {
                     let bBizDetail = new BBizDetail(this.context, value as BizDetail);
                     this.bDetails.push(bBizDetail);
                     break;
-                case 'spec':
-                    let bBizSpec = new BBizSpec(this.context, value as BizSpec);
-                    this.bSpecs.push(bBizSpec);
             }
         }
     }
 
     buildTables() {
-        // for (let bSheet of this.bSheets) bSheet.buildTables();
         for (let bDetail of this.bDetails) bDetail.buildTables();
-        for (let bSpec of this.bSpecs) bSpec.buildTables();
     }
 
     buildProcedures() {
@@ -63,17 +54,7 @@ export class BBiz extends BEntity<Biz> {
         appObjs.procedures.push(procAct);
         this.buildBizSheetActProc(procAct);
 
-        let funcSpecValue = this.context.createFunction('specvalue', new Text());
-        appObjs.procedures.push(funcSpecValue);
-        this.buildSpecValueFunction(funcSpecValue);
-
-        let funcSpecId = this.context.createFunction('specid', new BigInt());
-        appObjs.procedures.push(funcSpecId);
-        this.buildSpecIdFunction(funcSpecId);
-
-        // for (let bSheet of this.bSheets) bSheet.buildProcedures();
         for (let bDetail of this.bDetails) bDetail.buildProcedures();
-        for (let bSpec of this.bSpecs) bSpec.buildProcedures();
     }
 
     private buildBizSheetActProc(proc: Procedure) {
@@ -316,225 +297,5 @@ export class BBiz extends BEntity<Biz> {
         let selectRet = factory.createSelect();
         ifProcBuilt.else(selectRet);
         selectRet.column(new ExpVar(vProc), vProc);
-    }
-
-    private buildSpecValueFunction(proc: Procedure): void {
-        const { parameters, statements } = proc;
-        parameters.push(
-            bigIntField('id'),
-        );
-
-        let { factory } = this.context;
-        let declare = factory.createDeclare();
-        statements.push(declare);
-        declare.vars(
-            charField('ret', 500),
-            charField('entity', 100),
-            charField('sep', 10),
-        );
-        const varEntity = new ExpVar('entity');
-        const varSep = new ExpVar('sep');
-        let selectEntity = factory.createSelect();
-        statements.push(selectEntity);
-        selectEntity.toVar = true;
-        selectEntity.column(new ExpFunc('char', new ExpNum(12)), 'sep');
-        selectEntity.column(new ExpField('name', 'b'), 'entity');
-        selectEntity.from(sysTable(EnumSysTable.id_u, 'a'))
-            .join(JoinType.join, sysTable(EnumSysTable.entity, 'b'))
-            .on(new ExpEQ(new ExpField('entity', 'a'), new ExpField('id', 'b')));
-        selectEntity.where(new ExpEQ(new ExpField('id', 'a'), new ExpVar('id')));
-
-        let first = true;
-        let iff = factory.createIf();
-        for (let [, value] of this.entity.bizEntities) {
-            let { type } = value;
-            if (type !== 'spec') continue;
-            let { name } = value;
-            let specName = 'spec$' + name;
-            let cmp = new ExpEQ(varEntity, new ExpStr(name));
-            let select = factory.createSelect();
-            select.toVar = true;
-            let cols: ExpVal[] = this.buildBizSpecCols(value as BizSpec);
-            select.column(new ExpFunc(factory.func_concat_ws, varSep, ...cols), 'ret');
-            select.from(new EntityTable(specName, false));
-            select.where(new ExpEQ(new ExpField('id'), new ExpVar('id')));
-
-            if (first === true) {
-                first = false;
-                iff.cmp = cmp;
-                iff.then(select);
-            }
-            else {
-                let elseStats = new Statements();
-                elseStats.add(select);
-                iff.elseIf(cmp, elseStats);
-            }
-        }
-        if (iff.cmp !== undefined) {
-            statements.push(iff);
-        }
-        let ret = factory.createReturn();
-        statements.push(ret);
-        ret.returnVar = 'ret';
-    }
-
-    private buildBizSpecCols(bizSpec: BizSpec): ExpVal[] {
-        let ret: ExpVal[] = [];
-        let { keys, props } = bizSpec;
-        for (let [, value] of keys) {
-            ret.push(new ExpField(value.name));
-        }
-        for (let [, value] of props) {
-            ret.push(new ExpField(value.name));
-        }
-        return ret;
-    }
-
-    private buildSpecIdFunction(proc: Procedure): void {
-        const { factory } = this.context;
-        const { parameters, statements } = proc;
-        parameters.push(
-            charField('spec', 100),
-            bigIntField('atom'),
-            charField('values', 200),
-        );
-
-        let declare = factory.createDeclare();
-        statements.push(declare);
-        declare.vars(
-            bigIntField('id'),
-            charField('v1', 200),
-            charField('v2', 200),
-            charField('v3', 200),
-            charField('v4', 200),
-            intField('p'),
-            intField('c'),
-            intField('len'),
-            charField('sep', 10),
-        );
-
-        const varSep = new ExpVar('sep');
-        const varP = new ExpVar('p');
-        const varC = new ExpVar('c');
-        const varValues = new ExpVar('values');
-        const varLen = new ExpVar('len');
-        const varSpec = new ExpVar('spec');
-
-        let setSep = factory.createSet();
-        statements.push(setSep);
-        setSep.equ('sep', new ExpFunc('char', new ExpNum(12)));
-
-        let setReplateChar12 = factory.createSet();
-        statements.push(setReplateChar12);
-        setReplateChar12.equ('values', new ExpFunc('replace', varValues, new ExpStr('\\\\f'), new ExpFunc('char', new ExpNum(12))));
-
-        let setLen = factory.createSet();
-        statements.push(setLen);
-        setLen.equ('len', new ExpFunc(factory.func_length, varValues));
-
-        let setP1 = factory.createSet();
-        statements.push(setP1);
-        setP1.equ('p', ExpNum.num1);
-
-        let cmp = new ExpGT(varC, ExpNum.num0);
-        let expSeg = new ExpFunc(factory.func_substr, varValues, varP, new ExpSub(varC, varP));
-        let expEnd = new ExpFunc(factory.func_substr, varValues, varP);
-
-        let setP = factory.createSet();
-        setP.equ('p', new ExpAdd(varC, ExpNum.num1));
-
-        let setC = factory.createSet();
-        statements.push(setC);
-        setC.equ('c', new ExpFunc(factory.func_charindex, varSep, varValues, varP));
-
-        function createIff(vn: number) {
-            let v = 'v' + vn;
-            let iff = factory.createIf();
-            iff.cmp = cmp;
-            let setV = factory.createSet();
-            iff.then(setV);
-            setV.equ(v, expSeg);
-            iff.then(setP);
-            iff.then(setC);
-            let setVEnd = factory.createSet()
-            iff.else(setVEnd);
-            setVEnd.equ(v, expEnd);
-            return iff;
-        }
-
-        let iff1 = createIff(1);
-        statements.push(iff1);
-
-        let iff2 = createIff(2);
-        iff1.then(iff2);
-
-        let iff3 = createIff(3);
-        iff2.then(iff3);
-
-        let iff4 = createIff(4);
-        iff3.then(iff4);
-
-        let first = true;
-        let iff = factory.createIf();
-        for (let [, value] of this.entity.bizEntities) {
-            let { type } = value;
-            if (type !== 'spec') continue;
-            let { name } = value;
-            let cmp = new ExpEQ(varSpec, new ExpStr(name));
-            let set = factory.createSet();
-            let bizSpec = value as BizSpec;
-            let params: ExpVal[] = this.buildBizSpecKeys(bizSpec);
-            let specName = `spec$${name}$id`;
-            set.equ('id', new ExpFunc(specName, ExpNum.num1, new ExpVar('atom'), ...params));
-            let update = this.buildBizSpecUpdate(bizSpec);
-            if (first === true) {
-                first = false;
-                iff.cmp = cmp;
-                iff.then(set);
-                iff.then(update);
-            }
-            else {
-                let elseStats = new Statements();
-                elseStats.add(set);
-                elseStats.add(update);
-                iff.elseIf(cmp, elseStats);
-            }
-        }
-        if (iff.cmp !== undefined) {
-            statements.push(iff);
-        }
-        let ret = factory.createReturn();
-        statements.push(ret);
-        ret.returnVar = 'id';
-    }
-
-    private buildBizSpecKeys(bizSpec: BizSpec): ExpVal[] {
-        let ret: ExpVal[] = [];
-        let { keys } = bizSpec;
-        let i = 1;
-        for (let [, value] of keys) {
-            ret.push(new ExpVar('v' + i));
-            i++;
-        }
-        return ret;
-    }
-
-    private buildBizSpecUpdate(bizSpec: BizSpec): Update {
-        let { keys, props } = bizSpec;
-        if (props.size === 0) return;
-        let update = this.context.factory.createUpdate();
-        update.where = new ExpEQ(new ExpField('id'), new ExpVar('id'));
-        update.table = new EntityTable('spec$' + bizSpec.name, false);
-        let i = keys.size + 1;
-        let cols: ColVal[] = [];
-        for (let [, value] of props) {
-            cols.push({
-                col: value.name,
-                val: new ExpVar('v' + i),
-            });
-            i++;
-        }
-        update.cols = cols;
-        return update;
     }
 }

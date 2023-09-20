@@ -7,7 +7,7 @@ const Entity_1 = require("./Entity");
 class BizSheet extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.type = 'sheet';
+        this.bizPhraseType = Base_1.BizPhraseType.sheet;
         this.acts = [];
     }
     parser(context) {
@@ -18,7 +18,7 @@ class BizSheet extends Entity_1.BizEntity {
         if (this.main === undefined)
             debugger;
         ret = Object.assign(Object.assign({}, ret), { main: this.main.name, acts: this.acts.map(v => v.buildSchema(res)) });
-        this.entitySchema = JSON.stringify(ret);
+        // this.entitySchema = JSON.stringify(ret);
         return ret;
     }
 }
@@ -26,7 +26,7 @@ exports.BizSheet = BizSheet;
 class BizMain extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.type = 'main';
+        this.bizPhraseType = Base_1.BizPhraseType.main;
     }
     parser(context) {
         return new parser_1.PBizMain(this, context);
@@ -41,23 +41,23 @@ exports.BizMain = BizMain;
 class BizDetail extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.type = 'detail';
+        this.bizPhraseType = Base_1.BizPhraseType.detail;
         this.acts = [];
     }
     parser(context) {
         return new parser_1.PBizDetail(this, context);
     }
     buildSchema(res) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend: (_a = this.pend) === null || _a === void 0 ? void 0 : _a.name, item: (_b = this.item) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
+        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend: (_a = this.pend) === null || _a === void 0 ? void 0 : _a.name, item: this.item, value: (_b = this.value) === null || _b === void 0 ? void 0 : _b.buildSchema(res), amount: (_c = this.amount) === null || _c === void 0 ? void 0 : _c.buildSchema(res), price: (_d = this.price) === null || _d === void 0 ? void 0 : _d.buildSchema(res) });
     }
 }
 exports.BizDetail = BizDetail;
 class BizPend extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.type = 'pend';
+        this.bizPhraseType = Base_1.BizPhraseType.pend;
     }
     // detail: BizDetail;
     parser(context) {
@@ -73,7 +73,7 @@ class BizDetailAct extends Base_1.BizBase {
     // fromPend: BizPend;
     constructor(bizDetail) {
         super();
-        this.type = 'detailAct';
+        this.bizPhraseType = Base_1.BizPhraseType.detailAct;
         this.tableVars = {};
         this.bizDetail = bizDetail;
     }

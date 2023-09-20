@@ -31,7 +31,7 @@ const sqls_5 = {
 };
 async function checkSqlVersion() {
     let db = (0, Dbs_1.getDbs)().dbNoName;
-    let versionResults = await db.sql('use information_schema; select version() as v', []);
+    let versionResults = await db.sql('select information_schema.version() as v', []);
     let versionRows = versionResults[1];
     let ver = versionRows[0]['v'];
     let version = Number.parseFloat(ver);

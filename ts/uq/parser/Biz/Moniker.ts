@@ -3,8 +3,6 @@ import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
 export class PBizMoniker extends PBizEntity<BizMoniker> {
-    protected get defaultName(): string { return undefined; }
-
     protected parseContent(): void {
         const keyColl = {
             prop: this.parseProp,

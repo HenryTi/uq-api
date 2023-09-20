@@ -8,7 +8,6 @@ import { Token } from "../tokens";
 import { PBizBase } from "./Base";
 
 export abstract class PBizBud<P extends BizBud> extends PBizBase<P> {
-    protected get defaultName(): string { return undefined; }
     protected _parse(): void {
     }
 
@@ -79,7 +78,7 @@ export class PBizBudAtom extends PBizBud<BizBudAtom> {
     scan(space: Space): boolean {
         let ok = super.scan(space);
         if (this.atomName !== undefined) {
-            let Item = super.scanAtom(space, this.atomName);
+            let Item = super.scanAtomID(space, this.atomName);
             if (Item === undefined) {
                 ok = false;
             }

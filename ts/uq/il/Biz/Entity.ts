@@ -1,7 +1,7 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
 import { Field } from "../field";
-import { BizBase } from "./Base";
+import { BizBase, BudDataType } from "./Base";
 import { Biz } from "./Biz";
 import { BizBud } from "./Bud";
 import { OptionsItemValueType } from "./Options";
@@ -14,7 +14,7 @@ export interface IBud {
     phrase: string;
     caption: string;
     memo: string;
-    dataTypeNum: number;
+    dataType: BudDataType;
     objName: string;
     typeNum: string;
     optionsItemType: OptionsItemValueType;
@@ -24,10 +24,8 @@ export interface IBud {
 
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBud> = new Map();
-    // readonly keyFields: Field[] = [];
-    // readonly propFields: Field[] = [];
     readonly biz: Biz
-    entitySchema: string = undefined;
+    // entitySchema: string = undefined;
     source: string = undefined;
     id: number;
 
@@ -108,11 +106,11 @@ export abstract class BizEntity extends BizBase {
         let fieldDataType: DataType;
         switch (dataType) {
             default: debugger; throw new Error(`unknown BizBud ${dataType}`);
-            case 'int':
-            case 'ID': fieldDataType = new BigInt(); break;
-            case 'date': fieldDataType = new DDate(); break;
-            case 'dec': fieldDataType = new Dec(20, 6); break;
-            case 'char': fieldDataType = new Char(50); break;
+            case BudDataType.int:
+            case BudDataType.ID: fieldDataType = new BigInt(); break;
+            case BudDataType.date: fieldDataType = new DDate(); break;
+            case BudDataType.dec: fieldDataType = new Dec(20, 6); break;
+            case BudDataType.char: fieldDataType = new Char(50); break;
         }
         field.dataType = fieldDataType;
         return field;

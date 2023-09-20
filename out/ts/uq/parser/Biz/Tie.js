@@ -5,7 +5,6 @@ const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizTie extends Base_1.PBizEntity {
-    get defaultName() { return undefined; }
     parseContent() {
         const keyColl = {
             prop: this.parseProp,
@@ -24,8 +23,8 @@ class PBizTie extends Base_1.PBizEntity {
         }
     }
     // bud 有没有type。Tie里面的bud，不需要type，都是bigint
-    parseBud(type, name, caption) {
-        return new il_1.BizBudInt(type, name, caption);
+    parseBud(name, caption) {
+        return new il_1.BizBudInt(name, caption);
     }
 }
 exports.PBizTie = PBizTie;

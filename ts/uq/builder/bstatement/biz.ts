@@ -1,4 +1,4 @@
-import { BigInt, BizDetailActStatement, BizDetailActSubPend, BizDetailActSubBud, PendAct, PendValueCalc, SetEqu, IX, BudFlag } from "../../il";
+import { BigInt, BizDetailActStatement, BizDetailActSubPend, BizDetailActSubBud, PendAct, PendValueCalc, SetEqu, IX, BudFlag, BudDataType } from "../../il";
 import { EnumSysTable, sysTable } from "../dbContext";
 import { ColVal, ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpNeg, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -171,10 +171,10 @@ export class BBizDetailActSubBud extends BStatement<BizDetailActSubBud> {
                 table = EnumSysTable.ixBudInt;
                 buildIxBudIndex();
                 break;
-            case 'char':
+            case BudDataType.char:
                 table = EnumSysTable.ixBudStr;
                 break;
-            case 'dec':
+            case BudDataType.dec:
                 table = EnumSysTable.ixBudDec;
                 break;
         }

@@ -4,8 +4,8 @@ exports.MyDb = void 0;
 const MyDbBase_1 = require("./MyDbBase");
 const dbLogger_1 = require("../dbLogger");
 class MyDb extends MyDbBase_1.MyDbBase {
-    constructor(dbName) {
-        super(dbName);
+    constructor(myDbs, dbName) {
+        super(myDbs, dbName);
         this.name = dbName;
         this.dbLogger = new dbLogger_1.DbLogger();
     }

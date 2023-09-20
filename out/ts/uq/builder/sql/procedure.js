@@ -8,6 +8,7 @@ class Procedure {
         this.transCommit = false;
         this.parameters = [];
         this.statements = [];
+        this.dropOnly = false;
         this.hasGroupConcat = false;
         this.errLog = {}; // 表达式
         this.logError = false;

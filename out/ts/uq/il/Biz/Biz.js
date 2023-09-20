@@ -86,21 +86,19 @@ class Biz extends entity_1.Entity {
             return this.bizEntities.get(bizName[0]);
         }
     }
-    getEntitys() {
-        let ret = [];
+    /*
+    getEntitys(): { name: string; type: string; schema: string }[] {
+        let ret: { name: string; type: string; schema: string }[] = [];
         for (let [, value] of this.bizEntities) {
             let { name, type, entitySchema } = value;
             switch (type) {
-                case 'spec':
-                    ret.push({ name, type: 'biz.spec', schema: entitySchema });
-                    break;
-                case 'atom':
-                    ret.push({ name, type: 'biz.atom', schema: entitySchema });
-                    break;
+                case 'spec': ret.push({ name, type: 'biz.spec', schema: entitySchema }); break;
+                case 'atom': ret.push({ name, type: 'biz.atom', schema: entitySchema }); break;
             }
         }
         return ret;
     }
+    */
     getAtomExtendsPairs() {
         const pairs = [];
         const coll = {};

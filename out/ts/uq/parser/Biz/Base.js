@@ -24,11 +24,7 @@ class PBizBase extends element_1.PElement {
             }
         }
         else {
-            let defName = this.defaultName;
-            if (defName === undefined) {
-                this.ts.expect(`name of ${this.element.type}`);
-            }
-            this.element.name = defName;
+            this.ts.expect(`name of ${this.element.type}`);
         }
         if (this.ts.isKeyword('ver') === true) {
             this.ts.readToken();
@@ -70,55 +66,32 @@ class PBizBase extends element_1.PElement {
     }
     parseDefault() {
     }
-    scanAtom(space, atomName) {
+    scanAtomID(space, atomName) {
         let Atom = space.uq.biz.bizEntities.get(atomName);
-        if (Atom === undefined || Atom.type !== 'atom') {
-            this.log(`${atomName} is not an Atom`);
+        const types = [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.bud];
+        if (Atom === undefined || types.indexOf(Atom.bizPhraseType) < 0) {
+            this.log(`${atomName} is not an Atom ID`);
             return undefined;
         }
         else {
             return Atom;
         }
     }
-    /*
-    scanID(space: Space, idName: string): ID {
-        let entity = space.uq.entities[idName];
-        if (entity === undefined || entity.type !== 'id') {
-            this.log(`${idName} is not an ID`);
-            return undefined;
-        }
-        else {
-            return entity as ID;
-        }
-    }
-
-    scanIX(space: Space, ixName: string): IX {
-        let entity = space.uq.entities[ixName];
-        if (entity === undefined || entity.type !== 'ix') {
-            this.log(`${ixName} is not an IX`);
-            return undefined;
-        }
-        else {
-            return entity as IX;
-        }
-    }
-    */
-    scanSpec(space, SpecName) {
-        let Spec = space.uq.biz.bizEntities.get(SpecName);
-        if (Spec === undefined || Spec.type !== 'spec') {
-            this.log(`${SpecName} is not an Spec`);
-            return undefined;
-        }
-        else {
-            return Spec;
-        }
-    }
-    getBizEntity(space, entityName, entityType) {
+    getBizEntity(space, entityName, ...bizPhraseType) {
         let bizEntity = space.uq.biz.bizEntities.get(entityName);
-        if (bizEntity !== undefined && bizEntity.type === entityType) {
-            return bizEntity;
+        if (bizPhraseType === undefined || bizPhraseType.length === 0) {
+            if (bizEntity !== undefined) {
+                return bizEntity;
+            }
+            this.log(`${entityName} is not a Biz Entity`);
+            return undefined;
         }
-        this.log(`${entityName} is not a Biz ${entityType.toUpperCase()}`);
+        if (bizEntity !== undefined) {
+            if (bizPhraseType.indexOf(bizEntity.bizPhraseType) >= 0) {
+                return bizEntity;
+            }
+        }
+        this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => il_1.BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
 }
@@ -135,7 +108,7 @@ class PBizEntity extends PBizBase {
     constructor() {
         super(...arguments);
         this.parseProp = () => {
-            let prop = this.parseSubItem('prop');
+            let prop = this.parseSubItem();
             this.element.props.set(prop.name, prop);
         };
     }
@@ -144,7 +117,7 @@ class PBizEntity extends PBizBase {
         let source = this.getSource();
         this.element.source = entityType + ' ' + source;
     }
-    parseSubItem(type) {
+    parseSubItem() {
         this.ts.assertToken(tokens_1.Token.VAR);
         let name = this.ts.lowerVar;
         this.ts.readToken();
@@ -152,7 +125,7 @@ class PBizEntity extends PBizBase {
             return;
         }
         let caption = this.ts.mayPassString();
-        let bizBud = this.parseBud(type, name, caption);
+        let bizBud = this.parseBud(name, caption);
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bizBud;
     }
@@ -163,7 +136,7 @@ class PBizEntity extends PBizBase {
         }
         return true;
     }
-    parseBud(type, name, caption) {
+    parseBud(name, caption) {
         const keyColl = {
             none: il_1.BizBudNone,
             int: il_1.BizBudInt,
@@ -199,7 +172,7 @@ class PBizEntity extends PBizBase {
         if (Bud === undefined) {
             this.ts.expect(...keys);
         }
-        let bizBud = new Bud(type, name, caption);
+        let bizBud = new Bud(name, caption);
         bizBud.parser(this.context).parse();
         if (this.ts.token === tokens_1.Token.EQU) {
             this.ts.readToken();

@@ -50,35 +50,14 @@ async function compile(runner, clientSource, override, unit, user) {
     const { uq } = uqRunner;
     const { biz } = uq;
     const bizSiteBuilder = new bizSiteBuilder_1.BizSiteBuilder(biz, runner, unit, user);
-    await bizSiteBuilder.parse(objs, props);
-    /*
-    const res: { [phrase: string]: string } = {};
-    let objNames: { [name: string]: any } = {};
-    let objIds: { [id: number]: any } = {};
-    for (let obj of objs) {
-        const { id, phrase, caption } = obj;
-        objNames[phrase] = obj;
-        objIds[id] = obj;
-        res[phrase] = caption;
-    }
-    for (let prop of props) {
-        const { id, phrase, base, caption } = prop;
-        const obj = objIds[base];
-        let { props } = obj;
-        if (props === undefined) {
-            obj.props = props = [];
-        }
-        props.push(prop);
-        res[phrase] = caption;
-    }
-
-    // biz.bizArr.splice(0);
-    */
+    await bizSiteBuilder.loadObjects(objs, props);
     if (clientSource) {
+        for (let source of bizSiteBuilder.sysEntitySources) {
+            uqRunner.parse(source, '$sys', true);
+        }
         uqRunner.parse(clientSource, 'upload');
         uqRunner.anchorLatest();
     }
-    // let bizArr = [...biz.bizArr];
     for (let obj of objs) {
         const { phrase, source } = obj;
         if (!source)
@@ -95,56 +74,7 @@ async function compile(runner, clientSource, override, unit, user) {
             logs: msgs,
         };
     }
-    /*
-    const hasUnit = false;
-    let context = new DbContext(this.compilerVersion, sqlType, dbSiteName, '', this.log, hasUnit);
-    const bUq = new BUq(this.uq, context);
-
-    await uqRunner.saveLatest(runner);
-    await Promise.all(bizArr.map(entity => {
-        return async function () {
-            const { type, phrase, caption, source } = entity;
-            const memo = undefined;
-            let [{ id }] = await runner.unitUserTableFromProc('SaveBizObject'
-                , unit, user, phrase, caption, entity.typeNum, memo, source
-                , undefined);
-            if (entity.type === 'atom') {
-
-            }
-            let obj = { id, phrase };
-            objIds[id] = obj;
-            objNames[phrase] = obj;
-        }();
-    }));
-    const atomPairs = getAtomExtendsPairs(biz, bizArr);
-    await runner.unitUserTableFromProc('SaveBizIX'
-        , unit, user, JSON.stringify(atomPairs));
-    await Promise.all(bizArr.map(entity => {
-        return async function () {
-            let { id } = objNames[entity.phrase];
-            let buds = entity.getAllBuds();
-            await Promise.all(buds.map(v => {
-                return async function () {
-                    const { phrase, caption, memo, dataTypeNum, objName, flag } = v;
-                    const typeNum = v.typeNum;
-                    let objId: number;
-                    if (objName !== undefined) {
-                        const obj = objNames[objName];
-                        if (obj !== undefined) {
-                            objId = obj.id;
-                        }
-                    }
-                    await runner.unitUserCall('SaveBizBud'
-                        , unit, user, id, phrase, caption
-                        , typeNum, memo, dataTypeNum, objId, flag
-                    );
-                }();
-            }));
-        }();
-    }));
-    */
     await bizSiteBuilder.build(log);
-    // let schemas = uq.buildSchemas(res);
     let schemas = bizSiteBuilder.buildSchemas();
     return {
         schemas: jsonpack.pack(schemas.$biz),

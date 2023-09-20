@@ -11,7 +11,6 @@ const inBusAction_1 = require("../inBusAction");
 const centerApi_1 = require("../centerApi");
 const BusFace_1 = require("./BusFace");
 const Runner_1 = require("./Runner");
-const sqlsVersion_1 = require("../db/my/sqlsVersion");
 class EntityRunner extends Runner_1.Runner {
     /**
      * EntityRunner: 提供调用某个db中存储过程 / 缓存某db中配置数据 的类？
@@ -370,7 +369,7 @@ class EntityRunner extends Runner_1.Runner {
         return ret.map(v => v.id + '\t' + v.name);
     }
     async savePhrases(phrases, rolesJson) {
-        if (sqlsVersion_1.sqlsVersion.version < 8)
+        if (this.dbUq.sqlVersionNumber < 8)
             return [];
         let ret = await this.dbUq.call('$save_phrases', [phrases]);
         let retStr = ret.map(v => v.id + '\t' + v.name);

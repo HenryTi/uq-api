@@ -5,8 +5,8 @@ const tool_1 = require("../../../tool");
 const consts_1 = require("../../consts");
 const MyDb_1 = require("./MyDb");
 class MyDb$Res extends MyDb_1.MyDb {
-    constructor() {
-        super(consts_1.consts.$res);
+    constructor(myDbs) {
+        super(myDbs, consts_1.consts.$res);
     }
     initConfig(dbName) { return tool_1.env.connection; }
     async createDatabase() {

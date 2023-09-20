@@ -370,35 +370,6 @@ export class TokenStream {
         }
     }
 
-    readLineEndMemo() {
-        this.memo = undefined;
-        while (true) {
-            if (this.cur !== Char.MINUS) return;
-        }
-        if (this.p < this.len) {
-            if (this.buffer.charCodeAt(this.p) !== Char.MINUS) return;
-            this.peekToken()
-        }
-        while (true) {
-            this.advance();
-            switch (this.cur) {
-                case Char._R:
-                case Char.ENTER:
-                case Char.R_ENTER:
-                case Char.ENTER_R:
-                case Char.NULL:
-                    return;
-                case Char.MINUS:
-                    this.advance();
-                    if (this.cur === Char.MINUS) {
-                        this.readLineRemark();
-                        return;
-                    }
-                    break;
-            }
-        }
-    }
-
     private readLineRemark() {
         let start = this.p;
         while (true) {

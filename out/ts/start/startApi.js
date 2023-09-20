@@ -10,7 +10,6 @@ const core_1 = require("../core");
 const router_1 = require("../router");
 const auth_1 = require("../core/auth");
 const proc_1 = require("../router/proc");
-const { version: uq_api_version } = require('../../package.json');
 async function startApi() {
     process.on('uncaughtException', function (err) {
         tool_1.logger.error('uncaughtException', err);
@@ -34,6 +33,7 @@ async function startApi() {
             return;
         }
         (0, res_1.initResPath)();
+        let dbs = (0, core_1.getDbs)();
         let app = express();
         app.use(cors({
             origin: '*'
@@ -87,21 +87,12 @@ async function startApi() {
         app.use('/uq/test/:db/', buildUqRouter(uqTestRouterBuilder, compileTestRouterBuilder));
         app.use('/uq/unitx-prod/', (0, router_1.buildUnitxRouter)(unitxProdRouterBuilder));
         app.use('/uq/unitx-test/', (0, router_1.buildUnitxRouter)(unitxTestRouterBuilder));
-        let dbs = (0, core_1.getDbs)();
         await dbs.start();
-        /*
-        await Promise.all([
-            create$ResDb(),
-            create$UqDb()
-        ]);
-        */
+        const { uq_api_version } = dbs;
         let { port, localPort, connection } = tool_1.env;
         app.listen(port, async () => {
             tool_1.logger.debug('UQ-API ' + uq_api_version + ' listening on port ' + port);
             let { host, user } = connection;
-            let sql = `SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'jksoft_mini_jxc_trial'`;
-            let ret = await (0, core_1.getDbs)().dbNoName.sql(sql);
-            console.log(ret);
             tool_1.logger.debug('DB host: %s, user: %s', host, user);
             tool_1.logger.debug('Tonwa uq-api started!');
             (0, tool_1.expressListRoutes)(app, {});

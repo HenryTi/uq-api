@@ -1,12 +1,12 @@
 import { DbContext } from '../../dbContext';
 import { convertSelect } from '../select';
-import { Select, TuidArr, Entity, ID, Queue, DataType, Stack as IlStack, ValueExpression, OpQueueAction, VarOperand, Expression, IDNewType, BizBase } from '../../../il';
+import { Select, TuidArr, Entity, ID, Queue, DataType, Stack as IlStack, ValueExpression, OpQueueAction, VarOperand, Expression, IDNewType, BizBase, OpJsonProp } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpRole } from './ExpRole';
 import { ExpID } from './ExpID';
 import { ExpNO } from './ExpNO';
 import { Exp } from './Exp';
-import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight, ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE, ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase, ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar } from './exps';
+import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight, ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp, ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE, ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase, ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar } from './exps';
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 
@@ -68,6 +68,7 @@ class Stack implements IlStack {
     div() { this.op2Val((c1, c2) => new ExpDiv(c1, c2)); }
     decDiv() { this.op2Val((c1, c2) => new ExpDecDiv(c1, c2)); }
     mod() { this.op2Val((c1, c2) => new ExpMod(c1, c2)); }
+    jsonProp(): void { this.op2Val((c1, c2) => new ExpJsonProp(c1, c2)); }
     bitAnd() { this.op2Val((c1, c2) => new ExpBitAnd(c1, c2)); }
     bitOr() { this.op2Val((c1, c2) => new ExpBitOr(c1, c2)); }
     bitInvert() { this.op1Val(c1 => new ExpBitInvert(c1)); }

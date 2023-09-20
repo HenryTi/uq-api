@@ -66,6 +66,7 @@ class Stack {
     div() { this.op2Val((c1, c2) => new exps_1.ExpDiv(c1, c2)); }
     decDiv() { this.op2Val((c1, c2) => new exps_1.ExpDecDiv(c1, c2)); }
     mod() { this.op2Val((c1, c2) => new exps_1.ExpMod(c1, c2)); }
+    jsonProp() { this.op2Val((c1, c2) => new exps_1.ExpJsonProp(c1, c2)); }
     bitAnd() { this.op2Val((c1, c2) => new exps_1.ExpBitAnd(c1, c2)); }
     bitOr() { this.op2Val((c1, c2) => new exps_1.ExpBitOr(c1, c2)); }
     bitInvert() { this.op1Val(c1 => new exps_1.ExpBitInvert(c1)); }

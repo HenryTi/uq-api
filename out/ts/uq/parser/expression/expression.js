@@ -323,6 +323,15 @@ class PExpression extends element_1.PElement {
                 return;
             case tokens_1.Token.SUB:
                 this.ts.readToken();
+                if (this.ts.token === tokens_1.Token.GT) {
+                    this.ts.readToken();
+                    if (this.ts.token === tokens_1.Token.GT) {
+                        this.ts.readToken();
+                        this.f();
+                        this.add(new Exp.OpJsonProp());
+                        return;
+                    }
+                }
                 this.f();
                 this.add(new Exp.OpNeg());
                 return;

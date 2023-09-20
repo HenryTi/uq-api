@@ -5,7 +5,6 @@ import { PBizBase } from "./Base";
 
 export class PBizPermit<P extends BizPermit> extends PBizBase<P> {
     private readonly permits: { [key: string]: boolean } = {};
-    protected get defaultName(): string { return undefined; }
     protected parseContent(): void {
         for (; ;) {
             if (this.ts.token !== Token.VAR) break;
@@ -98,7 +97,6 @@ interface WithPermit {
 export class PBizRole<P extends BizRole> extends PBizBase<P> {
     private readonly withs: WithPermit[] = [];
     private readonly roleNames: string[] = [];
-    protected get defaultName(): string { return undefined; }
     protected parseContent(): void {
         for (; ;) {
             if (this.ts.varBrace === true) break;
