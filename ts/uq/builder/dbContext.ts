@@ -238,7 +238,7 @@ export class DbContext implements il.Builder {
     readonly compilerVersion: string;
     readonly varUnit: ExpVar;
     readonly varUser: ExpVar;
-    readonly site: number;
+    site: number;
     ownerDbName: string; // 在$site里面建存储过程，访问uq表的内容
 
     constructor(compilerVersion: string, sqlType: string

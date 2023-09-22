@@ -4,6 +4,7 @@ export * from './Sheet';
 export * from './Atom';
 export * from './Moniker';
 export * from './Bud';
+export * from './Pick';
 export * from './Permit';
 export * from './Act';
 export * from './Query';

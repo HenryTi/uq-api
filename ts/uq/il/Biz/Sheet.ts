@@ -2,7 +2,6 @@ import { PBizDetail, PBizDetailAct, PBizMain, PBizPend, PBizSheet, PContext, PEl
 import { IElement } from "../element";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
-import { BizAtom, BizPick } from "./Atom";
 import { BizBase, BizPhraseType } from "./Base";
 import { BizBud } from "./Bud";
 import { BizEntity } from "./Entity";

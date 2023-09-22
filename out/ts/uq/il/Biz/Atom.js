@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizPick = exports.BizAtomIDAny = exports.BizAtomBud = exports.BizAtomSpec = exports.BizAtomIDWithBase = exports.BizAtom = exports.BizAtomID = void 0;
+exports.BizAtomIDAny = exports.BizAtomSpec = exports.BizAtomIDWithBase = exports.BizAtom = exports.BizAtomID = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
@@ -34,9 +34,6 @@ class BizAtom extends BizAtomID {
             ex: (_a = this.ex) === null || _a === void 0 ? void 0 : _a.buildSchema(res),
         });
     }
-    db(dbContext) {
-        return new builder_1.BBizAtom(dbContext, this);
-    }
 }
 exports.BizAtom = BizAtom;
 class BizAtomIDWithBase extends BizAtomID {
@@ -44,6 +41,7 @@ class BizAtomIDWithBase extends BizAtomID {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             base: this.base.name,
+            ix: this.isIxBase,
         });
     }
 }
@@ -58,30 +56,49 @@ class BizAtomSpec extends BizAtomIDWithBase {
         return new parser_1.PBizAtomSpec(this, context);
     }
     buildSchema(res) {
-        var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(ret, {
-            keys: (_a = this.keys) === null || _a === void 0 ? void 0 : _a.map(v => v.buildSchema(res)),
+        let keys = this.keys.map(v => {
+            return v.buildSchema(res);
         });
+        return Object.assign(ret, {
+            keys,
+        });
+    }
+    buildPhrases(phrases, prefix) {
+        super.buildPhrases(phrases, prefix);
+        let phrase = this.phrase;
+        for (let key of this.keys) {
+            key.buildPhrases(phrases, phrase);
+        }
+    }
+    getAllBuds() {
+        let buds = super.getAllBuds();
+        for (let key of this.keys)
+            buds.push(key);
+        return buds;
+    }
+    db(dbContext) {
+        return new builder_1.BBizSpec(dbContext, this);
     }
 }
 exports.BizAtomSpec = BizAtomSpec;
-class BizAtomBud extends BizAtomIDWithBase {
-    constructor() {
-        super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.bud;
+/*
+export class BizAtomBud extends BizAtomIDWithBase {
+    readonly bizPhraseType = BizPhraseType.bud;
+    join: BizAtomID;              // only join, not join atom, then bizAtomFlag
+
+    parser(context: PContext): PElement<IElement> {
+        return new PBizAtomBud(this, context);
     }
-    parser(context) {
-        return new parser_1.PBizAtomBud(this, context);
-    }
-    buildSchema(res) {
+
+    buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             join: this.join.name,
         });
     }
 }
-exports.BizAtomBud = BizAtomBud;
+*/
 class BizAtomIDAny extends BizAtomID {
     constructor() {
         super(...arguments);
@@ -92,26 +109,4 @@ class BizAtomIDAny extends BizAtomID {
 }
 BizAtomIDAny.current = new BizAtomIDAny(undefined);
 exports.BizAtomIDAny = BizAtomIDAny;
-class BizPick extends Entity_1.BizEntity {
-    constructor() {
-        super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.pick;
-        this.atoms = [];
-        this.joins = [];
-    }
-    parser(context) {
-        return new parser_1.PBizPick(this, context);
-    }
-    buildSchema(res) {
-        var _a;
-        let ret = super.buildSchema(res);
-        return Object.assign(ret, {
-            atoms: this.atoms.map(v => v.name),
-            uom: this.uom,
-            spec: (_a = this.spec) === null || _a === void 0 ? void 0 : _a.name,
-            joins: this.joins.map(v => v.name),
-        });
-    }
-}
-exports.BizPick = BizPick;
 //# sourceMappingURL=Atom.js.map

@@ -672,12 +672,14 @@ export abstract class PExpression extends PElement {
             case 'search':
                 this.add(this.parseOpSearch());
                 break;
-            case 'specid':
-                this.add(this.parseOpSpecId());
-                break;
-            case 'specvalue':
-                this.add(this.parseOpSpecValue());
-                break;
+            /*                
+                        case 'specid':
+                            this.add(this.parseOpSpecId());
+                            break;
+                        case 'specvalue':
+                            this.add(this.parseOpSpecValue());
+                            break;
+            */
         }
         return true;
     }
@@ -736,19 +738,19 @@ export abstract class PExpression extends PElement {
         ret.parser(this.context).parse();
         return ret;
     }
-
-    private parseOpSpecId() {
-        let ret = new Exp.OpSpecId();
-        ret.parser(this.context).parse();
-        return ret;
-    }
-
-    private parseOpSpecValue() {
-        let ret = new Exp.OpSpecValue();
-        ret.parser(this.context).parse();
-        return ret;
-    }
-
+    /*
+        private parseOpSpecId() {
+            let ret = new Exp.OpSpecId();
+            ret.parser(this.context).parse();
+            return ret;
+        }
+    
+        private parseOpSpecValue() {
+            let ret = new Exp.OpSpecValue();
+            ret.parser(this.context).parse();
+            return ret;
+        }
+    */
     private parseCount() {
         if (this.ts.token === Token.MUL) {
             this.ts.readToken();

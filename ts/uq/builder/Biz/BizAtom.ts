@@ -1,21 +1,19 @@
-import { BigInt, BizAtom, Char, Int, JoinType, JsonDataType, OpJsonProp, charField, idField, textField } from "../../il";
+import { BigInt, BizAtom, BizAtomSpec, BizBud, BudDataType, Char, EnumDataType, Int, JoinType, JsonDataType, OpJsonProp, bigIntField, charField, idField, jsonField, textField } from "../../il";
 import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpJsonProp, ExpNum, ExpStr, ExpVal, ExpVar, Procedure } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
-export class BBizAtom extends BBizEntity<BizAtom> {
+export class BBizSpec extends BBizEntity<BizAtomSpec> {
     override async buildProcedures(): Promise<void> {
         const { id } = this.bizEntity;
-        /*
-        const procSave = this.createProcedure(`${id}$s`);
+        const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
         this.buildSaveProc(procSave);
-        const procGet = this.createProcedure(`${id}$g`);
-        this.buildGetProc(procGet);
-        */
+        // const procGet = this.createProcedure(`${id}$g`);
+        // this.buildGetProc(procGet);
     }
-    /*
+
     private buildSaveProc(proc: Procedure) {
-        const { base, keys } = this.bizEntity;
+        const { base, keys, props: propsMap } = this.bizEntity;
         if (base === undefined) {
             proc.dropOnly = true;
             return;
@@ -24,151 +22,151 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         const { parameters, statements } = proc;
         const { factory, unitField, userParam } = this.context;
 
-        const cNo = 'no';
-        const cAtom = 'atom';
-        const cBase = 'base';
-        const cKeys = 'keys';
-        const cEx = 'ex';
-        const id = 'id';
+        const cBase = '$base';
+        const cKeys = '$keys';
+        const cProps = '$props';
+        const cId = '$id';
         const a = 'a';
         const site = '$site';
-        const keysJson = 'keysJson';
         const len = keys.length;
-
+        const varKeys = new ExpVar(cKeys);
         const varBase = new ExpVar(cBase);
-        const varKeys = new ExpVar(keysJson);
+        const varProps = new ExpVar(cProps);
+        const varSite = new ExpVar(site);
+        const prefixKey = '$key_';
+        const prefixProp = '$prop_';
+        const prefixPhrase = '$phrase_';
+
+        const props: BizBud[] = [];
+        for (let [, value] of propsMap) props.push(value);
 
         parameters.push(
-            unitField,
+            bigIntField(site),
             userParam,
-            charField(cAtom, 200),
             idField(cBase, 'big'),
-            textField(cKeys),
-            charField(cEx, 200),
+            jsonField(cKeys),
+            jsonField(cProps),
         );
 
         const declare = factory.createDeclare();
-        declare.var(id, new BigInt());
-        declare.var(site, new BigInt());
-        declare.var(keysJson, new JsonDataType());
+        declare.var(cId, new BigInt());
         statements.push(declare);
-        for (let i = 0; i < len; i++) {
-            declare.var('key' + i, new Char(200));
-        }
 
-        const setSite = factory.createSet();
-        statements.push(setSite);
-        setSite.equ(site, new ExpVar(unitField.name));
-        const setJson = factory.createSet();
-        statements.push(setJson);
-        setJson.equ(keysJson, new ExpVar(cKeys));
-        const ifBaseNull = factory.createIf();
-        statements.push(ifBaseNull);
-        ifBaseNull.cmp = new ExpIsNull(varBase);
-        const setBaseSite = factory.createSet();
-        ifBaseNull.then(setBaseSite);
-        setBaseSite.equ(cBase, varBase);
-
-        const selectKey = factory.createSelect();
-        statements.push(selectKey);
-        selectKey.toVar = true;
-        for (let i = 0; i < len; i++) {
-            selectKey.column(new ExpJsonProp(varKeys, new ExpStr(`$[${i}]`)), 'key' + i);
+        function declareBuds(buds: BizBud[], prefix: string) {
+            for (let bud of buds) {
+                const { name, phrase } = bud;
+                declare.var(prefix + name, new Char(200));
+                declare.var(prefixPhrase + name, new BigInt());
+                let setPhraseId = factory.createSet();
+                statements.push(setPhraseId);
+                setPhraseId.equ(prefixPhrase + name,
+                    new ExpFuncInUq(
+                        'phraseid',
+                        [varSite, new ExpStr(phrase)],
+                        true)
+                )
+            }
         }
+        declareBuds(keys, prefixKey);
+        declareBuds(props, prefixProp);
+
+        function selectJsonValue(varJson: ExpVar, buds: BizBud[], prefix: string) {
+            if (buds.length === 0) return;
+            const select = factory.createSelect();
+            statements.push(select);
+            select.toVar = true;
+            for (let bud of buds) {
+                const { name } = bud;
+                select.column(new ExpJsonProp(varJson, new ExpStr(`$.${name}`)), `${prefix}${name}`);
+            }
+        }
+        selectJsonValue(varKeys, keys, prefixKey);
 
         const select = factory.createSelect();
         statements.push(select);
         select.toVar = true;
         select.limit(ExpNum.num1);
-        select.column(new ExpField('id', a), id);
-        select.from(new EntityTable('atom', false, a));
-        const wheres: ExpCmp[] = [new ExpEQ(new ExpField(cBase, a), varBase)];
+        select.column(new ExpField('id', a), cId);
+        select.from(new EntityTable('spec', false, a));
+        const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
 
         for (let i = 0; i < len; i++) {
             const key = keys[i];
             const { name, type } = key;
-            const varKey = new ExpVar('key' + i);
-            if (name === cNo) {
-                wheres.push(new ExpEQ(new ExpField(cNo, a), varKey));
+            const varKey = new ExpVar(prefixKey + name);
+            let t = 't' + i;
+            let tbl: string;
+            switch (type) {
+                default: tbl = 'ixbudint'; break;
+                case 'char': tbl = 'ixbudstr'; break;
+                case 'dec': tbl = 'ixbuddec'; break;
             }
-            else {
-                let t = 't' + i;
-                let tbl: string;
-                switch (type) {
-                    default: tbl = 'ixbudint'; break;
-                    case 'char': tbl = 'ixbudstr'; break;
-                    case 'dec': tbl = 'ixbuddec'; break;
-                }
-                select.join(JoinType.join, new EntityTable(tbl, false, t))
-                select.on(new ExpAnd(
-                    new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
-                    new ExpEQ(
-                        new ExpField('x', t),
-                        new ExpFuncInUq(
-                            'phraseid',
-                            [new ExpVar(site), new ExpStr(key.phrase)],
-                            true)
-                    ),
-                ));
-                wheres.push(new ExpEQ(new ExpField('value', t), varKey));
-            }
+            select.join(JoinType.join, new EntityTable(tbl, false, t))
+            select.on(new ExpAnd(
+                new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
+                new ExpEQ(
+                    new ExpField('x', t),
+                    new ExpVar(prefixPhrase + name),
+                ),
+            ));
+            wheres.push(new ExpEQ(new ExpField('value', t), varKey));
         }
         select.where(new ExpAnd(...wheres));
 
         const ifIdNull = factory.createIf();
         statements.push(ifIdNull);
-        ifIdNull.cmp = new ExpIsNull(new ExpVar(id));
+        ifIdNull.cmp = new ExpIsNull(new ExpVar(cId));
         const setId = factory.createSet();
         ifIdNull.then(setId);
-        setId.equ(id, new ExpFuncInUq(
-            'atom$id',
-            [new ExpVar(site), new ExpVar(userParam.name), ExpNum.num1, varBase],
+        setId.equ(cId, new ExpFuncInUq(
+            'spec$id',
+            [varSite, new ExpVar(userParam.name), ExpNum.num1, varBase],
             true
         ));
 
-        for (let i = 0; i < len; i++) {
-            const varKey = new ExpVar('key' + i);
-            const key = keys[i];
-            const { name, type } = key;
-            if (name === cNo) {
-                const updateNo = factory.createUpdate();
-                statements.push(updateNo);
-                updateNo.table = new EntityTable('atom', false, a);
-                updateNo.where = new ExpEQ(new ExpField(id, a), new ExpVar(id));
-                updateNo.cols.push({ col: cNo, val: varKey });
+        selectJsonValue(varProps, props, prefixProp);
+
+        function setBud(bud: BizBud, prefix: string) {
+            const { name, dataType } = bud;
+            let varBud: ExpVal = new ExpVar(`${prefix}${name}`);
+            const insert = factory.createInsertOnDuplicate();
+            statements.push(insert);
+            let tbl: string;
+            switch (dataType) {
+                default:
+                    tbl = 'ixbudint';
+                    break;
+                case BudDataType.date:
+                    tbl = 'ixbudint';
+                    varBud = new ExpFunc('to_days', varBud);
+                    break;
+                case BudDataType.str:
+                case BudDataType.char:
+                    tbl = 'ixbudstr';
+                    break;
+                case BudDataType.dec:
+                    tbl = 'ixbuddec';
+                    break;
             }
-            else {
-                const insert = factory.createInsertOnDuplicate();
-                statements.push(insert);
-                let tbl: string;
-                switch (type) {
-                    default: tbl = 'ixbudint'; break;
-                    case 'char': tbl = 'ixbudstr'; break;
-                    case 'dec': tbl = 'ixbuddec'; break;
-                }
-                insert.table = new EntityTable(tbl, false);
-                insert.keys.push(
-                    { col: 'i', val: new ExpVar(id) },
-                    {
-                        col: 'x', val: new ExpFuncInUq(
-                            'phraseid',
-                            [new ExpVar(site), new ExpStr(key.phrase)],
-                            true)
-                    },
-                );
-                insert.cols.push({ col: 'value', val: varKey });
-            }
+            insert.table = new EntityTable(tbl, false);
+            insert.keys.push(
+                { col: 'i', val: new ExpVar(cId) },
+                {
+                    col: 'x', val: new ExpVar(prefixPhrase + name),
+                },
+            );
+            insert.cols.push({ col: 'value', val: varBud });
         }
+        function setBuds(buds: BizBud[], prefix: string) {
+            for (let bud of buds) setBud(bud, prefix);
+        }
+        setBuds(keys, prefixKey);
+        setBuds(props, prefixProp);
 
-        const updateEx = factory.createUpdate();
-        statements.push(updateEx);
-        updateEx.table = new EntityTable('atom', false, a);
-        updateEx.where = new ExpEQ(new ExpField(id, a), new ExpVar(id));
-        updateEx.cols.push({ col: 'ex', val: new ExpVar(cEx) });
-
-        const selectId = factory.createSelect();
-        statements.push(selectId);
-        selectId.column(new ExpVar(id), id);
+        const setExecSqlValue = factory.createSet();
+        statements.push(setExecSqlValue);
+        setExecSqlValue.isAtVar = true;
+        setExecSqlValue.equ('execSqlValue', new ExpVar(cId));
     }
 
     private buildGetProc(proc: Procedure) {
@@ -278,5 +276,4 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         statements.push(selectVal);
         selectVal.column(varVal, 'val');
     }
-    */
 }

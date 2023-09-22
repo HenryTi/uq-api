@@ -1,4 +1,4 @@
-import { BizAtom, BizAtomBud, BizAtomID, BizAtomIDAny, BizAtomIDWithBase, BizAtomSpec, BizPhraseType, BizPick, Uq } from "../../il";
+import { BizAtom, /*BizAtomBud, */BizAtomID, BizAtomIDAny, BizAtomIDWithBase, BizAtomSpec, BizPhraseType, BizPick, Uq } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -128,6 +128,14 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
 
 class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomID<T> {
     protected baseName: string;
+    protected parseIxBase = () => {
+        if (this.ts.isKeyword('base') === false) {
+            this.ts.expect('base');
+        }
+        this.element.isIxBase = true;
+        this.ts.readToken();
+        this.parseBase();
+    }
     protected parseBase = () => {
         if (this.baseName !== undefined) {
             this.ts.error('BASE can only be defined once');
@@ -227,6 +235,7 @@ class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomID<T> {
 export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
     protected parseContent(): void {
         const keyColl = {
+            ix: this.parseIxBase,
             base: this.parseBase,
             prop: this.parseProp,
             key: this.parseKey,
@@ -250,12 +259,6 @@ export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
         let caption: string = this.ts.mayPassString();
         let bizBud = this.parseBud(name, caption);
         this.element.keys.push(bizBud);
-        if (name !== 'no') {
-            if (this.isValidPropName(name) === false) {
-                return;
-            }
-            this.element.props.set(name, bizBud);
-        }
         this.ts.passToken(Token.SEMICOLON);
     }
 
@@ -267,172 +270,9 @@ export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
             this.log('SPEC must define KEY');
             ok = false;
         }
-        return ok;
-    }
-}
 
-export class PBizAtomBud extends PBizAtomIDWithBase<BizAtomBud> {
-    private joinName: string;
-
-    protected parseContent(): void {
-        const keyColl = {
-            base: this.parseBase,
-            join: this.parseJoin,
-            prop: this.parseProp,
-        };
-        const keys = Object.keys(keyColl);
-        for (; ;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === Token.RBRACE) break;
-        }
-    }
-
-    private parseJoin = () => {
-        if (this.joinName !== undefined) {
-            this.ts.error('JOIN can only be defined once');
-        }
-        if (this.ts.token === Token.VAR) {
-            this.joinName = this.ts.lowerVar;
-            this.ts.readToken();
-        }
-        else {
-            // 定义了base，没有base name
-            this.joinName = null;
-        }
-        this.ts.passToken(Token.SEMICOLON);
-    }
-
-    scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) ok = false;
-        if (this.joinName === null) {
-            this.element.join = BizAtomIDAny.current;
-        }
-        else if (this.joinName === undefined) {
-            this.log('BUD must define JOIN');
-            ok = false;
-        }
-        else {
-            let join = this.scanAtomID(space, this.joinName);
-            if (join === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.join = join;
-                if (this.checkRecursive('JOIN', (p: BizAtomBud) => p.join as BizAtomBud) === false) {
-                    ok = false;
-                }
-            }
-        }
-        return ok;
-    }
-}
-
-export class PBizPick extends PBizEntity<BizPick> {
-    private atoms: string[] = [];
-    private spec: string;
-    private joins: string[] = [];
-
-    protected parseContent(): void {
-        const keyColl = {
-            atom: this.parseAtom,
-            uom: this.parseUom,
-            spec: this.parseSpec,
-            join: this.parseJoin,
-        };
-        const keys = Object.keys(keyColl);
-        for (; ;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === Token.RBRACE) break;
-        }
-    }
-
-    private parseArrayVar(arr: string[]) {
-        if (this.ts.token === Token.LPARENTHESE) {
-            this.ts.readToken();
-            for (; ;) {
-                if (this.ts.token === Token.VAR as any) {
-                    arr.push(this.ts.lowerVar);
-                    this.ts.readToken();
-                }
-                else {
-                    this.ts.expectToken(Token.VAR);
-                }
-                if (this.ts.token === Token.COMMA as any) {
-                    this.ts.readToken();
-                    if (this.ts.token === Token.RPARENTHESE as any) {
-                        this.ts.readToken();
-                        break;
-                    }
-                    continue;
-                }
-                if (this.ts.token === Token.RPARENTHESE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-            }
-        }
-        else if (this.ts.token === Token.VAR) {
-            arr.push(this.ts.lowerVar);
-            this.ts.readToken();
-        }
-        else {
-            this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
-        }
-        this.ts.passToken(Token.SEMICOLON);
-    }
-
-    private parseAtom = () => {
-        this.parseArrayVar(this.atoms);
-    }
-
-    private parseUom = () => {
-        this.element.uom = true;
-        this.ts.passToken(Token.SEMICOLON);
-    }
-
-    private parseSpec = () => {
-        if (this.ts.token !== Token.VAR) {
-            this.ts.expectToken(Token.VAR);
-        }
-        this.spec = this.ts.lowerVar;
-        this.ts.readToken();
-        this.ts.passToken(Token.SEMICOLON);
-    }
-
-    private parseJoin = () => {
-        this.parseArrayVar(this.joins);
-    }
-
-    scan(space: Space): boolean {
-        let ok = true;
-        for (let atom of this.atoms) {
-            let bizEntity = this.getBizEntity(space, atom, BizPhraseType.atom);
-            if (bizEntity === undefined) {
-                ok = false;
-            }
-            this.element.atoms.push(bizEntity as BizAtom);
-        }
-
-        this.element.spec = this.getBizEntity(space, this.spec, BizPhraseType.spec);
-
-        const joinBizPhraseTypes = [BizPhraseType.options, BizPhraseType.atom, BizPhraseType.bud];
-        for (let join of this.joins) {
-            let bizEntity = this.getBizEntity(space, join, ...joinBizPhraseTypes);
-            if (bizEntity === undefined) {
-                ok = false;
-            }
-            this.element.joins.push(bizEntity as BizAtomID);
+        for (let key of keys) {
+            if (this.scanBud(space, key) === false) ok = false;
         }
         return ok;
     }

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OpLike = exports.SubQueryOperand = exports.OpIn = exports.OpIsNotNull = exports.OpIsNull = exports.OpOf = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = exports.ComarePartExpression = exports.CompareExpression = exports.ValueExpression = exports.Expression = void 0;
-exports.OpSpecValue = exports.OpSpecId = exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = exports.VarOperand = exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = void 0;
+exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = exports.VarOperand = exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = void 0;
 const parser_1 = require("../parser");
 const element_1 = require("./element");
 const select_1 = require("./select");
@@ -480,20 +480,25 @@ class OpSearch extends Atom {
     }
 }
 exports.OpSearch = OpSearch;
-class OpSpecId extends Atom {
-    get type() { return 'specid'; }
-    parser(context) { return new parser_1.POpSpecId(this, context); }
-    to(stack) {
+/*
+export class OpSpecId extends Atom {
+    spec: ValueExpression;           // spec name
+    atom: ValueExpression;
+    values: ValueExpression; // char12 seperated string
+    get type(): string { return 'specid'; }
+    parser(context: PContext) { return new POpSpecId(this, context); }
+    to(stack: Stack) {
         stack.SpecId(this.spec, this.atom, this.values);
     }
 }
-exports.OpSpecId = OpSpecId;
-class OpSpecValue extends Atom {
-    get type() { return 'specvalue'; }
-    parser(context) { return new parser_1.POpSpecValue(this, context); }
-    to(stack) {
+
+export class OpSpecValue extends Atom {
+    id: ValueExpression;
+    get type(): string { return 'specvalue'; }
+    parser(context: PContext) { return new POpSpecValue(this, context); }
+    to(stack: Stack) {
         stack.SpecValue(this.id);
     }
 }
-exports.OpSpecValue = OpSpecValue;
+*/ 
 //# sourceMappingURL=expression.js.map

@@ -1,7 +1,11 @@
 import {
-    POpOf, PValueExpression, PCompareExpression, PElement,
-    PVarOperand, POpGroupFunc, POpGroupCountFunc,
-    PContext, PMatchOperand, POpTypeof, POpID, POpDollarVar, POpNO, POpEntityId, POpEntityName, POpRole, POpQueue, POpCast, POpUMinute, POpSearch, POpNameof, Space, POpAt, POpUqDefinedFunction, PComparePartExpression, POpSpecId, POpSpecValue
+    POpOf, PValueExpression, PCompareExpression, PElement
+    , PVarOperand, POpGroupFunc, POpGroupCountFunc
+    , PContext, PMatchOperand, POpTypeof, POpID, POpDollarVar, POpNO
+    , POpEntityId, POpEntityName, POpRole, POpQueue, POpCast
+    , POpUMinute, POpSearch, POpNameof
+    , Space, POpAt, POpUqDefinedFunction, PComparePartExpression
+    // , POpSpecId, POpSpecValue
 } from '../parser';
 import { DataType } from './datatype';
 import { IElement } from './element';
@@ -519,7 +523,7 @@ export class OpSearch extends Atom {
         stack.Search(this.key, this.values);
     }
 }
-
+/*
 export class OpSpecId extends Atom {
     spec: ValueExpression;           // spec name
     atom: ValueExpression;
@@ -539,3 +543,4 @@ export class OpSpecValue extends Atom {
         stack.SpecValue(this.id);
     }
 }
+*/

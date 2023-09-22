@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeStampField = exports.decField = exports.dateTimeField = exports.timeField = exports.dateField = exports.textField = exports.charField = exports.binaryField = exports.bigIntField = exports.smallIntField = exports.intField = exports.tinyIntField = exports.idField = exports.Field = exports.ProcParamType = void 0;
+exports.timeStampField = exports.decField = exports.dateTimeField = exports.timeField = exports.dateField = exports.textField = exports.charField = exports.binaryField = exports.bigIntField = exports.smallIntField = exports.intField = exports.tinyIntField = exports.jsonField = exports.idField = exports.Field = exports.ProcParamType = void 0;
 const dt = require("./datatype");
 const parser_1 = require("../parser");
 var ProcParamType;
@@ -44,6 +44,14 @@ function idField(name, size, idTypeName) {
     return f;
 }
 exports.idField = idField;
+function jsonField(name) {
+    let f = new Field();
+    f.name = name;
+    let dataType = new dt.JsonDataType();
+    f.dataType = dataType;
+    return f;
+}
+exports.jsonField = jsonField;
 function tinyIntField(name) {
     let f = new Field;
     f.name = name;

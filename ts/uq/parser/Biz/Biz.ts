@@ -1,7 +1,7 @@
 import {
     Biz, BizAct, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
     , BizMoniker as BizMoniker, Entity, Pointer, Table, Uq, BizTree, BizTie, BizMain, BizDetail
-    , BizPend, BizSheet, BizOptions, BizAtomBud, BizAtomSpec, BizPick
+    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -16,7 +16,7 @@ export class PBiz extends PEntity<Biz> {
         this.pRoots = {
             atom: BizAtom,
             spec: BizAtomSpec,
-            bud: BizAtomBud,
+            // bud: BizAtomBud,
 
             moniker: BizMoniker,
             options: BizOptions,

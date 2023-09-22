@@ -230,7 +230,6 @@ class PBizEntity extends PBizBase {
         const { props } = this.element;
         if (this.scanBuds(space, props) === false)
             ok = false;
-        // if (this.scanBuds(space, assigns) === false) ok = false;
         return ok;
     }
     scan2Buds(uq, buds) {

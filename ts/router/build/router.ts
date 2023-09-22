@@ -108,21 +108,13 @@ export function buildBuildRouter(router: Router, rb: RouterWebBuilder) {
             res.json({ error: err });
         }
     });
-    /*
-        rb.post(router, '/proc-sql',
-        async (runner:EntityRunner, body:{name:string, proc:string}): Promise<any> => {
-            //return this.db.sql(sql, params);
-            let {name, proc} = body;
-            return await runner.procSql(name, proc);
-        });
-    */
     router.post('/proc-core-sql', async (req: Request, res: Response) => {
         try {
             let runner = await createBuildRunner(req);
             let { name, proc, isFunc } = req.body;
             // let index = sqlsVersion.unsupportProcs.findIndex(v => v === name);
             let result: any;
-            if (this.dbUq.isUnsupportProc(name) === false) {
+            if (runner.dbUq.isUnsupportProc(name) === false) {
                 result = await runner.procCoreSql(name, proc, isFunc);
             }
             else {

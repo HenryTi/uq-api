@@ -10,7 +10,6 @@ class BizBud extends Base_1.BizBase {
     constructor(name, caption) {
         super();
         this.bizPhraseType = Base_1.BizPhraseType.prop;
-        // hasIndex: boolean;
         this.flag = Entity_1.BudFlag.none;
         this.name = name;
         this.caption = caption;

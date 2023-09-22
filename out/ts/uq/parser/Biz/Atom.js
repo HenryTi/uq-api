@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizPick = exports.PBizAtomBud = exports.PBizAtomSpec = exports.PBizAtom = exports.PBizAtomID = void 0;
+exports.PBizAtomSpec = exports.PBizAtom = exports.PBizAtomID = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -129,6 +129,14 @@ exports.PBizAtom = PBizAtom;
 class PBizAtomIDWithBase extends PBizAtomID {
     constructor() {
         super(...arguments);
+        this.parseIxBase = () => {
+            if (this.ts.isKeyword('base') === false) {
+                this.ts.expect('base');
+            }
+            this.element.isIxBase = true;
+            this.ts.readToken();
+            this.parseBase();
+        };
         this.parseBase = () => {
             if (this.baseName !== undefined) {
                 this.ts.error('BASE can only be defined once');
@@ -234,17 +242,12 @@ class PBizAtomSpec extends PBizAtomIDWithBase {
             let caption = this.ts.mayPassString();
             let bizBud = this.parseBud(name, caption);
             this.element.keys.push(bizBud);
-            if (name !== 'no') {
-                if (this.isValidPropName(name) === false) {
-                    return;
-                }
-                this.element.props.set(name, bizBud);
-            }
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
     }
     parseContent() {
         const keyColl = {
+            ix: this.parseIxBase,
             base: this.parseBase,
             prop: this.parseProp,
             key: this.parseKey,
@@ -270,170 +273,12 @@ class PBizAtomSpec extends PBizAtomIDWithBase {
             this.log('SPEC must define KEY');
             ok = false;
         }
+        for (let key of keys) {
+            if (this.scanBud(space, key) === false)
+                ok = false;
+        }
         return ok;
     }
 }
 exports.PBizAtomSpec = PBizAtomSpec;
-class PBizAtomBud extends PBizAtomIDWithBase {
-    constructor() {
-        super(...arguments);
-        this.parseJoin = () => {
-            if (this.joinName !== undefined) {
-                this.ts.error('JOIN can only be defined once');
-            }
-            if (this.ts.token === tokens_1.Token.VAR) {
-                this.joinName = this.ts.lowerVar;
-                this.ts.readToken();
-            }
-            else {
-                // 定义了base，没有base name
-                this.joinName = null;
-            }
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-        };
-    }
-    parseContent() {
-        const keyColl = {
-            base: this.parseBase,
-            join: this.parseJoin,
-            prop: this.parseProp,
-        };
-        const keys = Object.keys(keyColl);
-        for (;;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === tokens_1.Token.RBRACE)
-                break;
-        }
-    }
-    scan(space) {
-        let ok = true;
-        if (super.scan(space) === false)
-            ok = false;
-        if (this.joinName === null) {
-            this.element.join = il_1.BizAtomIDAny.current;
-        }
-        else if (this.joinName === undefined) {
-            this.log('BUD must define JOIN');
-            ok = false;
-        }
-        else {
-            let join = this.scanAtomID(space, this.joinName);
-            if (join === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.join = join;
-                if (this.checkRecursive('JOIN', (p) => p.join) === false) {
-                    ok = false;
-                }
-            }
-        }
-        return ok;
-    }
-}
-exports.PBizAtomBud = PBizAtomBud;
-class PBizPick extends Base_1.PBizEntity {
-    constructor() {
-        super(...arguments);
-        this.atoms = [];
-        this.joins = [];
-        this.parseAtom = () => {
-            this.parseArrayVar(this.atoms);
-        };
-        this.parseUom = () => {
-            this.element.uom = true;
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-        };
-        this.parseSpec = () => {
-            if (this.ts.token !== tokens_1.Token.VAR) {
-                this.ts.expectToken(tokens_1.Token.VAR);
-            }
-            this.spec = this.ts.lowerVar;
-            this.ts.readToken();
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-        };
-        this.parseJoin = () => {
-            this.parseArrayVar(this.joins);
-        };
-    }
-    parseContent() {
-        const keyColl = {
-            atom: this.parseAtom,
-            uom: this.parseUom,
-            spec: this.parseSpec,
-            join: this.parseJoin,
-        };
-        const keys = Object.keys(keyColl);
-        for (;;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === tokens_1.Token.RBRACE)
-                break;
-        }
-    }
-    parseArrayVar(arr) {
-        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
-            this.ts.readToken();
-            for (;;) {
-                if (this.ts.token === tokens_1.Token.VAR) {
-                    arr.push(this.ts.lowerVar);
-                    this.ts.readToken();
-                }
-                else {
-                    this.ts.expectToken(tokens_1.Token.VAR);
-                }
-                if (this.ts.token === tokens_1.Token.COMMA) {
-                    this.ts.readToken();
-                    if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                        this.ts.readToken();
-                        break;
-                    }
-                    continue;
-                }
-                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                    this.ts.readToken();
-                    break;
-                }
-            }
-        }
-        else if (this.ts.token === tokens_1.Token.VAR) {
-            arr.push(this.ts.lowerVar);
-            this.ts.readToken();
-        }
-        else {
-            this.ts.expectToken(tokens_1.Token.VAR, tokens_1.Token.LPARENTHESE);
-        }
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
-    }
-    scan(space) {
-        let ok = true;
-        for (let atom of this.atoms) {
-            let bizEntity = this.getBizEntity(space, atom, il_1.BizPhraseType.atom);
-            if (bizEntity === undefined) {
-                ok = false;
-            }
-            this.element.atoms.push(bizEntity);
-        }
-        this.element.spec = this.getBizEntity(space, this.spec, il_1.BizPhraseType.spec);
-        const joinBizPhraseTypes = [il_1.BizPhraseType.options, il_1.BizPhraseType.atom, il_1.BizPhraseType.bud];
-        for (let join of this.joins) {
-            let bizEntity = this.getBizEntity(space, join, ...joinBizPhraseTypes);
-            if (bizEntity === undefined) {
-                ok = false;
-            }
-            this.element.joins.push(bizEntity);
-        }
-        return ok;
-    }
-}
-exports.PBizPick = PBizPick;
 //# sourceMappingURL=Atom.js.map

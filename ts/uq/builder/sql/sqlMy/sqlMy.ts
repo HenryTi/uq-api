@@ -785,20 +785,22 @@ export class Memo extends stat.Memo {
 export class ExecSql extends stat.ExecSql {
     to(sb: SqlBuilder, tab: number) {
         sb.tab(tab).append('SET @statement=');
+        /*
         if (this.toVarPoint) {
             sb.append('CONCAT(\'SET @execSqlValue=\', ')
                 .exp(this.sql)
                 .append(')');
         }
         else {
-            sb.exp(this.sql)
+            sb.exp(this.sql);
         }
-        sb.ln();
+        */
+        sb.exp(this.sql).ln;
         sb.tab(tab).append('PREPARE stmt FROM @statement').ln();
         sb.tab(tab).append('EXECUTE stmt').ln();
         sb.tab(tab).append('DEALLOCATE PREPARE stmt').ln();
         if (this.toVarPoint) {
-            sb.append('SET ').var(this.toVarPoint.varName(this.toVar))
+            sb.tab(tab).append('SET ').var(this.toVarPoint.varName(this.toVar))
                 .append('=@execSqlValue')
                 .ln();
         }

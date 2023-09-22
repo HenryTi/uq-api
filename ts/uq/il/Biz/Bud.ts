@@ -17,7 +17,6 @@ export abstract class BizBud extends BizBase {
     get objName(): string { return undefined; }
     value: string | number;
     hasHistory: boolean;
-    // hasIndex: boolean;
     flag: BudFlag = BudFlag.none;
     get optionsItemType(): OptionsItemValueType { return; }
     constructor(name: string, caption: string) {

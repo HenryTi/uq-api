@@ -236,7 +236,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let ok = true;
         const { props } = this.element;
         if (this.scanBuds(space, props) === false) ok = false;
-        // if (this.scanBuds(space, assigns) === false) ok = false;
         return ok;
     }
 

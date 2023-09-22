@@ -51,6 +51,14 @@ export function idField(name: string, size: dt.IdSize, idTypeName?: string): Fie
     return f;
 }
 
+export function jsonField(name: string): Field {
+    let f = new Field();
+    f.name = name;
+    let dataType = new dt.JsonDataType();
+    f.dataType = dataType;
+    return f;
+}
+
 export function tinyIntField(name: string) {
     let f = new Field;
     f.name = name;

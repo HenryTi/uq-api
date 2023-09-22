@@ -214,8 +214,6 @@ export class PBizMain extends PBizEntity<BizMain> {
 export class PBizDetail extends PBizEntity<BizDetail> {
     private main: string;
     private pend: string;
-    private itemAtom: string;
-    private itemPick: string;
 
     protected parseContent(): void {
         const keyColl = {

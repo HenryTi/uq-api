@@ -52,6 +52,7 @@ export class BizSiteBuilder {
         entity.id = id;
         this.objIds[id] = obj;
         this.objNames[phrase] = obj;
+        this.res[phrase] = caption;
     }
 
     private async saveBizEntityBuds(entity: BizEntity) {
@@ -76,6 +77,7 @@ export class BizSiteBuilder {
             , this.site, this.user, id, phrase, caption
             , typeNum, memo, dataTypeNum, objId, flag
         );
+        this.res[phrase] = caption;
     }
 
     async build(log: (msg: string) => boolean) {
@@ -83,6 +85,7 @@ export class BizSiteBuilder {
             return this.saveBizObject(entity);
         }));
         const atomPairs = this.biz.getAtomExtendsPairs();
+        console.log(atomPairs);
         await this.runner.unitUserTableFromProc('SaveBizIX'
             , this.site, this.user, JSON.stringify(atomPairs));
         await Promise.all(this.biz.latestBizArr.map(entity => {
@@ -102,6 +105,7 @@ export class BizSiteBuilder {
             autoRemoveTableIndex: false,
         }
         let context = new DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
+        context.site = this.site;
         context.ownerDbName = '$site';
         for (let bizEntity of this.biz.latestBizArr) {
             let builder = bizEntity.db(context);

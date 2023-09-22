@@ -25,7 +25,6 @@ export interface IBud {
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBud> = new Map();
     readonly biz: Biz
-    // entitySchema: string = undefined;
     source: string = undefined;
     id: number;
 
@@ -40,19 +39,9 @@ export abstract class BizEntity extends BizBase {
         for (let [, value] of this.props) {
             props.push(value.buildSchema(res));
         }
-        /*
-        for (let [, value] of this.assigns) {
-            assigns.push(value.buildSchema());
-        }
-        */
         if (props.length > 0) {
             Object.assign(ret, { props });
         }
-        /*
-        if (assigns.length > 0) {
-            Object.assign(ret, { assigns })
-        }
-        */
         return ret;
     }
     checkName(name: string): boolean {
@@ -71,11 +60,6 @@ export abstract class BizEntity extends BizBase {
         for (let [, value] of this.props) {
             value.buildPhrases(phrases, phrase)
         }
-        /*
-        for (let [, value] of this.assigns) {
-            value.buildPhrases(phrases, phrase)
-        }
-        */
     }
 
     getBizBase1(bizName: string): BizBase {

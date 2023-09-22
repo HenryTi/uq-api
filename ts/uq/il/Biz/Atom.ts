@@ -1,9 +1,9 @@
-import { BBizAtom, DbContext } from "../../builder";
-import { PBizAtom, PBizAtomBud, PBizAtomSpec, PBizPick, PContext, PElement } from "../../parser";
+import { BBizSpec, DbContext } from "../../builder";
+import { PBizAtom, /*PBizAtomBud, */PBizAtomSpec, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizPhraseType } from "./Base";
 import { BizBud } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizEntity, IBud } from "./Entity";
 
 export abstract class BizAtomID extends BizEntity {
     extends: BizAtomID;
@@ -37,19 +37,17 @@ export class BizAtom extends BizAtomID {
             ex: this.ex?.buildSchema(res),
         });
     }
-
-    db(dbContext: DbContext): BBizAtom {
-        return new BBizAtom(dbContext, this);
-    }
 }
 
 export abstract class BizAtomIDWithBase extends BizAtomID {
     base: BizAtomIDWithBase;              // only base, not base atom, then bizAtomFlag
+    isIxBase: boolean;
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             base: this.base.name,
+            ix: this.isIxBase,
         });
     }
 }
@@ -64,12 +62,33 @@ export class BizAtomSpec extends BizAtomIDWithBase {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
+        let keys = this.keys.map(v => {
+            return v.buildSchema(res);
+        });
         return Object.assign(ret, {
-            keys: this.keys?.map(v => v.buildSchema(res)),
+            keys,
         });
     }
-}
 
+    buildPhrases(phrases: [string, string, string, string][], prefix: string) {
+        super.buildPhrases(phrases, prefix);
+        let phrase = this.phrase;
+        for (let key of this.keys) {
+            key.buildPhrases(phrases, phrase)
+        }
+    }
+
+    getAllBuds(): IBud[] {
+        let buds = super.getAllBuds();
+        for (let key of this.keys) buds.push(key);
+        return buds;
+    }
+
+    db(dbContext: DbContext): BBizSpec {
+        return new BBizSpec(dbContext, this);
+    }
+}
+/*
 export class BizAtomBud extends BizAtomIDWithBase {
     readonly bizPhraseType = BizPhraseType.bud;
     join: BizAtomID;              // only join, not join atom, then bizAtomFlag
@@ -85,33 +104,11 @@ export class BizAtomBud extends BizAtomIDWithBase {
         });
     }
 }
-
+*/
 export class BizAtomIDAny extends BizAtomID {
     static current: BizAtomIDAny = new BizAtomIDAny(undefined);
     readonly bizPhraseType = BizPhraseType.any;
     name = '*';
     parser(context: PContext): PElement<IElement> { return undefined; }
 
-}
-
-export class BizPick extends BizEntity {
-    readonly bizPhraseType = BizPhraseType.pick;
-    readonly atoms: BizAtom[] = [];
-    uom: boolean;
-    spec: BizAtomSpec;
-    readonly joins: BizAtomID[] = [];
-
-    parser(context: PContext): PElement<IElement> {
-        return new PBizPick(this, context);
-    }
-
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        return Object.assign(ret, {
-            atoms: this.atoms.map(v => v.name),
-            uom: this.uom,
-            spec: this.spec?.name,
-            joins: this.joins.map(v => v.name),
-        });
-    }
 }

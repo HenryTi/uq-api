@@ -16,4 +16,4 @@ export { POpQueue } from './opQueue';
 export { POpCast } from './opCast';
 export { POpSearch } from './opSearch';
 export { POpAt } from './opAt';
-export { POpSpecId, POpSpecValue } from './opSpec';
+// export { POpSpecId, POpSpecValue } from './opSpec';

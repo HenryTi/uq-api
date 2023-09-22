@@ -1,9 +1,9 @@
-import { OpSearch, OpSpecId, OpSpecValue, ValueExpression } from '../../il';
+import { OpSearch, /*OpSpecId, OpSpecValue, */ValueExpression } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { PContext } from '../pContext';
 import { Token } from '../tokens';
-
+/*
 export class POpSpecId extends PElement<OpSpecId> {
     constructor(opSpecId: OpSpecId, context: PContext) {
         super(opSpecId, context);
@@ -47,3 +47,4 @@ export class POpSpecValue extends PElement<OpSpecValue> {
         return ok;
     }
 }
+*/

@@ -13,7 +13,6 @@ class BizEntity extends Base_1.BizBase {
     constructor(biz) {
         super();
         this.props = new Map();
-        // entitySchema: string = undefined;
         this.source = undefined;
         this.biz = biz;
     }
@@ -23,19 +22,9 @@ class BizEntity extends Base_1.BizBase {
         for (let [, value] of this.props) {
             props.push(value.buildSchema(res));
         }
-        /*
-        for (let [, value] of this.assigns) {
-            assigns.push(value.buildSchema());
-        }
-        */
         if (props.length > 0) {
             Object.assign(ret, { props });
         }
-        /*
-        if (assigns.length > 0) {
-            Object.assign(ret, { assigns })
-        }
-        */
         return ret;
     }
     checkName(name) {
@@ -54,11 +43,6 @@ class BizEntity extends Base_1.BizBase {
         for (let [, value] of this.props) {
             value.buildPhrases(phrases, phrase);
         }
-        /*
-        for (let [, value] of this.assigns) {
-            value.buildPhrases(phrases, phrase)
-        }
-        */
     }
     getBizBase1(bizName) {
         let ret = super.getBizBase1(bizName);
