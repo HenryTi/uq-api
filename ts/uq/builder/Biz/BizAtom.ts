@@ -33,8 +33,8 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         const varBase = new ExpVar(cBase);
         const varProps = new ExpVar(cProps);
         const varSite = new ExpVar(site);
-        const prefixKey = '$key_';
-        const prefixProp = '$prop_';
+        const prefixBud = '$bud_';
+        // const prefixProp = '$prop_';
         const prefixPhrase = '$phrase_';
 
         const props: BizBud[] = [];
@@ -52,10 +52,10 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         declare.var(cId, new BigInt());
         statements.push(declare);
 
-        function declareBuds(buds: BizBud[], prefix: string) {
+        function declareBuds(buds: BizBud[]) {
             for (let bud of buds) {
                 const { name, phrase } = bud;
-                declare.var(prefix + name, new Char(200));
+                declare.var(prefixBud + name, new Char(200));
                 declare.var(prefixPhrase + name, new BigInt());
                 let setPhraseId = factory.createSet();
                 statements.push(setPhraseId);
@@ -67,8 +67,8 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
                 )
             }
         }
-        declareBuds(keys, prefixKey);
-        declareBuds(props, prefixProp);
+        declareBuds(keys);
+        declareBuds(props);
 
         function selectJsonValue(varJson: ExpVar, buds: BizBud[], prefix: string) {
             if (buds.length === 0) return;
@@ -80,7 +80,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
                 select.column(new ExpJsonProp(varJson, new ExpStr(`$.${name}`)), `${prefix}${name}`);
             }
         }
-        selectJsonValue(varKeys, keys, prefixKey);
+        selectJsonValue(varKeys, keys, prefixBud);
 
         const select = factory.createSelect();
         statements.push(select);
@@ -90,10 +90,37 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         select.from(new EntityTable('spec', false, a));
         const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
 
+        function tblAndValFromBud(bud: BizBud): { varVal: ExpVal; tbl: string; } {
+            const { name, dataType } = bud;
+            let varVal: ExpVal = new ExpVar(`${prefixBud}${name}`);
+            let tbl: string;
+            switch (dataType) {
+                default:
+                    tbl = 'ixbudint';
+                    break;
+                case BudDataType.date:
+                    tbl = 'ixbudint';
+                    varVal = new ExpFunc('to_days', varVal);
+                    break;
+                case BudDataType.str:
+                case BudDataType.char:
+                    tbl = 'ixbudstr';
+                    break;
+                case BudDataType.dec:
+                    tbl = 'ixbuddec';
+                    break;
+            }
+            return { varVal, tbl };
+        }
+
         for (let i = 0; i < len; i++) {
             const key = keys[i];
+            const { name } = key;
+            const { varVal, tbl } = tblAndValFromBud(key);
+            let t = 't' + i;
+            /*
             const { name, type } = key;
-            const varKey = new ExpVar(prefixKey + name);
+            const varKey = new ExpVar(prefixBud + name);
             let t = 't' + i;
             let tbl: string;
             switch (type) {
@@ -101,6 +128,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
                 case 'char': tbl = 'ixbudstr'; break;
                 case 'dec': tbl = 'ixbuddec'; break;
             }
+            */
             select.join(JoinType.join, new EntityTable(tbl, false, t))
             select.on(new ExpAnd(
                 new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
@@ -109,7 +137,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
                     new ExpVar(prefixPhrase + name),
                 ),
             ));
-            wheres.push(new ExpEQ(new ExpField('value', t), varKey));
+            wheres.push(new ExpEQ(new ExpField('value', t), varVal));
         }
         select.where(new ExpAnd(...wheres));
 
@@ -124,13 +152,13 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
             true
         ));
 
-        selectJsonValue(varProps, props, prefixProp);
+        selectJsonValue(varProps, props, prefixBud);
 
-        function setBud(bud: BizBud, prefix: string) {
-            const { name, dataType } = bud;
+        function setBud(bud: BizBud) {
+            const { name } = bud;
+            const { varVal, tbl } = tblAndValFromBud(bud);
+            /*
             let varBud: ExpVal = new ExpVar(`${prefix}${name}`);
-            const insert = factory.createInsertOnDuplicate();
-            statements.push(insert);
             let tbl: string;
             switch (dataType) {
                 default:
@@ -148,6 +176,9 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
                     tbl = 'ixbuddec';
                     break;
             }
+            */
+            const insert = factory.createInsertOnDuplicate();
+            statements.push(insert);
             insert.table = new EntityTable(tbl, false);
             insert.keys.push(
                 { col: 'i', val: new ExpVar(cId) },
@@ -155,13 +186,13 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
                     col: 'x', val: new ExpVar(prefixPhrase + name),
                 },
             );
-            insert.cols.push({ col: 'value', val: varBud });
+            insert.cols.push({ col: 'value', val: varVal });
         }
-        function setBuds(buds: BizBud[], prefix: string) {
-            for (let bud of buds) setBud(bud, prefix);
+        function setBuds(buds: BizBud[]) {
+            for (let bud of buds) setBud(bud);
         }
-        setBuds(keys, prefixKey);
-        setBuds(props, prefixProp);
+        setBuds(keys);
+        setBuds(props);
 
         const setExecSqlValue = factory.createSet();
         statements.push(setExecSqlValue);

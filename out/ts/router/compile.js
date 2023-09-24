@@ -59,7 +59,7 @@ async function compile(runner, clientSource, override, unit, user) {
         uqRunner.anchorLatest();
     }
     for (let obj of objs) {
-        const { phrase, source } = obj;
+        const { id, phrase, source } = obj;
         if (!source)
             continue;
         if (override === true) {
@@ -67,6 +67,9 @@ async function compile(runner, clientSource, override, unit, user) {
                 continue;
         }
         uqRunner.parse(source, phrase);
+        let entity = uqRunner.uq.biz.bizEntities.get(phrase);
+        if (entity !== undefined)
+            entity.id = id;
     }
     uqRunner.scan();
     if (uqRunner.ok === false) {

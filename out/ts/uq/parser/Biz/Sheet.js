@@ -18,13 +18,9 @@ class PBizSheet extends Base_1.PBizEntity {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
         this.parseDetail = () => {
-            let detail = this.ts.passVar();
-            let act = undefined;
-            if (this.ts.isKeyword('act') === true) {
-                this.ts.readToken();
-                act = this.ts.passVar();
-            }
-            this.details.push({ detail, act });
+            let name = this.ts.passVar();
+            let caption = this.ts.mayPassString();
+            this.details.push({ name, caption });
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
     }
@@ -62,104 +58,18 @@ class PBizSheet extends Base_1.PBizEntity {
         else {
             this.element.main = main;
         }
-        const sheetActs = {};
-        const fromPends = {};
-        const checkSheetAct = (detail, act) => {
-            let sheetActName = detail.name;
-            // let fromPendName: string;
-            if (act !== undefined) {
-                sheetActName += '.' + act.name;
-                /*
-                let { fromPend } = act;
-                if (fromPend === undefined) {
-                    fromPendName = '$';
-                }
-                else {
-                    fromPendName = fromPend.name;
-                }
-                */
-            }
-            else {
-                // fromPendName = '$';
-            }
-            /*
-            let pend = fromPends[fromPendName];
-            if (pend !== undefined) {
-                if (fromPendName === '$') {
-                    this.log(`Sheet ${this.element.name} has duplicate from pend ${fromPendName}`);
-                }
-                else {
-                    this.log(`Sheet ${this.element.name} has duplicate detail ${detail.name}`);
-                }
-                return false;
-            }
-            */
-            let sheetAct = sheetActs[sheetActName];
-            if (sheetAct === undefined) {
-                sheetActs[sheetActName] = { detail, act };
-                return true;
-            }
-            this.log(`Detail ${sheetActName} can not duplicate`);
-            return false;
-        };
-        for (let { detail: detailName, act: actName } of this.details) {
-            let detail = this.getBizEntity(space, detailName, il_1.BizPhraseType.detail);
+        for (let { name, caption } of this.details) {
+            let detail = this.getBizEntity(space, name, il_1.BizPhraseType.detail);
             if (detail === undefined) {
                 ok = false;
                 continue;
             }
-            let { acts } = detail;
-            if (actName === undefined) {
-                if (acts.length === 0) {
-                    if (checkSheetAct(detail, undefined) === false)
-                        ok = false;
-                    continue;
-                }
-                actName = '$';
-            }
-            let act = acts.find(v => v.name === actName);
-            if (act === undefined) {
-                this.log(`${actName} is not an ACT of Biz Detail ${detail.name}`);
-                ok = false;
-            }
-            else {
-                this.element.acts.push(act);
-            }
-            if (checkSheetAct(detail, act) === false)
-                ok = false;
+            this.element.details.push({ detail, caption });
         }
         return ok;
     }
     scan2(uq) {
         let ok = true;
-        /*
-        const pends: { [pendName: string]: boolean } = {};
-        for (let act of this.element.acts) {
-            let { name: actName, fromPend, bizDetail } = act;
-            let { name: detailName } = bizDetail;
-            let pendName: string;
-            let logError: () => string;
-            if (fromPend === undefined) {
-                pendName = '$';
-                logError = () => {
-                    return `Detail Act '${detailName}.${actName}' does not have FromPend. Sheet can have only one none pend detail act`;
-                }
-            }
-            else {
-                pendName = fromPend.name;
-                logError = () => {
-                    return `Detail Act '${detailName}.${actName}' has a pending '${pendName}', which is duplicated`
-                }
-            }
-            if (pends[pendName] === true) {
-                this.log(logError());
-                ok = false;
-            }
-            else {
-                pends[pendName] = true;
-            }
-        }
-        */
         return ok;
     }
 }

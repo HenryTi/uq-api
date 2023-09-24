@@ -42,6 +42,7 @@ export abstract class BizEntity extends BizBase {
         if (props.length > 0) {
             Object.assign(ret, { props });
         }
+        Object.assign(ret, { entityId: this.id });
         return ret;
     }
     checkName(name: string): boolean {

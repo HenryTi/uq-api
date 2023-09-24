@@ -9,7 +9,7 @@ import { BizEntity } from "./Entity";
 export class BizSheet extends BizEntity {
     readonly bizPhraseType = BizPhraseType.sheet;
     main: BizMain;
-    readonly acts: BizDetailAct[] = [];
+    readonly details: { detail: BizDetail; caption: string; }[] = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizSheet(this, context);
@@ -21,9 +21,14 @@ export class BizSheet extends BizEntity {
         ret = {
             ...ret,
             main: this.main.name,
-            acts: this.acts.map(v => v.buildSchema(res)),
+            details: this.details.map(v => {
+                const { detail, caption } = v;
+                return {
+                    detail: detail.name,
+                    caption,                // 此处暂时不做res翻译
+                }
+            }),
         };
-        // this.entitySchema = JSON.stringify(ret);
         return ret;
     }
 }

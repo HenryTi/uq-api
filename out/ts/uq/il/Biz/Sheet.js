@@ -8,7 +8,7 @@ class BizSheet extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.sheet;
-        this.acts = [];
+        this.details = [];
     }
     parser(context) {
         return new parser_1.PBizSheet(this, context);
@@ -17,8 +17,13 @@ class BizSheet extends Entity_1.BizEntity {
         let ret = super.buildSchema(res);
         if (this.main === undefined)
             debugger;
-        ret = Object.assign(Object.assign({}, ret), { main: this.main.name, acts: this.acts.map(v => v.buildSchema(res)) });
-        // this.entitySchema = JSON.stringify(ret);
+        ret = Object.assign(Object.assign({}, ret), { main: this.main.name, details: this.details.map(v => {
+                const { detail, caption } = v;
+                return {
+                    detail: detail.name,
+                    caption, // 此处暂时不做res翻译
+                };
+            }) });
         return ret;
     }
 }

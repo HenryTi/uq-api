@@ -25,6 +25,7 @@ class BizEntity extends Base_1.BizBase {
         if (props.length > 0) {
             Object.assign(ret, { props });
         }
+        Object.assign(ret, { entityId: this.id });
         return ret;
     }
     checkName(name) {
