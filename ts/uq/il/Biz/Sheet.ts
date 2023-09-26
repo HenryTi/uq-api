@@ -1,3 +1,4 @@
+import { BBizSheet, DbContext } from "../../builder";
 import { PBizDetail, PBizDetailAct, PBizMain, PBizPend, PBizSheet, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { Field } from "../field";
@@ -31,6 +32,10 @@ export class BizSheet extends BizEntity {
         };
         return ret;
     }
+
+    db(dbContext: DbContext): BBizSheet {
+        return new BBizSheet(dbContext, this);
+    }
 }
 
 export class BizMain extends BizEntity {
@@ -61,6 +66,7 @@ export class BizDetail extends BizEntity {
     readonly acts: BizDetailAct[] = [];
     main: BizMain;
     item: DetailItem;
+    itemX: DetailItem;
     pend: BizPend;
     value: BizBud;
     price: BizBud;
@@ -77,6 +83,7 @@ export class BizDetail extends BizEntity {
             main: this.main.name,
             pend: this.pend?.name,
             item: this.item,
+            itemx: this.itemX,
             value: this.value?.buildSchema(res),
             amount: this.amount?.buildSchema(res),
             price: this.price?.buildSchema(res),

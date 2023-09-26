@@ -143,30 +143,13 @@ class PBizDetail extends Base_1.PBizEntity {
             if (this.element.item !== undefined) {
                 this.ts.error(`ITEM can only be defined once in Biz Detail`);
             }
-            let caption = this.ts.mayPassString();
-            let atom;
-            let pick;
-            if (this.ts.isKeyword('atom') === true) {
-                this.ts.readToken();
-                this.ts.assertToken(tokens_1.Token.VAR);
-                atom = this.ts.lowerVar;
-                this.ts.readToken();
+            this.element.item = this.parseItemOut();
+        };
+        this.parseItemX = () => {
+            if (this.element.itemX !== undefined) {
+                this.ts.error(`ITEMX can only be defined once in Biz Detail`);
             }
-            else if (this.ts.isKeyword('pick') === true) {
-                this.ts.readToken();
-                this.ts.assertToken(tokens_1.Token.VAR);
-                pick = this.ts.lowerVar;
-                this.ts.readToken();
-            }
-            else {
-                this.ts.expect('atom', 'pick');
-            }
-            this.element.item = {
-                caption,
-                atom,
-                pick,
-            };
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
+            this.element.itemX = this.parseItemOut();
         };
         this.parseValue = () => {
             this.element.value = this.parseValueBud(this.element.value, 'value');
@@ -193,6 +176,7 @@ class PBizDetail extends Base_1.PBizEntity {
             prop: this.parseProp,
             main: this.parseMain,
             item: this.parseItem,
+            itemx: this.parseItemX,
             value: this.parseValue,
             price: this.parsePrice,
             amount: this.parseAmount,
@@ -210,6 +194,33 @@ class PBizDetail extends Base_1.PBizEntity {
             this.ts.readToken();
             parse();
         }
+    }
+    parseItemOut() {
+        let caption = this.ts.mayPassString();
+        let atom;
+        let pick;
+        if (this.ts.isKeyword('atom') === true) {
+            this.ts.readToken();
+            this.ts.assertToken(tokens_1.Token.VAR);
+            atom = this.ts.lowerVar;
+            this.ts.readToken();
+        }
+        else if (this.ts.isKeyword('pick') === true) {
+            this.ts.readToken();
+            this.ts.assertToken(tokens_1.Token.VAR);
+            pick = this.ts.lowerVar;
+            this.ts.readToken();
+        }
+        else {
+            this.ts.expect('atom', 'pick');
+        }
+        let item = {
+            caption,
+            atom,
+            pick,
+        };
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        return item;
     }
     parseValueBud(bud, budName) {
         if (bud !== undefined) {
@@ -364,20 +375,20 @@ class PBizDetailAct extends Base_1.PBizBase {
         */
         this.element.name = '$';
         this.element.caption = this.ts.mayPassString();
-        this.ts.passToken(tokens_1.Token.LPARENTHESE);
-        let field = new il_1.Field();
-        field.parser(this.context).parse();
-        this.element.idParam = field;
-        if (field.dataType.type !== 'id') {
-            this.ts.error(`${field.name} datatype must be ID`);
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.passToken(tokens_1.Token.LPARENTHESE);
+            let field = new il_1.Field();
+            field.parser(this.context).parse();
+            this.element.idParam = field;
+            if (field.dataType.type !== 'id') {
+                this.ts.error(`${field.name} datatype must be ID`);
+            }
+            this.ts.passToken(tokens_1.Token.RPARENTHESE);
         }
-        this.ts.passToken(tokens_1.Token.RPARENTHESE);
-        /*
-        if (this.ts.isKeyword('from') === true) {
-            this.ts.readToken();
-            this.fromPend = this.ts.passVar();
+        else {
+            let field = (0, il_1.bigIntField)('id');
+            this.element.idParam = field;
         }
-        */
         let statement = new il_1.BizDetailActStatements(undefined, this.element);
         statement.level = 0;
         this.context.createStatements = statement.createStatements;

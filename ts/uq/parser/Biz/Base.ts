@@ -41,11 +41,13 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             this.element.caption = this.ts.text;
             this.ts.readToken();
         }
+        /*
         else {
             if (jName !== this.element.name) {
                 this.element.caption = jName;
             }
         }
+        */
         this.element.setJName(jName);
         this.parseParam();
         if (this.ts.token === Token.LBRACE) {

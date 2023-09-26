@@ -82,23 +82,6 @@ class BizAtomSpec extends BizAtomIDWithBase {
     }
 }
 exports.BizAtomSpec = BizAtomSpec;
-/*
-export class BizAtomBud extends BizAtomIDWithBase {
-    readonly bizPhraseType = BizPhraseType.bud;
-    join: BizAtomID;              // only join, not join atom, then bizAtomFlag
-
-    parser(context: PContext): PElement<IElement> {
-        return new PBizAtomBud(this, context);
-    }
-
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        return Object.assign(ret, {
-            join: this.join.name,
-        });
-    }
-}
-*/
 class BizAtomIDAny extends BizAtomID {
     constructor() {
         super(...arguments);

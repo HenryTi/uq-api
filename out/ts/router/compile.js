@@ -75,6 +75,7 @@ async function compile(runner, clientSource, override, unit, user) {
     if (uqRunner.ok === false) {
         return {
             logs: msgs,
+            hasError: true,
         };
     }
     await bizSiteBuilder.build(log);
@@ -82,6 +83,7 @@ async function compile(runner, clientSource, override, unit, user) {
     return {
         schemas: jsonpack.pack(schemas.$biz),
         logs: msgs,
+        hasError: false,
     };
 }
 //# sourceMappingURL=compile.js.map

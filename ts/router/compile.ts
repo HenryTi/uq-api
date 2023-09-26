@@ -86,6 +86,7 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
     if (uqRunner.ok === false) {
         return {
             logs: msgs,
+            hasError: true,
         }
     }
 
@@ -94,5 +95,6 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
     return {
         schemas: jsonpack.pack(schemas.$biz),
         logs: msgs,
+        hasError: false,
     }
 }

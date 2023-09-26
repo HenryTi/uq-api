@@ -9,10 +9,12 @@ class BBizDetail extends BizEntity_1.BBizEntity {
         let { appObjs } = this.context;
         let { procedures } = appObjs;
         let { acts } = this.bizEntity;
+        /*
         for (let act of acts) {
             let proc = this.buildActProcedure(act);
             procedures.push(proc);
         }
+        */
     }
     buildActProcedure(act) {
         let { factory, unitField, userParam } = this.context;

@@ -1,7 +1,7 @@
 import {
     BizDetail, BizDetailAct, BizMain, BizPend, BizSheet, Field
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
-    , Uq, Entity, Table, Pointer, VarPointer, BizBase, TableVar, ProcParamType, BizAtom, BizBudAtom, BizBud, BudDataType, BizPhraseType
+    , Uq, Entity, Table, Pointer, VarPointer, BizBase, TableVar, ProcParamType, BizAtom, BizBudAtom, BizBud, BudDataType, BizPhraseType, bigIntField
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -131,6 +131,7 @@ export class PBizDetail extends PBizEntity<BizDetail> {
             prop: this.parseProp,
             main: this.parseMain,
             item: this.parseItem,
+            itemx: this.parseItemX,
             value: this.parseValue,
             price: this.parsePrice,
             amount: this.parseAmount,
@@ -169,6 +170,17 @@ export class PBizDetail extends PBizEntity<BizDetail> {
         if (this.element.item !== undefined) {
             this.ts.error(`ITEM can only be defined once in Biz Detail`);
         }
+        this.element.item = this.parseItemOut();
+    }
+
+    private parseItemX = () => {
+        if (this.element.itemX !== undefined) {
+            this.ts.error(`ITEMX can only be defined once in Biz Detail`);
+        }
+        this.element.itemX = this.parseItemOut();
+    }
+
+    private parseItemOut() {
         let caption = this.ts.mayPassString();
         let atom: string;
         let pick: string;
@@ -187,12 +199,13 @@ export class PBizDetail extends PBizEntity<BizDetail> {
         else {
             this.ts.expect('atom', 'pick');
         }
-        this.element.item = {
+        let item = {
             caption,
             atom,
             pick,
         }
         this.ts.passToken(Token.SEMICOLON);
+        return item;
     }
 
     private parseValueBud(bud: BizBud, budName: string) {
@@ -376,20 +389,20 @@ export class PBizDetailAct extends PBizBase<BizDetailAct> {
         this.element.name = '$';
 
         this.element.caption = this.ts.mayPassString();
-        this.ts.passToken(Token.LPARENTHESE);
-        let field = new Field();
-        field.parser(this.context).parse();
-        this.element.idParam = field;
-        if (field.dataType.type !== 'id') {
-            this.ts.error(`${field.name} datatype must be ID`);
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.passToken(Token.LPARENTHESE);
+            let field = new Field();
+            field.parser(this.context).parse();
+            this.element.idParam = field;
+            if (field.dataType.type !== 'id') {
+                this.ts.error(`${field.name} datatype must be ID`);
+            }
+            this.ts.passToken(Token.RPARENTHESE);
         }
-        this.ts.passToken(Token.RPARENTHESE);
-        /*
-        if (this.ts.isKeyword('from') === true) {
-            this.ts.readToken();
-            this.fromPend = this.ts.passVar();
+        else {
+            let field = bigIntField('id');
+            this.element.idParam = field;
         }
-        */
 
         let statement = new BizDetailActStatements(undefined, this.element);
         statement.level = 0;

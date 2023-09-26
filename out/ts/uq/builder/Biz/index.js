@@ -19,4 +19,5 @@ var Biz_1 = require("./Biz");
 Object.defineProperty(exports, "BBiz", { enumerable: true, get: function () { return Biz_1.BBiz; } });
 __exportStar(require("./BizEntity"), exports);
 __exportStar(require("./BizAtom"), exports);
+__exportStar(require("./BizSheet"), exports);
 //# sourceMappingURL=index.js.map

@@ -8,10 +8,12 @@ export class BBizDetail extends BBizEntity<BizDetail> {
         let { appObjs } = this.context;
         let { procedures } = appObjs;
         let { acts } = this.bizEntity;
+        /*
         for (let act of acts) {
             let proc = this.buildActProcedure(act);
             procedures.push(proc);
         }
+        */
     }
 
     private buildActProcedure(act: BizDetailAct) {
