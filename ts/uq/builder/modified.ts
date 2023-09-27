@@ -347,7 +347,7 @@ export class Modified {
 
         let setNull = factory.createSet();
         loopStats.add(setNull);
-        setNull.equ('$unit', new ExpNull());
+        setNull.equ('$unit', ExpVal.null);
         let selectUnit = factory.createSelect();
         loopStats.add(selectUnit);
         selectUnit.toVar = true;

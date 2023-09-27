@@ -95,7 +95,7 @@ export class Sqls {
         let wstats = whileLoop.statements.statements;
         let set = factory.createSet();
         wstats.push(set);
-        set.equ('$sheet$id', new ExpNull());
+        set.equ('$sheet$id', ExpVal.null);
         let select = factory.createSelect();
         wstats.push(select);
         select.toVar = true;

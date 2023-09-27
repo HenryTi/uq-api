@@ -1,5 +1,9 @@
 import { Space } from '../space';
-import { BizDetailActStatement, BizDetailActSubPend, BizDetailActSubStatement, BizDetailActSubBud, BizPend, BizMoniker, PendAct, PendValueCalc, ValueExpression, Var, VarPointer, SetEqu, BudDataType } from '../../il';
+import {
+    BizDetailActStatement, BizDetailActSubPend, BizDetailActSubStatement
+    , BizDetailActSubTab, BizPend, ValueExpression
+    , SetEqu, BudDataType
+} from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
 import { PElement } from '../element';
@@ -14,7 +18,8 @@ export class PBizDetailActStatement extends PStatement {
 
     private bizSubs: { [key: string]: new (bizStatement: BizDetailActStatement) => BizDetailActSubStatement } = {
         pend: BizDetailActSubPend,
-        bud: BizDetailActSubBud,
+        bud: BizDetailActSubTab,
+        tab: BizDetailActSubTab,
     };
 
     protected _parse() {
@@ -38,56 +43,28 @@ export class PBizDetailActStatement extends PStatement {
 }
 
 export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
-    private toVar: string;
     private pend: string;
-    private pendGoTo: string;
 
     protected _parse(): void {
-        this.pend = this.ts.passVar();
-        if (this.ts.isKeyword('id') === true) {
-            this.ts.readToken();
-            if (this.ts.token === Token.EQU) {
-                this.ts.readToken();
-                this.element.valId = this.context.parse(ValueExpression);
-            }
-            else if (this.ts.isKeyword('to') === true) {
-                this.ts.readToken();
-                this.toVar = this.ts.passVar();
-            }
-            else {
-                this.ts.expect('=', 'TO');
-            }
-        }
-        if (this.ts.isKeyword('detail') === true) {
-            this.ts.readToken();
+        let setEqu: SetEqu;
+        if (this.ts.token === Token.VAR) {
+            this.pend = this.ts.passVar();
             this.ts.passToken(Token.EQU);
-            this.element.valDetailId = this.context.parse(ValueExpression);
+            setEqu = SetEqu.equ;
         }
-        if (this.ts.isKeyword('set') === true) {
-            this.ts.readToken();
-            this.ts.passKey('value');
-            let valueCalc: PendValueCalc;
+        else {
             switch (this.ts.token) {
                 default:
                     this.ts.expectToken(Token.EQU, Token.ADDEQU, Token.SUBEQU);
                     break;
-                case Token.EQU: valueCalc = PendValueCalc.equ; break;
-                case Token.ADDEQU: valueCalc = PendValueCalc.add; break;
-                case Token.SUBEQU: valueCalc = PendValueCalc.sub; break;
+                case Token.EQU: setEqu = SetEqu.equ; break;
+                case Token.ADDEQU: setEqu = SetEqu.add; break;
+                case Token.SUBEQU: setEqu = SetEqu.sub; break;
             }
             this.ts.readToken();
-            this.element.valueCalc = valueCalc;
-            this.element.valValue = this.context.parse(ValueExpression);
         }
-        else if (this.ts.isKeyword('del') === true) {
-            this.ts.readToken();
-            this.element.pendAct = PendAct.del;
-        }
-        else if (this.ts.isKeyword('goto') === true) {
-            this.ts.readToken();
-            this.element.pendAct = PendAct.goto;
-            this.pendGoTo = this.ts.passVar();
-        }
+        this.element.setEqu = setEqu;
+        this.element.val = this.context.parse(ValueExpression);
     }
 
     private getPend(space: Space, pendName: string): BizPend {
@@ -105,92 +82,45 @@ export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let { valId, valDetailId, valValue, receiver, bizStatement, pendAct } = this.element;
-        // let { bizDetailAct } = bizStatement;
+        let { val, bizStatement: { bizDetailAct } } = this.element;
 
-        let pend = this.getPend(space, this.pend);
-        if (pend === undefined) {
-            ok = false;
-        }
-        else {
-            this.element.pend = pend;
-        }
-
-        if (this.pendGoTo !== undefined) {
-            let pendGoto = this.getPend(space, this.pendGoTo);
-            if (pendGoto === undefined) {
+        if (this.pend !== undefined) {
+            let pend = this.getPend(space, this.pend);
+            if (pend === undefined) {
                 ok = false;
             }
             else {
-                this.element.pendGoto = pendGoto;
+                this.element.pend = pend;
             }
         }
-
-        if (this.toVar !== undefined) {
-            let vp = space.varPointer(this.toVar, false) as VarPointer;
-            if (vp === undefined) {
-                this.log(`变量 ${this.toVar} 没有定义`);
-                ok = false;
-            }
-            let v = new Var(this.toVar, undefined, undefined);
-            v.pointer = vp;
-            this.element.toVar = v;
-            let cannotAct: string;
-            switch (pendAct) {
-                default: break;
-                case PendAct.goto:
-                    cannotAct = 'GOTO';
-                    break;
-                case PendAct.del:
-                    cannotAct = 'DEL';
-                    break;
-            }
-            if (cannotAct !== undefined) {
-                this.log(`Biz Pend ID TO can not ${cannotAct}`);
-                ok = false;
-            }
-            if (valDetailId === undefined) {
-                this.log(`Biz Pend ID To must have DETAIL=?`);
+        else {
+            const { bizDetail } = bizDetailAct;
+            if (bizDetail.pend === undefined) {
+                this.log(`Biz Pend = can not be used here when ${bizDetail.jName} has no PEND`);
                 ok = false;
             }
         }
 
-        if (valId !== undefined) {
-            if (valId.pelement.scan(space) === false) ok = false;
-        }
-        if (valDetailId !== undefined) {
-            if (valDetailId.pelement.scan(space) === false) ok = false;
-        }
-        if (valValue !== undefined) {
-            if (valValue.pelement.scan(space) === false) ok = false;
-        }
-        if (receiver !== undefined) {
-            if (receiver.pelement.scan(space) === false) ok = false;
+        if (val !== undefined) {
+            if (val.pelement.scan(space) === false) ok = false;
         }
         return ok;
     }
 }
 
-export class PBizDetailActSubBud extends PElement<BizDetailActSubBud> {
-    private bizEntity: string;
-    private bud: string;
+export class PBizDetailActSubTab extends PElement<BizDetailActSubTab> {
+    private buds: string[];
     private v: string;
 
     protected _parse(): void {
-        this.bizEntity = this.ts.passVar();
-        this.ts.passToken(Token.DOT);
-        this.bud = this.ts.passVar();
-        this.ts.passKey('of');
-        this.element.obj = this.context.parse(ValueExpression);
-        if (this.ts.isKeyword('to') === true) {
+        this.buds = [];
+        for (; ;) {
+            this.buds.push(this.ts.passVar());
+            if (this.ts.token !== Token.DOT) break;
             this.ts.readToken();
-            if (this.ts.token !== Token.VAR) {
-                this.ts.expectToken(Token.VAR);
-            }
-            this.v = this.ts.lowerVar;
-            this.ts.readToken();
-            return;
         }
+        this.ts.passKey('of');
+        this.element.of = this.context.parse(ValueExpression);
         switch (this.ts.token) {
             default: this.ts.expectToken(Token.ADDEQU, Token.SUBEQU); break;
             case Token.EQU: this.element.setEqu = SetEqu.equ; break;
@@ -198,63 +128,46 @@ export class PBizDetailActSubBud extends PElement<BizDetailActSubBud> {
             case Token.SUBEQU: this.element.setEqu = SetEqu.sub; break;
         }
         this.ts.readToken();
-        this.element.value = this.context.parse(ValueExpression);
-        if (this.ts.isKeyword('ref') === true) {
-            this.ts.readToken();
-            this.element.ref = this.context.parse(ValueExpression);
-        }
+        this.element.val = this.context.parse(ValueExpression);
     }
 
     scan(space: Space): boolean {
         let ok = true;
-        let { value: delta, ref, obj, setEqu } = this.element;
-        let entity = space.uq.biz.bizEntities.get(this.bizEntity);
+        let { val, of, setEqu } = this.element;
+        let len = this.buds.length;
+        let buds0 = this.buds[0];
+        let entity = space.uq.biz.bizEntities.get(buds0);
         if (entity === undefined) {
-            this.log(`'${this.bizEntity}' is not a Biz Entity`);
+            this.log(`'${buds0}' is not a Biz Entity`);
             ok = false;
             return ok;
         }
-        let bud = entity.getBud(this.bud);
-        if (bud === undefined) {
-            this.log(`'${this.bizEntity}.${this.bud}' not defined`);
+        if (len !== 2) {
+            this.log(`'There must be a bud of ${buds0}`);
             ok = false;
+            return ok;
         }
-        else {
-            this.element.bud = bud;
-            let { dataType, hasHistory } = bud;
-            if (setEqu === SetEqu.add || setEqu === SetEqu.sub) {
-                if (dataType !== BudDataType.int && dataType !== BudDataType.dec) {
-                    this.log('only int or dec support += or -=');
-                    ok = false;
-                }
-            }
-            if (ref !== undefined) {
-                if (hasHistory !== true) {
-                    this.log(`'${this.bizEntity}.${this.bud}' not support HISTORY`)
-                    ok = false;
-                }
-
-            }
+        let buds1 = this.buds[1];
+        let bud = entity.getBud(buds1);
+        if (bud === undefined) {
+            this.log(`'${buds0}.${buds1}' not defined`);
+            ok = false;
+            return ok;
         }
-        if (delta !== undefined) {
-            if (delta.pelement.scan(space) === false) ok = false;
-        }
-        if (ref !== undefined) {
-            if (ref.pelement.scan(space) === false) ok = false;
-        }
-        if (obj !== undefined) {
-            if (obj.pelement.scan(space) === false) ok = false;
-        }
-        if (this.v !== undefined) {
-            let vp = space.varPointer(this.v, false) as VarPointer;
-            if (vp === undefined) {
-                this.log(`变量 ${this.v} 没有定义`);
+        this.element.entity = entity;
+        this.element.bud = bud;
+        let { dataType } = bud;
+        if (setEqu === SetEqu.add || setEqu === SetEqu.sub) {
+            if (dataType !== BudDataType.int && dataType !== BudDataType.dec) {
+                this.log('only int or dec support += or -=');
                 ok = false;
             }
-            let v = new Var(this.v, undefined, undefined);
-            v.pointer = vp;
-            this.element.toVar = v;
-            return;
+        }
+        if (val !== undefined) {
+            if (val.pelement.scan(space) === false) ok = false;
+        }
+        if (of !== undefined) {
+            if (of.pelement.scan(space) === false) ok = false;
         }
         return ok;
     }

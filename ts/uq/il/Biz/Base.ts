@@ -20,6 +20,7 @@ export enum BizPhraseType {
     tree = 401,
     tie = 501,
     moniker = 901,
+    tab = 901,
 
 
     key = 1001,

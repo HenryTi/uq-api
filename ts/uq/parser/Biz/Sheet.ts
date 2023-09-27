@@ -287,11 +287,17 @@ export class PBizDetail extends PBizEntity<BizDetail> {
             }
         }
 
-        function scanBudValue(bud: BizBud) {
+        const scanBudValue = (bud: BizBud) => {
             if (bud === undefined) return;
             if (bud.dataType !== BudDataType.dec) {
                 this.log(`${bud.jName} can only be DEC`);
                 ok = false;
+            }
+            const { value } = bud;
+            if (value !== undefined) {
+                if (value.pelement.scan(space) === false) {
+                    ok = false;
+                }
             }
         }
 
@@ -378,14 +384,6 @@ export class PBizPend extends PBizEntity<BizPend> {
 
 export class PBizDetailAct extends PBizBase<BizDetailAct> {
     _parse(): void {
-        /*
-        if (this.ts.token === Token.VAR) {
-            this.element.name = this.ts.passVar();
-        }
-        else {
-            this.element.name = '$';
-        }
-        */
         this.element.name = '$';
 
         this.element.caption = this.ts.mayPassString();
@@ -400,7 +398,7 @@ export class PBizDetailAct extends PBizBase<BizDetailAct> {
             this.ts.passToken(Token.RPARENTHESE);
         }
         else {
-            let field = bigIntField('id');
+            let field = bigIntField('detailid');
             this.element.idParam = field;
         }
 
@@ -441,12 +439,25 @@ export class PBizDetailAct extends PBizBase<BizDetailAct> {
     }
 }
 
+class SpaceDetailAct extends Space {
+    protected _getEntityTable(name: string): Entity & Table {
+        return;
+    }
+    protected _getTableByAlias(alias: string): Table {
+        return;
+    }
+    protected _varPointer(name: string, isField: boolean): Pointer {
+        if (detailDefined.indexOf(name) >= 0) return new VarPointer();
+    }
+
+}
+
 export class PBizDetailActStatements extends PStatements {
-    // private readonly bizDetailAct: BizDetailAct;
+    private readonly bizDetailAct: BizDetailAct;
 
     constructor(statements: Statements, context: PContext, bizDetailAct: BizDetailAct) {
         super(statements, context);
-        // this.bizDetailAct = bizDetailAct;
+        this.bizDetailAct = bizDetailAct;
     }
     protected statementFromKey(parent: Statement, key: string): Statement {
         let ret: Statement;
@@ -455,7 +466,7 @@ export class PBizDetailActStatements extends PStatements {
                 ret = super.statementFromKey(parent, key);
                 break;
             case 'biz':
-                ret = new BizDetailActStatement(parent/*, this.bizDetailAct*/);
+                ret = new BizDetailActStatement(parent, this.bizDetailAct);
                 break;
         }
         if (ret !== undefined) ret.inSheet = true;
@@ -463,7 +474,13 @@ export class PBizDetailActStatements extends PStatements {
     }
 }
 
-const dollarVars = ['$site', '$user'];
+const detailDefined = [
+    '$site', '$user'
+    , '$pendfrom'
+    , 'sheetid', 'target'
+    , 'detailid'
+    , 'target', 'item', 'itemx', 'value', 'amount', 'price'
+];
 class DetailActSpace extends Space {
     private readonly act: BizDetailAct;
     constructor(outer: Space, act: BizDetailAct) {
@@ -478,7 +495,7 @@ class DetailActSpace extends Space {
         if (name === idParam.name) {
             return new VarPointer();
         }
-        if (dollarVars.indexOf(name) >= 0) {
+        if (detailDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
     }

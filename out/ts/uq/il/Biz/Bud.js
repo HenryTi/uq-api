@@ -16,7 +16,7 @@ class BizBud extends Base_1.BizBase {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: this.value, history: this.hasHistory === true ? true : undefined });
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: this.valueString, history: this.hasHistory === true ? true : undefined });
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
@@ -26,6 +26,19 @@ class BizBud extends Base_1.BizBase {
             phrases.push([phrase, '', '', '0']);
         }
         */
+    }
+    toIBud() {
+        return {
+            phrase: this.phrase,
+            caption: this.caption,
+            memo: this.memo,
+            dataType: this.dataType,
+            objName: this.objName,
+            typeNum: this.typeNum,
+            optionsItemType: this.optionsItemType,
+            value: this.valueString,
+            flag: this.flag,
+        };
     }
 }
 exports.BizBud = BizBud;

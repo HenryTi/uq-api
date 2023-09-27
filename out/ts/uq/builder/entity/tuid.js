@@ -965,7 +965,7 @@ class BTuid extends entity_1.BEntityBusable {
             iffIdNeg.cmp = new sql_1.ExpLE(varId, sql_1.ExpNum.num0);
             let setIdNull = factory.createSet();
             iffIdNeg.then(setIdNull);
-            setIdNull.equ(id.name, new sql_1.ExpNull());
+            setIdNull.equ(id.name, sql_1.ExpVal.null);
         }
         let selectVId = this.context.buildSelectVID(name, dollarId); // factory.createSelect();
         stats.push(selectVId);

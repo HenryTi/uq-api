@@ -226,7 +226,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         iff.then(insert);
         insert.table = new statementWithFrom_1.EntityTable('$text_id', false);
         insert.cols = [
-            { col: 'id', val: new sql_1.ExpNull() },
+            { col: 'id', val: sql_1.ExpVal.null },
             { col: 'text', val: new sql_1.ExpVar('text') }
         ];
         let setLastinsertid = factory.createSet();
@@ -685,7 +685,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         loop.cmp = new sql_1.ExpEQ(sql_1.ExpNum.num1, sql_1.ExpNum.num1);
         let setPNull = factory.createSet();
         loops.add(setPNull);
-        setPNull.equ('p', new sql_1.ExpNull());
+        setPNull.equ('p', sql_1.ExpVal.null);
         let selectP = factory.createSelect();
         loops.add(selectP);
         selectP.toVar = true;

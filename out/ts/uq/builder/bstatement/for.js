@@ -119,7 +119,7 @@ class BForSelect extends BForListWithVars {
         _for.cmp = new sql_1.ExpEQ(sql_1.ExpVal.num1, sql_1.ExpVal.num1);
         let rowOkNull = factory.createSet();
         forS.push(rowOkNull);
-        rowOkNull.equ(row_ok, new sql_1.ExpNull());
+        rowOkNull.equ(row_ok, sql_1.ExpVal.null);
         let incRow = factory.createSet();
         forS.push(incRow);
         incRow.equ(row, new sql_1.ExpAdd(new sql_1.ExpVar(row), sql_1.ExpVal.num1));

@@ -61,7 +61,7 @@ export class TokenStream {
     private errorAt() {
         let line = this.startLine + 1;
         let charAt = this.startAt + 1;
-        return this.file + ' 错误在' + line + '行' + charAt + '列: \n' + this.getSourceNearby(this.p) + '\n';
+        return this.file + ' 错误在' + line + '行' + charAt + '列: \n' + this.getSourceNearby(this.p - 1) + '\n';
     }
 
     error(...msg: string[]) {

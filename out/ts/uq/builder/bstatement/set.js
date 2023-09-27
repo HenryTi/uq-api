@@ -34,7 +34,7 @@ class BSetStatement extends bstatement_1.BStatement {
         declare.var(vSetFlag, new il_1.TinyInt());
         let setFlag = factory.createSet();
         sqls.push(setFlag);
-        setFlag.equ(vSetFlag, new __1.ExpNull());
+        setFlag.equ(vSetFlag, __1.ExpVal.null);
         let sel = (0, select_1.convertSelect)(this.context, select);
         sqls.push(sel);
         sel.column(__1.ExpNum.num1, vSetFlag);
@@ -45,7 +45,7 @@ class BSetStatement extends bstatement_1.BStatement {
         for (let col of columns) {
             let set = factory.createSet();
             iff.then(set);
-            set.equ(varFromCol(col), new __1.ExpNull());
+            set.equ(varFromCol(col), __1.ExpVal.null);
         }
     }
 }

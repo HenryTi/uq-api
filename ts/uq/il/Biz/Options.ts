@@ -1,6 +1,7 @@
 import { PBizOptions, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizPhraseType } from "./Base";
+import { BizBud } from "./Bud";
 import { BizEntity, BudFlag, IBud } from "./Entity";
 
 export enum OptionsItemValueType {

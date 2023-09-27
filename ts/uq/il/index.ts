@@ -11,3 +11,4 @@ export * from './pointer';
 export * from './builder';
 export * from './schema';
 export * from './busSchema';
+export * from './tool';

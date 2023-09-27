@@ -10,10 +10,26 @@ class BBizEntity {
     }
     async buildProcedures() {
     }
+    async buildBudsValue() {
+        this.bizEntity.forEachBud((bud) => {
+            if (!bud)
+                return;
+            bud.valueString = this.stringify(bud.value);
+        });
+    }
     createProcedure(procName) {
         const proc = this.context.createProcedure(procName, true);
         this.context.coreObjs.procedures.push(proc);
         return proc;
+    }
+    stringify(value) {
+        if (value === undefined)
+            return;
+        const exp = this.context.convertExp(value);
+        let sb = this.context.createSqlBuilder();
+        exp.to(sb);
+        const { sql } = sb;
+        return sql;
     }
 }
 exports.BBizEntity = BBizEntity;

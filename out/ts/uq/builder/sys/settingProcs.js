@@ -305,7 +305,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         let lstats = loop.statements;
         let setRoleNull = factory.createSet();
         lstats.add(setRoleNull);
-        setRoleNull.equ('role', new sql_1.ExpNull());
+        setRoleNull.equ('role', sql_1.ExpVal.null);
         let selectRole = factory.createSelect();
         lstats.add(selectRole);
         selectRole.toVar = true;
@@ -395,14 +395,14 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
             let lstats = loop.statements;
             let setNameNull = factory.createSet();
             lstats.add(setNameNull);
-            setNameNull.equ($name, new sql_1.ExpNull());
+            setNameNull.equ($name, sql_1.ExpVal.null);
             let selectName = factory.createSelect();
             lstats.add(selectName);
             selectName.toVar = true;
             selectName.col('name', $name);
             selectName.column(new sql_1.ExpSearchCase([
                 new sql_1.ExpEQ(new sql_1.ExpFunc(factory.func_length, new sql_1.ExpField('caption')), sql_1.ExpNum.num0),
-                new sql_1.ExpNull(),
+                sql_1.ExpVal.null,
             ], new sql_1.ExpField('caption')), $caption);
             selectName.col('type', $type);
             selectName.from(new statementWithFrom_1.VarTable(varTable.name));
@@ -452,7 +452,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
             let lstats = loop.statements;
             let setNameNull = factory.createSet();
             lstats.add(setNameNull);
-            setNameNull.equ($name, new sql_1.ExpNull());
+            setNameNull.equ($name, sql_1.ExpVal.null);
             let selectName = factory.createSelect();
             lstats.add(selectName);
             selectName.toVar = true;
@@ -498,7 +498,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
             let lstats = loop.statements;
             let setNameNull = factory.createSet();
             lstats.add(setNameNull);
-            setNameNull.equ($name, new sql_1.ExpNull());
+            setNameNull.equ($name, sql_1.ExpVal.null);
             let selectName = factory.createSelect();
             lstats.add(selectName);
             selectName.toVar = true;

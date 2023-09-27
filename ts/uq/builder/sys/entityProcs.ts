@@ -323,7 +323,7 @@ export class EntityProcedures extends SysProcedures {
             .column(
                 new sql.ExpSearchCase(
                     [new ExpEQ(new ExpVar('hasSource'), new sql.ExpNum(1)), new sql.ExpField('source')],
-                    new ExpNull(),
+                    ExpVal.null,
                 ), 'source'
             )
             .column(new sql.ExpField('from'), 'from')

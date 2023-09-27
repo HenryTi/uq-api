@@ -82,7 +82,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
             { col: 'action', val: exp0 },
             { col: 'subject', val: exp0 },
             { col: 'content', val: exp0 },
-            { col: 'stamp', val: new sql_1.ExpNull() },
+            { col: 'stamp', val: sql_1.ExpVal.null },
             { col: 'create_time', val: exp0 },
         ];
         let keys = [

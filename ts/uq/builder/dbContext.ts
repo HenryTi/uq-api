@@ -197,7 +197,10 @@ export enum EnumSysTable {
     ixBudDec = 'ixbuddec',
     ixBudInt = 'ixbudint',
     ixBudStr = 'ixbudstr',
+    bizDetail = 'detail',
+    bizSheet = 'sheet',
     pend = 'pend',
+    detailPend = 'detailpend',
     history = 'history',
 
     messageQueue = '$message_queue',
@@ -238,6 +241,7 @@ export class DbContext implements il.Builder {
     readonly compilerVersion: string;
     readonly varUnit: ExpVar;
     readonly varUser: ExpVar;
+    readonly varSite: ExpVar;
     site: number;
     ownerDbName: string; // 在$site里面建存储过程，访问uq表的内容
 
@@ -258,6 +262,7 @@ export class DbContext implements il.Builder {
         this.unitField.nullable = false;
         this.unitField.dataType = new il.BigInt();
         this.varUnit = new ExpVar(unitFieldName);
+        this.varSite = new ExpVar('$site');
 
         let userField = new il.Field();
         userField.name = userParamName;
@@ -353,7 +358,7 @@ export class DbContext implements il.Builder {
 
     bizDetailActStatement(v: il.BizDetailActStatement) { return new stat.BBizDetailActStatement(this, v); }
     bizDetailActSubPend(v: il.BizDetailActSubPend) { return new stat.BBizDetailActSubPend(this, v); }
-    bizDetailActSubSubject(v: il.BizDetailActSubBud) { return new stat.BBizDetailActSubBud(this, v); }
+    bizDetailActSubSubject(v: il.BizDetailActSubTab) { return new stat.BBizDetailActSubBud(this, v); }
 
     value(v: il.ValueStatement) { return new stat.BValueStatement(this, v); }
     settingStatement(v: il.SettingStatement) { return new stat.BSettingStatement(this, v) }
@@ -1154,12 +1159,14 @@ export class DbContext implements il.Builder {
     }
 
     buildExpBudId(expBud: ExpVal): ExpVal {
-        let { varUnit, varUser } = this;
-        let expBudId = this.buildExpPhraseId(expBud);
-        let ret = new ExpFunc(
+        let { varUser, varSite } = this;
+        let ret = new ExpFuncInUq(
             'bud$id',
-            varUnit, varUser, ExpNum.num1,
-            varUnit, expBudId
+            [
+                varSite, varUser, ExpNum.num1,
+                varSite, expBud
+            ],
+            true
         );
         return ret;
     }

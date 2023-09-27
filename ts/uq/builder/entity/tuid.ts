@@ -1107,7 +1107,7 @@ export class BTuid extends BEntityBusable<Tuid> {
             iffIdNeg.cmp = new ExpLE(varId, ExpNum.num0);
             let setIdNull = factory.createSet();
             iffIdNeg.then(setIdNull);
-            setIdNull.equ(id.name, new ExpNull());
+            setIdNull.equ(id.name, ExpVal.null);
         }
 
         let selectVId = this.context.buildSelectVID(name, dollarId); // factory.createSelect();

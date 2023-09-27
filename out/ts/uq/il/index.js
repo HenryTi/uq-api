@@ -30,4 +30,5 @@ __exportStar(require("./pointer"), exports);
 __exportStar(require("./builder"), exports);
 __exportStar(require("./schema"), exports);
 __exportStar(require("./busSchema"), exports);
+__exportStar(require("./tool"), exports);
 //# sourceMappingURL=index.js.map

@@ -93,6 +93,7 @@ class BizSiteBuilder {
             let builder = bizEntity.db(context);
             if (builder === undefined)
                 continue;
+            builder.buildBudsValue();
             await builder.buildProcedures();
         }
         await context.coreObjs.updateDb(this.runner, compileOptions);

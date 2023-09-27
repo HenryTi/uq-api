@@ -7,7 +7,8 @@ import { IElement } from "../element";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { BizAtom, BizAtomID } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
-import { BudFlag } from "./Entity";
+import { BudFlag, IBud } from "./Entity";
+import { ValueExpression } from "../expression";
 
 export abstract class BizBud extends BizBase {
     readonly bizPhraseType = BizPhraseType.prop;
@@ -15,7 +16,8 @@ export abstract class BizBud extends BizBase {
     abstract get dataType(): BudDataType;
     abstract get canIndex(): boolean;
     get objName(): string { return undefined; }
-    value: string | number;
+    value: ValueExpression;
+    valueString: string;
     hasHistory: boolean;
     flag: BudFlag = BudFlag.none;
     get optionsItemType(): OptionsItemValueType { return; }
@@ -26,7 +28,7 @@ export abstract class BizBud extends BizBase {
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return { ...ret, dataType: this.dataType, value: this.value, history: this.hasHistory === true ? true : undefined }
+        return { ...ret, dataType: this.dataType, value: this.valueString, history: this.hasHistory === true ? true : undefined }
     }
 
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
@@ -37,6 +39,20 @@ export abstract class BizBud extends BizBase {
             phrases.push([phrase, '', '', '0']);
         }
         */
+    }
+
+    toIBud(): IBud {
+        return {
+            phrase: this.phrase,
+            caption: this.caption,
+            memo: this.memo,
+            dataType: this.dataType,
+            objName: this.objName,
+            typeNum: this.typeNum,
+            optionsItemType: this.optionsItemType,
+            value: this.valueString,
+            flag: this.flag,
+        };
     }
 }
 

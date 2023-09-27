@@ -21,7 +21,7 @@ class BPendingWrite extends bstatement_1.BStatement {
             let setPendingId = factory.createSet();
             sqls.push(setPendingId);
             // 2020-12-22: 现在只能整个uq服务器公用一个uid生成，容易阻塞，以后可以分开的。
-            setPendingId.equ(vPendingId, new sql_1.ExpFuncDb('$uq', 'uid', new sql_1.ExpNull()));
+            setPendingId.equ(vPendingId, new sql_1.ExpFuncDb('$uq', 'uid', sql_1.ExpVal.null));
             let insert = factory.createInsert();
             sqls.push(insert);
             insert.table = new statementWithFrom_1.EntityTable(name, hasUnit);

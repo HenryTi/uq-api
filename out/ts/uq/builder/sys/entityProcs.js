@@ -265,7 +265,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
             .column(new sql.ExpField('version'))
             .column(new sql.ExpField('schema'))
             .column(new sql.ExpField('run'))
-            .column(new sql.ExpSearchCase([new sql_1.ExpEQ(new sql_1.ExpVar('hasSource'), new sql.ExpNum(1)), new sql.ExpField('source')], new sql_1.ExpNull()), 'source')
+            .column(new sql.ExpSearchCase([new sql_1.ExpEQ(new sql_1.ExpVar('hasSource'), new sql.ExpNum(1)), new sql.ExpField('source')], sql_1.ExpVal.null), 'source')
             .column(new sql.ExpField('from'), 'from')
             .column(new sql.ExpField('private'), 'private');
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('valid'), sql_1.ExpVal.num1), new sql_1.ExpIsNotNull(new sql_1.ExpField('schema'))));

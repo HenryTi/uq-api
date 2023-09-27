@@ -275,14 +275,20 @@ class PBizDetail extends Base_1.PBizEntity {
                 }
             }
         }
-        function scanBudValue(bud) {
+        const scanBudValue = (bud) => {
             if (bud === undefined)
                 return;
             if (bud.dataType !== il_1.BudDataType.dec) {
                 this.log(`${bud.jName} can only be DEC`);
                 ok = false;
             }
-        }
+            const { value } = bud;
+            if (value !== undefined) {
+                if (value.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        };
         scanBudValue(budValue);
         scanBudValue(budAmount);
         scanBudValue(budPrice);
@@ -365,14 +371,6 @@ class PBizPend extends Base_1.PBizEntity {
 exports.PBizPend = PBizPend;
 class PBizDetailAct extends Base_1.PBizBase {
     _parse() {
-        /*
-        if (this.ts.token === Token.VAR) {
-            this.element.name = this.ts.passVar();
-        }
-        else {
-            this.element.name = '$';
-        }
-        */
         this.element.name = '$';
         this.element.caption = this.ts.mayPassString();
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
@@ -386,7 +384,7 @@ class PBizDetailAct extends Base_1.PBizBase {
             this.ts.passToken(tokens_1.Token.RPARENTHESE);
         }
         else {
-            let field = (0, il_1.bigIntField)('id');
+            let field = (0, il_1.bigIntField)('detailid');
             this.element.idParam = field;
         }
         let statement = new il_1.BizDetailActStatements(undefined, this.element);
@@ -426,11 +424,22 @@ class PBizDetailAct extends Base_1.PBizBase {
     }
 }
 exports.PBizDetailAct = PBizDetailAct;
+class SpaceDetailAct extends space_1.Space {
+    _getEntityTable(name) {
+        return;
+    }
+    _getTableByAlias(alias) {
+        return;
+    }
+    _varPointer(name, isField) {
+        if (detailDefined.indexOf(name) >= 0)
+            return new il_1.VarPointer();
+    }
+}
 class PBizDetailActStatements extends statement_1.PStatements {
-    // private readonly bizDetailAct: BizDetailAct;
     constructor(statements, context, bizDetailAct) {
         super(statements, context);
-        // this.bizDetailAct = bizDetailAct;
+        this.bizDetailAct = bizDetailAct;
     }
     statementFromKey(parent, key) {
         let ret;
@@ -439,7 +448,7 @@ class PBizDetailActStatements extends statement_1.PStatements {
                 ret = super.statementFromKey(parent, key);
                 break;
             case 'biz':
-                ret = new il_1.BizDetailActStatement(parent /*, this.bizDetailAct*/);
+                ret = new il_1.BizDetailActStatement(parent, this.bizDetailAct);
                 break;
         }
         if (ret !== undefined)
@@ -448,7 +457,13 @@ class PBizDetailActStatements extends statement_1.PStatements {
     }
 }
 exports.PBizDetailActStatements = PBizDetailActStatements;
-const dollarVars = ['$site', '$user'];
+const detailDefined = [
+    '$site', '$user',
+    '$pendfrom',
+    'sheetid', 'target',
+    'detailid',
+    'target', 'item', 'itemx', 'value', 'amount', 'price'
+];
 class DetailActSpace extends space_1.Space {
     constructor(outer, act) {
         super(outer);
@@ -461,7 +476,7 @@ class DetailActSpace extends space_1.Space {
         if (name === idParam.name) {
             return new il_1.VarPointer();
         }
-        if (dollarVars.indexOf(name) >= 0) {
+        if (detailDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
         }
     }

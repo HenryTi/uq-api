@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizDetailAct = exports.BizPend = exports.BizDetail = exports.BizMain = exports.BizSheet = void 0;
 const builder_1 = require("../../builder");
+const builder_2 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -60,6 +61,15 @@ class BizDetail extends Entity_1.BizEntity {
         var _a, _b, _c, _d;
         let ret = super.buildSchema(res);
         return Object.assign(Object.assign({}, ret), { main: this.main.name, pend: (_a = this.pend) === null || _a === void 0 ? void 0 : _a.name, item: this.item, itemx: this.itemX, value: (_b = this.value) === null || _b === void 0 ? void 0 : _b.buildSchema(res), amount: (_c = this.amount) === null || _c === void 0 ? void 0 : _c.buildSchema(res), price: (_d = this.price) === null || _d === void 0 ? void 0 : _d.buildSchema(res) });
+    }
+    forEachBud(callback) {
+        super.forEachBud(callback);
+        callback(this.value);
+        callback(this.price);
+        callback(this.amount);
+    }
+    db(dbContext) {
+        return new builder_2.BBizDetail(dbContext, this);
     }
 }
 exports.BizDetail = BizDetail;

@@ -64,7 +64,7 @@ export class AccessProcedures extends SysProcedures {
         upsertUnitSetting.table = new EntityTable('$setting', hasUnit);
         upsertUnitSetting.cols.push({
             col: 'value',
-            val: hasUnit === true ? new ExpNull() : new ExpVar(unitFieldName)
+            val: hasUnit === true ? ExpVal.null : new ExpVar(unitFieldName)
         });
         upsertUnitSetting.keys.push({
             col: 'name',

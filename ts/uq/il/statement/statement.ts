@@ -12,6 +12,7 @@ import { Builder } from '../builder';
 import { Select, Delete, CTE } from '../select';
 import { FaceDataType } from '../busSchema';
 import { BizDetailAct } from '../Biz';
+import { SetEqu } from '../tool';
 
 export abstract class Statement extends IElement {
     protected readonly parent: Statement;
@@ -414,7 +415,6 @@ export class DeleteStatement extends Statement {
     parser(context: parser.PContext) { return new parser.PDeleteStatement(this, context); }
 }
 
-export enum SetEqu { equ, add, sub };
 export class WriteSet {
     col: string;
     field: Field;

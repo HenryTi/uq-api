@@ -1,9 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizDetailActSubBud = exports.BizDetailActSubPend = exports.PendValueCalc = exports.PendAct = exports.BizDetailActSubStatement = exports.BizDetailActStatement = void 0;
+exports.BizDetailActSubTab = exports.BizDetailActSubPend = exports.BizDetailActSubStatement = exports.BizDetailActStatement = void 0;
 const parser = require("../../parser");
 const statement_1 = require("./statement");
 class BizDetailActStatement extends statement_1.Statement {
+    constructor(parent, bizDetailAct) {
+        super(parent);
+        this.bizDetailAct = bizDetailAct;
+    }
     get type() { return 'bizstatement'; }
     db(db) { return db.bizDetailActStatement(this); }
     parser(context) { return new parser.PBizDetailActStatement(this, context); }
@@ -16,19 +20,6 @@ exports.BizDetailActStatement = BizDetailActStatement;
 class BizDetailActSubStatement extends statement_1.Statement {
 }
 exports.BizDetailActSubStatement = BizDetailActSubStatement;
-// 可以发送sheet主表，也可以是Detail
-var PendAct;
-(function (PendAct) {
-    PendAct[PendAct["del"] = 1] = "del";
-    PendAct[PendAct["set"] = 2] = "set";
-    PendAct[PendAct["goto"] = 3] = "goto";
-})(PendAct = exports.PendAct || (exports.PendAct = {}));
-var PendValueCalc;
-(function (PendValueCalc) {
-    PendValueCalc[PendValueCalc["equ"] = 1] = "equ";
-    PendValueCalc[PendValueCalc["add"] = 2] = "add";
-    PendValueCalc[PendValueCalc["sub"] = 3] = "sub";
-})(PendValueCalc = exports.PendValueCalc || (exports.PendValueCalc = {}));
 class BizDetailActSubPend extends BizDetailActSubStatement {
     constructor(bizStatement) {
         super(bizStatement);
@@ -41,16 +32,16 @@ class BizDetailActSubPend extends BizDetailActSubStatement {
     db(db) { return db.bizDetailActSubPend(this); }
 }
 exports.BizDetailActSubPend = BizDetailActSubPend;
-class BizDetailActSubBud extends BizDetailActSubStatement {
+class BizDetailActSubTab extends BizDetailActSubStatement {
     constructor(bizStatement) {
         super(bizStatement);
         this.bizStatement = bizStatement;
     }
     get type() { return 'bizbud'; }
     parser(context) {
-        return new parser.PBizDetailActSubBud(this, context);
+        return new parser.PBizDetailActSubTab(this, context);
     }
     db(db) { return db.bizDetailActSubSubject(this); }
 }
-exports.BizDetailActSubBud = BizDetailActSubBud;
+exports.BizDetailActSubTab = BizDetailActSubTab;
 //# sourceMappingURL=biz.js.map

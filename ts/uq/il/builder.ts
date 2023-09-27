@@ -45,7 +45,7 @@ export interface Builder {
 
     bizDetailActStatement(v: stat.BizDetailActStatement): BStatement;
     bizDetailActSubPend(v: stat.BizDetailActSubPend): BStatement;
-    bizDetailActSubSubject(v: stat.BizDetailActSubBud): BStatement;
+    bizDetailActSubSubject(v: stat.BizDetailActSubTab): BStatement;
 
     // bizStatement(v: stat.BizStatement): BStatement;
     // bizSubStateTo(v: stat.BizSubStateTo): BStatement;

@@ -290,7 +290,7 @@ export class IDProcedures extends SysProcedures {
         iff.then(insert);
         insert.table = new EntityTable('$text_id', false);
         insert.cols = [
-            { col: 'id', val: new ExpNull() },
+            { col: 'id', val: ExpVal.null },
             { col: 'text', val: new ExpVar('text') }
         ];
 
@@ -920,7 +920,7 @@ export class IDProcedures extends SysProcedures {
         loop.cmp = new ExpEQ(ExpNum.num1, ExpNum.num1);
         let setPNull = factory.createSet();
         loops.add(setPNull);
-        setPNull.equ('p', new ExpNull());
+        setPNull.equ('p', ExpVal.null);
         let selectP = factory.createSelect();
         loops.add(selectP);
         selectP.toVar = true;

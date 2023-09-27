@@ -370,7 +370,7 @@ export class SettingProcedures extends SysProcedures {
 
         let setRoleNull = factory.createSet();
         lstats.add(setRoleNull);
-        setRoleNull.equ('role', new ExpNull());
+        setRoleNull.equ('role', ExpVal.null);
 
         let selectRole = factory.createSelect();
         lstats.add(selectRole);
@@ -475,7 +475,7 @@ export class SettingProcedures extends SysProcedures {
 
             let setNameNull = factory.createSet();
             lstats.add(setNameNull);
-            setNameNull.equ($name, new ExpNull());
+            setNameNull.equ($name, ExpVal.null);
 
             let selectName = factory.createSelect();
             lstats.add(selectName);
@@ -484,7 +484,7 @@ export class SettingProcedures extends SysProcedures {
             selectName.column(new ExpSearchCase(
                 [
                     new ExpEQ(new ExpFunc(factory.func_length, new ExpField('caption')), ExpNum.num0),
-                    new ExpNull(),
+                    ExpVal.null,
                 ],
                 new ExpField('caption'),
             ), $caption);
@@ -543,7 +543,7 @@ export class SettingProcedures extends SysProcedures {
 
             let setNameNull = factory.createSet();
             lstats.add(setNameNull);
-            setNameNull.equ($name, new ExpNull());
+            setNameNull.equ($name, ExpVal.null);
 
             let selectName = factory.createSelect();
             lstats.add(selectName);
@@ -612,7 +612,7 @@ export class SettingProcedures extends SysProcedures {
 
             let setNameNull = factory.createSet();
             lstats.add(setNameNull);
-            setNameNull.equ($name, new ExpNull());
+            setNameNull.equ($name, ExpVal.null);
 
             let selectName = factory.createSelect();
             lstats.add(selectName);

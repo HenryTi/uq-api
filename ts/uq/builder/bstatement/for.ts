@@ -146,7 +146,7 @@ export class BForSelect extends BForListWithVars {
 
         let rowOkNull = factory.createSet();
         forS.push(rowOkNull);
-        rowOkNull.equ(row_ok, new ExpNull());
+        rowOkNull.equ(row_ok, ExpVal.null);
         let incRow = factory.createSet();
         forS.push(incRow);
         incRow.equ(row, new ExpAdd(new ExpVar(row), ExpVal.num1));

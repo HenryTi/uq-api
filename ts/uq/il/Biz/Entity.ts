@@ -35,11 +35,11 @@ export abstract class BizEntity extends BizBase {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        let props = []; //, assigns = [];
-        for (let [, value] of this.props) {
-            props.push(value.buildSchema(res));
-        }
-        if (props.length > 0) {
+        if (this.props.size > 0) {
+            let props = [];
+            for (let [, value] of this.props) {
+                props.push(value.buildSchema(res));
+            }
             Object.assign(ret, { props });
         }
         Object.assign(ret, { entityId: this.id });
@@ -110,9 +110,17 @@ export abstract class BizEntity extends BizBase {
         return bud;
     }
 
+    forEachBud(callback: (bud: BizBud) => void) {
+        for (let [, bud] of this.props) callback(bud);
+    }
+
     getAllBuds(): IBud[] {
-        let buds: BizBud[] = [];
-        for (let [, bud] of this.props) buds.push(bud);
+        let buds: IBud[] = [];
+        this.forEachBud(bud => {
+            if (!bud) return;
+            buds.push(bud.toIBud());
+        });
+        // for (let [, bud] of this.props) buds.push(bud.toIBud());
         return buds;
     }
 

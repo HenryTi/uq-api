@@ -58,7 +58,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         upsertUnitSetting.table = new statementWithFrom_1.EntityTable('$setting', hasUnit);
         upsertUnitSetting.cols.push({
             col: 'value',
-            val: hasUnit === true ? new sql_1.ExpNull() : new sql_1.ExpVar(unitFieldName)
+            val: hasUnit === true ? sql_1.ExpVal.null : new sql_1.ExpVar(unitFieldName)
         });
         upsertUnitSetting.keys.push({
             col: 'name',

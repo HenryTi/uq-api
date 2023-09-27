@@ -172,7 +172,10 @@ var EnumSysTable;
     EnumSysTable["ixBudDec"] = "ixbuddec";
     EnumSysTable["ixBudInt"] = "ixbudint";
     EnumSysTable["ixBudStr"] = "ixbudstr";
+    EnumSysTable["bizDetail"] = "detail";
+    EnumSysTable["bizSheet"] = "sheet";
     EnumSysTable["pend"] = "pend";
+    EnumSysTable["detailPend"] = "detailpend";
     EnumSysTable["history"] = "history";
     EnumSysTable["messageQueue"] = "$message_queue";
     EnumSysTable["messageQueueEnd"] = "$message_queue_end";
@@ -210,6 +213,7 @@ class DbContext {
         this.unitField.nullable = false;
         this.unitField.dataType = new il.BigInt();
         this.varUnit = new sql_1.ExpVar(sqlBuilder_1.unitFieldName);
+        this.varSite = new sql_1.ExpVar('$site');
         let userField = new il.Field();
         userField.name = sqlBuilder_1.userParamName;
         userField.nullable = true;
@@ -990,9 +994,11 @@ class DbContext {
         bodyCallback(forS);
     }
     buildExpBudId(expBud) {
-        let { varUnit, varUser } = this;
-        let expBudId = this.buildExpPhraseId(expBud);
-        let ret = new sql_1.ExpFunc('bud$id', varUnit, varUser, sql_1.ExpNum.num1, varUnit, expBudId);
+        let { varUser, varSite } = this;
+        let ret = new sql_1.ExpFuncInUq('bud$id', [
+            varSite, varUser, sql_1.ExpNum.num1,
+            varSite, expBud
+        ], true);
         return ret;
     }
     buildExpPhraseId(expPhrase) {

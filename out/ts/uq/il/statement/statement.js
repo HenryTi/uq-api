@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EnumRole = exports.LogStatement = exports.ExecSqlStatement = exports.ScheduleStatement = exports.InlineStatement = exports.SendStatement = exports.SendAppStatement = exports.SendSmsStatement = exports.SendEmailStatement = exports.SendMsgStatement = exports.SendBaseStatement = exports.BusStatement = exports.BusAction = exports.FailStatement = exports.StateToStatement = exports.PendingWrite = exports.SheetWrite = exports.TuidWrite = exports.HistoryWrite = exports.BookWrite = exports.WriteSet = exports.SetEqu = exports.DeleteStatement = exports.SelectStatement = exports.ProcStatement = exports.ReturnStatement = exports.ContinueStatement = exports.BreakStatement = exports.While = exports.If = exports.SettingStatement = exports.TextStatement = exports.TableStatement = exports.CTETable = exports.TableVar = exports.VarStatement = exports.Var = exports.BizDetailActStatements = exports.VerifyStatement = exports.SheetStatement = exports.QueryStatement = exports.BusQueryStatement = exports.QueryBaseStatement = exports.BusAcceptStatement = exports.FunctionStatement = exports.InBusActionStatement = exports.UqStatement = exports.ActionStatement = exports.Statements = exports.Statement = void 0;
-exports.QueueStatement = exports.QueueAction = exports.PokeStatement = exports.TransactionStatement = exports.EnumTransaction = exports.SleepStatement = exports.AssertRoleStatement = exports.RoleStatement = void 0;
+exports.RoleStatement = exports.EnumRole = exports.LogStatement = exports.ExecSqlStatement = exports.ScheduleStatement = exports.InlineStatement = exports.SendStatement = exports.SendAppStatement = exports.SendSmsStatement = exports.SendEmailStatement = exports.SendMsgStatement = exports.SendBaseStatement = exports.BusStatement = exports.BusAction = exports.FailStatement = exports.StateToStatement = exports.PendingWrite = exports.SheetWrite = exports.TuidWrite = exports.HistoryWrite = exports.BookWrite = exports.WriteSet = exports.DeleteStatement = exports.SelectStatement = exports.ProcStatement = exports.ReturnStatement = exports.ContinueStatement = exports.BreakStatement = exports.While = exports.If = exports.SettingStatement = exports.TextStatement = exports.TableStatement = exports.CTETable = exports.TableVar = exports.VarStatement = exports.Var = exports.BizDetailActStatements = exports.VerifyStatement = exports.SheetStatement = exports.QueryStatement = exports.BusQueryStatement = exports.QueryBaseStatement = exports.BusAcceptStatement = exports.FunctionStatement = exports.InBusActionStatement = exports.UqStatement = exports.ActionStatement = exports.Statements = exports.Statement = void 0;
+exports.QueueStatement = exports.QueueAction = exports.PokeStatement = exports.TransactionStatement = exports.EnumTransaction = exports.SleepStatement = exports.AssertRoleStatement = void 0;
 const parser = require("../../parser");
 const element_1 = require("../element");
 const field_1 = require("../field");
@@ -353,13 +353,6 @@ class DeleteStatement extends Statement {
     parser(context) { return new parser.PDeleteStatement(this, context); }
 }
 exports.DeleteStatement = DeleteStatement;
-var SetEqu;
-(function (SetEqu) {
-    SetEqu[SetEqu["equ"] = 0] = "equ";
-    SetEqu[SetEqu["add"] = 1] = "add";
-    SetEqu[SetEqu["sub"] = 2] = "sub";
-})(SetEqu = exports.SetEqu || (exports.SetEqu = {}));
-;
 class WriteSet {
 }
 exports.WriteSet = WriteSet;

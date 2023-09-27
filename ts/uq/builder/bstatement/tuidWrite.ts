@@ -52,7 +52,7 @@ export class BTuidWrite extends BStatement {
         let idValueExp = convertExp(context, id) as ExpVal;
         let setNull = factory.createSet();
         sqls.push(setNull);
-        setNull.equ(vTuidId, new ExpNull());
+        setNull.equ(vTuidId, ExpVal.null);
         let createUpdateVId = (varVId: ExpVar) => {
             let updateVId = factory.createUpdate();
             updateVId.cols = [{

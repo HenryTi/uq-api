@@ -110,6 +110,7 @@ export class BizSiteBuilder {
         for (let bizEntity of this.biz.latestBizArr) {
             let builder = bizEntity.db(context);
             if (builder === undefined) continue;
+            builder.buildBudsValue();
             await builder.buildProcedures();
         }
 

@@ -285,7 +285,7 @@ class BWithIDSetOnKeys extends BWithIDOnKeys {
             if (ID.isMinute === true) {
                 let expStamp;
                 if (stampVal === undefined) {
-                    expStamp = new sql_1.ExpNull();
+                    expStamp = sql_1.ExpVal.null;
                 }
                 else {
                     expStamp = this.context.convertExp(stampVal);

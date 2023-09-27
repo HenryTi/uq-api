@@ -105,7 +105,7 @@ export class QueueProcedures extends SysProcedures {
             { col: 'action', val: exp0 },
             { col: 'subject', val: exp0 },
             { col: 'content', val: exp0 },
-            { col: 'stamp', val: new ExpNull() },
+            { col: 'stamp', val: ExpVal.null },
             { col: 'create_time', val: exp0 },
         ];
         let keys = [

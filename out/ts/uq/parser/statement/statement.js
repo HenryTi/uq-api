@@ -177,8 +177,10 @@ class PActionBaseStatement extends PStatements {
             case 'send': return new il_1.SendStatement(parent);
             case 'schedule': return new il_1.ScheduleStatement(parent);
             case 'queue': return new il_1.QueueStatement(parent);
+            /*
             case 'biz':
-                return new il_1.BizDetailActStatement(parent /*, this.bizDetailAct*/);
+                return new BizDetailActStatement(parent, this.bizDetailAct);
+            */
         }
     }
 }

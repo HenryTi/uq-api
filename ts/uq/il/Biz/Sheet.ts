@@ -1,4 +1,5 @@
-import { BBizSheet, DbContext } from "../../builder";
+import { BBizEntity, BBizSheet, DbContext } from "../../builder";
+import { BBizDetail } from "../../builder";
 import { PBizDetail, PBizDetailAct, PBizMain, PBizPend, PBizSheet, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { Field } from "../field";
@@ -88,6 +89,15 @@ export class BizDetail extends BizEntity {
             amount: this.amount?.buildSchema(res),
             price: this.price?.buildSchema(res),
         }
+    }
+    forEachBud(callback: (bud: BizBud) => void) {
+        super.forEachBud(callback);
+        callback(this.value);
+        callback(this.price);
+        callback(this.amount);
+    }
+    db(dbContext: DbContext): BBizEntity<any> {
+        return new BBizDetail(dbContext, this);
     }
 }
 

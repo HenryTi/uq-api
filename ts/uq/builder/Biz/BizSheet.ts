@@ -1,5 +1,7 @@
 import { BigInt, BizDetail, BizSheet, JoinType, bigIntField, decField, idField } from "../../il";
-import { ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNull, ExpNum, ExpVar, Procedure, Statement } from "../sql";
+import { Sqls } from "../bstatement";
+import { EnumSysTable, sysTable } from "../dbContext";
+import { ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
@@ -35,24 +37,32 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     }
 
     private buildDetail(statements: Statement[], detail: BizDetail, loopNo: number) {
-        const { name, id: entityId } = detail;
+        const { name, id: entityId, acts } = detail;
         const { factory, userParam } = this.context;
         const memo = factory.createMemo();
         statements.push(memo);
         memo.text = `detail ${name}`;
 
-        const item = '$item';
-        const itemX = '$itemX';
-        const value = '$value';
-        const amount = '$amount';
-        const price = '$price';
-        const detailId = '$detailId';
+        const sheetId = 'sheetId';
+        const target = 'target';
+        const pendFrom = '$pendFrom';
+        const detailId = 'detailId';
+        const item = 'item';
+        const itemX = 'itemX';
+        const value = 'value';
+        const amount = 'amount';
+        const price = 'price';
         const pDetailId = '$pDetailId';
         const a = 'a';
         const b = 'b';
+        const c = 'c';
+        const d = 'd';
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars(
+            bigIntField(sheetId),
+            bigIntField(target),
+            bigIntField(pendFrom),
             bigIntField(detailId),
             bigIntField(item),
             bigIntField(itemX),
@@ -79,13 +89,22 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         select.column(new ExpField('value', a), value);
         select.column(new ExpField('amount', a), amount);
         select.column(new ExpField('price', a), price);
+        select.column(new ExpField('id', c), sheetId);
+        select.column(new ExpField('target', c), target);
+        select.column(new ExpField('pendFrom', d), pendFrom);
 
-        select.from(new EntityTable('detail', false, a))
-            .join(JoinType.join, new EntityTable('bud', false, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)));
+        select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)))
+            .join(JoinType.left, new EntityTable(EnumSysTable.detailPend, false, d))
+            .on(new ExpEQ(new ExpField('id', d), new ExpField('id', a)))
+            ;
         select.where(new ExpAnd(
             new ExpGT(new ExpField('id', a), new ExpVar(pDetailId)),
-            new ExpEQ(new ExpField('base', b), new ExpVar('$id')),
+            new ExpEQ(new ExpField('ext', b), new ExpNum(entityId)),
+            new ExpEQ(new ExpField('id', c), new ExpVar('$id')),
         ));
         select.order(new ExpField('id', a), 'asc');
         select.limit(ExpNum.num1);
@@ -97,12 +116,20 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         iffExit.then(exit);
         exit.no = loopNo;
 
+        for (let act of acts) {
+            let sqls = new Sqls(this.context, loop.statements.statements);
+            let { statements } = act.statement;
+            sqls.head(statements);
+            sqls.body(statements);
+            sqls.foot(statements);
+        }
+
         const setPDetail = factory.createSet();
         loop.statements.add(setPDetail);
         setPDetail.equ(pDetailId, new ExpVar(detailId));
 
         const setDetailNull = factory.createSet();
         loop.statements.add(setDetailNull);
-        setDetailNull.equ(detailId, new ExpNull());
+        setDetailNull.equ(detailId, ExpVal.null);
     }
 }

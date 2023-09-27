@@ -50,7 +50,7 @@ class BTuidWrite extends bstatement_1.BStatement {
         let idValueExp = (0, sql_1.convertExp)(context, id);
         let setNull = factory.createSet();
         sqls.push(setNull);
-        setNull.equ(vTuidId, new sql_1.ExpNull());
+        setNull.equ(vTuidId, sql_1.ExpVal.null);
         let createUpdateVId = (varVId) => {
             let updateVId = factory.createUpdate();
             updateVId.cols = [{

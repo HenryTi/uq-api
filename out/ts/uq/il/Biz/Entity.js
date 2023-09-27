@@ -18,11 +18,11 @@ class BizEntity extends Base_1.BizBase {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        let props = []; //, assigns = [];
-        for (let [, value] of this.props) {
-            props.push(value.buildSchema(res));
-        }
-        if (props.length > 0) {
+        if (this.props.size > 0) {
+            let props = [];
+            for (let [, value] of this.props) {
+                props.push(value.buildSchema(res));
+            }
             Object.assign(ret, { props });
         }
         Object.assign(ret, { entityId: this.id });
@@ -101,10 +101,18 @@ class BizEntity extends Base_1.BizBase {
         // bud = this.assigns.get(name);
         return bud;
     }
+    forEachBud(callback) {
+        for (let [, bud] of this.props)
+            callback(bud);
+    }
     getAllBuds() {
         let buds = [];
-        for (let [, bud] of this.props)
-            buds.push(bud);
+        this.forEachBud(bud => {
+            if (!bud)
+                return;
+            buds.push(bud.toIBud());
+        });
+        // for (let [, bud] of this.props) buds.push(bud.toIBud());
         return buds;
     }
     db(dbContext) {
