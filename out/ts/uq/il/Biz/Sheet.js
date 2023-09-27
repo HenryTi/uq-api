@@ -58,15 +58,26 @@ class BizDetail extends Entity_1.BizEntity {
         return new parser_1.PBizDetail(this, context);
     }
     buildSchema(res) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend: (_a = this.pend) === null || _a === void 0 ? void 0 : _a.name, item: this.item, itemx: this.itemX, value: (_b = this.value) === null || _b === void 0 ? void 0 : _b.buildSchema(res), amount: (_c = this.amount) === null || _c === void 0 ? void 0 : _c.buildSchema(res), price: (_d = this.price) === null || _d === void 0 ? void 0 : _d.buildSchema(res) });
+        let pend;
+        if (this.pend !== undefined) {
+            let { caption, entity } = this.pend;
+            pend = {
+                caption,
+                entity: entity.name
+            };
+        }
+        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend, item: this.item, itemx: this.itemX, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.buildSchema(res), amount: (_b = this.amount) === null || _b === void 0 ? void 0 : _b.buildSchema(res), price: (_c = this.price) === null || _c === void 0 ? void 0 : _c.buildSchema(res) });
     }
     forEachBud(callback) {
         super.forEachBud(callback);
-        callback(this.value);
-        callback(this.price);
-        callback(this.amount);
+        if (this.value !== undefined)
+            callback(this.value);
+        if (this.price !== undefined)
+            callback(this.price);
+        if (this.amount !== undefined)
+            callback(this.amount);
     }
     db(dbContext) {
         return new builder_2.BBizDetail(dbContext, this);

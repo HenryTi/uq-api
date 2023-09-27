@@ -24,8 +24,15 @@ export abstract class SqlBuilder implements il.DataTypeBuilder {
     protected isBuildingTable: boolean = false;    // 正在编译状态，生成table的行值, $unit=0, $user=0
     setIsBuildingTable() { this.isBuildingTable = true; }
 
-    abstract var$unit(): SqlBuilder;
-    abstract var$user(): SqlBuilder;
+    var$unit(): SqlBuilder {
+        if (this.isBuildingTable === false) this.var('$unit');
+        else this.append(0);
+        return this;
+    }
+    var$user(): SqlBuilder {
+        if (this.isBuildingTable === false) return this.var('$user');
+        return this.append(0);
+    }
     readonly factory: Factory;
     get sql(): string { if (this._l.length > 0) { this._sql += this._l; this._l = ''; } return this._sql }
     get pos(): number { return this._l.length; }
@@ -176,4 +183,7 @@ export abstract class SqlBuilder implements il.DataTypeBuilder {
     funcName(func: string): void {
         this.append(func.toUpperCase());
     }
+}
+
+export class ClientBuilder extends SqlBuilder {
 }

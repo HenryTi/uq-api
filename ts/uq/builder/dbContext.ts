@@ -294,6 +294,13 @@ export class DbContext implements il.Builder {
         return sb;
     }
 
+    createClientBuilder() {
+        let sb = this.factory.createClientBuilder();
+        sb.hasUnit = this.hasUnit;
+        sb.unit = this.unitField;
+        return sb;
+    }
+
     createAppProc(name: string, isCore: boolean = false): Procedure {
         let p = this.factory.createProcedure(this.objDbName, name, isCore);
         this.appObjs.procedures.push(p);

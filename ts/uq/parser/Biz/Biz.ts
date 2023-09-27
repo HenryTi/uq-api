@@ -1,6 +1,6 @@
 import {
     Biz, BizAct, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
-    , BizTab as BizTab, Entity, Pointer, Table, Uq, BizTree, BizTie, BizMain, BizDetail
+    , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizMain, BizDetail
     , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick
 } from "../../il";
 import { PContext } from "../pContext";
@@ -17,8 +17,7 @@ export class PBiz extends PEntity<Biz> {
             atom: BizAtom,
             spec: BizAtomSpec,
 
-            moniker: BizTab,
-            tab: BizTab,
+            title: BizTitle,
             options: BizOptions,
 
             permit: BizPermit,

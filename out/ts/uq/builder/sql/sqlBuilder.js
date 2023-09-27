@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SqlBuilder = exports.userParamName = exports.unitFieldName = void 0;
+exports.ClientBuilder = exports.SqlBuilder = exports.userParamName = exports.unitFieldName = void 0;
 exports.unitFieldName = '$unit';
 exports.userParamName = '$user';
 class SqlBuilder {
@@ -19,6 +19,18 @@ class SqlBuilder {
         this.twProfix = this.factory.dbContext.twProfix;
     }
     setIsBuildingTable() { this.isBuildingTable = true; }
+    var$unit() {
+        if (this.isBuildingTable === false)
+            this.var('$unit');
+        else
+            this.append(0);
+        return this;
+    }
+    var$user() {
+        if (this.isBuildingTable === false)
+            return this.var('$user');
+        return this.append(0);
+    }
     get sql() { if (this._l.length > 0) {
         this._sql += this._l;
         this._l = '';
@@ -180,4 +192,7 @@ class SqlBuilder {
     }
 }
 exports.SqlBuilder = SqlBuilder;
+class ClientBuilder extends SqlBuilder {
+}
+exports.ClientBuilder = ClientBuilder;
 //# sourceMappingURL=sqlBuilder.js.map

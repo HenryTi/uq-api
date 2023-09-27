@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizDetailActStatements = exports.PBizDetailAct = exports.PBizPend = exports.PBizDetail = exports.PBizMain = exports.PBizSheet = void 0;
+exports.detailPreDefined = exports.PBizDetailActStatements = exports.PBizDetailAct = exports.PBizPend = exports.PBizDetail = exports.PBizMain = exports.PBizSheet = void 0;
 const il_1 = require("../../il");
 const space_1 = require("../space");
 const statement_1 = require("../statement");
@@ -137,6 +137,7 @@ class PBizDetail extends Base_1.PBizEntity {
                 this.ts.error(`PEND can only be defined once in Biz Detail`);
             }
             this.pend = this.ts.passVar();
+            this.pendCaption = this.ts.mayPassString();
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
         this.parseItem = () => {
@@ -235,6 +236,7 @@ class PBizDetail extends Base_1.PBizEntity {
         let ok = true;
         if (super.scan(space) === false)
             ok = false;
+        space = new DetailSpace(space);
         if (this.main === undefined) {
             this.log(`Biz Detail must define main`);
             ok = false;
@@ -254,7 +256,10 @@ class PBizDetail extends Base_1.PBizEntity {
                 ok = false;
             }
             else {
-                this.element.pend = pend;
+                this.element.pend = {
+                    caption: this.pendCaption,
+                    entity: pend,
+                };
             }
         }
         const { item, value: budValue, amount: budAmount, price: budPrice } = this.element;
@@ -397,7 +402,7 @@ class PBizDetailAct extends Base_1.PBizBase {
     }
     scan(space) {
         let ok = true;
-        let actSpace = new DetailActSpace(space, this.element);
+        let actSpace = new DetailSpace(space);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false)
             ok = false;
@@ -424,18 +429,6 @@ class PBizDetailAct extends Base_1.PBizBase {
     }
 }
 exports.PBizDetailAct = PBizDetailAct;
-class SpaceDetailAct extends space_1.Space {
-    _getEntityTable(name) {
-        return;
-    }
-    _getTableByAlias(alias) {
-        return;
-    }
-    _varPointer(name, isField) {
-        if (detailDefined.indexOf(name) >= 0)
-            return new il_1.VarPointer();
-    }
-}
 class PBizDetailActStatements extends statement_1.PStatements {
     constructor(statements, context, bizDetailAct) {
         super(statements, context);
@@ -457,43 +450,33 @@ class PBizDetailActStatements extends statement_1.PStatements {
     }
 }
 exports.PBizDetailActStatements = PBizDetailActStatements;
-const detailDefined = [
+exports.detailPreDefined = [
     '$site', '$user',
-    '$pendfrom',
-    'sheetid', 'target',
-    'detailid',
+    'pend',
+    'sheet', 'target',
+    'detail',
     'target', 'item', 'itemx', 'value', 'amount', 'price'
 ];
-class DetailActSpace extends space_1.Space {
-    constructor(outer, act) {
+class DetailSpace extends space_1.Space {
+    /*
+    private readonly act: BizDetailAct;
+    constructor(outer: Space, act: BizDetailAct) {
         super(outer);
         this.act = act;
     }
+    */
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
+        /*
         let { idParam } = this.act;
         if (name === idParam.name) {
+            return new VarPointer();
+        }
+        */
+        if (exports.detailPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
         }
-        if (detailDefined.indexOf(name) >= 0) {
-            return new il_1.VarPointer();
-        }
-    }
-    _getBizBase(bizName) {
-        try {
-            return this.act.bizDetail.getBizBase(bizName);
-        }
-        catch (_a) {
-            return;
-        }
-    }
-    addTableVar(tableVar) {
-        return this.act.addTableVar(tableVar);
-    }
-    getTableVar(name) {
-        var _a;
-        return (_a = this.act) === null || _a === void 0 ? void 0 : _a.getTableVar(name);
     }
 }
 //# sourceMappingURL=Sheet.js.map

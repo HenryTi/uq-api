@@ -5,7 +5,7 @@ import { Table } from '../table';
 import { MyTable } from './table';
 import { MyProcedure } from './procedure';
 import { Procedure } from '../procedure';
-import { SqlBuilder } from '../sqlBuilder';
+import { ClientBuilder, SqlBuilder } from '../sqlBuilder';
 import { Factory } from '../factory';
 import * as stat from '../statement';
 import { ExpVal, ExpFunc } from '../exp';
@@ -60,6 +60,7 @@ export class MyFactory extends Factory {
         return new MyProcedure(this.dbContext, dbName, name, true, returnType);
     }
     createSqlBuilder(): SqlBuilder { return new MySqlBuilder(this) }
+    createClientBuilder(): SqlBuilder { return new ClientBuilder(this); }
 
     createDeclare(): stat.Declare { return new Declare }
     createSet(): stat.Set { return new Set }

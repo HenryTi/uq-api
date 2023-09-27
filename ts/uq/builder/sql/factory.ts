@@ -18,6 +18,7 @@ export abstract class Factory {
     abstract createProcedure(dbName: string, procName: string, isCore: boolean): Procedure;
     abstract createFunction(dbName: string, procName: string, returnType: DataType): Procedure;
     abstract createSqlBuilder(): SqlBuilder;
+    createClientBuilder(): SqlBuilder { return this.createSqlBuilder(); }
 
     abstract createDeclare(): stat.Declare;
     abstract createSet(): stat.Set;

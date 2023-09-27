@@ -45,6 +45,7 @@ export class BizSiteBuilder {
     private async saveBizObject(entity: BizEntity) {
         const { type, phrase, caption, source } = entity;
         const memo = undefined;
+        if (phrase === undefined) debugger;
         let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject'
             , this.site, this.user, phrase, caption, entity.typeNum, memo, source
             , undefined);
@@ -73,6 +74,7 @@ export class BizSiteBuilder {
                 objId = obj.id;
             }
         }
+        if (phrase === undefined) debugger;
         await this.runner.unitUserCall('SaveBizBud'
             , this.site, this.user, id, phrase, caption
             , typeNum, memo, dataTypeNum, objId, flag
@@ -91,12 +93,16 @@ export class BizSiteBuilder {
         await Promise.all(this.biz.latestBizArr.map(entity => {
             return this.saveBizEntityBuds(entity);
         }));
-        await this.buildSiteDbs(log);
-    }
-
-    private async buildSiteDbs(log: (msg: string) => boolean) {
         const hasUnit = false;
         const compilerVersion = '0.0';
+        let context = new DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
+        context.site = this.site;
+        context.ownerDbName = '$site';
+        await this.buildSiteDbs(context, log);
+        this.buildBudsValue(context);
+    }
+
+    private async buildSiteDbs(context: DbContext, log: (msg: string) => boolean) {
         const compileOptions: CompileOptions = {
             uqIds: [],
             user: 0,
@@ -104,17 +110,21 @@ export class BizSiteBuilder {
             autoRemoveTableField: false,
             autoRemoveTableIndex: false,
         }
-        let context = new DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
-        context.site = this.site;
-        context.ownerDbName = '$site';
         for (let bizEntity of this.biz.latestBizArr) {
             let builder = bizEntity.db(context);
             if (builder === undefined) continue;
-            builder.buildBudsValue();
             await builder.buildProcedures();
         }
 
         await context.coreObjs.updateDb(this.runner, compileOptions);
+    }
+
+    private buildBudsValue(context: DbContext) {
+        for (let bizEntity of this.biz.bizArr) {
+            let builder = bizEntity.db(context);
+            if (builder === undefined) continue;
+            builder.buildBudsValue();
+        }
     }
 
     buildSchemas() {
@@ -130,7 +140,7 @@ const sysSiteBizEntities: string[] = [
             -- BASE;                没有定义base，保存的时候，也可以自己设定
             PROP uom ATOM;
         };
-        Moniker $ {
+        Title $ {
             PROP uom;
         };
         `

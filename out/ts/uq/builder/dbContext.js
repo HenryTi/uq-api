@@ -238,6 +238,12 @@ class DbContext {
         sb.unit = this.unitField;
         return sb;
     }
+    createClientBuilder() {
+        let sb = this.factory.createClientBuilder();
+        sb.hasUnit = this.hasUnit;
+        sb.unit = this.unitField;
+        return sb;
+    }
     createAppProc(name, isCore = false) {
         let p = this.factory.createProcedure(this.objDbName, name, isCore);
         this.appObjs.procedures.push(p);

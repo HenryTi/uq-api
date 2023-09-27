@@ -30,18 +30,6 @@ class MySqlBuilder extends sqlBuilder_1.SqlBuilder {
         }
         this.append(tSize).append('TEXT');
     }
-    var$unit() {
-        if (this.isBuildingTable === false)
-            this.var('$unit');
-        else
-            this.append(0);
-        return this;
-    }
-    var$user() {
-        if (this.isBuildingTable === false)
-            return this.var('$user');
-        return this.append(0);
-    }
 }
 exports.MySqlBuilder = MySqlBuilder;
 //# sourceMappingURL=mySqlBuilder.js.map

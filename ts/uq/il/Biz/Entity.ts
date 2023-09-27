@@ -58,9 +58,9 @@ export abstract class BizEntity extends BizBase {
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
         let phrase = this.phrase;
-        for (let [, value] of this.props) {
-            value.buildPhrases(phrases, phrase)
-        }
+        this.forEachBud(bud => {
+            bud.buildPhrases(phrases, phrase)
+        })
     }
 
     getBizBase1(bizName: string): BizBase {

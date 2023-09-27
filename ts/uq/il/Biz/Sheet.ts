@@ -62,13 +62,18 @@ interface DetailItem {
     pick: string;
 }
 
+export interface RefEntity<T extends BizEntity> {
+    caption: string;
+    entity: T;
+}
+
 export class BizDetail extends BizEntity {
     readonly bizPhraseType = BizPhraseType.detail;
     readonly acts: BizDetailAct[] = [];
     main: BizMain;
     item: DetailItem;
     itemX: DetailItem;
-    pend: BizPend;
+    pend: RefEntity<BizPend>;
     value: BizBud;
     price: BizBud;
     amount: BizBud;
@@ -79,10 +84,18 @@ export class BizDetail extends BizEntity {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
+        let pend: any;
+        if (this.pend !== undefined) {
+            let { caption, entity } = this.pend;
+            pend = {
+                caption,
+                entity: entity.name
+            }
+        }
         return {
             ...ret,
             main: this.main.name,
-            pend: this.pend?.name,
+            pend,
             item: this.item,
             itemx: this.itemX,
             value: this.value?.buildSchema(res),
@@ -92,9 +105,9 @@ export class BizDetail extends BizEntity {
     }
     forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
-        callback(this.value);
-        callback(this.price);
-        callback(this.amount);
+        if (this.value !== undefined) callback(this.value);
+        if (this.price !== undefined) callback(this.price);
+        if (this.amount !== undefined) callback(this.amount);
     }
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizDetail(dbContext, this);

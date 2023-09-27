@@ -20,6 +20,8 @@ export class BBizDetailActStatement extends BStatement<BizDetailActStatement> {
     }
 }
 
+const pendFrom = 'pend';
+const detailId = 'detail';
 export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
     // 可以发送sheet主表，也可以是Detail
     body(sqls: Sqls) {
@@ -34,7 +36,8 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
         let { pend, no, val, setEqu } = this.istatement;
         let expValue = this.context.expVal(val);
         if (pend === undefined) {
-            pend = this.istatement.bizStatement.bizDetailAct.bizDetail.pend;
+            const { pend: refEntity } = this.istatement.bizStatement.bizDetailAct.bizDetail;
+            pend = refEntity.entity;
             buildChangePendFrom();
         }
         else {
@@ -46,7 +49,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             sqls.push(update);
             update.table = new EntityTable(EnumSysTable.pend, false, a);
             update.where = new ExpEQ(
-                new ExpField('id', a), new ExpVar('$pendFrom')
+                new ExpField('id', a), new ExpVar(pendFrom)
             );
             let cols = update.cols = [];
             let expValueField = new ExpField('value', a);
@@ -61,7 +64,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             del.tables = [a];
             del.from(new EntityTable(EnumSysTable.pend, false, a));
             del.where(new ExpAnd(
-                new ExpEQ(new ExpField('id', a), new ExpVar('$pendFrom')),
+                new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
                 new ExpEQ(new ExpField('value', a), ExpNum.num0),
             ));
         }
@@ -84,7 +87,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             update.table = new EntityTable(EnumSysTable.pend, false);
             update.cols = [
                 { col: 'base', val: new ExpNum(pend.id) },
-                { col: 'detail', val: new ExpVar('detailid') },
+                { col: 'detail', val: new ExpVar(detailId) },
                 { col: 'value', val: expValue },
             ];
             update.where = new ExpEQ(

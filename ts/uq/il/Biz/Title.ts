@@ -1,13 +1,13 @@
-import { PBizTab, PContext, PElement } from "../../parser";
+import { PBizTitle, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizPhraseType } from "./Base";
 import { BizEntity } from "./Entity";
 
-export class BizTab extends BizEntity {
-    readonly bizPhraseType = BizPhraseType.tab;
+export class BizTitle extends BizEntity {
+    readonly bizPhraseType = BizPhraseType.title;
 
     parser(context: PContext): PElement<IElement> {
-        return new PBizTab(this, context);
+        return new PBizTitle(this, context);
     }
 
     buildSchema(res: { [phrase: string]: string }) {

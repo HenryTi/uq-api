@@ -43,16 +43,16 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         statements.push(memo);
         memo.text = `detail ${name}`;
 
-        const sheetId = 'sheetId';
+        const sheetId = 'sheet';
         const target = 'target';
-        const pendFrom = '$pendFrom';
-        const detailId = 'detailId';
+        const pendFrom = 'pend';
+        const detailId = 'detail';
         const item = 'item';
         const itemX = 'itemX';
         const value = 'value';
         const amount = 'amount';
         const price = 'price';
-        const pDetailId = '$pDetailId';
+        const pDetailId = '$pDetail';
         const a = 'a';
         const b = 'b';
         const c = 'c';

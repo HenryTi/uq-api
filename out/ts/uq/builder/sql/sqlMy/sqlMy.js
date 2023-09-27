@@ -5,6 +5,7 @@ const il_1 = require("../../../il");
 const deleteStatement_1 = require("../deleteStatement");
 const table_1 = require("./table");
 const procedure_1 = require("./procedure");
+const sqlBuilder_1 = require("../sqlBuilder");
 const factory_1 = require("../factory");
 const stat = require("../statement");
 const exp_1 = require("../exp");
@@ -102,6 +103,7 @@ class MyFactory extends factory_1.Factory {
         return new procedure_1.MyProcedure(this.dbContext, dbName, name, true, returnType);
     }
     createSqlBuilder() { return new mySqlBuilder_1.MySqlBuilder(this); }
+    createClientBuilder() { return new sqlBuilder_1.ClientBuilder(this); }
     createDeclare() { return new Declare; }
     createSet() { return new Set; }
     createIf() { return new If; }

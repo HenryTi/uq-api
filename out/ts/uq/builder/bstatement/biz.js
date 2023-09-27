@@ -21,6 +21,8 @@ class BBizDetailActStatement extends bstatement_1.BStatement {
     }
 }
 exports.BBizDetailActStatement = BBizDetailActStatement;
+const pendFrom = 'pend';
+const detailId = 'detail';
 class BBizDetailActSubPend extends bstatement_1.BStatement {
     // 可以发送sheet主表，也可以是Detail
     body(sqls) {
@@ -34,7 +36,8 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
         let { pend, no, val, setEqu } = this.istatement;
         let expValue = this.context.expVal(val);
         if (pend === undefined) {
-            pend = this.istatement.bizStatement.bizDetailAct.bizDetail.pend;
+            const { pend: refEntity } = this.istatement.bizStatement.bizDetailAct.bizDetail;
+            pend = refEntity.entity;
             buildChangePendFrom();
         }
         else {
@@ -44,7 +47,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             let update = factory.createUpdate();
             sqls.push(update);
             update.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.pend, false, a);
-            update.where = new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar('$pendFrom'));
+            update.where = new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom));
             let cols = update.cols = [];
             let expValueField = new sql_1.ExpField('value', a);
             switch (setEqu) {
@@ -61,7 +64,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             sqls.push(del);
             del.tables = [a];
             del.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.pend, false, a));
-            del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar('$pendFrom')), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
+            del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
         }
         function buildWritePend() {
             let pendId = '$pendId_' + no;
@@ -74,7 +77,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             update.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.pend, false);
             update.cols = [
                 { col: 'base', val: new sql_1.ExpNum(pend.id) },
-                { col: 'detail', val: new sql_1.ExpVar('detailid') },
+                { col: 'detail', val: new sql_1.ExpVar(detailId) },
                 { col: 'value', val: expValue },
             ];
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));

@@ -21,13 +21,4 @@ export class MySqlBuilder extends SqlBuilder {
         }
         this.append(tSize).append('TEXT');
     }
-    var$unit(): SqlBuilder {
-        if (this.isBuildingTable === false) this.var('$unit');
-        else this.append(0);
-        return this;
-    }
-    var$user(): SqlBuilder {
-        if (this.isBuildingTable === false) return this.var('$user');
-        return this.append(0);
-    }
 }

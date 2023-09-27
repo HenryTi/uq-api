@@ -41,9 +41,9 @@ class BizEntity extends Base_1.BizBase {
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
         let phrase = this.phrase;
-        for (let [, value] of this.props) {
-            value.buildPhrases(phrases, phrase);
-        }
+        this.forEachBud(bud => {
+            bud.buildPhrases(phrases, phrase);
+        });
     }
     getBizBase1(bizName) {
         let ret = super.getBizBase1(bizName);

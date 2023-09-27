@@ -26,7 +26,7 @@ class BBizEntity {
         if (value === undefined)
             return;
         const exp = this.context.convertExp(value);
-        let sb = this.context.createSqlBuilder();
+        let sb = this.context.createClientBuilder();
         exp.to(sb);
         const { sql } = sb;
         return sql;

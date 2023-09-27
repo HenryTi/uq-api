@@ -125,6 +125,7 @@ export class PBizMain extends PBizEntity<BizMain> {
 export class PBizDetail extends PBizEntity<BizDetail> {
     private main: string;
     private pend: string;
+    private pendCaption: string;
 
     protected parseContent(): void {
         const keyColl = {
@@ -163,6 +164,7 @@ export class PBizDetail extends PBizEntity<BizDetail> {
             this.ts.error(`PEND can only be defined once in Biz Detail`);
         }
         this.pend = this.ts.passVar();
+        this.pendCaption = this.ts.mayPassString();
         this.ts.passToken(Token.SEMICOLON);
     }
 
@@ -244,6 +246,7 @@ export class PBizDetail extends PBizEntity<BizDetail> {
     scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) ok = false;
+        space = new DetailSpace(space);
         if (this.main === undefined) {
             this.log(`Biz Detail must define main`);
             ok = false;
@@ -264,7 +267,10 @@ export class PBizDetail extends PBizEntity<BizDetail> {
                 ok = false;
             }
             else {
-                this.element.pend = pend;
+                this.element.pend = {
+                    caption: this.pendCaption,
+                    entity: pend,
+                };
             }
         }
 
@@ -413,7 +419,7 @@ export class PBizDetailAct extends PBizBase<BizDetailAct> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let actSpace = new DetailActSpace(space, this.element);
+        let actSpace = new DetailSpace(space);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false) ok = false;
         if (pelement.scan(actSpace) === false) ok = false;
@@ -439,19 +445,6 @@ export class PBizDetailAct extends PBizBase<BizDetailAct> {
     }
 }
 
-class SpaceDetailAct extends Space {
-    protected _getEntityTable(name: string): Entity & Table {
-        return;
-    }
-    protected _getTableByAlias(alias: string): Table {
-        return;
-    }
-    protected _varPointer(name: string, isField: boolean): Pointer {
-        if (detailDefined.indexOf(name) >= 0) return new VarPointer();
-    }
-
-}
-
 export class PBizDetailActStatements extends PStatements {
     private readonly bizDetailAct: BizDetailAct;
 
@@ -474,31 +467,35 @@ export class PBizDetailActStatements extends PStatements {
     }
 }
 
-const detailDefined = [
+export const detailPreDefined = [
     '$site', '$user'
-    , '$pendfrom'
-    , 'sheetid', 'target'
-    , 'detailid'
+    , 'pend'
+    , 'sheet', 'target'
+    , 'detail'
     , 'target', 'item', 'itemx', 'value', 'amount', 'price'
 ];
-class DetailActSpace extends Space {
+class DetailSpace extends Space {
+    /*
     private readonly act: BizDetailAct;
     constructor(outer: Space, act: BizDetailAct) {
         super(outer);
         this.act = act;
     }
-
+    */
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
+        /*
         let { idParam } = this.act;
         if (name === idParam.name) {
             return new VarPointer();
         }
-        if (detailDefined.indexOf(name) >= 0) {
+        */
+        if (detailPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
     }
+    /*
     protected _getBizBase(bizName: string[]): BizBase {
         try {
             return this.act.bizDetail.getBizBase(bizName);
@@ -513,4 +510,5 @@ class DetailActSpace extends Space {
     getTableVar(name: string): TableVar {
         return this.act?.getTableVar(name);
     }
+    */
 }
