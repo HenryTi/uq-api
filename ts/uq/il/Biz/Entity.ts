@@ -11,6 +11,7 @@ export enum BudFlag {
     index = 0x0001,
 }
 export interface IBud {
+    id: number;                 // phrase id
     phrase: string;
     caption: string;
     memo: string;
@@ -26,7 +27,6 @@ export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBud> = new Map();
     readonly biz: Biz
     source: string = undefined;
-    id: number;
 
     constructor(biz: Biz) {
         super();
@@ -42,7 +42,6 @@ export abstract class BizEntity extends BizBase {
             }
             Object.assign(ret, { props });
         }
-        Object.assign(ret, { entityId: this.id });
         return ret;
     }
     checkName(name: string): boolean {

@@ -45,6 +45,7 @@ export enum BudDataType {
 };
 
 export abstract class BizBase extends IElement {
+    id: number;                         // phrase id
     name: string;
     jName: string;
     ver: number;
@@ -62,6 +63,7 @@ export abstract class BizBase extends IElement {
 
     buildSchema(res: { [phrase: string]: string }): any {
         return {
+            id: this.id,
             name: this.name,
             jName: this.jName,
             type: this.type,

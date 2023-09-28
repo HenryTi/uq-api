@@ -43,6 +43,7 @@ export abstract class BizBud extends BizBase {
 
     toIBud(): IBud {
         return {
+            id: this.id,
             phrase: this.phrase,
             caption: this.caption,
             memo: this.memo,

@@ -11,6 +11,7 @@ export enum OptionsItemValueType {
     str = 3,
 }
 export interface OptionsItem {
+    id: number;
     name: string;
     caption: string;
     value: string | number;
@@ -45,8 +46,9 @@ export class BizOptions extends BizEntity {
         const buds: IBud[] = [];
         const typeNum = BizPhraseType.optionsitem;
         for (let item of this.items) {
-            const { name, caption, value, type } = item;
+            const { id, name, caption, value, type } = item;
             buds.push({
+                id,
                 phrase: `${this.name}.${name}`,
                 caption,
                 memo: undefined,

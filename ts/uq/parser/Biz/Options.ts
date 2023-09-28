@@ -60,7 +60,7 @@ export class PBizOptions extends PBizEntity<BizOptions> {
                     type = Number.isInteger(value) === true ? OptionsItemValueType.int : OptionsItemValueType.dec;
                     break;
             }
-            this.element.items.push({ name, caption, value, type });
+            this.element.items.push({ id: undefined, name, caption, value, type });
             if (this.ts.token === Token.COMMA) {
                 this.ts.readToken();
             }

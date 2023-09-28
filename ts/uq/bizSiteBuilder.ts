@@ -75,10 +75,11 @@ export class BizSiteBuilder {
             }
         }
         if (phrase === undefined) debugger;
-        await this.runner.unitUserCall('SaveBizBud'
+        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud'
             , this.site, this.user, id, phrase, caption
             , typeNum, memo, dataTypeNum, objId, flag
         );
+        bud.id = budId;
         this.res[phrase] = caption;
     }
 
