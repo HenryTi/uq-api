@@ -31,7 +31,7 @@ class PBiz extends entity_1.PEntity {
         this.entity.source = source;
     }
     _parse() {
-        const keys = [...Object.keys(this.pRoots), 'act', 'query'];
+        // const keys = [...Object.keys(this.pRoots), 'act', 'query'];
         if (this.ts.isKeyword('biz') === true)
             this.ts.readToken();
         if (this.ts.varBrace === true) {

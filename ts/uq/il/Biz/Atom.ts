@@ -3,7 +3,7 @@ import { PBizAtom, /*PBizAtomBud, */PBizAtomSpec, PContext, PElement } from "../
 import { IElement } from "../element";
 import { BizPhraseType } from "./Base";
 import { BizBud } from "./Bud";
-import { BizEntity, IBud } from "./Entity";
+import { BizEntity } from "./Entity";
 
 export abstract class BizAtomID extends BizEntity {
     extends: BizAtomID;

@@ -1,8 +1,8 @@
 import { PBizOptions, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
-import { BizPhraseType } from "./Base";
+import { BizPhraseType, BudDataType } from "./Base";
 import { BizBud } from "./Bud";
-import { BizEntity, BudFlag, IBud } from "./Entity";
+import { BizEntity } from "./Entity";
 
 export enum OptionsItemValueType {
     none = 0,
@@ -10,12 +10,26 @@ export enum OptionsItemValueType {
     dec = 2,
     str = 3,
 }
-export interface OptionsItem {
+export class OptionsItem extends BizBud {
     id: number;
     name: string;
     caption: string;
-    value: string | number;
-    type: OptionsItemValueType;
+    // value: string | number;
+    itemValue: string | number;
+    _itemType: OptionsItemValueType;
+    get optionsItemType(): OptionsItemValueType { return this._itemType; }
+
+    parser(context: PContext): PElement<IElement> {
+        debugger;
+        return;
+    }
+    get dataType(): BudDataType {
+        debugger;
+        return;
+    }
+    get canIndex(): boolean {
+        return false;
+    }
 }
 
 export class BizOptions extends BizEntity {
@@ -36,30 +50,26 @@ export class BizOptions extends BizEntity {
         let ret = super.buildSchema(res);
         let items = [];
         for (let item of this.items) {
-            items.push(item);
+            const { id, name, caption, phrase, itemValue: value, optionsItemType } = item;
+            items.push({
+                id, name, caption, value, phrase, optionsItemType
+            });
         }
         Object.assign(ret, { items });
         return ret;
     }
 
-    getAllBuds(): IBud[] {
-        const buds: IBud[] = [];
-        const typeNum = BizPhraseType.optionsitem;
+    forEachBud(callback: (bud: BizBud) => void) {
+        super.forEachBud(callback);
+        for (let item of this.items) callback(item as unknown as BizBud);
+    }
+    /*
+    getAllBuds(): BizBud[] {
+        const buds: BizBud[] = [];
         for (let item of this.items) {
-            const { id, name, caption, value, type } = item;
-            buds.push({
-                id,
-                phrase: `${this.name}.${name}`,
-                caption,
-                memo: undefined,
-                dataType: undefined,
-                objName: undefined,
-                typeNum: String(typeNum),
-                optionsItemType: type,
-                value,
-                flag: BudFlag.none,
-            });
+            buds.push(item as any as BizBud);
         };
         return buds;
     }
+    */
 }

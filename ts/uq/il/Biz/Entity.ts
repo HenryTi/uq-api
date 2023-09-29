@@ -10,6 +10,7 @@ export enum BudFlag {
     none = 0x0000,
     index = 0x0001,
 }
+/*
 export interface IBud {
     id: number;                 // phrase id
     phrase: string;
@@ -22,7 +23,7 @@ export interface IBud {
     value: string | number;
     flag: BudFlag;
 }
-
+*/
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBud> = new Map();
     readonly biz: Biz
@@ -112,17 +113,17 @@ export abstract class BizEntity extends BizBase {
     forEachBud(callback: (bud: BizBud) => void) {
         for (let [, bud] of this.props) callback(bud);
     }
-
-    getAllBuds(): IBud[] {
-        let buds: IBud[] = [];
+    /*
+    getAllBuds(): BizBud[] {
+        let buds: BizBud[] = [];
         this.forEachBud(bud => {
             if (!bud) return;
-            buds.push(bud.toIBud());
+            buds.push(bud);
         });
         // for (let [, bud] of this.props) buds.push(bud.toIBud());
         return buds;
     }
-
+    */
     db(dbContext: DbContext): BBizEntity {
         return undefined;
     }

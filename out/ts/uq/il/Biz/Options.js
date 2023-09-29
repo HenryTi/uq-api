@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizOptions = exports.OptionsItemValueType = void 0;
+exports.BizOptions = exports.OptionsItem = exports.OptionsItemValueType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
+const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 var OptionsItemValueType;
 (function (OptionsItemValueType) {
@@ -11,11 +12,35 @@ var OptionsItemValueType;
     OptionsItemValueType[OptionsItemValueType["dec"] = 2] = "dec";
     OptionsItemValueType[OptionsItemValueType["str"] = 3] = "str";
 })(OptionsItemValueType = exports.OptionsItemValueType || (exports.OptionsItemValueType = {}));
+class OptionsItem extends Bud_1.BizBud {
+    get optionsItemType() { return this._itemType; }
+    parser(context) {
+        debugger;
+        return;
+    }
+    get dataType() {
+        debugger;
+        return;
+    }
+    get canIndex() {
+        return false;
+    }
+}
+exports.OptionsItem = OptionsItem;
 class BizOptions extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.options;
         this.items = [];
+        /*
+        getAllBuds(): BizBud[] {
+            const buds: BizBud[] = [];
+            for (let item of this.items) {
+                buds.push(item as any as BizBud);
+            };
+            return buds;
+        }
+        */
     }
     parser(context) {
         return new parser_1.PBizOptions(this, context);
@@ -31,30 +56,18 @@ class BizOptions extends Entity_1.BizEntity {
         let ret = super.buildSchema(res);
         let items = [];
         for (let item of this.items) {
-            items.push(item);
+            const { id, name, caption, phrase, itemValue: value, optionsItemType } = item;
+            items.push({
+                id, name, caption, value, phrase, optionsItemType
+            });
         }
         Object.assign(ret, { items });
         return ret;
     }
-    getAllBuds() {
-        const buds = [];
-        const typeNum = Base_1.BizPhraseType.optionsitem;
-        for (let item of this.items) {
-            const { name, caption, value, type } = item;
-            buds.push({
-                phrase: `${this.name}.${name}`,
-                caption,
-                memo: undefined,
-                dataType: undefined,
-                objName: undefined,
-                typeNum: String(typeNum),
-                optionsItemType: type,
-                value,
-                flag: Entity_1.BudFlag.none,
-            });
-        }
-        ;
-        return buds;
+    forEachBud(callback) {
+        super.forEachBud(callback);
+        for (let item of this.items)
+            callback(item);
     }
 }
 exports.BizOptions = BizOptions;

@@ -1,4 +1,4 @@
-import { BizEntity, Expression, ValueExpression } from "../../il";
+import { BizEntity, BudValueAct, Expression, ValueExpression } from "../../il";
 import { DbContext } from "../dbContext";
 
 export class BBizEntity<B extends BizEntity = any> {
@@ -17,7 +17,17 @@ export class BBizEntity<B extends BizEntity = any> {
     async buildBudsValue() {
         this.bizEntity.forEachBud((bud) => {
             if (!bud) return;
-            bud.valueString = this.stringify(bud.value);
+            let { value } = bud;
+            if (value === undefined) return;
+            let { exp, act } = value;
+            let str = this.stringify(exp);
+            if (act === BudValueAct.init) {
+                str += '\ninit';
+            }
+            else {
+                str += '\nequ';
+            }
+            value.str = str;
         });
     }
 
@@ -28,7 +38,6 @@ export class BBizEntity<B extends BizEntity = any> {
     }
 
     private stringify(value: Expression): string {
-        if (value === undefined) return;
         const exp = this.context.convertExp(value);
         let sb = this.context.createClientBuilder();
         exp.to(sb);

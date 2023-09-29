@@ -1,6 +1,6 @@
 import { EntityRunner } from "../core";
 import { BBiz, BUq, CompileOptions, DbContext } from "./builder";
-import { Biz, BizBud, BizEntity, IBud } from "./il";
+import { Biz, BizBud, BizEntity/*, IBud*/ } from "./il";
 
 const sqlType = 'mysql';
 const dbSiteName = '$site';
@@ -13,6 +13,7 @@ export class BizSiteBuilder {
     private readonly res: { [phrase: string]: string } = {};
     private readonly objNames: { [name: string]: any } = {};
     private readonly objIds: { [id: number]: any } = {};
+    private readonly buds: { [phrase: string]: any } = {};
 
     constructor(biz: Biz, runner: EntityRunner, site: number, user: number) {
         this.biz = biz;
@@ -36,6 +37,7 @@ export class BizSiteBuilder {
                 obj.props = props = [];
             }
             props.push(prop);
+            this.buds[phrase] = prop;
             this.res[phrase] = caption;
         }
     }
@@ -58,13 +60,15 @@ export class BizSiteBuilder {
 
     private async saveBizEntityBuds(entity: BizEntity) {
         let { id } = this.objNames[entity.phrase];
-        let buds = entity.getAllBuds();
-        await Promise.all(buds.map(v => {
-            return this.saveBud(id, v);
-        }));
+        let promises: Promise<any>[] = [];
+        entity.forEachBud(bud => {
+            promises.push(this.saveBud(id, bud));
+        })
+        // let buds = entity.getAllBuds();
+        await Promise.all(promises);
     };
 
-    private async saveBud(id: number, bud: IBud) {
+    private async saveBud(id: number, bud: BizBud) {
         const { phrase, caption, memo, dataType: dataTypeNum, objName, flag } = bud;
         const typeNum = bud.typeNum;
         let objId: number;
@@ -122,10 +126,18 @@ export class BizSiteBuilder {
 
     private buildBudsValue(context: DbContext) {
         for (let bizEntity of this.biz.bizArr) {
+            this.buildBudsId(bizEntity);
             let builder = bizEntity.db(context);
             if (builder === undefined) continue;
             builder.buildBudsValue();
         }
+    }
+
+    private buildBudsId(bizEntity: BizEntity) {
+        bizEntity.forEachBud(bud => {
+            let { phrase } = bud;
+            bud.id = this.buds[phrase].id;
+        });
     }
 
     buildSchemas() {

@@ -7,8 +7,19 @@ import { IElement } from "../element";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { BizAtom, BizAtomID } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
-import { BudFlag, IBud } from "./Entity";
+import { BudFlag } from "./Entity";
 import { ValueExpression } from "../expression";
+
+export enum BudValueAct {
+    equ = 1,            // 设置不可修改. 这是默认
+    init = 2,           // 只提供初值，可修改
+}
+
+export interface BudValue {
+    exp: ValueExpression;
+    act: BudValueAct;
+    str?: string;
+}
 
 export abstract class BizBud extends BizBase {
     readonly bizPhraseType = BizPhraseType.prop;
@@ -16,8 +27,7 @@ export abstract class BizBud extends BizBase {
     abstract get dataType(): BudDataType;
     abstract get canIndex(): boolean;
     get objName(): string { return undefined; }
-    value: ValueExpression;
-    valueString: string;
+    value: BudValue;
     hasHistory: boolean;
     flag: BudFlag = BudFlag.none;
     get optionsItemType(): OptionsItemValueType { return; }
@@ -28,7 +38,7 @@ export abstract class BizBud extends BizBase {
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return { ...ret, dataType: this.dataType, value: this.valueString, history: this.hasHistory === true ? true : undefined }
+        return { ...ret, dataType: this.dataType, value: this.value?.str, history: this.hasHistory === true ? true : undefined }
     }
 
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
@@ -40,7 +50,7 @@ export abstract class BizBud extends BizBase {
         }
         */
     }
-
+    /*
     toIBud(): IBud {
         return {
             id: this.id,
@@ -55,6 +65,7 @@ export abstract class BizBud extends BizBase {
             flag: this.flag,
         };
     }
+    */
 }
 
 export class BizBudNone extends BizBud {
@@ -130,15 +141,16 @@ export class BizBudAtom extends BizBud {
     }
     get objName(): string { return this.atom?.phrase; }
 }
-
+/*
 export interface BizSubItem {
+    id: number;
     name: string;
     caption: string;
     value: number | string;
 }
-
+*/
 export abstract class BizBudOptions extends BizBud {
-    readonly items: BizSubItem[] = [];
+    // readonly items: BizSubItem[] = [];
     options: BizOptions;
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);

@@ -9,6 +9,20 @@ var BudFlag;
     BudFlag[BudFlag["none"] = 0] = "none";
     BudFlag[BudFlag["index"] = 1] = "index";
 })(BudFlag = exports.BudFlag || (exports.BudFlag = {}));
+/*
+export interface IBud {
+    id: number;                 // phrase id
+    phrase: string;
+    caption: string;
+    memo: string;
+    dataType: BudDataType;
+    objName: string;
+    typeNum: string;
+    optionsItemType: OptionsItemValueType;
+    value: string | number;
+    flag: BudFlag;
+}
+*/
 class BizEntity extends Base_1.BizBase {
     constructor(biz) {
         super();
@@ -25,7 +39,6 @@ class BizEntity extends Base_1.BizBase {
             }
             Object.assign(ret, { props });
         }
-        Object.assign(ret, { entityId: this.id });
         return ret;
     }
     checkName(name) {
@@ -105,16 +118,17 @@ class BizEntity extends Base_1.BizBase {
         for (let [, bud] of this.props)
             callback(bud);
     }
-    getAllBuds() {
-        let buds = [];
+    /*
+    getAllBuds(): BizBud[] {
+        let buds: BizBud[] = [];
         this.forEachBud(bud => {
-            if (!bud)
-                return;
-            buds.push(bud.toIBud());
+            if (!bud) return;
+            buds.push(bud);
         });
         // for (let [, bud] of this.props) buds.push(bud.toIBud());
         return buds;
     }
+    */
     db(dbContext) {
         return undefined;
     }

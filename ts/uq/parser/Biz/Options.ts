@@ -1,4 +1,4 @@
-import { BizOptions, OptionsItemValueType } from "../../il";
+import { BizOptions, OptionsItem, OptionsItemValueType } from "../../il";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
@@ -60,7 +60,21 @@ export class PBizOptions extends PBizEntity<BizOptions> {
                     type = Number.isInteger(value) === true ? OptionsItemValueType.int : OptionsItemValueType.dec;
                     break;
             }
-            this.element.items.push({ id: undefined, name, caption, value, type });
+            let item = new OptionsItem(name, caption);
+            item._itemType = type;
+            item.itemValue = value;
+            this.element.items.push(
+                item
+                /*
+                {
+                id: undefined,
+                name,
+                caption,
+                value,
+                optionsItemType: type,
+                }
+                */
+            );
             if (this.ts.token === Token.COMMA) {
                 this.ts.readToken();
             }

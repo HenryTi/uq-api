@@ -70,7 +70,20 @@ class PBizOptions extends Base_1.PBizEntity {
                     type = Number.isInteger(value) === true ? il_1.OptionsItemValueType.int : il_1.OptionsItemValueType.dec;
                     break;
             }
-            this.element.items.push({ name, caption, value, type });
+            let item = new il_1.OptionsItem(name, caption);
+            item._itemType = type;
+            item.itemValue = value;
+            this.element.items.push(item
+            /*
+            {
+            id: undefined,
+            name,
+            caption,
+            value,
+            optionsItemType: type,
+            }
+            */
+            );
             if (this.ts.token === tokens_1.Token.COMMA) {
                 this.ts.readToken();
             }

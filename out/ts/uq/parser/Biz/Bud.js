@@ -10,7 +10,7 @@ class PBizBud extends Base_1.PBizBase {
         let ok = true;
         let { value } = this.element;
         if (value !== undefined) {
-            if (value.pelement.scan(space) === false) {
+            if (value.exp.pelement.scan(space) === false) {
                 ok = false;
             }
         }

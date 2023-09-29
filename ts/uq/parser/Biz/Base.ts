@@ -1,7 +1,7 @@
 import {
     BizBase, BizAtom, BizBud, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudFlag, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudFlag, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct
 } from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
@@ -182,19 +182,19 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let bizBud = new Bud(name, caption);
         bizBud.parser(this.context).parse();
 
-        if (this.ts.token === Token.EQU) {
+        let act: BudValueAct;
+        switch (this.ts.token) {
+            case Token.EQU: act = BudValueAct.equ; break;
+            case Token.COLONEQU: act = BudValueAct.init; break;
+        }
+        if (act !== undefined) {
             this.ts.readToken();
             let value = new ValueExpression();
-            /*
-            switch (this.ts.token as any) {
-                default: this.ts.expectToken(Token.STRING, Token.NUM); break;
-                case Token.STRING: value = this.ts.text; break;
-                case Token.NUM: value = this.ts.dec; break;
-            }
-            */
             this.context.parseElement(value);
-            bizBud.value = value;
-            // this.ts.readToken();
+            bizBud.value = {
+                exp: value,
+                act,
+            };
         }
 
         if (this.ts.isKeyword('history') === true) {

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizEntity = void 0;
+const il_1 = require("../../il");
 class BBizEntity {
     constructor(context, bizEntity) {
         this.context = context;
@@ -14,7 +15,18 @@ class BBizEntity {
         this.bizEntity.forEachBud((bud) => {
             if (!bud)
                 return;
-            bud.valueString = this.stringify(bud.value);
+            let { value } = bud;
+            if (value === undefined)
+                return;
+            let { exp, act } = value;
+            let str = this.stringify(exp);
+            if (act === il_1.BudValueAct.init) {
+                str += '\ninit';
+            }
+            else {
+                str += '\nequ';
+            }
+            value.str = str;
         });
     }
     createProcedure(procName) {
@@ -23,8 +35,6 @@ class BBizEntity {
         return proc;
     }
     stringify(value) {
-        if (value === undefined)
-            return;
         const exp = this.context.convertExp(value);
         let sb = this.context.createClientBuilder();
         exp.to(sb);

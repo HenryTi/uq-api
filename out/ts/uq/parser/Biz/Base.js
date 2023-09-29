@@ -176,19 +176,23 @@ class PBizEntity extends PBizBase {
         }
         let bizBud = new Bud(name, caption);
         bizBud.parser(this.context).parse();
-        if (this.ts.token === tokens_1.Token.EQU) {
+        let act;
+        switch (this.ts.token) {
+            case tokens_1.Token.EQU:
+                act = il_1.BudValueAct.equ;
+                break;
+            case tokens_1.Token.COLONEQU:
+                act = il_1.BudValueAct.init;
+                break;
+        }
+        if (act !== undefined) {
             this.ts.readToken();
             let value = new il_1.ValueExpression();
-            /*
-            switch (this.ts.token as any) {
-                default: this.ts.expectToken(Token.STRING, Token.NUM); break;
-                case Token.STRING: value = this.ts.text; break;
-                case Token.NUM: value = this.ts.dec; break;
-            }
-            */
             this.context.parseElement(value);
-            bizBud.value = value;
-            // this.ts.readToken();
+            bizBud.value = {
+                exp: value,
+                act,
+            };
         }
         if (this.ts.isKeyword('history') === true) {
             bizBud.hasHistory = true;

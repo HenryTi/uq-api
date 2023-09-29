@@ -1,9 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = exports.BudValueAct = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
+var BudValueAct;
+(function (BudValueAct) {
+    BudValueAct[BudValueAct["equ"] = 1] = "equ";
+    BudValueAct[BudValueAct["init"] = 2] = "init";
+})(BudValueAct = exports.BudValueAct || (exports.BudValueAct = {}));
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     get optionsItemType() { return; }
@@ -15,8 +20,9 @@ class BizBud extends Base_1.BizBase {
         this.caption = caption;
     }
     buildSchema(res) {
+        var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: this.valueString, history: this.hasHistory === true ? true : undefined });
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, history: this.hasHistory === true ? true : undefined });
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
@@ -26,19 +32,6 @@ class BizBud extends Base_1.BizBase {
             phrases.push([phrase, '', '', '0']);
         }
         */
-    }
-    toIBud() {
-        return {
-            phrase: this.phrase,
-            caption: this.caption,
-            memo: this.memo,
-            dataType: this.dataType,
-            objName: this.objName,
-            typeNum: this.typeNum,
-            optionsItemType: this.optionsItemType,
-            value: this.valueString,
-            flag: this.flag,
-        };
     }
 }
 exports.BizBud = BizBud;
@@ -134,11 +127,15 @@ class BizBudAtom extends BizBud {
     get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
 exports.BizBudAtom = BizBudAtom;
+/*
+export interface BizSubItem {
+    id: number;
+    name: string;
+    caption: string;
+    value: number | string;
+}
+*/
 class BizBudOptions extends BizBud {
-    constructor() {
-        super(...arguments);
-        this.items = [];
-    }
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);

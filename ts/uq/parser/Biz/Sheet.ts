@@ -301,7 +301,7 @@ export class PBizDetail extends PBizEntity<BizDetail> {
             }
             const { value } = bud;
             if (value !== undefined) {
-                if (value.pelement.scan(space) === false) {
+                if (value.exp.pelement.scan(space) === false) {
                     ok = false;
                 }
             }

@@ -72,8 +72,9 @@ function escape(d, field) {
     //if (d === null) return '\b';
     if (d === null)
         return '';
-    if (field.type === 'bin') {
-        return d;
+    switch (field.type) {
+        case 'bin': return d;
+        case 'json': return JSON.stringify(d);
     }
     switch (typeof d) {
         default:

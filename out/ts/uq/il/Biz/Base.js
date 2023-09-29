@@ -54,6 +54,7 @@ class BizBase extends element_1.IElement {
     buildSchema(res) {
         var _a;
         return {
+            id: this.id,
             name: this.name,
             jName: this.jName,
             type: this.type,

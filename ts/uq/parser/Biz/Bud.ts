@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
-    , BizBudDec, /*BizBudID, */BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudOptions, Uq, BizBudIntOf
+    , BizBudDec, BizBudInt, BizOptions
+    , BizBudNone, BizBudRadio, BizBudIntOf
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -15,7 +15,7 @@ export abstract class PBizBud<P extends BizBud> extends PBizBase<P> {
         let ok = true;
         let { value } = this.element;
         if (value !== undefined) {
-            if (value.pelement.scan(space) === false) {
+            if (value.exp.pelement.scan(space) === false) {
                 ok = false;
             }
         }

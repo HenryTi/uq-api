@@ -9,6 +9,7 @@ class BizSiteBuilder {
         this.res = {};
         this.objNames = {};
         this.objIds = {};
+        this.buds = {};
         this.biz = biz;
         this.runner = runner;
         this.site = site;
@@ -29,6 +30,7 @@ class BizSiteBuilder {
                 obj.props = props = [];
             }
             props.push(prop);
+            this.buds[phrase] = prop;
             this.res[phrase] = caption;
         }
     }
@@ -47,10 +49,12 @@ class BizSiteBuilder {
     }
     async saveBizEntityBuds(entity) {
         let { id } = this.objNames[entity.phrase];
-        let buds = entity.getAllBuds();
-        await Promise.all(buds.map(v => {
-            return this.saveBud(id, v);
-        }));
+        let promises = [];
+        entity.forEachBud(bud => {
+            promises.push(this.saveBud(id, bud));
+        });
+        // let buds = entity.getAllBuds();
+        await Promise.all(promises);
     }
     ;
     async saveBud(id, bud) {
@@ -65,7 +69,8 @@ class BizSiteBuilder {
         }
         if (phrase === undefined)
             debugger;
-        await this.runner.unitUserCall('SaveBizBud', this.site, this.user, id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
+        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
+        bud.id = budId;
         this.res[phrase] = caption;
     }
     async build(log) {
@@ -104,11 +109,18 @@ class BizSiteBuilder {
     }
     buildBudsValue(context) {
         for (let bizEntity of this.biz.bizArr) {
+            this.buildBudsId(bizEntity);
             let builder = bizEntity.db(context);
             if (builder === undefined)
                 continue;
             builder.buildBudsValue();
         }
+    }
+    buildBudsId(bizEntity) {
+        bizEntity.forEachBud(bud => {
+            let { phrase } = bud;
+            bud.id = this.buds[phrase].id;
+        });
     }
     buildSchemas() {
         return this.biz.uq.buildSchemas(this.res);

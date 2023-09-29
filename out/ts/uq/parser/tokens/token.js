@@ -47,6 +47,7 @@ var Token;
     Token[Token["BITWISEINVERT"] = 40] = "BITWISEINVERT";
     Token[Token["DoubleGT"] = 41] = "DoubleGT";
     Token[Token["DoubleLS"] = 42] = "DoubleLS";
+    Token[Token["COLONEQU"] = 61] = "COLONEQU";
     Token[Token["Memo"] = 99] = "Memo";
 })(Token = exports.Token || (exports.Token = {}));
 //# sourceMappingURL=token.js.map
