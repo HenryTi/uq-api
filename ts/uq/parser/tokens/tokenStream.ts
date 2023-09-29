@@ -290,14 +290,21 @@ export class TokenStream {
                 case Char.LBrace:
                     this.advance();
                     this.token = Token.LBRACE; break;
-                //if (this.cur != Char.LBrace) { this.token = Token.LBRACE; break; }
-                //this.advance(); this.ReadInline(); break;
                 case Char.RBrace: this.token = Token.RBRACE; this.advance(); break;
                 case Char.SHARP: this.token = Token.SHARP; this.advance(); break;
                 case Char.DOT: this.token = Token.DOT; this.advance(); break;
                 case Char.COMMA: this.token = Token.COMMA; this.advance(); break;
                 case Char.SEMICOLON: this.token = Token.SEMICOLON; this.advance(); break;
-                case Char.COLON: this.token = Token.COLON; this.advance(); break;
+                case Char.COLON:
+                    this.advance();
+                    if (this.cur === Char.EQU) {
+                        this.token = Token.COLONEQU;
+                        this.advance();
+                    }
+                    else {
+                        this.token = Token.COLON;
+                    }
+                    break;
                 case Char.TOPANGLE: this.token = Token.XOR; this.advance(); break;
                 case Char.EQU:
                     this.advance();

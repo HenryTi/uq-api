@@ -75,6 +75,23 @@ function escape(d, field) {
     switch (field.type) {
         case 'bin': return d;
         case 'json': return JSON.stringify(d);
+        case 'text':
+            let len = d.length;
+            let r = '', p = 0;
+            for (let i = 0; i < len; i++) {
+                let c = d.charCodeAt(i);
+                switch (c) {
+                    case 9:
+                        r += d.substring(p, i) + '\\t';
+                        p = i + 1;
+                        break;
+                    case 10:
+                        r += d.substring(p, i) + '\\n';
+                        p = i + 1;
+                        break;
+                }
+            }
+            return r + d.substring(p);
     }
     switch (typeof d) {
         default:
@@ -85,18 +102,6 @@ function escape(d, field) {
             if (field.type === 'datetime') {
                 return new Date(d).getTime() / 1000;
             }
-            /*
-            let len = d.length;
-            let r = '', p = 0;
-            for (let i=0;i<len;i++) {
-                let c = d.charCodeAt(i);
-                switch(c) {
-                    case 9: r += d.substring(p, i) + '\\t'; p = i+1; break;
-                    case 10: r += d.substring(p, i) + '\\n'; p = i+1; break;
-                }
-            }
-            return r + d.substring(p);
-            */
             return d;
         case 'undefined': return '';
     }

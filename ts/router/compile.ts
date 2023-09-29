@@ -20,36 +20,120 @@ export function buildCompileRouter(router: Router, rb: RouterBuilder) {
         });
     });
 
-    /*
-    rb.entityPost(router, actionType, '/source',
-        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
-            const { source } = body;
-            const ret = await compile(runner, source, true, unit, user);
-            return ret
-        });
-    */
     rb.entityPost(router, actionType, '/override',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
             const { source } = body;
-            const ret = await compile(runner, source, true, unit, user);
+            const compile = new CompileSource(runner, source, unit, user, true);
+            const ret = await compile.run();
             return ret
         });
 
     rb.entityPost(router, actionType, '/append',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
             const { source } = body;
-            const ret = await compile(runner, source, false, unit, user);
+            const compile = new CompileSource(runner, source, unit, user, false);
+            const ret = await compile.run();
+            return ret
+        });
+
+    rb.entityPost(router, actionType, '/entity',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
+            const { id, code } = body;
+            const compile = new CompileEntity(runner, code, unit, user, id);
+            const ret = await compile.run();
             return ret
         });
 
     rb.entityPost(router, actionType, '/biz',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
-            const ret = await compile(runner, undefined, false, unit, user);
+            const compile = new CompileSource(runner, undefined, unit, user, false);
+            const ret = await compile.run();
             return ret
         });
 
 }
 
+abstract class Compile {
+    readonly runner: EntityRunner;
+    readonly code: string;
+    readonly site: number;
+    readonly user: number;
+    abstract get override(): boolean;
+    constructor(runner: EntityRunner, code: string, site: number, user: number) {
+        this.runner = runner;
+        this.code = code;
+        this.site = site;
+        this.user = user;
+    }
+
+    async run() {
+        const msgs: string[] = [];
+        function log(msg: string) {
+            msgs.push(msg);
+            return true;
+        }
+        const uqRunner = new UqRunner(undefined, log);
+        let [objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+        const { uq } = uqRunner;
+        const { biz } = uq;
+        const bizSiteBuilder = new BizSiteBuilder(biz, this.runner, this.site, this.user);
+        await bizSiteBuilder.loadObjects(objs, props);
+
+        if (this.code) {
+            for (let source of bizSiteBuilder.sysEntitySources) {
+                uqRunner.parse(source, '$sys', true);
+            }
+
+            uqRunner.parse(this.code, 'upload');
+            uqRunner.anchorLatest();
+        }
+        for (let obj of objs) {
+            const { id, phrase, source } = obj;
+            if (!source) continue;
+            if (this.override === true) {
+                if (uqRunner.isLatest(phrase) === true) continue;
+            }
+            uqRunner.parse(source, phrase);
+            let entity = uqRunner.uq.biz.bizEntities.get(phrase);
+            if (entity !== undefined) entity.id = id;
+        }
+        uqRunner.scan();
+        if (uqRunner.ok === false) {
+            return {
+                logs: msgs,
+                hasError: true,
+            }
+        }
+
+        await bizSiteBuilder.build(log);
+        let schemas = bizSiteBuilder.buildSchemas();
+        return {
+            schemas: jsonpack.pack(schemas.$biz),
+            logs: msgs,
+            hasError: false,
+        }
+    }
+}
+
+class CompileEntity extends Compile {
+    id: number;
+    readonly override = true;
+    constructor(runner: EntityRunner, code: string, site: number, user: number, id: number) {
+        super(runner, code, site, user);
+        this.id = id;
+    }
+}
+
+class CompileSource extends Compile {
+    readonly override: boolean;
+    constructor(runner: EntityRunner, code: string, site: number, user: number, override: boolean) {
+        super(runner, code, site, user);
+        this.override = override;
+    }
+}
+/*
+async function compileEntity(runner: EntityRunner, id: number, code: string, unit: number, user: number) {
+}
 
 async function compile(runner: EntityRunner, clientSource: string, override: boolean, unit: number, user: number) {
     const msgs: string[] = [];
@@ -98,3 +182,4 @@ async function compile(runner: EntityRunner, clientSource: string, override: boo
         hasError: false,
     }
 }
+*/

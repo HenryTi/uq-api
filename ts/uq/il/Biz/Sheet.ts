@@ -5,7 +5,7 @@ import { IElement } from "../element";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
 import { BizBase, BizPhraseType } from "./Base";
-import { BizBud } from "./Bud";
+import { BizBud, BudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
@@ -56,7 +56,7 @@ export class BizMain extends BizEntity {
     }
 }
 
-interface DetailItem {
+export interface DetailItem extends BudValue {
     caption: string;
     atom: string;
     pick: string;

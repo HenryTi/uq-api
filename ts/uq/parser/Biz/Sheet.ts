@@ -1,7 +1,7 @@
 import {
     BizDetail, BizDetailAct, BizMain, BizPend, BizSheet, Field
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
-    , Uq, Entity, Table, Pointer, VarPointer, BizBase, TableVar, ProcParamType, BizAtom, BizBudAtom, BizBud, BudDataType, BizPhraseType, bigIntField
+    , Uq, Entity, Table, Pointer, VarPointer, BizBase, TableVar, ProcParamType, BizAtom, BizBudAtom, BizBud, BudDataType, BizPhraseType, bigIntField, DetailItem, ValueExpression, BudValueAct
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -201,13 +201,16 @@ export class PBizDetail extends PBizEntity<BizDetail> {
         else {
             this.ts.expect('atom', 'pick');
         }
-        let item = {
+        this.ts.passToken(Token.SEMICOLON);
+        let exp: ValueExpression;
+        let act: BudValueAct;
+        return {
             caption,
             atom,
             pick,
-        }
-        this.ts.passToken(Token.SEMICOLON);
-        return item;
+            exp,
+            act,
+        };
     }
 
     private parseValueBud(bud: BizBud, budName: string) {
