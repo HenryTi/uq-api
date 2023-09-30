@@ -15,16 +15,52 @@ class BizSiteBuilder {
         this.site = site;
         this.user = user;
     }
-    setEntityId(entityId) {
-        this.entityId = entityId;
+    markNewEntityId(entityId) {
+        this.newSoleEntityId = entityId;
         let { name } = this.biz.latestBizArr[0];
         let obj = this.objNames[name];
-        if (obj === undefined)
+        if (obj === undefined) {
+            let objId = this.objIds[entityId];
+            this.newMatchOldObj = objId;
             return true;
+        }
         let { id } = obj;
         if (id !== entityId)
             return false;
+        if (name !== obj.phrase) {
+        }
         return true;
+    }
+    setEntitysId() {
+        const { bizArr } = this.biz;
+        let len = bizArr.length;
+        let indexTobeRemoved;
+        for (let i = 0; i < len; i++) {
+            let entity = bizArr[i];
+            const { phrase } = entity;
+            const obj = this.objNames[phrase];
+            if (obj === undefined)
+                continue;
+            if (obj === this.newMatchOldObj)
+                indexTobeRemoved = i;
+            const { id, source } = obj;
+            if (!source)
+                continue;
+            entity.id = id;
+            entity.forEachBud(bud => {
+                let e = entity;
+                let savedBud = this.buds[bud.phrase];
+                if (savedBud === undefined) {
+                    debugger;
+                    return;
+                }
+                bud.id = savedBud.id;
+            });
+        }
+        // 
+        if (indexTobeRemoved !== undefined) {
+            bizArr.splice(indexTobeRemoved, 1);
+        }
     }
     async loadObjects(objs, props) {
         for (let obj of objs) {
@@ -51,7 +87,7 @@ class BizSiteBuilder {
         const memo = undefined;
         if (phrase === undefined)
             debugger;
-        let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject', this.entityId, this.site, this.user, phrase, caption, entity.typeNum, memo, source, undefined);
+        let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject', this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source, undefined);
         let obj = { id, phrase };
         entity.id = id;
         this.objIds[id] = obj;
@@ -62,13 +98,13 @@ class BizSiteBuilder {
         let { id } = this.objNames[entity.phrase];
         let promises = [];
         entity.forEachBud(bud => {
-            promises.push(this.saveBud(id, bud));
+            promises.push(this.saveBud(entity, bud));
         });
         // let buds = entity.getAllBuds();
         await Promise.all(promises);
     }
     ;
-    async saveBud(id, bud) {
+    async saveBud(entity, bud) {
         const { phrase, caption, memo, dataType: dataTypeNum, objName, flag } = bud;
         const typeNum = bud.typeNum;
         let objId;
@@ -78,9 +114,7 @@ class BizSiteBuilder {
                 objId = obj.id;
             }
         }
-        if (phrase === undefined)
-            debugger;
-        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
+        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
         bud.id = budId;
         this.res[phrase] = caption;
     }
@@ -120,18 +154,11 @@ class BizSiteBuilder {
     }
     buildBudsValue(context) {
         for (let bizEntity of this.biz.bizArr) {
-            this.buildBudsId(bizEntity);
             let builder = bizEntity.db(context);
             if (builder === undefined)
                 continue;
             builder.buildBudsValue();
         }
-    }
-    buildBudsId(bizEntity) {
-        bizEntity.forEachBud(bud => {
-            let { phrase } = bud;
-            bud.id = this.buds[phrase].id;
-        });
     }
     buildSchemas() {
         return this.biz.uq.buildSchemas(this.res);

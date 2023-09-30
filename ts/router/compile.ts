@@ -108,8 +108,6 @@ abstract class Compile {
                 if (uqRunner.isLatest(phrase) === true) continue;
             }
             uqRunner.parse(source, phrase);
-            let entity = uqRunner.uq.biz.bizEntities.get(phrase);
-            if (entity !== undefined) entity.id = id;
         }
         uqRunner.scan();
         if (uqRunner.ok === false) {
@@ -118,6 +116,7 @@ abstract class Compile {
                 hasError: true,
             }
         }
+        bizSiteBuilder.setEntitysId();
 
         await bizSiteBuilder.build(this.log);
         let schemas = bizSiteBuilder.buildSchemas();
@@ -135,19 +134,19 @@ abstract class Compile {
 }
 
 class CompileEntity extends Compile {
-    id: number;
+    newEntityId: number;
     readonly override = true;
-    constructor(runner: EntityRunner, code: string, site: number, user: number, id: number) {
+    constructor(runner: EntityRunner, code: string, site: number, user: number, newEntityId: number) {
         super(runner, code, site, user);
-        this.id = id;
+        this.newEntityId = newEntityId;
     }
 
     protected override setUqRunnerEntityId(uqRunner: UqRunner): void {
-        uqRunner.setEntityId(this.id);
+        uqRunner.setEntityId(this.newEntityId);
     }
 
     protected override setBizSiteBuilderEntityId(bizSiteBuilder: BizSiteBuilder): boolean {
-        return bizSiteBuilder.setEntityId(this.id);
+        return bizSiteBuilder.markNewEntityId(this.newEntityId);
     }
 }
 

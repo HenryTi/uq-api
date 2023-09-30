@@ -137,9 +137,9 @@ class Biz extends entity_1.Entity {
 exports.Biz = Biz;
 class BizSchemaBuilder extends schema_1.SchemaBuilder {
     build(schema, res) {
-        const { bizEntities } = this.entity;
-        for (let [key, value] of bizEntities) {
-            schema[key] = value.buildSchema(res);
+        const { bizArr } = this.entity;
+        for (let entity of bizArr) {
+            schema[entity.name] = entity.buildSchema(res);
         }
     }
 }
