@@ -107,28 +107,14 @@ class BizEntity extends Base_1.BizBase {
         field.dataType = fieldDataType;
         return field;
     }
-    // buildFields() { }
     getBud(name) {
         let bud = this.props.get(name);
-        // if (bud !== undefined) return bud;
-        // bud = this.assigns.get(name);
         return bud;
     }
     forEachBud(callback) {
         for (let [, bud] of this.props)
             callback(bud);
     }
-    /*
-    getAllBuds(): BizBud[] {
-        let buds: BizBud[] = [];
-        this.forEachBud(bud => {
-            if (!bud) return;
-            buds.push(bud);
-        });
-        // for (let [, bud] of this.props) buds.push(bud.toIBud());
-        return buds;
-    }
-    */
     db(dbContext) {
         return undefined;
     }

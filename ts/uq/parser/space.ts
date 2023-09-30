@@ -1,7 +1,7 @@
 import {
     Field, Table, Arr, Entity, GroupType,
     Pointer,
-    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase
+    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity
 } from '../il';
 
 export abstract class Space {
@@ -27,6 +27,7 @@ export abstract class Space {
     protected _setTransactionOff(): boolean { return false; }
     protected _getActionBase(): ActionBase { return undefined; }
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
+    protected _getBizEntity(name: string): BizEntity { return undefined; }
     protected abstract _getEntityTable(name: string): Entity & Table;
     protected abstract _getTableByAlias(alias: string): Table;
     protected abstract _varPointer(name: string, isField: boolean): Pointer;
@@ -124,6 +125,12 @@ export abstract class Space {
         if (entity !== undefined) return entity;
         if (this.outer !== undefined)
             return this.outer.getEntityTable(name);
+    }
+    getBizEntity(name: string): BizEntity {
+        let bizEntity = this._getBizEntity(name);
+        if (bizEntity !== undefined) return bizEntity;
+        if (this.outer !== undefined)
+            return this.outer.getBizEntity(name);
     }
     getTableByAlias(alias: string): Table {
         let table = this._getTableByAlias(alias);

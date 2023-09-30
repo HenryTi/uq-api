@@ -157,7 +157,8 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         const keys = Object.keys(keyColl);
         let key = this.ts.lowerVar;
-        if (this.ts.token === Token.SEMICOLON) {
+        const tokens = [Token.EQU, Token.COLONEQU, Token.SEMICOLON];
+        if (tokens.includes(this.ts.token) === true) {
             key = 'none';
         }
         else {

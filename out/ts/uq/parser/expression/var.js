@@ -104,6 +104,15 @@ class PVarOperand extends element_1.PElement {
                 }
                 pointer = new il_1.ConstPointer(v);
             }
+            let _obj = space.getBizEntity(var0);
+            if (_obj !== undefined) {
+                let v = _obj.getBud(var1);
+                if (v === undefined) {
+                    this.log(`Biz entity ${_obj.jName} has not ${var1}`);
+                    return false;
+                }
+                pointer = new il_1.BizEntityPointer(_obj, v);
+            }
             else {
                 // t.a 那么t一定是from的table，不可能是entity
                 let table = space.getTableByAlias(var0);

@@ -76,13 +76,16 @@ class BizAtomSpec extends BizAtomIDWithBase {
         for (let key of this.keys)
             callback(key);
     }
-    /*
-    getAllBuds(): IBud[] {
-        let buds = super.getAllBuds();
-        for (let key of this.keys) buds.push(key.toIBud());
-        return buds;
+    getBud(name) {
+        let bud = super.getBud(name);
+        if (bud !== undefined)
+            return bud;
+        for (let kBud of this.keys) {
+            if (kBud.name === name)
+                return kBud;
+        }
+        return undefined;
     }
-    */
     db(dbContext) {
         return new builder_1.BBizSpec(dbContext, this);
     }

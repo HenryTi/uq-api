@@ -1,7 +1,7 @@
 import {
     BizDetail, BizDetailAct, BizMain, BizPend, BizSheet, Field
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
-    , Uq, Entity, Table, Pointer, VarPointer, BizBase, TableVar, ProcParamType, BizAtom, BizBudAtom, BizBud, BudDataType, BizPhraseType, bigIntField, DetailItem, ValueExpression, BudValueAct
+    , Uq, Entity, Table, Pointer, VarPointer, BizBase, TableVar, ProcParamType, BizAtom, BizBudAtom, BizBud, BudDataType, BizPhraseType, bigIntField, DetailItem, ValueExpression, BudValueAct, BizEntity
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -172,21 +172,28 @@ export class PBizDetail extends PBizEntity<BizDetail> {
         if (this.element.item !== undefined) {
             this.ts.error(`ITEM can only be defined once in Biz Detail`);
         }
-        this.element.item = this.parseItemOut();
+        this.element.item = this.parseItemOut('item');
     }
 
     private parseItemX = () => {
         if (this.element.itemX !== undefined) {
             this.ts.error(`ITEMX can only be defined once in Biz Detail`);
         }
-        this.element.itemX = this.parseItemOut();
+        this.element.itemX = this.parseItemOut('itemx');
     }
 
-    private parseItemOut() {
+    private parseItemOut(itemName: string) {
         let caption = this.ts.mayPassString();
+        let exp: ValueExpression;
+        let act: BudValueAct;
         let atom: string;
         let pick: string;
-        if (this.ts.isKeyword('atom') === true) {
+        if (this.ts.token === Token.EQU) {
+            this.ts.readToken();
+            exp = new ValueExpression();
+            this.context.parseElement(exp);
+        }
+        else if (this.ts.isKeyword('atom') === true) {
             this.ts.readToken();
             this.ts.assertToken(Token.VAR);
             atom = this.ts.lowerVar;
@@ -202,15 +209,12 @@ export class PBizDetail extends PBizEntity<BizDetail> {
             this.ts.expect('atom', 'pick');
         }
         this.ts.passToken(Token.SEMICOLON);
-        let exp: ValueExpression;
-        let act: BudValueAct;
-        return {
-            caption,
-            atom,
-            pick,
+        let bud = new BizBudAtom(itemName, caption);
+        bud.value = {
             exp,
             act,
         };
+        return bud;
     }
 
     private parseValueBud(bud: BizBud, budName: string) {
@@ -249,7 +253,7 @@ export class PBizDetail extends PBizEntity<BizDetail> {
     scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) ok = false;
-        space = new DetailSpace(space);
+        space = new DetailSpace(space, this.element);
         if (this.main === undefined) {
             this.log(`Biz Detail must define main`);
             ok = false;
@@ -277,9 +281,13 @@ export class PBizDetail extends PBizEntity<BizDetail> {
             }
         }
 
-        const { item, value: budValue, amount: budAmount, price: budPrice } = this.element;
+        const { item, itemX, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (item !== undefined) {
-            const { atom, pick } = item;
+            if (this.scanBud(space, item) === false) {
+                ok = false;
+            }
+            /*
+            const { atom, pick } = item.value;
             if (atom !== undefined) {
                 let entity = this.getBizEntity(space, atom);
                 if (entity === undefined || entity.bizPhraseType !== BizPhraseType.atom) {
@@ -294,11 +302,18 @@ export class PBizDetail extends PBizEntity<BizDetail> {
                     ok = false;
                 }
             }
+            */
+        }
+        if (itemX !== undefined) {
+            if (this.scanBud(space, itemX) === false) {
+                ok = false;
+            }
         }
 
         const scanBudValue = (bud: BizBud) => {
             if (bud === undefined) return;
-            if (bud.dataType !== BudDataType.dec) {
+            const { dataType } = bud;
+            if (dataType !== BudDataType.dec && dataType !== BudDataType.none) {
                 this.log(`${bud.jName} can only be DEC`);
                 ok = false;
             }
@@ -422,7 +437,8 @@ export class PBizDetailAct extends PBizBase<BizDetailAct> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let actSpace = new DetailSpace(space);
+        //  will be removed
+        let actSpace = new DetailSpace(space, undefined);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false) ok = false;
         if (pelement.scan(actSpace) === false) ok = false;
@@ -478,40 +494,29 @@ export const detailPreDefined = [
     , 'target', 'item', 'itemx', 'value', 'amount', 'price'
 ];
 class DetailSpace extends Space {
-    /*
-    private readonly act: BizDetailAct;
-    constructor(outer: Space, act: BizDetailAct) {
+    private readonly detail: BizDetail;
+    constructor(outer: Space, detail: BizDetail) {
         super(outer);
-        this.act = act;
+        this.detail = detail;
     }
-    */
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
-        /*
-        let { idParam } = this.act;
-        if (name === idParam.name) {
-            return new VarPointer();
-        }
-        */
         if (detailPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
     }
-    /*
-    protected _getBizBase(bizName: string[]): BizBase {
-        try {
-            return this.act.bizDetail.getBizBase(bizName);
+
+    protected override _getBizEntity(name: string): BizEntity {
+        switch (name) {
+            default:
+                return super._getBizEntity(name);
+            case 'pend':
+                const { pend } = this.detail;
+                return pend?.entity;
+            case 'main':
+                debugger;
+                break;
         }
-        catch {
-            return;
-        }
     }
-    addTableVar(tableVar: TableVar): boolean {
-        return this.act.addTableVar(tableVar);
-    }
-    getTableVar(name: string): TableVar {
-        return this.act?.getTableVar(name);
-    }
-    */
 }

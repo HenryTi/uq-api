@@ -1,4 +1,4 @@
-import { Table, Pointer, UserPointer, UnitPointer, ConstPointer } from '../../il';
+import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityPointer } from '../../il';
 import { VarOperand } from '../../il/expression';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -102,6 +102,16 @@ export class PVarOperand extends PElement<VarOperand> {
                     return false;
                 }
                 pointer = new ConstPointer(v);
+            }
+
+            let _obj = space.getBizEntity(var0);
+            if (_obj !== undefined) {
+                let v = _obj.getBud(var1);
+                if (v === undefined) {
+                    this.log(`Biz entity ${_obj.jName} has not ${var1}`);
+                    return false;
+                }
+                pointer = new BizEntityPointer(_obj, v);
             }
             else {
                 // t.a 那么t一定是from的table，不可能是entity

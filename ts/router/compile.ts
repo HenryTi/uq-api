@@ -36,18 +36,10 @@ export function buildCompileRouter(router: Router, rb: RouterBuilder) {
 
     rb.entityPost(router, actionType, '/entity',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
-            try {
-                const { id, code } = body;
-                const compile = new CompileEntity(runner, code, unit, user, id);
-                const ret = await compile.run();
-                return ret;
-            }
-            catch (err) {
-                return {
-                    hasError: true,
-                    logs: [err.message],
-                }
-            }
+            const { id, code } = body;
+            const compile = new CompileEntity(runner, code, unit, user, id);
+            const ret = await compile.run();
+            return ret;
         });
 
     rb.entityPost(router, actionType, '/biz',
@@ -78,52 +70,69 @@ abstract class Compile {
     protected setBizSiteBuilderEntityId(bizSiteBuilder: BizSiteBuilder): boolean { return true; }
 
     async run() {
-        const uqRunner = new UqRunner(undefined, this.log);
-        this.setUqRunnerEntityId(uqRunner);
-        let [objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
-        const { uq } = uqRunner;
-        const { biz } = uq;
-        const bizSiteBuilder = new BizSiteBuilder(biz, this.runner, this.site, this.user);
-        await bizSiteBuilder.loadObjects(objs, props);
+        try {
+            const uqRunner = new UqRunner(undefined, this.log);
+            this.setUqRunnerEntityId(uqRunner);
+            let [objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+            const { uq } = uqRunner;
+            const { biz } = uq;
+            const bizSiteBuilder = new BizSiteBuilder(biz, this.runner, this.site, this.user);
+            await bizSiteBuilder.loadObjects(objs, props);
 
-        if (this.code) {
-            for (let source of bizSiteBuilder.sysEntitySources) {
-                uqRunner.parse(source, '$sys', true);
-            }
+            if (this.code) {
+                for (let source of bizSiteBuilder.sysEntitySources) {
+                    uqRunner.parse(source, '$sys', true);
+                }
 
-            uqRunner.parse(this.code, 'upload');
-            let isIdNewOk = uqRunner.anchorLatest();
-            let isIdNameOk = this.setBizSiteBuilderEntityId(bizSiteBuilder);
-            if (isIdNewOk === false || isIdNameOk === false) {
-                return {
-                    logs: this.msgs,
-                    hasError: false,
+                uqRunner.parse(this.code, 'upload');
+                let isIdNewOk = uqRunner.anchorLatest();
+                let isIdNameOk = this.setBizSiteBuilderEntityId(bizSiteBuilder);
+                if (isIdNewOk === false || isIdNameOk === false) {
+                    return {
+                        logs: this.msgs,
+                        hasError: true,
+                    }
                 }
             }
-        }
-        for (let obj of objs) {
-            const { id, phrase, source } = obj;
-            if (!source) continue;
-            if (this.override === true) {
-                if (uqRunner.isLatest(phrase) === true) continue;
+            for (let obj of objs) {
+                const { id, phrase, source } = obj;
+                if (!source) continue;
+                if (this.override === true) {
+                    if (uqRunner.isLatest(phrase) === true) continue;
+                }
+                uqRunner.parse(source, phrase);
             }
-            uqRunner.parse(source, phrase);
-        }
-        uqRunner.scan();
-        if (uqRunner.ok === false) {
-            return {
-                logs: this.msgs,
-                hasError: true,
+            uqRunner.scan();
+            if (uqRunner.ok === false) {
+                return {
+                    logs: this.msgs,
+                    hasError: true,
+                }
             }
-        }
-        bizSiteBuilder.setEntitysId();
+            bizSiteBuilder.setEntitysId();
 
-        await bizSiteBuilder.build(this.log);
-        let schemas = bizSiteBuilder.buildSchemas();
-        return {
-            schemas: jsonpack.pack(schemas.$biz),
-            logs: this.msgs,
-            hasError: false,
+            await bizSiteBuilder.build(this.log);
+            let schemas = bizSiteBuilder.buildSchemas();
+            return {
+                schemas: jsonpack.pack(schemas.$biz),
+                logs: this.msgs,
+                hasError: false,
+            }
+        }
+        catch (err) {
+            let logs = [err.message];
+            let { stack } = err;
+            let type = typeof stack;
+            switch (type) {
+                default: logs.push('typeof err.stack ' + type); break;
+                case 'undefined': break;
+                case 'object': logs.push(JSON.stringify(stack)); break;
+                case 'string': logs.push(...stack.split('\n')); break;
+            }
+            return {
+                hasError: true,
+                logs,
+            }
         }
     }
 

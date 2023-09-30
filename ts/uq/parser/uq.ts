@@ -5,7 +5,7 @@ import { PContext } from './pContext';
 import {
     Entity, Uq, Tuid, Import, Book, History, Map, Sheet, Query, Act, Table, Bus,
     Templet, SysProc, Pending, Pointer, Role, Enum, Proc,
-    IX, ID, IDX, Const, ConstPointer, UqVersion, Function, Queue, UqStatement, DataTypeDefine, DataType, BusAcceptStatement, Biz, BizBase
+    IX, ID, IDX, Const, ConstPointer, UqVersion, Function, Queue, UqStatement, DataTypeDefine, DataType, BusAcceptStatement, Biz, BizBase, BizEntity
 } from '../il';
 
 export class PUq extends PElement {
@@ -499,6 +499,10 @@ class UqSpace extends Space {
     }
     protected _getConst(name: string): Const {
         return this.uq.consts[name];
+    }
+    protected _getBizEntity(name: string): BizEntity {
+        let bizEntity = this.uq.biz.bizEntities.get(name);
+        return bizEntity;
     }
     getRole(): Role {
         return this.uq.role;

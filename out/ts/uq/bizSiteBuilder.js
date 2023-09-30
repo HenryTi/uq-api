@@ -16,8 +16,12 @@ class BizSiteBuilder {
         this.user = user;
     }
     markNewEntityId(entityId) {
+        const { latestBizArr } = this.biz;
+        let entity = latestBizArr[0];
+        if (entity === undefined)
+            return true;
         this.newSoleEntityId = entityId;
-        let { name } = this.biz.latestBizArr[0];
+        let { name } = entity;
         let obj = this.objNames[name];
         if (obj === undefined) {
             let objId = this.objIds[entityId];

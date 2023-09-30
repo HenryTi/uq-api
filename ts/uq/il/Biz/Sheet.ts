@@ -5,7 +5,7 @@ import { IElement } from "../element";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
 import { BizBase, BizPhraseType } from "./Base";
-import { BizBud, BudValue } from "./Bud";
+import { BizBud, BizBudAtom, BizBudDec, BudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
@@ -71,8 +71,8 @@ export class BizDetail extends BizEntity {
     readonly bizPhraseType = BizPhraseType.detail;
     readonly acts: BizDetailAct[] = [];
     main: BizMain;
-    item: DetailItem;
-    itemX: DetailItem;
+    item: BizBud; // DetailItem;
+    itemX: BizBud; // DetailItem;
     pend: RefEntity<BizPend>;
     value: BizBud;
     price: BizBud;
@@ -96,18 +96,34 @@ export class BizDetail extends BizEntity {
             ...ret,
             main: this.main.name,
             pend,
-            item: this.item,
-            itemx: this.itemX,
+            item: this.item?.buildSchema(res),
+            itemx: this.itemX?.buildSchema(res),
             value: this.value?.buildSchema(res),
             amount: this.amount?.buildSchema(res),
             price: this.price?.buildSchema(res),
         }
     }
-    forEachBud(callback: (bud: BizBud) => void) {
+    override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
+        if (this.item !== undefined) callback(this.item);
+        if (this.itemX !== undefined) callback(this.itemX);
         if (this.value !== undefined) callback(this.value);
         if (this.price !== undefined) callback(this.price);
         if (this.amount !== undefined) callback(this.amount);
+    }
+    override getBud(name: string) {
+        let bud = super.getBud(name);
+        if (bud !== undefined) return bud;
+        if (this.value !== undefined) {
+            if (this.value.name === name) return this.value;
+        }
+        if (this.price !== undefined) {
+            if (this.price.name === name) return this.price;
+        }
+        if (this.amount !== undefined) {
+            if (this.amount.name === name) return this.amount;
+        }
+        return undefined;
     }
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizDetail(dbContext, this);
@@ -116,7 +132,13 @@ export class BizDetail extends BizEntity {
 
 export class BizPend extends BizEntity {
     readonly bizPhraseType = BizPhraseType.pend;
-    // detail: BizDetail;
+    readonly buds = [
+        new BizBudAtom('item', undefined),
+        new BizBudAtom('itemx', undefined),
+        new BizBudDec('value', undefined),
+        new BizBudDec('price', undefined),
+        new BizBudDec('amount', undefined),
+    ];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizPend(this, context);
@@ -128,6 +150,13 @@ export class BizPend extends BizEntity {
             ...ret,
             // detail: this.detail.name,
         }
+    }
+
+    override getBud(name: string): BizBud {
+        let bud = super.getBud(name);
+        if (bud !== undefined) return bud;
+        bud = this.buds.find(v => v.name === name);
+        return bud;
     }
 }
 

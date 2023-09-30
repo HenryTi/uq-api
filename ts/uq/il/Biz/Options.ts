@@ -59,17 +59,17 @@ export class BizOptions extends BizEntity {
         return ret;
     }
 
-    forEachBud(callback: (bud: BizBud) => void) {
+    override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
         for (let item of this.items) callback(item as unknown as BizBud);
     }
-    /*
-    getAllBuds(): BizBud[] {
-        const buds: BizBud[] = [];
+
+    override getBud(name: string): BizBud {
+        let bud = super.getBud(name);
+        if (bud !== undefined) return bud;
         for (let item of this.items) {
-            buds.push(item as any as BizBud);
-        };
-        return buds;
+            if (item.name === name) return item;
+        }
+        return;
     }
-    */
 }

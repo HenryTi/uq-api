@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
+exports.BizEntityPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
 var GroupType;
 (function (GroupType) {
     GroupType[GroupType["Single"] = 1] = "Single";
@@ -86,4 +86,17 @@ class ConstPointer extends Pointer {
     }
 }
 exports.ConstPointer = ConstPointer;
+class BizEntityPointer extends Pointer {
+    constructor(entity, bud) {
+        super();
+        this.groupType = GroupType.Both;
+        this.entity = entity;
+        this.bud = bud;
+    }
+    to(stack, v) {
+        stack.var(this.entity.name); //, this.bud.name);
+        debugger;
+    }
+}
+exports.BizEntityPointer = BizEntityPointer;
 //# sourceMappingURL=pointer.js.map

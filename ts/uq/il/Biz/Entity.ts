@@ -101,29 +101,15 @@ export abstract class BizEntity extends BizBase {
         return field;
     }
 
-    // buildFields() { }
-
     getBud(name: string): BizBud {
         let bud = this.props.get(name);
-        // if (bud !== undefined) return bud;
-        // bud = this.assigns.get(name);
         return bud;
     }
 
     forEachBud(callback: (bud: BizBud) => void) {
         for (let [, bud] of this.props) callback(bud);
     }
-    /*
-    getAllBuds(): BizBud[] {
-        let buds: BizBud[] = [];
-        this.forEachBud(bud => {
-            if (!bud) return;
-            buds.push(bud);
-        });
-        // for (let [, bud] of this.props) buds.push(bud.toIBud());
-        return buds;
-    }
-    */
+
     db(dbContext: DbContext): BBizEntity {
         return undefined;
     }

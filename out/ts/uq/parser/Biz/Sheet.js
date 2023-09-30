@@ -144,13 +144,13 @@ class PBizDetail extends Base_1.PBizEntity {
             if (this.element.item !== undefined) {
                 this.ts.error(`ITEM can only be defined once in Biz Detail`);
             }
-            this.element.item = this.parseItemOut();
+            this.element.item = this.parseItemOut('item');
         };
         this.parseItemX = () => {
             if (this.element.itemX !== undefined) {
                 this.ts.error(`ITEMX can only be defined once in Biz Detail`);
             }
-            this.element.itemX = this.parseItemOut();
+            this.element.itemX = this.parseItemOut('itemx');
         };
         this.parseValue = () => {
             this.element.value = this.parseValueBud(this.element.value, 'value');
@@ -196,11 +196,18 @@ class PBizDetail extends Base_1.PBizEntity {
             parse();
         }
     }
-    parseItemOut() {
+    parseItemOut(itemName) {
         let caption = this.ts.mayPassString();
+        let exp;
+        let act;
         let atom;
         let pick;
-        if (this.ts.isKeyword('atom') === true) {
+        if (this.ts.token === tokens_1.Token.EQU) {
+            this.ts.readToken();
+            exp = new il_1.ValueExpression();
+            this.context.parseElement(exp);
+        }
+        else if (this.ts.isKeyword('atom') === true) {
             this.ts.readToken();
             this.ts.assertToken(tokens_1.Token.VAR);
             atom = this.ts.lowerVar;
@@ -216,15 +223,12 @@ class PBizDetail extends Base_1.PBizEntity {
             this.ts.expect('atom', 'pick');
         }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
-        let exp;
-        let act;
-        return {
-            caption,
-            atom,
-            pick,
+        let bud = new il_1.BizBudAtom(itemName, caption);
+        bud.value = {
             exp,
             act,
         };
+        return bud;
     }
     parseValueBud(bud, budName) {
         if (bud !== undefined) {
@@ -239,7 +243,7 @@ class PBizDetail extends Base_1.PBizEntity {
         let ok = true;
         if (super.scan(space) === false)
             ok = false;
-        space = new DetailSpace(space);
+        space = new DetailSpace(space, this.element);
         if (this.main === undefined) {
             this.log(`Biz Detail must define main`);
             ok = false;
@@ -265,28 +269,39 @@ class PBizDetail extends Base_1.PBizEntity {
                 };
             }
         }
-        const { item, value: budValue, amount: budAmount, price: budPrice } = this.element;
+        const { item, itemX, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (item !== undefined) {
-            const { atom, pick } = item;
+            if (this.scanBud(space, item) === false) {
+                ok = false;
+            }
+            /*
+            const { atom, pick } = item.value;
             if (atom !== undefined) {
                 let entity = this.getBizEntity(space, atom);
-                if (entity === undefined || entity.bizPhraseType !== il_1.BizPhraseType.atom) {
+                if (entity === undefined || entity.bizPhraseType !== BizPhraseType.atom) {
                     this.ts.log(`${atom} is not BizAtom`);
                     ok = false;
                 }
             }
             else if (pick !== undefined) {
                 let entity = this.getBizEntity(space, pick);
-                if (entity === undefined || [il_1.BizPhraseType.pick, il_1.BizPhraseType.atom].indexOf(entity.bizPhraseType) < 0) {
+                if (entity === undefined || [BizPhraseType.pick, BizPhraseType.atom].indexOf(entity.bizPhraseType) < 0) {
                     this.ts.log(`${pick} is neither BizPick nor BizAtom `);
                     ok = false;
                 }
+            }
+            */
+        }
+        if (itemX !== undefined) {
+            if (this.scanBud(space, itemX) === false) {
+                ok = false;
             }
         }
         const scanBudValue = (bud) => {
             if (bud === undefined)
                 return;
-            if (bud.dataType !== il_1.BudDataType.dec) {
+            const { dataType } = bud;
+            if (dataType !== il_1.BudDataType.dec && dataType !== il_1.BudDataType.none) {
                 this.log(`${bud.jName} can only be DEC`);
                 ok = false;
             }
@@ -405,7 +420,8 @@ class PBizDetailAct extends Base_1.PBizBase {
     }
     scan(space) {
         let ok = true;
-        let actSpace = new DetailSpace(space);
+        //  will be removed
+        let actSpace = new DetailSpace(space, undefined);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false)
             ok = false;
@@ -461,24 +477,27 @@ exports.detailPreDefined = [
     'target', 'item', 'itemx', 'value', 'amount', 'price'
 ];
 class DetailSpace extends space_1.Space {
-    /*
-    private readonly act: BizDetailAct;
-    constructor(outer: Space, act: BizDetailAct) {
+    constructor(outer, detail) {
         super(outer);
-        this.act = act;
+        this.detail = detail;
     }
-    */
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
-        /*
-        let { idParam } = this.act;
-        if (name === idParam.name) {
-            return new VarPointer();
-        }
-        */
         if (exports.detailPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
+        }
+    }
+    _getBizEntity(name) {
+        switch (name) {
+            default:
+                return super._getBizEntity(name);
+            case 'pend':
+                const { pend } = this.detail;
+                return pend === null || pend === void 0 ? void 0 : pend.entity;
+            case 'main':
+                debugger;
+                break;
         }
     }
 }

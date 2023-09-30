@@ -152,7 +152,8 @@ class PBizEntity extends PBizBase {
         };
         const keys = Object.keys(keyColl);
         let key = this.ts.lowerVar;
-        if (this.ts.token === tokens_1.Token.SEMICOLON) {
+        const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.SEMICOLON];
+        if (tokens.includes(this.ts.token) === true) {
             key = 'none';
         }
         else {

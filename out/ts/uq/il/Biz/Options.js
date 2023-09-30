@@ -32,15 +32,6 @@ class BizOptions extends Entity_1.BizEntity {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.options;
         this.items = [];
-        /*
-        getAllBuds(): BizBud[] {
-            const buds: BizBud[] = [];
-            for (let item of this.items) {
-                buds.push(item as any as BizBud);
-            };
-            return buds;
-        }
-        */
     }
     parser(context) {
         return new parser_1.PBizOptions(this, context);
@@ -68,6 +59,16 @@ class BizOptions extends Entity_1.BizEntity {
         super.forEachBud(callback);
         for (let item of this.items)
             callback(item);
+    }
+    getBud(name) {
+        let bud = super.getBud(name);
+        if (bud !== undefined)
+            return bud;
+        for (let item of this.items) {
+            if (item.name === name)
+                return item;
+        }
+        return;
     }
 }
 exports.BizOptions = BizOptions;

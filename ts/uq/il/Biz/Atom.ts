@@ -78,17 +78,19 @@ export class BizAtomSpec extends BizAtomIDWithBase {
         }
     }
 
-    forEachBud(callback: (bud: BizBud) => void) {
+    override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
         for (let key of this.keys) callback(key);
     }
-    /*
-    getAllBuds(): IBud[] {
-        let buds = super.getAllBuds();
-        for (let key of this.keys) buds.push(key.toIBud());
-        return buds;
+
+    override getBud(name: string) {
+        let bud = super.getBud(name);
+        if (bud !== undefined) return bud;
+        for (let kBud of this.keys) {
+            if (kBud.name === name) return kBud;
+        }
+        return undefined;
     }
-    */
 
     db(dbContext: DbContext): BBizSpec {
         return new BBizSpec(dbContext, this);

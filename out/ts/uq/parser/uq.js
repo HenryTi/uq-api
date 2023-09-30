@@ -496,6 +496,10 @@ class UqSpace extends space_1.Space {
     _getConst(name) {
         return this.uq.consts[name];
     }
+    _getBizEntity(name) {
+        let bizEntity = this.uq.biz.bizEntities.get(name);
+        return bizEntity;
+    }
     getRole() {
         return this.uq.role;
     }

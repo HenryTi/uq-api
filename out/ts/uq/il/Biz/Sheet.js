@@ -5,6 +5,7 @@ const builder_1 = require("../../builder");
 const builder_2 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
+const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 class BizSheet extends Entity_1.BizEntity {
     constructor() {
@@ -58,7 +59,7 @@ class BizDetail extends Entity_1.BizEntity {
         return new parser_1.PBizDetail(this, context);
     }
     buildSchema(res) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e;
         let ret = super.buildSchema(res);
         let pend;
         if (this.pend !== undefined) {
@@ -68,16 +69,38 @@ class BizDetail extends Entity_1.BizEntity {
                 entity: entity.name
             };
         }
-        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend, item: this.item, itemx: this.itemX, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.buildSchema(res), amount: (_b = this.amount) === null || _b === void 0 ? void 0 : _b.buildSchema(res), price: (_c = this.price) === null || _c === void 0 ? void 0 : _c.buildSchema(res) });
+        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend, item: (_a = this.item) === null || _a === void 0 ? void 0 : _a.buildSchema(res), itemx: (_b = this.itemX) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
     }
     forEachBud(callback) {
         super.forEachBud(callback);
+        if (this.item !== undefined)
+            callback(this.item);
+        if (this.itemX !== undefined)
+            callback(this.itemX);
         if (this.value !== undefined)
             callback(this.value);
         if (this.price !== undefined)
             callback(this.price);
         if (this.amount !== undefined)
             callback(this.amount);
+    }
+    getBud(name) {
+        let bud = super.getBud(name);
+        if (bud !== undefined)
+            return bud;
+        if (this.value !== undefined) {
+            if (this.value.name === name)
+                return this.value;
+        }
+        if (this.price !== undefined) {
+            if (this.price.name === name)
+                return this.price;
+        }
+        if (this.amount !== undefined) {
+            if (this.amount.name === name)
+                return this.amount;
+        }
+        return undefined;
     }
     db(dbContext) {
         return new builder_2.BBizDetail(dbContext, this);
@@ -88,14 +111,27 @@ class BizPend extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.pend;
+        this.buds = [
+            new Bud_1.BizBudAtom('item', undefined),
+            new Bud_1.BizBudAtom('itemx', undefined),
+            new Bud_1.BizBudDec('value', undefined),
+            new Bud_1.BizBudDec('price', undefined),
+            new Bud_1.BizBudDec('amount', undefined),
+        ];
     }
-    // detail: BizDetail;
     parser(context) {
         return new parser_1.PBizPend(this, context);
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
         return Object.assign({}, ret);
+    }
+    getBud(name) {
+        let bud = super.getBud(name);
+        if (bud !== undefined)
+            return bud;
+        bud = this.buds.find(v => v.name === name);
+        return bud;
     }
 }
 exports.BizPend = BizPend;

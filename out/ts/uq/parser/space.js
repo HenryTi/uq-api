@@ -21,6 +21,7 @@ class Space {
     _setTransactionOff() { return false; }
     _getActionBase() { return undefined; }
     _getBizBase(bizName) { return undefined; }
+    _getBizEntity(name) { return undefined; }
     get groupType() { return il_1.GroupType.Single; }
     set groupType(value) { }
     get inLoop() {
@@ -135,6 +136,13 @@ class Space {
             return entity;
         if (this.outer !== undefined)
             return this.outer.getEntityTable(name);
+    }
+    getBizEntity(name) {
+        let bizEntity = this._getBizEntity(name);
+        if (bizEntity !== undefined)
+            return bizEntity;
+        if (this.outer !== undefined)
+            return this.outer.getBizEntity(name);
     }
     getTableByAlias(alias) {
         let table = this._getTableByAlias(alias);
