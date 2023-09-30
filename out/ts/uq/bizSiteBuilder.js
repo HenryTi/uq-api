@@ -15,6 +15,17 @@ class BizSiteBuilder {
         this.site = site;
         this.user = user;
     }
+    setEntityId(entityId) {
+        this.entityId = entityId;
+        let { name } = this.biz.latestBizArr[0];
+        let obj = this.objNames[name];
+        if (obj === undefined)
+            return true;
+        let { id } = obj;
+        if (id !== entityId)
+            return false;
+        return true;
+    }
     async loadObjects(objs, props) {
         for (let obj of objs) {
             const { id, phrase, caption } = obj;
@@ -40,7 +51,7 @@ class BizSiteBuilder {
         const memo = undefined;
         if (phrase === undefined)
             debugger;
-        let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject', this.site, this.user, phrase, caption, entity.typeNum, memo, source, undefined);
+        let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject', this.entityId, this.site, this.user, phrase, caption, entity.typeNum, memo, source, undefined);
         let obj = { id, phrase };
         entity.id = id;
         this.objIds[id] = obj;

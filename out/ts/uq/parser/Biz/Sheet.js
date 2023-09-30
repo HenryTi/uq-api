@@ -215,13 +215,16 @@ class PBizDetail extends Base_1.PBizEntity {
         else {
             this.ts.expect('atom', 'pick');
         }
-        let item = {
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        let exp;
+        let act;
+        return {
             caption,
             atom,
             pick,
+            exp,
+            act,
         };
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
-        return item;
     }
     parseValueBud(bud, budName) {
         if (bud !== undefined) {

@@ -283,8 +283,6 @@ class TokenStream {
                     this.advance();
                     this.token = token_1.Token.LBRACE;
                     break;
-                //if (this.cur != Char.LBrace) { this.token = Token.LBRACE; break; }
-                //this.advance(); this.ReadInline(); break;
                 case char_1.Char.RBrace:
                     this.token = token_1.Token.RBRACE;
                     this.advance();
@@ -306,8 +304,14 @@ class TokenStream {
                     this.advance();
                     break;
                 case char_1.Char.COLON:
-                    this.token = token_1.Token.COLON;
                     this.advance();
+                    if (this.cur === char_1.Char.EQU) {
+                        this.token = token_1.Token.COLONEQU;
+                        this.advance();
+                    }
+                    else {
+                        this.token = token_1.Token.COLON;
+                    }
                     break;
                 case char_1.Char.TOPANGLE:
                     this.token = token_1.Token.XOR;

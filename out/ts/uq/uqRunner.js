@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UqRunner = void 0;
-// import config from '../config';
-// import { UqBuildApi } from '../core';
-// import { CompileOptions } from '../compile';
 const il_1 = require("./il");
 const parser_1 = require("./parser");
 class UqRunner {
@@ -13,8 +10,8 @@ class UqRunner {
         this.ok = true;
         this.uq = new il_1.Uq();
     }
-    setLog(log) {
-        this.log = log;
+    setEntityId(entityId) {
+        this.entityId = entityId;
     }
     parse(input, fileName, isSys = false) {
         try {
@@ -33,7 +30,24 @@ class UqRunner {
     // 新传入的uq代码，保存已编译好的。后续操作，只处理最新的。
     // 老的uq代码，随后编译
     anchorLatest() {
-        this.uq.biz.anchorLatest();
+        const { biz } = this.uq;
+        biz.anchorLatest();
+        if (this.entityId !== undefined) {
+            const { length } = biz.latestBizArr;
+            switch (length) {
+                case 0:
+                    this.log('No entity');
+                    this.ok = false;
+                    return false;
+                case 1:
+                    return true;
+                default:
+                    this.log('Can not write multiple entity');
+                    this.ok = false;
+                    return false;
+            }
+        }
+        return true;
     }
     isLatest(phrase) {
         return this.uq.biz.isLatest(phrase);

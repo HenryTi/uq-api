@@ -1,17 +1,14 @@
-// import config from '../config';
-// import { UqBuildApi } from '../core';
-// import { CompileOptions } from '../compile';
 import { Entity, Uq } from './il';
 import { log } from './log';
 import { TokenStream, PContext, PSysContext, PEntity } from './parser';
-import { DbContext, BUq as BUq } from './builder';
-import { EntityRunner } from '../core';
+import { BUq as BUq } from './builder';
 
 export class UqRunner {
     private readonly compilerVersion: string;
     private log: log;
     private bUq: BUq;
     readonly uq: Uq;
+    private entityId: number;
     ok: boolean;
 
     constructor(compilerVersion: string, log: log) {
@@ -21,8 +18,8 @@ export class UqRunner {
         this.uq = new Uq();
     }
 
-    setLog(log: log) {
-        this.log = log;
+    setEntityId(entityId: number) {
+        this.entityId = entityId;
     }
 
     parse(input: string, fileName: string, isSys: boolean = false) {
@@ -42,8 +39,25 @@ export class UqRunner {
 
     // 新传入的uq代码，保存已编译好的。后续操作，只处理最新的。
     // 老的uq代码，随后编译
-    anchorLatest() {
-        this.uq.biz.anchorLatest();
+    anchorLatest(): boolean {
+        const { biz } = this.uq;
+        biz.anchorLatest();
+        if (this.entityId !== undefined) {
+            const { length } = biz.latestBizArr;
+            switch (length) {
+                case 0:
+                    this.log('No entity');
+                    this.ok = false;
+                    return false;
+                case 1:
+                    return true;
+                default:
+                    this.log('Can not write multiple entity');
+                    this.ok = false;
+                    return false;
+            }
+        }
+        return true;
     }
 
     isLatest(phrase: string): boolean {

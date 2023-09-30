@@ -3,8 +3,6 @@ import { Router, Request, Response } from 'express';
 import { RouterBuilder } from './routerBuilder';
 import { UqRunner } from '../uq';
 import { EntityRunner, Net } from '../core';
-import { Biz, BizAtom, BizEntity } from '../uq/il';
-import { BUq, DbContext } from '../uq/builder';
 import { BizSiteBuilder } from '../uq/bizSiteBuilder';
 
 const actionType = 'compile';
@@ -38,10 +36,18 @@ export function buildCompileRouter(router: Router, rb: RouterBuilder) {
 
     rb.entityPost(router, actionType, '/entity',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
-            const { id, code } = body;
-            const compile = new CompileEntity(runner, code, unit, user, id);
-            const ret = await compile.run();
-            return ret
+            try {
+                const { id, code } = body;
+                const compile = new CompileEntity(runner, code, unit, user, id);
+                const ret = await compile.run();
+                return ret;
+            }
+            catch (err) {
+                return {
+                    hasError: true,
+                    logs: [err.message],
+                }
+            }
         });
 
     rb.entityPost(router, actionType, '/biz',
@@ -58,7 +64,8 @@ abstract class Compile {
     readonly code: string;
     readonly site: number;
     readonly user: number;
-    abstract get override(): boolean;
+    readonly msgs: string[] = [];
+
     constructor(runner: EntityRunner, code: string, site: number, user: number) {
         this.runner = runner;
         this.code = code;
@@ -66,13 +73,13 @@ abstract class Compile {
         this.user = user;
     }
 
+    abstract get override(): boolean;
+    protected setUqRunnerEntityId(uqRunner: UqRunner): void { }
+    protected setBizSiteBuilderEntityId(bizSiteBuilder: BizSiteBuilder): boolean { return true; }
+
     async run() {
-        const msgs: string[] = [];
-        function log(msg: string) {
-            msgs.push(msg);
-            return true;
-        }
-        const uqRunner = new UqRunner(undefined, log);
+        const uqRunner = new UqRunner(undefined, this.log);
+        this.setUqRunnerEntityId(uqRunner);
         let [objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
         const { uq } = uqRunner;
         const { biz } = uq;
@@ -85,7 +92,14 @@ abstract class Compile {
             }
 
             uqRunner.parse(this.code, 'upload');
-            uqRunner.anchorLatest();
+            let isIdNewOk = uqRunner.anchorLatest();
+            let isIdNameOk = this.setBizSiteBuilderEntityId(bizSiteBuilder);
+            if (isIdNewOk === false || isIdNameOk === false) {
+                return {
+                    logs: this.msgs,
+                    hasError: false,
+                }
+            }
         }
         for (let obj of objs) {
             const { id, phrase, source } = obj;
@@ -100,18 +114,23 @@ abstract class Compile {
         uqRunner.scan();
         if (uqRunner.ok === false) {
             return {
-                logs: msgs,
+                logs: this.msgs,
                 hasError: true,
             }
         }
 
-        await bizSiteBuilder.build(log);
+        await bizSiteBuilder.build(this.log);
         let schemas = bizSiteBuilder.buildSchemas();
         return {
             schemas: jsonpack.pack(schemas.$biz),
-            logs: msgs,
+            logs: this.msgs,
             hasError: false,
         }
+    }
+
+    readonly log = (msg: string) => {
+        this.msgs.push(msg);
+        return true;
     }
 }
 
@@ -121,6 +140,14 @@ class CompileEntity extends Compile {
     constructor(runner: EntityRunner, code: string, site: number, user: number, id: number) {
         super(runner, code, site, user);
         this.id = id;
+    }
+
+    protected override setUqRunnerEntityId(uqRunner: UqRunner): void {
+        uqRunner.setEntityId(this.id);
+    }
+
+    protected override setBizSiteBuilderEntityId(bizSiteBuilder: BizSiteBuilder): boolean {
+        return bizSiteBuilder.setEntityId(this.id);
     }
 }
 

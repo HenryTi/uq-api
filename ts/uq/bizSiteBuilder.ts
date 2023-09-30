@@ -14,12 +14,23 @@ export class BizSiteBuilder {
     private readonly objNames: { [name: string]: any } = {};
     private readonly objIds: { [id: number]: any } = {};
     private readonly buds: { [phrase: string]: any } = {};
+    private entityId: number;
 
     constructor(biz: Biz, runner: EntityRunner, site: number, user: number) {
         this.biz = biz;
         this.runner = runner;
         this.site = site;
         this.user = user;
+    }
+
+    setEntityId(entityId: number): boolean {
+        this.entityId = entityId;
+        let { name } = this.biz.latestBizArr[0];
+        let obj = this.objNames[name];
+        if (obj === undefined) return true;
+        let { id } = obj;
+        if (id !== entityId) return false;
+        return true;
     }
 
     async loadObjects(objs: any, props: any) {
@@ -49,7 +60,7 @@ export class BizSiteBuilder {
         const memo = undefined;
         if (phrase === undefined) debugger;
         let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject'
-            , this.site, this.user, phrase, caption, entity.typeNum, memo, source
+            , this.entityId, this.site, this.user, phrase, caption, entity.typeNum, memo, source
             , undefined);
         let obj = { id, phrase };
         entity.id = id;
