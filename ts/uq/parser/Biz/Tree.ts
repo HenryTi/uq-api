@@ -3,6 +3,7 @@ import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
 export class PBizTree extends PBizEntity<BizTree> {
+    /*
     protected parseContent(): void {
         const keyColl = {
             prop: this.parseProp,
@@ -19,4 +20,9 @@ export class PBizTree extends PBizEntity<BizTree> {
             parse();
         }
     }
+    */
+    readonly keyColl = {
+        prop: this.parseProp,
+        // assign: this.parseAssign,
+    };
 }

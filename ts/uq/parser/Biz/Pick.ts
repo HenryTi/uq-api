@@ -7,6 +7,7 @@ export class PBizPick extends PBizEntity<BizPick> {
     private atoms: string[] = [];
     private specs: string[] = [];
 
+    /*
     protected parseContent(): void {
         const keyColl = {
             atom: this.parseAtom,
@@ -23,6 +24,7 @@ export class PBizPick extends PBizEntity<BizPick> {
             if (this.ts.token === Token.RBRACE) break;
         }
     }
+    */
 
     private parseArrayVar(arr: string[]) {
         if (this.ts.token === Token.LPARENTHESE) {
@@ -66,6 +68,11 @@ export class PBizPick extends PBizEntity<BizPick> {
     private parseSpec = () => {
         this.parseArrayVar(this.specs);
     }
+
+    readonly keyColl = {
+        atom: this.parseAtom,
+        spec: this.parseSpec,
+    };
 
     scan(space: Space): boolean {
         let ok = true;

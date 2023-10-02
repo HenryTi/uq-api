@@ -3,6 +3,8 @@ import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
 export class PBizOptions extends PBizEntity<BizOptions> {
+    readonly keyColl = {};
+
     protected override _parse(): void {
         let jName: string;
         const { token } = this.ts;

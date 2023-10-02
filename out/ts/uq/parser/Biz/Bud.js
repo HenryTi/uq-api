@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
+const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizBud extends Base_1.PBizBase {
@@ -90,6 +91,70 @@ class PBizBudAtom extends PBizBud {
     }
 }
 exports.PBizBudAtom = PBizBudAtom;
+class PBizBudPickable extends PBizBud {
+    _parse() {
+        if (this.ts.token === tokens_1.Token.VAR) {
+            if (this.ts.varBrace === false) {
+                switch (this.ts.lowerVar) {
+                    case 'pick':
+                        this.ts.readToken();
+                        this.pick = this.ts.passVar();
+                        return;
+                }
+            }
+        }
+        else {
+            let act;
+            switch (this.ts.token) {
+                case tokens_1.Token.EQU:
+                    act = il_1.BudValueAct.equ;
+                    break;
+                case tokens_1.Token.COLONEQU:
+                    act = il_1.BudValueAct.init;
+                    break;
+            }
+            if (act !== undefined) {
+                this.ts.readToken();
+                let value = new il_1.ValueExpression();
+                this.context.parseElement(value);
+                this.element.value = {
+                    exp: value,
+                    act,
+                };
+                return;
+            }
+        }
+        this.ts.expect('Atom', 'Pick', '=', ':=');
+    }
+    scan(space) {
+        let ok = super.scan(space);
+        if (this.pick !== undefined) {
+            let pick = this.getBizEntity(space, this.pick);
+            if (pick !== undefined) {
+                let { bizPhraseType } = pick;
+                if (bizPhraseType === il_1.BizPhraseType.pick || bizPhraseType === il_1.BizPhraseType.atom) {
+                    this.element.pick = pick.name;
+                    return ok;
+                }
+            }
+            ok = false;
+            this.log(`${this.pick} is not Pick`);
+            return ok;
+        }
+        else {
+            let { value } = this.element;
+            if (value !== undefined) {
+                if (value.exp.pelement.scan(space) === false) {
+                    ok = false;
+                }
+                return ok;
+            }
+            ok = false;
+            this.log('should be either Atom or Pick or = or :=');
+        }
+    }
+}
+exports.PBizBudPickable = PBizBudPickable;
 class PBizBudRadioOrCheck extends PBizBud {
     _parse() {
         if (this.ts.token !== tokens_1.Token.VAR) {

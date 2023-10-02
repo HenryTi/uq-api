@@ -3,6 +3,7 @@ import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
 export class PBizTie extends PBizEntity<BizTie> {
+    /*
     protected parseContent(): void {
         const keyColl = {
             prop: this.parseProp,
@@ -19,6 +20,11 @@ export class PBizTie extends PBizEntity<BizTie> {
             parse();
         }
     }
+    */
+    readonly keyColl = {
+        prop: this.parseProp,
+        // assign: this.parseAssign,
+    };
 
     // bud 有没有type。Tie里面的bud，不需要type，都是bigint
     protected override parseBud(name: string, caption: string): BizBud {

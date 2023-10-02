@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBud = exports.BudValueAct = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBud = exports.BudValueAct = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -31,6 +31,22 @@ class BizBud extends Base_1.BizBase {
     }
 }
 exports.BizBud = BizBud;
+class BizBudPickable extends BizBud {
+    constructor() {
+        super(...arguments);
+        this.dataType = Base_1.BudDataType.atom;
+        this.canIndex = false;
+    }
+    parser(context) {
+        return new parser_1.PBizBudPickable(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.pick = this.pick;
+        return ret;
+    }
+}
+exports.BizBudPickable = BizBudPickable;
 class BizBudNone extends BizBud {
     constructor() {
         super(...arguments);

@@ -10,6 +10,25 @@ class PBizSheet extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.details = [];
+        /*
+        protected parseContent(): void {
+            const keyColl = {
+                prop: this.parseProp,
+                main: this.parseMain,
+                detail: this.parseDetail,
+            };
+            const keys = Object.keys(keyColl);
+            for (; ;) {
+                if (this.ts.token === Token.RBRACE) break;
+                let parse = keyColl[this.ts.lowerVar];
+                if (this.ts.varBrace === true || parse === undefined) {
+                    this.ts.expect(...keys);
+                }
+                this.ts.readToken();
+                parse();
+            }
+        }
+        */
         this.parseMain = () => {
             if (this.main !== undefined) {
                 this.ts.error(`main can only be defined once in Biz Sheet`);
@@ -23,24 +42,11 @@ class PBizSheet extends Base_1.PBizEntity {
             this.details.push({ name, caption });
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
-    }
-    parseContent() {
-        const keyColl = {
+        this.keyColl = {
             prop: this.parseProp,
             main: this.parseMain,
             detail: this.parseDetail,
         };
-        const keys = Object.keys(keyColl);
-        for (;;) {
-            if (this.ts.token === tokens_1.Token.RBRACE)
-                break;
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-        }
     }
     scan(space) {
         let ok = true;
@@ -83,19 +89,54 @@ class PBizBin extends Base_1.PBizEntity {
             }
             this.pend = this.ts.passVar();
             this.pendCaption = this.ts.mayPassString();
+            this.ts.passToken(tokens_1.Token.LBRACE);
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RBRACE) {
+                    this.ts.readToken();
+                    break;
+                }
+                let key = this.ts.passKey();
+                if (key === 'search') {
+                    if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+                        this.pendSearch = [];
+                        for (;;) {
+                            let sKey = this.ts.passKey();
+                            this.pendSearch.push(sKey);
+                            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                                this.ts.readToken();
+                                break;
+                            }
+                            if (this.ts.token === tokens_1.Token.COMMA) {
+                                this.ts.readToken();
+                                continue;
+                            }
+                            this.ts.expectToken(tokens_1.Token.RPARENTHESE, tokens_1.Token.COMMA);
+                        }
+                    }
+                    else {
+                        let sKey = this.ts.passKey();
+                        this.pendSearch = [sKey];
+                    }
+                    this.ts.passToken(tokens_1.Token.SEMICOLON);
+                }
+                else {
+                    this.ts.expect('search');
+                    break;
+                }
+            }
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
         this.parseI = () => {
             if (this.element.i !== undefined) {
                 this.ts.error(`ITEM can only be defined once in Biz Detail`);
             }
-            this.element.i = this.parseItemOut('i');
+            this.element.i = this.parseBudPickable('i');
         };
         this.parseX = () => {
             if (this.element.x !== undefined) {
                 this.ts.error(`ITEMX can only be defined once in Biz Detail`);
             }
-            this.element.x = this.parseItemOut('x');
+            this.element.x = this.parseBudPickable('x');
         };
         this.parseValue = () => {
             this.element.value = this.parseValueBud(this.element.value, 'value');
@@ -116,9 +157,7 @@ class PBizBin extends Base_1.PBizEntity {
             this.context.parseElement(bizBinAct);
             this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
         };
-    }
-    parseContent() {
-        const keyColl = {
+        this.keyColl = {
             prop: this.parseProp,
             i: this.parseI,
             x: this.parseX,
@@ -128,53 +167,47 @@ class PBizBin extends Base_1.PBizEntity {
             act: this.parseAct,
             pend: this.parsePend,
         };
-        const keys = Object.keys(keyColl);
-        for (;;) {
-            if (this.ts.token === tokens_1.Token.RBRACE)
-                break;
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-        }
     }
-    parseItemOut(itemName) {
+    parseBudPickable(itemName) {
         let caption = this.ts.mayPassString();
-        let exp;
-        let act;
-        let atom;
-        let pick;
-        if (this.ts.token === tokens_1.Token.EQU) {
+        let bud = new il_1.BizBudPickable(itemName, caption);
+        this.context.parseElement(bud);
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        return bud;
+        /*
+        let exp: ValueExpression;
+        let act: BudValueAct;
+        let atom: string;
+        let pick: string;
+        if (this.ts.token === Token.EQU) {
             this.ts.readToken();
-            act = il_1.BudValueAct.equ;
-            exp = new il_1.ValueExpression();
+            act = BudValueAct.equ;
+            exp = new ValueExpression();
             this.context.parseElement(exp);
         }
-        else if (this.ts.token === tokens_1.Token.COLONEQU) {
+        else if (this.ts.token === Token.COLONEQU) {
             this.ts.readToken();
-            act = il_1.BudValueAct.equ;
-            exp = new il_1.ValueExpression();
+            act = BudValueAct.equ;
+            exp = new ValueExpression();
             this.context.parseElement(exp);
         }
         else if (this.ts.isKeyword('atom') === true) {
             this.ts.readToken();
-            this.ts.assertToken(tokens_1.Token.VAR);
+            this.ts.assertToken(Token.VAR);
             atom = this.ts.lowerVar;
             this.ts.readToken();
         }
         else if (this.ts.isKeyword('pick') === true) {
             this.ts.readToken();
-            this.ts.assertToken(tokens_1.Token.VAR);
+            this.ts.assertToken(Token.VAR);
             pick = this.ts.lowerVar;
             this.ts.readToken();
         }
         else {
             this.ts.expect('atom', 'pick');
         }
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
-        let bud = new il_1.BizBudAtom(itemName, caption);
+        this.ts.passToken(Token.SEMICOLON);
+        let bud = new BizBudPickable(itemName, caption);
         if (exp !== undefined) {
             bud.value = {
                 exp,
@@ -182,6 +215,7 @@ class PBizBin extends Base_1.PBizEntity {
             };
         }
         return bud;
+        */
     }
     parseValueBud(bud, budName) {
         if (bud !== undefined) {
@@ -204,9 +238,23 @@ class PBizBin extends Base_1.PBizEntity {
                 ok = false;
             }
             else {
+                if (this.pendSearch === undefined || this.pendSearch.length === 0) {
+                    this.log(`Search keys must be defined`);
+                    ok = false;
+                }
+                else {
+                    let { predefinedId } = il_1.BizPend;
+                    for (let i of this.pendSearch) {
+                        if (predefinedId.includes(i) === false) {
+                            this.log(`Pend ${pend.jName} has not ${i}`);
+                            ok = false;
+                        }
+                    }
+                }
                 this.element.pend = {
                     caption: this.pendCaption,
                     entity: pend,
+                    search: this.pendSearch,
                 };
             }
         }
@@ -267,16 +315,48 @@ class PBizBin extends Base_1.PBizEntity {
 }
 exports.PBizBin = PBizBin;
 class PBizPend extends Base_1.PBizEntity {
-    parseContent() {
-        for (;;) {
-            if (this.ts.token === tokens_1.Token.RBRACE)
-                break;
-            this.ts.assertToken(tokens_1.Token.VAR);
-            if (this.ts.isKeyword('prop') === true) {
+    constructor() {
+        /*
+        protected parseContent(): void {
+            const keyColl = {
+                prop: this.parseProp,
+            };
+            const keys = Object.keys(keyColl);
+            for (; ;) {
+                if (this.ts.token === Token.RBRACE) break;
+                let parse = keyColl[this.ts.lowerVar];
+                if (this.ts.varBrace === true || parse === undefined) {
+                    this.ts.expect(...keys);
+                }
                 this.ts.readToken();
+                parse();
             }
-            this.parseProp();
         }
+        */
+        super(...arguments);
+        this.keyColl = (() => {
+            let ret = {
+                prop: this.parseProp,
+            };
+            const setRet = (n) => {
+                ret[n] = () => this.parsePredefined(n);
+            };
+            il_1.BizPend.predefinedId.forEach(setRet);
+            il_1.BizPend.predefinedValue.forEach(setRet);
+            return ret;
+        })();
+    }
+    parsePredefined(name) {
+        let caption = this.ts.mayPassString();
+        let bud = this.element.predefinedBuds[name];
+        if (bud === undefined)
+            debugger;
+        // 有caption值，才会显示
+        bud.caption = caption !== null && caption !== void 0 ? caption : name;
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+    }
+    parseContent() {
+        super.parseContent();
     }
     scan(space) {
         let ok = true;

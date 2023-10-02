@@ -34,6 +34,13 @@ class BizSheet extends Entity_1.BizEntity {
     }
 }
 exports.BizSheet = BizSheet;
+/*
+export interface Pickable {
+    caption: string;
+    pick: string;           // Atom or Pick
+    phrase: string;
+}
+*/
 class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
@@ -108,7 +115,14 @@ class BizPend extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return Object.assign({}, ret);
+        for (let i in this.predefinedBuds) {
+            let bud = this.predefinedBuds[i];
+            let { caption } = bud;
+            if (caption === undefined)
+                continue;
+            ret[i] = bud.buildSchema(res);
+        }
+        return ret;
     }
     getBud(name) {
         let bud = super.getBud(name);

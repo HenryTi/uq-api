@@ -6,7 +6,7 @@ import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
 import { BizBase, BizPhraseType } from "./Base";
 import { Biz } from "./Biz";
-import { BizBud, BizBudAtom, BizBudDec, BudValue } from "./Bud";
+import { BizBud, BizBudAtom, BizBudDec, BizBudPickable, BudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
@@ -40,17 +40,24 @@ export class BizSheet extends BizEntity {
     }
 }
 
-export interface RefEntity<T extends BizEntity> {
+export interface PropPend {
     caption: string;
-    entity: T;
+    entity: BizPend;
+    search: string[];
 }
-
+/*
+export interface Pickable {
+    caption: string;
+    pick: string;           // Atom or Pick
+    phrase: string;
+}
+*/
 export class BizBin extends BizEntity {
     readonly bizPhraseType = BizPhraseType.bin;
     act: BizBinAct;
-    i: BizBud; // DetailItem;
-    x: BizBud; // DetailItem;
-    pend: RefEntity<BizPend>;
+    i: BizBudPickable;
+    x: BizBudPickable;
+    pend: PropPend;
     value: BizBud;
     price: BizBud;
     amount: BizBud;
@@ -129,10 +136,13 @@ export class BizPend extends BizEntity {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            // detail: this.detail.name,
+        for (let i in this.predefinedBuds) {
+            let bud = this.predefinedBuds[i];
+            let { caption } = bud;
+            if (caption === undefined) continue;
+            ret[i] = bud.buildSchema(res);
         }
+        return ret;
     }
 
     override getBud(name: string): BizBud {

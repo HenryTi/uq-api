@@ -122,6 +122,27 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.element.source = entityType + ' ' + source;
     }
 
+    abstract get keyColl(): { [key: string]: () => void };
+    protected parseContent(): void {
+        const keyColl = this.keyColl;
+        /*
+        {
+            prop: this.parseProp,
+        };
+        */
+        const keys = Object.keys(keyColl);
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE) break;
+            let parse = keyColl[this.ts.lowerVar];
+            if (this.ts.varBrace === true || parse === undefined) {
+                this.ts.expect(...keys);
+            }
+            this.ts.readToken();
+            this.ts.prevToken
+            parse();
+        }
+    }
+
     protected parseSubItem(): BizBud {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
@@ -219,8 +240,22 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected parseProp = () => {
-        let prop = this.parseSubItem();
-        this.element.props.set(prop.name, prop);
+        if (this.ts.token === Token.LBRACE) {
+            this.ts.readToken();
+            for (; ;) {
+                let prop = this.parseSubItem();
+                this.element.props.set(prop.name, prop);
+                if (this.ts.token === Token.RBRACE as any) {
+                    this.ts.readToken();
+                    this.ts.mayPassToken(Token.SEMICOLON);
+                    break;
+                }
+            }
+        }
+        else {
+            let prop = this.parseSubItem();
+            this.element.props.set(prop.name, prop);
+        }
     }
 
     protected scanBud(space: Space, bud: BizBud): boolean {

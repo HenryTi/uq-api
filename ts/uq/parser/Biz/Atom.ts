@@ -64,7 +64,7 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
             this.ts.readToken();
         }
     }
-
+    /*    
     protected parseContent(): void {
         const keyColl = {
             uom: this.parseUom,
@@ -82,7 +82,7 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
             if (this.ts.token === Token.RBRACE) break;
         }
     }
-
+    */
     private parseEx = () => {
         this.ts.readToken();
         let caption: string = this.ts.mayPassString();
@@ -98,6 +98,12 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
         this.element.uom = true;
         this.ts.passToken(Token.SEMICOLON);
     }
+
+    readonly keyColl = {
+        uom: this.parseUom,
+        prop: this.parseProp,
+        ex: this.parseEx,
+    };
 
     scan(space: Space): boolean {
         let ok = true;
@@ -126,7 +132,7 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
     }
 }
 
-class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomID<T> {
+abstract class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomID<T> {
     protected baseName: string;
     protected parseIxBase = () => {
         if (this.ts.isKeyword('base') === false) {
@@ -233,6 +239,7 @@ class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomID<T> {
 }
 
 export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
+    /*
     protected parseContent(): void {
         const keyColl = {
             ix: this.parseIxBase,
@@ -251,16 +258,38 @@ export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
             if (this.ts.token === Token.RBRACE) break;
         }
     }
-
+    */
     private parseKey = () => {
-        this.ts.assertToken(Token.VAR);
-        let name = this.ts.lowerVar;
-        this.ts.readToken();
-        let caption: string = this.ts.mayPassString();
-        let bizBud = this.parseBud(name, caption);
-        this.element.keys.push(bizBud);
-        this.ts.passToken(Token.SEMICOLON);
+        const parseKey = () => {
+            this.ts.assertToken(Token.VAR);
+            let name = this.ts.lowerVar;
+            this.ts.readToken();
+            let caption: string = this.ts.mayPassString();
+            let bizBud = this.parseBud(name, caption);
+            this.element.keys.push(bizBud);
+            this.ts.passToken(Token.SEMICOLON);
+        }
+        if (this.ts.token === Token.LBRACE) {
+            this.ts.readToken();
+            for (; ;) {
+                parseKey();
+                if (this.ts.token === Token.RBRACE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+        }
+        else {
+            parseKey();
+        }
     }
+
+    readonly keyColl = {
+        ix: this.parseIxBase,
+        base: this.parseBase,
+        prop: this.parseProp,
+        key: this.parseKey,
+    };
 
     scan(space: Space): boolean {
         let ok = true;

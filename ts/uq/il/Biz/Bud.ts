@@ -1,7 +1,7 @@
 import {
     PBizBudAtom, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudRadio, PContext, PElement
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement
 } from "../../parser";
 import { IElement } from "../element";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
@@ -44,6 +44,20 @@ export abstract class BizBud extends BizBase {
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         if (this.name === 'item') debugger;
         super.buildPhrases(phrases, prefix);
+    }
+}
+
+export class BizBudPickable extends BizBud {
+    readonly dataType = BudDataType.atom;
+    readonly canIndex = false;
+    pick: string;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudPickable(this, context);
+    }
+    buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        ret.pick = this.pick;
+        return ret;
     }
 }
 

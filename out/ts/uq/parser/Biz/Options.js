@@ -5,6 +5,10 @@ const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizOptions extends Base_1.PBizEntity {
+    constructor() {
+        super(...arguments);
+        this.keyColl = {};
+    }
     _parse() {
         let jName;
         const { token } = this.ts;

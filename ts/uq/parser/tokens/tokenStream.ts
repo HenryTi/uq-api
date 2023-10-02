@@ -26,6 +26,7 @@ export class TokenStream {
     startLine: number;
     startAt: number;
     prevToken: Token;
+    prevLowerVar: string;
     memo: string;
 
     file: string;
@@ -223,6 +224,7 @@ export class TokenStream {
         this.lastP = this.p;
         this.prevLine = this.startLine;
         this.prevAt = this.startAt;
+        this.prevLowerVar = this.lowerVar;
         this.startLine = this.line;
         this.startAt = this.at;
         this._var = undefined;

@@ -15,24 +15,29 @@ class PBizPick extends Base_1.PBizEntity {
         this.parseSpec = () => {
             this.parseArrayVar(this.specs);
         };
+        this.keyColl = {
+            atom: this.parseAtom,
+            spec: this.parseSpec,
+        };
     }
-    parseContent() {
+    /*
+    protected parseContent(): void {
         const keyColl = {
             atom: this.parseAtom,
             spec: this.parseSpec,
         };
         const keys = Object.keys(keyColl);
-        for (;;) {
+        for (; ;) {
             let parse = keyColl[this.ts.lowerVar];
             if (this.ts.varBrace === true || parse === undefined) {
                 this.ts.expect(...keys);
             }
             this.ts.readToken();
             parse();
-            if (this.ts.token === tokens_1.Token.RBRACE)
-                break;
+            if (this.ts.token === Token.RBRACE) break;
         }
     }
+    */
     parseArrayVar(arr) {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();

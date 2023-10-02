@@ -110,14 +110,48 @@ class PBizEntity extends PBizBase {
     constructor() {
         super(...arguments);
         this.parseProp = () => {
-            let prop = this.parseSubItem();
-            this.element.props.set(prop.name, prop);
+            if (this.ts.token === tokens_1.Token.LBRACE) {
+                this.ts.readToken();
+                for (;;) {
+                    let prop = this.parseSubItem();
+                    this.element.props.set(prop.name, prop);
+                    if (this.ts.token === tokens_1.Token.RBRACE) {
+                        this.ts.readToken();
+                        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+                        break;
+                    }
+                }
+            }
+            else {
+                let prop = this.parseSubItem();
+                this.element.props.set(prop.name, prop);
+            }
         };
     }
     saveSource() {
         let entityType = this.element.type.toUpperCase();
         let source = this.getSource();
         this.element.source = entityType + ' ' + source;
+    }
+    parseContent() {
+        const keyColl = this.keyColl;
+        /*
+        {
+            prop: this.parseProp,
+        };
+        */
+        const keys = Object.keys(keyColl);
+        for (;;) {
+            if (this.ts.token === tokens_1.Token.RBRACE)
+                break;
+            let parse = keyColl[this.ts.lowerVar];
+            if (this.ts.varBrace === true || parse === undefined) {
+                this.ts.expect(...keys);
+            }
+            this.ts.readToken();
+            this.ts.prevToken;
+            parse();
+        }
     }
     parseSubItem() {
         this.ts.assertToken(tokens_1.Token.VAR);

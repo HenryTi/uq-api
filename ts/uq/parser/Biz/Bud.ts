@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudIntOf
+    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -93,6 +93,73 @@ export class PBizBudAtom extends PBizBud<BizBudAtom> {
             }
         }
         return ok;
+    }
+}
+
+export class PBizBudPickable extends PBizBud<BizBudPickable> {
+    // private atom: string;
+    private pick: string;
+    protected _parse(): void {
+        if (this.ts.token === Token.VAR) {
+            if (this.ts.varBrace === false) {
+                switch (this.ts.lowerVar) {
+                    case 'pick':
+                        this.ts.readToken();
+                        this.pick = this.ts.passVar();
+                        return;
+                }
+            }
+        }
+        else {
+            let act: BudValueAct;
+            switch (this.ts.token) {
+                case Token.EQU:
+                    act = BudValueAct.equ;
+                    break;
+                case Token.COLONEQU:
+                    act = BudValueAct.init;
+                    break;
+            }
+            if (act !== undefined) {
+                this.ts.readToken();
+                let value = new ValueExpression();
+                this.context.parseElement(value);
+                this.element.value = {
+                    exp: value,
+                    act,
+                };
+                return;
+            }
+        }
+        this.ts.expect('Atom', 'Pick', '=', ':=');
+    }
+
+    scan(space: Space): boolean {
+        let ok = super.scan(space);
+        if (this.pick !== undefined) {
+            let pick = this.getBizEntity(space, this.pick);
+            if (pick !== undefined) {
+                let { bizPhraseType } = pick;
+                if (bizPhraseType === BizPhraseType.pick || bizPhraseType === BizPhraseType.atom) {
+                    this.element.pick = pick.name;
+                    return ok;
+                }
+            }
+            ok = false;
+            this.log(`${this.pick} is not Pick`);
+            return ok;
+        }
+        else {
+            let { value } = this.element;
+            if (value !== undefined) {
+                if (value.exp.pelement.scan(space) === false) {
+                    ok = false;
+                }
+                return ok;
+            }
+            ok = false;
+            this.log('should be either Atom or Pick or = or :=');
+        }
     }
 }
 
