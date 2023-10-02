@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizDetailAct = exports.BizPend = exports.BizDetail = exports.BizMain = exports.BizSheet = void 0;
+exports.BizBinAct = exports.BizPend = exports.BizBin = exports.BizSheet = void 0;
 const builder_1 = require("../../builder");
 const builder_2 = require("../../builder");
 const parser_1 = require("../../parser");
@@ -34,29 +34,13 @@ class BizSheet extends Entity_1.BizEntity {
     }
 }
 exports.BizSheet = BizSheet;
-class BizMain extends Entity_1.BizEntity {
+class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.main;
+        this.bizPhraseType = Base_1.BizPhraseType.bin;
     }
     parser(context) {
-        return new parser_1.PBizMain(this, context);
-    }
-    buildSchema(res) {
-        var _a;
-        let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { target: (_a = this.target) === null || _a === void 0 ? void 0 : _a.buildSchema(res) });
-    }
-}
-exports.BizMain = BizMain;
-class BizDetail extends Entity_1.BizEntity {
-    constructor() {
-        super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.detail;
-        this.acts = [];
-    }
-    parser(context) {
-        return new parser_1.PBizDetail(this, context);
+        return new parser_1.PBizBin(this, context);
     }
     buildSchema(res) {
         var _a, _b, _c, _d, _e;
@@ -69,14 +53,14 @@ class BizDetail extends Entity_1.BizEntity {
                 entity: entity.name
             };
         }
-        return Object.assign(Object.assign({}, ret), { main: this.main.name, pend, item: (_a = this.item) === null || _a === void 0 ? void 0 : _a.buildSchema(res), itemx: (_b = this.itemX) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
+        return Object.assign(Object.assign({}, ret), { pend, i: (_a = this.i) === null || _a === void 0 ? void 0 : _a.buildSchema(res), x: (_b = this.x) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
     }
     forEachBud(callback) {
         super.forEachBud(callback);
-        if (this.item !== undefined)
-            callback(this.item);
-        if (this.itemX !== undefined)
-            callback(this.itemX);
+        if (this.i !== undefined)
+            callback(this.i);
+        if (this.x !== undefined)
+            callback(this.x);
         if (this.value !== undefined)
             callback(this.value);
         if (this.price !== undefined)
@@ -103,21 +87,21 @@ class BizDetail extends Entity_1.BizEntity {
         return undefined;
     }
     db(dbContext) {
-        return new builder_2.BBizDetail(dbContext, this);
+        return new builder_2.BBizBin(dbContext, this);
     }
 }
-exports.BizDetail = BizDetail;
+exports.BizBin = BizBin;
 class BizPend extends Entity_1.BizEntity {
-    constructor() {
-        super(...arguments);
+    constructor(biz) {
+        super(biz);
         this.bizPhraseType = Base_1.BizPhraseType.pend;
-        this.buds = [
-            new Bud_1.BizBudAtom('item', undefined),
-            new Bud_1.BizBudAtom('itemx', undefined),
-            new Bud_1.BizBudDec('value', undefined),
-            new Bud_1.BizBudDec('price', undefined),
-            new Bud_1.BizBudDec('amount', undefined),
-        ];
+        this.predefinedBuds = {};
+        for (let n of BizPend.predefinedId) {
+            this.predefinedBuds[n] = new Bud_1.BizBudAtom(n, undefined);
+        }
+        for (let n of BizPend.predefinedValue) {
+            this.predefinedBuds[n] = new Bud_1.BizBudDec(n, undefined);
+        }
     }
     parser(context) {
         return new parser_1.PBizPend(this, context);
@@ -128,14 +112,16 @@ class BizPend extends Entity_1.BizEntity {
     }
     getBud(name) {
         let bud = super.getBud(name);
-        if (bud !== undefined)
-            return bud;
-        bud = this.buds.find(v => v.name === name);
+        if (bud === undefined) {
+            bud = this.predefinedBuds[name];
+        }
         return bud;
     }
 }
+BizPend.predefinedId = ['i', 'x', 'si', 'sx', 's'];
+BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 exports.BizPend = BizPend;
-class BizDetailAct extends Base_1.BizBase {
+class BizBinAct extends Base_1.BizBase {
     // fromPend: BizPend;
     constructor(bizDetail) {
         super();
@@ -162,5 +148,5 @@ class BizDetailAct extends Base_1.BizBase {
             detail: this.bizDetail.name });
     }
 }
-exports.BizDetailAct = BizDetailAct;
+exports.BizBinAct = BizBinAct;
 //# sourceMappingURL=Sheet.js.map

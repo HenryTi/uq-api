@@ -29,7 +29,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         }
     }
     buildDetail(statements, detail, loopNo) {
-        const { name, id: entityId, acts } = detail;
+        const { name, id: entityId, act } = detail;
         const { factory, userParam } = this.context;
         const memo = factory.createMemo();
         statements.push(memo);
@@ -86,7 +86,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const exit = factory.createBreak();
         iffExit.then(exit);
         exit.no = loopNo;
-        for (let act of acts) {
+        if (act !== undefined) {
             let sqls = new bstatement_1.Sqls(this.context, loop.statements.statements);
             let { statements } = act.statement;
             sqls.head(statements);

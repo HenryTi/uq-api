@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizDetailActSubTab = exports.BizDetailActSubPend = exports.BizDetailActSubStatement = exports.BizDetailActStatement = void 0;
+exports.BizDetailActTitle = exports.BizDetailActSubPend = exports.BizDetailActSubStatement = exports.BizDetailActStatement = void 0;
 const parser = require("../../parser");
 const statement_1 = require("./statement");
 class BizDetailActStatement extends statement_1.Statement {
@@ -32,16 +32,16 @@ class BizDetailActSubPend extends BizDetailActSubStatement {
     db(db) { return db.bizDetailActSubPend(this); }
 }
 exports.BizDetailActSubPend = BizDetailActSubPend;
-class BizDetailActSubTab extends BizDetailActSubStatement {
+class BizDetailActTitle extends BizDetailActSubStatement {
     constructor(bizStatement) {
         super(bizStatement);
         this.bizStatement = bizStatement;
     }
-    get type() { return 'bizbud'; }
+    get type() { return 'biztitle'; }
     parser(context) {
-        return new parser.PBizDetailActSubTab(this, context);
+        return new parser.PBizDetailActTitle(this, context);
     }
     db(db) { return db.bizDetailActSubSubject(this); }
 }
-exports.BizDetailActSubTab = BizDetailActSubTab;
+exports.BizDetailActTitle = BizDetailActTitle;
 //# sourceMappingURL=biz.js.map

@@ -6,7 +6,7 @@ const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const entity_1 = require("../entity/entity");
-const BizDetail_1 = require("./BizDetail");
+const BizBin_1 = require("./BizBin");
 class BBiz extends entity_1.BEntity {
     constructor(context, entity) {
         super(context, entity);
@@ -20,7 +20,7 @@ class BBiz extends entity_1.BEntity {
                     break;
                 */
                 case 'detail':
-                    let bBizDetail = new BizDetail_1.BBizDetail(this.context, value);
+                    let bBizDetail = new BizBin_1.BBizBin(this.context, value);
                     this.bDetails.push(bBizDetail);
                     break;
             }

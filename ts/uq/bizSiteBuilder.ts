@@ -110,12 +110,11 @@ export class BizSiteBuilder {
     }
 
     private async saveBizEntityBuds(entity: BizEntity) {
-        let { id } = this.objNames[entity.phrase];
+        // let { id } = this.objNames[entity.phrase];
         let promises: Promise<any>[] = [];
         entity.forEachBud(bud => {
             promises.push(this.saveBud(entity, bud));
         })
-        // let buds = entity.getAllBuds();
         await Promise.all(promises);
     };
 

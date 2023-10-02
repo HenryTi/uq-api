@@ -42,30 +42,9 @@ export abstract class BizBud extends BizBase {
     }
 
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
+        if (this.name === 'item') debugger;
         super.buildPhrases(phrases, prefix);
-        /*
-        if (this.hasIndex === true) {
-            let phrase = this.phrase + '.$index';
-            phrases.push([phrase, '', '', '0']);
-        }
-        */
     }
-    /*
-    toIBud(): IBud {
-        return {
-            id: this.id,
-            phrase: this.phrase,
-            caption: this.caption,
-            memo: this.memo,
-            dataType: this.dataType,
-            objName: this.objName,
-            typeNum: this.typeNum,
-            optionsItemType: this.optionsItemType,
-            value: this.valueString,
-            flag: this.flag,
-        };
-    }
-    */
 }
 
 export class BizBudNone extends BizBud {

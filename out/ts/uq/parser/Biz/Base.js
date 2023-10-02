@@ -98,7 +98,7 @@ class PBizBase extends element_1.PElement {
     }
 }
 exports.PBizBase = PBizBase;
-const names = ['id', 'ix', 'idx', 'item', 'base', 'no', 'value', 'v1', 'v2', 'v3', 'operator'];
+const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
 const invalidPropNames = (function () {
     let ret = {};
     for (let v of names) {
@@ -214,9 +214,17 @@ class PBizEntity extends PBizBase {
         return bizBud;
     }
     scanBud(space, bud) {
-        let { pelement } = bud;
-        if (pelement === undefined)
+        let { pelement, value } = bud;
+        if (pelement === undefined) {
+            if (value !== undefined) {
+                const { exp } = value;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(space) === false)
+                        return false;
+                }
+            }
             return true;
+        }
         if (pelement.scan(space) === false)
             return false;
         return true;

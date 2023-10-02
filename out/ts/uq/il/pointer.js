@@ -95,7 +95,6 @@ class BizEntityPointer extends Pointer {
     }
     to(stack, v) {
         stack.var(this.entity.name); //, this.bud.name);
-        debugger;
     }
 }
 exports.BizEntityPointer = BizEntityPointer;

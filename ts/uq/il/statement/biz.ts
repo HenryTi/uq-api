@@ -2,14 +2,14 @@ import { BStatement } from '../../builder';
 import * as parser from '../../parser';
 import { Builder } from "../builder";
 import { IElement } from '../element';
-import { BizBud, BizDetailAct, BizEntity, BizPend } from '../Biz';
+import { BizBud, BizBinAct, BizEntity, BizPend } from '../Biz';
 import { ValueExpression } from '../expression';
 import { Statement } from "./statement";
 import { SetEqu } from '../tool';
 
 export class BizDetailActStatement extends Statement {
-    readonly bizDetailAct: BizDetailAct;
-    constructor(parent: Statement, bizDetailAct: BizDetailAct) {
+    readonly bizDetailAct: BizBinAct;
+    constructor(parent: Statement, bizDetailAct: BizBinAct) {
         super(parent);
         this.bizDetailAct = bizDetailAct;
     }
@@ -32,8 +32,9 @@ export abstract class BizDetailActSubStatement extends Statement {
 export class BizDetailActSubPend extends BizDetailActSubStatement {
     readonly bizStatement: BizDetailActStatement;
     pend: BizPend;
-    setEqu: SetEqu;
-    val: ValueExpression;
+    setEqu: SetEqu;             // 仅用于 Pend -= val;
+    val: ValueExpression;       // 仅用于 Pend -= val;
+    sets: { [v: string]: ValueExpression };
 
     constructor(bizStatement: BizDetailActStatement) {
         super(bizStatement);
@@ -46,7 +47,7 @@ export class BizDetailActSubPend extends BizDetailActSubStatement {
     db(db: Builder): BStatement { return db.bizDetailActSubPend(this); }
 }
 
-export class BizDetailActSubTab extends BizDetailActSubStatement {
+export class BizDetailActTitle extends BizDetailActSubStatement {
     readonly bizStatement: BizDetailActStatement;
     entity: BizEntity;
     bud: BizBud;
@@ -58,9 +59,9 @@ export class BizDetailActSubTab extends BizDetailActSubStatement {
         super(bizStatement);
         this.bizStatement = bizStatement;
     }
-    get type(): string { return 'bizbud'; }
+    get type(): string { return 'biztitle'; }
     parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizDetailActSubTab(this, context);
+        return new parser.PBizDetailActTitle(this, context);
     }
     db(db: Builder): BStatement { return db.bizDetailActSubSubject(this); }
 }

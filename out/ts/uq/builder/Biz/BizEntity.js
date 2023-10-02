@@ -37,7 +37,7 @@ class BBizEntity {
     stringify(value) {
         const exp = this.context.convertExp(value);
         if (exp === undefined)
-            debugger;
+            return;
         let sb = this.context.createClientBuilder();
         exp.to(sb);
         const { sql } = sb;

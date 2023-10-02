@@ -7,8 +7,7 @@ export enum BizPhraseType {
     bud = 13,
 
     sheet = 101,
-    main = 102,
-    detail = 103,
+    bin = 102,
     pend = 104,
     detailAct = 111,
     with = 151,

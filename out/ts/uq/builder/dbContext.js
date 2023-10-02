@@ -306,7 +306,7 @@ class DbContext {
     withTruncate(v) { return new stat.BWithTruncate(this, v); }
     bizDetailActStatement(v) { return new stat.BBizDetailActStatement(this, v); }
     bizDetailActSubPend(v) { return new stat.BBizDetailActSubPend(this, v); }
-    bizDetailActSubSubject(v) { return new stat.BBizDetailActSubBud(this, v); }
+    bizDetailActSubSubject(v) { return new stat.BBizDetailActTitle(this, v); }
     value(v) { return new stat.BValueStatement(this, v); }
     settingStatement(v) { return new stat.BSettingStatement(this, v); }
     ifStatement(v) { return new stat.BIfStatement(this, v); }

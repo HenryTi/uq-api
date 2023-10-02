@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizDetailActSubTab = exports.PBizDetailActSubPend = exports.PBizDetailActStatement = void 0;
+exports.PBizDetailActTitle = exports.PBizDetailActSubPend = exports.PBizDetailActStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
@@ -10,8 +10,9 @@ class PBizDetailActStatement extends statement_1.PStatement {
         super(bizStatement, context);
         this.bizSubs = {
             pend: il_1.BizDetailActSubPend,
-            bud: il_1.BizDetailActSubTab,
-            tab: il_1.BizDetailActSubTab,
+            // bud: BizDetailActSubTab,
+            //tab: BizDetailActSubTab,
+            title: il_1.BizDetailActTitle,
         };
         this.bizStatement = bizStatement;
     }
@@ -40,8 +41,24 @@ class PBizDetailActSubPend extends element_1.PElement {
         let setEqu;
         if (this.ts.token === tokens_1.Token.VAR) {
             this.pend = this.ts.passVar();
-            this.ts.passToken(tokens_1.Token.EQU);
-            setEqu = il_1.SetEqu.equ;
+            let sets = this.element.sets = {};
+            this.ts.passKey('set');
+            for (;;) {
+                let v = this.ts.passVar();
+                this.ts.passToken(tokens_1.Token.EQU);
+                let exp = new il_1.ValueExpression();
+                this.context.parseElement(exp);
+                sets[v] = exp;
+                let { token } = this.ts;
+                if (token === tokens_1.Token.COMMA) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (token === tokens_1.Token.SEMICOLON) {
+                    break;
+                }
+                this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.SEMICOLON);
+            }
         }
         else {
             switch (this.ts.token) {
@@ -59,9 +76,9 @@ class PBizDetailActSubPend extends element_1.PElement {
                     break;
             }
             this.ts.readToken();
+            this.element.setEqu = setEqu;
+            this.element.val = this.context.parse(il_1.ValueExpression);
         }
-        this.element.setEqu = setEqu;
-        this.element.val = this.context.parse(il_1.ValueExpression);
     }
     getPend(space, pendName) {
         let pend = space.uq.biz.bizEntities.get(pendName);
@@ -77,7 +94,7 @@ class PBizDetailActSubPend extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        let { val, bizStatement: { bizDetailAct } } = this.element;
+        let { val, sets, bizStatement: { bizDetailAct } } = this.element;
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
             if (pend === undefined) {
@@ -85,6 +102,17 @@ class PBizDetailActSubPend extends element_1.PElement {
             }
             else {
                 this.element.pend = pend;
+                for (let i in sets) {
+                    let bud = pend.getBud(i);
+                    if (bud === undefined) {
+                        ok = false;
+                        this.log(`There is no ${i.toUpperCase()} in Pend ${pend.jName}`);
+                    }
+                    let exp = sets[i];
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
             }
         }
         else {
@@ -93,16 +121,16 @@ class PBizDetailActSubPend extends element_1.PElement {
                 this.log(`Biz Pend = can not be used here when ${bizDetail.jName} has no PEND`);
                 ok = false;
             }
-        }
-        if (val !== undefined) {
-            if (val.pelement.scan(space) === false)
-                ok = false;
+            if (val !== undefined) {
+                if (val.pelement.scan(space) === false)
+                    ok = false;
+            }
         }
         return ok;
     }
 }
 exports.PBizDetailActSubPend = PBizDetailActSubPend;
-class PBizDetailActSubTab extends element_1.PElement {
+class PBizDetailActTitle extends element_1.PElement {
     _parse() {
         this.buds = [];
         for (;;) {
@@ -173,5 +201,5 @@ class PBizDetailActSubTab extends element_1.PElement {
         return ok;
     }
 }
-exports.PBizDetailActSubTab = PBizDetailActSubTab;
+exports.PBizDetailActTitle = PBizDetailActTitle;
 //# sourceMappingURL=biz.js.map

@@ -1,7 +1,7 @@
 import { Space } from '../space';
 import {
     BizDetailActStatement, BizDetailActSubPend, BizDetailActSubStatement
-    , BizDetailActSubTab, BizPend, ValueExpression
+    , BizDetailActTitle, BizPend, ValueExpression
     , SetEqu, BudDataType
 } from '../../il';
 import { PStatement } from './statement';
@@ -18,8 +18,9 @@ export class PBizDetailActStatement extends PStatement {
 
     private bizSubs: { [key: string]: new (bizStatement: BizDetailActStatement) => BizDetailActSubStatement } = {
         pend: BizDetailActSubPend,
-        bud: BizDetailActSubTab,
-        tab: BizDetailActSubTab,
+        // bud: BizDetailActSubTab,
+        //tab: BizDetailActSubTab,
+        title: BizDetailActTitle,
     };
 
     protected _parse() {
@@ -49,8 +50,24 @@ export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
         let setEqu: SetEqu;
         if (this.ts.token === Token.VAR) {
             this.pend = this.ts.passVar();
-            this.ts.passToken(Token.EQU);
-            setEqu = SetEqu.equ;
+            let sets = this.element.sets = {};
+            this.ts.passKey('set');
+            for (; ;) {
+                let v = this.ts.passVar();
+                this.ts.passToken(Token.EQU);
+                let exp = new ValueExpression();
+                this.context.parseElement(exp);
+                sets[v] = exp;
+                let { token } = this.ts;
+                if (token === Token.COMMA as any) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (token === Token.SEMICOLON as any) {
+                    break;
+                }
+                this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
+            }
         }
         else {
             switch (this.ts.token) {
@@ -62,9 +79,9 @@ export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
                 case Token.SUBEQU: setEqu = SetEqu.sub; break;
             }
             this.ts.readToken();
+            this.element.setEqu = setEqu;
+            this.element.val = this.context.parse(ValueExpression);
         }
-        this.element.setEqu = setEqu;
-        this.element.val = this.context.parse(ValueExpression);
     }
 
     private getPend(space: Space, pendName: string): BizPend {
@@ -82,7 +99,7 @@ export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let { val, bizStatement: { bizDetailAct } } = this.element;
+        let { val, sets, bizStatement: { bizDetailAct } } = this.element;
 
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
@@ -91,6 +108,17 @@ export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
             }
             else {
                 this.element.pend = pend;
+                for (let i in sets) {
+                    let bud = pend.getBud(i);
+                    if (bud === undefined) {
+                        ok = false;
+                        this.log(`There is no ${i.toUpperCase()} in Pend ${pend.jName}`);
+                    }
+                    let exp = sets[i];
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
             }
         }
         else {
@@ -99,18 +127,16 @@ export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
                 this.log(`Biz Pend = can not be used here when ${bizDetail.jName} has no PEND`);
                 ok = false;
             }
-        }
-
-        if (val !== undefined) {
-            if (val.pelement.scan(space) === false) ok = false;
+            if (val !== undefined) {
+                if (val.pelement.scan(space) === false) ok = false;
+            }
         }
         return ok;
     }
 }
 
-export class PBizDetailActSubTab extends PElement<BizDetailActSubTab> {
+export class PBizDetailActTitle extends PElement<BizDetailActTitle> {
     private buds: string[];
-    private v: string;
 
     protected _parse(): void {
         this.buds = [];

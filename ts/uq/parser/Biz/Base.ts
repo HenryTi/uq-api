@@ -106,7 +106,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     }
 }
 
-const names = ['id', 'ix', 'idx', 'item', 'base', 'no', 'value', 'v1', 'v2', 'v3', 'operator'];
+const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
 const invalidPropNames: { [key: string]: boolean } = (function () {
     let ret = {};
     for (let v of names) {
@@ -224,8 +224,16 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected scanBud(space: Space, bud: BizBud): boolean {
-        let { pelement } = bud;
-        if (pelement === undefined) return true;
+        let { pelement, value } = bud;
+        if (pelement === undefined) {
+            if (value !== undefined) {
+                const { exp } = value;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(space) === false) return false;
+                }
+            }
+            return true;
+        }
         if (pelement.scan(space) === false) return false;
         return true;
     }

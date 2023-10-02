@@ -39,7 +39,7 @@ export class BBizEntity<B extends BizEntity = any> {
 
     private stringify(value: Expression): string {
         const exp = this.context.convertExp(value);
-        if (exp === undefined) debugger;
+        if (exp === undefined) return;
         let sb = this.context.createClientBuilder();
         exp.to(sb);
         const { sql } = sb;

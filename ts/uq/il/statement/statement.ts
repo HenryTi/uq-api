@@ -11,7 +11,7 @@ import { FieldPointer, Pointer, VarPointer } from '../pointer';
 import { Builder } from '../builder';
 import { Select, Delete, CTE } from '../select';
 import { FaceDataType } from '../busSchema';
-import { BizDetailAct } from '../Biz';
+import { BizBinAct } from '../Biz';
 import { SetEqu } from '../tool';
 
 export abstract class Statement extends IElement {
@@ -172,8 +172,8 @@ export class VerifyStatement extends Statements {
 }
 
 export class BizDetailActStatements extends Statements {
-    private readonly bizDetailAct: BizDetailAct;
-    constructor(parent: Statement, bizDetailAct: BizDetailAct) {
+    private readonly bizDetailAct: BizBinAct;
+    constructor(parent: Statement, bizDetailAct: BizBinAct) {
         super(parent);
         this.bizDetailAct = bizDetailAct;
     }

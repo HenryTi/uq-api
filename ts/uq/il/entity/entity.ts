@@ -84,7 +84,6 @@ export abstract class Entity extends IElement {
         const kv = this.keyValues[key];
         if (kv === undefined) {
             return undefined;
-            // throw new Error(`Entity ${this.name} values has not key ${key}`);
         }
         const { val } = kv;
         switch (typeof val) {

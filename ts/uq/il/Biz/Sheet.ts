@@ -1,17 +1,18 @@
 import { BBizEntity, BBizSheet, DbContext } from "../../builder";
-import { BBizDetail } from "../../builder";
-import { PBizDetail, PBizDetailAct, PBizMain, PBizPend, PBizSheet, PContext, PElement } from "../../parser";
+import { BBizBin } from "../../builder";
+import { PBizBin, PBizDetailAct, PBizPend, PBizSheet, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
 import { BizBase, BizPhraseType } from "./Base";
+import { Biz } from "./Biz";
 import { BizBud, BizBudAtom, BizBudDec, BudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
     readonly bizPhraseType = BizPhraseType.sheet;
-    main: BizMain;
-    readonly details: { detail: BizDetail; caption: string; }[] = [];
+    main: BizBin;
+    readonly details: { detail: BizBin; caption: string; }[] = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizSheet(this, context);
@@ -39,47 +40,23 @@ export class BizSheet extends BizEntity {
     }
 }
 
-export class BizMain extends BizEntity {
-    readonly bizPhraseType = BizPhraseType.main;
-    target: BizBud;
-
-    parser(context: PContext): PElement<IElement> {
-        return new PBizMain(this, context);
-    }
-
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            target: this.target?.buildSchema(res),
-        };
-    }
-}
-
-export interface DetailItem extends BudValue {
-    caption: string;
-    atom: string;
-    pick: string;
-}
-
 export interface RefEntity<T extends BizEntity> {
     caption: string;
     entity: T;
 }
 
-export class BizDetail extends BizEntity {
-    readonly bizPhraseType = BizPhraseType.detail;
-    readonly acts: BizDetailAct[] = [];
-    main: BizMain;
-    item: BizBud; // DetailItem;
-    itemX: BizBud; // DetailItem;
+export class BizBin extends BizEntity {
+    readonly bizPhraseType = BizPhraseType.bin;
+    act: BizBinAct;
+    i: BizBud; // DetailItem;
+    x: BizBud; // DetailItem;
     pend: RefEntity<BizPend>;
     value: BizBud;
     price: BizBud;
     amount: BizBud;
 
     parser(context: PContext): PElement<IElement> {
-        return new PBizDetail(this, context);
+        return new PBizBin(this, context);
     }
 
     buildSchema(res: { [phrase: string]: string }) {
@@ -94,10 +71,9 @@ export class BizDetail extends BizEntity {
         }
         return {
             ...ret,
-            main: this.main.name,
             pend,
-            item: this.item?.buildSchema(res),
-            itemx: this.itemX?.buildSchema(res),
+            i: this.i?.buildSchema(res),
+            x: this.x?.buildSchema(res),
             value: this.value?.buildSchema(res),
             amount: this.amount?.buildSchema(res),
             price: this.price?.buildSchema(res),
@@ -105,8 +81,8 @@ export class BizDetail extends BizEntity {
     }
     override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
-        if (this.item !== undefined) callback(this.item);
-        if (this.itemX !== undefined) callback(this.itemX);
+        if (this.i !== undefined) callback(this.i);
+        if (this.x !== undefined) callback(this.x);
         if (this.value !== undefined) callback(this.value);
         if (this.price !== undefined) callback(this.price);
         if (this.amount !== undefined) callback(this.amount);
@@ -126,19 +102,26 @@ export class BizDetail extends BizEntity {
         return undefined;
     }
     db(dbContext: DbContext): BBizEntity<any> {
-        return new BBizDetail(dbContext, this);
+        return new BBizBin(dbContext, this);
     }
 }
 
 export class BizPend extends BizEntity {
+    static predefinedId = ['i', 'x', 'si', 'sx', 's'];
+    static predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
+
     readonly bizPhraseType = BizPhraseType.pend;
-    readonly buds = [
-        new BizBudAtom('item', undefined),
-        new BizBudAtom('itemx', undefined),
-        new BizBudDec('value', undefined),
-        new BizBudDec('price', undefined),
-        new BizBudDec('amount', undefined),
-    ];
+    readonly predefinedBuds: { [name: string]: BizBud };
+    constructor(biz: Biz) {
+        super(biz);
+        this.predefinedBuds = {};
+        for (let n of BizPend.predefinedId) {
+            this.predefinedBuds[n] = new BizBudAtom(n, undefined);
+        }
+        for (let n of BizPend.predefinedValue) {
+            this.predefinedBuds[n] = new BizBudDec(n, undefined);
+        }
+    }
 
     parser(context: PContext): PElement<IElement> {
         return new PBizPend(this, context);
@@ -154,22 +137,23 @@ export class BizPend extends BizEntity {
 
     override getBud(name: string): BizBud {
         let bud = super.getBud(name);
-        if (bud !== undefined) return bud;
-        bud = this.buds.find(v => v.name === name);
+        if (bud === undefined) {
+            bud = this.predefinedBuds[name];
+        }
         return bud;
     }
 }
 
-export class BizDetailAct extends BizBase {
+export class BizBinAct extends BizBase {
     readonly bizPhraseType = BizPhraseType.detailAct;
-    readonly bizDetail: BizDetail;
+    readonly bizDetail: BizBin;
     readonly tableVars: { [name: string]: TableVar } = {};
 
     idParam: Field;
     statement: ActionStatement;
     // fromPend: BizPend;
 
-    constructor(bizDetail: BizDetail) {
+    constructor(bizDetail: BizBin) {
         super();
         this.bizDetail = bizDetail;
     }

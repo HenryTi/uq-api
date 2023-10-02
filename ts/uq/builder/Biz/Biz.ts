@@ -1,5 +1,5 @@
 import {
-    BigInt, bigIntField, Biz, BizBase, BizDetail
+    BigInt, bigIntField, Biz, BizBase, BizBin
     , Char, charField, Dec, intField, JoinType, Text
 } from "../../il";
 import { DbContext, EnumSysTable, sysTable } from "../dbContext";
@@ -14,10 +14,10 @@ import {
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BEntity } from "../entity/entity";
-import { BBizDetail } from "./BizDetail";
+import { BBizBin } from "./BizBin";
 
 export class BBiz extends BEntity<Biz> {
-    protected readonly bDetails: BBizDetail[];
+    protected readonly bDetails: BBizBin[];
     constructor(context: DbContext, entity: Biz) {
         super(context, entity);
         this.bDetails = [];
@@ -30,7 +30,7 @@ export class BBiz extends BEntity<Biz> {
                     break;
                 */
                 case 'detail':
-                    let bBizDetail = new BBizDetail(this.context, value as BizDetail);
+                    let bBizDetail = new BBizBin(this.context, value as BizBin);
                     this.bDetails.push(bBizDetail);
                     break;
             }

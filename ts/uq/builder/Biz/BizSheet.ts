@@ -1,4 +1,4 @@
-import { BigInt, BizDetail, BizSheet, JoinType, bigIntField, decField, idField } from "../../il";
+import { BigInt, BizBin, BizSheet, JoinType, bigIntField, decField, idField } from "../../il";
 import { Sqls } from "../bstatement";
 import { EnumSysTable, sysTable } from "../dbContext";
 import { ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
@@ -36,8 +36,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         }
     }
 
-    private buildDetail(statements: Statement[], detail: BizDetail, loopNo: number) {
-        const { name, id: entityId, acts } = detail;
+    private buildDetail(statements: Statement[], detail: BizBin, loopNo: number) {
+        const { name, id: entityId, act } = detail;
         const { factory, userParam } = this.context;
         const memo = factory.createMemo();
         statements.push(memo);
@@ -116,7 +116,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         iffExit.then(exit);
         exit.no = loopNo;
 
-        for (let act of acts) {
+        if (act !== undefined) {
             let sqls = new Sqls(this.context, loop.statements.statements);
             let { statements } = act.statement;
             sqls.head(statements);

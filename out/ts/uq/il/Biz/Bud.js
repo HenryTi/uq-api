@@ -25,13 +25,9 @@ class BizBud extends Base_1.BizBase {
         return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, history: this.hasHistory === true ? true : undefined });
     }
     buildPhrases(phrases, prefix) {
+        if (this.name === 'item')
+            debugger;
         super.buildPhrases(phrases, prefix);
-        /*
-        if (this.hasIndex === true) {
-            let phrase = this.phrase + '.$index';
-            phrases.push([phrase, '', '', '0']);
-        }
-        */
     }
 }
 exports.BizBud = BizBud;
