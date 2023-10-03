@@ -34,13 +34,6 @@ class BizSheet extends Entity_1.BizEntity {
     }
 }
 exports.BizSheet = BizSheet;
-/*
-export interface Pickable {
-    caption: string;
-    pick: string;           // Atom or Pick
-    phrase: string;
-}
-*/
 class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
@@ -54,10 +47,11 @@ class BizBin extends Entity_1.BizEntity {
         let ret = super.buildSchema(res);
         let pend;
         if (this.pend !== undefined) {
-            let { caption, entity } = this.pend;
+            let { caption, entity, search } = this.pend;
             pend = {
                 caption,
-                entity: entity.name
+                entity: entity.name,
+                search,
             };
         }
         return Object.assign(Object.assign({}, ret), { pend, i: (_a = this.i) === null || _a === void 0 ? void 0 : _a.buildSchema(res), x: (_b = this.x) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
@@ -115,13 +109,15 @@ class BizPend extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
+        let predefined = {};
         for (let i in this.predefinedBuds) {
             let bud = this.predefinedBuds[i];
             let { caption } = bud;
             if (caption === undefined)
                 continue;
-            ret[i] = bud.buildSchema(res);
+            predefined[i] = bud.buildSchema(res);
         }
+        ret.predefined = predefined;
         return ret;
     }
     getBud(name) {

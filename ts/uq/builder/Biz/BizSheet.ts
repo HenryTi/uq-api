@@ -44,11 +44,15 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         memo.text = `detail ${name}`;
 
         const sheetId = 'sheet';
-        const target = 'target';
         const pendFrom = 'pend';
         const detailId = 'detail';
-        const item = 'item';
-        const itemX = 'itemX';
+        const si = 'si';
+        const sx = 'sx';
+        const svalue = 'svalue';
+        const samount = 'samount';
+        const sprice = 'sprice';
+        const i = 'i';
+        const x = 'x';
         const value = 'value';
         const amount = 'amount';
         const price = 'price';
@@ -61,11 +65,15 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         statements.push(declare);
         declare.vars(
             bigIntField(sheetId),
-            bigIntField(target),
+            bigIntField(si),
+            bigIntField(sx),
+            decField(svalue, 18, 6),
+            decField(samount, 18, 6),
+            decField(sprice, 18, 6),
             bigIntField(pendFrom),
             bigIntField(detailId),
-            bigIntField(item),
-            bigIntField(itemX),
+            bigIntField(i),
+            bigIntField(x),
             decField(value, 18, 6),
             decField(amount, 18, 6),
             decField(price, 18, 6),
@@ -84,21 +92,25 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         loop.statements.add(select);
         select.toVar = true;
         select.column(new ExpField('id', a), detailId);
-        select.column(new ExpField('item', a), item);
-        select.column(new ExpField('itemX', a), itemX);
+        select.column(new ExpField('i', a), i);
+        select.column(new ExpField('x', a), x);
         select.column(new ExpField('value', a), value);
         select.column(new ExpField('amount', a), amount);
         select.column(new ExpField('price', a), price);
         select.column(new ExpField('id', c), sheetId);
-        select.column(new ExpField('target', c), target);
+        select.column(new ExpField('i', c), si);
+        select.column(new ExpField('x', c), sx);
+        select.column(new ExpField('value', c), svalue);
+        select.column(new ExpField('price', c), sprice);
+        select.column(new ExpField('amount', c), samount);
         select.column(new ExpField('pendFrom', d), pendFrom);
 
-        select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
+        select.from(new EntityTable(EnumSysTable.bizBin, false, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, c))
             .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)))
-            .join(JoinType.left, new EntityTable(EnumSysTable.detailPend, false, d))
+            .join(JoinType.left, new EntityTable(EnumSysTable.binPend, false, d))
             .on(new ExpEQ(new ExpField('id', d), new ExpField('id', a)))
             ;
         select.where(new ExpAnd(

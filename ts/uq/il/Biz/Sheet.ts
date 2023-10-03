@@ -45,13 +45,7 @@ export interface PropPend {
     entity: BizPend;
     search: string[];
 }
-/*
-export interface Pickable {
-    caption: string;
-    pick: string;           // Atom or Pick
-    phrase: string;
-}
-*/
+
 export class BizBin extends BizEntity {
     readonly bizPhraseType = BizPhraseType.bin;
     act: BizBinAct;
@@ -70,10 +64,11 @@ export class BizBin extends BizEntity {
         let ret = super.buildSchema(res);
         let pend: any;
         if (this.pend !== undefined) {
-            let { caption, entity } = this.pend;
+            let { caption, entity, search } = this.pend;
             pend = {
                 caption,
-                entity: entity.name
+                entity: entity.name,
+                search,
             }
         }
         return {
@@ -136,12 +131,14 @@ export class BizPend extends BizEntity {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
+        let predefined: { [name: string]: any } = {};
         for (let i in this.predefinedBuds) {
             let bud = this.predefinedBuds[i];
             let { caption } = bud;
             if (caption === undefined) continue;
-            ret[i] = bud.buildSchema(res);
+            predefined[i] = bud.buildSchema(res);
         }
+        ret.predefined = predefined;
         return ret;
     }
 

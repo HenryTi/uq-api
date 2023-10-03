@@ -126,7 +126,7 @@ export class BBizDetailActTitle extends BStatement<BizDetailActTitle> {
         }
     }
     body(sqls: Sqls) {
-        let { factory, varUnit, varUser } = this.context;
+        let { factory, varUser, varSite } = this.context;
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'Biz Title ';
@@ -202,10 +202,10 @@ export class BBizDetailActTitle extends BStatement<BizDetailActTitle> {
             let vBudId = budId + no;
             let setHistoryId = factory.createSet();
             sqls.push(setHistoryId);
-            setHistoryId.equ(vHistory, new ExpFunc('history$id', varUnit, varUser, ExpNum.num1, ExpVal.null));
+            setHistoryId.equ(vHistory, new ExpFuncInUq('history$id', [varSite, varUser, ExpNum.num1, ExpVal.null], true));
             let setBudId = factory.createSet();
             sqls.push(setBudId);
-            setBudId.equ(vBudId, new ExpFunc('bud$id', varUnit, varUser, ExpNum.num1, expObjId, expPhraseId));
+            setBudId.equ(vBudId, new ExpFuncInUq('bud$id', [varSite, varUser, ExpNum.num1, expObjId, expPhraseId], true));
             let update = factory.createUpdate();
             sqls.push(update);
             update.table = sysTable(EnumSysTable.history);

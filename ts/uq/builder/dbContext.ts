@@ -197,10 +197,10 @@ export enum EnumSysTable {
     ixBudDec = 'ixbuddec',
     ixBudInt = 'ixbudint',
     ixBudStr = 'ixbudstr',
-    bizDetail = 'detail',
+    bizBin = 'bin',
     bizSheet = 'sheet',
     pend = 'pend',
-    detailPend = 'detailpend',
+    binPend = 'binpend',
     history = 'history',
 
     messageQueue = '$message_queue',
