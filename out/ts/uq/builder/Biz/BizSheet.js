@@ -94,6 +94,11 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const exit = factory.createBreak();
         iffExit.then(exit);
         exit.no = loopNo;
+        const del = factory.createDelete();
+        loop.statements.add(del);
+        del.tables = [a];
+        del.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.binPend, false, a));
+        del.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(detailId)));
         if (act !== undefined) {
             let sqls = new bstatement_1.Sqls(this.context, loop.statements.statements);
             let { statements } = act.statement;

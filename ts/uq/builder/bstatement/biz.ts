@@ -45,6 +45,18 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             buildWritePend();
         }
 
+        function buildUpdatePoke() {
+            let updatePoke = factory.createUpdate();
+            sqls.push(updatePoke);
+            updatePoke.table = new EntityTable(EnumSysTable.userSite, false);
+            updatePoke.cols = [
+                { col: 'poke', val: ExpNum.num1 },
+            ];
+            updatePoke.where = new ExpEQ(
+                new ExpField('site'), new ExpVar('$site'),
+            );
+        }
+
         function buildChangePendFrom() {
             let update = factory.createUpdate();
             sqls.push(update);
@@ -68,6 +80,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
                 new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
                 new ExpEQ(new ExpField('value', a), ExpNum.num0),
             ));
+            buildUpdatePoke();
         }
 
         function buildWritePend() {
@@ -103,6 +116,8 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             update.where = new ExpEQ(
                 new ExpField('id'), new ExpVar(pendId)
             );
+
+            buildUpdatePoke();
         }
     }
 }
@@ -176,7 +191,7 @@ export class BBizDetailActTitle extends BStatement<BizDetailActTitle> {
             sqls.push(upsert);
             upsert.table = new EntityTable(EnumSysTable.ixBud, false);
             const expBud = new ExpFuncInUq('bud$id'
-                , [expSite, expUser, ExpNum.num1, expValue, expPhraseId]
+                , [expSite, expUser, ExpNum.num1, ExpVal.null, expValue, expPhraseId]
                 , true);
             upsert.keys = [
                 { col: 'i', val: expBud },
@@ -205,7 +220,7 @@ export class BBizDetailActTitle extends BStatement<BizDetailActTitle> {
             setHistoryId.equ(vHistory, new ExpFuncInUq('history$id', [varSite, varUser, ExpNum.num1, ExpVal.null], true));
             let setBudId = factory.createSet();
             sqls.push(setBudId);
-            setBudId.equ(vBudId, new ExpFuncInUq('bud$id', [varSite, varUser, ExpNum.num1, expObjId, expPhraseId], true));
+            setBudId.equ(vBudId, new ExpFuncInUq('bud$id', [varSite, varUser, ExpNum.num1, ExpVal.null, expObjId, expPhraseId], true));
             let update = factory.createUpdate();
             sqls.push(update);
             update.table = sysTable(EnumSysTable.history);

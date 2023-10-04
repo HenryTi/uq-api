@@ -3,6 +3,7 @@ import { Sqls } from "../bstatement";
 import { EnumSysTable, sysTable } from "../dbContext";
 import { ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
+import { SysTables } from "../sys/tables";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizSheet extends BBizEntity<BizSheet> {
@@ -127,6 +128,12 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const exit = factory.createBreak();
         iffExit.then(exit);
         exit.no = loopNo;
+
+        const del = factory.createDelete();
+        loop.statements.add(del);
+        del.tables = [a];
+        del.from(new EntityTable(EnumSysTable.binPend, false, a));
+        del.where(new ExpEQ(new ExpField('id', a), new ExpVar(detailId)));
 
         if (act !== undefined) {
             let sqls = new Sqls(this.context, loop.statements.statements);

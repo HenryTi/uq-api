@@ -44,6 +44,15 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
         else {
             buildWritePend();
         }
+        function buildUpdatePoke() {
+            let updatePoke = factory.createUpdate();
+            sqls.push(updatePoke);
+            updatePoke.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.userSite, false);
+            updatePoke.cols = [
+                { col: 'poke', val: sql_1.ExpNum.num1 },
+            ];
+            updatePoke.where = new sql_1.ExpEQ(new sql_1.ExpField('site'), new sql_1.ExpVar('$site'));
+        }
         function buildChangePendFrom() {
             let update = factory.createUpdate();
             sqls.push(update);
@@ -66,6 +75,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             del.tables = [a];
             del.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.pend, false, a));
             del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
+            buildUpdatePoke();
         }
         function buildWritePend() {
             let pendId = '$pendId_' + no;
@@ -87,6 +97,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
                 { col: 'mid', val: new sql_1.ExpFunc('JSON_OBJECT', ...expMids) },
             ];
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));
+            buildUpdatePoke();
         }
     }
 }
@@ -157,7 +168,7 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
             let upsert = factory.createUpsert();
             sqls.push(upsert);
             upsert.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.ixBud, false);
-            const expBud = new sql_1.ExpFuncInUq('bud$id', [expSite, expUser, sql_1.ExpNum.num1, expValue, expPhraseId], true);
+            const expBud = new sql_1.ExpFuncInUq('bud$id', [expSite, expUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, expValue, expPhraseId], true);
             upsert.keys = [
                 { col: 'i', val: expBud },
                 { col: 'x', val: expObjId },
@@ -183,7 +194,7 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
             setHistoryId.equ(vHistory, new sql_1.ExpFuncInUq('history$id', [varSite, varUser, sql_1.ExpNum.num1, sql_1.ExpVal.null], true));
             let setBudId = factory.createSet();
             sqls.push(setBudId);
-            setBudId.equ(vBudId, new sql_1.ExpFuncInUq('bud$id', [varSite, varUser, sql_1.ExpNum.num1, expObjId, expPhraseId], true));
+            setBudId.equ(vBudId, new sql_1.ExpFuncInUq('bud$id', [varSite, varUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, expObjId, expPhraseId], true));
             let update = factory.createUpdate();
             sqls.push(update);
             update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.history);
