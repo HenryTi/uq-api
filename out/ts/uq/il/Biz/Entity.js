@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntity = exports.BudFlag = void 0;
+exports.BizEntity = exports.BudIndex = void 0;
 const datatype_1 = require("../datatype");
 const field_1 = require("../field");
 const Base_1 = require("./Base");
-var BudFlag;
-(function (BudFlag) {
-    BudFlag[BudFlag["none"] = 0] = "none";
-    BudFlag[BudFlag["index"] = 1] = "index";
-})(BudFlag = exports.BudFlag || (exports.BudFlag = {}));
+var BudIndex;
+(function (BudIndex) {
+    BudIndex[BudIndex["none"] = 0] = "none";
+    BudIndex[BudIndex["index"] = 1] = "index";
+})(BudIndex = exports.BudIndex || (exports.BudIndex = {}));
 /*
 export interface IBud {
     id: number;                 // phrase id

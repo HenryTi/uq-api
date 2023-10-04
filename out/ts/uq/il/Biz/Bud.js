@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBud = exports.BudValueAct = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.BizBud = exports.BudValueAct = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -11,14 +11,17 @@ var BudValueAct;
 })(BudValueAct = exports.BudValueAct || (exports.BudValueAct = {}));
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
-    get optionsItemType() { return; }
     constructor(name, caption) {
         super();
-        this.bizPhraseType = Base_1.BizPhraseType.prop;
-        this.flag = Entity_1.BudFlag.none;
+        this.bizPhraseType = Base_1.BizPhraseType.any;
+        this.flag = Entity_1.BudIndex.none;
         this.name = name;
         this.caption = caption;
     }
+}
+exports.BizBud = BizBud;
+class BizBudValue extends BizBud {
+    get optionsItemType() { return; }
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
@@ -30,8 +33,8 @@ class BizBud extends Base_1.BizBase {
         super.buildPhrases(phrases, prefix);
     }
 }
-exports.BizBud = BizBud;
-class BizBudPickable extends BizBud {
+exports.BizBudValue = BizBudValue;
+class BizBudPickable extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = Base_1.BudDataType.atom;
@@ -47,7 +50,7 @@ class BizBudPickable extends BizBud {
     }
 }
 exports.BizBudPickable = BizBudPickable;
-class BizBudNone extends BizBud {
+class BizBudNone extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = Base_1.BudDataType.none;
@@ -62,7 +65,7 @@ class BizBudNone extends BizBud {
     }
 }
 exports.BizBudNone = BizBudNone;
-class BizBudInt extends BizBud {
+class BizBudInt extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = Base_1.BudDataType.int;
@@ -77,7 +80,7 @@ class BizBudInt extends BizBud {
     }
 }
 exports.BizBudInt = BizBudInt;
-class BizBudDec extends BizBud {
+class BizBudDec extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = Base_1.BudDataType.dec;
@@ -92,7 +95,7 @@ class BizBudDec extends BizBud {
     }
 }
 exports.BizBudDec = BizBudDec;
-class BizBudChar extends BizBud {
+class BizBudChar extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = Base_1.BudDataType.char;
@@ -107,7 +110,7 @@ class BizBudChar extends BizBud {
     }
 }
 exports.BizBudChar = BizBudChar;
-class BizBudDate extends BizBud {
+class BizBudDate extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = Base_1.BudDataType.date;
@@ -122,7 +125,7 @@ class BizBudDate extends BizBud {
     }
 }
 exports.BizBudDate = BizBudDate;
-class BizBudAtom extends BizBud {
+class BizBudAtom extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = Base_1.BudDataType.atom;
@@ -147,7 +150,7 @@ export interface BizSubItem {
     value: number | string;
 }
 */
-class BizBudOptions extends BizBud {
+class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);

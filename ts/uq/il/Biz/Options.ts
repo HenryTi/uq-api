@@ -1,7 +1,7 @@
 import { PBizOptions, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizPhraseType, BudDataType } from "./Base";
-import { BizBud } from "./Bud";
+import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export enum OptionsItemValueType {
@@ -10,7 +10,7 @@ export enum OptionsItemValueType {
     dec = 2,
     str = 3,
 }
-export class OptionsItem extends BizBud {
+export class OptionsItem extends BizBudValue {
     id: number;
     name: string;
     caption: string;
@@ -61,7 +61,7 @@ export class BizOptions extends BizEntity {
 
     override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
-        for (let item of this.items) callback(item as unknown as BizBud);
+        for (let item of this.items) callback(item as unknown as BizBudValue);
     }
 
     override getBud(name: string): BizBud {

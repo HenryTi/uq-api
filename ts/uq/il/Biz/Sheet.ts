@@ -6,7 +6,7 @@ import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
 import { BizBase, BizPhraseType } from "./Base";
 import { Biz } from "./Biz";
-import { BizBud, BizBudAtom, BizBudDec, BizBudPickable, BudValue } from "./Bud";
+import { BizBudValue, BizBudAtom, BizBudDec, BizBudPickable, BudValue, BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
@@ -52,9 +52,9 @@ export class BizBin extends BizEntity {
     i: BizBudPickable;
     x: BizBudPickable;
     pend: PropPend;
-    value: BizBud;
-    price: BizBud;
-    amount: BizBud;
+    value: BizBudValue;
+    price: BizBudValue;
+    amount: BizBudValue;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBin(this, context);
@@ -81,7 +81,7 @@ export class BizBin extends BizEntity {
             price: this.price?.buildSchema(res),
         }
     }
-    override forEachBud(callback: (bud: BizBud) => void) {
+    override forEachBud(callback: (bud: BizBudValue) => void) {
         super.forEachBud(callback);
         if (this.i !== undefined) callback(this.i);
         if (this.x !== undefined) callback(this.x);
@@ -113,7 +113,7 @@ export class BizPend extends BizEntity {
     static predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 
     readonly bizPhraseType = BizPhraseType.pend;
-    readonly predefinedBuds: { [name: string]: BizBud };
+    readonly predefinedBuds: { [name: string]: BizBudValue };
     constructor(biz: Biz) {
         super(biz);
         this.predefinedBuds = {};

@@ -163,7 +163,7 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
         const expSite = new sql_1.ExpVar('$site');
         const expUser = new sql_1.ExpVar('$user');
         function buildIxBudIndex() {
-            if ((flag & il_1.BudFlag.index) !== il_1.BudFlag.index)
+            if ((flag & il_1.BudIndex.index) !== il_1.BudIndex.index)
                 return;
             let upsert = factory.createUpsert();
             sqls.push(upsert);

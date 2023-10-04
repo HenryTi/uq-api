@@ -1,4 +1,4 @@
-import { BigInt, BizAtom, BizAtomSpec, BizBud, BudDataType, Char, EnumDataType, Int, JoinType, JsonDataType, OpJsonProp, bigIntField, charField, idField, jsonField, textField } from "../../il";
+import { BigInt, BizAtom, BizAtomSpec, BizBudValue, BudDataType, Char, EnumDataType, Int, JoinType, JsonDataType, OpJsonProp, bigIntField, charField, idField, jsonField, textField } from "../../il";
 import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpJsonProp, ExpNum, ExpStr, ExpVal, ExpVar, Procedure } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
@@ -37,7 +37,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         // const prefixProp = '$prop_';
         const prefixPhrase = '$phrase_';
 
-        const props: BizBud[] = [];
+        const props: BizBudValue[] = [];
         for (let [, value] of propsMap) props.push(value);
 
         parameters.push(
@@ -52,7 +52,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         declare.var(cId, new BigInt());
         statements.push(declare);
 
-        function declareBuds(buds: BizBud[]) {
+        function declareBuds(buds: BizBudValue[]) {
             for (let bud of buds) {
                 const { name, phrase } = bud;
                 declare.var(prefixBud + name, new Char(200));
@@ -70,7 +70,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         declareBuds(keys);
         declareBuds(props);
 
-        function selectJsonValue(varJson: ExpVar, buds: BizBud[], prefix: string) {
+        function selectJsonValue(varJson: ExpVar, buds: BizBudValue[], prefix: string) {
             if (buds.length === 0) return;
             const select = factory.createSelect();
             statements.push(select);
@@ -90,7 +90,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         select.from(new EntityTable('spec', false, a));
         const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
 
-        function tblAndValFromBud(bud: BizBud): { varVal: ExpVal; tbl: string; } {
+        function tblAndValFromBud(bud: BizBudValue): { varVal: ExpVal; tbl: string; } {
             const { name, dataType } = bud;
             let varVal: ExpVal = new ExpVar(`${prefixBud}${name}`);
             let tbl: string;
@@ -154,7 +154,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
 
         selectJsonValue(varProps, props, prefixBud);
 
-        function setBud(bud: BizBud) {
+        function setBud(bud: BizBudValue) {
             const { name } = bud;
             const { varVal, tbl } = tblAndValFromBud(bud);
             /*
@@ -188,7 +188,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
             );
             insert.cols.push({ col: 'value', val: varVal });
         }
-        function setBuds(buds: BizBud[]) {
+        function setBuds(buds: BizBudValue[]) {
             for (let bud of buds) setBud(bud);
         }
         setBuds(keys);

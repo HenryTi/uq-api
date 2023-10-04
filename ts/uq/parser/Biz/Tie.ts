@@ -1,4 +1,4 @@
-import { BizBud, BizBudInt, BizTie } from "../../il";
+import { BizBudValue, BizBudInt, BizTie } from "../../il";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
@@ -27,7 +27,7 @@ export class PBizTie extends PBizEntity<BizTie> {
     };
 
     // bud 有没有type。Tie里面的bud，不需要type，都是bigint
-    protected override parseBud(name: string, caption: string): BizBud {
+    protected override parseBud(name: string, caption: string): BizBudValue {
         return new BizBudInt(name, caption);
     }
 }

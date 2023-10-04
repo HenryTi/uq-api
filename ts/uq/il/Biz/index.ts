@@ -12,3 +12,4 @@ export * from './Entity';
 export * from './Tree';
 export * from './Tie';
 export * from './Options';
+export * from './Report';

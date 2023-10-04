@@ -238,7 +238,7 @@ class PBizEntity extends PBizBase {
         }
         if (this.ts.isKeyword('index') === true) {
             if (bizBud.canIndex === true) {
-                bizBud.flag |= il_1.BudFlag.index;
+                bizBud.flag |= il_1.BudIndex.index;
                 this.ts.readToken();
             }
             else {

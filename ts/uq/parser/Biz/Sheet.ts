@@ -2,7 +2,7 @@ import {
     BizBin, BizBinAct, BizPend, BizSheet, Field
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
-    , BizBudAtom, BizBud, BudDataType, BizPhraseType
+    , BizBudAtom, BizBudValue, BudDataType, BizPhraseType
     , bigIntField, ValueExpression, BudValueAct, BizEntity, BizBudDec, BizBudPickable
 } from "../../il";
 import { PContext } from "../pContext";
@@ -202,7 +202,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         */
     }
 
-    private parseValueBud(bud: BizBud, budName: string) {
+    private parseValueBud(bud: BizBudValue, budName: string) {
         if (bud !== undefined) {
             this.ts.error(`${budName} can only define once`);
         }
@@ -291,7 +291,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
         }
 
-        const scanBudValue = (bud: BizBud) => {
+        const scanBudValue = (bud: BizBudValue) => {
             if (bud === undefined) return;
             const { dataType } = bud;
             if (dataType !== BudDataType.dec && dataType !== BudDataType.none) {

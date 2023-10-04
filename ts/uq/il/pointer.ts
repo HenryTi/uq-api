@@ -1,4 +1,4 @@
-import { BizBud, BizEntity } from './Biz';
+import { BizBud, BizBudValue, BizEntity } from './Biz';
 import { ValueExpression, VarOperand, Stack } from './expression';
 
 export enum GroupType { Single = 1, Group = 2, Both = 3 }

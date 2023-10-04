@@ -12,7 +12,7 @@ var OptionsItemValueType;
     OptionsItemValueType[OptionsItemValueType["dec"] = 2] = "dec";
     OptionsItemValueType[OptionsItemValueType["str"] = 3] = "str";
 })(OptionsItemValueType = exports.OptionsItemValueType || (exports.OptionsItemValueType = {}));
-class OptionsItem extends Bud_1.BizBud {
+class OptionsItem extends Bud_1.BizBudValue {
     get optionsItemType() { return this._itemType; }
     parser(context) {
         debugger;

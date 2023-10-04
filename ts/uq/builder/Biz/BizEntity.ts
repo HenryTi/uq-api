@@ -1,4 +1,4 @@
-import { BizEntity, BudValueAct, Expression, ValueExpression } from "../../il";
+import { BizBudValue, BizEntity, BudValueAct, Expression, ValueExpression } from "../../il";
 import { DbContext } from "../dbContext";
 
 export class BBizEntity<B extends BizEntity = any> {
@@ -17,7 +17,7 @@ export class BBizEntity<B extends BizEntity = any> {
     async buildBudsValue() {
         this.bizEntity.forEachBud((bud) => {
             if (!bud) return;
-            let { value } = bud;
+            let { value } = bud as BizBudValue;
             if (value === undefined) return;
             let { exp, act } = value;
             let str = this.stringify(exp);

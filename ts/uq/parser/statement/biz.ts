@@ -2,7 +2,7 @@ import { Space } from '../space';
 import {
     BizDetailActStatement, BizDetailActSubPend, BizDetailActSubStatement
     , BizDetailActTitle, BizPend, ValueExpression
-    , SetEqu, BudDataType
+    , SetEqu, BudDataType, BizBudValue
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -181,7 +181,7 @@ export class PBizDetailActTitle extends PElement<BizDetailActTitle> {
             return ok;
         }
         this.element.entity = entity;
-        this.element.bud = bud;
+        this.element.bud = bud as BizBudValue;
         let { dataType } = bud;
         if (setEqu === SetEqu.add || setEqu === SetEqu.sub) {
             if (dataType !== BudDataType.int && dataType !== BudDataType.dec) {

@@ -2,7 +2,7 @@ import { BStatement } from '../../builder';
 import * as parser from '../../parser';
 import { Builder } from "../builder";
 import { IElement } from '../element';
-import { BizBud, BizBinAct, BizEntity, BizPend } from '../Biz';
+import { BizBudValue, BizBinAct, BizEntity, BizPend } from '../Biz';
 import { ValueExpression } from '../expression';
 import { Statement } from "./statement";
 import { SetEqu } from '../tool';
@@ -50,7 +50,7 @@ export class BizDetailActSubPend extends BizDetailActSubStatement {
 export class BizDetailActTitle extends BizDetailActSubStatement {
     readonly bizStatement: BizDetailActStatement;
     entity: BizEntity;
-    bud: BizBud;
+    bud: BizBudValue;
     of: ValueExpression;
     setEqu: SetEqu;
     val: ValueExpression;

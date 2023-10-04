@@ -8,3 +8,4 @@ export * from './Permit';
 export * from './Tree';
 export * from './Tie';
 export * from './Options';
+export * from './Report';

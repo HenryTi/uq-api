@@ -1,5 +1,5 @@
 import {
-    BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
+    BizBudValue, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression
 } from "../../il";
@@ -7,7 +7,7 @@ import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizBase } from "./Base";
 
-export abstract class PBizBud<P extends BizBud> extends PBizBase<P> {
+export abstract class PBizBud<P extends BizBudValue> extends PBizBase<P> {
     protected _parse(): void {
     }
 

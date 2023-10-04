@@ -18,6 +18,7 @@ export enum BizPhraseType {
     options = 301,
     tree = 401,
     tie = 501,
+    report = 601,
     title = 901,
 
     key = 1001,

@@ -1,4 +1,4 @@
-import { BigInt, BizDetailActStatement, BizDetailActSubPend, BizDetailActTitle, BudDataType, BudFlag, SetEqu } from "../../il";
+import { BigInt, BizDetailActStatement, BizDetailActSubPend, BizDetailActTitle, BudDataType, BudIndex, SetEqu } from "../../il";
 import { EnumSysTable, sysTable } from "../dbContext";
 import { ColVal, ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -186,7 +186,7 @@ export class BBizDetailActTitle extends BStatement<BizDetailActTitle> {
         const expSite = new ExpVar('$site');
         const expUser = new ExpVar('$user');
         function buildIxBudIndex() {
-            if ((flag & BudFlag.index) !== BudFlag.index) return;
+            if ((flag & BudIndex.index) !== BudIndex.index) return;
             let upsert = factory.createUpsert();
             sqls.push(upsert);
             upsert.table = new EntityTable(EnumSysTable.ixBud, false);

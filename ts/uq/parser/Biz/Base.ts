@@ -1,7 +1,7 @@
 import {
-    BizBase, BizAtom, BizBud, BizBudChar, BizBudCheck, BizBudDate
+    BizBase, BizAtom, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudFlag, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct
 } from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
@@ -143,7 +143,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
     }
 
-    protected parseSubItem(): BizBud {
+    protected parseSubItem(): BizBudValue {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
         this.ts.readToken();
@@ -164,8 +164,8 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return true;
     }
 
-    protected parseBud(name: string, caption: string): BizBud {
-        const keyColl: { [key: string]: new (name: string, caption: string) => BizBud } = {
+    protected parseBud(name: string, caption: string): BizBudValue {
+        const keyColl: { [key: string]: new (name: string, caption: string) => BizBudValue } = {
             none: BizBudNone,
             int: BizBudInt,
             dec: BizBudDec,
@@ -229,7 +229,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         if (this.ts.isKeyword('index') === true) {
             if (bizBud.canIndex === true) {
-                bizBud.flag |= BudFlag.index;
+                bizBud.flag |= BudIndex.index;
                 this.ts.readToken();
             }
             else {
@@ -258,7 +258,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
     }
 
-    protected scanBud(space: Space, bud: BizBud): boolean {
+    protected scanBud(space: Space, bud: BizBudValue): boolean {
         let { pelement, value } = bud;
         if (pelement === undefined) {
             if (value !== undefined) {
@@ -273,7 +273,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return true;
     }
 
-    private scanBuds(space: Space, buds: Map<string, BizBud>) {
+    private scanBuds(space: Space, buds: Map<string, BizBudValue>) {
         let ok = true;
         for (let [, value] of buds) {
             if (this.scanBud(space, value) === false) ok = false;
@@ -288,7 +288,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
-    private scan2Buds(uq: Uq, buds: Map<string, BizBud>) {
+    private scan2Buds(uq: Uq, buds: Map<string, BizBudValue>) {
         let ok = true;
         for (let [, value] of buds) {
             let { pelement } = value;

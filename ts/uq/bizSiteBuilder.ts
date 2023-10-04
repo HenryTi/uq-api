@@ -1,6 +1,6 @@
 import { EntityRunner } from "../core";
 import { BBiz, BUq, CompileOptions, DbContext } from "./builder";
-import { Biz, BizBud, BizEntity/*, IBud*/ } from "./il";
+import { Biz, BizBud, BizBudValue, BizEntity/*, IBud*/ } from "./il";
 
 const sqlType = 'mysql';
 const dbSiteName = '$site';

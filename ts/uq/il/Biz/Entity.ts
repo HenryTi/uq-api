@@ -3,10 +3,9 @@ import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
 import { Field } from "../field";
 import { BizBase, BudDataType } from "./Base";
 import { Biz } from "./Biz";
-import { BizBud } from "./Bud";
-import { OptionsItemValueType } from "./Options";
+import { BizBud, BizBudValue } from "./Bud";
 
-export enum BudFlag {
+export enum BudIndex {
     none = 0x0000,
     index = 0x0001,
 }
@@ -25,7 +24,7 @@ export interface IBud {
 }
 */
 export abstract class BizEntity extends BizBase {
-    readonly props: Map<string, BizBud> = new Map();
+    readonly props: Map<string, BizBudValue> = new Map();
     readonly biz: Biz
     source: string = undefined;
 
@@ -84,7 +83,7 @@ export abstract class BizEntity extends BizBase {
         return ret.getBizBase(bizName);
     }
 
-    protected buildField(bud: BizBud): Field {
+    protected buildField(bud: BizBudValue): Field {
         let { name, dataType } = bud;
         let field = new Field();
         field.name = name;

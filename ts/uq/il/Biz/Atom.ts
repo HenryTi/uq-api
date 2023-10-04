@@ -2,7 +2,7 @@ import { BBizSpec, DbContext } from "../../builder";
 import { PBizAtom, /*PBizAtomBud, */PBizAtomSpec, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizPhraseType } from "./Base";
-import { BizBud } from "./Bud";
+import { BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export abstract class BizAtomID extends BizEntity {
@@ -21,7 +21,7 @@ export abstract class BizAtomID extends BizEntity {
 
 export class BizAtom extends BizAtomID {
     readonly bizPhraseType = BizPhraseType.atom;
-    ex: BizBud;
+    ex: BizBudValue;
     uom: boolean;
     uuid: boolean;
 
@@ -54,7 +54,7 @@ export abstract class BizAtomIDWithBase extends BizAtomID {
 
 export class BizAtomSpec extends BizAtomIDWithBase {
     readonly bizPhraseType = BizPhraseType.spec;
-    keys: BizBud[] = [];
+    keys: BizBudValue[] = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtomSpec(this, context);
@@ -78,7 +78,7 @@ export class BizAtomSpec extends BizAtomIDWithBase {
         }
     }
 
-    override forEachBud(callback: (bud: BizBud) => void) {
+    override forEachBud(callback: (bud: BizBudValue) => void) {
         super.forEachBud(callback);
         for (let key of this.keys) callback(key);
     }

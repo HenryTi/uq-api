@@ -7,7 +7,7 @@ import { IElement } from "../element";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { BizAtom, BizAtomID } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
-import { BudFlag } from "./Entity";
+import { BudIndex } from "./Entity";
 import { ValueExpression } from "../expression";
 
 export enum BudValueAct {
@@ -22,20 +22,22 @@ export interface BudValue {
 }
 
 export abstract class BizBud extends BizBase {
-    readonly bizPhraseType = BizPhraseType.prop;
-
+    readonly bizPhraseType = BizPhraseType.any;
     abstract get dataType(): BudDataType;
-    abstract get canIndex(): boolean;
     get objName(): string { return undefined; }
-    value: BudValue;
-    hasHistory: boolean;
-    flag: BudFlag = BudFlag.none;
-    get optionsItemType(): OptionsItemValueType { return; }
+    flag: BudIndex = BudIndex.none;
     constructor(name: string, caption: string) {
         super();
         this.name = name;
         this.caption = caption;
     }
+}
+
+export abstract class BizBudValue extends BizBud {
+    abstract get canIndex(): boolean;
+    value: BudValue;
+    hasHistory: boolean;
+    get optionsItemType(): OptionsItemValueType { return; }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return { ...ret, dataType: this.dataType, value: this.value?.str, history: this.hasHistory === true ? true : undefined }
@@ -47,7 +49,7 @@ export abstract class BizBud extends BizBase {
     }
 }
 
-export class BizBudPickable extends BizBud {
+export class BizBudPickable extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = false;
     pick: string;
@@ -61,7 +63,7 @@ export class BizBudPickable extends BizBud {
     }
 }
 
-export class BizBudNone extends BizBud {
+export class BizBudNone extends BizBudValue {
     readonly dataType = BudDataType.none;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
@@ -73,7 +75,7 @@ export class BizBudNone extends BizBud {
     }
 }
 
-export class BizBudInt extends BizBud {
+export class BizBudInt extends BizBudValue {
     readonly dataType = BudDataType.int;
     readonly canIndex = true;
     parser(context: PContext): PElement<IElement> {
@@ -85,7 +87,7 @@ export class BizBudInt extends BizBud {
     }
 }
 
-export class BizBudDec extends BizBud {
+export class BizBudDec extends BizBudValue {
     readonly dataType = BudDataType.dec;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
@@ -97,7 +99,7 @@ export class BizBudDec extends BizBud {
     }
 }
 
-export class BizBudChar extends BizBud {
+export class BizBudChar extends BizBudValue {
     readonly dataType = BudDataType.char;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
@@ -109,7 +111,7 @@ export class BizBudChar extends BizBud {
     }
 }
 
-export class BizBudDate extends BizBud {
+export class BizBudDate extends BizBudValue {
     readonly dataType = BudDataType.date;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
@@ -121,7 +123,7 @@ export class BizBudDate extends BizBud {
     }
 }
 
-export class BizBudAtom extends BizBud {
+export class BizBudAtom extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
     atom: BizAtomID;
@@ -142,7 +144,7 @@ export interface BizSubItem {
     value: number | string;
 }
 */
-export abstract class BizBudOptions extends BizBud {
+export abstract class BizBudOptions extends BizBudValue {
     // readonly items: BizSubItem[] = [];
     options: BizOptions;
     buildSchema(res: { [phrase: string]: string }) {

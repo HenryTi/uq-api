@@ -15,12 +15,12 @@ class PBiz extends entity_1.PEntity {
             permit: il_1.BizPermit,
             role: il_1.BizRole,
             sheet: il_1.BizSheet,
-            // main: BizMain,
             bin: il_1.BizBin,
             pend: il_1.BizPend,
             pick: il_1.BizPick,
             tree: il_1.BizTree,
             tie: il_1.BizTie,
+            report: il_1.BizReport,
         };
     }
     parse() {

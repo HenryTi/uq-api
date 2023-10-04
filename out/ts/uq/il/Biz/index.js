@@ -30,4 +30,5 @@ __exportStar(require("./Entity"), exports);
 __exportStar(require("./Tree"), exports);
 __exportStar(require("./Tie"), exports);
 __exportStar(require("./Options"), exports);
+__exportStar(require("./Report"), exports);
 //# sourceMappingURL=index.js.map
