@@ -8,8 +8,15 @@ import { BizEntity } from "./Entity";
 import { BizTitle } from "./Title";
 
 export interface ReportTitle {
+    caption: string;
     title: BizTitle;
     bud: BizBud;
+}
+
+export enum ReportJoinType { x = 1, to = 2 };
+export interface ReportJoin {
+    type: ReportJoinType;
+    entity: BizEntity;
 }
 
 export class ReportList extends BizBud {
@@ -30,7 +37,9 @@ export class ReportList extends BizBud {
 export class BizReport extends BizEntity {
     readonly bizPhraseType = BizPhraseType.report;
     readonly lists: ReportList[] = [];
-    title: ReportTitle;
+    readonly titles: ReportTitle[] = [];
+    from: BizAtom;
+    readonly joins: ReportJoin[] = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizReport(this, context);
@@ -38,8 +47,22 @@ export class BizReport extends BizEntity {
 
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        const { title, bud } = this.title;
-        ret.title = `${title.name}.${bud.name}`;
+        // const { title, bud } = this.title;
+        ret.title = this.titles.map(v => {
+            const { caption, title, bud } = v;
+            return {
+                caption,
+                title: [title.name, bud.name],
+            }
+        });
+        ret.from = this.from.name;
+        ret.joins = this.joins.map(v => {
+            const { type, entity } = v;
+            return {
+                type,
+                entity: entity.name,
+            }
+        });
         ret.lists = this.lists.map(v => {
             return v.buildSchema(res);
         });
