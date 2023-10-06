@@ -24,7 +24,6 @@ export class OptionsItem extends BizBudValue {
         return;
     }
     get dataType(): BudDataType {
-        debugger;
         return;
     }
     get canIndex(): boolean {

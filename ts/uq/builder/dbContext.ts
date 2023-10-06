@@ -192,6 +192,8 @@ export enum EnumSysTable {
     ixRole = '$ixrole',
 
     ixMy = 'ixmy',
+    atom = 'atom',
+    spec = 'spec',
     bud = 'bud',
     ixBud = 'ixbud',
     ixBudDec = 'ixbuddec',

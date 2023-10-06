@@ -12,7 +12,9 @@ export class MyProcedure extends Procedure {
         return new ProcedureUpdater(this.dbContext, runner, this)
     }
     protected buildDrop(sb: SqlBuilder): void {
-        sb.append('DROP Procedure IF Exists `')
+        sb.append('DROP ');
+        sb.append(this.returnDataType !== undefined ? 'FUNCTION' : 'Procedure');
+        sb.append(' IF Exists `')
             .append(this.dbName)
             .append('`.`')
             .append(this.dbProcName).append('`;');

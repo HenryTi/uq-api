@@ -84,9 +84,6 @@ class PBizReport extends Base_1.PBizEntity {
         let caption = this.ts.mayPassString();
         return { title: [v0, v1], caption };
     }
-    parseContent() {
-        super.parseContent();
-    }
     scan(space) {
         let ok = true;
         if (this.titles.length === 0) {

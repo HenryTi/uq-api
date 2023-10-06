@@ -3,7 +3,6 @@ import { Sqls } from "../bstatement";
 import { EnumSysTable, sysTable } from "../dbContext";
 import { ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
-import { SysTables } from "../sys/tables";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizSheet extends BBizEntity<BizSheet> {

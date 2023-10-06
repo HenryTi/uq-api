@@ -34,6 +34,11 @@ class BBizEntity {
         this.context.coreObjs.procedures.push(proc);
         return proc;
     }
+    createFunction(name, returnType) {
+        const func = this.context.createAppFunc(name, returnType);
+        this.context.coreObjs.procedures.push(func);
+        return func;
+    }
     stringify(value) {
         const exp = this.context.convertExp(value);
         if (exp === undefined)

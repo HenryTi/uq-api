@@ -796,7 +796,7 @@ export class ExecSql extends stat.ExecSql {
             sb.exp(this.sql);
         }
         */
-        sb.exp(this.sql).ln;
+        sb.exp(this.sql).ln();
         sb.tab(tab).append('PREPARE stmt FROM @statement').ln();
         sb.tab(tab).append('EXECUTE stmt').ln();
         sb.tab(tab).append('DEALLOCATE PREPARE stmt').ln();

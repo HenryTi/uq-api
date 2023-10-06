@@ -1,4 +1,4 @@
-import { BizBudValue, BizEntity, BudValueAct, Expression, ValueExpression } from "../../il";
+import { BizBudValue, BizEntity, BudValueAct, DataType, Expression, ValueExpression } from "../../il";
 import { DbContext } from "../dbContext";
 
 export class BBizEntity<B extends BizEntity = any> {
@@ -35,6 +35,12 @@ export class BBizEntity<B extends BizEntity = any> {
         const proc = this.context.createProcedure(procName, true);
         this.context.coreObjs.procedures.push(proc);
         return proc;
+    }
+
+    protected createFunction(name: string, returnType: DataType) {
+        const func = this.context.createAppFunc(name, returnType);
+        this.context.coreObjs.procedures.push(func);
+        return func;
     }
 
     private stringify(value: Expression): string {

@@ -19,7 +19,6 @@ class OptionsItem extends Bud_1.BizBudValue {
         return;
     }
     get dataType() {
-        debugger;
         return;
     }
     get canIndex() {
