@@ -60,6 +60,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
             { col: 'no', val: undefined },
             { col: 'ex', val: undefined },
             { col: 'value', val: undefined },
+            { col: 'phrase', val: undefined },
         ];
         const selectValue = factory.createSelect();
         selectValue.column(new sql_1.ExpFunc(factory.func_sum, new sql_1.ExpField('value', h)));
@@ -73,6 +74,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
         selectPage.column(new sql_1.ExpField('no', a));
         selectPage.column(new sql_1.ExpField('ex', a));
         selectPage.column(new sql_1.ExpSelect(selectValue), 'value');
+        selectPage.column(new sql_1.ExpField('base', a), 'phrase');
         selectPage
             .from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.atom, false, a));
         selectPage.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), varPhrase), new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar('pageStart'))));

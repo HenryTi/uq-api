@@ -3,59 +3,57 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizRole = exports.PBizPermit = void 0;
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
-class PBizPermit extends Base_1.PBizBase {
+class PBizPermit extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.permits = {};
-    }
-    parseContent() {
-        for (;;) {
-            if (this.ts.token !== tokens_1.Token.VAR)
-                break;
-            if (this.ts.varBrace === true)
-                break;
-            switch (this.ts.lowerVar) {
-                default:
-                    this.ts.expect('permit', 'item');
-                    break;
-                case 'item':
-                    this.parseItem();
-                    continue;
-                case 'permit':
-                    this.parsePermit();
-                    continue;
+        /*
+        protected parseContent(): void {
+            for (; ;) {
+                if (this.ts.token !== Token.VAR) break;
+                if (this.ts.varBrace === true) break;
+                switch (this.ts.lowerVar) {
+                    default: this.ts.expect('permit', 'item'); break;
+                    case 'item': this.parseItem(); continue;
+                    case 'permit': this.parsePermit(); continue;
+                }
+                this.ts.passToken(Token.SEMICOLON);
             }
+        }
+        */
+        this.parseItem = () => {
+            this.ts.readToken();
+            if (this.ts.token !== tokens_1.Token.VAR)
+                this.expectToken(tokens_1.Token.VAR);
+            let { lowerVar: name, _var: jName } = this.ts;
+            this.ts.readToken();
+            let { items } = this.element;
+            if (items.has(name) === true) {
+                this.ts.error(`duplicate '${name}'`);
+            }
+            let caption = this.ts.mayPassVar();
+            if (caption === undefined) {
+                if (jName !== name)
+                    caption = jName;
+            }
+            items.set(name, {
+                permit: this.element,
+                name,
+                caption,
+                phrase: undefined,
+            });
             this.ts.passToken(tokens_1.Token.SEMICOLON);
-        }
-    }
-    parseItem() {
-        this.ts.readToken();
-        if (this.ts.token !== tokens_1.Token.VAR)
-            this.expectToken(tokens_1.Token.VAR);
-        let { lowerVar: name, _var: jName } = this.ts;
-        this.ts.readToken();
-        let { items } = this.element;
-        if (items.has(name) === true) {
-            this.ts.error(`duplicate '${name}'`);
-        }
-        let caption = this.ts.mayPassVar();
-        if (caption === undefined) {
-            if (jName !== name)
-                caption = jName;
-        }
-        items.set(name, {
-            permit: this.element,
-            name,
-            caption,
-            phrase: undefined,
-        });
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
-    }
-    parsePermit() {
-        this.ts.readToken();
-        let name = this.ts.passVar();
-        this.permits[name] = true;
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        };
+        this.parsePermit = () => {
+            this.ts.readToken();
+            let name = this.ts.passVar();
+            this.permits[name] = true;
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+        };
+        this.keyColl = {
+            item: this.parseItem,
+            permit: this.parsePermit,
+        };
     }
     scan(space) {
         let ok = true;
@@ -99,66 +97,64 @@ class PBizPermit extends Base_1.PBizBase {
     }
 }
 exports.PBizPermit = PBizPermit;
-class PBizRole extends Base_1.PBizBase {
+class PBizRole extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.withs = [];
         this.roleNames = [];
-    }
-    parseContent() {
-        for (;;) {
-            if (this.ts.varBrace === true)
-                break;
-            if (this.ts.token !== tokens_1.Token.VAR)
-                break;
-            let key = this.ts.passKey();
-            switch (key) {
-                default:
-                    this.ts.expect('permit', 'role');
-                    break;
-                case 'permit':
-                    this.parsePermit();
-                    break;
-                case 'role':
-                    this.parseRole();
-                    break;
-            }
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-        }
-    }
-    parsePermit() {
-        let name = this.ts.passVar();
-        let index = this.withs.findIndex(v => v.name === name);
-        if (index >= 0) {
-            this.ts.error(`duplicate '${name}'`);
-        }
-        let subs;
-        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
-            subs = [];
-            this.ts.readToken();
-            for (;;) {
-                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                    this.ts.readToken();
-                    break;
+        /*
+        protected parseContent(): void {
+            for (; ;) {
+                if (this.ts.varBrace === true) break;
+                if (this.ts.token !== Token.VAR) break;
+                let key = this.ts.passKey();
+                switch (key) {
+                    default: this.ts.expect('permit', 'role'); break;
+                    case 'permit': this.parsePermit(); break;
+                    case 'role': this.parseRole(); break;
                 }
-                let sub = this.ts.passVar();
-                subs.push(sub);
-                if (this.ts.token === tokens_1.Token.COMMA) {
-                    this.ts.readToken();
-                    continue;
-                }
-                this.ts.passToken(tokens_1.Token.RPARENTHESE);
-                break;
+                this.ts.passToken(Token.SEMICOLON);
             }
         }
-        this.withs.push({ name, subs });
-    }
-    parseRole() {
-        let name = this.ts.passVar();
-        if (this.roleNames.includes(name) === true) {
-            this.ts.error(`duplicate '${name}'`);
-        }
-        this.roleNames.push(name);
+        */
+        this.parsePermit = () => {
+            let name = this.ts.passVar();
+            let index = this.withs.findIndex(v => v.name === name);
+            if (index >= 0) {
+                this.ts.error(`duplicate '${name}'`);
+            }
+            let subs;
+            if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+                subs = [];
+                this.ts.readToken();
+                for (;;) {
+                    if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                        this.ts.readToken();
+                        break;
+                    }
+                    let sub = this.ts.passVar();
+                    subs.push(sub);
+                    if (this.ts.token === tokens_1.Token.COMMA) {
+                        this.ts.readToken();
+                        continue;
+                    }
+                    this.ts.passToken(tokens_1.Token.RPARENTHESE);
+                    break;
+                }
+            }
+            this.withs.push({ name, subs });
+        };
+        this.parseRole = () => {
+            let name = this.ts.passVar();
+            if (this.roleNames.includes(name) === true) {
+                this.ts.error(`duplicate '${name}'`);
+            }
+            this.roleNames.push(name);
+        };
+        this.keyColl = {
+            permit: this.parsePermit,
+            role: this.parseRole,
+        };
     }
     scan(space) {
         let ok = true;

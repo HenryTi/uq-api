@@ -1,10 +1,12 @@
 import { BizPermit, BizPermitItem, BizRole, Uq } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
-import { PBizBase } from "./Base";
+import { PBizBase, PBizEntity } from "./Base";
 
-export class PBizPermit<P extends BizPermit> extends PBizBase<P> {
+export class PBizPermit<P extends BizPermit> extends PBizEntity<P> {
     private readonly permits: { [key: string]: boolean } = {};
+
+    /*
     protected parseContent(): void {
         for (; ;) {
             if (this.ts.token !== Token.VAR) break;
@@ -17,8 +19,9 @@ export class PBizPermit<P extends BizPermit> extends PBizBase<P> {
             this.ts.passToken(Token.SEMICOLON);
         }
     }
+    */
 
-    private parseItem() {
+    private parseItem = () => {
         this.ts.readToken();
         if (this.ts.token !== Token.VAR) this.expectToken(Token.VAR);
         let { lowerVar: name, _var: jName } = this.ts;
@@ -40,11 +43,16 @@ export class PBizPermit<P extends BizPermit> extends PBizBase<P> {
         this.ts.passToken(Token.SEMICOLON);
     }
 
-    private parsePermit() {
+    private parsePermit = () => {
         this.ts.readToken();
         let name = this.ts.passVar();
         this.permits[name] = true;
         this.ts.passToken(Token.SEMICOLON);
+    }
+
+    protected readonly keyColl = {
+        item: this.parseItem,
+        permit: this.parsePermit,
     }
 
     scan(space: Space): boolean {
@@ -94,9 +102,10 @@ interface WithPermit {
     name: string;
     subs: string[];
 }
-export class PBizRole<P extends BizRole> extends PBizBase<P> {
+export class PBizRole<P extends BizRole> extends PBizEntity<P> {
     private readonly withs: WithPermit[] = [];
     private readonly roleNames: string[] = [];
+    /*
     protected parseContent(): void {
         for (; ;) {
             if (this.ts.varBrace === true) break;
@@ -110,8 +119,9 @@ export class PBizRole<P extends BizRole> extends PBizBase<P> {
             this.ts.passToken(Token.SEMICOLON);
         }
     }
+    */
 
-    private parsePermit() {
+    private parsePermit = () => {
         let name = this.ts.passVar();
         let index = this.withs.findIndex(v => v.name === name);
         if (index >= 0) {
@@ -139,12 +149,17 @@ export class PBizRole<P extends BizRole> extends PBizBase<P> {
         this.withs.push({ name, subs });
     }
 
-    private parseRole() {
+    private parseRole = () => {
         let name = this.ts.passVar();
         if (this.roleNames.includes(name) === true) {
             this.ts.error(`duplicate '${name}'`);
         }
         this.roleNames.push(name);
+    }
+
+    protected readonly keyColl = {
+        permit: this.parsePermit,
+        role: this.parseRole,
     }
 
     scan(space: Space): boolean {

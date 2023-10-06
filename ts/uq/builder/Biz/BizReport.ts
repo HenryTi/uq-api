@@ -79,6 +79,7 @@ export class BBizReport extends BBizEntity<BizReport> {
             { col: 'no', val: undefined },
             { col: 'ex', val: undefined },
             { col: 'value', val: undefined },
+            { col: 'phrase', val: undefined },
         ];
 
         const selectValue = factory.createSelect();
@@ -99,6 +100,7 @@ export class BBizReport extends BBizEntity<BizReport> {
         selectPage.column(new ExpField('no', a));
         selectPage.column(new ExpField('ex', a));
         selectPage.column(new ExpSelect(selectValue), 'value');
+        selectPage.column(new ExpField('base', a), 'phrase');
         selectPage
             .from(new EntityTable(EnumSysTable.atom, false, a))
         selectPage.where(new ExpAnd(

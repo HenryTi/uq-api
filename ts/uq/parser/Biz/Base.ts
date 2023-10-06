@@ -122,7 +122,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.element.source = entityType + ' ' + source;
     }
 
-    abstract get keyColl(): { [key: string]: () => void };
+    protected abstract get keyColl(): { [key: string]: () => void };
     protected parseContent(): void {
         const keyColl = this.keyColl;
         /*
