@@ -99,17 +99,19 @@ exports.PBizPermitItem = PBizPermitItem;
 class PBizRole extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
-        this.permitNames = [];
+        // private readonly permitNames: string[] = [];
         this.roleNames = [];
-        this.parsePermit = () => {
+        /*
+        private parsePermit = () => {
             let name = this.ts.passVar();
             let index = this.permitNames.findIndex(v => v === name);
             if (index >= 0) {
                 this.ts.error(`duplicate '${name}'`);
             }
             this.permitNames.push(name);
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-        };
+            this.ts.passToken(Token.SEMICOLON);
+        }
+        */
         this.parseRole = () => {
             let name = this.ts.passVar();
             if (this.roleNames.includes(name) === true) {
@@ -119,7 +121,7 @@ class PBizRole extends Base_1.PBizEntity {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
         this.keyColl = {
-            permit: this.parsePermit,
+            // permit: this.parsePermit,
             role: this.parseRole,
         };
     }
@@ -157,6 +159,7 @@ class PBizRole extends Base_1.PBizEntity {
                 this.element.roles.set(name, bizBase);
             }
         }
+        /*
         for (let permitName of this.permitNames) {
             let bizBase = bizes.get(permitName);
             if (bizBase === undefined || bizBase.type !== 'permit') {
@@ -164,9 +167,10 @@ class PBizRole extends Base_1.PBizEntity {
                 ok = false;
                 continue;
             }
-            let bizPermit = bizBase;
+            let bizPermit = bizBase as BizPermit;
             this.element.permits.set(permitName, bizPermit);
         }
+        */
         for (let [, value] of this.element.roles) {
             let roles = [];
             if (this.checkRecursive(space, value, roles) === false)
@@ -192,4 +196,4 @@ class PBizRole extends Base_1.PBizEntity {
     }
 }
 exports.PBizRole = PBizRole;
-//# sourceMappingURL=Permit.js.map
+//# sourceMappingURL=Role.js.map

@@ -1,10 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizBud extends Base_1.PBizBase {
+}
+exports.PBizBud = PBizBud;
+class PBizBudValue extends PBizBud {
     _parse() {
     }
     scan(space) {
@@ -18,28 +21,28 @@ class PBizBud extends Base_1.PBizBase {
         return ok;
     }
 }
-exports.PBizBud = PBizBud;
-class PBizBudNone extends PBizBud {
+exports.PBizBudValue = PBizBudValue;
+class PBizBudNone extends PBizBudValue {
     _parse() {
     }
 }
 exports.PBizBudNone = PBizBudNone;
-class PBizBudInt extends PBizBud {
+class PBizBudInt extends PBizBudValue {
     _parse() {
     }
 }
 exports.PBizBudInt = PBizBudInt;
-class PBizBudDec extends PBizBud {
+class PBizBudDec extends PBizBudValue {
     _parse() {
     }
 }
 exports.PBizBudDec = PBizBudDec;
-class PBizBudChar extends PBizBud {
+class PBizBudChar extends PBizBudValue {
     _parse() {
     }
 }
 exports.PBizBudChar = PBizBudChar;
-class PBizBudDate extends PBizBud {
+class PBizBudDate extends PBizBudValue {
     _parse() {
     }
 }
@@ -69,7 +72,7 @@ export class PBizBudID extends PBizBud<BizBudID> {
     }
 }
 */
-class PBizBudAtom extends PBizBud {
+class PBizBudAtom extends PBizBudValue {
     _parse() {
         if (this.ts.token === tokens_1.Token.VAR) {
             this.atomName = this.ts.lowerVar;
@@ -91,7 +94,7 @@ class PBizBudAtom extends PBizBud {
     }
 }
 exports.PBizBudAtom = PBizBudAtom;
-class PBizBudPickable extends PBizBud {
+class PBizBudPickable extends PBizBudValue {
     _parse() {
         if (this.ts.token === tokens_1.Token.VAR) {
             if (this.ts.varBrace === false) {
@@ -155,7 +158,7 @@ class PBizBudPickable extends PBizBud {
     }
 }
 exports.PBizBudPickable = PBizBudPickable;
-class PBizBudRadioOrCheck extends PBizBud {
+class PBizBudRadioOrCheck extends PBizBudValue {
     _parse() {
         if (this.ts.token !== tokens_1.Token.VAR) {
             super._parse();

@@ -91,10 +91,14 @@ class PBizAtom extends PBizAtomID {
             this.element.uom = true;
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
+        this.parsePermit = () => {
+            this.parsePermission('crud');
+        };
         this.keyColl = {
             uom: this.parseUom,
             prop: this.parseProp,
             ex: this.parseEx,
+            permit: this.parsePermit
         };
     }
     parseParam() {

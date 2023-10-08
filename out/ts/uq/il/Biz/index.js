@@ -23,7 +23,7 @@ __exportStar(require("./Atom"), exports);
 __exportStar(require("./Title"), exports);
 __exportStar(require("./Bud"), exports);
 __exportStar(require("./Pick"), exports);
-__exportStar(require("./Permit"), exports);
+__exportStar(require("./Role"), exports);
 __exportStar(require("./Act"), exports);
 __exportStar(require("./Query"), exports);
 __exportStar(require("./Entity"), exports);

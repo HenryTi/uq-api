@@ -18,7 +18,7 @@ export interface ReportJoin {
     type: ReportJoinType;
     entity: BizEntity;
 }
-
+/*
 export class ReportList extends BizBud {
     readonly dataType = BudDataType.none;
     readonly canIndex = false;
@@ -33,10 +33,10 @@ export class ReportList extends BizBud {
         return ret;
     }
 }
-
+*/
 export class BizReport extends BizEntity {
     readonly bizPhraseType = BizPhraseType.report;
-    readonly lists: ReportList[] = [];
+    // readonly lists: ReportList[] = [];
     readonly titles: ReportTitle[] = [];
     from: BizAtom;
     readonly joins: ReportJoin[] = [];
@@ -63,31 +63,37 @@ export class BizReport extends BizEntity {
                 entity: entity.name,
             }
         });
+        /*
         ret.lists = this.lists.map(v => {
             return v.buildSchema(res);
         });
+        */
         return ret;
     }
 
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
+        /*
         let phrase = this.phrase;
         for (let list of this.lists) {
             list.buildPhrases(phrases, phrase)
         }
+        */
     }
 
     override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
-        for (let list of this.lists) callback(list);
+        // for (let list of this.lists) callback(list);
     }
 
     override getBud(name: string) {
         let bud = super.getBud(name);
         if (bud !== undefined) return bud;
+        /*
         for (let kBud of this.lists) {
             if (kBud.name === name) return kBud;
         }
+        */
         return undefined;
     }
 

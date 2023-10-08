@@ -1,11 +1,11 @@
-import { BizAtom, BizAtomSpec, BizPhraseType, BizReport, BizTitle, ReportJoinType, ReportList } from "../../il";
+import { BizAtom, BizAtomSpec, BizPhraseType, BizReport, BizTitle, ReportJoinType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
 export class PBizReport extends PBizEntity<BizReport> {
     private readonly titles: { title: [string, string]; caption: string; }[] = [];
-    private readonly lists: { name: string, caption: string, atomName: string }[] = [];
+    // private readonly lists: { name: string, caption: string, atomName: string }[] = [];
     private from: string;
     private joins: { type: ReportJoinType; entity: string; }[] = [];
     private parseTitles = () => {
@@ -63,7 +63,7 @@ export class PBizReport extends PBizEntity<BizReport> {
             }
         }
     }
-
+    /*
     private parseList = () => {
         let name = this.ts.passVar();
         let caption = this.ts.passString();
@@ -72,11 +72,15 @@ export class PBizReport extends PBizEntity<BizReport> {
         this.lists.push({ name, caption, atomName });
         this.ts.passToken(Token.SEMICOLON);
     }
+    */
+    private parsePermit = () => {
+        this.parsePermission('');
+    }
 
     readonly keyColl = {
         title: this.parseTitles,
         from: this.parseFrom,
-        list: this.parseList,
+        permit: this.parsePermit,
     };
 
     override scan(space: Space): boolean {
@@ -133,6 +137,7 @@ export class PBizReport extends PBizEntity<BizReport> {
                 this.element.joins.push({ type, entity: en });
             }
         }
+        /*
         for (let { name, caption, atomName } of this.lists) {
             let entity = space.getBizEntity(atomName) as BizAtom | BizAtomSpec;
             if (
@@ -149,6 +154,7 @@ export class PBizReport extends PBizEntity<BizReport> {
             this.element.lists.push(r);
             r.atom = entity;
         }
+        */
         return ok;
     }
 }

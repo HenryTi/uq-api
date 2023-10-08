@@ -22,7 +22,7 @@ __exportStar(require("./Sheet"), exports);
 __exportStar(require("./Title"), exports);
 __exportStar(require("./Pick"), exports);
 __exportStar(require("./Bud"), exports);
-__exportStar(require("./Permit"), exports);
+__exportStar(require("./Role"), exports);
 __exportStar(require("./Tree"), exports);
 __exportStar(require("./Tie"), exports);
 __exportStar(require("./Options"), exports);

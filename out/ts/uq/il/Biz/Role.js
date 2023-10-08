@@ -56,7 +56,7 @@ class BizRole extends Entity_1.BizEntity {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.role;
         // readonly permitItems = new Map<string, BizPermitItem>();
-        this.permits = new Map();
+        // readonly permits = new Map<string, BizPermit>();
         this.roles = new Map();
     }
     get type() { return 'role'; }
@@ -68,4 +68,4 @@ class BizRole extends Entity_1.BizEntity {
     }
 }
 exports.BizRole = BizRole;
-//# sourceMappingURL=Permit.js.map
+//# sourceMappingURL=Role.js.map

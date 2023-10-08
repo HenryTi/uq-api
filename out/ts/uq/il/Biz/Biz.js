@@ -5,6 +5,7 @@ const parser_1 = require("../../parser");
 const schema_1 = require("../schema");
 const entity_1 = require("../entity/entity");
 class Biz extends entity_1.Entity {
+    // roles: Role[];
     constructor(uq) {
         super(uq);
         this.bizArr = [];
@@ -34,16 +35,16 @@ class Biz extends entity_1.Entity {
             value.buildPhrases(phrases, undefined);
         }
         this.phrases = phrases;
+        /*
         for (let [, value] of this.bizEntities) {
             let { type } = value;
-            if (type !== 'role')
-                continue;
-            let permitNames = [];
-            this.buildRoleNames(permitNames, value);
+            if (type !== 'role') continue;
+            let permitNames: string[] = [];
+            this.buildRoleNames(permitNames, value as BizRole);
             roles.push({ role: value.phrase, permits: permitNames });
         }
-        if (roles.length > 0)
-            this.roles = roles;
+        */
+        // if (roles.length > 0) this.roles = roles;
     }
     buildArrPhrases() {
         let phrases = [];
@@ -54,12 +55,9 @@ class Biz extends entity_1.Entity {
         }
         return phrases;
     }
-    buildRoleNames(permitNames, bizRole) {
-        let { roles, permitItems, permits } = bizRole;
-        for (let [, value] of permitItems) {
-            let { phrase } = value;
-            permitNames.push(phrase);
-        }
+    /*
+    private buildRoleNames(permitNames: string[], bizRole: BizRole) {
+        let { roles, permits } = bizRole;
         for (let [, value] of permits) {
             let { phrase } = value;
             permitNames.push(phrase);
@@ -71,7 +69,8 @@ class Biz extends entity_1.Entity {
             this.buildRoleNames(permitNames, value);
         }
     }
-    buildPermitNames(permitNames, bizPermit) {
+
+    private buildPermitNames(permitNames: string[], bizPermit: BizPermit) {
         let { items, permits } = bizPermit;
         for (let [, value] of items) {
             permitNames.push(value.phrase);
@@ -81,12 +80,13 @@ class Biz extends entity_1.Entity {
             this.buildPermitNames(permitNames, value);
         }
     }
+    */
     getBizBase(bizName) {
         if (bizName.length === 1) {
             return this.bizEntities.get(bizName[0]);
         }
     }
-    getAtomExtendsPairs() {
+    getEntityIxPairs() {
         const pairs = [];
         const coll = {};
         const pairColl = {};
@@ -98,27 +98,54 @@ class Biz extends entity_1.Entity {
             coll[name] = bizAtom;
             const { extends: _extends } = bizAtom;
             if (_extends === undefined) {
-                pairs.push(['', bizAtom.phrase]);
+                pairs.push([0, bizAtom.id]);
             }
             else {
-                pairs.push([_extends.phrase, bizAtom.phrase]);
+                pairs.push([_extends.id, bizAtom.id]);
             }
             pairColl[name] = bizAtom;
         }
-        for (const [, entity] of this.bizEntities) {
-            if (entity.type !== 'atom')
-                continue;
-            const bizAtom = entity;
+        function buildAtomPair(bizAtom) {
+            // const bizAtom = entity as BizAtom;
             if (pairColl[bizAtom.name] !== undefined)
-                continue;
+                return;
             const { extends: _extends } = bizAtom;
             if (_extends === undefined)
-                continue;
+                return;
             if (coll[_extends.name] === undefined)
-                continue;
+                return;
+            pairs.push([_extends.id, bizAtom.id]);
+        }
+        function buildRolePair(bizRole) {
+            for (let [, role1] of bizRole.roles) {
+                pairs.push([bizRole.id, role1.id]);
+            }
+        }
+        for (const [, entity] of this.bizEntities) {
+            switch (entity.type) {
+                case 'atom':
+                    buildAtomPair(entity);
+                    break;
+                case 'role':
+                    buildRolePair(entity);
+                    break;
+            }
+            /*
+            if (pairColl[bizAtom.name] !== undefined) continue;
+            const { extends: _extends } = bizAtom;
+            if (_extends === undefined) continue;
+            if (coll[_extends.name] === undefined) continue;
             pairs.push([_extends.phrase, bizAtom.phrase]);
+            */
         }
         return pairs;
+    }
+    getIxRoles() {
+        let ret = [];
+        for (const [, entity] of this.bizEntities) {
+            entity.buildIxRoles(ret);
+        }
+        return ret;
     }
 }
 exports.Biz = Biz;

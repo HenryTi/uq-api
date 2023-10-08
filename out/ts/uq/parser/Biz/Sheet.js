@@ -42,10 +42,14 @@ class PBizSheet extends Base_1.PBizEntity {
             this.details.push({ name, caption });
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
+        this.parsePermit = () => {
+            this.parsePermission('crud');
+        };
         this.keyColl = {
             prop: this.parseProp,
             main: this.parseMain,
             detail: this.parseDetail,
+            permit: this.parsePermit,
         };
     }
     scan(space) {
@@ -174,48 +178,6 @@ class PBizBin extends Base_1.PBizEntity {
         this.context.parseElement(bud);
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bud;
-        /*
-        let exp: ValueExpression;
-        let act: BudValueAct;
-        let atom: string;
-        let pick: string;
-        if (this.ts.token === Token.EQU) {
-            this.ts.readToken();
-            act = BudValueAct.equ;
-            exp = new ValueExpression();
-            this.context.parseElement(exp);
-        }
-        else if (this.ts.token === Token.COLONEQU) {
-            this.ts.readToken();
-            act = BudValueAct.equ;
-            exp = new ValueExpression();
-            this.context.parseElement(exp);
-        }
-        else if (this.ts.isKeyword('atom') === true) {
-            this.ts.readToken();
-            this.ts.assertToken(Token.VAR);
-            atom = this.ts.lowerVar;
-            this.ts.readToken();
-        }
-        else if (this.ts.isKeyword('pick') === true) {
-            this.ts.readToken();
-            this.ts.assertToken(Token.VAR);
-            pick = this.ts.lowerVar;
-            this.ts.readToken();
-        }
-        else {
-            this.ts.expect('atom', 'pick');
-        }
-        this.ts.passToken(Token.SEMICOLON);
-        let bud = new BizBudPickable(itemName, caption);
-        if (exp !== undefined) {
-            bud.value = {
-                exp,
-                act,
-            };
-        }
-        return bud;
-        */
     }
     parseValueBud(bud, budName) {
         if (bud !== undefined) {

@@ -99,10 +99,15 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
         this.ts.passToken(Token.SEMICOLON);
     }
 
+    private parsePermit = () => {
+        this.parsePermission('crud');
+    }
+
     readonly keyColl = {
         uom: this.parseUom,
         prop: this.parseProp,
         ex: this.parseEx,
+        permit: this.parsePermit
     };
 
     scan(space: Space): boolean {

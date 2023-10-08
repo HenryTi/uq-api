@@ -55,7 +55,6 @@ class BizSiteBuilder {
                 let e = entity;
                 let savedBud = this.buds[bud.phrase];
                 if (savedBud === undefined) {
-                    debugger;
                     return;
                 }
                 bud.id = savedBud.id;
@@ -125,12 +124,14 @@ class BizSiteBuilder {
         await Promise.all(this.biz.latestBizArr.map(entity => {
             return this.saveBizObject(entity);
         }));
-        const atomPairs = this.biz.getAtomExtendsPairs();
-        console.log(atomPairs);
-        await this.runner.unitUserTableFromProc('SaveBizIX', this.site, this.user, JSON.stringify(atomPairs));
+        const ixPairs = this.biz.getEntityIxPairs();
+        console.log(ixPairs);
+        await this.runner.unitUserTableFromProc('SaveBizIX', this.site, this.user, JSON.stringify(ixPairs));
         await Promise.all(this.biz.latestBizArr.map(entity => {
             return this.saveBizEntityBuds(entity);
         }));
+        const ixBizRoles = this.biz.getIxRoles();
+        await this.runner.unitUserTableFromProc('SaveIxPermission', this.site, this.user, JSON.stringify(ixBizRoles));
         const hasUnit = false;
         const compilerVersion = '0.0';
         let context = new builder_1.DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);

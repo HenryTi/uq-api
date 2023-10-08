@@ -4,6 +4,7 @@ import { Field } from "../field";
 import { BizBase, BudDataType } from "./Base";
 import { Biz } from "./Biz";
 import { BizBud, BizBudValue } from "./Bud";
+import { BizRole } from "./Role";
 
 export enum BudIndex {
     none = 0x0000,
@@ -23,8 +24,18 @@ export interface IBud {
     flag: BudFlag;
 }
 */
+export interface Permission {
+    a: boolean;                 // all permission
+    c: boolean;                 // create
+    r: boolean;                 // read
+    u: boolean;                 // update·
+    d: boolean;                 // delete
+    l: boolean;                 // list
+}
+
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBudValue> = new Map();
+    readonly permissions: { [role: string]: Permission } = {};
     readonly biz: Biz
     source: string = undefined;
 
@@ -60,6 +71,39 @@ export abstract class BizEntity extends BizBase {
         this.forEachBud(bud => {
             bud.buildPhrases(phrases, phrase)
         })
+    }
+
+    buildIxRoles(ixRoles: any[]) {
+        for (let role in this.permissions) {
+            let bizRole = role === '*' ? undefined : this.biz.bizEntities.get(role) as BizRole;
+            // if (bizRole === undefined) debugger;
+            this.setIxRoles(ixRoles, bizRole, this.permissions[role]);
+        }
+    }
+
+    private setIxRoles(ixRoles: any[], bizRole: BizRole, permission: Permission) {
+        let { a, c, r, u, d, l } = permission;
+        let x: number;
+        if (bizRole === undefined) {
+            x = -1;
+        }
+        else {
+            x = bizRole.id;
+            for (let [, r] of bizRole.roles) {
+                this.setIxRoles(ixRoles, r, permission);
+            }
+        }
+        let item = [
+            this.id,
+            x,
+            a === true ? 1 : 0,
+            c === true ? 1 : 0,
+            r === true ? 1 : 0,
+            u === true ? 1 : 0,
+            d === true ? 1 : 0,
+            l === true ? 1 : 0,
+        ];
+        ixRoles.push(item);
     }
 
     getBizBase1(bizName: string): BizBase {

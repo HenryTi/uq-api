@@ -1,7 +1,7 @@
 import {
     BizBase, BizAtom, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission
 } from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
@@ -138,7 +138,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 this.ts.expect(...keys);
             }
             this.ts.readToken();
-            this.ts.prevToken
             parse();
         }
     }
@@ -258,6 +257,78 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
     }
 
+    private parsePermitOne(permissionLetters: string) {
+        let role: string;
+        let permission: Permission = {} as any;
+        // , a: boolean, n: boolean, c: boolean, r: boolean, u: boolean, d: boolean, l: boolean;
+        switch (this.ts.token) {
+            default: this.ts.expectToken(Token.VAR, Token.MUL, Token.SUB); break;
+            case Token.MUL:
+                role = '*'; this.ts.readToken();
+                break;
+            case Token.VAR:
+                role = this.ts.lowerVar; this.ts.readToken();
+                break;
+        }
+        if (this.ts.token === Token.VAR && this.ts.varBrace === false) {
+            let letters = this.ts.lowerVar;
+            this.ts.readToken();
+            for (let i = 0; i < letters.length; i++) {
+                let c = letters.charAt(i);
+                if (permissionLetters.includes(c) === true) {
+                    permission[c] = true;
+                }
+                else {
+                    this.ts.error(`${c} is a valid permission letter`);
+                }
+            }
+        }
+        else {
+            permission.a = true;
+        }
+
+        this.element.permissions[role] = permission;
+    }
+
+    protected parsePermission(permissionLetters: string) {
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (; ;) {
+                this.parsePermitOne(permissionLetters);
+                if (this.ts.token === Token.COMMA as any) {
+                    this.ts.readToken();
+                    if (this.ts.token === Token.RBRACE as any) {
+                        this.ts.readToken();
+                        break;
+                    }
+                    continue;
+                }
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+        }
+        else {
+            this.parsePermitOne(permissionLetters);
+        }
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
+    protected scanPermission(space: Space) {
+        let ok = true;
+        let { permissions } = this.element;
+        for (let i in permissions) {
+            if (i === '*') continue;
+            let entity = space.getBizEntity(i);
+            if (entity === undefined || entity.type !== 'role') {
+                this.log(`${i} is not a ROLE`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
     protected scanBud(space: Space, bud: BizBudValue): boolean {
         let { pelement, value } = bud;
         if (pelement === undefined) {
@@ -285,6 +356,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let ok = true;
         const { props } = this.element;
         if (this.scanBuds(space, props) === false) ok = false;
+        if (this.scanPermission(space) === false) ok = false;
         return ok;
     }
 

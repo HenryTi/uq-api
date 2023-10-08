@@ -9,24 +9,11 @@ var BudIndex;
     BudIndex[BudIndex["none"] = 0] = "none";
     BudIndex[BudIndex["index"] = 1] = "index";
 })(BudIndex = exports.BudIndex || (exports.BudIndex = {}));
-/*
-export interface IBud {
-    id: number;                 // phrase id
-    phrase: string;
-    caption: string;
-    memo: string;
-    dataType: BudDataType;
-    objName: string;
-    typeNum: string;
-    optionsItemType: OptionsItemValueType;
-    value: string | number;
-    flag: BudFlag;
-}
-*/
 class BizEntity extends Base_1.BizBase {
     constructor(biz) {
         super();
         this.props = new Map();
+        this.permissions = {};
         this.source = undefined;
         this.biz = biz;
     }
@@ -57,6 +44,37 @@ class BizEntity extends Base_1.BizBase {
         this.forEachBud(bud => {
             bud.buildPhrases(phrases, phrase);
         });
+    }
+    buildIxRoles(ixRoles) {
+        for (let role in this.permissions) {
+            let bizRole = role === '*' ? undefined : this.biz.bizEntities.get(role);
+            // if (bizRole === undefined) debugger;
+            this.setIxRoles(ixRoles, bizRole, this.permissions[role]);
+        }
+    }
+    setIxRoles(ixRoles, bizRole, permission) {
+        let { a, c, r, u, d, l } = permission;
+        let x;
+        if (bizRole === undefined) {
+            x = -1;
+        }
+        else {
+            x = bizRole.id;
+            for (let [, r] of bizRole.roles) {
+                this.setIxRoles(ixRoles, r, permission);
+            }
+        }
+        let item = [
+            this.id,
+            x,
+            a === true ? 1 : 0,
+            c === true ? 1 : 0,
+            r === true ? 1 : 0,
+            u === true ? 1 : 0,
+            d === true ? 1 : 0,
+            l === true ? 1 : 0,
+        ];
+        ixRoles.push(item);
     }
     getBizBase1(bizName) {
         let ret = super.getBizBase1(bizName);

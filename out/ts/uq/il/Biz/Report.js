@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizReport = exports.ReportList = exports.ReportJoinType = void 0;
+exports.BizReport = exports.ReportJoinType = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
-const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 var ReportJoinType;
 (function (ReportJoinType) {
@@ -12,27 +11,27 @@ var ReportJoinType;
     ReportJoinType[ReportJoinType["to"] = 2] = "to";
 })(ReportJoinType = exports.ReportJoinType || (exports.ReportJoinType = {}));
 ;
-class ReportList extends Bud_1.BizBud {
-    constructor() {
-        super(...arguments);
-        this.dataType = Base_1.BudDataType.none;
-        this.canIndex = false;
-    }
-    parser(context) {
+/*
+export class ReportList extends BizBud {
+    readonly dataType = BudDataType.none;
+    readonly canIndex = false;
+    parser(context: PContext): PElement<IElement> {
         throw new Error("Method not implemented.");
     }
-    buildSchema(res) {
+    atom: BizAtom | BizAtomSpec;
+
+    buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
         ret.atom = this.atom.name;
         return ret;
     }
 }
-exports.ReportList = ReportList;
+*/
 class BizReport extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.report;
-        this.lists = [];
+        // readonly lists: ReportList[] = [];
         this.titles = [];
         this.joins = [];
     }
@@ -57,31 +56,35 @@ class BizReport extends Entity_1.BizEntity {
                 entity: entity.name,
             };
         });
+        /*
         ret.lists = this.lists.map(v => {
             return v.buildSchema(res);
         });
+        */
         return ret;
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
+        /*
         let phrase = this.phrase;
         for (let list of this.lists) {
-            list.buildPhrases(phrases, phrase);
+            list.buildPhrases(phrases, phrase)
         }
+        */
     }
     forEachBud(callback) {
         super.forEachBud(callback);
-        for (let list of this.lists)
-            callback(list);
+        // for (let list of this.lists) callback(list);
     }
     getBud(name) {
         let bud = super.getBud(name);
         if (bud !== undefined)
             return bud;
+        /*
         for (let kBud of this.lists) {
-            if (kBud.name === name)
-                return kBud;
+            if (kBud.name === name) return kBud;
         }
+        */
         return undefined;
     }
     db(dbContext) {

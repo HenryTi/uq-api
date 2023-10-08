@@ -8,7 +8,6 @@ class PBizReport extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.titles = [];
-        this.lists = [];
         this.joins = [];
         this.parseTitles = () => {
             if (this.titles.length > 0) {
@@ -63,18 +62,23 @@ class PBizReport extends Base_1.PBizEntity {
                 }
             }
         };
-        this.parseList = () => {
+        /*
+        private parseList = () => {
             let name = this.ts.passVar();
             let caption = this.ts.passString();
             this.ts.passKey('of');
             let atomName = this.ts.passVar();
             this.lists.push({ name, caption, atomName });
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
+            this.ts.passToken(Token.SEMICOLON);
+        }
+        */
+        this.parsePermit = () => {
+            this.parsePermission('');
         };
         this.keyColl = {
             title: this.parseTitles,
             from: this.parseFrom,
-            list: this.parseList,
+            permit: this.parsePermit,
         };
     }
     passTitle() {
@@ -138,18 +142,24 @@ class PBizReport extends Base_1.PBizEntity {
                 this.element.joins.push({ type, entity: en });
             }
         }
+        /*
         for (let { name, caption, atomName } of this.lists) {
-            let entity = space.getBizEntity(atomName);
-            if (entity === undefined
-                || (entity.bizPhraseType !== il_1.BizPhraseType.atom
-                    && entity.bizPhraseType !== il_1.BizPhraseType.spec)) {
+            let entity = space.getBizEntity(atomName) as BizAtom | BizAtomSpec;
+            if (
+                entity === undefined
+                || (
+                    entity.bizPhraseType !== BizPhraseType.atom
+                    && entity.bizPhraseType !== BizPhraseType.spec
+                )
+            ) {
                 ok = false;
                 this.log(`${atomName} is neither ATON nor SPEC`);
             }
-            let r = new il_1.ReportList(name, caption);
+            let r = new ReportList(name, caption)
             this.element.lists.push(r);
             r.atom = entity;
         }
+        */
         return ok;
     }
 }

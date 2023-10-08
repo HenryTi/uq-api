@@ -1,13 +1,16 @@
 import {
-    BizBudValue, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
+    BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression
+    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizBase } from "./Base";
 
-export abstract class PBizBud<P extends BizBudValue> extends PBizBase<P> {
+export abstract class PBizBud<P extends BizBud> extends PBizBase<P> {
+}
+
+export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
     protected _parse(): void {
     }
 
@@ -23,27 +26,27 @@ export abstract class PBizBud<P extends BizBudValue> extends PBizBase<P> {
     }
 }
 
-export class PBizBudNone extends PBizBud<BizBudNone> {
+export class PBizBudNone extends PBizBudValue<BizBudNone> {
     protected _parse(): void {
     }
 }
 
-export class PBizBudInt extends PBizBud<BizBudInt> {
+export class PBizBudInt extends PBizBudValue<BizBudInt> {
     protected _parse(): void {
     }
 }
 
-export class PBizBudDec extends PBizBud<BizBudDec> {
+export class PBizBudDec extends PBizBudValue<BizBudDec> {
     protected _parse(): void {
     }
 }
 
-export class PBizBudChar extends PBizBud<BizBudChar> {
+export class PBizBudChar extends PBizBudValue<BizBudChar> {
     protected _parse(): void {
     }
 }
 
-export class PBizBudDate extends PBizBud<BizBudDate> {
+export class PBizBudDate extends PBizBudValue<BizBudDate> {
     protected _parse(): void {
     }
 }
@@ -72,7 +75,7 @@ export class PBizBudID extends PBizBud<BizBudID> {
     }
 }
 */
-export class PBizBudAtom extends PBizBud<BizBudAtom> {
+export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
     private atomName: string;
     protected _parse(): void {
         if (this.ts.token === Token.VAR) {
@@ -96,7 +99,7 @@ export class PBizBudAtom extends PBizBud<BizBudAtom> {
     }
 }
 
-export class PBizBudPickable extends PBizBud<BizBudPickable> {
+export class PBizBudPickable extends PBizBudValue<BizBudPickable> {
     // private atom: string;
     private pick: string;
     protected _parse(): void {
@@ -163,7 +166,7 @@ export class PBizBudPickable extends PBizBud<BizBudPickable> {
     }
 }
 
-abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBudIntOf)> extends PBizBud<T> {
+abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBudIntOf)> extends PBizBudValue<T> {
     private optionsName: string;
 
     protected _parse(): void {

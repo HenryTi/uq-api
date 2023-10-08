@@ -5,7 +5,7 @@ export * from './Atom';
 export * from './Title';
 export * from './Bud';
 export * from './Pick';
-export * from './Permit';
+export * from './Role';
 export * from './Act';
 export * from './Query';
 export * from './Entity';
