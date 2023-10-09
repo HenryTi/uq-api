@@ -146,9 +146,9 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
         this.ts.readToken();
-        if (this.isValidPropName(name) === false) {
-            return;
-        }
+        // if (this.isValidPropName(name) === false) {
+        //    return;
+        // }
         let caption: string = this.ts.mayPassString();
         let bizBud = this.parseBud(name, caption);
         this.ts.passToken(Token.SEMICOLON);
