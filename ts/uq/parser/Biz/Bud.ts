@@ -38,6 +38,39 @@ export class PBizBudInt extends PBizBudValue<BizBudInt> {
 
 export class PBizBudDec extends PBizBudValue<BizBudDec> {
     protected _parse(): void {
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            if (this.ts.token !== Token.NUM as any) {
+                this.ts.expectToken(Token.NUM);
+            }
+            let n = this.ts.dec;
+            this.ts.readToken();
+            let f: number = undefined;
+            if (this.ts.token === Token.COMMA as any) {
+                this.ts.readToken();
+                if (this.ts.token !== Token.NUM as any) {
+                    this.ts.expectToken(Token.NUM);
+                }
+                f = this.ts.dec;
+                this.ts.readToken();
+            }
+            this.ts.passToken(Token.RPARENTHESE);
+            if (f !== undefined) {
+                if (Number.isInteger(n) === false || Number.isInteger(f) === false) {
+                    this.ts.error('must be integer');
+                }
+                n = f;
+            }
+            else {
+                if (Number.isInteger(n) === false) {
+                    this.ts.error('must be integer');
+                }
+            }
+            if (n < 0 || n > 6) {
+                this.ts.error('must be a number between 0-6');
+            }
+            this.element.fraction = n;
+        }
     }
 }
 
@@ -50,31 +83,6 @@ export class PBizBudDate extends PBizBudValue<BizBudDate> {
     protected _parse(): void {
     }
 }
-/*
-export class PBizBudID extends PBizBud<BizBudID> {
-    private idName: string;
-    protected _parse(): void {
-        if (this.ts.token === Token.VAR) {
-            this.idName = this.ts.lowerVar;
-            this.ts.readToken();
-        }
-    }
-
-    scan(space: Space): boolean {
-        let ok = super.scan(space);
-        if (this.idName !== undefined) {
-            let ID = super.scanID(space, this.idName);
-            if (ID === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.ID = ID;
-            }
-        }
-        return ok;
-    }
-}
-*/
 export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
     private atomName: string;
     protected _parse(): void {

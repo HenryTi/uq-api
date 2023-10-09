@@ -34,6 +34,39 @@ class PBizBudInt extends PBizBudValue {
 exports.PBizBudInt = PBizBudInt;
 class PBizBudDec extends PBizBudValue {
     _parse() {
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.readToken();
+            if (this.ts.token !== tokens_1.Token.NUM) {
+                this.ts.expectToken(tokens_1.Token.NUM);
+            }
+            let n = this.ts.dec;
+            this.ts.readToken();
+            let f = undefined;
+            if (this.ts.token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                if (this.ts.token !== tokens_1.Token.NUM) {
+                    this.ts.expectToken(tokens_1.Token.NUM);
+                }
+                f = this.ts.dec;
+                this.ts.readToken();
+            }
+            this.ts.passToken(tokens_1.Token.RPARENTHESE);
+            if (f !== undefined) {
+                if (Number.isInteger(n) === false || Number.isInteger(f) === false) {
+                    this.ts.error('must be integer');
+                }
+                n = f;
+            }
+            else {
+                if (Number.isInteger(n) === false) {
+                    this.ts.error('must be integer');
+                }
+            }
+            if (n < 0 || n > 6) {
+                this.ts.error('must be a number between 0-6');
+            }
+            this.element.fraction = n;
+        }
     }
 }
 exports.PBizBudDec = PBizBudDec;
@@ -47,31 +80,6 @@ class PBizBudDate extends PBizBudValue {
     }
 }
 exports.PBizBudDate = PBizBudDate;
-/*
-export class PBizBudID extends PBizBud<BizBudID> {
-    private idName: string;
-    protected _parse(): void {
-        if (this.ts.token === Token.VAR) {
-            this.idName = this.ts.lowerVar;
-            this.ts.readToken();
-        }
-    }
-
-    scan(space: Space): boolean {
-        let ok = super.scan(space);
-        if (this.idName !== undefined) {
-            let ID = super.scanID(space, this.idName);
-            if (ID === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.ID = ID;
-            }
-        }
-        return ok;
-    }
-}
-*/
 class PBizBudAtom extends PBizBudValue {
     _parse() {
         if (this.ts.token === tokens_1.Token.VAR) {

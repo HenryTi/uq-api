@@ -26,6 +26,7 @@ export abstract class BizBud extends BizBase {
     abstract get dataType(): BudDataType;
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
+    get ex(): object { return undefined }
     constructor(name: string, caption: string) {
         super();
         this.name = name;
@@ -37,10 +38,26 @@ export abstract class BizBudValue extends BizBud {
     abstract get canIndex(): boolean;
     value: BudValue;
     hasHistory: boolean;
+    format: string;
     get optionsItemType(): OptionsItemValueType { return; }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return { ...ret, dataType: this.dataType, value: this.value?.str, history: this.hasHistory === true ? true : undefined }
+        return {
+            ...ret,
+            dataType:
+                this.dataType, value:
+                this.value?.str,
+            ex: this.ex,
+            history: this.hasHistory === true ? true : undefined
+        }
+    }
+
+    get ex(): object {
+        if (this.format !== undefined) {
+            return {
+                format: this.format,
+            };
+        }
     }
 
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
@@ -90,12 +107,17 @@ export class BizBudInt extends BizBudValue {
 export class BizBudDec extends BizBudValue {
     readonly dataType = BudDataType.dec;
     readonly canIndex = false;
+    fraction: number;       // decimal fraction digits count
+    get ex(): object {
+        if (this.format !== undefined || this.fraction !== undefined) {
+            return {
+                format: this.format,
+                fraction: this.fraction,
+            };
+        }
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDec(this, context);
-    }
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        return ret;
     }
 }
 

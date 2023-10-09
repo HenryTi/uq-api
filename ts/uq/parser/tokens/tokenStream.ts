@@ -179,7 +179,9 @@ export class TokenStream {
     }
 
     isKeyword(key: string): boolean {
-        return this.lowerVar === key && this.varBrace === false;
+        return this.token === Token.VAR
+            && (this.lowerVar === key || key === undefined)
+            && this.varBrace === false;
     }
 
     isKeywords(...keys: string[]): boolean {

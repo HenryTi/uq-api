@@ -217,23 +217,35 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 act,
             };
         }
-
-        if (this.ts.isKeyword('history') === true) {
-            bizBud.hasHistory = true;
-            this.ts.readToken();
-        }
-
         if (this.element.checkName(name) === false) {
             this.ts.error(`${name} can not be used multiple times`);
         }
-        if (this.ts.isKeyword('index') === true) {
-            if (bizBud.canIndex === true) {
+
+        const options: { [option: string]: boolean } = {};
+        const parseOptions: { [option: string]: () => void } = {
+            history: () => {
+                bizBud.hasHistory = true;
+                this.ts.readToken();
+            },
+            index: () => {
                 bizBud.flag |= BudIndex.index;
                 this.ts.readToken();
+            },
+            format: () => {
+                this.ts.readToken();
+                bizBud.format = this.ts.passString();
+            },
+        };
+        for (; ;) {
+            if (this.ts.isKeyword(undefined) === false) break;
+            let { lowerVar: option } = this.ts;
+            if (options[option] === true) {
+                this.ts.error(`${option} can define once`);
             }
-            else {
-                this.ts.error('only int or atom can index');
-            }
+            let parse = parseOptions[option];
+            if (parse === undefined) break;
+            parse();
+            options[option] = true;
         }
         return bizBud;
     }

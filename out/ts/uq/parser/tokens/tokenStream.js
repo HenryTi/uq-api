@@ -142,7 +142,9 @@ class TokenStream {
         return this.token === token_1.Token.VAR && this.varBrace === false;
     }
     isKeyword(key) {
-        return this.lowerVar === key && this.varBrace === false;
+        return this.token === token_1.Token.VAR
+            && (this.lowerVar === key || key === undefined)
+            && this.varBrace === false;
     }
     isKeywords(...keys) {
         if (this.varBrace === true)

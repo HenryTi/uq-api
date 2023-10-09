@@ -11,6 +11,7 @@ var BudValueAct;
 })(BudValueAct = exports.BudValueAct || (exports.BudValueAct = {}));
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
+    get ex() { return undefined; }
     constructor(name, caption) {
         super();
         this.bizPhraseType = Base_1.BizPhraseType.any;
@@ -25,7 +26,14 @@ class BizBudValue extends BizBud {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, history: this.hasHistory === true ? true : undefined });
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, ex: this.ex, history: this.hasHistory === true ? true : undefined });
+    }
+    get ex() {
+        if (this.format !== undefined) {
+            return {
+                format: this.format,
+            };
+        }
     }
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')
@@ -86,12 +94,16 @@ class BizBudDec extends BizBudValue {
         this.dataType = Base_1.BudDataType.dec;
         this.canIndex = false;
     }
+    get ex() {
+        if (this.format !== undefined || this.fraction !== undefined) {
+            return {
+                format: this.format,
+                fraction: this.fraction,
+            };
+        }
+    }
     parser(context) {
         return new parser_1.PBizBudDec(this, context);
-    }
-    buildSchema(res) {
-        let ret = super.buildSchema(res);
-        return ret;
     }
 }
 exports.BizBudDec = BizBudDec;

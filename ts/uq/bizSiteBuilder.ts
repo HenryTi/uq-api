@@ -118,7 +118,7 @@ export class BizSiteBuilder {
     };
 
     private async saveBud(entity: BizEntity, bud: BizBud) {
-        const { phrase, caption, memo, dataType: dataTypeNum, objName, flag } = bud;
+        const { phrase, caption, memo, dataType: dataTypeNum, objName, flag, ex } = bud;
         const typeNum = bud.typeNum;
         let objId: number;
         if (objName !== undefined) {
@@ -130,7 +130,7 @@ export class BizSiteBuilder {
         let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud'
             , this.site, this.user, entity.id, bud.id, phrase, caption
             , typeNum, memo, dataTypeNum, objId, flag
-            , null
+            , ex === undefined ? undefined : JSON.stringify(ex)
         );
         bud.id = budId;
         this.res[phrase] = caption;
