@@ -116,7 +116,7 @@ class BizSiteBuilder {
                 objId = obj.id;
             }
         }
-        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
+        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag, null);
         bud.id = budId;
         this.res[phrase] = caption;
     }
