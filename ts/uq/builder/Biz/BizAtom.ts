@@ -1,5 +1,8 @@
-import { BigInt, BizAtom, BizAtomSpec, BizBudValue, BudDataType, Char, EnumDataType, Int, JoinType, JsonDataType, OpJsonProp, bigIntField, charField, idField, jsonField, textField } from "../../il";
-import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpJsonProp, ExpNum, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure } from "../sql";
+import {
+    BigInt, BizAtomSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
+    , JsonDataType, bigIntField, idField, jsonField
+} from "../../il";
+import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNum, ExpSelect, ExpStr, ExpSub, ExpVal, ExpVar, Procedure } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
@@ -54,16 +57,33 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
 
         function declareBuds(buds: BizBudValue[]) {
             for (let bud of buds) {
-                const { name, phrase } = bud;
-                declare.var(prefixBud + name, new Char(200));
+                const { name, id, dataType } = bud;
+                let dt: DataType;
+                switch (dataType) {
+                    default:
+                    case BudDataType.date:
+                        dt = new BigInt();
+                        break;
+                    case BudDataType.str:
+                    case BudDataType.char:
+                        dt = new Char(200);
+                        break;
+                    case BudDataType.dec:
+                        dt = new Dec(18, 6);
+                        break;
+                }
+                declare.var(prefixBud + name, dt);
                 declare.var(prefixPhrase + name, new BigInt());
                 let setPhraseId = factory.createSet();
                 statements.push(setPhraseId);
                 setPhraseId.equ(prefixPhrase + name,
+                    new ExpNum(id)
+                    /*
                     new ExpFuncInUq(
                         'phraseid',
                         [varSite, new ExpStr(phrase)],
                         true)
+                    */
                 )
             }
         }
@@ -77,7 +97,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
             select.toVar = true;
             for (let bud of buds) {
                 const { name } = bud;
-                select.column(new ExpJsonProp(varJson, new ExpStr(`$."${name}"`)), `${prefix}${name}`);
+                select.column(new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)), `${prefix}${name}`);
             }
         }
         selectJsonValue(varKeys, keys, prefixBud);
@@ -100,7 +120,8 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
                     break;
                 case BudDataType.date:
                     tbl = 'ixbudint';
-                    varVal = new ExpFunc('to_days', varVal);
+                    // const daysOf19700101 = 719528; // to_days('1970-01-01')
+                    // varVal = new ExpSub(new ExpFunc('to_days', varVal), new ExpNum(daysOf19700101));
                     break;
                 case BudDataType.str:
                 case BudDataType.char:
@@ -118,17 +139,6 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
             const { name } = key;
             const { varVal, tbl } = tblAndValFromBud(key);
             let t = 't' + i;
-            /*
-            const { name, type } = key;
-            const varKey = new ExpVar(prefixBud + name);
-            let t = 't' + i;
-            let tbl: string;
-            switch (type) {
-                default: tbl = 'ixbudint'; break;
-                case 'char': tbl = 'ixbudstr'; break;
-                case 'dec': tbl = 'ixbuddec'; break;
-            }
-            */
             select.join(JoinType.join, new EntityTable(tbl, false, t))
             select.on(new ExpAnd(
                 new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
@@ -157,26 +167,6 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
         function setBud(bud: BizBudValue) {
             const { name } = bud;
             const { varVal, tbl } = tblAndValFromBud(bud);
-            /*
-            let varBud: ExpVal = new ExpVar(`${prefix}${name}`);
-            let tbl: string;
-            switch (dataType) {
-                default:
-                    tbl = 'ixbudint';
-                    break;
-                case BudDataType.date:
-                    tbl = 'ixbudint';
-                    varBud = new ExpFunc('to_days', varBud);
-                    break;
-                case BudDataType.str:
-                case BudDataType.char:
-                    tbl = 'ixbudstr';
-                    break;
-                case BudDataType.dec:
-                    tbl = 'ixbuddec';
-                    break;
-            }
-            */
             const insert = factory.createInsertOnDuplicate();
             statements.push(insert);
             insert.table = new EntityTable(tbl, false);

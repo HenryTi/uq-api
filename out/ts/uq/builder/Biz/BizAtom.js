@@ -44,12 +44,33 @@ class BBizSpec extends BizEntity_1.BBizEntity {
         statements.push(declare);
         function declareBuds(buds) {
             for (let bud of buds) {
-                const { name, phrase } = bud;
-                declare.var(prefixBud + name, new il_1.Char(200));
+                const { name, id, dataType } = bud;
+                let dt;
+                switch (dataType) {
+                    default:
+                    case il_1.BudDataType.date:
+                        dt = new il_1.BigInt();
+                        break;
+                    case il_1.BudDataType.str:
+                    case il_1.BudDataType.char:
+                        dt = new il_1.Char(200);
+                        break;
+                    case il_1.BudDataType.dec:
+                        dt = new il_1.Dec(18, 6);
+                        break;
+                }
+                declare.var(prefixBud + name, dt);
                 declare.var(prefixPhrase + name, new il_1.BigInt());
                 let setPhraseId = factory.createSet();
                 statements.push(setPhraseId);
-                setPhraseId.equ(prefixPhrase + name, new sql_1.ExpFuncInUq('phraseid', [varSite, new sql_1.ExpStr(phrase)], true));
+                setPhraseId.equ(prefixPhrase + name, new sql_1.ExpNum(id)
+                /*
+                new ExpFuncInUq(
+                    'phraseid',
+                    [varSite, new ExpStr(phrase)],
+                    true)
+                */
+                );
             }
         }
         declareBuds(keys);
@@ -62,7 +83,7 @@ class BBizSpec extends BizEntity_1.BBizEntity {
             select.toVar = true;
             for (let bud of buds) {
                 const { name } = bud;
-                select.column(new sql_1.ExpJsonProp(varJson, new sql_1.ExpStr(`$."${name}"`)), `${prefix}${name}`);
+                select.column(new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`)), `${prefix}${name}`);
             }
         }
         selectJsonValue(varKeys, keys, prefixBud);
@@ -83,7 +104,8 @@ class BBizSpec extends BizEntity_1.BBizEntity {
                     break;
                 case il_1.BudDataType.date:
                     tbl = 'ixbudint';
-                    varVal = new sql_1.ExpFunc('to_days', varVal);
+                    // const daysOf19700101 = 719528; // to_days('1970-01-01')
+                    // varVal = new ExpSub(new ExpFunc('to_days', varVal), new ExpNum(daysOf19700101));
                     break;
                 case il_1.BudDataType.str:
                 case il_1.BudDataType.char:
@@ -100,17 +122,6 @@ class BBizSpec extends BizEntity_1.BBizEntity {
             const { name } = key;
             const { varVal, tbl } = tblAndValFromBud(key);
             let t = 't' + i;
-            /*
-            const { name, type } = key;
-            const varKey = new ExpVar(prefixBud + name);
-            let t = 't' + i;
-            let tbl: string;
-            switch (type) {
-                default: tbl = 'ixbudint'; break;
-                case 'char': tbl = 'ixbudstr'; break;
-                case 'dec': tbl = 'ixbuddec'; break;
-            }
-            */
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, t));
             select.on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpVar(prefixPhrase + name))));
             wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('value', t), varVal));
@@ -126,26 +137,6 @@ class BBizSpec extends BizEntity_1.BBizEntity {
         function setBud(bud) {
             const { name } = bud;
             const { varVal, tbl } = tblAndValFromBud(bud);
-            /*
-            let varBud: ExpVal = new ExpVar(`${prefix}${name}`);
-            let tbl: string;
-            switch (dataType) {
-                default:
-                    tbl = 'ixbudint';
-                    break;
-                case BudDataType.date:
-                    tbl = 'ixbudint';
-                    varBud = new ExpFunc('to_days', varBud);
-                    break;
-                case BudDataType.str:
-                case BudDataType.char:
-                    tbl = 'ixbudstr';
-                    break;
-                case BudDataType.dec:
-                    tbl = 'ixbuddec';
-                    break;
-            }
-            */
             const insert = factory.createInsertOnDuplicate();
             statements.push(insert);
             insert.table = new statementWithFrom_1.EntityTable(tbl, false);
