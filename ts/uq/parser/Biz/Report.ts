@@ -120,7 +120,11 @@ export class PBizReport extends PBizEntity<BizReport> {
         }
         else {
             let entity = space.getBizEntity(this.from);
-            if (entity.bizPhraseType !== BizPhraseType.atom) {
+            if (entity === undefined) {
+                ok = false;
+                this.log(`${this.from} is not a ATOM`);
+            }
+            else if (entity.bizPhraseType !== BizPhraseType.atom) {
                 ok = false;
                 this.log(`FROM ${this.from} must be ATOM`);
             }
@@ -137,24 +141,6 @@ export class PBizReport extends PBizEntity<BizReport> {
                 this.element.joins.push({ type, entity: en });
             }
         }
-        /*
-        for (let { name, caption, atomName } of this.lists) {
-            let entity = space.getBizEntity(atomName) as BizAtom | BizAtomSpec;
-            if (
-                entity === undefined
-                || (
-                    entity.bizPhraseType !== BizPhraseType.atom
-                    && entity.bizPhraseType !== BizPhraseType.spec
-                )
-            ) {
-                ok = false;
-                this.log(`${atomName} is neither ATON nor SPEC`);
-            }
-            let r = new ReportList(name, caption)
-            this.element.lists.push(r);
-            r.atom = entity;
-        }
-        */
         return ok;
     }
 }
