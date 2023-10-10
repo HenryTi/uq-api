@@ -89,7 +89,7 @@ class PBizBin extends Base_1.PBizEntity {
         super(...arguments);
         this.parsePend = () => {
             if (this.pend !== undefined) {
-                this.ts.error(`PEND can only be defined once in Biz Detail`);
+                this.ts.error(`PEND can only be defined once in Biz Bin`);
             }
             this.pend = this.ts.passVar();
             this.pendCaption = this.ts.mayPassString();
@@ -132,13 +132,13 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parseI = () => {
             if (this.element.i !== undefined) {
-                this.ts.error(`ITEM can only be defined once in Biz Detail`);
+                this.ts.error(`ITEM can only be defined once in Biz Bin`);
             }
             this.element.i = this.parseBudPickable('i');
         };
         this.parseX = () => {
             if (this.element.x !== undefined) {
-                this.ts.error(`ITEMX can only be defined once in Biz Detail`);
+                this.ts.error(`ITEMX can only be defined once in Biz Bin`);
             }
             this.element.x = this.parseBudPickable('x');
         };

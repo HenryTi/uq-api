@@ -9,12 +9,14 @@ class PBizBase extends element_1.PElement {
         let jName;
         const { token } = this.ts;
         if (token === tokens_1.Token.VAR) {
+            this.element.nameStartAt = this.sourceStart;
             this.element.name = this.ts.lowerVar;
             jName = this.ts._var;
             this.ts.readToken();
         }
         else if (token === tokens_1.Token.DOLLARVAR || token === tokens_1.Token.DOLLAR) {
             if (this.context.isSys === true) {
+                this.element.nameStartAt = this.sourceStart;
                 this.element.name = this.ts.lowerVar;
                 jName = this.ts._var;
                 this.ts.readToken();

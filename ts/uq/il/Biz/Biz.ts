@@ -16,7 +16,7 @@ interface Role {
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
     readonly bizArr: BizEntity[] = [];
-    readonly latestBizArr: BizEntity[] = [];
+    // readonly latestBizArr: BizEntity[] = [];
     phrases: [string, string, string, string][];
     // roles: Role[];
     constructor(uq: Uq) {
@@ -32,12 +32,25 @@ export class Biz extends Entity {
     db(db: Builder): object { return db.Biz(this); }
     protected internalCreateSchema(res: { [phrase: string]: string }) { new BizSchemaBuilder(this.uq, this).build(this.schema as any, res); }
 
+    /*
     anchorLatest() {
         this.latestBizArr.push(...this.bizArr);
     }
 
     isLatest(phrase: string) {
         return this.latestBizArr.find(v => v.name === phrase) !== undefined;
+    }
+    */
+
+    delEntity(entityId: number) {
+        for (let i = 0; i < this.bizArr.length; i++) {
+            let entity = this.bizArr[i];
+            if (entity.id === entityId) {
+                this.bizEntities.delete(entity.name);
+                this.bizArr.splice(i, 1);
+                break;
+            }
+        }
     }
 
     buildPhrases() {
@@ -102,11 +115,11 @@ export class Biz extends Entity {
         }
     }
 
-    getEntityIxPairs() {
+    getEntityIxPairs(bizNewest: BizEntity[]) {
         const pairs: [number, number][] = [];
         const coll: { [name: string]: BizAtom } = {};
         const pairColl: { [name: string]: BizAtom } = {};
-        for (const entity of this.latestBizArr) {
+        for (const entity of bizNewest) {
             if (entity.type !== 'atom') continue;
             const bizAtom = entity as BizAtom;
             const { name } = bizAtom;
@@ -141,13 +154,6 @@ export class Biz extends Entity {
                 case 'atom': buildAtomPair(entity as BizAtom); break;
                 case 'role': buildRolePair(entity as BizRole); break;
             }
-            /*
-            if (pairColl[bizAtom.name] !== undefined) continue;
-            const { extends: _extends } = bizAtom;
-            if (_extends === undefined) continue;
-            if (coll[_extends.name] === undefined) continue;
-            pairs.push([_extends.phrase, bizAtom.phrase]);
-            */
         }
         return pairs;
     }

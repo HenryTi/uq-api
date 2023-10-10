@@ -42,6 +42,8 @@ class BizSiteBuilder {
         for (let i = 0; i < len; i++) {
             let entity = bizArr[i];
             const { phrase } = entity;
+            if (phrase === 'b')
+                debugger;
             const obj = this.objNames[phrase];
             if (obj === undefined)
                 continue;

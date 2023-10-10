@@ -77,7 +77,7 @@ export class BBizSpec extends BBizEntity<BizAtomSpec> {
             select.toVar = true;
             for (let bud of buds) {
                 const { name } = bud;
-                select.column(new ExpJsonProp(varJson, new ExpStr(`$.${name}`)), `${prefix}${name}`);
+                select.column(new ExpJsonProp(varJson, new ExpStr(`$."${name}"`)), `${prefix}${name}`);
             }
         }
         selectJsonValue(varKeys, keys, prefixBud);

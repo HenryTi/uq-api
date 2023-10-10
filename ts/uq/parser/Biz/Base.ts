@@ -12,12 +12,14 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         let jName: string;
         const { token } = this.ts;
         if (token === Token.VAR) {
+            this.element.nameStartAt = this.sourceStart;
             this.element.name = this.ts.lowerVar;
             jName = this.ts._var;
             this.ts.readToken();
         }
         else if (token === Token.DOLLARVAR || token === Token.DOLLAR) {
             if (this.context.isSys === true) {
+                this.element.nameStartAt = this.sourceStart;
                 this.element.name = this.ts.lowerVar;
                 jName = this.ts._var;
                 this.ts.readToken();

@@ -62,7 +62,7 @@ class BBizSpec extends BizEntity_1.BBizEntity {
             select.toVar = true;
             for (let bud of buds) {
                 const { name } = bud;
-                select.column(new sql_1.ExpJsonProp(varJson, new sql_1.ExpStr(`$.${name}`)), `${prefix}${name}`);
+                select.column(new sql_1.ExpJsonProp(varJson, new sql_1.ExpStr(`$."${name}"`)), `${prefix}${name}`);
             }
         }
         selectJsonValue(varKeys, keys, prefixBud);

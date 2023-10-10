@@ -9,7 +9,6 @@ class Biz extends entity_1.Entity {
     constructor(uq) {
         super(uq);
         this.bizArr = [];
-        this.latestBizArr = [];
         this.name = '$biz';
         this.bizEntities = new Map();
     }
@@ -20,11 +19,24 @@ class Biz extends entity_1.Entity {
     parser(context) { return new parser_1.PBiz(this, context); }
     db(db) { return db.Biz(this); }
     internalCreateSchema(res) { new BizSchemaBuilder(this.uq, this).build(this.schema, res); }
+    /*
     anchorLatest() {
         this.latestBizArr.push(...this.bizArr);
     }
-    isLatest(phrase) {
+
+    isLatest(phrase: string) {
         return this.latestBizArr.find(v => v.name === phrase) !== undefined;
+    }
+    */
+    delEntity(entityId) {
+        for (let i = 0; i < this.bizArr.length; i++) {
+            let entity = this.bizArr[i];
+            if (entity.id === entityId) {
+                this.bizEntities.delete(entity.name);
+                this.bizArr.splice(i, 1);
+                break;
+            }
+        }
     }
     buildPhrases() {
         let phrases = [];
@@ -86,11 +98,11 @@ class Biz extends entity_1.Entity {
             return this.bizEntities.get(bizName[0]);
         }
     }
-    getEntityIxPairs() {
+    getEntityIxPairs(bizNewest) {
         const pairs = [];
         const coll = {};
         const pairColl = {};
-        for (const entity of this.latestBizArr) {
+        for (const entity of bizNewest) {
             if (entity.type !== 'atom')
                 continue;
             const bizAtom = entity;
@@ -130,13 +142,6 @@ class Biz extends entity_1.Entity {
                     buildRolePair(entity);
                     break;
             }
-            /*
-            if (pairColl[bizAtom.name] !== undefined) continue;
-            const { extends: _extends } = bizAtom;
-            if (_extends === undefined) continue;
-            if (coll[_extends.name] === undefined) continue;
-            pairs.push([_extends.phrase, bizAtom.phrase]);
-            */
         }
         return pairs;
     }

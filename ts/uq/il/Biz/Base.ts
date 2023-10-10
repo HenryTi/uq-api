@@ -52,6 +52,7 @@ export abstract class BizBase extends IElement {
     caption: string;
     phrase: string;
     memo: string;
+    nameStartAt: number;
     abstract get bizPhraseType(): BizPhraseType;
     get type(): string { return BizPhraseType[this.bizPhraseType]; }
 

@@ -1,25 +1,17 @@
-import { Entity, Uq } from './il';
-import { log } from './log';
-import { TokenStream, PContext, PSysContext, PEntity } from './parser';
-import { BUq as BUq } from './builder';
+import { Entity, Uq } from '../uq/il';
+import { log } from '../uq/log';
+import { TokenStream, PContext, PSysContext, PEntity } from '../uq/parser';
+import { Compiler } from './Compiler';
 
-export class UqRunner {
-    private readonly compilerVersion: string;
-    private log: log;
-    private bUq: BUq;
+export class UqParser {
+    protected log: log;
     readonly uq: Uq;
-    private entityId: number;
     ok: boolean;
 
-    constructor(compilerVersion: string, log: log) {
-        this.compilerVersion = compilerVersion;
-        this.log = log || ((text: string) => true);
+    constructor(compiler: Compiler) {
+        this.log = compiler.log;
         this.ok = true;
         this.uq = new Uq();
-    }
-
-    setEntityId(entityId: number) {
-        this.entityId = entityId;
     }
 
     parse(input: string, fileName: string, isSys: boolean = false) {
@@ -39,30 +31,24 @@ export class UqRunner {
 
     // 新传入的uq代码，保存已编译好的。后续操作，只处理最新的。
     // 老的uq代码，随后编译
+    /*
     anchorLatest(): boolean {
         const { biz } = this.uq;
         biz.anchorLatest();
-        if (this.entityId !== undefined) {
-            const { length } = biz.latestBizArr;
-            switch (length) {
-                case 0:
-                    this.log('No entity');
-                    this.ok = false;
-                    return false;
-                case 1:
-                    return true;
-                default:
-                    this.log('Can not write multiple entity');
-                    this.ok = false;
-                    return false;
-            }
+        if (this.checkLatest() === false) {
+            return false;
         }
+        return true;
+    }
+
+    protected checkLatest(): boolean {
         return true;
     }
 
     isLatest(phrase: string): boolean {
         return this.uq.biz.isLatest(phrase);
     }
+    */
 
     private parseBorn(bornCode: string[]) {
         for (let bes of bornCode) {
@@ -97,14 +83,4 @@ export class UqRunner {
         let ret = pelement.scan(undefined);
         if (ret === false) this.ok = false;
     }
-    /*
-    async updateDb(uqBuildApi: UqBuildApi, serviceId: number, uqId: number
-        , hasUnit: boolean, uqUniqueUnit: number, options: CompileOptions):
-        Promise<{ ok: boolean, modified: boolean, err: any }> {
-        let { dbName, twProfix } = uqBuildApi;
-        let context = new DbContext(this.compilerVersion, config.sqlType, dbName, twProfix, this.log, hasUnit);
-        this.bUq = new BUq(this.uq, context);
-        return await this.bUq.updateDb(uqBuildApi, serviceId, uqId, uqUniqueUnit, options);
-    }
-    */
 }
