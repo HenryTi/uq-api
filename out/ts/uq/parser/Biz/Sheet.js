@@ -132,13 +132,13 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parseI = () => {
             if (this.element.i !== undefined) {
-                this.ts.error(`ITEM can only be defined once in Biz Bin`);
+                this.ts.error(`I can only be defined once in Biz Bin`);
             }
             this.element.i = this.parseBudPickable('i');
         };
         this.parseX = () => {
             if (this.element.x !== undefined) {
-                this.ts.error(`ITEMX can only be defined once in Biz Bin`);
+                this.ts.error(`X can only be defined once in Biz Bin`);
             }
             this.element.x = this.parseBudPickable('x');
         };
