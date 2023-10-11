@@ -79,7 +79,7 @@ class BBiz extends entity_1.BEntity {
         statements.push(factory.createReturnBegin());
         let selectMy = factory.createSelect();
         selectMy.column(new sql_1.ExpField('i'));
-        selectMy.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixMy));
+        selectMy.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixState));
         selectMy.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), varMe), new sql_1.ExpEQ(new sql_1.ExpField('x'), varId)));
         let ifNone = factory.createIf();
         statements.push(ifNone);
@@ -140,7 +140,7 @@ class BBiz extends entity_1.BEntity {
         let delMyDraft = factory.createDelete();
         statements.push(delMyDraft);
         delMyDraft.tables = ['a'];
-        delMyDraft.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixMy, 'a'));
+        delMyDraft.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixState, 'a'));
         delMyDraft.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', 'a'), varMe), new sql_1.ExpEQ(new sql_1.ExpField('x', 'a'), varId)));
         statements.push(factory.createReturnEnd());
         let selectTemp = factory.createSelect();
@@ -188,7 +188,7 @@ class BBiz extends entity_1.BEntity {
             .where(new sql_1.ExpField('xi', 'a'));
         let selectMy = factory.createSelect();
         selectMy.column(new sql_1.ExpField('i'));
-        selectMy.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixMy));
+        selectMy.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixState));
         selectMy.where(new sql_1.ExpEQ(new sql_1.ExpField('x'), expId));
         let iff = factory.createIf();
         statements.push(iff);

@@ -96,7 +96,7 @@ export class BBiz extends BEntity<Biz> {
 
         let selectMy = factory.createSelect();
         selectMy.column(new ExpField('i'));
-        selectMy.from(sysTable(EnumSysTable.ixMy));
+        selectMy.from(sysTable(EnumSysTable.ixState));
         selectMy.where(new ExpAnd(
             new ExpEQ(new ExpField('i'), varMe),
             new ExpEQ(new ExpField('x'), varId)
@@ -185,7 +185,7 @@ export class BBiz extends BEntity<Biz> {
         let delMyDraft = factory.createDelete();
         statements.push(delMyDraft);
         delMyDraft.tables = ['a'];
-        delMyDraft.from(sysTable(EnumSysTable.ixMy, 'a'));
+        delMyDraft.from(sysTable(EnumSysTable.ixState, 'a'));
         delMyDraft.where(new ExpAnd(
             new ExpEQ(new ExpField('i', 'a'), varMe),
             new ExpEQ(new ExpField('x', 'a'), varId)
@@ -244,7 +244,7 @@ export class BBiz extends BEntity<Biz> {
 
         let selectMy = factory.createSelect();
         selectMy.column(new ExpField('i'));
-        selectMy.from(sysTable(EnumSysTable.ixMy));
+        selectMy.from(sysTable(EnumSysTable.ixState));
         selectMy.where(new ExpEQ(new ExpField('x'), expId));
         let iff = factory.createIf();
         statements.push(iff);

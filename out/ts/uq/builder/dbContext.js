@@ -166,7 +166,7 @@ var EnumSysTable;
     EnumSysTable["user"] = "$user";
     EnumSysTable["userSite"] = "$usersite";
     EnumSysTable["ixRole"] = "$ixrole";
-    EnumSysTable["ixMy"] = "ixmy";
+    EnumSysTable["ixState"] = "ixstate";
     EnumSysTable["atom"] = "atom";
     EnumSysTable["spec"] = "spec";
     EnumSysTable["bud"] = "bud";
