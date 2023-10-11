@@ -191,6 +191,19 @@ export class BBiz extends BEntity<Biz> {
             new ExpEQ(new ExpField('x', 'a'), varId)
         ));
 
+        // 已记账单据归档
+        let archive = factory.createUpsert();
+        statements.push(archive);
+        let selectBase = factory.createSelect();
+        selectBase.col('id');
+        selectBase.from(sysTable(EnumSysTable.sheet));
+        selectBase.where(new ExpEQ(new ExpField('id'), varId));
+        archive.table = sysTable(EnumSysTable.ixState);
+        archive.keys = [
+            { col: 'i', val: new ExpSelect(selectBase) },
+            { col: 'x', val: varId },
+        ];
+
         statements.push(factory.createReturnEnd());
 
         let selectTemp = factory.createSelect();

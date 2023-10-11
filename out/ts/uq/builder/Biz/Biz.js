@@ -142,6 +142,18 @@ class BBiz extends entity_1.BEntity {
         delMyDraft.tables = ['a'];
         delMyDraft.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixState, 'a'));
         delMyDraft.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', 'a'), varMe), new sql_1.ExpEQ(new sql_1.ExpField('x', 'a'), varId)));
+        // 已记账单据归档
+        let archive = factory.createUpsert();
+        statements.push(archive);
+        let selectBase = factory.createSelect();
+        selectBase.col('id');
+        selectBase.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.sheet));
+        selectBase.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), varId));
+        archive.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixState);
+        archive.keys = [
+            { col: 'i', val: new sql_1.ExpSelect(selectBase) },
+            { col: 'x', val: varId },
+        ];
         statements.push(factory.createReturnEnd());
         let selectTemp = factory.createSelect();
         statements.push(selectTemp);
