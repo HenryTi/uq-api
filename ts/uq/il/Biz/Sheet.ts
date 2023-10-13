@@ -158,7 +158,6 @@ export class BizBinAct extends BizBase {
 
     idParam: Field;
     statement: ActionStatement;
-    // fromPend: BizPend;
 
     constructor(bizDetail: BizBin) {
         super();

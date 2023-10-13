@@ -6,6 +6,10 @@ const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 class PBizBase extends element_1.PElement {
     _parse() {
+        this.parseHeader();
+        this.parseBody();
+    }
+    parseHeader() {
         let jName;
         const { token } = this.ts;
         if (token === tokens_1.Token.VAR) {
@@ -49,6 +53,8 @@ class PBizBase extends element_1.PElement {
         */
         this.element.setJName(jName);
         this.parseParam();
+    }
+    parseBody() {
         if (this.ts.token === tokens_1.Token.LBRACE) {
             this.ts.readToken();
             if (this.ts.token === tokens_1.Token.RBRACE) {

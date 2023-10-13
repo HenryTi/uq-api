@@ -9,6 +9,11 @@ import { Token } from "../tokens";
 
 export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     protected _parse(): void {
+        this.parseHeader();
+        this.parseBody();
+    }
+
+    protected parseHeader() {
         let jName: string;
         const { token } = this.ts;
         if (token === Token.VAR) {
@@ -52,6 +57,9 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         */
         this.element.setJName(jName);
         this.parseParam();
+    }
+
+    protected parseBody() {
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
             if (this.ts.token === Token.RBRACE as any) {

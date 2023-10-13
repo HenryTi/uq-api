@@ -6,6 +6,10 @@ export enum BizPhraseType {
     spec = 12,
     bud = 13,
 
+    card = 61,
+    cardDetail = 63,
+    cardState = 62,
+
     sheet = 101,
     bin = 102,
     pend = 104,

@@ -132,7 +132,6 @@ BizPend.predefinedId = ['i', 'x', 'si', 'sx', 's'];
 BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 exports.BizPend = BizPend;
 class BizBinAct extends Base_1.BizBase {
-    // fromPend: BizPend;
     constructor(bizDetail) {
         super();
         this.bizPhraseType = Base_1.BizPhraseType.detailAct;

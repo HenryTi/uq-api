@@ -1,12 +1,16 @@
-import { Act } from "../entity/act";
-import { Biz } from "./Biz";
+// import { Act } from "../entity/act";
+import { PContext, PElement } from "../../parser";
+import { IElement } from "../element";
+import { BizBase, BizPhraseType } from "./Base";
 
-export class BizAct extends Act {
-    readonly biz: Biz;
-    constructor(biz: Biz) {
-        super(biz.uq);
-        this.biz = biz;
+export abstract class BizAct<T extends BizBase> extends IElement {
+    protected readonly owner: T;
+    readonly bizPhraseType = BizPhraseType.detailAct;
+
+    constructor(owner: T) {
+        super();
+        this.owner = owner;
     }
 
-    get isBiz() { return true }
+    abstract parser(context: PContext): PElement<IElement>;
 }

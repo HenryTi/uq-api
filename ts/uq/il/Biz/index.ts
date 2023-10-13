@@ -1,6 +1,7 @@
 export { Biz } from './Biz';
 export * from './Base';
 export * from './Sheet';
+export * from './Card';
 export * from './Atom';
 export * from './Title';
 export * from './Bud';

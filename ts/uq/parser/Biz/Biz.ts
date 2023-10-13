@@ -1,7 +1,7 @@
 import {
     Biz, BizAct, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
-    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick, BizReport
+    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick, BizReport, BizCard
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -23,6 +23,7 @@ export class PBiz extends PEntity<Biz> {
             permit: BizPermit,
             role: BizRole,
 
+            card: BizCard,
             sheet: BizSheet,
             bin: BizBin,
             pend: BizPend,
@@ -50,7 +51,7 @@ export class PBiz extends PEntity<Biz> {
         if (Root === undefined) {
             switch (entityType) {
                 default: this.ts.error(`Unknown Biz Entity ${entityType}`); return;
-                case 'act': this.parseAct(); return;
+                // case 'act': this.parseAct(); return;
                 case 'query': this.parseQuery(); return;
             }
         }
@@ -65,7 +66,7 @@ export class PBiz extends PEntity<Biz> {
         bizEntities.set(name, root);
         bizArr.push(root);
     }
-
+    /*
     private parseAct() {
         this.ts.readToken();
         let act = this.context.parseElement(new BizAct(this.entity));
@@ -77,7 +78,7 @@ export class PBiz extends PEntity<Biz> {
         this.error(ret);
         return false;
     }
-
+    */
     private parseQuery() {
         this.ts.readToken();
         let query = this.context.parseElement(new BizQuery(this.entity));

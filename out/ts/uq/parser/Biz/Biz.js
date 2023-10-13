@@ -14,6 +14,7 @@ class PBiz extends entity_1.PEntity {
             options: il_1.BizOptions,
             permit: il_1.BizPermit,
             role: il_1.BizRole,
+            card: il_1.BizCard,
             sheet: il_1.BizSheet,
             bin: il_1.BizBin,
             pend: il_1.BizPend,
@@ -44,9 +45,7 @@ class PBiz extends entity_1.PEntity {
                 default:
                     this.ts.error(`Unknown Biz Entity ${entityType}`);
                     return;
-                case 'act':
-                    this.parseAct();
-                    return;
+                // case 'act': this.parseAct(); return;
                 case 'query':
                     this.parseQuery();
                     return;
@@ -63,18 +62,19 @@ class PBiz extends entity_1.PEntity {
         bizEntities.set(name, root);
         bizArr.push(root);
     }
-    parseAct() {
+    /*
+    private parseAct() {
         this.ts.readToken();
-        let act = this.context.parseElement(new il_1.BizAct(this.entity));
+        let act = this.context.parseElement(new BizAct(this.entity));
         let { uq } = this.entity;
         let { name } = act;
         uq.acts[name] = act;
         let ret = uq.checkEntityName(act);
-        if (ret === undefined)
-            return true;
+        if (ret === undefined) return true;
         this.error(ret);
         return false;
     }
+    */
     parseQuery() {
         this.ts.readToken();
         let query = this.context.parseElement(new il_1.BizQuery(this.entity));

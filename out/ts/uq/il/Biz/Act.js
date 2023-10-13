@@ -1,13 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizAct = void 0;
-const act_1 = require("../entity/act");
-class BizAct extends act_1.Act {
-    constructor(biz) {
-        super(biz.uq);
-        this.biz = biz;
+const element_1 = require("../element");
+const Base_1 = require("./Base");
+class BizAct extends element_1.IElement {
+    constructor(owner) {
+        super();
+        this.bizPhraseType = Base_1.BizPhraseType.detailAct;
+        this.owner = owner;
     }
-    get isBiz() { return true; }
 }
 exports.BizAct = BizAct;
 //# sourceMappingURL=Act.js.map
