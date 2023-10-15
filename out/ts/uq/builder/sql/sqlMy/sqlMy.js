@@ -215,9 +215,9 @@ class Call extends stat.Call {
     to(sb, tab) {
         sb.tab(tab).append('CALL ');
         if (this.db)
-            sb.append(this.db).dot();
+            sb.fld(this.db).dot();
         if (this.procName !== undefined) {
-            sb.append(this.procName);
+            sb.fld(this.procName);
         }
         else {
             sb.exp(this.procNameExp);

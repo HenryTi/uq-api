@@ -21,7 +21,7 @@ export class BBizDetailActStatement extends BStatement<BizDetailActStatement> {
 }
 
 const pendFrom = 'pend';
-const detailId = 'detail';
+const binId = 'bin';
 export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
     // 可以发送sheet主表，也可以是Detail
     body(sqls: Sqls) {
@@ -109,7 +109,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             update.table = new EntityTable(EnumSysTable.pend, false);
             update.cols = [
                 { col: 'base', val: new ExpNum(pend.id) },
-                { col: 'detail', val: new ExpVar(detailId) },
+                { col: 'bin', val: new ExpVar(binId) },
                 { col: 'value', val: new ExpVar('value') },
                 { col: 'mid', val: new ExpFunc('JSON_OBJECT', ...expMids) },
             ];
@@ -212,7 +212,7 @@ export class BBizDetailActTitle extends BStatement<BizDetailActTitle> {
         ];
 
         if (hasHistory === true) {
-            let expRef = new ExpVar('detail');
+            let expRef = new ExpVar(binId);
             let vHistory = historyId + no;
             let vBudId = budId + no;
             let setHistoryId = factory.createSet();

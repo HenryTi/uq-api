@@ -21,9 +21,9 @@ class BizSheet extends Entity_1.BizEntity {
         if (this.main === undefined)
             debugger;
         ret = Object.assign(Object.assign({}, ret), { main: this.main.name, details: this.details.map(v => {
-                const { detail, caption } = v;
+                const { bin, caption } = v;
                 return {
-                    detail: detail.name,
+                    bin: bin.name,
                     caption, // 此处暂时不做res翻译
                 };
             }) });

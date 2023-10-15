@@ -216,9 +216,9 @@ class Set extends stat.Set {
 class Call extends stat.Call {
     to(sb: SqlBuilder, tab: number) {
         sb.tab(tab).append('CALL ');
-        if (this.db) sb.append(this.db).dot();
+        if (this.db) sb.fld(this.db).dot();
         if (this.procName !== undefined) {
-            sb.append(this.procName);
+            sb.fld(this.procName);
         }
         else {
             sb.exp(this.procNameExp);

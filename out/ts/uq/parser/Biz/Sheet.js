@@ -74,7 +74,7 @@ class PBizSheet extends Base_1.PBizEntity {
                 ok = false;
                 continue;
             }
-            this.element.details.push({ detail, caption });
+            this.element.details.push({ bin: detail, caption });
         }
         return ok;
     }
