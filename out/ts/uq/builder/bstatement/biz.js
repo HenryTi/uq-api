@@ -132,14 +132,6 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
         let setPhraseId = factory.createSet();
         sqls.push(setPhraseId);
         setPhraseId.equ(varPhraseId, new sql_1.ExpNum(id));
-        /*
-        let selectPhraseId = factory.createSelect();
-        sqls.push(selectPhraseId);
-        selectPhraseId.toVar = true;
-        selectPhraseId.col('id', varPhraseId);
-        selectPhraseId.from(sysTable(EnumSysTable.phrase));
-        selectPhraseId.where(new ExpEQ(new ExpField('name'), new ExpStr(phrase)));
-        */
         const expObj = of === undefined ? sql_1.ExpNum.num0 : this.context.expVal(of);
         const setObj = factory.createSet();
         sqls.push(setObj);

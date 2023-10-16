@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.BizBud = exports.BudValueAct = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudValueAct = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -21,12 +21,18 @@ class BizBud extends Base_1.BizBase {
     }
 }
 exports.BizBud = BizBud;
+var SetType;
+(function (SetType) {
+    SetType[SetType["assign"] = 0] = "assign";
+    SetType[SetType["balance"] = 1] = "balance";
+    SetType[SetType["cumulate"] = 2] = "cumulate";
+})(SetType = exports.SetType || (exports.SetType = {}));
 class BizBudValue extends BizBud {
     get optionsItemType() { return; }
     buildSchema(res) {
-        var _a;
+        var _a, _b;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, ex: this.ex, history: this.hasHistory === true ? true : undefined });
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, ex: this.ex, history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
     }
     get ex() {
         if (this.format !== undefined) {

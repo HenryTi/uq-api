@@ -34,11 +34,18 @@ export abstract class BizBud extends BizBase {
     }
 }
 
+export enum SetType {
+    assign,
+    balance,
+    cumulate,
+}
+
 export abstract class BizBudValue extends BizBud {
     abstract get canIndex(): boolean;
     value: BudValue;
     hasHistory: boolean;
     format: string;
+    setType: SetType;
     get optionsItemType(): OptionsItemValueType { return; }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -48,7 +55,8 @@ export abstract class BizBudValue extends BizBud {
                 this.dataType, value:
                 this.value?.str,
             ex: this.ex,
-            history: this.hasHistory === true ? true : undefined
+            history: this.hasHistory === true ? true : undefined,
+            setType: this.setType ?? SetType.assign,
         }
     }
 

@@ -14,7 +14,6 @@ class PBiz extends entity_1.PEntity {
             options: il_1.BizOptions,
             permit: il_1.BizPermit,
             role: il_1.BizRole,
-            card: il_1.BizCard,
             sheet: il_1.BizSheet,
             bin: il_1.BizBin,
             pend: il_1.BizPend,
@@ -87,18 +86,6 @@ class PBiz extends entity_1.PEntity {
         this.error(ret);
         return false;
     }
-    /*
-    private parseOptions() {
-        this.ts.readToken();
-        if (this.ts.token !== Token.VAR) {
-            this.ts.expectToken(Token.VAR);
-        }
-        const name = this.ts.lowerVar;
-        this.ts.readToken();
-        let options = this.context.parseElement(new BizOptions(this.entity));
-        this.entity.optionsMap[name] = options;
-    }
-    */
     scan(space) {
         let ok = true;
         let bizSpace = new BizSpace(space, this.entity);

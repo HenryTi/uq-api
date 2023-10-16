@@ -117,6 +117,45 @@ const invalidPropNames = (function () {
 class PBizEntity extends PBizBase {
     constructor() {
         super(...arguments);
+        this.parseOptions = {
+            history: (bizBud) => {
+                bizBud.hasHistory = true;
+                this.ts.readToken();
+            },
+            index: (bizBud) => {
+                bizBud.flag |= il_1.BudIndex.index;
+                this.ts.readToken();
+            },
+            format: (bizBud) => {
+                this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.EQU);
+                bizBud.format = this.ts.passString();
+            },
+            set: (bizBud) => {
+                this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.EQU);
+                let setTypeText = this.ts.passKey();
+                let setType;
+                switch (setTypeText) {
+                    default:
+                        this.ts.expect('assign', 'cumulate', 'balance');
+                        break;
+                    case 'assign':
+                    case '赋值':
+                        setType = il_1.SetType.assign;
+                        break;
+                    case 'cumulate':
+                    case '累加':
+                        setType = il_1.SetType.cumulate;
+                        break;
+                    case 'balance':
+                    case '结余':
+                        setType = il_1.SetType.balance;
+                        break;
+                }
+                bizBud.setType = setType;
+            }
+        };
         this.parseProp = () => {
             if (this.ts.token === tokens_1.Token.LBRACE) {
                 this.ts.readToken();
@@ -240,20 +279,6 @@ class PBizEntity extends PBizBase {
             this.ts.error(`${name} can not be used multiple times`);
         }
         const options = {};
-        const parseOptions = {
-            history: () => {
-                bizBud.hasHistory = true;
-                this.ts.readToken();
-            },
-            index: () => {
-                bizBud.flag |= il_1.BudIndex.index;
-                this.ts.readToken();
-            },
-            format: () => {
-                this.ts.readToken();
-                bizBud.format = this.ts.passString();
-            },
-        };
         for (;;) {
             if (this.ts.isKeyword(undefined) === false)
                 break;
@@ -261,11 +286,14 @@ class PBizEntity extends PBizBase {
             if (options[option] === true) {
                 this.ts.error(`${option} can define once`);
             }
-            let parse = parseOptions[option];
+            let parse = this.parseOptions[option];
             if (parse === undefined)
                 break;
-            parse();
+            parse(bizBud);
             options[option] = true;
+        }
+        if (bizBud.setType === undefined) {
+            bizBud.setType = il_1.SetType.assign;
         }
         return bizBud;
     }

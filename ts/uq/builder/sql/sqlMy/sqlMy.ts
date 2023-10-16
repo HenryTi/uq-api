@@ -379,11 +379,16 @@ class Upsert extends stat.Upsert {
                 let { val, setEqu } = cv;
                 sb.pushFieldValue0(true);
                 sb.sep();
-                if (setEqu === SetEqu.add || setEqu === SetEqu.sub) {
-                    sb.append('ifnull(').exp(val).comma().append('0').r();
-                }
-                else {
-                    sb.exp(val);
+                switch (setEqu) {
+                    case SetEqu.sub:
+                        sb.append('-');
+                    // break; 这个break是刻意去掉的。要顺序执行到下面add
+                    case SetEqu.add:
+                        sb.append('ifnull(').exp(val).comma().append('0').r();
+                        break;
+                    default:
+                        sb.exp(val);
+                        break;
                 }
                 sb.popFieldValue0();
             }

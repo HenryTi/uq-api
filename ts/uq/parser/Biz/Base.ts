@@ -1,7 +1,7 @@
 import {
     BizBase, BizAtom, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType
 } from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
@@ -232,32 +232,56 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
 
         const options: { [option: string]: boolean } = {};
-        const parseOptions: { [option: string]: () => void } = {
-            history: () => {
-                bizBud.hasHistory = true;
-                this.ts.readToken();
-            },
-            index: () => {
-                bizBud.flag |= BudIndex.index;
-                this.ts.readToken();
-            },
-            format: () => {
-                this.ts.readToken();
-                bizBud.format = this.ts.passString();
-            },
-        };
         for (; ;) {
             if (this.ts.isKeyword(undefined) === false) break;
             let { lowerVar: option } = this.ts;
             if (options[option] === true) {
                 this.ts.error(`${option} can define once`);
             }
-            let parse = parseOptions[option];
+            let parse = this.parseOptions[option];
             if (parse === undefined) break;
-            parse();
+            parse(bizBud);
             options[option] = true;
         }
+        if (bizBud.setType === undefined) {
+            bizBud.setType = SetType.assign;
+        }
         return bizBud;
+    }
+
+    protected parseOptions: { [option: string]: (bizBud: BizBudValue) => void } = {
+        history: (bizBud: BizBudValue) => {
+            bizBud.hasHistory = true;
+            this.ts.readToken();
+        },
+        index: (bizBud: BizBudValue) => {
+            bizBud.flag |= BudIndex.index;
+            this.ts.readToken();
+        },
+        format: (bizBud: BizBudValue) => {
+            this.ts.readToken();
+            this.ts.mayPassToken(Token.EQU);
+            bizBud.format = this.ts.passString();
+        },
+        set: (bizBud: BizBudValue) => {
+            this.ts.readToken();
+            this.ts.mayPassToken(Token.EQU);
+            let setTypeText = this.ts.passKey();
+            let setType: SetType;
+            switch (setTypeText) {
+                default: this.ts.expect('assign', 'cumulate', 'balance'); break;
+                case 'assign':
+                case '赋值':
+                    setType = SetType.assign; break;
+                case 'cumulate':
+                case '累加':
+                    setType = SetType.cumulate; break;
+                case 'balance':
+                case '结余':
+                    setType = SetType.balance; break;
+            }
+            bizBud.setType = setType;
+        }
     }
 
     protected parseProp = () => {

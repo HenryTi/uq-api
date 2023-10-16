@@ -1,7 +1,7 @@
 import {
-    Biz, BizAct, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
+    Biz, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
-    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick, BizReport, BizCard
+    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick, BizReport
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -23,7 +23,6 @@ export class PBiz extends PEntity<Biz> {
             permit: BizPermit,
             role: BizRole,
 
-            card: BizCard,
             sheet: BizSheet,
             bin: BizBin,
             pend: BizPend,
@@ -90,18 +89,7 @@ export class PBiz extends PEntity<Biz> {
         this.error(ret);
         return false;
     }
-    /*
-    private parseOptions() {
-        this.ts.readToken();
-        if (this.ts.token !== Token.VAR) {
-            this.ts.expectToken(Token.VAR);
-        }
-        const name = this.ts.lowerVar;
-        this.ts.readToken();
-        let options = this.context.parseElement(new BizOptions(this.entity));
-        this.entity.optionsMap[name] = options;
-    }
-    */
+
     scan(space: Space): boolean {
         let ok = true;
         let bizSpace = new BizSpace(space, this.entity);

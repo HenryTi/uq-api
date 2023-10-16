@@ -1,4 +1,4 @@
-import { BizAtom, BizAtomSpec, BizPhraseType, BizReport, BizTitle, ReportJoinType } from "../../il";
+import { BizAtom, BizAtomSpec, BizBudValue, BizPhraseType, BizReport, BizTitle, ReportJoinType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -99,7 +99,7 @@ export class PBizReport extends PBizEntity<BizReport> {
                 }
                 else {
                     let title = entity as BizTitle;
-                    let bud = title.getBud(t1);
+                    let bud = title.getBud(t1) as BizBudValue;
                     if (bud === undefined) {
                         ok = false;
                         this.log(`${t1} is not a prop of ${title.jName}`);

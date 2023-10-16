@@ -1,6 +1,6 @@
-import { BigInt, BizReport, JoinType, ReportTitle, bigIntField, dateField, intField, jsonField } from "../../il";
+import { BigInt, BizReport, BudDataType, JoinType, ReportTitle, SetType, bigIntField, dateField, intField, jsonField } from "../../il";
 import { EnumSysTable } from "../dbContext";
-import { ExpAdd, ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpFuncInUq, ExpGE, ExpGT, ExpIsNull, ExpLT, ExpNum, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, SqlVarTable, Statement, VarTable } from "../sql";
+import { ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpFuncInUq, ExpGE, ExpGT, ExpIsNull, ExpLT, ExpNum, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, SqlVarTable, Statement, VarTable } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
@@ -103,10 +103,11 @@ export class BBizReport extends BBizEntity<BizReport> {
     }
 
     private buildSumJsonValues(titles: ReportTitle[], varS0: ExpVal, varS1: ExpVal) {
-        const a = 'a', b = 'b', d = 'd', hb = 'hb', h = 'h';
         const { factory } = this.context;
         let expValues: ExpVal[] = titles.map(title => {
-            const selectValue = factory.createSelect();
+            const selectValue = this.buildTitleValueSelect(title, varS0, varS1);
+            /*
+            factory.createSelect();
             selectValue.column(new ExpFunc(factory.func_sum, new ExpField('value', h)));
             selectValue.from(new EntityTable(EnumSysTable.history, false, h))
                 .join(JoinType.inner, new EntityTable(EnumSysTable.bud, false, hb))
@@ -117,6 +118,7 @@ export class BBizReport extends BBizEntity<BizReport> {
                 new ExpEQ(new ExpField('base', hb), new ExpField('id', a)),
                 new ExpEQ(new ExpField('ext', hb), new ExpNum(title.bud.id)),
             ));
+            */
             return new ExpFunc(
                 factory.func_ifnull,
                 new ExpSelect(selectValue),
@@ -125,6 +127,52 @@ export class BBizReport extends BBizEntity<BizReport> {
         });
         const expJsonValues = new ExpFunc('JSON_ARRAY', ...expValues);
         return expJsonValues;
+    }
+
+    private buildTitleValueSelect(reportTitle: ReportTitle, varS0: ExpVal, varS1: ExpVal) {
+        const { factory } = this.context;
+        const a = 'a', hb = 'hb', h = 'h';
+        const select = factory.createSelect();
+        const { bud } = reportTitle;
+        const { hasHistory, dataType, setType } = bud;
+        if (hasHistory !== true || setType === SetType.assign || setType === SetType.balance) {
+            // only get value from ixBudDec or ixBudInt
+            select.column(new ExpField('value', h));
+            let tbl: EnumSysTable;
+            switch (dataType) {
+                default: tbl = EnumSysTable.ixBudInt; break;
+                case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+            }
+            select.from(new EntityTable(tbl, false, h));
+            select.where(new ExpAnd(
+                new ExpEQ(new ExpField('i', h), new ExpField('id', a)),
+                new ExpEQ(new ExpField('x', h), new ExpNum(bud.id)),
+            ));
+        }
+        else {
+            select.from(new EntityTable(EnumSysTable.history, false, h))
+                .join(JoinType.inner, new EntityTable(EnumSysTable.bud, false, hb))
+                .on(new ExpEQ(new ExpField('id', hb), new ExpField('bud', h)));
+            const wheres: ExpCmp[] = [
+                new ExpLT(new ExpField('id', h), varS1),
+                new ExpEQ(new ExpField('base', hb), new ExpField('id', a)),
+                new ExpEQ(new ExpField('ext', hb), new ExpNum(bud.id)),
+            ];
+            //if (setType === SetType.cumulate) {
+            select.column(new ExpFunc(factory.func_sum, new ExpField('value', h)));
+            wheres.push(new ExpGE(new ExpField('id', h), varS0));
+            //}
+            /*
+            else {
+                // SetType.balance or SetType.assign
+                select.column(new ExpField('value', h));
+                select.order(new ExpField('id', h), 'desc');
+                select.limit(ExpNum.num1);
+            }
+            */
+            select.where(new ExpAnd(...wheres));
+        }
+        return select;
     }
 
     private buildSelectSpecs(titles: ReportTitle[], varS0: ExpVal, varS1: ExpVal) {

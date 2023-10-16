@@ -3,14 +3,14 @@ import { PBizReport, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizAtom, BizAtomSpec } from "./Atom";
 import { BizPhraseType, BudDataType } from "./Base";
-import { BizBud } from "./Bud";
+import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizTitle } from "./Title";
 
 export interface ReportTitle {
     caption: string;
     title: BizTitle;
-    bud: BizBud;
+    bud: BizBudValue;
 }
 
 export enum ReportJoinType { x = 1, to = 2 };

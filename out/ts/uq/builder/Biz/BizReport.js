@@ -78,19 +78,72 @@ class BBizReport extends BizEntity_1.BBizEntity {
         statements.push(...ret);
     }
     buildSumJsonValues(titles, varS0, varS1) {
-        const a = 'a', b = 'b', d = 'd', hb = 'hb', h = 'h';
         const { factory } = this.context;
         let expValues = titles.map(title => {
-            const selectValue = factory.createSelect();
-            selectValue.column(new sql_1.ExpFunc(factory.func_sum, new sql_1.ExpField('value', h)));
-            selectValue.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.history, false, h))
-                .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, hb))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', hb), new sql_1.ExpField('bud', h)));
-            selectValue.where(new sql_1.ExpAnd(new sql_1.ExpGE(new sql_1.ExpField('id', h), varS0), new sql_1.ExpLT(new sql_1.ExpField('id', h), varS1), new sql_1.ExpEQ(new sql_1.ExpField('base', hb), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('ext', hb), new sql_1.ExpNum(title.bud.id))));
+            const selectValue = this.buildTitleValueSelect(title, varS0, varS1);
+            /*
+            factory.createSelect();
+            selectValue.column(new ExpFunc(factory.func_sum, new ExpField('value', h)));
+            selectValue.from(new EntityTable(EnumSysTable.history, false, h))
+                .join(JoinType.inner, new EntityTable(EnumSysTable.bud, false, hb))
+                .on(new ExpEQ(new ExpField('id', hb), new ExpField('bud', h)));
+            selectValue.where(new ExpAnd(
+                new ExpGE(new ExpField('id', h), varS0),
+                new ExpLT(new ExpField('id', h), varS1),
+                new ExpEQ(new ExpField('base', hb), new ExpField('id', a)),
+                new ExpEQ(new ExpField('ext', hb), new ExpNum(title.bud.id)),
+            ));
+            */
             return new sql_1.ExpFunc(factory.func_ifnull, new sql_1.ExpSelect(selectValue), sql_1.ExpNum.num0);
         });
         const expJsonValues = new sql_1.ExpFunc('JSON_ARRAY', ...expValues);
         return expJsonValues;
+    }
+    buildTitleValueSelect(reportTitle, varS0, varS1) {
+        const { factory } = this.context;
+        const a = 'a', hb = 'hb', h = 'h';
+        const select = factory.createSelect();
+        const { bud } = reportTitle;
+        const { hasHistory, dataType, setType } = bud;
+        if (hasHistory !== true || setType === il_1.SetType.assign || setType === il_1.SetType.balance) {
+            // only get value from ixBudDec or ixBudInt
+            select.column(new sql_1.ExpField('value', h));
+            let tbl;
+            switch (dataType) {
+                default:
+                    tbl = dbContext_1.EnumSysTable.ixBudInt;
+                    break;
+                case il_1.BudDataType.dec:
+                    tbl = dbContext_1.EnumSysTable.ixBudDec;
+                    break;
+            }
+            select.from(new statementWithFrom_1.EntityTable(tbl, false, h));
+            select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', h), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', h), new sql_1.ExpNum(bud.id))));
+        }
+        else {
+            select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.history, false, h))
+                .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, hb))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', hb), new sql_1.ExpField('bud', h)));
+            const wheres = [
+                new sql_1.ExpLT(new sql_1.ExpField('id', h), varS1),
+                new sql_1.ExpEQ(new sql_1.ExpField('base', hb), new sql_1.ExpField('id', a)),
+                new sql_1.ExpEQ(new sql_1.ExpField('ext', hb), new sql_1.ExpNum(bud.id)),
+            ];
+            //if (setType === SetType.cumulate) {
+            select.column(new sql_1.ExpFunc(factory.func_sum, new sql_1.ExpField('value', h)));
+            wheres.push(new sql_1.ExpGE(new sql_1.ExpField('id', h), varS0));
+            //}
+            /*
+            else {
+                // SetType.balance or SetType.assign
+                select.column(new ExpField('value', h));
+                select.order(new ExpField('id', h), 'desc');
+                select.limit(ExpNum.num1);
+            }
+            */
+            select.where(new sql_1.ExpAnd(...wheres));
+        }
+        return select;
     }
     buildSelectSpecs(titles, varS0, varS1) {
         const { factory } = this.context;

@@ -1,7 +1,6 @@
 export { PBiz } from './Biz';
 export * from './Atom';
 export * from './Sheet';
-export * from './Card';
 export * from './Title';
 export * from './Pick';
 export * from './Bud';
