@@ -22,6 +22,7 @@ __exportStar(require("./entity"), exports);
 __exportStar(require("./element"), exports);
 __exportStar(require("./field"), exports);
 __exportStar(require("./select"), exports);
+__exportStar(require("./bizSelect"), exports);
 var pContext_1 = require("./pContext");
 Object.defineProperty(exports, "PContext", { enumerable: true, get: function () { return pContext_1.PContext; } });
 Object.defineProperty(exports, "PSysContext", { enumerable: true, get: function () { return pContext_1.PSysContext; } });

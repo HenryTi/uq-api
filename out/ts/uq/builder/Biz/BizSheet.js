@@ -48,6 +48,9 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const memo = factory.createMemo();
         statements.push(memo);
         memo.text = `bin ${main.name}`;
+        let setBin = factory.createSet();
+        statements.push(setBin);
+        setBin.equ(binId, new sql_1.ExpVar(cId));
         let mainStatements = this.buildBinOneRow(main);
         statements.push(...mainStatements);
         // details
@@ -98,11 +101,6 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const statements = [];
         const { act, id: entityId } = bin;
         const { factory, site, dbName } = this.context;
-        const del = factory.createDelete();
-        statements.push(del);
-        del.tables = [a];
-        del.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.binPend, false, a));
-        del.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(binId)));
         if (act !== undefined) {
             const call = factory.createCall();
             statements.push(call);
@@ -113,6 +111,11 @@ class BBizSheet extends BizEntity_1.BBizEntity {
                 { value: new sql_1.ExpVar(binId) },
             ];
         }
+        const delBinPend = factory.createDelete();
+        statements.push(delBinPend);
+        delBinPend.tables = [a];
+        delBinPend.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.binPend, false, a));
+        delBinPend.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(binId)));
         return statements;
     }
 }

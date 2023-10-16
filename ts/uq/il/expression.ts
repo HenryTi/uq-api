@@ -9,7 +9,7 @@ import {
 } from '../parser';
 import { DataType } from './datatype';
 import { IElement } from './element';
-import { Select } from './select';
+import { BizSelect, Select, SelectBase } from './select';
 import { GroupType, Pointer } from './pointer';
 import { TuidArr, Entity, ID, Queue } from './entity';
 import { BizBase } from './Biz';
@@ -50,7 +50,7 @@ export interface Stack {
     in(params: number): void;
     like(): void;
     cast(dataType: DataType): void;
-    select(select: Select): void;
+    select(select: SelectBase): void;
     searchCase(whenCount: number, hasElse: boolean): void;
     simpleCase(whenCount: number, hasElse: boolean): void;
     func(func: string, n: number, isUqFunc: boolean): void;
@@ -355,16 +355,25 @@ export class OpIn extends Atom {
     }
     to(stack: Stack) { stack.in(this.params) }
 }
-export class SubQueryOperand extends Atom {
-    private select: Select;
+export abstract class SelectOperand<T extends SelectBase> extends Atom {
+    protected select: T;
     constructor() {
         super();
-        this.select = new Select();
+        this.select = this.createSelect();
         this.select.isValue = true;
     }
-    get type(): string { return 'select'; }
-    parser(context: PContext) { return this.pelement = this.select.parser(context); }
+    protected abstract createSelect(): T;
     to(stack: Stack) { stack.select(this.select) }
+}
+export class SubSelectOperand extends SelectOperand<Select> {
+    get type(): string { return 'select'; }
+    protected createSelect() { return new Select() };
+    parser(context: PContext) { return this.pelement = this.select.parser(context); }
+}
+export class BizSelectOperand extends SelectOperand<BizSelect>{
+    get type(): string { return 'bizselect'; }
+    protected createSelect() { return new BizSelect() };
+    parser(context: PContext) { return this.pelement = this.select.parser(context); }
 }
 export class OpLike extends Atom {
     to(stack: Stack) { stack.like() }

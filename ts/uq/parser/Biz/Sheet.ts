@@ -211,11 +211,12 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     scan(space: Space): boolean {
         let ok = true;
-        if (super.scan(space) === false) ok = false;
-        space = new DetailSpace(space, this.element);
+        let binSpace = new BinSpace(space, this.element);
+        if (super.scan(binSpace) === false) ok = false;
+        space = new DetailSpace(binSpace, this.element);
 
         if (this.pend !== undefined) {
-            let pend = this.getBizEntity<BizPend>(space, this.pend, BizPhraseType.pend);
+            let pend = this.getBizEntity<BizPend>(binSpace, this.pend, BizPhraseType.pend);
             if (pend === undefined) {
                 this.log(`PEND '${this.pend}' is not defined`)
                 ok = false;
@@ -298,6 +299,32 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
         */
         return ok;
+    }
+}
+
+const binVars = [
+    'bin', 'i', 'x'
+    , 'value', 'amount', 'price'
+    , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
+];
+class BinSpace extends Space {
+    private readonly bin: BizBin;
+    constructor(outerSpace: Space, bin: BizBin) {
+        super(outerSpace);
+        this.bin = bin;
+    }
+    protected _getEntityTable(name: string): Entity & Table {
+        throw new Error("Method not implemented.");
+    }
+    protected _getTableByAlias(alias: string): Table {
+        throw new Error("Method not implemented.");
+    }
+    protected _varPointer(name: string, isField: boolean): Pointer {
+        if (isField !== true) {
+            if (binVars.includes(name) === true) {
+                return new VarPointer();
+            }
+        }
     }
 }
 

@@ -11,7 +11,6 @@ export type IdSize = 'big' | '' | 'small' | 'tiny';
 export interface DataTypeBuilder {
     id(id: IdDataType): void;
     textId(id: TextId): void;
-    //tagDataType(tagDataType: TagDataType):void;
     of(of: Of, paramPrefix?: string): void;
     dec(dec: Dec): void;
     tinyInt(): void;

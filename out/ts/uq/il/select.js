@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Select = exports.Delete = exports.WithFrom = exports.OrderBy = exports.JoinTable = exports.FromTable = exports.JoinType = void 0;
+exports.BizSelect = exports.Select = exports.SelectBase = exports.Delete = exports.WithFrom = exports.OrderBy = exports.JoinTable = exports.FromTable = exports.JoinType = void 0;
 const parser = require("../parser");
 const element_1 = require("./element");
 const pointer_1 = require("./pointer");
@@ -49,7 +49,7 @@ class Delete extends WithFrom {
     }
 }
 exports.Delete = Delete;
-class Select extends WithFrom {
+class SelectBase extends WithFrom {
     constructor() {
         super(...arguments);
         this.distinct = false;
@@ -60,10 +60,6 @@ class Select extends WithFrom {
         this.lock = true; // false; 
         this.ignore = false;
         this.unions = [];
-    }
-    get type() { return 'select'; }
-    parser(context) {
-        return new parser.PSelect(this, context);
     }
     // 这个field，是作为子表的字段，从外部引用。
     // 所以，没有 group 属性了。
@@ -81,5 +77,25 @@ class Select extends WithFrom {
         return;
     }
 }
+exports.SelectBase = SelectBase;
+class Select extends SelectBase {
+    constructor() {
+        super(...arguments);
+        this.type = 'select';
+    }
+    parser(context) {
+        return new parser.PSelect(this, context);
+    }
+}
 exports.Select = Select;
+class BizSelect extends SelectBase {
+    constructor() {
+        super(...arguments);
+        this.type = 'bizselect';
+    }
+    parser(context) {
+        return new parser.PBizSelect(this, context);
+    }
+}
+exports.BizSelect = BizSelect;
 //# sourceMappingURL=select.js.map

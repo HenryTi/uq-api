@@ -4,7 +4,7 @@ import { IElement } from './element';
 import { Entity, StateTo, Index, Role, Queue, ID } from './entity';
 import { Biz } from './Biz';
 import { ShareSchema } from './busSchema';
-import { DataType } from './datatype';
+import { DataType, Dec } from './datatype';
 import { bigIntField, charField, intField, tinyIntField, textField, smallIntField, idField, timeStampField, Table } from './field';
 import { ActionStatement } from './statement';
 import { PUqBiz } from '../parser/uq';
@@ -87,7 +87,9 @@ export class Uq extends IElement {
     buses: { [key: string]: il.Bus } = {};
     templets: { [key: string]: il.Templet } = {};
 
-    dataTypes: { [name: string]: DataType } = {};
+    dataTypes: { [name: string]: DataType } = {
+        value: new Dec(18, 6),
+    };
 
     readonly biz: Biz = new Biz(this);
 

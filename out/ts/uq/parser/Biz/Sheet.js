@@ -190,11 +190,12 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
-        if (super.scan(space) === false)
+        let binSpace = new BinSpace(space, this.element);
+        if (super.scan(binSpace) === false)
             ok = false;
-        space = new DetailSpace(space, this.element);
+        space = new DetailSpace(binSpace, this.element);
         if (this.pend !== undefined) {
-            let pend = this.getBizEntity(space, this.pend, il_1.BizPhraseType.pend);
+            let pend = this.getBizEntity(binSpace, this.pend, il_1.BizPhraseType.pend);
             if (pend === undefined) {
                 this.log(`PEND '${this.pend}' is not defined`);
                 ok = false;
@@ -276,6 +277,30 @@ class PBizBin extends Base_1.PBizEntity {
     }
 }
 exports.PBizBin = PBizBin;
+const binVars = [
+    'bin', 'i', 'x',
+    'value', 'amount', 'price',
+    's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
+];
+class BinSpace extends space_1.Space {
+    constructor(outerSpace, bin) {
+        super(outerSpace);
+        this.bin = bin;
+    }
+    _getEntityTable(name) {
+        throw new Error("Method not implemented.");
+    }
+    _getTableByAlias(alias) {
+        throw new Error("Method not implemented.");
+    }
+    _varPointer(name, isField) {
+        if (isField !== true) {
+            if (binVars.includes(name) === true) {
+                return new il_1.VarPointer();
+            }
+        }
+    }
+}
 class PBizPend extends Base_1.PBizEntity {
     constructor() {
         /*

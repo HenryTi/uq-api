@@ -82,7 +82,7 @@ export interface CTE {
     alias: string;
 }
 
-export class Select extends WithFrom {
+export abstract class SelectBase extends WithFrom {
     owner: Entity;
     distinct: boolean = false;
     inForeach: boolean = false;
@@ -102,11 +102,6 @@ export class Select extends WithFrom {
     ignore: boolean = false;
     unions: Select[] = [];
 
-    get type(): string { return 'select'; }
-    parser(context: parser.PContext) {
-        return new parser.PSelect(this, context);
-    }
-
     // 这个field，是作为子表的字段，从外部引用。
     // 所以，没有 group 属性了。
     field(name: string): Pointer {
@@ -119,5 +114,20 @@ export class Select extends WithFrom {
         let col = this.columns.find(v => v.alias === name);
         if (col !== undefined) return new FieldPointer();
         return;
+    }
+}
+
+export class Select extends SelectBase {
+    readonly type = 'select';
+    parser(context: parser.PContext) {
+        return new parser.PSelect(this, context);
+    }
+
+}
+
+export class BizSelect extends SelectBase {
+    readonly type = 'bizselect';
+    parser(context: parser.PContext) {
+        return new parser.PBizSelect(this, context);
     }
 }

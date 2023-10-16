@@ -4,7 +4,7 @@ import { DbContext } from '../dbContext';
 import {
     Field, VarPointer, OrderType,
     Delete as IlDelete,
-    Select as IlSelect, FromTable, LocalTableBase, OrderBy, Expression, JoinType
+    FromTable, LocalTableBase, OrderBy, Expression, JoinType, SelectBase
 } from '../../il';
 import { WithFrom, Column, Table, EntityTable, VarTable, IDEntityTable } from './statementWithFrom';
 import { DeleteStatement } from './deleteStatement';
@@ -13,7 +13,7 @@ function convertExpInSelect(context: DbContext, exp: Expression) {
     return convertExp(context, exp);
 }
 
-export function convertSelect(context: DbContext, sel: IlSelect): Select {
+export function convertSelect(context: DbContext, sel: SelectBase): Select {
     let { owner, toVar, columns, from, joins, where
         , intoEntityTable, intoQueue
         , intoTable, orderBy, switchOrderBy, groupBy, having

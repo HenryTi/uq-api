@@ -1,6 +1,6 @@
 import { DbContext } from '../../dbContext';
 import { convertSelect } from '../select';
-import { Select, TuidArr, Entity, ID, Queue, DataType, Stack as IlStack, ValueExpression, OpQueueAction, VarOperand, Expression, IDNewType, BizBase, OpJsonProp } from '../../../il';
+import { Select, TuidArr, Entity, ID, Queue, DataType, Stack as IlStack, ValueExpression, OpQueueAction, VarOperand, Expression, IDNewType, BizBase, OpJsonProp, SelectBase } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpRole } from './ExpRole';
 import { ExpID } from './ExpID';
@@ -124,7 +124,7 @@ class Stack implements IlStack {
         let v = this.arr.pop();
         this.arr.push(new ExpCast(v as ExpVal, dataType));
     }
-    select(select: Select) {
+    select(select: SelectBase) {
         let sel = convertSelect(this.context, select);
         this.arr.push(new ExpSelect(sel))
     }

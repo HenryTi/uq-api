@@ -97,15 +97,18 @@ export abstract class PExpression extends PElement {
             this.ts.readToken();
             this.ts.assertToken(Token.LPARENTHESE);
             this.ts.readToken();
+            let selectOperand = this.maySelectOperand();
+            /*
             this.ts.assertKey('select');
             this.ts.readToken();
-            let subQuery = new Exp.SubQueryOperand();
-            //let select = subQuery.select = new Select();
-            //select.isValue = true;
-            //let parser = select.parser(this.context);
+            let subQuery = new Exp.SubSelectOperand();
             let parser = subQuery.parser(this.context);
             parser.parse();
             this.add(subQuery);
+            */
+            if (selectOperand === undefined) {
+                this.ts.expect(': or FROM');
+            }
             this.ts.assertToken(Token.RPARENTHESE);
             this.ts.readToken();
             let exists = new Exp.ExistsSubOperand();
@@ -138,20 +141,21 @@ export abstract class PExpression extends PElement {
                         break;
                     case 'in':
                         this.ts.readToken();
-                        if (this.ts.token != Token.LPARENTHESE) this.expectToken(Token.LPARENTHESE);
-                        this.ts.readToken();
+                        this.ts.passToken(Token.LPARENTHESE);
+                        // if (this.ts.token != Token.LPARENTHESE) this.expectToken(Token.LPARENTHESE);
+                        // this.ts.readToken();
+                        let selectOperand = this.maySelectOperand();
+                        /*
                         if (this.ts.isKeyword('select')) {
                             this.ts.readToken();
-                            let subQuery = new Exp.SubQueryOperand();
-                            //let select = subQuery.select = new Select();
-                            //select.isValue = true;
-                            //let parser = select.parser(this.context);
+                            let subQuery = new Exp.SubSelectOperand();
                             let parser = subQuery.parser(this.context);
                             parser.parse();
                             this.add(subQuery);
                             this.add(new Exp.OpIn(2));
                         }
-                        else {
+                        */
+                        if (selectOperand === undefined) {
                             for (let i = 0; ; i++) {
                                 this.expValue();
                                 if (this.ts.token !== Token.COMMA) {
@@ -321,6 +325,25 @@ export abstract class PExpression extends PElement {
         }
     }
 
+    private maySelectOperand(): Exp.SelectOperand<any> {
+        let ret: Exp.SelectOperand<any>;
+        if (this.ts.isKeyword('select') === true) {
+            this.ts.readToken();
+            ret = new Exp.SubSelectOperand();
+            let parser = ret.parser(this.context);
+            parser.parse();
+            this.add(ret);
+        }
+        else if (this.ts.token === Token.COLON || this.ts.isKeyword('from') === true) {
+            this.ts.readToken();
+            ret = new Exp.BizSelectOperand();
+            let parser = ret.parser(this.context);
+            parser.parse();
+            this.add(ret);
+        }
+        return ret;
+    }
+
     private f() {
         let lowerVar: string;
         switch (this.ts.token) {
@@ -345,17 +368,17 @@ export abstract class PExpression extends PElement {
                 return;
             case Token.LPARENTHESE:
                 this.ts.readToken();
+                let selectOperand = this.maySelectOperand();
+                /*
                 if (this.ts.isKeyword('select') === true) {
                     this.ts.readToken();
-                    let subQuery = new Exp.SubQueryOperand();
-                    //let select = subQuery.select = new Select();
-                    //select.isValue = true;
-                    //let parser = select.parser(this.context);
+                    let subQuery = new Exp.SubSelectOperand();
                     let parser = subQuery.parser(this.context);
                     parser.parse();
                     this.add(subQuery);
                 }
-                else {
+                */
+                if (selectOperand === undefined) {
                     this._internalParse();
                 }
                 if (this.ts.token === Token.RPARENTHESE as any) {
