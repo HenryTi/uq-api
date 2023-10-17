@@ -9,6 +9,7 @@ export async function compileRename(runner: EntityRunner, unit: number, user: nu
         if (newCode === undefined) {
             return {
                 hasError: true,
+                logs: ['不能改实体名，也不能新增实体'],
             }
         }
         compiler.parseBiz();

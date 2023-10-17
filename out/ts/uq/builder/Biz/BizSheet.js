@@ -78,8 +78,10 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         loop.statements.add(select);
         select.toVar = true;
         select.column(new sql_1.ExpField('id', a), binId);
-        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, a));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar(pBinId)), new sql_1.ExpEQ(new sql_1.ExpField('ext', a), new sql_1.ExpNum(entityId)), new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpVar('$id'))));
+        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizDetail, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar(pBinId)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpNum(entityId)), new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpVar('$id'))));
         select.order(new sql_1.ExpField('id', a), 'asc');
         select.limit(sql_1.ExpNum.num1);
         const iffExit = factory.createIf();
@@ -154,6 +156,7 @@ class BBizBin extends BizEntity_1.BBizEntity {
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new sql_1.ExpNum(site));
+        const a1 = 'a1';
         const select = factory.createSelect();
         statements.push(select);
         select.toVar = true;
@@ -171,8 +174,10 @@ class BBizBin extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpField('amount', c), samount);
         select.column(new sql_1.ExpField('pendFrom', d), pendFrom);
         select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizBin, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizDetail, false, a1))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a1), new sql_1.ExpField('id', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a1)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizBin, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', b)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.binPend, false, d))

@@ -101,11 +101,13 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         loop.statements.add(select);
         select.toVar = true;
         select.column(new ExpField('id', a), binId);
-        select.from(new EntityTable(EnumSysTable.bud, false, a));
+        select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)));
         select.where(new ExpAnd(
             new ExpGT(new ExpField('id', a), new ExpVar(pBinId)),
-            new ExpEQ(new ExpField('ext', a), new ExpNum(entityId)),
-            new ExpEQ(new ExpField('base', a), new ExpVar('$id')),
+            new ExpEQ(new ExpField('ext', b), new ExpNum(entityId)),
+            new ExpEQ(new ExpField('base', b), new ExpVar('$id')),
         ));
         select.order(new ExpField('id', a), 'asc');
         select.limit(ExpNum.num1);
@@ -196,6 +198,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         statements.push(setSite);
         setSite.equ($site, new ExpNum(site));
 
+        const a1 = 'a1';
         const select = factory.createSelect();
         statements.push(select);
         select.toVar = true;
@@ -214,8 +217,10 @@ export class BBizBin extends BBizEntity<BizBin> {
         select.column(new ExpField('pendFrom', d), pendFrom);
 
         select.from(new EntityTable(EnumSysTable.bizBin, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, a1))
+            .on(new ExpEQ(new ExpField('id', a1), new ExpField('id', a)))
             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a1)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, c))
             .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)))
             .join(JoinType.left, new EntityTable(EnumSysTable.binPend, false, d))

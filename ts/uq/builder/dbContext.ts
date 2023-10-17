@@ -201,6 +201,7 @@ export enum EnumSysTable {
     ixBudStr = 'ixbudstr',
     bizBin = 'bin',
     bizSheet = 'sheet',
+    bizDetail = 'detail',
     pend = 'pend',
     binPend = 'binpend',
     history = 'history',

@@ -176,6 +176,7 @@ var EnumSysTable;
     EnumSysTable["ixBudStr"] = "ixbudstr";
     EnumSysTable["bizBin"] = "bin";
     EnumSysTable["bizSheet"] = "sheet";
+    EnumSysTable["bizDetail"] = "detail";
     EnumSysTable["pend"] = "pend";
     EnumSysTable["binPend"] = "binpend";
     EnumSysTable["history"] = "history";
