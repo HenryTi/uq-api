@@ -48,6 +48,8 @@ var Token;
     Token[Token["DoubleGT"] = 41] = "DoubleGT";
     Token[Token["DoubleLS"] = 42] = "DoubleLS";
     Token[Token["COLONEQU"] = 61] = "COLONEQU";
+    Token[Token["SubGT"] = 62] = "SubGT";
+    Token[Token["Exclamation"] = 66] = "Exclamation";
     Token[Token["Memo"] = 99] = "Memo";
 })(Token = exports.Token || (exports.Token = {}));
 //# sourceMappingURL=token.js.map

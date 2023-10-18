@@ -264,6 +264,10 @@ export class TokenStream {
                             this.token = Token.SUBEQU;
                             this.advance();
                             break;
+                        case Char.GT:
+                            this.token = Token.SubGT;
+                            this.advance();
+                            break;
                         case Char.MINUS: this.readLineRemark(); continue;
                         default: this.token = Token.SUB; break;
                     }
@@ -355,6 +359,10 @@ export class TokenStream {
                         this.token = Token.RBRACKET; this.advance(); break;
                     }
                     this.error("unexpected ]");
+                    break;
+                case Char.Exclamation:
+                    this.advance();
+                    this.token = Token.Exclamation;
                     break;
                 case Char.Apostrophe:   // '
                     this.readString(Char.Apostrophe); // 字符串

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SelectTable = exports.Order = exports.Select = exports.LockType = exports.convertDelete = exports.convertSelect = void 0;
+exports.BBizSelectStatement = exports.BBizSelectOperand = exports.BBizSelect = exports.BBizExp = exports.SelectTable = exports.Order = exports.Select = exports.LockType = exports.convertDelete = exports.convertSelect = void 0;
 const exp_1 = require("./exp");
 const il_1 = require("../../il");
 const statementWithFrom_1 = require("./statementWithFrom");
@@ -229,4 +229,128 @@ class SelectTable extends statementWithFrom_1.Table {
     }
 }
 exports.SelectTable = SelectTable;
+class BBizExp {
+    to(sb) {
+        sb.l();
+        sb.append('SELECT ');
+        const { bizPhraseType } = this.bizExp.bizEntity;
+        switch (bizPhraseType) {
+            default:
+                debugger;
+                throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
+            case il_1.BizPhraseType.atom:
+                this.atom(sb);
+                break;
+            case il_1.BizPhraseType.spec:
+                this.spec(sb);
+                break;
+            case il_1.BizPhraseType.bin:
+                this.bin(sb);
+                break;
+            case il_1.BizPhraseType.title:
+                this.title(sb);
+                break;
+        }
+        sb.r();
+    }
+    convertFrom(context, bizExp) {
+        this.bizExp = bizExp;
+        this.param = context.expVal(bizExp.param);
+    }
+    atom(sb) {
+        const { bizEntity, prop } = this.bizExp;
+        let bud = bizEntity.props.get(prop);
+        sb.append(' FROM atom WHERE id=');
+        sb.exp(this.param);
+        sb.append(' AND base=');
+        sb.append(bizEntity.id);
+    }
+    spec(sb) {
+    }
+    bin(sb) {
+        const { bizEntity, prop } = this.bizExp;
+        sb.append('a.');
+        sb.append(prop !== null && prop !== void 0 ? prop : 'id');
+        sb.append(' FROM bin as a JOIN bud as b ON b.id=a.id AND b.ext=');
+        sb.append(bizEntity.id);
+        sb.append(' WHERE a.id=');
+        sb.exp(this.param);
+    }
+    title(sb) {
+    }
+}
+exports.BBizExp = BBizExp;
+class BBizSelect {
+    from(sb) {
+        let { from: { main, joins } } = this.bizSelect;
+        sb.append(' FROM ');
+        sb.fld(this.db).dot();
+        let { alias, entityArr } = main;
+        sb.fld(this.tableFromBiz(entityArr[0]));
+        if (alias !== undefined) {
+            sb.append(' AS ').fld(alias);
+        }
+    }
+    where(sb) {
+        sb.append(' WHERE ')
+            .append(' id=')
+            .exp(this.on);
+    }
+    tableFromBiz(bizEntity) {
+        switch (bizEntity.bizPhraseType) {
+            default: debugger;
+            case il_1.BizPhraseType.atom: return 'atom';
+            case il_1.BizPhraseType.spec: return 'spec';
+            case il_1.BizPhraseType.sheet: return 'sheet';
+            case il_1.BizPhraseType.bin: return 'bin';
+        }
+    }
+}
+exports.BBizSelect = BBizSelect;
+class BBizSelectOperand extends BBizSelect {
+    to(sb) {
+        sb.append('SELECT ');
+        if (this.column === undefined) {
+            let { main: { entityArr, alias } } = this.bizSelect.from;
+            if (alias !== undefined) {
+                sb.append(alias).dot();
+            }
+            sb.fld('id');
+        }
+        else {
+            let { alias, val } = this.column;
+            sb.exp(val);
+            if (alias !== undefined) {
+                sb.append(' AS ').append(alias);
+            }
+        }
+        this.from(sb);
+        this.where(sb);
+    }
+    convertFrom(context, sel) {
+        this.db = context.dbName;
+        this.bizSelect = sel;
+        const { on, column } = sel;
+        this.on = context.expVal(on);
+        if (column !== undefined) {
+            const { alias, val } = column;
+            this.column = {
+                alias,
+                val: context.expVal(val),
+            };
+        }
+    }
+}
+exports.BBizSelectOperand = BBizSelectOperand;
+class BBizSelectStatement extends BBizSelect {
+    to(sb) {
+        sb.append('select 1=');
+        sb.exp(this.on);
+    }
+    convertFrom(context, sel) {
+        const { on } = sel;
+        this.on = context.expVal(on);
+    }
+}
+exports.BBizSelectStatement = BBizSelectStatement;
 //# sourceMappingURL=select.js.map

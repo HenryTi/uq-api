@@ -5,6 +5,7 @@ import { Field, Table } from './field';
 import { Pointer, VarPointer, FieldPointer, GroupByPointer } from './pointer';
 import { Entity, Queue } from './entity';
 import { LocalTableBase } from './statement';
+import { BizEntity, BizPhraseType } from './Biz';
 
 export enum JoinType { left, right, queue, join, inner, cross };
 export type OrderType = 'asc' | 'desc';
@@ -82,7 +83,8 @@ export interface CTE {
     alias: string;
 }
 
-export abstract class SelectBase extends WithFrom {
+export class Select extends WithFrom {
+    readonly type = 'select';
     owner: Entity;
     distinct: boolean = false;
     inForeach: boolean = false;
@@ -102,6 +104,10 @@ export abstract class SelectBase extends WithFrom {
     ignore: boolean = false;
     unions: Select[] = [];
 
+    parser(context: parser.PContext) {
+        return new parser.PSelect(this, context);
+    }
+
     // 这个field，是作为子表的字段，从外部引用。
     // 所以，没有 group 属性了。
     field(name: string): Pointer {
@@ -117,17 +123,52 @@ export abstract class SelectBase extends WithFrom {
     }
 }
 
-export class Select extends SelectBase {
-    readonly type = 'select';
-    parser(context: parser.PContext) {
-        return new parser.PSelect(this, context);
-    }
-
+export interface BizSelectTbl {
+    entityArr: BizEntity[];
+    alias: string;
 }
 
-export class BizSelect extends SelectBase {
-    readonly type = 'bizselect';
-    parser(context: parser.PContext) {
-        return new parser.PBizSelect(this, context);
+export type BizSelectJoinType = '^' | 'x' | 'i';
+export interface BizSelectJoin {
+    joinType: BizSelectJoinType;
+    tbl: BizSelectTbl;
+}
+
+export interface BizSelectFrom {
+    main: BizSelectTbl;
+    joins: BizSelectJoin[];
+}
+
+export interface BizSelectColumn {
+    alias: string;
+    val: ValueExpression;
+}
+export abstract class BizSelect extends IElement {
+    from: BizSelectFrom;
+    on: ValueExpression;
+    column: BizSelectColumn;
+}
+
+export class BizExp extends BizSelect {
+    bizEntity: BizEntity;
+    param: ValueExpression;
+    prop: string;
+    type = 'BizExp';
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return new parser.PBizExp(this, context);
+    }
+}
+
+export class BizSelectInline extends BizSelect {
+    type = 'BizSelectInline';
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return new parser.PBizSelectInline(this, context);
+    }
+}
+
+export class BizSelectStatement extends BizSelect {
+    type = 'BizSelectStatement';
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return;
     }
 }

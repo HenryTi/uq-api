@@ -46,5 +46,8 @@ export enum Token {
     DoubleLS = 42,
 
     COLONEQU = 61,
+    SubGT = 62,         // ->
+    Exclamation = 66,   // !
+
     Memo = 99,
 }

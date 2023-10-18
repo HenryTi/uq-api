@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizSelect = exports.Select = exports.SelectBase = exports.Delete = exports.WithFrom = exports.OrderBy = exports.JoinTable = exports.FromTable = exports.JoinType = void 0;
+exports.BizSelectStatement = exports.BizSelectInline = exports.BizExp = exports.BizSelect = exports.Select = exports.Delete = exports.WithFrom = exports.OrderBy = exports.JoinTable = exports.FromTable = exports.JoinType = void 0;
 const parser = require("../parser");
 const element_1 = require("./element");
 const pointer_1 = require("./pointer");
@@ -49,9 +49,10 @@ class Delete extends WithFrom {
     }
 }
 exports.Delete = Delete;
-class SelectBase extends WithFrom {
+class Select extends WithFrom {
     constructor() {
         super(...arguments);
+        this.type = 'select';
         this.distinct = false;
         this.inForeach = false;
         this.isValue = false;
@@ -60,6 +61,9 @@ class SelectBase extends WithFrom {
         this.lock = true; // false; 
         this.ignore = false;
         this.unions = [];
+    }
+    parser(context) {
+        return new parser.PSelect(this, context);
     }
     // 这个field，是作为子表的字段，从外部引用。
     // 所以，没有 group 属性了。
@@ -77,25 +81,38 @@ class SelectBase extends WithFrom {
         return;
     }
 }
-exports.SelectBase = SelectBase;
-class Select extends SelectBase {
-    constructor() {
-        super(...arguments);
-        this.type = 'select';
-    }
-    parser(context) {
-        return new parser.PSelect(this, context);
-    }
-}
 exports.Select = Select;
-class BizSelect extends SelectBase {
-    constructor() {
-        super(...arguments);
-        this.type = 'bizselect';
-    }
-    parser(context) {
-        return new parser.PBizSelect(this, context);
-    }
+class BizSelect extends element_1.IElement {
 }
 exports.BizSelect = BizSelect;
+class BizExp extends BizSelect {
+    constructor() {
+        super(...arguments);
+        this.type = 'BizExp';
+    }
+    parser(context) {
+        return new parser.PBizExp(this, context);
+    }
+}
+exports.BizExp = BizExp;
+class BizSelectInline extends BizSelect {
+    constructor() {
+        super(...arguments);
+        this.type = 'BizSelectInline';
+    }
+    parser(context) {
+        return new parser.PBizSelectInline(this, context);
+    }
+}
+exports.BizSelectInline = BizSelectInline;
+class BizSelectStatement extends BizSelect {
+    constructor() {
+        super(...arguments);
+        this.type = 'BizSelectStatement';
+    }
+    parser(context) {
+        return;
+    }
+}
+exports.BizSelectStatement = BizSelectStatement;
 //# sourceMappingURL=select.js.map

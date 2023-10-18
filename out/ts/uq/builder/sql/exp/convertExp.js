@@ -9,6 +9,7 @@ const ExpNO_1 = require("./ExpNO");
 const exps_1 = require("./exps");
 const ExpUMinute_1 = require("./ExpUMinute");
 const ExpSearch_1 = require("./ExpSearch");
+const ExpBizSelect_1 = require("./ExpBizSelect");
 function convertExp(context, exp) {
     if (!exp)
         return;
@@ -128,6 +129,16 @@ class Stack {
     select(select) {
         let sel = (0, select_1.convertSelect)(this.context, select);
         this.arr.push(new exps_1.ExpSelect(sel));
+    }
+    bizSelect(bso) {
+        let bs = new select_1.BBizSelectOperand();
+        bs.convertFrom(this.context, bso);
+        this.arr.push(new ExpBizSelect_1.ExpBizSelectOperand(bs));
+    }
+    bizExp(exp) {
+        let bExp = new select_1.BBizExp();
+        bExp.convertFrom(this.context, exp);
+        this.arr.push(new ExpBizSelect_1.BizExpOperand(bExp));
     }
     func(func, n, isUqFunc) {
         let params = [];

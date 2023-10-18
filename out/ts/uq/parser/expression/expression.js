@@ -317,22 +317,29 @@ class PExpression extends element_1.PElement {
         }
     }
     maySelectOperand() {
-        let ret;
         if (this.ts.isKeyword('select') === true) {
             this.ts.readToken();
-            ret = new Exp.SubSelectOperand();
+            let ret = new Exp.SubSelectOperand();
             let parser = ret.parser(this.context);
             parser.parse();
             this.add(ret);
+            return ret;
         }
-        else if (this.ts.token === tokens_1.Token.COLON || this.ts.isKeyword('from') === true) {
+        if (this.ts.token === tokens_1.Token.SHARP) {
             this.ts.readToken();
-            ret = new Exp.BizSelectOperand();
+            let ret = new Exp.BizExpOperand();
+            this.context.parseElement(ret);
+            this.add(ret);
+            return ret;
+        }
+        if (this.ts.token === tokens_1.Token.COLON || this.ts.isKeyword('from') === true) {
+            this.ts.readToken();
+            let ret = new Exp.BizSelectOperand();
             let parser = ret.parser(this.context);
             parser.parse();
             this.add(ret);
+            return ret;
         }
-        return ret;
     }
     f() {
         let lowerVar;
@@ -372,9 +379,8 @@ class PExpression extends element_1.PElement {
                     this._internalParse();
                 }
                 if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                    let op = new Exp.OpParenthese();
-                    this.add(op);
                     this.ts.readToken();
+                    this.add(selectOperand);
                     return;
                 }
                 this.expectToken(tokens_1.Token.RPARENTHESE);

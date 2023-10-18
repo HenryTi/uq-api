@@ -4,12 +4,11 @@ import {
     , PContext, PMatchOperand, POpTypeof, POpID, POpDollarVar, POpNO
     , POpEntityId, POpEntityName, POpRole, POpQueue, POpCast
     , POpUMinute, POpSearch, POpNameof
-    , Space, POpAt, POpUqDefinedFunction, PComparePartExpression
-    // , POpSpecId, POpSpecValue
+    , Space, POpAt, POpUqDefinedFunction, PComparePartExpression, PBizSelectInline, PBizSelectOperand, PBizExpOperand
 } from '../parser';
 import { DataType } from './datatype';
 import { IElement } from './element';
-import { BizSelect, Select, SelectBase } from './select';
+import { BizExp, BizSelect, BizSelectInline, Select } from './select';
 import { GroupType, Pointer } from './pointer';
 import { TuidArr, Entity, ID, Queue } from './entity';
 import { BizBase } from './Biz';
@@ -50,7 +49,9 @@ export interface Stack {
     in(params: number): void;
     like(): void;
     cast(dataType: DataType): void;
-    select(select: SelectBase): void;
+    select(select: Select): void;
+    bizSelect(select: BizSelectInline): void;
+    bizExp(exp: BizExp): void;
     searchCase(whenCount: number, hasElse: boolean): void;
     simpleCase(whenCount: number, hasElse: boolean): void;
     func(func: string, n: number, isUqFunc: boolean): void;
@@ -355,25 +356,32 @@ export class OpIn extends Atom {
     }
     to(stack: Stack) { stack.in(this.params) }
 }
-export abstract class SelectOperand<T extends SelectBase> extends Atom {
-    protected select: T;
+export class SubSelectOperand extends Atom {
+    get type(): string { return 'select'; }
+    protected select: Select;
     constructor() {
         super();
-        this.select = this.createSelect();
+        this.select = new Select();
         this.select.isValue = true;
     }
-    protected abstract createSelect(): T;
+    parser(context: PContext) { return this.pelement = this.select.parser(context); }
     to(stack: Stack) { stack.select(this.select) }
 }
-export class SubSelectOperand extends SelectOperand<Select> {
-    get type(): string { return 'select'; }
-    protected createSelect() { return new Select() };
-    parser(context: PContext) { return this.pelement = this.select.parser(context); }
+export class BizExpOperand extends Atom {
+    bizExp: BizExp;
+    get type(): string { return 'bizexp'; }
+    parser(context: PContext) { return new PBizExpOperand(this, context); }
+    to(stack: Stack): void {
+        stack.bizExp(this.bizExp);
+    }
 }
-export class BizSelectOperand extends SelectOperand<BizSelect>{
+export class BizSelectOperand extends Atom {
+    select: BizSelectInline;
     get type(): string { return 'bizselect'; }
-    protected createSelect() { return new BizSelect() };
-    parser(context: PContext) { return this.pelement = this.select.parser(context); }
+    parser(context: PContext) { return new PBizSelectOperand(this, context); }
+    to(stack: Stack): void {
+        stack.bizSelect(this.select);
+    }
 }
 export class OpLike extends Atom {
     to(stack: Stack) { stack.like() }
@@ -532,24 +540,3 @@ export class OpSearch extends Atom {
         stack.Search(this.key, this.values);
     }
 }
-/*
-export class OpSpecId extends Atom {
-    spec: ValueExpression;           // spec name
-    atom: ValueExpression;
-    values: ValueExpression; // char12 seperated string
-    get type(): string { return 'specid'; }
-    parser(context: PContext) { return new POpSpecId(this, context); }
-    to(stack: Stack) {
-        stack.SpecId(this.spec, this.atom, this.values);
-    }
-}
-
-export class OpSpecValue extends Atom {
-    id: ValueExpression;
-    get type(): string { return 'specvalue'; }
-    parser(context: PContext) { return new POpSpecValue(this, context); }
-    to(stack: Stack) {
-        stack.SpecValue(this.id);
-    }
-}
-*/

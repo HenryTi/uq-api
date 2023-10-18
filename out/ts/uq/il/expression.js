@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SubSelectOperand = exports.SelectOperand = exports.OpIn = exports.OpIsNotNull = exports.OpIsNull = exports.OpOf = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = exports.ComarePartExpression = exports.CompareExpression = exports.ValueExpression = exports.Expression = void 0;
+exports.BizExpOperand = exports.SubSelectOperand = exports.OpIn = exports.OpIsNotNull = exports.OpIsNull = exports.OpOf = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = exports.ComarePartExpression = exports.CompareExpression = exports.ValueExpression = exports.Expression = void 0;
 exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = exports.VarOperand = exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = exports.OpLike = exports.BizSelectOperand = void 0;
 const parser_1 = require("../parser");
 const element_1 = require("./element");
@@ -311,27 +311,31 @@ class OpIn extends Atom {
     to(stack) { stack.in(this.params); }
 }
 exports.OpIn = OpIn;
-class SelectOperand extends Atom {
+class SubSelectOperand extends Atom {
+    get type() { return 'select'; }
     constructor() {
         super();
-        this.select = this.createSelect();
+        this.select = new select_1.Select();
         this.select.isValue = true;
     }
+    parser(context) { return this.pelement = this.select.parser(context); }
     to(stack) { stack.select(this.select); }
 }
-exports.SelectOperand = SelectOperand;
-class SubSelectOperand extends SelectOperand {
-    get type() { return 'select'; }
-    createSelect() { return new select_1.Select(); }
-    ;
-    parser(context) { return this.pelement = this.select.parser(context); }
-}
 exports.SubSelectOperand = SubSelectOperand;
-class BizSelectOperand extends SelectOperand {
+class BizExpOperand extends Atom {
+    get type() { return 'bizexp'; }
+    parser(context) { return new parser_1.PBizExpOperand(this, context); }
+    to(stack) {
+        stack.bizExp(this.bizExp);
+    }
+}
+exports.BizExpOperand = BizExpOperand;
+class BizSelectOperand extends Atom {
     get type() { return 'bizselect'; }
-    createSelect() { return new select_1.BizSelect(); }
-    ;
-    parser(context) { return this.pelement = this.select.parser(context); }
+    parser(context) { return new parser_1.PBizSelectOperand(this, context); }
+    to(stack) {
+        stack.bizSelect(this.select);
+    }
 }
 exports.BizSelectOperand = BizSelectOperand;
 class OpLike extends Atom {
@@ -492,25 +496,4 @@ class OpSearch extends Atom {
     }
 }
 exports.OpSearch = OpSearch;
-/*
-export class OpSpecId extends Atom {
-    spec: ValueExpression;           // spec name
-    atom: ValueExpression;
-    values: ValueExpression; // char12 seperated string
-    get type(): string { return 'specid'; }
-    parser(context: PContext) { return new POpSpecId(this, context); }
-    to(stack: Stack) {
-        stack.SpecId(this.spec, this.atom, this.values);
-    }
-}
-
-export class OpSpecValue extends Atom {
-    id: ValueExpression;
-    get type(): string { return 'specvalue'; }
-    parser(context: PContext) { return new POpSpecValue(this, context); }
-    to(stack: Stack) {
-        stack.SpecValue(this.id);
-    }
-}
-*/ 
 //# sourceMappingURL=expression.js.map

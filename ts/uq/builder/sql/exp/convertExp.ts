@@ -1,6 +1,13 @@
 import { DbContext } from '../../dbContext';
-import { convertSelect } from '../select';
-import { Select, TuidArr, Entity, ID, Queue, DataType, Stack as IlStack, ValueExpression, OpQueueAction, VarOperand, Expression, IDNewType, BizBase, OpJsonProp, SelectBase } from '../../../il';
+import { BBizExp, BBizSelectOperand, convertSelect } from '../select';
+import {
+    TuidArr, Entity, ID, Queue, DataType
+    , Stack as IlStack, ValueExpression, OpQueueAction
+    , VarOperand, Expression, IDNewType, BizBase
+    , Select as IlSelect,
+    BizSelectInline,
+    BizExp
+} from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpRole } from './ExpRole';
 import { ExpID } from './ExpID';
@@ -9,6 +16,7 @@ import { Exp } from './Exp';
 import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight, ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp, ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE, ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase, ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar } from './exps';
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
+import { BizExpOperand, ExpBizSelectOperand } from './ExpBizSelect';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {
     if (!exp) return;
@@ -124,9 +132,19 @@ class Stack implements IlStack {
         let v = this.arr.pop();
         this.arr.push(new ExpCast(v as ExpVal, dataType));
     }
-    select(select: SelectBase) {
+    select(select: IlSelect) {
         let sel = convertSelect(this.context, select);
         this.arr.push(new ExpSelect(sel))
+    }
+    bizSelect(bso: BizSelectInline) {
+        let bs = new BBizSelectOperand();
+        bs.convertFrom(this.context, bso);
+        this.arr.push(new ExpBizSelectOperand(bs));
+    }
+    bizExp(exp: BizExp) {
+        let bExp = new BBizExp();
+        bExp.convertFrom(this.context, exp);
+        this.arr.push(new BizExpOperand(bExp));
     }
     func(func: string, n: number, isUqFunc: boolean) {
         let params: ExpVal[] = [];

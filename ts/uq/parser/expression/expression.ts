@@ -5,7 +5,8 @@ import { Space } from '../space';
 import { Token } from '../tokens';
 import {
     createDataType, Entity, Table, GroupType,
-    Pointer
+    Pointer,
+    BizExp
 } from '../../il';
 import { PContext } from '../pContext';
 import { DATEPARTS, TIMESTAMPDIFFPARTS } from '../../il/DATEPARTS';
@@ -325,23 +326,30 @@ export abstract class PExpression extends PElement {
         }
     }
 
-    private maySelectOperand(): Exp.SelectOperand<any> {
-        let ret: Exp.SelectOperand<any>;
+    private maySelectOperand(): Exp.Atom {
         if (this.ts.isKeyword('select') === true) {
             this.ts.readToken();
-            ret = new Exp.SubSelectOperand();
+            let ret = new Exp.SubSelectOperand();
             let parser = ret.parser(this.context);
             parser.parse();
             this.add(ret);
+            return ret;
         }
-        else if (this.ts.token === Token.COLON || this.ts.isKeyword('from') === true) {
+        if (this.ts.token === Token.SHARP) {
             this.ts.readToken();
-            ret = new Exp.BizSelectOperand();
+            let ret = new Exp.BizExpOperand();
+            this.context.parseElement(ret);
+            this.add(ret);
+            return ret;
+        }
+        if (this.ts.token === Token.COLON || this.ts.isKeyword('from') === true) {
+            this.ts.readToken();
+            let ret = new Exp.BizSelectOperand();
             let parser = ret.parser(this.context);
             parser.parse();
             this.add(ret);
+            return ret;
         }
-        return ret;
     }
 
     private f() {
@@ -382,9 +390,8 @@ export abstract class PExpression extends PElement {
                     this._internalParse();
                 }
                 if (this.ts.token === Token.RPARENTHESE as any) {
-                    let op = new Exp.OpParenthese();
-                    this.add(op);
                     this.ts.readToken();
+                    this.add(selectOperand);
                     return;
                 }
                 this.expectToken(Token.RPARENTHESE);

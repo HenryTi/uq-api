@@ -2,9 +2,15 @@ import { SqlBuilder } from './sqlBuilder';
 import { ExpVal, ExpCmp, convertExp, ExpField, ExpEQ, ExpAnd, ExpNum } from './exp';
 import { DbContext } from '../dbContext';
 import {
-    Field, VarPointer, OrderType,
-    Delete as IlDelete,
-    FromTable, LocalTableBase, OrderBy, Expression, JoinType, SelectBase
+    Field, VarPointer, OrderType
+    , Delete as IlDelete
+    , FromTable, LocalTableBase, OrderBy, Expression, JoinType
+    , Select as IlSelect,
+    ValueExpression,
+    BizSelect,
+    BizEntity,
+    BizPhraseType,
+    BizExp
 } from '../../il';
 import { WithFrom, Column, Table, EntityTable, VarTable, IDEntityTable } from './statementWithFrom';
 import { DeleteStatement } from './deleteStatement';
@@ -13,7 +19,7 @@ function convertExpInSelect(context: DbContext, exp: Expression) {
     return convertExp(context, exp);
 }
 
-export function convertSelect(context: DbContext, sel: SelectBase): Select {
+export function convertSelect(context: DbContext, sel: IlSelect): Select {
     let { owner, toVar, columns, from, joins, where
         , intoEntityTable, intoQueue
         , intoTable, orderBy, switchOrderBy, groupBy, having
@@ -250,5 +256,140 @@ export class SelectTable extends Table {
         this.select.to(sb, 0);
         sb.r();
         super.to(sb);
+    }
+}
+
+export class BBizExp {
+    db: string;
+    bizExp: BizExp;
+    param: ExpVal;
+    to(sb: SqlBuilder): void {
+        sb.l();
+        sb.append('SELECT ');
+        const { bizPhraseType } = this.bizExp.bizEntity;
+        switch (bizPhraseType) {
+            default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
+            case BizPhraseType.atom: this.atom(sb); break;
+            case BizPhraseType.spec: this.spec(sb); break;
+            case BizPhraseType.bin: this.bin(sb); break;
+            case BizPhraseType.title: this.title(sb); break;
+        }
+        sb.r();
+    }
+    convertFrom(context: DbContext, bizExp: BizExp) {
+        this.bizExp = bizExp;
+        this.param = context.expVal(bizExp.param);
+    }
+
+    private atom(sb: SqlBuilder) {
+        const { bizEntity, prop } = this.bizExp;
+        let bud = bizEntity.props.get(prop);
+        sb.append(' FROM atom WHERE id=');
+        sb.exp(this.param);
+        sb.append(' AND base=');
+        sb.append(bizEntity.id);
+    }
+
+    private spec(sb: SqlBuilder) {
+
+    }
+
+    private bin(sb: SqlBuilder) {
+        const { bizEntity, prop } = this.bizExp;
+        sb.append('a.');
+        sb.append(prop ?? 'id');
+        sb.append(' FROM bin as a JOIN bud as b ON b.id=a.id AND b.ext=');
+        sb.append(bizEntity.id);
+        sb.append(' WHERE a.id=');
+        sb.exp(this.param);
+    }
+
+    private title(sb: SqlBuilder) {
+
+    }
+}
+
+export abstract class BBizSelect {
+    db: string;
+    bizSelect: BizSelect;
+    on: ExpVal;
+    column: { alias: string; val: ExpVal; }
+    abstract to(sb: SqlBuilder): void;
+
+    protected from(sb: SqlBuilder) {
+        let { from: { main, joins } } = this.bizSelect;
+        sb.append(' FROM ');
+        sb.fld(this.db).dot();
+        let { alias, entityArr } = main;
+        sb.fld(this.tableFromBiz(entityArr[0]));
+        if (alias !== undefined) {
+            sb.append(' AS ').fld(alias);
+        }
+    }
+
+    protected where(sb: SqlBuilder) {
+        sb.append(' WHERE ')
+            .append(' id=')
+            .exp(this.on)
+            ;
+    }
+
+    private tableFromBiz(bizEntity: BizEntity) {
+        switch (bizEntity.bizPhraseType) {
+            default: debugger;
+            case BizPhraseType.atom: return 'atom';
+            case BizPhraseType.spec: return 'spec';
+            case BizPhraseType.sheet: return 'sheet';
+            case BizPhraseType.bin: return 'bin';
+        }
+    }
+}
+
+export class BBizSelectOperand extends BBizSelect {
+    override to(sb: SqlBuilder) {
+        sb.append('SELECT ');
+        if (this.column === undefined) {
+            let { main: { entityArr, alias } } = this.bizSelect.from;
+            if (alias !== undefined) {
+                sb.append(alias).dot();
+            }
+            sb.fld('id');
+        }
+        else {
+            let { alias, val } = this.column;
+            sb.exp(val);
+            if (alias !== undefined) {
+                sb.append(' AS ').append(alias);
+            }
+        }
+        this.from(sb);
+        this.where(sb);
+    }
+
+    convertFrom(context: DbContext, sel: BizSelect) {
+        this.db = context.dbName;
+        this.bizSelect = sel;
+        const { on, column } = sel;
+        this.on = context.expVal(on);
+        if (column !== undefined) {
+            const { alias, val } = column;
+            this.column = {
+                alias,
+                val: context.expVal(val),
+            }
+        }
+    }
+}
+
+export class BBizSelectStatement extends BBizSelect {
+    on: ExpVal;
+    override to(sb: SqlBuilder) {
+        sb.append('select 1=');
+        sb.exp(this.on);
+    }
+
+    convertFrom(context: DbContext, sel: BizSelect) {
+        const { on } = sel;
+        this.on = context.expVal(on);
     }
 }

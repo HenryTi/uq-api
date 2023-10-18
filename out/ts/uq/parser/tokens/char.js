@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Char = void 0;
-let chars = '+-*\\/%(){}[].,;:^=<>&|\'"_?09$@#~';
+let chars = '+-*\\/%(){}[].,;:^=<>&|\'"_?09$@#~!';
 let lowercase = 'abcdefghijklmnopqrstuvwxyz';
 let uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 class Char {
@@ -45,6 +45,7 @@ Char.DOLLAR = chars.charCodeAt(28);
 Char.AT = chars.charCodeAt(29);
 Char.SHARP = chars.charCodeAt(30);
 Char.Tilde = chars.charCodeAt(31);
+Char.Exclamation = chars.charCodeAt(32);
 Char.a = lowercase.charCodeAt(0);
 Char.b = lowercase.charCodeAt(1);
 Char.c = lowercase.charCodeAt(2);
