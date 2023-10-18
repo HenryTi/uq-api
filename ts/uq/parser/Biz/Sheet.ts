@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudAtom, BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, ValueExpression, BudValueAct, BizEntity, BizBudDec, BizBudPickable
+    , bigIntField, ValueExpression, BudValueAct, BizEntity, BizBudDec, BizBudPickable, UserVar
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -213,7 +213,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         let ok = true;
         let binSpace = new BinSpace(space, this.element);
         if (super.scan(binSpace) === false) ok = false;
-        space = new DetailSpace(binSpace, this.element);
+        space = new BizBinSpace(binSpace, this.element);
 
         if (this.pend !== undefined) {
             let pend = this.getBizEntity<BizPend>(binSpace, this.pend, BizPhraseType.pend);
@@ -427,7 +427,7 @@ export class PBizDetailAct extends PBizBase<BizBinAct> {
     scan(space: Space): boolean {
         let ok = true;
         //  will be removed
-        let actSpace = new DetailSpace(space, undefined);
+        let actSpace = new BizBinSpace(space, undefined);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false) ok = false;
         if (pelement.scan(actSpace) === false) ok = false;
@@ -482,11 +482,12 @@ export const detailPreDefined = [
     , 'detail'
     , 'i', 'x', 'value', 'amount', 'price'
 ];
-class DetailSpace extends Space {
-    private readonly detail: BizBin;
-    constructor(outer: Space, detail: BizBin) {
+class BizBinSpace extends Space {
+    private readonly bin: BizBin;
+    private readonly useColl: { [name: string]: boolean } = {};
+    constructor(outer: Space, bin: BizBin) {
         super(outer);
-        this.detail = detail;
+        this.bin = bin;
     }
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
@@ -501,11 +502,22 @@ class DetailSpace extends Space {
             default:
                 return super._getBizEntity(name);
             case 'pend':
-                const { pend } = this.detail;
+                const { pend } = this.bin;
                 return pend?.entity;
             case 'main':
                 debugger;
                 break;
         }
+    }
+
+    protected _getUse(name: string): boolean {
+        return this.useColl[name];
+    }
+
+    protected _addUse(name: string): boolean {
+        let v = this.useColl[name];
+        if (v !== undefined) return false;
+        this.useColl[name] = true;
+        return true;
     }
 }

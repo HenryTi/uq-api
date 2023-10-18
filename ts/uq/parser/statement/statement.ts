@@ -6,7 +6,7 @@ import {
     , TableStatement, TextStatement, FailStatement, InlineStatement, /*SendStatement, Pull, */ContinueStatement
     , BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement
     , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
-    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement, SendStatement, BizDetailActStatement
+    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement, SendStatement, BizDetailActStatement, UseStatement
 } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -47,18 +47,13 @@ export abstract class PStatements extends PStatement {
 
     protected statementFromKey(parent: Statement, key: string): Statement {
         switch (key) {
-            case 'var':
-                return new VarStatement(parent);
-            case 'table':
-                return new TableStatement(parent);
-            case 'text':
-                return new TextStatement(parent);
-            case 'set':
-                return new SetStatement(parent);
-            case 'with':
-                return new WithStatement(parent);
-            case 'value':
-                return new ValueStatement(parent);
+            case 'var': return new VarStatement(parent);
+            case 'use': return new UseStatement(parent);
+            case 'table': return new TableStatement(parent);
+            case 'text': return new TextStatement(parent);
+            case 'set': return new SetStatement(parent);
+            case 'with': return new WithStatement(parent);
+            case 'value': return new ValueStatement(parent);
             case 'if': return new If(parent);
             case 'while': return new While(parent);
             case 'for':

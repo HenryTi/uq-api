@@ -1,4 +1,4 @@
-import { BizPhraseType, BizSelect, BizSelectInline, Entity, FromTable, ID, IDX, NumberOperand, BizSelectOperand, OpEQ, ValueExpression, VarOperand, BizSelectJoinType, BizSelectFrom, BizSelectTbl, BizSelectJoin, BizEntity, BizExp, BizExpOperand } from "../il";
+import { BizPhraseType, BizSelect, BizSelectInline, Entity, FromTable, ID, IDX, NumberOperand, BizSelectOperand, OpEQ, ValueExpression, VarOperand, BizSelectJoinType, BizSelectFrom, BizSelectTbl, BizSelectJoin, BizEntity, BizExp, BizExpOperand, BizAtom, BizAtomSpec, BizBin, BizTitle } from "../il";
 import { PElement } from "./element";
 import { Space } from "./space";
 import { Token } from "./tokens";
@@ -242,8 +242,13 @@ export class PBizExpOperand extends PElement<BizExpOperand> {
 
 export class PBizExp extends PElement<BizExp> {
     private bizEntity: string;
+    private bud: string;
     protected _parse(): void {
         this.bizEntity = this.ts.passVar();
+        if (this.ts.token === Token.DOT) {
+            this.ts.readToken();
+            this.bud = this.ts.passVar();
+        }
         this.ts.passToken(Token.LPARENTHESE);
         this.element.param = new ValueExpression();
         let { param } = this.element;
@@ -259,25 +264,154 @@ export class PBizExp extends PElement<BizExp> {
                 this.element.prop = this.ts.passVar();
             }
         }
+        if (this.ts.isKeyword('in') === true) {
+            this.ts.readToken();
+            let timeSpan = this.ts.passVar();
+            let op: '+' | '-';
+            let val: ValueExpression;
+            switch (this.ts.token) {
+                case Token.SUB: op = '-'; break;
+                case Token.ADD: op = '+'; break;
+            }
+            if (op !== undefined) {
+                this.ts.readToken();
+                val = new ValueExpression();
+                this.context.parseElement(val);
+            }
+            this.element.in = {
+                timeSpan,
+                op,
+                val,
+            };
+        }
     }
 
     scan(space: Space): boolean {
         let ok = true;
-        let { param } = this.element;
+        this.element.bizEntity = space.getBizEntity(this.bizEntity);
+        const { bizEntity, in: varIn, param } = this.element;
         if (param.pelement.scan(space) === false) {
             ok = false;
         }
-        this.element.bizEntity = space.getBizEntity(this.bizEntity);
-        const { bizEntity } = this.element;
         if (bizEntity === undefined) {
             this.log(`${this.bizEntity} is not a Biz Entity`);
             ok = false;
         }
         else {
-            const { prop } = this.element;
-            if (bizEntity.checkName(prop) === false) {
-                this.log(`${bizEntity.jName} has not prop ${prop}`);
+            let ret: boolean;
+            switch (bizEntity.bizPhraseType) {
+                default:
+                    ok = false;
+                    this.log(`${bizEntity.jName} must be either Atom, Spec, Bin or Title`);
+                    break;
+                case BizPhraseType.atom: ret = this.scanAtom(space); break;
+                case BizPhraseType.spec: ret = this.scanSpec(space); break;
+                case BizPhraseType.bin: ret = this.scanBin(space); break;
+                case BizPhraseType.title: ret = this.scanTitle(space); break;
+            }
+            if (ret === false) {
                 ok = false;
+            }
+        }
+        if (varIn !== undefined) {
+            // scan BizExp.in
+            const { timeSpan, val } = varIn;
+            let useVar = space.getUse(timeSpan);
+            if (useVar === undefined) {
+                this.log(`${timeSpan} is not used`);
+                ok = false;
+            }
+            if (val !== undefined) {
+                if (val.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        }
+        return ok;
+    }
+
+    private scanAtom(space: Space): boolean {
+        let ok = true;
+        const { bizEntity, prop } = this.element;
+        let bizAtom = bizEntity as BizAtom;
+        if (this.bud !== undefined) {
+            this.log(`ATOM ${bizEntity.jName} should not .`);
+            ok = false;
+        }
+        if (prop === undefined) {
+            this.element.prop = 'id';
+        }
+        else {
+            if (bizAtom.okToDefineNewName(prop) === false) {
+                this.log(`${bizAtom.jName} does not have prop ${prop}`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
+    private scanSpec(space: Space): boolean {
+        let ok = true;
+        const { bizEntity, prop } = this.element;
+        let bizSpec = bizEntity as BizAtomSpec;
+        if (this.bud !== undefined) {
+            this.log(`SPEC ${bizEntity.jName} should not .`);
+            ok = false;
+        }
+        if (prop === undefined) {
+            this.element.prop = 'id';
+        }
+        else {
+            if (bizSpec.okToDefineNewName(prop) === false) {
+                this.log(`${bizSpec.jName} does not have prop ${prop}`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
+    private scanBin(space: Space): boolean {
+        let ok = true;
+        const { bizEntity, prop } = this.element;
+        let bizBin = bizEntity as BizBin;
+        if (this.bud !== undefined) {
+            this.log(`BIN ${bizEntity.jName} should not .`);
+            ok = false;
+        }
+        if (prop === undefined) {
+            this.element.prop = 'id';
+        }
+        else {
+            const arr = ['i', 'x', 'price', 'amount', 'value'];
+            if (arr.includes(prop) === false || bizBin.okToDefineNewName(prop) === false) {
+                this.log(`${bizBin.jName} does not have prop ${prop}`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
+    private scanTitle(space: Space): boolean {
+        let ok = true;
+        const { bizEntity, prop, in: inVar } = this.element;
+        let title = bizEntity as BizTitle;
+        if (this.bud === undefined) {
+            this.log(`TITLE ${title.jName} should follow .`);
+            ok = false;
+        }
+        else {
+            if (title.props.get(this.bud) === undefined) {
+                this.log(`TITLE ${title.getJName()} does not have ${this.bud} .`);
+                ok = false;
+            }
+        }
+        if (prop === undefined) {
+            this.element.prop = 'value';
+        }
+        else {
+            const arr = ['value', 'count', 'sum', 'avg', 'average', 'max', 'min'];
+            if (arr.includes(prop) === false) {
+                this.log(`Title does not have function ${prop}`);
             }
         }
         return ok;

@@ -56,10 +56,10 @@ export abstract class BizEntity extends BizBase {
         }
         return ret;
     }
-    checkName(name: string): boolean {
-        if (super.checkName(name) === false) return false;
-        if (this.props.has(name) === true) return false;
-        return true; // this.assigns.has(name) === false;
+    okToDefineNewName(name: string): boolean {
+        if (super.okToDefineNewName(name) === false) return false;
+        let bud = this.props.get(name.toLowerCase());
+        return (bud === undefined);
     }
 
     protected buildPhrase(prefix: string) {

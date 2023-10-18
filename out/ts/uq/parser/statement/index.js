@@ -82,5 +82,6 @@ Object.defineProperty(exports, "PExecSqlStatement", { enumerable: true, get: fun
 var role_1 = require("./role");
 Object.defineProperty(exports, "PRoleStatement", { enumerable: true, get: function () { return role_1.PRoleStatement; } });
 Object.defineProperty(exports, "PAssertRoleStatement", { enumerable: true, get: function () { return role_1.PAssertRoleStatement; } });
+__exportStar(require("./use"), exports);
 __exportStar(require("./statement"), exports);
 //# sourceMappingURL=index.js.map

@@ -149,10 +149,17 @@ export abstract class BizSelect extends IElement {
     column: BizSelectColumn;
 }
 
+export interface BizExpIn {
+    timeSpan: string;
+    op: '+' | '-';
+    val: ValueExpression;
+}
+
 export class BizExp extends BizSelect {
     bizEntity: BizEntity;
     param: ValueExpression;
     prop: string;
+    in: BizExpIn;
     type = 'BizExp';
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizExp(this, context);

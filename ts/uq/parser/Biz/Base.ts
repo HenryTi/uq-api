@@ -227,7 +227,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 act,
             };
         }
-        if (this.element.checkName(name) === false) {
+        if (this.element.okToDefineNewName(name) === false) {
             this.ts.error(`${name} can not be used multiple times`);
         }
 

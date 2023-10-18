@@ -193,7 +193,7 @@ class PBizBin extends Base_1.PBizEntity {
         let binSpace = new BinSpace(space, this.element);
         if (super.scan(binSpace) === false)
             ok = false;
-        space = new DetailSpace(binSpace, this.element);
+        space = new BizBinSpace(binSpace, this.element);
         if (this.pend !== undefined) {
             let pend = this.getBizEntity(binSpace, this.pend, il_1.BizPhraseType.pend);
             if (pend === undefined) {
@@ -398,7 +398,7 @@ class PBizDetailAct extends Base_1.PBizBase {
     scan(space) {
         let ok = true;
         //  will be removed
-        let actSpace = new DetailSpace(space, undefined);
+        let actSpace = new BizBinSpace(space, undefined);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false)
             ok = false;
@@ -453,10 +453,11 @@ exports.detailPreDefined = [
     'detail',
     'i', 'x', 'value', 'amount', 'price'
 ];
-class DetailSpace extends space_1.Space {
-    constructor(outer, detail) {
+class BizBinSpace extends space_1.Space {
+    constructor(outer, bin) {
         super(outer);
-        this.detail = detail;
+        this.useColl = {};
+        this.bin = bin;
     }
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
@@ -470,12 +471,22 @@ class DetailSpace extends space_1.Space {
             default:
                 return super._getBizEntity(name);
             case 'pend':
-                const { pend } = this.detail;
+                const { pend } = this.bin;
                 return pend === null || pend === void 0 ? void 0 : pend.entity;
             case 'main':
                 debugger;
                 break;
         }
+    }
+    _getUse(name) {
+        return this.useColl[name];
+    }
+    _addUse(name) {
+        let v = this.useColl[name];
+        if (v !== undefined)
+            return false;
+        this.useColl[name] = true;
+        return true;
     }
 }
 //# sourceMappingURL=Sheet.js.map

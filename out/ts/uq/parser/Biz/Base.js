@@ -275,7 +275,7 @@ class PBizEntity extends PBizBase {
                 act,
             };
         }
-        if (this.element.checkName(name) === false) {
+        if (this.element.okToDefineNewName(name) === false) {
             this.ts.error(`${name} can not be used multiple times`);
         }
         const options = {};

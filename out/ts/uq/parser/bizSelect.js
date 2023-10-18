@@ -221,6 +221,10 @@ exports.PBizExpOperand = PBizExpOperand;
 class PBizExp extends element_1.PElement {
     _parse() {
         this.bizEntity = this.ts.passVar();
+        if (this.ts.token === tokens_1.Token.DOT) {
+            this.ts.readToken();
+            this.bud = this.ts.passVar();
+        }
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
         this.element.param = new il_1.ValueExpression();
         let { param } = this.element;
@@ -236,24 +240,161 @@ class PBizExp extends element_1.PElement {
                 this.element.prop = this.ts.passVar();
             }
         }
+        if (this.ts.isKeyword('in') === true) {
+            this.ts.readToken();
+            let timeSpan = this.ts.passVar();
+            let op;
+            let val;
+            switch (this.ts.token) {
+                case tokens_1.Token.SUB:
+                    op = '-';
+                    break;
+                case tokens_1.Token.ADD:
+                    op = '+';
+                    break;
+            }
+            if (op !== undefined) {
+                this.ts.readToken();
+                val = new il_1.ValueExpression();
+                this.context.parseElement(val);
+            }
+            this.element.in = {
+                timeSpan,
+                op,
+                val,
+            };
+        }
     }
     scan(space) {
         let ok = true;
-        let { param } = this.element;
+        this.element.bizEntity = space.getBizEntity(this.bizEntity);
+        const { bizEntity, in: varIn, param } = this.element;
         if (param.pelement.scan(space) === false) {
             ok = false;
         }
-        this.element.bizEntity = space.getBizEntity(this.bizEntity);
-        const { bizEntity } = this.element;
         if (bizEntity === undefined) {
             this.log(`${this.bizEntity} is not a Biz Entity`);
             ok = false;
         }
         else {
-            const { prop } = this.element;
-            if (bizEntity.checkName(prop) === false) {
-                this.log(`${bizEntity.jName} has not prop ${prop}`);
+            let ret;
+            switch (bizEntity.bizPhraseType) {
+                default:
+                    ok = false;
+                    this.log(`${bizEntity.jName} must be either Atom, Spec, Bin or Title`);
+                    break;
+                case il_1.BizPhraseType.atom:
+                    ret = this.scanAtom(space);
+                    break;
+                case il_1.BizPhraseType.spec:
+                    ret = this.scanSpec(space);
+                    break;
+                case il_1.BizPhraseType.bin:
+                    ret = this.scanBin(space);
+                    break;
+                case il_1.BizPhraseType.title:
+                    ret = this.scanTitle(space);
+                    break;
+            }
+            if (ret === false) {
                 ok = false;
+            }
+        }
+        if (varIn !== undefined) {
+            // scan BizExp.in
+            const { timeSpan, val } = varIn;
+            let useVar = space.getUse(timeSpan);
+            if (useVar === undefined) {
+                this.log(`${timeSpan} is not used`);
+                ok = false;
+            }
+            if (val !== undefined) {
+                if (val.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        }
+        return ok;
+    }
+    scanAtom(space) {
+        let ok = true;
+        const { bizEntity, prop } = this.element;
+        let bizAtom = bizEntity;
+        if (this.bud !== undefined) {
+            this.log(`ATOM ${bizEntity.jName} should not .`);
+            ok = false;
+        }
+        if (prop === undefined) {
+            this.element.prop = 'id';
+        }
+        else {
+            if (bizAtom.okToDefineNewName(prop) === false) {
+                this.log(`${bizAtom.jName} does not have prop ${prop}`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    scanSpec(space) {
+        let ok = true;
+        const { bizEntity, prop } = this.element;
+        let bizSpec = bizEntity;
+        if (this.bud !== undefined) {
+            this.log(`SPEC ${bizEntity.jName} should not .`);
+            ok = false;
+        }
+        if (prop === undefined) {
+            this.element.prop = 'id';
+        }
+        else {
+            if (bizSpec.okToDefineNewName(prop) === false) {
+                this.log(`${bizSpec.jName} does not have prop ${prop}`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    scanBin(space) {
+        let ok = true;
+        const { bizEntity, prop } = this.element;
+        let bizBin = bizEntity;
+        if (this.bud !== undefined) {
+            this.log(`BIN ${bizEntity.jName} should not .`);
+            ok = false;
+        }
+        if (prop === undefined) {
+            this.element.prop = 'id';
+        }
+        else {
+            const arr = ['i', 'x', 'price', 'amount', 'value'];
+            if (arr.includes(prop) === false || bizBin.okToDefineNewName(prop) === false) {
+                this.log(`${bizBin.jName} does not have prop ${prop}`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    scanTitle(space) {
+        let ok = true;
+        const { bizEntity, prop, in: inVar } = this.element;
+        let title = bizEntity;
+        if (this.bud === undefined) {
+            this.log(`TITLE ${title.jName} should follow .`);
+            ok = false;
+        }
+        else {
+            if (title.props.get(this.bud) === undefined) {
+                this.log(`TITLE ${title.getJName()} does not have ${this.bud} .`);
+                ok = false;
+            }
+        }
+        if (prop === undefined) {
+            this.element.prop = 'value';
+        }
+        else {
+            const arr = ['value', 'count', 'sum', 'avg', 'average', 'max', 'min'];
+            if (arr.includes(prop) === false) {
+                this.log(`Title does not have function ${prop}`);
             }
         }
         return ok;

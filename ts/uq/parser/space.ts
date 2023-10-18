@@ -1,7 +1,7 @@
 import {
     Field, Table, Arr, Entity, GroupType,
     Pointer,
-    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity
+    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity, UserVar
 } from '../il';
 
 export abstract class Space {
@@ -28,6 +28,8 @@ export abstract class Space {
     protected _getActionBase(): ActionBase { return undefined; }
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
     protected _getBizEntity(name: string): BizEntity { return undefined; }
+    protected _getUse(name: string): boolean { return undefined; }
+    protected _addUse(name: string): boolean { return undefined; }
     protected abstract _getEntityTable(name: string): Entity & Table;
     protected abstract _getTableByAlias(alias: string): Table;
     protected abstract _varPointer(name: string, isField: boolean): Pointer;
@@ -131,6 +133,20 @@ export abstract class Space {
         if (bizEntity !== undefined) return bizEntity;
         if (this.outer !== undefined)
             return this.outer.getBizEntity(name);
+    }
+    getUse(name: string): boolean {
+        let uv = this._getUse(name);
+        if (uv === undefined) {
+            if (this.outer !== undefined) {
+                uv = this.outer.getUse(name);
+            }
+        }
+        return uv;
+    }
+    addUse(name: string): boolean {
+        let ret = this._addUse(name);
+        if (ret !== undefined) return ret;
+        return this.outer?.addUse(name);
     }
     getTableByAlias(alias: string): Table {
         let table = this._getTableByAlias(alias);

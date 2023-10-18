@@ -28,12 +28,11 @@ class BizEntity extends Base_1.BizBase {
         }
         return ret;
     }
-    checkName(name) {
-        if (super.checkName(name) === false)
+    okToDefineNewName(name) {
+        if (super.okToDefineNewName(name) === false)
             return false;
-        if (this.props.has(name) === true)
-            return false;
-        return true; // this.assigns.has(name) === false;
+        let bud = this.props.get(name.toLowerCase());
+        return (bud === undefined);
     }
     buildPhrase(prefix) {
         this.phrase = this.name;

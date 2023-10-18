@@ -65,6 +65,7 @@ export abstract class BizBase extends IElement {
         if (jName === this.name) return;
         this.jName = jName;
     }
+    getJName(): string { return this.jName ?? this.name }
 
     buildSchema(res: { [phrase: string]: string }): any {
         return {
@@ -76,7 +77,7 @@ export abstract class BizBase extends IElement {
             caption: res[this.phrase] ?? this.caption,
         }
     };
-    checkName(name: string): boolean {
+    okToDefineNewName(name: string): boolean {
         return true;
     }
     get basePhrase(): string { return ''; }

@@ -36,18 +36,13 @@ class PStatements extends PStatement {
     }
     statementFromKey(parent, key) {
         switch (key) {
-            case 'var':
-                return new il_1.VarStatement(parent);
-            case 'table':
-                return new il_1.TableStatement(parent);
-            case 'text':
-                return new il_1.TextStatement(parent);
-            case 'set':
-                return new il_1.SetStatement(parent);
-            case 'with':
-                return new il_1.WithStatement(parent);
-            case 'value':
-                return new il_1.ValueStatement(parent);
+            case 'var': return new il_1.VarStatement(parent);
+            case 'use': return new il_1.UseStatement(parent);
+            case 'table': return new il_1.TableStatement(parent);
+            case 'text': return new il_1.TextStatement(parent);
+            case 'set': return new il_1.SetStatement(parent);
+            case 'with': return new il_1.WithStatement(parent);
+            case 'value': return new il_1.ValueStatement(parent);
             case 'if': return new il_1.If(parent);
             case 'while': return new il_1.While(parent);
             case 'for':

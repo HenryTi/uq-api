@@ -54,6 +54,7 @@ class BizBase extends element_1.IElement {
             return;
         this.jName = jName;
     }
+    getJName() { var _a; return (_a = this.jName) !== null && _a !== void 0 ? _a : this.name; }
     buildSchema(res) {
         var _a;
         return {
@@ -66,7 +67,7 @@ class BizBase extends element_1.IElement {
         };
     }
     ;
-    checkName(name) {
+    okToDefineNewName(name) {
         return true;
     }
     get basePhrase() { return ''; }
