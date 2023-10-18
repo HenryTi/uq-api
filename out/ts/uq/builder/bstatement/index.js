@@ -49,4 +49,5 @@ __exportStar(require("./sleep"), exports);
 __exportStar(require("./queue"), exports);
 __exportStar(require("./execSql"), exports);
 __exportStar(require("./role"), exports);
+__exportStar(require("./use"), exports);
 //# sourceMappingURL=index.js.map

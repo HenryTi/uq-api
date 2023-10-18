@@ -347,6 +347,7 @@ class DbContext {
     sleepStatement(v) { return new stat.BSleepStatement(this, v); }
     roleStatement(v) { return new stat.BRoleStatement(this, v); }
     queueStatement(v) { return new stat.BQueueStatement(this, v); }
+    useStatement(v) { return new stat.BUseStatement(this, v); }
     add$UnitCol(cols) {
         if (this.hasUnit == false)
             return;

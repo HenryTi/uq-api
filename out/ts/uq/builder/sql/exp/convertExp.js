@@ -10,6 +10,7 @@ const exps_1 = require("./exps");
 const ExpUMinute_1 = require("./ExpUMinute");
 const ExpSearch_1 = require("./ExpSearch");
 const ExpBizSelect_1 = require("./ExpBizSelect");
+const bizExp_1 = require("../bizExp");
 function convertExp(context, exp) {
     if (!exp)
         return;
@@ -136,7 +137,7 @@ class Stack {
         this.arr.push(new ExpBizSelect_1.ExpBizSelectOperand(bs));
     }
     bizExp(exp) {
-        let bExp = new select_1.BBizExp();
+        let bExp = new bizExp_1.BBizExp();
         bExp.convertFrom(this.context, exp);
         this.arr.push(new ExpBizSelect_1.BizExpOperand(bExp));
     }

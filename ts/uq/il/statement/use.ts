@@ -1,3 +1,4 @@
+import { BUseBase, BUseMonthZone, BUseTimeSpan, BUseTimeZone, BUseYearZone, DbContext } from "../../builder";
 import { PContext, PElement, PUseMonthZone, PUseStatement, PUseTimeSpan, PUseTimeZone, PUseYearZone } from "../../parser";
 import { Builder } from "../builder";
 import { IElement } from "../element";
@@ -5,6 +6,7 @@ import { ValueExpression } from "../expression";
 import { Statement } from "./statement";
 
 export abstract class UseBase extends IElement {
+    abstract db(context: DbContext): BUseBase<any>;
 }
 
 export abstract class UseSetting extends UseBase {
@@ -16,6 +18,7 @@ export class UseTimeZone extends UseSetting {
     parser(context: PContext): PElement<IElement> {
         return new PUseTimeZone(this, context);
     }
+    override db(context: DbContext) { return new BUseTimeZone(this, context) }
 }
 
 export class UseMonthZone extends UseSetting {
@@ -23,6 +26,7 @@ export class UseMonthZone extends UseSetting {
     parser(context: PContext): PElement<IElement> {
         return new PUseMonthZone(this, context);
     }
+    override db(context: DbContext) { return new BUseMonthZone(this, context) }
 }
 
 export class UseYearZone extends UseSetting {
@@ -30,10 +34,11 @@ export class UseYearZone extends UseSetting {
     parser(context: PContext): PElement<IElement> {
         return new PUseYearZone(this, context);
     }
+    override db(context: DbContext) { return new BUseYearZone(this, context) }
 }
 
 export enum SpanPeriod {
-    year, month, week, day, hour, minute, second
+    year, month, week, day, hour, minute
 }
 export class UseTimeSpan extends UseBase {
     readonly type = 'timespan';
@@ -44,6 +49,7 @@ export class UseTimeSpan extends UseBase {
     parser(context: PContext): PElement<IElement> {
         return new PUseTimeSpan(this, context);
     }
+    override db(context: DbContext) { return new BUseTimeSpan(this, context) }
 }
 
 export class UseStatement extends Statement {
@@ -53,6 +59,6 @@ export class UseStatement extends Statement {
         return new PUseStatement(this, context);
     }
     db(db: Builder): object {
-        return;
+        return db.useStatement(this);
     }
 }

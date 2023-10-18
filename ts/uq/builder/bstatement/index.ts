@@ -33,3 +33,4 @@ export * from './sleep';
 export * from './queue';
 export * from './execSql';
 export * from './role';
+export * from './use';

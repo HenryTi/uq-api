@@ -1,5 +1,5 @@
 import { DbContext } from '../../dbContext';
-import { BBizExp, BBizSelectOperand, convertSelect } from '../select';
+import { BBizSelectOperand, convertSelect } from '../select';
 import {
     TuidArr, Entity, ID, Queue, DataType
     , Stack as IlStack, ValueExpression, OpQueueAction
@@ -17,6 +17,7 @@ import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, E
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand, ExpBizSelectOperand } from './ExpBizSelect';
+import { BBizExp } from '../bizExp';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {
     if (!exp) return;

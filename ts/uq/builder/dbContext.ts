@@ -407,6 +407,7 @@ export class DbContext implements il.Builder {
     sleepStatement(v: il.SleepStatement) { return new stat.BSleepStatement(this, v); }
     roleStatement(v: il.RoleStatement) { return new stat.BRoleStatement(this, v); }
     queueStatement(v: il.QueueStatement) { return new stat.BQueueStatement(this, v); }
+    useStatement(v: il.UseStatement) { return new stat.BUseStatement(this, v); }
 
     add$UnitCol(cols: ColVal[]) {
         if (this.hasUnit == false) return;

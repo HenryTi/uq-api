@@ -64,7 +64,6 @@ export interface Builder {
     returnStartStatement(): BStatement;
     returnEndStatement(): BStatement;
     procStatement(v: stat.ProcStatement): BStatement;
-    //foreachStatement(v: stat.ForEach): BStatement;
     foreachArr(v: stat.ForEach, forArr: stat.ForArr): BForList;
     foreachSelect(v: stat.ForEach, forSelect: stat.ForSelect): BForList;
     foreachQueue(v: stat.ForEach, forQueue: stat.ForQueue): BForList;
@@ -90,4 +89,5 @@ export interface Builder {
     transactionStatement(v: stat.TransactionStatement): BStatement;
     pokeStatement(v: stat.PokeStatement): BStatement;
     queueStatement(v: stat.QueueStatement): BStatement;
+    useStatement(v: stat.UseStatement): BStatement;
 }

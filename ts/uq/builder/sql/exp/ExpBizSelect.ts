@@ -1,4 +1,5 @@
-import { BBizExp, BBizSelect } from "../select";
+import { BBizExp } from "../bizExp";
+import { BBizSelect } from "../select";
 import { SqlBuilder } from "../sqlBuilder";
 import { ExpVal } from "./exps";
 

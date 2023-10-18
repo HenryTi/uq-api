@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UseStatement = exports.UseTimeSpan = exports.SpanPeriod = exports.UseYearZone = exports.UseMonthZone = exports.UseTimeZone = exports.UseSetting = exports.UseBase = void 0;
+const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const element_1 = require("../element");
 const statement_1 = require("./statement");
@@ -18,6 +19,7 @@ class UseTimeZone extends UseSetting {
     parser(context) {
         return new parser_1.PUseTimeZone(this, context);
     }
+    db(context) { return new builder_1.BUseTimeZone(this, context); }
 }
 exports.UseTimeZone = UseTimeZone;
 class UseMonthZone extends UseSetting {
@@ -28,6 +30,7 @@ class UseMonthZone extends UseSetting {
     parser(context) {
         return new parser_1.PUseMonthZone(this, context);
     }
+    db(context) { return new builder_1.BUseMonthZone(this, context); }
 }
 exports.UseMonthZone = UseMonthZone;
 class UseYearZone extends UseSetting {
@@ -38,6 +41,7 @@ class UseYearZone extends UseSetting {
     parser(context) {
         return new parser_1.PUseYearZone(this, context);
     }
+    db(context) { return new builder_1.BUseYearZone(this, context); }
 }
 exports.UseYearZone = UseYearZone;
 var SpanPeriod;
@@ -58,6 +62,7 @@ class UseTimeSpan extends UseBase {
     parser(context) {
         return new parser_1.PUseTimeSpan(this, context);
     }
+    db(context) { return new builder_1.BUseTimeSpan(this, context); }
 }
 exports.UseTimeSpan = UseTimeSpan;
 class UseStatement extends statement_1.Statement {
@@ -66,7 +71,7 @@ class UseStatement extends statement_1.Statement {
         return new parser_1.PUseStatement(this, context);
     }
     db(db) {
-        return;
+        return db.useStatement(this);
     }
 }
 exports.UseStatement = UseStatement;
