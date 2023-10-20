@@ -12,7 +12,7 @@ export class BVarStatement extends BStatement {
         let { factory } = this.context;
         let declare = factory.createDeclare();
         for (let v of vars) {
-            declare.var(v.pointer.varName(v.name), v.dataType);
+            declare.var(v.varName(), v.dataType);
         }
         sqls.push(declare);
         if (select !== undefined) {
@@ -42,7 +42,7 @@ export class BVarStatement extends BStatement {
                 let set = factory.createSet();
                 let exp = convertExp(this.context, v.exp) as ExpVal;
                 if (exp !== undefined) {
-                    set.equ(v.pointer.varName(v.name), exp);
+                    set.equ(v.varName(), exp);
                     sqls.push(set);
                 }
             }

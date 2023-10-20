@@ -1,11 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UseStatement = exports.UseTimeSpan = exports.SpanPeriod = exports.UseYearZone = exports.UseMonthZone = exports.UseTimeZone = exports.UseSetting = exports.UseBase = void 0;
+exports.UseStatement = exports.UseTimeSpan = exports.UseYearZone = exports.UseMonthZone = exports.UseTimeZone = exports.UseSetting = exports.UseBase = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const element_1 = require("../element");
 const statement_1 = require("./statement");
 class UseBase extends element_1.IElement {
+    constructor(statement) {
+        super();
+        this.statement = statement;
+    }
 }
 exports.UseBase = UseBase;
 class UseSetting extends UseBase {
@@ -44,16 +48,6 @@ class UseYearZone extends UseSetting {
     db(context) { return new builder_1.BUseYearZone(this, context); }
 }
 exports.UseYearZone = UseYearZone;
-var SpanPeriod;
-(function (SpanPeriod) {
-    SpanPeriod[SpanPeriod["year"] = 0] = "year";
-    SpanPeriod[SpanPeriod["month"] = 1] = "month";
-    SpanPeriod[SpanPeriod["week"] = 2] = "week";
-    SpanPeriod[SpanPeriod["day"] = 3] = "day";
-    SpanPeriod[SpanPeriod["hour"] = 4] = "hour";
-    SpanPeriod[SpanPeriod["minute"] = 5] = "minute";
-    SpanPeriod[SpanPeriod["second"] = 6] = "second";
-})(SpanPeriod = exports.SpanPeriod || (exports.SpanPeriod = {}));
 class UseTimeSpan extends UseBase {
     constructor() {
         super(...arguments);

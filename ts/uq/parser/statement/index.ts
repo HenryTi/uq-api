@@ -31,5 +31,6 @@ export { PQueueStatement } from './queue';
 export { PExecSqlStatement } from './execSql';
 export { PRoleStatement, PAssertRoleStatement } from './role';
 export * from './use';
+export * from './put';
 
 export * from './statement';

@@ -1,7 +1,7 @@
 import {
     BizBase, BizAtom, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType, Biz, BizQueryValue
 } from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
@@ -174,7 +174,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected parseBud(name: string, caption: string): BizBudValue {
-        const keyColl: { [key: string]: new (name: string, caption: string) => BizBudValue } = {
+        const keyColl: { [key: string]: new (biz: Biz, name: string, caption: string) => BizBudValue } = {
             none: BizBudNone,
             int: BizBudInt,
             dec: BizBudDec,
@@ -210,7 +210,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         if (Bud === undefined) {
             this.ts.expect(...keys);
         }
-        let bizBud = new Bud(name, caption);
+        let bizBud = new Bud(this.element.biz, name, caption);
         bizBud.parser(this.context).parse();
 
         let act: BudValueAct;
@@ -220,11 +220,20 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         if (act !== undefined) {
             this.ts.readToken();
-            let value = new ValueExpression();
-            this.context.parseElement(value);
+            let exp: ValueExpression;
+            let query: BizQueryValue;
+            if (this.ts.token === Token.LBRACE) {
+                query = new BizQueryValue(this.element.biz);
+                this.context.parseElement(query);
+            }
+            else {
+                exp = new ValueExpression();
+                this.context.parseElement(exp);
+            }
             bizBud.value = {
-                exp: value,
+                exp,
                 act,
+                query,
             };
         }
         if (this.element.okToDefineNewName(name) === false) {
@@ -379,9 +388,12 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let { pelement, value } = bud;
         if (pelement === undefined) {
             if (value !== undefined) {
-                const { exp } = value;
+                const { exp, query } = value;
                 if (exp !== undefined) {
                     if (exp.pelement.scan(space) === false) return false;
+                }
+                if (query !== undefined) {
+                    if (query.pelement.scan(space) === false) return false;
                 }
             }
             return true;

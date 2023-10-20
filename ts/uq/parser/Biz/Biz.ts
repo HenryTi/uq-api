@@ -51,7 +51,7 @@ export class PBiz extends PEntity<Biz> {
             switch (entityType) {
                 default: this.ts.error(`Unknown Biz Entity ${entityType}`); return;
                 // case 'act': this.parseAct(); return;
-                case 'query': this.parseQuery(); return;
+                // case 'query': this.parseQuery(); return;
             }
         }
         this.ts.readToken();
@@ -77,7 +77,7 @@ export class PBiz extends PEntity<Biz> {
         this.error(ret);
         return false;
     }
-    */
+    
     private parseQuery() {
         this.ts.readToken();
         let query = this.context.parseElement(new BizQuery(this.entity));
@@ -89,7 +89,7 @@ export class PBiz extends PEntity<Biz> {
         this.error(ret);
         return false;
     }
-
+*/
     scan(space: Space): boolean {
         let ok = true;
         let bizSpace = new BizSpace(space, this.entity);
@@ -127,7 +127,7 @@ export class PBiz extends PEntity<Biz> {
 
 class BizSpace extends Space {
     private readonly biz: Biz;
-    private varNo: number = 1;
+    // private varNo: number = 1;
     constructor(outer: Space, biz: Biz) {
         super(outer);
         this.biz = biz;
@@ -141,6 +141,6 @@ class BizSpace extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
-    getVarNo() { return this.varNo; }
-    setVarNo(value: number) { this.varNo = value; }
+    // getVarNo() { return this.varNo; }
+    // setVarNo(value: number) { this.varNo = value; }
 }

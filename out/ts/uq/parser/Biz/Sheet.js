@@ -156,7 +156,7 @@ class PBizBin extends Base_1.PBizEntity {
             if (act !== undefined) {
                 this.ts.error('ACT can only be defined once');
             }
-            let bizBinAct = new il_1.BizBinAct(this.element);
+            let bizBinAct = new il_1.BizBinAct(this.element.biz, this.element);
             this.element.act = bizBinAct;
             this.context.parseElement(bizBinAct);
             this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
@@ -174,7 +174,7 @@ class PBizBin extends Base_1.PBizEntity {
     }
     parseBudPickable(itemName) {
         let caption = this.ts.mayPassString();
-        let bud = new il_1.BizBudPickable(itemName, caption);
+        let bud = new il_1.BizBudPickable(this.element.biz, itemName, caption);
         this.context.parseElement(bud);
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bud;
@@ -185,7 +185,9 @@ class PBizBin extends Base_1.PBizEntity {
         }
         let caption = this.ts.mayPassString();
         let bizBud = this.parseBud(budName, caption);
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        if (this.ts.prevToken !== tokens_1.Token.RBRACE) {
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+        }
         return bizBud;
     }
     scan(space) {
@@ -242,8 +244,16 @@ class PBizBin extends Base_1.PBizEntity {
             }
             const { value } = bud;
             if (value !== undefined) {
-                if (value.exp.pelement.scan(space) === false) {
-                    ok = false;
+                const { exp, query } = value;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
+                else if (query !== undefined) {
+                    if (query.pelement.scan(space) === false) {
+                        ok = false;
+                    }
                 }
             }
         };
@@ -456,7 +466,7 @@ exports.detailPreDefined = [
 class BizBinSpace extends space_1.Space {
     constructor(outer, bin) {
         super(outer);
-        this.useColl = {};
+        this.useColl = {}; // useStatement no
         this.bin = bin;
     }
     _getEntityTable(name) { return; }
@@ -481,11 +491,14 @@ class BizBinSpace extends space_1.Space {
     _getUse(name) {
         return this.useColl[name];
     }
-    _addUse(name) {
+    _addUse(name, statementNo, obj) {
         let v = this.useColl[name];
         if (v !== undefined)
             return false;
-        this.useColl[name] = true;
+        this.useColl[name] = {
+            statementNo,
+            obj,
+        };
         return true;
     }
 }

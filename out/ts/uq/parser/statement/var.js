@@ -83,7 +83,7 @@ class PVarStatement extends statement_1.PStatement {
                     ok = false;
                 }
                 let vp = v.pointer = new il_1.VarPointer();
-                let no = space.getVarNo();
+                let no = this._var.no; // space.getVarNo();
                 vp.no = no;
                 space.setVarNo(no + 1);
                 let exp = v.exp;
@@ -110,7 +110,7 @@ class PVarStatement extends statement_1.PStatement {
                     ok = false;
                 }
                 let vp = v.pointer = new il_1.VarPointer();
-                let no = space.getVarNo();
+                let no = this._var.no; //space.getVarNo();
                 vp.no = no;
                 space.setVarNo(no + 1);
                 let exp = v.exp;

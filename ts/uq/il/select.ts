@@ -5,7 +5,8 @@ import { Field, Table } from './field';
 import { Pointer, VarPointer, FieldPointer, GroupByPointer } from './pointer';
 import { Entity, Queue } from './entity';
 import { LocalTableBase } from './statement';
-import { BizEntity, BizPhraseType } from './Biz';
+import { BizBud, BizEntity, BizPhraseType } from './Biz';
+import { SpanPeriod } from './tool';
 
 export enum JoinType { left, right, queue, join, inner, cross };
 export type OrderType = 'asc' | 'desc';
@@ -150,13 +151,16 @@ export abstract class BizSelect extends IElement {
 }
 
 export interface BizExpIn {
-    timeSpan: string;
+    varTimeSpan: string;
     op: '+' | '-';
     val: ValueExpression;
+    statementNo: number;
+    spanPeiod: SpanPeriod;
 }
 
 export class BizExp extends BizSelect {
     bizEntity: BizEntity;
+    bud: BizBud;
     param: ValueExpression;
     prop: string;
     in: BizExpIn;

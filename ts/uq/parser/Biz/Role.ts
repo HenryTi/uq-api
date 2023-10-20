@@ -34,7 +34,7 @@ export class PBizPermit<P extends BizPermit> extends PBizEntity<P> {
         if (caption === undefined) {
             if (jName !== name) caption = jName;
         }
-        let permitItem = new BizPermitItem(name, caption);
+        let permitItem = new BizPermitItem(this.element.biz, name, caption);
         items.set(name, permitItem);
         this.ts.passToken(Token.SEMICOLON);
     }

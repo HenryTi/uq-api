@@ -255,7 +255,7 @@ class PBizEntity extends PBizBase {
         if (Bud === undefined) {
             this.ts.expect(...keys);
         }
-        let bizBud = new Bud(name, caption);
+        let bizBud = new Bud(this.element.biz, name, caption);
         bizBud.parser(this.context).parse();
         let act;
         switch (this.ts.token) {
@@ -268,11 +268,20 @@ class PBizEntity extends PBizBase {
         }
         if (act !== undefined) {
             this.ts.readToken();
-            let value = new il_1.ValueExpression();
-            this.context.parseElement(value);
+            let exp;
+            let query;
+            if (this.ts.token === tokens_1.Token.LBRACE) {
+                query = new il_1.BizQueryValue(this.element.biz);
+                this.context.parseElement(query);
+            }
+            else {
+                exp = new il_1.ValueExpression();
+                this.context.parseElement(exp);
+            }
             bizBud.value = {
-                exp: value,
+                exp,
                 act,
+                query,
             };
         }
         if (this.element.okToDefineNewName(name) === false) {
@@ -374,9 +383,13 @@ class PBizEntity extends PBizBase {
         let { pelement, value } = bud;
         if (pelement === undefined) {
             if (value !== undefined) {
-                const { exp } = value;
+                const { exp, query } = value;
                 if (exp !== undefined) {
                     if (exp.pelement.scan(space) === false)
+                        return false;
+                }
+                if (query !== undefined) {
+                    if (query.pelement.scan(space) === false)
                         return false;
                 }
             }

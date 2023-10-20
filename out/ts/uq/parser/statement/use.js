@@ -14,16 +14,16 @@ class PUseStatement extends statement_1.PStatement {
                 this.ts.error(`Unknown key ${key}`);
                 break;
             case 'timezone':
-                useBase = new il_1.UseTimeZone();
+                useBase = new il_1.UseTimeZone(this.statement);
                 break;
             case 'monthzone':
-                useBase = new il_1.UseMonthZone();
+                useBase = new il_1.UseMonthZone(this.statement);
                 break;
             case 'yearzone':
-                useBase = new il_1.UseYearZone();
+                useBase = new il_1.UseYearZone(this.statement);
                 break;
             case 'timespan':
-                useBase = new il_1.UseTimeSpan();
+                useBase = new il_1.UseTimeSpan(this.statement);
                 break;
         }
         this.statement.useBase = useBase;
@@ -46,12 +46,15 @@ class PUseSetting extends PUseBase {
         this.ts.passToken(tokens_1.Token.EQU);
         let val = new il_1.ValueExpression();
         this.context.parseElement(val);
-        this.element.val = val;
+        this.element.value = val;
     }
     scan(space) {
         let ok = true;
-        if (this.element.val.pelement.scan(space) === false) {
-            ok = false;
+        const { value } = this.element;
+        if (value !== undefined) {
+            if (value.pelement.scan(space) === false) {
+                ok = false;
+            }
         }
         return ok;
     }
@@ -88,7 +91,7 @@ class PUseTimeSpan extends PUseBase {
             if (Object.keys(il_1.SpanPeriod).includes(sp) === false) {
                 this.ts.expect('time span period');
             }
-            this.element.spanPeiod = il_1.SpanPeriod[sp];
+            this.element.spanPeriod = il_1.SpanPeriod[sp];
             if (this.ts.token === tokens_1.Token.LPARENTHESE) {
                 this.ts.readToken();
                 if (this.ts.token === tokens_1.Token.RPARENTHESE) {
@@ -105,17 +108,24 @@ class PUseTimeSpan extends PUseBase {
     }
     scan(space) {
         let ok = true;
-        const { varName, op, value } = this.element;
+        const { varName, op, value, spanPeriod: spanPeiod } = this.element;
+        const { no } = this.element.statement;
         if (op === undefined) {
-            if (space.addUse(varName) === false) {
+            if (space.addUse(varName, no, spanPeiod) === false) {
                 this.log(`Duplicate define ${varName}`);
                 ok = false;
             }
         }
         else {
-            if (space.getUse(varName) === false) {
+            const useObj = space.getUse(varName);
+            if (useObj === undefined) {
                 this.log(`${varName} is not defined`);
                 ok = false;
+            }
+            else {
+                const { obj: spanPeiod, statementNo } = useObj;
+                this.element.spanPeriod = spanPeiod;
+                this.element.statementNo = statementNo;
             }
         }
         if (value !== undefined) {

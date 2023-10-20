@@ -118,10 +118,10 @@ export class BizPend extends BizEntity {
         super(biz);
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
-            this.predefinedBuds[n] = new BizBudAtom(n, undefined);
+            this.predefinedBuds[n] = new BizBudAtom(this.biz, n, undefined);
         }
         for (let n of BizPend.predefinedValue) {
-            this.predefinedBuds[n] = new BizBudDec(n, undefined);
+            this.predefinedBuds[n] = new BizBudDec(this.biz, n, undefined);
         }
     }
 
@@ -159,8 +159,8 @@ export class BizBinAct extends BizBase {
     idParam: Field;
     statement: ActionStatement;
 
-    constructor(bizDetail: BizBin) {
-        super();
+    constructor(biz: Biz, bizDetail: BizBin) {
+        super(biz);
         this.bizDetail = bizDetail;
     }
 

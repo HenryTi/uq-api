@@ -29,6 +29,7 @@ const d = 'd';
 
 export class BBizSheet extends BBizEntity<BizSheet> {
     override async buildProcedures(): Promise<void> {
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
         this.buildSubmitProc(procSubmit);
@@ -158,6 +159,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
 export class BBizBin extends BBizEntity<BizBin> {
     override async buildProcedures(): Promise<void> {
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
         this.buildSubmitProc(procSubmit);

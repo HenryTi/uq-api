@@ -3,14 +3,21 @@ import { PContext, PElement, PUseMonthZone, PUseStatement, PUseTimeSpan, PUseTim
 import { Builder } from "../builder";
 import { IElement } from "../element";
 import { ValueExpression } from "../expression";
+import { SpanPeriod } from "../tool";
 import { Statement } from "./statement";
 
 export abstract class UseBase extends IElement {
+    readonly statement: Statement;
+    value: ValueExpression;
     abstract db(context: DbContext): BUseBase<any>;
+    constructor(statement: Statement) {
+        super();
+        this.statement = statement;
+    }
 }
 
 export abstract class UseSetting extends UseBase {
-    val: ValueExpression;
+    // val: ValueExpression;
 }
 
 export class UseTimeZone extends UseSetting {
@@ -37,15 +44,12 @@ export class UseYearZone extends UseSetting {
     override db(context: DbContext) { return new BUseYearZone(this, context) }
 }
 
-export enum SpanPeriod {
-    year, month, week, day, hour, minute
-}
 export class UseTimeSpan extends UseBase {
     readonly type = 'timespan';
     varName: string;
-    spanPeiod: SpanPeriod;
+    spanPeriod: SpanPeriod;
+    statementNo: number;
     op: '+' | '-';
-    value: ValueExpression;
     parser(context: PContext): PElement<IElement> {
         return new PUseTimeSpan(this, context);
     }

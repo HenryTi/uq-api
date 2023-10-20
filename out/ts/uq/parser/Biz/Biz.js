@@ -45,9 +45,7 @@ class PBiz extends entity_1.PEntity {
                     this.ts.error(`Unknown Biz Entity ${entityType}`);
                     return;
                 // case 'act': this.parseAct(); return;
-                case 'query':
-                    this.parseQuery();
-                    return;
+                // case 'query': this.parseQuery(); return;
             }
         }
         this.ts.readToken();
@@ -73,19 +71,19 @@ class PBiz extends entity_1.PEntity {
         this.error(ret);
         return false;
     }
-    */
-    parseQuery() {
+    
+    private parseQuery() {
         this.ts.readToken();
-        let query = this.context.parseElement(new il_1.BizQuery(this.entity));
+        let query = this.context.parseElement(new BizQuery(this.entity));
         let { uq } = this.entity;
         let { name } = query;
         uq.queries[name] = query;
         let ret = uq.checkEntityName(query);
-        if (ret === undefined)
-            return true;
+        if (ret === undefined) return true;
         this.error(ret);
         return false;
     }
+*/
     scan(space) {
         let ok = true;
         let bizSpace = new BizSpace(space, this.entity);
@@ -125,9 +123,9 @@ class PBiz extends entity_1.PEntity {
 }
 exports.PBiz = PBiz;
 class BizSpace extends space_1.Space {
+    // private varNo: number = 1;
     constructor(outer, biz) {
         super(outer);
-        this.varNo = 1;
         this.biz = biz;
     }
     _getEntityTable(name) {
@@ -139,7 +137,5 @@ class BizSpace extends space_1.Space {
     _varPointer(name, isField) {
         return;
     }
-    getVarNo() { return this.varNo; }
-    setVarNo(value) { this.varNo = value; }
 }
 //# sourceMappingURL=Biz.js.map

@@ -46,6 +46,10 @@ var BudDataType;
 })(BudDataType = exports.BudDataType || (exports.BudDataType = {}));
 ;
 class BizBase extends element_1.IElement {
+    constructor(biz) {
+        super();
+        this.biz = biz;
+    }
     get type() { return BizPhraseType[this.bizPhraseType]; }
     setJName(jName) {
         if (jName === undefined)

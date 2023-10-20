@@ -1,4 +1,5 @@
 import { IElement } from "../element";
+import { Biz } from "./Biz";
 
 export enum BizPhraseType {
     any = 0,
@@ -49,6 +50,7 @@ export enum BudDataType {
 };
 
 export abstract class BizBase extends IElement {
+    readonly biz: Biz;
     id: number;                         // phrase id
     name: string;
     jName: string;
@@ -57,6 +59,12 @@ export abstract class BizBase extends IElement {
     phrase: string;
     memo: string;
     nameStartAt: number;
+
+    constructor(biz: Biz) {
+        super();
+        this.biz = biz;
+    }
+
     abstract get bizPhraseType(): BizPhraseType;
     get type(): string { return BizPhraseType[this.bizPhraseType]; }
 

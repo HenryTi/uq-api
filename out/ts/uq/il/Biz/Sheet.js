@@ -98,10 +98,10 @@ class BizPend extends Entity_1.BizEntity {
         this.bizPhraseType = Base_1.BizPhraseType.pend;
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
-            this.predefinedBuds[n] = new Bud_1.BizBudAtom(n, undefined);
+            this.predefinedBuds[n] = new Bud_1.BizBudAtom(this.biz, n, undefined);
         }
         for (let n of BizPend.predefinedValue) {
-            this.predefinedBuds[n] = new Bud_1.BizBudDec(n, undefined);
+            this.predefinedBuds[n] = new Bud_1.BizBudDec(this.biz, n, undefined);
         }
     }
     parser(context) {
@@ -132,8 +132,8 @@ BizPend.predefinedId = ['i', 'x', 'si', 'sx', 's'];
 BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 exports.BizPend = BizPend;
 class BizBinAct extends Base_1.BizBase {
-    constructor(bizDetail) {
-        super();
+    constructor(biz, bizDetail) {
+        super(biz);
         this.bizPhraseType = Base_1.BizPhraseType.detailAct;
         this.tableVars = {};
         this.bizDetail = bizDetail;

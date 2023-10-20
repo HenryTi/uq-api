@@ -23,7 +23,7 @@ class Space {
     _getBizBase(bizName) { return undefined; }
     _getBizEntity(name) { return undefined; }
     _getUse(name) { return undefined; }
-    _addUse(name) { return undefined; }
+    _addUse(name, statementNo, obj) { return undefined; }
     get groupType() { return il_1.GroupType.Single; }
     set groupType(value) { }
     get inLoop() {
@@ -155,12 +155,12 @@ class Space {
         }
         return uv;
     }
-    addUse(name) {
+    addUse(name, statementNo, obj) {
         var _a;
-        let ret = this._addUse(name);
+        let ret = this._addUse(name, statementNo, obj);
         if (ret !== undefined)
             return ret;
-        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.addUse(name);
+        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.addUse(name, statementNo, obj);
     }
     getTableByAlias(alias) {
         let table = this._getTableByAlias(alias);

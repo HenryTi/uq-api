@@ -10,6 +10,7 @@ class BUseStatement extends bstatement_1.BStatement {
         this.singleKey = '$use';
         const { useBase } = stat;
         this.bUse = useBase.db(context);
+        this.bUse.convertFrom();
         this.bUse.setStatement(stat);
     }
     singleHead(sqls) {
@@ -28,6 +29,9 @@ class BUseBase {
         this.useObj = useObj;
         this.context = context;
     }
+    convertFrom() {
+        this.value = this.context.expVal(this.useObj.value);
+    }
     setStatement(statement) { this.statement = statement; }
     singleHead(sqls) { }
     head(sqls) { }
@@ -39,47 +43,153 @@ class BUseSetting extends BUseBase {
 exports.BUseSetting = BUseSetting;
 class BUseTimeZone extends BUseSetting {
     head(sqls) {
+        const { factory } = this.context;
+        let declare = factory.createDeclare();
+        sqls.push(declare);
+        declare.var('$timezone', new il_1.BigInt());
     }
 }
 exports.BUseTimeZone = BUseTimeZone;
 class BUseMonthZone extends BUseSetting {
+    head(sqls) {
+        const { factory } = this.context;
+        let declare = factory.createDeclare();
+        sqls.push(declare);
+        declare.var('$monthzone', new il_1.BigInt());
+    }
 }
 exports.BUseMonthZone = BUseMonthZone;
 class BUseYearZone extends BUseSetting {
+    head(sqls) {
+        const { factory } = this.context;
+        let declare = factory.createDeclare();
+        sqls.push(declare);
+        declare.var('$yearzone', new il_1.BigInt());
+    }
 }
 exports.BUseYearZone = BUseYearZone;
+const sysTimeZone = '$systimezone';
+const timeZone = '$timezone';
+const weekZone = '$weekzone';
+const monthZone = '$monthzone';
+const yearZone = '$yearzone';
 class BUseTimeSpan extends BUseBase {
     singleHead(sqls) {
         const { factory } = this.context;
         let declare = factory.createDeclare();
         sqls.push(declare);
-        declare.var('$timezone', new il_1.BigInt());
-        declare.var('$weekzone', new il_1.BigInt());
-        declare.var('$monthzone', new il_1.BigInt());
-        declare.var('$yearzone', new il_1.BigInt());
+        declare.var(sysTimeZone, new il_1.BigInt());
+        declare.var(timeZone, new il_1.BigInt());
+        declare.var(weekZone, new il_1.BigInt());
+        declare.var(monthZone, new il_1.BigInt());
+        declare.var(yearZone, new il_1.BigInt());
+        let setSysTimeZone = factory.createSet();
+        sqls.push(setSysTimeZone);
+        setSysTimeZone.equ(sysTimeZone, new sql_1.ExpFunc(factory.func_timestampdiff, new sql_1.ExpDatePart('hour'), new sql_1.ExpFuncCustom(factory.func_utc_timestamp), new sql_1.ExpFunc(factory.func_now)));
         let setTimeZone = factory.createSet();
         sqls.push(setTimeZone);
-        setTimeZone.equ('$timezone', new sql_1.ExpNum(8));
+        setTimeZone.equ(timeZone, new sql_1.ExpNum(8));
         let setWeekZone = factory.createSet();
         sqls.push(setWeekZone);
-        setWeekZone.equ('$weekzone', new sql_1.ExpNum(0));
+        setWeekZone.equ(weekZone, new sql_1.ExpNum(0));
         let setMonthZone = factory.createSet();
         sqls.push(setMonthZone);
-        setMonthZone.equ('$monthzone', new sql_1.ExpNum(1));
+        setMonthZone.equ(monthZone, new sql_1.ExpNum(1));
         let setYearZone = factory.createSet();
         sqls.push(setYearZone);
-        setYearZone.equ('$yearzone', new sql_1.ExpNum(1));
+        setYearZone.equ(yearZone, new sql_1.ExpNum(1));
     }
     head(sqls) {
     }
     body(sqls) {
         const { factory } = this.context;
-        const { varName } = this.useObj;
-        const { no } = this.statement;
-        let declare = factory.createDeclare();
-        sqls.push(declare);
-        declare.var(`${varName}_${no}$start`, new il_1.BigInt());
-        declare.var(`${varName}_${no}$end`, new il_1.BigInt());
+        const { varName, op, spanPeriod, statementNo } = this.useObj;
+        if (op === undefined) {
+            const { no } = this.statement;
+            let value = this.value;
+            let vInit = `${varName}_${no}$`;
+            let vStart = `${varName}_${no}$start`;
+            let vEnd = `${varName}_${no}$end`;
+            let varInit = new sql_1.ExpVar(vInit);
+            let varTimezone = new sql_1.ExpVar(timeZone);
+            let declare = factory.createDeclare();
+            sqls.push(declare);
+            declare.var(vStart, new il_1.DateTime());
+            declare.var(vEnd, new il_1.DateTime());
+            let setInit = factory.createSet();
+            sqls.push(setInit);
+            let setStart = factory.createSet();
+            sqls.push(setStart);
+            function dayInit() {
+                declare.var(vInit, new il_1.DateTime());
+                let expInit;
+                if (value === undefined) {
+                    expInit = new sql_1.ExpAdd(new sql_1.ExpFuncCustom(factory.func_utc_timestamp), new sql_1.ExpInterval(il_1.SpanPeriod.hour, varTimezone));
+                }
+                else {
+                    expInit = new sql_1.ExpAdd(value, new sql_1.ExpInterval(il_1.SpanPeriod.hour, new sql_1.ExpSub(varTimezone, new sql_1.ExpVar(sysTimeZone))));
+                }
+                setInit.equ(vInit, new sql_1.ExpSub(new sql_1.ExpFunc(factory.func_date, expInit), new sql_1.ExpInterval(il_1.SpanPeriod.hour, varTimezone)));
+            }
+            function yearStart() {
+                dayInit();
+                setStart.equ(vStart, new sql_1.ExpFunc('MAKEDATE', new sql_1.ExpFunc(factory.func_year, varInit), sql_1.ExpNum.num1));
+            }
+            function monthStart() {
+                dayInit();
+                setStart.equ(vStart, new sql_1.ExpAdd(new sql_1.ExpSub(varInit, new sql_1.ExpInterval(il_1.SpanPeriod.month, sql_1.ExpNum.num1)), new sql_1.ExpInterval(il_1.SpanPeriod.day, sql_1.ExpNum.num1)));
+            }
+            function weekStart() {
+                dayInit();
+                setStart.equ(vStart, new sql_1.ExpAdd(varInit, new sql_1.ExpInterval(il_1.SpanPeriod.day, new sql_1.ExpSub(sql_1.ExpNum.num1, new sql_1.ExpFunc('DAYOFWEEK', varInit)))));
+            }
+            function dayStart() {
+                dayInit();
+                setStart.equ(vStart, varInit);
+            }
+            function hourOrMinuteInit(seconds) {
+                const initParams = [];
+                if (value !== undefined)
+                    initParams.push(value);
+                declare.var(vInit, new il_1.BigInt());
+                setInit.equ(vInit, new sql_1.ExpFuncCustom(factory.func_unix_timestamp, ...initParams));
+                setStart.equ(vStart, new sql_1.ExpFunc(factory.func_from_unixtime, new sql_1.ExpSub(varInit, new sql_1.ExpMod(varInit, new sql_1.ExpNum(seconds)))));
+            }
+            function hourStart() {
+                return hourOrMinuteInit(3600);
+            }
+            function minuteStart() {
+                return hourOrMinuteInit(60);
+            }
+            const starts = {
+                [il_1.SpanPeriod.year]: yearStart,
+                [il_1.SpanPeriod.month]: monthStart,
+                [il_1.SpanPeriod.week]: weekStart,
+                [il_1.SpanPeriod.day]: dayStart,
+                [il_1.SpanPeriod.hour]: hourStart,
+                [il_1.SpanPeriod.minute]: minuteStart,
+            };
+            starts[spanPeriod]();
+            let setEnd = factory.createSet();
+            sqls.push(setEnd);
+            setEnd.equ(vEnd, new sql_1.ExpAdd(new sql_1.ExpVar(vStart), new sql_1.ExpInterval(spanPeriod, sql_1.ExpNum.num1)));
+        }
+        else {
+            let vStart = `${varName}_${statementNo}$start`;
+            let vEnd = `${varName}_${statementNo}$end`;
+            const buildSet = (varName) => {
+                let set = factory.createSet();
+                sqls.push(set);
+                let arr = [
+                    new sql_1.ExpVar(varName),
+                    new sql_1.ExpInterval(spanPeriod, this.value),
+                ];
+                let result = op === '+' ? new sql_1.ExpAdd(...arr) : new sql_1.ExpSub(...arr);
+                set.equ(varName, result);
+            };
+            buildSet(vStart);
+            buildSet(vEnd);
+        }
     }
 }
 exports.BUseTimeSpan = BUseTimeSpan;

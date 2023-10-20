@@ -2,7 +2,7 @@ import { SqlBuilder, unitFieldName } from '../sqlBuilder';
 import { Select as SqlSelect } from '../select';
 import { EntityTable } from '../statementWithFrom';
 import { Field } from '../../../il/field';
-import { TuidArr, Entity, DataType, BizBase } from '../../../il';
+import { TuidArr, Entity, DataType, BizBase, SpanPeriod } from '../../../il';
 import { Exp } from './Exp';
 import { EnumSysTable, sysTable } from '../../dbContext';
 
@@ -628,6 +628,20 @@ export class ExpMatch extends ExpCmp {
         sb.exp(this.exp);
         if (this.isBoolean === true) sb.append(' in boolean mode ');
         sb.r();
+    }
+}
+
+export class ExpInterval extends ExpVal {
+    private readonly spanPeriod: SpanPeriod;
+    private readonly value: ExpVal;
+    constructor(spanPeriod: SpanPeriod, value: ExpVal) {
+        super();
+        this.spanPeriod = spanPeriod;
+        this.value = value;
+    }
+    to(sb: SqlBuilder) {
+        sb.append('INTERVAL ').exp(this.value).space()
+            .append(SpanPeriod[this.spanPeriod]);
     }
 }
 

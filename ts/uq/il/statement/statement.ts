@@ -207,6 +207,10 @@ export class VarStatement extends Statement {
     vars: Var[] = [];
     select: Select;
     db(db: Builder): object { return db.varStatement(this); }
+    setNo(no: number) {
+        super.setNo(no);
+        // this.no = no; 
+    }
     parser(context: parser.PContext) { return new parser.PVarStatement(this, context); }
     getVar(name: string): Var { return this.vars.find(v => v.name === name); }
 }

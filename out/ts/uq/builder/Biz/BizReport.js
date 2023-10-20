@@ -8,6 +8,7 @@ const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 class BBizReport extends BizEntity_1.BBizEntity {
     async buildProcedures() {
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procGet = this.createProcedure(`${this.context.site}.${id}`);
         this.buildGetProc(procGet);

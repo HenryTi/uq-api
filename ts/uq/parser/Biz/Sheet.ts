@@ -2,8 +2,8 @@ import {
     BizBin, BizBinAct, BizPend, BizSheet, Field
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
-    , BizBudAtom, BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, ValueExpression, BudValueAct, BizEntity, BizBudDec, BizBudPickable, UserVar
+    , BizBudValue, BudDataType, BizPhraseType
+    , bigIntField, BizEntity, BizBudPickable
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -159,7 +159,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parseBudPickable(itemName: string) {
         let caption = this.ts.mayPassString();
-        let bud = new BizBudPickable(itemName, caption);
+        let bud = new BizBudPickable(this.element.biz, itemName, caption);
         this.context.parseElement(bud);
         this.ts.passToken(Token.SEMICOLON);
         return bud;
@@ -171,7 +171,9 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
         let caption: string = this.ts.mayPassString();
         let bizBud = this.parseBud(budName, caption);
-        this.ts.passToken(Token.SEMICOLON);
+        if (this.ts.prevToken !== Token.RBRACE) {
+            this.ts.passToken(Token.SEMICOLON);
+        }
         return bizBud;
     }
 
@@ -192,7 +194,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (act !== undefined) {
             this.ts.error('ACT can only be defined once');
         }
-        let bizBinAct = new BizBinAct(this.element);
+        let bizBinAct = new BizBinAct(this.element.biz, this.element);
         this.element.act = bizBinAct;
         this.context.parseElement(bizBinAct);
         this.ts.mayPassToken(Token.SEMICOLON);
@@ -264,8 +266,16 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
             const { value } = bud;
             if (value !== undefined) {
-                if (value.exp.pelement.scan(space) === false) {
-                    ok = false;
+                const { exp, query } = value;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
+                else if (query !== undefined) {
+                    if (query.pelement.scan(space) === false) {
+                        ok = false;
+                    }
                 }
             }
         }
@@ -484,7 +494,7 @@ export const detailPreDefined = [
 ];
 class BizBinSpace extends Space {
     private readonly bin: BizBin;
-    private readonly useColl: { [name: string]: boolean } = {};
+    private readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
     constructor(outer: Space, bin: BizBin) {
         super(outer);
         this.bin = bin;
@@ -510,14 +520,17 @@ class BizBinSpace extends Space {
         }
     }
 
-    protected _getUse(name: string): boolean {
+    protected _getUse(name: string): { statementNo: number; obj: any; } {
         return this.useColl[name];
     }
 
-    protected _addUse(name: string): boolean {
+    protected _addUse(name: string, statementNo: number, obj: any): boolean {
         let v = this.useColl[name];
         if (v !== undefined) return false;
-        this.useColl[name] = true;
+        this.useColl[name] = {
+            statementNo,
+            obj,
+        }
         return true;
     }
 }

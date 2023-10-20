@@ -14,8 +14,16 @@ class PBizBudValue extends PBizBud {
         let ok = true;
         let { value } = this.element;
         if (value !== undefined) {
-            if (value.exp.pelement.scan(space) === false) {
-                ok = false;
+            const { exp, query } = value;
+            if (exp !== undefined) {
+                if (exp.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            else if (query !== undefined) {
+                if (query.pelement.scan(space) === false) {
+                    ok = false;
+                }
             }
         }
         return ok;
@@ -126,11 +134,20 @@ class PBizBudPickable extends PBizBudValue {
             }
             if (act !== undefined) {
                 this.ts.readToken();
-                let value = new il_1.ValueExpression();
-                this.context.parseElement(value);
+                let exp;
+                let query;
+                if (this.ts.token === tokens_1.Token.LBRACE) {
+                    query = new il_1.BizQueryValue(this.element.biz);
+                    this.context.parseElement(query);
+                }
+                else {
+                    exp = new il_1.ValueExpression();
+                    this.context.parseElement(exp);
+                }
                 this.element.value = {
-                    exp: value,
+                    exp,
                     act,
+                    query,
                 };
                 return;
             }
@@ -155,8 +172,16 @@ class PBizBudPickable extends PBizBudValue {
         else {
             let { value } = this.element;
             if (value !== undefined) {
-                if (value.exp.pelement.scan(space) === false) {
-                    ok = false;
+                const { exp, query } = value;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
+                else if (query !== undefined) {
+                    if (query.pelement.scan(space) === false) {
+                        ok = false;
+                    }
                 }
                 return ok;
             }

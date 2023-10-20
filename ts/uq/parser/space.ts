@@ -1,7 +1,7 @@
 import {
     Field, Table, Arr, Entity, GroupType,
     Pointer,
-    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity, UserVar
+    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity
 } from '../il';
 
 export abstract class Space {
@@ -28,8 +28,8 @@ export abstract class Space {
     protected _getActionBase(): ActionBase { return undefined; }
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
     protected _getBizEntity(name: string): BizEntity { return undefined; }
-    protected _getUse(name: string): boolean { return undefined; }
-    protected _addUse(name: string): boolean { return undefined; }
+    protected _getUse(name: string): { statementNo: number; obj: any; } { return undefined; }
+    protected _addUse(name: string, statementNo: number, obj: any): boolean { return undefined; }
     protected abstract _getEntityTable(name: string): Entity & Table;
     protected abstract _getTableByAlias(alias: string): Table;
     protected abstract _varPointer(name: string, isField: boolean): Pointer;
@@ -134,7 +134,7 @@ export abstract class Space {
         if (this.outer !== undefined)
             return this.outer.getBizEntity(name);
     }
-    getUse(name: string): boolean {
+    getUse(name: string): { statementNo: number; obj: any; } {  // return useStatement no
         let uv = this._getUse(name);
         if (uv === undefined) {
             if (this.outer !== undefined) {
@@ -143,10 +143,10 @@ export abstract class Space {
         }
         return uv;
     }
-    addUse(name: string): boolean {
-        let ret = this._addUse(name);
+    addUse(name: string, statementNo: number, obj: any): boolean {
+        let ret = this._addUse(name, statementNo, obj);
         if (ret !== undefined) return ret;
-        return this.outer?.addUse(name);
+        return this.outer?.addUse(name, statementNo, obj);
     }
     getTableByAlias(alias: string): Table {
         let table = this._getTableByAlias(alias);

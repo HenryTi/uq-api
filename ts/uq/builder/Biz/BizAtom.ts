@@ -8,6 +8,7 @@ import { BBizEntity } from "./BizEntity";
 
 export class BBizSpec extends BBizEntity<BizAtomSpec> {
     override async buildProcedures(): Promise<void> {
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
         this.buildSaveProc(procSave);

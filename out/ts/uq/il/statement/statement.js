@@ -194,6 +194,10 @@ class VarStatement extends Statement {
     }
     get type() { return 'var'; }
     db(db) { return db.varStatement(this); }
+    setNo(no) {
+        super.setNo(no);
+        // this.no = no; 
+    }
     parser(context) { return new parser.PVarStatement(this, context); }
     getVar(name) { return this.vars.find(v => v.name === name); }
 }

@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExpSelect = exports.ExpFuncInUq = exports.ExpCast = exports.ExpSimpleCase = exports.ExpSearchCase = exports.ExpFuncCustom = exports.ExpFuncDb = exports.ExpFunc = exports.ExpNE = exports.ExpLE = exports.ExpGE = exports.ExpLT = exports.ExpGT = exports.ExpEQBinary = exports.ExpEQ = exports.ExpLike = exports.Exp2Cmp = exports.ExpUnitCmp = exports.ExpIn = exports.ExpIsNotNull = exports.ExpIsNull = exports.ExpDatePart = exports.ExpBitLeft = exports.ExpBitRight = exports.ExpBitOr = exports.ExpBitAnd = exports.ExpJsonProp = exports.ExpMod = exports.ExpDecDiv = exports.ExpDiv = exports.ExpMul = exports.ExpSub = exports.ExpAdd = exports.ExpBitInvert = exports.ExpParenthese = exports.ExpNeg = exports.ExpAtEQ = exports.ExpVar = exports.ExpParam = exports.ExpField = exports.ExpHex = exports.ExpStar = exports.ExpNum = exports.ExpStr = exports.ExpAt = exports.ExpOr = exports.ExpAnd = exports.ExpNot = exports.ExpCmp = exports.ExpVal = void 0;
-exports.ExpMatch = exports.ExpNull = exports.ExpKey = exports.ExpEntityName = exports.ExpEntityId = exports.ExpNameof = exports.ExpTypeof = exports.ExpOf = exports.ExpExists = exports.ExpDollarVar = exports.ExpAtVar = void 0;
+exports.ExpInterval = exports.ExpMatch = exports.ExpNull = exports.ExpKey = exports.ExpEntityName = exports.ExpEntityId = exports.ExpNameof = exports.ExpTypeof = exports.ExpOf = exports.ExpExists = exports.ExpDollarVar = exports.ExpAtVar = void 0;
 const sqlBuilder_1 = require("../sqlBuilder");
 const statementWithFrom_1 = require("../statementWithFrom");
+const il_1 = require("../../../il");
 const Exp_1 = require("./Exp");
 const dbContext_1 = require("../../dbContext");
 class ExpVal extends Exp_1.Exp {
@@ -632,6 +633,18 @@ class ExpMatch extends ExpCmp {
     }
 }
 exports.ExpMatch = ExpMatch;
+class ExpInterval extends ExpVal {
+    constructor(spanPeriod, value) {
+        super();
+        this.spanPeriod = spanPeriod;
+        this.value = value;
+    }
+    to(sb) {
+        sb.append('INTERVAL ').exp(this.value).space()
+            .append(il_1.SpanPeriod[this.spanPeriod]);
+    }
+}
+exports.ExpInterval = ExpInterval;
 ExpVal.num0 = new ExpNum(0);
 ExpVal.num1 = new ExpNum(1);
 ExpVal.num_1 = new ExpNum(-1);

@@ -37,7 +37,7 @@ class PBizPermit extends Base_1.PBizEntity {
                 if (jName !== name)
                     caption = jName;
             }
-            let permitItem = new il_1.BizPermitItem(name, caption);
+            let permitItem = new il_1.BizPermitItem(this.element.biz, name, caption);
             items.set(name, permitItem);
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };

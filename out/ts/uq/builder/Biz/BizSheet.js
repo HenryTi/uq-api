@@ -30,6 +30,7 @@ const c = 'c';
 const d = 'd';
 class BBizSheet extends BizEntity_1.BBizEntity {
     async buildProcedures() {
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
         this.buildSubmitProc(procSubmit);
@@ -124,6 +125,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
 exports.BBizSheet = BBizSheet;
 class BBizBin extends BizEntity_1.BBizEntity {
     async buildProcedures() {
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
         this.buildSubmitProc(procSubmit);

@@ -12,8 +12,8 @@ var BudValueAct;
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     get ex() { return undefined; }
-    constructor(name, caption) {
-        super();
+    constructor(biz, name, caption) {
+        super(biz);
         this.bizPhraseType = Base_1.BizPhraseType.any;
         this.flag = Entity_1.BudIndex.none;
         this.name = name;

@@ -1,12 +1,25 @@
-import { BizExp, BizPhraseType } from "../../il";
+import { BizExp, BizPhraseType, BizTitle, BudDataType } from "../../il";
 import { DbContext } from "../dbContext";
-import { ExpVal } from "./exp";
+import { ExpInterval, ExpVal } from "./exp";
 import { SqlBuilder } from "./sqlBuilder";
 
+let bizEpxTblNo = 0;
+
 export class BBizExp {
+    private readonly ta: string;
+    private readonly tb: string;
+
     db: string;
     bizExp: BizExp;
     param: ExpVal;
+    inVal: ExpVal;
+
+    constructor() {
+        ++bizEpxTblNo;
+        this.ta = '$a' + bizEpxTblNo;
+        this.tb = '$b' + bizEpxTblNo;
+    }
+
     to(sb: SqlBuilder): void {
         sb.l();
         sb.append('SELECT ');
@@ -21,8 +34,14 @@ export class BBizExp {
         sb.r();
     }
     convertFrom(context: DbContext, bizExp: BizExp) {
+        this.db = context.dbName;
         this.bizExp = bizExp;
         this.param = context.expVal(bizExp.param);
+        const { in: inVar } = bizExp;
+        if (inVar !== undefined) {
+            const { val: inVal, spanPeiod } = inVar;
+            this.inVal = new ExpInterval(spanPeiod, context.expVal(inVal));
+        }
     }
 
     private atom(sb: SqlBuilder) {
@@ -40,15 +59,39 @@ export class BBizExp {
 
     private bin(sb: SqlBuilder) {
         const { bizEntity, prop } = this.bizExp;
-        sb.append('a.');
-        sb.append(prop ?? 'id');
-        sb.append(' FROM bin as a JOIN bud as b ON b.id=a.id AND b.ext=');
-        sb.append(bizEntity.id);
-        sb.append(' WHERE a.id=');
-        sb.exp(this.param);
+        const { ta, tb } = this;
+        sb.append(`${ta}.${prop ?? 'id'}
+        FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
+            WHERE ${ta}.id=`)
+            .exp(this.param);
     }
 
     private title(sb: SqlBuilder) {
-        sb.append(1);
+        const { bizEntity, bud, prop, in: inVar } = this.bizExp;
+        const title = bizEntity as BizTitle;
+        let tblBudValue: string;
+        switch (bud.dataType) {
+            default: tblBudValue = 'ixbudint'; break;
+            case BudDataType.dec: tblBudValue = 'ixbuddec'; break;
+        }
+        const { ta } = this;
+        if (inVar === undefined || prop === 'value') {
+            sb.append(`${ta}.value FROM ${this.db}.${tblBudValue} as ${ta} WHERE ${ta}.i=`);
+            sb.exp(this.param);
+            sb.append(` AND ${ta}.x=${bud.id}`);
+        }
+        else {
+            const { varTimeSpan: timeSpan, op, statementNo, spanPeiod } = inVar;
+            sb.append(`${prop}(${ta}.value) FROM ${this.db}.history as ${ta} 
+        WHERE ${ta}.bud=${this.db}.bud$id(_$site,_$user, 0, null, `).exp(this.param).append(`,${bud.id})
+            AND ${ta}.id>=_${timeSpan}_${statementNo}$start`);
+            if (op !== undefined) {
+                sb.append(op).exp(this.inVal);
+            }
+            sb.append(` AND ${ta}.id<_${timeSpan}_${statementNo}$end`);
+            if (op !== undefined) {
+                sb.append(op).exp(this.inVal);
+            }
+        }
     }
 }

@@ -1,4 +1,7 @@
-import { SpanPeriod, UseBase, UseMonthZone, UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone, ValueExpression } from "../../il";
+import {
+    SpanPeriod, UseBase, UseMonthZone, UseSetting, UseStatement
+    , UseTimeSpan, UseTimeZone, UseYearZone, ValueExpression
+} from "../../il";
 import { PElement } from "../element";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -12,10 +15,10 @@ export class PUseStatement extends PStatement<UseStatement> {
             default:
                 this.ts.error(`Unknown key ${key}`);
                 break;
-            case 'timezone': useBase = new UseTimeZone(); break;
-            case 'monthzone': useBase = new UseMonthZone(); break;
-            case 'yearzone': useBase = new UseYearZone(); break;
-            case 'timespan': useBase = new UseTimeSpan(); break;
+            case 'timezone': useBase = new UseTimeZone(this.statement); break;
+            case 'monthzone': useBase = new UseMonthZone(this.statement); break;
+            case 'yearzone': useBase = new UseYearZone(this.statement); break;
+            case 'timespan': useBase = new UseTimeSpan(this.statement); break;
         }
         this.statement.useBase = useBase;
         this.context.parseElement(useBase);
@@ -38,12 +41,15 @@ export class PUseSetting<T extends UseSetting> extends PUseBase<T> {
         this.ts.passToken(Token.EQU);
         let val = new ValueExpression();
         this.context.parseElement(val);
-        this.element.val = val;
+        this.element.value = val;
     }
     scan(space: Space): boolean {
         let ok = true;
-        if (this.element.val.pelement.scan(space) === false) {
-            ok = false;
+        const { value } = this.element;
+        if (value !== undefined) {
+            if (value.pelement.scan(space) === false) {
+                ok = false;
+            }
         }
         return ok;
     }
@@ -80,7 +86,7 @@ export class PUseTimeSpan extends PUseBase<UseTimeSpan> {
             if (Object.keys(SpanPeriod).includes(sp) === false) {
                 this.ts.expect('time span period');
             }
-            this.element.spanPeiod = SpanPeriod[sp];
+            this.element.spanPeriod = SpanPeriod[sp];
             if (this.ts.token === Token.LPARENTHESE) {
                 this.ts.readToken();
                 if (this.ts.token === Token.RPARENTHESE as any) {
@@ -98,17 +104,24 @@ export class PUseTimeSpan extends PUseBase<UseTimeSpan> {
 
     scan(space: Space): boolean {
         let ok = true;
-        const { varName, op, value } = this.element;
+        const { varName, op, value, spanPeriod: spanPeiod } = this.element;
+        const { no } = this.element.statement;
         if (op === undefined) {
-            if (space.addUse(varName) === false) {
+            if (space.addUse(varName, no, spanPeiod) === false) {
                 this.log(`Duplicate define ${varName}`);
                 ok = false;
             }
         }
         else {
-            if (space.getUse(varName) === false) {
+            const useObj = space.getUse(varName);
+            if (useObj === undefined) {
                 this.log(`${varName} is not defined`);
                 ok = false;
+            }
+            else {
+                const { obj: spanPeiod, statementNo } = useObj;
+                this.element.spanPeriod = spanPeiod;
+                this.element.statementNo = statementNo;
             }
         }
         if (value !== undefined) {

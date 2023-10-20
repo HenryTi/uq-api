@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue
+    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue, BizQueryValue
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -18,8 +18,16 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
         let ok = true;
         let { value } = this.element;
         if (value !== undefined) {
-            if (value.exp.pelement.scan(space) === false) {
-                ok = false;
+            const { exp, query } = value;
+            if (exp !== undefined) {
+                if (exp.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            else if (query !== undefined) {
+                if (query.pelement.scan(space) === false) {
+                    ok = false;
+                }
             }
         }
         return ok;
@@ -133,11 +141,20 @@ export class PBizBudPickable extends PBizBudValue<BizBudPickable> {
             }
             if (act !== undefined) {
                 this.ts.readToken();
-                let value = new ValueExpression();
-                this.context.parseElement(value);
+                let exp: ValueExpression;
+                let query: BizQueryValue;
+                if (this.ts.token === Token.LBRACE) {
+                    query = new BizQueryValue(this.element.biz);
+                    this.context.parseElement(query);
+                }
+                else {
+                    exp = new ValueExpression();
+                    this.context.parseElement(exp);
+                }
                 this.element.value = {
-                    exp: value,
+                    exp,
                     act,
+                    query,
                 };
                 return;
             }
@@ -163,8 +180,16 @@ export class PBizBudPickable extends PBizBudValue<BizBudPickable> {
         else {
             let { value } = this.element;
             if (value !== undefined) {
-                if (value.exp.pelement.scan(space) === false) {
-                    ok = false;
+                const { exp, query } = value;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
+                else if (query !== undefined) {
+                    if (query.pelement.scan(space) === false) {
+                        ok = false;
+                    }
                 }
                 return ok;
             }

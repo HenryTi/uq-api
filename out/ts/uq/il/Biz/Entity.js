@@ -10,12 +10,11 @@ var BudIndex;
     BudIndex[BudIndex["index"] = 1] = "index";
 })(BudIndex = exports.BudIndex || (exports.BudIndex = {}));
 class BizEntity extends Base_1.BizBase {
-    constructor(biz) {
-        super();
+    constructor() {
+        super(...arguments);
         this.props = new Map();
         this.permissions = {};
         this.source = undefined;
-        this.biz = biz;
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);

@@ -1,11 +1,19 @@
-import { BigInt, BizReport, BudDataType, JoinType, ReportTitle, SetType, bigIntField, dateField, intField, jsonField } from "../../il";
+import {
+    BigInt, BizReport, BudDataType, JoinType, ReportTitle
+    , SetType, bigIntField, dateField, intField, jsonField
+} from "../../il";
 import { EnumSysTable } from "../dbContext";
-import { ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpFuncInUq, ExpGE, ExpGT, ExpIsNull, ExpLT, ExpNum, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, SqlVarTable, Statement, VarTable } from "../sql";
+import {
+    ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
+    , ExpGE, ExpGT, ExpIsNull, ExpLT, ExpNum, ExpSelect, ExpStr, ExpVal
+    , ExpVar, Procedure, Statement
+} from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizReport extends BBizEntity<BizReport> {
     override async buildProcedures(): Promise<void> {
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procGet = this.createProcedure(`${this.context.site}.${id}`);
         this.buildGetProc(procGet);

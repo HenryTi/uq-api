@@ -37,13 +37,7 @@ export interface Permission {
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBudValue> = new Map();
     readonly permissions: { [role: string]: Permission } = {};
-    readonly biz: Biz
     source: string = undefined;
-
-    constructor(biz: Biz) {
-        super();
-        this.biz = biz;
-    }
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);

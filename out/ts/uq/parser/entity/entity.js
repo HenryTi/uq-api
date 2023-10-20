@@ -1041,7 +1041,9 @@ class ActionBaseSpace extends space_1.Space {
     _getActionBase() {
         return this.actionBase;
     }
-    getVarNo() { return this.varNo; }
+    getVarNo() {
+        return this.varNo;
+    }
     setVarNo(value) { this.varNo = value; }
     //getStatementNo() { return this.statementNo; }
     //setStatementNo(value: number) { this.statementNo = value; }

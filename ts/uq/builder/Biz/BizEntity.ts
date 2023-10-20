@@ -1,5 +1,7 @@
-import { BizBudValue, BizEntity, BudValueAct, DataType, Expression, ValueExpression } from "../../il";
+import { BigInt, BizBudValue, BizEntity, BizQueryValue, BudValueAct, DataType, Expression, ValueExpression, bigIntField, jsonField } from "../../il";
+import { Sqls } from "../bstatement";
 import { DbContext } from "../dbContext";
+import { ExpFunc, ExpNum, ExpStr, ExpVal, ExpVar, Procedure } from "../sql";
 
 export class BBizEntity<B extends BizEntity = any> {
     protected readonly context: DbContext;
@@ -12,6 +14,15 @@ export class BBizEntity<B extends BizEntity = any> {
     async buildTables() {
     }
     async buildProcedures() {
+        this.bizEntity.forEachBud((bud) => {
+            const { value } = bud as BizBudValue;
+            if (value === undefined) return;
+            const { query } = value;
+            if (query === undefined) return;
+            const { id } = bud;
+            const procBudValue = this.createProcedure(`${this.context.site}.${id}`);
+            this.buildBudValueProc(procBudValue, query);
+        });
     }
 
     async buildBudsValue() {
@@ -50,5 +61,41 @@ export class BBizEntity<B extends BizEntity = any> {
         exp.to(sb);
         const { sql } = sb;
         return sql;
+    }
+
+    private buildBudValueProc(proc: Procedure, query: BizQueryValue) {
+        const { parameters, statements } = proc;
+        parameters.push(
+            bigIntField('$user'),
+            jsonField('$json'),
+        );
+
+        const site = '$site';
+        const { factory } = this.context;
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.var(site, new BigInt());
+
+        let setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ(site, new ExpNum(this.context.site));
+
+        let sqls = new Sqls(this.context, statements);
+        let { statements: queryStatements } = query.statement;
+        sqls.head(queryStatements);
+        sqls.body(queryStatements);
+        sqls.foot(queryStatements);
+
+        let select = factory.createSelect();
+        statements.push(select);
+        let names: string[] = ['value'];
+        let values: ExpVal[] = [];
+        for (let name of names) {
+            values.push(new ExpStr(name), new ExpVar(name));
+        }
+        select.column(
+            new ExpFunc('JSON_Object', ...values)
+            , 'a'
+        );
     }
 }

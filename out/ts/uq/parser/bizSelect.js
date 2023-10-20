@@ -259,9 +259,11 @@ class PBizExp extends element_1.PElement {
                 this.context.parseElement(val);
             }
             this.element.in = {
-                timeSpan,
+                varTimeSpan: timeSpan,
                 op,
                 val,
+                statementNo: undefined,
+                spanPeiod: undefined,
             };
         }
     }
@@ -302,12 +304,14 @@ class PBizExp extends element_1.PElement {
         }
         if (varIn !== undefined) {
             // scan BizExp.in
-            const { timeSpan, val } = varIn;
-            let useVar = space.getUse(timeSpan);
-            if (useVar === undefined) {
+            const { varTimeSpan: timeSpan, val } = varIn;
+            let { statementNo, obj: spanPeiod } = space.getUse(timeSpan);
+            if (statementNo === undefined) {
                 this.log(`${timeSpan} is not used`);
                 ok = false;
             }
+            varIn.spanPeiod = spanPeiod;
+            varIn.statementNo = statementNo;
             if (val !== undefined) {
                 if (val.pelement.scan(space) === false) {
                     ok = false;
@@ -383,9 +387,13 @@ class PBizExp extends element_1.PElement {
             ok = false;
         }
         else {
-            if (title.props.get(this.bud) === undefined) {
+            let bud = title.props.get(this.bud);
+            if (bud === undefined) {
                 this.log(`TITLE ${title.getJName()} does not have ${this.bud} .`);
                 ok = false;
+            }
+            else {
+                this.element.bud = bud;
             }
         }
         if (prop === undefined) {

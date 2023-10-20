@@ -9,6 +9,8 @@ import { BizAtom, BizAtomID } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BudIndex } from "./Entity";
 import { ValueExpression } from "../expression";
+import { Biz } from "./Biz";
+import { BizQueryValue } from "./Query";
 
 export enum BudValueAct {
     equ = 1,            // 设置不可修改. 这是默认
@@ -18,6 +20,7 @@ export enum BudValueAct {
 export interface BudValue {
     exp: ValueExpression;
     act: BudValueAct;
+    query: BizQueryValue;
     str?: string;
 }
 
@@ -27,8 +30,8 @@ export abstract class BizBud extends BizBase {
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     get ex(): object { return undefined }
-    constructor(name: string, caption: string) {
-        super();
+    constructor(biz: Biz, name: string, caption: string) {
+        super(biz);
         this.name = name;
         this.caption = caption;
     }

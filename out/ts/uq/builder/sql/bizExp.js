@@ -2,7 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizExp = void 0;
 const il_1 = require("../../il");
+const exp_1 = require("./exp");
+let bizEpxTblNo = 0;
 class BBizExp {
+    constructor() {
+        ++bizEpxTblNo;
+        this.ta = '$a' + bizEpxTblNo;
+        this.tb = '$b' + bizEpxTblNo;
+    }
     to(sb) {
         sb.l();
         sb.append('SELECT ');
@@ -27,8 +34,14 @@ class BBizExp {
         sb.r();
     }
     convertFrom(context, bizExp) {
+        this.db = context.dbName;
         this.bizExp = bizExp;
         this.param = context.expVal(bizExp.param);
+        const { in: inVar } = bizExp;
+        if (inVar !== undefined) {
+            const { val: inVal, spanPeiod } = inVar;
+            this.inVal = new exp_1.ExpInterval(spanPeiod, context.expVal(inVal));
+        }
     }
     atom(sb) {
         const { bizEntity, prop } = this.bizExp;
@@ -42,15 +55,43 @@ class BBizExp {
     }
     bin(sb) {
         const { bizEntity, prop } = this.bizExp;
-        sb.append('a.');
-        sb.append(prop !== null && prop !== void 0 ? prop : 'id');
-        sb.append(' FROM bin as a JOIN bud as b ON b.id=a.id AND b.ext=');
-        sb.append(bizEntity.id);
-        sb.append(' WHERE a.id=');
-        sb.exp(this.param);
+        const { ta, tb } = this;
+        sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'}
+        FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
+            WHERE ${ta}.id=`)
+            .exp(this.param);
     }
     title(sb) {
-        sb.append(1);
+        const { bizEntity, bud, prop, in: inVar } = this.bizExp;
+        const title = bizEntity;
+        let tblBudValue;
+        switch (bud.dataType) {
+            default:
+                tblBudValue = 'ixbudint';
+                break;
+            case il_1.BudDataType.dec:
+                tblBudValue = 'ixbuddec';
+                break;
+        }
+        const { ta } = this;
+        if (inVar === undefined || prop === 'value') {
+            sb.append(`${ta}.value FROM ${this.db}.${tblBudValue} as ${ta} WHERE ${ta}.i=`);
+            sb.exp(this.param);
+            sb.append(` AND ${ta}.x=${bud.id}`);
+        }
+        else {
+            const { varTimeSpan: timeSpan, op, statementNo, spanPeiod } = inVar;
+            sb.append(`${prop}(${ta}.value) FROM ${this.db}.history as ${ta} 
+        WHERE ${ta}.bud=${this.db}.bud$id(_$site,_$user, 0, null, `).exp(this.param).append(`,${bud.id})
+            AND ${ta}.id>=_${timeSpan}_${statementNo}$start`);
+            if (op !== undefined) {
+                sb.append(op).exp(this.inVal);
+            }
+            sb.append(` AND ${ta}.id<_${timeSpan}_${statementNo}$end`);
+            if (op !== undefined) {
+                sb.append(op).exp(this.inVal);
+            }
+        }
     }
 }
 exports.BBizExp = BBizExp;

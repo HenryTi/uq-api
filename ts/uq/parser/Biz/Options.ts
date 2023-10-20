@@ -62,7 +62,7 @@ export class PBizOptions extends PBizEntity<BizOptions> {
                     type = Number.isInteger(value) === true ? OptionsItemValueType.int : OptionsItemValueType.dec;
                     break;
             }
-            let item = new OptionsItem(name, caption);
+            let item = new OptionsItem(this.element.biz, name, caption);
             item._itemType = type;
             item.itemValue = value;
             this.element.items.push(

@@ -1062,7 +1062,9 @@ export class ActionBaseSpace extends Space {
     protected _getActionBase(): ActionBase {
         return this.actionBase;
     }
-    getVarNo() { return this.varNo; }
+    getVarNo() {
+        return this.varNo;
+    }
     setVarNo(value: number) { this.varNo = value; }
     //getStatementNo() { return this.statementNo; }
     //setStatementNo(value: number) { this.statementNo = value; }
