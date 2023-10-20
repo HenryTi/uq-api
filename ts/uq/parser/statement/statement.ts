@@ -6,28 +6,31 @@ import {
     , TableStatement, TextStatement, FailStatement, InlineStatement, /*SendStatement, Pull, */ContinueStatement
     , BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement
     , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
-    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement, SendStatement, BizDetailActStatement, UseStatement
+    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement, SendStatement, BizDetailActStatement, UseStatement, PutStatement
 } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { PContext } from '../pContext';
 
-export abstract class PStatement<T extends Statement = Statement> extends PElement {
-    statement: T;
+export abstract class PStatement<T extends Statement = Statement> extends PElement<T> {
+    // statement: T;
+    /*
     constructor(statement: T, context: PContext) {
         super(statement, context);
         this.statement = statement;
     }
+    */
 }
 
-export abstract class PStatements extends PStatement {
-    statements: Statements;
+export abstract class PStatements extends PStatement<Statements> {
+    // element: Statements;
+    /*
     constructor(statements: Statements, context: PContext) {
         super(statements, context);
         this.statements = statements;
     }
-
+    */
     protected _parse() {
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
@@ -52,6 +55,7 @@ export abstract class PStatements extends PStatement {
             case 'table': return new TableStatement(parent);
             case 'text': return new TextStatement(parent);
             case 'set': return new SetStatement(parent);
+            // case 'put': return new PutStatement(parent);
             case 'with': return new WithStatement(parent);
             case 'value': return new ValueStatement(parent);
             case 'if': return new If(parent);
@@ -107,10 +111,10 @@ export abstract class PStatements extends PStatement {
         while (this.ts.token === Token.SEMICOLON) this.ts.readToken();
         let statement: Statement;
         if (this.ts.token === Token.CODE) {
-            statement = new InlineStatement(this.statements);
+            statement = new InlineStatement(this.element);
         }
         else if (this.ts.token === Token.VAR) {
-            statement = this.statementFromKey(this.statements, this.ts.lowerVar);
+            statement = this.statementFromKey(this.element, this.ts.lowerVar);
             if (statement === undefined) {
                 this.expect('语法错误, 未知的' + this.ts._var);
             }
@@ -118,16 +122,16 @@ export abstract class PStatements extends PStatement {
         else {
             this.expect('关键字或者}');
         }
-        statement.level = this.statements.level + 1;
+        statement.level = this.element.level + 1;
         this.ts.readToken();
         let parser = statement.parser(this.context);
         parser.parse()
-        this.statements.addStatement(statement);
+        this.element.addStatement(statement);
     }
 
     preScan(space: Space): boolean {
         let ok = true;
-        this.statements.eachChild((s: Statement, name) => {
+        this.element.eachChild((s: Statement, name) => {
             if (s.pelement.preScan(space) === false) ok = false;
         });
         return ok;
@@ -137,9 +141,9 @@ export abstract class PStatements extends PStatement {
         let ok = true;
         let theSpace = new StatementsSpace(space);
         let no = theSpace.newStatementNo() + 1;
-        this.statements.setNo(no);
+        this.element.setNo(no);
         theSpace.setStatementNo(no);
-        this.statements.eachChild((s: Statement, name) => {
+        this.element.eachChild((s: Statement, name) => {
             no = theSpace.newStatementNo() + 1;
             s.setNo(no);
             theSpace.setStatementNo(no);
@@ -150,7 +154,7 @@ export abstract class PStatements extends PStatement {
     }
 
     scan2(uq: Uq): boolean {
-        for (let stat of this.statements.statements) {
+        for (let stat of this.element.statements) {
             let ret = stat.pelement.scan2(uq);
             if (ret === false) return false;
         }

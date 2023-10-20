@@ -62,13 +62,24 @@ class BBizEntity {
         return sql;
     }
     buildBudValueProc(proc, query) {
-        const { parameters, statements } = proc;
-        parameters.push((0, il_1.bigIntField)('$user'), (0, il_1.jsonField)('$json'));
+        const { on } = query;
         const site = '$site';
+        const json = '$json';
+        const varJson = new sql_1.ExpVar(json);
+        const { parameters, statements } = proc;
         const { factory } = this.context;
+        parameters.push((0, il_1.bigIntField)('$user'), (0, il_1.jsonField)(json));
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.var(site, new il_1.BigInt());
+        if (on !== undefined) {
+            for (let p of on) {
+                declare.var(p, new il_1.Char(200));
+                const setP = factory.createSet();
+                statements.push(setP);
+                setP.equ(p, new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${p}"`)));
+            }
+        }
         let setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ(site, new sql_1.ExpNum(this.context.site));
@@ -77,14 +88,6 @@ class BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
-        let select = factory.createSelect();
-        statements.push(select);
-        let names = ['value'];
-        let values = [];
-        for (let name of names) {
-            values.push(new sql_1.ExpStr(name), new sql_1.ExpVar(name));
-        }
-        select.column(new sql_1.ExpFunc('JSON_Object', ...values), 'a');
     }
 }
 exports.BBizEntity = BBizEntity;

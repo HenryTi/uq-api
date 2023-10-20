@@ -15,7 +15,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["bin"] = 102] = "bin";
     BizPhraseType[BizPhraseType["pend"] = 104] = "pend";
     BizPhraseType[BizPhraseType["detailAct"] = 111] = "detailAct";
-    BizPhraseType[BizPhraseType["with"] = 151] = "with";
+    BizPhraseType[BizPhraseType["query"] = 151] = "query";
     BizPhraseType[BizPhraseType["pick"] = 161] = "pick";
     BizPhraseType[BizPhraseType["role"] = 201] = "role";
     BizPhraseType[BizPhraseType["permit"] = 202] = "permit";

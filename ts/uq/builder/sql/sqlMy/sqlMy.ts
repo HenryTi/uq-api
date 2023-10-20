@@ -637,7 +637,7 @@ class MyLog extends stat.Log {
 }
 
 class VarTable extends stat.VarTable {
-    declare(vars: { [name: string]: Field }) { }
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) { }
     to(sb: SqlBuilder, tab: number) {
         if (this.noDrop !== true) {
             sb.tab(tab).append('DROP TEMPORARY TABLE IF EXISTS ').var(this.name).ln();
@@ -678,7 +678,7 @@ class ForTable extends stat.ForTable {
         super();
         this.isInProc = isInProc;
     }
-    declare(vars: { [name: string]: Field }) { }
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) { }
     to(sb: SqlBuilder, tab: number) {
 
         // 曾经去掉这个drop。会引发问题。多次调用之间，会数据相互覆盖。

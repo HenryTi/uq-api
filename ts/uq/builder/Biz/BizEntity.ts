@@ -1,4 +1,4 @@
-import { BigInt, BizBudValue, BizEntity, BizQueryValue, BudValueAct, DataType, Expression, ValueExpression, bigIntField, jsonField } from "../../il";
+import { BigInt, BizBudValue, BizEntity, BizQueryValue, BudValueAct, Char, DataType, Expression, ValueExpression, bigIntField, jsonField } from "../../il";
 import { Sqls } from "../bstatement";
 import { DbContext } from "../dbContext";
 import { ExpFunc, ExpNum, ExpStr, ExpVal, ExpVar, Procedure } from "../sql";
@@ -64,17 +64,29 @@ export class BBizEntity<B extends BizEntity = any> {
     }
 
     private buildBudValueProc(proc: Procedure, query: BizQueryValue) {
+        const { on } = query;
+        const site = '$site';
+        const json = '$json';
+        const varJson = new ExpVar(json);
         const { parameters, statements } = proc;
+        const { factory } = this.context;
         parameters.push(
             bigIntField('$user'),
-            jsonField('$json'),
+            jsonField(json),
         );
 
-        const site = '$site';
-        const { factory } = this.context;
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.var(site, new BigInt());
+
+        if (on !== undefined) {
+            for (let p of on) {
+                declare.var(p, new Char(200));
+                const setP = factory.createSet();
+                statements.push(setP);
+                setP.equ(p, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${p}"`)));
+            }
+        }
 
         let setSite = factory.createSet();
         statements.push(setSite);
@@ -85,17 +97,5 @@ export class BBizEntity<B extends BizEntity = any> {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
-
-        let select = factory.createSelect();
-        statements.push(select);
-        let names: string[] = ['value'];
-        let values: ExpVal[] = [];
-        for (let name of names) {
-            values.push(new ExpStr(name), new ExpVar(name));
-        }
-        select.column(
-            new ExpFunc('JSON_Object', ...values)
-            , 'a'
-        );
     }
 }

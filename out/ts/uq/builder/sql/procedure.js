@@ -62,10 +62,11 @@ class Procedure {
         this.buildDrop(sb);
         this.start(sb);
         let vars = {};
+        let puts = {};
         for (let s of this.statements) {
             if (s === undefined)
                 continue;
-            s.declare(vars);
+            s.declare(vars, puts);
         }
         this.declare(sb, tab, vars);
         this.afterDeclare(sb, tab);
@@ -74,6 +75,7 @@ class Procedure {
                 continue;
             s.to(sb, tab);
         }
+        this.returnPuts(sb, tab, puts);
         this.end(sb);
     }
     buildParameters(sb) {

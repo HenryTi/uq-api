@@ -197,7 +197,7 @@ export abstract class Select extends WithFrom {
     protected abstract createColumn(exp: ExpVal, alias?: string, pointer?: VarPointer): Column;
     abstract createOrder(exp: ExpVal, asc: OrderType): Order;
 
-    declare(vars: { [name: string]: Field }) { }
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) { }
     abstract to(sb: SqlBuilder, tab: number): void;
     abstract buildSelect(sb: SqlBuilder, tab: number): void;
     column(exp: ExpVal, alias?: string, pointer?: VarPointer) {

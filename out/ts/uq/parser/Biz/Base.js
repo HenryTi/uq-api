@@ -5,6 +5,48 @@ const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 class PBizBase extends element_1.PElement {
+    constructor() {
+        super(...arguments);
+        this.parseOptions = {
+            history: (bizBud) => {
+                bizBud.hasHistory = true;
+                this.ts.readToken();
+            },
+            index: (bizBud) => {
+                bizBud.flag |= il_1.BudIndex.index;
+                this.ts.readToken();
+            },
+            format: (bizBud) => {
+                this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.EQU);
+                bizBud.format = this.ts.passString();
+            },
+            set: (bizBud) => {
+                this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.EQU);
+                let setTypeText = this.ts.passKey();
+                let setType;
+                switch (setTypeText) {
+                    default:
+                        this.ts.expect('assign', 'cumulate', 'balance');
+                        break;
+                    case 'assign':
+                    case '赋值':
+                        setType = il_1.SetType.assign;
+                        break;
+                    case 'cumulate':
+                    case '累加':
+                        setType = il_1.SetType.cumulate;
+                        break;
+                    case 'balance':
+                    case '结余':
+                        setType = il_1.SetType.balance;
+                        break;
+                }
+                bizBud.setType = setType;
+            }
+        };
+    }
     _parse() {
         this.parseHeader();
         this.parseBody();
@@ -104,101 +146,6 @@ class PBizBase extends element_1.PElement {
         this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => il_1.BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
-}
-exports.PBizBase = PBizBase;
-const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
-const invalidPropNames = (function () {
-    let ret = {};
-    for (let v of names) {
-        ret[v] = true;
-    }
-    return ret;
-})();
-class PBizEntity extends PBizBase {
-    constructor() {
-        super(...arguments);
-        this.parseOptions = {
-            history: (bizBud) => {
-                bizBud.hasHistory = true;
-                this.ts.readToken();
-            },
-            index: (bizBud) => {
-                bizBud.flag |= il_1.BudIndex.index;
-                this.ts.readToken();
-            },
-            format: (bizBud) => {
-                this.ts.readToken();
-                this.ts.mayPassToken(tokens_1.Token.EQU);
-                bizBud.format = this.ts.passString();
-            },
-            set: (bizBud) => {
-                this.ts.readToken();
-                this.ts.mayPassToken(tokens_1.Token.EQU);
-                let setTypeText = this.ts.passKey();
-                let setType;
-                switch (setTypeText) {
-                    default:
-                        this.ts.expect('assign', 'cumulate', 'balance');
-                        break;
-                    case 'assign':
-                    case '赋值':
-                        setType = il_1.SetType.assign;
-                        break;
-                    case 'cumulate':
-                    case '累加':
-                        setType = il_1.SetType.cumulate;
-                        break;
-                    case 'balance':
-                    case '结余':
-                        setType = il_1.SetType.balance;
-                        break;
-                }
-                bizBud.setType = setType;
-            }
-        };
-        this.parseProp = () => {
-            if (this.ts.token === tokens_1.Token.LBRACE) {
-                this.ts.readToken();
-                for (;;) {
-                    let prop = this.parseSubItem();
-                    this.element.props.set(prop.name, prop);
-                    if (this.ts.token === tokens_1.Token.RBRACE) {
-                        this.ts.readToken();
-                        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
-                        break;
-                    }
-                }
-            }
-            else {
-                let prop = this.parseSubItem();
-                this.element.props.set(prop.name, prop);
-            }
-        };
-    }
-    saveSource() {
-        let entityType = this.element.type.toUpperCase();
-        let source = this.getSource();
-        this.element.source = entityType + ' ' + source;
-    }
-    parseContent() {
-        const keyColl = this.keyColl;
-        /*
-        {
-            prop: this.parseProp,
-        };
-        */
-        const keys = Object.keys(keyColl);
-        for (;;) {
-            if (this.ts.token === tokens_1.Token.RBRACE)
-                break;
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-        }
-    }
     parseSubItem() {
         this.ts.assertToken(tokens_1.Token.VAR);
         let name = this.ts.lowerVar;
@@ -208,7 +155,6 @@ class PBizEntity extends PBizBase {
         // }
         let caption = this.ts.mayPassString();
         let bizBud = this.parseBud(name, caption);
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bizBud;
     }
     isValidPropName(prop) {
@@ -232,8 +178,9 @@ class PBizEntity extends PBizBase {
         };
         const keys = Object.keys(keyColl);
         let key = this.ts.lowerVar;
-        const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.SEMICOLON];
-        if (tokens.includes(this.ts.token) === true) {
+        const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
+        const { token } = this.ts;
+        if (tokens.includes(token) === true) {
             key = 'none';
         }
         else {
@@ -305,6 +252,64 @@ class PBizEntity extends PBizBase {
             bizBud.setType = il_1.SetType.assign;
         }
         return bizBud;
+    }
+}
+exports.PBizBase = PBizBase;
+const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
+const invalidPropNames = (function () {
+    let ret = {};
+    for (let v of names) {
+        ret[v] = true;
+    }
+    return ret;
+})();
+class PBizEntity extends PBizBase {
+    constructor() {
+        super(...arguments);
+        this.parseProp = () => {
+            if (this.ts.token === tokens_1.Token.LBRACE) {
+                this.ts.readToken();
+                for (;;) {
+                    let prop = this.parseSubItem();
+                    this.ts.passToken(tokens_1.Token.SEMICOLON);
+                    this.element.props.set(prop.name, prop);
+                    if (this.ts.token === tokens_1.Token.RBRACE) {
+                        this.ts.readToken();
+                        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+                        break;
+                    }
+                }
+            }
+            else {
+                let prop = this.parseSubItem();
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
+                this.element.props.set(prop.name, prop);
+            }
+        };
+    }
+    saveSource() {
+        let entityType = this.element.type.toUpperCase();
+        let source = this.getSource();
+        this.element.source = entityType + ' ' + source;
+    }
+    parseContent() {
+        const keyColl = this.keyColl;
+        /*
+        {
+            prop: this.parseProp,
+        };
+        */
+        const keys = Object.keys(keyColl);
+        for (;;) {
+            if (this.ts.token === tokens_1.Token.RBRACE)
+                break;
+            let parse = keyColl[this.ts.lowerVar];
+            if (this.ts.varBrace === true || parse === undefined) {
+                this.ts.expect(...keys);
+            }
+            this.ts.readToken();
+            parse();
+        }
     }
     parsePermitOne(permissionLetters) {
         let role;

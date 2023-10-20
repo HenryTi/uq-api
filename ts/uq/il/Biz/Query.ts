@@ -1,24 +1,26 @@
 import { PContext, PElement } from "../../parser";
-import { PBizQueryTable, PBizQueryValue, PBizQueryValueStatements } from "../../parser/Biz/Query";
+import { PBizQueryTable, PBizQueryTableStatements, PBizQueryValue, PBizQueryValueStatements } from "../../parser";
 import { Builder } from "../builder";
 import { IElement } from "../element";
-import { Statements } from "../statement";
-import { Biz } from "./Biz";
+import { FromStatement, Statements } from "../statement";
+import { BizBase, BizPhraseType } from "./Base";
+import { BizBudValue } from "./Bud";
 
-export abstract class BizQuery extends IElement {
-    readonly biz: Biz;
+export abstract class BizQuery extends BizBase {
+    readonly bizPhraseType = BizPhraseType.query;
     statement: Statements;
-    constructor(biz: Biz) {
-        super();
-        this.biz = biz;
-    }
+    abstract hasName(name: string): boolean;
 }
 
 export class BizQueryValue extends BizQuery {
-    readonly type = 'queryvalue';
     on: string[];
+    get type() { return 'queryvalue'; }
     parser(context: PContext): PElement<IElement> {
         return new PBizQueryValue(this, context);
+    }
+    hasName(name: string): boolean {
+        if (this.on === undefined) return false;
+        return this.on.includes(name);
     }
 }
 
@@ -32,15 +34,20 @@ export class BizQueryValueStatements extends Statements {
 }
 
 export class BizQueryTable extends BizQuery {
-    readonly type = 'queryvalue';
+    readonly params: { [name: string]: BizBudValue } = {};
+    from: FromStatement;
+    get type() { return 'queryvalue'; }
     parser(context: PContext): PElement<IElement> {
         return new PBizQueryTable(this, context);
+    }
+    hasName(name: string): boolean {
+        return this.params[name] !== undefined;
     }
 }
 
 export class BizQueryTableStatements extends Statements {
     parser(context: PContext): PElement<IElement> {
-        throw new Error("Method not implemented.");
+        return new PBizQueryTableStatements(this, context);
     }
     db(db: Builder): object {
         return;

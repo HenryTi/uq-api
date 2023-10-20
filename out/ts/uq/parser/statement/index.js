@@ -84,5 +84,6 @@ Object.defineProperty(exports, "PRoleStatement", { enumerable: true, get: functi
 Object.defineProperty(exports, "PAssertRoleStatement", { enumerable: true, get: function () { return role_1.PAssertRoleStatement; } });
 __exportStar(require("./use"), exports);
 __exportStar(require("./put"), exports);
+__exportStar(require("./from"), exports);
 __exportStar(require("./statement"), exports);
 //# sourceMappingURL=index.js.map

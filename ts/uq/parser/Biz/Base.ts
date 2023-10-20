@@ -114,44 +114,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
-}
-
-const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
-const invalidPropNames: { [key: string]: boolean } = (function () {
-    let ret = {};
-    for (let v of names) {
-        ret[v] = true;
-    }
-    return ret;
-})();
-
-export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
-    protected saveSource() {
-        let entityType = this.element.type.toUpperCase();
-        let source = this.getSource();
-        this.element.source = entityType + ' ' + source;
-    }
-
-    protected abstract get keyColl(): { [key: string]: () => void };
-    protected parseContent(): void {
-        const keyColl = this.keyColl;
-        /*
-        {
-            prop: this.parseProp,
-        };
-        */
-        const keys = Object.keys(keyColl);
-        for (; ;) {
-            if (this.ts.token === Token.RBRACE) break;
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-        }
-    }
-
     protected parseSubItem(): BizBudValue {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
@@ -161,7 +123,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         // }
         let caption: string = this.ts.mayPassString();
         let bizBud = this.parseBud(name, caption);
-        this.ts.passToken(Token.SEMICOLON);
         return bizBud;
     }
 
@@ -187,8 +148,9 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         const keys = Object.keys(keyColl);
         let key = this.ts.lowerVar;
-        const tokens = [Token.EQU, Token.COLONEQU, Token.SEMICOLON];
-        if (tokens.includes(this.ts.token) === true) {
+        const tokens = [Token.EQU, Token.COLONEQU, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
+        const { token } = this.ts;
+        if (tokens.includes(token) === true) {
             key = 'none';
         }
         else {
@@ -292,12 +254,50 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             bizBud.setType = setType;
         }
     }
+}
+
+const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
+const invalidPropNames: { [key: string]: boolean } = (function () {
+    let ret = {};
+    for (let v of names) {
+        ret[v] = true;
+    }
+    return ret;
+})();
+
+export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
+    protected saveSource() {
+        let entityType = this.element.type.toUpperCase();
+        let source = this.getSource();
+        this.element.source = entityType + ' ' + source;
+    }
+
+    protected abstract get keyColl(): { [key: string]: () => void };
+    protected parseContent(): void {
+        const keyColl = this.keyColl;
+        /*
+        {
+            prop: this.parseProp,
+        };
+        */
+        const keys = Object.keys(keyColl);
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE) break;
+            let parse = keyColl[this.ts.lowerVar];
+            if (this.ts.varBrace === true || parse === undefined) {
+                this.ts.expect(...keys);
+            }
+            this.ts.readToken();
+            parse();
+        }
+    }
 
     protected parseProp = () => {
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
             for (; ;) {
                 let prop = this.parseSubItem();
+                this.ts.passToken(Token.SEMICOLON);
                 this.element.props.set(prop.name, prop);
                 if (this.ts.token === Token.RBRACE as any) {
                     this.ts.readToken();
@@ -308,6 +308,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         else {
             let prop = this.parseSubItem();
+            this.ts.passToken(Token.SEMICOLON);
             this.element.props.set(prop.name, prop);
         }
     }

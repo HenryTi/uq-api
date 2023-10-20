@@ -2,7 +2,7 @@ import { Procedure, ProcedureUpdater as CommonProcedureUpdater } from '../proced
 import * as il from '../../../il';
 import { SqlBuilder } from '../sqlBuilder';
 import { isArray } from 'lodash';
-import { Statement } from '..';
+import { ExpStr, ExpVal, ExpVar, Statement } from '..';
 import { ProcParamType } from '../../../il';
 import { EntityRunner } from '../../../../core';
 
@@ -47,6 +47,27 @@ export class MyProcedure extends Procedure {
     }
     protected declareStart(sb: SqlBuilder) {
         sb.append('DECLARE ');
+    }
+    protected returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }) {
+        let params: ExpVal[] = [];
+        for (let i in puts) {
+            params.push(new ExpStr(i), new ExpVar('$put$' + i));
+        }
+        if (params.length > 0) {
+            sb.tab(tab);
+            sb.append('SELECT JSON_OBJECT(');
+            let first = true;
+            for (let p of params) {
+                if (first === true) {
+                    first = false;
+                }
+                else {
+                    sb.comma();
+                }
+                sb.exp(p);
+            }
+            sb.r().append(' AS $put').ln();
+        }
     }
     protected declareVar(sb: SqlBuilder, v: il.Field) {
         sb.var(v.name).space();

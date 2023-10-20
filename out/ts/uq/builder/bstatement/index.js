@@ -50,4 +50,6 @@ __exportStar(require("./queue"), exports);
 __exportStar(require("./execSql"), exports);
 __exportStar(require("./role"), exports);
 __exportStar(require("./use"), exports);
+__exportStar(require("./put"), exports);
+__exportStar(require("./from"), exports);
 //# sourceMappingURL=index.js.map

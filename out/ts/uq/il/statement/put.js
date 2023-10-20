@@ -5,7 +5,7 @@ const parser_1 = require("../../parser");
 const statement_1 = require("./statement");
 class PutStatement extends statement_1.Statement {
     db(db) {
-        throw new Error("Method not implemented.");
+        return db.putStatement(this);
     }
     parser(context) {
         return new parser_1.PPutStatement(this, context);

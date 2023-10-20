@@ -23,4 +23,5 @@ __exportStar(require("./biz"), exports);
 __exportStar(require("./def"), exports);
 __exportStar(require("./use"), exports);
 __exportStar(require("./put"), exports);
+__exportStar(require("./from"), exports);
 //# sourceMappingURL=index.js.map

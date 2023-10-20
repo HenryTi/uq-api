@@ -701,14 +701,6 @@ class PExpression extends element_1.PElement {
             case 'search':
                 this.add(this.parseOpSearch());
                 break;
-            /*
-                        case 'specid':
-                            this.add(this.parseOpSpecId());
-                            break;
-                        case 'specvalue':
-                            this.add(this.parseOpSpecValue());
-                            break;
-            */
         }
         return true;
     }
@@ -755,7 +747,7 @@ class PExpression extends element_1.PElement {
     }
     parseOpSearch() {
         let ret = new Exp.OpSearch();
-        ret.parser(this.context).parse();
+        this.context.parseElement(ret);
         return ret;
     }
     /*

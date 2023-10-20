@@ -4,12 +4,12 @@ import { Select } from './select';
 import { Field, DataType, Entity, VarPointer, SetEqu, TableVar, ProcParamType } from '../../il';
 
 export interface Statement {
-    declare(vars: { [name: string]: Field }): void;
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }): void;
     to(sb: SqlBuilder, tab: number): void;
 }
 
 export class StatementBase implements Statement {
-    declare(vars: { [name: string]: Field }) { }
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) { }
     to(sb: SqlBuilder, tab: number) { }
 }
 export class Statements {
@@ -18,10 +18,10 @@ export class Statements {
         if (statement === undefined) return;
         this.statements.push(...statement);
     }
-    declare(vars: { [name: string]: Field }) {
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) {
         for (let s of this.statements) {
             if (s === undefined) continue;
-            s.declare(vars);
+            s.declare(vars, puts);
         }
     }
     body(sb: SqlBuilder, tab: number) {
@@ -59,10 +59,10 @@ export abstract class If extends StatementBase {
         });
     }
 
-    declare(vars: { [name: string]: Field }) {
-        this._then.declare(vars);
-        this._elseIfs?.forEach(v => v.statements.declare(vars));
-        this._else?.declare(vars);
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) {
+        this._then.declare(vars, puts);
+        this._elseIfs?.forEach(v => v.statements.declare(vars, puts));
+        this._else?.declare(vars, puts);
     }
     to(sb: SqlBuilder, tab: number) {
         this.start(sb, tab);
@@ -105,7 +105,9 @@ export abstract class While extends StatementBase {
     no: number = 1;     // statement 编号
     cmp: ExpCmp;
     statements: Statements = new Statements;
-    declare(vars: { [name: string]: Field }) { this.statements.declare(vars) }
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) {
+        this.statements.declare(vars, puts);
+    }
     to(sb: SqlBuilder, tab: number) {
         this.start(sb, tab);
         this.statements.body(sb, tab + 1);
@@ -117,6 +119,7 @@ export abstract class While extends StatementBase {
 
 export abstract class Declare extends StatementBase {
     protected _vars: { [name: string]: Field } = {};
+    protected _puts: { [name: string]: boolean };
     vars(...vars: Field[]) {
         for (let v of vars) {
             this._vars[v.name] = v;
@@ -130,8 +133,17 @@ export abstract class Declare extends StatementBase {
         this._vars[name] = v;
         return this;
     }
-    declare(vars: { [name: string]: Field }) {
+    put(name: string) {
+        if (this._puts === undefined) {
+            this._puts = {};
+        }
+        this._puts[name] = true;
+    }
+    declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) {
         for (let i in this._vars) vars[i] = this._vars[i];
+        if (this._puts !== undefined) {
+            for (let i in this._puts) puts[i] = true;
+        }
     }
 }
 
@@ -222,7 +234,7 @@ export abstract class VarTable extends StatementBase {
     fields: Field[];
     keys: Field[];
     noDrop: boolean;
-    abstract declare(vars: { [name: string]: Field }): void;
+    abstract declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }): void;
     to(sb: SqlBuilder, tab: number) { }
 }
 
@@ -230,7 +242,7 @@ export abstract class ForTable extends StatementBase {
     name: string;
     fields: Field[];
     keys: Field[];
-    abstract declare(vars: { [name: string]: Field }): void;
+    abstract declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }): void;
     to(sb: SqlBuilder, tab: number) { }
 }
 

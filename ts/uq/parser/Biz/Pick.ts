@@ -1,4 +1,4 @@
-import { BizAtom, BizAtomSpec, BizPhraseType, BizPick } from "../../il";
+import { BizAtom, BizAtomSpec, BizPhraseType, BizPick, BizQueryTable } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -6,25 +6,6 @@ import { PBizEntity } from "./Base";
 export class PBizPick extends PBizEntity<BizPick> {
     private atoms: string[] = [];
     private specs: string[] = [];
-
-    /*
-    protected parseContent(): void {
-        const keyColl = {
-            atom: this.parseAtom,
-            spec: this.parseSpec,
-        };
-        const keys = Object.keys(keyColl);
-        for (; ;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === Token.RBRACE) break;
-        }
-    }
-    */
 
     private parseArrayVar(arr: string[]) {
         if (this.ts.token === Token.LPARENTHESE) {
@@ -69,13 +50,30 @@ export class PBizPick extends PBizEntity<BizPick> {
         this.parseArrayVar(this.specs);
     }
 
+    private parseQuery = () => {
+        let query = new BizQueryTable(this.element.biz);
+        this.context.parseElement(query);
+        this.element.query = query;
+        this.ts.mayPassToken(Token.SEMICOLON);
+    }
+
     readonly keyColl = {
         atom: this.parseAtom,
         spec: this.parseSpec,
+        param: this.parseProp,
+        query: this.parseQuery,
     };
 
     scan(space: Space): boolean {
         let ok = true;
+
+        const { query } = this.element;
+        if (query !== undefined) {
+            if (query.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+
         for (let atom of this.atoms) {
             let bizEntity = this.getBizEntity(space, atom, BizPhraseType.atom);
             if (bizEntity === undefined) {

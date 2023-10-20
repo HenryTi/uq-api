@@ -624,7 +624,7 @@ class MyLog extends stat.Log {
     }
 }
 class VarTable extends stat.VarTable {
-    declare(vars) { }
+    declare(vars, puts) { }
     to(sb, tab) {
         if (this.noDrop !== true) {
             sb.tab(tab).append('DROP TEMPORARY TABLE IF EXISTS ').var(this.name).ln();
@@ -667,7 +667,7 @@ class ForTable extends stat.ForTable {
         super();
         this.isInProc = isInProc;
     }
-    declare(vars) { }
+    declare(vars, puts) { }
     to(sb, tab) {
         // 曾经去掉这个drop。会引发问题。多次调用之间，会数据相互覆盖。
         // 2023-03-13: 现在还需要加上。现在，所有临时表，都有序号数字，不重复，所以，可以而且应该drop

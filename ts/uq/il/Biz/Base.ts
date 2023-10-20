@@ -15,7 +15,7 @@ export enum BizPhraseType {
     bin = 102,
     pend = 104,
     detailAct = 111,
-    with = 151,
+    query = 151,
     pick = 161,
 
     role = 201,

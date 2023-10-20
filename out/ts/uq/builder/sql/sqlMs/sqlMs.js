@@ -128,6 +128,7 @@ class MsProcedure extends procedure_1.Procedure {
     end(sb) {
     }
     param(sb, p) { sb.append(p.name); }
+    returnPuts(sb, tab, puts) { }
     declareStart(sb) {
         sb.append('DECLARE ');
     }

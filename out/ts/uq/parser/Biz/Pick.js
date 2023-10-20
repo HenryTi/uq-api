@@ -15,29 +15,19 @@ class PBizPick extends Base_1.PBizEntity {
         this.parseSpec = () => {
             this.parseArrayVar(this.specs);
         };
+        this.parseQuery = () => {
+            let query = new il_1.BizQueryTable(this.element.biz);
+            this.context.parseElement(query);
+            this.element.query = query;
+            this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+        };
         this.keyColl = {
             atom: this.parseAtom,
             spec: this.parseSpec,
+            param: this.parseProp,
+            query: this.parseQuery,
         };
     }
-    /*
-    protected parseContent(): void {
-        const keyColl = {
-            atom: this.parseAtom,
-            spec: this.parseSpec,
-        };
-        const keys = Object.keys(keyColl);
-        for (; ;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === Token.RBRACE) break;
-        }
-    }
-    */
     parseArrayVar(arr) {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
@@ -74,6 +64,12 @@ class PBizPick extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
+        const { query } = this.element;
+        if (query !== undefined) {
+            if (query.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
         for (let atom of this.atoms) {
             let bizEntity = this.getBizEntity(space, atom, il_1.BizPhraseType.atom);
             if (bizEntity === undefined) {

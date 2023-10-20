@@ -55,6 +55,8 @@ export interface Builder {
 
     value(v: stat.ValueStatement): BStatement;
     setStatement(v: stat.SetStatement): BStatement;
+    putStatement(v: stat.PutStatement): BStatement;
+    fromStatement(v: stat.FromStatement): BStatement;
     settingStatement(v: stat.SettingStatement): BStatement;
     whileStatement(v: stat.While): BStatement;
     ifStatement(v: stat.If): BStatement;

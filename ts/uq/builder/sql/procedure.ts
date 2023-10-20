@@ -83,9 +83,10 @@ export abstract class Procedure implements ObjSchema {
         this.buildDrop(sb);
         this.start(sb);
         let vars: { [name: string]: Field } = {};
+        let puts: { [name: string]: boolean } = {};
         for (let s of this.statements) {
             if (s === undefined) continue;
-            s.declare(vars);
+            s.declare(vars, puts);
         }
         this.declare(sb, tab, vars);
         this.afterDeclare(sb, tab);
@@ -93,6 +94,7 @@ export abstract class Procedure implements ObjSchema {
             if (s === undefined) continue;
             s.to(sb, tab);
         }
+        this.returnPuts(sb, tab, puts);
         this.end(sb);
     }
 
@@ -126,7 +128,7 @@ export abstract class Procedure implements ObjSchema {
     protected abstract start(sb: SqlBuilder): void;
     protected abstract end(sb: SqlBuilder): void;
     protected abstract param(sb: SqlBuilder, p: Field): void;
-
+    protected abstract returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }): void;
     protected abstract declareStart(sb: SqlBuilder): void;
     protected abstract declareVar(sb: SqlBuilder, v: Field): void;
     protected abstract declareEnd(sb: SqlBuilder): void;

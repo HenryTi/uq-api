@@ -84,8 +84,8 @@ export class PForEach extends PStatement<ForEach> {
         else {
             this.expect('(', 'arr名称');
         }
-        let statement = this.statement.statements = this.context.createStatements(this.statement);
-        statement.level = this.statement.level;
+        let statement = this.element.statements = this.context.createStatements(this.element);
+        statement.level = this.element.level;
         let parser = statement.parser(this.context);
         parser.parse();
     }
@@ -129,7 +129,7 @@ export class PForEach extends PStatement<ForEach> {
     scan(space: Space): boolean {
         let ok = true;
         let theSpace: Space;
-        this.statement.isInProc = space.getActionBase()?.type === 'proc';
+        this.element.isInProc = space.getActionBase()?.type === 'proc';
         if (this.arrName !== undefined) {
             let arr = space.getArr(this.arrName);
             if (arr === undefined) {
@@ -140,7 +140,7 @@ export class PForEach extends PStatement<ForEach> {
             else {
                 theSpace = new ForEachArrSpace(space, arr);
             }
-            this.statement.list = new ForArr(arr);
+            this.element.list = new ForArr(arr);
         }
         else if (this.select !== undefined) {
             if (this.select.pelement.scan(space) === false) ok = false;
@@ -168,7 +168,7 @@ export class PForEach extends PStatement<ForEach> {
                 vp.no = no;
                 theSpace.setVarNo(no + 1);
             };
-            this.statement.list = new ForSelect(this.vars, this.select);
+            this.element.list = new ForSelect(this.vars, this.select);
         }
         else if (this.queueName) {
             let entity = space.getEntity(this.queueName);
@@ -196,7 +196,7 @@ export class PForEach extends PStatement<ForEach> {
                 if (this.queueIx !== undefined) {
                     if (this.queueIx.pelement.scan(theSpace) === false) ok = false;
                 }
-                this.statement.list = new ForQueue(this.vars, entity as Queue, this.queueIx);
+                this.element.list = new ForQueue(this.vars, entity as Queue, this.queueIx);
             }
         }
         else if (this.bizDetail !== undefined) {
@@ -206,7 +206,7 @@ export class PForEach extends PStatement<ForEach> {
             let no = theSpace.getVarNo();
             vp.no = no;
             theSpace.setVarNo(no + 1);
-            let list = this.statement.list = this.statement.createBizForDetail(this.bizDetail, this.vars);
+            let list = this.element.list = this.element.createBizForDetail(this.bizDetail, this.vars);
             let ret = list.check();
             if (ret !== undefined) {
                 this.log(ret);
@@ -216,7 +216,7 @@ export class PForEach extends PStatement<ForEach> {
         else {
             throw '解析错误: 没有arr也没有select';
         }
-        let statement = this.statement.statements;
+        let statement = this.element.statements;
         if (statement !== undefined) {
             if (statement.pelement.scan(theSpace) === false) ok = false;
         }

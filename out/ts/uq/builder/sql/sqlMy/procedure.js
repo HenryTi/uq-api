@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProcedureUpdater = exports.MyProcedure = void 0;
 const procedure_1 = require("../procedure");
 const lodash_1 = require("lodash");
+const __1 = require("..");
 const il_1 = require("../../../il");
 class MyProcedure extends procedure_1.Procedure {
     get dbProcName() { return this.dbContext.twProfix + this.name; }
@@ -49,6 +50,27 @@ class MyProcedure extends procedure_1.Procedure {
     }
     declareStart(sb) {
         sb.append('DECLARE ');
+    }
+    returnPuts(sb, tab, puts) {
+        let params = [];
+        for (let i in puts) {
+            params.push(new __1.ExpStr(i), new __1.ExpVar('$put$' + i));
+        }
+        if (params.length > 0) {
+            sb.tab(tab);
+            sb.append('SELECT JSON_OBJECT(');
+            let first = true;
+            for (let p of params) {
+                if (first === true) {
+                    first = false;
+                }
+                else {
+                    sb.comma();
+                }
+                sb.exp(p);
+            }
+            sb.r().append(' AS $put').ln();
+        }
     }
     declareVar(sb, v) {
         sb.var(v.name).space();

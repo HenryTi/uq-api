@@ -14,24 +14,24 @@ class PUseStatement extends statement_1.PStatement {
                 this.ts.error(`Unknown key ${key}`);
                 break;
             case 'timezone':
-                useBase = new il_1.UseTimeZone(this.statement);
+                useBase = new il_1.UseTimeZone(this.element);
                 break;
             case 'monthzone':
-                useBase = new il_1.UseMonthZone(this.statement);
+                useBase = new il_1.UseMonthZone(this.element);
                 break;
             case 'yearzone':
-                useBase = new il_1.UseYearZone(this.statement);
+                useBase = new il_1.UseYearZone(this.element);
                 break;
             case 'timespan':
-                useBase = new il_1.UseTimeSpan(this.statement);
+                useBase = new il_1.UseTimeSpan(this.element);
                 break;
         }
-        this.statement.useBase = useBase;
+        this.element.useBase = useBase;
         this.context.parseElement(useBase);
     }
     scan(space) {
         let ok = true;
-        if (this.statement.useBase.pelement.scan(space) === false) {
+        if (this.element.useBase.pelement.scan(space) === false) {
             ok = false;
         }
         return ok;

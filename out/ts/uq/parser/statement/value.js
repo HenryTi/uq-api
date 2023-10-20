@@ -14,7 +14,7 @@ class PValueStatement extends statement_1.PStatement {
         if (this.ts.isKeyword('xi') === true) {
             this.ts.readToken();
             this.valueXi = new il_1.ValueXi();
-            this.statement.valueXi = this.valueXi;
+            this.element.valueXi = this.valueXi;
             this.parseValueXi();
         }
         else {

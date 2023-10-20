@@ -7,3 +7,4 @@ export * from './biz';
 export * from './def';
 export * from './use';
 export * from './put';
+export * from './from';

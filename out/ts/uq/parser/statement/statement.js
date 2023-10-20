@@ -6,17 +6,16 @@ const element_1 = require("../element");
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");
 class PStatement extends element_1.PElement {
-    constructor(statement, context) {
-        super(statement, context);
-        this.statement = statement;
-    }
 }
 exports.PStatement = PStatement;
 class PStatements extends PStatement {
-    constructor(statements, context) {
+    // element: Statements;
+    /*
+    constructor(statements: Statements, context: PContext) {
         super(statements, context);
         this.statements = statements;
     }
+    */
     _parse() {
         if (this.ts.token === tokens_1.Token.LBRACE) {
             this.ts.readToken();
@@ -41,6 +40,7 @@ class PStatements extends PStatement {
             case 'table': return new il_1.TableStatement(parent);
             case 'text': return new il_1.TextStatement(parent);
             case 'set': return new il_1.SetStatement(parent);
+            // case 'put': return new PutStatement(parent);
             case 'with': return new il_1.WithStatement(parent);
             case 'value': return new il_1.ValueStatement(parent);
             case 'if': return new il_1.If(parent);
@@ -98,10 +98,10 @@ class PStatements extends PStatement {
             this.ts.readToken();
         let statement;
         if (this.ts.token === tokens_1.Token.CODE) {
-            statement = new il_1.InlineStatement(this.statements);
+            statement = new il_1.InlineStatement(this.element);
         }
         else if (this.ts.token === tokens_1.Token.VAR) {
-            statement = this.statementFromKey(this.statements, this.ts.lowerVar);
+            statement = this.statementFromKey(this.element, this.ts.lowerVar);
             if (statement === undefined) {
                 this.expect('语法错误, 未知的' + this.ts._var);
             }
@@ -109,15 +109,15 @@ class PStatements extends PStatement {
         else {
             this.expect('关键字或者}');
         }
-        statement.level = this.statements.level + 1;
+        statement.level = this.element.level + 1;
         this.ts.readToken();
         let parser = statement.parser(this.context);
         parser.parse();
-        this.statements.addStatement(statement);
+        this.element.addStatement(statement);
     }
     preScan(space) {
         let ok = true;
-        this.statements.eachChild((s, name) => {
+        this.element.eachChild((s, name) => {
             if (s.pelement.preScan(space) === false)
                 ok = false;
         });
@@ -127,9 +127,9 @@ class PStatements extends PStatement {
         let ok = true;
         let theSpace = new StatementsSpace(space);
         let no = theSpace.newStatementNo() + 1;
-        this.statements.setNo(no);
+        this.element.setNo(no);
         theSpace.setStatementNo(no);
-        this.statements.eachChild((s, name) => {
+        this.element.eachChild((s, name) => {
             no = theSpace.newStatementNo() + 1;
             s.setNo(no);
             theSpace.setStatementNo(no);
@@ -140,7 +140,7 @@ class PStatements extends PStatement {
         return ok;
     }
     scan2(uq) {
-        for (let stat of this.statements.statements) {
+        for (let stat of this.element.statements) {
             let ret = stat.pelement.scan2(uq);
             if (ret === false)
                 return false;

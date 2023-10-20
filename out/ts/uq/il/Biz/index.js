@@ -31,4 +31,5 @@ __exportStar(require("./Tree"), exports);
 __exportStar(require("./Tie"), exports);
 __exportStar(require("./Options"), exports);
 __exportStar(require("./Report"), exports);
+__exportStar(require("./Query"), exports);
 //# sourceMappingURL=index.js.map

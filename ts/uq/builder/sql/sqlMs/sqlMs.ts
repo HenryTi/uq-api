@@ -131,6 +131,7 @@ export class MsProcedure extends Procedure {
     protected end(sb: SqlBuilder) {
     }
     protected param(sb: SqlBuilder, p: Field) { sb.append(p.name); }
+    protected returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }) { }
     protected declareStart(sb: SqlBuilder) {
         sb.append('DECLARE ');
     }

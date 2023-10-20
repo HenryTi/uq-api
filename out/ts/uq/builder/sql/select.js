@@ -165,7 +165,7 @@ class Select extends statementWithFrom_1.WithFrom {
         this._fields = [];
         this._columns = [];
     }
-    declare(vars) { }
+    declare(vars, puts) { }
     column(exp, alias, pointer) {
         this._columns.push(this.createColumn(exp, alias, pointer));
         return this;

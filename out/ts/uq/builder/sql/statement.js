@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Log = exports.Memo = exports.DeallocatePrepare = exports.ExecutePrepare = exports.Prepare = exports.ExecSql = exports.Call = exports.InsertOnDuplicate = exports.Upsert = exports.Update = exports.Insert = exports.SqlEntityTable = exports.SqlSysTable = exports.SqlVarTable = exports.SqlTable = exports.ForTable = exports.VarTable = exports.Set = exports.UqsMessageQueue = exports.SetUTCTimezone = exports.BlockEnd = exports.BlockBegin = exports.Sleep = exports.Singal = exports.Inline = exports.RollBack = exports.Commit = exports.Transaction = exports.GetTableSeed = exports.SetTableSeed = exports.Continue = exports.Break = exports.Return = exports.ReturnEnd = exports.ReturnBegin = exports.LeaveProc = exports.Declare = exports.While = exports.If = exports.Statements = exports.StatementBase = void 0;
 const il_1 = require("../../il");
 class StatementBase {
-    declare(vars) { }
+    declare(vars, puts) { }
     to(sb, tab) { }
 }
 exports.StatementBase = StatementBase;
@@ -16,11 +16,11 @@ class Statements {
             return;
         this.statements.push(...statement);
     }
-    declare(vars) {
+    declare(vars, puts) {
         for (let s of this.statements) {
             if (s === undefined)
                 continue;
-            s.declare(vars);
+            s.declare(vars, puts);
         }
     }
     body(sb, tab) {
@@ -55,11 +55,11 @@ class If extends StatementBase {
             statements: statements,
         });
     }
-    declare(vars) {
+    declare(vars, puts) {
         var _a, _b;
-        this._then.declare(vars);
-        (_a = this._elseIfs) === null || _a === void 0 ? void 0 : _a.forEach(v => v.statements.declare(vars));
-        (_b = this._else) === null || _b === void 0 ? void 0 : _b.declare(vars);
+        this._then.declare(vars, puts);
+        (_a = this._elseIfs) === null || _a === void 0 ? void 0 : _a.forEach(v => v.statements.declare(vars, puts));
+        (_b = this._else) === null || _b === void 0 ? void 0 : _b.declare(vars, puts);
     }
     to(sb, tab) {
         this.start(sb, tab);
@@ -99,7 +99,9 @@ class While extends StatementBase {
         this.no = 1; // statement 编号
         this.statements = new Statements;
     }
-    declare(vars) { this.statements.declare(vars); }
+    declare(vars, puts) {
+        this.statements.declare(vars, puts);
+    }
     to(sb, tab) {
         this.start(sb, tab);
         this.statements.body(sb, tab + 1);
@@ -125,9 +127,19 @@ class Declare extends StatementBase {
         this._vars[name] = v;
         return this;
     }
-    declare(vars) {
+    put(name) {
+        if (this._puts === undefined) {
+            this._puts = {};
+        }
+        this._puts[name] = true;
+    }
+    declare(vars, puts) {
         for (let i in this._vars)
             vars[i] = this._vars[i];
+        if (this._puts !== undefined) {
+            for (let i in this._puts)
+                puts[i] = true;
+        }
     }
 }
 exports.Declare = Declare;
