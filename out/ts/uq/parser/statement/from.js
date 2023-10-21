@@ -51,6 +51,43 @@ class PFromStatement extends statement_1.PStatement {
     }
     scan(space) {
         let ok = true;
+        let entityArr = [];
+        for (let tbl of this.tbls) {
+            let entity = space.getBizEntity(tbl);
+            if (entity === undefined) {
+                this.log(`${tbl} is not defined`);
+                ok = false;
+            }
+            else {
+                entityArr.push(entity);
+            }
+        }
+        let { length } = entityArr;
+        if (length > 0) {
+            let entity = entityArr[0];
+            const { bizPhraseType } = entity;
+            for (let i = 1; i < length; i++) {
+                let ent = entityArr[i];
+                if (ent.bizPhraseType !== bizPhraseType) {
+                    this.log(`${entityArr.map(v => v.getJName()).join(', ')} must be the same type`);
+                    ok = false;
+                }
+            }
+            this.element.bizPhraseType = bizPhraseType;
+            this.element.tbls = entityArr;
+            switch (bizPhraseType) {
+                default:
+                    this.log(`FROM can only be one of ATOM, SPEC, BIN, SHEET, PEND`);
+                    ok = false;
+                    break;
+                case il_1.BizPhraseType.atom:
+                case il_1.BizPhraseType.spec:
+                case il_1.BizPhraseType.bin:
+                case il_1.BizPhraseType.sheet:
+                case il_1.BizPhraseType.pend:
+                    break;
+            }
+        }
         const { where } = this.element;
         if (where !== undefined) {
             if (where.pelement.scan(space) === false) {

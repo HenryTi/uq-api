@@ -1,5 +1,5 @@
 import { PContext, PElement, PFromStatement, PPutStatement } from "../../parser";
-import { BizEntity } from "../Biz";
+import { BizEntity, BizPhraseType } from "../Biz";
 import { Builder } from "../builder";
 import { IElement } from "../element";
 import { CompareExpression, ValueExpression } from "../expression";
@@ -13,6 +13,7 @@ export interface FromColumn {
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     tbls: BizEntity[] = [];
+    bizPhraseType: BizPhraseType;
     asc: 'asc' | 'desc';
     cols: FromColumn[] = [];
     putName: string;

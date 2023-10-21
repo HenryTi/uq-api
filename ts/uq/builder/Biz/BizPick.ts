@@ -32,7 +32,6 @@ export class BBizPick extends BBizEntity<BizPick> {
         statements.push(setSite);
         setSite.equ(site, new ExpNum(this.context.site));
 
-
         for (let i in params) {
             const bud = params[i];
             const { name } = bud;
