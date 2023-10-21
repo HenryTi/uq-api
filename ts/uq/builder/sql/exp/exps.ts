@@ -2,9 +2,9 @@ import { SqlBuilder, unitFieldName } from '../sqlBuilder';
 import { Select as SqlSelect } from '../select';
 import { EntityTable } from '../statementWithFrom';
 import { Field } from '../../../il/field';
-import { TuidArr, Entity, DataType, BizBase, SpanPeriod } from '../../../il';
+import { TuidArr, Entity, DataType, BizBase, SpanPeriod, EnumSysTable } from '../../../il';
 import { Exp } from './Exp';
-import { EnumSysTable, sysTable } from '../../dbContext';
+import { sysTable } from '../../dbContext';
 
 export abstract class ExpVal extends Exp {
     static num0: ExpVal;

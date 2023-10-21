@@ -59,7 +59,7 @@ class BuildStateToBase {
         function selectConst(v) {
             let ret = factory.createSelect();
             ret.column(new sql_1.ExpField('id'));
-            ret.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+            ret.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
             ret.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar(v)));
             return ret;
         }
@@ -68,7 +68,7 @@ class BuildStateToBase {
         let actionIdSelect = selectConst(this.vAction);
         let insert = factory.createInsert();
         sqls.push(insert);
-        insert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow);
+        insert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow);
         insert.cols = [
             { col: 'sheet', val: this.idVal },
             { col: 'date', val: new sql_1.ExpVar('$date') },
@@ -84,7 +84,7 @@ class BuildStateToBase {
             { col: 'flow', val: new sql_1.ExpVar(this.vNewFlow) },
             { col: 'state', val: new sql_1.ExpSelect(stateIdSelect) },
         ];
-        updateFlow.table = this.context.sysTable(dbContext_1.EnumSysTable.sheet);
+        updateFlow.table = this.context.sysTable(il_1.EnumSysTable.sheet);
         updateFlow.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), this.idVal);
         if (archive === true) {
             let select = factory.createSelect();
@@ -101,11 +101,11 @@ class BuildStateToBase {
                 .column(new sql_1.ExpVar(this.vNewFlow))
                 .column(new sql_1.ExpField('discription'))
                 .column(new sql_1.ExpField('data'));
-            select.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet));
+            select.from(this.context.sysTable(il_1.EnumSysTable.sheet));
             select.where(where);
             let del = factory.createDelete();
             sqls.push(del);
-            del.tables = [this.context.sysTable(dbContext_1.EnumSysTable.sheet)];
+            del.tables = [this.context.sysTable(il_1.EnumSysTable.sheet)];
             del.where(where);
             let whereSheet = new sql_1.ExpEQ(new sql_1.ExpField('sheet'), this.idVal);
             select = factory.createSelect();
@@ -118,15 +118,15 @@ class BuildStateToBase {
                 .column(new sql_1.ExpField('action'))
                 .column(new sql_1.ExpField('state'))
                 .column(new sql_1.ExpField('user'));
-            select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow));
+            select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.flow));
             select.where(whereSheet);
             del = factory.createDelete();
             sqls.push(del);
-            del.tables = [(0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow)];
+            del.tables = [(0, dbContext_1.sysTable)(il_1.EnumSysTable.flow)];
             del.where(whereSheet);
             del = factory.createDelete();
             sqls.push(del);
-            del.tables = [(0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.sheetDetail)];
+            del.tables = [(0, dbContext_1.sysTable)(il_1.EnumSysTable.sheetDetail)];
             del.where(new sql_1.ExpEQ(new sql_1.ExpField('sheet'), this.idVal));
         }
         let iff = this.buildPre();
@@ -165,10 +165,10 @@ class BuildSheetStateTo extends BuildStateToBase {
         sel.column(new sql_1.ExpAdd(new sql_1.ExpField('flow', ta), sql_1.ExpNum.num1), this.vNewFlow)
             .column(new sql_1.ExpField('name', tc), this.vState)
             .column(new sql_1.ExpField('name', tc), this.vPreState);
-        sel.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet, ta));
-        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow, tb))
+        sel.from(this.context.sysTable(il_1.EnumSysTable.sheet, ta));
+        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow, tb))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', ta), new sql_1.ExpField('sheet', tb)), new sql_1.ExpEQ(new sql_1.ExpField('flow', ta), new sql_1.ExpField('flow', tb))));
-        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const, tc))
+        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.const, tc))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('state', tb), new sql_1.ExpField('id', tc)));
         sel.where(new sql_1.ExpEQ(new sql_1.ExpField('id', ta), this.idVal));
         let iff = factory.createIf();

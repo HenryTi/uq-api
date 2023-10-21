@@ -20,6 +20,7 @@ class BizPermit extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.permit;
+        this.fields = [];
         this.items = new Map();
         this.permits = new Map();
     }
@@ -55,8 +56,7 @@ class BizRole extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.role;
-        // readonly permitItems = new Map<string, BizPermitItem>();
-        // readonly permits = new Map<string, BizPermit>();
+        this.fields = [];
         this.roles = new Map();
     }
     get type() { return 'role'; }

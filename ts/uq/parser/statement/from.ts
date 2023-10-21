@@ -1,4 +1,4 @@
-import { BizEntity, BizPhraseType, CompareExpression, FromStatement, ValueExpression } from "../../il";
+import { BizBud, BizBudNone, BizBudValue, BizEntity, BizPhraseType, CompareExpression, Entity, EnumSysTable, FromStatement, Pointer, Table, ValueExpression } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PStatement } from "./statement";
@@ -27,14 +27,36 @@ export class PFromStatement extends PStatement<FromStatement> {
         }
         this.ts.readToken();
         this.ts.passKey('column');
+        this.ts.passToken(Token.LPARENTHESE);
         for (; ;) {
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.ts.passKey('as');
-            let name = this.ts.passVar();
-            this.element.cols.push({ name, val });
-            if (this.ts.token !== Token.COMMA) break;
-            this.ts.readToken();
+            if (this.ts.token === Token.MOD) {
+                const { peekToken, lowerVar } = this.ts.peekToken();
+                if (peekToken !== Token.VAR) {
+                    this.ts.expectToken(Token.VAR);
+                }
+                let val = new ValueExpression();
+                this.context.parseElement(val);
+                this.element.cols.push({ name: lowerVar, caption: null, val });
+            }
+            else {
+                let name = this.ts.passVar();
+                let caption = this.ts.mayPassString();
+                this.ts.passToken(Token.EQU);
+                let val = new ValueExpression();
+                this.context.parseElement(val);
+                this.element.cols.push({ name, caption, val });
+            }
+            if (this.ts.token === Token.COMMA) {
+                this.ts.readToken();
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+            else if (this.ts.token === Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
         }
         if (this.ts.isKeyword('where') === true) {
             this.ts.readToken();
@@ -47,6 +69,8 @@ export class PFromStatement extends PStatement<FromStatement> {
 
     scan(space: Space): boolean {
         let ok = true;
+        const { biz } = space.uq;
+        space = new FromSpace(space, this.element);
         let entityArr: BizEntity[] = [];
         for (let tbl of this.tbls) {
             let entity = space.getBizEntity(tbl);
@@ -60,8 +84,9 @@ export class PFromStatement extends PStatement<FromStatement> {
         }
         let { length } = entityArr;
         if (length > 0) {
-            let entity = entityArr[0];
-            const { bizPhraseType } = entity;
+            let bizEntity = entityArr[0];
+            this.element.bizEntity0 = bizEntity;
+            const { bizPhraseType } = bizEntity;
             for (let i = 1; i < length; i++) {
                 let ent = entityArr[i];
                 if (ent.bizPhraseType !== bizPhraseType) {
@@ -70,18 +95,47 @@ export class PFromStatement extends PStatement<FromStatement> {
                 }
             }
             this.element.bizPhraseType = bizPhraseType;
-            this.element.tbls = entityArr;
+            let bizEntityTable: EnumSysTable;
+            this.element.bizEntityArr = entityArr;
             switch (bizPhraseType) {
                 default:
                     this.log(`FROM can only be one of ATOM, SPEC, BIN, SHEET, PEND`);
                     ok = false;
                     break;
                 case BizPhraseType.atom:
+                    bizEntityTable = EnumSysTable.atom; break;
                 case BizPhraseType.spec:
+                    bizEntityTable = EnumSysTable.spec; break;
                 case BizPhraseType.bin:
+                    bizEntityTable = EnumSysTable.bizBin; break;
                 case BizPhraseType.sheet:
+                    bizEntityTable = EnumSysTable.sheet; break;
                 case BizPhraseType.pend:
-                    break;
+                    bizEntityTable = EnumSysTable.pend; break;
+            }
+            this.element.bizEntityTable = bizEntityTable;
+            if (bizEntity !== undefined) {
+                for (let col of this.element.cols) {
+                    const { name, caption, val } = col;
+                    if (val.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                    if (caption === null) {
+                        // from entity bud
+                        if (bizEntity.hasField(name) === false) {
+                            let bud = this.element.getBud(name);
+                            if (bud !== undefined) {
+                                col.entity = bizEntity;
+                                col.bud = bud;
+                            }
+                        }
+                    }
+                    else {
+                        // Query bud
+                        let bud = new BizBudNone(biz, name, caption);
+                        col.bud = bud;
+                    }
+                }
             }
         }
 
@@ -91,11 +145,28 @@ export class PFromStatement extends PStatement<FromStatement> {
                 ok = false;
             }
         }
-        for (let { val } of this.element.cols) {
-            if (val.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
         return ok;
+    }
+}
+
+class FromSpace extends Space {
+    private readonly from: FromStatement;
+
+    constructor(outer: Space, from: FromStatement) {
+        super(outer);
+        this.from = from;
+    }
+
+    protected _getEntityTable(name: string): Entity & Table {
+        return;
+    }
+    protected _getTableByAlias(alias: string): Table {
+        return;
+    }
+    protected _varPointer(name: string, isField: boolean): Pointer {
+        return;
+    }
+    protected override _getBizFrom(): FromStatement {
+        return this.from;
     }
 }

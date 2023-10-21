@@ -9,8 +9,8 @@ import {
 } from '../sql';
 import * as il from '../../il';
 import { SysProcedures } from './sysProcedures';
-import { DDate, Int, JoinType } from '../../il';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { DDate, Int, EnumSysTable, JoinType } from '../../il';
+import { sysTable } from '../dbContext';
 
 export class EntityProcedures extends SysProcedures {
     build() {

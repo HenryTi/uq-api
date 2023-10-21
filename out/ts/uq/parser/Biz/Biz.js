@@ -18,6 +18,7 @@ class PBiz extends entity_1.PEntity {
             bin: il_1.BizBin,
             pend: il_1.BizPend,
             pick: il_1.BizPick,
+            query: il_1.BizQueryTable,
             tree: il_1.BizTree,
             tie: il_1.BizTie,
             report: il_1.BizReport,

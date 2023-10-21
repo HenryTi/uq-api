@@ -119,13 +119,13 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         parameters.push((0, il_1.bigIntField)('id'));
         parameters.push((0, il_1.charField)('entity', 100));
         let selectEntity = factory.createSelect();
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectEntity.col('id');
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('entity')));
         selectEntity.lock = select_1.LockType.update;
         let update = factory.createUpdate();
         statements.push(update);
-        update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.id_u);
+        update.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.id_u);
         update.cols = [{
                 col: 'entity', val: new sql_1.ExpSelect(selectEntity)
             }];
@@ -156,7 +156,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         let selectEntity = factory.createSelect();
         statements.push(selectEntity);
         selectEntity.toVar = true;
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectEntity.col('id', 'entityId');
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('entity')));
         selectEntity.lock = select_1.LockType.update;
@@ -464,7 +464,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         setUUId.equ('uuid', new sql_1.ExpFunc('uuid'));
         let insert = factory.createInsert();
         proc.statements.push(insert);
-        insert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.id_uu);
+        insert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.id_uu);
         insert.cols = [
             { col: 'id', val: new sql_1.ExpVar('id') },
             { col: 'uuid', val: new sql_1.ExpFuncInUq('$uuid_to_bin', [new sql_1.ExpVar('uuid')], true) },
@@ -489,7 +489,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         setId.equ('id', new sql_1.ExpBitLeft(new sql_1.ExpVar('stamp'), new sql_1.ExpNum(20)));
         let selectMaxId = factory.createSelect();
         selectMaxId.column(new sql_1.ExpFunc(factory.func_max, new sql_1.ExpField('id'))),
-            selectMaxId.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.id_u));
+            selectMaxId.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.id_u));
         selectMaxId.where(new sql_1.ExpAnd(new sql_1.ExpGE(new sql_1.ExpField('id'), new sql_1.ExpVar('id')), new sql_1.ExpLT(new sql_1.ExpField('id'), new sql_1.ExpAdd(new sql_1.ExpVar('id'), new sql_1.ExpNum(0x100000)))));
         selectMaxId.lock = select_1.LockType.update;
         let setIdGreatest = factory.createSet();
@@ -537,7 +537,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         iff.cmp = new sql_1.ExpGT(new sql_1.ExpVar('entity'), sql_1.ExpNum.num0);
         let insert = factory.createInsert();
         iff.then(insert);
-        insert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.id_u);
+        insert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.id_u);
         insert.cols = [
             { col: 'id', val: new sql_1.ExpVar('id') },
             { col: 'entity', val: new sql_1.ExpVar('entity') }
@@ -557,7 +557,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         statements.push(select);
         select.toVar = true;
         select.col('id', 'id');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.phrase));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.phrase));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('phrase')), new sql_1.ExpEQ(new sql_1.ExpField('valid'), sql_1.ExpNum.num1)));
         let ret = factory.createReturn();
         statements.push(ret);
@@ -574,7 +574,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         statements.push(select);
         select.toVar = true;
         select.col('name', 'phrase');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.phrase));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.phrase));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('id')));
         let ret = factory.createReturn();
         statements.push(ret);
@@ -591,7 +591,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         statements.push(select);
         select.toVar = true;
         select.col('id', 'id');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('site'), new sql_1.ExpVar(unitField.name)), new sql_1.ExpEQ(new sql_1.ExpField('user'), new sql_1.ExpVar(userParam.name))));
         let ret = factory.createReturn();
         statements.push(ret);
@@ -757,7 +757,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         select.toVar = true;
         select.column(new sql_1.ExpField('name', 'b'), 'entity');
         select.from(new statementWithFrom_1.EntityTable('$id' + idType, false, 'a'));
-        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'b'))
+        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity, 'b'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('entity', 'a'), new sql_1.ExpField('id', 'b')));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('id', 'a'), new sql_1.ExpVar('xi')));
         return select;

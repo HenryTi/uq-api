@@ -32,8 +32,8 @@ export class BBizPick extends BBizEntity<BizPick> {
         statements.push(setSite);
         setSite.equ(site, new ExpNum(this.context.site));
 
-        for (let i in params) {
-            const bud = params[i];
+        for (let param of params) {
+            const bud = param;
             const { name } = bud;
             declare.var(name, new Char(200));
             let set = factory.createSet();

@@ -46,7 +46,7 @@ class BValueStatement extends bstatement_1.BStatement {
         let expId = (0, sql_1.convertExp)(this.context, xi);
         selectType.column(new sql_1.ExpField('name', 'b'), `$type_${no}`);
         selectType.from(new statementWithFrom_1.EntityTable(idRootTable, false, 'a'));
-        selectType.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'b'))
+        selectType.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity, 'b'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('entity', 'a'), new sql_1.ExpField('id', 'b')));
         selectType.where(new sql_1.ExpEQ(new sql_1.ExpField('id', 'a'), expId));
         let setAtId = factory.createSet();

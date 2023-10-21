@@ -5,6 +5,7 @@ import { BizEntity } from "./Entity";
 
 export class BizTitle extends BizEntity {
     readonly bizPhraseType = BizPhraseType.title;
+    protected readonly fields = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizTitle(this, context);

@@ -6,7 +6,7 @@ const statement_1 = require("./statement");
 class FromStatement extends statement_1.Statement {
     constructor() {
         super(...arguments);
-        this.tbls = [];
+        this.bizEntityArr = [];
         this.cols = [];
     }
     get type() { return 'from'; }
@@ -15,6 +15,16 @@ class FromStatement extends statement_1.Statement {
     }
     parser(context) {
         return new parser_1.PFromStatement(this, context);
+    }
+    getBud(fieldName) {
+        let bud = undefined;
+        for (let entity of this.bizEntityArr) {
+            let b = entity.getBud(fieldName);
+            if (b !== undefined) {
+                bud = b;
+            }
+        }
+        return bud;
     }
 }
 exports.FromStatement = FromStatement;

@@ -14,7 +14,7 @@ class ExpRole extends Exp_1.Exp {
     }
     to(sb) {
         let { factory } = sb;
-        let tblUserSite = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite);
+        let tblUserSite = (0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite);
         sb.l();
         let select = factory.createSelect();
         if (this.role === 'owner') {

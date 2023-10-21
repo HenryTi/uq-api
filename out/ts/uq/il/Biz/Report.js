@@ -30,8 +30,8 @@ export class ReportList extends BizBud {
 class BizReport extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
+        this.fields = [];
         this.bizPhraseType = Base_1.BizPhraseType.report;
-        // readonly lists: ReportList[] = [];
         this.titles = [];
         this.joins = [];
     }

@@ -1,8 +1,8 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { PokeStatement } from "../../il";
+import { EnumSysTable, PokeStatement } from "../../il";
 import { convertExp, ExpNum, ExpVal } from "../sql";
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 
 export class BPokeStatement extends BStatement {
     protected istatement: PokeStatement;

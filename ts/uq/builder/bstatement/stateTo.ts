@@ -1,9 +1,8 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { charField, JoinType, smallIntField, StateToStatement } from "../../il";
+import { EnumSysTable, charField, JoinType, smallIntField, StateToStatement } from "../../il";
 import { Statement, ExpCmp, ExpEQ, ExpAnd, ExpField, ExpVar, ExpStr, SqlSysTable, ExpSelect, ExpVal, ExpAdd, ExpNum, If, ExpIsNotNull } from "../sql";
-import { EntityTable } from "../sql/statementWithFrom";
-import { DbContext, EnumSysTable, sysTable } from "../dbContext";
+import { DbContext, sysTable } from "../dbContext";
 
 export class BStateTo extends BStatement {
     protected istatement: StateToStatement;

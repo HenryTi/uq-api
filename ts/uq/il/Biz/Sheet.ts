@@ -10,6 +10,7 @@ import { BizBudValue, BizBudAtom, BizBudDec, BizBudPickable, BudValue, BizBud } 
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
+    protected readonly fields = ['id', 'no'];
     readonly bizPhraseType = BizPhraseType.sheet;
     main: BizBin;
     readonly details: { bin: BizBin; caption: string; }[] = [];
@@ -47,6 +48,7 @@ export interface PropPend {
 }
 
 export class BizBin extends BizEntity {
+    protected readonly fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
     readonly bizPhraseType = BizPhraseType.bin;
     act: BizBinAct;
     i: BizBudPickable;
@@ -112,6 +114,7 @@ export class BizPend extends BizEntity {
     static predefinedId = ['i', 'x', 'si', 'sx', 's'];
     static predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 
+    protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
     readonly bizPhraseType = BizPhraseType.pend;
     readonly predefinedBuds: { [name: string]: BizBudValue };
     constructor(biz: Biz) {

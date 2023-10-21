@@ -4,7 +4,7 @@ import { Sqls } from '../bstatement';
 import { BAct } from './act';
 import { EntityTable } from '../sql/statementWithFrom';
 import { LockType } from '../sql/select';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { sysTable } from '../dbContext';
 
 export class BProc extends BAct {
     protected entity: il.Proc;
@@ -60,7 +60,7 @@ export class BProc extends BAct {
         let { factory, hasUnit } = this.context;
         let selectEntity = factory.createSelect();
         selectEntity.col('id');
-        selectEntity.from(sysTable(EnumSysTable.entity));
+        selectEntity.from(sysTable(il.EnumSysTable.entity));
         selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr(this.entity.name)));
         selectEntity.lock = LockType.update;
         let updateRunning = factory.createUpdate();

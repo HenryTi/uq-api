@@ -31,4 +31,5 @@ __exportStar(require("./builder"), exports);
 __exportStar(require("./schema"), exports);
 __exportStar(require("./busSchema"), exports);
 __exportStar(require("./tool"), exports);
+__exportStar(require("./EnumSysTable"), exports);
 //# sourceMappingURL=index.js.map

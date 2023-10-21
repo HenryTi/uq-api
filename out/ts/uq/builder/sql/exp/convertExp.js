@@ -141,6 +141,10 @@ class Stack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new ExpBizSelect_1.BizExpOperand(bExp));
     }
+    bizField(bizField) {
+        let bBizField = new bizExp_1.BBizFieldOperand(bizField);
+        this.arr.push(bBizField);
+    }
     func(func, n, isUqFunc) {
         let params = [];
         for (let i = 0; i < n; i++)

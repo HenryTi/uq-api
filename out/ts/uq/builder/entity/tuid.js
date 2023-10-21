@@ -615,7 +615,7 @@ class BTuid extends entity_1.BEntityBusable {
                     col: 'tuidVId',
                     val: new sql_1.ExpAdd(varId, sql_1.ExpVal.num1)
                 }];
-            updateVId.table = (0, __1.sysTable)(__1.EnumSysTable.entity);
+            updateVId.table = (0, __1.sysTable)(il_1.EnumSysTable.entity);
             updateVId.where = new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(name + '.' + taName));
             let insert = factory.createInsert();
             iff.then(insert);
@@ -730,7 +730,7 @@ class BTuid extends entity_1.BEntityBusable {
         selectEntity.toVar = true;
         selectEntity.column(new sql_1.ExpField('id'), vTuidType);
         selectEntity.column(new sql_1.ExpField('tuidVId'), vInc);
-        selectEntity.from((0, __1.sysTable)(__1.EnumSysTable.entity));
+        selectEntity.from((0, __1.sysTable)(il_1.EnumSysTable.entity));
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(name)));
         selectEntity.lock = select_1.LockType.update;
         let set = factory.createSet();
@@ -738,7 +738,7 @@ class BTuid extends entity_1.BEntityBusable {
         set.equ(vInc, new sql_1.ExpAdd(new sql_1.ExpFunc(factory.func_ifnull, new sql_1.ExpVar(vInc), sql_1.ExpVal.num1), sql_1.ExpVal.num1));
         let update = factory.createUpdate();
         stats.push(update);
-        update.table = (0, __1.sysTable)(__1.EnumSysTable.entity);
+        update.table = (0, __1.sysTable)(il_1.EnumSysTable.entity);
         update.cols.push({
             col: 'tuidVId',
             val: new sql_1.ExpVar(vInc),
@@ -784,14 +784,14 @@ class BTuid extends entity_1.BEntityBusable {
             selectEntity.toVar = true;
             selectEntity.column(new sql_1.ExpField('id'), vTuidType);
             selectEntity.column(new sql_1.ExpField('tuidVId'), vInc);
-            selectEntity.from((0, __1.sysTable)(__1.EnumSysTable.entity));
+            selectEntity.from((0, __1.sysTable)(il_1.EnumSysTable.entity));
             selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(name + '_' + arrName)));
             let set = factory.createSet();
             stats.push(set);
             set.equ(vInc, new sql_1.ExpAdd(new sql_1.ExpFunc(factory.func_ifnull, new sql_1.ExpVar(vInc), sql_1.ExpVal.num1), sql_1.ExpVal.num1));
             let update = factory.createUpdate();
             stats.push(update);
-            update.table = (0, __1.sysTable)(__1.EnumSysTable.entity);
+            update.table = (0, __1.sysTable)(il_1.EnumSysTable.entity);
             update.cols.push({
                 col: 'tuidVId',
                 val: new sql_1.ExpVar(vInc),
@@ -974,7 +974,7 @@ class BTuid extends entity_1.BEntityBusable {
                 col: 'tuidVId',
                 val: new sql_1.ExpAdd(varDollarId, sql_1.ExpVal.num1)
             }];
-        updateVId.table = (0, __1.sysTable)(__1.EnumSysTable.entity);
+        updateVId.table = (0, __1.sysTable)(il_1.EnumSysTable.entity);
         updateVId.where = new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(name));
         let iff = factory.createIf();
         stats.push(iff);

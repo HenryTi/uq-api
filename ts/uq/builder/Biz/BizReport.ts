@@ -1,8 +1,8 @@
 import {
     BigInt, BizReport, BudDataType, JoinType, ReportTitle
     , SetType, bigIntField, dateField, intField, jsonField
+    , EnumSysTable
 } from "../../il";
-import { EnumSysTable } from "../dbContext";
 import {
     ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
     , ExpGE, ExpGT, ExpIsNull, ExpLT, ExpNum, ExpSelect, ExpStr, ExpVal

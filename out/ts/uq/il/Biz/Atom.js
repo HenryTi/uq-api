@@ -21,6 +21,7 @@ class BizAtom extends BizAtomID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.atom;
+        this.fields = ['id', 'no', 'ex'];
     }
     parser(context) {
         return new parser_1.PBizAtom(this, context);
@@ -50,6 +51,7 @@ class BizAtomSpec extends BizAtomIDWithBase {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.spec;
+        this.fields = ['id'];
         this.keys = [];
     }
     parser(context) {
@@ -95,6 +97,7 @@ class BizAtomIDAny extends BizAtomID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.any;
+        this.fields = ['id'];
         this.name = '*';
     }
     parser(context) { return undefined; }

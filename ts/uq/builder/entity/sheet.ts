@@ -4,9 +4,9 @@ import { Sqls } from '../bstatement';
 import * as sql from '../sql';
 import { EntityTable } from '../sql/statementWithFrom';
 import { ExpEQ, ExpField, ExpVar, ExpAdd, ExpAnd, ExpStr, ExpVal, ExpFunc } from '../sql';
-import { SheetVerify, ActionBase, Field, Arr, JoinType } from '../../il';
+import { EnumSysTable, SheetVerify, ActionBase, Field, Arr, JoinType } from '../../il';
 import { Statement } from '../sql';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { sysTable } from '../dbContext';
 
 export class BSheet extends BEntity<il.Sheet> {
     buildProcedures() {

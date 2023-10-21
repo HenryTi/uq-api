@@ -28,7 +28,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         let stats = p.statements;
         let expCmpUnit;
         let selectUnit = factory.createSelect();
-        selectUnit.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit));
+        selectUnit.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.unit));
         if (hasUnit === true) {
             selectUnit.col('unit');
             selectUnit.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar(unitFieldName)));
@@ -44,7 +44,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         iffUnit.cmp = expCmpUnit;
         let upsertUnit = factory.createUpsert();
         iffUnit.then(upsertUnit);
-        upsertUnit.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit);
+        upsertUnit.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.unit);
         upsertUnit.cols.push({
             col: 'flag',
             val: sql_1.ExpVal.num1
@@ -74,12 +74,12 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         let selectAnyone = factory.createSelect();
         stats.push(selectAnyone);
         selectAnyone.column(new sql.ExpField('id'), 'entity');
-        selectAnyone.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectAnyone.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectAnyone.where(new sql_1.ExpEQ(sql_1.ExpNum.num0, sql_1.ExpNum.num1));
         let selectEntities = factory.createSelect();
         stats.push(selectEntities);
         selectEntities.column(new sql.ExpField('id'), 'entity');
-        selectEntities.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntities.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
     }
     getMyRolesProc(p) {
         let { unitField, userParam, factory, hasUnit } = this.context;
@@ -88,7 +88,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         //this.checkAdmin(statements);
         let selectAdmin = factory.createSelect();
         selectAdmin.column(new sql_1.ExpField('admin'));
-        selectAdmin.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit));
+        selectAdmin.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.unit));
         selectAdmin.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar('$unit')));
         let select = factory.createSelect();
         statements.push(select);
@@ -113,7 +113,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         let iff = factory.createIf();
         statements.push(iff);
         let select = factory.createSelect();
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.unit));
         select.column(sql_1.ExpNum.num1);
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar('$unit')), new sql_1.ExpEQ(new sql_1.ExpField('admin'), new sql_1.ExpVar('$user'))));
         iff.cmp = new sql_1.ExpNot(new sql_1.ExpExists(select));
@@ -170,7 +170,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         parameters.push(unitField, (0, il_1.idField)('theUser', 'big'));
         let upsert = factory.createUpsert();
         statements.push(upsert);
-        upsert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit);
+        upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.unit);
         upsert.keys = [
             { col: 'unit', val: new sql_1.ExpVar('$unit') }
         ];
@@ -183,7 +183,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         parameters.push(unitField, userParam);
         let selMe = factory.createSelect();
         selMe.col('id');
-        selMe.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin));
+        selMe.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.admin));
         selMe.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(userParam.name)));
         let select = factory.createSelect();
         statements.push(select);
@@ -202,7 +202,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         select.column(new ExpField('icon', tb));
         select.column(new ExpField('assigned', tb));
         */
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin, ta));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.admin, ta));
         //select.join('left', new EntityTable('$user_roles', false, tb))
         //    .on(new ExpEQ(new ExpField('id', ta), new ExpField('user', tb)));
         // role = -1 and changed in 24 hours, should be returned
@@ -218,7 +218,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         parameters.push(unitField, userParam);
         let select = factory.createSelect();
         select.col('id');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.admin));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(userParam.name)), new sql_1.ExpOr(new sql_1.ExpEQ(new sql_1.ExpField('role'), sql_1.ExpNum.num1), new sql_1.ExpOr(new sql_1.ExpEQ(new sql_1.ExpField('role'), new sql_1.ExpNum(-1)), new sql_1.ExpGT(new sql_1.ExpFuncCustom(factory.func_unix_timestamp, new sql_1.ExpField('update')), new sql_1.ExpSub(new sql_1.ExpFuncCustom(factory.func_unix_timestamp), new sql_1.ExpNum(24 * 3600)))))));
         let iff = factory.createIf();
         statements.push(iff);
@@ -228,7 +228,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         update.cols = [
             { col: 'role', val: new sql_1.ExpNeg(new sql_1.ExpField('role')) }
         ];
-        update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin);
+        update.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.admin);
         update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(userParam.name));
     }
     setAdmin(p) {
@@ -237,11 +237,11 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         parameters.push(unitField, userParam, (0, il_1.intField)('user'), (0, il_1.tinyIntField)('role'), (0, il_1.charField)('assigned', 100));
         let select = factory.createSelect();
         select.col('id');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.admin));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(userParam.name)), new sql_1.ExpEQ(new sql_1.ExpField('role'), sql_1.ExpNum.num1)));
         let selectUserSysAdmin = factory.createSelect();
         selectUserSysAdmin.col('id');
-        selectUserSysAdmin.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin));
+        selectUserSysAdmin.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.admin));
         selectUserSysAdmin.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('user')), new sql_1.ExpEQ(new sql_1.ExpField('role'), sql_1.ExpNum.num1), new sql_1.ExpNE(new sql_1.ExpField('operator'), new sql_1.ExpVar(userParam.name))));
         let iff = factory.createIf();
         statements.push(iff);
@@ -262,7 +262,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
             { col: 'operator', val: new sql_1.ExpVar(userParam.name) },
             { col: 'assigned', val: new sql_1.ExpVar('assigned') },
         ];
-        upsert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin);
+        upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.admin);
         /*
         let iffAdd = factory.createIf();
         statements.push(iffAdd);
@@ -288,7 +288,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         let select = factory.createSelect();
         statements.push(select);
         select.col('id');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.admin));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.admin));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(userParam.name)), new sql_1.ExpGT(new sql_1.ExpField('role'), sql_1.ExpNum.num0)));
     }
 }

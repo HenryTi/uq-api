@@ -5,7 +5,6 @@ const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
-const dbContext_1 = require("../dbContext");
 const t1 = 't1';
 class BFromStatement extends bstatement_1.BStatement {
     body(sqls) {
@@ -22,24 +21,35 @@ class BFromStatement extends bstatement_1.BStatement {
         select.column(sql_1.ExpNum.num0, 'ban');
         const arr = [];
         for (let col of cols) {
-            const { name, val } = col;
-            arr.push(new sql_1.ExpStr(name), this.context.expVal(val));
+            const { name, val, bud, entity } = col;
+            const colArr = [];
+            if (bud !== undefined) {
+                if (entity !== undefined) {
+                    colArr.push(new sql_1.ExpNum(entity.id));
+                }
+                colArr.push(new sql_1.ExpNum(bud.id));
+            }
+            else {
+                colArr.push(new sql_1.ExpStr(name));
+            }
+            colArr.push(this.context.expVal(val));
+            arr.push(new sql_1.ExpFunc('JSON_ARRAY', ...colArr));
         }
         let tbl;
         function atomSelect() {
-            tbl = dbContext_1.EnumSysTable.atom;
+            tbl = il_1.EnumSysTable.atom;
         }
         function specSelect() {
-            tbl = dbContext_1.EnumSysTable.spec;
+            tbl = il_1.EnumSysTable.spec;
         }
         function binSelect() {
-            tbl = dbContext_1.EnumSysTable.bizBin;
+            tbl = il_1.EnumSysTable.bizBin;
         }
         function sheetSelect() {
-            tbl = dbContext_1.EnumSysTable.sheet;
+            tbl = il_1.EnumSysTable.sheet;
         }
         function pendSelect() {
-            tbl = dbContext_1.EnumSysTable.pend;
+            tbl = il_1.EnumSysTable.pend;
         }
         const { bizPhraseType } = this.istatement;
         switch (bizPhraseType) {
@@ -60,7 +70,7 @@ class BFromStatement extends bstatement_1.BStatement {
                 break;
         }
         select.from(new statementWithFrom_1.EntityTable(tbl, false, t1));
-        select.column(new sql_1.ExpFunc('JSON_OBJECT', ...arr), 'json');
+        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
         select.where(this.context.expCmp(where));
         select.order(new sql_1.ExpField('id', t1), asc);
     }

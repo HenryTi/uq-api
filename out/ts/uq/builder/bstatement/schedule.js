@@ -26,7 +26,7 @@ class BScheduleStatement extends bstatement_1.BStatement {
         sqls.push(selectEntity);
         selectEntity.toVar = true;
         selectEntity.column(new sql_1.ExpField('id'), entityId);
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(act.name)));
         //let execTime: ExpVal;
         let setInterval = factory.createSet();
@@ -49,7 +49,7 @@ class BScheduleStatement extends bstatement_1.BStatement {
             sqls.push(setExecTime);
             let selectTimeZone = factory.createSelect();
             selectTimeZone.col('timezone');
-            selectTimeZone.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit));
+            selectTimeZone.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.unit));
             selectTimeZone.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar('$unit')));
             setExecTime.equ(vExecTime, new sql_1.ExpSub(new sql_1.ExpVar(vUnixTimestamp), new sql_1.ExpMul(new sql_1.ExpSub(new sql_1.ExpFunc('hour', new sql_1.ExpVar(vUtc)), new sql_1.ExpSelect(selectTimeZone)), new sql_1.ExpNum(3600)), new sql_1.ExpMul(new sql_1.ExpFunc('minute', new sql_1.ExpVar(vUtc)), new sql_1.ExpNum(60)), new sql_1.ExpFunc('second', new sql_1.ExpVar(vUtc)), new sql_1.ExpNeg(new sql_1.ExpMul(expOn, new sql_1.ExpNum(60)))));
             let iff = factory.createIf();

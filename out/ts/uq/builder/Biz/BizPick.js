@@ -27,8 +27,8 @@ class BBizPick extends BizEntity_1.BBizEntity {
         let setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ(site, new sql_1.ExpNum(this.context.site));
-        for (let i in params) {
-            const bud = params[i];
+        for (let param of params) {
+            const bud = param;
             const { name } = bud;
             declare.var(name, new il_1.Char(200));
             let set = factory.createSet();

@@ -77,7 +77,8 @@ export abstract class PStatements extends PStatement<Statements> {
                 if (this.ts.token !== Token.VAR) this.ts.expect('return表名');
                 let statement = new SelectStatement(parent);
                 let v1 = this.ts.lowerVar;
-                if (this.ts.peekToken() === Token.DOT) {
+                const { peekToken } = this.ts.peekToken();
+                if (peekToken === Token.DOT) {
                     this.ts.readToken();
                     this.ts.readToken();
                     if (this.ts.token as any !== Token.VAR) this.ts.expectToken(Token.VAR);

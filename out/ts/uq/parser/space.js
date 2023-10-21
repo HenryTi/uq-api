@@ -22,6 +22,7 @@ class Space {
     _getActionBase() { return undefined; }
     _getBizBase(bizName) { return undefined; }
     _getBizEntity(name) { return undefined; }
+    _getBizFrom() { return undefined; }
     _getUse(name) { return undefined; }
     _addUse(name, statementNo, obj) { return undefined; }
     get groupType() { return il_1.GroupType.Single; }
@@ -145,6 +146,13 @@ class Space {
             return bizEntity;
         if (this.outer !== undefined)
             return this.outer.getBizEntity(name);
+    }
+    getBizFrom() {
+        let ret = this._getBizFrom();
+        if (ret !== undefined)
+            return ret;
+        if (this.outer !== undefined)
+            return this.outer.getBizFrom();
     }
     getUse(name) {
         let uv = this._getUse(name);

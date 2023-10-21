@@ -142,7 +142,7 @@ class BID extends entity_1.BEntity {
         iff.then(retId);
         let selectEntity = factory.createSelect();
         selectEntity.col('id');
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntity.from((0, dbContext_1.sysTable)(il_2.EnumSysTable.entity));
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(name)));
         selectEntity.lock = select_1.LockType.update;
         if (idType === il_2.EnumIdType.MinuteId) {
@@ -257,7 +257,7 @@ class BID extends entity_1.BEntity {
         set.equ(vUserUnitId, new sql_1.ExpFuncInUq('$UserSite$id', [sql_1.ExpNum.num0, new sql_1.ExpVar('$user'), sql_1.ExpNum.num1, new sql_1.ExpVar('$id'), new sql_1.ExpVar('$user')], true));
         let updateOwner = factory.createUpdate();
         iff.then(updateOwner);
-        updateOwner.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite);
+        updateOwner.table = (0, dbContext_1.sysTable)(il_2.EnumSysTable.userSite);
         updateOwner.cols = [
             { col: 'admin', val: new sql_1.ExpNum(il_1.EnumRole.Owner + il_1.EnumRole.Admin) }
         ];

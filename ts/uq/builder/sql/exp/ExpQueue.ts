@@ -1,5 +1,5 @@
-import { OpQueueAction, Queue, ValueExpression } from "../../../il";
-import { EnumSysTable, sysTable } from "../../dbContext";
+import { EnumSysTable, OpQueueAction, Queue, ValueExpression } from "../../../il";
+import { sysTable } from "../../dbContext";
 import { LockType, Select, SelectTable } from "../select";
 import { SqlBuilder } from "../sqlBuilder";
 import { EntityTable } from "../statementWithFrom";

@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizBin = exports.BBizSheet = void 0;
 const il_1 = require("../../il");
 const bstatement_1 = require("../bstatement");
-const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
@@ -79,8 +78,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         loop.statements.add(select);
         select.toVar = true;
         select.column(new sql_1.ExpField('id', a), binId);
-        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizDetail, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, b))
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)));
         select.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar(pBinId)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpNum(entityId)), new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpVar('$id'))));
         select.order(new sql_1.ExpField('id', a), 'asc');
@@ -117,7 +116,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const delBinPend = factory.createDelete();
         statements.push(delBinPend);
         delBinPend.tables = [a];
-        delBinPend.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.binPend, false, a));
+        delBinPend.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.binPend, false, a));
         delBinPend.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(binId)));
         return statements;
     }
@@ -175,14 +174,14 @@ class BBizBin extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpField('price', c), sprice);
         select.column(new sql_1.ExpField('amount', c), samount);
         select.column(new sql_1.ExpField('pendFrom', d), pendFrom);
-        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizBin, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizDetail, false, a1))
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, a1))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a1), new sql_1.ExpField('id', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, b))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a1)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bizBin, false, c))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', b)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.binPend, false, d))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.binPend, false, d))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('id', a)));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar('bin')));
         let sqls = new bstatement_1.Sqls(this.context, statements);

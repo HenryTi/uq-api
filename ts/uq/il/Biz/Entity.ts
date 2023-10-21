@@ -38,6 +38,7 @@ export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBudValue> = new Map();
     readonly permissions: { [role: string]: Permission } = {};
     source: string = undefined;
+    protected abstract get fields(): string[];
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -54,6 +55,10 @@ export abstract class BizEntity extends BizBase {
         if (super.okToDefineNewName(name) === false) return false;
         let bud = this.props.get(name.toLowerCase());
         return (bud === undefined);
+    }
+
+    hasField(fieldName: string): boolean {
+        return this.fields.includes(fieldName);
     }
 
     protected buildPhrase(prefix: string) {

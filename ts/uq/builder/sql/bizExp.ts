@@ -1,4 +1,4 @@
-import { BizExp, BizPhraseType, BizTitle, BudDataType } from "../../il";
+import { BizExp, BizFieldOperand, BizPhraseType, BizTitle, BudDataType, EnumSysTable } from "../../il";
 import { DbContext } from "../dbContext";
 import { ExpInterval, ExpVal } from "./exp";
 import { SqlBuilder } from "./sqlBuilder";
@@ -92,6 +92,37 @@ export class BBizExp {
             if (op !== undefined) {
                 sb.append(op).exp(this.inVal);
             }
+        }
+    }
+}
+
+export class BBizFieldOperand extends ExpVal {
+    private readonly bizField: BizFieldOperand;
+    constructor(bizField: BizFieldOperand) {
+        super();
+        this.bizField = bizField;
+    }
+
+    to(sb: SqlBuilder): void {
+        const { bizBud, fieldName } = this.bizField;
+        if (fieldName) {
+            sb.append('t1.').append(fieldName);
+        }
+        else {
+            let tbl: EnumSysTable;
+            switch (bizBud.dataType) {
+                default: tbl = EnumSysTable.ixBudInt; break;
+                case BudDataType.str:
+                case BudDataType.char:
+                    tbl = EnumSysTable.ixBudStr;
+                    break;
+                case BudDataType.dec:
+                    tbl = EnumSysTable.ixBudDec;
+                    break;
+            }
+            sb.l().append('select value from ').dbName().dot().append(tbl)
+                .append(' where i=t1.id and x=').append(bizBud.id)
+                .r();
         }
     }
 }

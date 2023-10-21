@@ -1,13 +1,13 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { BigInt, EnumRole, JoinType, RoleStatement, ValueExpression } from "../../il";
+import { EnumSysTable, BigInt, EnumRole, JoinType, RoleStatement, ValueExpression } from "../../il";
 import {
     convertExp, ExpAnd, ExpBitAnd, ExpBitOr, ExpCmp, ExpEQ, ExpExists
     , ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpIsNull, ExpNE, ExpNot
     , ExpNum, ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar
 } from "../sql";
 import { LockType } from "../sql/select";
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 
 export class BRoleStatement extends BStatement {
     protected istatement: RoleStatement;

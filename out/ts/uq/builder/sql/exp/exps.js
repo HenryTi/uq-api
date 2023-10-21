@@ -544,7 +544,7 @@ class ExpTypeof extends Exp_1.Exp {
         // tuid arr 表没有unit
         let hasUnit = false;
         select.col('id');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         select.where(new ExpEQ(new ExpField('name'), this.entity ? new ExpStr(this.entity.name) : this.val));
         select.to(sb, 0);
         sb.r();
@@ -570,7 +570,7 @@ class ExpEntityId extends Exp_1.Exp {
     }
     to(sb) {
         sb.l().append('select entity from ')
-            .dbName().dot().entityTableName(dbContext_1.EnumSysTable.id_u)
+            .dbName().dot().entityTableName(il_1.EnumSysTable.id_u)
             .append(' where id=').exp(this.val).r();
     }
 }
@@ -582,7 +582,7 @@ class ExpEntityName extends Exp_1.Exp {
     }
     to(sb) {
         sb.l().append('select b.name from ')
-            .dbName().dot().entityTableName(dbContext_1.EnumSysTable.id_u)
+            .dbName().dot().entityTableName(il_1.EnumSysTable.id_u)
             .append(' as a join ').entityTableName('$entity')
             .append(' as b ON a.entity=b.id where a.id=').exp(this.val).r();
     }

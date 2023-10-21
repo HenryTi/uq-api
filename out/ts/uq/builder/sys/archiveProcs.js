@@ -114,7 +114,7 @@ class ArchiveProcedures extends sheetProcs_1.SheetProcedures {
         wheres.push(new sql.ExpLT(new sql.ExpField('id', ta), new sql.ExpFunc(factory.func_ifnull, new sql.ExpVar(pageStart.name), new sql.ExpStr('9223372036854775807'))));
         let selectSheet = factory.createSelect();
         selectSheet.column(new sql.ExpField('id'));
-        selectSheet.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectSheet.from((0, dbContext_1.sysTable)(il.EnumSysTable.entity));
         selectSheet.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(schemaName.name)));
         wheres.push(new sql.ExpEQ(new sql.ExpField('sheet', ta), new sql.ExpSelect(selectSheet)));
         select.where(new sql.ExpAnd(...wheres));

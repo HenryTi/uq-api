@@ -24,6 +24,7 @@ export class BizAtom extends BizAtomID {
     ex: BizBudValue;
     uom: boolean;
     uuid: boolean;
+    protected readonly fields = ['id', 'no', 'ex'];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);
@@ -54,6 +55,7 @@ export abstract class BizAtomIDWithBase extends BizAtomID {
 
 export class BizAtomSpec extends BizAtomIDWithBase {
     readonly bizPhraseType = BizPhraseType.spec;
+    protected readonly fields = ['id'];
     keys: BizBudValue[] = [];
 
     parser(context: PContext): PElement<IElement> {
@@ -100,6 +102,7 @@ export class BizAtomSpec extends BizAtomIDWithBase {
 export class BizAtomIDAny extends BizAtomID {
     static current: BizAtomIDAny = new BizAtomIDAny(undefined);
     readonly bizPhraseType = BizPhraseType.any;
+    protected readonly fields = ['id'];
     name = '*';
     parser(context: PContext): PElement<IElement> { return undefined; }
 

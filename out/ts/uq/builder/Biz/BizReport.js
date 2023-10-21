@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizReport = void 0;
 const il_1 = require("../../il");
-const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
@@ -71,7 +70,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
         selectPage.column(expJsonValues, 'value');
         selectPage.column(new sql_1.ExpField('base', a), 'phrase');
         selectPage
-            .from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.atom, false, a));
+            .from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, a));
         selectPage.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), varPhrase), new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar('pageStart'))));
         selectPage.order(new sql_1.ExpField('id', a), 'asc');
         selectPage.limit(new sql_1.ExpVar('pageSize'));
@@ -112,18 +111,18 @@ class BBizReport extends BizEntity_1.BBizEntity {
             let tbl;
             switch (dataType) {
                 default:
-                    tbl = dbContext_1.EnumSysTable.ixBudInt;
+                    tbl = il_1.EnumSysTable.ixBudInt;
                     break;
                 case il_1.BudDataType.dec:
-                    tbl = dbContext_1.EnumSysTable.ixBudDec;
+                    tbl = il_1.EnumSysTable.ixBudDec;
                     break;
             }
             select.from(new statementWithFrom_1.EntityTable(tbl, false, h));
             select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', h), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', h), new sql_1.ExpNum(bud.id))));
         }
         else {
-            select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.history, false, h))
-                .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, hb))
+            select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.history, false, h))
+                .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, hb))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', hb), new sql_1.ExpField('bud', h)));
             const wheres = [
                 new sql_1.ExpLT(new sql_1.ExpField('id', h), varS1),
@@ -161,7 +160,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
         ];
         let selectPhrase = factory.createSelect();
         selectPhrase.column(new sql_1.ExpField('ext', 'x'));
-        selectPhrase.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, 'x'));
+        selectPhrase.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, 'x'));
         selectPhrase.where(new sql_1.ExpEQ(new sql_1.ExpField('id', 'x'), new sql_1.ExpField('id', 'b')));
         let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1);
         let select = factory.createSelect();
@@ -170,14 +169,14 @@ class BBizReport extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpSelect(selectPhrase));
         select.column(new sql_1.ExpField('base', b));
         select.column(expJsonValues);
-        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.spec, false, a))
-            .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, b))
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, a))
+            .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)))
             .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable('_$page', false, d))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', b)))
-            .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.bud, false, hb))
+            .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, hb))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('base', hb), new sql_1.ExpField('id', a)))
-            .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.history, false, h))
+            .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.history, false, h))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('bud', h), new sql_1.ExpField('id', hb)));
         select.where(new sql_1.ExpAnd(new sql_1.ExpGE(new sql_1.ExpField('id', h), varS0), new sql_1.ExpLT(new sql_1.ExpField('id', h), varS1), new sql_1.ExpEQ(new sql_1.ExpField('base', hb), new sql_1.ExpField('id', a))));
         select.having(new sql_1.ExpGT(new sql_1.ExpFunc(factory.func_count, new sql_1.ExpField('id', h)), sql_1.ExpNum.num0));

@@ -7,8 +7,8 @@ import {
     , ExpSearchCase, ExpOr, ExpGT, ExpFuncCustom, ExpLT, ExpNE, ExpBitAnd, ExpIsNotNull, ExpBitOr
 } from '../sql';
 import { SysProcedures } from './sysProcedures';
-import { charField, idField, Int, intField, JoinType, textField, tinyIntField } from '../../il';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { charField, EnumSysTable, idField, Int, intField, JoinType, textField, tinyIntField } from '../../il';
+import { sysTable } from '../dbContext';
 
 export class RoleProcedures extends SysProcedures {
     build() {

@@ -10,7 +10,7 @@ import { SysProcedures } from './sysProcedures';
 import { bigIntField, BigInt, Int, intField, tinyIntField, Field, JoinType } from '../../il';
 import { settingQueueInSeed } from '../consts';
 import { LockType } from '../sql/select';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { sysTable } from '../dbContext';
 
 //const const_queueInPointer = 'queue_in_pointer';
 
@@ -54,7 +54,7 @@ export class QueueProcedures extends SysProcedures {
         select.column(new ExpFuncCustom(factory.func_unix_timestamp, new ExpField('update_time', a)), 'update_time');
         select.column(new ExpFuncCustom(factory.func_unix_timestamp), 'now');
         // 不管有没有$unit字段，都不需要比较$unit, 按id顺序取message就好了
-        select.from(new EntityTable(EnumSysTable.messageQueue, false, a));
+        select.from(new EntityTable(il.EnumSysTable.messageQueue, false, a));
         select.join(JoinType.join, new EntityTable('$queue_defer', false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)));
         select.where(
@@ -93,7 +93,7 @@ export class QueueProcedures extends SysProcedures {
             select.column(new ExpField(unitFieldName, a));
         }
         select.column(new ExpField('id', a));
-        select.from(new EntityTable(EnumSysTable.messageQueue, hasUnit, a))
+        select.from(new EntityTable(il.EnumSysTable.messageQueue, hasUnit, a))
             .join(JoinType.join, new EntityTable('$queue_defer', false, b))
             .on(new ExpEQ(new ExpField('id', a), new ExpField('id', b)));
         select.where(new ExpAnd(
@@ -126,11 +126,11 @@ export class QueueProcedures extends SysProcedures {
         upsertEnd.cols = cols;
         upsertEnd.keys = keys;
         upsertEnd.select = select;
-        upsertEnd.table = new EntityTable(EnumSysTable.messageQueueEnd, hasUnit);
+        upsertEnd.table = new EntityTable(il.EnumSysTable.messageQueueEnd, hasUnit);
 
         let del = factory.createDelete();
         iff.then(del);
-        let tableMessageQueue = new EntityTable(EnumSysTable.messageQueue, hasUnit);
+        let tableMessageQueue = new EntityTable(il.EnumSysTable.messageQueue, hasUnit);
         del.tables = [tableMessageQueue];
         del.from(tableMessageQueue);
         del.where(new ExpAnd(new ExpEQ(new ExpField('id'), new ExpVar('id'))));
@@ -151,7 +151,7 @@ export class QueueProcedures extends SysProcedures {
         update.cols = [
             { col: 'tries', val: new ExpAdd(new ExpField('tries'), ExpVal.num1) },
         ];
-        update.table = new EntityTable(EnumSysTable.messageQueue, hasUnit);
+        update.table = new EntityTable(il.EnumSysTable.messageQueue, hasUnit);
         update.where = new ExpAnd(new ExpEQ(new ExpField('id'), new ExpVar('id')));
 
         let iff3 = factory.createIf();
@@ -162,7 +162,7 @@ export class QueueProcedures extends SysProcedures {
         upsertFail.cols = cols;
         upsertFail.keys = keys;
         upsertFail.select = select;
-        upsertFail.table = new EntityTable(EnumSysTable.messageQueueFailed, hasUnit);
+        upsertFail.table = new EntityTable(il.EnumSysTable.messageQueueFailed, hasUnit);
 
         iff3.then(del);
         iff3.then(delDefer);
@@ -189,7 +189,7 @@ export class QueueProcedures extends SysProcedures {
         let varMsgId = new ExpVar('msgId');
         let varSyncId = new ExpVar('syncId');
         let varDefer = new ExpVar('defer');
-        let tblUnit = sysTable(EnumSysTable.unit);
+        let tblUnit = sysTable(il.EnumSysTable.unit);
 
         let arr = ['to', 'bus', 'faceName', 'data', 'version', 'stamp'];
         statements.push(p.createTransaction());
@@ -520,7 +520,7 @@ export class QueueProcedures extends SysProcedures {
             select.col(field, field, 'a');
             let field1 = field + '1';
             select.col(field1, field1, 'a');
-            select.from(sysTable(EnumSysTable.unit, 'a'));
+            select.from(sysTable(il.EnumSysTable.unit, 'a'));
             select.where(
                 new ExpEQ(
                     new ExpField('unit', 'a'),
@@ -557,7 +557,7 @@ export class QueueProcedures extends SysProcedures {
 
         let update = factory.createUpdate();
         iff.then(update);
-        update.table = sysTable(EnumSysTable.unit);
+        update.table = sysTable(il.EnumSysTable.unit);
         update.cols = [
             { col: 'start', val: new ExpVar('negStart') },
             { col: 'start1', val: new ExpVar('negStart1') },
@@ -566,7 +566,7 @@ export class QueueProcedures extends SysProcedures {
 
         let del = factory.createDelete();
         iff.then(del);
-        let tblUnit = sysTable(EnumSysTable.unit);
+        let tblUnit = sysTable(il.EnumSysTable.unit);
         del.tables = [tblUnit];
         del.from(tblUnit);
         del.where(new ExpEQ(new ExpField('unit'), expUnit));
@@ -592,7 +592,7 @@ export class QueueProcedures extends SysProcedures {
         select.column(new ExpField('entity', 'c'));
         select.column(new ExpField('key', 'a'));
         select.from(new EntityTable('$modify_queue', hasUnit, 'a'))
-            .join(JoinType.join, sysTable(EnumSysTable.entity, 'b'))
+            .join(JoinType.join, sysTable(il.EnumSysTable.entity, 'b'))
             .on(new ExpEQ(new ExpField('entity', 'a'), new ExpField('id', 'b')));
         select.join(JoinType.join, new VarTable('tbl_entities', 'c'))
             .on(new ExpEQ(new ExpField('name', 'b'), new ExpField('entity', 'c')));
@@ -623,7 +623,7 @@ export class QueueProcedures extends SysProcedures {
         let retSelectMax = factory.createSelect();
         let valMax = ExpVal.num0;
         retSelectMax.column(new ExpFunc(factory.func_ifnull, new ExpField('modifyQueueMax'), valMax), 'max');
-        retSelectMax.from(sysTable(EnumSysTable.unit));
+        retSelectMax.from(sysTable(il.EnumSysTable.unit));
         retSelectMax.where(new ExpEQ(new ExpField('unit'), new ExpVar('$unit')));
         return retSelectMax;
     }
@@ -641,7 +641,7 @@ export class QueueProcedures extends SysProcedures {
         select.column(new ExpField('repeat', 'a'), 'repeat');
         select.column(new ExpField('interval', 'a'), 'interval');
         select.from(new EntityTable('$queue_act', false, 'a'));
-        select.join(JoinType.join, sysTable(EnumSysTable.entity, 'b'))
+        select.join(JoinType.join, sysTable(il.EnumSysTable.entity, 'b'))
             .on(new ExpAnd(
                 new ExpEQ(new ExpField('entity', 'a'), new ExpField('id', 'b')),
                 new ExpEQ(new ExpField('valid', 'b'), ExpNum.num1)

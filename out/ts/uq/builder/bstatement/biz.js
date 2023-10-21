@@ -47,7 +47,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
         function buildUpdatePoke() {
             let updatePoke = factory.createUpdate();
             sqls.push(updatePoke);
-            updatePoke.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.userSite, false);
+            updatePoke.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.userSite, false);
             updatePoke.cols = [
                 { col: 'poke', val: sql_1.ExpNum.num1 },
             ];
@@ -56,7 +56,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
         function buildChangePendFrom() {
             let update = factory.createUpdate();
             sqls.push(update);
-            update.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.pend, false, a);
+            update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a);
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom));
             let cols = update.cols = [];
             let expValueField = new sql_1.ExpField('value', a);
@@ -73,7 +73,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             let del = factory.createDelete();
             sqls.push(del);
             del.tables = [a];
-            del.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.pend, false, a));
+            del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
             del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
             buildUpdatePoke();
         }
@@ -89,7 +89,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             for (let i in sets) {
                 expMids.push(new sql_1.ExpStr(i), context.expVal(sets[i]));
             }
-            update.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.pend, false);
+            update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false);
             update.cols = [
                 { col: 'base', val: new sql_1.ExpNum(pend.id) },
                 { col: 'bin', val: new sql_1.ExpVar(binId) },
@@ -142,14 +142,14 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
         let table;
         switch (dataType) {
             default:
-                table = dbContext_1.EnumSysTable.ixBudInt;
+                table = il_1.EnumSysTable.ixBudInt;
                 buildIxBudIndex();
                 break;
             case il_1.BudDataType.char:
-                table = dbContext_1.EnumSysTable.ixBudStr;
+                table = il_1.EnumSysTable.ixBudStr;
                 break;
             case il_1.BudDataType.dec:
-                table = dbContext_1.EnumSysTable.ixBudDec;
+                table = il_1.EnumSysTable.ixBudDec;
                 break;
         }
         const expSite = new sql_1.ExpVar('$site');
@@ -159,7 +159,7 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
                 return;
             let upsert = factory.createUpsert();
             sqls.push(upsert);
-            upsert.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.ixBud, false);
+            upsert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false);
             const expBud = new sql_1.ExpFuncInUq('bud$id', [expSite, expUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, expValue, expPhraseId], true);
             upsert.keys = [
                 { col: 'i', val: expBud },
@@ -189,7 +189,7 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
             setBudId.equ(vBudId, new sql_1.ExpFuncInUq('bud$id', [varSite, varUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, expObjId, expPhraseId], true));
             let update = factory.createUpdate();
             sqls.push(update);
-            update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.history);
+            update.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.history);
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(vHistory));
             let expPlusMinus;
             switch (setEqu) {

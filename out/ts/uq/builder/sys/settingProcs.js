@@ -93,12 +93,12 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         updateAdmin.cols = [
             { col: 'admin', val: sql_1.ExpNum.num3 }
         ];
-        updateAdmin.table = (0, __1.sysTable)(__1.EnumSysTable.userSite);
+        updateAdmin.table = (0, __1.sysTable)(il.EnumSysTable.userSite);
         updateAdmin.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(vUserSite));
         let select = factory.createSelect();
         statements.push(select);
         select.col('id');
-        select.from((0, __1.sysTable)(__1.EnumSysTable.user));
+        select.from((0, __1.sysTable)(il.EnumSysTable.user));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('$user')));
     }
     // build default site '$$$'
@@ -110,7 +110,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         declare.var(uniqueUnit, new il_1.BigInt());
         const selectUqDocType = factory.createSelect();
         selectUqDocType.col('name');
-        selectUqDocType.from((0, __1.sysTable)(__1.EnumSysTable.setting));
+        selectUqDocType.from((0, __1.sysTable)(il.EnumSysTable.setting));
         selectUqDocType.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('uq-doc-type')), new sql.ExpGE(new sql_1.ExpField('value'), sql_1.ExpNum.num2)));
         let iff = factory.createIf();
         iff.cmp = new sql.ExpExists(selectUqDocType);
@@ -121,7 +121,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         iff.else(selectUniqueUnit);
         selectUniqueUnit.toVar = true;
         selectUniqueUnit.col('value', uniqueUnit);
-        selectUniqueUnit.from((0, __1.sysTable)(__1.EnumSysTable.setting));
+        selectUniqueUnit.from((0, __1.sysTable)(il.EnumSysTable.setting));
         selectUniqueUnit.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('uniqueunit')));
         // 24=第一个在用的unit
         let set24 = factory.createSet();
@@ -130,7 +130,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         let insertUniqueUnit = factory.createInsert();
         iff.else(insertUniqueUnit);
         insertUniqueUnit.ignore = true;
-        insertUniqueUnit.table = (0, __1.sysTable)(__1.EnumSysTable.site);
+        insertUniqueUnit.table = (0, __1.sysTable)(il.EnumSysTable.site);
         insertUniqueUnit.cols = [
             { col: 'id', val: new sql_1.ExpVar(uniqueUnit) },
             { col: 'no', val: new sql_1.ExpStr('$$$') },
@@ -152,14 +152,14 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         upsert.keys = [
             { col: 'tonwauser', val: new sql_1.ExpVar('id') },
         ];
-        upsert.table = (0, __1.sysTable)(__1.EnumSysTable.user);
+        upsert.table = (0, __1.sysTable)(il.EnumSysTable.user);
     }
     initSettingProc(p) {
         let { factory, hasUnit, unitField } = this.context;
         function createInitSetting(keyName, col, val) {
             let insert = factory.createInsert();
             insert.ignore = true;
-            insert.table = (0, __1.sysTable)(__1.EnumSysTable.setting, undefined, hasUnit);
+            insert.table = (0, __1.sysTable)(il.EnumSysTable.setting, undefined, hasUnit);
             insert.cols = [
                 { col: 'name', val: new sql_1.ExpStr(keyName) },
                 { col: col, val: val }
@@ -176,11 +176,11 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         p.statements.push(...createInitSetting(consts_1.settingIDLocalSeed, 'big', sql_1.ExpVal.num0));
         let selectSheetSeed = factory.createSelect();
         selectSheetSeed.column(new sql_1.ExpFunc(factory.func_max, new sql_1.ExpField('id')));
-        // EnumSysTable.sheet 是带$unit字段的。
+        // il.EnumSysTable.sheet 是带$unit字段的。
         // 但是，这里是取全局sheet max id，所以不能带$unit比较
         // 所以，需要改成下面这个语句
-        // selectSheetSeed.from(this.context.sysTable(EnumSysTable.sheet));
-        selectSheetSeed.from((0, __1.sysTable)(__1.EnumSysTable.sheet));
+        // selectSheetSeed.from(this.context.sysTable(il.EnumSysTable.sheet));
+        selectSheetSeed.from((0, __1.sysTable)(il.EnumSysTable.sheet));
         p.statements.push(...createInitSetting(consts_1.settingSheetSeed, 'big', new sql_1.ExpFunc(factory.func_ifnull, new sql_1.ExpSelect(selectSheetSeed), sql_1.ExpVal.num0)));
         p.statements.push(...createInitSetting(consts_1.settingTimezone, 'int', new sql_1.ExpNum(8)));
     }
@@ -209,7 +209,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         iff.cmp = new sql_1.ExpEQ(new sql_1.ExpVar('name'), new sql_1.ExpStr('uniqueunit'));
         let insertUnit = factory.createInsert();
         iff.then(insertUnit);
-        insertUnit.table = (0, __1.sysTable)(__1.EnumSysTable.unit);
+        insertUnit.table = (0, __1.sysTable)(il.EnumSysTable.unit);
         insertUnit.ignore = true;
         insertUnit.cols = [
             { col: 'unit', val: new sql_1.ExpVar('value') }
@@ -238,12 +238,12 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         let factory = this.context.factory;
         let select = factory.createSelect();
         p.statements.push(select);
-        select.from((0, __1.sysTable)(__1.EnumSysTable.const));
+        select.from((0, __1.sysTable)(il.EnumSysTable.const));
         select.column(new sql.ExpField('id')).column(new sql.ExpField('name'));
     }
     constStrProc(p) {
         let param = 'name';
-        const tblConst = (0, __1.sysTable)(__1.EnumSysTable.const);
+        const tblConst = (0, __1.sysTable)(il.EnumSysTable.const);
         let { parameters, statements } = p;
         parameters.push((0, il_1.textField)(param));
         let { factory } = this.context;
@@ -263,7 +263,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         ];
         insert.select = selectNames;
         let taNames = new statementWithFrom_1.VarTable(varTable.name, 'a');
-        let tbConst = (0, __1.sysTable)(__1.EnumSysTable.const, 'b');
+        let tbConst = (0, __1.sysTable)(il.EnumSysTable.const, 'b');
         let selectRet = factory.createSelect();
         statements.push(selectRet);
         selectRet.col('id', undefined, 'b');
@@ -322,7 +322,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         let leave = factory.createBreak();
         ifRoleNull.then(leave);
         leave.no = loop.no;
-        let tblPhrase = (0, __1.sysTable)(__1.EnumSysTable.phrase);
+        let tblPhrase = (0, __1.sysTable)(il.EnumSysTable.phrase);
         let selectRoleId = factory.createSelect();
         lstats.add(selectRoleId);
         selectRoleId.toVar = true;
@@ -338,7 +338,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         /*
         let upsert = factory.createUpsert();
         lstats.add(upsert);
-        upsert.table = sysTable(EnumSysTable.ixPhrase);
+        upsert.table = sysTable(il.EnumSysTable.ixPhrase);
         upsert.keys = [
             { col: 'i', val: new ExpVar(vRoleId) },
             { col: 'x', val: new ExpVar(vPermitId) },
@@ -350,7 +350,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
     }
     savePhrasesProc(p) {
         const param = 'phrases';
-        const tblPhrase = (0, __1.sysTable)(__1.EnumSysTable.phrase);
+        const tblPhrase = (0, __1.sysTable)(il.EnumSysTable.phrase);
         let { parameters, statements } = p;
         parameters.push((0, il_1.textField)(param));
         let { factory } = this.context;
@@ -382,7 +382,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         ];
         updateInvalid.where = new sql_1.ExpEQ(sql_1.ExpNum.num1, sql_1.ExpNum.num1);
         let taNames = new statementWithFrom_1.VarTable(varTable.name, 'a');
-        let tbPhrase = (0, __1.sysTable)(__1.EnumSysTable.phrase, 'b');
+        let tbPhrase = (0, __1.sysTable)(il.EnumSysTable.phrase, 'b');
         // 第一次循环, 保存id
         {
             let setPNameEmpty = factory.createSet();
@@ -505,7 +505,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
             selectName.column(new sql_1.ExpField('name', 'a'), $name);
             selectName.column(new sql_1.ExpField('id', 'b'), $base);
             selectName.from(new statementWithFrom_1.VarTable(varTable.name, 'a'))
-                .join(il_1.JoinType.left, (0, __1.sysTable)(__1.EnumSysTable.phrase, 'b'))
+                .join(il_1.JoinType.left, (0, __1.sysTable)(il.EnumSysTable.phrase, 'b'))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('basename', 'a'), new sql_1.ExpField('name', 'b')));
             selectName.where(new sql_1.ExpGT(new sql_1.ExpField('name', 'a'), new sql_1.ExpVar(pName)));
             selectName.order(new sql_1.ExpField('name', 'a'), 'asc');
@@ -535,7 +535,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         }
         // 生成$ixphrase
         /*
-        const tblIxPhrase = sysTable(EnumSysTable.ixPhrase);
+        const tblIxPhrase = sysTable(il.EnumSysTable.ixPhrase);
         let delIxPhrase = factory.createDelete();
         statements.push(delIxPhrase);
         delIxPhrase.tables = [tblIxPhrase];
@@ -555,8 +555,8 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         selectCTE.column(new ExpField('id', 'a1'), 'x');
         selectCTE.column(new ExpField('type', 'a1'));
         selectCTE.column(new ExpField('base', 'a'));
-        selectCTE.from(sysTable(EnumSysTable.phrase, 'a'))
-            .join(JoinType.join, sysTable(EnumSysTable.phrase, 'a1'))
+        selectCTE.from(sysTable(il.EnumSysTable.phrase, 'a'))
+            .join(JoinType.join, sysTable(il.EnumSysTable.phrase, 'a1'))
             .on(new ExpEQ(new ExpField('owner', 'a1'), new ExpField('id', 'a')))
             .where(new ExpEQ(new ExpField('valid', 'a'), ExpNum.num1));
         let selectCTEUnion = factory.createSelect();
@@ -567,10 +567,10 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         selectCTEUnion.col('id', 'x', 'c1');
         selectCTEUnion.col('type', undefined, 'c1');
         selectCTEUnion.col('base', undefined, 'c');
-        selectCTEUnion.from(sysTable(EnumSysTable.phrase, 'c'))
+        selectCTEUnion.from(sysTable(il.EnumSysTable.phrase, 'c'))
             .join(JoinType.join, new FromVarTable('tbl', 'b'))
             .on(new ExpEQ(new ExpField('id', 'c'), new ExpField('base', 'b')))
-            .join(JoinType.join, sysTable(EnumSysTable.phrase, 'c1'))
+            .join(JoinType.join, sysTable(il.EnumSysTable.phrase, 'c1'))
             .on(new ExpEQ(new ExpField('owner', 'c1'), new ExpField('id', 'c')));
         selectCTEUnion.where(new ExpEQ(new ExpField('valid', 'c'), ExpNum.num1));
         */
@@ -623,7 +623,7 @@ SELECT i, X, TYPE, base FROM tbl;
         selectTzUnit.toVar = true;
         selectTzUnit.lock = select_1.LockType.update;
         selectTzUnit.column(new sql_1.ExpField('timezone'), 'tz');
-        selectTzUnit.from((0, __1.sysTable)(__1.EnumSysTable.unit));
+        selectTzUnit.from((0, __1.sysTable)(il.EnumSysTable.unit));
         selectTzUnit.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar(unitFieldName)));
         let iff = factory.createIf();
         statements.push(iff);
@@ -633,7 +633,7 @@ SELECT i, X, TYPE, base FROM tbl;
         selectTzUser.toVar = true;
         selectTzUser.lock = select_1.LockType.update;
         selectTzUser.column(new sql_1.ExpField('timezone'), 'tzUser');
-        selectTzUser.from((0, __1.sysTable)(__1.EnumSysTable.user));
+        selectTzUser.from((0, __1.sysTable)(il.EnumSysTable.user));
         selectTzUser.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(userParamName))));
         let iffTzUser = factory.createIf();
         iff.then(iffTzUser);
@@ -657,7 +657,7 @@ SELECT i, X, TYPE, base FROM tbl;
         selectTzUnit.toVar = true;
         selectTzUnit.lock = select_1.LockType.update;
         selectTzUnit.column(new sql_1.ExpField('bizmonth'), 'ret');
-        selectTzUnit.from((0, __1.sysTable)(__1.EnumSysTable.unit));
+        selectTzUnit.from((0, __1.sysTable)(il.EnumSysTable.unit));
         selectTzUnit.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar(unitFieldName)));
         let ret = factory.createReturn();
         statements.push(ret);
@@ -675,7 +675,7 @@ SELECT i, X, TYPE, base FROM tbl;
         selectTzUnit.toVar = true;
         selectTzUnit.lock = select_1.LockType.update;
         selectTzUnit.column(new sql_1.ExpField('bizdate'), 'ret');
-        selectTzUnit.from((0, __1.sysTable)(__1.EnumSysTable.unit));
+        selectTzUnit.from((0, __1.sysTable)(il.EnumSysTable.unit));
         selectTzUnit.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar(unitFieldName)));
         let ret = factory.createReturn();
         statements.push(ret);

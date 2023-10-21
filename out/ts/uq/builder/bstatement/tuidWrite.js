@@ -57,7 +57,7 @@ class BTuidWrite extends bstatement_1.BStatement {
                     col: 'tuidVId',
                     val: new sql_1.ExpAdd(varVId, sql_1.ExpVal.num1)
                 }];
-            updateVId.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity);
+            updateVId.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity);
             updateVId.where = new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(tuidEntityDotName));
             return updateVId;
         };

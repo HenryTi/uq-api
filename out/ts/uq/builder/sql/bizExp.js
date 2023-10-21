@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizExp = void 0;
+exports.BBizFieldOperand = exports.BBizExp = void 0;
 const il_1 = require("../../il");
 const exp_1 = require("./exp");
 let bizEpxTblNo = 0;
@@ -95,4 +95,35 @@ class BBizExp {
     }
 }
 exports.BBizExp = BBizExp;
+class BBizFieldOperand extends exp_1.ExpVal {
+    constructor(bizField) {
+        super();
+        this.bizField = bizField;
+    }
+    to(sb) {
+        const { bizBud, fieldName } = this.bizField;
+        if (fieldName) {
+            sb.append('t1.').append(fieldName);
+        }
+        else {
+            let tbl;
+            switch (bizBud.dataType) {
+                default:
+                    tbl = il_1.EnumSysTable.ixBudInt;
+                    break;
+                case il_1.BudDataType.str:
+                case il_1.BudDataType.char:
+                    tbl = il_1.EnumSysTable.ixBudStr;
+                    break;
+                case il_1.BudDataType.dec:
+                    tbl = il_1.EnumSysTable.ixBudDec;
+                    break;
+            }
+            sb.l().append('select value from ').dbName().dot().append(tbl)
+                .append(' where i=t1.id and x=').append(bizBud.id)
+                .r();
+        }
+    }
+}
+exports.BBizFieldOperand = BBizFieldOperand;
 //# sourceMappingURL=bizExp.js.map

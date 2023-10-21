@@ -86,13 +86,6 @@ class PBizBase extends element_1.PElement {
             this.element.caption = this.ts.text;
             this.ts.readToken();
         }
-        /*
-        else {
-            if (jName !== this.element.name) {
-                this.element.caption = jName;
-            }
-        }
-        */
         this.element.setJName(jName);
         this.parseParam();
     }

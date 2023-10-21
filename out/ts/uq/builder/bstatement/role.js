@@ -41,8 +41,8 @@ class BRoleStatement extends bstatement_1.BStatement {
         else {
             let existsSelect = factory.createSelect();
             existsSelect.col('x');
-            existsSelect.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixRole, 'a'))
-                .join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.phrase, 'b'))
+            existsSelect.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.ixRole, 'a'))
+                .join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.phrase, 'b'))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', 'b'), new sql_1.ExpField('x', 'a')));
             existsSelect.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpSelect(this.selectUserUnitId())), new sql_1.ExpOr(...roles.map(v => new sql_1.ExpEQ(new sql_1.ExpField('name', 'b'), this.context.expVal(v))))));
             existsSelect.lock = select_1.LockType.update;
@@ -56,7 +56,7 @@ class BRoleStatement extends bstatement_1.BStatement {
     selectEntity() {
         let select = this.context.factory.createSelect();
         select.col('id');
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('$UserSite')));
         return select;
     }
@@ -66,7 +66,7 @@ class BRoleStatement extends bstatement_1.BStatement {
         if (toVar)
             select.toVar = true;
         select.col('id', toVar);
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite));
         let wheres = [
             new sql_1.ExpEQ(new sql_1.ExpField('site'), this.context.convertExp(valSite)),
             new sql_1.ExpEQ(new sql_1.ExpField('user'), expUser !== null && expUser !== void 0 ? expUser : new sql_1.ExpVar('$user')),
@@ -87,7 +87,7 @@ class BRoleStatement extends bstatement_1.BStatement {
         let { factory } = this.context;
         let insert = factory.createInsert();
         insert.ignore = true;
-        insert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite);
+        insert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite);
         insert.cols = [
             { col: 'id', val: expId !== null && expId !== void 0 ? expId : this.newIdNu() },
             { col: 'site', val: this.context.convertExp(valUnit) },
@@ -101,7 +101,7 @@ class BRoleStatement extends bstatement_1.BStatement {
         let { valSite } = this.istatement;
         let { factory } = this.context;
         let update = factory.createUpdate();
-        update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite);
+        update.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite);
         update.cols = [
             { col: 'admin', val: expAdmin }
         ];
@@ -128,7 +128,7 @@ class BRoleStatement extends bstatement_1.BStatement {
         update.cols = [
             { col: 'addBy', val: new sql_1.ExpVar('$user') }
         ];
-        update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite);
+        update.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite);
         let expOwner = new sql_1.ExpNum(il_1.EnumRole.Admin | il_1.EnumRole.Owner);
         update.where = new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('site'), this.context.expVal(valSite)), new sql_1.ExpEQ(new sql_1.ExpField('user'), new sql_1.ExpVar('user')), new sql_1.ExpNE(new sql_1.ExpBitAnd(new sql_1.ExpField('admin'), expOwner), expOwner));
         return update;
@@ -215,7 +215,7 @@ class BRoleStatement extends bstatement_1.BStatement {
                         let insertIx = factory.createInsert();
                         iff.then(insertIx);
                         insertIx.ignore = true;
-                        insertIx.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixRole);
+                        insertIx.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.ixRole);
                         insertIx.cols = [
                             { col: 'i', val: varRoleUserUnit },
                             { col: 'x', val: new sql_1.ExpFuncInUq('phraseid', [this.context.expVal(role)], true) }
@@ -228,7 +228,7 @@ class BRoleStatement extends bstatement_1.BStatement {
                     for (let role of roles) {
                         let del = factory.createDelete();
                         iff.then(del);
-                        del.tables = [(0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixRole)];
+                        del.tables = [(0, dbContext_1.sysTable)(il_1.EnumSysTable.ixRole)];
                         del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpSelect(this.selectUserUnitId(expUser))), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpFuncInUq('phraseid', [this.context.expVal(role)], true))));
                     }
                 }
@@ -236,7 +236,7 @@ class BRoleStatement extends bstatement_1.BStatement {
             case 'clear':
                 let clear = factory.createDelete();
                 iff.then(clear);
-                clear.tables = [(0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.ixRole)];
+                clear.tables = [(0, dbContext_1.sysTable)(il_1.EnumSysTable.ixRole)];
                 clear.where(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpSelect(this.selectUserUnitId(expUser))));
                 break;
         }
@@ -252,7 +252,7 @@ class BRoleStatement extends bstatement_1.BStatement {
         iff.cmp = new sql_1.ExpAnd(new sql_1.ExpIsNotNull(expAssigned), new sql_1.ExpFunc(factory.func_length, expAssigned));
         let update = factory.createUpdate();
         iff.then(update);
-        update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.userSite);
+        update.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite);
         update.cols = [
             { col: 'assigned', val: expAssigned }
         ];

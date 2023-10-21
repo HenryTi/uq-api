@@ -1,10 +1,10 @@
 import { log } from '../log';
 import * as il from '../il';
 import {
-    Table, Procedure, ExpVal, ExpField, ExpEQ, ExpExists, ExpNot,
+    Table, Procedure, ExpVal, ExpField, ExpEQ, ExpExists,
     ExpNum, ExpVar, Statement, ExpFunc, ExpAnd, ExpIsNotNull, ExpStr,
     ExpSelect, ExpLE, ExpAdd, SqlVarTable, ExpSub, ExpGE, ExpCmp,
-    ExpGT, ExpLT, If, ExpNull, ExpIsNull, Declare, SqlSysTable, While, ExpDecDiv, ExpOr, ColVal, convertExp, ExpFuncInUq
+    ExpGT, ExpLT, If, ExpIsNull, Declare, While, ExpDecDiv, ColVal, convertExp, ExpFuncInUq
 } from './sql';
 import { Factory } from './sql/factory';
 import { unitFieldName, userParamName } from './sql/sqlBuilder';
@@ -12,7 +12,11 @@ import { MsFactory } from './sql/sqlMs';
 import { MyFactory } from './sql/sqlMy';
 import * as stat from './bstatement';
 import * as ent from './entity';
-import { Field, Tuid, Entity, Map, intField, bigIntField, charField, Arr, Int, Char, DateTime, Text, Sheet, IArr, IField, DataType, Expression, JoinType, ValueExpression, CompareExpression } from '../il';
+import {
+    Field, Tuid, Entity, Map, intField, bigIntField, charField
+    , Int, Char, DateTime, Text, Sheet, IArr, IField, DataType, Expression
+    , JoinType, ValueExpression, CompareExpression
+} from '../il';
 import { EntityTable, VarTable, GlobalTable } from './sql/statementWithFrom';
 import { Select, LockType } from './sql/select';
 import { Sqls } from './bstatement';
@@ -174,58 +178,7 @@ export class DbObjs {
     }
 }
 
-export enum EnumSysTable {
-    const = '$const_str',
-    setting = '$setting',
-    entity = '$entity',
-    version = '$version',
-    phrase = '$phrase',
-    site = '$site',
-    // sitePhrase = 'sitephrase',
-    // ixPhrase = '$ixphrase',
-    id_u = '$id_u',
-    id_uu = '$id_uu',
-
-    unit = '$unit',
-    user = '$user',
-    userSite = '$usersite',
-    ixRole = '$ixrole',
-
-    ixState = 'ixstate',
-    atom = 'atom',
-    spec = 'spec',
-    bud = 'bud',
-    ixBud = 'ixbud',
-    ixBudDec = 'ixbuddec',
-    ixBudInt = 'ixbudint',
-    ixBudStr = 'ixbudstr',
-    bizBin = 'bin',
-    bizSheet = 'sheet',
-    bizDetail = 'detail',
-    pend = 'pend',
-    binPend = 'binpend',
-    history = 'history',
-
-    messageQueue = '$message_queue',
-    messageQueueEnd = '$message_queue_end',
-    messageQueueFailed = '$message_queue_failed',
-
-    // obsolete
-    admin = '$admin',
-    sheet = '$sheet',
-    sheetDetail = '$sheet_detail',
-    sheetTo = '$sheet_to',
-    archive = '$archive',
-    archiveFlow = '$archive_flow',
-    flow = '$flow',
-    fromNew = '$from_new',
-    fromNewBad = '$from_new_bad',
-
-    importDataMap = '$import_data_map',
-    importDataSourceEntity = '$import_data_source_entity',
-}
-
-export function sysTable(t: EnumSysTable, alias: string = undefined, hasUnit: boolean = false): EntityTable {
+export function sysTable(t: il.EnumSysTable, alias: string = undefined, hasUnit: boolean = false): EntityTable {
     return new EntityTable(t, hasUnit, alias);
 }
 
@@ -430,7 +383,7 @@ export class DbContext implements il.Builder {
         if (!entity.isOpen) return; // 不能返回[]. 必须在函数外做判断
         let insertModifyQueue = this.factory.createInsert();
         let selectEntity = this.factory.createSelect();
-        selectEntity.from(sysTable(EnumSysTable.entity));
+        selectEntity.from(sysTable(il.EnumSysTable.entity));
         selectEntity.col('id');
         selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr(entity.name)));
         insertModifyQueue.table = new EntityTable('$modify_queue', this.hasUnit);
@@ -444,7 +397,7 @@ export class DbContext implements il.Builder {
             });
         }
         let update = this.factory.createUpdate();
-        update.table = sysTable(EnumSysTable.unit);
+        update.table = sysTable(il.EnumSysTable.unit);
         update.cols = [
             { col: 'modifyQueueMax', val: new ExpFunc(this.factory.func_lastinsertid) }
         ];
@@ -458,7 +411,7 @@ export class DbContext implements il.Builder {
         let insert = this.factory.createInsert();
         iff.then(insert);
         let selectEntity = this.factory.createSelect();
-        selectEntity.from(sysTable(EnumSysTable.entity));
+        selectEntity.from(sysTable(il.EnumSysTable.entity));
         selectEntity.col('id');
         selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr(entity.name)));
         insert.table = new EntityTable('$from_new', this.hasUnit)
@@ -719,7 +672,7 @@ export class DbContext implements il.Builder {
         if (type === 'map') {
             selectExists.col('keyCount', 'a');
             selectExists.from(new EntityTable('$map_pull', this.hasUnit, 'a'))
-                .join(JoinType.join, sysTable(EnumSysTable.entity, 'b'))
+                .join(JoinType.join, sysTable(il.EnumSysTable.entity, 'b'))
                 .on(new ExpEQ(new ExpField('entity', 'a'), new ExpField('id', 'b')));
             selectExists.where(new ExpAnd(
                 new ExpEQ(
@@ -841,7 +794,7 @@ export class DbContext implements il.Builder {
                 ExpVal.num1)
         );
         selectVId.column(colVId, toVar);
-        selectVId.from(sysTable(EnumSysTable.entity));
+        selectVId.from(sysTable(il.EnumSysTable.entity));
         selectVId.where(new ExpEQ(new ExpField('name'), new ExpStr(entDivName)));
         selectVId.lock = LockType.update;
         return selectVId;
@@ -913,7 +866,7 @@ export class DbContext implements il.Builder {
         //let sheet = (this.entity as any).sheet;
         if (sheet !== undefined) {
             let select = factory.createSelect();
-            select.from(sysTable(EnumSysTable.entity));
+            select.from(sysTable(il.EnumSysTable.entity));
             select.toVar = true;
             select.col('id', sheetType);
             select.where(new ExpEQ(new ExpField('name'), new ExpStr(sheet.name)));
@@ -1188,7 +1141,7 @@ export class DbContext implements il.Builder {
         let { factory } = this;
         let selectPhraseId = factory.createSelect();
         selectPhraseId.col('id');
-        selectPhraseId.from(sysTable(EnumSysTable.phrase));
+        selectPhraseId.from(sysTable(il.EnumSysTable.phrase));
         selectPhraseId.where(new ExpEQ(new ExpField('name'), expPhrase));
         return new ExpSelect(selectPhraseId);
     }
@@ -1203,7 +1156,7 @@ export class DbContext implements il.Builder {
         setUser.equ($user, new ExpFuncInUq('$user$id', [var$Unit, var$User, ExpNum.num1, var$User], true));
     }
 
-    sysTable(enumSysTable: EnumSysTable, alias: string = undefined) {
+    sysTable(enumSysTable: il.EnumSysTable, alias: string = undefined) {
         return sysTable(enumSysTable, alias, this.hasUnit);
     }
 }

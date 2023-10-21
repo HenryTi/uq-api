@@ -6,10 +6,17 @@ const space_1 = require("../space");
 const statement_1 = require("../statement");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
-class PBizQuery extends Base_1.PBizBase {
+class PBizQuery extends Base_1.PBizEntity {
 }
 class PBizQueryTable extends PBizQuery {
+    constructor() {
+        super(...arguments);
+        this.keyColl = {};
+    }
     _parse() {
+        if (this.ts.token === tokens_1.Token.VAR) {
+            super.parseHeader();
+        }
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             for (;;) {
@@ -18,7 +25,7 @@ class PBizQueryTable extends PBizQuery {
                     break;
                 }
                 let bud = this.parseSubItem();
-                this.element.params[bud.name] = bud;
+                this.element.params.push(bud);
                 if (this.ts.token === tokens_1.Token.COMMA) {
                     this.ts.readToken();
                     if (this.ts.token === tokens_1.Token.RPARENTHESE) {
@@ -53,6 +60,26 @@ class PBizQueryTable extends PBizQuery {
             }
             else {
                 this.element.from = lastStatement;
+                const { props, from } = this.element;
+                const coll = {};
+                for (let col of from.cols) {
+                    const { caption, bud } = col;
+                    if (caption !== null) {
+                        const { name } = bud;
+                        if (coll[name] === true) {
+                            this.log(`duplicate ${name} in columns`);
+                            ok = false;
+                        }
+                        else {
+                            coll[name] = true;
+                        }
+                        if (this.element.hasParam(name) === true) {
+                            this.log(`column ${name} duplicate with parameter`);
+                            ok = false;
+                        }
+                        props.set(name, bud);
+                    }
+                }
             }
         }
         return ok;
@@ -60,6 +87,10 @@ class PBizQueryTable extends PBizQuery {
 }
 exports.PBizQueryTable = PBizQueryTable;
 class PBizQueryValue extends PBizQuery {
+    constructor() {
+        super(...arguments);
+        this.keyColl = {};
+    }
     _parse() {
         let statements = new il_1.BizQueryValueStatements(undefined);
         statements.level = 0;
@@ -135,7 +166,7 @@ class BizQuerySpace extends space_1.Space {
     _varPointer(name, isField) {
         if (isField === true)
             return;
-        if (this.query.hasName(name) === true) {
+        if (this.query.hasParam(name) === true) {
             return new il_1.VarPointer();
         }
     }

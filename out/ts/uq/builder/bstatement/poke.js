@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BPokeStatement = void 0;
 const bstatement_1 = require("./bstatement");
+const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const dbContext_1 = require("../dbContext");
 class BPokeStatement extends bstatement_1.BStatement {
@@ -11,7 +12,7 @@ class BPokeStatement extends bstatement_1.BStatement {
         let upsert = factory.createUpsert();
         sqls.push(upsert);
         let val = (0, sql_1.convertExp)(this.context, user);
-        upsert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.user);
+        upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.user);
         upsert.keys = [{
                 col: 'id',
                 val,

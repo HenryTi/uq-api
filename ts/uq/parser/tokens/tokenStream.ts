@@ -193,11 +193,11 @@ export class TokenStream {
         return Token[this.token];
     }
 
-    peekToken(): Token {
+    peekToken(): { peekToken: Token; lowerVar: string; } {
         let prevToken: Token = this.prevToken;
         let cur = this.cur;
         let _var = this._var;
-        let lowerVar = this.lowerVar;
+        let savedLowerVar = this.lowerVar;
         let lastP = this.lastP;
         let lastLineNum = this.startLine;
         let lastChatAt = this.startAt;
@@ -206,19 +206,20 @@ export class TokenStream {
         let lineNum = this.line;
         let charAt = this.at;
         this.readToken();
-        let ret = this.token;
+        let peekToken = this.token;
+        let lowerVar = this.lowerVar;
         this.prevToken = prevToken;
         this.lastP = lastP;
         this.startLine = lastLineNum;
         this.startAt = lastChatAt;
         this.token = token;
         this._var = _var;
-        this.lowerVar = lowerVar;
+        this.lowerVar = savedLowerVar;
         this.p = p;
         this.line = lineNum;
         this.at = charAt;
         this.cur = cur;
-        return ret;
+        return { peekToken, lowerVar };
     }
 
     readToken() {

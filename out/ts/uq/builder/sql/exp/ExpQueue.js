@@ -49,7 +49,7 @@ class ExpQueue extends Exp_1.Exp {
         const buildSelectValue = (...selects) => {
             const selectEntity = factory.createSelect();
             selectEntity.col('id');
-            selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+            selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
             selectEntity.where(new exps_1.ExpEQ(new exps_1.ExpField('name'), new exps_1.ExpStr(queue.name)));
             let unionSelect;
             unionSelect = selects[0];

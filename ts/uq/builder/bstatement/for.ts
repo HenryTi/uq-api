@@ -1,7 +1,7 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 import {
-    ForEach, Field, Int, Select, intField, ForArr
+    EnumSysTable, ForEach, Field, Int, intField, ForArr
     , ForSelect, ForQueue, ForListWithVars, bigIntField, tinyIntField, JoinType
 } from '../../il';
 import {
@@ -14,7 +14,7 @@ import {
 } from '../sql';
 import { convertSelect, LockType } from '../sql/select';
 import { EntityTable, VarTable as FromVarTable } from '../sql/statementWithFrom';
-import { DbContext, EnumSysTable, sysTable } from "../dbContext";
+import { DbContext, sysTable } from "../dbContext";
 
 export abstract class BForList extends BStatement {
     readonly forEach: ForEach;

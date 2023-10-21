@@ -408,6 +408,12 @@ class PExpression extends element_1.PElement {
                 this.add(opDollarVar);
                 this.ts.readToken();
                 return;
+            case tokens_1.Token.MOD:
+                this.ts.readToken();
+                let bizField = new Exp.BizFieldOperand();
+                this.context.parseElement(bizField);
+                this.add(bizField);
+                break;
             case tokens_1.Token.DOT:
                 let varOperand = new Exp.VarOperand();
                 varOperand.dotFirst = true;

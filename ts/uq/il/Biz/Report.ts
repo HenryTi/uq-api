@@ -35,8 +35,8 @@ export class ReportList extends BizBud {
 }
 */
 export class BizReport extends BizEntity {
+    protected readonly fields = [];
     readonly bizPhraseType = BizPhraseType.report;
-    // readonly lists: ReportList[] = [];
     readonly titles: ReportTitle[] = [];
     from: BizAtom;
     readonly joins: ReportJoin[] = [];

@@ -1,13 +1,13 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { TuidWrite, BigInt, Tuid } from '../../il';
+import { EnumSysTable, TuidWrite, BigInt, Tuid } from '../../il';
 import {
     ExpVar, SqlEntityTable, convertExp, ExpVal, ExpCmp, ExpAnd, ExpEQ,
     ExpField, ExpNeg, ExpIsNotNull, ExpNE, ExpIsNull, ExpNull, Statement, ExpOr, ExpStr, ExpAdd
 } from '../sql';
 import { LockType } from '../sql/select';
 import { EntityTable } from '../sql/statementWithFrom';
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 
 export class BTuidWrite extends BStatement {
     protected istatement: TuidWrite;

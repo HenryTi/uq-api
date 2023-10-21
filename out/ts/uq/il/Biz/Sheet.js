@@ -10,6 +10,7 @@ const Entity_1 = require("./Entity");
 class BizSheet extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
+        this.fields = ['id', 'no'];
         this.bizPhraseType = Base_1.BizPhraseType.sheet;
         this.details = [];
     }
@@ -37,6 +38,7 @@ exports.BizSheet = BizSheet;
 class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
+        this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
         this.bizPhraseType = Base_1.BizPhraseType.bin;
     }
     parser(context) {
@@ -95,6 +97,7 @@ exports.BizBin = BizBin;
 class BizPend extends Entity_1.BizEntity {
     constructor(biz) {
         super(biz);
+        this.fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
         this.bizPhraseType = Base_1.BizPhraseType.pend;
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {

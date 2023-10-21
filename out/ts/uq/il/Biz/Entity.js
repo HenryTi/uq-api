@@ -33,6 +33,9 @@ class BizEntity extends Base_1.BizBase {
         let bud = this.props.get(name.toLowerCase());
         return (bud === undefined);
     }
+    hasField(fieldName) {
+        return this.fields.includes(fieldName);
+    }
     buildPhrase(prefix) {
         this.phrase = this.name;
     }

@@ -25,7 +25,7 @@ class BQueueStatement extends bstatement_1.BStatement {
             sqls.push(selectEntity);
             selectEntity.toVar = true;
             selectEntity.col('id', queueEntityId);
-            selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+            selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
             selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(queue.name)));
         }
         const { action } = this.istatement;

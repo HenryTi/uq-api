@@ -5,7 +5,6 @@ const bstatement_1 = require("./bstatement");
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const consts_1 = require("../consts");
-const dbContext_1 = require("../dbContext");
 // send email or sms
 class BSendMsgStatement extends bstatement_1.BStatement {
     body(sqls) {
@@ -36,7 +35,7 @@ class BSendMsgStatement extends bstatement_1.BStatement {
         statements.push(...this.context.tableSeed(consts_1.settingQueueSeed, consts_1.settingQueueSeed));
         let content = new sql_1.ExpFunc(factory.func_concat, ...parts);
         let insert = factory.createInsert();
-        insert.table = new sql_1.SqlSysTable(dbContext_1.EnumSysTable.messageQueue);
+        insert.table = new sql_1.SqlSysTable(il_1.EnumSysTable.messageQueue);
         let cols = insert.cols = [
             { col: 'id', val: new sql_1.ExpVar(consts_1.settingQueueSeed) },
             { col: 'action', val: new sql_1.ExpStr(method) },
@@ -86,7 +85,7 @@ class BSendAppStatement extends bstatement_1.BStatement {
     singleFoot(sqls) {
         let { factory, hasUnit } = this.context;
         let insert = factory.createInsert();
-        insert.table = new sql_1.SqlSysTable(dbContext_1.EnumSysTable.messageQueue);
+        insert.table = new sql_1.SqlSysTable(il_1.EnumSysTable.messageQueue);
         let cols = insert.cols = [
             { col: 'id', val: new sql_1.ExpVar(consts_1.settingQueueSeed) },
             { col: 'action', val: new sql_1.ExpStr('app') },

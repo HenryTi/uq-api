@@ -98,4 +98,20 @@ class BizEntityPointer extends Pointer {
     }
 }
 exports.BizEntityPointer = BizEntityPointer;
+/*
+export class BizFieldPointer extends Pointer {
+    readonly groupType: GroupType = GroupType.Single;
+    readonly entity: BizEntity;
+    readonly bud: BizBud;
+    constructor(entity: BizEntity, bud: BizBud) {
+        super();
+        this.entity = entity;
+        this.bud = bud;
+    }
+
+    override to(stack: Stack, v: VarOperand): void {
+        stack.var(this.entity.name); //, this.bud.name);
+    }
+}
+*/
 //# sourceMappingURL=pointer.js.map

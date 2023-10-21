@@ -1,9 +1,8 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { BusStatement, BusAction, ValueExpression, FaceDataType } from "../../il";
-import { ExpVar, ExpVal, ExpFunc, ExpStr, convertExp, SqlSysTable, ExpAdd, ExpNum, ExpFuncCustom } from "../sql";
+import { EnumSysTable, BusStatement, BusAction, ValueExpression, FaceDataType } from "../../il";
+import { ExpVar, ExpVal, ExpFunc, ExpStr, convertExp, SqlSysTable, ExpNum, ExpFuncCustom } from "../sql";
 import { settingQueueSeed } from '../consts';
-import { EnumSysTable } from "../dbContext";
 
 export class BBusStatement extends BStatement {
     protected istatement: BusStatement;

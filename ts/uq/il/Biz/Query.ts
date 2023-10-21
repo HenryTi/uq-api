@@ -1,24 +1,28 @@
+import { BBizEntity, DbContext } from "../../builder";
+import { BBizQuery } from "../../builder/Biz/BizQuery";
 import { PContext, PElement } from "../../parser";
 import { PBizQueryTable, PBizQueryTableStatements, PBizQueryValue, PBizQueryValueStatements } from "../../parser";
 import { Builder } from "../builder";
 import { IElement } from "../element";
 import { FromStatement, Statements } from "../statement";
-import { BizBase, BizPhraseType } from "./Base";
+import { BizPhraseType } from "./Base";
 import { BizBudValue } from "./Bud";
+import { BizEntity } from "./Entity";
 
-export abstract class BizQuery extends BizBase {
+export abstract class BizQuery extends BizEntity {
     readonly bizPhraseType = BizPhraseType.query;
     statement: Statements;
-    abstract hasName(name: string): boolean;
+    abstract hasParam(name: string): boolean;
 }
 
 export class BizQueryValue extends BizQuery {
+    protected readonly fields = [];
     on: string[];
     get type() { return 'queryvalue'; }
     parser(context: PContext): PElement<IElement> {
         return new PBizQueryValue(this, context);
     }
-    hasName(name: string): boolean {
+    hasParam(name: string): boolean {
         if (this.on === undefined) return false;
         return this.on.includes(name);
     }
@@ -34,14 +38,19 @@ export class BizQueryValueStatements extends Statements {
 }
 
 export class BizQueryTable extends BizQuery {
-    readonly params: { [name: string]: BizBudValue } = {};
+    protected readonly fields = [];
+    readonly params: BizBudValue[] = [];
     from: FromStatement;
-    get type() { return 'queryvalue'; }
+    get type() { return 'query'; }
     parser(context: PContext): PElement<IElement> {
         return new PBizQueryTable(this, context);
     }
-    hasName(name: string): boolean {
-        return this.params[name] !== undefined;
+    hasParam(name: string): boolean {
+        let index = this.params.findIndex(v => v.name === name);
+        return index >= 0;
+    }
+    db(dbContext: DbContext): BBizEntity {
+        return new BBizQuery(dbContext, this);
     }
 }
 

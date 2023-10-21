@@ -4,3 +4,4 @@ export * from './BizAtom';
 export * from './BizSheet';
 export * from './BizReport';
 export * from './BizPick';
+export * from './BizQuery';

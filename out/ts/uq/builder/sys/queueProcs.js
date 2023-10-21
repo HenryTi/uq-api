@@ -45,7 +45,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         select.column(new sql_1.ExpFuncCustom(factory.func_unix_timestamp, new sql_1.ExpField('update_time', a)), 'update_time');
         select.column(new sql_1.ExpFuncCustom(factory.func_unix_timestamp), 'now');
         // 不管有没有$unit字段，都不需要比较$unit, 按id顺序取message就好了
-        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.messageQueue, false, a));
+        select.from(new statementWithFrom_1.EntityTable(il.EnumSysTable.messageQueue, false, a));
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('$queue_defer', false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('defer', b), new sql_1.ExpVar('defer')), new sql_1.ExpGT(new sql_1.ExpField('id', b), new sql_1.ExpVar('start'))));
@@ -73,7 +73,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
             select.column(new sql_1.ExpField(unitFieldName, a));
         }
         select.column(new sql_1.ExpField('id', a));
-        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.messageQueue, hasUnit, a))
+        select.from(new statementWithFrom_1.EntityTable(il.EnumSysTable.messageQueue, hasUnit, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('$queue_defer', false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpVar('id')), new sql_1.ExpEQ(new sql_1.ExpField('defer', b), new sql_1.ExpVar('defer'))));
@@ -101,10 +101,10 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         upsertEnd.cols = cols;
         upsertEnd.keys = keys;
         upsertEnd.select = select;
-        upsertEnd.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.messageQueueEnd, hasUnit);
+        upsertEnd.table = new statementWithFrom_1.EntityTable(il.EnumSysTable.messageQueueEnd, hasUnit);
         let del = factory.createDelete();
         iff.then(del);
-        let tableMessageQueue = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.messageQueue, hasUnit);
+        let tableMessageQueue = new statementWithFrom_1.EntityTable(il.EnumSysTable.messageQueue, hasUnit);
         del.tables = [tableMessageQueue];
         del.from(tableMessageQueue);
         del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('id'))));
@@ -122,7 +122,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         update.cols = [
             { col: 'tries', val: new sql_1.ExpAdd(new sql_1.ExpField('tries'), sql_1.ExpVal.num1) },
         ];
-        update.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.messageQueue, hasUnit);
+        update.table = new statementWithFrom_1.EntityTable(il.EnumSysTable.messageQueue, hasUnit);
         update.where = new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('id')));
         let iff3 = factory.createIf();
         iff2.else(iff3);
@@ -132,7 +132,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         upsertFail.cols = cols;
         upsertFail.keys = keys;
         upsertFail.select = select;
-        upsertFail.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.messageQueueFailed, hasUnit);
+        upsertFail.table = new statementWithFrom_1.EntityTable(il.EnumSysTable.messageQueueFailed, hasUnit);
         iff3.then(del);
         iff3.then(delDefer);
         stats.push(p.createCommit());
@@ -146,7 +146,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         let varMsgId = new sql_1.ExpVar('msgId');
         let varSyncId = new sql_1.ExpVar('syncId');
         let varDefer = new sql_1.ExpVar('defer');
-        let tblUnit = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit);
+        let tblUnit = (0, dbContext_1.sysTable)(il.EnumSysTable.unit);
         let arr = ['to', 'bus', 'faceName', 'data', 'version', 'stamp'];
         statements.push(p.createTransaction());
         function createSelectSyncId() {
@@ -394,7 +394,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
             select.col(field, field, 'a');
             let field1 = field + '1';
             select.col(field1, field1, 'a');
-            select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit, 'a'));
+            select.from((0, dbContext_1.sysTable)(il.EnumSysTable.unit, 'a'));
             select.where(new sql_1.ExpEQ(new sql_1.ExpField('unit', 'a'), neg === true ? new sql_1.ExpNeg(expUnit) : expUnit));
             select.lock = select_1.LockType.update;
             return select;
@@ -415,7 +415,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         log.content = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('start='), new sql_1.ExpVar('start'), new sql_1.ExpStr('\\n'), new sql_1.ExpStr('start1='), new sql_1.ExpVar('start1'), new sql_1.ExpStr('\\n'), new sql_1.ExpStr('-start='), new sql_1.ExpVar('negStart'), new sql_1.ExpStr('\\n'), new sql_1.ExpStr('-start1='), new sql_1.ExpVar('negStart1'), new sql_1.ExpStr('\\n'));
         let update = factory.createUpdate();
         iff.then(update);
-        update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit);
+        update.table = (0, dbContext_1.sysTable)(il.EnumSysTable.unit);
         update.cols = [
             { col: 'start', val: new sql_1.ExpVar('negStart') },
             { col: 'start1', val: new sql_1.ExpVar('negStart1') },
@@ -423,7 +423,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         update.where = new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpNeg(expUnit));
         let del = factory.createDelete();
         iff.then(del);
-        let tblUnit = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit);
+        let tblUnit = (0, dbContext_1.sysTable)(il.EnumSysTable.unit);
         del.tables = [tblUnit];
         del.from(tblUnit);
         del.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), expUnit));
@@ -444,7 +444,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         select.column(new sql_1.ExpField('entity', 'c'));
         select.column(new sql_1.ExpField('key', 'a'));
         select.from(new statementWithFrom_1.EntityTable('$modify_queue', hasUnit, 'a'))
-            .join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'b'))
+            .join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il.EnumSysTable.entity, 'b'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('entity', 'a'), new sql_1.ExpField('id', 'b')));
         select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable('tbl_entities', 'c'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('name', 'b'), new sql_1.ExpField('entity', 'c')));
@@ -471,7 +471,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         let retSelectMax = factory.createSelect();
         let valMax = sql_1.ExpVal.num0;
         retSelectMax.column(new sql_1.ExpFunc(factory.func_ifnull, new sql_1.ExpField('modifyQueueMax'), valMax), 'max');
-        retSelectMax.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit));
+        retSelectMax.from((0, dbContext_1.sysTable)(il.EnumSysTable.unit));
         retSelectMax.where(new sql_1.ExpEQ(new sql_1.ExpField('unit'), new sql_1.ExpVar('$unit')));
         return retSelectMax;
     }
@@ -488,7 +488,7 @@ class QueueProcedures extends sysProcedures_1.SysProcedures {
         select.column(new sql_1.ExpField('repeat', 'a'), 'repeat');
         select.column(new sql_1.ExpField('interval', 'a'), 'interval');
         select.from(new statementWithFrom_1.EntityTable('$queue_act', false, 'a'));
-        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'b'))
+        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il.EnumSysTable.entity, 'b'))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('entity', 'a'), new sql_1.ExpField('id', 'b')), new sql_1.ExpEQ(new sql_1.ExpField('valid', 'b'), sql_1.ExpNum.num1)));
         let wheres = [
             new sql_1.ExpLE(new sql_1.ExpField('exec_time', 'a'), new sql_1.ExpFuncCustom(factory.func_current_timestamp)),

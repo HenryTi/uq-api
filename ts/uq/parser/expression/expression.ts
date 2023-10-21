@@ -419,6 +419,12 @@ export abstract class PExpression extends PElement {
                 this.add(opDollarVar);
                 this.ts.readToken();
                 return;
+            case Token.MOD:
+                this.ts.readToken();
+                let bizField = new Exp.BizFieldOperand();
+                this.context.parseElement(bizField);
+                this.add(bizField);
+                break;
             case Token.DOT:
                 let varOperand = new Exp.VarOperand();
                 varOperand.dotFirst = true;

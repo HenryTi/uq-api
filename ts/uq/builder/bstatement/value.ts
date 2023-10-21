@@ -1,9 +1,9 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { Char, JoinType, Text, ValueStatement, ValueXi } from '../../il';
+import { EnumSysTable, Char, JoinType, Text, ValueStatement, ValueXi } from '../../il';
 import { ExpVal, ExpVar, ExpAtVar, ExpEQ, ExpField, ExpStr, ExpFunc, convertExp } from '../sql';
 import { EntityTable } from "../sql/statementWithFrom";
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 
 export class BValueStatement extends BStatement<ValueStatement> {
     head(sqls: Sqls) {

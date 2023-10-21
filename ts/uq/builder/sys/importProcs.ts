@@ -1,10 +1,14 @@
 import * as sql from '../sql';
 import { SysProcedures } from './sysProcedures';
-import { charField, bigIntField, BigInt, ID, intField, Field, JoinType } from '../../il';
-import { ExpField, ExpEQ, ExpAnd, ExpVar, ExpIsNull, SqlEntityTable, ExpFunc, ExpIsNotNull, ExpStr, ExpAdd, ExpNum, ExpVal } from '../sql';
+import { EnumSysTable, charField, bigIntField, intField, JoinType } from '../../il';
+import {
+    ExpField, ExpEQ, ExpAnd, ExpVar, ExpIsNull
+    , SqlEntityTable, ExpFunc, ExpIsNotNull, ExpStr
+    , ExpAdd, ExpVal
+} from '../sql';
 import { EntityTable } from '../sql/statementWithFrom';
 import { LockType } from '../sql/select';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { sysTable } from '../dbContext';
 
 export class ImportProcedures extends SysProcedures {
     build() {

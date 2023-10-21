@@ -2,9 +2,9 @@ import {
     ID, Index, BigInt, tinyIntField, bigIntField
     , intField, charField, textField, Text, EnumRole, SmallInt
 } from "../../il";
-import { EnumIdType } from "../../il";
+import { EnumIdType, EnumSysTable } from "../../il";
 import { minteIdOf2020_01_01 } from "../consts";
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 import {
     ExpDatePart, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGE, ExpGT, ExpIsNull, ExpNum
     , ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement, ExpFuncCustom

@@ -1,12 +1,11 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { SendMsgStatement, SendAppStatement, Text } from "../../il";
+import { EnumSysTable, SendMsgStatement, SendAppStatement, Text } from "../../il";
 import {
     ExpVal, convertExp, ExpStr, ExpNum, SqlSysTable
     , ExpVar, ExpAdd, ExpEQ, ExpFunc, ExpFuncCustom, Statement as SqlStatement
 } from "../sql";
 import { settingQueueSeed } from "../consts";
-import { EnumSysTable } from "../dbContext";
 
 // send email or sms
 export class BSendMsgStatement extends BStatement {

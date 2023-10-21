@@ -8,6 +8,7 @@ import { BizQueryTable } from "./Query";
 
 export class BizPick extends BizEntity {
     readonly bizPhraseType = BizPhraseType.pick;
+    protected readonly fields = [];
     readonly atoms: BizAtom[] = [];
     specs: BizAtomSpec[] = [];
     query: BizQueryTable;

@@ -4,9 +4,9 @@ import { EntityTable, VarTable } from '../sql/statementWithFrom';
 import { ExpEQ, ExpField, ExpVar, ExpExists, ExpNot, ExpAnd, ExpStr, ExpCmp, ExpAdd, ExpVal, ExpLT, ExpNeg, ExpNum } from '../sql';
 import * as il from '../../il';
 import { SysProcedures } from './sysProcedures';
-import { BigInt, JoinType } from '../../il';
+import { BigInt, JoinType, EnumSysTable } from '../../il';
 import { settingQueueSeed, settingSheetSeed } from '../consts';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { sysTable } from '../dbContext';
 
 export const sheetFields = ['id', 'no', 'user', 'date', 'sheet', 'version', 'flow', 'discription', 'processing'];
 export const archiveFields = sheetFields.slice(0, sheetFields.length - 1);

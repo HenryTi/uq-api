@@ -32,8 +32,8 @@ class ImportProcedures extends sysProcedures_1.SysProcedures {
         stats.push(selectVid);
         selectVid.toVar = true;
         selectVid.column(new sql_1.ExpField('id', 'a'), 'vid');
-        selectVid.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.importDataMap, hasUnit, 'a'))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.importDataSourceEntity, hasUnit, 'b'))
+        selectVid.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.importDataMap, hasUnit, 'a'))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.importDataSourceEntity, hasUnit, 'b'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('source_entity', 'a'), new sql_1.ExpField('id', 'b')));
         selectVid.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('no', 'a'), new sql_1.ExpVar('no')), new sql_1.ExpEQ(new sql_1.ExpField('source', 'b'), new sql_1.ExpVar('source')), new sql_1.ExpEQ(new sql_1.ExpField('entity', 'b'), new sql_1.ExpVar('entityDiv'))));
         let ifVid = factory.createIf();
@@ -48,7 +48,7 @@ class ImportProcedures extends sysProcedures_1.SysProcedures {
         selectTuidVid.toVar = true;
         selectTuidVid.col('id', 'tuidType');
         selectTuidVid.col('tuidVId', 'vid');
-        selectTuidVid.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectTuidVid.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectTuidVid.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('entityDiv')));
         selectTuidVid.lock = select_1.LockType.update;
         let ifEntityVid = factory.createIf();
@@ -70,7 +70,7 @@ class ImportProcedures extends sysProcedures_1.SysProcedures {
         ifVid.then(selectSourceEntity);
         selectSourceEntity.toVar = true;
         selectSourceEntity.col('id', 'sourceEntityId');
-        selectSourceEntity.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.importDataSourceEntity, hasUnit));
+        selectSourceEntity.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.importDataSourceEntity, hasUnit));
         selectSourceEntity.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('source'), new sql_1.ExpVar('source')), new sql_1.ExpEQ(new sql_1.ExpField('entity'), new sql_1.ExpVar('entity'))));
         selectSourceEntity.lock = select_1.LockType.update;
         let iffSource = factory.createIf();
@@ -78,7 +78,7 @@ class ImportProcedures extends sysProcedures_1.SysProcedures {
         iffSource.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar('sourceEntityId'));
         let insertSourceEntity = factory.createInsert();
         iffSource.then(insertSourceEntity);
-        insertSourceEntity.table = new sql_1.SqlEntityTable(dbContext_1.EnumSysTable.importDataSourceEntity, undefined, hasUnit);
+        insertSourceEntity.table = new sql_1.SqlEntityTable(il_1.EnumSysTable.importDataSourceEntity, undefined, hasUnit);
         insertSourceEntity.cols = [
             { col: 'source', val: new sql_1.ExpVar('source') },
             { col: 'entity', val: new sql_1.ExpVar('entity') }
@@ -88,7 +88,7 @@ class ImportProcedures extends sysProcedures_1.SysProcedures {
         setSourceEntity.equ('sourceEntityId', new sql_1.ExpFunc(factory.func_lastinsertid));
         let insertMap = factory.createInsert();
         ifVid.then(insertMap);
-        insertMap.table = new sql_1.SqlEntityTable(dbContext_1.EnumSysTable.importDataMap, undefined, hasUnit);
+        insertMap.table = new sql_1.SqlEntityTable(il_1.EnumSysTable.importDataMap, undefined, hasUnit);
         insertMap.cols = [
             { col: 'source_entity', val: new sql_1.ExpVar('sourceEntityId') },
             { col: 'no', val: new sql_1.ExpVar('no') },

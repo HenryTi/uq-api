@@ -2,7 +2,7 @@ import * as sql from '../sql';
 import { EntityTable, VarTable } from '../sql/statementWithFrom';
 import * as il from '../../il';
 import { SheetProcedures } from './sheetProcs';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { sysTable } from '../dbContext';
 
 export class ArchiveProcedures extends SheetProcedures {
     build() {
@@ -136,7 +136,7 @@ export class ArchiveProcedures extends SheetProcedures {
         ));
         let selectSheet = factory.createSelect();
         selectSheet.column(new sql.ExpField('id'));
-        selectSheet.from(sysTable(EnumSysTable.entity));
+        selectSheet.from(sysTable(il.EnumSysTable.entity));
         selectSheet.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(schemaName.name)));
         wheres.push(new sql.ExpEQ(new sql.ExpField('sheet', ta),
             new sql.ExpSelect(selectSheet),

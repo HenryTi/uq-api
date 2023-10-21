@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DbContext = exports.sysTable = exports.EnumSysTable = exports.DbObjs = exports.createFactory = exports.max_promises_uq_api = void 0;
+exports.DbContext = exports.sysTable = exports.DbObjs = exports.createFactory = exports.max_promises_uq_api = void 0;
 const il = require("../il");
 const sql_1 = require("./sql");
 const sqlBuilder_1 = require("./sql/sqlBuilder");
@@ -150,52 +150,6 @@ class DbObjs {
     }
 }
 exports.DbObjs = DbObjs;
-var EnumSysTable;
-(function (EnumSysTable) {
-    EnumSysTable["const"] = "$const_str";
-    EnumSysTable["setting"] = "$setting";
-    EnumSysTable["entity"] = "$entity";
-    EnumSysTable["version"] = "$version";
-    EnumSysTable["phrase"] = "$phrase";
-    EnumSysTable["site"] = "$site";
-    // sitePhrase = 'sitephrase',
-    // ixPhrase = '$ixphrase',
-    EnumSysTable["id_u"] = "$id_u";
-    EnumSysTable["id_uu"] = "$id_uu";
-    EnumSysTable["unit"] = "$unit";
-    EnumSysTable["user"] = "$user";
-    EnumSysTable["userSite"] = "$usersite";
-    EnumSysTable["ixRole"] = "$ixrole";
-    EnumSysTable["ixState"] = "ixstate";
-    EnumSysTable["atom"] = "atom";
-    EnumSysTable["spec"] = "spec";
-    EnumSysTable["bud"] = "bud";
-    EnumSysTable["ixBud"] = "ixbud";
-    EnumSysTable["ixBudDec"] = "ixbuddec";
-    EnumSysTable["ixBudInt"] = "ixbudint";
-    EnumSysTable["ixBudStr"] = "ixbudstr";
-    EnumSysTable["bizBin"] = "bin";
-    EnumSysTable["bizSheet"] = "sheet";
-    EnumSysTable["bizDetail"] = "detail";
-    EnumSysTable["pend"] = "pend";
-    EnumSysTable["binPend"] = "binpend";
-    EnumSysTable["history"] = "history";
-    EnumSysTable["messageQueue"] = "$message_queue";
-    EnumSysTable["messageQueueEnd"] = "$message_queue_end";
-    EnumSysTable["messageQueueFailed"] = "$message_queue_failed";
-    // obsolete
-    EnumSysTable["admin"] = "$admin";
-    EnumSysTable["sheet"] = "$sheet";
-    EnumSysTable["sheetDetail"] = "$sheet_detail";
-    EnumSysTable["sheetTo"] = "$sheet_to";
-    EnumSysTable["archive"] = "$archive";
-    EnumSysTable["archiveFlow"] = "$archive_flow";
-    EnumSysTable["flow"] = "$flow";
-    EnumSysTable["fromNew"] = "$from_new";
-    EnumSysTable["fromNewBad"] = "$from_new_bad";
-    EnumSysTable["importDataMap"] = "$import_data_map";
-    EnumSysTable["importDataSourceEntity"] = "$import_data_source_entity";
-})(EnumSysTable = exports.EnumSysTable || (exports.EnumSysTable = {}));
 function sysTable(t, alias = undefined, hasUnit = false) {
     return new statementWithFrom_1.EntityTable(t, hasUnit, alias);
 }
@@ -371,7 +325,7 @@ class DbContext {
             return; // 不能返回[]. 必须在函数外做判断
         let insertModifyQueue = this.factory.createInsert();
         let selectEntity = this.factory.createSelect();
-        selectEntity.from(sysTable(EnumSysTable.entity));
+        selectEntity.from(sysTable(il.EnumSysTable.entity));
         selectEntity.col('id');
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(entity.name)));
         insertModifyQueue.table = new statementWithFrom_1.EntityTable('$modify_queue', this.hasUnit);
@@ -385,7 +339,7 @@ class DbContext {
             });
         }
         let update = this.factory.createUpdate();
-        update.table = sysTable(EnumSysTable.unit);
+        update.table = sysTable(il.EnumSysTable.unit);
         update.cols = [
             { col: 'modifyQueueMax', val: new sql_1.ExpFunc(this.factory.func_lastinsertid) }
         ];
@@ -398,7 +352,7 @@ class DbContext {
         let insert = this.factory.createInsert();
         iff.then(insert);
         let selectEntity = this.factory.createSelect();
-        selectEntity.from(sysTable(EnumSysTable.entity));
+        selectEntity.from(sysTable(il.EnumSysTable.entity));
         selectEntity.col('id');
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(entity.name)));
         insert.table = new statementWithFrom_1.EntityTable('$from_new', this.hasUnit);
@@ -626,7 +580,7 @@ class DbContext {
         if (type === 'map') {
             selectExists.col('keyCount', 'a');
             selectExists.from(new statementWithFrom_1.EntityTable('$map_pull', this.hasUnit, 'a'))
-                .join(il_1.JoinType.join, sysTable(EnumSysTable.entity, 'b'))
+                .join(il_1.JoinType.join, sysTable(il.EnumSysTable.entity, 'b'))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('entity', 'a'), new sql_1.ExpField('id', 'b')));
             selectExists.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('keys', 'a'), new sql_1.ExpFunc(factory.func_substring_index, new sql_1.ExpVar(key.name), new sql_1.ExpStr('\\t'), new sql_1.ExpField('keyCount', 'a'))), new sql_1.ExpEQ(new sql_1.ExpField('name', 'b'), new sql_1.ExpVar('entity'))));
         }
@@ -718,7 +672,7 @@ class DbContext {
         selectSeed.lock = select_1.LockType.none;
         let colVId = new sql_1.ExpFunc(this.factory.func_greatest, new sql_1.ExpFunc(this.factory.func_ifnull, new sql_1.ExpSelect(selectSeed), sql_1.ExpVal.num1), new sql_1.ExpFunc(this.factory.func_ifnull, new sql_1.ExpField('tuidVId'), sql_1.ExpVal.num1));
         selectVId.column(colVId, toVar);
-        selectVId.from(sysTable(EnumSysTable.entity));
+        selectVId.from(sysTable(il.EnumSysTable.entity));
         selectVId.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(entDivName)));
         selectVId.lock = select_1.LockType.update;
         return selectVId;
@@ -775,7 +729,7 @@ class DbContext {
         //let sheet = (this.entity as any).sheet;
         if (sheet !== undefined) {
             let select = factory.createSelect();
-            select.from(sysTable(EnumSysTable.entity));
+            select.from(sysTable(il.EnumSysTable.entity));
             select.toVar = true;
             select.col('id', sheetType);
             select.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(sheet.name)));
@@ -1017,7 +971,7 @@ class DbContext {
         let { factory } = this;
         let selectPhraseId = factory.createSelect();
         selectPhraseId.col('id');
-        selectPhraseId.from(sysTable(EnumSysTable.phrase));
+        selectPhraseId.from(sysTable(il.EnumSysTable.phrase));
         selectPhraseId.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), expPhrase));
         return new sql_1.ExpSelect(selectPhraseId);
     }

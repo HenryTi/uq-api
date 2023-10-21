@@ -5,6 +5,7 @@ import { BizEntity } from "./Entity";
 
 export class BizTie extends BizEntity {
     readonly bizPhraseType = BizPhraseType.tie;
+    protected fields = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizTie(this, context);

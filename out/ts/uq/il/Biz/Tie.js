@@ -8,6 +8,7 @@ class BizTie extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.tie;
+        this.fields = [];
     }
     parser(context) {
         return new parser_1.PBizTie(this, context);

@@ -38,7 +38,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         let selectEntity = factory.createSelect();
         statements.push(selectEntity);
         selectEntity.toVar = true;
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectEntity.col('id', 'entityId');
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('entity')));
         let select = factory.createSelect();
@@ -78,7 +78,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         statements.push(factory.createTransaction());
         let selectSyncs = factory.createSelect();
         statements.push(selectSyncs);
-        selectSyncs.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit, 'a'));
+        selectSyncs.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.unit, 'a'));
         selectSyncs.column(new sql_1.ExpField('unit', 'a'), 'unit');
         selectSyncs.column(new sql_1.ExpField('syncId', 'a'), 'maxId');
         selectSyncs.column(new sql_1.ExpField('syncId1', 'a'), 'maxId1');
@@ -101,7 +101,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
             select.column(new sql_1.ExpFuncCustom(factory.func_unix_timestamp, new sql_1.ExpField('update_time')), 'update_time');
         select.column(new sql_1.ExpFuncCustom(factory.func_unix_timestamp), 'now');
         select.from(new statementWithFrom_1.EntityTable('$from_new', false, 'a'));
-        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'b'))
+        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity, 'b'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('entity', 'a'), new sql_1.ExpField('id', 'b')));
         select.order(new sql_1.ExpField('id', 'a'), 'asc');
         select.limit(new sql_1.ExpNum(100));
@@ -139,7 +139,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         select.lock = select_1.LockType.update;
         let insert = factory.createInsert();
         iffBad.then(insert);
-        insert.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.fromNewBad, hasUnit);
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fromNewBad, hasUnit);
         insert.select = select;
         insert.cols = [
             { col: 'id', val: undefined },
@@ -166,19 +166,19 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         select.column(new sql_1.ExpField('modifyMax', 'b'));
         if (hasUnit === true) {
             select.column(new sql_1.ExpField('unit', 'a'));
-            select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit, 'a'))
-                .join(il_1.JoinType.cross, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'c'))
+            select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.unit, 'a'))
+                .join(il_1.JoinType.cross, (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity, 'c'))
                 .on(new sql_1.ExpIsNotNull(new sql_1.ExpField('from', 'c')))
                 .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable('$sync_from', false, 'b'))
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('unit', 'a'), new sql_1.ExpField('$unit', 'b')), new sql_1.ExpEQ(new sql_1.ExpField('id', 'c'), new sql_1.ExpField('entity', 'b'))));
         }
         else {
-            select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'c'))
+            select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity, 'c'))
                 .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable('$sync_from', false, 'b'))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', 'c'), new sql_1.ExpField('entity', 'b')));
         }
         let selectTypes = factory.createSelect();
-        selectTypes.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+        selectTypes.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
         selectTypes.col('id');
         selectTypes.where(new sql_1.ExpIn(new sql_1.ExpField('name'), new sql_1.ExpStr('tuid'), new sql_1.ExpStr('map')));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('valid', 'c'), sql_1.ExpVal.num1), new sql_1.ExpIn(new sql_1.ExpField('type', 'c'), new sql_1.ExpSelect(selectTypes))));
@@ -196,7 +196,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         ];
         let selectEntity = factory.createSelect();
         selectEntity.col('id');
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('entity')));
         upsert.keys = [
             { col: 'entity', val: new sql_1.ExpSelect(selectEntity) }
@@ -237,7 +237,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         setPC.equ('c', new sql_1.ExpAdd(new sql_1.ExpVar('len'), sql_1.ExpVal.num1));
         let updateValid = factory.createUpdate();
         loop.statements.add(updateValid);
-        updateValid.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity);
+        updateValid.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity);
         updateValid.cols.push({
             col: 'valid',
             val: new sql_1.ExpVar('valid')
@@ -258,7 +258,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         let { factory, hasUnit } = this.context;
         let select = factory.createSelect();
         p.statements.push(select);
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         select.column(new sql.ExpField('id'))
             .column(new sql.ExpField('name'))
             .column(new sql.ExpField('type'))
@@ -308,7 +308,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         selectIdFromName.col('id', 'id');
         selectIdFromName.col('valid', 'valid');
         selectIdFromName.toVar = true;
-        selectIdFromName.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectIdFromName.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectIdFromName.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('name')));
         let iffNameExists = factory.createIf();
         p.statements.push(iffNameExists);
@@ -319,10 +319,10 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
             { col: 'valid', val: sql_1.ExpVal.num1 }
         ];
         updateEntityValid.where = new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('id')), new sql_1.ExpEQ(new sql_1.ExpVar('valid'), sql_1.ExpVal.num0));
-        updateEntityValid.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity);
+        updateEntityValid.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity);
         let insert = factory.createInsert();
         iffNameExists.else(insert);
-        insert.table = new sql.SqlSysTable(dbContext_1.EnumSysTable.entity);
+        insert.table = new sql.SqlSysTable(il_1.EnumSysTable.entity);
         insert.cols.push({ col: 'name', val: new sql.ExpVar(name.name) }, { col: 'date', val: new sql.ExpVar('date') });
         let set = factory.createSet();
         iffNameExists.else(set);
@@ -331,7 +331,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         selectVersion.toVar = true;
         selectVersion.column(new sql.ExpField('version'), 'version');
         selectVersion.column(new sql.ExpField('date'), 'versionDate');
-        selectVersion.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.version, false));
+        selectVersion.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.version, false));
         selectVersion.where(new sql.ExpEQ(new sql.ExpField('entity'), new sql.ExpVar('id')));
         selectVersion.order(new sql.ExpField('date'), 'desc');
         selectVersion.limit(new sql.ExpNum(1));
@@ -346,7 +346,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         setVersionInc.equ('version', new sql.ExpAdd(new sql.ExpVar('version'), sql_1.ExpNum.num1));
         let notSameSelect = factory.createSelect();
         notSameSelect.column(new sql.ExpField('id'));
-        notSameSelect.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        notSameSelect.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         notSameSelect.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('id')), new sql_1.ExpEQ(new sql_1.ExpField('type'), new sql_1.ExpVar('type')), new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('name')), new sql_1.ExpOr(new sql_1.ExpAnd(new sql_1.ExpIsNull(new sql_1.ExpField('schema')), new sql_1.ExpIsNull(new sql_1.ExpVar('schema'))), new sql_1.ExpEQBinary(new sql_1.ExpField('schema'), new sql_1.ExpVar('schema'))), new sql_1.ExpOr(new sql_1.ExpAnd(new sql_1.ExpIsNull(new sql_1.ExpField('run')), new sql_1.ExpIsNull(new sql_1.ExpVar('run'))), new sql_1.ExpEQBinary(new sql_1.ExpField('run'), new sql_1.ExpVar('run'))), new sql_1.ExpOr(new sql_1.ExpAnd(new sql_1.ExpIsNull(new sql_1.ExpField('source')), new sql_1.ExpIsNull(new sql_1.ExpVar('source'))), new sql_1.ExpEQBinary(new sql_1.ExpField('source'), new sql_1.ExpVar('source'))), new sql_1.ExpOr(new sql_1.ExpAnd(new sql_1.ExpIsNull(new sql_1.ExpField('from')), new sql_1.ExpIsNull(new sql_1.ExpVar('from'))), new sql_1.ExpEQBinary(new sql_1.ExpField('name'), new sql_1.ExpVar('name'))), new sql_1.ExpOr(new sql_1.ExpAnd(new sql_1.ExpIsNull(new sql_1.ExpField('open')), new sql_1.ExpIsNull(new sql_1.ExpVar('open'))), new sql_1.ExpEQ(new sql_1.ExpField('open'), new sql_1.ExpVar('open')))));
         let ifNotSame = factory.createIf();
         p.statements.push(ifNotSame);
@@ -355,12 +355,12 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         ifNotSame.cmp = new sql_1.ExpNot(new sql_1.ExpExists(notSameSelect));
         let upsertVersion = factory.createUpsert();
         ifNotSame.then(upsertVersion);
-        upsertVersion.table = new sql.SqlSysTable(dbContext_1.EnumSysTable.version);
+        upsertVersion.table = new sql.SqlSysTable(il_1.EnumSysTable.version);
         upsertVersion.keys.push({ col: 'entity', val: new sql.ExpVar('id') }, { col: 'date', val: new sql.ExpFunc(factory.func_date, new sql.ExpVar('date')) });
         upsertVersion.cols.push({ col: 'version', val: new sql.ExpVar('version') }, { col: 'schema', val: new sql.ExpVar(schema.name) }, { col: 'run', val: new sql.ExpVar(run.name) }, { col: 'source', val: new sql.ExpVar(source.name) });
         let update = factory.createUpdate();
         ifNotSame.then(update);
-        update.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity);
+        update.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity);
         update.where = new sql.ExpEQ(new sql.ExpField('id'), new sql.ExpVar(id.name));
         update.cols.push({ col: 'version', val: new sql.ExpVar('version') }, { col: 'type', val: new sql.ExpVar(type.name) }, { col: 'schema', val: new sql.ExpVar(schema.name) }, { col: 'run', val: new sql.ExpVar(run.name) }, { col: 'source', val: new sql.ExpVar('source') }, { col: 'from', val: new sql.ExpVar(from.name) }, { col: 'open', val: new sql.ExpVar(open.name) }, { col: 'private', val: new sql.ExpVar(isPrivate.name) });
         let select = factory.createSelect();
@@ -372,8 +372,8 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         let select = this.context.factory.createSelect();
         p.statements.push(select);
         select.column(new sql.ExpField('schema', 'a'));
-        select.from(new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.version, false, 'a'));
-        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'b'));
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.version, false, 'a'));
+        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.entity, 'b'));
         select.on(new sql.ExpEQ(new sql.ExpField('entity', 'a'), new sql.ExpField('id', 'b')));
         select.where(new sql.ExpAnd(new sql.ExpEQ(new sql.ExpField('name', 'b'), new sql.ExpVar('name')), new sql.ExpEQ(new sql.ExpField('version', 'a'), new sql.ExpVar('version'))));
     }

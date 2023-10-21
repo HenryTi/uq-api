@@ -1,11 +1,11 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { SettingStatement } from "../../il";
+import { EnumSysTable, SettingStatement } from "../../il";
 import { Statement } from "../sql";
 import { LockType } from "../sql/select";
 import { EntityTable } from "../sql/statementWithFrom";
 import { ExpEQ, ExpCmp, ExpAnd, ExpField, ExpVar, ExpStr, convertExp, ExpVal, ExpNum } from "../sql";
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 
 export class BSettingStatement extends BStatement {
     protected istatement: SettingStatement;

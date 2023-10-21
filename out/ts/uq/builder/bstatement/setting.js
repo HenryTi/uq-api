@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BSettingStatement = void 0;
 const bstatement_1 = require("./bstatement");
+const il_1 = require("../../il");
 const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const sql_1 = require("../sql");
@@ -63,7 +64,7 @@ class BSettingStatement extends bstatement_1.BStatement {
         let { factory } = this.context;
         let { val } = this.istatement;
         let upsert = factory.createUpsert();
-        upsert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.unit);
+        upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.unit);
         upsert.keys = [
             { col: 'unit', val: (0, sql_1.convertExp)(this.context, val) }
         ];

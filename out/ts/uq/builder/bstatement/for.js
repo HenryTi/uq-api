@@ -195,7 +195,7 @@ class BForQueue extends BForListWithVars {
         selectEntity.toVar = true;
         selectEntity.col('id', queueEntityId, 'a');
         selectEntity.column(expIx, queueIx);
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity, 'a'));
+        selectEntity.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity, 'a'));
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name', 'a'), new sql_1.ExpStr(this.forQueue.queue.name)));
         selectEntity.lock = select_1.LockType.update;
         let sqlQueueLast = factory.createSet();

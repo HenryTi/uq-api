@@ -30,6 +30,7 @@ class BizOptions extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.options;
+        this.fields = [];
         this.items = [];
     }
     parser(context) {

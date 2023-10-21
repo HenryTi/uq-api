@@ -5,7 +5,6 @@ const bstatement_1 = require("./bstatement");
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const consts_1 = require("../consts");
-const dbContext_1 = require("../dbContext");
 class BBusStatement extends bstatement_1.BStatement {
     body(sqls) {
         let text;
@@ -125,7 +124,7 @@ class BBusStatement extends bstatement_1.BStatement {
         let { factory, hasUnit } = this.context;
         sqls.push(...this.context.tableSeed(consts_1.settingQueueSeed, consts_1.settingQueueSeed));
         let insert = factory.createInsert();
-        insert.table = new sql_1.SqlSysTable(dbContext_1.EnumSysTable.messageQueue);
+        insert.table = new sql_1.SqlSysTable(il_1.EnumSysTable.messageQueue);
         let cols = insert.cols = [
             { col: 'id', val: new sql_1.ExpVar(consts_1.settingQueueSeed) },
             { col: 'to', val: (0, sql_1.convertExp)(this.context, toUser) },
@@ -161,7 +160,7 @@ class BBusStatement extends bstatement_1.BStatement {
         //new ExpStr('$\\t'), 
         ...this.fieldVals(fields), new sql_1.ExpStr('\\n'));
         let insert = factory.createInsert();
-        insert.table = new sql_1.SqlSysTable(dbContext_1.EnumSysTable.messageQueue);
+        insert.table = new sql_1.SqlSysTable(il_1.EnumSysTable.messageQueue);
         let cols = insert.cols = [
             { col: 'id', val: new sql_1.ExpVar(consts_1.settingQueueSeed) },
             { col: 'action', val: new sql_1.ExpStr('bus-query') },

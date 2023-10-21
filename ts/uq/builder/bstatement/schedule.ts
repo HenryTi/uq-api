@@ -1,13 +1,13 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { DateTime, Int, ScheduleStatement } from "../../il";
+import { EnumSysTable, DateTime, Int, ScheduleStatement } from "../../il";
 import {
     ColVal, convertExp, ExpAdd, ExpEQ, ExpField
     , ExpFunc, ExpFuncCustom, ExpMul, ExpNum, ExpStr, ExpVal, ExpVar
     , ExpSub, ExpSelect, ExpNeg, ExpLT
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 
 export class BScheduleStatement extends BStatement {
     protected istatement: ScheduleStatement;

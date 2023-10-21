@@ -6,7 +6,8 @@ import {
     , VarOperand, Expression, IDNewType, BizBase
     , Select as IlSelect,
     BizSelectInline,
-    BizExp
+    BizExp,
+    BizFieldOperand
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpRole } from './ExpRole';
@@ -17,7 +18,7 @@ import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, E
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand, ExpBizSelectOperand } from './ExpBizSelect';
-import { BBizExp } from '../bizExp';
+import { BBizExp, BBizFieldOperand } from '../bizExp';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {
     if (!exp) return;
@@ -146,6 +147,10 @@ class Stack implements IlStack {
         let bExp = new BBizExp();
         bExp.convertFrom(this.context, exp);
         this.arr.push(new BizExpOperand(bExp));
+    }
+    bizField(bizField: BizFieldOperand) {
+        let bBizField = new BBizFieldOperand(bizField);
+        this.arr.push(bBizField);
     }
     func(func: string, n: number, isUqFunc: boolean) {
         let params: ExpVal[] = [];

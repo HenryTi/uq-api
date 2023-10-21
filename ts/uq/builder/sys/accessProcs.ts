@@ -7,8 +7,8 @@ import {
     , ExpSearchCase, ExpOr, ExpGT, ExpFuncCustom, ExpLT, ExpNE
 } from '../sql';
 import { SysProcedures } from './sysProcedures';
-import { charField, idField, intField, textField, tinyIntField } from '../../il';
-import { EnumSysTable, sysTable } from '../dbContext';
+import { EnumSysTable, charField, idField, intField, textField, tinyIntField } from '../../il';
+import { sysTable } from '../dbContext';
 
 export class AccessProcedures extends SysProcedures {
     build() {

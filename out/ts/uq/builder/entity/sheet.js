@@ -88,7 +88,7 @@ class BSheetAction extends entity_1.BEntityBusable {
         let sel = this.context.factory.createSelect();
         sel.toVar = true;
         sel.column(new sql_1.ExpField('data', ta), vData);
-        sel.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet, ta));
+        sel.from(this.context.sysTable(il_1.EnumSysTable.sheet, ta));
         sel.where(new sql_1.ExpEQ(new sql_1.ExpField('id', ta), new sql_1.ExpVar('$data')));
         return [sel];
     }
@@ -146,10 +146,10 @@ class BSheetAction extends entity_1.BEntityBusable {
             .column(new sql_1.ExpField('date', ta), vSheetDate)
             .column(new sql_1.ExpField('version', ta), vSheetVersion)
             .column(new sql_1.ExpField('discription', ta), vSheetDiscription);
-        sel.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet, ta));
-        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow, tb))
+        sel.from(this.context.sysTable(il_1.EnumSysTable.sheet, ta));
+        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow, tb))
             .on(new sql.ExpAnd(new sql.ExpEQ(new sql.ExpField('id', ta), new sql.ExpField('sheet', tb)), new sql.ExpEQ(new sql.ExpField('flow', ta), new sql.ExpField('flow', tb))));
-        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const, tc))
+        sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.const, tc))
             .on(new sql.ExpEQ(new sql.ExpField('state', tb), new sql.ExpField('id', tc)));
         sel.where(new sql_1.ExpEQ(new sql_1.ExpField('id', ta), new sql_1.ExpVar('$id')));
         let iff = factory.createIf();
@@ -194,7 +194,7 @@ class BSheetAction extends entity_1.BEntityBusable {
         updateProcessing.cols = [
             { col: 'processing', val: sql_1.ExpVal.num0 }
         ];
-        updateProcessing.table = this.context.sysTable(dbContext_1.EnumSysTable.sheet);
+        updateProcessing.table = this.context.sysTable(il_1.EnumSysTable.sheet);
         updateProcessing.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('$id'));
         let select1 = factory.createSelect();
         select1.column(new sql_1.ExpVar('$id'), 'id');

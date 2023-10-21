@@ -1,9 +1,11 @@
 import {
     Entity, ActionBase, BusFace, Field
-    , Text, BigInt, Returns, InBusAction, intField, ActionHasInBus, Arr, bigIntField, tinyIntField, Int
+    , Text, BigInt, Returns, InBusAction, intField, ActionHasInBus
+    , Arr, bigIntField, tinyIntField, Int
     , timeStampField, defaultStampOnUpdate, TinyInt, FieldsValues
+    , EnumSysTable
 } from '../../il';
-import { DbContext, EnumSysTable } from '../dbContext';
+import { DbContext } from '../dbContext';
 import {
     Procedure, Statement, Declare, While
     , ExpVal, ExpFunc, ExpVar, ExpField, ExpStr

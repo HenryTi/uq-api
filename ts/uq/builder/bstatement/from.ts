@@ -1,10 +1,8 @@
-import { BizPhraseType, Char, FromStatement, JoinType } from "../../il";
+import { BizPhraseType, FromStatement, EnumSysTable } from "../../il";
 import { ExpField, ExpFunc, ExpNum, ExpStr, ExpVal } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { Select } from '../sql/select';
-import { EnumSysTable } from "../dbContext";
 
 const t1 = 't1';
 
@@ -24,8 +22,19 @@ export class BFromStatement extends BStatement<FromStatement> {
         select.column(ExpNum.num0, 'ban');
         const arr: ExpVal[] = [];
         for (let col of cols) {
-            const { name, val } = col;
-            arr.push(new ExpStr(name), this.context.expVal(val));
+            const { name, val, bud, entity } = col;
+            const colArr: ExpVal[] = [];
+            if (bud !== undefined) {
+                if (entity !== undefined) {
+                    colArr.push(new ExpNum(entity.id));
+                }
+                colArr.push(new ExpNum(bud.id));
+            }
+            else {
+                colArr.push(new ExpStr(name));
+            }
+            colArr.push(this.context.expVal(val));
+            arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
         }
 
         let tbl: string;
@@ -55,7 +64,7 @@ export class BFromStatement extends BStatement<FromStatement> {
         }
 
         select.from(new EntityTable(tbl, false, t1));
-        select.column(new ExpFunc('JSON_OBJECT', ...arr), 'json');
+        select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');
         select.where(this.context.expCmp(where));
         select.order(new ExpField('id', t1), asc);
     }

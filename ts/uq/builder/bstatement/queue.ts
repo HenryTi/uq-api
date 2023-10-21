@@ -1,13 +1,14 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { bigIntField, intField, JoinType, Queue, QueueAction, QueueStatement } from "../../il";
+import { EnumSysTable, bigIntField, intField, JoinType, Queue, QueueAction, QueueStatement } from "../../il";
 import {
-    ExpVar, ExpSelect, ExpVal, ExpEQ, ExpLE
-    , ExpField, ExpStr, ExpNeg, ExpAnd, ExpFunc, ExpNum, Statement, ExpIsNull, ExpGT, Statements, ExpAdd
+    ExpVar, ExpVal, ExpEQ, ExpLE
+    , ExpField, ExpStr, ExpNeg, ExpAnd, ExpFunc, ExpNum
+    , ExpIsNull, Statements, ExpAdd
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { LockType } from "../sql/select";
-import { EnumSysTable, sysTable } from "../dbContext";
+import { sysTable } from "../dbContext";
 
 export class BQueueStatement extends BStatement {
     protected istatement: QueueStatement;

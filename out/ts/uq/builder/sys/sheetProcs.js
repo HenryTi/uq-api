@@ -40,7 +40,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         stats.push(proc.createTransaction());
         let select = factory.createSelect();
         select.col('id');
-        select.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet));
+        select.from(this.context.sysTable(il_1.EnumSysTable.sheet));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('id')), new sql_1.ExpEQ(new sql_1.ExpField('processing'), sql_1.ExpVal.num1)));
         select.lock = select_1.LockType.update;
         let iff = factory.createIf();
@@ -51,7 +51,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         selectRet0.column(sql_1.ExpVal.num0, 'ret');
         let update = factory.createUpdate();
         iff.else(update);
-        update.table = this.context.sysTable(dbContext_1.EnumSysTable.sheet);
+        update.table = this.context.sysTable(il_1.EnumSysTable.sheet);
         update.cols = [{ col: 'processing', val: new sql.ExpNum(1) }];
         let wheres = [];
         wheres.push(new sql.ExpEQ(new sql.ExpField('id'), new sql.ExpVar('id')));
@@ -62,7 +62,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         this.context.tableSeed(consts_1.settingQueueSeed, consts_1.settingQueueSeed).forEach(v => iff.else(v));
         let insert = factory.createInsert();
         iff.else(insert);
-        insert.table = new statementWithFrom_1.EntityTable(dbContext_1.EnumSysTable.messageQueue, hasUnit);
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.messageQueue, hasUnit);
         insert.cols = [
             { col: 'id', val: new sql_1.ExpVar(consts_1.settingQueueSeed) },
             { col: 'subject', val: new sql_1.ExpVar('name') },
@@ -123,7 +123,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         stats.push(select);
         select.toVar = true;
         select.column(new sql.ExpField('id'), sheet).column(new sql.ExpField('version'), version);
-        select.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         select.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(sheetName.name)));
         select = factory.createSelect();
         stats.push(select);
@@ -169,7 +169,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         stats.push(selectConstStr);
         selectConstStr.toVar = true;
         selectConstStr.column(new sql.ExpField('id'), startState);
-        selectConstStr.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+        selectConstStr.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
         selectConstStr.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpStr(startState)));
         let selectId = factory.createSelect();
         stats.push(selectId);
@@ -188,7 +188,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         updateSeed.where = new sql_1.ExpAnd(...selectIdWheres);
         let insert = factory.createInsert();
         stats.push(insert);
-        insert.table = this.context.sysTable(dbContext_1.EnumSysTable.sheet);
+        insert.table = this.context.sysTable(il_1.EnumSysTable.sheet);
         insert.cols = [
             { col: 'id', val: new sql.ExpVar('id') },
             { col: 'no', val: new sql.ExpVar(no) },
@@ -210,7 +210,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         //set.equ(id, new sql.ExpFunc(factory.func_lastinsertid));
         insert = factory.createInsert();
         stats.push(insert);
-        insert.table = this.context.sysTable(dbContext_1.EnumSysTable.sheetTo);
+        insert.table = this.context.sysTable(il_1.EnumSysTable.sheetTo);
         insert.cols = [
             { col: 'sheet', val: new sql.ExpVar(id) },
             { col: 'to', val: new sql.ExpVar('$user') }
@@ -219,7 +219,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
             insert.cols.push({ col: unit.name, val: new sql.ExpVar(unit.name) });
         insert = factory.createInsert();
         stats.push(insert);
-        insert.table = (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow);
+        insert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow);
         insert.cols = [
             { col: 'sheet', val: new sql.ExpVar(id) },
             { col: 'date', val: new sql.ExpVar('now') },
@@ -275,7 +275,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         proc.parameters.push(sheet, toArr);
         let stats = proc.statements;
         stats.push(proc.createTransaction());
-        let sheetToTable = this.context.sysTable(dbContext_1.EnumSysTable.sheetTo);
+        let sheetToTable = this.context.sysTable(il_1.EnumSysTable.sheetTo);
         let del = factory.createDelete();
         stats.push(del);
         del.tables = [sheetToTable];
@@ -284,7 +284,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         stats.push(ifSheet);
         let sheetSelect = factory.createSelect();
         ifSheet.cmp = new sql_1.ExpNot(new sql_1.ExpExists(sheetSelect));
-        sheetSelect.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet));
+        sheetSelect.from(this.context.sysTable(il_1.EnumSysTable.sheet));
         sheetSelect.col('id');
         sheetSelect.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(sheet.name)));
         sheetSelect.lock = select_1.LockType.update;
@@ -375,11 +375,11 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         ['preState', 'state', 'action'].forEach(v => {
             let constStr = this.context.factory.createSelect();
             constStr.column(new sql.ExpField('name'));
-            constStr.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+            constStr.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
             constStr.where(new sql.ExpEQ(new sql.ExpField('id'), new sql.ExpField(v, ta)));
             flow.column(new sql.ExpSelect(constStr), v);
         });
-        flow.from((0, dbContext_1.sysTable)(isArchive === true ? dbContext_1.EnumSysTable.archiveFlow : dbContext_1.EnumSysTable.flow, ta));
+        flow.from((0, dbContext_1.sysTable)(isArchive === true ? il_1.EnumSysTable.archiveFlow : il_1.EnumSysTable.flow, ta));
         flow.where(new sql_1.ExpEQ(new sql_1.ExpField('sheet', ta), new sql_1.ExpVar('id')));
         flow.order(new sql_1.ExpField('date', ta), 'asc');
         return flow;
@@ -412,14 +412,14 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         let ta = 'a', tf = 'b', tc = 'c';
         let selectConstStr = factory.createSelect();
         selectConstStr.column(new sql.ExpField('id'));
-        selectConstStr.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+        selectConstStr.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
         selectConstStr.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(state.name)));
         let select = factory.createSelect();
         proc.statements.push(select);
-        select.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet, ta));
-        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow, tf))
+        select.from(this.context.sysTable(il_1.EnumSysTable.sheet, ta));
+        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow, tf))
             .on(new sql.ExpAnd(new sql.ExpEQ(new sql.ExpField('id', ta), new sql.ExpField('sheet', tf)), new sql.ExpEQ(new sql.ExpField('flow', ta), new sql.ExpField('flow', tf))))
-            .join(il_1.JoinType.join, this.context.sysTable(dbContext_1.EnumSysTable.sheetTo, tc))
+            .join(il_1.JoinType.join, this.context.sysTable(il_1.EnumSysTable.sheetTo, tc))
             .on(new sql.ExpEQ(new sql.ExpField('id', ta), new sql.ExpField('sheet', tc)));
         exports.sheetFields.forEach(f => select.column(new sql.ExpField(f, ta)));
         let wheres = [];
@@ -429,7 +429,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         wheres.push(new sql.ExpEQ(new sql.ExpField('to', tc), new sql.ExpVar('$user')));
         let selectSheet = factory.createSelect();
         selectSheet.column(new sql.ExpField('id'));
-        selectSheet.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectSheet.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectSheet.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(schemaName.name)));
         wheres.push(new sql.ExpEQ(new sql.ExpField('sheet', ta), new sql.ExpSelect(selectSheet)));
         select.where(new sql.ExpAnd(...wheres));
@@ -448,12 +448,12 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         let ta = 'a', tf = 'b', tc = 'c';
         let selectConstStr = factory.createSelect();
         selectConstStr.column(new sql.ExpField('id'));
-        selectConstStr.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+        selectConstStr.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
         selectConstStr.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(state.name)));
         let select = factory.createSelect();
         proc.statements.push(select);
-        select.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet, ta));
-        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow, tf))
+        select.from(this.context.sysTable(il_1.EnumSysTable.sheet, ta));
+        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow, tf))
             .on(new sql.ExpAnd(new sql.ExpEQ(new sql.ExpField('id', ta), new sql.ExpField('sheet', tf)), new sql.ExpEQ(new sql.ExpField('flow', ta), new sql.ExpField('flow', tf))));
         exports.sheetFields.forEach(f => select.column(new sql.ExpField(f, ta)));
         let wheres = [];
@@ -462,7 +462,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         wheres.push(new sql.ExpEQ(new sql.ExpField('user', ta), new sql.ExpVar('user')));
         let selectSheet = factory.createSelect();
         selectSheet.column(new sql.ExpField('id'));
-        selectSheet.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectSheet.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectSheet.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(schemaName.name)));
         wheres.push(new sql.ExpEQ(new sql.ExpField('sheet', ta), new sql.ExpSelect(selectSheet)));
         select.where(new sql.ExpAnd(...wheres));
@@ -484,14 +484,14 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
             let ta = 'a';
             let selectConstStr = factory.createSelect();
             selectConstStr.column(new sql.ExpField('id'));
-            selectConstStr.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+            selectConstStr.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
             selectConstStr.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(state.name)));
             let selectSheetTypeId = factory.createSelect();
             selectSheetTypeId.column(new sql.ExpField('id'));
-            selectSheetTypeId.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+            selectSheetTypeId.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
             selectSheetTypeId.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(schemaName.name)));
             let selectArchive = factory.createSelect();
-            selectArchive.from(this.context.sysTable(dbContext_1.EnumSysTable.archive, ta));
+            selectArchive.from(this.context.sysTable(il_1.EnumSysTable.archive, ta));
             exports.archiveFields.forEach(f => selectArchive.column(new sql.ExpField(f, ta)));
             let archiveWheres = [];
             archiveWheres.push(new sql.ExpGT(new sql.ExpField('id', ta), new sql.ExpVar(pageStart.name)));
@@ -501,7 +501,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
             selectArchive.order(new sql.ExpField('id', ta), order);
             selectArchive.limit(varPageSize);
             let selectSheet = factory.createSelect();
-            selectSheet.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet, ta));
+            selectSheet.from(this.context.sysTable(il_1.EnumSysTable.sheet, ta));
             exports.sheetFields.forEach(f => selectSheet.column(new sql.ExpField(f, ta)));
             let sheetWheres = [];
             sheetWheres.push(new sql.ExpGT(new sql.ExpField('id', ta), new sql.ExpVar(pageStart.name)));
@@ -532,20 +532,20 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         proc.parameters.push(schemaName);
         let selectConstStr = factory.createSelect();
         selectConstStr.column(new sql.ExpField('name'));
-        selectConstStr.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+        selectConstStr.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
         selectConstStr.where(new sql.ExpEQ(new sql.ExpField('id'), new sql.ExpField('state', 'b')));
         let select = factory.createSelect();
         proc.statements.push(select);
         select.column(new sql.ExpSelect(selectConstStr), 'state');
         select.column(new sql.ExpFunc('count', new sql_1.ExpField('sheet', 'a')), 'count');
-        select.from(this.context.sysTable(dbContext_1.EnumSysTable.sheet, 'a'));
-        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.flow, 'b'))
+        select.from(this.context.sysTable(il_1.EnumSysTable.sheet, 'a'));
+        select.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow, 'b'))
             .on(new sql.ExpAnd(new sql.ExpEQ(new sql.ExpField('id', 'a'), new sql.ExpField('sheet', 'b')), new sql.ExpEQ(new sql.ExpField('flow', 'a'), new sql.ExpField('flow', 'b'))))
-            .join(il_1.JoinType.join, this.context.sysTable(dbContext_1.EnumSysTable.sheetTo, 'c'))
+            .join(il_1.JoinType.join, this.context.sysTable(il_1.EnumSysTable.sheetTo, 'c'))
             .on(new sql.ExpEQ(new sql.ExpField('id', 'a'), new sql.ExpField('sheet', 'c')));
         let selectSheet = factory.createSelect();
         selectSheet.column(new sql.ExpField('id'));
-        selectSheet.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectSheet.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.entity));
         selectSheet.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(schemaName.name)));
         let wheres = [];
         //wheres.push(new sql.ExpEQ(new sql.ExpField('processing', 'a'), new sql.ExpNum(0)));
@@ -558,12 +558,12 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         let ta = 'a', tf = 'b';
         let tblSheet, tblFlow;
         if (isArchive === true) {
-            tblSheet = dbContext_1.EnumSysTable.archive;
-            tblFlow = dbContext_1.EnumSysTable.archiveFlow;
+            tblSheet = il_1.EnumSysTable.archive;
+            tblFlow = il_1.EnumSysTable.archiveFlow;
         }
         else {
-            tblSheet = dbContext_1.EnumSysTable.sheet;
-            tblFlow = dbContext_1.EnumSysTable.flow;
+            tblSheet = il_1.EnumSysTable.sheet;
+            tblFlow = il_1.EnumSysTable.flow;
         }
         let select = this.context.factory.createSelect();
         select.from(this.context.sysTable(tblSheet, ta));
@@ -572,7 +572,7 @@ class SheetProcedures extends sysProcedures_1.SysProcedures {
         exports.archiveFields.forEach(f => select.column(new sql.ExpField(f, ta)));
         let selectStateConstStr = this.context.factory.createSelect();
         selectStateConstStr.column(new sql.ExpField('name'));
-        selectStateConstStr.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.const));
+        selectStateConstStr.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.const));
         selectStateConstStr.where(new sql.ExpEQ(new sql.ExpField('id'), new sql.ExpField('state', tf)));
         select.column(new sql.ExpSelect(selectStateConstStr), 'state');
         return select;

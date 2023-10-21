@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BEntityBusable = exports.BEntity = void 0;
 const il_1 = require("../../il");
-const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("../bstatement");
@@ -347,7 +346,7 @@ class BEntityBusable extends BEntity {
                 this.context.tableSeed(consts_1.settingQueueSeed, consts_1.settingQueueSeed).forEach(v => iff.then(v));
                 let insert = factory.createInsert();
                 iff.then(insert);
-                insert.table = new sql_1.SqlSysTable(dbContext_1.EnumSysTable.messageQueue);
+                insert.table = new sql_1.SqlSysTable(il_1.EnumSysTable.messageQueue);
                 if (local === true) {
                     vFace = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('+'), vFace);
                 }

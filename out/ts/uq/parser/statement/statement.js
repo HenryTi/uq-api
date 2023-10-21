@@ -63,7 +63,8 @@ class PStatements extends PStatement {
                     this.ts.expect('return表名');
                 let statement = new il_1.SelectStatement(parent);
                 let v1 = this.ts.lowerVar;
-                if (this.ts.peekToken() === tokens_1.Token.DOT) {
+                const { peekToken } = this.ts.peekToken();
+                if (peekToken === tokens_1.Token.DOT) {
                     this.ts.readToken();
                     this.ts.readToken();
                     if (this.ts.token !== tokens_1.Token.VAR)

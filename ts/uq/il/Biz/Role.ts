@@ -14,6 +14,7 @@ export class BizPermitItem extends BizBud {
 
 export class BizPermit extends BizEntity {
     readonly bizPhraseType = BizPhraseType.permit;
+    protected readonly fields = [];
     readonly items = new Map<string, BizPermitItem>();
     readonly permits = new Map<string, BizPermit>();
     get type(): string { return 'permit'; }
@@ -46,8 +47,7 @@ export class BizPermit extends BizEntity {
 
 export class BizRole extends BizEntity {
     readonly bizPhraseType = BizPhraseType.role;
-    // readonly permitItems = new Map<string, BizPermitItem>();
-    // readonly permits = new Map<string, BizPermit>();
+    protected readonly fields = [];
     readonly roles = new Map<string, BizRole>();
     get type(): string { return 'role'; }
     parser(context: PContext): PElement<IElement> {

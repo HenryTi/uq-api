@@ -1,7 +1,6 @@
-import { BigInt, BizBin, BizSheet, Dec, JoinType, bigIntField, decField, idField } from "../../il";
+import { BigInt, BizBin, BizSheet, Dec, JoinType, bigIntField, decField, idField, EnumSysTable } from "../../il";
 import { Sqls } from "../bstatement";
-import { EnumSysTable, sysTable } from "../dbContext";
-import { ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNull, ExpNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
+import { ExpAnd, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
 import { userParamName } from "../sql/sqlBuilder";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";

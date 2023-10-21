@@ -9,6 +9,7 @@ class BizPick extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = Base_1.BizPhraseType.pick;
+        this.fields = [];
         this.atoms = [];
         this.specs = [];
     }

@@ -55,7 +55,7 @@ class BProc extends act_1.BAct {
         let { factory, hasUnit } = this.context;
         let selectEntity = factory.createSelect();
         selectEntity.col('id');
-        selectEntity.from((0, dbContext_1.sysTable)(dbContext_1.EnumSysTable.entity));
+        selectEntity.from((0, dbContext_1.sysTable)(il.EnumSysTable.entity));
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(this.entity.name)));
         selectEntity.lock = select_1.LockType.update;
         let updateRunning = factory.createUpdate();

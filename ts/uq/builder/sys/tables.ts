@@ -1,4 +1,4 @@
-import { DbContext, EnumSysTable } from '../dbContext';
+import { DbContext } from '../dbContext';
 import * as sql from '../sql';
 import * as il from '../../il';
 import { textField, intField, charField, tinyIntField, Index, Text, defaultStampOnUpdate, timeStampField, smallIntField, idField, bigIntField, binaryField } from '../../il';
@@ -23,19 +23,19 @@ export class SysTables {
 
     build() {
         //this.procTable(this.coreTable('$proc')); // 系统创建的时候，自动创建这个表
-        this.settingTable(this.coreTable(EnumSysTable.setting));
-        this.constStrTable(this.coreTable(EnumSysTable.const));
-        this.phraseTable(this.coreTable(EnumSysTable.phrase));
-        // this.ixPhraseTable(this.coreTable(EnumSysTable.ixPhrase));
-        this.entityTable(this.coreTable(EnumSysTable.entity));
-        this.versionTable(this.coreTable(EnumSysTable.version));
+        this.settingTable(this.coreTable(il.EnumSysTable.setting));
+        this.constStrTable(this.coreTable(il.EnumSysTable.const));
+        this.phraseTable(this.coreTable(il.EnumSysTable.phrase));
+        // this.ixPhraseTable(this.coreTable(il.EnumSysTable.ixPhrase));
+        this.entityTable(this.coreTable(il.EnumSysTable.entity));
+        this.versionTable(this.coreTable(il.EnumSysTable.version));
         this.noTable(this.coreTable('$no'));
 
-        this.adminTable(this.table(EnumSysTable.admin));
+        this.adminTable(this.table(il.EnumSysTable.admin));
 
-        this.queueOutTable(this.table(EnumSysTable.messageQueue));
-        this.queueOutDoneTable(this.table(EnumSysTable.messageQueueEnd));
-        this.queueOutBadTable(this.table(EnumSysTable.messageQueueFailed));
+        this.queueOutTable(this.table(il.EnumSysTable.messageQueue));
+        this.queueOutDoneTable(this.table(il.EnumSysTable.messageQueueEnd));
+        this.queueOutBadTable(this.table(il.EnumSysTable.messageQueueFailed));
         this.queueInTable(this.table('$queue_in'));
         // this.queueInActTable(this.table('$queue_in_act'));      // to be removed actions in queue in
         // this.queueInDoneTable(this.table('$queue_in_done'));    // to be removed
@@ -44,25 +44,25 @@ export class SysTables {
         this.queueDeferTable(this.table('$queue_defer'));
 
         this.fromNew(this.table('$from_new'));
-        this.fromNewBad(this.table(EnumSysTable.fromNewBad));
+        this.fromNewBad(this.table(il.EnumSysTable.fromNewBad));
         this.syncFrom(this.table('$sync_from'));
         this.mapPullTable(this.table('$map_pull'));
-        this.importDataSourceEntity(this.table(EnumSysTable.importDataSourceEntity));
-        this.importDataMap(this.table(EnumSysTable.importDataMap));
+        this.importDataSourceEntity(this.table(il.EnumSysTable.importDataSourceEntity));
+        this.importDataMap(this.table(il.EnumSysTable.importDataMap));
 
-        this.sheetToTable(this.table(EnumSysTable.sheetTo));
-        this.sheetDetailTable(this.table(EnumSysTable.sheetDetail));
-        this.flowTable(this.table(EnumSysTable.flow));
-        this.archiveTable(this.table(EnumSysTable.archive));
-        this.flowTable(this.table(EnumSysTable.archiveFlow));
+        this.sheetToTable(this.table(il.EnumSysTable.sheetTo));
+        this.sheetDetailTable(this.table(il.EnumSysTable.sheetDetail));
+        this.flowTable(this.table(il.EnumSysTable.flow));
+        this.archiveTable(this.table(il.EnumSysTable.archive));
+        this.flowTable(this.table(il.EnumSysTable.archiveFlow));
 
-        this.unitTable(this.table(EnumSysTable.unit));
+        this.unitTable(this.table(il.EnumSysTable.unit));
         this.IDSectionTable(this.table('$id_section'));
         this.IDTable(this.table('$id'));
         this.IDLocalTable(this.table('$id_local'));
         this.IDMinuteTable(this.table('$id_minute')); // unique minute id table
-        this.IDUTable(this.table(EnumSysTable.id_u));
-        this.IDUUTable(this.table(EnumSysTable.id_uu));
+        this.IDUTable(this.table(il.EnumSysTable.id_u));
+        this.IDUUTable(this.table(il.EnumSysTable.id_uu));
         this.textIdTable(this.table('$text_id'));
         this.textLocalTable(this.table('$text_local')); // $text_id 对应语言翻译
 
