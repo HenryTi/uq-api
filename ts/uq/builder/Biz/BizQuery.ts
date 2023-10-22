@@ -21,6 +21,8 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
         parameters.push(
             bigIntField('$user'),
             jsonField(json),
+            bigIntField('$pageStart'),
+            bigIntField('$pageSize'),
         );
 
         const declare = factory.createDeclare();

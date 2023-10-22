@@ -19,7 +19,7 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         const varJson = new sql_1.ExpVar(json);
         const { parameters, statements } = proc;
         const { factory } = this.context;
-        parameters.push((0, il_1.bigIntField)('$user'), (0, il_1.jsonField)(json));
+        parameters.push((0, il_1.bigIntField)('$user'), (0, il_1.jsonField)(json), (0, il_1.bigIntField)('$pageStart'), (0, il_1.bigIntField)('$pageSize'));
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.var(site, new il_1.BigInt());

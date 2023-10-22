@@ -1,10 +1,11 @@
 import { BizPhraseType, FromStatement, EnumSysTable } from "../../il";
-import { ExpField, ExpFunc, ExpNum, ExpStr, ExpVal } from "../sql";
+import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull, ExpLT, ExpNum, ExpStr, ExpVal, ExpVar } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
 const t1 = 't1';
+const pageStart = '$pageStart';
 
 export class BFromStatement extends BStatement<FromStatement> {
     body(sqls: Sqls) {
@@ -15,10 +16,28 @@ export class BFromStatement extends BStatement<FromStatement> {
         sqls.push(memo);
         memo.text = 'FROM';
 
-        const { asc, cols, where } = this.istatement;
+        const { asc, cols, where, bizEntityTable, bizEntityArr, bizEntity0 } = this.istatement;
+
+        const ifStateNull = factory.createIf();
+        sqls.push(ifStateNull);
+        ifStateNull.cmp = new ExpIsNull(new ExpVar(pageStart));
+        const setPageState = factory.createSet();
+        ifStateNull.then(setPageState);
+        let expStart: ExpVal, cmpStart: ExpCmp;
+        let varStart = new ExpVar(pageStart);
+        if (asc === 'asc') {
+            expStart = new ExpNum(0);
+            cmpStart = new ExpGT(new ExpField('id', t1), varStart);
+        }
+        else {
+            expStart = new ExpStr('9223372036854775807');
+            cmpStart = new ExpLT(new ExpField('id', t1), varStart);
+        }
+        setPageState.equ(pageStart, expStart);
+
         const select = factory.createSelect();
         sqls.push(select);
-        select.column(new ExpNum(1000), 'id');
+        select.column(new ExpField('id', t1), 'id');
         select.column(ExpNum.num0, 'ban');
         const arr: ExpVal[] = [];
         for (let col of cols) {
@@ -37,35 +56,23 @@ export class BFromStatement extends BStatement<FromStatement> {
             arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
         }
 
-        let tbl: string;
-
-        function atomSelect() {
-            tbl = EnumSysTable.atom;
-        }
-        function specSelect() {
-            tbl = EnumSysTable.spec;
-        }
-        function binSelect() {
-            tbl = EnumSysTable.bizBin;
-        }
-        function sheetSelect() {
-            tbl = EnumSysTable.sheet;
-        }
-        function pendSelect() {
-            tbl = EnumSysTable.pend;
-        }
-        const { bizPhraseType } = this.istatement;
-        switch (bizPhraseType) {
-            case BizPhraseType.atom: atomSelect(); break;
-            case BizPhraseType.spec: specSelect(); break;
-            case BizPhraseType.bin: binSelect(); break;
-            case BizPhraseType.sheet: sheetSelect(); break;
-            case BizPhraseType.pend: pendSelect(); break;
-        }
-
-        select.from(new EntityTable(tbl, false, t1));
+        select.from(new EntityTable(bizEntityTable, false, t1));
         select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');
-        select.where(this.context.expCmp(where));
+        let fieldBase = new ExpField('base', t1);
+        let expBase = bizEntityArr.length === 1 ?
+            new ExpEQ(fieldBase, new ExpNum(bizEntity0.id))
+            :
+            new ExpIn(
+                fieldBase,
+                ...bizEntityArr.map(v => new ExpNum(v.id))
+            );
+        let wheres: ExpCmp[] = [
+            cmpStart,
+            expBase,
+            this.context.expCmp(where),
+        ];
+        select.where(new ExpAnd(...wheres));
         select.order(new ExpField('id', t1), asc);
+        select.limit(new ExpVar('$pageSize'));
     }
 }

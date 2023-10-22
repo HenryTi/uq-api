@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BFromStatement = void 0;
-const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
 const t1 = 't1';
+const pageStart = '$pageStart';
 class BFromStatement extends bstatement_1.BStatement {
     body(sqls) {
         const { factory } = this.context;
@@ -14,10 +14,26 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { asc, cols, where } = this.istatement;
+        const { asc, cols, where, bizEntityTable, bizEntityArr } = this.istatement;
+        const ifStateNull = factory.createIf();
+        sqls.push(ifStateNull);
+        ifStateNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pageStart));
+        const setPageState = factory.createSet();
+        ifStateNull.then(setPageState);
+        let expStart, cmpStart;
+        let varStart = new sql_1.ExpVar(pageStart);
+        if (asc === 'asc') {
+            expStart = new sql_1.ExpNum(0);
+            cmpStart = new sql_1.ExpGT(new sql_1.ExpField('id', t1), varStart);
+        }
+        else {
+            expStart = new sql_1.ExpStr('9223372036854775807');
+            cmpStart = new sql_1.ExpLT(new sql_1.ExpField('id', t1), varStart);
+        }
+        setPageState.equ(pageStart, expStart);
         const select = factory.createSelect();
         sqls.push(select);
-        select.column(new sql_1.ExpNum(1000), 'id');
+        select.column(new sql_1.ExpField('id', t1), 'id');
         select.column(sql_1.ExpNum.num0, 'ban');
         const arr = [];
         for (let col of cols) {
@@ -35,44 +51,17 @@ class BFromStatement extends bstatement_1.BStatement {
             colArr.push(this.context.expVal(val));
             arr.push(new sql_1.ExpFunc('JSON_ARRAY', ...colArr));
         }
-        let tbl;
-        function atomSelect() {
-            tbl = il_1.EnumSysTable.atom;
-        }
-        function specSelect() {
-            tbl = il_1.EnumSysTable.spec;
-        }
-        function binSelect() {
-            tbl = il_1.EnumSysTable.bizBin;
-        }
-        function sheetSelect() {
-            tbl = il_1.EnumSysTable.sheet;
-        }
-        function pendSelect() {
-            tbl = il_1.EnumSysTable.pend;
-        }
-        const { bizPhraseType } = this.istatement;
-        switch (bizPhraseType) {
-            case il_1.BizPhraseType.atom:
-                atomSelect();
-                break;
-            case il_1.BizPhraseType.spec:
-                specSelect();
-                break;
-            case il_1.BizPhraseType.bin:
-                binSelect();
-                break;
-            case il_1.BizPhraseType.sheet:
-                sheetSelect();
-                break;
-            case il_1.BizPhraseType.pend:
-                pendSelect();
-                break;
-        }
-        select.from(new statementWithFrom_1.EntityTable(tbl, false, t1));
+        select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t1));
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
-        select.where(this.context.expCmp(where));
+        let expBaseInBizEntityArr = new sql_1.ExpIn(new sql_1.ExpField('base', t1), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
+        let wheres = [
+            cmpStart,
+            expBaseInBizEntityArr,
+            this.context.expCmp(where),
+        ];
+        select.where(new sql_1.ExpAnd(...wheres));
         select.order(new sql_1.ExpField('id', t1), asc);
+        select.limit(new sql_1.ExpVar('$pageSize'));
     }
 }
 exports.BFromStatement = BFromStatement;
