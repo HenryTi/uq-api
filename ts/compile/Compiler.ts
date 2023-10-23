@@ -154,7 +154,7 @@ export class Compiler {
     async buildDb() {
         const { uq } = this.uqParser;
         this.setEntitysId(uq.biz.bizArr);
-        await this.uqBuilder.build(this.log);
+        await this.uqBuilder.build(this.res, this.log);
     }
 
     throwError(err: any) {

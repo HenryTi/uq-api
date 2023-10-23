@@ -25,6 +25,7 @@ class BizEntity extends Base_1.BizBase {
             }
             Object.assign(ret, { props });
         }
+        this.schema = ret;
         return ret;
     }
     okToDefineNewName(name) {

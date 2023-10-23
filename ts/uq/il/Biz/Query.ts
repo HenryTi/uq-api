@@ -52,6 +52,12 @@ export class BizQueryTable extends BizQuery {
     db(dbContext: DbContext): BBizEntity {
         return new BBizQuery(dbContext, this);
     }
+    override buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        ret.asc = this.from.asc;
+        ret.params = this.params.map(v => v.buildSchema(res));
+        return ret;
+    }
 }
 
 export class BizQueryTableStatements extends Statements {

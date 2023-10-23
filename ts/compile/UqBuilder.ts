@@ -34,13 +34,18 @@ export class UqBuilder {
         const memo = undefined;
         if (phrase === undefined) debugger;
         let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject'
-            , this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source
-            , undefined);
+            , this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source);
         let obj = { id, phrase };
         entity.id = id;
         objIds[id] = obj;
         objNames[phrase] = obj;
         res[phrase] = caption;
+    }
+
+    private async saveBizSchema(entity: BizEntity) {
+        const { id, schema } = entity;
+        let schemaText = JSON.stringify(schema);
+        await this.runner.unitUserTableFromProc('SaveBizSchema', this.site, this.user, id, schemaText);
     }
 
     private async saveBizEntityBuds(entity: BizEntity) {
@@ -71,7 +76,7 @@ export class UqBuilder {
         res[phrase] = caption;
     }
 
-    async build(log: (msg: string) => boolean) {
+    async build(res: any, log: (msg: string) => boolean) {
         const { newest } = this.compiler;
         await Promise.all(newest.map(entity => {
             return this.saveBizObject(entity);
@@ -95,6 +100,10 @@ export class UqBuilder {
         context.ownerDbName = '$site';
         await this.buildSiteDbs(context, log);
         this.buildBudsValue(context);
+        this.biz.buildSchema(res);
+        await Promise.all(newest.map(entity => {
+            return this.saveBizSchema(entity);
+        }));
     }
 
     private async buildSiteDbs(context: DbContext, log: (msg: string) => boolean) {

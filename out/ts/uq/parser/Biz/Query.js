@@ -138,7 +138,7 @@ class PBizQueryValueStatements extends statement_1.PStatements {
     statementFromKey(parent, key) {
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'put': return new il_1.PutStatement(parent);
+            case 'return': return new il_1.PutStatement(parent);
         }
     }
 }

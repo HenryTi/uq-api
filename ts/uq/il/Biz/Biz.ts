@@ -3,10 +3,11 @@ import { Builder } from "../builder";
 import { Schema, SchemaBuilder } from "../schema";
 import { Uq } from "../uq";
 import { Entity, EntityAccessibility } from "../entity/entity";
-import { BizBase } from "./Base";
+import { BizBase, BizPhraseType } from "./Base";
 import { BizEntity } from "./Entity";
 import { BizRole } from "./Role";
 import { BizAtom } from "./Atom";
+import { EnumSysTable } from "../EnumSysTable";
 
 interface Role {
     role: string;
@@ -16,9 +17,7 @@ interface Role {
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
     readonly bizArr: BizEntity[] = [];
-    // readonly latestBizArr: BizEntity[] = [];
     phrases: [string, string, string, string][];
-    // roles: Role[];
     constructor(uq: Uq) {
         super(uq);
         this.name = '$biz';
@@ -31,16 +30,6 @@ export class Biz extends Entity {
     parser(context: PContext) { return new PBiz(this, context); }
     db(db: Builder): object { return db.Biz(this); }
     protected internalCreateSchema(res: { [phrase: string]: string }) { new BizSchemaBuilder(this.uq, this).build(this.schema as any, res); }
-
-    /*
-    anchorLatest() {
-        this.latestBizArr.push(...this.bizArr);
-    }
-
-    isLatest(phrase: string) {
-        return this.latestBizArr.find(v => v.name === phrase) !== undefined;
-    }
-    */
 
     delEntity(entityId: number) {
         for (let i = 0; i < this.bizArr.length; i++) {
@@ -55,23 +44,10 @@ export class Biz extends Entity {
 
     buildPhrases() {
         let phrases: [string, string, string, string][] = [];
-        let roles: Role[] = [];
         for (let [, value] of this.bizEntities) {
-            // let { type } = value;
-            // phrases.push([type, '', '', value.getTypeNum()]);
             value.buildPhrases(phrases, undefined);
         }
         this.phrases = phrases;
-        /*
-        for (let [, value] of this.bizEntities) {
-            let { type } = value;
-            if (type !== 'role') continue;
-            let permitNames: string[] = [];
-            this.buildRoleNames(permitNames, value as BizRole);
-            roles.push({ role: value.phrase, permits: permitNames });
-        }
-        */
-        // if (roles.length > 0) this.roles = roles;
     }
 
     buildArrPhrases() {
@@ -83,32 +59,7 @@ export class Biz extends Entity {
         }
         return phrases;
     }
-    /*
-    private buildRoleNames(permitNames: string[], bizRole: BizRole) {
-        let { roles, permits } = bizRole;
-        for (let [, value] of permits) {
-            let { phrase } = value;
-            permitNames.push(phrase);
-            this.buildPermitNames(permitNames, value);
-        }
-        for (let [, value] of roles) {
-            let { phrase } = value;
-            permitNames.push(phrase);
-            this.buildRoleNames(permitNames, value);
-        }
-    }
 
-    private buildPermitNames(permitNames: string[], bizPermit: BizPermit) {
-        let { items, permits } = bizPermit;
-        for (let [, value] of items) {
-            permitNames.push(value.phrase);
-        }
-        for (let [, value] of permits) {
-            permitNames.push(value.phrase);
-            this.buildPermitNames(permitNames, value);
-        }
-    }
-    */
     getBizBase(bizName: string[]): BizBase {
         if (bizName.length === 1) {
             return this.bizEntities.get(bizName[0]);
@@ -135,7 +86,6 @@ export class Biz extends Entity {
         }
 
         function buildAtomPair(bizAtom: BizAtom) {
-            // const bizAtom = entity as BizAtom;
             if (pairColl[bizAtom.name] !== undefined) return;
             const { extends: _extends } = bizAtom;
             if (_extends === undefined) return;
@@ -164,6 +114,66 @@ export class Biz extends Entity {
             entity.buildIxRoles(ret);
         }
         return ret;
+    }
+
+    sameTypeEntityArr(entityNames: string[]): {
+        ok: boolean;
+        entityArr: BizEntity[];
+        logs: string[];
+        bizEntity0: BizEntity;
+        bizPhraseType: BizPhraseType;
+        bizEntityTable: EnumSysTable;
+    } {
+        let logs: string[] = [];
+        let entityArr: BizEntity[] = [];
+        let ok = true;
+        for (let entityName of entityNames) {
+            let entity = this.bizEntities.get(entityName);
+            if (entity === undefined) {
+                logs.push(`${entityName} is not defined`);
+                ok = false;
+            }
+            else {
+                entityArr.push(entity);
+            }
+        }
+        let { length } = entityArr;
+        let bizEntity0: BizEntity;
+        let bizPhraseType: BizPhraseType;
+        let bizEntityTable: EnumSysTable;
+        if (length > 0) {
+            let bizEntity = entityArr[0];
+            bizEntity0 = bizEntity;
+            const { bizPhraseType: bpt } = bizEntity;
+            for (let i = 1; i < length; i++) {
+                let ent = entityArr[i];
+                if (ent.bizPhraseType !== bizPhraseType) {
+                    logs.push(`${entityArr.map(v => v.getJName()).join(', ')} must be the same type`);
+                    ok = false;
+                }
+            }
+            bizPhraseType = bpt;
+            switch (bizPhraseType) {
+                default:
+                    logs.push(`FROM can only be one of ATOM, SPEC, BIN, SHEET, PEND`);
+                    ok = false;
+                    break;
+                case BizPhraseType.query: break;
+                case BizPhraseType.atom:
+                    bizEntityTable = EnumSysTable.atom; break;
+                case BizPhraseType.spec:
+                    bizEntityTable = EnumSysTable.spec; break;
+                case BizPhraseType.bin:
+                    bizEntityTable = EnumSysTable.bizBin; break;
+                case BizPhraseType.sheet:
+                    bizEntityTable = EnumSysTable.sheet; break;
+                case BizPhraseType.pend:
+                    bizEntityTable = EnumSysTable.pend; break;
+            }
+        }
+        return {
+            ok, bizEntity0, entityArr, logs, bizPhraseType, bizEntityTable
+        };
     }
 }
 

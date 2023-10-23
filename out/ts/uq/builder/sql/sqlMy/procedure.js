@@ -54,7 +54,7 @@ class MyProcedure extends procedure_1.Procedure {
     returnPuts(sb, tab, puts) {
         let params = [];
         for (let i in puts) {
-            params.push(new __1.ExpStr(i), new __1.ExpVar('$put$' + i));
+            params.push(new __1.ExpStr(i), new __1.ExpVar('$ret$' + i));
         }
         if (params.length > 0) {
             sb.tab(tab);
@@ -69,7 +69,7 @@ class MyProcedure extends procedure_1.Procedure {
                 }
                 sb.exp(p);
             }
-            sb.r().append(' AS $put').ln();
+            sb.r().append(' AS $ret').ln();
         }
     }
     declareVar(sb, v) {

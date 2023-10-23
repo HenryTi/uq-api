@@ -40,7 +40,6 @@ class PStatements extends PStatement {
             case 'table': return new il_1.TableStatement(parent);
             case 'text': return new il_1.TextStatement(parent);
             case 'set': return new il_1.SetStatement(parent);
-            // case 'put': return new PutStatement(parent);
             case 'with': return new il_1.WithStatement(parent);
             case 'value': return new il_1.ValueStatement(parent);
             case 'if': return new il_1.If(parent);

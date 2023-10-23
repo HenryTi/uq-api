@@ -20,7 +20,7 @@ class BBizEntity {
             if (query === undefined)
                 return;
             const { id } = bud;
-            const procBudValue = this.createProcedure(`${this.context.site}.${id}`);
+            const procBudValue = this.createProcedure(`${this.context.site}.${id}v`);
             this.buildBudValueProc(procBudValue, query);
         });
     }

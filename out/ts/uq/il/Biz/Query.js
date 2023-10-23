@@ -55,6 +55,12 @@ class BizQueryTable extends BizQuery {
     db(dbContext) {
         return new BizQuery_1.BBizQuery(dbContext, this);
     }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.asc = this.from.asc;
+        ret.params = this.params.map(v => v.buildSchema(res));
+        return ret;
+    }
 }
 exports.BizQueryTable = BizQueryTable;
 class BizQueryTableStatements extends statement_1.Statements {

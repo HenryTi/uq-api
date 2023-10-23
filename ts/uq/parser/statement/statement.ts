@@ -55,7 +55,6 @@ export abstract class PStatements extends PStatement<Statements> {
             case 'table': return new TableStatement(parent);
             case 'text': return new TextStatement(parent);
             case 'set': return new SetStatement(parent);
-            // case 'put': return new PutStatement(parent);
             case 'with': return new WithStatement(parent);
             case 'value': return new ValueStatement(parent);
             case 'if': return new If(parent);

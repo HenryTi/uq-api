@@ -134,7 +134,7 @@ export class PBizQueryValueStatements extends PStatements {
     protected statementFromKey(parent: Statement, key: string): Statement {
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'put': return new PutStatement(parent);
+            case 'return': return new PutStatement(parent);
         }
     }
 }

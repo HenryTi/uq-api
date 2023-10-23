@@ -51,7 +51,7 @@ export class MyProcedure extends Procedure {
     protected returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }) {
         let params: ExpVal[] = [];
         for (let i in puts) {
-            params.push(new ExpStr(i), new ExpVar('$put$' + i));
+            params.push(new ExpStr(i), new ExpVar('$ret$' + i));
         }
         if (params.length > 0) {
             sb.tab(tab);
@@ -66,7 +66,7 @@ export class MyProcedure extends Procedure {
                 }
                 sb.exp(p);
             }
-            sb.r().append(' AS $put').ln();
+            sb.r().append(' AS $ret').ln();
         }
     }
     protected declareVar(sb: SqlBuilder, v: il.Field) {

@@ -21,12 +21,17 @@ class UqBuilder {
         const memo = undefined;
         if (phrase === undefined)
             debugger;
-        let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject', this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source, undefined);
+        let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject', this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source);
         let obj = { id, phrase };
         entity.id = id;
         objIds[id] = obj;
         objNames[phrase] = obj;
         res[phrase] = caption;
+    }
+    async saveBizSchema(entity) {
+        const { id, schema } = entity;
+        let schemaText = JSON.stringify(schema);
+        await this.runner.unitUserTableFromProc('SaveBizSchema', this.site, this.user, id, schemaText);
     }
     async saveBizEntityBuds(entity) {
         let promises = [];
@@ -51,7 +56,7 @@ class UqBuilder {
         bud.id = budId;
         res[phrase] = caption;
     }
-    async build(log) {
+    async build(res, log) {
         const { newest } = this.compiler;
         await Promise.all(newest.map(entity => {
             return this.saveBizObject(entity);
@@ -71,6 +76,10 @@ class UqBuilder {
         context.ownerDbName = '$site';
         await this.buildSiteDbs(context, log);
         this.buildBudsValue(context);
+        this.biz.buildSchema(res);
+        await Promise.all(newest.map(entity => {
+            return this.saveBizSchema(entity);
+        }));
     }
     async buildSiteDbs(context, log) {
         const compileOptions = {

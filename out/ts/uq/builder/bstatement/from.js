@@ -14,7 +14,7 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { asc, cols, where, bizEntityTable, bizEntityArr } = this.istatement;
+        const { asc, cols, where, bizEntityTable, bizEntityArr, bizEntity0 } = this.istatement;
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
         ifStateNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pageStart));
@@ -53,10 +53,14 @@ class BFromStatement extends bstatement_1.BStatement {
         }
         select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t1));
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
-        let expBaseInBizEntityArr = new sql_1.ExpIn(new sql_1.ExpField('base', t1), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
+        let fieldBase = new sql_1.ExpField('base', t1);
+        let expBase = bizEntityArr.length === 1 ?
+            new sql_1.ExpEQ(fieldBase, new sql_1.ExpNum(bizEntity0.id))
+            :
+                new sql_1.ExpIn(fieldBase, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
         let wheres = [
             cmpStart,
-            expBaseInBizEntityArr,
+            expBase,
             this.context.expCmp(where),
         ];
         select.where(new sql_1.ExpAnd(...wheres));

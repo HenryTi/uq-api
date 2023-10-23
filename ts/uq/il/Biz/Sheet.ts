@@ -1,12 +1,10 @@
-import { BBizEntity, BBizSheet, DbContext } from "../../builder";
-import { BBizBin } from "../../builder";
-import { PBizBin, PBizDetailAct, PBizPend, PBizSheet, PContext, PElement } from "../../parser";
+import { BBizSheet, DbContext } from "../../builder";
+import { PBizPend, PBizSheet, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
-import { Field } from "../field";
-import { ActionStatement, TableVar } from "../statement";
-import { BizBase, BizPhraseType } from "./Base";
+import { BizPhraseType } from "./Base";
+import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBudAtom, BizBudDec, BizBudPickable, BudValue, BizBud } from "./Bud";
+import { BizBudValue, BizBudAtom, BizBudDec, BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export class BizSheet extends BizEntity {
@@ -38,75 +36,6 @@ export class BizSheet extends BizEntity {
 
     db(dbContext: DbContext): BBizSheet {
         return new BBizSheet(dbContext, this);
-    }
-}
-
-export interface PropPend {
-    caption: string;
-    entity: BizPend;
-    search: string[];
-}
-
-export class BizBin extends BizEntity {
-    protected readonly fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
-    readonly bizPhraseType = BizPhraseType.bin;
-    act: BizBinAct;
-    i: BizBudPickable;
-    x: BizBudPickable;
-    pend: PropPend;
-    value: BizBudValue;
-    price: BizBudValue;
-    amount: BizBudValue;
-
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBin(this, context);
-    }
-
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        let pend: any;
-        if (this.pend !== undefined) {
-            let { caption, entity, search } = this.pend;
-            pend = {
-                caption,
-                entity: entity.name,
-                search,
-            }
-        }
-        return {
-            ...ret,
-            pend,
-            i: this.i?.buildSchema(res),
-            x: this.x?.buildSchema(res),
-            value: this.value?.buildSchema(res),
-            amount: this.amount?.buildSchema(res),
-            price: this.price?.buildSchema(res),
-        }
-    }
-    override forEachBud(callback: (bud: BizBudValue) => void) {
-        super.forEachBud(callback);
-        if (this.i !== undefined) callback(this.i);
-        if (this.x !== undefined) callback(this.x);
-        if (this.value !== undefined) callback(this.value);
-        if (this.price !== undefined) callback(this.price);
-        if (this.amount !== undefined) callback(this.amount);
-    }
-    override getBud(name: string) {
-        let bud = super.getBud(name);
-        if (bud !== undefined) return bud;
-        if (this.value !== undefined) {
-            if (this.value.name === name) return this.value;
-        }
-        if (this.price !== undefined) {
-            if (this.price.name === name) return this.price;
-        }
-        if (this.amount !== undefined) {
-            if (this.amount.name === name) return this.amount;
-        }
-        return undefined;
-    }
-    db(dbContext: DbContext): BBizEntity<any> {
-        return new BBizBin(dbContext, this);
     }
 }
 
@@ -154,39 +83,3 @@ export class BizPend extends BizEntity {
     }
 }
 
-export class BizBinAct extends BizBase {
-    readonly bizPhraseType = BizPhraseType.detailAct;
-    readonly bizDetail: BizBin;
-    readonly tableVars: { [name: string]: TableVar } = {};
-
-    idParam: Field;
-    statement: ActionStatement;
-
-    constructor(biz: Biz, bizDetail: BizBin) {
-        super(biz);
-        this.bizDetail = bizDetail;
-    }
-
-    parser(context: PContext): PElement<IElement> {
-        return new PBizDetailAct(this, context);
-    }
-
-    addTableVar(tableVar: TableVar): boolean {
-        let name = tableVar.name;
-        let t = this.tableVars[name];
-        if (t !== undefined) return false;
-        this.tableVars[name] = tableVar;
-        return true;
-    }
-
-    getTableVar(name: string): TableVar { return this.tableVars[name] }
-
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            // fromPend: this.fromPend?.name,
-            detail: this.bizDetail.name,
-        };
-    }
-}

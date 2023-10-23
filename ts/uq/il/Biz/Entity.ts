@@ -39,6 +39,7 @@ export abstract class BizEntity extends BizBase {
     readonly permissions: { [role: string]: Permission } = {};
     source: string = undefined;
     protected abstract get fields(): string[];
+    schema: any;
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -49,6 +50,7 @@ export abstract class BizEntity extends BizBase {
             }
             Object.assign(ret, { props });
         }
+        this.schema = ret;
         return ret;
     }
     okToDefineNewName(name: string): boolean {
