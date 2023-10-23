@@ -49,6 +49,10 @@ export class BizQueryTable extends BizQuery {
         let index = this.params.findIndex(v => v.name === name);
         return index >= 0;
     }
+    hasReturn(prop: string): boolean {
+        let { cols } = this.from;
+        return (cols.findIndex(v => v.name === prop) >= 0);
+    }
     db(dbContext: DbContext): BBizEntity {
         return new BBizQuery(dbContext, this);
     }

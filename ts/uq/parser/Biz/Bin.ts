@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery
+    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -67,7 +67,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             picks = new Map();
             this.element.picks = picks;
         }
-        let pick = new BinPick(this.element.biz);
+        let pick = new BinPick(this.element);
         this.context.parseElement(pick);
         picks.set(pick.name, pick);
     }
@@ -176,7 +176,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
         }
 
-        if (picks === undefined) {
+        if (picks !== undefined) {
             for (let [, pick] of picks) {
                 if (pick.pelement.scan(space) === false) {
                     ok = false;
@@ -251,14 +251,15 @@ export class PBizBin extends PBizEntity<BizBin> {
 }
 
 export class PBinPick extends PElement<BinPick> {
-    private from: string[];
+    private from: string[] = [];
     protected _parse(): void {
         let name = this.ts.passVar();
+        this.element.name = name;
         this.ts.passKey('from');
-        let from: string[] = [];
         let param: PickParam[] = [];
+        this.element.param = param;
         for (; ;) {
-            from.push(this.ts.passVar());
+            this.from.push(this.ts.passVar());
             if (this.ts.token !== Token.BITWISEOR) break;
             this.ts.readToken();
         }
@@ -318,9 +319,22 @@ export class PBinPick extends PElement<BinPick> {
                     pickBase = new PickPend(bizEntity0 as BizPend);
                     break;
                 case BizPhraseType.query:
-                    pickBase = new PickQuery(bizEntity0 as BizQuery);
+                    pickBase = new PickQuery(bizEntity0 as BizQueryTable);
                     break;
             }
+            let { param } = this.element;
+            for (let p of param) {
+                const { name, bud, prop } = p;
+                if (pickBase.hasParam(name) === false) {
+                    this.log(`PARAM ${name} is not defined`);
+                    ok = false;
+                }
+                if (this.element.bin.isValidPickProp(bud, prop) === false) {
+                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} is not valid`);
+                    ok = false;
+                }
+            }
+            this.element.pick = pickBase;
         }
         return ok;
     }

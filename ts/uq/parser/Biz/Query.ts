@@ -41,31 +41,36 @@ export class PBizQueryTable extends PBizQuery<BizQueryTable> {
         this.context.createStatements = statements.createStatements;
         this.context.parseElement(statements);
         this.element.statement = statements;
+        const { statements: arr } = statements;
+        const { length } = arr;
+        if (length > 0) {
+            const lastStatement = arr[length - 1];
+            this.element.from = lastStatement as FromStatement;
+        }
     }
 
     scan(space: Space): boolean {
         let ok = true;
         space = new BizQuerySpace(space, this.element);
-        const { statement } = this.element;
+        const { from, props } = this.element;
         if (this.element.statement.pelement.scan(space) === false) {
             ok = false;
         }
-        const { statements } = statement;
-        const { length } = statements;
-        if (length > 0) {
-            const lastStatement = statements[length - 1];
-            if (lastStatement.type !== 'from') {
-                this.log(`FROM must be the last statement in QUERY`);
-                ok = false;
-            }
-            else {
-                this.element.from = lastStatement as FromStatement;
-                const { props, from } = this.element;
-                const coll: { [col: string]: boolean } = {};
-                for (let col of from.cols) {
-                    const { caption, bud } = col;
-                    if (caption !== null) {
-                        const { name } = bud;
+        if (from === undefined || from.type !== 'from') {
+            this.log(`FROM must be the last statement in QUERY`);
+            ok = false;
+        }
+        else {
+            const coll: { [col: string]: boolean } = {};
+            for (let col of from.cols) {
+                let { caption, bud } = col;
+                if (caption !== null) {
+                    if (bud === undefined) {
+                        this.log(`Bud can not be undefined`);
+                        ok = false;
+                    }
+                    else {
+                        let { name } = bud;
                         if (coll[name] === true) {
                             this.log(`duplicate ${name} in columns`);
                             ok = false;

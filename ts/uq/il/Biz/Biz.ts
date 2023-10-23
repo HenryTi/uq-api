@@ -147,7 +147,7 @@ export class Biz extends Entity {
             const { bizPhraseType: bpt } = bizEntity;
             for (let i = 1; i < length; i++) {
                 let ent = entityArr[i];
-                if (ent.bizPhraseType !== bizPhraseType) {
+                if (ent.bizPhraseType !== bpt) {
                     logs.push(`${entityArr.map(v => v.getJName()).join(', ')} must be the same type`);
                     ok = false;
                 }

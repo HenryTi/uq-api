@@ -7,9 +7,10 @@ const EnumSysTable_1 = require("../EnumSysTable");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
 class BinPick extends Base_1.BizBase {
-    constructor() {
-        super(...arguments);
+    constructor(bin) {
+        super(bin.biz);
         this.bizPhraseType = Base_1.BizPhraseType.pick;
+        this.bin = bin;
     }
     parser(context) {
         return new parser_1.PBinPick(this, context);
@@ -26,6 +27,12 @@ class PickQuery extends PickBase {
         this.query = query;
     }
     fromSchema() { return [this.query.name]; }
+    hasParam(param) {
+        return this.query.hasParam(param);
+    }
+    hasReturn(prop) {
+        return this.query.hasReturn(prop);
+    }
 }
 exports.PickQuery = PickQuery;
 class PickAtom extends PickBase {
@@ -35,6 +42,12 @@ class PickAtom extends PickBase {
         this.from = from;
     }
     fromSchema() { return this.from.map(v => v.name); }
+    hasParam(param) {
+        return false;
+    }
+    hasReturn(prop) {
+        return false;
+    }
 }
 exports.PickAtom = PickAtom;
 class PickSpec extends PickBase {
@@ -44,6 +57,12 @@ class PickSpec extends PickBase {
         this.from = from;
     }
     fromSchema() { return [this.from.name]; }
+    hasParam(param) {
+        return param === 'base';
+    }
+    hasReturn(prop) {
+        return false;
+    }
 }
 exports.PickSpec = PickSpec;
 class PickPend extends PickBase {
@@ -53,6 +72,12 @@ class PickPend extends PickBase {
         this.from = from;
     }
     fromSchema() { return [this.from.name]; }
+    hasParam(param) {
+        return false;
+    }
+    hasReturn(prop) {
+        return false;
+    }
 }
 exports.PickPend = PickPend;
 class BizBin extends Entity_1.BizEntity {
@@ -76,7 +101,7 @@ class BizBin extends Entity_1.BizEntity {
                 search,
             };
         }
-        let picks;
+        let picks = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
                 const { name, pick, param } = value;
@@ -88,8 +113,7 @@ class BizBin extends Entity_1.BizEntity {
             }
         }
         ;
-        return Object.assign(Object.assign({}, ret), { picks,
-            pend, i: (_a = this.i) === null || _a === void 0 ? void 0 : _a.buildSchema(res), x: (_b = this.x) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
+        return Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, pend, i: (_a = this.i) === null || _a === void 0 ? void 0 : _a.buildSchema(res), x: (_b = this.x) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
     }
     forEachBud(callback) {
         super.forEachBud(callback);
@@ -124,6 +148,14 @@ class BizBin extends Entity_1.BizEntity {
     }
     db(dbContext) {
         return new builder_1.BBizBin(dbContext, this);
+    }
+    isValidPickProp(pickName, prop) {
+        let pick = this.picks.get(pickName);
+        if (pick === undefined)
+            return false;
+        if (prop === undefined)
+            return true;
+        return pick.pick.hasReturn(prop);
     }
 }
 exports.BizBin = BizBin;

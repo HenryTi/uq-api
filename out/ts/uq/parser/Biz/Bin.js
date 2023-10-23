@@ -59,7 +59,7 @@ class PBizBin extends Base_1.PBizEntity {
                 picks = new Map();
                 this.element.picks = picks;
             }
-            let pick = new il_1.BinPick(this.element.biz);
+            let pick = new il_1.BinPick(this.element);
             this.context.parseElement(pick);
             picks.set(pick.name, pick);
         };
@@ -158,7 +158,7 @@ class PBizBin extends Base_1.PBizEntity {
                 };
             }
         }
-        if (picks === undefined) {
+        if (picks !== undefined) {
             for (let [, pick] of picks) {
                 if (pick.pelement.scan(space) === false) {
                     ok = false;
@@ -229,13 +229,18 @@ class PBizBin extends Base_1.PBizEntity {
 }
 exports.PBizBin = PBizBin;
 class PBinPick extends element_1.PElement {
+    constructor() {
+        super(...arguments);
+        this.from = [];
+    }
     _parse() {
         let name = this.ts.passVar();
+        this.element.name = name;
         this.ts.passKey('from');
-        let from = [];
         let param = [];
+        this.element.param = param;
         for (;;) {
-            from.push(this.ts.passVar());
+            this.from.push(this.ts.passVar());
             if (this.ts.token !== tokens_1.Token.BITWISEOR)
                 break;
             this.ts.readToken();
@@ -297,6 +302,19 @@ class PBinPick extends element_1.PElement {
                     pickBase = new il_1.PickQuery(bizEntity0);
                     break;
             }
+            let { param } = this.element;
+            for (let p of param) {
+                const { name, bud, prop } = p;
+                if (pickBase.hasParam(name) === false) {
+                    this.log(`PARAM ${name} is not defined`);
+                    ok = false;
+                }
+                if (this.element.bin.isValidPickProp(bud, prop) === false) {
+                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} is not valid`);
+                    ok = false;
+                }
+            }
+            this.element.pick = pickBase;
         }
         return ok;
     }

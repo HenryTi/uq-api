@@ -10,7 +10,7 @@ import { BizBase, BizPhraseType } from "./Base";
 import { Biz } from "./Biz";
 import { BizBudValue, BizBudPickable } from "./Bud";
 import { BizEntity } from "./Entity";
-import { BizQuery } from "./Query";
+import { BizQuery, BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
 
 export interface PropPend {
@@ -26,9 +26,14 @@ export interface PickParam {
 }
 export class BinPick extends BizBase {
     readonly bizPhraseType = BizPhraseType.pick;
+    readonly bin: BizBin;
     name: string;
     param: PickParam[];
     pick: PickBase;
+    constructor(bin: BizBin) {
+        super(bin.biz);
+        this.bin = bin;
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBinPick(this, context);
     }
@@ -36,15 +41,23 @@ export class BinPick extends BizBase {
 export abstract class PickBase {
     abstract get bizEntityTable(): EnumSysTable;
     abstract fromSchema(): string[];
+    abstract hasParam(param: string): boolean;
+    abstract hasReturn(prop: string): boolean;
 }
 export class PickQuery extends PickBase {
     readonly bizEntityTable = undefined;
-    query: BizQuery;
-    constructor(query: BizQuery) {
+    query: BizQueryTable;
+    constructor(query: BizQueryTable) {
         super();
         this.query = query;
     }
     fromSchema(): string[] { return [this.query.name]; }
+    hasParam(param: string): boolean {
+        return this.query.hasParam(param);
+    }
+    hasReturn(prop: string): boolean {
+        return this.query.hasReturn(prop);
+    }
 }
 export class PickAtom extends PickBase {
     readonly bizEntityTable = EnumSysTable.atom;
@@ -54,6 +67,12 @@ export class PickAtom extends PickBase {
         this.from = from;
     }
     fromSchema(): string[] { return this.from.map(v => v.name); }
+    hasParam(param: string): boolean {
+        return false;
+    }
+    hasReturn(prop: string): boolean {
+        return false;
+    }
 }
 export class PickSpec extends PickBase {
     readonly bizEntityTable = EnumSysTable.spec;
@@ -63,6 +82,12 @@ export class PickSpec extends PickBase {
         this.from = from;
     }
     fromSchema(): string[] { return [this.from.name]; }
+    hasParam(param: string): boolean {
+        return param === 'base';
+    }
+    hasReturn(prop: string): boolean {
+        return false;
+    }
 }
 export class PickPend extends PickBase {
     readonly bizEntityTable = EnumSysTable.pend;
@@ -72,6 +97,12 @@ export class PickPend extends PickBase {
         this.from = from;
     }
     fromSchema(): string[] { return [this.from.name]; }
+    hasParam(param: string): boolean {
+        return false;
+    }
+    hasReturn(prop: string): boolean {
+        return false;
+    }
 }
 
 export class BizBin extends BizEntity {
@@ -101,7 +132,7 @@ export class BizBin extends BizEntity {
                 search,
             }
         }
-        let picks: any[];
+        let picks: any[] = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
                 const { name, pick, param } = value;
@@ -114,7 +145,7 @@ export class BizBin extends BizEntity {
         };
         return {
             ...ret,
-            picks,
+            picks: picks.length === 0 ? undefined : picks,
             pend,
             i: this.i?.buildSchema(res),
             x: this.x?.buildSchema(res),
@@ -147,6 +178,12 @@ export class BizBin extends BizEntity {
     }
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizBin(dbContext, this);
+    }
+    isValidPickProp(pickName: string, prop: string): boolean {
+        let pick = this.picks.get(pickName);
+        if (pick === undefined) return false;
+        if (prop === undefined) return true;
+        return pick.pick.hasReturn(prop);
     }
 }
 
