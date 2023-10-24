@@ -100,8 +100,6 @@ class BizBin extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         var _a, _b, _c, _d, _e;
-        if (this.name === '采购单主表')
-            debugger;
         let ret = super.buildSchema(res);
         let pend;
         if (this.pend !== undefined) {

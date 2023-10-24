@@ -125,7 +125,6 @@ export class BizBin extends BizEntity {
     }
 
     buildSchema(res: { [phrase: string]: string }) {
-        if (this.name === '采购单主表') debugger;
         let ret = super.buildSchema(res);
         let pend: any;
         if (this.pend !== undefined) {

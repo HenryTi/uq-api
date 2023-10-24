@@ -54,9 +54,8 @@ export abstract class BizBudValue extends BizBud {
         let ret = super.buildSchema(res);
         return {
             ...ret,
-            dataType:
-                this.dataType, value:
-                this.value?.str,
+            dataType: this.dataType,
+            value: this.value?.str,
             ex: this.ex,
             history: this.hasHistory === true ? true : undefined,
             setType: this.setType ?? SetType.assign,
