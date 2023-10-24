@@ -167,30 +167,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         }
         let bizBud = new Bud(this.element.biz, name, caption);
         bizBud.parser(this.context).parse();
-
-        let act: BudValueAct;
-        switch (this.ts.token) {
-            case Token.EQU: act = BudValueAct.equ; break;
-            case Token.COLONEQU: act = BudValueAct.init; break;
-        }
-        if (act !== undefined) {
-            this.ts.readToken();
-            let exp: ValueExpression;
-            let query: BizQueryValue;
-            if (this.ts.token === Token.LBRACE) {
-                query = new BizQueryValue(this.element.biz);
-                this.context.parseElement(query);
-            }
-            else {
-                exp = new ValueExpression();
-                this.context.parseElement(exp);
-            }
-            bizBud.value = {
-                exp,
-                act,
-                query,
-            };
-        }
+        this.parseBudEqu(bizBud);
         if (this.element.okToDefineNewName(name) === false) {
             this.ts.error(`${name} can not be used multiple times`);
         }
@@ -211,6 +188,33 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             bizBud.setType = SetType.assign;
         }
         return bizBud;
+    }
+
+    protected parseBudEqu(bizBud: BizBudValue) {
+        let act: BudValueAct;
+        switch (this.ts.token) {
+            default: return;
+            case Token.EQU: act = BudValueAct.equ; break;
+            case Token.COLONEQU: act = BudValueAct.init; break;
+        }
+        if (act !== undefined) {
+            this.ts.readToken();
+            let exp: ValueExpression;
+            let query: BizQueryValue;
+            if (this.ts.token === Token.LBRACE as any) {
+                query = new BizQueryValue(this.element.biz);
+                this.context.parseElement(query);
+            }
+            else {
+                exp = new ValueExpression();
+                this.context.parseElement(exp);
+            }
+            bizBud.value = {
+                exp,
+                act,
+                query,
+            };
+        }
     }
 
     protected parseOptions: { [option: string]: (bizBud: BizBudValue) => void } = {

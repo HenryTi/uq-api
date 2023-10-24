@@ -25,6 +25,7 @@ class Space {
     _getBizFrom() { return undefined; }
     _getUse(name) { return undefined; }
     _addUse(name, statementNo, obj) { return undefined; }
+    _varsPointer(names) { return; }
     get groupType() { return il_1.GroupType.Single; }
     set groupType(value) { }
     get inLoop() {
@@ -182,6 +183,15 @@ class Space {
         if (pt === undefined) {
             if (this.outer !== undefined) {
                 pt = this.outer.varPointer(name, isField);
+            }
+        }
+        return pt;
+    }
+    varsPointer(names) {
+        let pt = this._varsPointer(names);
+        if (pt === undefined) {
+            if (this.outer !== undefined) {
+                pt = this.outer.varsPointer(names);
             }
         }
         return pt;

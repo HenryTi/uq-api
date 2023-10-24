@@ -59,7 +59,9 @@ class PBizBin extends Base_1.PBizEntity {
                 picks = new Map();
                 this.element.picks = picks;
             }
-            let pick = new il_1.BinPick(this.element);
+            let name = this.ts.passVar();
+            let caption = this.ts.mayPassString();
+            let pick = new il_1.BinPick(this.element, name, caption);
             this.context.parseElement(pick);
             picks.set(pick.name, pick);
         };
@@ -67,13 +69,13 @@ class PBizBin extends Base_1.PBizEntity {
             if (this.element.i !== undefined) {
                 this.ts.error(`I can only be defined once in Biz Bin`);
             }
-            this.element.i = this.parseBudPickable('i');
+            this.element.i = this.parseBudAtom('i');
         };
         this.parseX = () => {
             if (this.element.x !== undefined) {
                 this.ts.error(`X can only be defined once in Biz Bin`);
             }
-            this.element.x = this.parseBudPickable('x');
+            this.element.x = this.parseBudAtom('x');
         };
         this.parseValue = () => {
             this.element.value = this.parseValueBud(this.element.value, 'value');
@@ -106,10 +108,14 @@ class PBizBin extends Base_1.PBizEntity {
             pend: this.parsePend,
         };
     }
-    parseBudPickable(itemName) {
+    parseBudAtom(itemName) {
         let caption = this.ts.mayPassString();
-        let bud = new il_1.BizBudPickable(this.element.biz, itemName, caption);
+        let bud = new il_1.BizBudAtom(this.element.biz, itemName, caption);
+        if (this.ts.isKeyword('pick') === true) {
+            this.ts.readToken();
+        }
         this.context.parseElement(bud);
+        this.parseBudEqu(bud);
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bud;
     }
@@ -126,13 +132,13 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
-        let binSpace = new BinSpace(space, this.element);
-        if (super.scan(binSpace) === false)
+        // let binSpace = new BinSpace(space, this.element);
+        space = new BizBinSpace(space, this.element);
+        if (super.scan(space) === false)
             ok = false;
-        space = new BizBinSpace(binSpace, this.element);
         const { picks, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (this.pend !== undefined) {
-            let pend = this.getBizEntity(binSpace, this.pend, il_1.BizPhraseType.pend);
+            let pend = this.getBizEntity(space, this.pend, il_1.BizPhraseType.pend);
             if (pend === undefined) {
                 this.log(`PEND '${this.pend}' is not defined`);
                 ok = false;
@@ -234,8 +240,6 @@ class PBinPick extends element_1.PElement {
         this.from = [];
     }
     _parse() {
-        let name = this.ts.passVar();
-        this.element.name = name;
         this.ts.passKey('from');
         let param = [];
         this.element.param = param;
@@ -320,30 +324,38 @@ class PBinPick extends element_1.PElement {
     }
 }
 exports.PBinPick = PBinPick;
+/*
 const binVars = [
-    'bin', 'i', 'x',
-    'value', 'amount', 'price',
-    's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
+    'bin', 'i', 'x'
+    , 'value', 'amount', 'price'
+    , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
 ];
-class BinSpace extends space_1.Space {
-    constructor(outerSpace, bin) {
+class BinSpace extends Space {
+    private readonly bin: BizBin;
+    constructor(outerSpace: Space, bin: BizBin) {
         super(outerSpace);
         this.bin = bin;
     }
-    _getEntityTable(name) {
+    protected _getEntityTable(name: string): Entity & Table {
         throw new Error("Method not implemented.");
     }
-    _getTableByAlias(alias) {
+    protected _getTableByAlias(alias: string): Table {
         throw new Error("Method not implemented.");
     }
-    _varPointer(name, isField) {
+    protected _varPointer(name: string, isField: boolean): Pointer {
         if (isField !== true) {
             if (binVars.includes(name) === true) {
-                return new il_1.VarPointer();
+                return new VarPointer();
             }
         }
     }
+    protected _varsPointer(names: string[]): Pointer {
+        if (this.bin.isValidPickProp(names[0], names[1]) === true) {
+            return new VarPointer();
+        }
+    }
 }
+*/
 class PBizPend extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
@@ -383,24 +395,15 @@ class PBizPend extends Base_1.PBizEntity {
                 ok = false;
             }
         }
-        /*
-        for (let n of predefinedId) {
-            props.set(n, new BizBudAtom(n, undefined));
-        }
-        for (let n of predefinedValue) {
-            props.set(n, new BizBudDec(n, undefined));
-        }
-        */
         return ok;
     }
 }
 exports.PBizPend = PBizPend;
 exports.detailPreDefined = [
     '$site', '$user',
-    'pend',
-    'sheet', 'target',
-    'detail',
-    'i', 'x', 'value', 'amount', 'price'
+    'bin', 'i', 'x',
+    'value', 'amount', 'price',
+    's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
 ];
 class BizBinSpace extends space_1.Space {
     constructor(outer, bin) {
@@ -411,8 +414,22 @@ class BizBinSpace extends space_1.Space {
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
+        var _a;
         if (exports.detailPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
+        }
+        if (this.bin !== undefined) {
+            let pick = (_a = this.bin.picks) === null || _a === void 0 ? void 0 : _a.get(name);
+            if (pick !== undefined) {
+                return new il_1.VarPointer();
+            }
+        }
+    }
+    _varsPointer(names) {
+        if (this.bin !== undefined) {
+            if (this.bin.isValidPickProp(names[0], names[1]) === true) {
+                return new il_1.VarPointer();
+            }
         }
     }
     _getBizEntity(name) {

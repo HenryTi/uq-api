@@ -34,6 +34,7 @@ export abstract class Space {
     protected abstract _getEntityTable(name: string): Entity & Table;
     protected abstract _getTableByAlias(alias: string): Table;
     protected abstract _varPointer(name: string, isField: boolean): Pointer;
+    protected _varsPointer(names: string[]): Pointer { return; }
 
     get groupType(): GroupType { return GroupType.Single; }
     set groupType(value: GroupType) { }
@@ -165,6 +166,15 @@ export abstract class Space {
         if (pt === undefined) {
             if (this.outer !== undefined) {
                 pt = this.outer.varPointer(name, isField);
+            }
+        }
+        return pt;
+    }
+    varsPointer(names: string[]): Pointer {
+        let pt = this._varsPointer(names);
+        if (pt === undefined) {
+            if (this.outer !== undefined) {
+                pt = this.outer.varsPointer(names);
             }
         }
         return pt;

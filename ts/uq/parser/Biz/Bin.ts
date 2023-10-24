@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizDetailActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable
+    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -67,7 +67,9 @@ export class PBizBin extends PBizEntity<BizBin> {
             picks = new Map();
             this.element.picks = picks;
         }
-        let pick = new BinPick(this.element);
+        let name = this.ts.passVar();
+        let caption = this.ts.mayPassString();
+        let pick = new BinPick(this.element, name, caption);
         this.context.parseElement(pick);
         picks.set(pick.name, pick);
     }
@@ -76,20 +78,24 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (this.element.i !== undefined) {
             this.ts.error(`I can only be defined once in Biz Bin`);
         }
-        this.element.i = this.parseBudPickable('i');
+        this.element.i = this.parseBudAtom('i');
     }
 
     private parseX = () => {
         if (this.element.x !== undefined) {
             this.ts.error(`X can only be defined once in Biz Bin`);
         }
-        this.element.x = this.parseBudPickable('x');
+        this.element.x = this.parseBudAtom('x');
     }
 
-    private parseBudPickable(itemName: string) {
+    private parseBudAtom(itemName: string) {
         let caption = this.ts.mayPassString();
-        let bud = new BizBudPickable(this.element.biz, itemName, caption);
+        let bud = new BizBudAtom(this.element.biz, itemName, caption);
+        if (this.ts.isKeyword('pick') === true) {
+            this.ts.readToken();
+        }
         this.context.parseElement(bud);
+        this.parseBudEqu(bud);
         this.ts.passToken(Token.SEMICOLON);
         return bud;
     }
@@ -143,13 +149,13 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let binSpace = new BinSpace(space, this.element);
-        if (super.scan(binSpace) === false) ok = false;
-        space = new BizBinSpace(binSpace, this.element);
+        // let binSpace = new BinSpace(space, this.element);
+        space = new BizBinSpace(space, this.element);
+        if (super.scan(space) === false) ok = false;
 
         const { picks, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (this.pend !== undefined) {
-            let pend = this.getBizEntity<BizPend>(binSpace, this.pend, BizPhraseType.pend);
+            let pend = this.getBizEntity<BizPend>(space, this.pend, BizPhraseType.pend);
             if (pend === undefined) {
                 this.log(`PEND '${this.pend}' is not defined`)
                 ok = false;
@@ -253,8 +259,6 @@ export class PBizBin extends PBizEntity<BizBin> {
 export class PBinPick extends PElement<BinPick> {
     private from: string[] = [];
     protected _parse(): void {
-        let name = this.ts.passVar();
-        this.element.name = name;
         this.ts.passKey('from');
         let param: PickParam[] = [];
         this.element.param = param;
@@ -339,7 +343,7 @@ export class PBinPick extends PElement<BinPick> {
         return ok;
     }
 }
-
+/*
 const binVars = [
     'bin', 'i', 'x'
     , 'value', 'amount', 'price'
@@ -364,8 +368,13 @@ class BinSpace extends Space {
             }
         }
     }
+    protected _varsPointer(names: string[]): Pointer {
+        if (this.bin.isValidPickProp(names[0], names[1]) === true) {
+            return new VarPointer();
+        }
+    }
 }
-
+*/
 export class PBizPend extends PBizEntity<BizPend> {
     private parsePredefined(name: string) {
         let caption = this.ts.mayPassString();
@@ -403,24 +412,15 @@ export class PBizPend extends PBizEntity<BizPend> {
                 ok = false;
             }
         }
-        /*
-        for (let n of predefinedId) {
-            props.set(n, new BizBudAtom(n, undefined));
-        }
-        for (let n of predefinedValue) {
-            props.set(n, new BizBudDec(n, undefined));
-        }
-        */
         return ok;
     }
 }
 
 export const detailPreDefined = [
     '$site', '$user'
-    , 'pend'
-    , 'sheet', 'target'
-    , 'detail'
-    , 'i', 'x', 'value', 'amount', 'price'
+    , 'bin', 'i', 'x'
+    , 'value', 'amount', 'price'
+    , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
 ];
 class BizBinSpace extends Space {
     private readonly bin: BizBin;
@@ -434,6 +434,20 @@ class BizBinSpace extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (detailPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
+        }
+        if (this.bin !== undefined) {
+            let pick = this.bin.picks?.get(name);
+            if (pick !== undefined) {
+                return new VarPointer();
+            }
+        }
+    }
+
+    protected _varsPointer(names: string[]): Pointer {
+        if (this.bin !== undefined) {
+            if (this.bin.isValidPickProp(names[0], names[1]) === true) {
+                return new VarPointer();
+            }
         }
     }
 

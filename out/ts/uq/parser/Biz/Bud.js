@@ -90,20 +90,17 @@ class PBizBudDate extends PBizBudValue {
 exports.PBizBudDate = PBizBudDate;
 class PBizBudAtom extends PBizBudValue {
     _parse() {
-        if (this.ts.token === tokens_1.Token.VAR) {
-            this.atomName = this.ts.lowerVar;
-            this.ts.readToken();
-        }
+        this.atomName = this.ts.mayPassVar();
     }
     scan(space) {
         let ok = super.scan(space);
         if (this.atomName !== undefined) {
-            let Item = super.scanAtomID(space, this.atomName);
-            if (Item === undefined) {
-                ok = false;
+            let atom = super.scanAtomID(space, this.atomName);
+            if (atom === undefined) {
+                // ok = false;
             }
             else {
-                this.element.atom = Item;
+                this.element.atom = atom;
             }
         }
         return ok;

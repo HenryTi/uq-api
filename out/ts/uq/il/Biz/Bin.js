@@ -5,11 +5,12 @@ const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
 const Base_1 = require("./Base");
+const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
-class BinPick extends Base_1.BizBase {
-    constructor(bin) {
-        super(bin.biz);
-        this.bizPhraseType = Base_1.BizPhraseType.pick;
+class BinPick extends Bud_1.BizBud {
+    constructor(bin, name, caption) {
+        super(bin.biz, name, caption);
+        this.dataType = Base_1.BudDataType.none;
         this.bin = bin;
     }
     parser(context) {
@@ -31,6 +32,8 @@ class PickQuery extends PickBase {
         return this.query.hasParam(param);
     }
     hasReturn(prop) {
+        if (prop === undefined || prop === 'id')
+            return true;
         return this.query.hasReturn(prop);
     }
 }
@@ -46,6 +49,8 @@ class PickAtom extends PickBase {
         return false;
     }
     hasReturn(prop) {
+        if (prop === undefined || prop === 'id')
+            return true;
         return false;
     }
 }
@@ -61,6 +66,8 @@ class PickSpec extends PickBase {
         return param === 'base';
     }
     hasReturn(prop) {
+        if (prop === undefined || prop === 'id')
+            return true;
         return false;
     }
 }
@@ -76,6 +83,8 @@ class PickPend extends PickBase {
         return false;
     }
     hasReturn(prop) {
+        if (prop === undefined || prop === 'id')
+            return true;
         return false;
     }
 }
@@ -91,6 +100,8 @@ class BizBin extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         var _a, _b, _c, _d, _e;
+        if (this.name === '采购单主表')
+            debugger;
         let ret = super.buildSchema(res);
         let pend;
         if (this.pend !== undefined) {
@@ -104,9 +115,10 @@ class BizBin extends Entity_1.BizEntity {
         let picks = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, pick, param } = value;
+                const { name, caption, pick, param } = value;
                 picks.push({
                     name,
+                    caption,
                     from: pick.fromSchema(),
                     param,
                 });
@@ -117,6 +129,10 @@ class BizBin extends Entity_1.BizEntity {
     }
     forEachBud(callback) {
         super.forEachBud(callback);
+        if (this.picks !== undefined) {
+            for (let [, pick] of this.picks)
+                callback(pick);
+        }
         if (this.i !== undefined)
             callback(this.i);
         if (this.x !== undefined)
@@ -150,6 +166,8 @@ class BizBin extends Entity_1.BizEntity {
         return new builder_1.BBizBin(dbContext, this);
     }
     isValidPickProp(pickName, prop) {
+        if (this.picks === undefined)
+            return false;
         let pick = this.picks.get(pickName);
         if (pick === undefined)
             return false;

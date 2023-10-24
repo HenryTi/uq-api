@@ -6,9 +6,9 @@ import { IElement } from "../element";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizAtomSpec } from "./Atom";
-import { BizBase, BizPhraseType } from "./Base";
+import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBudPickable } from "./Bud";
+import { BizBudValue, BizBudPickable, BizBud, BizBudAtom } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQuery, BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
@@ -24,14 +24,13 @@ export interface PickParam {
     bud: string;
     prop: string;       // prop of bud
 }
-export class BinPick extends BizBase {
-    readonly bizPhraseType = BizPhraseType.pick;
+export class BinPick extends BizBud {
     readonly bin: BizBin;
-    name: string;
+    readonly dataType = BudDataType.none;
     param: PickParam[];
     pick: PickBase;
-    constructor(bin: BizBin) {
-        super(bin.biz);
+    constructor(bin: BizBin, name: string, caption: string) {
+        super(bin.biz, name, caption);
         this.bin = bin;
     }
     parser(context: PContext): PElement<IElement> {
@@ -56,6 +55,7 @@ export class PickQuery extends PickBase {
         return this.query.hasParam(param);
     }
     hasReturn(prop: string): boolean {
+        if (prop === undefined || prop === 'id') return true;
         return this.query.hasReturn(prop);
     }
 }
@@ -71,6 +71,7 @@ export class PickAtom extends PickBase {
         return false;
     }
     hasReturn(prop: string): boolean {
+        if (prop === undefined || prop === 'id') return true;
         return false;
     }
 }
@@ -86,6 +87,7 @@ export class PickSpec extends PickBase {
         return param === 'base';
     }
     hasReturn(prop: string): boolean {
+        if (prop === undefined || prop === 'id') return true;
         return false;
     }
 }
@@ -101,6 +103,7 @@ export class PickPend extends PickBase {
         return false;
     }
     hasReturn(prop: string): boolean {
+        if (prop === undefined || prop === 'id') return true;
         return false;
     }
 }
@@ -110,8 +113,8 @@ export class BizBin extends BizEntity {
     readonly bizPhraseType = BizPhraseType.bin;
     picks: Map<string, BinPick>;
     act: BizBinAct;
-    i: BizBudPickable;
-    x: BizBudPickable;
+    i: BizBudAtom;
+    x: BizBudAtom;
     pend: PropPend;
     value: BizBudValue;
     price: BizBudValue;
@@ -122,6 +125,7 @@ export class BizBin extends BizEntity {
     }
 
     buildSchema(res: { [phrase: string]: string }) {
+        if (this.name === '采购单主表') debugger;
         let ret = super.buildSchema(res);
         let pend: any;
         if (this.pend !== undefined) {
@@ -135,9 +139,10 @@ export class BizBin extends BizEntity {
         let picks: any[] = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, pick, param } = value;
+                const { name, caption, pick, param } = value;
                 picks.push({
                     name,
+                    caption,
                     from: pick.fromSchema(),
                     param,
                 });
@@ -154,8 +159,11 @@ export class BizBin extends BizEntity {
             price: this.price?.buildSchema(res),
         }
     }
-    override forEachBud(callback: (bud: BizBudValue) => void) {
+    override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
+        if (this.picks !== undefined) {
+            for (let [, pick] of this.picks) callback(pick);
+        }
         if (this.i !== undefined) callback(this.i);
         if (this.x !== undefined) callback(this.x);
         if (this.value !== undefined) callback(this.value);
@@ -180,6 +188,7 @@ export class BizBin extends BizEntity {
         return new BBizBin(dbContext, this);
     }
     isValidPickProp(pickName: string, prop: string): boolean {
+        if (this.picks === undefined) return false;
         let pick = this.picks.get(pickName);
         if (pick === undefined) return false;
         if (prop === undefined) return true;
