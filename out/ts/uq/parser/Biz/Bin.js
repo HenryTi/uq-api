@@ -281,6 +281,9 @@ class PBinPick extends element_1.PElement {
         if (this.ts.prevToken !== tokens_1.Token.RBRACE) {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
+        else {
+            this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+        }
     }
     scan(space) {
         let ok = true;
@@ -292,9 +295,11 @@ class PBinPick extends element_1.PElement {
         }
         else {
             let pickBase;
+            let single = true;
             switch (bizPhraseType) {
                 case il_1.BizPhraseType.atom:
                     pickBase = new il_1.PickAtom(entityArr);
+                    single = false;
                     break;
                 case il_1.BizPhraseType.spec:
                     pickBase = new il_1.PickSpec(bizEntity0);
@@ -305,6 +310,10 @@ class PBinPick extends element_1.PElement {
                 case il_1.BizPhraseType.query:
                     pickBase = new il_1.PickQuery(bizEntity0);
                     break;
+            }
+            if (single === true && entityArr.length > 1) {
+                this.log('from only one object');
+                ok = false;
             }
             let { param } = this.element;
             for (let p of param) {

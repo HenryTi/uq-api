@@ -299,6 +299,9 @@ export class PBinPick extends PElement<BinPick> {
         if (this.ts.prevToken !== Token.RBRACE) {
             this.ts.passToken(Token.SEMICOLON);
         }
+        else {
+            this.ts.mayPassToken(Token.SEMICOLON);
+        }
     }
 
     scan(space: Space): boolean {
@@ -312,9 +315,11 @@ export class PBinPick extends PElement<BinPick> {
         }
         else {
             let pickBase: PickBase;
+            let single = true;
             switch (bizPhraseType) {
                 case BizPhraseType.atom:
                     pickBase = new PickAtom(entityArr as BizAtom[]);
+                    single = false;
                     break;
                 case BizPhraseType.spec:
                     pickBase = new PickSpec(bizEntity0 as BizAtomSpec);
@@ -325,6 +330,10 @@ export class PBinPick extends PElement<BinPick> {
                 case BizPhraseType.query:
                     pickBase = new PickQuery(bizEntity0 as BizQueryTable);
                     break;
+            }
+            if (single === true && entityArr.length > 1) {
+                this.log('from only one object');
+                ok = false;
             }
             let { param } = this.element;
             for (let p of param) {

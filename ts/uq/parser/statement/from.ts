@@ -33,6 +33,10 @@ export class PFromStatement extends PStatement<FromStatement> {
                 this.ts.passToken(Token.COMMA);
             }
             for (; ;) {
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
                 if (this.ts.token === Token.MOD) {
                     const { peekToken, lowerVar } = this.ts.peekToken();
                     if (peekToken !== Token.VAR) {
@@ -50,17 +54,11 @@ export class PFromStatement extends PStatement<FromStatement> {
                     this.context.parseElement(val);
                     this.element.cols.push({ name, caption, val });
                 }
-                if (this.ts.token === Token.COMMA) {
-                    this.ts.readToken();
-                    if (this.ts.token === Token.RPARENTHESE as any) {
-                        this.ts.readToken();
-                        break;
-                    }
-                }
-                else if (this.ts.token === Token.RPARENTHESE) {
+                if (this.ts.token === Token.RPARENTHESE as any) {
                     this.ts.readToken();
                     break;
                 }
+                this.ts.passToken(Token.COMMA);
             }
         }
         if (this.ts.isKeyword('where') === true) {
