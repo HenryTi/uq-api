@@ -58,7 +58,11 @@ export class BizQueryTable extends BizQuery {
     }
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        ret.asc = this.from.asc;
+        const { asc, ban } = this.from;
+        ret.asc = asc;
+        if (ban !== undefined) {
+            ret.ban = ban.caption ?? true;
+        }
         ret.params = this.params.map(v => v.buildSchema(res));
         return ret;
     }

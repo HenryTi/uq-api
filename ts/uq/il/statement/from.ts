@@ -14,6 +14,11 @@ export interface FromColumn {
     entity?: BizEntity;
 }
 
+export interface BanColumn {
+    caption?: string;
+    val: CompareExpression;
+}
+
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     bizEntityArr: BizEntity[] = [];
@@ -21,6 +26,7 @@ export class FromStatement extends Statement {
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
     asc: 'asc' | 'desc';
+    ban: BanColumn;
     cols: FromColumn[] = [];
     putName: string;
     where: CompareExpression;

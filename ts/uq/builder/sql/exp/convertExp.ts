@@ -14,7 +14,7 @@ import { ExpRole } from './ExpRole';
 import { ExpID } from './ExpID';
 import { ExpNO } from './ExpNO';
 import { Exp } from './Exp';
-import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight, ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp, ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE, ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase, ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar } from './exps';
+import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight, ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpDotVar, ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp, ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE, ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase, ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar } from './exps';
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand, ExpBizSelectOperand } from './ExpBizSelect';
@@ -170,6 +170,7 @@ class Stack implements IlStack {
     }
 
     var(name: string) { this.arr.push(new ExpVar(name)) }
+    dotVar(varNames: string[]) { this.arr.push(new ExpDotVar(varNames)) }
     field(name: string, tbl?: string) { this.arr.push(new ExpField(name, tbl)); }
     expr(exp: ValueExpression) { this.arr.push(convertExp(this.context, exp)) }
     dollarVar(name: string) { this.arr.push(new ExpDollarVar(name)) }

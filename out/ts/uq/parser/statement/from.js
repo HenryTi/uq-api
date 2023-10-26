@@ -21,6 +21,7 @@ class PFromStatement extends statement_1.PStatement {
             }
         }
         if (this.ts.isKeyword('column') === true) {
+            const coll = {};
             this.ts.readToken();
             this.ts.passToken(tokens_1.Token.LPARENTHESE);
             this.ts.passKey('id');
@@ -33,9 +34,23 @@ class PFromStatement extends statement_1.PStatement {
             else {
                 this.ts.expect('ASC', 'DESC');
             }
+            coll['id'] = true;
             this.ts.readToken();
             if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
                 this.ts.passToken(tokens_1.Token.COMMA);
+                const ban = 'ban';
+                if (this.ts.isKeyword(ban) === true) {
+                    this.ts.readToken();
+                    let caption = this.ts.mayPassString();
+                    this.ts.passToken(tokens_1.Token.EQU);
+                    let val = new il_1.CompareExpression();
+                    this.context.parseElement(val);
+                    coll[ban] = true;
+                    this.element.ban = { caption, val };
+                    if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+                        this.ts.passToken(tokens_1.Token.COMMA);
+                    }
+                }
             }
             for (;;) {
                 if (this.ts.token === tokens_1.Token.RPARENTHESE) {
@@ -58,6 +73,9 @@ class PFromStatement extends statement_1.PStatement {
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
                     this.element.cols.push({ name, caption, val });
+                    if (coll[name] === true) {
+                        this.ts.error(`duplicate column name ${name}`);
+                    }
                 }
                 if (this.ts.token === tokens_1.Token.RPARENTHESE) {
                     this.ts.readToken();
@@ -78,7 +96,7 @@ class PFromStatement extends statement_1.PStatement {
         let ok = true;
         const { biz } = space.uq;
         space = new FromSpace(space, this.element);
-        const { entityArr, logs, bizEntity0, ok: retOk, bizEntityTable, bizPhraseType, } = biz.sameTypeEntityArr(this.tbls);
+        const { entityArr, logs, bizEntity0, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
         this.element.bizEntity0;
         this.element.bizPhraseType = bizPhraseType;
@@ -111,7 +129,7 @@ class PFromStatement extends statement_1.PStatement {
                 }
             }
         }
-        const { where, asc } = this.element;
+        const { where, asc, ban } = this.element;
         if (where !== undefined) {
             if (where.pelement.scan(space) === false) {
                 ok = false;
@@ -119,6 +137,11 @@ class PFromStatement extends statement_1.PStatement {
         }
         if (asc === undefined)
             this.element.asc = 'asc';
+        if (ban !== undefined) {
+            if (ban.val.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
         return ok;
     }
 }

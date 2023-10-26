@@ -123,7 +123,9 @@ class BizBin extends Entity_1.BizEntity {
             }
         }
         ;
-        return Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, pend, i: (_a = this.i) === null || _a === void 0 ? void 0 : _a.buildSchema(res), x: (_b = this.x) === null || _b === void 0 ? void 0 : _b.buildSchema(res), value: (_c = this.value) === null || _c === void 0 ? void 0 : _c.buildSchema(res), amount: (_d = this.amount) === null || _d === void 0 ? void 0 : _d.buildSchema(res), price: (_e = this.price) === null || _e === void 0 ? void 0 : _e.buildSchema(res) });
+        let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
+        this.schema = Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, pend, i: (_b = this.i) === null || _b === void 0 ? void 0 : _b.buildSchema(res), x: (_c = this.x) === null || _c === void 0 ? void 0 : _c.buildSchema(res), value: (_d = this.value) === null || _d === void 0 ? void 0 : _d.buildSchema(res), amount: (_e = this.amount) === null || _e === void 0 ? void 0 : _e.buildSchema(res), price });
+        return this.schema;
     }
     forEachBud(callback) {
         super.forEachBud(callback);

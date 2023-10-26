@@ -147,7 +147,8 @@ export class BizBin extends BizEntity {
                 });
             }
         };
-        return {
+        let price = this.price?.buildSchema(res);
+        this.schema = {
             ...ret,
             picks: picks.length === 0 ? undefined : picks,
             pend,
@@ -155,8 +156,9 @@ export class BizBin extends BizEntity {
             x: this.x?.buildSchema(res),
             value: this.value?.buildSchema(res),
             amount: this.amount?.buildSchema(res),
-            price: this.price?.buildSchema(res),
+            price,
         }
+        return this.schema;
     }
     override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);

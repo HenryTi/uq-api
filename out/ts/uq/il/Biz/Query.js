@@ -60,8 +60,13 @@ class BizQueryTable extends BizQuery {
         return new BizQuery_1.BBizQuery(dbContext, this);
     }
     buildSchema(res) {
+        var _a;
         let ret = super.buildSchema(res);
-        ret.asc = this.from.asc;
+        const { asc, ban } = this.from;
+        ret.asc = asc;
+        if (ban !== undefined) {
+            ret.ban = (_a = ban.caption) !== null && _a !== void 0 ? _a : true;
+        }
         ret.params = this.params.map(v => v.buildSchema(res));
         return ret;
     }

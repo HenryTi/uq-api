@@ -61,6 +61,7 @@ export interface Stack {
     jsonProp(): void;
 
     var(name: string): void;
+    dotVar(varNames: string[]): void;
     field(name: string, tbl?: string): void;
     expr(exp: ValueExpression): void;
     dollarVar(name: string): void;

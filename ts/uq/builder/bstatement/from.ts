@@ -1,5 +1,5 @@
-import { BizPhraseType, FromStatement, EnumSysTable } from "../../il";
-import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull, ExpLT, ExpNum, ExpStr, ExpVal, ExpVar } from "../sql";
+import { BizPhraseType, FromStatement, EnumSysTable, ValueExpression, CompareExpression } from "../../il";
+import { Exp, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull, ExpLT, ExpNum, ExpStr, ExpVal, ExpVar } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
@@ -16,7 +16,7 @@ export class BFromStatement extends BStatement<FromStatement> {
         sqls.push(memo);
         memo.text = 'FROM';
 
-        const { asc, cols, where, bizEntityTable, bizEntityArr, bizEntity0 } = this.istatement;
+        const { asc, cols, ban, where, bizEntityTable, bizEntityArr, bizEntity0 } = this.istatement;
 
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
@@ -38,11 +38,16 @@ export class BFromStatement extends BStatement<FromStatement> {
         const select = factory.createSelect();
         sqls.push(select);
         select.column(new ExpField('id', t1), 'id');
-        select.column(ExpNum.num0, 'ban');
+        if (ban === undefined) {
+            select.column(ExpNum.num0, 'ban');
+        }
+        else {
+            select.column(this.context.expCmp(ban.val) as ExpVal, 'ban');
+        }
         const arr: ExpVal[] = [];
         for (let col of cols) {
             const { name, val, bud, entity } = col;
-            const colArr: ExpVal[] = [];
+            const colArr: Exp[] = [];
             if (bud !== undefined) {
                 if (entity !== undefined) {
                     colArr.push(new ExpNum(entity.id));
@@ -52,7 +57,7 @@ export class BFromStatement extends BStatement<FromStatement> {
             else {
                 colArr.push(new ExpStr(name));
             }
-            colArr.push(this.context.expVal(val));
+            colArr.push(this.context.expVal(val as ValueExpression));
             arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
         }
 
