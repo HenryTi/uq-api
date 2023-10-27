@@ -26,7 +26,8 @@ export function convertExp(context: DbContext, exp: Expression): Exp {
     for (let atom of exp.atoms) {
         atom.to(stack);
     }
-    return stack.exp;
+    let ret = stack.getExp();
+    return ret;
 }
 
 class Stack implements IlStack {
@@ -35,7 +36,11 @@ class Stack implements IlStack {
     constructor(context: DbContext) {
         this.context = context;
     }
-    get exp(): Exp { return this.arr.pop(); }
+    getExp(): Exp {
+        if (this.arr.length === 0) debugger;
+        let ret = this.arr.pop();
+        return ret;
+    }
 
     private op2Cmp(cmp: (c1: ExpVal, c2: ExpVal) => ExpCmp) {
         let e2 = this.arr.pop(), e1 = this.arr.pop();

@@ -171,7 +171,7 @@ export class VerifyStatement extends Statements {
     db(db: Builder): object { return; }
 }
 
-export class BizDetailActStatements extends Statements {
+export class BizBinActStatements extends Statements {
     private readonly bizDetailAct: BizBinAct;
     constructor(parent: Statement, bizDetailAct: BizBinAct) {
         super(parent);
@@ -179,10 +179,10 @@ export class BizDetailActStatements extends Statements {
     }
     get type(): string { return 'bizactstatement'; }
     parser(context: parser.PContext) {
-        return new parser.PBizDetailActStatements(this, context, this.bizDetailAct);
+        return new parser.PBizBinActStatements(this, context, this.bizDetailAct);
     }
     createStatements = (parent: Statement) => {
-        return new BizDetailActStatements(parent, this.bizDetailAct);
+        return new BizBinActStatements(parent, this.bizDetailAct);
     }
     db(db: Builder): object { return; }
 }

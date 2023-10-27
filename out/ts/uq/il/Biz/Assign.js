@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BizAssign = void 0;
+const Assign_1 = require("../../parser/Biz/Assign");
+const Base_1 = require("./Base");
+const Entity_1 = require("./Entity");
+class BizAssign extends Entity_1.BizEntity {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = Base_1.BizPhraseType.assign;
+        this.fields = [];
+        this.atom = [];
+        this.title = []; // of BizTitle buds
+    }
+    parser(context) {
+        return new Assign_1.PBizAssign(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.atom = this.atom.map(v => v.name);
+        ret.title = this.title.map(([entity, bud]) => ([entity.name, bud.name]));
+        return ret;
+    }
+}
+exports.BizAssign = BizAssign;
+//# sourceMappingURL=Assign.js.map

@@ -25,6 +25,7 @@ export enum BizPhraseType {
     tie = 501,
     report = 601,
     title = 901,
+    assign = 902,
 
     key = 1001,
     prop = 1011,

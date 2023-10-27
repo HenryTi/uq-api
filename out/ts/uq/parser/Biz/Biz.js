@@ -12,6 +12,7 @@ class PBiz extends entity_1.PEntity {
             spec: il_1.BizAtomSpec,
             title: il_1.BizTitle,
             options: il_1.BizOptions,
+            assign: il_1.BizAssign,
             permit: il_1.BizPermit,
             role: il_1.BizRole,
             sheet: il_1.BizSheet,

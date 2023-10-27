@@ -18,7 +18,8 @@ function convertExp(context, exp) {
     for (let atom of exp.atoms) {
         atom.to(stack);
     }
-    return stack.exp;
+    let ret = stack.getExp();
+    return ret;
 }
 exports.convertExp = convertExp;
 class Stack {
@@ -26,7 +27,12 @@ class Stack {
         this.arr = [];
         this.context = context;
     }
-    get exp() { return this.arr.pop(); }
+    getExp() {
+        if (this.arr.length === 0)
+            debugger;
+        let ret = this.arr.pop();
+        return ret;
+    }
     op2Cmp(cmp) {
         let e2 = this.arr.pop(), e1 = this.arr.pop();
         this.arr.push(cmp(e1, e2));
@@ -164,6 +170,7 @@ class Stack {
         this.arr.push(new exps_1.ExpFuncInUq(func, params, true));
     }
     var(name) { this.arr.push(new exps_1.ExpVar(name)); }
+    dotVar(varNames) { this.arr.push(new exps_1.ExpDotVar(varNames)); }
     field(name, tbl) { this.arr.push(new exps_1.ExpField(name, tbl)); }
     expr(exp) { this.arr.push(convertExp(this.context, exp)); }
     dollarVar(name) { this.arr.push(new exps_1.ExpDollarVar(name)); }

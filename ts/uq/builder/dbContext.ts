@@ -270,7 +270,8 @@ export class DbContext implements il.Builder {
     }
 
     convertExp(exp: Expression) {
-        return convertExp(this, exp);
+        let ret = convertExp(this, exp);
+        return ret;
     }
     expCmp(exp: CompareExpression) {
         return convertExp(this, exp) as ExpCmp;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RoleStatement = exports.EnumRole = exports.LogStatement = exports.ExecSqlStatement = exports.ScheduleStatement = exports.InlineStatement = exports.SendStatement = exports.SendAppStatement = exports.SendSmsStatement = exports.SendEmailStatement = exports.SendMsgStatement = exports.SendBaseStatement = exports.BusStatement = exports.BusAction = exports.FailStatement = exports.StateToStatement = exports.PendingWrite = exports.SheetWrite = exports.TuidWrite = exports.HistoryWrite = exports.BookWrite = exports.WriteSet = exports.DeleteStatement = exports.SelectStatement = exports.ProcStatement = exports.ReturnStatement = exports.ContinueStatement = exports.BreakStatement = exports.While = exports.If = exports.SettingStatement = exports.TextStatement = exports.TableStatement = exports.CTETable = exports.TableVar = exports.VarStatement = exports.Var = exports.BizDetailActStatements = exports.VerifyStatement = exports.SheetStatement = exports.QueryStatement = exports.BusQueryStatement = exports.QueryBaseStatement = exports.BusAcceptStatement = exports.FunctionStatement = exports.InBusActionStatement = exports.UqStatement = exports.ActionStatement = exports.Statements = exports.Statement = void 0;
+exports.RoleStatement = exports.EnumRole = exports.LogStatement = exports.ExecSqlStatement = exports.ScheduleStatement = exports.InlineStatement = exports.SendStatement = exports.SendAppStatement = exports.SendSmsStatement = exports.SendEmailStatement = exports.SendMsgStatement = exports.SendBaseStatement = exports.BusStatement = exports.BusAction = exports.FailStatement = exports.StateToStatement = exports.PendingWrite = exports.SheetWrite = exports.TuidWrite = exports.HistoryWrite = exports.BookWrite = exports.WriteSet = exports.DeleteStatement = exports.SelectStatement = exports.ProcStatement = exports.ReturnStatement = exports.ContinueStatement = exports.BreakStatement = exports.While = exports.If = exports.SettingStatement = exports.TextStatement = exports.TableStatement = exports.CTETable = exports.TableVar = exports.VarStatement = exports.Var = exports.BizBinActStatements = exports.VerifyStatement = exports.SheetStatement = exports.QueryStatement = exports.BusQueryStatement = exports.QueryBaseStatement = exports.BusAcceptStatement = exports.FunctionStatement = exports.InBusActionStatement = exports.UqStatement = exports.ActionStatement = exports.Statements = exports.Statement = void 0;
 exports.QueueStatement = exports.QueueAction = exports.PokeStatement = exports.TransactionStatement = exports.EnumTransaction = exports.SleepStatement = exports.AssertRoleStatement = void 0;
 const parser = require("../../parser");
 const element_1 = require("../element");
@@ -161,21 +161,21 @@ class VerifyStatement extends Statements {
     db(db) { return; }
 }
 exports.VerifyStatement = VerifyStatement;
-class BizDetailActStatements extends Statements {
+class BizBinActStatements extends Statements {
     constructor(parent, bizDetailAct) {
         super(parent);
         this.createStatements = (parent) => {
-            return new BizDetailActStatements(parent, this.bizDetailAct);
+            return new BizBinActStatements(parent, this.bizDetailAct);
         };
         this.bizDetailAct = bizDetailAct;
     }
     get type() { return 'bizactstatement'; }
     parser(context) {
-        return new parser.PBizDetailActStatements(this, context, this.bizDetailAct);
+        return new parser.PBizBinActStatements(this, context, this.bizDetailAct);
     }
     db(db) { return; }
 }
-exports.BizDetailActStatements = BizDetailActStatements;
+exports.BizBinActStatements = BizBinActStatements;
 class Var {
     constructor(name, dataType, exp) {
         this.name = name;

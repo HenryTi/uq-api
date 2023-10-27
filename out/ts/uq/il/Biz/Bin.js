@@ -113,12 +113,13 @@ class BizBin extends Entity_1.BizEntity {
         let picks = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, caption, pick, param } = value;
+                const { name, caption, pick, param, single } = value;
                 picks.push({
                     name,
                     caption,
                     from: pick.fromSchema(),
                     param,
+                    single,
                 });
             }
         }
@@ -185,7 +186,7 @@ class BizBinAct extends Base_1.BizBase {
         this.bizDetail = bizDetail;
     }
     parser(context) {
-        return new parser_1.PBizDetailAct(this, context);
+        return new parser_1.PBizBinAct(this, context);
     }
     addTableVar(tableVar) {
         let name = tableVar.name;

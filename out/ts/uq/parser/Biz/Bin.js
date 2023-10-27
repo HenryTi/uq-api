@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizDetailActStatements = exports.PBizDetailAct = exports.detailPreDefined = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
+exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const space_1 = require("../space");
@@ -165,11 +165,21 @@ class PBizBin extends Base_1.PBizEntity {
             }
         }
         if (picks !== undefined) {
+            let { size } = picks;
+            let i = 0;
             for (let [, pick] of picks) {
                 if (pick.pelement.scan(space) === false) {
                     ok = false;
                 }
+                if (i < size - 1) {
+                    if (pick.single !== undefined) {
+                        this.log(`Only last PICK can set SINGLE propertity`);
+                        ok = false;
+                    }
+                }
+                i++;
             }
+            let a = picks[0];
         }
         if (i !== undefined) {
             if (this.scanBud(space, i) === false) {
@@ -278,6 +288,10 @@ class PBinPick extends element_1.PElement {
                 this.ts.passToken(tokens_1.Token.SEMICOLON);
             }
         }
+        if (this.ts.isKeyword('single') === true) {
+            this.element.single = true;
+            this.ts.readToken();
+        }
         if (this.ts.prevToken !== tokens_1.Token.RBRACE) {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
@@ -295,11 +309,11 @@ class PBinPick extends element_1.PElement {
         }
         else {
             let pickBase;
-            let single = true;
+            let multipleEntity = false;
             switch (bizPhraseType) {
                 case il_1.BizPhraseType.atom:
                     pickBase = new il_1.PickAtom(entityArr);
-                    single = false;
+                    multipleEntity = true;
                     break;
                 case il_1.BizPhraseType.spec:
                     pickBase = new il_1.PickSpec(bizEntity0);
@@ -311,7 +325,7 @@ class PBinPick extends element_1.PElement {
                     pickBase = new il_1.PickQuery(bizEntity0);
                     break;
             }
-            if (single === true && entityArr.length > 1) {
+            if (multipleEntity === false && entityArr.length > 1) {
                 this.log('from only one object');
                 ok = false;
             }
@@ -333,38 +347,6 @@ class PBinPick extends element_1.PElement {
     }
 }
 exports.PBinPick = PBinPick;
-/*
-const binVars = [
-    'bin', 'i', 'x'
-    , 'value', 'amount', 'price'
-    , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
-];
-class BinSpace extends Space {
-    private readonly bin: BizBin;
-    constructor(outerSpace: Space, bin: BizBin) {
-        super(outerSpace);
-        this.bin = bin;
-    }
-    protected _getEntityTable(name: string): Entity & Table {
-        throw new Error("Method not implemented.");
-    }
-    protected _getTableByAlias(alias: string): Table {
-        throw new Error("Method not implemented.");
-    }
-    protected _varPointer(name: string, isField: boolean): Pointer {
-        if (isField !== true) {
-            if (binVars.includes(name) === true) {
-                return new VarPointer();
-            }
-        }
-    }
-    protected _varsPointer(names: string[]): Pointer {
-        if (this.bin.isValidPickProp(names[0], names[1]) === true) {
-            return new VarPointer();
-        }
-    }
-}
-*/
 class PBizPend extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
@@ -437,7 +419,7 @@ class BizBinSpace extends space_1.Space {
     _varsPointer(names) {
         if (this.bin !== undefined) {
             if (this.bin.isValidPickProp(names[0], names[1]) === true) {
-                return new il_1.VarPointer();
+                return new il_1.DotVarPointer();
             }
         }
     }
@@ -467,7 +449,7 @@ class BizBinSpace extends space_1.Space {
         return true;
     }
 }
-class PBizDetailAct extends Base_1.PBizBase {
+class PBizBinAct extends Base_1.PBizBase {
     _parse() {
         this.element.name = '$';
         this.element.caption = this.ts.mayPassString();
@@ -485,7 +467,7 @@ class PBizDetailAct extends Base_1.PBizBase {
             let field = (0, il_1.bigIntField)('detailid');
             this.element.idParam = field;
         }
-        let statement = new il_1.BizDetailActStatements(undefined, this.element);
+        let statement = new il_1.BizBinActStatements(undefined, this.element);
         statement.level = 0;
         this.context.createStatements = statement.createStatements;
         let parser = statement.parser(this.context);
@@ -522,8 +504,8 @@ class PBizDetailAct extends Base_1.PBizBase {
         return true;
     }
 }
-exports.PBizDetailAct = PBizDetailAct;
-class PBizDetailActStatements extends statement_1.PStatements {
+exports.PBizBinAct = PBizBinAct;
+class PBizBinActStatements extends statement_1.PStatements {
     constructor(statements, context, bizDetailAct) {
         super(statements, context);
         this.bizDetailAct = bizDetailAct;
@@ -543,5 +525,5 @@ class PBizDetailActStatements extends statement_1.PStatements {
         return ret;
     }
 }
-exports.PBizDetailActStatements = PBizDetailActStatements;
+exports.PBizBinActStatements = PBizBinActStatements;
 //# sourceMappingURL=Bin.js.map

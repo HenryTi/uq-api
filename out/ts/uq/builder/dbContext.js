@@ -212,7 +212,8 @@ class DbContext {
         return p;
     }
     convertExp(exp) {
-        return (0, sql_1.convertExp)(this, exp);
+        let ret = (0, sql_1.convertExp)(this, exp);
+        return ret;
     }
     expCmp(exp) {
         return (0, sql_1.convertExp)(this, exp);

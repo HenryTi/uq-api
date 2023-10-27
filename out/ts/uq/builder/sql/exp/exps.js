@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExpSelect = exports.ExpFuncInUq = exports.ExpCast = exports.ExpSimpleCase = exports.ExpSearchCase = exports.ExpFuncCustom = exports.ExpFuncDb = exports.ExpFunc = exports.ExpNE = exports.ExpLE = exports.ExpGE = exports.ExpLT = exports.ExpGT = exports.ExpEQBinary = exports.ExpEQ = exports.ExpLike = exports.Exp2Cmp = exports.ExpUnitCmp = exports.ExpIn = exports.ExpIsNotNull = exports.ExpIsNull = exports.ExpDatePart = exports.ExpBitLeft = exports.ExpBitRight = exports.ExpBitOr = exports.ExpBitAnd = exports.ExpJsonProp = exports.ExpMod = exports.ExpDecDiv = exports.ExpDiv = exports.ExpMul = exports.ExpSub = exports.ExpAdd = exports.ExpBitInvert = exports.ExpParenthese = exports.ExpNeg = exports.ExpAtEQ = exports.ExpVar = exports.ExpParam = exports.ExpField = exports.ExpHex = exports.ExpStar = exports.ExpNum = exports.ExpStr = exports.ExpAt = exports.ExpOr = exports.ExpAnd = exports.ExpNot = exports.ExpCmp = exports.ExpVal = void 0;
-exports.ExpInterval = exports.ExpMatch = exports.ExpNull = exports.ExpKey = exports.ExpEntityName = exports.ExpEntityId = exports.ExpNameof = exports.ExpTypeof = exports.ExpOf = exports.ExpExists = exports.ExpDollarVar = exports.ExpAtVar = void 0;
+exports.ExpFuncInUq = exports.ExpCast = exports.ExpSimpleCase = exports.ExpSearchCase = exports.ExpFuncCustom = exports.ExpFuncDb = exports.ExpFunc = exports.ExpNE = exports.ExpLE = exports.ExpGE = exports.ExpLT = exports.ExpGT = exports.ExpEQBinary = exports.ExpEQ = exports.ExpLike = exports.Exp2Cmp = exports.ExpUnitCmp = exports.ExpIn = exports.ExpIsNotNull = exports.ExpIsNull = exports.ExpDatePart = exports.ExpBitLeft = exports.ExpBitRight = exports.ExpBitOr = exports.ExpBitAnd = exports.ExpJsonProp = exports.ExpMod = exports.ExpDecDiv = exports.ExpDiv = exports.ExpMul = exports.ExpSub = exports.ExpAdd = exports.ExpBitInvert = exports.ExpParenthese = exports.ExpNeg = exports.ExpAtEQ = exports.ExpDotVar = exports.ExpVar = exports.ExpParam = exports.ExpField = exports.ExpHex = exports.ExpStar = exports.ExpNum = exports.ExpStr = exports.ExpAt = exports.ExpOr = exports.ExpAnd = exports.ExpNot = exports.ExpCmp = exports.ExpVal = void 0;
+exports.ExpInterval = exports.ExpMatch = exports.ExpNull = exports.ExpKey = exports.ExpEntityName = exports.ExpEntityId = exports.ExpNameof = exports.ExpTypeof = exports.ExpOf = exports.ExpExists = exports.ExpDollarVar = exports.ExpAtVar = exports.ExpSelect = void 0;
 const sqlBuilder_1 = require("../sqlBuilder");
 const statementWithFrom_1 = require("../statementWithFrom");
 const il_1 = require("../../../il");
@@ -160,6 +160,21 @@ class ExpVar extends ExpVal {
     }
 }
 exports.ExpVar = ExpVar;
+class ExpDotVar extends ExpVal {
+    to(sb) {
+        sb.var(this.varNames[0]);
+        let len = this.varNames.length;
+        for (let i = 1; i < len; i++)
+            sb.dot().var(this.varNames[i]);
+        sb.collate(this.collate);
+    }
+    constructor(varNames, collate) {
+        super();
+        this.varNames = varNames;
+        this.collate = collate;
+    }
+}
+exports.ExpDotVar = ExpDotVar;
 class ExpAtEQ extends ExpVal {
     to(sb) {
         sb.l().append('@').append(this.name).append(':=').exp(this.expVal).r();

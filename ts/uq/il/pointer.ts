@@ -30,10 +30,7 @@ export class DotVarPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
     no: number;     // 扫描之后的局部变量编号
     to(stack: Stack, v: VarOperand) {
-        stack.var(this.varName(v._var[0]));
-    }
-    varName(v: string) {
-        return this.no === undefined ? v : v + '_' + this.no;
+        stack.dotVar(v._var);
     }
 }
 

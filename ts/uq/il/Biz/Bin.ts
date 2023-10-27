@@ -1,6 +1,6 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
-import { PBinPick, PBizBin, PBizDetailAct, PContext, PElement } from "../../parser";
+import { PBinPick, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../element";
 import { Field } from "../field";
@@ -29,6 +29,7 @@ export class BinPick extends BizBud {
     readonly dataType = BudDataType.none;
     param: PickParam[];
     pick: PickBase;
+    single: boolean;
     constructor(bin: BizBin, name: string, caption: string) {
         super(bin.biz, name, caption);
         this.bin = bin;
@@ -138,12 +139,13 @@ export class BizBin extends BizEntity {
         let picks: any[] = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, caption, pick, param } = value;
+                const { name, caption, pick, param, single } = value;
                 picks.push({
                     name,
                     caption,
                     from: pick.fromSchema(),
                     param,
+                    single,
                 });
             }
         };
@@ -211,7 +213,7 @@ export class BizBinAct extends BizBase {
     }
 
     parser(context: PContext): PElement<IElement> {
-        return new PBizDetailAct(this, context);
+        return new PBizBinAct(this, context);
     }
 
     addTableVar(tableVar: TableVar): boolean {

@@ -24,6 +24,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["tie"] = 501] = "tie";
     BizPhraseType[BizPhraseType["report"] = 601] = "report";
     BizPhraseType[BizPhraseType["title"] = 901] = "title";
+    BizPhraseType[BizPhraseType["assign"] = 902] = "assign";
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";
     BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";
     BizPhraseType[BizPhraseType["optionsitem"] = 1031] = "optionsitem";

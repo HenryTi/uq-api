@@ -1,9 +1,9 @@
 import {
     BizBin, BizBinAct, BizPend, Field
-    , Statements, Statement, BizDetailActStatements, BizDetailActStatement
+    , Statements, Statement, BizBinActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom
+    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -183,11 +183,21 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
 
         if (picks !== undefined) {
+            let { size } = picks;
+            let i = 0;
             for (let [, pick] of picks) {
                 if (pick.pelement.scan(space) === false) {
                     ok = false;
                 }
+                if (i < size - 1) {
+                    if (pick.single !== undefined) {
+                        this.log(`Only last PICK can set SINGLE propertity`);
+                        ok = false;
+                    }
+                }
+                i++;
             }
+            let a = picks[0];
         }
 
         if (i !== undefined) {
@@ -296,6 +306,10 @@ export class PBinPick extends PElement<BinPick> {
                 this.ts.passToken(Token.SEMICOLON);
             }
         }
+        if (this.ts.isKeyword('single') === true) {
+            this.element.single = true;
+            this.ts.readToken();
+        }
         if (this.ts.prevToken !== Token.RBRACE) {
             this.ts.passToken(Token.SEMICOLON);
         }
@@ -315,11 +329,11 @@ export class PBinPick extends PElement<BinPick> {
         }
         else {
             let pickBase: PickBase;
-            let single = true;
+            let multipleEntity = false;
             switch (bizPhraseType) {
                 case BizPhraseType.atom:
                     pickBase = new PickAtom(entityArr as BizAtom[]);
-                    single = false;
+                    multipleEntity = true;
                     break;
                 case BizPhraseType.spec:
                     pickBase = new PickSpec(bizEntity0 as BizAtomSpec);
@@ -331,7 +345,7 @@ export class PBinPick extends PElement<BinPick> {
                     pickBase = new PickQuery(bizEntity0 as BizQueryTable);
                     break;
             }
-            if (single === true && entityArr.length > 1) {
+            if (multipleEntity === false && entityArr.length > 1) {
                 this.log('from only one object');
                 ok = false;
             }
@@ -352,38 +366,7 @@ export class PBinPick extends PElement<BinPick> {
         return ok;
     }
 }
-/*
-const binVars = [
-    'bin', 'i', 'x'
-    , 'value', 'amount', 'price'
-    , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
-];
-class BinSpace extends Space {
-    private readonly bin: BizBin;
-    constructor(outerSpace: Space, bin: BizBin) {
-        super(outerSpace);
-        this.bin = bin;
-    }
-    protected _getEntityTable(name: string): Entity & Table {
-        throw new Error("Method not implemented.");
-    }
-    protected _getTableByAlias(alias: string): Table {
-        throw new Error("Method not implemented.");
-    }
-    protected _varPointer(name: string, isField: boolean): Pointer {
-        if (isField !== true) {
-            if (binVars.includes(name) === true) {
-                return new VarPointer();
-            }
-        }
-    }
-    protected _varsPointer(names: string[]): Pointer {
-        if (this.bin.isValidPickProp(names[0], names[1]) === true) {
-            return new VarPointer();
-        }
-    }
-}
-*/
+
 export class PBizPend extends PBizEntity<BizPend> {
     private parsePredefined(name: string) {
         let caption = this.ts.mayPassString();
@@ -455,7 +438,7 @@ class BizBinSpace extends Space {
     protected _varsPointer(names: string[]): Pointer {
         if (this.bin !== undefined) {
             if (this.bin.isValidPickProp(names[0], names[1]) === true) {
-                return new VarPointer();
+                return new DotVarPointer();
             }
         }
     }
@@ -489,7 +472,7 @@ class BizBinSpace extends Space {
 }
 
 
-export class PBizDetailAct extends PBizBase<BizBinAct> {
+export class PBizBinAct extends PBizBase<BizBinAct> {
     _parse(): void {
         this.element.name = '$';
 
@@ -509,7 +492,7 @@ export class PBizDetailAct extends PBizBase<BizBinAct> {
             this.element.idParam = field;
         }
 
-        let statement = new BizDetailActStatements(undefined, this.element);
+        let statement = new BizBinActStatements(undefined, this.element);
         statement.level = 0;
         this.context.createStatements = statement.createStatements;
         let parser = statement.parser(this.context)
@@ -547,7 +530,7 @@ export class PBizDetailAct extends PBizBase<BizBinAct> {
     }
 }
 
-export class PBizDetailActStatements extends PStatements {
+export class PBizBinActStatements extends PStatements {
     private readonly bizDetailAct: BizBinAct;
 
     constructor(statements: Statements, context: PContext, bizDetailAct: BizBinAct) {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntityPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
+exports.BizEntityPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
 var GroupType;
 (function (GroupType) {
     GroupType[GroupType["Single"] = 1] = "Single";
@@ -26,6 +26,16 @@ class VarPointer extends Pointer {
     }
 }
 exports.VarPointer = VarPointer;
+class DotVarPointer extends Pointer {
+    constructor() {
+        super(...arguments);
+        this.groupType = GroupType.Single;
+    }
+    to(stack, v) {
+        stack.dotVar(v._var);
+    }
+}
+exports.DotVarPointer = DotVarPointer;
 class FieldPointer extends Pointer {
     constructor() {
         super(...arguments);
