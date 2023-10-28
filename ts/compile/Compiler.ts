@@ -2,7 +2,15 @@ import * as jsonpack from 'jsonpack';
 import { EntityRunner } from "../core";
 import { UqBuilder } from "./UqBuilder";
 import { UqParser } from './UqParser';
-import { Biz, BizEntity } from '../uq/il';
+import { Biz, BizEntity, BizPhraseType } from '../uq/il';
+
+const groups: { [name: string]: BizPhraseType[] } = {
+    infos: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign],
+    sheets: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
+    relate: [BizPhraseType.query, BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
+    reports: [BizPhraseType.report],
+    auth: [BizPhraseType.role, BizPhraseType.permit],
+};
 
 export class Compiler {
     readonly runner: EntityRunner;
@@ -48,6 +56,19 @@ export class Compiler {
             this.buds[phrase] = prop;
             this.res[phrase] = caption;
         }
+    }
+
+    getSource(group: string) {
+        let sources: string[] = [];
+        let arr = groups[group];
+        for (let entity of this.biz.bizArr) {
+            let { name, bizPhraseType } = entity;
+            if (arr.includes(bizPhraseType) === true) {
+                let { source } = this.objNames[name];
+                sources.push(source);
+            }
+        }
+        return sources.join('\n');
     }
 
     private setEntitysId(bizArr: BizEntity[]) {

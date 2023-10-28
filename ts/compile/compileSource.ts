@@ -27,3 +27,17 @@ export async function compileBiz(runner: EntityRunner, unit: number, user: numbe
         return compiler.throwError(err);
     }
 }
+
+export async function compileDownload(runner: EntityRunner, unit: number, user: number, fileName: string) {
+    const compiler = new Compiler(runner, unit, user);
+    try {
+        await compiler.loadBizObjects();
+        compiler.parseBiz();
+        compiler.scan();
+        let ret = compiler.getSource(fileName);
+        return ret;
+    }
+    catch (err) {
+        return compiler.throwError(err);
+    }
+}

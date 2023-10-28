@@ -4,6 +4,14 @@ exports.Compiler = void 0;
 const jsonpack = require("jsonpack");
 const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
+const il_1 = require("../uq/il");
+const groups = {
+    infos: [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.title, il_1.BizPhraseType.assign],
+    sheets: [il_1.BizPhraseType.sheet, il_1.BizPhraseType.bin, il_1.BizPhraseType.pend],
+    relate: [il_1.BizPhraseType.query, il_1.BizPhraseType.pick, il_1.BizPhraseType.options, il_1.BizPhraseType.tie, il_1.BizPhraseType.tree],
+    reports: [il_1.BizPhraseType.report],
+    auth: [il_1.BizPhraseType.role, il_1.BizPhraseType.permit],
+};
 class Compiler {
     constructor(runner, site, user) {
         this.msgs = [];
@@ -43,6 +51,18 @@ class Compiler {
             this.buds[phrase] = prop;
             this.res[phrase] = caption;
         }
+    }
+    getSource(group) {
+        let sources = [];
+        let arr = groups[group];
+        for (let entity of this.biz.bizArr) {
+            let { name, bizPhraseType } = entity;
+            if (arr.includes(bizPhraseType) === true) {
+                let { source } = this.objNames[name];
+                sources.push(source);
+            }
+        }
+        return sources.join('\n');
     }
     setEntitysId(bizArr) {
         const { objNames, buds } = this;

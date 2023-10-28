@@ -44,12 +44,11 @@ function buildCompileRouter(router, rb) {
     });
     rb.entityPost(router, actionType, '/biz', async (unit, user, name, db, urlParams, runner, body, schema, run, net) => {
         let ret = await (0, compile_1.compileBiz)(runner, unit, user);
-        // const compile = new CompileSource(runner, undefined, unit, user, false);
-        // const ret = await compile.run();
         return ret;
     });
     rb.entityDownload(router, actionType, '/source/:file', async (unit, user, name, db, urlParams, runner, body, schema, run, net) => {
-        return 'bbbbbb';
+        let ret = await (0, compile_1.compileDownload)(runner, unit, user, urlParams.file);
+        return ret;
     });
 }
 exports.buildCompileRouter = buildCompileRouter;
