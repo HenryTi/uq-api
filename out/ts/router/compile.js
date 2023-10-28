@@ -48,6 +48,9 @@ function buildCompileRouter(router, rb) {
         // const ret = await compile.run();
         return ret;
     });
+    rb.entityDownload(router, actionType, '/source/:file', async (unit, user, name, db, urlParams, runner, body, schema, run, net) => {
+        return 'bbbbbb';
+    });
 }
 exports.buildCompileRouter = buildCompileRouter;
 //# sourceMappingURL=compile.js.map

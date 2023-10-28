@@ -14,6 +14,14 @@ interface Role {
     permits: string[];
 }
 
+const groups = {
+    infos: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign],
+    sheets: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
+    relate: [BizPhraseType.query, BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
+    reports: [BizPhraseType.report],
+    auth: [BizPhraseType.role, BizPhraseType.permit],
+};
+
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
     readonly bizArr: BizEntity[] = [];

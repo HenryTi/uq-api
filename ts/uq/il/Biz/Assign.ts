@@ -1,3 +1,4 @@
+import { BBizAssign, BBizEntity, DbContext } from "../../builder";
 import { PContext, PElement } from "../../parser";
 import { PBizAssign } from "../../parser/Biz/Assign";
 import { IElement } from "../element";
@@ -21,5 +22,9 @@ export class BizAssign extends BizEntity {
         ret.atom = this.atom.map(v => v.name);
         ret.title = this.title.map(([entity, bud]) => ([entity.name, bud.name]));
         return ret;
+    }
+
+    db(dbContext: DbContext): BBizEntity {
+        return new BBizAssign(dbContext, this);
     }
 }

@@ -23,4 +23,5 @@ __exportStar(require("./BizSheet"), exports);
 __exportStar(require("./BizReport"), exports);
 __exportStar(require("./BizPick"), exports);
 __exportStar(require("./BizQuery"), exports);
+__exportStar(require("./BizAssign"), exports);
 //# sourceMappingURL=index.js.map

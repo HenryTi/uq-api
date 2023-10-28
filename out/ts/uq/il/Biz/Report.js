@@ -11,22 +11,6 @@ var ReportJoinType;
     ReportJoinType[ReportJoinType["to"] = 2] = "to";
 })(ReportJoinType = exports.ReportJoinType || (exports.ReportJoinType = {}));
 ;
-/*
-export class ReportList extends BizBud {
-    readonly dataType = BudDataType.none;
-    readonly canIndex = false;
-    parser(context: PContext): PElement<IElement> {
-        throw new Error("Method not implemented.");
-    }
-    atom: BizAtom | BizAtomSpec;
-
-    buildSchema(res: { [phrase: string]: string; }) {
-        let ret = super.buildSchema(res);
-        ret.atom = this.atom.name;
-        return ret;
-    }
-}
-*/
 class BizReport extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);

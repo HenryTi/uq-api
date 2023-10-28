@@ -62,4 +62,9 @@ export function buildCompileRouter(router: Router, rb: RouterBuilder) {
             // const ret = await compile.run();
             return ret
         });
+
+    rb.entityDownload(router, actionType, '/source/:file',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
+            return 'bbbbbb';
+        });
 }

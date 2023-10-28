@@ -18,22 +18,7 @@ export interface ReportJoin {
     type: ReportJoinType;
     entity: BizEntity;
 }
-/*
-export class ReportList extends BizBud {
-    readonly dataType = BudDataType.none;
-    readonly canIndex = false;
-    parser(context: PContext): PElement<IElement> {
-        throw new Error("Method not implemented.");
-    }
-    atom: BizAtom | BizAtomSpec;
 
-    buildSchema(res: { [phrase: string]: string; }) {
-        let ret = super.buildSchema(res);
-        ret.atom = this.atom.name;
-        return ret;
-    }
-}
-*/
 export class BizReport extends BizEntity {
     protected readonly fields = [];
     readonly bizPhraseType = BizPhraseType.report;

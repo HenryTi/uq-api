@@ -2,13 +2,16 @@ import {
     BigInt, BizAtomSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
     , JsonDataType, bigIntField, idField, jsonField
 } from "../../il";
-import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNum, ExpSelect, ExpStr, ExpSub, ExpVal, ExpVar, Procedure } from "../sql";
+import {
+    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNum
+    , ExpSelect, ExpStr, ExpVal, ExpVar, Procedure
+} from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizSpec extends BBizEntity<BizAtomSpec> {
     override async buildProcedures(): Promise<void> {
-        super.buildProcedures();
+        super.buildProcedures
         const { id } = this.bizEntity;
         const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
         this.buildSaveProc(procSave);

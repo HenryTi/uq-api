@@ -109,6 +109,12 @@ export abstract class RouterBuilder {
         });
     };
 
+    entityDownload(router: Router, entityType: string, path: string, processer: EntityProcesser) {
+        router.get(`/${entityType}${path}`, async (req: Request, res: Response) => {
+            await this.entityHttpDownload(req, res, entityType, processer, true);
+        });
+    };
+
     entityPut(router: Router, entityType: string, path: string, processer: EntityProcesser) {
         router.put(`/${entityType}${path}`, async (req: Request, res: Response) => {
             await this.entityHttpProcess(req, res, entityType, processer, false);
@@ -116,6 +122,7 @@ export abstract class RouterBuilder {
     };
 
     protected abstract entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void>;
+    protected abstract entityHttpDownload(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void>;
 
     protected async checkRunner(req: Request): Promise<EntityRunner> {
         /*
@@ -231,6 +238,27 @@ export class RouterWebBuilder extends RouterBuilder {
             res.json({ error: err });
         }
     }
+
+    protected async entityHttpDownload(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
+        try {
+            let userToken: User = (req as any).user;
+            let { /*db, */id: userId, unit, roles } = userToken;
+            //if (db === undefined) db = consts.$unitx;
+            let runner = await this.checkRunner(req);
+            if (runner === undefined) return;
+            let db = runner.dbName;
+            let { params } = req;
+            let { name } = params;
+            let call: any, run: any;
+            let body = isGet === true ? (req as any).query : (req as any).body;
+            let result = await processer(unit, userId, name, db, params, runner, body, call, run, this.net);
+            res.send(result);
+        }
+        catch (err) {
+            logger.error(err);
+            res.json({ error: err });
+        }
+    }
 }
 
 export class RouterLocalBuilder extends RouterBuilder {
@@ -269,6 +297,10 @@ export class RouterLocalBuilder extends RouterBuilder {
             logger.error(err);
             res.json({ error: err });
         }
+    }
+
+    protected async entityHttpDownload(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
+        throw new Error('entityHttpDownload local version is not implemented');
     }
 }
 

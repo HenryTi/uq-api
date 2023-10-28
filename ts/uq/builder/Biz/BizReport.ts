@@ -114,19 +114,6 @@ export class BBizReport extends BBizEntity<BizReport> {
         const { factory } = this.context;
         let expValues: ExpVal[] = titles.map(title => {
             const selectValue = this.buildTitleValueSelect(title, varS0, varS1);
-            /*
-            factory.createSelect();
-            selectValue.column(new ExpFunc(factory.func_sum, new ExpField('value', h)));
-            selectValue.from(new EntityTable(EnumSysTable.history, false, h))
-                .join(JoinType.inner, new EntityTable(EnumSysTable.bud, false, hb))
-                .on(new ExpEQ(new ExpField('id', hb), new ExpField('bud', h)));
-            selectValue.where(new ExpAnd(
-                new ExpGE(new ExpField('id', h), varS0),
-                new ExpLT(new ExpField('id', h), varS1),
-                new ExpEQ(new ExpField('base', hb), new ExpField('id', a)),
-                new ExpEQ(new ExpField('ext', hb), new ExpNum(title.bud.id)),
-            ));
-            */
             return new ExpFunc(
                 factory.func_ifnull,
                 new ExpSelect(selectValue),
@@ -144,7 +131,6 @@ export class BBizReport extends BBizEntity<BizReport> {
         const { bud } = reportTitle;
         const { hasHistory, dataType, setType } = bud;
         if (hasHistory !== true || setType === SetType.assign || setType === SetType.balance) {
-            // only get value from ixBudDec or ixBudInt
             select.column(new ExpField('value', h));
             let tbl: EnumSysTable;
             switch (dataType) {
@@ -166,18 +152,8 @@ export class BBizReport extends BBizEntity<BizReport> {
                 new ExpEQ(new ExpField('base', hb), new ExpField('id', a)),
                 new ExpEQ(new ExpField('ext', hb), new ExpNum(bud.id)),
             ];
-            //if (setType === SetType.cumulate) {
             select.column(new ExpFunc(factory.func_sum, new ExpField('value', h)));
             wheres.push(new ExpGE(new ExpField('id', h), varS0));
-            //}
-            /*
-            else {
-                // SetType.balance or SetType.assign
-                select.column(new ExpField('value', h));
-                select.order(new ExpField('id', h), 'desc');
-                select.limit(ExpNum.num1);
-            }
-            */
             select.where(new ExpAnd(...wheres));
         }
         return select;
