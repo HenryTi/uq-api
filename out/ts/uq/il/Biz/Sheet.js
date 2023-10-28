@@ -71,7 +71,7 @@ class BizPend extends Entity_1.BizEntity {
         return bud;
     }
 }
+exports.BizPend = BizPend;
 BizPend.predefinedId = ['i', 'x', 'si', 'sx', 's'];
 BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
-exports.BizPend = BizPend;
 //# sourceMappingURL=Sheet.js.map

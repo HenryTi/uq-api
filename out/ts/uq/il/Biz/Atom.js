@@ -102,6 +102,6 @@ class BizAtomIDAny extends BizAtomID {
     }
     parser(context) { return undefined; }
 }
-BizAtomIDAny.current = new BizAtomIDAny(undefined);
 exports.BizAtomIDAny = BizAtomIDAny;
+BizAtomIDAny.current = new BizAtomIDAny(undefined);
 //# sourceMappingURL=Atom.js.map

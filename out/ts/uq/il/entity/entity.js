@@ -11,7 +11,7 @@ var EntityAccessibility;
 (function (EntityAccessibility) {
     EntityAccessibility[EntityAccessibility["invisible"] = 0] = "invisible";
     EntityAccessibility[EntityAccessibility["visible"] = 1] = "visible";
-})(EntityAccessibility = exports.EntityAccessibility || (exports.EntityAccessibility = {}));
+})(EntityAccessibility || (exports.EntityAccessibility = EntityAccessibility = {}));
 class Entity extends element_1.IElement {
     constructor(uq) {
         super();
@@ -538,7 +538,7 @@ var StateTo;
     StateTo[StateTo["to"] = 0] = "to";
     StateTo[StateTo["reply"] = 1] = "reply";
     StateTo[StateTo["origin"] = 2] = "origin";
-})(StateTo = exports.StateTo || (exports.StateTo = {}));
+})(StateTo || (exports.StateTo = StateTo = {}));
 ;
 class SheetState extends Entity {
     constructor() {

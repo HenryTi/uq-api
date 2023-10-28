@@ -8,7 +8,7 @@ var ProcParamType;
     ProcParamType[ProcParamType["in"] = 0] = "in";
     ProcParamType[ProcParamType["out"] = 1] = "out";
     ProcParamType[ProcParamType["inout"] = 2] = "inout";
-})(ProcParamType = exports.ProcParamType || (exports.ProcParamType = {}));
+})(ProcParamType || (exports.ProcParamType = ProcParamType = {}));
 class Field {
     constructor() {
         this.autoInc = false;

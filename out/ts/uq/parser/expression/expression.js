@@ -854,8 +854,8 @@ class PExpression extends element_1.PElement {
         this.error("不是正确的DatePart");
     }
 }
-PExpression.groupFuncs = ['count', 'max', 'min', 'sum', 'avg'];
 exports.PExpression = PExpression;
+PExpression.groupFuncs = ['count', 'max', 'min', 'sum', 'avg'];
 class ExpressionSpace extends space_1.Space {
     constructor() {
         super(...arguments);

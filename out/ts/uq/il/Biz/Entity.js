@@ -8,7 +8,7 @@ var BudIndex;
 (function (BudIndex) {
     BudIndex[BudIndex["none"] = 0] = "none";
     BudIndex[BudIndex["index"] = 1] = "index";
-})(BudIndex = exports.BudIndex || (exports.BudIndex = {}));
+})(BudIndex || (exports.BudIndex = BudIndex = {}));
 class BizEntity extends Base_1.BizBase {
     constructor() {
         super(...arguments);

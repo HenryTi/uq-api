@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizBinActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer
+    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -154,6 +154,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (super.scan(space) === false) ok = false;
 
         const { picks, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
+        /*
         if (this.pend !== undefined) {
             let pend = this.getBizEntity<BizPend>(space, this.pend, BizPhraseType.pend);
             if (pend === undefined) {
@@ -181,7 +182,7 @@ export class PBizBin extends PBizEntity<BizBin> {
                 };
             }
         }
-
+        */
         if (picks !== undefined) {
             let { size } = picks;
             let i = 0;
@@ -194,10 +195,18 @@ export class PBizBin extends PBizEntity<BizBin> {
                         this.log(`Only last PICK can set SINGLE propertity`);
                         ok = false;
                     }
+                    if (pick.pick.bizEntityTable === EnumSysTable.pend) {
+                        this.log(`Only last PICK can be from PEND`);
+                        ok = false;
+                    }
+                }
+                else {
+                    if (pick.pick.bizEntityTable === EnumSysTable.pend) {
+                        this.element.pend = (pick.pick as PickPend).from;
+                    }
                 }
                 i++;
             }
-            let a = picks[0];
         }
 
         if (i !== undefined) {
@@ -449,10 +458,7 @@ class BizBinSpace extends Space {
                 return super._getBizEntity(name);
             case 'pend':
                 const { pend } = this.bin;
-                return pend?.entity;
-            case 'main':
-                debugger;
-                break;
+                return pend;
         }
     }
 

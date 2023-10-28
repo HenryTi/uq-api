@@ -51,5 +51,5 @@ var Token;
     Token[Token["SubGT"] = 62] = "SubGT";
     Token[Token["Exclamation"] = 66] = "Exclamation";
     Token[Token["Memo"] = 99] = "Memo";
-})(Token = exports.Token || (exports.Token = {}));
+})(Token || (exports.Token = Token = {}));
 //# sourceMappingURL=token.js.map

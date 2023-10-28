@@ -28,7 +28,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";
     BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";
     BizPhraseType[BizPhraseType["optionsitem"] = 1031] = "optionsitem";
-})(BizPhraseType = exports.BizPhraseType || (exports.BizPhraseType = {}));
+})(BizPhraseType || (exports.BizPhraseType = BizPhraseType = {}));
 ;
 var BudDataType;
 (function (BudDataType) {
@@ -44,7 +44,7 @@ var BudDataType;
     BudDataType[BudDataType["str"] = 32] = "str";
     BudDataType[BudDataType["date"] = 41] = "date";
     BudDataType[BudDataType["datetime"] = 42] = "datetime";
-})(BudDataType = exports.BudDataType || (exports.BudDataType = {}));
+})(BudDataType || (exports.BudDataType = BudDataType = {}));
 ;
 class BizBase extends element_1.IElement {
     constructor(biz) {

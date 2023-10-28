@@ -85,7 +85,7 @@ class PickPend extends PickBase {
     hasReturn(prop) {
         if (prop === undefined || prop === 'id')
             return true;
-        return false;
+        return this.from.hasField(prop);
     }
 }
 exports.PickPend = PickPend;
@@ -103,11 +103,11 @@ class BizBin extends Entity_1.BizEntity {
         let ret = super.buildSchema(res);
         let pend;
         if (this.pend !== undefined) {
-            let { caption, entity, search } = this.pend;
+            let { caption, name } = this.pend;
             pend = {
                 caption,
-                entity: entity.name,
-                search,
+                entity: name,
+                // search,
             };
         }
         let picks = [];

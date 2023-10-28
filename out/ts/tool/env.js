@@ -6,7 +6,7 @@ var SqlType;
 (function (SqlType) {
     SqlType[SqlType["mysql"] = 0] = "mysql";
     SqlType[SqlType["mssql"] = 1] = "mssql";
-})(SqlType = exports.SqlType || (exports.SqlType = {}));
+})(SqlType || (exports.SqlType = SqlType = {}));
 class Env {
     constructor() {
         var _a, _b;

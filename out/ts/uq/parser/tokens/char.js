@@ -6,6 +6,7 @@ let lowercase = 'abcdefghijklmnopqrstuvwxyz';
 let uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 class Char {
 }
+exports.Char = Char;
 Char.NULL = 0;
 Char.TAB = 9;
 Char._R = 10;
@@ -99,5 +100,4 @@ Char.X = uppercase.charCodeAt(23);
 Char.Y = uppercase.charCodeAt(24);
 Char.Z = uppercase.charCodeAt(25);
 Char.USPACE = 0x3000;
-exports.Char = Char;
 //# sourceMappingURL=char.js.map

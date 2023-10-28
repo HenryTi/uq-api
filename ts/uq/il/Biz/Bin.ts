@@ -13,12 +13,13 @@ import { BizEntity } from "./Entity";
 import { BizQuery, BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
 
+/*
 export interface PropPend {
     caption: string;
     entity: BizPend;
     search: string[];
 }
-
+*/
 export interface PickParam {
     name: string;
     bud: string;
@@ -105,7 +106,7 @@ export class PickPend extends PickBase {
     }
     hasReturn(prop: string): boolean {
         if (prop === undefined || prop === 'id') return true;
-        return false;
+        return this.from.hasField(prop);
     }
 }
 
@@ -113,10 +114,10 @@ export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
     readonly bizPhraseType = BizPhraseType.bin;
     picks: Map<string, BinPick>;
+    pend: BizPend;
     act: BizBinAct;
     i: BizBudAtom;
     x: BizBudAtom;
-    pend: PropPend;
     value: BizBudValue;
     price: BizBudValue;
     amount: BizBudValue;
@@ -129,11 +130,11 @@ export class BizBin extends BizEntity {
         let ret = super.buildSchema(res);
         let pend: any;
         if (this.pend !== undefined) {
-            let { caption, entity, search } = this.pend;
+            let { caption, name } = this.pend;
             pend = {
                 caption,
-                entity: entity.name,
-                search,
+                entity: name,
+                // search,
             }
         }
         let picks: any[] = [];

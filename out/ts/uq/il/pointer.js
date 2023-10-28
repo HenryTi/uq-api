@@ -6,7 +6,7 @@ var GroupType;
     GroupType[GroupType["Single"] = 1] = "Single";
     GroupType[GroupType["Group"] = 2] = "Group";
     GroupType[GroupType["Both"] = 3] = "Both";
-})(GroupType = exports.GroupType || (exports.GroupType = {}));
+})(GroupType || (exports.GroupType = GroupType = {}));
 class Pointer {
 }
 exports.Pointer = Pointer;

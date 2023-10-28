@@ -436,7 +436,7 @@ var IDNewType;
     IDNewType[IDNewType["newIfNull"] = 2] = "newIfNull";
     IDNewType[IDNewType["create"] = 3] = "create";
     IDNewType[IDNewType["prev"] = 99] = "prev";
-})(IDNewType = exports.IDNewType || (exports.IDNewType = {}));
+})(IDNewType || (exports.IDNewType = IDNewType = {}));
 class OpID extends Atom {
     constructor() {
         super(...arguments);
@@ -487,7 +487,7 @@ var OpQueueAction;
     OpQueueAction[OpQueueAction["has"] = 0] = "has";
     OpQueueAction[OpQueueAction["wait"] = 1] = "wait";
     OpQueueAction[OpQueueAction["done"] = 2] = "done";
-})(OpQueueAction = exports.OpQueueAction || (exports.OpQueueAction = {}));
+})(OpQueueAction || (exports.OpQueueAction = OpQueueAction = {}));
 class OpQueue extends Atom {
     get type() { return 'queue'; }
     parser(context) { return new parser_1.POpQueue(this, context); }

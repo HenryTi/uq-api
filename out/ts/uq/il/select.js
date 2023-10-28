@@ -12,7 +12,7 @@ var JoinType;
     JoinType[JoinType["join"] = 3] = "join";
     JoinType[JoinType["inner"] = 4] = "inner";
     JoinType[JoinType["cross"] = 5] = "cross";
-})(JoinType = exports.JoinType || (exports.JoinType = {}));
+})(JoinType || (exports.JoinType = JoinType = {}));
 ;
 class FromTable {
     getTableAlias() { return this.alias; }

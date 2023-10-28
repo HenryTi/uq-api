@@ -43,8 +43,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
         let { pend, no, val, setEqu, sets } = this.istatement;
         let expValue = this.context.expVal(val);
         if (pend === undefined) {
-            const { pend: refEntity } = this.istatement.bizStatement.bizDetailAct.bizDetail;
-            pend = refEntity.entity;
+            // const { pend } = this.istatement.bizStatement.bizDetailAct.bizDetail;
             buildChangePendFrom();
         }
         else {

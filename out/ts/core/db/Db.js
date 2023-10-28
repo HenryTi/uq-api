@@ -6,5 +6,5 @@ var ProcType;
     ProcType[ProcType["proc"] = 0] = "proc";
     ProcType[ProcType["core"] = 1] = "core";
     ProcType[ProcType["func"] = 2] = "func";
-})(ProcType = exports.ProcType || (exports.ProcType = {}));
+})(ProcType || (exports.ProcType = ProcType = {}));
 //# sourceMappingURL=Db.js.map

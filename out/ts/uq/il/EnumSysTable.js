@@ -46,5 +46,5 @@ var EnumSysTable;
     EnumSysTable["fromNewBad"] = "$from_new_bad";
     EnumSysTable["importDataMap"] = "$import_data_map";
     EnumSysTable["importDataSourceEntity"] = "$import_data_source_entity";
-})(EnumSysTable = exports.EnumSysTable || (exports.EnumSysTable = {}));
+})(EnumSysTable || (exports.EnumSysTable = EnumSysTable = {}));
 //# sourceMappingURL=EnumSysTable.js.map

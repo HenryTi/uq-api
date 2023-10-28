@@ -8,7 +8,7 @@ var BudValueAct;
 (function (BudValueAct) {
     BudValueAct[BudValueAct["equ"] = 1] = "equ";
     BudValueAct[BudValueAct["init"] = 2] = "init";
-})(BudValueAct = exports.BudValueAct || (exports.BudValueAct = {}));
+})(BudValueAct || (exports.BudValueAct = BudValueAct = {}));
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     get ex() { return undefined; }
@@ -26,7 +26,7 @@ var SetType;
     SetType[SetType["assign"] = 0] = "assign";
     SetType[SetType["balance"] = 1] = "balance";
     SetType[SetType["cumulate"] = 2] = "cumulate";
-})(SetType = exports.SetType || (exports.SetType = {}));
+})(SetType || (exports.SetType = SetType = {}));
 class BizBudValue extends BizBud {
     get optionsItemType() { return; }
     buildSchema(res) {

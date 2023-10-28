@@ -6,5 +6,5 @@ var PIDNewType;
     PIDNewType[PIDNewType["new"] = 0] = "new";
     PIDNewType[PIDNewType["newVersion"] = 1] = "newVersion";
     PIDNewType[PIDNewType["newIfNull"] = 2] = "newIfNull";
-})(PIDNewType = exports.PIDNewType || (exports.PIDNewType = {}));
+})(PIDNewType || (exports.PIDNewType = PIDNewType = {}));
 //# sourceMappingURL=PDefines.js.map

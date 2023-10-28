@@ -16,7 +16,7 @@ var EnumIdType;
     EnumIdType[EnumIdType["Local"] = 12] = "Local";
     EnumIdType[EnumIdType["Minute"] = 13] = "Minute";
     EnumIdType[EnumIdType["MinuteId"] = 21] = "MinuteId";
-})(EnumIdType = exports.EnumIdType || (exports.EnumIdType = {})); // Minute: unique in uq
+})(EnumIdType || (exports.EnumIdType = EnumIdType = {})); // Minute: unique in uq
 // 如果 parent key 字段存在，则是Tree结构ID。另外的key字段只能有一个, key0=parent
 class ID extends IdBase_1.IdBase {
     constructor() {

@@ -9,7 +9,7 @@ var ReportJoinType;
 (function (ReportJoinType) {
     ReportJoinType[ReportJoinType["x"] = 1] = "x";
     ReportJoinType[ReportJoinType["to"] = 2] = "to";
-})(ReportJoinType = exports.ReportJoinType || (exports.ReportJoinType = {}));
+})(ReportJoinType || (exports.ReportJoinType = ReportJoinType = {}));
 ;
 class BizReport extends Entity_1.BizEntity {
     constructor() {

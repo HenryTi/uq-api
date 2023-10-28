@@ -155,7 +155,7 @@ var LockType;
 (function (LockType) {
     LockType[LockType["none"] = 0] = "none";
     LockType[LockType["update"] = 1] = "update";
-})(LockType = exports.LockType || (exports.LockType = {}));
+})(LockType || (exports.LockType = LockType = {}));
 ;
 class Select extends statementWithFrom_1.WithFrom {
     constructor() {

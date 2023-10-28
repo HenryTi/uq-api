@@ -6,7 +6,7 @@ var SetEqu;
     SetEqu[SetEqu["equ"] = 0] = "equ";
     SetEqu[SetEqu["add"] = 1] = "add";
     SetEqu[SetEqu["sub"] = 2] = "sub";
-})(SetEqu = exports.SetEqu || (exports.SetEqu = {}));
+})(SetEqu || (exports.SetEqu = SetEqu = {}));
 ;
 var SpanPeriod;
 (function (SpanPeriod) {
@@ -16,5 +16,5 @@ var SpanPeriod;
     SpanPeriod[SpanPeriod["day"] = 3] = "day";
     SpanPeriod[SpanPeriod["hour"] = 4] = "hour";
     SpanPeriod[SpanPeriod["minute"] = 5] = "minute";
-})(SpanPeriod = exports.SpanPeriod || (exports.SpanPeriod = {}));
+})(SpanPeriod || (exports.SpanPeriod = SpanPeriod = {}));
 //# sourceMappingURL=tool.js.map

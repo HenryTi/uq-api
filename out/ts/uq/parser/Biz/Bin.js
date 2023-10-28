@@ -137,10 +137,11 @@ class PBizBin extends Base_1.PBizEntity {
         if (super.scan(space) === false)
             ok = false;
         const { picks, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
+        /*
         if (this.pend !== undefined) {
-            let pend = this.getBizEntity(space, this.pend, il_1.BizPhraseType.pend);
+            let pend = this.getBizEntity<BizPend>(space, this.pend, BizPhraseType.pend);
             if (pend === undefined) {
-                this.log(`PEND '${this.pend}' is not defined`);
+                this.log(`PEND '${this.pend}' is not defined`)
                 ok = false;
             }
             else {
@@ -149,7 +150,7 @@ class PBizBin extends Base_1.PBizEntity {
                     ok = false;
                 }
                 else {
-                    let { predefinedId } = il_1.BizPend;
+                    let { predefinedId } = BizPend;
                     for (let i of this.pendSearch) {
                         if (predefinedId.includes(i) === false) {
                             this.log(`Pend ${pend.jName} has not ${i}`);
@@ -164,6 +165,7 @@ class PBizBin extends Base_1.PBizEntity {
                 };
             }
         }
+        */
         if (picks !== undefined) {
             let { size } = picks;
             let i = 0;
@@ -176,10 +178,18 @@ class PBizBin extends Base_1.PBizEntity {
                         this.log(`Only last PICK can set SINGLE propertity`);
                         ok = false;
                     }
+                    if (pick.pick.bizEntityTable === il_1.EnumSysTable.pend) {
+                        this.log(`Only last PICK can be from PEND`);
+                        ok = false;
+                    }
+                }
+                else {
+                    if (pick.pick.bizEntityTable === il_1.EnumSysTable.pend) {
+                        this.element.pend = pick.pick.from;
+                    }
                 }
                 i++;
             }
-            let a = picks[0];
         }
         if (i !== undefined) {
             if (this.scanBud(space, i) === false) {
@@ -429,10 +439,7 @@ class BizBinSpace extends space_1.Space {
                 return super._getBizEntity(name);
             case 'pend':
                 const { pend } = this.bin;
-                return pend === null || pend === void 0 ? void 0 : pend.entity;
-            case 'main':
-                debugger;
-                break;
+                return pend;
         }
     }
     _getUse(name) {

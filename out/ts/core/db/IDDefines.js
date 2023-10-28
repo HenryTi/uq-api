@@ -12,5 +12,5 @@ var EnumIdType;
     EnumIdType[EnumIdType["Local"] = 12] = "Local";
     EnumIdType[EnumIdType["Minute"] = 13] = "Minute";
     EnumIdType[EnumIdType["MinuteId"] = 21] = "MinuteId";
-})(EnumIdType = exports.EnumIdType || (exports.EnumIdType = {})); // Minute: unique in uq
+})(EnumIdType || (exports.EnumIdType = EnumIdType = {})); // Minute: unique in uq
 //# sourceMappingURL=IDDefines.js.map

@@ -448,7 +448,7 @@ var BusAction;
     BusAction[BusAction["Query"] = 4] = "Query";
     BusAction[BusAction["Stamp"] = 5] = "Stamp";
     BusAction[BusAction["Defer"] = 6] = "Defer";
-})(BusAction = exports.BusAction || (exports.BusAction = {}));
+})(BusAction || (exports.BusAction = BusAction = {}));
 class BusStatement extends Statement {
     get type() { return 'bus'; }
     db(db) { return db.busStatement(this); }
@@ -516,7 +516,7 @@ var EnumRole;
     EnumRole[EnumRole["none"] = 0] = "none";
     EnumRole[EnumRole["Admin"] = 1] = "Admin";
     EnumRole[EnumRole["Owner"] = 2] = "Owner";
-})(EnumRole = exports.EnumRole || (exports.EnumRole = {}));
+})(EnumRole || (exports.EnumRole = EnumRole = {}));
 ;
 class RoleStatement extends Statement {
     get type() { return 'role'; }
@@ -539,7 +539,7 @@ var EnumTransaction;
     EnumTransaction[EnumTransaction["off"] = 0] = "off";
     EnumTransaction[EnumTransaction["start"] = 1] = "start";
     EnumTransaction[EnumTransaction["commit"] = 2] = "commit";
-})(EnumTransaction = exports.EnumTransaction || (exports.EnumTransaction = {}));
+})(EnumTransaction || (exports.EnumTransaction = EnumTransaction = {}));
 class TransactionStatement extends Statement {
     get type() { return 'transaction'; }
     db(db) { return db.transactionStatement(this); }
@@ -558,7 +558,7 @@ var QueueAction;
     QueueAction[QueueAction["again"] = 1] = "again";
     QueueAction[QueueAction["done"] = 2] = "done";
     QueueAction[QueueAction["del"] = 3] = "del";
-})(QueueAction = exports.QueueAction || (exports.QueueAction = {}));
+})(QueueAction || (exports.QueueAction = QueueAction = {}));
 class QueueStatement extends Statement {
     get type() { return 'queue'; }
     db(db) { return db.queueStatement(this); }
