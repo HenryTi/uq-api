@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertExp = void 0;
 const select_1 = require("../select");
 const ExpQueue_1 = require("./ExpQueue");
-const ExpRole_1 = require("./ExpRole");
 const ExpID_1 = require("./ExpID");
 const ExpNO_1 = require("./ExpNO");
 const exps_1 = require("./exps");
@@ -11,6 +10,7 @@ const ExpUMinute_1 = require("./ExpUMinute");
 const ExpSearch_1 = require("./ExpSearch");
 const ExpBizSelect_1 = require("./ExpBizSelect");
 const bizExp_1 = require("../bizExp");
+const ExpRole_1 = require("./ExpRole");
 function convertExp(context, exp) {
     if (!exp)
         return;

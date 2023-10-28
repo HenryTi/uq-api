@@ -1,5 +1,5 @@
 import {
-    Biz, BizAtom, BizPermit, BizQuery, BizRole, BizEntity
+    Biz, BizAtom, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
     , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick, BizReport, BizQueryTable, BizAssign
 } from "../../il";
@@ -21,8 +21,9 @@ export class PBiz extends PEntity<Biz> {
             options: BizOptions,
             assign: BizAssign,
 
-            permit: BizPermit,
+            // permit: BizPermit,   不再需要permit，直接简单用role
             role: BizRole,
+            permit: BizRole,
 
             sheet: BizSheet,
             bin: BizBin,

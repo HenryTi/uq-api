@@ -1,26 +1,11 @@
-import { BizPermit, BizPermitItem, BizRole, Uq } from "../../il";
+import { /*BizPermit, BizPermitItem, */BizPhraseType, BizRole, Uq } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 import { PBizBud } from "./Bud";
-
+/*
 export class PBizPermit<P extends BizPermit> extends PBizEntity<P> {
     private readonly permits: { [key: string]: boolean } = {};
-
-    /*
-    protected parseContent(): void {
-        for (; ;) {
-            if (this.ts.token !== Token.VAR) break;
-            if (this.ts.varBrace === true) break;
-            switch (this.ts.lowerVar) {
-                default: this.ts.expect('permit', 'item'); break;
-                case 'item': this.parseItem(); continue;
-                case 'permit': this.parsePermit(); continue;
-            }
-            this.ts.passToken(Token.SEMICOLON);
-        }
-    }
-    */
 
     private parseItem = () => {
         if (this.ts.token !== Token.VAR) this.expectToken(Token.VAR);
@@ -95,39 +80,9 @@ export class PBizPermit<P extends BizPermit> extends PBizEntity<P> {
 
 export class PBizPermitItem extends PBizBud<BizPermitItem> {
 }
-
+*/
 export class PBizRole<P extends BizRole> extends PBizEntity<P> {
-    // private readonly permitNames: string[] = [];
     private readonly roleNames: string[] = [];
-    /*
-    protected parseContent(): void {
-        for (; ;) {
-            if (this.ts.varBrace === true) break;
-            if (this.ts.token !== Token.VAR) break;
-            let key = this.ts.passKey();
-            switch (key) {
-                default: this.ts.expect('permit', 'role'); break;
-                case 'permit': this.parsePermit(); break;
-                case 'role': this.parseRole(); break;
-            }
-            this.ts.passToken(Token.SEMICOLON);
-        }
-    }
-    */
-    protected override parseContent(): void {
-        super.parseContent();
-    }
-    /*
-    private parsePermit = () => {
-        let name = this.ts.passVar();
-        let index = this.permitNames.findIndex(v => v === name);
-        if (index >= 0) {
-            this.ts.error(`duplicate '${name}'`);
-        }
-        this.permitNames.push(name);
-        this.ts.passToken(Token.SEMICOLON);
-    }
-    */
     private parseRole = () => {
         let name = this.ts.passVar();
         if (this.roleNames.includes(name) === true) {
@@ -138,8 +93,8 @@ export class PBizRole<P extends BizRole> extends PBizEntity<P> {
     }
 
     protected readonly keyColl = {
-        // permit: this.parsePermit,
         role: this.parseRole,
+        permit: this.parseRole,
     }
 
     scan(space: Space): boolean {
@@ -150,26 +105,14 @@ export class PBizRole<P extends BizRole> extends PBizEntity<P> {
 
         for (let name of this.roleNames) {
             let bizBase = bizes.get(name);
-            if (bizBase === undefined || bizBase.type !== 'role') {
-                this.log(`'${name}' is not a role`);
+            if (bizBase === undefined || bizBase.bizPhraseType !== BizPhraseType.permit) {
+                this.log(`'${name}' is not a PERMIT`);
                 ok = false;
             }
             else {
                 this.element.roles.set(name, bizBase as BizRole);
             }
         }
-        /*
-        for (let permitName of this.permitNames) {
-            let bizBase = bizes.get(permitName);
-            if (bizBase === undefined || bizBase.type !== 'permit') {
-                this.log(`'${permitName}' is not a permit`);
-                ok = false;
-                continue;
-            }
-            let bizPermit = bizBase as BizPermit;
-            this.element.permits.set(permitName, bizPermit);
-        }
-        */
         for (let [, value] of this.element.roles) {
             let roles: BizRole[] = [];
             if (this.checkRecursive(space, value, roles) === false) ok = false;

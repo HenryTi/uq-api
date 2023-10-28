@@ -13,8 +13,9 @@ class PBiz extends entity_1.PEntity {
             title: il_1.BizTitle,
             options: il_1.BizOptions,
             assign: il_1.BizAssign,
-            permit: il_1.BizPermit,
+            // permit: BizPermit,   不再需要permit，直接简单用role
             role: il_1.BizRole,
+            permit: il_1.BizRole,
             sheet: il_1.BizSheet,
             bin: il_1.BizBin,
             pend: il_1.BizPend,

@@ -10,7 +10,6 @@ import {
     BizFieldOperand
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
-import { ExpRole } from './ExpRole';
 import { ExpID } from './ExpID';
 import { ExpNO } from './ExpNO';
 import { Exp } from './Exp';
@@ -19,6 +18,7 @@ import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand, ExpBizSelectOperand } from './ExpBizSelect';
 import { BBizExp, BBizFieldOperand } from '../bizExp';
+import { ExpRole } from './ExpRole';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {
     if (!exp) return;

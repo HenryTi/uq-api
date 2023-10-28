@@ -1,44 +1,38 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizRole = exports.BizPermit = exports.BizPermitItem = void 0;
+exports.BizRole = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
-const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
-class BizPermitItem extends Bud_1.BizBud {
-    constructor() {
-        super(...arguments);
-        // permit: BizPermit;
-        this.dataType = Base_1.BudDataType.none;
-    }
-    parser(context) {
-        return new parser_1.PBizPermitItem(this, context);
+/*
+export class BizPermitItem extends BizBud {
+    // permit: BizPermit;
+    readonly dataType = BudDataType.none;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizPermitItem(this, context);
     }
 }
-exports.BizPermitItem = BizPermitItem;
-class BizPermit extends Entity_1.BizEntity {
-    constructor() {
-        super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.permit;
-        this.fields = [];
-        this.items = new Map();
-        this.permits = new Map();
+
+export class BizPermit extends BizEntity {
+    readonly bizPhraseType = BizPhraseType.permit;
+    protected readonly fields = [];
+    readonly items = new Map<string, BizPermitItem>();
+    readonly permits = new Map<string, BizPermit>();
+    get type(): string { return 'permit'; }
+    parser(context: PContext): PElement<IElement> {
+        return new PBizPermit(this, context);
     }
-    get type() { return 'permit'; }
-    parser(context) {
-        return new parser_1.PBizPermit(this, context);
-    }
-    buildPhrases(phrases, prefix) {
+    buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
         let phrase = this.phrase;
         for (let [, value] of this.items) {
             let { name, caption } = value;
             let itemPhrase = `${phrase}.${name}`;
-            phrases.push([itemPhrase, caption !== null && caption !== void 0 ? caption : '', phrase, this.typeNum]);
+            phrases.push([itemPhrase, caption ?? '', phrase, this.typeNum]);
             value.phrase = itemPhrase;
         }
     }
-    buildSchema(res) {
+    buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         let items = [], permits = [];
         for (let [, value] of this.items) {
@@ -51,15 +45,15 @@ class BizPermit extends Entity_1.BizEntity {
         return Object.assign(ret, { items, permits });
     }
 }
-exports.BizPermit = BizPermit;
+*/
 class BizRole extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.role;
+        this.bizPhraseType = Base_1.BizPhraseType.permit; //.role;
         this.fields = [];
         this.roles = new Map();
     }
-    get type() { return 'role'; }
+    get type() { return 'permit'; }
     parser(context) {
         return new parser_1.PBizRole(this, context);
     }

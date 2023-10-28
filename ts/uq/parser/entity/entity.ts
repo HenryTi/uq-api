@@ -5,7 +5,7 @@ import {
     , EntityWithTable, Index, decField, textField, bigIntField
     , BusField, FacePrimitivType, InBusAction, ActionHasInBus
     , ID, IDX, SharpField, ValueExpression, SysProc, EntityAccessibility
-    , IElement, Uq, BizPermitItem, VarOperand, ProcParamType, Permit, DataType
+    , IElement, Uq, /*BizPermitItem, */VarOperand, ProcParamType, Permit, DataType
 } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
