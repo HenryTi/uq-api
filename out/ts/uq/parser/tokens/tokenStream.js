@@ -17,7 +17,21 @@ class TokenStream {
         this.advance();
     }
     getSourceAt(pos) {
-        return this.buffer.substring(pos, this.lastP - 1);
+        return this.buffer.substring(pos, this.p);
+    }
+    getEntitySource(pos) {
+        let p = this.p;
+        switch (this.token) {
+            default:
+            case token_1.Token.SEMICOLON:
+                p = this.skipSpace(this.p);
+                break;
+            case token_1.Token.VAR:
+                p = this.skipSpace(this.lastP - 1);
+                break;
+        }
+        let ret = this.buffer.substring(pos, p);
+        return ret;
     }
     getSourceNearby(sourceAt) {
         return ' ...' + this.buffer.substring(sourceAt, sourceAt + 50) + '... ';
@@ -181,6 +195,19 @@ class TokenStream {
         this.at = charAt;
         this.cur = cur;
         return { peekToken, lowerVar };
+    }
+    skipSpace(p) {
+        const spaces = [char_1.Char.TAB, char_1.Char.SPACE, char_1.Char.USPACE, char_1.Char._R, char_1.Char.ENTER, char_1.Char.R_ENTER, char_1.Char.ENTER_R];
+        let cur = this.buffer.charCodeAt(p);
+        for (;;) {
+            if (cur === char_1.Char.NULL)
+                break;
+            if (spaces.includes(cur) === false)
+                break;
+            ++p;
+            cur = this.buffer.charCodeAt(p);
+        }
+        return p;
     }
     readToken() {
         this.prevToken = this.token;

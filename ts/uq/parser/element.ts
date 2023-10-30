@@ -14,6 +14,7 @@ export abstract class PElementBase {
     constructor(context: PContext) {
         this.context = context;
         this.ts = context.ts;
+
     }
     protected abstract _parse(): void;
     parse() {
@@ -25,7 +26,7 @@ export abstract class PElementBase {
     protected savePos() {
         this.at = this.ts.prevAt;
         this.line = this.ts.prevLine;
-        this.sourceStart = this.ts.lastP - 1;
+        this.sourceStart = this.ts.getP(); // this.ts.lastP - 1;
     }
 
     protected getSource() {

@@ -44,7 +44,18 @@ export class TokenStream {
     }
 
     getSourceAt(pos: number): string {
-        return this.buffer.substring(pos, this.lastP - 1);
+        return this.buffer.substring(pos, this.p);
+    }
+
+    getEntitySource(pos: number): string {
+        let p = this.p;
+        switch (this.token) {
+            default:
+            case Token.SEMICOLON: p = this.skipSpace(this.p); break;
+            case Token.VAR: p = this.skipSpace(this.lastP - 1); break;
+        }
+        let ret = this.buffer.substring(pos, p);
+        return ret;
     }
 
     getSourceNearby(sourceAt: number): string {
@@ -220,6 +231,18 @@ export class TokenStream {
         this.at = charAt;
         this.cur = cur;
         return { peekToken, lowerVar };
+    }
+
+    private skipSpace(p: number): number {
+        const spaces = [Char.TAB, Char.SPACE, Char.USPACE, Char._R, Char.ENTER, Char.R_ENTER, Char.ENTER_R];
+        let cur = this.buffer.charCodeAt(p);
+        for (; ;) {
+            if (cur === Char.NULL) break;
+            if (spaces.includes(cur) === false) break;
+            ++p;
+            cur = this.buffer.charCodeAt(p);
+        }
+        return p;
     }
 
     readToken() {

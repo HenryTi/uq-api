@@ -285,17 +285,16 @@ class PBizEntity extends PBizBase {
         };
     }
     saveSource() {
-        let entityType = this.element.type.toUpperCase();
+        const { type } = this.element;
+        let entityType = type.toUpperCase();
         let source = this.getSource();
-        this.element.source = entityType + ' ' + source;
+        this.element.source = entityType + ' ' + this.element.getJName() + ' ' + source;
+    }
+    getSource() {
+        return this.ts.getEntitySource(this.sourceStart);
     }
     parseContent() {
         const keyColl = this.keyColl;
-        /*
-        {
-            prop: this.parseProp,
-        };
-        */
         const keys = Object.keys(keyColl);
         for (;;) {
             if (this.ts.token === tokens_1.Token.RBRACE)

@@ -264,19 +264,19 @@ const invalidPropNames: { [key: string]: boolean } = (function () {
 
 export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     protected saveSource() {
-        let entityType = this.element.type.toUpperCase();
+        const { type } = this.element;
+        let entityType = type.toUpperCase();
         let source = this.getSource();
-        this.element.source = entityType + ' ' + source;
+        this.element.source = entityType + ' ' + this.element.getJName() + ' ' + source;
+    }
+
+    protected getSource() {
+        return this.ts.getEntitySource(this.sourceStart);
     }
 
     protected abstract get keyColl(): { [key: string]: () => void };
     protected parseContent(): void {
         const keyColl = this.keyColl;
-        /*
-        {
-            prop: this.parseProp,
-        };
-        */
         const keys = Object.keys(keyColl);
         for (; ;) {
             if (this.ts.token === Token.RBRACE) break;

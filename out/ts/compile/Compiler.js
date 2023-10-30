@@ -6,11 +6,12 @@ const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
 const il_1 = require("../uq/il");
 const groups = {
-    infos: [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.title, il_1.BizPhraseType.assign],
-    sheets: [il_1.BizPhraseType.sheet, il_1.BizPhraseType.bin, il_1.BizPhraseType.pend],
-    relate: [il_1.BizPhraseType.query, il_1.BizPhraseType.pick, il_1.BizPhraseType.options, il_1.BizPhraseType.tie, il_1.BizPhraseType.tree],
-    reports: [il_1.BizPhraseType.report],
-    auth: [il_1.BizPhraseType.role, il_1.BizPhraseType.permit],
+    info: [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.title, il_1.BizPhraseType.assign],
+    sheet: [il_1.BizPhraseType.sheet, il_1.BizPhraseType.bin, il_1.BizPhraseType.pend],
+    query: [il_1.BizPhraseType.query],
+    relate: [il_1.BizPhraseType.pick, il_1.BizPhraseType.options, il_1.BizPhraseType.tie, il_1.BizPhraseType.tree],
+    report: [il_1.BizPhraseType.report],
+    permit: [il_1.BizPhraseType.permit], // BizPhraseType.role, 
 };
 class Compiler {
     constructor(runner, site, user) {
@@ -55,14 +56,23 @@ class Compiler {
     getSource(group) {
         let sources = [];
         let arr = groups[group];
-        for (let entity of this.biz.bizArr) {
-            let { name, bizPhraseType } = entity;
-            if (arr.includes(bizPhraseType) === true) {
-                let { source } = this.objNames[name];
-                sources.push(source);
+        if (arr !== undefined) {
+            for (let entity of this.biz.bizArr) {
+                let { name, bizPhraseType } = entity;
+                if (arr.includes(bizPhraseType) === true) {
+                    let { source } = this.objNames[name];
+                    let s = source;
+                    if (s.endsWith('\n') === false)
+                        s += '\n';
+                    sources.push(s);
+                }
             }
         }
-        return sources.join('\n');
+        else {
+            sources.push(`-- ${group} is not a valid source group
+`);
+        }
+        return sources.join('');
     }
     setEntitysId(bizArr) {
         const { objNames, buds } = this;

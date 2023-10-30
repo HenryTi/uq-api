@@ -5,11 +5,12 @@ import { UqParser } from './UqParser';
 import { Biz, BizEntity, BizPhraseType } from '../uq/il';
 
 const groups: { [name: string]: BizPhraseType[] } = {
-    infos: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign],
-    sheets: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
-    relate: [BizPhraseType.query, BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
-    reports: [BizPhraseType.report],
-    auth: [BizPhraseType.role, BizPhraseType.permit],
+    info: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign],
+    sheet: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
+    query: [BizPhraseType.query],
+    relate: [BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
+    report: [BizPhraseType.report],
+    permit: [BizPhraseType.permit],           // BizPhraseType.role, 
 };
 
 export class Compiler {
@@ -61,14 +62,23 @@ export class Compiler {
     getSource(group: string) {
         let sources: string[] = [];
         let arr = groups[group];
-        for (let entity of this.biz.bizArr) {
-            let { name, bizPhraseType } = entity;
-            if (arr.includes(bizPhraseType) === true) {
-                let { source } = this.objNames[name];
-                sources.push(source);
+        if (arr !== undefined) {
+            for (let entity of this.biz.bizArr) {
+                let { name, bizPhraseType } = entity;
+                if (arr.includes(bizPhraseType) === true) {
+                    let { source } = this.objNames[name];
+                    let s: string = source;
+                    if (s.endsWith('\n') === false) s += '\n';
+                    sources.push(s);
+                }
             }
         }
-        return sources.join('\n');
+        else {
+            sources.push(
+                `-- ${group} is not a valid source group
+`);
+        }
+        return sources.join('');
     }
 
     private setEntitysId(bizArr: BizEntity[]) {
