@@ -99,14 +99,6 @@ export abstract class PExpression extends PElement {
             this.ts.assertToken(Token.LPARENTHESE);
             this.ts.readToken();
             let selectOperand = this.maySelectOperand();
-            /*
-            this.ts.assertKey('select');
-            this.ts.readToken();
-            let subQuery = new Exp.SubSelectOperand();
-            let parser = subQuery.parser(this.context);
-            parser.parse();
-            this.add(subQuery);
-            */
             if (selectOperand === undefined) {
                 this.ts.expect(': or FROM');
             }
@@ -143,19 +135,7 @@ export abstract class PExpression extends PElement {
                     case 'in':
                         this.ts.readToken();
                         this.ts.passToken(Token.LPARENTHESE);
-                        // if (this.ts.token != Token.LPARENTHESE) this.expectToken(Token.LPARENTHESE);
-                        // this.ts.readToken();
                         let selectOperand = this.maySelectOperand();
-                        /*
-                        if (this.ts.isKeyword('select')) {
-                            this.ts.readToken();
-                            let subQuery = new Exp.SubSelectOperand();
-                            let parser = subQuery.parser(this.context);
-                            parser.parse();
-                            this.add(subQuery);
-                            this.add(new Exp.OpIn(2));
-                        }
-                        */
                         if (selectOperand === undefined) {
                             for (let i = 0; ; i++) {
                                 this.expValue();
@@ -342,6 +322,7 @@ export abstract class PExpression extends PElement {
             this.add(ret);
             return ret;
         }
+        /*
         if (this.ts.token === Token.COLON || this.ts.isKeyword('from') === true) {
             this.ts.readToken();
             let ret = new Exp.BizSelectOperand();
@@ -350,6 +331,7 @@ export abstract class PExpression extends PElement {
             this.add(ret);
             return ret;
         }
+        */
     }
 
     private f() {
@@ -377,15 +359,6 @@ export abstract class PExpression extends PElement {
             case Token.LPARENTHESE:
                 this.ts.readToken();
                 let selectOperand = this.maySelectOperand();
-                /*
-                if (this.ts.isKeyword('select') === true) {
-                    this.ts.readToken();
-                    let subQuery = new Exp.SubSelectOperand();
-                    let parser = subQuery.parser(this.context);
-                    parser.parse();
-                    this.add(subQuery);
-                }
-                */
                 if (selectOperand === undefined) {
                     this._internalParse();
                 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizSelectStatement = exports.BizSelectInline = exports.BizExp = exports.BizSelect = exports.Select = exports.Delete = exports.WithFrom = exports.OrderBy = exports.JoinTable = exports.FromTable = exports.JoinType = void 0;
+exports.Select = exports.Delete = exports.WithFrom = exports.OrderBy = exports.JoinTable = exports.FromTable = exports.JoinType = void 0;
 const parser = require("../parser");
 const element_1 = require("./element");
 const pointer_1 = require("./pointer");
@@ -82,37 +82,4 @@ class Select extends WithFrom {
     }
 }
 exports.Select = Select;
-class BizSelect extends element_1.IElement {
-}
-exports.BizSelect = BizSelect;
-class BizExp extends BizSelect {
-    constructor() {
-        super(...arguments);
-        this.type = 'BizExp';
-    }
-    parser(context) {
-        return new parser.PBizExp(this, context);
-    }
-}
-exports.BizExp = BizExp;
-class BizSelectInline extends BizSelect {
-    constructor() {
-        super(...arguments);
-        this.type = 'BizSelectInline';
-    }
-    parser(context) {
-        return new parser.PBizSelectInline(this, context);
-    }
-}
-exports.BizSelectInline = BizSelectInline;
-class BizSelectStatement extends BizSelect {
-    constructor() {
-        super(...arguments);
-        this.type = 'BizSelectStatement';
-    }
-    parser(context) {
-        return;
-    }
-}
-exports.BizSelectStatement = BizSelectStatement;
 //# sourceMappingURL=select.js.map

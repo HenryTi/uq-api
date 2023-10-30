@@ -1,4 +1,10 @@
-import { BizPhraseType, BizSelect, BizSelectInline, Entity, FromTable, ID, IDX, NumberOperand, BizSelectOperand, OpEQ, ValueExpression, VarOperand, BizSelectJoinType, BizSelectFrom, BizSelectTbl, BizSelectJoin, BizEntity, BizExp, BizExpOperand, BizAtom, BizAtomSpec, BizBin, BizTitle } from "../il";
+import {
+    BizPhraseType
+    , ValueExpression, BizSelectJoinType
+    , BizSelectFrom, BizSelectTbl, BizSelectJoin
+    , BizEntity, BizExp, BizExpOperand, BizAtom
+    , BizAtomSpec, BizBin, BizTitle
+} from "../il";
 import { PElement } from "./element";
 import { Space } from "./space";
 import { Token } from "./tokens";
@@ -17,7 +23,7 @@ interface From {
     main: Tbl;
     joins: Join[];
 }
-
+/*
 export abstract class PBizSelect<T extends BizSelect> extends PElement<T> {
     protected from: From;
     protected parseFrom() {
@@ -194,7 +200,8 @@ export class PBizSelectOperand extends PElement<BizSelectOperand> {
         return ok;
     }
 }
-
+*/
+/*
 export class PBizSelectInline extends PBizSelect<BizSelectInline> {
     protected _parse(): void {
         this.parseFrom();
@@ -222,7 +229,7 @@ export class PBizSelectInline extends PBizSelect<BizSelectInline> {
         return ok;
     }
 }
-
+*/
 export class PBizExpOperand extends PElement<BizExpOperand> {
     protected _parse(): void {
         this.element.bizExp = new BizExp();
@@ -240,6 +247,7 @@ export class PBizExpOperand extends PElement<BizExpOperand> {
     }
 }
 
+// (#Entity.Bud(id).^|Prop IN timeSpan +- delta)
 export class PBizExp extends PElement<BizExp> {
     private bizEntity: string;
     private bud: string;

@@ -5,7 +5,7 @@ import {
 import { sysTable } from "../dbContext";
 import {
     ColVal, ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
-    , ExpNum, ExpStr, ExpSub, ExpVal, ExpVar
+    , ExpGT, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, Statement
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
@@ -50,9 +50,8 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             buildWritePend();
         }
 
-        function buildUpdatePoke() {
+        function buildUpdatePoke(): Statement[] {
             let updatePoke = factory.createUpdate();
-            sqls.push(updatePoke);
             updatePoke.table = new EntityTable(EnumSysTable.userSite, false);
             updatePoke.cols = [
                 { col: 'poke', val: ExpNum.num1 },
@@ -60,6 +59,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             updatePoke.where = new ExpEQ(
                 new ExpField('site'), new ExpVar('$site'),
             );
+            return [updatePoke];
         }
 
         function buildChangePendFrom() {
@@ -85,14 +85,19 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
                 new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
                 new ExpEQ(new ExpField('value', a), ExpNum.num0),
             ));
-            buildUpdatePoke();
+            sqls.push(...buildUpdatePoke());
         }
 
         function buildWritePend() {
             let pendId = '$pendId_' + no;
             declare.var(pendId, new BigInt());
+
+            let ifValue = factory.createIf();
+            sqls.push(ifValue);
+            ifValue.cmp = new ExpGT(new ExpVar('value'), ExpNum.num0);
+
             let setPendId = factory.createSet();
-            sqls.push(setPendId);
+            ifValue.then(setPendId);
             setPendId.equ(pendId,
                 new ExpFuncInUq(
                     'pend$id',
@@ -102,7 +107,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
             );
 
             let update = factory.createUpdate();
-            sqls.push(update);
+            ifValue.then(update);
             let expMids: ExpVal[] = [];
             for (let i in sets) {
                 expMids.push(
@@ -122,7 +127,7 @@ export class BBizDetailActSubPend extends BStatement<BizDetailActSubPend> {
                 new ExpField('id'), new ExpVar(pendId)
             );
 
-            buildUpdatePoke();
+            ifValue.then(...buildUpdatePoke());
         }
     }
 }

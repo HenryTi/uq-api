@@ -24,4 +24,4 @@ class BizExpOperand extends exps_1.ExpVal {
     }
 }
 exports.BizExpOperand = BizExpOperand;
-//# sourceMappingURL=ExpBizSelect.js.map
+//# sourceMappingURL=ExpBizOperand.js.map

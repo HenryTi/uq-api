@@ -1,11 +1,11 @@
 import { DbContext } from '../../dbContext';
-import { BBizSelectOperand, convertSelect } from '../select';
+import { convertSelect } from '../select';
 import {
     TuidArr, Entity, ID, Queue, DataType
     , Stack as IlStack, ValueExpression, OpQueueAction
     , VarOperand, Expression, IDNewType, BizBase
     , Select as IlSelect,
-    BizSelectInline,
+    // BizSelectInline,
     BizExp,
     BizFieldOperand
 } from '../../../il';
@@ -16,7 +16,7 @@ import { Exp } from './Exp';
 import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight, ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpDotVar, ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp, ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE, ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase, ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar } from './exps';
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
-import { BizExpOperand, ExpBizSelectOperand } from './ExpBizSelect';
+import { BizExpOperand } from './ExpBizOperand';
 import { BBizExp, BBizFieldOperand } from '../bizExp';
 import { ExpRole } from './ExpRole';
 
@@ -143,11 +143,13 @@ class Stack implements IlStack {
         let sel = convertSelect(this.context, select);
         this.arr.push(new ExpSelect(sel))
     }
+    /*
     bizSelect(bso: BizSelectInline) {
         let bs = new BBizSelectOperand();
         bs.convertFrom(this.context, bso);
         this.arr.push(new ExpBizSelectOperand(bs));
     }
+    */
     bizExp(exp: BizExp) {
         let bExp = new BBizExp();
         bExp.convertFrom(this.context, exp);

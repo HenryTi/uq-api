@@ -80,7 +80,7 @@ class BBizExp {
             sb.append(` AND ${ta}.x=${bud.id}`);
         }
         else {
-            const { varTimeSpan: timeSpan, op, statementNo, spanPeiod } = inVar;
+            const { varTimeSpan: timeSpan, op, statementNo } = inVar;
             sb.append(`${prop}(${ta}.value) FROM ${this.db}.history as ${ta} 
         WHERE ${ta}.bud=${this.db}.bud$id(_$site,_$user, 0, null, `).exp(this.param).append(`,${bud.id})
             AND ${ta}.id>=_${timeSpan}_${statementNo}$start`);
@@ -106,22 +106,34 @@ class BBizFieldOperand extends exp_1.ExpVal {
             sb.append('t1.').append(fieldName);
         }
         else {
-            let tbl;
+            function buildSelectValue(tbl) {
+                sb.l().append('select value from ').dbName().dot().append(tbl)
+                    .append(' where i=t1.id and x=').append(bizBud.id)
+                    .r();
+            }
+            function buildSelectMulti() {
+                sb.l().append('select JSON_ARRAYAGG(x1.ext) from ')
+                    .dbName().dot().append(il_1.EnumSysTable.ixBud).append(' AS x0 JOIN ')
+                    .dbName().dot().append(il_1.EnumSysTable.bud).append(' AS x1 ON x1.id=x0.x ')
+                    .append(' where x0.i=t1.id AND x1.base=').append(bizBud.id)
+                    .r();
+            }
             switch (bizBud.dataType) {
                 default:
-                    tbl = il_1.EnumSysTable.ixBudInt;
-                    break;
+                    buildSelectValue(il_1.EnumSysTable.ixBudInt);
+                    return;
                 case il_1.BudDataType.str:
                 case il_1.BudDataType.char:
-                    tbl = il_1.EnumSysTable.ixBudStr;
-                    break;
+                    buildSelectValue(il_1.EnumSysTable.ixBudStr);
+                    return;
                 case il_1.BudDataType.dec:
-                    tbl = il_1.EnumSysTable.ixBudDec;
-                    break;
+                    buildSelectValue(il_1.EnumSysTable.ixBudDec);
+                    return;
+                case il_1.BudDataType.radio:
+                case il_1.BudDataType.check:
+                    buildSelectMulti();
+                    return;
             }
-            sb.l().append('select value from ').dbName().dot().append(tbl)
-                .append(' where i=t1.id and x=').append(bizBud.id)
-                .r();
         }
     }
 }

@@ -4,14 +4,16 @@ import {
     , PContext, PMatchOperand, POpTypeof, POpID, POpDollarVar, POpNO
     , POpEntityId, POpEntityName, POpRole, POpQueue, POpCast
     , POpUMinute, POpSearch, POpNameof
-    , Space, POpAt, POpUqDefinedFunction, PComparePartExpression, PBizSelectInline, PBizSelectOperand, PBizExpOperand, PBizFieldOperand
-} from '../parser';
-import { DataType } from './datatype';
-import { IElement } from './element';
-import { BizExp, BizSelect, BizSelectInline, Select } from './select';
-import { GroupType, Pointer } from './pointer';
-import { TuidArr, Entity, ID, Queue } from './entity';
-import { BizBase, BizBud, BizEntity } from './Biz';
+    , POpAt, POpUqDefinedFunction, PComparePartExpression
+    , PBizExpOperand
+} from '../../parser';
+import { DataType } from '../datatype';
+import { IElement } from '../element';
+import { Select } from '../select';
+import { GroupType, Pointer } from '../pointer';
+import { TuidArr, Entity, ID, Queue } from '../entity';
+import { BizBase } from '../Biz';
+import { BizExp, BizFieldOperand } from './BizExp';
 
 export interface Stack {
     or(): void;
@@ -50,7 +52,7 @@ export interface Stack {
     like(): void;
     cast(dataType: DataType): void;
     select(select: Select): void;
-    bizSelect(select: BizSelectInline): void;
+    // bizSelect(select: BizSelectInline): void;
     bizExp(exp: BizExp): void;
     bizField(bizField: BizFieldOperand): void;
     searchCase(whenCount: number, hasElse: boolean): void;
@@ -377,6 +379,7 @@ export class BizExpOperand extends Atom {
         stack.bizExp(this.bizExp);
     }
 }
+/*
 export class BizSelectOperand extends Atom {
     select: BizSelectInline;
     get type(): string { return 'bizselect'; }
@@ -385,6 +388,7 @@ export class BizSelectOperand extends Atom {
         stack.bizSelect(this.select);
     }
 }
+*/
 export class OpLike extends Atom {
     to(stack: Stack) { stack.like() }
 }
@@ -427,16 +431,6 @@ export class VarOperand extends Atom {
         if (this._var.length !== 1) return false;
         if (v._var.length !== 1) return false;
         return this._var[0] === v._var[0];
-    }
-}
-export class BizFieldOperand extends Atom {
-    bizEntity: BizEntity;
-    bizBud: BizBud;
-    fieldName: string;
-    get type(): string { return 'bizfield'; }
-    parser(context: PContext) { return new PBizFieldOperand(this, context); }
-    to(stack: Stack) {
-        stack.bizField(this);
     }
 }
 export class OpMatch extends Atom {

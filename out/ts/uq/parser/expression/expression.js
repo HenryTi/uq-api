@@ -90,14 +90,6 @@ class PExpression extends element_1.PElement {
             this.ts.assertToken(tokens_1.Token.LPARENTHESE);
             this.ts.readToken();
             let selectOperand = this.maySelectOperand();
-            /*
-            this.ts.assertKey('select');
-            this.ts.readToken();
-            let subQuery = new Exp.SubSelectOperand();
-            let parser = subQuery.parser(this.context);
-            parser.parse();
-            this.add(subQuery);
-            */
             if (selectOperand === undefined) {
                 this.ts.expect(': or FROM');
             }
@@ -134,19 +126,7 @@ class PExpression extends element_1.PElement {
                     case 'in':
                         this.ts.readToken();
                         this.ts.passToken(tokens_1.Token.LPARENTHESE);
-                        // if (this.ts.token != Token.LPARENTHESE) this.expectToken(Token.LPARENTHESE);
-                        // this.ts.readToken();
                         let selectOperand = this.maySelectOperand();
-                        /*
-                        if (this.ts.isKeyword('select')) {
-                            this.ts.readToken();
-                            let subQuery = new Exp.SubSelectOperand();
-                            let parser = subQuery.parser(this.context);
-                            parser.parse();
-                            this.add(subQuery);
-                            this.add(new Exp.OpIn(2));
-                        }
-                        */
                         if (selectOperand === undefined) {
                             for (let i = 0;; i++) {
                                 this.expValue();
@@ -332,7 +312,8 @@ class PExpression extends element_1.PElement {
             this.add(ret);
             return ret;
         }
-        if (this.ts.token === tokens_1.Token.COLON || this.ts.isKeyword('from') === true) {
+        /*
+        if (this.ts.token === Token.COLON || this.ts.isKeyword('from') === true) {
             this.ts.readToken();
             let ret = new Exp.BizSelectOperand();
             let parser = ret.parser(this.context);
@@ -340,6 +321,7 @@ class PExpression extends element_1.PElement {
             this.add(ret);
             return ret;
         }
+        */
     }
     f() {
         let lowerVar;
@@ -366,15 +348,6 @@ class PExpression extends element_1.PElement {
             case tokens_1.Token.LPARENTHESE:
                 this.ts.readToken();
                 let selectOperand = this.maySelectOperand();
-                /*
-                if (this.ts.isKeyword('select') === true) {
-                    this.ts.readToken();
-                    let subQuery = new Exp.SubSelectOperand();
-                    let parser = subQuery.parser(this.context);
-                    parser.parse();
-                    this.add(subQuery);
-                }
-                */
                 if (selectOperand === undefined) {
                     this._internalParse();
                 }

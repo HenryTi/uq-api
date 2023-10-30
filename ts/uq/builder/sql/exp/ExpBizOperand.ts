@@ -1,8 +1,8 @@
 import { BBizExp } from "../bizExp";
-import { BBizSelect } from "../select";
+// import { BBizSelect } from "../select";
 import { SqlBuilder } from "../sqlBuilder";
 import { ExpVal } from "./exps";
-
+/*
 export class ExpBizSelectOperand extends ExpVal {
     protected readonly select: BBizSelect
     constructor(select: BBizSelect) {
@@ -13,7 +13,7 @@ export class ExpBizSelectOperand extends ExpVal {
         this.select.to(sb);
     }
 }
-
+*/
 export class BizExpOperand extends ExpVal {
     protected readonly bizExp: BBizExp;
     constructor(bizExp: BBizExp) {

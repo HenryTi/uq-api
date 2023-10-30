@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizSelectStatement = exports.BBizSelectOperand = exports.BBizSelect = exports.SelectTable = exports.Order = exports.Select = exports.LockType = exports.convertDelete = exports.convertSelect = void 0;
+exports.SelectTable = exports.Order = exports.Select = exports.LockType = exports.convertDelete = exports.convertSelect = void 0;
 const exp_1 = require("./exp");
 const il_1 = require("../../il");
 const statementWithFrom_1 = require("./statementWithFrom");
@@ -229,8 +229,15 @@ class SelectTable extends statementWithFrom_1.Table {
     }
 }
 exports.SelectTable = SelectTable;
-class BBizSelect {
-    from(sb) {
+/*
+export abstract class BBizSelect {
+    db: string;
+    bizSelect: BizSelect;
+    on: ExpVal;
+    column: { alias: string; val: ExpVal; }
+    abstract to(sb: SqlBuilder): void;
+
+    protected from(sb: SqlBuilder) {
         let { from: { main, joins } } = this.bizSelect;
         sb.append(' FROM ');
         sb.fld(this.db).dot();
@@ -240,24 +247,27 @@ class BBizSelect {
             sb.append(' AS ').fld(alias);
         }
     }
-    where(sb) {
+
+    protected where(sb: SqlBuilder) {
         sb.append(' WHERE ')
             .append(' id=')
-            .exp(this.on);
+            .exp(this.on)
+            ;
     }
-    tableFromBiz(bizEntity) {
+
+    private tableFromBiz(bizEntity: BizEntity) {
         switch (bizEntity.bizPhraseType) {
             default: debugger;
-            case il_1.BizPhraseType.atom: return 'atom';
-            case il_1.BizPhraseType.spec: return 'spec';
-            case il_1.BizPhraseType.sheet: return 'sheet';
-            case il_1.BizPhraseType.bin: return 'bin';
+            case BizPhraseType.atom: return 'atom';
+            case BizPhraseType.spec: return 'spec';
+            case BizPhraseType.sheet: return 'sheet';
+            case BizPhraseType.bin: return 'bin';
         }
     }
 }
-exports.BBizSelect = BBizSelect;
-class BBizSelectOperand extends BBizSelect {
-    to(sb) {
+
+export class BBizSelectOperand extends BBizSelect {
+    override to(sb: SqlBuilder) {
         sb.append('SELECT ');
         if (this.column === undefined) {
             let { main: { entityArr, alias } } = this.bizSelect.from;
@@ -276,7 +286,8 @@ class BBizSelectOperand extends BBizSelect {
         this.from(sb);
         this.where(sb);
     }
-    convertFrom(context, sel) {
+
+    convertFrom(context: DbContext, sel: BizSelect) {
         this.db = context.dbName;
         this.bizSelect = sel;
         const { on, column } = sel;
@@ -286,20 +297,22 @@ class BBizSelectOperand extends BBizSelect {
             this.column = {
                 alias,
                 val: context.expVal(val),
-            };
+            }
         }
     }
 }
-exports.BBizSelectOperand = BBizSelectOperand;
-class BBizSelectStatement extends BBizSelect {
-    to(sb) {
+
+export class BBizSelectStatement extends BBizSelect {
+    on: ExpVal;
+    override to(sb: SqlBuilder) {
         sb.append('select 1=');
         sb.exp(this.on);
     }
-    convertFrom(context, sel) {
+
+    convertFrom(context: DbContext, sel: BizSelect) {
         const { on } = sel;
         this.on = context.expVal(on);
     }
 }
-exports.BBizSelectStatement = BBizSelectStatement;
+*/ 
 //# sourceMappingURL=select.js.map

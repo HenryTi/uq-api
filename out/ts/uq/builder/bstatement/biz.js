@@ -45,12 +45,12 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
         }
         function buildUpdatePoke() {
             let updatePoke = factory.createUpdate();
-            sqls.push(updatePoke);
             updatePoke.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.userSite, false);
             updatePoke.cols = [
                 { col: 'poke', val: sql_1.ExpNum.num1 },
             ];
             updatePoke.where = new sql_1.ExpEQ(new sql_1.ExpField('site'), new sql_1.ExpVar('$site'));
+            return [updatePoke];
         }
         function buildChangePendFrom() {
             let update = factory.createUpdate();
@@ -74,16 +74,19 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             del.tables = [a];
             del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
             del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
-            buildUpdatePoke();
+            sqls.push(...buildUpdatePoke());
         }
         function buildWritePend() {
             let pendId = '$pendId_' + no;
             declare.var(pendId, new il_1.BigInt());
+            let ifValue = factory.createIf();
+            sqls.push(ifValue);
+            ifValue.cmp = new sql_1.ExpGT(new sql_1.ExpVar('value'), sql_1.ExpNum.num0);
             let setPendId = factory.createSet();
-            sqls.push(setPendId);
+            ifValue.then(setPendId);
             setPendId.equ(pendId, new sql_1.ExpFuncInUq('pend$id', [varSite, varUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, new sql_1.ExpNum(pend.id)], true));
             let update = factory.createUpdate();
-            sqls.push(update);
+            ifValue.then(update);
             let expMids = [];
             for (let i in sets) {
                 expMids.push(new sql_1.ExpStr(i), context.expVal(sets[i]));
@@ -96,7 +99,7 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
                 { col: 'mid', val: new sql_1.ExpFunc('JSON_OBJECT', ...expMids) },
             ];
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));
-            buildUpdatePoke();
+            ifValue.then(...buildUpdatePoke());
         }
     }
 }

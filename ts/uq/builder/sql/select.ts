@@ -6,11 +6,6 @@ import {
     , Delete as IlDelete
     , FromTable, LocalTableBase, OrderBy, Expression, JoinType
     , Select as IlSelect,
-    ValueExpression,
-    BizSelect,
-    BizEntity,
-    BizPhraseType,
-    BizExp
 } from '../../il';
 import { WithFrom, Column, Table, EntityTable, VarTable, IDEntityTable } from './statementWithFrom';
 import { DeleteStatement } from './deleteStatement';
@@ -258,7 +253,7 @@ export class SelectTable extends Table {
         super.to(sb);
     }
 }
-
+/*
 export abstract class BBizSelect {
     db: string;
     bizSelect: BizSelect;
@@ -343,3 +338,4 @@ export class BBizSelectStatement extends BBizSelect {
         this.on = context.expVal(on);
     }
 }
+*/

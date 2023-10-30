@@ -2,11 +2,9 @@ import * as parser from '../parser';
 import { CompareExpression, ValueExpression } from './expression';
 import { IElement } from './element';
 import { Field, Table } from './field';
-import { Pointer, VarPointer, FieldPointer, GroupByPointer } from './pointer';
+import { Pointer, VarPointer, FieldPointer } from './pointer';
 import { Entity, Queue } from './entity';
 import { LocalTableBase } from './statement';
-import { BizBud, BizEntity, BizPhraseType } from './Biz';
-import { SpanPeriod } from './tool';
 
 export enum JoinType { left, right, queue, join, inner, cross };
 export type OrderType = 'asc' | 'desc';
@@ -120,66 +118,6 @@ export class Select extends WithFrom {
         }
         let col = this.columns.find(v => v.alias === name);
         if (col !== undefined) return new FieldPointer();
-        return;
-    }
-}
-
-export interface BizSelectTbl {
-    entityArr: BizEntity[];
-    alias: string;
-}
-
-export type BizSelectJoinType = '^' | 'x' | 'i';
-export interface BizSelectJoin {
-    joinType: BizSelectJoinType;
-    tbl: BizSelectTbl;
-}
-
-export interface BizSelectFrom {
-    main: BizSelectTbl;
-    joins: BizSelectJoin[];
-}
-
-export interface BizSelectColumn {
-    alias: string;
-    val: ValueExpression;
-}
-export abstract class BizSelect extends IElement {
-    from: BizSelectFrom;
-    on: ValueExpression;
-    column: BizSelectColumn;
-}
-
-export interface BizExpIn {
-    varTimeSpan: string;
-    op: '+' | '-';
-    val: ValueExpression;
-    statementNo: number;
-    spanPeiod: SpanPeriod;
-}
-
-export class BizExp extends BizSelect {
-    bizEntity: BizEntity;
-    bud: BizBud;
-    param: ValueExpression;
-    prop: string;
-    in: BizExpIn;
-    type = 'BizExp';
-    parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizExp(this, context);
-    }
-}
-
-export class BizSelectInline extends BizSelect {
-    type = 'BizSelectInline';
-    parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizSelectInline(this, context);
-    }
-}
-
-export class BizSelectStatement extends BizSelect {
-    type = 'BizSelectStatement';
-    parser(context: parser.PContext): parser.PElement<IElement> {
         return;
     }
 }

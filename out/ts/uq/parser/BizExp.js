@@ -227,6 +227,7 @@ class PBizExpOperand extends element_1.PElement {
     }
 }
 exports.PBizExpOperand = PBizExpOperand;
+// (#Entity.Bud(id).^|Prop IN timeSpan +- delta)
 class PBizExp extends element_1.PElement {
     _parse() {
         this.bizEntity = this.ts.passVar();
@@ -418,4 +419,4 @@ class PBizExp extends element_1.PElement {
     }
 }
 exports.PBizExp = PBizExp;
-//# sourceMappingURL=bizSelect.js.map
+//# sourceMappingURL=BizExp.js.map

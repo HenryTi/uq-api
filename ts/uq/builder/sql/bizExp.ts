@@ -1,4 +1,4 @@
-import { BizExp, BizFieldOperand, BizPhraseType, BizTitle, BudDataType, EnumSysTable } from "../../il";
+import { BizBud, BizExp, BizFieldOperand, BizPhraseType, BizTitle, BudDataType, EnumSysTable } from "../../il";
 import { DbContext } from "../dbContext";
 import { ExpInterval, ExpVal } from "./exp";
 import { SqlBuilder } from "./sqlBuilder";
@@ -81,7 +81,7 @@ export class BBizExp {
             sb.append(` AND ${ta}.x=${bud.id}`);
         }
         else {
-            const { varTimeSpan: timeSpan, op, statementNo, spanPeiod } = inVar;
+            const { varTimeSpan: timeSpan, op, statementNo } = inVar;
             sb.append(`${prop}(${ta}.value) FROM ${this.db}.history as ${ta} 
         WHERE ${ta}.bud=${this.db}.bud$id(_$site,_$user, 0, null, `).exp(this.param).append(`,${bud.id})
             AND ${ta}.id>=_${timeSpan}_${statementNo}$start`);
@@ -109,20 +109,34 @@ export class BBizFieldOperand extends ExpVal {
             sb.append('t1.').append(fieldName);
         }
         else {
-            let tbl: EnumSysTable;
+            function buildSelectValue(tbl: EnumSysTable) {
+                sb.l().append('select value from ').dbName().dot().append(tbl)
+                    .append(' where i=t1.id and x=').append(bizBud.id)
+                    .r();
+            }
+            function buildSelectMulti() {
+                sb.l().append('select JSON_ARRAYAGG(x1.ext) from ')
+                    .dbName().dot().append(EnumSysTable.ixBud).append(' AS x0 JOIN ')
+                    .dbName().dot().append(EnumSysTable.bud).append(' AS x1 ON x1.id=x0.x ')
+                    .append(' where x0.i=t1.id AND x1.base=').append(bizBud.id)
+                    .r();
+            }
             switch (bizBud.dataType) {
-                default: tbl = EnumSysTable.ixBudInt; break;
+                default:
+                    buildSelectValue(EnumSysTable.ixBudInt);
+                    return;
                 case BudDataType.str:
                 case BudDataType.char:
-                    tbl = EnumSysTable.ixBudStr;
-                    break;
+                    buildSelectValue(EnumSysTable.ixBudStr);
+                    return;
                 case BudDataType.dec:
-                    tbl = EnumSysTable.ixBudDec;
-                    break;
+                    buildSelectValue(EnumSysTable.ixBudDec);
+                    return;
+                case BudDataType.radio:
+                case BudDataType.check:
+                    buildSelectMulti();
+                    return;
             }
-            sb.l().append('select value from ').dbName().dot().append(tbl)
-                .append(' where i=t1.id and x=').append(bizBud.id)
-                .r();
         }
     }
 }
