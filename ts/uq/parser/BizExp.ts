@@ -1,8 +1,7 @@
 import {
     BizPhraseType
     , ValueExpression, BizSelectJoinType
-    , BizSelectFrom, BizSelectTbl, BizSelectJoin
-    , BizEntity, BizExp, BizExpOperand, BizAtom
+    , BizExp, BizExpOperand, BizAtom
     , BizAtomSpec, BizBin, BizTitle
 } from "../il";
 import { PElement } from "./element";

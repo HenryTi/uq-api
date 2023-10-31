@@ -4,137 +4,15 @@ import {
     , PContext, PMatchOperand, POpTypeof, POpID, POpDollarVar, POpNO
     , POpEntityId, POpEntityName, POpRole, POpQueue, POpCast
     , POpUMinute, POpSearch, POpNameof
-    , POpAt, POpUqDefinedFunction, PComparePartExpression
-    , PBizExpOperand
-} from '../../parser';
-import { DataType } from '../datatype';
-import { IElement } from '../element';
-import { Select } from '../select';
-import { GroupType, Pointer } from '../pointer';
-import { TuidArr, Entity, ID, Queue } from '../entity';
-import { BizBase } from '../Biz';
-import { BizExp, BizFieldOperand } from './BizExp';
-
-export interface Stack {
-    or(): void;
-    and(): void;
-    not(): void;
-    le(): void;
-    lt(): void;
-    eq(): void;
-    ne(): void;
-    gt(): void;
-    ge(): void;
-    neg(): void;
-    parenthese(): void;
-    add(): void;
-    sub(): void;
-    mul(): void;
-    div(): void;
-    decDiv(): void;
-    mod(): void;
-    bitAnd(): void;
-    bitOr(): void;
-    bitInvert(): void;
-    bitLeft(): void;
-    bitRight(): void;
-    at(biz: BizBase, bizName: string[], bizVal: ValueExpression): void;
-    str(val: string): void;
-    num(val: number): void;
-    star(): void;
-    hex(val: string): void;
-    datePart(part: string): void;
-    isNull(): void;
-    isNotNull(): void;
-    exists(): void;
-    of(tuidArr: TuidArr): void;
-    in(params: number): void;
-    like(): void;
-    cast(dataType: DataType): void;
-    select(select: Select): void;
-    // bizSelect(select: BizSelectInline): void;
-    bizExp(exp: BizExp): void;
-    bizField(bizField: BizFieldOperand): void;
-    searchCase(whenCount: number, hasElse: boolean): void;
-    simpleCase(whenCount: number, hasElse: boolean): void;
-    func(func: string, n: number, isUqFunc: boolean): void;
-    groupFunc(func: string, exp: ValueExpression): void;
-    funcUqDefined(func: string, n: number): void;
-    jsonProp(): void;
-
-    var(name: string): void;
-    dotVar(varNames: string[]): void;
-    field(name: string, tbl?: string): void;
-    expr(exp: ValueExpression): void;
-    dollarVar(name: string): void;
-    match(varOperands: VarOperand[], against: ValueExpression, isBoolean: boolean): void;
-    typeof(entity: Entity, val: ValueExpression): void;
-    nameof(entity: Entity): void;
-    role(role: string, valUnit: ValueExpression): void;
-    ID(entity: ID, forID: ID, newType: IDNewType, vals: ValueExpression[], uuid: ValueExpression
-        , stamp: ValueExpression
-        , phrases: string[] | ValueExpression): void;
-    UMinute(stamp: ValueExpression): void;
-    NO(entity: ID, stamp: ValueExpression): void;
-    EntityId(val: ValueExpression): void;
-    EntityName(val: ValueExpression): void;
-    Queue(queue: Queue, of: ValueExpression, action: OpQueueAction, vals: ValueExpression[]): void;
-    Search(key: ValueExpression, values: ValueExpression[]): void;
-    SpecId(spec: ValueExpression, atom: ValueExpression, values: ValueExpression): void;
-    SpecValue(id: ValueExpression): void;
-}
-
-export abstract class Expression extends IElement {
-    get type(): string { return 'expression'; }
-    atoms: Atom[] = [];
-    groupType: GroupType;
-
-    // select字段自动取出alias
-    alias(): string {
-        if (this.atoms.length > 1) return undefined;
-        let atom = this.atoms[0];
-        if (atom.type !== 'var') return undefined;
-        let vars = (atom as VarOperand)._var;
-        let len = vars.length;
-        if (len > 0) return vars[len - 1];
-    }
-
-    isVarEqVar(): boolean {
-        let len = this.atoms.length;
-        let e1 = this.atoms[len - 2];
-        let e2 = this.atoms[len - 1];
-        let { type } = e1;
-        if (type !== 'var') return false;
-        if (type !== e2.type) return false;
-        let varOperand: VarOperand = e1 as VarOperand;
-        return varOperand.isSameVar(e2 as VarOperand);
-    }
-}
-
-export class ValueExpression extends Expression {
-    scalarValue: string | number | [string, string];
-    static const(num: number | string): ValueExpression {
-        let ret = new ValueExpression();
-        let atom: Atom;
-        switch (typeof num) {
-            default: atom = new NullOperand(); break;
-            case 'number': atom = new NumberOperand(num); break;
-            case 'string': atom = new TextOperand(num); break;
-        }
-        ret.atoms.push(atom);
-        return ret;
-    }
-    parser(context: PContext) { return new PValueExpression(this, context); }
-}
-
-export class CompareExpression extends Expression {
-    parser(context: PContext) { return new PCompareExpression(this, context); }
-}
-
-// 专门用于Select Of ID，比较的前半部分固定是id=exp
-export class ComarePartExpression extends CompareExpression {
-    parser(context: PContext) { return new PComparePartExpression(this, context); }
-}
+    , POpAt, POpUqDefinedFunction, PComparePartExpression, PBizExpOperand, PBizExp, PBizFieldOperand
+} from '../parser';
+import { DataType } from './datatype';
+import { IElement } from './element';
+import { Select } from './select';
+import { GroupType, Pointer } from './pointer';
+import { TuidArr, Entity, ID, Queue } from './entity';
+import { BizBase, BizBud, BizEntity } from './Biz';
+import { SpanPeriod } from './tool';
 
 export abstract class Atom extends IElement {
     get type(): string { return 'atom'; }
@@ -142,6 +20,7 @@ export abstract class Atom extends IElement {
     parser(context: PContext): PElement { return; }
     abstract to(stack: Stack): void;
 }
+
 export class OpOr extends Atom {
     to(stack: Stack) { stack.or(); }
 }
@@ -371,14 +250,6 @@ export class SubSelectOperand extends Atom {
     parser(context: PContext) { return this.pelement = this.select.parser(context); }
     to(stack: Stack) { stack.select(this.select) }
 }
-export class BizExpOperand extends Atom {
-    bizExp: BizExp;
-    get type(): string { return 'bizexp'; }
-    parser(context: PContext) { return new PBizExpOperand(this, context); }
-    to(stack: Stack): void {
-        stack.bizExp(this.bizExp);
-    }
-}
 /*
 export class BizSelectOperand extends Atom {
     select: BizSelectInline;
@@ -544,5 +415,190 @@ export class OpSearch extends Atom {
     parser(context: PContext) { return new POpSearch(this, context); }
     to(stack: Stack) {
         stack.Search(this.key, this.values);
+    }
+}
+
+export abstract class Expression extends IElement {
+    get type(): string { return 'expression'; }
+    atoms: Atom[] = [];
+    groupType: GroupType;
+
+    // select字段自动取出alias
+    alias(): string {
+        if (this.atoms.length > 1) return undefined;
+        let atom = this.atoms[0];
+        if (atom.type !== 'var') return undefined;
+        let vars = (atom as VarOperand)._var;
+        let len = vars.length;
+        if (len > 0) return vars[len - 1];
+    }
+
+    isVarEqVar(): boolean {
+        let len = this.atoms.length;
+        let e1 = this.atoms[len - 2];
+        let e2 = this.atoms[len - 1];
+        let { type } = e1;
+        if (type !== 'var') return false;
+        if (type !== e2.type) return false;
+        let varOperand: VarOperand = e1 as VarOperand;
+        return varOperand.isSameVar(e2 as VarOperand);
+    }
+}
+
+export class ValueExpression extends Expression {
+    scalarValue: string | number | [string, string];
+    static const(num: number | string): ValueExpression {
+        let ret = new ValueExpression();
+        let atom: Atom;
+        switch (typeof num) {
+            default: atom = new NullOperand(); break;
+            case 'number': atom = new NumberOperand(num); break;
+            case 'string': atom = new TextOperand(num); break;
+        }
+        ret.atoms.push(atom);
+        return ret;
+    }
+    parser(context: PContext) { return new PValueExpression(this, context); }
+}
+
+export class CompareExpression extends Expression {
+    parser(context: PContext) { return new PCompareExpression(this, context); }
+}
+
+// 专门用于Select Of ID，比较的前半部分固定是id=exp
+export class ComarePartExpression extends CompareExpression {
+    parser(context: PContext) { return new PComparePartExpression(this, context); }
+}
+
+export interface Stack {
+    or(): void;
+    and(): void;
+    not(): void;
+    le(): void;
+    lt(): void;
+    eq(): void;
+    ne(): void;
+    gt(): void;
+    ge(): void;
+    neg(): void;
+    parenthese(): void;
+    add(): void;
+    sub(): void;
+    mul(): void;
+    div(): void;
+    decDiv(): void;
+    mod(): void;
+    bitAnd(): void;
+    bitOr(): void;
+    bitInvert(): void;
+    bitLeft(): void;
+    bitRight(): void;
+    at(biz: BizBase, bizName: string[], bizVal: ValueExpression): void;
+    str(val: string): void;
+    num(val: number): void;
+    star(): void;
+    hex(val: string): void;
+    datePart(part: string): void;
+    isNull(): void;
+    isNotNull(): void;
+    exists(): void;
+    of(tuidArr: TuidArr): void;
+    in(params: number): void;
+    like(): void;
+    cast(dataType: DataType): void;
+    select(select: Select): void;
+    // bizSelect(select: BizSelectInline): void;
+    bizExp(exp: BizExp): void;
+    bizField(bizField: BizFieldOperand): void;
+    searchCase(whenCount: number, hasElse: boolean): void;
+    simpleCase(whenCount: number, hasElse: boolean): void;
+    func(func: string, n: number, isUqFunc: boolean): void;
+    groupFunc(func: string, exp: ValueExpression): void;
+    funcUqDefined(func: string, n: number): void;
+    jsonProp(): void;
+
+    var(name: string): void;
+    dotVar(varNames: string[]): void;
+    field(name: string, tbl?: string): void;
+    expr(exp: ValueExpression): void;
+    dollarVar(name: string): void;
+    match(varOperands: VarOperand[], against: ValueExpression, isBoolean: boolean): void;
+    typeof(entity: Entity, val: ValueExpression): void;
+    nameof(entity: Entity): void;
+    role(role: string, valUnit: ValueExpression): void;
+    ID(entity: ID, forID: ID, newType: IDNewType, vals: ValueExpression[], uuid: ValueExpression
+        , stamp: ValueExpression
+        , phrases: string[] | ValueExpression): void;
+    UMinute(stamp: ValueExpression): void;
+    NO(entity: ID, stamp: ValueExpression): void;
+    EntityId(val: ValueExpression): void;
+    EntityName(val: ValueExpression): void;
+    Queue(queue: Queue, of: ValueExpression, action: OpQueueAction, vals: ValueExpression[]): void;
+    Search(key: ValueExpression, values: ValueExpression[]): void;
+    SpecId(spec: ValueExpression, atom: ValueExpression, values: ValueExpression): void;
+    SpecValue(id: ValueExpression): void;
+}
+
+export interface BizSelectTbl {
+    entityArr: BizEntity[];
+    alias: string;
+}
+
+export type BizSelectJoinType = '^' | 'x' | 'i';
+export interface BizSelectJoin {
+    joinType: BizSelectJoinType;
+    tbl: BizSelectTbl;
+}
+
+export interface BizSelectFrom {
+    main: BizSelectTbl;
+    joins: BizSelectJoin[];
+}
+
+export interface BizSelectColumn {
+    alias: string;
+    val: ValueExpression;
+}
+
+export interface BizExpIn {
+    varTimeSpan: string;
+    op: '+' | '-';
+    val: ValueExpression;
+    statementNo: number;
+    spanPeiod: SpanPeriod;
+}
+
+export class BizExp extends IElement {
+    from: BizSelectFrom;
+    on: ValueExpression;
+    column: BizSelectColumn;
+    bizEntity: BizEntity;
+    bud: BizBud;
+    param: ValueExpression;
+    prop: string;
+    in: BizExpIn;
+    type = 'BizExp';
+    parser(context: PContext): PElement<IElement> {
+        return new PBizExp(this, context);
+    }
+}
+
+export class BizFieldOperand extends Atom {
+    bizEntity: BizEntity;
+    bizBud: BizBud;
+    fieldName: string;
+    get type(): string { return 'bizfield'; }
+    parser(context: PContext) { return new PBizFieldOperand(this, context); }
+    to(stack: Stack) {
+        stack.bizField(this);
+    }
+}
+
+export class BizExpOperand extends Atom {
+    bizExp: BizExp;
+    get type(): string { return 'bizexp'; }
+    parser(context: PContext) { return new PBizExpOperand(this, context); }
+    to(stack: Stack): void {
+        stack.bizExp(this.bizExp);
     }
 }

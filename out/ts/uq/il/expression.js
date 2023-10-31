@@ -1,72 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizExpOperand = exports.SubSelectOperand = exports.OpIn = exports.OpIsNotNull = exports.OpIsNull = exports.OpOf = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = exports.ComarePartExpression = exports.CompareExpression = exports.ValueExpression = exports.Expression = void 0;
-exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = exports.BizFieldOperand = exports.VarOperand = exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = exports.OpLike = exports.BizSelectOperand = void 0;
+exports.VarOperand = exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = exports.OpLike = exports.SubSelectOperand = exports.OpIn = exports.OpIsNotNull = exports.OpIsNull = exports.OpOf = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = void 0;
+exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.ComarePartExpression = exports.CompareExpression = exports.ValueExpression = exports.Expression = exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = void 0;
 const parser_1 = require("../parser");
 const element_1 = require("./element");
 const select_1 = require("./select");
-class Expression extends element_1.IElement {
-    constructor() {
-        super(...arguments);
-        this.atoms = [];
-    }
-    get type() { return 'expression'; }
-    // select字段自动取出alias
-    alias() {
-        if (this.atoms.length > 1)
-            return undefined;
-        let atom = this.atoms[0];
-        if (atom.type !== 'var')
-            return undefined;
-        let vars = atom._var;
-        let len = vars.length;
-        if (len > 0)
-            return vars[len - 1];
-    }
-    isVarEqVar() {
-        let len = this.atoms.length;
-        let e1 = this.atoms[len - 2];
-        let e2 = this.atoms[len - 1];
-        let { type } = e1;
-        if (type !== 'var')
-            return false;
-        if (type !== e2.type)
-            return false;
-        let varOperand = e1;
-        return varOperand.isSameVar(e2);
-    }
-}
-exports.Expression = Expression;
-class ValueExpression extends Expression {
-    static const(num) {
-        let ret = new ValueExpression();
-        let atom;
-        switch (typeof num) {
-            default:
-                atom = new NullOperand();
-                break;
-            case 'number':
-                atom = new NumberOperand(num);
-                break;
-            case 'string':
-                atom = new TextOperand(num);
-                break;
-        }
-        ret.atoms.push(atom);
-        return ret;
-    }
-    parser(context) { return new parser_1.PValueExpression(this, context); }
-}
-exports.ValueExpression = ValueExpression;
-class CompareExpression extends Expression {
-    parser(context) { return new parser_1.PCompareExpression(this, context); }
-}
-exports.CompareExpression = CompareExpression;
-// 专门用于Select Of ID，比较的前半部分固定是id=exp
-class ComarePartExpression extends CompareExpression {
-    parser(context) { return new parser_1.PComparePartExpression(this, context); }
-}
-exports.ComarePartExpression = ComarePartExpression;
 class Atom extends element_1.IElement {
     get type() { return 'atom'; }
     get scalarValue() { return undefined; }
@@ -322,22 +260,16 @@ class SubSelectOperand extends Atom {
     to(stack) { stack.select(this.select); }
 }
 exports.SubSelectOperand = SubSelectOperand;
-class BizExpOperand extends Atom {
-    get type() { return 'bizexp'; }
-    parser(context) { return new parser_1.PBizExpOperand(this, context); }
-    to(stack) {
-        stack.bizExp(this.bizExp);
-    }
-}
-exports.BizExpOperand = BizExpOperand;
-class BizSelectOperand extends Atom {
-    get type() { return 'bizselect'; }
-    parser(context) { return new parser_1.PBizSelectOperand(this, context); }
-    to(stack) {
+/*
+export class BizSelectOperand extends Atom {
+    select: BizSelectInline;
+    get type(): string { return 'bizselect'; }
+    parser(context: PContext) { return new PBizSelectOperand(this, context); }
+    to(stack: Stack): void {
         stack.bizSelect(this.select);
     }
 }
-exports.BizSelectOperand = BizSelectOperand;
+*/
 class OpLike extends Atom {
     to(stack) { stack.like(); }
 }
@@ -389,14 +321,6 @@ class VarOperand extends Atom {
     }
 }
 exports.VarOperand = VarOperand;
-class BizFieldOperand extends Atom {
-    get type() { return 'bizfield'; }
-    parser(context) { return new parser_1.PBizFieldOperand(this, context); }
-    to(stack) {
-        stack.bizField(this);
-    }
-}
-exports.BizFieldOperand = BizFieldOperand;
 class OpMatch extends Atom {
     get type() { return 'match'; }
     parser(context) { return new parser_1.PMatchOperand(this, context); }
@@ -504,4 +428,92 @@ class OpSearch extends Atom {
     }
 }
 exports.OpSearch = OpSearch;
+class Expression extends element_1.IElement {
+    constructor() {
+        super(...arguments);
+        this.atoms = [];
+    }
+    get type() { return 'expression'; }
+    // select字段自动取出alias
+    alias() {
+        if (this.atoms.length > 1)
+            return undefined;
+        let atom = this.atoms[0];
+        if (atom.type !== 'var')
+            return undefined;
+        let vars = atom._var;
+        let len = vars.length;
+        if (len > 0)
+            return vars[len - 1];
+    }
+    isVarEqVar() {
+        let len = this.atoms.length;
+        let e1 = this.atoms[len - 2];
+        let e2 = this.atoms[len - 1];
+        let { type } = e1;
+        if (type !== 'var')
+            return false;
+        if (type !== e2.type)
+            return false;
+        let varOperand = e1;
+        return varOperand.isSameVar(e2);
+    }
+}
+exports.Expression = Expression;
+class ValueExpression extends Expression {
+    static const(num) {
+        let ret = new ValueExpression();
+        let atom;
+        switch (typeof num) {
+            default:
+                atom = new NullOperand();
+                break;
+            case 'number':
+                atom = new NumberOperand(num);
+                break;
+            case 'string':
+                atom = new TextOperand(num);
+                break;
+        }
+        ret.atoms.push(atom);
+        return ret;
+    }
+    parser(context) { return new parser_1.PValueExpression(this, context); }
+}
+exports.ValueExpression = ValueExpression;
+class CompareExpression extends Expression {
+    parser(context) { return new parser_1.PCompareExpression(this, context); }
+}
+exports.CompareExpression = CompareExpression;
+// 专门用于Select Of ID，比较的前半部分固定是id=exp
+class ComarePartExpression extends CompareExpression {
+    parser(context) { return new parser_1.PComparePartExpression(this, context); }
+}
+exports.ComarePartExpression = ComarePartExpression;
+class BizExp extends element_1.IElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'BizExp';
+    }
+    parser(context) {
+        return new parser_1.PBizExp(this, context);
+    }
+}
+exports.BizExp = BizExp;
+class BizFieldOperand extends Atom {
+    get type() { return 'bizfield'; }
+    parser(context) { return new parser_1.PBizFieldOperand(this, context); }
+    to(stack) {
+        stack.bizField(this);
+    }
+}
+exports.BizFieldOperand = BizFieldOperand;
+class BizExpOperand extends Atom {
+    get type() { return 'bizexp'; }
+    parser(context) { return new parser_1.PBizExpOperand(this, context); }
+    to(stack) {
+        stack.bizExp(this.bizExp);
+    }
+}
+exports.BizExpOperand = BizExpOperand;
 //# sourceMappingURL=expression.js.map
