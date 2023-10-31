@@ -62,12 +62,16 @@ class BizQueryTable extends BizQuery {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        const { asc, ban } = this.from;
+        const { asc, ban, cols } = this.from;
         ret.asc = asc;
         if (ban !== undefined) {
             ret.ban = (_a = ban.caption) !== null && _a !== void 0 ? _a : true;
         }
         ret.params = this.params.map(v => v.buildSchema(res));
+        ret.cols = cols.map(v => {
+            const { entity, bud } = v;
+            return [entity === null || entity === void 0 ? void 0 : entity.id, bud === null || bud === void 0 ? void 0 : bud.id];
+        });
         return ret;
     }
 }

@@ -43,6 +43,7 @@ export class FromStatement extends Statement {
         for (let entity of this.bizEntityArr) {
             let b = entity.getBud(fieldName) as BizBudValue;
             if (b !== undefined) {
+                bizEntity = entity;
                 bud = b;
             }
         }

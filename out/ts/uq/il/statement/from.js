@@ -22,6 +22,7 @@ class FromStatement extends statement_1.Statement {
         for (let entity of this.bizEntityArr) {
             let b = entity.getBud(fieldName);
             if (b !== undefined) {
+                bizEntity = entity;
                 bud = b;
             }
         }
