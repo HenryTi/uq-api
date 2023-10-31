@@ -1,5 +1,5 @@
 import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityPointer } from '../../il';
-import { VarOperand } from '../../il/expression';
+import { VarOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';

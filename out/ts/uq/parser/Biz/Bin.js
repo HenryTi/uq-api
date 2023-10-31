@@ -312,7 +312,7 @@ class PBinPick extends element_1.PElement {
     scan(space) {
         let ok = true;
         const { biz } = space.uq;
-        const { entityArr, logs, bizEntity0, ok: retOk, bizPhraseType, } = biz.sameTypeEntityArr(this.from);
+        const { entityArr, logs, ok: retOk, bizPhraseType, } = biz.sameTypeEntityArr(this.from);
         if (retOk === false) {
             this.log(...logs);
             ok = false;
@@ -320,6 +320,7 @@ class PBinPick extends element_1.PElement {
         else {
             let pickBase;
             let multipleEntity = false;
+            const bizEntity0 = entityArr[0];
             switch (bizPhraseType) {
                 case il_1.BizPhraseType.atom:
                     pickBase = new il_1.PickAtom(entityArr);

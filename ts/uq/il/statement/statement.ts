@@ -1,5 +1,5 @@
 import * as parser from '../../parser';
-import { Expression, CompareExpression, ValueExpression } from '../expression';
+import { Expression, CompareExpression, ValueExpression } from '../Exp';
 import { IElement } from '../element';
 import { DataType } from '../datatype';
 import {

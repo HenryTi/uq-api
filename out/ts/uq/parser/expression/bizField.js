@@ -9,12 +9,20 @@ class PBizFieldOperand extends element_1.PElement {
     scan(space) {
         let ok = true;
         let from = space.getBizFrom();
-        let { bizEntity0 } = from;
-        let bud = from.getBud(this.fieldName);
+        const { bizEntityArr } = from;
+        const bizEntity0 = bizEntityArr[0];
+        function hasField(fieldName) {
+            for (let be of bizEntityArr) {
+                if (be.hasField(fieldName) === true)
+                    return true;
+            }
+            return true;
+        }
+        let [, bud] = from.getBud(this.fieldName);
         if (bud !== undefined) {
             this.element.bizBud = bud;
         }
-        else if ((bizEntity0 === null || bizEntity0 === void 0 ? void 0 : bizEntity0.hasField(this.fieldName)) === true) {
+        else if (hasField(this.fieldName) === true) {
             this.element.fieldName = this.fieldName;
         }
         else {

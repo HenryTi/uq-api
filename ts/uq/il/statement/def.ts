@@ -1,4 +1,4 @@
-import { ValueExpression } from "../expression";
+import { ValueExpression } from "../Exp";
 
 export interface SetValue {
     name: string;

@@ -3,7 +3,7 @@ import { PField, PContext } from '../parser';
 import { Pointer } from './pointer';
 import { SField } from './schema';
 import { Tuid } from './entity';
-import { ValueExpression } from './expression';
+import { ValueExpression } from './Exp';
 
 export interface IField {
     name: string;

@@ -330,7 +330,7 @@ export class PBinPick extends PElement<BinPick> {
     scan(space: Space): boolean {
         let ok = true;
         const { biz } = space.uq;
-        const { entityArr, logs, bizEntity0, ok: retOk, bizPhraseType, }
+        const { entityArr, logs, ok: retOk, bizPhraseType, }
             = biz.sameTypeEntityArr(this.from);
         if (retOk === false) {
             this.log(...logs);
@@ -339,6 +339,7 @@ export class PBinPick extends PElement<BinPick> {
         else {
             let pickBase: PickBase;
             let multipleEntity = false;
+            const bizEntity0 = entityArr[0];
             switch (bizPhraseType) {
                 case BizPhraseType.atom:
                     pickBase = new PickAtom(entityArr as BizAtom[]);

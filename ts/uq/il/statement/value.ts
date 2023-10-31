@@ -1,7 +1,7 @@
 import { PContext, PValueStatement } from "../../parser";
 import { Builder } from "../builder";
 import { IX } from "../entity";
-import { ValueExpression } from "../expression";
+import { ValueExpression } from "../Exp";
 import { Statement } from "./statement";
 import { VarPointer } from "..";
 

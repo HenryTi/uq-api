@@ -1,5 +1,5 @@
 import {
-    Field, ActionBase, Returns,
+    Field, Returns,
     Uq, InBusAction, InBusActionStatement, VarStatement, Return, Var,
     SelectStatement, Select, VarOperand, ValueExpression, VarPointer, Arr, Column
 } from '../../il';

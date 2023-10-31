@@ -16,7 +16,8 @@ export class BFromStatement extends BStatement<FromStatement> {
         sqls.push(memo);
         memo.text = 'FROM';
 
-        const { asc, cols, ban, where, bizEntityTable, bizEntityArr, bizEntity0 } = this.istatement;
+        const { asc, cols, ban, where, bizEntityTable, bizEntityArr } = this.istatement;
+        const bizEntity0 = bizEntityArr[0];
 
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);

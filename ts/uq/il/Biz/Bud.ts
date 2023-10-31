@@ -8,7 +8,7 @@ import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { BizAtom, BizAtomID } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BudIndex } from "./Entity";
-import { ValueExpression } from "../expression";
+import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
 import { BizQueryValue } from "./Query";
 

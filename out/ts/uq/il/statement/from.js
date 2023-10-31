@@ -17,6 +17,7 @@ class FromStatement extends statement_1.Statement {
         return new parser_1.PFromStatement(this, context);
     }
     getBud(fieldName) {
+        let bizEntity = undefined;
         let bud = undefined;
         for (let entity of this.bizEntityArr) {
             let b = entity.getBud(fieldName);
@@ -24,7 +25,7 @@ class FromStatement extends statement_1.Statement {
                 bud = b;
             }
         }
-        return bud;
+        return [bizEntity, bud];
     }
 }
 exports.FromStatement = FromStatement;

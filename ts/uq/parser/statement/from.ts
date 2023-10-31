@@ -93,17 +93,15 @@ export class PFromStatement extends PStatement<FromStatement> {
         let ok = true;
         const { biz } = space.uq;
         space = new FromSpace(space, this.element);
-        const { entityArr, logs, bizEntity0, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
+        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
-        this.element.bizEntity0;
         this.element.bizPhraseType = bizPhraseType;
         this.element.bizEntityTable = bizEntityTable;
-        this.element.bizEntity0 = bizEntity0;
         if (retOk === false) {
             this.log(...logs);
             ok = false;
         }
-        else if (bizEntity0 !== undefined) {
+        else if (entityArr.length > 0) {
             for (let col of this.element.cols) {
                 const { name, caption, val } = col;
                 if (val.pelement.scan(space) === false) {
@@ -111,13 +109,13 @@ export class PFromStatement extends PStatement<FromStatement> {
                 }
                 if (caption === null) {
                     // from entity bud
-                    if (bizEntity0.hasField(name) === false) {
-                        let bud = this.element.getBud(name);
-                        if (bud !== undefined) {
-                            col.entity = bizEntity0;
-                            col.bud = bud;
-                        }
+                    //if (bizEntity0.hasField(name) === false) {
+                    let [bizEntity, bud] = this.element.getBud(name);
+                    if (bud !== undefined) {
+                        col.entity = bizEntity;
+                        col.bud = bud;
                     }
+                    //}
                 }
                 else {
                     // Query bud

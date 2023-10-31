@@ -2,7 +2,7 @@ import { BUseBase, BUseMonthZone, BUseTimeSpan, BUseTimeZone, BUseYearZone, DbCo
 import { PContext, PElement, PUseMonthZone, PUseStatement, PUseTimeSpan, PUseTimeZone, PUseYearZone } from "../../parser";
 import { Builder } from "../builder";
 import { IElement } from "../element";
-import { ValueExpression } from "../expression";
+import { ValueExpression } from "../Exp";
 import { SpanPeriod } from "../tool";
 import { Statement } from "./statement";
 

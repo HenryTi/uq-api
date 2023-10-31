@@ -14,7 +14,8 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { asc, cols, ban, where, bizEntityTable, bizEntityArr, bizEntity0 } = this.istatement;
+        const { asc, cols, ban, where, bizEntityTable, bizEntityArr } = this.istatement;
+        const bizEntity0 = bizEntityArr[0];
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
         ifStateNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pageStart));

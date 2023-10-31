@@ -120,7 +120,6 @@ export class Biz extends Entity {
         ok: boolean;
         entityArr: BizEntity[];
         logs: string[];
-        bizEntity0: BizEntity;
         bizPhraseType: BizPhraseType;
         bizEntityTable: EnumSysTable;
     } {
@@ -138,12 +137,10 @@ export class Biz extends Entity {
             }
         }
         let { length } = entityArr;
-        let bizEntity0: BizEntity;
         let bizPhraseType: BizPhraseType;
         let bizEntityTable: EnumSysTable;
         if (length > 0) {
             let bizEntity = entityArr[0];
-            bizEntity0 = bizEntity;
             const { bizPhraseType: bpt } = bizEntity;
             for (let i = 1; i < length; i++) {
                 let ent = entityArr[i];
@@ -172,7 +169,7 @@ export class Biz extends Entity {
             }
         }
         return {
-            ok, bizEntity0, entityArr, logs, bizPhraseType, bizEntityTable
+            ok, entityArr, logs, bizPhraseType, bizEntityTable
         };
     }
 }

@@ -3,7 +3,7 @@ import { PContext, PWithStatement } from "../../parser";
 import { Builder } from "../builder";
 import { ID, IX, IDX } from "../entity";
 import { IdBase } from "../entity/IdBase";
-import { CompareExpression, IDNewType, ValueExpression } from "../expression";
+import { CompareExpression, IDNewType, ValueExpression } from "../Exp";
 import { Statement } from "./statement";
 import { SetValue } from "./def";
 

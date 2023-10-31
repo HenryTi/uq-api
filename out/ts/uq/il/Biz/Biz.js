@@ -119,12 +119,10 @@ class Biz extends entity_1.Entity {
             }
         }
         let { length } = entityArr;
-        let bizEntity0;
         let bizPhraseType;
         let bizEntityTable;
         if (length > 0) {
             let bizEntity = entityArr[0];
-            bizEntity0 = bizEntity;
             const { bizPhraseType: bpt } = bizEntity;
             for (let i = 1; i < length; i++) {
                 let ent = entityArr[i];
@@ -158,7 +156,7 @@ class Biz extends entity_1.Entity {
             }
         }
         return {
-            ok, bizEntity0, entityArr, logs, bizPhraseType, bizEntityTable
+            ok, entityArr, logs, bizPhraseType, bizEntityTable
         };
     }
 }

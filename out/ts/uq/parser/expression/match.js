@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PMatchOperand = void 0;
-const expression_1 = require("../../il/expression");
+const Exp_1 = require("../../il/Exp");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 class PMatchOperand extends element_1.PElement {
@@ -18,7 +18,7 @@ class PMatchOperand extends element_1.PElement {
                 this.ts.expectToken(tokens_1.Token.VAR);
                 break;
             }
-            let varOperand = new expression_1.VarOperand();
+            let varOperand = new Exp_1.VarOperand();
             varOperand._var.push(this.ts.lowerVar);
             this.ts.readToken();
             let parser = varOperand.parser(this.context);
@@ -38,7 +38,7 @@ class PMatchOperand extends element_1.PElement {
         this.ts.readToken();
         this.ts.assertToken(tokens_1.Token.LPARENTHESE);
         this.ts.readToken();
-        let expValue = new expression_1.ValueExpression();
+        let expValue = new Exp_1.ValueExpression();
         let parser = expValue.parser(this.context);
         parser.parse();
         let isBoolean = false;

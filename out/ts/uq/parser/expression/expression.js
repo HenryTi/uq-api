@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PComparePartExpression = exports.PCompareExpression = exports.PValueExpression = exports.ExpressionSpace = exports.PExpression = exports.PAtom = void 0;
 const _ = require("lodash");
-const Exp = require("../../il/expression");
+const Exp = require("../../il/Exp");
 const element_1 = require("../element");
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");

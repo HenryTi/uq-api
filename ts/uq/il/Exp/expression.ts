@@ -5,14 +5,14 @@ import {
     , POpEntityId, POpEntityName, POpRole, POpQueue, POpCast
     , POpUMinute, POpSearch, POpNameof
     , POpAt, POpUqDefinedFunction, PComparePartExpression, PBizExpOperand, PBizExp, PBizFieldOperand
-} from '../parser';
-import { DataType } from './datatype';
-import { IElement } from './element';
-import { Select } from './select';
-import { GroupType, Pointer } from './pointer';
-import { TuidArr, Entity, ID, Queue } from './entity';
-import { BizBase, BizBud, BizEntity } from './Biz';
-import { SpanPeriod } from './tool';
+} from '../../parser';
+import { DataType } from '../datatype';
+import { IElement } from '../element';
+import { Select } from '../select';
+import { GroupType, Pointer } from '../pointer';
+import { TuidArr, Entity, ID, Queue } from '../entity';
+import { BizBase, BizBud, BizEntity } from '../Biz';
+import { SpanPeriod } from '../tool';
 
 export abstract class Atom extends IElement {
     get type(): string { return 'atom'; }

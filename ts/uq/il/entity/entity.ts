@@ -21,7 +21,7 @@ import {
     QueueSchemaBuilder
 } from '../schema';
 import { Builder } from '../builder';
-import { ValueExpression } from '../expression';
+import { ValueExpression } from '../Exp';
 import { ShareSchema, FaceQuerySchema, FaceDataType } from '../busSchema';
 import { SysProc } from './act';
 // import { QueueSchemaBuilder } from '..';

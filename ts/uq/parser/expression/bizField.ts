@@ -1,5 +1,4 @@
-import { BizBudValue } from '../../il';
-import { BizFieldOperand } from '../../il/expression';
+import { BizFieldOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
 
@@ -12,12 +11,19 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
     scan(space: Space): boolean {
         let ok = true;
         let from = space.getBizFrom();
-        let { bizEntity0 } = from;
-        let bud: BizBudValue = from.getBud(this.fieldName);
+        const { bizEntityArr } = from;
+        const bizEntity0 = bizEntityArr[0];
+        function hasField(fieldName: string) {
+            for (let be of bizEntityArr) {
+                if (be.hasField(fieldName) === true) return true;
+            }
+            return true;
+        }
+        let [, bud] = from.getBud(this.fieldName);
         if (bud !== undefined) {
             this.element.bizBud = bud;
         }
-        else if (bizEntity0?.hasField(this.fieldName) === true) {
+        else if (hasField(this.fieldName) === true) {
             this.element.fieldName = this.fieldName;
         }
         else {

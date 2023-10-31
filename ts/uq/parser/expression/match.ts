@@ -1,8 +1,8 @@
-import {VarOperand, OpMatch, ValueExpression} from '../../il/expression';
+import { VarOperand, OpMatch, ValueExpression } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
-import {PContext} from '../pContext';
+import { PContext } from '../pContext';
 
 export class PMatchOperand extends PElement {
     opMatch: OpMatch;
@@ -14,8 +14,8 @@ export class PMatchOperand extends PElement {
     _parse() {
         this.ts.assertToken(Token.LPARENTHESE);
         this.ts.readToken();
-        let varOperands:VarOperand[] = [];
-        while(true) {
+        let varOperands: VarOperand[] = [];
+        while (true) {
             if (this.ts.token !== Token.VAR) {
                 this.ts.expectToken(Token.VAR);
                 break;
@@ -59,9 +59,9 @@ export class PMatchOperand extends PElement {
         this.opMatch.against = expValue;
     }
 
-    scan(space: Space):boolean {
+    scan(space: Space): boolean {
         let ok = true;
-        let {varOperands, against} = this.opMatch;
+        let { varOperands, against } = this.opMatch;
         for (let varOperand of varOperands) {
             if (varOperand.pelement.scan(space) === false) {
                 ok = false;

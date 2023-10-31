@@ -5,7 +5,7 @@ import { Statement, Var, Statements } from "./statement";
 import { IElement } from '../element';
 import { Select } from '../select';
 import { BForList } from '../../builder';
-import { ValueExpression } from '../expression';
+import { ValueExpression } from '../Exp';
 
 export class ForEach extends Statement {
     isInProc: boolean;          // for temporary table, not drop in proc, maybe called multiple times in one session

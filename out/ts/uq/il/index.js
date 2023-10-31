@@ -18,7 +18,7 @@ exports.UqVersion = exports.Uq = void 0;
 var uq_1 = require("./uq");
 Object.defineProperty(exports, "Uq", { enumerable: true, get: function () { return uq_1.Uq; } });
 Object.defineProperty(exports, "UqVersion", { enumerable: true, get: function () { return uq_1.UqVersion; } });
-__exportStar(require("./expression"), exports);
+__exportStar(require("./Exp"), exports);
 __exportStar(require("./datatype"), exports);
 __exportStar(require("./statement"), exports);
 __exportStar(require("./entity"), exports);

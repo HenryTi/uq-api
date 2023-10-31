@@ -1,5 +1,5 @@
 export { Uq, UqVersion } from './uq';
-export * from './expression';
+export * from './Exp';
 export * from './datatype';
 export * from './statement';
 export * from './entity';

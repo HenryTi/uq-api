@@ -3,7 +3,7 @@ import * as parser from '../../parser';
 import { Builder } from "../builder";
 import { IElement } from '../element';
 import { BizBudValue, BizBinAct, BizEntity, BizPend } from '../Biz';
-import { ValueExpression } from '../expression';
+import { ValueExpression } from '../Exp';
 import { Statement } from "./statement";
 import { SetEqu } from '../tool';
 
