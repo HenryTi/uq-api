@@ -6,27 +6,8 @@ const Base_1 = require("./Base");
 class PBizTie extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
-        /*
-        protected parseContent(): void {
-            const keyColl = {
-                prop: this.parseProp,
-                // assign: this.parseAssign,
-            };
-            const keys = Object.keys(keyColl);
-            for (; ;) {
-                if (this.ts.token === Token.RBRACE) break;
-                let parse = keyColl[this.ts.lowerVar];
-                if (this.ts.varBrace === true || parse === undefined) {
-                    this.ts.expect(...keys);
-                }
-                this.ts.readToken();
-                parse();
-            }
-        }
-        */
         this.keyColl = {
             prop: this.parseProp,
-            // assign: this.parseAssign,
         };
     }
     // bud 有没有type。Tie里面的bud，不需要type，都是bigint
