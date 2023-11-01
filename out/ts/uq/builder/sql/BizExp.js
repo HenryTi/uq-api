@@ -66,17 +66,19 @@ class BBizExp {
     title(sb) {
         const { prop, in: inVar, param: { paramType } } = this.bizExp;
         if (inVar === undefined || prop === 'value') {
+            let titleValue;
             switch (paramType) {
                 case il_1.BizExpParamType.scalar:
-                    this.titleValue(sb);
+                    titleValue = new TitleValue(sb, this);
                     break;
                 case il_1.BizExpParamType.spec:
-                    this.titleSpecSum(sb);
+                    titleValue = new TitleSpecSum(sb, this);
                     break;
                 case il_1.BizExpParamType.ix:
-                    this.titleIxSum(sb);
+                    titleValue = new TitleIxSum(sb, this);
                     break;
             }
+            titleValue.sql();
         }
         else {
             let titleHistory;
@@ -107,49 +109,79 @@ class BBizExp {
         }
         return ixBudTbl;
     }
-    titleValue(sb) {
-        const { bud } = this.bizExp;
-        let tblBudValue = this.ixBudTbl();
-        const { ta } = this;
-        sb.append(`${ta}.value FROM ${this.db}.${tblBudValue} as ${ta} WHERE ${ta}.i=`);
-        sb.exp(this.param);
-        sb.append(` AND ${ta}.x=${bud.id}`);
-    }
-    titleValueSum(sb, ttTbl, ttField, ttOut) {
-        const { bud } = this.bizExp;
-        let tblBudValue = this.ixBudTbl();
-        const { ta, tt } = this;
-        sb.append(`sum(${ta}.value) 
-FROM ${this.db}.${ttTbl} as ${tt}
-    JOIN ${this.db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.${ttField}
-WHERE ${tt}.${ttOut}=`);
-        sb.exp(this.param);
-        sb.append(` AND ${ta}.x=${bud.id}`);
-    }
-    titleSpecSum(sb) {
-        this.titleValueSum(sb, 'spec', 'id', 'base');
-    }
-    titleIxSum(sb) {
-        this.titleValueSum(sb, 'ixbud', 'x', 'i');
-    }
 }
 exports.BBizExp = BBizExp;
-class TitleHistoryBase {
+class TitleExpBase {
     constructor(sb, bBizExp) {
         this.sb = sb;
         this.bBizExp = bBizExp;
     }
+}
+class TitleValueBase extends TitleExpBase {
+    ixBudTbl() {
+        const { bud } = this.bBizExp.bizExp;
+        let ixBudTbl;
+        switch (bud.dataType) {
+            default:
+                ixBudTbl = 'ixbudint';
+                break;
+            case il_1.BudDataType.dec:
+                ixBudTbl = 'ixbuddec';
+                break;
+        }
+        return ixBudTbl;
+    }
+}
+class TitleValue extends TitleValueBase {
+    sql() {
+        const { bizExp, ta, db, param } = this.bBizExp;
+        const { bud } = bizExp;
+        let tblBudValue = this.ixBudTbl();
+        this.sb.append(`${ta}.value FROM ${db}.${tblBudValue} as ${ta} WHERE ${ta}.i=`);
+        this.sb.exp(param);
+        this.sb.append(` AND ${ta}.x=${bud.id}`);
+    }
+}
+class TitleSum extends TitleValueBase {
+    sql() {
+        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        const { bud, prop, in: ilInVar } = bizExp;
+        const { sb } = this;
+        sb.append(`sum(${ta}.value) `);
+        this.from();
+        sb.exp(param);
+        sb.append(` AND ${ta}.x=${bud.id}`);
+    }
+}
+class TitleSpecSum extends TitleSum {
+    from() {
+        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        //this.titleValueSum(sb, 'spec', 'id', 'base');
+        let tblBudValue = this.ixBudTbl();
+        this.sb.append(`
+        FROM ${db}.spec as ${tt}
+        JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.id
+    WHERE ${tt}.base=`);
+    }
+}
+class TitleIxSum extends TitleSum {
+    from() {
+        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        // this.titleValueSum(sb, 'ixbud', 'x', 'i');
+        let tblBudValue = this.ixBudTbl();
+        this.sb.append(`
+        FROM ${db}.ixbud as ${tt}
+        JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.x
+    WHERE ${tt}.i=`);
+    }
+}
+class TitleHistoryBase extends TitleExpBase {
     sql() {
         const { bizExp, ta, db, inVal } = this.bBizExp;
         const { bud, prop, in: ilInVar } = bizExp;
         const { varTimeSpan: timeSpan, op, statementNo } = ilInVar;
         this.sb.append(`${prop}(${ta}.value) FROM ${db}.history as ${ta} `);
         this.from();
-        //        this.sb.append(`
-        // WHERE ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, `);
-        //this.budIdP1();
-        //this.sb.append(`,${bud.id})
-        //AND 
         this.sb.append(`${ta}.id>=_${timeSpan}_${statementNo}$start`);
         if (op !== undefined) {
             this.sb.append(op).exp(inVal);
