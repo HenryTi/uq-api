@@ -258,6 +258,7 @@ export class PBizExpParam extends PElement<BizExpParam> {
     private parseArray() {
         if (this.ts.isKeyword('spec') === true) {
             this.element.paramType = BizExpParamType.spec;
+            this.ts.readToken();
             this.ts.passKey('on');
             this.ts.passToken(Token.XOR);
             this.ts.passToken(Token.EQU);

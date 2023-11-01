@@ -72,17 +72,19 @@ export class BBizExp {
     private title(sb: SqlBuilder) {
         const { prop, in: inVar, param: { paramType } } = this.bizExp;
         if (inVar === undefined || prop === 'value') {
+            let titleValue: TitleValueBase;
             switch (paramType) {
                 case BizExpParamType.scalar:
-                    this.titleValue(sb);
+                    titleValue = new TitleValue(sb, this);
                     break;
                 case BizExpParamType.spec:
-                    this.titleSpecSum(sb);
+                    titleValue = new TitleSpecSum(sb, this);
                     break;
                 case BizExpParamType.ix:
-                    this.titleIxSum(sb);
+                    titleValue = new TitleIxSum(sb, this);
                     break;
             }
+            titleValue.sql();
         }
         else {
             let titleHistory: TitleHistoryBase;
@@ -110,55 +112,87 @@ export class BBizExp {
         }
         return ixBudTbl;
     }
-
-    private titleValue(sb: SqlBuilder) {
-        const { bud } = this.bizExp;
-        let tblBudValue = this.ixBudTbl();
-        const { ta } = this;
-        sb.append(`${ta}.value FROM ${this.db}.${tblBudValue} as ${ta} WHERE ${ta}.i=`);
-        sb.exp(this.param);
-        sb.append(` AND ${ta}.x=${bud.id}`);
-    }
-
-    private titleValueSum(sb: SqlBuilder, ttTbl: string, ttField: string, ttOut: string) {
-        const { bud } = this.bizExp;
-        let tblBudValue = this.ixBudTbl();
-        const { ta, tt } = this;
-        sb.append(`sum(${ta}.value) 
-FROM ${this.db}.${ttTbl} as ${tt}
-    JOIN ${this.db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.${ttField}
-WHERE ${tt}.${ttOut}=`);
-        sb.exp(this.param);
-        sb.append(` AND ${ta}.x=${bud.id}`);
-    }
-
-    private titleSpecSum(sb: SqlBuilder) {
-        this.titleValueSum(sb, 'spec', 'id', 'base');
-    }
-
-    private titleIxSum(sb: SqlBuilder) {
-        this.titleValueSum(sb, 'ixbud', 'x', 'i');
-    }
 }
 
-abstract class TitleHistoryBase {
+abstract class TitleExpBase {
     protected readonly sb: SqlBuilder;
     protected readonly bBizExp: BBizExp;
     constructor(sb: SqlBuilder, bBizExp: BBizExp) {
         this.sb = sb;
         this.bBizExp = bBizExp;
     }
-    sql() {
+    abstract sql(): void;
+}
+
+abstract class TitleValueBase extends TitleExpBase {
+    protected ixBudTbl() {
+        const { bud } = this.bBizExp.bizExp;
+        let ixBudTbl: string;
+        switch (bud.dataType) {
+            default: ixBudTbl = 'ixbudint'; break;
+            case BudDataType.dec: ixBudTbl = 'ixbuddec'; break;
+        }
+        return ixBudTbl;
+    }
+}
+
+class TitleValue extends TitleValueBase {
+    override sql() {
+        const { bizExp, ta, db, param } = this.bBizExp;
+        const { bud } = bizExp;
+        let tblBudValue = this.ixBudTbl();
+        this.sb.append(`${ta}.value FROM ${db}.${tblBudValue} as ${ta} WHERE ${ta}.i=`);
+        this.sb.exp(param);
+        this.sb.append(` AND ${ta}.x=${bud.id}`);
+    }
+}
+
+abstract class TitleSum extends TitleValueBase {
+    abstract from(): void;
+    override sql(): void {
+        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        const { bud, prop, in: ilInVar } = bizExp;
+        const { sb } = this;
+        sb.append(`sum(${ta}.value) `);
+        this.from();
+        sb.exp(param);
+        sb.append(` AND ${ta}.x=${bud.id}`);
+    }
+}
+
+class TitleSpecSum extends TitleSum {
+    override from() {
+        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        //this.titleValueSum(sb, 'spec', 'id', 'base');
+        let tblBudValue = this.ixBudTbl();
+        this.sb.append(`
+        FROM ${db}.spec as ${tt}
+        JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.id
+    WHERE ${tt}.base=`);
+
+    }
+}
+
+class TitleIxSum extends TitleSum {
+    override from() {
+        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        // this.titleValueSum(sb, 'ixbud', 'x', 'i');
+        let tblBudValue = this.ixBudTbl();
+        this.sb.append(`
+        FROM ${db}.ixbud as ${tt}
+        JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.x
+    WHERE ${tt}.i=`);
+
+    }
+}
+
+abstract class TitleHistoryBase extends TitleExpBase {
+    override sql() {
         const { bizExp, ta, db, inVal } = this.bBizExp;
         const { bud, prop, in: ilInVar } = bizExp;
         const { varTimeSpan: timeSpan, op, statementNo } = ilInVar;
         this.sb.append(`${prop}(${ta}.value) FROM ${db}.history as ${ta} `);
         this.from();
-        //        this.sb.append(`
-        // WHERE ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, `);
-        //this.budIdP1();
-        //this.sb.append(`,${bud.id})
-        //AND 
         this.sb.append(`${ta}.id>=_${timeSpan}_${statementNo}$start`);
         if (op !== undefined) {
             this.sb.append(op).exp(inVal);
