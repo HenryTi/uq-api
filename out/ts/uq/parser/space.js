@@ -188,13 +188,12 @@ class Space {
         return pt;
     }
     varsPointer(names) {
-        let pt = this._varsPointer(names);
-        if (pt === undefined) {
-            if (this.outer !== undefined) {
-                pt = this.outer.varsPointer(names);
-            }
-        }
-        return pt;
+        let ret = this._varsPointer(names);
+        if (ret !== undefined)
+            return ret;
+        if (this.outer === undefined)
+            return;
+        return this.outer.varsPointer(names);
     }
     addTableVar(tableVar) {
         let ret = this._addTableVar(tableVar);

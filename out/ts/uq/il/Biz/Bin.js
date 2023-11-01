@@ -49,9 +49,17 @@ class PickAtom extends PickBase {
         return false;
     }
     hasReturn(prop) {
-        if (prop === undefined || prop === 'id')
+        if (prop === undefined)
             return true;
-        return false;
+        // || prop === 'id') return true;
+        /*
+        for (let atom of this.from) {
+            let bud = atom.getBud(prop);
+            if (bud !== undefined) return true;
+        }
+        */
+        // 不支持atom的其它字段属性。只能用查询
+        return ['id', 'no', 'ex'].includes(prop);
     }
 }
 exports.PickAtom = PickAtom;
@@ -67,6 +75,9 @@ class PickSpec extends PickBase {
     }
     hasReturn(prop) {
         if (prop === undefined || prop === 'id')
+            return true;
+        let bud = this.from.getBud(prop);
+        if (bud !== undefined)
             return true;
         return false;
     }
@@ -94,6 +105,15 @@ class BizBin extends Entity_1.BizEntity {
         super(...arguments);
         this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
         this.bizPhraseType = Base_1.BizPhraseType.bin;
+        /*
+        isValidPickProp(pickName: string, prop: string): boolean {
+            if (this.picks === undefined) return false;
+            let pick = this.picks.get(pickName);
+            if (pick === undefined) return false;
+            if (prop === undefined) return true;
+            return pick.pick.hasReturn(prop);
+        }
+        */
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
@@ -166,15 +186,11 @@ class BizBin extends Entity_1.BizEntity {
     db(dbContext) {
         return new builder_1.BBizBin(dbContext, this);
     }
-    isValidPickProp(pickName, prop) {
+    getPick(pickName) {
         if (this.picks === undefined)
-            return false;
+            return;
         let pick = this.picks.get(pickName);
-        if (pick === undefined)
-            return false;
-        if (prop === undefined)
-            return true;
-        return pick.pick.hasReturn(prop);
+        return pick;
     }
 }
 exports.BizBin = BizBin;

@@ -1,0 +1,75 @@
+import { BizBase } from "../Biz";
+import { DataType } from "../datatype";
+import { Entity, ID, Queue } from "../entity";
+import { Select } from "../select";
+import { BizExp, BizFieldOperand } from "./Biz";
+import { ValueExpression } from "./Expression";
+import { IDNewType, OpQueueAction, VarOperand } from "./Op";
+
+export interface Stack {
+    or(): void;
+    and(): void;
+    not(): void;
+    le(): void;
+    lt(): void;
+    eq(): void;
+    ne(): void;
+    gt(): void;
+    ge(): void;
+    neg(): void;
+    parenthese(): void;
+    add(): void;
+    sub(): void;
+    mul(): void;
+    div(): void;
+    decDiv(): void;
+    mod(): void;
+    bitAnd(): void;
+    bitOr(): void;
+    bitInvert(): void;
+    bitLeft(): void;
+    bitRight(): void;
+    at(biz: BizBase, bizName: string[], bizVal: ValueExpression): void;
+    str(val: string): void;
+    num(val: number): void;
+    star(): void;
+    hex(val: string): void;
+    datePart(part: string): void;
+    isNull(): void;
+    isNotNull(): void;
+    exists(): void;
+    in(params: number): void;
+    like(): void;
+    cast(dataType: DataType): void;
+    select(select: Select): void;
+    // bizSelect(select: BizSelectInline): void;
+    bizExp(exp: BizExp): void;
+    bizField(bizField: BizFieldOperand): void;
+    searchCase(whenCount: number, hasElse: boolean): void;
+    simpleCase(whenCount: number, hasElse: boolean): void;
+    func(func: string, n: number, isUqFunc: boolean): void;
+    groupFunc(func: string, exp: ValueExpression): void;
+    funcUqDefined(func: string, n: number): void;
+    jsonProp(): void;
+
+    var(name: string): void;
+    dotVar(varNames: string[]): void;
+    field(name: string, tbl?: string): void;
+    expr(exp: ValueExpression): void;
+    dollarVar(name: string): void;
+    match(varOperands: VarOperand[], against: ValueExpression, isBoolean: boolean): void;
+    typeof(entity: Entity, val: ValueExpression): void;
+    nameof(entity: Entity): void;
+    role(role: string, valUnit: ValueExpression): void;
+    ID(entity: ID, forID: ID, newType: IDNewType, vals: ValueExpression[], uuid: ValueExpression
+        , stamp: ValueExpression
+        , phrases: string[] | ValueExpression): void;
+    UMinute(stamp: ValueExpression): void;
+    NO(entity: ID, stamp: ValueExpression): void;
+    EntityId(val: ValueExpression): void;
+    EntityName(val: ValueExpression): void;
+    Queue(queue: Queue, of: ValueExpression, action: OpQueueAction, vals: ValueExpression[]): void;
+    Search(key: ValueExpression, values: ValueExpression[]): void;
+    SpecId(spec: ValueExpression, atom: ValueExpression, values: ValueExpression): void;
+    SpecValue(id: ValueExpression): void;
+}

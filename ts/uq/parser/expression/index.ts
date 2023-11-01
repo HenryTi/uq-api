@@ -2,7 +2,6 @@ export * from './expression';
 export { PVarOperand } from './var';
 export * from './opFunction';
 export { POpGroupFunc, POpGroupCountFunc } from './opGroupFunc';
-export { POpOf } from './opOf';
 export { PMatchOperand } from './match';
 export { POpTypeof } from './opTypeof';
 export { POpNameof } from './opNameof';

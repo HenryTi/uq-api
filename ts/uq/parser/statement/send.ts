@@ -1,11 +1,11 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
-import {ValueExpression, SendStatement, Templet, Statement, SendEmailStatement, SendSmsStatement, SendMsgStatement, SendAppStatement, Expression, VarOperand} from '../../il';
-import {PStatement} from './statement';
-import {PContext} from '../pContext';
+import { ValueExpression, SendStatement, Templet, SendEmailStatement, SendSmsStatement, SendMsgStatement, SendAppStatement, VarOperand } from '../../il';
+import { PStatement } from './statement';
+import { PContext } from '../pContext';
 import { PValueExpression, PVarOperand } from '..';
 
-const messages = ['email', 'sms']; 
+const messages = ['email', 'sms'];
 const methods = [...messages, 'app'];
 
 export class PSendStatement extends PStatement {
@@ -15,7 +15,7 @@ export class PSendStatement extends PStatement {
         this.sendStatement = sendStatement;
     }
     protected _parse() {
-        let {token, varBrace, lowerVar} = this.ts;
+        let { token, varBrace, lowerVar } = this.ts;
         if (token !== Token.VAR || varBrace === true) {
             this.ts.expect('keywords' + methods.join(', '));
         }
@@ -67,7 +67,7 @@ export class PSendStatement extends PStatement {
         sendMsg.templet = this.ts.lowerVar;
         this.ts.readToken();
 
-        for (;;) {
+        for (; ;) {
             if (this.ts.isKeyword('to') === true) {
                 if (sendMsg.to !== undefined) {
                     this.ts.error('duplicate to in send');
@@ -103,7 +103,7 @@ export class PSendStatement extends PStatement {
         if (this.ts.isKeyword('with') === true) {
             this.ts.readToken();
             let sendWith = sendMsg.with = {};
-            for (;;) {
+            for (; ;) {
                 if (this.ts.token !== Token.VAR) {
                     this.ts.expect('parameter name');
                 }
@@ -116,7 +116,7 @@ export class PSendStatement extends PStatement {
                 let val = new ValueExpression();
                 val.parser(this.context).parse();
                 sendWith[pName] = val;
-                let {token} = this.ts;
+                let { token } = this.ts;
                 if (token === Token.SEMICOLON) {
                     this.ts.readToken();
                     break;
@@ -129,7 +129,7 @@ export class PSendStatement extends PStatement {
         }
         else {
             this.ts.assertToken(Token.SEMICOLON);
-            this.ts.readToken();    
+            this.ts.readToken();
         }
     }
 
@@ -162,7 +162,7 @@ export class PSendStatement extends PStatement {
 
     scan(space: Space): boolean {
         let ok = true;
-        let {send, no} = this.sendStatement;
+        let { send, no } = this.sendStatement;
         send.no = no;
         switch (send.type) {
             default: return false;
@@ -189,9 +189,9 @@ export class PSendStatement extends PStatement {
         return ok;
     }
 
-    private scanSendMsg(space: Space, sendMsg: SendMsgStatement):boolean {
+    private scanSendMsg(space: Space, sendMsg: SendMsgStatement): boolean {
         let ok = true;
-        let {templet, to, cc, bcc, with:sendWith} = sendMsg;
+        let { templet, to, cc, bcc, with: sendWith } = sendMsg;
         let temp = space.getEntity(templet) as Templet;
         if (temp === undefined || temp.type !== 'templet') {
             ok = false;
@@ -227,9 +227,9 @@ export class PSendStatement extends PStatement {
         return ok;
     }
 
-    private scanSendApp(space: Space, sendApp: SendAppStatement):boolean {
+    private scanSendApp(space: Space, sendApp: SendAppStatement): boolean {
         let ok = true;
-        let {user, app} = sendApp;
+        let { user, app } = sendApp;
         if (user !== undefined) {
             if (user.pelement.scan(space) === false) ok = false;
         }

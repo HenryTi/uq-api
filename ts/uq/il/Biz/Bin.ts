@@ -73,8 +73,16 @@ export class PickAtom extends PickBase {
         return false;
     }
     hasReturn(prop: string): boolean {
-        if (prop === undefined || prop === 'id') return true;
-        return false;
+        if (prop === undefined) return true;
+        // || prop === 'id') return true;
+        /*
+        for (let atom of this.from) {
+            let bud = atom.getBud(prop);
+            if (bud !== undefined) return true;
+        }
+        */
+        // 不支持atom的其它字段属性。只能用查询
+        return ['id', 'no', 'ex'].includes(prop);
     }
 }
 export class PickSpec extends PickBase {
@@ -90,6 +98,8 @@ export class PickSpec extends PickBase {
     }
     hasReturn(prop: string): boolean {
         if (prop === undefined || prop === 'id') return true;
+        let bud = this.from.getBud(prop);
+        if (bud !== undefined) return true;
         return false;
     }
 }
@@ -191,6 +201,12 @@ export class BizBin extends BizEntity {
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizBin(dbContext, this);
     }
+    getPick(pickName: string) {
+        if (this.picks === undefined) return;
+        let pick = this.picks.get(pickName);
+        return pick;
+    }
+    /*
     isValidPickProp(pickName: string, prop: string): boolean {
         if (this.picks === undefined) return false;
         let pick = this.picks.get(pickName);
@@ -198,6 +214,7 @@ export class BizBin extends BizEntity {
         if (prop === undefined) return true;
         return pick.pick.hasReturn(prop);
     }
+    */
 }
 
 export class BizBinAct extends BizBase {

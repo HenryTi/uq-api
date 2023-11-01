@@ -47,7 +47,18 @@ class PVarOperand extends element_1.PElement {
         if (len === 0) {
             throw '变量解析错误!';
         }
-        let pointer = space.varsPointer(_var);
+        let ret = space.varsPointer(_var);
+        let pointer;
+        if (ret !== undefined) {
+            pointer = ret[0];
+            if (pointer === undefined) {
+                let error = ret[1];
+                if (error !== undefined) {
+                    this.log(error);
+                    return false;
+                }
+            }
+        }
         if (pointer === undefined) {
             let var0 = _var[0];
             if (len === 1) {
@@ -104,7 +115,7 @@ class PVarOperand extends element_1.PElement {
                     let table = space.getTableByAlias(var0);
                     if (table === undefined) {
                         let t = space.getTableByAlias(var0);
-                        this.log(`没有定义表、Const或者Enum '${var0}'`);
+                        this.log(`没有定义Pick、表、Const或者Enum '${var0}'`);
                         return false;
                     }
                     pointer = table.fieldPointer(var1);

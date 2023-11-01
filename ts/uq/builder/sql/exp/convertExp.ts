@@ -17,7 +17,7 @@ import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, E
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand } from './ExpBizOperand';
-import { BBizExp, BBizFieldOperand } from '../bizExp';
+import { BBizExp, BBizFieldOperand } from '../BizExp';
 import { ExpRole } from './ExpRole';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {
@@ -143,13 +143,6 @@ class Stack implements IlStack {
         let sel = convertSelect(this.context, select);
         this.arr.push(new ExpSelect(sel))
     }
-    /*
-    bizSelect(bso: BizSelectInline) {
-        let bs = new BBizSelectOperand();
-        bs.convertFrom(this.context, bso);
-        this.arr.push(new ExpBizSelectOperand(bs));
-    }
-    */
     bizExp(exp: BizExp) {
         let bExp = new BBizExp();
         bExp.convertFrom(this.context, exp);

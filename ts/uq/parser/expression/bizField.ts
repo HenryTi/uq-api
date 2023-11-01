@@ -2,6 +2,7 @@ import { BizFieldOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
 
+// %开始的字段，是BizField。
 export class PBizFieldOperand extends PElement<BizFieldOperand> {
     private fieldName: string;
     _parse() {
@@ -12,7 +13,6 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
         let ok = true;
         let from = space.getBizFrom();
         const { bizEntityArr } = from;
-        const bizEntity0 = bizEntityArr[0];
         function hasField(fieldName: string) {
             for (let be of bizEntityArr) {
                 if (be.hasField(fieldName) === true) return true;

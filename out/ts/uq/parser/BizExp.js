@@ -1,9 +1,25 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizExp = exports.PBizExpOperand = void 0;
+exports.PBizExpParam = exports.PBizExp = exports.PBizExpOperand = void 0;
 const il_1 = require("../il");
 const element_1 = require("./element");
 const tokens_1 = require("./tokens");
+/*
+interface Tbl {
+    entityArr: string[];
+    alias: string;
+}
+
+interface Join {
+    joinType: BizSelectJoinType;
+    tbl: Tbl;
+}
+
+interface From {
+    main: Tbl;
+    joins: Join[];
+}
+*/
 class PBizExpOperand extends element_1.PElement {
     _parse() {
         this.element.bizExp = new il_1.BizExp();
@@ -29,7 +45,7 @@ class PBizExp extends element_1.PElement {
             this.bud = this.ts.passVar();
         }
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
-        this.element.param = new il_1.ValueExpression();
+        this.element.param = new il_1.BizExpParam(); // new ValueExpression();
         let { param } = this.element;
         this.context.parseElement(param);
         this.ts.passToken(tokens_1.Token.RPARENTHESE);
@@ -123,9 +139,19 @@ class PBizExp extends element_1.PElement {
         }
         return ok;
     }
+    checkScalar() {
+        const { bizEntity, param } = this.element;
+        if (param.paramType !== il_1.BizExpParamType.scalar) {
+            this.log(`${bizEntity.type.toUpperCase()} ${bizEntity.jName} does not support TABLE param.`);
+            return false;
+        }
+        return true;
+    }
     scanAtom(space) {
         let ok = true;
         const { bizEntity, prop } = this.element;
+        if (this.checkScalar() === false)
+            ok = false;
         let bizAtom = bizEntity;
         if (this.bud !== undefined) {
             this.log(`ATOM ${bizEntity.jName} should not .`);
@@ -145,6 +171,8 @@ class PBizExp extends element_1.PElement {
     scanSpec(space) {
         let ok = true;
         const { bizEntity, prop } = this.element;
+        if (this.checkScalar() === false)
+            ok = false;
         let bizSpec = bizEntity;
         if (this.bud !== undefined) {
             this.log(`SPEC ${bizEntity.jName} should not .`);
@@ -164,6 +192,8 @@ class PBizExp extends element_1.PElement {
     scanBin(space) {
         let ok = true;
         const { bizEntity, prop } = this.element;
+        if (this.checkScalar() === false)
+            ok = false;
         let bizBin = bizEntity;
         if (this.bud !== undefined) {
             this.log(`BIN ${bizEntity.jName} should not .`);
@@ -183,7 +213,7 @@ class PBizExp extends element_1.PElement {
     }
     scanTitle(space) {
         let ok = true;
-        const { bizEntity, prop, in: inVar } = this.element;
+        const { bizEntity, prop } = this.element;
         let title = bizEntity;
         if (this.bud === undefined) {
             this.log(`TITLE ${title.jName} should follow .`);
@@ -212,4 +242,72 @@ class PBizExp extends element_1.PElement {
     }
 }
 exports.PBizExp = PBizExp;
+class PBizExpParam extends element_1.PElement {
+    _parse() {
+        if (this.ts.token === tokens_1.Token.SHARP) {
+            this.ts.readToken();
+            this.parseArray();
+        }
+        else {
+            this.element.param = new il_1.ValueExpression();
+            this.element.paramType = il_1.BizExpParamType.scalar;
+            const { param } = this.element;
+            this.context.parseElement(param);
+        }
+    }
+    parseArray() {
+        if (this.ts.isKeyword('spec') === true) {
+            this.element.paramType = il_1.BizExpParamType.spec;
+            this.ts.passKey('on');
+            this.ts.passToken(tokens_1.Token.XOR);
+            this.ts.passToken(tokens_1.Token.EQU);
+            this.element.param = new il_1.ValueExpression();
+            this.context.parseElement(this.element.param);
+        }
+        else if (this.ts.token === tokens_1.Token.VAR) {
+            this.element.paramType = il_1.BizExpParamType.ix;
+            this.ties = [this.ts.lowerVar];
+            this.ts.readToken();
+            for (;;) {
+                if (this.ts.token !== tokens_1.Token.BITWISEOR)
+                    break;
+                this.ts.readToken();
+                this.ties.push(this.ts.lowerVar);
+            }
+            this.ts.passKey('on');
+            this.ts.passKey('i');
+            this.ts.passToken(tokens_1.Token.EQU);
+            this.element.param = new il_1.ValueExpression();
+            this.context.parseElement(this.element.param);
+        }
+        else {
+            this.ts.expect('SPEC or ties');
+        }
+    }
+    scan(space) {
+        let ok = true;
+        const { param } = this.element;
+        if (param !== undefined) {
+            if (param.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (this.ties !== undefined) {
+            let ixs = [];
+            for (let tie of this.ties) {
+                let t = space.getBizEntity(tie);
+                if (t === undefined || t.bizPhraseType !== il_1.BizPhraseType.tie) {
+                    this.log(`${tie} is not a TIE`);
+                    ok = false;
+                }
+                else {
+                    ixs.push(t);
+                }
+            }
+            this.element.ixs = ixs;
+        }
+        return ok;
+    }
+}
+exports.PBizExpParam = PBizExpParam;
 //# sourceMappingURL=BizExp.js.map

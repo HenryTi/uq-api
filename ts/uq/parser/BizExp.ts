@@ -1,13 +1,14 @@
 import {
     BizPhraseType
-    , ValueExpression, BizSelectJoinType
+    , ValueExpression
     , BizExp, BizExpOperand, BizAtom
-    , BizAtomSpec, BizBin, BizTitle
+    , BizAtomSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie
 } from "../il";
 import { PElement } from "./element";
 import { Space } from "./space";
 import { Token } from "./tokens";
 
+/*
 interface Tbl {
     entityArr: string[];
     alias: string;
@@ -22,7 +23,7 @@ interface From {
     main: Tbl;
     joins: Join[];
 }
-
+*/
 export class PBizExpOperand extends PElement<BizExpOperand> {
     protected _parse(): void {
         this.element.bizExp = new BizExp();
@@ -51,7 +52,7 @@ export class PBizExp extends PElement<BizExp> {
             this.bud = this.ts.passVar();
         }
         this.ts.passToken(Token.LPARENTHESE);
-        this.element.param = new ValueExpression();
+        this.element.param = new BizExpParam(); // new ValueExpression();
         let { param } = this.element;
         this.context.parseElement(param);
         this.ts.passToken(Token.RPARENTHESE);
@@ -135,9 +136,19 @@ export class PBizExp extends PElement<BizExp> {
         return ok;
     }
 
+    private checkScalar(): boolean {
+        const { bizEntity, param } = this.element;
+        if (param.paramType !== BizExpParamType.scalar) {
+            this.log(`${bizEntity.type.toUpperCase()} ${bizEntity.jName} does not support TABLE param.`);
+            return false;
+        }
+        return true;
+    }
+
     private scanAtom(space: Space): boolean {
         let ok = true;
         const { bizEntity, prop } = this.element;
+        if (this.checkScalar() === false) ok = false;
         let bizAtom = bizEntity as BizAtom;
         if (this.bud !== undefined) {
             this.log(`ATOM ${bizEntity.jName} should not .`);
@@ -158,6 +169,7 @@ export class PBizExp extends PElement<BizExp> {
     private scanSpec(space: Space): boolean {
         let ok = true;
         const { bizEntity, prop } = this.element;
+        if (this.checkScalar() === false) ok = false;
         let bizSpec = bizEntity as BizAtomSpec;
         if (this.bud !== undefined) {
             this.log(`SPEC ${bizEntity.jName} should not .`);
@@ -178,6 +190,7 @@ export class PBizExp extends PElement<BizExp> {
     private scanBin(space: Space): boolean {
         let ok = true;
         const { bizEntity, prop } = this.element;
+        if (this.checkScalar() === false) ok = false;
         let bizBin = bizEntity as BizBin;
         if (this.bud !== undefined) {
             this.log(`BIN ${bizEntity.jName} should not .`);
@@ -198,7 +211,7 @@ export class PBizExp extends PElement<BizExp> {
 
     private scanTitle(space: Space): boolean {
         let ok = true;
-        const { bizEntity, prop, in: inVar } = this.element;
+        const { bizEntity, prop } = this.element;
         let title = bizEntity as BizTitle;
         if (this.bud === undefined) {
             this.log(`TITLE ${title.jName} should follow .`);
@@ -222,6 +235,76 @@ export class PBizExp extends PElement<BizExp> {
             if (arr.includes(prop) === false) {
                 this.log(`Title does not have function ${prop}`);
             }
+        }
+        return ok;
+    }
+}
+
+export class PBizExpParam extends PElement<BizExpParam> {
+    private ties: string[];
+    protected _parse(): void {
+        if (this.ts.token === Token.SHARP) {
+            this.ts.readToken();
+            this.parseArray();
+        }
+        else {
+            this.element.param = new ValueExpression();
+            this.element.paramType = BizExpParamType.scalar;
+            const { param } = this.element;
+            this.context.parseElement(param);
+        }
+    }
+
+    private parseArray() {
+        if (this.ts.isKeyword('spec') === true) {
+            this.element.paramType = BizExpParamType.spec;
+            this.ts.passKey('on');
+            this.ts.passToken(Token.XOR);
+            this.ts.passToken(Token.EQU);
+            this.element.param = new ValueExpression();
+            this.context.parseElement(this.element.param);
+        }
+        else if (this.ts.token === Token.VAR) {
+            this.element.paramType = BizExpParamType.ix;
+            this.ties = [this.ts.lowerVar];
+            this.ts.readToken();
+            for (; ;) {
+                if (this.ts.token !== Token.BITWISEOR as any) break;
+                this.ts.readToken();
+                this.ties.push(this.ts.lowerVar);
+            }
+            this.ts.passKey('on');
+            this.ts.passKey('i');
+            this.ts.passToken(Token.EQU);
+            this.element.param = new ValueExpression();
+            this.context.parseElement(this.element.param);
+        }
+        else {
+            this.ts.expect('SPEC or ties');
+        }
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        const { param } = this.element;
+        if (param !== undefined) {
+            if (param.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (this.ties !== undefined) {
+            let ixs: BizTie[] = [];
+            for (let tie of this.ties) {
+                let t = space.getBizEntity(tie);
+                if (t === undefined || t.bizPhraseType !== BizPhraseType.tie) {
+                    this.log(`${tie} is not a TIE`);
+                    ok = false;
+                }
+                else {
+                    ixs.push(t as BizTie);
+                }
+            }
+            this.element.ixs = ixs;
         }
         return ok;
     }

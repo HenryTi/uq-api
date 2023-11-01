@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizFieldOperand = void 0;
 const element_1 = require("../element");
+// %开始的字段，是BizField。
 class PBizFieldOperand extends element_1.PElement {
     _parse() {
         this.fieldName = this.ts.passVar();
@@ -10,7 +11,6 @@ class PBizFieldOperand extends element_1.PElement {
         let ok = true;
         let from = space.getBizFrom();
         const { bizEntityArr } = from;
-        const bizEntity0 = bizEntityArr[0];
         function hasField(fieldName) {
             for (let be of bizEntityArr) {
                 if (be.hasField(fieldName) === true)

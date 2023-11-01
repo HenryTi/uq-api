@@ -7,7 +7,6 @@ export * from './Title';
 export * from './Bud';
 export * from './Pick';
 export * from './Role';
-export * from './Act';
 export * from './Query';
 export * from './Entity';
 export * from './Tree';

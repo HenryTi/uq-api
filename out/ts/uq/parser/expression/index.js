@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.POpAt = exports.POpSearch = exports.POpCast = exports.POpQueue = exports.POpDollarVar = exports.POpEntityName = exports.POpEntityId = exports.POpRole = exports.POpNO = exports.POpUMinute = exports.POpID = exports.POpNameof = exports.POpTypeof = exports.PMatchOperand = exports.POpOf = exports.POpGroupCountFunc = exports.POpGroupFunc = exports.PVarOperand = void 0;
+exports.POpAt = exports.POpSearch = exports.POpCast = exports.POpQueue = exports.POpDollarVar = exports.POpEntityName = exports.POpEntityId = exports.POpRole = exports.POpNO = exports.POpUMinute = exports.POpID = exports.POpNameof = exports.POpTypeof = exports.PMatchOperand = exports.POpGroupCountFunc = exports.POpGroupFunc = exports.PVarOperand = void 0;
 __exportStar(require("./expression"), exports);
 var var_1 = require("./var");
 Object.defineProperty(exports, "PVarOperand", { enumerable: true, get: function () { return var_1.PVarOperand; } });
@@ -22,8 +22,6 @@ __exportStar(require("./opFunction"), exports);
 var opGroupFunc_1 = require("./opGroupFunc");
 Object.defineProperty(exports, "POpGroupFunc", { enumerable: true, get: function () { return opGroupFunc_1.POpGroupFunc; } });
 Object.defineProperty(exports, "POpGroupCountFunc", { enumerable: true, get: function () { return opGroupFunc_1.POpGroupCountFunc; } });
-var opOf_1 = require("./opOf");
-Object.defineProperty(exports, "POpOf", { enumerable: true, get: function () { return opOf_1.POpOf; } });
 var match_1 = require("./match");
 Object.defineProperty(exports, "PMatchOperand", { enumerable: true, get: function () { return match_1.PMatchOperand; } });
 var opTypeof_1 = require("./opTypeof");

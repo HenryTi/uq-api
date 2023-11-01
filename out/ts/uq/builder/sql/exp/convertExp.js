@@ -9,7 +9,7 @@ const exps_1 = require("./exps");
 const ExpUMinute_1 = require("./ExpUMinute");
 const ExpSearch_1 = require("./ExpSearch");
 const ExpBizOperand_1 = require("./ExpBizOperand");
-const bizExp_1 = require("../bizExp");
+const BizExp_1 = require("../BizExp");
 const ExpRole_1 = require("./ExpRole");
 function convertExp(context, exp) {
     if (!exp)
@@ -137,20 +137,13 @@ class Stack {
         let sel = (0, select_1.convertSelect)(this.context, select);
         this.arr.push(new exps_1.ExpSelect(sel));
     }
-    /*
-    bizSelect(bso: BizSelectInline) {
-        let bs = new BBizSelectOperand();
-        bs.convertFrom(this.context, bso);
-        this.arr.push(new ExpBizSelectOperand(bs));
-    }
-    */
     bizExp(exp) {
-        let bExp = new bizExp_1.BBizExp();
+        let bExp = new BizExp_1.BBizExp();
         bExp.convertFrom(this.context, exp);
         this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp));
     }
     bizField(bizField) {
-        let bBizField = new bizExp_1.BBizFieldOperand(bizField);
+        let bBizField = new BizExp_1.BBizFieldOperand(bizField);
         this.arr.push(bBizField);
     }
     func(func, n, isUqFunc) {

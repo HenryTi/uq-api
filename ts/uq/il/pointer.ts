@@ -1,5 +1,6 @@
-import { BizBud, BizBudValue, BizEntity } from './Biz';
-import { ValueExpression, VarOperand, Stack } from './Exp';
+import { BizBud, BizEntity } from './Biz';
+import { ValueExpression, VarOperand } from './Exp';
+import { Stack } from './Exp/Stack';
 
 export enum GroupType { Single = 1, Group = 2, Both = 3 }
 

@@ -133,7 +133,7 @@ class RouterBuilder {
         return await this.net.getUnitxRunner(req);
     }
     unknownEntity(res, name, runner) {
-        res.json({ error: `uq:${runner.dbName} unknown entity ${name} all entities:${runner.getEntityNameList()}` });
+        res.json({ error: `uq:${runner.dbName} unknown entity ${name}` });
     }
     validEntity(res, schema, type) {
         if (schema.type === type)

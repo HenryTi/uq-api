@@ -509,13 +509,6 @@ class PExpression extends element_1.PElement {
                 let parser = varOperand.parser(this.context);
                 parser.parse();
                 this.add(varOperand);
-                if (this.ts.lowerVar === 'of') {
-                    this.ts.readToken();
-                    let opOf = new Exp.OpOf();
-                    this.add(opOf);
-                    let parserOf = opOf.parser(this.context);
-                    parserOf.parse();
-                }
                 return;
             case tokens_1.Token.LPARENTHESE:
                 this.func(lowerVar);

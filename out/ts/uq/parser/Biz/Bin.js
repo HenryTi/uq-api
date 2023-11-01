@@ -132,40 +132,8 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
-        // let binSpace = new BinSpace(space, this.element);
         space = new BizBinSpace(space, this.element);
-        if (super.scan(space) === false)
-            ok = false;
         const { picks, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
-        /*
-        if (this.pend !== undefined) {
-            let pend = this.getBizEntity<BizPend>(space, this.pend, BizPhraseType.pend);
-            if (pend === undefined) {
-                this.log(`PEND '${this.pend}' is not defined`)
-                ok = false;
-            }
-            else {
-                if (this.pendSearch === undefined || this.pendSearch.length === 0) {
-                    this.log(`Search keys must be defined`);
-                    ok = false;
-                }
-                else {
-                    let { predefinedId } = BizPend;
-                    for (let i of this.pendSearch) {
-                        if (predefinedId.includes(i) === false) {
-                            this.log(`Pend ${pend.jName} has not ${i}`);
-                            ok = false;
-                        }
-                    }
-                }
-                this.element.pend = {
-                    caption: this.pendCaption,
-                    entity: pend,
-                    search: this.pendSearch,
-                };
-            }
-        }
-        */
         if (picks !== undefined) {
             let { size } = picks;
             let i = 0;
@@ -227,6 +195,8 @@ class PBizBin extends Base_1.PBizEntity {
         scanBudValue(budValue);
         scanBudValue(budAmount);
         scanBudValue(budPrice);
+        if (super.scan(space) === false)
+            ok = false;
         let { act } = this.element;
         if (act !== undefined) {
             if (act.pelement.scan(space) === false) {
@@ -237,19 +207,6 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan2(uq) {
         let ok = true;
-        // const { item, value: budValue, amount: budAmount, price: budPrice } = this.element;
-        /*
-        if (item !== undefined) return ok;
-        const itemBud: BizBudAtom = item as BizBudAtom;
-        let { atom } = itemBud;
-        if (atom !== undefined) {
-            const { uom } = atom as BizAtom;
-            if (uom === undefined) {
-                this.log(`ATOM '${atom.name}' does not define UOM, can not be used in DETAIL`);
-                ok = false;
-            }
-        }
-        */
         return ok;
     }
 }
@@ -336,23 +293,28 @@ class PBinPick extends element_1.PElement {
                     pickBase = new il_1.PickQuery(bizEntity0);
                     break;
             }
+            this.element.pick = pickBase;
             if (multipleEntity === false && entityArr.length > 1) {
                 this.log('from only one object');
                 ok = false;
             }
-            let { param } = this.element;
+            let { param, bin } = this.element;
             for (let p of param) {
                 const { name, bud, prop } = p;
                 if (pickBase.hasParam(name) === false) {
                     this.log(`PARAM ${name} is not defined`);
                     ok = false;
                 }
-                if (this.element.bin.isValidPickProp(bud, prop) === false) {
-                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} is not valid`);
+                let pick = bin.getPick(bud);
+                if (pick === undefined) {
+                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
+                    ok = false;
+                }
+                else if (pick.pick.hasReturn(prop) === false) {
+                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
                     ok = false;
                 }
             }
-            this.element.pick = pickBase;
         }
         return ok;
     }
@@ -429,9 +391,15 @@ class BizBinSpace extends space_1.Space {
     }
     _varsPointer(names) {
         if (this.bin !== undefined) {
-            if (this.bin.isValidPickProp(names[0], names[1]) === true) {
-                return new il_1.DotVarPointer();
+            let [pickName, pickProp] = names;
+            let pick = this.bin.getPick(pickName);
+            if (pick === undefined) {
+                return undefined;
             }
+            if (pick.pick.hasReturn(pickProp) === false) {
+                return [undefined, `Pick '${pickName}' has no return '${pickProp}'`];
+            }
+            return [new il_1.DotVarPointer(), undefined];
         }
     }
     _getBizEntity(name) {
