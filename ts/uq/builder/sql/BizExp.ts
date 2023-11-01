@@ -102,16 +102,6 @@ export class BBizExp {
             titleHistory.sql();
         }
     }
-
-    private ixBudTbl() {
-        const { bud } = this.bizExp;
-        let ixBudTbl: string;
-        switch (bud.dataType) {
-            default: ixBudTbl = 'ixbudint'; break;
-            case BudDataType.dec: ixBudTbl = 'ixbuddec'; break;
-        }
-        return ixBudTbl;
-    }
 }
 
 abstract class TitleExpBase {

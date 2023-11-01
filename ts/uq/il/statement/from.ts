@@ -5,10 +5,11 @@ import { Builder } from "../builder";
 import { IElement } from "../element";
 import { CompareExpression, ValueExpression } from "../Exp";
 import { Statement } from "./statement";
+import { UI } from "../UI";
 
 export interface FromColumn {
     name: string;
-    caption?: string;
+    ui?: Partial<UI>;
     val: ValueExpression;
     bud?: BizBudValue;
     entity?: BizEntity;

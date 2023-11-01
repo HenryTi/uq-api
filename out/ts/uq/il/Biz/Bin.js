@@ -8,8 +8,8 @@ const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 class BinPick extends Bud_1.BizBud {
-    constructor(bin, name, caption) {
-        super(bin.biz, name, caption);
+    constructor(bin, name, ui) {
+        super(bin.biz, name, ui);
         this.dataType = Base_1.BudDataType.none;
         this.bin = bin;
     }
@@ -123,9 +123,9 @@ class BizBin extends Entity_1.BizEntity {
         let ret = super.buildSchema(res);
         let pend;
         if (this.pend !== undefined) {
-            let { caption, name } = this.pend;
+            let { ui, name } = this.pend;
             pend = {
-                caption,
+                ui,
                 entity: name,
                 // search,
             };
@@ -133,10 +133,10 @@ class BizBin extends Entity_1.BizEntity {
         let picks = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, caption, pick, param, single } = value;
+                const { name, ui, pick, param, single } = value;
                 picks.push({
                     name,
-                    caption,
+                    ui,
                     from: pick.fromSchema(),
                     param,
                     single,

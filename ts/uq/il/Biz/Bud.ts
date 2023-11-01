@@ -11,6 +11,7 @@ import { BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
 import { BizQueryValue } from "./Query";
+import { UI } from "../UI";
 
 export enum BudValueAct {
     equ = 1,            // 设置不可修改. 这是默认
@@ -30,10 +31,10 @@ export abstract class BizBud extends BizBase {
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     get ex(): object { return undefined }
-    constructor(biz: Biz, name: string, caption: string) {
+    constructor(biz: Biz, name: string, ui: Partial<UI>) {
         super(biz);
         this.name = name;
-        this.caption = caption;
+        this.ui = ui;
     }
 }
 

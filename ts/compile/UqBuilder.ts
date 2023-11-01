@@ -30,7 +30,7 @@ export class UqBuilder {
 
     private async saveBizObject(entity: BizEntity) {
         const { objIds, objNames, res } = this.compiler;
-        const { type, phrase, caption, source } = entity;
+        const { type, phrase, ui: { caption }, source } = entity;
         const memo = undefined;
         if (phrase === undefined) debugger;
         let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject'
@@ -58,7 +58,7 @@ export class UqBuilder {
 
     private async saveBud(entity: BizEntity, bud: BizBud) {
         const { objNames, res } = this.compiler;
-        const { phrase, caption, memo, dataType: dataTypeNum, objName, flag, ex } = bud;
+        const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag, ex } = bud;
         const typeNum = bud.typeNum;
         let objId: number;
         if (objName !== undefined) {

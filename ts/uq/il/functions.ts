@@ -4,6 +4,7 @@ export const functions: { [name: string]: number | [number, number] } = {
     least: -1,
     greatest: -1,
     now: 0,
+    curdate: 0,
     substr: [2, 3],
     unix_timestamp: [0, 1],
     utc_timestamp: 0,

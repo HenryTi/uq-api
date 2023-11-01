@@ -55,9 +55,8 @@ class BizPend extends Entity_1.BizEntity {
         let predefined = {};
         for (let i in this.predefinedBuds) {
             let bud = this.predefinedBuds[i];
-            let { caption } = bud;
-            if (caption === undefined)
-                continue;
+            // let { ui } = bud;
+            // if (uicaption === undefined) continue;
             predefined[i] = bud.buildSchema(res);
         }
         ret.predefined = predefined;

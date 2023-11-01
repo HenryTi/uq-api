@@ -13,3 +13,4 @@ export * from './schema';
 export * from './busSchema';
 export * from './tool';
 export * from './EnumSysTable';
+export * from './UI';

@@ -21,10 +21,7 @@ export class PBizOptions extends PBizEntity<BizOptions> {
             this.element.ver = this.ts.dec;
             this.ts.readToken();
         }
-        if (this.ts.token === Token.STRING) {
-            this.element.caption = this.ts.text;
-            this.ts.readToken();
-        }
+        this.element.ui = this.parseUI();
         this.element.setJName(jName);
         this.ts.passToken(Token.LPARENTHESE);
         for (; ;) {
@@ -35,11 +32,7 @@ export class PBizOptions extends PBizEntity<BizOptions> {
             this.ts.assertToken(Token.VAR);
             let name = this.ts.lowerVar;
             this.ts.readToken();
-            let caption: string;
-            if (this.ts.token === Token.STRING) {
-                caption = this.ts.text;
-                this.ts.readToken();
-            }
+            let ui = this.parseUI();
             let value: number | string;
             if (this.ts.token === Token.EQU) {
                 this.ts.readToken();
@@ -62,21 +55,10 @@ export class PBizOptions extends PBizEntity<BizOptions> {
                     type = Number.isInteger(value) === true ? OptionsItemValueType.int : OptionsItemValueType.dec;
                     break;
             }
-            let item = new OptionsItem(this.element.biz, name, caption);
+            let item = new OptionsItem(this.element.biz, name, ui);
             item._itemType = type;
             item.itemValue = value;
-            this.element.items.push(
-                item
-                /*
-                {
-                id: undefined,
-                name,
-                caption,
-                value,
-                optionsItemType: type,
-                }
-                */
-            );
+            this.element.items.push(item);
             if (this.ts.token === Token.COMMA) {
                 this.ts.readToken();
             }

@@ -49,6 +49,7 @@ var BudDataType;
 class BizBase extends element_1.IElement {
     constructor(biz) {
         super();
+        this.ui = {};
         this.biz = biz;
     }
     get type() { return BizPhraseType[this.bizPhraseType]; }
@@ -61,14 +62,15 @@ class BizBase extends element_1.IElement {
     }
     getJName() { var _a; return (_a = this.jName) !== null && _a !== void 0 ? _a : this.name; }
     buildSchema(res) {
-        var _a;
+        var _a, _b;
         return {
             id: this.id,
             name: this.name,
             jName: this.jName,
             type: this.type,
             phrase: this.phrase,
-            caption: (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : this.caption,
+            // caption: res[this.phrase] ?? this.caption,
+            ui: Object.assign(Object.assign({}, this.ui), { caption: (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : (_b = this.ui) === null || _b === void 0 ? void 0 : _b.caption })
         };
     }
     ;
@@ -82,7 +84,7 @@ class BizBase extends element_1.IElement {
     buildPhrases(phrases, prefix) {
         var _a;
         this.buildPhrase(prefix);
-        phrases.push([this.phrase, (_a = this.caption) !== null && _a !== void 0 ? _a : '', this.basePhrase, this.typeNum]);
+        phrases.push([this.phrase, (_a = this.ui.caption) !== null && _a !== void 0 ? _a : '', this.basePhrase, this.typeNum]);
     }
     get typeNum() {
         var _a;

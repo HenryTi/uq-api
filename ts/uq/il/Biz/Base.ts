@@ -1,5 +1,6 @@
 import { IElement } from "../element";
 import { Biz } from "./Biz";
+import { UI } from "../UI";
 
 export enum BizPhraseType {
     any = 0,
@@ -56,9 +57,10 @@ export abstract class BizBase extends IElement {
     name: string;
     jName: string;
     ver: number;
-    caption: string;
+    // caption: string;
     phrase: string;
     memo: string;
+    ui: Partial<UI> = {};
     nameStartAt: number;
 
     constructor(biz: Biz) {
@@ -83,7 +85,11 @@ export abstract class BizBase extends IElement {
             jName: this.jName,
             type: this.type,
             phrase: this.phrase,
-            caption: res[this.phrase] ?? this.caption,
+            // caption: res[this.phrase] ?? this.caption,
+            ui: {
+                ...this.ui,
+                caption: res[this.phrase] ?? this.ui?.caption,
+            }
         }
     };
     okToDefineNewName(name: string): boolean {
@@ -97,7 +103,7 @@ export abstract class BizBase extends IElement {
 
     buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         this.buildPhrase(prefix);
-        phrases.push([this.phrase, this.caption ?? '', this.basePhrase, this.typeNum]);
+        phrases.push([this.phrase, this.ui.caption ?? '', this.basePhrase, this.typeNum]);
     }
 
     get typeNum(): string {

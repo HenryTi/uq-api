@@ -3,6 +3,7 @@ import {
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType, Biz, BizQueryValue
 } from "../../il";
+import { UI } from "../../il/UI";
 import { PElement } from "../element";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -44,10 +45,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             this.element.ver = this.ts.dec;
             this.ts.readToken();
         }
-        if (this.ts.token === Token.STRING) {
-            this.element.caption = this.ts.text;
-            this.ts.readToken();
-        }
+        this.element.ui = this.parseUI();
         this.element.setJName(jName);
         this.parseParam();
     }
@@ -114,8 +112,8 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         // if (this.isValidPropName(name) === false) {
         //    return;
         // }
-        let caption: string = this.ts.mayPassString();
-        let bizBud = this.parseBud(name, caption);
+        let ui = this.parseUI();
+        let bizBud = this.parseBud(name, ui);
         return bizBud;
     }
 
@@ -127,8 +125,8 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return true;
     }
 
-    protected parseBud(name: string, caption: string): BizBudValue {
-        const keyColl: { [key: string]: new (biz: Biz, name: string, caption: string) => BizBudValue } = {
+    protected parseBud(name: string, ui: Partial<UI>): BizBudValue {
+        const keyColl: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
             none: BizBudNone,
             int: BizBudInt,
             dec: BizBudDec,
@@ -165,7 +163,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         if (Bud === undefined) {
             this.ts.expect(...keys);
         }
-        let bizBud = new Bud(this.element.biz, name, caption);
+        let bizBud = new Bud(this.element.biz, name, ui);
         bizBud.parser(this.context).parse();
         this.parseBudEqu(bizBud);
         if (this.element.okToDefineNewName(name) === false) {

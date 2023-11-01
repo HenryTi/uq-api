@@ -68,8 +68,8 @@ export class PBizBin extends PBizEntity<BizBin> {
             this.element.picks = picks;
         }
         let name = this.ts.passVar();
-        let caption = this.ts.mayPassString();
-        let pick = new BinPick(this.element, name, caption);
+        let ui = this.parseUI();
+        let pick = new BinPick(this.element, name, ui);
         this.context.parseElement(pick);
         picks.set(pick.name, pick);
     }
@@ -89,8 +89,8 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     private parseBudAtom(itemName: string) {
-        let caption = this.ts.mayPassString();
-        let bud = new BizBudAtom(this.element.biz, itemName, caption);
+        let ui = this.parseUI();
+        let bud = new BizBudAtom(this.element.biz, itemName, ui);
         if (this.ts.isKeyword('pick') === true) {
             this.ts.readToken();
         }
@@ -104,8 +104,8 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (bud !== undefined) {
             this.ts.error(`${budName} can only define once`);
         }
-        let caption: string = this.ts.mayPassString();
-        let bizBud = this.parseBud(budName, caption);
+        let ui = this.parseUI();
+        let bizBud = this.parseBud(budName, ui);
         if (this.ts.prevToken !== Token.RBRACE) {
             this.ts.passToken(Token.SEMICOLON);
         }
@@ -346,7 +346,7 @@ export class PBizPend extends PBizEntity<BizPend> {
         let bud = this.element.predefinedBuds[name];
         if (bud === undefined) debugger;
         // 有caption值，才会显示
-        bud.caption = caption ?? name;
+        bud.ui = { caption: caption ?? name };
         this.ts.passToken(Token.SEMICOLON);
     }
 
@@ -452,7 +452,7 @@ export class PBizBinAct extends PBizBase<BizBinAct> {
     _parse(): void {
         this.element.name = '$';
 
-        this.element.caption = this.ts.mayPassString();
+        this.element.ui = this.parseUI();
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.passToken(Token.LPARENTHESE);
             let field = new Field();

@@ -17,7 +17,7 @@ class UqBuilder {
     // }
     async saveBizObject(entity) {
         const { objIds, objNames, res } = this.compiler;
-        const { type, phrase, caption, source } = entity;
+        const { type, phrase, ui: { caption }, source } = entity;
         const memo = undefined;
         if (phrase === undefined)
             debugger;
@@ -43,7 +43,7 @@ class UqBuilder {
     ;
     async saveBud(entity, bud) {
         const { objNames, res } = this.compiler;
-        const { phrase, caption, memo, dataType: dataTypeNum, objName, flag, ex } = bud;
+        const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag, ex } = bud;
         const typeNum = bud.typeNum;
         let objId;
         if (objName !== undefined) {

@@ -64,15 +64,15 @@ class PFromStatement extends statement_1.PStatement {
                     }
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, caption: null, val });
+                    this.element.cols.push({ name: lowerVar, ui: { caption: null }, val });
                 }
                 else {
                     let name = this.ts.passVar();
-                    let caption = this.ts.mayPassString();
+                    let ui = this.parseUI();
                     this.ts.passToken(tokens_1.Token.EQU);
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name, caption, val });
+                    this.element.cols.push({ name, ui, val });
                     if (coll[name] === true) {
                         this.ts.error(`duplicate column name ${name}`);
                     }
@@ -106,11 +106,11 @@ class PFromStatement extends statement_1.PStatement {
         }
         else if (entityArr.length > 0) {
             for (let col of this.element.cols) {
-                const { name, caption, val } = col;
+                const { name, ui, val } = col;
                 if (val.pelement.scan(space) === false) {
                     ok = false;
                 }
-                if (caption === null) {
+                if (ui.caption === null) {
                     // from entity bud
                     //if (bizEntity0.hasField(name) === false) {
                     let [bizEntity, bud] = this.element.getBud(name);
@@ -122,7 +122,7 @@ class PFromStatement extends statement_1.PStatement {
                 }
                 else {
                     // Query bud
-                    let bud = new il_1.BizBudNone(biz, name, caption);
+                    let bud = new il_1.BizBudNone(biz, name, ui);
                     col.bud = bud;
                 }
             }

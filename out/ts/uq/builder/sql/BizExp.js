@@ -96,19 +96,6 @@ class BBizExp {
             titleHistory.sql();
         }
     }
-    ixBudTbl() {
-        const { bud } = this.bizExp;
-        let ixBudTbl;
-        switch (bud.dataType) {
-            default:
-                ixBudTbl = 'ixbudint';
-                break;
-            case il_1.BudDataType.dec:
-                ixBudTbl = 'ixbuddec';
-                break;
-        }
-        return ixBudTbl;
-    }
 }
 exports.BBizExp = BBizExp;
 class TitleExpBase {

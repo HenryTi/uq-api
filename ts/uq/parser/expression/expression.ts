@@ -563,7 +563,6 @@ export abstract class PExpression extends PElement {
             this.add(op);
             return;
         }
-        if (func === 'uminute') debugger;
         let v = functions[func];
         let isUqFunc: boolean = false;
         let isUqDefined: boolean = false;

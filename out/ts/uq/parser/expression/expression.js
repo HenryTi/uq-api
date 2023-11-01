@@ -551,8 +551,6 @@ class PExpression extends element_1.PElement {
             this.add(op);
             return;
         }
-        if (func === 'uminute')
-            debugger;
         let v = functions_1.functions[func];
         let isUqFunc = false;
         let isUqDefined = false;

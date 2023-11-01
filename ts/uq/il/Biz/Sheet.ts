@@ -66,8 +66,8 @@ export class BizPend extends BizEntity {
         let predefined: { [name: string]: any } = {};
         for (let i in this.predefinedBuds) {
             let bud = this.predefinedBuds[i];
-            let { caption } = bud;
-            if (caption === undefined) continue;
+            // let { ui } = bud;
+            // if (uicaption === undefined) continue;
             predefined[i] = bud.buildSchema(res);
         }
         ret.predefined = predefined;

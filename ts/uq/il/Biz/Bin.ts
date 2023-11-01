@@ -12,6 +12,7 @@ import { BizBudValue, BizBudPickable, BizBud, BizBudAtom } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQuery, BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
+import { UI } from "../UI";
 
 /*
 export interface PropPend {
@@ -31,8 +32,8 @@ export class BinPick extends BizBud {
     param: PickParam[];
     pick: PickBase;
     single: boolean;
-    constructor(bin: BizBin, name: string, caption: string) {
-        super(bin.biz, name, caption);
+    constructor(bin: BizBin, name: string, ui: Partial<UI>) {
+        super(bin.biz, name, ui);
         this.bin = bin;
     }
     parser(context: PContext): PElement<IElement> {
@@ -140,9 +141,9 @@ export class BizBin extends BizEntity {
         let ret = super.buildSchema(res);
         let pend: any;
         if (this.pend !== undefined) {
-            let { caption, name } = this.pend;
+            let { ui, name } = this.pend;
             pend = {
-                caption,
+                ui,
                 entity: name,
                 // search,
             }
@@ -150,10 +151,10 @@ export class BizBin extends BizEntity {
         let picks: any[] = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, caption, pick, param, single } = value;
+                const { name, ui, pick, param, single } = value;
                 picks.push({
                     name,
-                    caption,
+                    ui,
                     from: pick.fromSchema(),
                     param,
                     single,

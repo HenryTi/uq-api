@@ -60,8 +60,8 @@ class PBizBin extends Base_1.PBizEntity {
                 this.element.picks = picks;
             }
             let name = this.ts.passVar();
-            let caption = this.ts.mayPassString();
-            let pick = new il_1.BinPick(this.element, name, caption);
+            let ui = this.parseUI();
+            let pick = new il_1.BinPick(this.element, name, ui);
             this.context.parseElement(pick);
             picks.set(pick.name, pick);
         };
@@ -109,8 +109,8 @@ class PBizBin extends Base_1.PBizEntity {
         };
     }
     parseBudAtom(itemName) {
-        let caption = this.ts.mayPassString();
-        let bud = new il_1.BizBudAtom(this.element.biz, itemName, caption);
+        let ui = this.parseUI();
+        let bud = new il_1.BizBudAtom(this.element.biz, itemName, ui);
         if (this.ts.isKeyword('pick') === true) {
             this.ts.readToken();
         }
@@ -123,8 +123,8 @@ class PBizBin extends Base_1.PBizEntity {
         if (bud !== undefined) {
             this.ts.error(`${budName} can only define once`);
         }
-        let caption = this.ts.mayPassString();
-        let bizBud = this.parseBud(budName, caption);
+        let ui = this.parseUI();
+        let bizBud = this.parseBud(budName, ui);
         if (this.ts.prevToken !== tokens_1.Token.RBRACE) {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
@@ -341,7 +341,7 @@ class PBizPend extends Base_1.PBizEntity {
         if (bud === undefined)
             debugger;
         // 有caption值，才会显示
-        bud.caption = caption !== null && caption !== void 0 ? caption : name;
+        bud.ui = { caption: caption !== null && caption !== void 0 ? caption : name };
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
     parseContent() {
@@ -428,7 +428,7 @@ class BizBinSpace extends space_1.Space {
 class PBizBinAct extends Base_1.PBizBase {
     _parse() {
         this.element.name = '$';
-        this.element.caption = this.ts.mayPassString();
+        this.element.ui = this.parseUI();
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.passToken(tokens_1.Token.LPARENTHESE);
             let field = new il_1.Field();

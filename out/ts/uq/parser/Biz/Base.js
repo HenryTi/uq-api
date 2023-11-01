@@ -82,10 +82,7 @@ class PBizBase extends element_1.PElement {
             this.element.ver = this.ts.dec;
             this.ts.readToken();
         }
-        if (this.ts.token === tokens_1.Token.STRING) {
-            this.element.caption = this.ts.text;
-            this.ts.readToken();
-        }
+        this.element.ui = this.parseUI();
         this.element.setJName(jName);
         this.parseParam();
     }
@@ -146,8 +143,8 @@ class PBizBase extends element_1.PElement {
         // if (this.isValidPropName(name) === false) {
         //    return;
         // }
-        let caption = this.ts.mayPassString();
-        let bizBud = this.parseBud(name, caption);
+        let ui = this.parseUI();
+        let bizBud = this.parseBud(name, ui);
         return bizBud;
     }
     isValidPropName(prop) {
@@ -157,7 +154,7 @@ class PBizBase extends element_1.PElement {
         }
         return true;
     }
-    parseBud(name, caption) {
+    parseBud(name, ui) {
         const keyColl = {
             none: il_1.BizBudNone,
             int: il_1.BizBudInt,
@@ -195,7 +192,7 @@ class PBizBase extends element_1.PElement {
         if (Bud === undefined) {
             this.ts.expect(...keys);
         }
-        let bizBud = new Bud(this.element.biz, name, caption);
+        let bizBud = new Bud(this.element.biz, name, ui);
         bizBud.parser(this.context).parse();
         this.parseBudEqu(bizBud);
         if (this.element.okToDefineNewName(name) === false) {

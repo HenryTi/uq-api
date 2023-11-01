@@ -60,15 +60,15 @@ export class PFromStatement extends PStatement<FromStatement> {
                     }
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, caption: null, val });
+                    this.element.cols.push({ name: lowerVar, ui: { caption: null }, val });
                 }
                 else {
                     let name = this.ts.passVar();
-                    let caption = this.ts.mayPassString();
+                    let ui = this.parseUI();
                     this.ts.passToken(Token.EQU);
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name, caption, val });
+                    this.element.cols.push({ name, ui, val });
                     if (coll[name] === true) {
                         this.ts.error(`duplicate column name ${name}`);
                     }
@@ -103,11 +103,11 @@ export class PFromStatement extends PStatement<FromStatement> {
         }
         else if (entityArr.length > 0) {
             for (let col of this.element.cols) {
-                const { name, caption, val } = col;
+                const { name, ui, val } = col;
                 if (val.pelement.scan(space) === false) {
                     ok = false;
                 }
-                if (caption === null) {
+                if (ui.caption === null) {
                     // from entity bud
                     //if (bizEntity0.hasField(name) === false) {
                     let [bizEntity, bud] = this.element.getBud(name);
@@ -119,7 +119,7 @@ export class PFromStatement extends PStatement<FromStatement> {
                 }
                 else {
                     // Query bud
-                    let bud = new BizBudNone(biz, name, caption);
+                    let bud = new BizBudNone(biz, name, ui);
                     col.bud = bud;
                 }
             }

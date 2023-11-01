@@ -79,6 +79,82 @@ class PElement extends PElementBase {
         this.element.pelement = this;
         super.parse();
     }
+    parseUI() {
+        let ui = {};
+        switch (this.ts.token) {
+            case tokens_1.Token.STRING:
+                ui.caption = this.ts.text;
+                this.ts.readToken();
+                break;
+            case tokens_1.Token.LT:
+                this.ts.readToken();
+                this.parseStyle(ui);
+                break;
+        }
+        return ui;
+    }
+    parseStyle(ui) {
+        for (;;) {
+            let moniker;
+            if (this.ts.token === tokens_1.Token.STRING) {
+                moniker = this.ts.text;
+                this.ts.readToken();
+                const { token } = this.ts;
+                if (token === tokens_1.Token.GT) {
+                    ui.caption = moniker;
+                    this.ts.readToken();
+                    break;
+                }
+                if (token === tokens_1.Token.COMMA || token === tokens_1.Token.SEMICOLON) {
+                    ui.caption = moniker;
+                    this.ts.readToken();
+                    if (this.ts.token === tokens_1.Token.GT) {
+                        this.ts.readToken();
+                        break;
+                    }
+                    continue;
+                }
+                this.ts.passToken(tokens_1.Token.COLON);
+            }
+            else if (this.ts.token === tokens_1.Token.VAR) {
+                moniker = this.ts.lowerVar;
+                this.ts.readToken();
+                this.ts.passToken(tokens_1.Token.COLON);
+            }
+            let value;
+            switch (this.ts.token) {
+                default:
+                    value = null;
+                    break;
+                case tokens_1.Token.NUM:
+                    value = this.ts.dec;
+                    break;
+                case tokens_1.Token.STRING:
+                    value = this.ts.text;
+                    break;
+                case tokens_1.Token.VAR:
+                    value = this.ts.lowerVar;
+                    break;
+            }
+            if (value === null) {
+                this.ts.expectToken(tokens_1.Token.NUM, tokens_1.Token.VAR, tokens_1.Token.STRING);
+            }
+            this.ts.readToken();
+            ui[moniker] = value;
+            if (this.ts.token === tokens_1.Token.GT) {
+                this.ts.readToken();
+                break;
+            }
+            if (this.ts.token === tokens_1.Token.COMMA || this.ts.token === tokens_1.Token.SEMICOLON) {
+                this.ts.readToken();
+                if (this.ts.token === tokens_1.Token.GT) {
+                    this.ts.readToken();
+                    break;
+                }
+                continue;
+            }
+        }
+    }
     preScan(space) {
         return true;
     }

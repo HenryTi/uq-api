@@ -11,8 +11,8 @@ class PBizTie extends Base_1.PBizEntity {
         };
     }
     // bud 有没有type。Tie里面的bud，不需要type，都是bigint
-    parseBud(name, caption) {
-        return new il_1.BizBudInt(this.element.biz, name, caption);
+    parseBud(name, ui) {
+        return new il_1.BizBudInt(this.element.biz, name, ui);
     }
 }
 exports.PBizTie = PBizTie;

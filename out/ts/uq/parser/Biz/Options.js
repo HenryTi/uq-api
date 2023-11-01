@@ -25,10 +25,7 @@ class PBizOptions extends Base_1.PBizEntity {
             this.element.ver = this.ts.dec;
             this.ts.readToken();
         }
-        if (this.ts.token === tokens_1.Token.STRING) {
-            this.element.caption = this.ts.text;
-            this.ts.readToken();
-        }
+        this.element.ui = this.parseUI();
         this.element.setJName(jName);
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
         for (;;) {
@@ -39,11 +36,7 @@ class PBizOptions extends Base_1.PBizEntity {
             this.ts.assertToken(tokens_1.Token.VAR);
             let name = this.ts.lowerVar;
             this.ts.readToken();
-            let caption;
-            if (this.ts.token === tokens_1.Token.STRING) {
-                caption = this.ts.text;
-                this.ts.readToken();
-            }
+            let ui = this.parseUI();
             let value;
             if (this.ts.token === tokens_1.Token.EQU) {
                 this.ts.readToken();
@@ -74,20 +67,10 @@ class PBizOptions extends Base_1.PBizEntity {
                     type = Number.isInteger(value) === true ? il_1.OptionsItemValueType.int : il_1.OptionsItemValueType.dec;
                     break;
             }
-            let item = new il_1.OptionsItem(this.element.biz, name, caption);
+            let item = new il_1.OptionsItem(this.element.biz, name, ui);
             item._itemType = type;
             item.itemValue = value;
-            this.element.items.push(item
-            /*
-            {
-            id: undefined,
-            name,
-            caption,
-            value,
-            optionsItemType: type,
-            }
-            */
-            );
+            this.element.items.push(item);
             if (this.ts.token === tokens_1.Token.COMMA) {
                 this.ts.readToken();
             }

@@ -1,6 +1,6 @@
 import { TokenStream, Token } from './tokens';
 import { Space } from './space';
-import { IElement, Field, Uq, ValueExpression } from '../il';
+import { IElement, Field, Uq, ValueExpression, UI } from '../il';
 import { PContext } from './pContext';
 
 export abstract class PElementBase {
@@ -96,6 +96,75 @@ export abstract class PElement<E extends IElement = IElement> extends PElementBa
     parse() {
         this.element.pelement = this;
         super.parse();
+    }
+    protected parseUI(): Partial<UI> {
+        let ui: Partial<UI> = {};
+        switch (this.ts.token) {
+            case Token.STRING:
+                ui.caption = this.ts.text;
+                this.ts.readToken();
+                break;
+            case Token.LT:
+                this.ts.readToken();
+                this.parseStyle(ui);
+                break;
+        }
+        return ui;
+    }
+
+    private parseStyle(ui: Partial<UI>) {
+        for (; ;) {
+            let moniker: string;
+            if (this.ts.token === Token.STRING) {
+                moniker = this.ts.text;
+                this.ts.readToken();
+                const { token } = this.ts;
+                if (token === Token.GT as any) {
+                    ui.caption = moniker;
+                    this.ts.readToken();
+                    break;
+                }
+                if (token === Token.COMMA as any || token === Token.SEMICOLON as any) {
+                    ui.caption = moniker;
+                    this.ts.readToken();
+                    if (this.ts.token === Token.GT as any) {
+                        this.ts.readToken();
+                        break;
+                    }
+                    continue;
+                }
+                this.ts.passToken(Token.COLON);
+            }
+            else if (this.ts.token === Token.VAR) {
+                moniker = this.ts.lowerVar;
+                this.ts.readToken();
+                this.ts.passToken(Token.COLON);
+            }
+            let value: string | number;
+            switch (this.ts.token) {
+                default: value = null; break;
+                case Token.NUM: value = this.ts.dec; break;
+                case Token.STRING: value = this.ts.text; break;
+                case Token.VAR: value = this.ts.lowerVar; break;
+            }
+            if (value === null) {
+                this.ts.expectToken(Token.NUM, Token.VAR, Token.STRING);
+            }
+            this.ts.readToken();
+            ui[moniker] = value;
+            if (this.ts.token === Token.GT) {
+                this.ts.readToken();
+                break;
+            }
+            if (this.ts.token === Token.COMMA as any || this.ts.token === Token.SEMICOLON as any) {
+                this.ts.readToken();
+                if (this.ts.token === Token.GT as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                continue;
+            }
+        }
     }
 
     preScan(space: Space): boolean {

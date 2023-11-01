@@ -64,29 +64,10 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
             this.ts.readToken();
         }
     }
-    /*    
-    protected parseContent(): void {
-        const keyColl = {
-            uom: this.parseUom,
-            prop: this.parseProp,
-            ex: this.parseEx,
-        };
-        const keys = Object.keys(keyColl);
-        for (; ;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === Token.RBRACE) break;
-        }
-    }
-    */
     private parseEx = () => {
         this.ts.readToken();
-        let caption: string = this.ts.mayPassString();
-        let bizBud = this.parseBud('ex', caption);
+        let ui = this.parseUI();
+        let bizBud = this.parseBud('ex', ui);
         this.ts.passToken(Token.SEMICOLON);
         this.element.ex = bizBud;
     }
@@ -244,33 +225,13 @@ abstract class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomI
 }
 
 export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
-    /*
-    protected parseContent(): void {
-        const keyColl = {
-            ix: this.parseIxBase,
-            base: this.parseBase,
-            prop: this.parseProp,
-            key: this.parseKey,
-        };
-        const keys = Object.keys(keyColl);
-        for (; ;) {
-            let parse = keyColl[this.ts.lowerVar];
-            if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
-            }
-            this.ts.readToken();
-            parse();
-            if (this.ts.token === Token.RBRACE) break;
-        }
-    }
-    */
     private parseKey = () => {
         const parseKey = () => {
             this.ts.assertToken(Token.VAR);
             let name = this.ts.lowerVar;
             this.ts.readToken();
-            let caption: string = this.ts.mayPassString();
-            let bizBud = this.parseBud(name, caption);
+            let ui = this.parseUI();
+            let bizBud = this.parseBud(name, ui);
             this.element.keys.push(bizBud);
             this.ts.passToken(Token.SEMICOLON);
         }
