@@ -4,7 +4,6 @@ exports.UqBuilder = void 0;
 const builder_1 = require("../uq/builder");
 const sqlType = 'mysql';
 class UqBuilder {
-    // protected newMatchOldObj: any;
     constructor(compiler, uqParser) {
         this.compiler = compiler;
         this.biz = uqParser.uq.biz;
@@ -43,7 +42,7 @@ class UqBuilder {
     ;
     async saveBud(entity, bud) {
         const { objNames, res } = this.compiler;
-        const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag, ex } = bud;
+        const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
         const typeNum = bud.typeNum;
         let objId;
         if (objName !== undefined) {
@@ -52,7 +51,9 @@ class UqBuilder {
                 objId = obj.id;
             }
         }
-        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag, ex === undefined ? undefined : JSON.stringify(ex));
+        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag
+        // , undefined // ex === undefined ? undefined : JSON.stringify(ex)
+        );
         bud.id = budId;
         res[phrase] = caption;
     }

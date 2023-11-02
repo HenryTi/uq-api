@@ -5,6 +5,7 @@ const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const element_1 = require("../element");
 const statement_1 = require("./statement");
+// use 某些特定的值，比如年月日，时段
 class UseBase extends element_1.IElement {
     constructor(statement) {
         super();

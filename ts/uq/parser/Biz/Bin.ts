@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizBinActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable
+    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -13,6 +13,7 @@ import { Token } from "../tokens";
 import { PBizBase, PBizEntity } from "./Base";
 
 export class PBizBin extends PBizEntity<BizBin> {
+    /*
     private pend: string;
     private pendCaption: string;
     private pendSearch: string[];
@@ -60,7 +61,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
         this.ts.passToken(Token.SEMICOLON);
     }
-
+    */
     private parsePick = () => {
         let { picks } = this.element;
         if (picks === undefined) {
@@ -144,7 +145,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         price: this.parsePrice,
         amount: this.parseAmount,
         act: this.parseAct,
-        pend: this.parsePend,
+        // pend: this.parsePend,
     };
 
     scan(space: Space): boolean {
@@ -198,17 +199,19 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
             const { value } = bud;
             if (value !== undefined) {
-                const { exp, query } = value;
+                const { exp } = value;
                 if (exp !== undefined) {
                     if (exp.pelement.scan(space) === false) {
                         ok = false;
                     }
                 }
+                /*
                 else if (query !== undefined) {
                     if (query.pelement.scan(space) === false) {
                         ok = false;
                     }
                 }
+                */
             }
         }
 
@@ -445,8 +448,11 @@ class BizBinSpace extends Space {
         }
         return true;
     }
-}
 
+    protected _getBinBudProp(binBud: string, bud: string, prop: string): [BizEntity, BizBud] {
+        return this.bin.getBudProp(binBud, bud, prop);
+    }
+}
 
 export class PBizBinAct extends PBizBase<BizBinAct> {
     _parse(): void {

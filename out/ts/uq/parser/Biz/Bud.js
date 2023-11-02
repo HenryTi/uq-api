@@ -10,21 +10,91 @@ exports.PBizBud = PBizBud;
 class PBizBudValue extends PBizBud {
     _parse() {
     }
-    scan(space) {
+    parseValue() {
+        let act;
+        switch (this.ts.token) {
+            case tokens_1.Token.EQU:
+                act = il_1.BudValueAct.equ;
+                break;
+            case tokens_1.Token.COLONEQU:
+                act = il_1.BudValueAct.init;
+                break;
+            case tokens_1.Token.COLON:
+                act = il_1.BudValueAct.show;
+                break;
+        }
+        if (act === il_1.BudValueAct.show) {
+            this.ts.readToken();
+            let bud, prop;
+            bud = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.DOT);
+            prop = this.ts.passVar();
+            this.show = [bud, prop];
+            this.element.value = {
+                exp: undefined,
+                act: il_1.BudValueAct.show,
+            };
+            return;
+        }
+        if (act !== undefined) {
+            this.ts.readToken();
+            let exp = new il_1.ValueExpression();
+            this.context.parseElement(exp);
+            this.element.value = {
+                exp,
+                act,
+            };
+            return;
+        }
+    }
+    scanBudValue(space) {
         let ok = true;
+        if (this.show !== undefined) {
+            let [bud, prop] = this.show;
+            let ret = space.getBinBudProp(this.element.name, bud, prop);
+            if (ret === undefined) {
+                this.log(`${bud}.${prop} is not defined in BIN or ATOM`);
+                ok = false;
+            }
+            else {
+                this.element.value.show = ret;
+            }
+        }
         let { value } = this.element;
         if (value !== undefined) {
-            const { exp, query } = value;
+            const { exp } = value;
             if (exp !== undefined) {
                 if (exp.pelement.scan(space) === false) {
                     ok = false;
                 }
             }
+            /*
             else if (query !== undefined) {
                 if (query.pelement.scan(space) === false) {
                     ok = false;
                 }
             }
+            */
+        }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        let { value } = this.element;
+        if (value !== undefined) {
+            const { exp } = value;
+            if (exp !== undefined) {
+                if (exp.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            /*
+            else if (query !== undefined) {
+                if (query.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            */
         }
         return ok;
     }
@@ -73,7 +143,8 @@ class PBizBudDec extends PBizBudValue {
             if (n < 0 || n > 6) {
                 this.ts.error('must be a number between 0-6');
             }
-            this.element.fraction = n;
+            // this.element.fraction = n;
+            this.element.ui.fraction = n;
         }
     }
 }
@@ -120,36 +191,9 @@ class PBizBudPickable extends PBizBudValue {
             }
         }
         else {
-            let act;
-            switch (this.ts.token) {
-                case tokens_1.Token.EQU:
-                    act = il_1.BudValueAct.equ;
-                    break;
-                case tokens_1.Token.COLONEQU:
-                    act = il_1.BudValueAct.init;
-                    break;
-            }
-            if (act !== undefined) {
-                this.ts.readToken();
-                let exp;
-                let query;
-                if (this.ts.token === tokens_1.Token.LBRACE) {
-                    query = new il_1.BizQueryValue(this.element.biz);
-                    this.context.parseElement(query);
-                }
-                else {
-                    exp = new il_1.ValueExpression();
-                    this.context.parseElement(exp);
-                }
-                this.element.value = {
-                    exp,
-                    act,
-                    query,
-                };
-                return;
-            }
+            this.parseValue();
         }
-        this.ts.expect('Atom', 'Pick', '=', ':=');
+        this.ts.expect('Atom', 'Pick', '=', ':=', ':');
     }
     scan(space) {
         let ok = super.scan(space);
@@ -167,23 +211,10 @@ class PBizBudPickable extends PBizBudValue {
             return ok;
         }
         else {
-            let { value } = this.element;
-            if (value !== undefined) {
-                const { exp, query } = value;
-                if (exp !== undefined) {
-                    if (exp.pelement.scan(space) === false) {
-                        ok = false;
-                    }
-                }
-                else if (query !== undefined) {
-                    if (query.pelement.scan(space) === false) {
-                        ok = false;
-                    }
-                }
-                return ok;
+            if (this.scanBudValue(space) === false) {
+                ok = false;
+                this.log('should be either Atom or Pick or = or := or :');
             }
-            ok = false;
-            this.log('should be either Atom or Pick or = or :=');
         }
     }
 }

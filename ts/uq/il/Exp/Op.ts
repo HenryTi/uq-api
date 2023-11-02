@@ -4,7 +4,7 @@ import {
     , PContext, PMatchOperand, POpTypeof, POpID, POpDollarVar, POpNO
     , POpEntityId, POpEntityName, POpRole, POpQueue, POpCast
     , POpUMinute, POpSearch, POpNameof
-    , POpAt, POpUqDefinedFunction, PComparePartExpression, PBizExpOperand, PBizExp, PBizFieldOperand
+    , POpAt, POpUqDefinedFunction
 } from '../../parser';
 import { DataType } from '../datatype';
 import { IElement } from '../element';
@@ -247,16 +247,6 @@ export class SubSelectOperand extends Atom {
     parser(context: PContext) { return this.pelement = this.select.parser(context); }
     to(stack: Stack) { stack.select(this.select) }
 }
-/*
-export class BizSelectOperand extends Atom {
-    select: BizSelectInline;
-    get type(): string { return 'bizselect'; }
-    parser(context: PContext) { return new PBizSelectOperand(this, context); }
-    to(stack: Stack): void {
-        stack.bizSelect(this.select);
-    }
-}
-*/
 export class OpLike extends Atom {
     to(stack: Stack) { stack.like() }
 }

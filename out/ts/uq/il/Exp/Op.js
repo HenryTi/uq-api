@@ -255,16 +255,6 @@ class SubSelectOperand extends Atom {
     to(stack) { stack.select(this.select); }
 }
 exports.SubSelectOperand = SubSelectOperand;
-/*
-export class BizSelectOperand extends Atom {
-    select: BizSelectInline;
-    get type(): string { return 'bizselect'; }
-    parser(context: PContext) { return new PBizSelectOperand(this, context); }
-    to(stack: Stack): void {
-        stack.bizSelect(this.select);
-    }
-}
-*/
 class OpLike extends Atom {
     to(stack) { stack.like(); }
 }

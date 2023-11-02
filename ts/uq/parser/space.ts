@@ -1,7 +1,7 @@
 import {
     Field, Table, Arr, Entity, GroupType,
     Pointer,
-    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity, FromStatement
+    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity, FromStatement, BizBud
 } from '../il';
 
 export abstract class Space {
@@ -35,6 +35,7 @@ export abstract class Space {
     protected abstract _getTableByAlias(alias: string): Table;
     protected abstract _varPointer(name: string, isField: boolean): Pointer;
     protected _varsPointer(names: string[]): [Pointer, string] { return; }
+    protected _getBinBudProp(binBud: string, bud: string, prop: string): [BizEntity, BizBud] { return; }
 
     get groupType(): GroupType { return GroupType.Single; }
     set groupType(value: GroupType) { }
@@ -175,6 +176,12 @@ export abstract class Space {
         if (ret !== undefined) return ret;
         if (this.outer === undefined) return;
         return this.outer.varsPointer(names);
+    }
+    getBinBudProp(binBud: string, bud: string, prop: string): [BizEntity, BizBud] {
+        let ret = this._getBinBudProp(binBud, bud, prop);
+        if (ret !== undefined) return ret;
+        if (this.outer === undefined) return;
+        return this.outer.getBinBudProp(binBud, bud, prop);
     }
     addTableVar(tableVar: TableVar): boolean {
         let ret = this._addTableVar(tableVar);

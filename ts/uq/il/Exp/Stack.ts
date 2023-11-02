@@ -70,6 +70,4 @@ export interface Stack {
     EntityName(val: ValueExpression): void;
     Queue(queue: Queue, of: ValueExpression, action: OpQueueAction, vals: ValueExpression[]): void;
     Search(key: ValueExpression, values: ValueExpression[]): void;
-    SpecId(spec: ValueExpression, atom: ValueExpression, values: ValueExpression): void;
-    SpecValue(id: ValueExpression): void;
 }

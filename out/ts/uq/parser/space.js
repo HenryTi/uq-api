@@ -26,6 +26,7 @@ class Space {
     _getUse(name) { return undefined; }
     _addUse(name, statementNo, obj) { return undefined; }
     _varsPointer(names) { return; }
+    _getBinBudProp(binBud, bud, prop) { return; }
     get groupType() { return il_1.GroupType.Single; }
     set groupType(value) { }
     get inLoop() {
@@ -194,6 +195,14 @@ class Space {
         if (this.outer === undefined)
             return;
         return this.outer.varsPointer(names);
+    }
+    getBinBudProp(binBud, bud, prop) {
+        let ret = this._getBinBudProp(binBud, bud, prop);
+        if (ret !== undefined)
+            return ret;
+        if (this.outer === undefined)
+            return;
+        return this.outer.getBinBudProp(binBud, bud, prop);
     }
     addTableVar(tableVar) {
         let ret = this._addTableVar(tableVar);

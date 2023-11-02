@@ -232,26 +232,4 @@ class Stack implements IlStack {
     Search(key: ValueExpression, values: ValueExpression[]) {
         this.arr.push(new ExpSearch(key, values));
     }
-    SpecId(spec: ValueExpression, atom: ValueExpression, values: ValueExpression): void {
-        this.arr.push(
-            new ExpFuncInUq(
-                'specid'
-                , [
-                    this.context.expVal(spec)
-                    , this.context.expVal(atom)
-                    , this.context.expVal(values)
-                ]
-                , true
-            )
-        );
-    }
-    SpecValue(id: ValueExpression): void {
-        this.arr.push(
-            new ExpFuncInUq(
-                'specvalue', [
-                this.context.expVal(id)
-            ], true
-            )
-        );
-    }
 }

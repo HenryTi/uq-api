@@ -57,7 +57,6 @@ export abstract class BizBase extends IElement {
     name: string;
     jName: string;
     ver: number;
-    // caption: string;
     phrase: string;
     memo: string;
     ui: Partial<UI> = {};

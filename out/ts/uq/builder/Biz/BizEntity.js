@@ -16,12 +16,13 @@ class BBizEntity {
             const { value } = bud;
             if (value === undefined)
                 return;
+            /*
             const { query } = value;
-            if (query === undefined)
-                return;
+            if (query === undefined) return;
             const { id } = bud;
             const procBudValue = this.createProcedure(`${this.context.site}.${id}v`);
             this.buildBudValueProc(procBudValue, query);
+            */
         });
     }
     async buildBudsValue() {
@@ -33,11 +34,16 @@ class BBizEntity {
                 return;
             let { exp, act } = value;
             let str = this.stringify(exp);
-            if (act === il_1.BudValueAct.init) {
-                str += '\ninit';
-            }
-            else {
-                str += '\nequ';
+            switch (act) {
+                case il_1.BudValueAct.init:
+                    str += '\ninit';
+                    break;
+                case il_1.BudValueAct.equ:
+                    str += '\nequ';
+                    break;
+                case il_1.BudValueAct.show:
+                    str += '\nshow';
+                    break;
             }
             value.str = str;
         });

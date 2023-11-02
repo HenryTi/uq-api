@@ -13,7 +13,6 @@ export class UqBuilder {
     protected readonly site: number;
     protected readonly user: number;
     protected newSoleEntityId: number;    // 本次刚刚编译的唯一Entity
-    // protected newMatchOldObj: any;
 
     constructor(compiler: Compiler, uqParser: UqParser) {
         this.compiler = compiler;
@@ -58,7 +57,7 @@ export class UqBuilder {
 
     private async saveBud(entity: BizEntity, bud: BizBud) {
         const { objNames, res } = this.compiler;
-        const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag, ex } = bud;
+        const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
         const typeNum = bud.typeNum;
         let objId: number;
         if (objName !== undefined) {
@@ -70,7 +69,7 @@ export class UqBuilder {
         let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud'
             , this.site, this.user, entity.id, bud.id, phrase, caption
             , typeNum, memo, dataTypeNum, objId, flag
-            , ex === undefined ? undefined : JSON.stringify(ex)
+            // , undefined // ex === undefined ? undefined : JSON.stringify(ex)
         );
         bud.id = budId;
         res[phrase] = caption;

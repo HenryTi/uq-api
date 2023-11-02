@@ -139,7 +139,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         }
         const keys = Object.keys(keyColl);
         let key = this.ts.lowerVar;
-        const tokens = [Token.EQU, Token.COLONEQU, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
+        const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
             key = 'none';
@@ -194,23 +194,25 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             default: return;
             case Token.EQU: act = BudValueAct.equ; break;
             case Token.COLONEQU: act = BudValueAct.init; break;
+            case Token.COLON: act = BudValueAct.show; break;
         }
         if (act !== undefined) {
             this.ts.readToken();
             let exp: ValueExpression;
+            /*
             let query: BizQueryValue;
             if (this.ts.token === Token.LBRACE as any) {
                 query = new BizQueryValue(this.element.biz);
                 this.context.parseElement(query);
             }
             else {
-                exp = new ValueExpression();
-                this.context.parseElement(exp);
-            }
+            */
+            exp = new ValueExpression();
+            this.context.parseElement(exp);
+            // }
             bizBud.value = {
                 exp,
                 act,
-                query,
             };
         }
     }
@@ -227,7 +229,9 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         format: (bizBud: BizBudValue) => {
             this.ts.readToken();
             this.ts.mayPassToken(Token.EQU);
-            bizBud.format = this.ts.passString();
+            let format = this.ts.passString();
+            // bizBud.format = format;
+            bizBud.ui.format = format;
         },
         set: (bizBud: BizBudValue) => {
             this.ts.readToken();
@@ -384,13 +388,15 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let { pelement, value } = bud;
         if (pelement === undefined) {
             if (value !== undefined) {
-                const { exp, query } = value;
+                const { exp } = value;
                 if (exp !== undefined) {
                     if (exp.pelement.scan(space) === false) return false;
                 }
+                /*
                 if (query !== undefined) {
                     if (query.pelement.scan(space) === false) return false;
                 }
+                */
             }
             return true;
         }

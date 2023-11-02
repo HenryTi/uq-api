@@ -8,19 +8,12 @@ import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizAtomSpec } from "./Atom";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBudPickable, BizBud, BizBudAtom } from "./Bud";
+import { BizBudValue, BizBud, BizBudAtom } from "./Bud";
 import { BizEntity } from "./Entity";
-import { BizQuery, BizQueryTable } from "./Query";
+import { BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
 import { UI } from "../UI";
 
-/*
-export interface PropPend {
-    caption: string;
-    entity: BizPend;
-    search: string[];
-}
-*/
 export interface PickParam {
     name: string;
     bud: string;
@@ -133,6 +126,8 @@ export class BizBin extends BizEntity {
     price: BizBudValue;
     amount: BizBudValue;
 
+    showBuds: { [bud: string]: [BizEntity, BizBud] };
+
     parser(context: PContext): PElement<IElement> {
         return new PBizBin(this, context);
     }
@@ -207,15 +202,31 @@ export class BizBin extends BizEntity {
         let pick = this.picks.get(pickName);
         return pick;
     }
-    /*
-    isValidPickProp(pickName: string, prop: string): boolean {
-        if (this.picks === undefined) return false;
-        let pick = this.picks.get(pickName);
-        if (pick === undefined) return false;
-        if (prop === undefined) return true;
-        return pick.pick.hasReturn(prop);
+    getBudProp(binBud: string, bud: string, prop: string): [BizEntity, BizBud] {
+        let bizEntity: BizEntity;
+        if (bud === 'i') {
+            if (this.i === undefined) return;
+            bizEntity = this.i.atom;
+        }
+        else if (bud === 'x') {
+            if (this.x === undefined) return;
+            bizEntity = this.x.atom;
+        }
+        else {
+            let b = this.getBud(bud);
+            if (b === undefined) return;
+            switch (b.dataType) {
+                default: return;
+                case BudDataType.atom: break;
+            }
+            let { atom } = b as BizBudAtom;
+            bizEntity = atom;
+        }
+        let bizBud = bizEntity.getBud(prop);
+        if (bizBud === undefined) return;
+        if (this.showBuds === undefined) this.showBuds = {};
+        return this.showBuds[binBud] = [bizEntity, bizBud];
     }
-    */
 }
 
 export class BizBinAct extends BizBase {

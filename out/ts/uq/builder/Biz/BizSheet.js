@@ -33,6 +33,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const { id } = this.bizEntity;
         const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
         this.buildSubmitProc(procSubmit);
+        const procGet = this.createProcedure(`${this.context.site}.${id}gs`); // gs = get sheet
+        this.buildGetProc(procGet);
     }
     buildSubmitProc(proc) {
         const { parameters, statements } = proc;
@@ -119,6 +121,41 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         delBinPend.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.binPend, false, a));
         delBinPend.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(binId)));
         return statements;
+    }
+    buildGetProc(proc) {
+        let detailBins = [];
+        let hasShowBuds = false;
+        let { main, details } = this.bizEntity;
+        if (main.showBuds !== undefined) {
+            hasShowBuds = true;
+        }
+        for (let detail of details) {
+            const { bin } = detail;
+            if (bin.showBuds !== undefined) {
+                detailBins.push(bin);
+                hasShowBuds = true;
+            }
+        }
+        if (hasShowBuds === false) {
+            proc.dropOnly = true;
+            return;
+        }
+        let { statements, parameters } = proc;
+        let { factory, site } = this.context;
+        parameters.push((0, il_1.bigIntField)('id'));
+        const setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ($site, new sql_1.ExpNum(site));
+        if (main.showBuds !== undefined) {
+            let memo = factory.createMemo();
+            statements.push(memo);
+            memo.text = 'main show buds';
+        }
+        for (let bin of detailBins) {
+            let memo = factory.createMemo();
+            statements.push(memo);
+            memo.text = `detail ${bin.name} show buds`;
+        }
     }
 }
 exports.BBizSheet = BBizSheet;

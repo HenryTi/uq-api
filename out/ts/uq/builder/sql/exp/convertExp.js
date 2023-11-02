@@ -216,17 +216,5 @@ class Stack {
     Search(key, values) {
         this.arr.push(new ExpSearch_1.ExpSearch(key, values));
     }
-    SpecId(spec, atom, values) {
-        this.arr.push(new exps_1.ExpFuncInUq('specid', [
-            this.context.expVal(spec),
-            this.context.expVal(atom),
-            this.context.expVal(values)
-        ], true));
-    }
-    SpecValue(id) {
-        this.arr.push(new exps_1.ExpFuncInUq('specvalue', [
-            this.context.expVal(id)
-        ], true));
-    }
 }
 //# sourceMappingURL=convertExp.js.map

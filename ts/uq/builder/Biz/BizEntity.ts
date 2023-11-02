@@ -17,11 +17,13 @@ export class BBizEntity<B extends BizEntity = any> {
         this.bizEntity.forEachBud((bud) => {
             const { value } = bud as BizBudValue;
             if (value === undefined) return;
+            /*
             const { query } = value;
             if (query === undefined) return;
             const { id } = bud;
             const procBudValue = this.createProcedure(`${this.context.site}.${id}v`);
             this.buildBudValueProc(procBudValue, query);
+            */
         });
     }
 
@@ -32,11 +34,10 @@ export class BBizEntity<B extends BizEntity = any> {
             if (value === undefined) return;
             let { exp, act } = value;
             let str = this.stringify(exp);
-            if (act === BudValueAct.init) {
-                str += '\ninit';
-            }
-            else {
-                str += '\nequ';
+            switch (act) {
+                case BudValueAct.init: str += '\ninit'; break;
+                case BudValueAct.equ: str += '\nequ'; break;
+                case BudValueAct.show: str += '\nshow'; break;
             }
             value.str = str;
         });

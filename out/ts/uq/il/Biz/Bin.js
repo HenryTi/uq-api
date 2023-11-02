@@ -105,15 +105,6 @@ class BizBin extends Entity_1.BizEntity {
         super(...arguments);
         this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
         this.bizPhraseType = Base_1.BizPhraseType.bin;
-        /*
-        isValidPickProp(pickName: string, prop: string): boolean {
-            if (this.picks === undefined) return false;
-            let pick = this.picks.get(pickName);
-            if (pick === undefined) return false;
-            if (prop === undefined) return true;
-            return pick.pick.hasReturn(prop);
-        }
-        */
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
@@ -191,6 +182,36 @@ class BizBin extends Entity_1.BizEntity {
             return;
         let pick = this.picks.get(pickName);
         return pick;
+    }
+    getBudProp(binBud, bud, prop) {
+        let bizEntity;
+        if (bud === 'i') {
+            if (this.i === undefined)
+                return;
+            bizEntity = this.i.atom;
+        }
+        else if (bud === 'x') {
+            if (this.x === undefined)
+                return;
+            bizEntity = this.x.atom;
+        }
+        else {
+            let b = this.getBud(bud);
+            if (b === undefined)
+                return;
+            switch (b.dataType) {
+                default: return;
+                case Base_1.BudDataType.atom: break;
+            }
+            let { atom } = b;
+            bizEntity = atom;
+        }
+        let bizBud = bizEntity.getBud(prop);
+        if (bizBud === undefined)
+            return;
+        if (this.showBuds === undefined)
+            this.showBuds = {};
+        return this.showBuds[binBud] = [bizEntity, bizBud];
     }
 }
 exports.BizBin = BizBin;

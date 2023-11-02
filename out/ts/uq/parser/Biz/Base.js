@@ -19,7 +19,9 @@ class PBizBase extends element_1.PElement {
             format: (bizBud) => {
                 this.ts.readToken();
                 this.ts.mayPassToken(tokens_1.Token.EQU);
-                bizBud.format = this.ts.passString();
+                let format = this.ts.passString();
+                // bizBud.format = format;
+                bizBud.ui.format = format;
             },
             set: (bizBud) => {
                 this.ts.readToken();
@@ -168,7 +170,7 @@ class PBizBase extends element_1.PElement {
         };
         const keys = Object.keys(keyColl);
         let key = this.ts.lowerVar;
-        const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
+        const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
             key = 'none';
@@ -227,23 +229,27 @@ class PBizBase extends element_1.PElement {
             case tokens_1.Token.COLONEQU:
                 act = il_1.BudValueAct.init;
                 break;
+            case tokens_1.Token.COLON:
+                act = il_1.BudValueAct.show;
+                break;
         }
         if (act !== undefined) {
             this.ts.readToken();
             let exp;
-            let query;
-            if (this.ts.token === tokens_1.Token.LBRACE) {
-                query = new il_1.BizQueryValue(this.element.biz);
+            /*
+            let query: BizQueryValue;
+            if (this.ts.token === Token.LBRACE as any) {
+                query = new BizQueryValue(this.element.biz);
                 this.context.parseElement(query);
             }
             else {
-                exp = new il_1.ValueExpression();
-                this.context.parseElement(exp);
-            }
+            */
+            exp = new il_1.ValueExpression();
+            this.context.parseElement(exp);
+            // }
             bizBud.value = {
                 exp,
                 act,
-                query,
             };
         }
     }
@@ -381,15 +387,16 @@ class PBizEntity extends PBizBase {
         let { pelement, value } = bud;
         if (pelement === undefined) {
             if (value !== undefined) {
-                const { exp, query } = value;
+                const { exp } = value;
                 if (exp !== undefined) {
                     if (exp.pelement.scan(space) === false)
                         return false;
                 }
+                /*
                 if (query !== undefined) {
-                    if (query.pelement.scan(space) === false)
-                        return false;
+                    if (query.pelement.scan(space) === false) return false;
                 }
+                */
             }
             return true;
         }

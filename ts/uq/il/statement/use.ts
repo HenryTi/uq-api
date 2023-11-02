@@ -6,6 +6,7 @@ import { ValueExpression } from "../Exp";
 import { SpanPeriod } from "../tool";
 import { Statement } from "./statement";
 
+// use 某些特定的值，比如年月日，时段
 export abstract class UseBase extends IElement {
     readonly statement: Statement;
     value: ValueExpression;

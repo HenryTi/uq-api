@@ -7,7 +7,7 @@ import { IElement } from "../element";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { BizAtom, BizAtomID } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
-import { BudIndex } from "./Entity";
+import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
 import { BizQueryValue } from "./Query";
@@ -16,13 +16,14 @@ import { UI } from "../UI";
 export enum BudValueAct {
     equ = 1,            // 设置不可修改. 这是默认
     init = 2,           // 只提供初值，可修改
+    show = 3,           // 只显示，不保存
 }
 
 export interface BudValue {
     exp: ValueExpression;
     act: BudValueAct;
-    query: BizQueryValue;
     str?: string;
+    show?: [BizEntity, BizBud];
 }
 
 export abstract class BizBud extends BizBase {
@@ -30,7 +31,7 @@ export abstract class BizBud extends BizBase {
     abstract get dataType(): BudDataType;
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
-    get ex(): object { return undefined }
+    // get ex(): object { return undefined }
     constructor(biz: Biz, name: string, ui: Partial<UI>) {
         super(biz);
         this.name = name;
@@ -48,7 +49,7 @@ export abstract class BizBudValue extends BizBud {
     abstract get canIndex(): boolean;
     value: BudValue;
     hasHistory: boolean;
-    format: string;
+    // format: string;
     setType: SetType;
     get optionsItemType(): OptionsItemValueType { return; }
     buildSchema(res: { [phrase: string]: string }) {
@@ -57,12 +58,12 @@ export abstract class BizBudValue extends BizBud {
             ...ret,
             dataType: this.dataType,
             value: this.value?.str,
-            ex: this.ex,
+            // ex: this.ex,
             history: this.hasHistory === true ? true : undefined,
             setType: this.setType ?? SetType.assign,
         }
     }
-
+    /*
     get ex(): object {
         if (this.format !== undefined) {
             return {
@@ -70,7 +71,7 @@ export abstract class BizBudValue extends BizBud {
             };
         }
     }
-
+    */
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         if (this.name === 'item') debugger;
         super.buildPhrases(phrases, prefix);
@@ -118,7 +119,8 @@ export class BizBudInt extends BizBudValue {
 export class BizBudDec extends BizBudValue {
     readonly dataType = BudDataType.dec;
     readonly canIndex = false;
-    fraction: number;       // decimal fraction digits count
+    // fraction: number;       // decimal fraction digits count
+    /*
     get ex(): object {
         if (this.format !== undefined || this.fraction !== undefined) {
             return {
@@ -127,6 +129,7 @@ export class BizBudDec extends BizBudValue {
             };
         }
     }
+    */
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDec(this, context);
     }

@@ -32,6 +32,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const { id } = this.bizEntity;
         const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
         this.buildSubmitProc(procSubmit);
+        const procGet = this.createProcedure(`${this.context.site}.${id}gs`); // gs = get sheet
+        this.buildGetProc(procGet);
     }
 
     private buildSubmitProc(proc: Procedure) {
@@ -153,6 +155,46 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         delBinPend.where(new ExpEQ(new ExpField('id', a), new ExpVar(binId)));
 
         return statements;
+    }
+
+    private buildGetProc(proc: Procedure) {
+        let detailBins: BizBin[] = [];
+        let hasShowBuds = false;
+        let { main, details } = this.bizEntity;
+        if (main.showBuds !== undefined) {
+            hasShowBuds = true;
+        }
+        for (let detail of details) {
+            const { bin } = detail;
+            if (bin.showBuds !== undefined) {
+                detailBins.push(bin);
+                hasShowBuds = true;
+            }
+        }
+        if (hasShowBuds === false) {
+            proc.dropOnly = true;
+            return;
+        }
+
+        let { statements, parameters } = proc;
+        let { factory, site } = this.context;
+
+        parameters.push(bigIntField('id'));
+
+        const setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ($site, new ExpNum(site));
+
+        if (main.showBuds !== undefined) {
+            let memo = factory.createMemo();
+            statements.push(memo)
+            memo.text = 'main show buds';
+        }
+        for (let bin of detailBins) {
+            let memo = factory.createMemo();
+            statements.push(memo)
+            memo.text = `detail ${bin.name} show buds`;
+        }
     }
 }
 

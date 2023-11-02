@@ -8,10 +8,11 @@ var BudValueAct;
 (function (BudValueAct) {
     BudValueAct[BudValueAct["equ"] = 1] = "equ";
     BudValueAct[BudValueAct["init"] = 2] = "init";
+    BudValueAct[BudValueAct["show"] = 3] = "show";
 })(BudValueAct || (exports.BudValueAct = BudValueAct = {}));
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
-    get ex() { return undefined; }
+    // get ex(): object { return undefined }
     constructor(biz, name, ui) {
         super(biz);
         this.bizPhraseType = Base_1.BizPhraseType.any;
@@ -32,15 +33,19 @@ class BizBudValue extends BizBud {
     buildSchema(res) {
         var _a, _b;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, ex: this.ex, history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, 
+            // ex: this.ex,
+            history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
     }
-    get ex() {
+    /*
+    get ex(): object {
         if (this.format !== undefined) {
             return {
                 format: this.format,
             };
         }
     }
+    */
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')
             debugger;
@@ -100,7 +105,9 @@ class BizBudDec extends BizBudValue {
         this.dataType = Base_1.BudDataType.dec;
         this.canIndex = false;
     }
-    get ex() {
+    // fraction: number;       // decimal fraction digits count
+    /*
+    get ex(): object {
         if (this.format !== undefined || this.fraction !== undefined) {
             return {
                 format: this.format,
@@ -108,6 +115,7 @@ class BizBudDec extends BizBudValue {
             };
         }
     }
+    */
     parser(context) {
         return new parser_1.PBizBudDec(this, context);
     }
