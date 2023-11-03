@@ -10,55 +10,49 @@ const Base_1 = require("./Base");
 class PBizBin extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
-        /*
-        private pend: string;
-        private pendCaption: string;
-        private pendSearch: string[];
-    
-        private parsePend = () => {
+        this.parsePend = () => {
             if (this.pend !== undefined) {
                 this.ts.error(`PEND can only be defined once in Biz Bin`);
             }
             this.pend = this.ts.passVar();
             this.pendCaption = this.ts.mayPassString();
-            this.ts.passToken(Token.LBRACE);
-            for (; ;) {
-                if (this.ts.token === Token.RBRACE) {
+            this.ts.passToken(tokens_1.Token.LBRACE);
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RBRACE) {
                     this.ts.readToken();
                     break;
                 }
                 let key = this.ts.passKey();
                 if (key === 'search') {
-                    if (this.ts.token === Token.LPARENTHESE) {
+                    if (this.ts.token === tokens_1.Token.LPARENTHESE) {
                         this.pendSearch = [];
-                        for (; ;) {
+                        for (;;) {
                             let sKey = this.ts.passKey();
                             this.pendSearch.push(sKey);
-                            if (this.ts.token === Token.RPARENTHESE as any) {
+                            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
                                 this.ts.readToken();
                                 break;
                             }
-                            if (this.ts.token === Token.COMMA as any) {
+                            if (this.ts.token === tokens_1.Token.COMMA) {
                                 this.ts.readToken();
                                 continue;
                             }
-                            this.ts.expectToken(Token.RPARENTHESE, Token.COMMA);
+                            this.ts.expectToken(tokens_1.Token.RPARENTHESE, tokens_1.Token.COMMA);
                         }
                     }
                     else {
                         let sKey = this.ts.passKey();
                         this.pendSearch = [sKey];
                     }
-                    this.ts.passToken(Token.SEMICOLON);
+                    this.ts.passToken(tokens_1.Token.SEMICOLON);
                 }
                 else {
                     this.ts.expect('search');
                     break;
                 }
             }
-            this.ts.passToken(Token.SEMICOLON);
-        }
-        */
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+        };
         this.parsePick = () => {
             let { picks } = this.element;
             if (picks === undefined) {
@@ -111,7 +105,7 @@ class PBizBin extends Base_1.PBizEntity {
             price: this.parsePrice,
             amount: this.parseAmount,
             act: this.parseAct,
-            // pend: this.parsePend,
+            pend: this.parsePend,
         };
     }
     parseBudAtom(itemName) {
@@ -215,6 +209,9 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan2(uq) {
         let ok = true;
+        if (super.scan2(uq) === false) {
+            ok = false;
+        }
         return ok;
     }
 }
@@ -432,8 +429,8 @@ class BizBinSpace extends space_1.Space {
         };
         return true;
     }
-    _getBinBudProp(binBud, bud, prop) {
-        return this.bin.getBudProp(binBud, bud, prop);
+    _getBin() {
+        return this.bin;
     }
 }
 class PBizBinAct extends Base_1.PBizBase {

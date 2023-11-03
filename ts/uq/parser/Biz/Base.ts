@@ -189,6 +189,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     }
 
     protected parseBudEqu(bizBud: BizBudValue) {
+        /*
         let act: BudValueAct;
         switch (this.ts.token) {
             default: return;
@@ -199,14 +200,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         if (act !== undefined) {
             this.ts.readToken();
             let exp: ValueExpression;
-            /*
-            let query: BizQueryValue;
-            if (this.ts.token === Token.LBRACE as any) {
-                query = new BizQueryValue(this.element.biz);
-                this.context.parseElement(query);
-            }
-            else {
-            */
             exp = new ValueExpression();
             this.context.parseElement(exp);
             // }
@@ -214,6 +207,42 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
                 exp,
                 act,
             };
+        }
+        */
+        let act: BudValueAct;
+        switch (this.ts.token) {
+            case Token.EQU:
+                act = BudValueAct.equ;
+                break;
+            case Token.COLONEQU:
+                act = BudValueAct.init;
+                break;
+            case Token.COLON:
+                act = BudValueAct.show;
+                break;
+        }
+        if (act === BudValueAct.show) {
+            this.ts.readToken();
+            let bud: string, prop: string;
+            bud = this.ts.passVar();
+            this.ts.passToken(Token.DOT);
+            prop = this.ts.passVar();
+            bizBud.value = {
+                exp: undefined,
+                act: BudValueAct.show,
+                show: [bud, prop] as any,
+            }
+            return;
+        }
+        if (act !== undefined) {
+            this.ts.readToken();
+            let exp = new ValueExpression();
+            this.context.parseElement(exp);
+            bizBud.value = {
+                exp,
+                act,
+            };
+            return;
         }
     }
 

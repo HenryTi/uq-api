@@ -13,7 +13,6 @@ import { Token } from "../tokens";
 import { PBizBase, PBizEntity } from "./Base";
 
 export class PBizBin extends PBizEntity<BizBin> {
-    /*
     private pend: string;
     private pendCaption: string;
     private pendSearch: string[];
@@ -61,7 +60,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
         this.ts.passToken(Token.SEMICOLON);
     }
-    */
+
     private parsePick = () => {
         let { picks } = this.element;
         if (picks === undefined) {
@@ -145,7 +144,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         price: this.parsePrice,
         amount: this.parseAmount,
         act: this.parseAct,
-        // pend: this.parsePend,
+        pend: this.parsePend,
     };
 
     scan(space: Space): boolean {
@@ -232,6 +231,9 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     scan2(uq: Uq): boolean {
         let ok = true;
+        if (super.scan2(uq) === false) {
+            ok = false;
+        }
         return ok;
     }
 }
@@ -449,8 +451,8 @@ class BizBinSpace extends Space {
         return true;
     }
 
-    protected _getBinBudProp(binBud: string, bud: string, prop: string): [BizEntity, BizBud] {
-        return this.bin.getBudProp(binBud, bud, prop);
+    protected _getBin(): BizBin {
+        return this.bin;
     }
 }
 

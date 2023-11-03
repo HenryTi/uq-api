@@ -183,7 +183,7 @@ class BizBin extends Entity_1.BizEntity {
         let pick = this.picks.get(pickName);
         return pick;
     }
-    getBudProp(binBud, bud, prop) {
+    getBinBudEntity(bud) {
         let bizEntity;
         if (bud === 'i') {
             if (this.i === undefined)
@@ -206,12 +206,7 @@ class BizBin extends Entity_1.BizEntity {
             let { atom } = b;
             bizEntity = atom;
         }
-        let bizBud = bizEntity.getBud(prop);
-        if (bizBud === undefined)
-            return;
-        if (this.showBuds === undefined)
-            this.showBuds = {};
-        return this.showBuds[binBud] = [bizEntity, bizBud];
+        return bizEntity;
     }
 }
 exports.BizBin = BizBin;

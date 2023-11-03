@@ -202,7 +202,7 @@ export class BizBin extends BizEntity {
         let pick = this.picks.get(pickName);
         return pick;
     }
-    getBudProp(binBud: string, bud: string, prop: string): [BizEntity, BizBud] {
+    getBinBudEntity(bud: string): BizEntity {
         let bizEntity: BizEntity;
         if (bud === 'i') {
             if (this.i === undefined) return;
@@ -222,10 +222,7 @@ export class BizBin extends BizEntity {
             let { atom } = b as BizBudAtom;
             bizEntity = atom;
         }
-        let bizBud = bizEntity.getBud(prop);
-        if (bizBud === undefined) return;
-        if (this.showBuds === undefined) this.showBuds = {};
-        return this.showBuds[binBud] = [bizEntity, bizBud];
+        return bizEntity;
     }
 }
 

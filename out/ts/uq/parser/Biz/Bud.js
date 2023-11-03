@@ -10,71 +10,27 @@ exports.PBizBud = PBizBud;
 class PBizBudValue extends PBizBud {
     _parse() {
     }
-    parseValue() {
-        let act;
-        switch (this.ts.token) {
-            case tokens_1.Token.EQU:
-                act = il_1.BudValueAct.equ;
-                break;
-            case tokens_1.Token.COLONEQU:
-                act = il_1.BudValueAct.init;
-                break;
-            case tokens_1.Token.COLON:
-                act = il_1.BudValueAct.show;
-                break;
-        }
-        if (act === il_1.BudValueAct.show) {
-            this.ts.readToken();
-            let bud, prop;
-            bud = this.ts.passVar();
-            this.ts.passToken(tokens_1.Token.DOT);
-            prop = this.ts.passVar();
-            this.show = [bud, prop];
-            this.element.value = {
-                exp: undefined,
-                act: il_1.BudValueAct.show,
-            };
-            return;
-        }
-        if (act !== undefined) {
-            this.ts.readToken();
-            let exp = new il_1.ValueExpression();
-            this.context.parseElement(exp);
-            this.element.value = {
-                exp,
-                act,
-            };
-            return;
-        }
-    }
     scanBudValue(space) {
         let ok = true;
-        if (this.show !== undefined) {
-            let [bud, prop] = this.show;
-            let ret = space.getBinBudProp(this.element.name, bud, prop);
-            if (ret === undefined) {
-                this.log(`${bud}.${prop} is not defined in BIN or ATOM`);
-                ok = false;
-            }
-            else {
-                this.element.value.show = ret;
-            }
-        }
         let { value } = this.element;
         if (value !== undefined) {
-            const { exp } = value;
+            const { exp, show } = value;
             if (exp !== undefined) {
                 if (exp.pelement.scan(space) === false) {
                     ok = false;
                 }
             }
-            /*
-            else if (query !== undefined) {
-                if (query.pelement.scan(space) === false) {
+            if (show !== undefined) {
+                let ret = space.getBin();
+                if (ret === undefined) {
+                    let [bud, prop] = show;
+                    this.log(`${bud}.${prop} : can only be defined in BIN`);
                     ok = false;
                 }
+                else {
+                    value.show = [...show, ret];
+                }
             }
-            */
         }
         return ok;
     }
@@ -88,13 +44,40 @@ class PBizBudValue extends PBizBud {
                     ok = false;
                 }
             }
-            /*
-            else if (query !== undefined) {
-                if (query.pelement.scan(space) === false) {
+            if (this.scanBudValue(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    scan2(uq) {
+        let ok = true;
+        let { value } = this.element;
+        if (value !== undefined) {
+            const { show } = value;
+            if (show !== undefined) {
+                let [bud, prop, bin] = show;
+                let bizEntity = bin.getBinBudEntity(bud);
+                if (bizEntity === undefined) {
+                    this.log(`${bud} is not defined in ${bin.getJName()} or is not an ATOM`);
                     ok = false;
                 }
+                else {
+                    let bud = bizEntity.getBud(prop);
+                    if (bud === undefined) {
+                        this.log(`${bizEntity.getJName()} has not ${prop}`);
+                        ok = false;
+                    }
+                    else {
+                        value.show = [bizEntity, bud];
+                        let { showBuds } = bin;
+                        if (showBuds === undefined) {
+                            showBuds = bin.showBuds = {};
+                        }
+                        showBuds[this.element.name] = value.show;
+                    }
+                }
             }
-            */
         }
         return ok;
     }
@@ -168,7 +151,7 @@ class PBizBudAtom extends PBizBudValue {
         if (this.atomName !== undefined) {
             let atom = super.scanAtomID(space, this.atomName);
             if (atom === undefined) {
-                // ok = false;
+                ok = false;
             }
             else {
                 this.element.atom = atom;
@@ -191,7 +174,7 @@ class PBizBudPickable extends PBizBudValue {
             }
         }
         else {
-            this.parseValue();
+            this.parseBudEqu(this.element);
         }
         this.ts.expect('Atom', 'Pick', '=', ':=', ':');
     }

@@ -220,9 +220,28 @@ class PBizBase extends element_1.PElement {
         return bizBud;
     }
     parseBudEqu(bizBud) {
-        let act;
+        /*
+        let act: BudValueAct;
         switch (this.ts.token) {
             default: return;
+            case Token.EQU: act = BudValueAct.equ; break;
+            case Token.COLONEQU: act = BudValueAct.init; break;
+            case Token.COLON: act = BudValueAct.show; break;
+        }
+        if (act !== undefined) {
+            this.ts.readToken();
+            let exp: ValueExpression;
+            exp = new ValueExpression();
+            this.context.parseElement(exp);
+            // }
+            bizBud.value = {
+                exp,
+                act,
+            };
+        }
+        */
+        let act;
+        switch (this.ts.token) {
             case tokens_1.Token.EQU:
                 act = il_1.BudValueAct.equ;
                 break;
@@ -233,24 +252,28 @@ class PBizBase extends element_1.PElement {
                 act = il_1.BudValueAct.show;
                 break;
         }
+        if (act === il_1.BudValueAct.show) {
+            this.ts.readToken();
+            let bud, prop;
+            bud = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.DOT);
+            prop = this.ts.passVar();
+            bizBud.value = {
+                exp: undefined,
+                act: il_1.BudValueAct.show,
+                show: [bud, prop],
+            };
+            return;
+        }
         if (act !== undefined) {
             this.ts.readToken();
-            let exp;
-            /*
-            let query: BizQueryValue;
-            if (this.ts.token === Token.LBRACE as any) {
-                query = new BizQueryValue(this.element.biz);
-                this.context.parseElement(query);
-            }
-            else {
-            */
-            exp = new il_1.ValueExpression();
+            let exp = new il_1.ValueExpression();
             this.context.parseElement(exp);
-            // }
             bizBud.value = {
                 exp,
                 act,
             };
+            return;
         }
     }
 }
