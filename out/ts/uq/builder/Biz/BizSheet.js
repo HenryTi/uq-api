@@ -143,6 +143,9 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let { statements, parameters } = proc;
         let { factory, site } = this.context;
         parameters.push((0, il_1.bigIntField)('id'));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.var($site, new il_1.BigInt());
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new sql_1.ExpNum(site));

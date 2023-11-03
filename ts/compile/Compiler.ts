@@ -90,7 +90,6 @@ export class Compiler {
             const { phrase } = entity;
             const obj = objNames[phrase];
             if (obj === undefined) continue;
-            // if (obj === this.newMatchOldObj) indexTobeRemoved = i;
             const { id, source } = obj;
             if (!source) continue;
             entity.id = id;

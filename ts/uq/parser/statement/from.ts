@@ -108,14 +108,14 @@ export class PFromStatement extends PStatement<FromStatement> {
                     ok = false;
                 }
                 if (ui.caption === null) {
-                    // from entity bud
-                    //if (bizEntity0.hasField(name) === false) {
                     let [bizEntity, bud] = this.element.getBud(name);
                     if (bud !== undefined) {
                         col.entity = bizEntity;
                         col.bud = bud;
                     }
-                    //}
+                    else {
+                        // 'no', 'ex'
+                    }
                 }
                 else {
                     // Query bud

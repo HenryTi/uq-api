@@ -32,13 +32,44 @@ export class UqBuilder {
         const { type, phrase, ui: { caption }, source } = entity;
         const memo = undefined;
         if (phrase === undefined) debugger;
-        let [{ id }] = await this.runner.unitUserTableFromProc('SaveBizObject'
-            , this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source);
+        let budParams = [];
+        let buds: BizBud[] = [];
+        entity.forEachBud(bud => {
+            buds.push(bud);
+            const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
+            const typeNum = bud.typeNum;
+            let objId: number;
+            if (objName !== undefined) {
+                const obj = objNames[objName];
+                if (obj !== undefined) {
+                    objId = obj.id;
+                }
+            }
+            budParams.push({
+                id: bud.id,
+                name: phrase, caption,
+                type: typeNum, memo,
+                dataType: dataTypeNum, objId, flag
+            });
+        });
+        let [[ret], budIds] = await this.runner.unitUserTablesFromProc(
+            'SaveBizObject'
+            , this.site, this.user, this.newSoleEntityId
+            , phrase, caption, entity.typeNum, memo, source
+            , JSON.stringify(budParams));
+        const { id } = ret;
         let obj = { id, phrase };
         entity.id = id;
         objIds[id] = obj;
         objNames[phrase] = obj;
         res[phrase] = caption;
+
+        for (let i = 0; i < buds.length; i++) {
+            let bud = buds[i];
+            let { id: budId, phrase } = budIds[i];
+            bud.id = budId;
+            res[phrase] = caption;
+        }
     }
 
     private async saveBizSchema(entity: BizEntity) {
@@ -84,10 +115,11 @@ export class UqBuilder {
         console.log(ixPairs);
         await this.runner.unitUserTableFromProc('SaveBizIX'
             , this.site, this.user, JSON.stringify(ixPairs));
+        /*
         await Promise.all(newest.map(entity => {
             return this.saveBizEntityBuds(entity);
         }));
-
+        */
         const ixBizRoles = this.biz.getIxRoles();
         await this.runner.unitUserTableFromProc('SaveIxPermission'
             , this.site, this.user, JSON.stringify(ixBizRoles));

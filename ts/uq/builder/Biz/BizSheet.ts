@@ -1,4 +1,4 @@
-import { BigInt, BizBin, BizSheet, Dec, JoinType, bigIntField, decField, idField, EnumSysTable } from "../../il";
+import { BigInt, BizBin, BizSheet, Dec, JoinType, bigIntField, decField, idField, EnumSysTable, BizEntity, BizBud } from "../../il";
 import { Sqls } from "../bstatement";
 import { ExpAnd, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
 import { userParamName } from "../sql/sqlBuilder";
@@ -181,6 +181,10 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
         parameters.push(bigIntField('id'));
 
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.var($site, new BigInt());
+
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new ExpNum(site));
@@ -189,12 +193,21 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             let memo = factory.createMemo();
             statements.push(memo)
             memo.text = 'main show buds';
+            statements.push(...this.buildGetShowBuds(main.showBuds));
         }
         for (let bin of detailBins) {
             let memo = factory.createMemo();
             statements.push(memo)
             memo.text = `detail ${bin.name} show buds`;
+            statements.push(...this.buildGetShowBuds(bin.showBuds));
         }
+    }
+
+    private buildGetShowBuds(showBuds: { [bud: string]: [BizEntity, BizBud] }): Statement[] {
+        let statements: Statement[] = [];
+        let { factory, site } = this.context;
+
+        return statements;
     }
 }
 
