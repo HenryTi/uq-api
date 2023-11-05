@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.FieldShow = exports.BudValueAct = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.FieldShowItem = exports.BudValueAct = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -10,36 +10,36 @@ var BudValueAct;
     BudValueAct[BudValueAct["init"] = 2] = "init";
     BudValueAct[BudValueAct["show"] = 3] = "show";
 })(BudValueAct || (exports.BudValueAct = BudValueAct = {}));
-class FieldShow {
+class FieldShowItem {
     constructor(bizEntity, bizBud) {
         this.bizEntity = bizEntity;
         this.bizBud = bizBud;
     }
     static createBinFieldShow(bizBin, bizBud) {
-        return new BinFieldShow(bizBin, bizBud);
+        return new BinFieldShowItem(bizBin, bizBud);
     }
     static createSpecFieldShow(bizSpec, bizBud) {
-        return new SpecFieldShow(bizSpec, bizBud);
+        return new SpecFieldShowItem(bizSpec, bizBud);
     }
     static createSpecAtomFieldShow(bizSpec, bizBud) {
-        return new SpecAtomFieldShow(bizSpec, bizBud);
+        return new SpecAtomFieldShowItem(bizSpec, bizBud);
     }
     static createAtomFieldShow(bizAtom, bizBud) {
-        return new AtomFieldShow(bizAtom, bizBud);
+        return new AtomFieldShowItem(bizAtom, bizBud);
     }
 }
-exports.FieldShow = FieldShow;
-class BinFieldShow extends FieldShow {
+exports.FieldShowItem = FieldShowItem;
+class BinFieldShowItem extends FieldShowItem {
 }
-class SpecFieldShow extends FieldShow {
+class SpecFieldShowItem extends FieldShowItem {
 }
-class SpecAtomFieldShow extends FieldShow {
+class SpecAtomFieldShowItem extends FieldShowItem {
 }
-class AtomFieldShow extends FieldShow {
+class AtomFieldShowItem extends FieldShowItem {
 }
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
-    // get ex(): object { return undefined }
+    getFieldShows() { return undefined; }
     constructor(biz, name, ui) {
         super(biz);
         this.bizPhraseType = Base_1.BizPhraseType.bud;
@@ -64,15 +64,6 @@ class BizBudValue extends BizBud {
             // ex: this.ex,
             history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
     }
-    /*
-    get ex(): object {
-        if (this.format !== undefined) {
-            return {
-                format: this.format,
-            };
-        }
-    }
-    */
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')
             debugger;
@@ -173,6 +164,7 @@ class BizBudAtom extends BizBudValue {
         this.dataType = Base_1.BudDataType.atom;
         this.canIndex = true;
     }
+    getFieldShows() { return this.fieldShows; }
     parser(context) {
         return new parser_1.PBizBudAtom(this, context);
     }
@@ -184,14 +176,6 @@ class BizBudAtom extends BizBudValue {
     get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
 exports.BizBudAtom = BizBudAtom;
-/*
-export interface BizSubItem {
-    id: number;
-    name: string;
-    caption: string;
-    value: number | string;
-}
-*/
 class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;

@@ -123,16 +123,20 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         return statements;
     }
     buildGetProc(proc) {
-        let detailBins = [];
+        // let detailBins: BizBin[] = [];
         let hasShowBuds = false;
         let { main, details } = this.bizEntity;
-        if (main.showBuds !== undefined) {
+        let mainShowBuds = main.allShowBuds();
+        if (mainShowBuds !== undefined) {
             hasShowBuds = true;
         }
+        let detailShowBuds = [];
         for (let detail of details) {
             const { bin } = detail;
-            if (bin.showBuds !== undefined) {
-                detailBins.push(bin);
+            let binShowBuds = bin.allShowBuds();
+            if (binShowBuds !== undefined) {
+                // detailBins.push(bin);
+                detailShowBuds.push(binShowBuds);
                 hasShowBuds = true;
             }
         }
@@ -149,45 +153,47 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new sql_1.ExpNum(site));
-        if (main.showBuds !== undefined) {
+        if (mainShowBuds !== undefined) {
             let memo = factory.createMemo();
             statements.push(memo);
             memo.text = 'main show buds';
-            statements.push(...this.buildGetShowBuds('main', main.showBuds));
+            statements.push(...this.buildGetShowBuds('main', mainShowBuds));
         }
-        for (let bin of detailBins) {
+        for (let binShowBuds of detailShowBuds) {
             let memo = factory.createMemo();
             statements.push(memo);
-            memo.text = `detail ${bin.name} show buds`;
-            statements.push(...this.buildGetShowBuds('details', bin.showBuds));
+            memo.text = `detail show buds`;
+            statements.push(...this.buildGetShowBuds('details', binShowBuds));
         }
     }
     buildGetShowBuds(tblBin, showBuds) {
         let statements = [];
         let { factory } = this.context;
         for (let i in showBuds) {
-            let fieldShowArr = showBuds[i];
-            let select = this.buildSelect(tblBin, fieldShowArr);
+            let fieldShow = showBuds[i];
+            let select = this.buildSelect(tblBin, fieldShow);
             let insert = factory.createInsert();
             statements.push(insert);
-            insert.table = new statementWithFrom_1.VarTable('props');
+            insert.table = new statementWithFrom_1.VarTableWithSchema('props');
             insert.cols = [
                 { col: 'id', val: undefined },
                 { col: 'phrase', val: undefined },
                 { col: 'value', val: undefined },
+                { col: 'owner', val: undefined },
             ];
             insert.select = select;
         }
         return statements;
     }
-    buildSelect(tblBin, fieldShowArr) {
+    buildSelect(tblBin, fieldShow) {
+        const { owner, items } = fieldShow;
         const { factory } = this.context;
         const select = factory.createSelect();
         select.column(new sql_1.ExpField('id', a), 'id');
-        select.from(new statementWithFrom_1.VarTable(tblBin, a));
+        select.from(new statementWithFrom_1.VarTableWithSchema(tblBin, a));
         let lastT = 't0', lastField;
-        let len = fieldShowArr.length - 1;
-        let { bizEntity: lastEntity, bizBud: lastBud } = fieldShowArr[0];
+        let len = items.length - 1;
+        let { bizEntity: lastEntity, bizBud: lastBud } = items[0];
         let { name: lastBudName } = lastBud;
         if (lastBudName === 'i' || lastBudName === 'x') {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, lastT))
@@ -202,7 +208,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             lastField = 'value';
         }
         for (let i = 1; i < len; i++) {
-            let { bizEntity, bizBud } = fieldShowArr[i];
+            let { bizEntity, bizBud } = items[i];
             lastEntity = bizEntity;
             lastBud = bizBud;
             const t = 't' + i;
@@ -212,25 +218,25 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             lastField = 'value';
         }
         let t = 't' + len;
-        let { bizEntity, bizBud } = fieldShowArr[len];
+        let { bizEntity, bizBud } = items[len];
         let tblIxBud;
         switch (bizBud.dataType) {
             default:
-                tblIxBud = 'ixbudint';
+                tblIxBud = il_1.EnumSysTable.ixBudInt;
                 selectValue();
                 break;
             case il_1.BudDataType.dec:
-                tblIxBud = 'ixbuddec';
+                tblIxBud = il_1.EnumSysTable.ixBudDec;
                 selectValue();
                 break;
             case il_1.BudDataType.str:
             case il_1.BudDataType.char:
-                tblIxBud = 'ixbudstr';
+                tblIxBud = il_1.EnumSysTable.ixBudStr;
                 selectValue();
                 break;
             case il_1.BudDataType.radio:
             case il_1.BudDataType.check:
-                tblIxBud = 'ixbud';
+                tblIxBud = il_1.EnumSysTable.ixBud;
                 selectCheck();
                 break;
         }
@@ -238,14 +244,25 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxBud, false, t))
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField(lastField, lastT)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(bizBud.id))));
             select.column(new sql_1.ExpNum(bizBud.id), 'phrase');
-            select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpNum(bizEntity.id), new sql_1.ExpField('value', t)));
+            select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('value', t)));
         }
         function selectCheck() {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxBud, false, t))
-                .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField(lastField, lastT)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(bizBud.id))));
-            select.column(new sql_1.ExpNum(bizBud.id), 'phrase');
-            select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpNum(bizEntity.id), new sql_1.ExpNum(bizBud.id)));
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField(lastField, lastT)))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, c))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('x', t)));
+            select.column(new sql_1.ExpField('base', c), 'phrase');
+            select.column(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, new sql_1.ExpField('ext', c)));
+            select.where(new sql_1.ExpEQ(new sql_1.ExpField('base', c), new sql_1.ExpNum(bizBud.id)));
         }
+        let expOwner;
+        if (owner === undefined) {
+            expOwner = sql_1.ExpNum.num0;
+        }
+        else {
+            expOwner = new sql_1.ExpNum(owner.id);
+        }
+        select.column(expOwner, 'owner');
         return select;
     }
 }

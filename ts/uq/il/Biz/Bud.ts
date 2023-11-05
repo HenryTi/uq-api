@@ -19,7 +19,7 @@ export enum BudValueAct {
     show = 3,           // 只显示，不保存
 }
 
-export abstract class FieldShow<T extends BizEntity = BizEntity> {
+export abstract class FieldShowItem<T extends BizEntity = BizEntity> {
     readonly bizEntity: T;
     readonly bizBud: BizBud;
     constructor(bizEntity: T, bizBud: BizBud) {
@@ -27,32 +27,37 @@ export abstract class FieldShow<T extends BizEntity = BizEntity> {
         this.bizBud = bizBud;
     }
     static createBinFieldShow(bizBin: BizBin, bizBud: BizBud) {
-        return new BinFieldShow(bizBin, bizBud);
+        return new BinFieldShowItem(bizBin, bizBud);
     }
     static createSpecFieldShow(bizSpec: BizAtomSpec, bizBud: BizBud) {
-        return new SpecFieldShow(bizSpec, bizBud);
+        return new SpecFieldShowItem(bizSpec, bizBud);
     }
     static createSpecAtomFieldShow(bizSpec: BizAtomSpec, bizBud: BizBud) {
-        return new SpecAtomFieldShow(bizSpec, bizBud);
+        return new SpecAtomFieldShowItem(bizSpec, bizBud);
     }
     static createAtomFieldShow(bizAtom: BizAtom, bizBud: BizBud) {
-        return new AtomFieldShow(bizAtom, bizBud);
+        return new AtomFieldShowItem(bizAtom, bizBud);
     }
 }
-class BinFieldShow extends FieldShow<BizBin> {
+class BinFieldShowItem extends FieldShowItem<BizBin> {
 }
-class SpecFieldShow extends FieldShow<BizAtomSpec> {
+class SpecFieldShowItem extends FieldShowItem<BizAtomSpec> {
 }
-class SpecAtomFieldShow extends FieldShow<BizAtomSpec> {
+class SpecAtomFieldShowItem extends FieldShowItem<BizAtomSpec> {
 }
-class AtomFieldShow extends FieldShow<BizAtom> {
+class AtomFieldShowItem extends FieldShowItem<BizAtom> {
+}
+
+export interface FieldShow {
+    owner: BizBud;
+    items: FieldShowItem[];
 }
 
 export interface BudValue {
     exp: ValueExpression;
     act: BudValueAct;
     str?: string;
-    show?: FieldShow[]; // [BizEntity, BizBud, BizEntity, BizBud];
+    show?: FieldShow;
 }
 
 export abstract class BizBud extends BizBase {
@@ -60,7 +65,7 @@ export abstract class BizBud extends BizBase {
     abstract get dataType(): BudDataType;
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
-    // get ex(): object { return undefined }
+    getFieldShows(): FieldShow[] { return undefined }
     constructor(biz: Biz, name: string, ui: Partial<UI>) {
         super(biz);
         this.name = name;
@@ -78,7 +83,6 @@ export abstract class BizBudValue extends BizBud {
     abstract get canIndex(): boolean;
     value: BudValue;
     hasHistory: boolean;
-    // format: string;
     setType: SetType;
     get optionsItemType(): OptionsItemValueType { return; }
     buildSchema(res: { [phrase: string]: string }) {
@@ -92,15 +96,6 @@ export abstract class BizBudValue extends BizBud {
             setType: this.setType ?? SetType.assign,
         }
     }
-    /*
-    get ex(): object {
-        if (this.format !== undefined) {
-            return {
-                format: this.format,
-            };
-        }
-    }
-    */
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         if (this.name === 'item') debugger;
         super.buildPhrases(phrases, prefix);
@@ -181,6 +176,8 @@ export class BizBudAtom extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
     atom: BizAtomID;
+    fieldShows: FieldShow[];
+    getFieldShows(): FieldShow[] { return this.fieldShows; }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudAtom(this, context);
     }
@@ -189,15 +186,9 @@ export class BizBudAtom extends BizBudValue {
         return { ...ret, atom: this.atom?.name };
     }
     get objName(): string { return this.atom?.phrase; }
+
 }
-/*
-export interface BizSubItem {
-    id: number;
-    name: string;
-    caption: string;
-    value: number | string;
-}
-*/
+
 export abstract class BizBudOptions extends BizBudValue {
     // readonly items: BizSubItem[] = [];
     options: BizOptions;

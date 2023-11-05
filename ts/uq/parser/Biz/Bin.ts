@@ -12,6 +12,7 @@ import { PStatements } from "../statement";
 import { Token } from "../tokens";
 import { PBizBase, PBizEntity } from "./Base";
 import { BizEntitySpace } from "./Biz";
+import { PBizBudValue } from "./Bud";
 
 export class PBizBin extends PBizEntity<BizBin> {
     private pend: string;
@@ -235,6 +236,21 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (super.scan2(uq) === false) {
             ok = false;
         }
+        return ok;
+    }
+
+    bizEntityScan2(bizEntity: BizEntity): boolean {
+        let ok = super.bizEntityScan2(bizEntity);
+        let { i, x } = this.element;
+        function check2(bizBud: BizBudValue) {
+            if (bizBud === undefined) return;
+            let { pelement } = bizBud;
+            if (pelement !== undefined) {
+                if ((pelement as PBizBudValue<any>).bizEntityScan2(bizEntity) === false) ok = false;
+            }
+        }
+        check2(i);
+        check2(x);
         return ok;
     }
 }

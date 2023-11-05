@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue, BizQueryValue, Uq, BizEntity, BizBin, BudDataType, FieldShow, BizAtom, BizAtomSpec
+    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue, BizQueryValue, Uq, BizEntity, BizBin, BudDataType, FieldShowItem, BizAtom, BizAtomSpec
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -18,26 +18,6 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
     }
 
     protected parseBudEqu() {
-        /*
-        let act: BudValueAct;
-        switch (this.ts.token) {
-            default: return;
-            case Token.EQU: act = BudValueAct.equ; break;
-            case Token.COLONEQU: act = BudValueAct.init; break;
-            case Token.COLON: act = BudValueAct.show; break;
-        }
-        if (act !== undefined) {
-            this.ts.readToken();
-            let exp: ValueExpression;
-            exp = new ValueExpression();
-            this.context.parseElement(exp);
-            // }
-            bizBud.value = {
-                exp,
-                act,
-            };
-        }
-        */
         let act: BudValueAct;
         switch (this.ts.token) {
             case Token.EQU:
@@ -87,6 +67,70 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
         return ok;
     }
 
+    getFieldShow(bizBin: BizBin, ...parts: string[]) {
+        let show: FieldShowItem[] = [];
+        let len = parts.length;
+        let name0 = parts[0];
+        let bizBud0 = bizBin.getBud(name0);
+        if (bizBud0 === undefined) {
+            this.log(`${bizBin.getJName()} has not ${name0}`);
+            return undefined;
+        }
+        else if (bizBin.bizPhraseType !== BizPhraseType.bin) {
+            this.log('show field can only be in Bin');
+            return undefined;
+        }
+        show.push(FieldShowItem.createBinFieldShow(bizBin, bizBud0));
+        let p = bizBud0;
+        for (let i = 1; i < len; i++) {
+            let { dataType } = p;
+            let bizBud: BizBud = undefined;
+            let prop = parts[i];
+            switch (dataType) {
+                default:
+                    this.log(`${p.name} is neither ATOM nor SPEC`);
+                    return undefined;
+                case BudDataType.atom:
+                    let { atom } = p as BizBudAtom;
+                    if (atom === undefined) {
+                        this.log(`${p.name} does not define ATOM or SPEC`);
+                        return undefined;
+                    }
+                    bizBud = atom.getBud(prop);
+                    p = bizBud;
+                    switch (atom.bizPhraseType) {
+                        default:
+                            this.log(`${p.name} is neither ATOM nor SPEC`);
+                            return undefined;
+                        case BizPhraseType.atom:
+                            if (bizBud === undefined) {
+                                this.log(`${atom.getJName()} has not ${prop}`);
+                                return undefined;
+                            }
+                            show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
+                            break;
+                        case BizPhraseType.spec:
+                            if (bizBud !== undefined) {
+                                show.push(FieldShowItem.createSpecFieldShow(atom as BizAtomSpec, bizBud));
+                                break;
+                            }
+                            const { base } = atom as BizAtomSpec;
+                            bizBud = base.getBud(prop);
+                            p = bizBud;
+                            if (bizBud === undefined) {
+                                this.log(`${base.getJName()} has not ${prop}`);
+                                return undefined;
+                            }
+                            show.push(FieldShowItem.createSpecAtomFieldShow(atom as BizAtomSpec, bizBud));
+                            break;
+                    }
+                    break;
+            }
+            if (bizBud === undefined) break;
+        }
+        return show;
+    }
+
     override bizEntityScan2(bizEntity: BizEntity): boolean {
         let ok = true;
         if (this.fieldString === undefined) return ok;
@@ -96,78 +140,21 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
             return false;
         }
 
-        let bizBin = bizEntity as BizBin;
-        let show: FieldShow[] = [];
-        let name0 = this.fieldString[0];
-        let bizBud0 = bizEntity.getBud(name0);
-        if (bizBud0 === undefined) {
-            this.log(`${bizEntity.getJName()} has not ${name0}`);
+        let show = this.getFieldShow(bizEntity as BizBin, ...this.fieldString);
+        if (show === undefined) {
             ok = false;
-            return ok;
         }
-        else if (bizEntity.bizPhraseType !== BizPhraseType.bin) {
-            this.log('show field can only be in Bin');
-            ok = false;
-            return ok;
-        }
-        show.push(FieldShow.createBinFieldShow(bizBin, bizBud0));
-        let p = bizBud0;
-        for (let i = 1; i < len; i++) {
-            let { dataType } = p;
-            let bizBud: BizBud = undefined;
-            let prop = this.fieldString[i];
-            switch (dataType) {
-                default:
-                    this.log(`${p.name} is neither ATOM nor SPEC`);
-                    ok = false;
-                    return ok;
-                case BudDataType.atom:
-                    let { atom } = p as BizBudAtom;
-                    if (atom === undefined) {
-                        this.log(`${p.name} does not define ATOM or SPEC`);
-                        ok = false;
-                        return ok;
-                    }
-                    bizBud = atom.getBud(prop);
-                    p = bizBud;
-                    switch (atom.bizPhraseType) {
-                        default:
-                            this.log(`${p.name} is neither ATOM nor SPEC`);
-                            ok = false;
-                            return ok;
-                        case BizPhraseType.atom:
-                            if (bizBud === undefined) {
-                                this.log(`${atom.getJName()} has not ${prop}`);
-                                ok = false;
-                                return ok;
-                            }
-                            show.push(FieldShow.createAtomFieldShow(atom as BizAtom, bizBud));
-                            break;
-                        case BizPhraseType.spec:
-                            if (bizBud !== undefined) {
-                                show.push(FieldShow.createSpecFieldShow(atom as BizAtomSpec, bizBud));
-                                break;
-                            }
-                            const { base } = atom as BizAtomSpec;
-                            bizBud = base.getBud(prop);
-                            p = bizBud;
-                            if (bizBud === undefined) {
-                                this.log(`${base.getJName()} has not ${prop}`);
-                                ok = false;
-                                return ok;
-                            }
-                            show.push(FieldShow.createSpecAtomFieldShow(atom as BizAtomSpec, bizBud));
-                            break;
-                    }
-                    break;
+        else {
+            let bizBin = bizEntity as BizBin;
+            let { showBuds } = bizBin;
+            if (showBuds === undefined) {
+                showBuds = bizBin.showBuds = {};
             }
-            if (bizBud === undefined) break;
+            showBuds[this.element.name] = {
+                owner: undefined,
+                items: show,
+            }
         }
-        let { showBuds } = bizBin;
-        if (showBuds === undefined) {
-            showBuds = bizBin.showBuds = {};
-        }
-        showBuds[this.element.name] = show;
         return ok;
     }
 }
@@ -233,9 +220,39 @@ export class PBizBudDate extends PBizBudValue<BizBudDate> {
 }
 export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
     private atomName: string;
+    private fieldShows: string[][];
     protected _parse(): void {
         this.atomName = this.ts.mayPassVar();
         this.parseBudEqu();
+        if (this.ts.token === Token.LBRACE) {
+            this.fieldShows = [];
+            this.element.fieldShows = [];
+            this.ts.readToken();
+            for (; ;) {
+                if (this.ts.token === Token.RBRACE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                if (this.ts.token === Token.COLON as any) {
+                    this.ts.readToken();
+                    let fieldShow: string[] = [];
+                    for (; ;) {
+                        fieldShow.push(this.ts.passVar());
+                        if (this.ts.token === Token.SEMICOLON as any) {
+                            this.ts.readToken();
+                            break;
+                        }
+                        if (this.ts.token === Token.DOT as any) {
+                            this.ts.readToken();
+                        }
+                    }
+                    this.fieldShows.push(fieldShow);
+                }
+                else {
+                    this.ts.expectToken(Token.COLON);
+                }
+            }
+        }
     }
 
     scan(space: BizEntitySpace): boolean {
@@ -247,6 +264,25 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
             }
             else {
                 this.element.atom = atom;
+            }
+        }
+        return ok;
+    }
+
+    bizEntityScan2(bizEntity: BizEntity): boolean {
+        let ok = super.bizEntityScan2(bizEntity);
+        if (this.fieldShows !== undefined) {
+            for (let fieldShow of this.fieldShows) {
+                let show = this.getFieldShow(bizEntity as BizBin, this.element.name, ...fieldShow);
+                if (show === undefined) {
+                    ok = false;
+                }
+                else {
+                    this.element.fieldShows.push({
+                        owner: this.element,
+                        items: show,
+                    });
+                }
             }
         }
         return ok;

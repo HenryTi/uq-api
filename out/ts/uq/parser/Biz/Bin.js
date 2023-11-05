@@ -214,6 +214,22 @@ class PBizBin extends Base_1.PBizEntity {
         }
         return ok;
     }
+    bizEntityScan2(bizEntity) {
+        let ok = super.bizEntityScan2(bizEntity);
+        let { i, x } = this.element;
+        function check2(bizBud) {
+            if (bizBud === undefined)
+                return;
+            let { pelement } = bizBud;
+            if (pelement !== undefined) {
+                if (pelement.bizEntityScan2(bizEntity) === false)
+                    ok = false;
+            }
+        }
+        check2(i);
+        check2(x);
+        return ok;
+    }
 }
 exports.PBizBin = PBizBin;
 class PBinPick extends element_1.PElement {

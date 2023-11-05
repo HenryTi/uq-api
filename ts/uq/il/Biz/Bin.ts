@@ -8,7 +8,7 @@ import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizAtomSpec } from "./Atom";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudAtom, FieldShow } from "./Bud";
+import { BizBudValue, BizBud, BizBudAtom, FieldShowItem, FieldShow } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
@@ -126,10 +126,23 @@ export class BizBin extends BizEntity {
     price: BizBudValue;
     amount: BizBudValue;
 
-    showBuds: { [bud: string]: FieldShow[] };
+    showBuds: { [bud: string]: FieldShow };
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBin(this, context);
+    }
+
+    allShowBuds() {
+        let has = this.showBuds !== undefined;
+        let ret: { [bud: string]: FieldShow } = { ...this.showBuds };
+        let n = 0;
+        this.forEachBud(v => {
+            let shows = v.getFieldShows();
+            if (shows === undefined) return;
+            has = true;
+            for (let show of shows) ret[v.name + '.' + n++] = show;
+        });
+        if (has === true) return ret;
     }
 
     buildSchema(res: { [phrase: string]: string }) {
