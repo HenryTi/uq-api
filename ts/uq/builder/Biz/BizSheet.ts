@@ -1,8 +1,8 @@
-import { BigInt, BizBin, BizSheet, Dec, JoinType, bigIntField, decField, idField, EnumSysTable, BizEntity, BizBud } from "../../il";
+import { BigInt, BizBin, BizSheet, Dec, JoinType, bigIntField, decField, idField, EnumSysTable, BizEntity, BizBud, BudDataType, FieldShow } from "../../il";
 import { Sqls } from "../bstatement";
-import { ExpAnd, ExpEQ, ExpField, ExpGT, ExpIsNull, ExpNum, ExpVal, ExpVar, Procedure, Statement } from "../sql";
+import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNull, ExpNum, ExpVal, ExpVar, Procedure, SqlVarTable, Statement } from "../sql";
 import { userParamName } from "../sql/sqlBuilder";
-import { EntityTable } from "../sql/statementWithFrom";
+import { EntityTable, VarTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 const sheetId = 'sheet';
@@ -193,21 +193,119 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             let memo = factory.createMemo();
             statements.push(memo)
             memo.text = 'main show buds';
-            statements.push(...this.buildGetShowBuds(main.showBuds));
+            statements.push(...this.buildGetShowBuds('main', main.showBuds));
         }
         for (let bin of detailBins) {
             let memo = factory.createMemo();
             statements.push(memo)
             memo.text = `detail ${bin.name} show buds`;
-            statements.push(...this.buildGetShowBuds(bin.showBuds));
+            statements.push(...this.buildGetShowBuds('details', bin.showBuds));
         }
     }
 
-    private buildGetShowBuds(showBuds: { [bud: string]: [BizEntity, BizBud] }): Statement[] {
+    private buildGetShowBuds(tblBin: string, showBuds: { [bud: string]: FieldShow[] }): Statement[] {
         let statements: Statement[] = [];
-        let { factory, site } = this.context;
-
+        let { factory } = this.context;
+        for (let i in showBuds) {
+            let fieldShowArr = showBuds[i];
+            let select = this.buildSelect(tblBin, fieldShowArr);
+            let insert = factory.createInsert();
+            statements.push(insert);
+            insert.table = new VarTable('props');
+            insert.cols = [
+                { col: 'id', val: undefined },
+                { col: 'phrase', val: undefined },
+                { col: 'value', val: undefined },
+            ];
+            insert.select = select;
+        }
         return statements;
+    }
+
+    private buildSelect(tblBin: string, fieldShowArr: FieldShow[]) {
+        const { factory } = this.context;
+        const select = factory.createSelect();
+        select.column(new ExpField('id', a), 'id');
+
+        select.from(new VarTable(tblBin, a));
+        let lastT: string = 't0', lastField: string;
+        let len = fieldShowArr.length - 1;
+        let { bizEntity: lastEntity, bizBud: lastBud } = fieldShowArr[0];
+        let { name: lastBudName } = lastBud;
+        if (lastBudName === 'i' || lastBudName === 'x') {
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, lastT))
+                .on(new ExpEQ(new ExpField('id', lastT), new ExpField('id', a)));
+            lastField = lastBudName;
+        }
+        else {
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
+                .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
+                .join(JoinType.join, new EntityTable(EnumSysTable.ixBudInt, false, lastT))
+                .on(new ExpAnd(
+                    new ExpEQ(new ExpField('i', lastT), new ExpField('id', b)),
+                    new ExpEQ(new ExpField('x', lastT), new ExpNum(lastBud.id)),
+                ));
+            lastField = 'value';
+        }
+
+        for (let i = 1; i < len; i++) {
+            let { bizEntity, bizBud } = fieldShowArr[i];
+            lastEntity = bizEntity;
+            lastBud = bizBud;
+            const t = 't' + i;
+            select.join(JoinType.join, new EntityTable(EnumSysTable.ixBudInt, false, t))
+                .on(new ExpAnd(
+                    new ExpEQ(new ExpField('i', t), new ExpField(lastField, lastT)),
+                    new ExpEQ(new ExpField('x', t), new ExpNum(bizBud.id)),
+                ));
+            lastT = t;
+            lastField = 'value';
+        }
+        let t = 't' + len;
+        let { bizEntity, bizBud } = fieldShowArr[len];
+        let tblIxBud: string;
+        switch (bizBud.dataType) {
+            default:
+                tblIxBud = 'ixbudint';
+                selectValue();
+                break;
+            case BudDataType.dec:
+                tblIxBud = 'ixbuddec';
+                selectValue();
+                break;
+            case BudDataType.str:
+            case BudDataType.char:
+                tblIxBud = 'ixbudstr';
+                selectValue();
+                break;
+            case BudDataType.radio:
+            case BudDataType.check:
+                tblIxBud = 'ixbud';
+                selectCheck();
+                break;
+        }
+        function selectValue() {
+            select.join(JoinType.join, new EntityTable(tblIxBud, false, t))
+                .on(new ExpAnd(
+                    new ExpEQ(new ExpField('i', t), new ExpField(lastField, lastT)),
+                    new ExpEQ(new ExpField('x', t), new ExpNum(bizBud.id)),
+                ));
+            select.column(new ExpNum(bizBud.id), 'phrase');
+            select.column(new ExpFunc('JSON_ARRAY', new ExpNum(bizEntity.id), new ExpField('value', t)));
+        }
+        function selectCheck() {
+            select.join(JoinType.join, new EntityTable(tblIxBud, false, t))
+                .on(new ExpAnd(
+                    new ExpEQ(new ExpField('i', t), new ExpField(lastField, lastT)),
+                    new ExpEQ(
+                        new ExpField('x', t),
+                        new ExpNum(bizBud.id)
+                    ),
+                ));
+            select.column(new ExpNum(bizBud.id), 'phrase');
+            select.column(new ExpFunc('JSON_ARRAY', new ExpNum(bizEntity.id), new ExpNum(bizBud.id)));
+        }
+        return select;
     }
 }
 

@@ -5,13 +5,13 @@ import {
 } from "../../parser";
 import { IElement } from "../element";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
-import { BizAtom, BizAtomID } from "./Atom";
+import { BizAtom, BizAtomID, BizAtomSpec } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
-import { BizQueryValue } from "./Query";
 import { UI } from "../UI";
+import { BizBin } from "./Bin";
 
 export enum BudValueAct {
     equ = 1,            // 设置不可修改. 这是默认
@@ -19,15 +19,44 @@ export enum BudValueAct {
     show = 3,           // 只显示，不保存
 }
 
+export abstract class FieldShow<T extends BizEntity = BizEntity> {
+    readonly bizEntity: T;
+    readonly bizBud: BizBud;
+    constructor(bizEntity: T, bizBud: BizBud) {
+        this.bizEntity = bizEntity;
+        this.bizBud = bizBud;
+    }
+    static createBinFieldShow(bizBin: BizBin, bizBud: BizBud) {
+        return new BinFieldShow(bizBin, bizBud);
+    }
+    static createSpecFieldShow(bizSpec: BizAtomSpec, bizBud: BizBud) {
+        return new SpecFieldShow(bizSpec, bizBud);
+    }
+    static createSpecAtomFieldShow(bizSpec: BizAtomSpec, bizBud: BizBud) {
+        return new SpecAtomFieldShow(bizSpec, bizBud);
+    }
+    static createAtomFieldShow(bizAtom: BizAtom, bizBud: BizBud) {
+        return new AtomFieldShow(bizAtom, bizBud);
+    }
+}
+class BinFieldShow extends FieldShow<BizBin> {
+}
+class SpecFieldShow extends FieldShow<BizAtomSpec> {
+}
+class SpecAtomFieldShow extends FieldShow<BizAtomSpec> {
+}
+class AtomFieldShow extends FieldShow<BizAtom> {
+}
+
 export interface BudValue {
     exp: ValueExpression;
     act: BudValueAct;
     str?: string;
-    show?: [BizEntity, BizBud];
+    show?: FieldShow[]; // [BizEntity, BizBud, BizEntity, BizBud];
 }
 
 export abstract class BizBud extends BizBase {
-    readonly bizPhraseType = BizPhraseType.any;
+    readonly bizPhraseType = BizPhraseType.bud;
     abstract get dataType(): BudDataType;
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
@@ -119,17 +148,6 @@ export class BizBudInt extends BizBudValue {
 export class BizBudDec extends BizBudValue {
     readonly dataType = BudDataType.dec;
     readonly canIndex = false;
-    // fraction: number;       // decimal fraction digits count
-    /*
-    get ex(): object {
-        if (this.format !== undefined || this.fraction !== undefined) {
-            return {
-                format: this.format,
-                fraction: this.fraction,
-            };
-        }
-    }
-    */
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDec(this, context);
     }

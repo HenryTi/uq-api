@@ -8,7 +8,7 @@ import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizAtomSpec } from "./Atom";
 import { BizBase, BizPhraseType, BudDataType } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudAtom } from "./Bud";
+import { BizBudValue, BizBud, BizBudAtom, FieldShow } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
@@ -126,7 +126,7 @@ export class BizBin extends BizEntity {
     price: BizBudValue;
     amount: BizBudValue;
 
-    showBuds: { [bud: string]: [BizEntity, BizBud] };
+    showBuds: { [bud: string]: FieldShow[] };
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBin(this, context);
@@ -183,6 +183,12 @@ export class BizBin extends BizEntity {
     override getBud(name: string) {
         let bud = super.getBud(name);
         if (bud !== undefined) return bud;
+        if (this.i !== undefined) {
+            if (this.i.name === 'i') return this.i;
+        }
+        if (this.x !== undefined) {
+            if (this.x.name === 'x') return this.x;
+        }
         if (this.value !== undefined) {
             if (this.value.name === name) return this.value;
         }

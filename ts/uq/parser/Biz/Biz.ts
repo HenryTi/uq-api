@@ -95,12 +95,12 @@ export class PBiz extends PEntity<Biz> {
 */
     scan(space: Space): boolean {
         let ok = true;
-        let bizSpace = new BizSpace(space, this.entity);
         let uomAtoms: BizAtom[] = [];
         for (let [, p] of this.entity.bizEntities) {
             let { pelement } = p;
             if (pelement === undefined) continue;
-            if (pelement.scan(bizSpace) === false) ok = false;
+            let bizEntitySpace = new BizEntitySpace(space, p);
+            if (pelement.scan(bizEntitySpace) === false) ok = false;
             if (p.type === 'atom') {
                 if ((p as BizAtom).uom === true) uomAtoms.push(p as BizAtom);
             }
@@ -128,12 +128,11 @@ export class PBiz extends PEntity<Biz> {
     }
 }
 
-class BizSpace extends Space {
-    private readonly biz: Biz;
-    // private varNo: number = 1;
-    constructor(outer: Space, biz: Biz) {
+export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
+    readonly bizEntity: T;
+    constructor(outer: Space, bizEntity: T) {
         super(outer);
-        this.biz = biz;
+        this.bizEntity = bizEntity;
     }
     protected _getEntityTable(name: string): Entity & Table {
         return;
@@ -144,6 +143,4 @@ class BizSpace extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
-    // getVarNo() { return this.varNo; }
-    // setVarNo(value: number) { this.varNo = value; }
 }

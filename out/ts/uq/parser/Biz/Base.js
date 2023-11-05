@@ -142,9 +142,6 @@ class PBizBase extends element_1.PElement {
         this.ts.assertToken(tokens_1.Token.VAR);
         let name = this.ts.lowerVar;
         this.ts.readToken();
-        // if (this.isValidPropName(name) === false) {
-        //    return;
-        // }
         let ui = this.parseUI();
         let bizBud = this.parseBud(name, ui);
         return bizBud;
@@ -196,7 +193,7 @@ class PBizBase extends element_1.PElement {
         }
         let bizBud = new Bud(this.element.biz, name, ui);
         bizBud.parser(this.context).parse();
-        this.parseBudEqu(bizBud);
+        // this.parseBudEqu(bizBud);
         if (this.element.okToDefineNewName(name) === false) {
             this.ts.error(`${name} can not be used multiple times`);
         }
@@ -219,62 +216,8 @@ class PBizBase extends element_1.PElement {
         }
         return bizBud;
     }
-    parseBudEqu(bizBud) {
-        /*
-        let act: BudValueAct;
-        switch (this.ts.token) {
-            default: return;
-            case Token.EQU: act = BudValueAct.equ; break;
-            case Token.COLONEQU: act = BudValueAct.init; break;
-            case Token.COLON: act = BudValueAct.show; break;
-        }
-        if (act !== undefined) {
-            this.ts.readToken();
-            let exp: ValueExpression;
-            exp = new ValueExpression();
-            this.context.parseElement(exp);
-            // }
-            bizBud.value = {
-                exp,
-                act,
-            };
-        }
-        */
-        let act;
-        switch (this.ts.token) {
-            case tokens_1.Token.EQU:
-                act = il_1.BudValueAct.equ;
-                break;
-            case tokens_1.Token.COLONEQU:
-                act = il_1.BudValueAct.init;
-                break;
-            case tokens_1.Token.COLON:
-                act = il_1.BudValueAct.show;
-                break;
-        }
-        if (act === il_1.BudValueAct.show) {
-            this.ts.readToken();
-            let bud, prop;
-            bud = this.ts.passVar();
-            this.ts.passToken(tokens_1.Token.DOT);
-            prop = this.ts.passVar();
-            bizBud.value = {
-                exp: undefined,
-                act: il_1.BudValueAct.show,
-                show: [bud, prop],
-            };
-            return;
-        }
-        if (act !== undefined) {
-            this.ts.readToken();
-            let exp = new il_1.ValueExpression();
-            this.context.parseElement(exp);
-            bizBud.value = {
-                exp,
-                act,
-            };
-            return;
-        }
+    bizEntityScan2(bizEntity) {
+        return true;
     }
 }
 exports.PBizBase = PBizBase;
@@ -444,23 +387,22 @@ class PBizEntity extends PBizBase {
             ok = false;
         return ok;
     }
-    scan2Buds(uq, buds) {
+    scan2(uq) {
         let ok = true;
-        for (let [, value] of buds) {
+        if (this.bizEntityScan2(this.element) === false)
+            ok = false;
+        return ok;
+    }
+    bizEntityScan2(bizEntity) {
+        let ok = true;
+        let { props, biz } = bizEntity;
+        for (let [, value] of props) {
             let { pelement } = value;
             if (pelement === undefined)
                 continue;
-            if (pelement.scan2(uq) === false)
+            if (pelement.bizEntityScan2(bizEntity) === false)
                 ok = false;
         }
-        return ok;
-    }
-    scan2(uq) {
-        let ok = true;
-        const { props } = this.element;
-        if (this.scan2Buds(uq, props) === false)
-            ok = false;
-        // if (this.scan2Buds(uq, assigns) === false) ok = false;
         return ok;
     }
 }

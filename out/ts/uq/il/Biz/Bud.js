@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudValueAct = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.FieldShow = exports.BudValueAct = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -10,12 +10,39 @@ var BudValueAct;
     BudValueAct[BudValueAct["init"] = 2] = "init";
     BudValueAct[BudValueAct["show"] = 3] = "show";
 })(BudValueAct || (exports.BudValueAct = BudValueAct = {}));
+class FieldShow {
+    constructor(bizEntity, bizBud) {
+        this.bizEntity = bizEntity;
+        this.bizBud = bizBud;
+    }
+    static createBinFieldShow(bizBin, bizBud) {
+        return new BinFieldShow(bizBin, bizBud);
+    }
+    static createSpecFieldShow(bizSpec, bizBud) {
+        return new SpecFieldShow(bizSpec, bizBud);
+    }
+    static createSpecAtomFieldShow(bizSpec, bizBud) {
+        return new SpecAtomFieldShow(bizSpec, bizBud);
+    }
+    static createAtomFieldShow(bizAtom, bizBud) {
+        return new AtomFieldShow(bizAtom, bizBud);
+    }
+}
+exports.FieldShow = FieldShow;
+class BinFieldShow extends FieldShow {
+}
+class SpecFieldShow extends FieldShow {
+}
+class SpecAtomFieldShow extends FieldShow {
+}
+class AtomFieldShow extends FieldShow {
+}
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     // get ex(): object { return undefined }
     constructor(biz, name, ui) {
         super(biz);
-        this.bizPhraseType = Base_1.BizPhraseType.any;
+        this.bizPhraseType = Base_1.BizPhraseType.bud;
         this.flag = Entity_1.BudIndex.none;
         this.name = name;
         this.ui = ui;
@@ -105,17 +132,6 @@ class BizBudDec extends BizBudValue {
         this.dataType = Base_1.BudDataType.dec;
         this.canIndex = false;
     }
-    // fraction: number;       // decimal fraction digits count
-    /*
-    get ex(): object {
-        if (this.format !== undefined || this.fraction !== undefined) {
-            return {
-                format: this.format,
-                fraction: this.fraction,
-            };
-        }
-    }
-    */
     parser(context) {
         return new parser_1.PBizBudDec(this, context);
     }

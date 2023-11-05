@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
-const space_1 = require("../space");
 const statement_1 = require("../statement");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
+const Biz_1 = require("./Biz");
 class PBizBin extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
@@ -115,7 +115,7 @@ class PBizBin extends Base_1.PBizEntity {
             this.ts.readToken();
         }
         this.context.parseElement(bud);
-        this.parseBudEqu(bud);
+        // this.parseBudEqu(bud);
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bud;
     }
@@ -374,12 +374,18 @@ exports.detailPreDefined = [
     'value', 'amount', 'price',
     's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
 ];
-class BizBinSpace extends space_1.Space {
-    constructor(outer, bin) {
-        super(outer);
+class BizBinSpace extends Biz_1.BizEntitySpace {
+    constructor() {
+        super(...arguments);
+        // private readonly bin: BizBin;
         this.useColl = {}; // useStatement no
+    }
+    /*
+    constructor(outer: Space, bin: BizBin) {
+        super(outer);
         this.bin = bin;
     }
+    */
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
@@ -387,17 +393,17 @@ class BizBinSpace extends space_1.Space {
         if (exports.detailPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
         }
-        if (this.bin !== undefined) {
-            let pick = (_a = this.bin.picks) === null || _a === void 0 ? void 0 : _a.get(name);
+        if (this.bizEntity !== undefined) {
+            let pick = (_a = this.bizEntity.picks) === null || _a === void 0 ? void 0 : _a.get(name);
             if (pick !== undefined) {
                 return new il_1.VarPointer();
             }
         }
     }
     _varsPointer(names) {
-        if (this.bin !== undefined) {
+        if (this.bizEntity !== undefined) {
             let [pickName, pickProp] = names;
-            let pick = this.bin.getPick(pickName);
+            let pick = this.bizEntity.getPick(pickName);
             if (pick === undefined) {
                 return undefined;
             }
@@ -412,7 +418,7 @@ class BizBinSpace extends space_1.Space {
             default:
                 return super._getBizEntity(name);
             case 'pend':
-                const { pend } = this.bin;
+                const { pend } = this.bizEntity;
                 return pend;
         }
     }
@@ -428,9 +434,6 @@ class BizBinSpace extends space_1.Space {
             obj,
         };
         return true;
-    }
-    _getBin() {
-        return this.bin;
     }
 }
 class PBizBinAct extends Base_1.PBizBase {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBiz = void 0;
+exports.BizEntitySpace = exports.PBiz = void 0;
 const il_1 = require("../../il");
 const space_1 = require("../space");
 const entity_1 = require("../entity/entity");
@@ -89,13 +89,13 @@ class PBiz extends entity_1.PEntity {
 */
     scan(space) {
         let ok = true;
-        let bizSpace = new BizSpace(space, this.entity);
         let uomAtoms = [];
         for (let [, p] of this.entity.bizEntities) {
             let { pelement } = p;
             if (pelement === undefined)
                 continue;
-            if (pelement.scan(bizSpace) === false)
+            let bizEntitySpace = new BizEntitySpace(space, p);
+            if (pelement.scan(bizEntitySpace) === false)
                 ok = false;
             if (p.type === 'atom') {
                 if (p.uom === true)
@@ -125,11 +125,10 @@ class PBiz extends entity_1.PEntity {
     }
 }
 exports.PBiz = PBiz;
-class BizSpace extends space_1.Space {
-    // private varNo: number = 1;
-    constructor(outer, biz) {
+class BizEntitySpace extends space_1.Space {
+    constructor(outer, bizEntity) {
         super(outer);
-        this.biz = biz;
+        this.bizEntity = bizEntity;
     }
     _getEntityTable(name) {
         return;
@@ -141,4 +140,5 @@ class BizSpace extends space_1.Space {
         return;
     }
 }
+exports.BizEntitySpace = BizEntitySpace;
 //# sourceMappingURL=Biz.js.map

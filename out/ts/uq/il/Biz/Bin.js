@@ -160,6 +160,14 @@ class BizBin extends Entity_1.BizEntity {
         let bud = super.getBud(name);
         if (bud !== undefined)
             return bud;
+        if (this.i !== undefined) {
+            if (this.i.name === 'i')
+                return this.i;
+        }
+        if (this.x !== undefined) {
+            if (this.x.name === 'x')
+                return this.x;
+        }
         if (this.value !== undefined) {
             if (this.value.name === name)
                 return this.value;

@@ -11,6 +11,7 @@ import { Space } from "../space";
 import { PStatements } from "../statement";
 import { Token } from "../tokens";
 import { PBizBase, PBizEntity } from "./Base";
+import { BizEntitySpace } from "./Biz";
 
 export class PBizBin extends PBizEntity<BizBin> {
     private pend: string;
@@ -95,7 +96,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             this.ts.readToken();
         }
         this.context.parseElement(bud);
-        this.parseBudEqu(bud);
+        // this.parseBudEqu(bud);
         this.ts.passToken(Token.SEMICOLON);
         return bud;
     }
@@ -392,21 +393,23 @@ export const detailPreDefined = [
     , 'value', 'amount', 'price'
     , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
 ];
-class BizBinSpace extends Space {
-    private readonly bin: BizBin;
+class BizBinSpace extends BizEntitySpace<BizBin> {
+    // private readonly bin: BizBin;
     private readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
+    /*
     constructor(outer: Space, bin: BizBin) {
         super(outer);
         this.bin = bin;
     }
+    */
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (detailPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
-        if (this.bin !== undefined) {
-            let pick = this.bin.picks?.get(name);
+        if (this.bizEntity !== undefined) {
+            let pick = this.bizEntity.picks?.get(name);
             if (pick !== undefined) {
                 return new VarPointer();
             }
@@ -414,9 +417,9 @@ class BizBinSpace extends Space {
     }
 
     protected _varsPointer(names: string[]): [Pointer, string] {
-        if (this.bin !== undefined) {
+        if (this.bizEntity !== undefined) {
             let [pickName, pickProp] = names;
-            let pick = this.bin.getPick(pickName);
+            let pick = this.bizEntity.getPick(pickName);
             if (pick === undefined) {
                 return undefined;
             }
@@ -432,7 +435,7 @@ class BizBinSpace extends Space {
             default:
                 return super._getBizEntity(name);
             case 'pend':
-                const { pend } = this.bin;
+                const { pend } = this.bizEntity;
                 return pend;
         }
     }
@@ -449,10 +452,6 @@ class BizBinSpace extends Space {
             obj,
         }
         return true;
-    }
-
-    protected _getBin(): BizBin {
-        return this.bin;
     }
 }
 

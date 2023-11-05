@@ -26,7 +26,7 @@ class Space {
     _getUse(name) { return undefined; }
     _addUse(name, statementNo, obj) { return undefined; }
     _varsPointer(names) { return; }
-    _getBin() { return; }
+    // protected _getBin(): BizBin { return; }
     get groupType() { return il_1.GroupType.Single; }
     set groupType(value) { }
     get inLoop() {
@@ -196,14 +196,14 @@ class Space {
             return;
         return this.outer.varsPointer(names);
     }
-    getBin() {
+    /*
+    getBin(): BizBin {
         let ret = this._getBin();
-        if (ret !== undefined)
-            return ret;
-        if (this.outer === undefined)
-            return;
+        if (ret !== undefined) return ret;
+        if (this.outer === undefined) return;
         return this.outer.getBin();
     }
+    */
     addTableVar(tableVar) {
         let ret = this._addTableVar(tableVar);
         if (ret === undefined)

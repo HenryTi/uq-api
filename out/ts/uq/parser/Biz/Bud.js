@@ -9,30 +9,63 @@ class PBizBud extends Base_1.PBizBase {
 exports.PBizBud = PBizBud;
 class PBizBudValue extends PBizBud {
     _parse() {
+        this.parseBudEqu();
     }
-    scanBudValue(space) {
-        let ok = true;
-        let { value } = this.element;
-        if (value !== undefined) {
-            const { exp, show } = value;
-            if (exp !== undefined) {
-                if (exp.pelement.scan(space) === false) {
-                    ok = false;
-                }
-            }
-            if (show !== undefined) {
-                let ret = space.getBin();
-                if (ret === undefined) {
-                    let [bud, prop] = show;
-                    this.log(`${bud}.${prop} : can only be defined in BIN`);
-                    ok = false;
-                }
-                else {
-                    value.show = [...show, ret];
-                }
-            }
+    parseBudEqu() {
+        /*
+        let act: BudValueAct;
+        switch (this.ts.token) {
+            default: return;
+            case Token.EQU: act = BudValueAct.equ; break;
+            case Token.COLONEQU: act = BudValueAct.init; break;
+            case Token.COLON: act = BudValueAct.show; break;
         }
-        return ok;
+        if (act !== undefined) {
+            this.ts.readToken();
+            let exp: ValueExpression;
+            exp = new ValueExpression();
+            this.context.parseElement(exp);
+            // }
+            bizBud.value = {
+                exp,
+                act,
+            };
+        }
+        */
+        let act;
+        switch (this.ts.token) {
+            case tokens_1.Token.EQU:
+                act = il_1.BudValueAct.equ;
+                break;
+            case tokens_1.Token.COLONEQU:
+                act = il_1.BudValueAct.init;
+                break;
+            case tokens_1.Token.COLON:
+                act = il_1.BudValueAct.show;
+                break;
+        }
+        if (act === il_1.BudValueAct.show) {
+            this.ts.readToken();
+            let varString = [];
+            for (;;) {
+                varString.push(this.ts.passVar());
+                if (this.ts.token !== tokens_1.Token.DOT)
+                    break;
+                this.ts.readToken();
+            }
+            this.fieldString = varString;
+            return;
+        }
+        if (act !== undefined) {
+            this.ts.readToken();
+            let exp = new il_1.ValueExpression();
+            this.context.parseElement(exp);
+            this.element.value = {
+                exp,
+                act,
+            };
+            return;
+        }
     }
     scan(space) {
         let ok = true;
@@ -44,53 +77,99 @@ class PBizBudValue extends PBizBud {
                     ok = false;
                 }
             }
-            if (this.scanBudValue(space) === false) {
-                ok = false;
-            }
         }
         return ok;
     }
-    scan2(uq) {
+    bizEntityScan2(bizEntity) {
         let ok = true;
-        let { value } = this.element;
-        if (value !== undefined) {
-            const { show } = value;
-            if (show !== undefined) {
-                let [bud, prop, bin] = show;
-                let bizEntity = bin.getBinBudEntity(bud);
-                if (bizEntity === undefined) {
-                    this.log(`${bud} is not defined in ${bin.getJName()} or is not an ATOM`);
-                    ok = false;
-                }
-                else {
-                    let bud = bizEntity.getBud(prop);
-                    if (bud === undefined) {
-                        this.log(`${bizEntity.getJName()} has not ${prop}`);
-                        ok = false;
-                    }
-                    else {
-                        value.show = [bizEntity, bud];
-                        let { showBuds } = bin;
-                        if (showBuds === undefined) {
-                            showBuds = bin.showBuds = {};
-                        }
-                        showBuds[this.element.name] = value.show;
-                    }
-                }
-            }
+        if (this.fieldString === undefined)
+            return ok;
+        let len = this.fieldString.length;
+        if (len === 1) {
+            this.log(`${this.element.name}'s show value can not be one bud`);
+            return false;
         }
+        let bizBin = bizEntity;
+        let show = [];
+        let name0 = this.fieldString[0];
+        let bizBud0 = bizEntity.getBud(name0);
+        if (bizBud0 === undefined) {
+            this.log(`${bizEntity.getJName()} has not ${name0}`);
+            ok = false;
+            return ok;
+        }
+        else if (bizEntity.bizPhraseType !== il_1.BizPhraseType.bin) {
+            this.log('show field can only be in Bin');
+            ok = false;
+            return ok;
+        }
+        show.push(il_1.FieldShow.createBinFieldShow(bizBin, bizBud0));
+        let p = bizBud0;
+        for (let i = 1; i < len; i++) {
+            let { dataType } = p;
+            let bizBud = undefined;
+            let prop = this.fieldString[i];
+            switch (dataType) {
+                default:
+                    this.log(`${p.name} is neither ATOM nor SPEC`);
+                    ok = false;
+                    return ok;
+                case il_1.BudDataType.atom:
+                    let { atom } = p;
+                    if (atom === undefined) {
+                        this.log(`${p.name} does not define ATOM or SPEC`);
+                        ok = false;
+                        return ok;
+                    }
+                    bizBud = atom.getBud(prop);
+                    p = bizBud;
+                    switch (atom.bizPhraseType) {
+                        default:
+                            this.log(`${p.name} is neither ATOM nor SPEC`);
+                            ok = false;
+                            return ok;
+                        case il_1.BizPhraseType.atom:
+                            if (bizBud === undefined) {
+                                this.log(`${atom.getJName()} has not ${prop}`);
+                                ok = false;
+                                return ok;
+                            }
+                            show.push(il_1.FieldShow.createAtomFieldShow(atom, bizBud));
+                            break;
+                        case il_1.BizPhraseType.spec:
+                            if (bizBud !== undefined) {
+                                show.push(il_1.FieldShow.createSpecFieldShow(atom, bizBud));
+                                break;
+                            }
+                            const { base } = atom;
+                            bizBud = base.getBud(prop);
+                            p = bizBud;
+                            if (bizBud === undefined) {
+                                this.log(`${base.getJName()} has not ${prop}`);
+                                ok = false;
+                                return ok;
+                            }
+                            show.push(il_1.FieldShow.createSpecAtomFieldShow(atom, bizBud));
+                            break;
+                    }
+                    break;
+            }
+            if (bizBud === undefined)
+                break;
+        }
+        let { showBuds } = bizBin;
+        if (showBuds === undefined) {
+            showBuds = bizBin.showBuds = {};
+        }
+        showBuds[this.element.name] = show;
         return ok;
     }
 }
 exports.PBizBudValue = PBizBudValue;
 class PBizBudNone extends PBizBudValue {
-    _parse() {
-    }
 }
 exports.PBizBudNone = PBizBudNone;
 class PBizBudInt extends PBizBudValue {
-    _parse() {
-    }
 }
 exports.PBizBudInt = PBizBudInt;
 class PBizBudDec extends PBizBudValue {
@@ -129,22 +208,20 @@ class PBizBudDec extends PBizBudValue {
             // this.element.fraction = n;
             this.element.ui.fraction = n;
         }
+        this.parseBudEqu();
     }
 }
 exports.PBizBudDec = PBizBudDec;
 class PBizBudChar extends PBizBudValue {
-    _parse() {
-    }
 }
 exports.PBizBudChar = PBizBudChar;
 class PBizBudDate extends PBizBudValue {
-    _parse() {
-    }
 }
 exports.PBizBudDate = PBizBudDate;
 class PBizBudAtom extends PBizBudValue {
     _parse() {
         this.atomName = this.ts.mayPassVar();
+        this.parseBudEqu();
     }
     scan(space) {
         let ok = super.scan(space);
@@ -174,7 +251,7 @@ class PBizBudPickable extends PBizBudValue {
             }
         }
         else {
-            this.parseBudEqu(this.element);
+            this.parseBudEqu();
         }
         this.ts.expect('Atom', 'Pick', '=', ':=', ':');
     }
@@ -192,12 +269,6 @@ class PBizBudPickable extends PBizBudValue {
             ok = false;
             this.log(`${this.pick} is not Pick`);
             return ok;
-        }
-        else {
-            if (this.scanBudValue(space) === false) {
-                ok = false;
-                this.log('should be either Atom or Pick or = or := or :');
-            }
         }
     }
 }
