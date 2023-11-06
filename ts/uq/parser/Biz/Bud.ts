@@ -154,6 +154,7 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                 owner: undefined,
                 items: show,
             }
+            this.element.ui.show = true;
         }
         return ok;
     }
@@ -202,7 +203,6 @@ export class PBizBudDec extends PBizBudValue<BizBudDec> {
             if (n < 0 || n > 6) {
                 this.ts.error('must be a number between 0-6');
             }
-            // this.element.fraction = n;
             this.element.ui.fraction = n;
         }
         this.parseBudEqu();

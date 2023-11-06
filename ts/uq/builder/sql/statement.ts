@@ -336,6 +336,8 @@ export abstract class ExecSql extends StatementBase {
     toVar: string;
     toVarPoint: VarPointer;
     sql: ExpVal;
+    parameters: ExpVal[];
+    no: number;
 }
 
 export abstract class Prepare extends StatementBase {

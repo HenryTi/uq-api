@@ -192,6 +192,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
         selectPhraseId.from(new statementWithFrom_1.EntityTable('_specs', false));
         selectPhraseId.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar('p')));
         let execSql = factory.createExecSql();
+        execSql.no = loop.no;
         loop.statements.add(execSql);
         execSql.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('SET @props:=$site.`'), new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('.'), new sql_1.ExpVar('specPhrase'), new sql_1.ExpStr('`('), new sql_1.ExpVar('$site'), new sql_1.ExpStr(','), new sql_1.ExpVar('$user'), new sql_1.ExpStr(','), new sql_1.ExpVar('p'), new sql_1.ExpStr(');'));
         let update = factory.createUpdate();

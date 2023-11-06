@@ -627,9 +627,9 @@ class VarTable extends stat.VarTable {
     declare(vars, puts) { }
     to(sb, tab) {
         if (this.noDrop !== true) {
-            sb.tab(tab).append('DROP TEMPORARY TABLE IF EXISTS ').var(this.name).ln();
+            sb.tab(tab).append('DROP TEMPORARY TABLE IF EXISTS ').dbName().dot().var(this.name).ln();
         }
-        sb.tab(tab).append('CREATE TEMPORARY TABLE IF NOT EXISTS ').var(this.name).space().l();
+        sb.tab(tab).append('CREATE TEMPORARY TABLE IF NOT EXISTS ').dbName().dot().var(this.name).space().l();
         let first = true, autoId;
         for (let field of this.fields) {
             if (first === true)
@@ -779,21 +779,30 @@ class Memo extends stat.Memo {
 exports.Memo = Memo;
 class ExecSql extends stat.ExecSql {
     to(sb, tab) {
-        sb.tab(tab).append('SET @statement=');
-        /*
-        if (this.toVarPoint) {
-            sb.append('CONCAT(\'SET @execSqlValue=\', ')
-                .exp(this.sql)
-                .append(')');
+        if (this.no === undefined) {
+            throw new Error('exec sql must define statement no');
         }
-        else {
-            sb.exp(this.sql);
-        }
-        */
+        sb.tab(tab).append('SET @statement').append(this.no).append('=');
         sb.exp(this.sql).ln();
-        sb.tab(tab).append('PREPARE stmtBiz FROM @statement').ln();
-        sb.tab(tab).append('EXECUTE stmtBiz').ln();
-        sb.tab(tab).append('DEALLOCATE PREPARE stmtBiz').ln();
+        if (this.parameters !== undefined) {
+            let len = this.parameters.length;
+            for (let i = 0; i < len; i++) {
+                sb.tab(tab).append('SET @p__').append(i).append('=').exp(this.parameters[i]).ln();
+            }
+        }
+        sb.tab(tab).append(`PREPARE stmt${this.no} FROM @statement${this.no}`).ln();
+        sb.tab(tab).append(`EXECUTE stmt${this.no}`);
+        if (this.parameters !== undefined) {
+            sb.append(' USING ');
+            let len = this.parameters.length;
+            for (let i = 0; i < len; i++) {
+                sb.tab(tab).append('@p__').append(i);
+                if (i < len - 1)
+                    sb.comma();
+            }
+        }
+        sb.ln();
+        sb.tab(tab).append(`DEALLOCATE PREPARE stmt${this.no}`).ln();
         if (this.toVarPoint) {
             sb.tab(tab).append('SET ').var(this.toVarPoint.varName(this.toVar))
                 .append('=@execSqlValue')

@@ -242,6 +242,7 @@ export class BBizReport extends BBizEntity<BizReport> {
         selectPhraseId.where(new ExpEQ(new ExpField('id'), new ExpVar('p')));
 
         let execSql = factory.createExecSql();
+        execSql.no = loop.no;
         loop.statements.add(execSql);
         execSql.sql = new ExpFunc(
             factory.func_concat,

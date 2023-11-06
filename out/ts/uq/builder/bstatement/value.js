@@ -58,6 +58,7 @@ class BValueStatement extends bstatement_1.BStatement {
         setSql.equ(`$sql_${no}`, new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('select ' + this.context.twProfix), new sql_1.ExpVar(`$type_${no}`), new sql_1.ExpStr(`$value(@id_${no}) into @value_${no}`)));
         let execSql = factory.createExecSql();
         sqls.push(execSql);
+        execSql.no = no;
         execSql.sql = new sql_1.ExpVar(`$sql_${no}`);
         if (varType) {
             let setType = factory.createSet();

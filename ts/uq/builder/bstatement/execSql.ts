@@ -10,6 +10,7 @@ export class BExecSqlStatement extends BStatement {
         let factory = this.context.factory;
         let execSql = factory.createExecSql();
         sqls.push(execSql);
+        execSql.no = this.istatement.no;
         execSql.toVar = toVar;
         execSql.toVarPoint = toVarPointer;
         execSql.sql = convertExp(this.context, sql) as ExpVal;

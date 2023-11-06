@@ -412,6 +412,7 @@ export class IDProcedures extends SysProcedures {
             new ExpAdd(new ExpVar('p'), ExpNum.num1, new ExpNeg(new ExpVar('c')))));
 
         let execSql = factory.createExecSql();
+        execSql.no = 1;
         execSql.sql = new ExpVar('stat');
         lstats.add(execSql);
 
@@ -907,6 +908,7 @@ export class IDProcedures extends SysProcedures {
 
         let execSql = factory.createExecSql();
         statements.push(execSql);
+        execSql.no = 2;
         execSql.sql = new ExpVar('sql');
 
         declare.var('$id', new Int());
@@ -993,6 +995,7 @@ export class IDProcedures extends SysProcedures {
         );
         let execSqlValue = factory.createExecSql();
         loops.add(execSqlValue);
+        execSql.no = 3;
         execSqlValue.sql = new ExpVar(`sql_value`);
 
         let update = factory.createUpdate();

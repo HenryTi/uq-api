@@ -312,6 +312,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         lstats.add(setStat);
         setStat.equ('stat', new sql_1.ExpFunc(factory.func_substr, new sql_1.ExpVar('sql'), new sql_1.ExpVar('c'), new sql_1.ExpAdd(new sql_1.ExpVar('p'), sql_1.ExpNum.num1, new sql_1.ExpNeg(new sql_1.ExpVar('c')))));
         let execSql = factory.createExecSql();
+        execSql.no = 1;
         execSql.sql = new sql_1.ExpVar('stat');
         lstats.add(execSql);
         let setCInc = factory.createSet();
@@ -669,6 +670,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         setAtUser.isAtVar = true;
         let execSql = factory.createExecSql();
         statements.push(execSql);
+        execSql.no = 2;
         execSql.sql = new sql_1.ExpVar('sql');
         declare.var('$id', new il_1.Int());
         declare.var('p', new il_1.Int());
@@ -734,6 +736,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         setSqlValue.equ(`sql_value`, new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('select ' + this.context.twProfix), new sql_1.ExpVar(`entity`), new sql_1.ExpStr(`$value(@xi) into @value`)));
         let execSqlValue = factory.createExecSql();
         loops.add(execSqlValue);
+        execSql.no = 3;
         execSqlValue.sql = new sql_1.ExpVar(`sql_value`);
         let update = factory.createUpdate();
         loops.add(update);

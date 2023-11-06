@@ -20,4 +20,5 @@ var Exp_1 = require("./Exp");
 Object.defineProperty(exports, "Exp", { enumerable: true, get: function () { return Exp_1.Exp; } });
 var convertExp_1 = require("./convertExp");
 Object.defineProperty(exports, "convertExp", { enumerable: true, get: function () { return convertExp_1.convertExp; } });
+__exportStar(require("./ExpRoutineExists"), exports);
 //# sourceMappingURL=index.js.map

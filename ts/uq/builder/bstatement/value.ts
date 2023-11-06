@@ -62,6 +62,7 @@ export class BValueStatement extends BStatement<ValueStatement> {
         );
         let execSql = factory.createExecSql();
         sqls.push(execSql);
+        execSql.no = no;
         execSql.sql = new ExpVar(`$sql_${no}`);
 
         if (varType) {

@@ -40,6 +40,7 @@ class AtomFieldShowItem extends FieldShowItem {
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     getFieldShows() { return undefined; }
+    // show: boolean;      // 仅用于显示
     constructor(biz, name, ui) {
         super(biz);
         this.bizPhraseType = Base_1.BizPhraseType.bud;
@@ -60,9 +61,7 @@ class BizBudValue extends BizBud {
     buildSchema(res) {
         var _a, _b;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, 
-            // ex: this.ex,
-            history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
     }
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')

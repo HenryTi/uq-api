@@ -57,7 +57,6 @@ export interface BudValue {
     exp: ValueExpression;
     act: BudValueAct;
     str?: string;
-    show?: FieldShow;
 }
 
 export abstract class BizBud extends BizBase {
@@ -66,6 +65,7 @@ export abstract class BizBud extends BizBase {
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     getFieldShows(): FieldShow[] { return undefined }
+    // show: boolean;      // 仅用于显示
     constructor(biz: Biz, name: string, ui: Partial<UI>) {
         super(biz);
         this.name = name;
@@ -91,9 +91,9 @@ export abstract class BizBudValue extends BizBud {
             ...ret,
             dataType: this.dataType,
             value: this.value?.str,
-            // ex: this.ex,
             history: this.hasHistory === true ? true : undefined,
             setType: this.setType ?? SetType.assign,
+            // show: this.show,
         }
     }
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {

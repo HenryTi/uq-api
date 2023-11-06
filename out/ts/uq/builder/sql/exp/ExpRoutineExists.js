@@ -11,11 +11,10 @@ class ExpRoutineExists extends Exp_1.Exp {
     }
     to(sb) {
         const { factory } = sb;
-        const { dbContext } = factory;
         sb.append(`EXISTS(SELECT 1 FROM information_schema.routines WHERE ROUTINE_SCHEMA=`)
-            .exp(dbContext.convertExp(this.schema))
+            .exp(this.schema)
             .append(` AND ROUTINE_NAME=`)
-            .exp(dbContext.convertExp(this.routine))
+            .exp(this.routine)
             .r();
     }
 }

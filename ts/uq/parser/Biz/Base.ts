@@ -163,8 +163,11 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             this.ts.expect(...keys);
         }
         let bizBud = new Bud(this.element.biz, name, ui);
+        if (this.ts.isKeyword('required') === true) {
+            bizBud.ui.required = true;
+            this.ts.readToken();
+        }
         bizBud.parser(this.context).parse();
-        // this.parseBudEqu(bizBud);
         if (this.element.okToDefineNewName(name) === false) {
             this.ts.error(`${name} can not be used multiple times`);
         }
