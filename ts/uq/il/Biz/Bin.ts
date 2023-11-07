@@ -19,10 +19,11 @@ export interface PickParam {
     bud: string;
     prop: string;       // prop of bud
 }
+
 export class BinPick extends BizBud {
     readonly bin: BizBin;
     readonly dataType = BudDataType.none;
-    param: PickParam[];
+    params: PickParam[];
     pick: PickBase;
     single: boolean;
     constructor(bin: BizBin, name: string, ui: Partial<UI>) {
@@ -159,12 +160,12 @@ export class BizBin extends BizEntity {
         let picks: any[] = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, ui, pick, param, single } = value;
+                const { name, ui, pick, params, single } = value;
                 picks.push({
                     name,
                     ui,
                     from: pick.fromSchema(),
-                    param,
+                    params,
                     single,
                 });
             }

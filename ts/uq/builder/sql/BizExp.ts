@@ -50,7 +50,14 @@ export class BBizExp {
     private atom(sb: SqlBuilder) {
         const { bizEntity, prop } = this.bizExp;
         let bud = bizEntity.props.get(prop);
-        sb.append(' FROM atom WHERE id=');
+        if (bud === undefined) {
+            sb.append(prop);
+        }
+        else {
+            debugger;
+        }
+
+        sb.append(' FROM ').dbName().append('.`atom` WHERE id=');
         sb.exp(this.param);
         sb.append(' AND base=');
         sb.append(bizEntity.id);

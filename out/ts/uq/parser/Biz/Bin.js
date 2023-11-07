@@ -185,13 +185,6 @@ class PBizBin extends Base_1.PBizEntity {
                         ok = false;
                     }
                 }
-                /*
-                else if (query !== undefined) {
-                    if (query.pelement.scan(space) === false) {
-                        ok = false;
-                    }
-                }
-                */
             }
         };
         scanBudValue(budValue);
@@ -239,8 +232,6 @@ class PBinPick extends element_1.PElement {
     }
     _parse() {
         this.ts.passKey('from');
-        let param = [];
-        this.element.param = param;
         for (;;) {
             this.from.push(this.ts.passVar());
             if (this.ts.token !== tokens_1.Token.BITWISEOR)
@@ -264,7 +255,11 @@ class PBinPick extends element_1.PElement {
                         this.ts.readToken();
                         prop = this.ts.passVar();
                     }
-                    param.push({
+                    let { params } = this.element;
+                    if (params === undefined) {
+                        params = this.element.params = [];
+                    }
+                    params.push({
                         name,
                         bud,
                         prop,
@@ -319,21 +314,23 @@ class PBinPick extends element_1.PElement {
                 this.log('from only one object');
                 ok = false;
             }
-            let { param, bin } = this.element;
-            for (let p of param) {
-                const { name, bud, prop } = p;
-                if (pickBase.hasParam(name) === false) {
-                    this.log(`PARAM ${name} is not defined`);
-                    ok = false;
-                }
-                let pick = bin.getPick(bud);
-                if (pick === undefined) {
-                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
-                    ok = false;
-                }
-                else if (pick.pick.hasReturn(prop) === false) {
-                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
-                    ok = false;
+            let { params, bin } = this.element;
+            if (params !== undefined) {
+                for (let p of params) {
+                    const { name, bud, prop } = p;
+                    if (pickBase.hasParam(name) === false) {
+                        this.log(`PARAM ${name} is not defined`);
+                        ok = false;
+                    }
+                    let pick = bin.getPick(bud);
+                    if (pick === undefined) {
+                        this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
+                        ok = false;
+                    }
+                    else if (pick.pick.hasReturn(prop) === false) {
+                        this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
+                        ok = false;
+                    }
                 }
             }
         }

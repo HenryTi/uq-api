@@ -731,19 +731,7 @@ export abstract class PExpression extends PElement {
         this.context.parseElement(ret);
         return ret;
     }
-    /*
-        private parseOpSpecId() {
-            let ret = new Exp.OpSpecId();
-            ret.parser(this.context).parse();
-            return ret;
-        }
-    
-        private parseOpSpecValue() {
-            let ret = new Exp.OpSpecValue();
-            ret.parser(this.context).parse();
-            return ret;
-        }
-    */
+
     private parseCount() {
         if (this.ts.token === Token.MUL) {
             this.ts.readToken();

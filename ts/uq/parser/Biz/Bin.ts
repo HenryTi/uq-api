@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizBinActStatements, BizDetailActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BizBudPickable, PickParam, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud
+    , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -206,13 +206,6 @@ export class PBizBin extends PBizEntity<BizBin> {
                         ok = false;
                     }
                 }
-                /*
-                else if (query !== undefined) {
-                    if (query.pelement.scan(space) === false) {
-                        ok = false;
-                    }
-                }
-                */
             }
         }
 
@@ -259,8 +252,6 @@ export class PBinPick extends PElement<BinPick> {
     private from: string[] = [];
     protected _parse(): void {
         this.ts.passKey('from');
-        let param: PickParam[] = [];
-        this.element.param = param;
         for (; ;) {
             this.from.push(this.ts.passVar());
             if (this.ts.token !== Token.BITWISEOR) break;
@@ -283,7 +274,11 @@ export class PBinPick extends PElement<BinPick> {
                         this.ts.readToken();
                         prop = this.ts.passVar();
                     }
-                    param.push({
+                    let { params } = this.element;
+                    if (params === undefined) {
+                        params = this.element.params = [];
+                    }
+                    params.push({
                         name,
                         bud,
                         prop,
@@ -340,21 +335,23 @@ export class PBinPick extends PElement<BinPick> {
                 this.log('from only one object');
                 ok = false;
             }
-            let { param, bin } = this.element;
-            for (let p of param) {
-                const { name, bud, prop } = p;
-                if (pickBase.hasParam(name) === false) {
-                    this.log(`PARAM ${name} is not defined`);
-                    ok = false;
-                }
-                let pick = bin.getPick(bud);
-                if (pick === undefined) {
-                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
-                    ok = false;
-                }
-                else if (pick.pick.hasReturn(prop) === false) {
-                    this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
-                    ok = false;
+            let { params, bin } = this.element;
+            if (params !== undefined) {
+                for (let p of params) {
+                    const { name, bud, prop } = p;
+                    if (pickBase.hasParam(name) === false) {
+                        this.log(`PARAM ${name} is not defined`);
+                        ok = false;
+                    }
+                    let pick = bin.getPick(bud);
+                    if (pick === undefined) {
+                        this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
+                        ok = false;
+                    }
+                    else if (pick.pick.hasReturn(prop) === false) {
+                        this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
+                        ok = false;
+                    }
                 }
             }
         }

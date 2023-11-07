@@ -720,19 +720,6 @@ class PExpression extends element_1.PElement {
         this.context.parseElement(ret);
         return ret;
     }
-    /*
-        private parseOpSpecId() {
-            let ret = new Exp.OpSpecId();
-            ret.parser(this.context).parse();
-            return ret;
-        }
-    
-        private parseOpSpecValue() {
-            let ret = new Exp.OpSpecValue();
-            ret.parser(this.context).parse();
-            return ret;
-        }
-    */
     parseCount() {
         if (this.ts.token === tokens_1.Token.MUL) {
             this.ts.readToken();

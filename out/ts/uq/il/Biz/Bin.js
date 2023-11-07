@@ -139,12 +139,12 @@ class BizBin extends Entity_1.BizEntity {
         let picks = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
-                const { name, ui, pick, param, single } = value;
+                const { name, ui, pick, params, single } = value;
                 picks.push({
                     name,
                     ui,
                     from: pick.fromSchema(),
-                    param,
+                    params,
                     single,
                 });
             }
