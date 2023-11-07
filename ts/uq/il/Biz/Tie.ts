@@ -1,3 +1,4 @@
+import { BBizEntity, BBizTie, DbContext } from "../../builder";
 import { PBizTie, PContext, PElement } from "../../parser";
 import { IElement } from "../element";
 import { BizAtomID } from "./Atom";
@@ -33,5 +34,9 @@ export class BizTie extends BizEntity {
             atoms: atoms.map(v => v.id),
         }
         return ret;
+    }
+
+    db(dbContext: DbContext): BBizEntity {
+        return new BBizTie(dbContext, this);
     }
 }

@@ -6,3 +6,4 @@ export * from './BizReport';
 export * from './BizPick';
 export * from './BizQuery';
 export * from './BizAssign';
+export * from './BizTie';

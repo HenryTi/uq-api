@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizTie = void 0;
+const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -28,6 +29,9 @@ class BizTie extends Entity_1.BizEntity {
             atoms: atoms.map(v => v.id),
         };
         return ret;
+    }
+    db(dbContext) {
+        return new builder_1.BBizTie(dbContext, this);
     }
 }
 exports.BizTie = BizTie;
