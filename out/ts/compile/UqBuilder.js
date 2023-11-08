@@ -12,8 +12,6 @@ class UqBuilder {
         this.user = compiler.user;
     }
     isIdNameOk() { return true; }
-    //async loadObjects(objs: any, props: any) {
-    // }
     async saveBizObject(entity) {
         const { objIds, objNames, res } = this.compiler;
         const { type, phrase, ui: { caption }, source } = entity;
@@ -78,9 +76,7 @@ class UqBuilder {
                 objId = obj.id;
             }
         }
-        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag
-        // , undefined // ex === undefined ? undefined : JSON.stringify(ex)
-        );
+        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
         bud.id = budId;
         res[phrase] = caption;
     }
@@ -92,11 +88,6 @@ class UqBuilder {
         const ixPairs = this.biz.getEntityIxPairs(newest);
         console.log(ixPairs);
         await this.runner.unitUserTableFromProc('SaveBizIX', this.site, this.user, JSON.stringify(ixPairs));
-        /*
-        await Promise.all(newest.map(entity => {
-            return this.saveBizEntityBuds(entity);
-        }));
-        */
         const ixBizRoles = this.biz.getIxRoles();
         await this.runner.unitUserTableFromProc('SaveIxPermission', this.site, this.user, JSON.stringify(ixBizRoles));
         const hasUnit = false;

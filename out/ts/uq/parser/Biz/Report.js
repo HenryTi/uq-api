@@ -62,16 +62,6 @@ class PBizReport extends Base_1.PBizEntity {
                 }
             }
         };
-        /*
-        private parseList = () => {
-            let name = this.ts.passVar();
-            let caption = this.ts.passString();
-            this.ts.passKey('of');
-            let atomName = this.ts.passVar();
-            this.lists.push({ name, caption, atomName });
-            this.ts.passToken(Token.SEMICOLON);
-        }
-        */
         this.parsePermit = () => {
             this.parsePermission('');
         };

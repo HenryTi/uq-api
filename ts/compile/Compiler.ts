@@ -234,17 +234,4 @@ export class Compiler {
         this.msgs.push(msg);
         return true;
     }
-    /*
-    async run(code: string) {
-        try {
-            await this.loadBizObjects();
-            let ret = this.parseCode(code);
-            if (ret !== undefined) return ret;
-            return await this.scanAndBuildDb();
-        }
-        catch (err) {
-            return this.errorResult(err);
-        }
-    }
-    */
 }

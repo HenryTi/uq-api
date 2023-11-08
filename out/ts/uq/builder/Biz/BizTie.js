@@ -7,11 +7,13 @@ const il_2 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const a = 'a';
+const b = 'b';
+const c = 'c';
 class BBizTie extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures;
         const { id } = this.bizEntity;
-        const procGet = this.createProcedure(`${this.context.site}.${id}a`);
+        const procGet = this.createProcedure(`${this.context.site}.${id}t`);
         this.buildGetProc(procGet);
     }
     buildGetProc(proc) {
@@ -38,33 +40,37 @@ class BBizTie extends BizEntity_1.BBizEntity {
         ];
         const selectPage = factory.createSelect();
         insert.select = selectPage;
-        let expJsonValues = this.buildJsonValues(undefined /* i.atoms*/);
+        let expJsonValues = this.buildJsonValues();
         selectPage.column(new sql_1.ExpField('id', a));
         selectPage.column(new sql_1.ExpField('no', a));
         selectPage.column(new sql_1.ExpField('ex', a));
         selectPage.column(expJsonValues, 'values');
         selectPage
-            .from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.atom, false, a));
+            .from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.atom, false, a))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_2.EnumSysTable.bud, false, b))
+            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(id)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpField('id', a))));
         selectPage.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar('pageStart')), new sql_1.ExpIn(new sql_1.ExpField('base', a), ...i.atoms.map(v => new sql_1.ExpNum(v.id)))));
         selectPage.order(new sql_1.ExpField('id', a), 'asc');
         selectPage.limit(new sql_1.ExpVar('pageSize'));
     }
-    buildJsonValues(title) {
-        const { factory } = this.context;
-        let expValues = title.map(([entity, bud]) => {
-            const selectValue = this.buildTitleValueSelect(entity, bud);
-            return new sql_1.ExpFunc(factory.func_ifnull, new sql_1.ExpSelect(selectValue), sql_1.ExpNum.num0);
-        });
-        const expJsonValues = new sql_1.ExpFunc('JSON_ARRAY', ...expValues);
-        return expJsonValues;
+    buildJsonValues() {
+        const selectValue = this.buildTitleValueSelect();
+        let expValues = new sql_1.ExpSelect(selectValue);
+        return expValues;
     }
-    buildTitleValueSelect(entity, bud) {
+    buildTitleValueSelect() {
+        //.join(JoinType.join, new EntityTable(EnumSysTable.ixBud, false, c))
+        //.on(new ExpAnd(
+        //    new ExpEQ(new ExpField('i', c), new ExpField('id', b))
+        // ));
         const { factory } = this.context;
-        const t = 't0';
+        const t = 't0', ta = 'ta';
         let select = factory.createSelect();
-        select.col('value', undefined, t);
-        select.from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.ixBudDec, false, t));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(bud.id))));
+        select.column(new sql_1.ExpFunc('JSON_ARRAYAGG', new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('id', ta), new sql_1.ExpField('no', ta), new sql_1.ExpField('ex', ta))), 'value');
+        select.from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.ixBud, false, t))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_2.EnumSysTable.atom, false, ta))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', ta), new sql_1.ExpField('x', t)));
+        select.where(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', b)));
         return select;
     }
 }

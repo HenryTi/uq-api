@@ -1,4 +1,4 @@
-import { BigInt, BizBud, BizEntity, BizTie } from "../../il";
+import { BigInt, BizBud, BizEntity, BizTie, JoinType } from "../../il";
 import { BBizEntity } from "./BizEntity";
 import { bigIntField, jsonField, EnumSysTable } from "../../il";
 import {
@@ -9,12 +9,14 @@ import {
 import { EntityTable } from "../sql/statementWithFrom";
 
 const a = 'a';
+const b = 'b';
+const c = 'c';
 
 export class BBizTie extends BBizEntity<BizTie> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures
         const { id } = this.bizEntity;
-        const procGet = this.createProcedure(`${this.context.site}.${id}a`);
+        const procGet = this.createProcedure(`${this.context.site}.${id}t`);
         this.buildGetProc(procGet);
     }
 
@@ -53,13 +55,18 @@ export class BBizTie extends BBizEntity<BizTie> {
 
         const selectPage = factory.createSelect();
         insert.select = selectPage;
-        let expJsonValues = this.buildJsonValues(undefined/* i.atoms*/);
+        let expJsonValues = this.buildJsonValues();
         selectPage.column(new ExpField('id', a));
         selectPage.column(new ExpField('no', a));
         selectPage.column(new ExpField('ex', a));
         selectPage.column(expJsonValues, 'values');
         selectPage
             .from(new EntityTable(EnumSysTable.atom, false, a))
+            .join(JoinType.left, new EntityTable(EnumSysTable.bud, false, b))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('base', b), new ExpNum(id)),
+                new ExpEQ(new ExpField('ext', b), new ExpField('id', a))
+            ));
         selectPage.where(new ExpAnd(
             new ExpGT(new ExpField('id', a), new ExpVar('pageStart')),
             new ExpIn(new ExpField('base', a), ...i.atoms.map(v => new ExpNum(v.id))),
@@ -68,30 +75,29 @@ export class BBizTie extends BBizEntity<BizTie> {
         selectPage.limit(new ExpVar('pageSize'));
     }
 
-    private buildJsonValues(title: [BizEntity, BizBud][]) {
-        const { factory } = this.context;
-        let expValues: ExpVal[] = title.map(([entity, bud]) => {
-            const selectValue = this.buildTitleValueSelect(entity, bud);
-            return new ExpFunc(
-                factory.func_ifnull,
-                new ExpSelect(selectValue),
-                ExpNum.num0,
-            );
-        });
-        const expJsonValues = new ExpFunc('JSON_ARRAY', ...expValues);
-        return expJsonValues;
+    private buildJsonValues() {
+        const selectValue = this.buildTitleValueSelect();
+        let expValues: ExpVal = new ExpSelect(selectValue);
+        return expValues;
     }
 
-    private buildTitleValueSelect(entity: BizEntity, bud: BizBud) {
+    private buildTitleValueSelect() {
+        //.join(JoinType.join, new EntityTable(EnumSysTable.ixBud, false, c))
+        //.on(new ExpAnd(
+        //    new ExpEQ(new ExpField('i', c), new ExpField('id', b))
+        // ));
         const { factory } = this.context;
-        const t = 't0';
+        const t = 't0', ta = 'ta';
         let select = factory.createSelect();
-        select.col('value', undefined, t);
-        select.from(new EntityTable(EnumSysTable.ixBudDec, false, t));
-        select.where(new ExpAnd(
-            new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
-            new ExpEQ(new ExpField('x', t), new ExpNum(bud.id)),
-        ));
+        select.column(new ExpFunc(
+            'JSON_ARRAYAGG', new ExpFunc(
+                'JSON_ARRAY', new ExpField('id', ta), new ExpField('no', ta), new ExpField('ex', ta)
+            )
+        ), 'value');
+        select.from(new EntityTable(EnumSysTable.ixBud, false, t))
+            .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, ta))
+            .on(new ExpEQ(new ExpField('id', ta), new ExpField('x', t)));
+        select.where(new ExpEQ(new ExpField('i', t), new ExpField('id', b)));
         return select;
     }
 }

@@ -24,9 +24,6 @@ export class UqBuilder {
 
     isIdNameOk(): boolean { return true }
 
-    //async loadObjects(objs: any, props: any) {
-    // }
-
     private async saveBizObject(entity: BizEntity) {
         const { objIds, objNames, res } = this.compiler;
         const { type, phrase, ui: { caption }, source } = entity;
@@ -100,7 +97,6 @@ export class UqBuilder {
         let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud'
             , this.site, this.user, entity.id, bud.id, phrase, caption
             , typeNum, memo, dataTypeNum, objId, flag
-            // , undefined // ex === undefined ? undefined : JSON.stringify(ex)
         );
         bud.id = budId;
         res[phrase] = caption;
@@ -115,11 +111,6 @@ export class UqBuilder {
         console.log(ixPairs);
         await this.runner.unitUserTableFromProc('SaveBizIX'
             , this.site, this.user, JSON.stringify(ixPairs));
-        /*
-        await Promise.all(newest.map(entity => {
-            return this.saveBizEntityBuds(entity);
-        }));
-        */
         const ixBizRoles = this.biz.getIxRoles();
         await this.runner.unitUserTableFromProc('SaveIxPermission'
             , this.site, this.user, JSON.stringify(ixBizRoles));

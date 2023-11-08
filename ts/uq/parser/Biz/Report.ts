@@ -63,16 +63,7 @@ export class PBizReport extends PBizEntity<BizReport> {
             }
         }
     }
-    /*
-    private parseList = () => {
-        let name = this.ts.passVar();
-        let caption = this.ts.passString();
-        this.ts.passKey('of');
-        let atomName = this.ts.passVar();
-        this.lists.push({ name, caption, atomName });
-        this.ts.passToken(Token.SEMICOLON);
-    }
-    */
+
     private parsePermit = () => {
         this.parsePermission('');
     }

@@ -9,11 +9,6 @@ import { BizRole } from "./Role";
 import { BizAtom } from "./Atom";
 import { EnumSysTable } from "../EnumSysTable";
 
-interface Role {
-    role: string;
-    permits: string[];
-}
-
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
     readonly bizArr: BizEntity[] = [];

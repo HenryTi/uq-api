@@ -28,7 +28,6 @@ export class FromStatement extends Statement {
     asc: 'asc' | 'desc';
     ban: BanColumn;
     cols: FromColumn[] = [];
-    putName: string;
     where: CompareExpression;
 
     db(db: Builder): object {
