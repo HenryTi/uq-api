@@ -1,5 +1,5 @@
 import { PContext, PElement, PFromStatement, PPutStatement } from "../../parser";
-import { BizBud, BizBudValue, BizEntity, BizPhraseType } from "../Biz";
+import { BizBud, BizBudValue, BizEntity, BizPhraseType, BizTie } from "../Biz";
 import { EnumSysTable } from "../EnumSysTable";
 import { Builder } from "../builder";
 import { IElement } from "../element";
@@ -20,11 +20,17 @@ export interface BanColumn {
     val: CompareExpression;
 }
 
+export interface OfIX {
+    ix: BizTie;
+    val: ValueExpression;
+}
+
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     bizEntityArr: BizEntity[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
+    ofIXs: OfIX[];
     asc: 'asc' | 'desc';
     ban: BanColumn;
     cols: FromColumn[] = [];

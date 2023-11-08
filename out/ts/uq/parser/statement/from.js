@@ -20,6 +20,19 @@ class PFromStatement extends statement_1.PStatement {
                 break;
             }
         }
+        while (this.ts.isKeyword('of') === true) {
+            this.ts.readToken();
+            let { ofIXs } = this.element;
+            if (ofIXs === undefined) {
+                this.element.ofIXs = ofIXs = [];
+            }
+            let ix = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.LPARENTHESE);
+            let val = new il_1.ValueExpression();
+            this.context.parseElement(val);
+            this.ts.passToken(tokens_1.Token.RPARENTHESE);
+            ofIXs.push({ ix, val });
+        }
         if (this.ts.isKeyword('column') === true) {
             const coll = {};
             this.ts.readToken();
@@ -105,7 +118,29 @@ class PFromStatement extends statement_1.PStatement {
             ok = false;
         }
         else if (entityArr.length > 0) {
-            for (let col of this.element.cols) {
+            const { ofIXs, cols } = this.element;
+            if (ofIXs !== undefined) {
+                for (let ofIx of ofIXs) {
+                    let ixName = ofIx.ix;
+                    let { val } = ofIx;
+                    let entity = space.getBizEntity(ixName);
+                    if (entity === undefined) {
+                        ok = false;
+                        this.log(`${ixName} is not defined`);
+                    }
+                    else if (entity.bizPhraseType !== il_1.BizPhraseType.tie) {
+                        ok = false;
+                        this.log(`${ixName} is not a TIE`);
+                    }
+                    else {
+                        ofIx.ix = entity;
+                    }
+                    if (val.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
+            }
+            for (let col of cols) {
                 const { name, ui, val } = col;
                 if (val.pelement.scan(space) === false) {
                     ok = false;

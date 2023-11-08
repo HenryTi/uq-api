@@ -1,4 +1,4 @@
-import { BizBudNone, CompareExpression, Entity, FromStatement, Pointer, Table, ValueExpression } from "../../il";
+import { BizBudNone, BizPhraseType, BizTie, CompareExpression, Entity, FromStatement, Pointer, Table, ValueExpression } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PStatement } from "./statement";
@@ -15,6 +15,21 @@ export class PFromStatement extends PStatement<FromStatement> {
                 break;
             }
         }
+
+        while (this.ts.isKeyword('of') === true) {
+            this.ts.readToken();
+            let { ofIXs } = this.element;
+            if (ofIXs === undefined) {
+                this.element.ofIXs = ofIXs = [];
+            }
+            let ix = this.ts.passVar();
+            this.ts.passToken(Token.LPARENTHESE);
+            let val = new ValueExpression();
+            this.context.parseElement(val);
+            this.ts.passToken(Token.RPARENTHESE);
+            ofIXs.push({ ix, val } as any);
+        }
+
         if (this.ts.isKeyword('column') === true) {
             const coll: { [name: string]: boolean } = {};
             this.ts.readToken();
@@ -102,7 +117,30 @@ export class PFromStatement extends PStatement<FromStatement> {
             ok = false;
         }
         else if (entityArr.length > 0) {
-            for (let col of this.element.cols) {
+            const { ofIXs, cols } = this.element;
+            if (ofIXs !== undefined) {
+                for (let ofIx of ofIXs) {
+                    let ixName = ofIx.ix as unknown as string;
+                    let { val } = ofIx;
+                    let entity = space.getBizEntity(ixName);
+                    if (entity === undefined) {
+                        ok = false;
+                        this.log(`${ixName} is not defined`);
+                    }
+                    else if (entity.bizPhraseType !== BizPhraseType.tie) {
+                        ok = false;
+                        this.log(`${ixName} is not a TIE`);
+                    }
+                    else {
+                        ofIx.ix = entity as BizTie;
+                    }
+                    if (val.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
+            }
+
+            for (let col of cols) {
                 const { name, ui, val } = col;
                 if (val.pelement.scan(space) === false) {
                     ok = false;
