@@ -6,7 +6,7 @@ import {
     , TableStatement, TextStatement, FailStatement, InlineStatement, /*SendStatement, Pull, */ContinueStatement
     , BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement
     , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
-    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement, SendStatement, BizDetailActStatement, UseStatement, PutStatement
+    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement, SendStatement, BizBinActStatement, UseStatement, PutStatement
 } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';

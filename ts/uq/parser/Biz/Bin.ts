@@ -1,6 +1,6 @@
 import {
     BizBin, BizBinAct, BizPend, Field
-    , Statements, Statement, BizBinActStatements, BizDetailActStatement
+    , Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
     , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud
@@ -540,7 +540,7 @@ export class PBizBinActStatements extends PStatements {
                 ret = super.statementFromKey(parent, key);
                 break;
             case 'biz':
-                ret = new BizDetailActStatement(parent, this.bizDetailAct);
+                ret = new BizBinActStatement(parent, this.bizDetailAct);
                 break;
         }
         if (ret !== undefined) ret.inSheet = true;

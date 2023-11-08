@@ -1,7 +1,7 @@
 import { Space } from '../space';
 import {
-    BizDetailActStatement, BizDetailActSubPend, BizDetailActSubStatement
-    , BizDetailActTitle, BizPend, ValueExpression
+    BizBinActStatement as BizBinStatement, BizBinPendStatement, BizBinSubStatement
+    , BizBinTitleStatement, BizPend, ValueExpression
     , SetEqu, BudDataType, BizBudValue
 } from '../../il';
 import { PStatement } from './statement';
@@ -9,18 +9,16 @@ import { PContext } from '../pContext';
 import { PElement } from '../element';
 import { Token } from '../tokens';
 
-export class PBizDetailActStatement extends PStatement {
-    bizStatement: BizDetailActStatement;
-    constructor(bizStatement: BizDetailActStatement, context: PContext) {
+export class PBizBinStatement extends PStatement {
+    bizStatement: BizBinStatement;
+    constructor(bizStatement: BizBinStatement, context: PContext) {
         super(bizStatement, context);
         this.bizStatement = bizStatement;
     }
 
-    private bizSubs: { [key: string]: new (bizStatement: BizDetailActStatement) => BizDetailActSubStatement } = {
-        pend: BizDetailActSubPend,
-        // bud: BizDetailActSubTab,
-        //tab: BizDetailActSubTab,
-        title: BizDetailActTitle,
+    private bizSubs: { [key: string]: new (bizStatement: BizBinStatement) => BizBinSubStatement } = {
+        pend: BizBinPendStatement,
+        title: BizBinTitleStatement,
     };
 
     protected _parse() {
@@ -43,7 +41,7 @@ export class PBizDetailActStatement extends PStatement {
     }
 }
 
-export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
+export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
     private pend: string;
 
     protected _parse(): void {
@@ -135,7 +133,7 @@ export class PBizDetailActSubPend extends PElement<BizDetailActSubPend> {
     }
 }
 
-export class PBizDetailActTitle extends PElement<BizDetailActTitle> {
+export class PBizBinTitleStatement extends PElement<BizBinTitleStatement> {
     private buds: string[];
 
     protected _parse(): void {
