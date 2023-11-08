@@ -5,6 +5,7 @@ import { PStatement } from "./statement";
 
 export class PFromStatement extends PStatement<FromStatement> {
     private readonly tbls: string[] = [];
+    private readonly ofs: string[] = [];
     protected _parse(): void {
         for (; ;) {
             this.tbls.push(this.ts.passVar());
@@ -18,16 +19,13 @@ export class PFromStatement extends PStatement<FromStatement> {
 
         while (this.ts.isKeyword('of') === true) {
             this.ts.readToken();
-            let { ofIXs } = this.element;
-            if (ofIXs === undefined) {
-                this.element.ofIXs = ofIXs = [];
-            }
-            let ix = this.ts.passVar();
-            this.ts.passToken(Token.LPARENTHESE);
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.ts.passToken(Token.RPARENTHESE);
-            ofIXs.push({ ix, val } as any);
+            this.ofs.push(this.ts.passVar());
+        }
+        if (this.ofs.length > 0) {
+            this.ts.passKey('on');
+            let ofOn = new ValueExpression();
+            this.context.parseElement(ofOn);
+            this.element.ofOn = ofOn;
         }
 
         if (this.ts.isKeyword('column') === true) {
@@ -117,26 +115,24 @@ export class PFromStatement extends PStatement<FromStatement> {
             ok = false;
         }
         else if (entityArr.length > 0) {
-            const { ofIXs, cols } = this.element;
-            if (ofIXs !== undefined) {
-                for (let ofIx of ofIXs) {
-                    let ixName = ofIx.ix as unknown as string;
-                    let { val } = ofIx;
-                    let entity = space.getBizEntity(ixName);
-                    if (entity === undefined) {
-                        ok = false;
-                        this.log(`${ixName} is not defined`);
-                    }
-                    else if (entity.bizPhraseType !== BizPhraseType.tie) {
-                        ok = false;
-                        this.log(`${ixName} is not a TIE`);
-                    }
-                    else {
-                        ofIx.ix = entity as BizTie;
-                    }
-                    if (val.pelement.scan(space) === false) {
-                        ok = false;
-                    }
+            const { ofIXs, ofOn, cols } = this.element;
+            for (let _of of this.ofs) {
+                let entity = space.getBizEntity(_of);
+                if (entity === undefined) {
+                    ok = false;
+                    this.log(`${_of} is not defined`);
+                }
+                else if (entity.bizPhraseType !== BizPhraseType.tie) {
+                    ok = false;
+                    this.log(`${_of} is not a TIE`);
+                }
+                else {
+                    ofIXs.push(entity as BizTie);
+                }
+            }
+            if (ofOn !== undefined) {
+                if (ofOn.pelement.scan(space) === false) {
+                    ok = false;
                 }
             }
 

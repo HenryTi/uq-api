@@ -20,17 +20,13 @@ export interface BanColumn {
     val: CompareExpression;
 }
 
-export interface OfIX {
-    ix: BizTie;
-    val: ValueExpression;
-}
-
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     bizEntityArr: BizEntity[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
-    ofIXs: OfIX[];
+    ofIXs: BizTie[] = [];
+    ofOn: ValueExpression;
     asc: 'asc' | 'desc';
     ban: BanColumn;
     cols: FromColumn[] = [];

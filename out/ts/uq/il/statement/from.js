@@ -7,6 +7,7 @@ class FromStatement extends statement_1.Statement {
     constructor() {
         super(...arguments);
         this.bizEntityArr = [];
+        this.ofIXs = [];
         this.cols = [];
     }
     get type() { return 'from'; }

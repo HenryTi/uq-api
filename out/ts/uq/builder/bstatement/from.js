@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BFromStatement = void 0;
+const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
@@ -14,7 +15,7 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { asc, cols, ban, where, bizEntityTable, bizEntityArr } = this.istatement;
+        const { asc, cols, ban, where, bizEntityTable, bizEntityArr, ofIXs, ofOn } = this.istatement;
         const bizEntity0 = bizEntityArr[0];
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
@@ -58,6 +59,20 @@ class BFromStatement extends bstatement_1.BStatement {
             arr.push(new sql_1.ExpFunc('JSON_ARRAY', ...colArr));
         }
         select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t1));
+        let expPrev = new sql_1.ExpField('id', t1);
+        if (ofIXs !== undefined) {
+            let len = ofIXs.length;
+            for (let i = 0; i < len; i++) {
+                let ix = ofIXs[i];
+                let tOf = 'of' + i;
+                let tBud = 'bud' + i;
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, tOf))
+                    .on(new sql_1.ExpEQ(new sql_1.ExpField('x', tOf), expPrev))
+                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, tBud))
+                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', tBud), new sql_1.ExpField('i', tOf)), new sql_1.ExpEQ(new sql_1.ExpField('base', tBud), new sql_1.ExpNum(ix.id))));
+                expPrev = new sql_1.ExpField('ext', tBud);
+            }
+        }
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
         let fieldBase = new sql_1.ExpField('base', t1);
         let expBase = bizEntityArr.length === 1 ?
@@ -69,6 +84,9 @@ class BFromStatement extends bstatement_1.BStatement {
             expBase,
             this.context.expCmp(where),
         ];
+        if (ofOn !== undefined) {
+            wheres.push(new sql_1.ExpEQ(expPrev, this.context.expVal(ofOn)));
+        }
         select.where(new sql_1.ExpAnd(...wheres));
         select.order(new sql_1.ExpField('id', t1), asc);
         select.limit(new sql_1.ExpVar('$pageSize'));
