@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
+exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PPendQuery = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const statement_1 = require("../statement");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 const Biz_1 = require("./Biz");
+const Query_1 = require("./Query");
 class PBizBin extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
@@ -341,9 +342,15 @@ exports.PBinPick = PBinPick;
 class PBizPend extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
+        this.parseQuery = () => {
+            this.element.pendQuery = new il_1.PendQuery(this.element.biz);
+            let { pendQuery } = this.element;
+            this.context.parseElement(pendQuery);
+        };
         this.keyColl = (() => {
             let ret = {
                 prop: this.parseProp,
+                query: this.parseQuery,
             };
             const setRet = (n) => {
                 ret[n] = () => this.parsePredefined(n);
@@ -381,6 +388,11 @@ class PBizPend extends Base_1.PBizEntity {
     }
 }
 exports.PBizPend = PBizPend;
+class PPendQuery extends Query_1.PBizQueryTable {
+    parseHeader() {
+    }
+}
+exports.PPendQuery = PPendQuery;
 exports.detailPreDefined = [
     '$site', '$user',
     'bin', 'i', 'x',
@@ -390,15 +402,8 @@ exports.detailPreDefined = [
 class BizBinSpace extends Biz_1.BizEntitySpace {
     constructor() {
         super(...arguments);
-        // private readonly bin: BizBin;
         this.useColl = {}; // useStatement no
     }
-    /*
-    constructor(outer: Space, bin: BizBin) {
-        super(outer);
-        this.bin = bin;
-    }
-    */
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
@@ -517,7 +522,7 @@ class PBizBinActStatements extends statement_1.PStatements {
                 ret = super.statementFromKey(parent, key);
                 break;
             case 'biz':
-                ret = new il_1.BizDetailActStatement(parent, this.bizDetailAct);
+                ret = new il_1.BizBinActStatement(parent, this.bizDetailAct);
                 break;
         }
         if (ret !== undefined)

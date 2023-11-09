@@ -34,7 +34,6 @@ class PBiz extends entity_1.PEntity {
         this.entity.source = source;
     }
     _parse() {
-        // const keys = [...Object.keys(this.pRoots), 'act', 'query'];
         if (this.ts.isKeyword('biz') === true)
             this.ts.readToken();
         if (this.ts.varBrace === true) {
@@ -62,31 +61,6 @@ class PBiz extends entity_1.PEntity {
         bizEntities.set(name, root);
         bizArr.push(root);
     }
-    /*
-    private parseAct() {
-        this.ts.readToken();
-        let act = this.context.parseElement(new BizAct(this.entity));
-        let { uq } = this.entity;
-        let { name } = act;
-        uq.acts[name] = act;
-        let ret = uq.checkEntityName(act);
-        if (ret === undefined) return true;
-        this.error(ret);
-        return false;
-    }
-    
-    private parseQuery() {
-        this.ts.readToken();
-        let query = this.context.parseElement(new BizQuery(this.entity));
-        let { uq } = this.entity;
-        let { name } = query;
-        uq.queries[name] = query;
-        let ret = uq.checkEntityName(query);
-        if (ret === undefined) return true;
-        this.error(ret);
-        return false;
-    }
-*/
     scan(space) {
         let ok = true;
         let uomAtoms = [];

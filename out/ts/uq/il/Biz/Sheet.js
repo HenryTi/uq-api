@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizPend = exports.BizSheet = void 0;
+exports.PendQuery = exports.BizPend = exports.BizSheet = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
+const Query_1 = require("./Query");
 class BizSheet extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
@@ -50,6 +51,9 @@ class BizPend extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizPend(this, context);
     }
+    db(dbContext) {
+        return new builder_1.BBizPend(dbContext, this);
+    }
     buildSchema(res) {
         let ret = super.buildSchema(res);
         let predefined = {};
@@ -73,4 +77,10 @@ class BizPend extends Entity_1.BizEntity {
 exports.BizPend = BizPend;
 BizPend.predefinedId = ['i', 'x', 'si', 'sx', 's'];
 BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
+class PendQuery extends Query_1.BizQueryTable {
+    parser(context) {
+        return new parser_1.PPendQuery(this, context);
+    }
+}
+exports.PendQuery = PendQuery;
 //# sourceMappingURL=Sheet.js.map

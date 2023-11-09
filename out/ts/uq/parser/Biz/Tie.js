@@ -23,6 +23,11 @@ class PBizTie extends Base_1.PBizEntity {
         tieField.atoms = this.parseAtoms();
     }
     parseAtoms() {
+        if (this.ts.isKeyword('me') === true) {
+            this.ts.readToken();
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+            return undefined;
+        }
         let ret = [this.ts.passVar()];
         for (;;) {
             if (this.ts.token !== tokens_1.Token.BITWISEOR)
@@ -38,14 +43,29 @@ class PBizTie extends Base_1.PBizEntity {
         let { i, x } = this.element;
         if (this.scanTieField(space, i) === false)
             ok = false;
-        if (this.scanTieField(space, x) === false)
+        if (this.scanTieField(space, x) === false) {
             ok = false;
+        }
+        else {
+            if (x.atoms === undefined) {
+                this.log(`TIE X can not be ME`);
+                ok = false;
+            }
+        }
         return ok;
     }
     scanTieField(space, tieField) {
         let ok = true;
         let atoms = [];
-        for (let name of tieField.atoms) {
+        let atomNames = tieField.atoms;
+        if (atomNames === undefined) {
+            if (tieField.caption !== undefined) {
+                this.log(`TIE ME field should not define caption`);
+                ok = false;
+            }
+            return ok;
+        }
+        for (let name of atomNames) {
             let bizEntity = space.getBizEntity(name);
             let { bizPhraseType } = bizEntity;
             if (bizPhraseType === il_1.BizPhraseType.atom || bizPhraseType === il_1.BizPhraseType.spec) {

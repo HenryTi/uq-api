@@ -7,13 +7,15 @@ export class PFromStatement extends PStatement<FromStatement> {
     private readonly tbls: string[] = [];
     private readonly ofs: string[] = [];
     protected _parse(): void {
-        for (; ;) {
-            this.tbls.push(this.ts.passVar());
-            if (this.ts.token === Token.BITWISEOR) {
-                this.ts.readToken();
-            }
-            else {
-                break;
+        if (this.ts.isKeywords('of', 'where') !== true) {
+            for (; ;) {
+                this.tbls.push(this.ts.passVar());
+                if (this.ts.token === Token.BITWISEOR) {
+                    this.ts.readToken();
+                }
+                else {
+                    break;
+                }
             }
         }
 

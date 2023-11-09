@@ -26,7 +26,7 @@ class BizTie extends Entity_1.BizEntity {
         const { caption, atoms } = tieField;
         let ret = {
             caption,
-            atoms: atoms.map(v => v.id),
+            atoms: atoms === null || atoms === void 0 ? void 0 : atoms.map(v => v.id),
         };
         return ret;
     }

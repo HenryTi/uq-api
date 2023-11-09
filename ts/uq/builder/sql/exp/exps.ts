@@ -105,6 +105,7 @@ export class ExpAt extends ExpVal {
     }
 }
 export class ExpStr extends ExpVal {
+    static empty = new ExpStr('');
     value: string;
     to(sb: SqlBuilder) { sb.append('\'').append(this.value).append('\''); }
     constructor(value: string) { super(); this.value = value; }

@@ -1,18 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizDetailActTitle = exports.PBizDetailActSubPend = exports.PBizDetailActStatement = void 0;
+exports.PBizBinTitleStatement = exports.PBizBinPendStatement = exports.PBizBinStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
-class PBizDetailActStatement extends statement_1.PStatement {
+class PBizBinStatement extends statement_1.PStatement {
     constructor(bizStatement, context) {
         super(bizStatement, context);
         this.bizSubs = {
-            pend: il_1.BizDetailActSubPend,
-            // bud: BizDetailActSubTab,
-            //tab: BizDetailActSubTab,
-            title: il_1.BizDetailActTitle,
+            pend: il_1.BizBinPendStatement,
+            title: il_1.BizBinTitleStatement,
         };
         this.bizStatement = bizStatement;
     }
@@ -35,8 +33,8 @@ class PBizDetailActStatement extends statement_1.PStatement {
         return ok;
     }
 }
-exports.PBizDetailActStatement = PBizDetailActStatement;
-class PBizDetailActSubPend extends element_1.PElement {
+exports.PBizBinStatement = PBizBinStatement;
+class PBizBinPendStatement extends element_1.PElement {
     _parse() {
         let setEqu;
         if (this.ts.token === tokens_1.Token.VAR) {
@@ -129,8 +127,8 @@ class PBizDetailActSubPend extends element_1.PElement {
         return ok;
     }
 }
-exports.PBizDetailActSubPend = PBizDetailActSubPend;
-class PBizDetailActTitle extends element_1.PElement {
+exports.PBizBinPendStatement = PBizBinPendStatement;
+class PBizBinTitleStatement extends element_1.PElement {
     _parse() {
         this.buds = [];
         for (;;) {
@@ -201,5 +199,5 @@ class PBizDetailActTitle extends element_1.PElement {
         return ok;
     }
 }
-exports.PBizDetailActTitle = PBizDetailActTitle;
+exports.PBizBinTitleStatement = PBizBinTitleStatement;
 //# sourceMappingURL=biz.js.map

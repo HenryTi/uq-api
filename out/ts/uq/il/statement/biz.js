@@ -1,47 +1,47 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizDetailActTitle = exports.BizDetailActSubPend = exports.BizDetailActSubStatement = exports.BizDetailActStatement = void 0;
+exports.BizBinTitleStatement = exports.BizBinPendStatement = exports.BizBinSubStatement = exports.BizBinActStatement = void 0;
 const parser = require("../../parser");
 const statement_1 = require("./statement");
-class BizDetailActStatement extends statement_1.Statement {
+class BizBinActStatement extends statement_1.Statement {
     constructor(parent, bizDetailAct) {
         super(parent);
         this.bizDetailAct = bizDetailAct;
     }
     get type() { return 'bizstatement'; }
     db(db) { return db.bizDetailActStatement(this); }
-    parser(context) { return new parser.PBizDetailActStatement(this, context); }
+    parser(context) { return new parser.PBizBinStatement(this, context); }
     setNo(no) {
         this.no = no;
         this.sub.setNo(no);
     }
 }
-exports.BizDetailActStatement = BizDetailActStatement;
-class BizDetailActSubStatement extends statement_1.Statement {
+exports.BizBinActStatement = BizBinActStatement;
+class BizBinSubStatement extends statement_1.Statement {
 }
-exports.BizDetailActSubStatement = BizDetailActSubStatement;
-class BizDetailActSubPend extends BizDetailActSubStatement {
+exports.BizBinSubStatement = BizBinSubStatement;
+class BizBinPendStatement extends BizBinSubStatement {
     constructor(bizStatement) {
         super(bizStatement);
         this.bizStatement = bizStatement;
     }
     get type() { return 'bizpend'; }
     parser(context) {
-        return new parser.PBizDetailActSubPend(this, context);
+        return new parser.PBizBinPendStatement(this, context);
     }
     db(db) { return db.bizDetailActSubPend(this); }
 }
-exports.BizDetailActSubPend = BizDetailActSubPend;
-class BizDetailActTitle extends BizDetailActSubStatement {
+exports.BizBinPendStatement = BizBinPendStatement;
+class BizBinTitleStatement extends BizBinSubStatement {
     constructor(bizStatement) {
         super(bizStatement);
         this.bizStatement = bizStatement;
     }
     get type() { return 'biztitle'; }
     parser(context) {
-        return new parser.PBizDetailActTitle(this, context);
+        return new parser.PBizBinTitleStatement(this, context);
     }
     db(db) { return db.bizDetailActSubSubject(this); }
 }
-exports.BizDetailActTitle = BizDetailActTitle;
+exports.BizBinTitleStatement = BizBinTitleStatement;
 //# sourceMappingURL=biz.js.map

@@ -109,6 +109,7 @@ class ExpStr extends ExpVal {
     constructor(value) { super(); this.value = value; }
 }
 exports.ExpStr = ExpStr;
+ExpStr.empty = new ExpStr('');
 class ExpNum extends ExpVal {
     to(sb) { sb.append(this.num.toString()); }
     constructor(num) { super(); this.num = num; }

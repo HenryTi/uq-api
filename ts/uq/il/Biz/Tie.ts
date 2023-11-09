@@ -7,7 +7,7 @@ import { BizEntity } from "./Entity";
 
 export interface TieField {
     caption: string;
-    atoms: BizAtomID[];
+    atoms: BizAtomID[];         // atoms === undefined 则 ME
 }
 
 export class BizTie extends BizEntity {
@@ -31,7 +31,7 @@ export class BizTie extends BizEntity {
         const { caption, atoms } = tieField;
         let ret = {
             caption,
-            atoms: atoms.map(v => v.id),
+            atoms: atoms?.map(v => v.id),
         }
         return ret;
     }

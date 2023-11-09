@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud
+    , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud, PendQuery
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -13,6 +13,7 @@ import { Token } from "../tokens";
 import { PBizBase, PBizEntity } from "./Base";
 import { BizEntitySpace } from "./Biz";
 import { PBizBudValue } from "./Bud";
+import { PBizQueryTable } from "./Query";
 
 export class PBizBin extends PBizEntity<BizBin> {
     private pend: string;
@@ -369,9 +370,16 @@ export class PBizPend extends PBizEntity<BizPend> {
         this.ts.passToken(Token.SEMICOLON);
     }
 
+    private parseQuery = () => {
+        this.element.pendQuery = new PendQuery(this.element.biz);
+        let { pendQuery } = this.element;
+        this.context.parseElement(pendQuery);
+    }
+
     readonly keyColl: { [key: string]: () => void } = (() => {
         let ret: { [key: string]: () => void } = {
             prop: this.parseProp,
+            query: this.parseQuery,
         };
         const setRet = (n: string) => {
             ret[n] = () => this.parsePredefined(n);
@@ -400,6 +408,11 @@ export class PBizPend extends PBizEntity<BizPend> {
     }
 }
 
+export class PPendQuery extends PBizQueryTable {
+    override parseHeader() {
+    }
+}
+
 export const detailPreDefined = [
     '$site', '$user'
     , 'bin', 'i', 'x'
@@ -407,14 +420,7 @@ export const detailPreDefined = [
     , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
 ];
 class BizBinSpace extends BizEntitySpace<BizBin> {
-    // private readonly bin: BizBin;
     private readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
-    /*
-    constructor(outer: Space, bin: BizBin) {
-        super(outer);
-        this.bin = bin;
-    }
-    */
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {

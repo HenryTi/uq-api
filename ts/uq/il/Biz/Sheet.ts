@@ -1,11 +1,12 @@
-import { BBizSheet, DbContext } from "../../builder";
-import { PBizPend, PBizSheet, PContext, PElement } from "../../parser";
+import { BBizPend, BBizSheet, DbContext } from "../../builder";
+import { PBizPend, PBizSheet, PContext, PElement, PPendQuery } from "../../parser";
 import { IElement } from "../element";
 import { BizPhraseType } from "./Base";
 import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
 import { BizBudValue, BizBudAtom, BizBudDec, BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
+import { BizQueryTable } from "./Query";
 
 export class BizSheet extends BizEntity {
     protected readonly fields = ['id', 'no'];
@@ -46,6 +47,7 @@ export class BizPend extends BizEntity {
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
     readonly bizPhraseType = BizPhraseType.pend;
     readonly predefinedBuds: { [name: string]: BizBudValue };
+    pendQuery: PendQuery;
     constructor(biz: Biz) {
         super(biz);
         this.predefinedBuds = {};
@@ -59,6 +61,10 @@ export class BizPend extends BizEntity {
 
     parser(context: PContext): PElement<IElement> {
         return new PBizPend(this, context);
+    }
+
+    db(dbContext: DbContext): BBizPend {
+        return new BBizPend(dbContext, this);
     }
 
     buildSchema(res: { [phrase: string]: string }) {
@@ -83,3 +89,8 @@ export class BizPend extends BizEntity {
     }
 }
 
+export class PendQuery extends BizQueryTable {
+    parser(context: PContext): PElement<IElement> {
+        return new PPendQuery(this, context);
+    }
+}

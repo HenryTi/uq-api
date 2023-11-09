@@ -12,13 +12,15 @@ class PFromStatement extends statement_1.PStatement {
         this.ofs = [];
     }
     _parse() {
-        for (;;) {
-            this.tbls.push(this.ts.passVar());
-            if (this.ts.token === tokens_1.Token.BITWISEOR) {
-                this.ts.readToken();
-            }
-            else {
-                break;
+        if (this.ts.isKeywords('of', 'where') !== true) {
+            for (;;) {
+                this.tbls.push(this.ts.passVar());
+                if (this.ts.token === tokens_1.Token.BITWISEOR) {
+                    this.ts.readToken();
+                }
+                else {
+                    break;
+                }
             }
         }
         while (this.ts.isKeyword('of') === true) {

@@ -35,7 +35,6 @@ export abstract class Space {
     protected abstract _getTableByAlias(alias: string): Table;
     protected abstract _varPointer(name: string, isField: boolean): Pointer;
     protected _varsPointer(names: string[]): [Pointer, string] { return; }
-    // protected _getBin(): BizBin { return; }
 
     get groupType(): GroupType { return GroupType.Single; }
     set groupType(value: GroupType) { }
@@ -177,14 +176,6 @@ export abstract class Space {
         if (this.outer === undefined) return;
         return this.outer.varsPointer(names);
     }
-    /*
-    getBin(): BizBin {
-        let ret = this._getBin();
-        if (ret !== undefined) return ret;
-        if (this.outer === undefined) return;
-        return this.outer.getBin();
-    }
-    */
     addTableVar(tableVar: TableVar): boolean {
         let ret = this._addTableVar(tableVar);
         if (ret === undefined)

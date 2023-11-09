@@ -43,7 +43,6 @@ export class PBiz extends PEntity<Biz> {
         this.entity.source = source;
     }
     protected _parse(): void {
-        // const keys = [...Object.keys(this.pRoots), 'act', 'query'];
         if (this.ts.isKeyword('biz') === true) this.ts.readToken();
         if (this.ts.varBrace === true) {
             this.ts.expect('Biz Entity');
@@ -68,31 +67,7 @@ export class PBiz extends PEntity<Biz> {
         bizEntities.set(name, root);
         bizArr.push(root);
     }
-    /*
-    private parseAct() {
-        this.ts.readToken();
-        let act = this.context.parseElement(new BizAct(this.entity));
-        let { uq } = this.entity;
-        let { name } = act;
-        uq.acts[name] = act;
-        let ret = uq.checkEntityName(act);
-        if (ret === undefined) return true;
-        this.error(ret);
-        return false;
-    }
-    
-    private parseQuery() {
-        this.ts.readToken();
-        let query = this.context.parseElement(new BizQuery(this.entity));
-        let { uq } = this.entity;
-        let { name } = query;
-        uq.queries[name] = query;
-        let ret = uq.checkEntityName(query);
-        if (ret === undefined) return true;
-        this.error(ret);
-        return false;
-    }
-*/
+
     scan(space: Space): boolean {
         let ok = true;
         let uomAtoms: BizAtom[] = [];
