@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BFromStatement = void 0;
+exports.BFromStatementInPend = exports.BFromStatement = void 0;
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
@@ -93,4 +93,7 @@ class BFromStatement extends bstatement_1.BStatement {
     }
 }
 exports.BFromStatement = BFromStatement;
+class BFromStatementInPend extends BFromStatement {
+}
+exports.BFromStatementInPend = BFromStatementInPend;
 //# sourceMappingURL=from.js.map

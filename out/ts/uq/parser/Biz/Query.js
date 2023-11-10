@@ -37,7 +37,7 @@ class PBizQueryTable extends PBizQuery {
                 this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
             }
         }
-        let statements = new il_1.BizQueryTableStatements(undefined);
+        let statements = this.createStatements();
         statements.level = 0;
         this.context.createStatements = statements.createStatements;
         this.context.parseElement(statements);
@@ -48,6 +48,9 @@ class PBizQueryTable extends PBizQuery {
             const lastStatement = arr[length - 1];
             this.element.from = lastStatement;
         }
+    }
+    createStatements() {
+        return new il_1.BizQueryTableStatements(undefined);
     }
     scan(space) {
         let ok = true;

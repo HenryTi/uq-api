@@ -312,6 +312,7 @@ export class DbContext implements il.Builder {
     setStatement(v: il.SetStatement) { return new stat.BSetStatement(this, v) }
     putStatement(v: il.PutStatement) { return new stat.BPutStatement(this, v) }
     fromStatement(v: il.FromStatement) { return new stat.BFromStatement(this, v) }
+    fromStatementInPend(v: il.FromStatementInPend) { return new stat.BFromStatementInPend(this, v) }
     withIDDelOnId(v: il.WithStatement) { return new stat.BWithIDDelOnId(this, v) }
     withIDDelOnKeys(v: il.WithStatement) { return new stat.BWithIDDelOnKeys(this, v) }
     withIDXDel(v: il.WithStatement) { return new stat.BWithIDXDel(this, v) }

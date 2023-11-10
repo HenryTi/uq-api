@@ -3,10 +3,11 @@ import {
     , Table, VarStatement, If, ForEach, SelectStatement, BookWrite
     , Pointer, HistoryWrite, TuidWrite, StateToStatement, BusStatement
     , DeleteStatement, SheetWrite, PendingWrite
-    , TableStatement, TextStatement, FailStatement, InlineStatement, /*SendStatement, Pull, */ContinueStatement
+    , TableStatement, TextStatement, FailStatement, InlineStatement, ContinueStatement
     , BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement
     , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
-    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement, SendStatement, BizBinActStatement, UseStatement, PutStatement
+    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement
+    , SendStatement, UseStatement
 } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -14,23 +15,9 @@ import { Token } from '../tokens';
 import { PContext } from '../pContext';
 
 export abstract class PStatement<T extends Statement = Statement> extends PElement<T> {
-    // statement: T;
-    /*
-    constructor(statement: T, context: PContext) {
-        super(statement, context);
-        this.statement = statement;
-    }
-    */
 }
 
 export abstract class PStatements extends PStatement<Statements> {
-    // element: Statements;
-    /*
-    constructor(statements: Statements, context: PContext) {
-        super(statements, context);
-        this.statements = statements;
-    }
-    */
     protected _parse() {
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
@@ -97,7 +84,6 @@ export abstract class PStatements extends PStatement<Statements> {
             case 'assert':
                 this.ts.readToken();
                 if (this.ts.isKeyword('role') === true) {
-                    // this.ts.readToken();
                     return new AssertRoleStatement(parent);
                 }
                 else {

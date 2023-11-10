@@ -1,6 +1,8 @@
 import { BBizPend, BBizSheet, DbContext } from "../../builder";
-import { PBizPend, PBizSheet, PContext, PElement, PPendQuery } from "../../parser";
+import { PBizPend, PBizQueryTableInPendStatements, PBizSheet, PContext, PElement, PPendQuery } from "../../parser";
+import { Builder } from "../builder";
 import { IElement } from "../element";
+import { Statements } from "../statement";
 import { BizPhraseType } from "./Base";
 import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
@@ -89,7 +91,26 @@ export class BizPend extends BizEntity {
     }
 }
 
+export class BizQueryTableInPendStatements extends Statements {
+    readonly pendQuery: PendQuery;
+    constructor(pendQuery: PendQuery) {
+        super(undefined);
+        this.pendQuery = pendQuery;
+    }
+    parser(context: PContext): PElement<IElement> {
+        return new PBizQueryTableInPendStatements(this, context);
+    }
+    db(db: Builder): object {
+        return;
+    }
+}
+
 export class PendQuery extends BizQueryTable {
+    readonly bizPend: BizPend;
+    constructor(bizPend: BizPend) {
+        super(bizPend.biz);
+        this.bizPend = bizPend;
+    }
     parser(context: PContext): PElement<IElement> {
         return new PPendQuery(this, context);
     }

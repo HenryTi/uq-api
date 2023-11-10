@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, BudDataType, BizPhraseType
-    , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud, PendQuery
+    , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud, PendQuery, BizQueryTableStatements, BizQueryTableInPendStatements, FromStatementInPend
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -13,7 +13,7 @@ import { Token } from "../tokens";
 import { PBizBase, PBizEntity } from "./Base";
 import { BizEntitySpace } from "./Biz";
 import { PBizBudValue } from "./Bud";
-import { PBizQueryTable } from "./Query";
+import { PBizQueryTable, PBizQueryTableStatements } from "./Query";
 
 export class PBizBin extends PBizEntity<BizBin> {
     private pend: string;
@@ -371,7 +371,7 @@ export class PBizPend extends PBizEntity<BizPend> {
     }
 
     private parseQuery = () => {
-        this.element.pendQuery = new PendQuery(this.element.biz);
+        this.element.pendQuery = new PendQuery(this.element);
         let { pendQuery } = this.element;
         this.context.parseElement(pendQuery);
     }
@@ -396,7 +396,7 @@ export class PBizPend extends PBizEntity<BizPend> {
     scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) ok = false;
-        let { props } = this.element;
+        let { props, pendQuery } = this.element;
         const predefines = [...BizPend.predefinedId, ...BizPend.predefinedValue];
         for (let [, bud] of props) {
             if (predefines.includes(bud.name) === true) {
@@ -404,12 +404,30 @@ export class PBizPend extends PBizEntity<BizPend> {
                 ok = false;
             }
         }
+        if (pendQuery !== undefined) {
+            if (pendQuery.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
         return ok;
     }
 }
 
-export class PPendQuery extends PBizQueryTable {
+export class PPendQuery extends PBizQueryTable<PendQuery> {
     override parseHeader() {
+    }
+
+    protected createStatements(): BizQueryTableStatements {
+        return new BizQueryTableInPendStatements(this.element);
+    }
+}
+
+export class PBizQueryTableInPendStatements extends PBizQueryTableStatements {
+    protected statementFromKey(parent: Statement, key: string): Statement {
+        switch (key) {
+            default: return super.statementFromKey(parent, key);
+            case 'from': return new FromStatementInPend(parent);
+        }
     }
 }
 

@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PendQuery = exports.BizPend = exports.BizSheet = void 0;
+exports.PendQuery = exports.BizQueryTableInPendStatements = exports.BizPend = exports.BizSheet = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
+const statement_1 = require("../statement");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
@@ -77,7 +78,24 @@ class BizPend extends Entity_1.BizEntity {
 exports.BizPend = BizPend;
 BizPend.predefinedId = ['i', 'x', 'si', 'sx', 's'];
 BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
+class BizQueryTableInPendStatements extends statement_1.Statements {
+    constructor(pendQuery) {
+        super(undefined);
+        this.pendQuery = pendQuery;
+    }
+    parser(context) {
+        return new parser_1.PBizQueryTableInPendStatements(this, context);
+    }
+    db(db) {
+        return;
+    }
+}
+exports.BizQueryTableInPendStatements = BizQueryTableInPendStatements;
 class PendQuery extends Query_1.BizQueryTable {
+    constructor(bizPend) {
+        super(bizPend.biz);
+        this.bizPend = bizPend;
+    }
     parser(context) {
         return new parser_1.PPendQuery(this, context);
     }

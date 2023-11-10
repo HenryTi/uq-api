@@ -40,16 +40,24 @@ export class BBizPend extends BBizEntity<BizPend> {
     }
 
     private buildQueryProc(proc: Procedure) {
-        let { pendQuery } = this.bizEntity;
+        const { pendQuery } = this.bizEntity;
         if (pendQuery === undefined) {
             proc.dropOnly = true;
             return;
         }
 
+        const { params, statement } = pendQuery;
+        const json = '$json';
+        const varJson = new ExpVar(json);
         let { statements, parameters } = proc;
         let { factory, site } = this.context;
-        parameters.push(bigIntField('pendPhrase'));
-        parameters.push(jsonField('params'));
+        parameters.push(
+            bigIntField('$user'),
+            bigIntField('pendPhrase'),
+            jsonField(json),
+            bigIntField('$pageStart'),
+            bigIntField('$pageSize'),
+        );
 
         const declare = factory.createDeclare();
         statements.push(declare);
@@ -58,5 +66,21 @@ export class BBizPend extends BBizEntity<BizPend> {
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new ExpNum(site));
+
+
+        for (let param of params) {
+            const bud = param;
+            const { name } = bud;
+            declare.var(name, new Char(200));
+            let set = factory.createSet();
+            statements.push(set);
+            set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)));
+        }
+
+        let sqls = new Sqls(this.context, statements);
+        let { statements: queryStatements } = statement;
+        sqls.head(queryStatements);
+        sqls.body(queryStatements);
+        sqls.foot(queryStatements);
     }
 }

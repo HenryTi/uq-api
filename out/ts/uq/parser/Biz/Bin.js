@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PPendQuery = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
+exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PBizQueryTableInPendStatements = exports.PPendQuery = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const statement_1 = require("../statement");
@@ -343,7 +343,7 @@ class PBizPend extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.parseQuery = () => {
-            this.element.pendQuery = new il_1.PendQuery(this.element.biz);
+            this.element.pendQuery = new il_1.PendQuery(this.element);
             let { pendQuery } = this.element;
             this.context.parseElement(pendQuery);
         };
@@ -376,11 +376,16 @@ class PBizPend extends Base_1.PBizEntity {
         let ok = true;
         if (super.scan(space) === false)
             ok = false;
-        let { props } = this.element;
+        let { props, pendQuery } = this.element;
         const predefines = [...il_1.BizPend.predefinedId, ...il_1.BizPend.predefinedValue];
         for (let [, bud] of props) {
             if (predefines.includes(bud.name) === true) {
                 this.log(`Pend Prop name can not be one of these: ${predefines.join(', ')}`);
+                ok = false;
+            }
+        }
+        if (pendQuery !== undefined) {
+            if (pendQuery.pelement.scan(space) === false) {
                 ok = false;
             }
         }
@@ -391,8 +396,20 @@ exports.PBizPend = PBizPend;
 class PPendQuery extends Query_1.PBizQueryTable {
     parseHeader() {
     }
+    createStatements() {
+        return new il_1.BizQueryTableInPendStatements(this.element);
+    }
 }
 exports.PPendQuery = PPendQuery;
+class PBizQueryTableInPendStatements extends Query_1.PBizQueryTableStatements {
+    statementFromKey(parent, key) {
+        switch (key) {
+            default: return super.statementFromKey(parent, key);
+            case 'from': return new il_1.FromStatementInPend(parent);
+        }
+    }
+}
+exports.PBizQueryTableInPendStatements = PBizQueryTableInPendStatements;
 exports.detailPreDefined = [
     '$site', '$user',
     'bin', 'i', 'x',

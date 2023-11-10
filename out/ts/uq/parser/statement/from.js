@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PFromStatement = void 0;
+exports.PFromStatementInPend = exports.PFromStatement = void 0;
 const il_1 = require("../../il");
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");
@@ -12,17 +12,24 @@ class PFromStatement extends statement_1.PStatement {
         this.ofs = [];
     }
     _parse() {
-        if (this.ts.isKeywords('of', 'where') !== true) {
-            for (;;) {
-                this.tbls.push(this.ts.passVar());
-                if (this.ts.token === tokens_1.Token.BITWISEOR) {
-                    this.ts.readToken();
-                }
-                else {
-                    break;
-                }
+        this.parseTbls();
+        this.parseTblsOf();
+        this.parseColumn();
+        this.parseWhere();
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+    }
+    parseTbls() {
+        for (;;) {
+            this.tbls.push(this.ts.passVar());
+            if (this.ts.token === tokens_1.Token.BITWISEOR) {
+                this.ts.readToken();
+            }
+            else {
+                break;
             }
         }
+    }
+    parseTblsOf() {
         while (this.ts.isKeyword('of') === true) {
             this.ts.readToken();
             this.ofs.push(this.ts.passVar());
@@ -33,6 +40,8 @@ class PFromStatement extends statement_1.PStatement {
             this.context.parseElement(ofOn);
             this.element.ofOn = ofOn;
         }
+    }
+    parseColumn() {
         if (this.ts.isKeyword('column') === true) {
             const coll = {};
             this.ts.readToken();
@@ -97,18 +106,39 @@ class PFromStatement extends statement_1.PStatement {
                 this.ts.passToken(tokens_1.Token.COMMA);
             }
         }
+    }
+    parseWhere() {
         if (this.ts.isKeyword('where') === true) {
             this.ts.readToken();
             let where = new il_1.CompareExpression();
             this.context.parseElement(where);
             this.element.where = where;
         }
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
     scan(space) {
         let ok = true;
-        const { biz } = space.uq;
         space = new FromSpace(space, this.element);
+        if (this.scanEntityArr(space) === false) {
+            ok = false;
+        }
+        const { where, asc, ban } = this.element;
+        if (where !== undefined) {
+            if (where.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (asc === undefined)
+            this.element.asc = 'asc';
+        if (ban !== undefined) {
+            if (ban.val.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    scanEntityArr(space) {
+        let ok = true;
+        const { biz } = space.uq;
         const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
@@ -160,23 +190,27 @@ class PFromStatement extends statement_1.PStatement {
                 }
             }
         }
-        const { where, asc, ban } = this.element;
-        if (where !== undefined) {
-            if (where.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        if (asc === undefined)
-            this.element.asc = 'asc';
-        if (ban !== undefined) {
-            if (ban.val.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
         return ok;
     }
 }
 exports.PFromStatement = PFromStatement;
+class PFromStatementInPend extends PFromStatement {
+    _parse() {
+        this.parseTblsOf();
+        this.parseWhere();
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+    }
+    scan(space) {
+        return super.scan(space);
+    }
+    scanEntityArr(space) {
+        this.element.bizEntityArr = [space.getBizEntity(undefined)];
+        this.element.bizPhraseType = il_1.BizPhraseType.pend;
+        this.element.bizEntityTable = il_1.EnumSysTable.pend;
+        return true;
+    }
+}
+exports.PFromStatementInPend = PFromStatementInPend;
 class FromSpace extends space_1.Space {
     constructor(outer, from) {
         super(outer);

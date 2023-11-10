@@ -1,24 +1,35 @@
-import { BizBudNone, BizPhraseType, BizTie, CompareExpression, Entity, FromStatement, Pointer, Table, ValueExpression } from "../../il";
+import {
+    BizBudNone, BizPhraseType, BizTie, CompareExpression
+    , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
+} from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PStatement } from "./statement";
 
-export class PFromStatement extends PStatement<FromStatement> {
+export class PFromStatement<T extends FromStatement = FromStatement> extends PStatement<T> {
     private readonly tbls: string[] = [];
     private readonly ofs: string[] = [];
     protected _parse(): void {
-        if (this.ts.isKeywords('of', 'where') !== true) {
-            for (; ;) {
-                this.tbls.push(this.ts.passVar());
-                if (this.ts.token === Token.BITWISEOR) {
-                    this.ts.readToken();
-                }
-                else {
-                    break;
-                }
+        this.parseTbls();
+        this.parseTblsOf();
+        this.parseColumn();
+        this.parseWhere();
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
+    private parseTbls() {
+        for (; ;) {
+            this.tbls.push(this.ts.passVar());
+            if (this.ts.token === Token.BITWISEOR) {
+                this.ts.readToken();
+            }
+            else {
+                break;
             }
         }
+    }
 
+    protected parseTblsOf() {
         while (this.ts.isKeyword('of') === true) {
             this.ts.readToken();
             this.ofs.push(this.ts.passVar());
@@ -29,7 +40,9 @@ export class PFromStatement extends PStatement<FromStatement> {
             this.context.parseElement(ofOn);
             this.element.ofOn = ofOn;
         }
+    }
 
+    private parseColumn() {
         if (this.ts.isKeyword('column') === true) {
             const coll: { [name: string]: boolean } = {};
             this.ts.readToken();
@@ -95,19 +108,41 @@ export class PFromStatement extends PStatement<FromStatement> {
                 this.ts.passToken(Token.COMMA);
             }
         }
+    }
+
+    protected parseWhere() {
         if (this.ts.isKeyword('where') === true) {
             this.ts.readToken();
             let where = new CompareExpression();
             this.context.parseElement(where);
             this.element.where = where;
         }
-        this.ts.passToken(Token.SEMICOLON);
     }
 
-    scan(space: Space): boolean {
+    override scan(space: Space): boolean {
+        let ok = true;
+        space = new FromSpace(space, this.element);
+        if (this.scanEntityArr(space) === false) {
+            ok = false;
+        }
+        const { where, asc, ban } = this.element;
+        if (where !== undefined) {
+            if (where.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (asc === undefined) this.element.asc = 'asc';
+        if (ban !== undefined) {
+            if (ban.val.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
+    protected scanEntityArr(space: Space) {
         let ok = true;
         const { biz } = space.uq;
-        space = new FromSpace(space, this.element);
         const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
@@ -160,20 +195,26 @@ export class PFromStatement extends PStatement<FromStatement> {
                 }
             }
         }
-
-        const { where, asc, ban } = this.element;
-        if (where !== undefined) {
-            if (where.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        if (asc === undefined) this.element.asc = 'asc';
-        if (ban !== undefined) {
-            if (ban.val.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
         return ok;
+    }
+}
+
+export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
+    protected _parse(): void {
+        this.parseTblsOf();
+        this.parseWhere();
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
+    override scan(space: Space): boolean {
+        return super.scan(space);
+    }
+
+    protected scanEntityArr(space: Space) {
+        this.element.bizEntityArr = [space.getBizEntity(undefined)];
+        this.element.bizPhraseType = BizPhraseType.pend;
+        this.element.bizEntityTable = EnumSysTable.pend;
+        return true;
     }
 }
 

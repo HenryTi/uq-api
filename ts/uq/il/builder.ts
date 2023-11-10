@@ -47,16 +47,11 @@ export interface Builder {
     bizDetailActSubPend(v: stat.BizBinPendStatement): BStatement;
     bizDetailActSubSubject(v: stat.BizBinTitleStatement): BStatement;
 
-    // bizStatement(v: stat.BizStatement): BStatement;
-    // bizSubStateTo(v: stat.BizSubStateTo): BStatement;
-    // bizSubPend(v: stat.BizSubPend): BStatement;
-    // bizSubSubject(v: stat.BizSubSubject): BStatement;
-    // foreachBizDetail(v: stat.ForEach, forQueue: stat.ForBizDetail): BForList;
-
     value(v: stat.ValueStatement): BStatement;
     setStatement(v: stat.SetStatement): BStatement;
     putStatement(v: stat.PutStatement): BStatement;
     fromStatement(v: stat.FromStatement): BStatement;
+    fromStatementInPend(v: stat.FromStatementInPend): BStatement;
     settingStatement(v: stat.SettingStatement): BStatement;
     whileStatement(v: stat.While): BStatement;
     ifStatement(v: stat.If): BStatement;

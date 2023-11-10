@@ -1,4 +1,4 @@
-import { BizPhraseType, FromStatement, EnumSysTable, ValueExpression, CompareExpression, JoinType } from "../../il";
+import { FromStatement, EnumSysTable, ValueExpression, CompareExpression, JoinType, FromStatementInPend } from "../../il";
 import { Exp, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull, ExpLT, ExpNum, ExpStr, ExpVal, ExpVar } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
@@ -7,7 +7,7 @@ import { Sqls } from "./sqls";
 const t1 = 't1';
 const pageStart = '$pageStart';
 
-export class BFromStatement extends BStatement<FromStatement> {
+export class BFromStatement<T extends FromStatement> extends BStatement<T> {
     body(sqls: Sqls) {
         const { factory } = this.context;
         const declare = factory.createDeclare();
@@ -103,4 +103,7 @@ export class BFromStatement extends BStatement<FromStatement> {
         select.order(new ExpField('id', t1), asc);
         select.limit(new ExpVar('$pageSize'));
     }
+}
+
+export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
 }

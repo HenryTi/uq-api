@@ -10,7 +10,7 @@ import { PBizEntity } from "./Base";
 abstract class PBizQuery<T extends BizQuery> extends PBizEntity<T> {
 }
 
-export class PBizQueryTable extends PBizQuery<BizQueryTable> {
+export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBizQuery<T> {
     protected readonly keyColl = {};
     protected _parse(): void {
         if (this.ts.token === Token.VAR) {
@@ -36,7 +36,7 @@ export class PBizQueryTable extends PBizQuery<BizQueryTable> {
                 this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
             }
         }
-        let statements = new BizQueryTableStatements(undefined);
+        let statements = this.createStatements();
         statements.level = 0;
         this.context.createStatements = statements.createStatements;
         this.context.parseElement(statements);
@@ -47,6 +47,10 @@ export class PBizQueryTable extends PBizQuery<BizQueryTable> {
             const lastStatement = arr[length - 1];
             this.element.from = lastStatement as FromStatement;
         }
+    }
+
+    protected createStatements(): BizQueryTableStatements {
+        return new BizQueryTableStatements(undefined);
     }
 
     scan(space: Space): boolean {

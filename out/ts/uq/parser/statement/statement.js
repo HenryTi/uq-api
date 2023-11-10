@@ -9,13 +9,6 @@ class PStatement extends element_1.PElement {
 }
 exports.PStatement = PStatement;
 class PStatements extends PStatement {
-    // element: Statements;
-    /*
-    constructor(statements: Statements, context: PContext) {
-        super(statements, context);
-        this.statements = statements;
-    }
-    */
     _parse() {
         if (this.ts.token === tokens_1.Token.LBRACE) {
             this.ts.readToken();
@@ -84,7 +77,6 @@ class PStatements extends PStatement {
             case 'assert':
                 this.ts.readToken();
                 if (this.ts.isKeyword('role') === true) {
-                    // this.ts.readToken();
                     return new il_1.AssertRoleStatement(parent);
                 }
                 else {

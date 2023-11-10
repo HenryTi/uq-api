@@ -113,6 +113,11 @@ class BizEntitySpace extends space_1.Space {
     _varPointer(name, isField) {
         return;
     }
+    _getBizEntity(name) {
+        if (name === undefined)
+            return this.bizEntity;
+        return super._getBizEntity(name);
+    }
 }
 exports.BizEntitySpace = BizEntitySpace;
 //# sourceMappingURL=Biz.js.map

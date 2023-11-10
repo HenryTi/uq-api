@@ -1,5 +1,5 @@
-import { PContext, PElement, PFromStatement, PPutStatement } from "../../parser";
-import { BizBud, BizBudValue, BizEntity, BizPhraseType, BizTie } from "../Biz";
+import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../parser";
+import { BizBudValue, BizEntity, BizPhraseType, BizTie } from "../Biz";
 import { EnumSysTable } from "../EnumSysTable";
 import { Builder } from "../builder";
 import { IElement } from "../element";
@@ -38,7 +38,6 @@ export class FromStatement extends Statement {
     parser(context: PContext): PElement<IElement> {
         return new PFromStatement(this, context);
     }
-
     getBud(fieldName: string): [BizEntity, BizBudValue] {
         let bizEntity: BizEntity = undefined;
         let bud: BizBudValue = undefined;
@@ -50,5 +49,14 @@ export class FromStatement extends Statement {
             }
         }
         return [bizEntity, bud];
+    }
+}
+
+export class FromStatementInPend extends FromStatement {
+    parser(context: PContext): PElement<IElement> {
+        return new PFromStatementInPend(this, context);
+    }
+    db(db: Builder): object {
+        return db.fromStatementInPend(this);
     }
 }

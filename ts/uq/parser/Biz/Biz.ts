@@ -118,4 +118,8 @@ export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
+    protected override _getBizEntity(name: string): BizEntity {
+        if (name === undefined) return this.bizEntity;
+        return super._getBizEntity(name);
+    }
 }

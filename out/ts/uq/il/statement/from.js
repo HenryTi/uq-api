@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FromStatement = void 0;
+exports.FromStatementInPend = exports.FromStatement = void 0;
 const parser_1 = require("../../parser");
 const statement_1 = require("./statement");
 class FromStatement extends statement_1.Statement {
@@ -31,4 +31,13 @@ class FromStatement extends statement_1.Statement {
     }
 }
 exports.FromStatement = FromStatement;
+class FromStatementInPend extends FromStatement {
+    parser(context) {
+        return new parser_1.PFromStatementInPend(this, context);
+    }
+    db(db) {
+        return db.fromStatementInPend(this);
+    }
+}
+exports.FromStatementInPend = FromStatementInPend;
 //# sourceMappingURL=from.js.map
