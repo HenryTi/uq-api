@@ -1,5 +1,5 @@
 import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../parser";
-import { BizBudValue, BizEntity, BizField, BizPhraseType, BizTie } from "../Biz";
+import { BizBudValue, BizEntity, BizField, BizFieldBud, BizPhraseType, BizTie } from "../Biz";
 import { EnumSysTable } from "../EnumSysTable";
 import { Builder } from "../builder";
 import { IElement } from "../element";
@@ -11,8 +11,9 @@ export interface FromColumn {
     name: string;
     ui?: Partial<UI>;
     val: ValueExpression;
-    bud?: BizBudValue;
-    entity?: BizEntity;
+    // bud?: BizBudValue;
+    // entity?: BizEntity;
+    field: BizField;
 }
 
 export interface BanColumn {
@@ -38,6 +39,7 @@ export class FromStatement extends Statement {
     parser(context: PContext): PElement<IElement> {
         return new PFromStatement(this, context);
     }
+    /*
     getBud(fieldName: string): [BizEntity, BizBudValue] {
         let bizEntity: BizEntity = undefined;
         let bud: BizBudValue = undefined;
@@ -50,9 +52,22 @@ export class FromStatement extends Statement {
         }
         return [bizEntity, bud];
     }
-
+    */
     getBizField(fieldName: string): BizField {
-        return undefined;
+        let bizEntity: BizEntity = undefined;
+        let bud: BizBudValue = undefined;
+        for (let entity of this.bizEntityArr) {
+            let b = entity.getBud(fieldName) as BizBudValue;
+            if (b !== undefined) {
+                bizEntity = entity;
+                bud = b;
+            }
+        }
+        if (bud === undefined) return undefined;
+        let ret = new BizFieldBud();
+        ret.entity = bizEntity;
+        ret.bud = bud;
+        return ret;
     }
 }
 

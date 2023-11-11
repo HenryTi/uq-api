@@ -1,5 +1,5 @@
 import { PBizExp, PBizExpOperand, PBizExpParam, PBizFieldOperand, PContext, PElement } from "../../parser";
-import { BizBud, BizEntity, BizTie } from "../Biz";
+import { BizBud, BizEntity, BizField, BizTie } from "../Biz";
 import { IElement } from "../element";
 import { SpanPeriod } from "../tool";
 import { ValueExpression } from "./Expression";
@@ -43,9 +43,10 @@ export class BizExp extends IElement {
 }
 
 export class BizFieldOperand extends Atom {
-    bizEntity: BizEntity;
-    bizBud: BizBud;
-    fieldName: string;
+    // bizEntity: BizEntity;
+    // bizBud: BizBud;
+    // fieldName: string;
+    field: BizField;
     get type(): string { return 'bizfield'; }
     parser(context: PContext) { return new PBizFieldOperand(this, context); }
     to(stack: Stack) {

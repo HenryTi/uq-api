@@ -34,7 +34,7 @@ class BizFieldOperand extends Op_1.Atom {
     get type() { return 'bizfield'; }
     parser(context) { return new parser_1.PBizFieldOperand(this, context); }
     to(stack) {
-        stack.bizField(this);
+        stack.bizFieldOperand(this);
     }
 }
 exports.BizFieldOperand = BizFieldOperand;

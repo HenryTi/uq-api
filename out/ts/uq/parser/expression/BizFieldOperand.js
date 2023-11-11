@@ -1,28 +1,27 @@
-import { BizFieldField } from '../../il';
-import { BizFieldOperand } from '../../il/Exp';
-import { PElement } from '../element';
-import { Space } from '../space';
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PBizFieldOperand = void 0;
+const il_1 = require("../../il");
+const element_1 = require("../element");
 // %开始的字段，是BizField。
-export class PBizFieldOperand extends PElement<BizFieldOperand> {
-    private fieldName: string;
+class PBizFieldOperand extends element_1.PElement {
     _parse() {
         this.fieldName = this.ts.passVar();
     }
-
-    scan(space: Space): boolean {
+    scan(space) {
         let ok = true;
         let from = space.getBizFrom();
         const { bizEntityArr } = from;
-        function hasField(fieldName: string) {
+        function hasField(fieldName) {
             for (let be of bizEntityArr) {
-                if (be.hasField(fieldName) === true) return true;
+                if (be.hasField(fieldName) === true)
+                    return true;
             }
             return true;
         }
         if (hasField(this.fieldName) === true) {
             // this.element.fieldName = this.fieldName;
-            let field = new BizFieldField();
+            let field = new il_1.BizFieldField();
             field.fieldName = this.fieldName;
             this.element.field = field;
         }
@@ -42,3 +41,5 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
         return ok;
     }
 }
+exports.PBizFieldOperand = PBizFieldOperand;
+//# sourceMappingURL=BizFieldOperand.js.map

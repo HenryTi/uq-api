@@ -1,5 +1,5 @@
 import {
-    BizBudNone, BizPhraseType, BizTie, CompareExpression
+    BizBudNone, BizFieldBud, BizPhraseType, BizTie, CompareExpression
     , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
 } from "../../il";
 import { Space } from "../space";
@@ -88,7 +88,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     }
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, ui: { caption: null }, val });
+                    this.element.cols.push({ name: lowerVar, ui: { caption: null }, val, field: undefined, });
                 }
                 else {
                     let name = this.ts.passVar();
@@ -96,7 +96,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     this.ts.passToken(Token.EQU);
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name, ui, val });
+                    this.element.cols.push({ name, ui, val, field: undefined, });
                     if (coll[name] === true) {
                         this.ts.error(`duplicate column name ${name}`);
                     }
@@ -179,10 +179,12 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     ok = false;
                 }
                 if (ui.caption === null) {
-                    let [bizEntity, bud] = this.element.getBud(name);
-                    if (bud !== undefined) {
-                        col.entity = bizEntity;
-                        col.bud = bud;
+                    //let [bizEntity, bud] = this.element.getBud(name);
+                    let field = this.element.getBizField(name);
+                    if (field !== undefined) {
+                        col.field = field;
+                        // col.entity = bizEntity;
+                        //col.bud = bud;
                     }
                     else {
                         // 'no', 'ex'
@@ -191,7 +193,10 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 else {
                     // Query bud
                     let bud = new BizBudNone(biz, name, ui);
-                    col.bud = bud;
+                    //col.bud = bud;
+                    let field = new BizFieldBud();
+                    field.bud = bud;
+                    col.field = field;
                 }
             }
         }

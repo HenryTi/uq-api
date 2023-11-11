@@ -67,7 +67,8 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
         else {
             const coll: { [col: string]: boolean } = {};
             for (let col of from.cols) {
-                let { ui, bud } = col;
+                let { ui, field } = col;
+                let { bud } = field;
                 if (ui.caption !== null) {
                     if (bud === undefined) {
                         this.log(`Bud can not be undefined`);

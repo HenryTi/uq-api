@@ -17,6 +17,7 @@ export class BizFieldBud extends BizField {
 }
 
 export class BizFieldField extends BizField {
+    fieldName: string;
     override db(dbContext: DbContext): BBizField {
         return new BBizFieldField(dbContext, this);
     }

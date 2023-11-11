@@ -15,7 +15,7 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { asc, bizEntityArr } = this.istatement;
+        const { asc } = this.istatement;
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
         ifStateNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pageStart));
@@ -47,7 +47,8 @@ class BFromStatement extends bstatement_1.BStatement {
         }
         const arr = [];
         for (let col of cols) {
-            const { name, val, bud, entity } = col;
+            const { name, val, field } = col;
+            let { bud, entity } = field;
             const colArr = [];
             if (bud !== undefined) {
                 if (entity !== undefined) {

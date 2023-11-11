@@ -211,45 +211,48 @@ class TitleIxHistory extends TitleHistoryBase {
     }
 }
 class BBizFieldOperand extends exp_1.ExpVal {
-    constructor(bizField) {
+    constructor(bBizField) {
         super();
-        this.bizField = bizField;
+        this.bBizField = bBizField;
     }
     to(sb) {
-        const { bizBud, fieldName } = this.bizField;
+        this.bBizField.to(sb);
+        // const { field } = this.bizFieldOperand;
+        /*
         if (fieldName) {
             sb.append('t1.').append(fieldName);
         }
         else {
-            function buildSelectValue(tbl) {
+            function buildSelectValue(tbl: EnumSysTable) {
                 sb.l().append('select value from ').dbName().dot().append(tbl)
                     .append(' where i=t1.id and x=').append(bizBud.id)
                     .r();
             }
             function buildSelectMulti() {
                 sb.l().append('select JSON_ARRAYAGG(x1.ext) from ')
-                    .dbName().dot().append(il_1.EnumSysTable.ixBud).append(' AS x0 JOIN ')
-                    .dbName().dot().append(il_1.EnumSysTable.bud).append(' AS x1 ON x1.id=x0.x ')
+                    .dbName().dot().append(EnumSysTable.ixBud).append(' AS x0 JOIN ')
+                    .dbName().dot().append(EnumSysTable.bud).append(' AS x1 ON x1.id=x0.x ')
                     .append(' where x0.i=t1.id AND x1.base=').append(bizBud.id)
                     .r();
             }
             switch (bizBud.dataType) {
                 default:
-                    buildSelectValue(il_1.EnumSysTable.ixBudInt);
+                    buildSelectValue(EnumSysTable.ixBudInt);
                     return;
-                case il_1.BudDataType.str:
-                case il_1.BudDataType.char:
-                    buildSelectValue(il_1.EnumSysTable.ixBudStr);
+                case BudDataType.str:
+                case BudDataType.char:
+                    buildSelectValue(EnumSysTable.ixBudStr);
                     return;
-                case il_1.BudDataType.dec:
-                    buildSelectValue(il_1.EnumSysTable.ixBudDec);
+                case BudDataType.dec:
+                    buildSelectValue(EnumSysTable.ixBudDec);
                     return;
-                case il_1.BudDataType.radio:
-                case il_1.BudDataType.check:
+                case BudDataType.radio:
+                case BudDataType.check:
                     buildSelectMulti();
                     return;
             }
         }
+        */
     }
 }
 exports.BBizFieldOperand = BBizFieldOperand;

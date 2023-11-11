@@ -49,5 +49,5 @@ var opSearch_1 = require("./opSearch");
 Object.defineProperty(exports, "POpSearch", { enumerable: true, get: function () { return opSearch_1.POpSearch; } });
 var opAt_1 = require("./opAt");
 Object.defineProperty(exports, "POpAt", { enumerable: true, get: function () { return opAt_1.POpAt; } });
-__exportStar(require("./bizField"), exports);
+__exportStar(require("./BizFieldOperand"), exports);
 //# sourceMappingURL=index.js.map

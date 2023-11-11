@@ -66,7 +66,8 @@ class PBizQueryTable extends PBizQuery {
         else {
             const coll = {};
             for (let col of from.cols) {
-                let { ui, bud } = col;
+                let { ui, field } = col;
+                let { bud } = field;
                 if (ui.caption !== null) {
                     if (bud === undefined) {
                         this.log(`Bud can not be undefined`);

@@ -149,7 +149,8 @@ class Stack implements IlStack {
         this.arr.push(new BizExpOperand(bExp));
     }
     bizFieldOperand(bizFieldOperand: BizFieldOperand) {
-        let bBizFieldOperand = new BBizFieldOperand(bizFieldOperand);
+        let bBizField = bizFieldOperand.field.db(this.context);
+        let bBizFieldOperand = new BBizFieldOperand(bBizField);
         this.arr.push(bBizFieldOperand);
     }
     func(func: string, n: number, isUqFunc: boolean) {

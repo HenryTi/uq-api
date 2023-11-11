@@ -50,7 +50,8 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         }
         const arr: ExpVal[] = [];
         for (let col of cols) {
-            const { name, val, bud, entity } = col;
+            const { name, val, field } = col;
+            let { bud, entity } = field;
             const colArr: Exp[] = [];
             if (bud !== undefined) {
                 if (entity !== undefined) {
