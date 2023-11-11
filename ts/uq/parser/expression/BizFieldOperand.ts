@@ -19,16 +19,19 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
             }
             return true;
         }
-        let [, bud] = from.getBud(this.fieldName);
-        if (bud !== undefined) {
-            this.element.bizBud = bud;
-        }
-        else if (hasField(this.fieldName) === true) {
+        if (hasField(this.fieldName) === true) {
             this.element.fieldName = this.fieldName;
         }
         else {
-            this.log(`Unknown field ${this.fieldName}`);
-            ok = false;
+            let [bizEntity, bud] = from.getBud(this.fieldName);
+            if (bud !== undefined) {
+                this.element.bizEntity = bizEntity;
+                this.element.bizBud = bud;
+            }
+            else {
+                this.log(`Unknown field ${this.fieldName}`);
+                ok = false;
+            }
         }
         return ok;
     }

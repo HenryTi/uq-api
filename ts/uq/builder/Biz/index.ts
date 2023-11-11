@@ -9,3 +9,4 @@ export * from './BizPick';
 export * from './BizQuery';
 export * from './BizAssign';
 export * from './BizTie';
+export * from './BizField';

@@ -46,14 +46,13 @@ export class BBizPend extends BBizEntity<BizPend> {
             return;
         }
 
-        const { params, statement } = pendQuery;
+        const { params, statement, from } = pendQuery;
         const json = '$json';
         const varJson = new ExpVar(json);
         let { statements, parameters } = proc;
         let { factory, site } = this.context;
         parameters.push(
             bigIntField('$user'),
-            bigIntField('pendPhrase'),
             jsonField(json),
             bigIntField('$pageStart'),
             bigIntField('$pageSize'),

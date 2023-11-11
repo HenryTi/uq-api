@@ -5,10 +5,9 @@ export enum EnumSysTable {
     version = '$version',
     phrase = '$phrase',
     site = '$site',
-    // sitePhrase = 'sitephrase',
-    // ixPhrase = '$ixphrase',
     id_u = '$id_u',
     id_uu = '$id_uu',
+    bizPhrase = 'bizphrase',
 
     unit = '$unit',
     user = '$user',

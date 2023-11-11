@@ -15,3 +15,4 @@ export * from './Options';
 export * from './Report';
 export * from './Query';
 export * from './Assign';
+export * from './BizField';

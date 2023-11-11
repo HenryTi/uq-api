@@ -16,10 +16,13 @@ import { PBizBudValue } from "./Bud";
 import { PBizQueryTable, PBizQueryTableStatements } from "./Query";
 
 export class PBizBin extends PBizEntity<BizBin> {
+    /*
     private pend: string;
     private pendCaption: string;
     private pendSearch: string[];
+    */
 
+    /*
     private parsePend = () => {
         if (this.pend !== undefined) {
             this.ts.error(`PEND can only be defined once in Biz Bin`);
@@ -63,6 +66,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
         this.ts.passToken(Token.SEMICOLON);
     }
+    */
 
     private parsePick = () => {
         let { picks } = this.element;
@@ -147,7 +151,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         price: this.parsePrice,
         amount: this.parseAmount,
         act: this.parseAct,
-        pend: this.parsePend,
+        // pend: this.parsePend,
     };
 
     scan(space: Space): boolean {

@@ -9,10 +9,9 @@ var EnumSysTable;
     EnumSysTable["version"] = "$version";
     EnumSysTable["phrase"] = "$phrase";
     EnumSysTable["site"] = "$site";
-    // sitePhrase = 'sitephrase',
-    // ixPhrase = '$ixphrase',
     EnumSysTable["id_u"] = "$id_u";
     EnumSysTable["id_uu"] = "$id_uu";
+    EnumSysTable["bizPhrase"] = "bizphrase";
     EnumSysTable["unit"] = "$unit";
     EnumSysTable["user"] = "$user";
     EnumSysTable["userSite"] = "$usersite";

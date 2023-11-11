@@ -39,12 +39,12 @@ class BBizPend extends BizEntity_1.BBizEntity {
             proc.dropOnly = true;
             return;
         }
-        const { params, statement } = pendQuery;
+        const { params, statement, from } = pendQuery;
         const json = '$json';
         const varJson = new sql_1.ExpVar(json);
         let { statements, parameters } = proc;
         let { factory, site } = this.context;
-        parameters.push((0, il_1.bigIntField)('$user'), (0, il_1.bigIntField)('pendPhrase'), (0, il_1.jsonField)(json), (0, il_1.bigIntField)('$pageStart'), (0, il_1.bigIntField)('$pageSize'));
+        parameters.push((0, il_1.bigIntField)('$user'), (0, il_1.jsonField)(json), (0, il_1.bigIntField)('$pageStart'), (0, il_1.bigIntField)('$pageSize'));
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.var(consts_1.$site, new il_1.BigInt());

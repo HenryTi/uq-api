@@ -49,7 +49,7 @@ export class BizFieldOperand extends Atom {
     get type(): string { return 'bizfield'; }
     parser(context: PContext) { return new PBizFieldOperand(this, context); }
     to(stack: Stack) {
-        stack.bizField(this);
+        stack.bizFieldOperand(this);
     }
 }
 

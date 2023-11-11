@@ -1,5 +1,5 @@
 import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../parser";
-import { BizBudValue, BizEntity, BizPhraseType, BizTie } from "../Biz";
+import { BizBudValue, BizEntity, BizField, BizPhraseType, BizTie } from "../Biz";
 import { EnumSysTable } from "../EnumSysTable";
 import { Builder } from "../builder";
 import { IElement } from "../element";
@@ -49,6 +49,10 @@ export class FromStatement extends Statement {
             }
         }
         return [bizEntity, bud];
+    }
+
+    getBizField(fieldName: string): BizField {
+        return undefined;
     }
 }
 

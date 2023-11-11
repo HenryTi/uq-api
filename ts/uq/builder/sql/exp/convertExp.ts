@@ -148,9 +148,9 @@ class Stack implements IlStack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new BizExpOperand(bExp));
     }
-    bizField(bizField: BizFieldOperand) {
-        let bBizField = new BBizFieldOperand(bizField);
-        this.arr.push(bBizField);
+    bizFieldOperand(bizFieldOperand: BizFieldOperand) {
+        let bBizFieldOperand = new BBizFieldOperand(bizFieldOperand);
+        this.arr.push(bBizFieldOperand);
     }
     func(func: string, n: number, isUqFunc: boolean) {
         let params: ExpVal[] = [];

@@ -42,9 +42,8 @@ export interface Stack {
     like(): void;
     cast(dataType: DataType): void;
     select(select: Select): void;
-    // bizSelect(select: BizSelectInline): void;
     bizExp(exp: BizExp): void;
-    bizField(bizField: BizFieldOperand): void;
+    bizFieldOperand(bizField: BizFieldOperand): void;
     searchCase(whenCount: number, hasElse: boolean): void;
     simpleCase(whenCount: number, hasElse: boolean): void;
     func(func: string, n: number, isUqFunc: boolean): void;
