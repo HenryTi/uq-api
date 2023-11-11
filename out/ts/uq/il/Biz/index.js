@@ -33,5 +33,4 @@ __exportStar(require("./Options"), exports);
 __exportStar(require("./Report"), exports);
 __exportStar(require("./Query"), exports);
 __exportStar(require("./Assign"), exports);
-__exportStar(require("./BizField"), exports);
 //# sourceMappingURL=index.js.map

@@ -1,5 +1,6 @@
 import { BizBud, BizExp, BizExpParamType, BizFieldOperand, BizPhraseType, BizTitle, BudDataType, EnumSysTable } from "../../il";
 import { BBizField } from "../Biz";
+// import { BBizField } from "../Biz";
 import { DbContext } from "../dbContext";
 import { ExpInterval, ExpVal } from "./exp";
 import { SqlBuilder } from "./sqlBuilder";
@@ -241,41 +242,5 @@ export class BBizFieldOperand extends ExpVal {
 
     to(sb: SqlBuilder): void {
         this.bBizField.to(sb);
-        // const { field } = this.bizFieldOperand;
-        /*
-        if (fieldName) {
-            sb.append('t1.').append(fieldName);
-        }
-        else {
-            function buildSelectValue(tbl: EnumSysTable) {
-                sb.l().append('select value from ').dbName().dot().append(tbl)
-                    .append(' where i=t1.id and x=').append(bizBud.id)
-                    .r();
-            }
-            function buildSelectMulti() {
-                sb.l().append('select JSON_ARRAYAGG(x1.ext) from ')
-                    .dbName().dot().append(EnumSysTable.ixBud).append(' AS x0 JOIN ')
-                    .dbName().dot().append(EnumSysTable.bud).append(' AS x1 ON x1.id=x0.x ')
-                    .append(' where x0.i=t1.id AND x1.base=').append(bizBud.id)
-                    .r();
-            }
-            switch (bizBud.dataType) {
-                default:
-                    buildSelectValue(EnumSysTable.ixBudInt);
-                    return;
-                case BudDataType.str:
-                case BudDataType.char:
-                    buildSelectValue(EnumSysTable.ixBudStr);
-                    return;
-                case BudDataType.dec:
-                    buildSelectValue(EnumSysTable.ixBudDec);
-                    return;
-                case BudDataType.radio:
-                case BudDataType.check:
-                    buildSelectMulti();
-                    return;
-            }
-        }
-        */
     }
 }

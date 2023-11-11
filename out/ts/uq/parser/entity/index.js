@@ -49,7 +49,6 @@ var function_1 = require("./function");
 Object.defineProperty(exports, "PFunction", { enumerable: true, get: function () { return function_1.PFunction; } });
 var query_1 = require("./query");
 Object.defineProperty(exports, "PQuery", { enumerable: true, get: function () { return query_1.PQuery; } });
-__exportStar(require("./sheet"), exports);
 var bus_1 = require("./bus");
 Object.defineProperty(exports, "PBus", { enumerable: true, get: function () { return bus_1.PBus; } });
 var arr_1 = require("./arr");

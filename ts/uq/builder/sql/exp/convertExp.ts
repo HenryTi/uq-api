@@ -17,7 +17,10 @@ import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, E
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand } from './ExpBizOperand';
-import { BBizExp, BBizFieldOperand } from '../BizExp';
+import {
+    BBizExp, BBizFieldOperand
+    //    , BBizFieldOperand 
+} from '../BizExp';
 import { ExpRole } from './ExpRole';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {

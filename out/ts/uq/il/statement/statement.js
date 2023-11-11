@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RoleStatement = exports.EnumRole = exports.LogStatement = exports.ExecSqlStatement = exports.ScheduleStatement = exports.InlineStatement = exports.SendStatement = exports.SendAppStatement = exports.SendSmsStatement = exports.SendEmailStatement = exports.SendMsgStatement = exports.SendBaseStatement = exports.BusStatement = exports.BusAction = exports.FailStatement = exports.StateToStatement = exports.PendingWrite = exports.SheetWrite = exports.TuidWrite = exports.HistoryWrite = exports.BookWrite = exports.WriteSet = exports.DeleteStatement = exports.SelectStatement = exports.ProcStatement = exports.ReturnStatement = exports.ContinueStatement = exports.BreakStatement = exports.While = exports.If = exports.SettingStatement = exports.TextStatement = exports.TableStatement = exports.CTETable = exports.TableVar = exports.VarStatement = exports.Var = exports.BizBinActStatements = exports.VerifyStatement = exports.SheetStatement = exports.QueryStatement = exports.BusQueryStatement = exports.QueryBaseStatement = exports.BusAcceptStatement = exports.FunctionStatement = exports.InBusActionStatement = exports.UqStatement = exports.ActionStatement = exports.Statements = exports.Statement = void 0;
-exports.QueueStatement = exports.QueueAction = exports.PokeStatement = exports.TransactionStatement = exports.EnumTransaction = exports.SleepStatement = exports.AssertRoleStatement = void 0;
+exports.EnumTransaction = exports.SleepStatement = exports.AssertRoleStatement = exports.RoleStatement = exports.EnumRole = exports.LogStatement = exports.ExecSqlStatement = exports.ScheduleStatement = exports.InlineStatement = exports.SendStatement = exports.SendAppStatement = exports.SendSmsStatement = exports.SendEmailStatement = exports.SendMsgStatement = exports.SendBaseStatement = exports.BusStatement = exports.BusAction = exports.FailStatement = exports.StateToStatement = exports.PendingWrite = exports.TuidWrite = exports.HistoryWrite = exports.BookWrite = exports.WriteSet = exports.DeleteStatement = exports.SelectStatement = exports.ProcStatement = exports.ReturnStatement = exports.ContinueStatement = exports.BreakStatement = exports.While = exports.If = exports.SettingStatement = exports.TextStatement = exports.TableStatement = exports.CTETable = exports.TableVar = exports.VarStatement = exports.Var = exports.BizBinActStatements = exports.QueryStatement = exports.BusQueryStatement = exports.QueryBaseStatement = exports.BusAcceptStatement = exports.FunctionStatement = exports.InBusActionStatement = exports.UqStatement = exports.ActionStatement = exports.Statements = exports.Statement = void 0;
+exports.QueueStatement = exports.QueueAction = exports.PokeStatement = exports.TransactionStatement = void 0;
 const parser = require("../../parser");
 const element_1 = require("../element");
 const field_1 = require("../field");
@@ -135,32 +135,6 @@ class QueryStatement extends QueryBaseStatement {
     db(db) { return; }
 }
 exports.QueryStatement = QueryStatement;
-class SheetStatement extends Statements {
-    constructor(parent, busable) {
-        super(parent);
-        this.createStatements = (parent) => { return new SheetStatement(parent, this.busable); };
-        this.busable = busable;
-    }
-    get type() { return 'sheetstatement'; }
-    parser(context) {
-        return new parser.PSheetStatement(this, context);
-    }
-    db(db) { return; }
-}
-exports.SheetStatement = SheetStatement;
-class VerifyStatement extends Statements {
-    constructor(parent, sheetVerify) {
-        super(parent);
-        this.createStatements = (parent) => { return new VerifyStatement(parent, this.sheetVerify); };
-        this.sheetVerify = sheetVerify;
-    }
-    get type() { return 'sheetstatement'; }
-    parser(context) {
-        return new parser.PSheetVerifyStatement(this, context, this.sheetVerify.returns.returns.length > 0);
-    }
-    db(db) { return; }
-}
-exports.VerifyStatement = VerifyStatement;
 class BizBinActStatements extends Statements {
     constructor(parent, bizDetailAct) {
         super(parent);
@@ -402,16 +376,6 @@ class TuidWrite extends Statement {
     parser(context) { return new parser.PTuidWrite(this, context); }
 }
 exports.TuidWrite = TuidWrite;
-class SheetWrite extends Statement {
-    constructor() {
-        super(...arguments);
-        this.set = [];
-    }
-    get type() { return 'sheetwrite'; }
-    db(db) { return db.sheetWrite(this); }
-    parser(context) { return new parser.PSheetWrite(this, context); }
-}
-exports.SheetWrite = SheetWrite;
 // PENDING Receivable +(customer:1, product:2, pack:2, price:3.5) to recId;
 // PENDING Receivable -at recId;
 // PENDING Receivable -(price:2.5) at recId done [del|red|cancel|] if 3*2=1;

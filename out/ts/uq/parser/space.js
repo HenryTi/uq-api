@@ -11,7 +11,6 @@ class Space {
     _getConst(name) { return; }
     _getArr(name) { return; }
     _getBus(name) { return; }
-    _getSheet(name) { return; }
     _useBusFace(bus, face, arr, local) { return false; }
     _states() { return; }
     _getEntity(name) { return; }
@@ -112,13 +111,6 @@ class Space {
             return bus;
         if (this.outer !== undefined)
             return this.outer.getBus(name);
-    }
-    getSheet(name) {
-        let sheet = this._getSheet(name);
-        if (sheet !== undefined)
-            return sheet;
-        if (this.outer !== undefined)
-            return this.outer.getSheet(name);
     }
     useBusFace(bus, face, arr, local) {
         if (this._useBusFace(bus, face, arr, local) === true)

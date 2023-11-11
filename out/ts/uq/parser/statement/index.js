@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PAssertRoleStatement = exports.PRoleStatement = exports.PExecSqlStatement = exports.PQueueStatement = exports.PSleepStatement = exports.PPokeStatement = exports.PTransactionStatement = exports.PLogStatement = exports.PScheduleStatement = exports.PInlineStatement = exports.PTextStatement = exports.PTableStatement = exports.PSendStatement = exports.PProcStatement = exports.PBusStatement = exports.PFail = exports.PStateTo = exports.PPendingWrite = exports.PSheetWrite = exports.PTuidWrite = exports.PHistoryWrite = exports.PBookWrite = exports.PDeleteStatement = exports.PSelectStatement = exports.PForEach = exports.PWhile = exports.PReturnStatement = exports.PContinueStatement = exports.PBreakStatement = exports.PIf = exports.PSettingStatement = exports.PValueStatement = exports.PWithStatement = exports.PSetStatement = exports.PVarStatement = void 0;
+exports.PAssertRoleStatement = exports.PRoleStatement = exports.PExecSqlStatement = exports.PQueueStatement = exports.PSleepStatement = exports.PPokeStatement = exports.PTransactionStatement = exports.PLogStatement = exports.PScheduleStatement = exports.PInlineStatement = exports.PTextStatement = exports.PTableStatement = exports.PSendStatement = exports.PProcStatement = exports.PBusStatement = exports.PFail = exports.PStateTo = exports.PPendingWrite = exports.PTuidWrite = exports.PHistoryWrite = exports.PBookWrite = exports.PDeleteStatement = exports.PSelectStatement = exports.PForEach = exports.PWhile = exports.PReturnStatement = exports.PContinueStatement = exports.PBreakStatement = exports.PIf = exports.PSettingStatement = exports.PValueStatement = exports.PWithStatement = exports.PSetStatement = exports.PVarStatement = void 0;
 var var_1 = require("./var");
 Object.defineProperty(exports, "PVarStatement", { enumerable: true, get: function () { return var_1.PVarStatement; } });
 var set_1 = require("./set");
@@ -45,8 +45,6 @@ var historyWrite_1 = require("./historyWrite");
 Object.defineProperty(exports, "PHistoryWrite", { enumerable: true, get: function () { return historyWrite_1.PHistoryWrite; } });
 var tuidWrite_1 = require("./tuidWrite");
 Object.defineProperty(exports, "PTuidWrite", { enumerable: true, get: function () { return tuidWrite_1.PTuidWrite; } });
-var sheetWrite_1 = require("./sheetWrite");
-Object.defineProperty(exports, "PSheetWrite", { enumerable: true, get: function () { return sheetWrite_1.PSheetWrite; } });
 var pendingWrite_1 = require("./pendingWrite");
 Object.defineProperty(exports, "PPendingWrite", { enumerable: true, get: function () { return pendingWrite_1.PPendingWrite; } });
 var stateTo_1 = require("./stateTo");

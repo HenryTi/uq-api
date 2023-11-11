@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FromStatementInPend = exports.FromStatement = void 0;
 const parser_1 = require("../../parser");
-const Biz_1 = require("../Biz");
 const statement_1 = require("./statement");
+const BizField_1 = require("../BizField");
 class FromStatement extends statement_1.Statement {
     constructor() {
         super(...arguments);
@@ -44,7 +44,7 @@ class FromStatement extends statement_1.Statement {
         }
         if (bud === undefined)
             return undefined;
-        let ret = new Biz_1.BizFieldBud();
+        let ret = new BizField_1.BizFieldBud();
         ret.entity = bizEntity;
         ret.bud = bud;
         return ret;
@@ -57,6 +57,37 @@ class FromStatementInPend extends FromStatement {
     }
     db(db) {
         return db.fromStatementInPend(this);
+    }
+    getBizField(fieldName) {
+        let bizEntity = undefined;
+        let bud = undefined;
+        switch (fieldName) {
+            default: break;
+            case 'no': break;
+            case 'si': break;
+            case 'sx': break;
+            case 'svalue': break;
+            case 'samount': break;
+            case 'sprice': break;
+            case 'i': break;
+            case 'x': break;
+            case 'value': break;
+            case 'amount': break;
+            case 'price': break;
+        }
+        for (let entity of this.bizEntityArr) {
+            let b = entity.getBud(fieldName);
+            if (b !== undefined) {
+                bizEntity = entity;
+                bud = b;
+            }
+        }
+        if (bud === undefined)
+            return undefined;
+        let ret = new BizField_1.BizFieldBud();
+        ret.entity = bizEntity;
+        ret.bud = bud;
+        return ret;
     }
 }
 exports.FromStatementInPend = FromStatementInPend;

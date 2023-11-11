@@ -1,7 +1,7 @@
 import * as il from '.';
 import { PElement, PUq, PContext } from '../parser';
 import { IElement } from './element';
-import { Entity, StateTo, Index, Role, Queue, ID } from './entity';
+import { Entity, Index, Role, Queue, ID } from './entity';
 import { Biz } from './Biz';
 import { ShareSchema } from './busSchema';
 import { DataType, Dec } from './datatype';
@@ -83,7 +83,6 @@ export class Uq extends IElement {
     sysprocs: { [key: string]: il.SysProc } = {};
     procs: { [key: string]: il.Proc } = {};
     queries: { [key: string]: il.Query } = {};
-    sheets: { [key: string]: il.Sheet } = {};
     buses: { [key: string]: il.Bus } = {};
     templets: { [key: string]: il.Templet } = {};
 
@@ -262,7 +261,7 @@ export class Uq extends IElement {
         let arr: { [key: string]: il.Entity }[] = [
             this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
             this.funcs, this.books, this.maps, this.histories, this.pendings,
-            this.acts, this.sysprocs, this.procs, this.queries, this.sheets,
+            this.acts, this.sysprocs, this.procs, this.queries,
             this.buses, this.templets, this.consts, this.queues,
         ]
         arr.forEach(v => {
@@ -275,7 +274,7 @@ export class Uq extends IElement {
         let arr: { [key: string]: il.Entity }[] = [
             this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
             this.funcs, this.books, this.maps, this.histories, this.pendings,
-            this.acts, this.sysprocs, this.queries, this.sheets, this.procs,
+            this.acts, this.sysprocs, this.queries, this.procs,
             this.buses, this.templets, this.consts, this.queues
         ]
         arr.forEach(v => {
@@ -289,7 +288,7 @@ export class Uq extends IElement {
             this.queues,
             this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
             this.funcs, this.books, this.maps, this.histories, this.pendings,
-            this.acts, this.sysprocs, this.procs, this.queries, this.sheets,
+            this.acts, this.sysprocs, this.procs, this.queries,
             this.buses, this.templets, this.consts
         ]
         for (let item of arr) {
@@ -300,7 +299,7 @@ export class Uq extends IElement {
     async eachOpenType(callback: (entity: il.Entity) => Promise<void>) {
         let arr: { [key: string]: il.Entity }[] = [
             this.tuids, this.IDs,
-            this.acts, this.queries, this.sheets, this.IXs,
+            this.acts, this.queries, this.IXs,
         ]
         for (let item of arr) {
             for (let i in item) await callback(item[i])
@@ -389,27 +388,6 @@ export class Uq extends IElement {
         enumEntities('pending', this.pendings);
         enumEntities('templet', this.templets);
         enumEntities('queue', this.queues);
-
-        ret.push('sheet');
-        let sheets = this.sheets;
-        for (let i in sheets) {
-            let sheet = sheets[i];
-            let ln: string[] = [sheet.sName];
-            for (let s in sheet.states) {
-                let state = sheet.states[s];
-                let { sName, to } = state;
-                let n: string;
-                switch (to) {
-                    default: n = sName; break;
-                    case StateTo.origin: n = '#' + sName; break;
-                    case StateTo.reply: n = '<' + sName; break;
-                }
-                ln.push(n);
-            }
-            ret.push(ln.join('\t'));
-        }
-        ret.push('');
-
         return ret.join('\n');
     }
 

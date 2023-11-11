@@ -238,9 +238,6 @@ class DbContext {
     sysproc(v) { return new ent.BSysProc(this, v); }
     proc(v) { return new ent.BProc(this, v); }
     query(v) { return new ent.BQuery(this, v); }
-    sheet(v) { return new ent.BSheet(this, v); }
-    sheetState(v) { return new ent.BSheetState(this, v); }
-    sheetAction(v) { return new ent.BSheetAction(this, v); }
     tuid(v) { return ent.BTuid.create(this, v); }
     ID(v) { return new ent.BID(this, v); }
     IX(v) { return new ent.BIX(this, v); }
@@ -288,9 +285,6 @@ class DbContext {
     historyWrite(v) { return new stat.BHistoryWrite(this, v); }
     pendingWrite(v) { return new stat.BPendingWrite(this, v); }
     tuidWrite(v) { return new stat.BTuidWrite(this, v); }
-    sheetWrite(v) {
-        return new stat.BSheetWrite(this, v);
-    }
     stateTo(v) { return new stat.BStateTo(this, v); }
     fail(v) { return new stat.BFailStatement(this, v); }
     busStatement(v) { return new stat.BBusStatement(this, v); }
@@ -680,7 +674,7 @@ class DbContext {
         return selectVId;
     }
     // 如果是bus，数据main就是数组，所以需要loop。
-    dataParse(proc, statements, action, sheet, statsSetImportingBusVar, loopState) {
+    dataParse(proc, statements, action, statsSetImportingBusVar, loopState) {
         let loop = loopState === undefined ?
             statements : loopState.statements.statements;
         let factory = this.factory;
@@ -728,15 +722,17 @@ class DbContext {
         iifDataNull.cmp = new sql_1.ExpIsNull(vData);
         iifDataNull.then(proc.createLeaveProc());
         statsAddSet(dataLen, new sql_1.ExpFunc(factory.func_length, vData));
+        /*
         //let sheet = (this.entity as any).sheet;
         if (sheet !== undefined) {
             let select = factory.createSelect();
             select.from(sysTable(il.EnumSysTable.entity));
             select.toVar = true;
             select.col('id', sheetType);
-            select.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(sheet.name)));
+            select.where(new ExpEQ(new ExpField('name'), new ExpStr(sheet.name)));
             statements.push(select);
         }
+        */
         statsAddSet(c, sql_1.ExpVal.num1);
         statsAddSet(p, sql_1.ExpVal.num1);
         statsAddSet(sep, new sql_1.ExpFunc('CHAR', new sql_1.ExpNum(9)));

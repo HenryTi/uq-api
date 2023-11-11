@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IXSchemaBuilder = exports.IDXSchemaBuilder = exports.IDSchemaBuilder = exports.TempletSchemaBuilder = exports.SheetRun = exports.SheetSchemaBuilder = exports.MapSchemaBuilder = exports.BookSchemaBuilder = exports.BookBaseSchemaBuilder = exports.PendingSchemaBuilder = exports.HistorySchemaBuilder = exports.QuerySchemaBuilder = exports.TuidSchemaBuilder = exports.ActionRun = exports.ActSchemaBuilder = exports.BusSchemaBuilder = exports.ImportSchemaBuilder = exports.RoleSchemaBuilder = exports.QueueSchemaBuilder = exports.ConstSchemaBuilder = exports.EnumSchemaBuilder = exports.SchemaBuilder = void 0;
+exports.IXSchemaBuilder = exports.IDXSchemaBuilder = exports.IDSchemaBuilder = exports.TempletSchemaBuilder = exports.MapSchemaBuilder = exports.BookSchemaBuilder = exports.BookBaseSchemaBuilder = exports.PendingSchemaBuilder = exports.HistorySchemaBuilder = exports.QuerySchemaBuilder = exports.TuidSchemaBuilder = exports.ActionRun = exports.ActSchemaBuilder = exports.BusSchemaBuilder = exports.ImportSchemaBuilder = exports.RoleSchemaBuilder = exports.QueueSchemaBuilder = exports.ConstSchemaBuilder = exports.EnumSchemaBuilder = exports.SchemaBuilder = void 0;
 const field_1 = require("./field");
 class SchemaBuilder {
     constructor(uq, entity) {
@@ -367,84 +367,6 @@ class MapSchemaBuilder extends BookBaseSchemaBuilder {
     }
 }
 exports.MapSchemaBuilder = MapSchemaBuilder;
-class SheetSchemaBuilder extends SchemaBuilder {
-    build(schema) {
-        super.build(schema);
-        let { fields, arrs, states, verify } = this.entity;
-        // schema.role = role;
-        this.addField(schema, fields);
-        for (let arr of arrs) {
-            let { sName, fields } = arr;
-            this.addArr(schema, sName, fields);
-        }
-        if (verify !== undefined) {
-            let { inBuses } = verify;
-            schema.verify = {
-                inBuses: inBuses && inBuses.map(v => v.bus.name + '/' + v.faceQuerySchema.name),
-                returns: this.buildReturns(verify.returns)
-            };
-        }
-        schema.states = [];
-        schema.states.push(this.buildStartSchema(this.entity));
-        for (let s in states) {
-            schema.states.push(this.buildStateSchema(states[s]));
-        }
-    }
-    buildStartSchema(sheet) {
-        let ret = {
-            name: '$',
-            actions: []
-        };
-        let state = sheet.start;
-        for (let a in state.actions) {
-            if (a === '$onsave')
-                continue;
-            let action = state.actions[a];
-            let actionSchema = this.buildActionSchema(action);
-            ret.actions.push(actionSchema);
-        }
-        return ret;
-    }
-    buildStateSchema(state) {
-        let ret = {
-            name: state.name,
-            actions: []
-        };
-        for (let a in state.actions) {
-            ret.actions.push(this.buildActionSchema(state.actions[a]));
-        }
-        return ret;
-    }
-    buildActionSchema(action) {
-        let { name, returns, inBuses } = action;
-        return {
-            name: name,
-            returns: this.buildReturns(returns),
-            inBuses: inBuses && inBuses.map(v => v.bus.name + '/' + v.faceQuerySchema.name),
-            // role: role
-        };
-    }
-}
-exports.SheetSchemaBuilder = SheetSchemaBuilder;
-class SheetRun {
-    constructor(sheet) {
-        this.run = {};
-        this.build('$', sheet.start);
-        for (let i in sheet.states) {
-            this.build(i, sheet.states[i]);
-        }
-    }
-    build(name, state) {
-        let s = {};
-        this.run[name] = s;
-        for (let i in state.actions) {
-            let action = state.actions[i];
-            let { hasSend, buses, templets } = action;
-            s[i] = new ActionRun(hasSend, buses, templets);
-        }
-    }
-}
-exports.SheetRun = SheetRun;
 function convertToSchemaBusFace(buses) {
     if (buses === undefined)
         return;

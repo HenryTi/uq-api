@@ -1,7 +1,7 @@
 import {
-    Field, Table, Arr, Entity, GroupType,
-    Pointer,
-    Return, Bus, Sheet, Uq, TableVar, Enum, LocalTableBase, Const, ActionBase, Role, DataType, BizBase, BizEntity, FromStatement, BizBud, BizBin
+    Field, Table, Arr, Entity, GroupType
+    , Pointer, Return, Bus, Uq, TableVar, Enum, LocalTableBase
+    , Const, ActionBase, Role, DataType, BizBase, BizEntity, FromStatement
 } from '../il';
 
 export abstract class Space {
@@ -17,7 +17,6 @@ export abstract class Space {
     protected _getConst(name: string): Const { return; }
     protected _getArr(name: string): Arr { return; }
     protected _getBus(name: string): Bus { return; }
-    protected _getSheet(name: string): Sheet { return }
     protected _useBusFace(bus: Bus, face: string, arr: string, local: boolean): boolean { return false; }
     protected _states(): { [name: string]: any } { return; }
     protected _getEntity(name: string): Entity { return }
@@ -107,11 +106,6 @@ export abstract class Space {
         let bus = this._getBus(name);
         if (bus !== undefined) return bus;
         if (this.outer !== undefined) return this.outer.getBus(name);
-    }
-    getSheet(name: string): Sheet {
-        let sheet = this._getSheet(name);
-        if (sheet !== undefined) return sheet;
-        if (this.outer !== undefined) return this.outer.getSheet(name);
     }
     useBusFace(bus: Bus, face: string, arr: string, local: boolean): boolean {
         if (this._useBusFace(bus, face, arr, local) === true) return true;

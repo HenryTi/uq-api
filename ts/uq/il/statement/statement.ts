@@ -3,8 +3,8 @@ import { Expression, CompareExpression, ValueExpression } from '../Exp';
 import { IElement } from '../element';
 import { DataType } from '../datatype';
 import {
-    Entity, History, Tuid, Busable, Bus, Sheet, Pending,
-    SheetVerify, InBusAction, TuidArr, Proc, BookBase, Queue
+    Entity, History, Tuid, Busable, Bus, Pending,
+    InBusAction, TuidArr, Proc, BookBase, Queue
 } from '../entity';
 import { Table, Field, ProcParamType, bigIntField } from '../field';
 import { FieldPointer, Pointer, VarPointer } from '../pointer';
@@ -140,34 +140,6 @@ export class QueryStatement extends QueryBaseStatement {
         return new parser.PQueryStatement(this, context);
     }
     createStatements = (parent: Statement) => { return new QueryStatement(parent); }
-    db(db: Builder): object { return; }
-}
-
-export class SheetStatement extends Statements {
-    private busable: Busable;
-    constructor(parent: Statement, busable: Busable) {
-        super(parent);
-        this.busable = busable;
-    }
-    get type(): string { return 'sheetstatement'; }
-    parser(context: parser.PContext) {
-        return new parser.PSheetStatement(this, context);
-    }
-    createStatements = (parent: Statement) => { return new SheetStatement(parent, this.busable); }
-    db(db: Builder): object { return; }
-}
-
-export class VerifyStatement extends Statements {
-    private sheetVerify: SheetVerify;
-    constructor(parent: Statement, sheetVerify: SheetVerify) {
-        super(parent);
-        this.sheetVerify = sheetVerify;
-    }
-    get type(): string { return 'sheetstatement'; }
-    parser(context: parser.PContext) {
-        return new parser.PSheetVerifyStatement(this, context, this.sheetVerify.returns.returns.length > 0);
-    }
-    createStatements = (parent: Statement) => { return new VerifyStatement(parent, this.sheetVerify); }
     db(db: Builder): object { return; }
 }
 
@@ -470,20 +442,6 @@ export class TuidWrite extends Statement {
     get type(): string { return 'tuidwrite'; }
     db(db: Builder): object { return db.tuidWrite(this) }
     parser(context: parser.PContext) { return new parser.PTuidWrite(this, context); }
-}
-
-export class SheetWrite extends Statement {
-    sheetName: string;
-    sheet: Sheet;
-    into: string;
-    intoPointer: VarPointer;
-    idExp: ValueExpression;
-    sheetState: string;
-    arrName: string;
-    set: WriteSet[] = [];
-    get type(): string { return 'sheetwrite'; }
-    db(db: Builder): object { return db.sheetWrite(this) }
-    parser(context: parser.PContext) { return new parser.PSheetWrite(this, context); }
 }
 
 // PENDING Receivable +(customer:1, product:2, pack:2, price:3.5) to recId;

@@ -14,7 +14,6 @@ export { BBus } from './bus';
 export { BHistory } from './history';
 export { BPending } from './pending';
 export { BQuery } from './query';
-export { BSheet, BSheetAction, BSheetState } from './sheet';
 export { BTuid } from './tuid';
 export { BID } from './ID';
 export { BIX } from './IX';

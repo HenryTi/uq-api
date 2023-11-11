@@ -3,9 +3,10 @@ import { Space } from './space';
 import { Token } from './tokens';
 import { PContext } from './pContext';
 import {
-    Entity, Uq, Tuid, Import, Book, History, Map, Sheet, Query, Act, Table, Bus,
-    Templet, SysProc, Pending, Pointer, Role, Enum, Proc,
-    IX, ID, IDX, Const, ConstPointer, UqVersion, Function, Queue, UqStatement, DataTypeDefine, DataType, BusAcceptStatement, Biz, BizBase, BizEntity
+    Entity, Uq, Tuid, Import, Book, History, Map, Query, Act, Table, Bus
+    , Templet, SysProc, Pending, Pointer, Role, Enum, Proc
+    , IX, ID, IDX, Const, ConstPointer, UqVersion, Function, Queue
+    , UqStatement, DataTypeDefine, DataType, BusAcceptStatement, BizBase, BizEntity
 } from '../il';
 
 export class PUq extends PElement {
@@ -40,7 +41,6 @@ export class PUq extends PElement {
             pending: this.parsePending,
             action: this.parseAct,
             query: this.parseQuery,
-            sheet: this.parseSheet,
             bus: this.parseBus,
             templet: this.parseTemplet,
             sysproc: this.parseSysProc,
@@ -312,14 +312,6 @@ export class PUq extends PElement {
         this.uq.queries[query.name] = query;
     }
 
-    private parseSheet = () => {
-        let sheet = new Sheet(this.uq);
-        let parser = sheet.parser(this.context);
-        parser.parse();
-        if (this.checkEntityName(sheet) === false) return;
-        this.uq.sheets[sheet.name] = sheet;
-    }
-
     private parseBus = () => {
         let bus = new Bus(this.uq);
         let parser = bus.parser(this.context);
@@ -484,7 +476,6 @@ class UqSpace extends Space {
     }
     protected _getEnum(name: string): Enum { return this.uq.enums[name] }
     protected _getBus(name: string): Bus { return this.uq.buses[name] }
-    protected _getSheet(name: string): Sheet { return this.uq.sheets[name] }
     protected _getEntity(name: string): Entity {
         return this.uq.entities[name];
     }

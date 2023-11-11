@@ -171,14 +171,6 @@ class PUq extends element_1.PElement {
                 return;
             this.uq.queries[query.name] = query;
         };
-        this.parseSheet = () => {
-            let sheet = new il_1.Sheet(this.uq);
-            let parser = sheet.parser(this.context);
-            parser.parse();
-            if (this.checkEntityName(sheet) === false)
-                return;
-            this.uq.sheets[sheet.name] = sheet;
-        };
         this.parseBus = () => {
             let bus = new il_1.Bus(this.uq);
             let parser = bus.parser(this.context);
@@ -267,7 +259,6 @@ class PUq extends element_1.PElement {
             pending: this.parsePending,
             action: this.parseAct,
             query: this.parseQuery,
-            sheet: this.parseSheet,
             bus: this.parseBus,
             templet: this.parseTemplet,
             sysproc: this.parseSysProc,
@@ -479,7 +470,6 @@ class UqSpace extends space_1.Space {
     }
     _getEnum(name) { return this.uq.enums[name]; }
     _getBus(name) { return this.uq.buses[name]; }
-    _getSheet(name) { return this.uq.sheets[name]; }
     _getEntity(name) {
         return this.uq.entities[name];
     }

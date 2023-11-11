@@ -1,8 +1,8 @@
 import { charField, Field, intField, textField } from './field';
 import { Uq } from './uq';
 import {
-    Entity, Returns, Act, Tuid, Sheet, Query, History, Book,
-    SheetState, SheetAction, Bus, BusFace, Map, BookBase, Import, ID,
+    Entity, Returns, Act, Tuid, Query, History, Book,
+    Bus, BusFace, Map, BookBase, Import, ID,
     Templet, TempletFace, Role, ActionParamConvert, Enum, IX, IDX, Const, Queue, Pending, Permit
 } from './entity';
 import { FaceAcceptSchema, FaceQuerySchema } from './busSchema';
@@ -475,106 +475,6 @@ export class MapSchemaBuilder extends BookBaseSchemaBuilder<Map> {
         }
         schema.actions = this.entity.actions;
         schema.queries = this.entity.queries;
-    }
-}
-
-interface SheetStateSchema {
-    name: string;
-    actions: SheetActionSchema[];
-}
-
-interface SheetActionSchema {
-    name: string;
-    returns: any[];
-    inBuses: any[];
-    // role: { [crudl: string]: string[] };
-}
-
-interface SheetSchema extends Schema {
-    verify: {
-        inBuses: any[];
-        returns: any[];
-    }
-    states: SheetStateSchema[];
-}
-export class SheetSchemaBuilder extends SchemaBuilder<Sheet> {
-    build(schema: SheetSchema) {
-        super.build(schema);
-        let { fields, arrs, states, verify } = this.entity;
-        // schema.role = role;
-        this.addField(schema, fields);
-        for (let arr of arrs) {
-            let { sName, fields } = arr;
-            this.addArr(schema, sName, fields);
-        }
-        if (verify !== undefined) {
-            let { inBuses } = verify;
-            schema.verify = {
-                inBuses: inBuses && inBuses.map(v => v.bus.name + '/' + v.faceQuerySchema.name),
-                returns: this.buildReturns(verify.returns)
-            }
-        }
-        schema.states = [];
-        schema.states.push(this.buildStartSchema(this.entity));
-        for (let s in states) {
-            schema.states.push(this.buildStateSchema(states[s]));
-        }
-    }
-
-    private buildStartSchema(sheet: Sheet): SheetStateSchema {
-        let ret: SheetStateSchema = {
-            name: '$',
-            actions: []
-        };
-        let state = sheet.start;
-        for (let a in state.actions) {
-            if (a === '$onsave') continue;
-            let action = state.actions[a];
-            let actionSchema = this.buildActionSchema(action);
-            ret.actions.push(actionSchema);
-        }
-        return ret;
-    }
-
-    private buildStateSchema(state: SheetState): SheetStateSchema {
-        let ret = {
-            name: state.name,
-            actions: []
-        };
-        for (let a in state.actions) {
-            ret.actions.push(this.buildActionSchema(state.actions[a]));
-        }
-        return ret;
-    }
-
-    private buildActionSchema(action: SheetAction): SheetActionSchema {
-        let { name, returns, inBuses } = action;
-        return {
-            name: name,
-            returns: this.buildReturns(returns),
-            inBuses: inBuses && inBuses.map(v => v.bus.name + '/' + v.faceQuerySchema.name),
-            // role: role
-        };
-    }
-}
-
-export class SheetRun {
-    run: { [state: string]: { [action: string]: ActionRun } };
-    constructor(sheet: Sheet) {
-        this.run = {};
-        this.build('$', sheet.start);
-        for (let i in sheet.states) {
-            this.build(i, sheet.states[i]);
-        }
-    }
-    private build(name: string, state: SheetState) {
-        let s: { [action: string]: ActionRun } = {};
-        this.run[name] = s;
-        for (let i in state.actions) {
-            let action = state.actions[i];
-            let { hasSend, buses, templets } = action;
-            s[i] = new ActionRun(hasSend, buses, templets);
-        }
     }
 }
 

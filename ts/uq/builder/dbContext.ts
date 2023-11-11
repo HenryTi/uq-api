@@ -14,7 +14,7 @@ import * as stat from './bstatement';
 import * as ent from './entity';
 import {
     Field, Tuid, Entity, Map, intField, bigIntField, charField
-    , Int, Char, DateTime, Text, Sheet, IArr, IField, DataType, Expression
+    , Int, Char, DateTime, Text, IArr, IField, DataType, Expression
     , JoinType, ValueExpression, CompareExpression
 } from '../il';
 import { EntityTable, VarTable, GlobalTable } from './sql/statementWithFrom';
@@ -297,9 +297,6 @@ export class DbContext implements il.Builder {
     sysproc(v: il.SysProc) { return new ent.BSysProc(this, v) }
     proc(v: il.Proc) { return new ent.BProc(this, v) }
     query(v: il.Query) { return new ent.BQuery(this, v) }
-    sheet(v: il.Sheet) { return new ent.BSheet(this, v) }
-    sheetState(v: il.SheetState) { return new ent.BSheetState(this, v) }
-    sheetAction(v: il.SheetAction) { return new ent.BSheetAction(this, v) }
     tuid(v: il.Tuid) { return ent.BTuid.create(this, v) }
     ID(v: il.ID) { return new ent.BID(this, v) }
     IX(v: il.IX) { return new ent.BIX(this, v) }
@@ -347,9 +344,6 @@ export class DbContext implements il.Builder {
     historyWrite(v: il.HistoryWrite) { return new stat.BHistoryWrite(this, v) }
     pendingWrite(v: il.PendingWrite) { return new stat.BPendingWrite(this, v) }
     tuidWrite(v: il.TuidWrite) { return new stat.BTuidWrite(this, v) }
-    sheetWrite(v: il.SheetWrite) {
-        return new stat.BSheetWrite(this, v)
-    }
     stateTo(v: il.StateToStatement) { return new stat.BStateTo(this, v) }
     fail(v: il.FailStatement) { return new stat.BFailStatement(this, v) }
     busStatement(v: il.BusStatement) { return new stat.BBusStatement(this, v) }
@@ -805,7 +799,6 @@ export class DbContext implements il.Builder {
     // 如果是bus，数据main就是数组，所以需要loop。
     dataParse(proc: Procedure, statements: Statement[]
         , action: { fields: IField[]; arrs: IArr[]; }
-        , sheet: Sheet
         , statsSetImportingBusVar: Statement[]
         , loopState?: While) {
         let loop: Statement[] = loopState === undefined ?
@@ -865,6 +858,7 @@ export class DbContext implements il.Builder {
 
         statsAddSet(dataLen, new ExpFunc(factory.func_length, vData));
 
+        /*
         //let sheet = (this.entity as any).sheet;
         if (sheet !== undefined) {
             let select = factory.createSelect();
@@ -874,7 +868,7 @@ export class DbContext implements il.Builder {
             select.where(new ExpEQ(new ExpField('name'), new ExpStr(sheet.name)));
             statements.push(select);
         }
-
+        */
         statsAddSet(c, ExpVal.num1);
         statsAddSet(p, ExpVal.num1);
         statsAddSet(sep, new ExpFunc('CHAR', new ExpNum(9)));

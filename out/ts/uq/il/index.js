@@ -33,4 +33,5 @@ __exportStar(require("./busSchema"), exports);
 __exportStar(require("./tool"), exports);
 __exportStar(require("./EnumSysTable"), exports);
 __exportStar(require("./UI"), exports);
+__exportStar(require("./BizField"), exports);
 //# sourceMappingURL=index.js.map

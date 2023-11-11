@@ -158,7 +158,7 @@ export class BEntity<E extends Entity> {
         , action: { fields: Field[]; arrs: Arr[]; }
         , statsSetImportingBusVar?: Statement[]
         , loopState?: While) {
-        this.context.dataParse(proc, statements, action, (this.entity as any).sheet, statsSetImportingBusVar, loopState);
+        this.context.dataParse(proc, statements, action, statsSetImportingBusVar, loopState);
     }
 
     protected buildInBusDataParse(proc: Procedure, statements: Statement[]

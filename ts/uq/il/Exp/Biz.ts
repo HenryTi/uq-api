@@ -1,5 +1,8 @@
 import { PBizExp, PBizExpOperand, PBizExpParam, PBizFieldOperand, PContext, PElement } from "../../parser";
-import { BizBud, BizEntity, BizField, BizTie } from "../Biz";
+import {
+    BizBud, BizEntity, BizTie
+} from "../Biz";
+import { BizField } from "../BizField";
 import { IElement } from "../element";
 import { SpanPeriod } from "../tool";
 import { ValueExpression } from "./Expression";

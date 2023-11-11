@@ -6,7 +6,6 @@ import { buildHistoryRouter } from './history';
 import { buildQueryRouter } from './query';
 import { buildSchemaRouter } from './schema';
 import { buildTuidRouter } from './tuid';
-import { buildSheetRouter } from './sheet';
 import { buildImportRouter } from './import';
 import { buildMapRouter } from './map';
 import { buildIDRouter } from './ID';
@@ -27,7 +26,6 @@ export function buildEntityRouter(router: Router, rb: RouterBuilder) {
     buildQueryRouter(router, rb);
     buildSchemaRouter(router, rb);
     buildTuidRouter(router, rb);
-    buildSheetRouter(router, rb);
     buildImportRouter(router, rb);
     buildMapRouter(router, rb);
     buildIDRouter(router, rb);

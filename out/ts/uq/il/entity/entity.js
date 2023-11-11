@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Templet = exports.EntityVarTable = exports.SheetAction = exports.SheetState = exports.StateTo = exports.SheetVerify = exports.Sheet = exports.Query = exports.useBusFace = exports.InBusAction = exports.Bus = exports.BusQuery = exports.BusAccept = exports.ActionHasInBus = exports.QueryBase = exports.Returns = exports.ActionBase = exports.Pending = exports.History = exports.HistoryBase = exports.Book = exports.BookBase = exports.Import = exports.Role = exports.Arr = exports.IArr = exports.Index = exports.EntityWithTable = exports.Queue = exports.DataTypeDefine = exports.Const = exports.Enum = exports.Entity = exports.EntityAccessibility = void 0;
+exports.Templet = exports.EntityVarTable = exports.Query = exports.useBusFace = exports.InBusAction = exports.Bus = exports.BusQuery = exports.BusAccept = exports.ActionHasInBus = exports.QueryBase = exports.Returns = exports.ActionBase = exports.Pending = exports.History = exports.HistoryBase = exports.Book = exports.BookBase = exports.Import = exports.Role = exports.Arr = exports.IArr = exports.Index = exports.EntityWithTable = exports.Queue = exports.DataTypeDefine = exports.Const = exports.Enum = exports.Entity = exports.EntityAccessibility = void 0;
 const _ = require("lodash");
 const parser = require("../../parser");
 const element_1 = require("../element");
@@ -505,93 +505,6 @@ class Query extends QueryBase {
     get defaultAccessibility() { return EntityAccessibility.visible; }
 }
 exports.Query = Query;
-class Sheet extends ActionBase {
-    constructor() {
-        super(...arguments);
-        this.start = new SheetState(this.uq);
-        this.states = {};
-    }
-    get type() { return 'sheet'; }
-    get defaultAccessibility() { return EntityAccessibility.visible; }
-    parser(context) { return new parser.PSheet(this, context); }
-    db(db) { return db.sheet(this); }
-    internalCreateSchema() { new schema_1.SheetSchemaBuilder(this.uq, this).build(this.schema); }
-    createRun() { return new schema_1.SheetRun(this); }
-    eachChild(callback) {
-        for (let i in this.states)
-            callback(this.states[i], i);
-    }
-}
-exports.Sheet = Sheet;
-class SheetVerify extends ActionHasInBus {
-    get type() { return 'verify'; }
-    get global() { return false; }
-    parser(context) { return new parser.PSheetVerify(this, context); }
-    db(db) { return; }
-    getReturns() { return this.returns; }
-    internalCreateSchema() { }
-    ;
-}
-exports.SheetVerify = SheetVerify;
-var StateTo;
-(function (StateTo) {
-    StateTo[StateTo["to"] = 0] = "to";
-    StateTo[StateTo["reply"] = 1] = "reply";
-    StateTo[StateTo["origin"] = 2] = "origin";
-})(StateTo || (exports.StateTo = StateTo = {}));
-;
-class SheetState extends Entity {
-    constructor() {
-        super(...arguments);
-        this.to = StateTo.to;
-    }
-    get type() { return 'sheetstate'; }
-    get global() { return false; }
-    //builder(context: builder.Context) { return context.sheetState(this); }
-    parser(context) { return new parser.PSheetState(this, context); }
-    db(db) { return db.sheetState(this); }
-    addAction(sheetAction) {
-        if (this.actions === undefined)
-            this.actions = {};
-        let sn = sheetAction.name;
-        if (this.actions[sn] !== undefined)
-            return false;
-        this.actions[sn] = sheetAction;
-        return true;
-    }
-    eachChild(callback) {
-        if (this.actions === undefined)
-            return;
-        for (let i in this.actions)
-            callback(this.actions[i], i);
-    }
-    internalCreateSchema() { }
-    ;
-}
-exports.SheetState = SheetState;
-class SheetAction extends ActionHasInBus {
-    //inBuses: InBusAction[];
-    //arrs: Arr[];
-    get type() { return 'sheetaction'; }
-    get global() { return false; }
-    constructor(uq, actionName) {
-        super(uq);
-        this.buses = [];
-        this.hasSend = false;
-        this.templets = [];
-        this.name = actionName;
-    }
-    parser(context) { return new parser.PSheetAction(this, context); }
-    db(db) { return db.sheetAction(this); }
-    useBusFace(bus, face, arr, local) {
-        useBusFace(this.buses, bus, face, arr, local);
-    }
-    useSend() { this.hasSend = true; }
-    getReturns() { return this.returns; }
-    internalCreateSchema() { }
-    ;
-}
-exports.SheetAction = SheetAction;
 class EntityVarTable extends Entity {
     constructor(tableVar) {
         super(undefined);

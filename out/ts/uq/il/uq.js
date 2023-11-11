@@ -77,7 +77,6 @@ class Uq extends element_1.IElement {
         this.sysprocs = {};
         this.procs = {};
         this.queries = {};
-        this.sheets = {};
         this.buses = {};
         this.templets = {};
         this.dataTypes = {
@@ -242,7 +241,7 @@ class Uq extends element_1.IElement {
         let arr = [
             this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
             this.funcs, this.books, this.maps, this.histories, this.pendings,
-            this.acts, this.sysprocs, this.procs, this.queries, this.sheets,
+            this.acts, this.sysprocs, this.procs, this.queries,
             this.buses, this.templets, this.consts, this.queues,
         ];
         arr.forEach(v => {
@@ -257,7 +256,7 @@ class Uq extends element_1.IElement {
         let arr = [
             this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
             this.funcs, this.books, this.maps, this.histories, this.pendings,
-            this.acts, this.sysprocs, this.queries, this.sheets, this.procs,
+            this.acts, this.sysprocs, this.queries, this.procs,
             this.buses, this.templets, this.consts, this.queues
         ];
         arr.forEach(v => {
@@ -273,7 +272,7 @@ class Uq extends element_1.IElement {
             this.queues,
             this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
             this.funcs, this.books, this.maps, this.histories, this.pendings,
-            this.acts, this.sysprocs, this.procs, this.queries, this.sheets,
+            this.acts, this.sysprocs, this.procs, this.queries,
             this.buses, this.templets, this.consts
         ];
         for (let item of arr) {
@@ -285,7 +284,7 @@ class Uq extends element_1.IElement {
     async eachOpenType(callback) {
         let arr = [
             this.tuids, this.IDs,
-            this.acts, this.queries, this.sheets, this.IXs,
+            this.acts, this.queries, this.IXs,
         ];
         for (let item of arr) {
             for (let i in item)
@@ -371,31 +370,6 @@ class Uq extends element_1.IElement {
         enumEntities('pending', this.pendings);
         enumEntities('templet', this.templets);
         enumEntities('queue', this.queues);
-        ret.push('sheet');
-        let sheets = this.sheets;
-        for (let i in sheets) {
-            let sheet = sheets[i];
-            let ln = [sheet.sName];
-            for (let s in sheet.states) {
-                let state = sheet.states[s];
-                let { sName, to } = state;
-                let n;
-                switch (to) {
-                    default:
-                        n = sName;
-                        break;
-                    case entity_1.StateTo.origin:
-                        n = '#' + sName;
-                        break;
-                    case entity_1.StateTo.reply:
-                        n = '<' + sName;
-                        break;
-                }
-                ln.push(n);
-            }
-            ret.push(ln.join('\t'));
-        }
-        ret.push('');
         return ret.join('\n');
     }
     getImports() {

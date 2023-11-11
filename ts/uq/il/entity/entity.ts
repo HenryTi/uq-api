@@ -6,15 +6,12 @@ import { DataType } from '../datatype';
 import { IElement } from '../element';
 import { Pointer, FieldPointer } from '../pointer';
 import {
-    SheetStatement, BusAcceptStatement,
-    TableVar, VerifyStatement,
-    BusQueryStatement, QueryBaseStatement, InBusActionStatement, LocalTableBase, Statements
+    BusAcceptStatement, TableVar
+    , BusQueryStatement, QueryBaseStatement, InBusActionStatement, LocalTableBase
 } from '../statement';
 import {
-    Schema, SheetSchemaBuilder,
-    QuerySchemaBuilder, BusSchemaBuilder, HistorySchemaBuilder,
+    Schema, QuerySchemaBuilder, BusSchemaBuilder, HistorySchemaBuilder,
     PendingSchemaBuilder, BookSchemaBuilder,
-    SheetRun,
     ImportSchemaBuilder, TempletSchemaBuilder, RoleSchemaBuilder,
     EnumSchemaBuilder,
     ConstSchemaBuilder,
@@ -595,92 +592,6 @@ export function useBusFace(buses: BusFace[], bus: Bus, face: string, arr: string
 export class Query extends QueryBase {
     get type(): string { return 'query'; }
     get defaultAccessibility(): EntityAccessibility { return EntityAccessibility.visible }
-}
-
-export class Sheet extends ActionBase {
-    get type(): string { return 'sheet'; }
-    start: SheetState = new SheetState(this.uq);
-    verify: SheetVerify;
-    states: { [name: string]: SheetState } = {};
-
-    get defaultAccessibility(): EntityAccessibility { return EntityAccessibility.visible }
-    parser(context: parser.PContext) { return new parser.PSheet(this, context); }
-    db(db: Builder): object { return db.sheet(this); }
-    protected internalCreateSchema() { new SheetSchemaBuilder(this.uq, this).build(this.schema as any); }
-    createRun() { return new SheetRun(this); }
-
-    eachChild(callback: (el: IElement, name: string) => void) {
-        for (let i in this.states) callback(this.states[i], i);
-    }
-}
-
-export class SheetVerify extends ActionHasInBus {
-    sheet: Sheet;
-    returns: Returns;
-    get type(): string { return 'verify'; }
-    get global(): boolean { return false; }
-    statement: VerifyStatement;
-    parser(context: parser.PContext) { return new parser.PSheetVerify(this, context); }
-    db(db: Builder): object { return }
-    getReturns(): Returns { return this.returns; }
-    protected internalCreateSchema() { };
-}
-
-export enum StateTo { to, reply, origin };
-export class SheetState extends Entity {
-    get type(): string { return 'sheetstate'; }
-    get global(): boolean { return false; }
-    name: string;
-    actions: { [name: string]: SheetAction };
-    to: StateTo = StateTo.to;
-    sheet: Sheet;
-
-    //builder(context: builder.Context) { return context.sheetState(this); }
-    parser(context: parser.PContext) { return new parser.PSheetState(this, context); }
-    db(db: Builder): object { return db.sheetState(this); }
-
-    addAction(sheetAction: SheetAction): boolean {
-        if (this.actions === undefined) this.actions = {};
-        let sn = sheetAction.name;
-        if (this.actions[sn] !== undefined) return false;
-        this.actions[sn] = sheetAction;
-        return true;
-    }
-
-    eachChild(callback: (el: IElement, name: string) => void) {
-        if (this.actions === undefined) return;
-        for (let i in this.actions) callback(this.actions[i], i);
-    }
-    protected internalCreateSchema() { };
-}
-
-export class SheetAction extends ActionHasInBus implements Busable {
-    sheet: Sheet;
-    buses: BusFace[] = [];
-    hasSend: boolean = false;
-    templets: TempletFace[] = [];
-    //inBuses: InBusAction[];
-    //arrs: Arr[];
-    get type(): string { return 'sheetaction'; }
-    get global(): boolean { return false; }
-    name: string;
-    returns: Returns;
-    sheetState: SheetState;
-    statement: SheetStatement;
-
-    constructor(uq: Uq, actionName?: string) {
-        super(uq);
-        this.name = actionName;
-    }
-
-    parser(context: parser.PContext) { return new parser.PSheetAction(this, context); }
-    db(db: Builder): object { return db.sheetAction(this); }
-    useBusFace(bus: Bus, face: string, arr: string, local: boolean) {
-        useBusFace(this.buses, bus, face, arr, local);
-    }
-    useSend() { this.hasSend = true; }
-    getReturns(): Returns { return this.returns; }
-    protected internalCreateSchema() { };
 }
 
 export class EntityVarTable extends Entity implements Table {

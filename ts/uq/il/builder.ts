@@ -21,9 +21,6 @@ export interface Builder {
     sysproc(v: ent.SysProc): BEntity<ent.SysProc>;
     proc(v: ent.Proc): BEntity<ent.Proc>;
     query(v: ent.Query): BEntity<ent.Query>;
-    sheet(v: ent.Sheet): BEntity<ent.Sheet>;
-    sheetState(v: ent.SheetState): BEntity<ent.SheetState>;
-    sheetAction(v: ent.SheetAction): BEntity<ent.SheetAction>;
     tuid(v: ent.Tuid): BEntity<ent.Tuid>;
     ID(v: ent.ID): BID;
     IX(v: ent.IX): BIX;
@@ -67,10 +64,8 @@ export interface Builder {
     selectStatement(v: stat.SelectStatement): BStatement;
     deleteStatement(v: stat.DeleteStatement): BStatement;
     bookWrite(v: stat.BookWrite): BStatement;
-    //pull(v: stat.Pull): BStatement;
     historyWrite(v: stat.HistoryWrite): BStatement;
     tuidWrite(v: stat.TuidWrite): BStatement;
-    sheetWrite(v: stat.SheetWrite): BStatement;
     pendingWrite(v: stat.PendingWrite): BStatement;
     stateTo(v: stat.StateToStatement): BStatement;
     fail(v: stat.FailStatement): BStatement;

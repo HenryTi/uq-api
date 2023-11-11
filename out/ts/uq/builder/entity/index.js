@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BQueue = exports.BIDX = exports.BIX = exports.BID = exports.BTuid = exports.BSheetState = exports.BSheetAction = exports.BSheet = exports.BQuery = exports.BPending = exports.BHistory = exports.BBus = exports.BDataTypeDefine = exports.BConst = exports.BEnum = exports.BImport = exports.BRole = exports.BProc = exports.BSysProc = exports.BFunction = exports.BAct = exports.BMap = exports.BBook = exports.BArr = exports.BEntity = void 0;
+exports.BQueue = exports.BIDX = exports.BIX = exports.BID = exports.BTuid = exports.BQuery = exports.BPending = exports.BHistory = exports.BBus = exports.BDataTypeDefine = exports.BConst = exports.BEnum = exports.BImport = exports.BRole = exports.BProc = exports.BSysProc = exports.BFunction = exports.BAct = exports.BMap = exports.BBook = exports.BArr = exports.BEntity = void 0;
 var entity_1 = require("./entity");
 Object.defineProperty(exports, "BEntity", { enumerable: true, get: function () { return entity_1.BEntity; } });
 var arr_1 = require("./arr");
@@ -34,10 +34,6 @@ var pending_1 = require("./pending");
 Object.defineProperty(exports, "BPending", { enumerable: true, get: function () { return pending_1.BPending; } });
 var query_1 = require("./query");
 Object.defineProperty(exports, "BQuery", { enumerable: true, get: function () { return query_1.BQuery; } });
-var sheet_1 = require("./sheet");
-Object.defineProperty(exports, "BSheet", { enumerable: true, get: function () { return sheet_1.BSheet; } });
-Object.defineProperty(exports, "BSheetAction", { enumerable: true, get: function () { return sheet_1.BSheetAction; } });
-Object.defineProperty(exports, "BSheetState", { enumerable: true, get: function () { return sheet_1.BSheetState; } });
 var tuid_1 = require("./tuid");
 Object.defineProperty(exports, "BTuid", { enumerable: true, get: function () { return tuid_1.BTuid; } });
 var ID_1 = require("./ID");

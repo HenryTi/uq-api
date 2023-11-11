@@ -1,5 +1,4 @@
-import { BizFieldField } from '../../il';
-import { BizFieldOperand } from '../../il/Exp';
+import { BizFieldField, BizFieldOperand } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
 

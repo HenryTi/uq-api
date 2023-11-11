@@ -2,7 +2,7 @@ import {
     Statement, Statements, Entity, SetStatement
     , Table, VarStatement, If, ForEach, SelectStatement, BookWrite
     , Pointer, HistoryWrite, TuidWrite, StateToStatement, BusStatement
-    , DeleteStatement, SheetWrite, PendingWrite
+    , DeleteStatement, PendingWrite
     , TableStatement, TextStatement, FailStatement, InlineStatement, ContinueStatement
     , BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement
     , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
@@ -162,19 +162,13 @@ class PActionBaseStatement extends PStatements {
         switch (key) {
             default: return super.statementFromKey(parent, key);
             case 'book': return new BookWrite(parent);
-            // case 'pull': return new Pull(parent);
             case 'history': return new HistoryWrite(parent);
             case 'pending': return new PendingWrite(parent);
             case 'tuid': return new TuidWrite(parent);
-            case 'sheet': return new SheetWrite(parent);
             case 'bus': return new BusStatement(parent);
             case 'send': return new SendStatement(parent);
             case 'schedule': return new ScheduleStatement(parent);
             case 'queue': return new QueueStatement(parent);
-            /*
-            case 'biz':
-                return new BizDetailActStatement(parent, this.bizDetailAct);
-            */
         }
     }
 }

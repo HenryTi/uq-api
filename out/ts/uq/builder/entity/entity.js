@@ -137,7 +137,7 @@ class BEntity {
         inBuses.forEach(v => this.buildInBusProcdure(v));
     }
     dataParse(proc, statements, action, statsSetImportingBusVar, loopState) {
-        this.context.dataParse(proc, statements, action, this.entity.sheet, statsSetImportingBusVar, loopState);
+        this.context.dataParse(proc, statements, action, statsSetImportingBusVar, loopState);
     }
     buildInBusDataParse(proc, statements, action) {
         this.dataParse(proc, statements, action);

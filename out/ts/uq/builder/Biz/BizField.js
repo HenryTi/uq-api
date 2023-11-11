@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizFieldJsonProp = exports.BBizFieldField = exports.BBizFieldBud = exports.BBizField = void 0;
+exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
 class BBizField {
     constructor(dbContext, bizField) {
@@ -43,14 +43,27 @@ class BBizFieldBud extends BBizField {
     }
 }
 exports.BBizFieldBud = BBizFieldBud;
+exports.MapFieldTable = {
+    pend: 't1',
+    bin: 'b',
+    sheet: 'c',
+    sheetBin: 'd',
+    atom: 't1',
+    baseAtom: 't1',
+};
 class BBizFieldField extends BBizField {
     to(sb) {
-        sb.append('t1.').append(this.bizField.fieldName);
+        let tbl = exports.MapFieldTable[this.tbl];
+        sb.append(tbl).dot().append(this.bizField.fieldName);
     }
 }
 exports.BBizFieldField = BBizFieldField;
+// only for pend med
 class BBizFieldJsonProp extends BBizField {
     to(sb) {
+        let { bud } = this.bizField;
+        let tblPend = exports.MapFieldTable['pend'];
+        sb.l().append(`JSON_VALUE(${tblPend}.med, '$."${bud.id}"')`).r();
     }
 }
 exports.BBizFieldJsonProp = BBizFieldJsonProp;

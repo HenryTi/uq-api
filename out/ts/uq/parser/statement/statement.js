@@ -155,19 +155,13 @@ class PActionBaseStatement extends PStatements {
         switch (key) {
             default: return super.statementFromKey(parent, key);
             case 'book': return new il_1.BookWrite(parent);
-            // case 'pull': return new Pull(parent);
             case 'history': return new il_1.HistoryWrite(parent);
             case 'pending': return new il_1.PendingWrite(parent);
             case 'tuid': return new il_1.TuidWrite(parent);
-            case 'sheet': return new il_1.SheetWrite(parent);
             case 'bus': return new il_1.BusStatement(parent);
             case 'send': return new il_1.SendStatement(parent);
             case 'schedule': return new il_1.ScheduleStatement(parent);
             case 'queue': return new il_1.QueueStatement(parent);
-            /*
-            case 'biz':
-                return new BizDetailActStatement(parent, this.bizDetailAct);
-            */
         }
     }
 }

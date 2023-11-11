@@ -12,7 +12,6 @@ export { PDeleteStatement } from './delete';
 export { PBookWrite } from './bookWrite';
 export { PHistoryWrite } from './historyWrite';
 export { PTuidWrite } from './tuidWrite';
-export { PSheetWrite } from './sheetWrite';
 export { PPendingWrite } from './pendingWrite';
 export { PStateTo } from './stateTo';
 export { PFail } from './fail';

@@ -1,6 +1,9 @@
-import { BBizField, BBizFieldBud, BBizFieldField, BBizFieldJsonProp, DbContext } from "../../builder";
-import { BizBudValue } from "./Bud";
-import { BizEntity } from "./Entity";
+import {
+    BBizField, BBizFieldBud, BBizFieldField, BBizFieldJsonProp,
+    DbContext
+} from "../builder";
+import { BizBudValue } from "./Biz/Bud";
+import { BizEntity } from "./Biz/Entity";
 
 // in FROM statement, columns use BizField
 // and in Where, BizField is used.

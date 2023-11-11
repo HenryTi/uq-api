@@ -188,7 +188,6 @@ class PFromStatement extends statement_1.PStatement {
                 else {
                     // Query bud
                     let bud = new il_1.BizBudNone(biz, name, ui);
-                    //col.bud = bud;
                     let field = new il_1.BizFieldBud();
                     field.bud = bud;
                     col.field = field;

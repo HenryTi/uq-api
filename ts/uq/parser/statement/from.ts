@@ -1,5 +1,6 @@
 import {
-    BizBudNone, BizFieldBud, BizPhraseType, BizTie, CompareExpression
+    BizBudNone
+    , BizFieldBud, BizPhraseType, BizTie, CompareExpression
     , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
 } from "../../il";
 import { Space } from "../space";
@@ -193,7 +194,6 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 else {
                     // Query bud
                     let bud = new BizBudNone(biz, name, ui);
-                    //col.bud = bud;
                     let field = new BizFieldBud();
                     field.bud = bud;
                     col.field = field;

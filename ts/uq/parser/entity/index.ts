@@ -14,7 +14,6 @@ export { PPending } from './pending';
 export { PInBusAction } from './inBusAction';
 export { PFunction } from './function';
 export { PQuery } from './query';
-export * from './sheet';
 export { PBus } from './bus';
 export { PArr } from './arr';
 export * from './entity';
