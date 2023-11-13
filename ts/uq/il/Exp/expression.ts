@@ -1,5 +1,5 @@
 import { PCompareExpression, PComparePartExpression, PContext, PValueExpression } from '../../parser';
-import { IElement } from '../element';
+import { IElement } from '../IElement';
 import { GroupType } from '../pointer';
 import { Atom, NullOperand, NumberOperand, TextOperand, VarOperand } from './Op';
 

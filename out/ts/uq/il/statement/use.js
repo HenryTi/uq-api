@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UseStatement = exports.UseTimeSpan = exports.UseYearZone = exports.UseMonthZone = exports.UseTimeZone = exports.UseSetting = exports.UseBase = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
-const element_1 = require("../element");
-const statement_1 = require("./statement");
+const IElement_1 = require("../IElement");
+const Statement_1 = require("./Statement");
 // use 某些特定的值，比如年月日，时段
-class UseBase extends element_1.IElement {
+class UseBase extends IElement_1.IElement {
     constructor(statement) {
         super();
         this.statement = statement;
@@ -60,7 +60,7 @@ class UseTimeSpan extends UseBase {
     db(context) { return new builder_1.BUseTimeSpan(this, context); }
 }
 exports.UseTimeSpan = UseTimeSpan;
-class UseStatement extends statement_1.Statement {
+class UseStatement extends Statement_1.Statement {
     get type() { return 'use'; }
     parser(context) {
         return new parser_1.PUseStatement(this, context);

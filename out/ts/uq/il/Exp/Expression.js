@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComarePartExpression = exports.CompareExpression = exports.ValueExpression = exports.Expression = void 0;
 const parser_1 = require("../../parser");
-const element_1 = require("../element");
+const IElement_1 = require("../IElement");
 const Op_1 = require("./Op");
-class Expression extends element_1.IElement {
+class Expression extends IElement_1.IElement {
     constructor() {
         super(...arguments);
         this.atoms = [];

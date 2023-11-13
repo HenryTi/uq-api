@@ -4,7 +4,7 @@ exports.PendQuery = exports.BizQueryTableInPendStatements = exports.BizPend = ex
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const statement_1 = require("../statement");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 const Query_1 = require("./Query");
@@ -12,7 +12,7 @@ class BizSheet extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.fields = ['id', 'no'];
-        this.bizPhraseType = Base_1.BizPhraseType.sheet;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.sheet;
         this.details = [];
     }
     parser(context) {
@@ -40,7 +40,7 @@ class BizPend extends Entity_1.BizEntity {
     constructor(biz) {
         super(biz);
         this.fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
-        this.bizPhraseType = Base_1.BizPhraseType.pend;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
             this.predefinedBuds[n] = new Bud_1.BizBudAtom(this.biz, n, undefined);

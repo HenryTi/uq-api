@@ -1,8 +1,8 @@
-import { /*BizPermit, BizPermitItem, */BizPhraseType, BizRole, Uq } from "../../il";
+import { /*BizPermit, BizPermitItem, */BizRole, Uq } from "../../il";
+import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
-import { PBizBud } from "./Bud";
 /*
 export class PBizPermit<P extends BizPermit> extends PBizEntity<P> {
     private readonly permits: { [key: string]: boolean } = {};

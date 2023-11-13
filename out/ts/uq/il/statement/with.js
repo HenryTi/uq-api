@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WithStatement = exports.WithActTruncate = exports.WithActDel = exports.WithActSet = exports.WithIX = exports.WithIDX = exports.WithID = void 0;
 const parser_1 = require("../../parser");
-const statement_1 = require("./statement");
+const Statement_1 = require("./Statement");
 class With {
 }
 class WithID extends With {
@@ -54,7 +54,7 @@ class WithActTruncate extends WithAct {
     }
 }
 exports.WithActTruncate = WithActTruncate;
-class WithStatement extends statement_1.Statement {
+class WithStatement extends Statement_1.Statement {
     get type() { return 'with'; }
     db(db) {
         switch (this.act.type) {

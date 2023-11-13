@@ -1,10 +1,10 @@
 import { BStatement } from '../../builder';
 import * as parser from '../../parser';
 import { Builder } from "../builder";
-import { IElement } from '../element';
+import { IElement } from '../IElement';
 import { BizBudValue, BizBinAct, BizEntity, BizPend } from '../Biz';
 import { ValueExpression } from '../Exp';
-import { Statement } from "./statement";
+import { Statement } from "./Statement";
 import { SetEqu } from '../tool';
 
 export class BizBinActStatement extends Statement {

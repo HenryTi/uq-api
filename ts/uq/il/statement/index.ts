@@ -1,4 +1,4 @@
-export * from './statement';
+export * from './Statement';
 export * from './set';
 export * from './with';
 export * from './value';

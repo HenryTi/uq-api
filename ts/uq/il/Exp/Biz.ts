@@ -3,7 +3,7 @@ import {
     BizBud, BizEntity, BizTie
 } from "../Biz";
 import { BizField } from "../BizField";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { SpanPeriod } from "../tool";
 import { ValueExpression } from "./Expression";
 import { Atom } from "./Op";

@@ -1,11 +1,11 @@
 import { BBizPend, BBizSheet, DbContext } from "../../builder";
 import { PBizPend, PBizQueryTableInPendStatements, PBizSheet, PContext, PElement, PPendQuery } from "../../parser";
 import { Builder } from "../builder";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { Statements } from "../statement";
-import { BizPhraseType } from "./Base";
 import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizBudValue, BizBudAtom, BizBudDec, BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";

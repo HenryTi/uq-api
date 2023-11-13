@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizOptions = exports.OptionsItem = exports.OptionsItemValueType = void 0;
 const parser_1 = require("../../parser");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 var OptionsItemValueType;
@@ -29,7 +29,7 @@ exports.OptionsItem = OptionsItem;
 class BizOptions extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.options;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.options;
         this.fields = [];
         this.items = [];
     }

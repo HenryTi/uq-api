@@ -3,8 +3,8 @@ import {
     , PBizBudDec, PBizBudInt
     , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement
 } from "../../parser";
-import { IElement } from "../element";
-import { BizBase, BizPhraseType, BudDataType } from "./Base";
+import { IElement } from "../IElement";
+import { BizBase } from "./Base";
 import { BizAtom, BizAtomID, BizAtomSpec } from "./Atom";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BizEntity, BudIndex } from "./Entity";
@@ -12,6 +12,7 @@ import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
 import { UI } from "../UI";
 import { BizBin } from "./Bin";
+import { BizPhraseType, BudDataType } from "./BizPhraseType";
 
 export enum BudValueAct {
     equ = 1,            // 设置不可修改. 这是默认

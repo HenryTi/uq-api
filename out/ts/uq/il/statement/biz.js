@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizBinTitleStatement = exports.BizBinPendStatement = exports.BizBinSubStatement = exports.BizBinActStatement = void 0;
 const parser = require("../../parser");
-const statement_1 = require("./statement");
-class BizBinActStatement extends statement_1.Statement {
+const Statement_1 = require("./Statement");
+class BizBinActStatement extends Statement_1.Statement {
     constructor(parent, bizDetailAct) {
         super(parent);
         this.bizDetailAct = bizDetailAct;
@@ -17,7 +17,7 @@ class BizBinActStatement extends statement_1.Statement {
     }
 }
 exports.BizBinActStatement = BizBinActStatement;
-class BizBinSubStatement extends statement_1.Statement {
+class BizBinSubStatement extends Statement_1.Statement {
 }
 exports.BizBinSubStatement = BizBinSubStatement;
 class BizBinPendStatement extends BizBinSubStatement {

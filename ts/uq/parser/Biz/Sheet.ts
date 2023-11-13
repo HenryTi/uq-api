@@ -1,7 +1,8 @@
 import {
     BizBin, BizSheet
-    , Uq, BizPhraseType
+    , Uq
 } from "../../il";
+import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

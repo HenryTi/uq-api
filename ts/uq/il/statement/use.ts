@@ -1,10 +1,10 @@
 import { BUseBase, BUseMonthZone, BUseTimeSpan, BUseTimeZone, BUseYearZone, DbContext } from "../../builder";
 import { PContext, PElement, PUseMonthZone, PUseStatement, PUseTimeSpan, PUseTimeZone, PUseYearZone } from "../../parser";
 import { Builder } from "../builder";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { ValueExpression } from "../Exp";
 import { SpanPeriod } from "../tool";
-import { Statement } from "./statement";
+import { Statement } from "./Statement";
 
 // use 某些特定的值，比如年月日，时段
 export abstract class UseBase extends IElement {

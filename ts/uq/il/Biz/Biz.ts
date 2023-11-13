@@ -3,11 +3,12 @@ import { Builder } from "../builder";
 import { Schema, SchemaBuilder } from "../schema";
 import { Uq } from "../uq";
 import { Entity, EntityAccessibility } from "../entity/entity";
-import { BizBase, BizPhraseType } from "./Base";
+import { BizBase } from "./Base";
 import { BizEntity } from "./Entity";
 import { BizRole } from "./Role";
 import { BizAtom } from "./Atom";
 import { EnumSysTable } from "../EnumSysTable";
+import { BizPhraseType } from "./BizPhraseType";
 
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;

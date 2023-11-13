@@ -4,8 +4,8 @@ exports.BizSchemaBuilder = exports.Biz = void 0;
 const parser_1 = require("../../parser");
 const schema_1 = require("../schema");
 const entity_1 = require("../entity/entity");
-const Base_1 = require("./Base");
 const EnumSysTable_1 = require("../EnumSysTable");
+const BizPhraseType_1 = require("./BizPhraseType");
 class Biz extends entity_1.Entity {
     constructor(uq) {
         super(uq);
@@ -137,20 +137,20 @@ class Biz extends entity_1.Entity {
                     logs.push(`FROM can only be one of ATOM, SPEC, BIN, SHEET, PEND`);
                     ok = false;
                     break;
-                case Base_1.BizPhraseType.query: break;
-                case Base_1.BizPhraseType.atom:
+                case BizPhraseType_1.BizPhraseType.query: break;
+                case BizPhraseType_1.BizPhraseType.atom:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.atom;
                     break;
-                case Base_1.BizPhraseType.spec:
+                case BizPhraseType_1.BizPhraseType.spec:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.spec;
                     break;
-                case Base_1.BizPhraseType.bin:
+                case BizPhraseType_1.BizPhraseType.bin:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.bizBin;
                     break;
-                case Base_1.BizPhraseType.sheet:
+                case BizPhraseType_1.BizPhraseType.sheet:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.sheet;
                     break;
-                case Base_1.BizPhraseType.pend:
+                case BizPhraseType_1.BizPhraseType.pend:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.pend;
                     break;
             }

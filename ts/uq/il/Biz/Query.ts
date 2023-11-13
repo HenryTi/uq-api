@@ -3,9 +3,9 @@ import { BBizQuery } from "../../builder/Biz/BizQuery";
 import { PContext, PElement } from "../../parser";
 import { PBizQueryTable, PBizQueryTableStatements, PBizQueryValue, PBizQueryValueStatements } from "../../parser";
 import { Builder } from "../builder";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { FromStatement, Statements } from "../statement";
-import { BizPhraseType } from "./Base";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 

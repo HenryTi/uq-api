@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Select = exports.Delete = exports.WithFrom = exports.OrderBy = exports.JoinTable = exports.FromTable = exports.JoinType = void 0;
 const parser = require("../parser");
-const element_1 = require("./element");
+const IElement_1 = require("./IElement");
 const pointer_1 = require("./pointer");
 var JoinType;
 (function (JoinType) {
@@ -39,7 +39,7 @@ exports.JoinTable = JoinTable;
 class OrderBy {
 }
 exports.OrderBy = OrderBy;
-class WithFrom extends element_1.IElement {
+class WithFrom extends IElement_1.IElement {
 }
 exports.WithFrom = WithFrom;
 class Delete extends WithFrom {

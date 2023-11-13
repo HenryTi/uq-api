@@ -3,7 +3,7 @@ import * as parser from '../../parser';
 import { Uq } from '../uq';
 import { Field, Table, IField, FieldsValues } from '../field';
 import { DataType } from '../datatype';
-import { IElement } from '../element';
+import { IElement } from '../IElement';
 import { Pointer, FieldPointer } from '../pointer';
 import {
     BusAcceptStatement, TableVar

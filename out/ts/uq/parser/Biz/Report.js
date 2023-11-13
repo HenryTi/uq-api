@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizReport = void 0;
 const il_1 = require("../../il");
+const il_2 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizReport extends Base_1.PBizEntity {
@@ -88,7 +89,7 @@ class PBizReport extends Base_1.PBizEntity {
             for (let t of this.titles) {
                 let { title: [t0, t1], caption } = t;
                 let entity = space.getBizEntity(t0);
-                if (entity === undefined || entity.bizPhraseType !== il_1.BizPhraseType.title) {
+                if (entity === undefined || entity.bizPhraseType !== il_2.BizPhraseType.title) {
                     ok = false;
                     this.log(`${t0} is not a title`);
                 }
@@ -119,7 +120,7 @@ class PBizReport extends Base_1.PBizEntity {
                 ok = false;
                 this.log(`${this.from} is not a ATOM`);
             }
-            else if (entity.bizPhraseType !== il_1.BizPhraseType.atom) {
+            else if (entity.bizPhraseType !== il_2.BizPhraseType.atom) {
                 ok = false;
                 this.log(`FROM ${this.from} must be ATOM`);
             }

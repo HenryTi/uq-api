@@ -1,4 +1,5 @@
-import { BizAtomID, BizPhraseType, BizTie, TieField } from "../../il";
+import { BizAtomID, BizTie, TieField } from "../../il";
+import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

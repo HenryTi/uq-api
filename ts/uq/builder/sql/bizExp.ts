@@ -1,5 +1,5 @@
 import { BizBud, BizExp, BizExpParamType, BizFieldOperand, BizPhraseType, BizTitle, BudDataType, EnumSysTable } from "../../il";
-import { BBizField } from "../Biz";
+// import { BBizField } from "../Biz";
 // import { BBizField } from "../Biz";
 import { DbContext } from "../dbContext";
 import { ExpInterval, ExpVal } from "./exp";
@@ -234,8 +234,8 @@ class TitleIxHistory extends TitleHistoryBase {
 }
 
 export class BBizFieldOperand extends ExpVal {
-    private readonly bBizField: BBizField;
-    constructor(bBizField: BBizField) {
+    private readonly bBizField: any; // BBizField;
+    constructor(bBizField: any) { // BBizField) {
         super();
         this.bBizField = bBizField;
     }

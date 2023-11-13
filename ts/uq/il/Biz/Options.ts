@@ -1,6 +1,6 @@
 import { PBizOptions, PContext, PElement } from "../../parser";
-import { IElement } from "../element";
-import { BizPhraseType, BudDataType } from "./Base";
+import { IElement } from "../IElement";
+import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 

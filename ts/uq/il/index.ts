@@ -5,7 +5,7 @@ export * from './statement';
 export * from './entity';
 export * from './Biz';
 export * from './field';
-export * from './element';
+export * from './IElement';
 export * from './select';
 export * from './pointer';
 export * from './builder';

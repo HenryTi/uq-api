@@ -5,6 +5,7 @@ const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
+const il_2 = require("../../il");
 class PBizBinStatement extends statement_1.PStatement {
     constructor(bizStatement, context) {
         super(bizStatement, context);
@@ -183,7 +184,7 @@ class PBizBinTitleStatement extends element_1.PElement {
         this.element.bud = bud;
         let { dataType } = bud;
         if (setEqu === il_1.SetEqu.add || setEqu === il_1.SetEqu.sub) {
-            if (dataType !== il_1.BudDataType.int && dataType !== il_1.BudDataType.dec) {
+            if (dataType !== il_2.BudDataType.int && dataType !== il_2.BudDataType.dec) {
                 this.log('only int or dec support += or -=');
                 ok = false;
             }

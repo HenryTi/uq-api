@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizRole = void 0;
 const parser_1 = require("../../parser");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 /*
 export class BizPermitItem extends BizBud {
@@ -49,7 +49,7 @@ export class BizPermit extends BizEntity {
 class BizRole extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.permit; //.role;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.permit; //.role;
         this.fields = [];
         this.roles = new Map();
     }

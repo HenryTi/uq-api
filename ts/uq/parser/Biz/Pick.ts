@@ -1,4 +1,5 @@
-import { BizAtom, BizAtomSpec, BizPhraseType, BizPick, BizQueryTable } from "../../il";
+import { BizAtom, BizAtomSpec, BizPick, BizQueryTable } from "../../il";
+import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

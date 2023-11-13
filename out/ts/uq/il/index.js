@@ -24,7 +24,7 @@ __exportStar(require("./statement"), exports);
 __exportStar(require("./entity"), exports);
 __exportStar(require("./Biz"), exports);
 __exportStar(require("./field"), exports);
-__exportStar(require("./element"), exports);
+__exportStar(require("./IElement"), exports);
 __exportStar(require("./select"), exports);
 __exportStar(require("./pointer"), exports);
 __exportStar(require("./builder"), exports);

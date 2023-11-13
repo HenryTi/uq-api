@@ -1,8 +1,8 @@
 import { BBizEntity, BBizTie, DbContext } from "../../builder";
 import { PBizTie, PContext, PElement } from "../../parser";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { BizAtomID } from "./Atom";
-import { BizPhraseType } from "./Base";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizEntity } from "./Entity";
 
 export interface TieField {

@@ -1,9 +1,9 @@
 import { BBizAssign, BBizEntity, DbContext } from "../../builder";
 import { PContext, PElement } from "../../parser";
 import { PBizAssign } from "../../parser/Biz/Assign";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { BizAtom } from "./Atom";
-import { BizPhraseType } from "./Base";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 

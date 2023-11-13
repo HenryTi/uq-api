@@ -1,8 +1,8 @@
 import * as parser from '../../parser';
 import { Builder } from "../builder";
 import { Arr, Queue } from "../entity";
-import { Statement, Var, Statements } from "./statement";
-import { IElement } from '../element';
+import { Statement, Var, Statements } from "./Statement";
+import { IElement } from '../IElement';
 import { Select } from '../select';
 import { BForList } from '../../builder';
 import { ValueExpression } from '../Exp';

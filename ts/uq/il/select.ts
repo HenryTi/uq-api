@@ -1,6 +1,6 @@
 import * as parser from '../parser';
 import { CompareExpression, ValueExpression } from './Exp';
-import { IElement } from './element';
+import { IElement } from './IElement';
 import { Field, Table } from './field';
 import { Pointer, VarPointer, FieldPointer } from './pointer';
 import { Entity, Queue } from './entity';

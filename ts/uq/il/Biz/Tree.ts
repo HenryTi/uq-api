@@ -1,6 +1,6 @@
 import { PBizTree, PContext, PElement } from "../../parser";
-import { IElement } from "../element";
-import { BizPhraseType, BudDataType } from "./Base";
+import { IElement } from "../IElement";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizEntity } from "./Entity";
 
 export class BizTree extends BizEntity {

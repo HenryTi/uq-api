@@ -1,7 +1,6 @@
 import { /*PBizPermit, PBizPermitItem, */PBizRole, PContext, PElement } from "../../parser";
-import { IElement } from "../element";
-import { BizPhraseType, BudDataType } from "./Base";
-import { BizBud } from "./Bud";
+import { IElement } from "../IElement";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizEntity } from "./Entity";
 
 /*

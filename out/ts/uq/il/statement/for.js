@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ForQueue = exports.ForSelect = exports.ForListWithVars = exports.ForArr = exports.ForList = exports.ForEach = void 0;
 const parser = require("../../parser");
-const statement_1 = require("./statement");
-class ForEach extends statement_1.Statement {
+const Statement_1 = require("./Statement");
+class ForEach extends Statement_1.Statement {
     get type() { return 'foreach'; }
     db(db) {
         return this.list.db(db, this);

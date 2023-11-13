@@ -4,12 +4,12 @@ exports.BizQueryTableStatements = exports.BizQueryTable = exports.BizQueryValueS
 const BizQuery_1 = require("../../builder/Biz/BizQuery");
 const parser_1 = require("../../parser");
 const statement_1 = require("../statement");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 class BizQuery extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.query;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.query;
     }
 }
 exports.BizQuery = BizQuery;

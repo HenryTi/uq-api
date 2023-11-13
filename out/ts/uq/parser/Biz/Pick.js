@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizPick = void 0;
 const il_1 = require("../../il");
+const il_2 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizPick extends Base_1.PBizEntity {
@@ -71,14 +72,14 @@ class PBizPick extends Base_1.PBizEntity {
             }
         }
         for (let atom of this.atoms) {
-            let bizEntity = this.getBizEntity(space, atom, il_1.BizPhraseType.atom);
+            let bizEntity = this.getBizEntity(space, atom, il_2.BizPhraseType.atom);
             if (bizEntity === undefined) {
                 ok = false;
             }
             this.element.atoms.push(bizEntity);
         }
         for (let spec of this.specs) {
-            let bizEntity = this.getBizEntity(space, spec, il_1.BizPhraseType.spec);
+            let bizEntity = this.getBizEntity(space, spec, il_2.BizPhraseType.spec);
             if (bizEntity === undefined) {
                 ok = false;
             }

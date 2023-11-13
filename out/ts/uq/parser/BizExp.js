@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizExpParam = exports.PBizExp = exports.PBizExpOperand = void 0;
 const il_1 = require("../il");
+const il_2 = require("../il");
 const element_1 = require("./element");
 const tokens_1 = require("./tokens");
 /*
@@ -104,16 +105,16 @@ class PBizExp extends element_1.PElement {
                     ok = false;
                     this.log(`${bizEntity.jName} must be either Atom, Spec, Bin or Title`);
                     break;
-                case il_1.BizPhraseType.atom:
+                case il_2.BizPhraseType.atom:
                     ret = this.scanAtom(space);
                     break;
-                case il_1.BizPhraseType.spec:
+                case il_2.BizPhraseType.spec:
                     ret = this.scanSpec(space);
                     break;
-                case il_1.BizPhraseType.bin:
+                case il_2.BizPhraseType.bin:
                     ret = this.scanBin(space);
                     break;
-                case il_1.BizPhraseType.title:
+                case il_2.BizPhraseType.title:
                     ret = this.scanTitle(space);
                     break;
             }
@@ -297,7 +298,7 @@ class PBizExpParam extends element_1.PElement {
             let ixs = [];
             for (let tie of this.ties) {
                 let t = space.getBizEntity(tie);
-                if (t === undefined || t.bizPhraseType !== il_1.BizPhraseType.tie) {
+                if (t === undefined || t.bizPhraseType !== il_2.BizPhraseType.tie) {
                     this.log(`${tie} is not a TIE`);
                     ok = false;
                 }

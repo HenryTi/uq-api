@@ -1,10 +1,10 @@
-import { Var } from "./statement";
+import { Var } from "./Statement";
 import { PContext, PWithStatement } from "../../parser";
 import { Builder } from "../builder";
 import { ID, IX, IDX } from "../entity";
 import { IdBase } from "../entity/IdBase";
 import { CompareExpression, IDNewType, ValueExpression } from "../Exp";
-import { Statement } from "./statement";
+import { Statement } from "./Statement";
 import { SetValue } from "./def";
 
 abstract class With {

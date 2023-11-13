@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Uq = exports.UqVersion = void 0;
 const il = require(".");
 const parser_1 = require("../parser");
-const element_1 = require("./element");
+const IElement_1 = require("./IElement");
 const entity_1 = require("./entity");
 const Biz_1 = require("./Biz");
 const busSchema_1 = require("./busSchema");
@@ -56,7 +56,7 @@ class UqVersion {
     }
 }
 exports.UqVersion = UqVersion;
-class Uq extends element_1.IElement {
+class Uq extends IElement_1.IElement {
     constructor() {
         super(...arguments);
         this.entities = {};

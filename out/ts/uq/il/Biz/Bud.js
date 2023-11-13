@@ -4,6 +4,7 @@ exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBud
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
+const BizPhraseType_1 = require("./BizPhraseType");
 var BudValueAct;
 (function (BudValueAct) {
     BudValueAct[BudValueAct["equ"] = 1] = "equ";
@@ -43,7 +44,7 @@ class BizBud extends Base_1.BizBase {
     // show: boolean;      // 仅用于显示
     constructor(biz, name, ui) {
         super(biz);
-        this.bizPhraseType = Base_1.BizPhraseType.bud;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.flag = Entity_1.BudIndex.none;
         this.name = name;
         this.ui = ui;
@@ -73,7 +74,7 @@ exports.BizBudValue = BizBudValue;
 class BizBudPickable extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.atom;
+        this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = false;
     }
     parser(context) {
@@ -89,7 +90,7 @@ exports.BizBudPickable = BizBudPickable;
 class BizBudNone extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.none;
+        this.dataType = BizPhraseType_1.BudDataType.none;
         this.canIndex = false;
     }
     parser(context) {
@@ -104,7 +105,7 @@ exports.BizBudNone = BizBudNone;
 class BizBudInt extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.int;
+        this.dataType = BizPhraseType_1.BudDataType.int;
         this.canIndex = true;
     }
     parser(context) {
@@ -119,7 +120,7 @@ exports.BizBudInt = BizBudInt;
 class BizBudDec extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.dec;
+        this.dataType = BizPhraseType_1.BudDataType.dec;
         this.canIndex = false;
     }
     parser(context) {
@@ -130,7 +131,7 @@ exports.BizBudDec = BizBudDec;
 class BizBudChar extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.char;
+        this.dataType = BizPhraseType_1.BudDataType.char;
         this.canIndex = false;
     }
     parser(context) {
@@ -145,7 +146,7 @@ exports.BizBudChar = BizBudChar;
 class BizBudDate extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.date;
+        this.dataType = BizPhraseType_1.BudDataType.date;
         this.canIndex = false;
     }
     parser(context) {
@@ -160,7 +161,7 @@ exports.BizBudDate = BizBudDate;
 class BizBudAtom extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.atom;
+        this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = true;
     }
     getFieldShows() { return this.fieldShows; }
@@ -187,7 +188,7 @@ exports.BizBudOptions = BizBudOptions;
 class BizBudIntOf extends BizBudOptions {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.intof;
+        this.dataType = BizPhraseType_1.BudDataType.intof;
         this.canIndex = true;
     }
     parser(context) {
@@ -198,7 +199,7 @@ exports.BizBudIntOf = BizBudIntOf;
 class BizBudRadio extends BizBudOptions {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.radio;
+        this.dataType = BizPhraseType_1.BudDataType.radio;
         this.canIndex = false;
     }
     parser(context) {
@@ -209,7 +210,7 @@ exports.BizBudRadio = BizBudRadio;
 class BizBudCheck extends BizBudOptions {
     constructor() {
         super(...arguments);
-        this.dataType = Base_1.BudDataType.check;
+        this.dataType = BizPhraseType_1.BudDataType.check;
         this.canIndex = false;
     }
     parser(context) {

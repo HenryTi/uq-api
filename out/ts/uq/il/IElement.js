@@ -5,4 +5,4 @@ class IElement {
     eachChild(callback) { }
 }
 exports.IElement = IElement;
-//# sourceMappingURL=element.js.map
+//# sourceMappingURL=IElement.js.map

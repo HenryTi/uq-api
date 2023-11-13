@@ -1,7 +1,7 @@
 import { PContext, PSetStatement } from "../../parser";
 import { Builder } from "../builder";
 import { Select } from "../select";
-import { Statement } from "./statement";
+import { Statement } from "./Statement";
 
 export class SetStatement extends Statement {
     out: boolean;

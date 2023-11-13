@@ -3,12 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizPick = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 class BizPick extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.pick;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.pick;
         this.fields = [];
         this.atoms = [];
         this.specs = [];

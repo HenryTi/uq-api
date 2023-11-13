@@ -1,8 +1,8 @@
 import { BBizReport, DbContext } from "../../builder";
 import { PBizReport, PContext, PElement } from "../../parser";
-import { IElement } from "../element";
-import { BizAtom, BizAtomSpec } from "./Atom";
-import { BizPhraseType, BudDataType } from "./Base";
+import { IElement } from "../IElement";
+import { BizAtom } from "./Atom";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizTitle } from "./Title";

@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PutStatement = void 0;
 const parser_1 = require("../../parser");
-const statement_1 = require("./statement");
-class PutStatement extends statement_1.Statement {
+const Statement_1 = require("./Statement");
+class PutStatement extends Statement_1.Statement {
     db(db) {
         return db.putStatement(this);
     }

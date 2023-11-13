@@ -7,7 +7,7 @@ import {
     , POpAt, POpUqDefinedFunction
 } from '../../parser';
 import { DataType } from '../datatype';
-import { IElement } from '../element';
+import { IElement } from '../IElement';
 import { Select } from '../select';
 import { GroupType, Pointer } from '../pointer';
 import { TuidArr, Entity, ID, Queue } from '../entity';

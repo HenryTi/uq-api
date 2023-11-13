@@ -1,9 +1,9 @@
 import {
-    BizPhraseType
-    , ValueExpression
+    ValueExpression
     , BizExp, BizExpOperand, BizAtom
     , BizAtomSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie
 } from "../il";
+import { BizPhraseType } from "../il";
 import { PElement } from "./element";
 import { Space } from "./space";
 import { Token } from "./tokens";

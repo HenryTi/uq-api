@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizTree = void 0;
 const parser_1 = require("../../parser");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 class BizTree extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.tree;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.tree;
         this.fields = [];
     }
     parser(context) {

@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FromStatementInPend = exports.FromStatement = void 0;
 const parser_1 = require("../../parser");
-const statement_1 = require("./statement");
+const Statement_1 = require("./Statement");
+// 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
+const BizPhraseType_1 = require("../Biz/BizPhraseType");
 const BizField_1 = require("../BizField");
-class FromStatement extends statement_1.Statement {
+class FromStatement extends Statement_1.Statement {
     constructor() {
         super(...arguments);
         this.bizEntityArr = [];
@@ -18,21 +20,16 @@ class FromStatement extends statement_1.Statement {
     parser(context) {
         return new parser_1.PFromStatement(this, context);
     }
-    /*
-    getBud(fieldName: string): [BizEntity, BizBudValue] {
-        let bizEntity: BizEntity = undefined;
-        let bud: BizBudValue = undefined;
-        for (let entity of this.bizEntityArr) {
-            let b = entity.getBud(fieldName) as BizBudValue;
-            if (b !== undefined) {
-                bizEntity = entity;
-                bud = b;
-            }
-        }
-        return [bizEntity, bud];
-    }
-    */
     getBizField(fieldName) {
+        switch (fieldName) {
+            default:
+                return this.getBudField(fieldName);
+            case 'no':
+            case 'ex':
+                return this.getNoExField(fieldName);
+        }
+    }
+    getBudField(fieldName) {
         let bizEntity = undefined;
         let bud = undefined;
         for (let entity of this.bizEntityArr) {
@@ -49,9 +46,21 @@ class FromStatement extends statement_1.Statement {
         ret.bud = bud;
         return ret;
     }
+    getNoExField(fieldName) {
+        if (this.bizPhraseType === BizPhraseType_1.BizPhraseType.atom) {
+            let ret = new BizField_1.BizFieldField();
+            ret.tbl = 'atom';
+            ret.fieldName = fieldName;
+            return ret;
+        }
+    }
 }
 exports.FromStatement = FromStatement;
 class FromStatementInPend extends FromStatement {
+    constructor(parent, pendQuery) {
+        super(parent);
+        this.pendQuery = pendQuery;
+    }
     parser(context) {
         return new parser_1.PFromStatementInPend(this, context);
     }
@@ -59,34 +68,42 @@ class FromStatementInPend extends FromStatement {
         return db.fromStatementInPend(this);
     }
     getBizField(fieldName) {
-        let bizEntity = undefined;
-        let bud = undefined;
         switch (fieldName) {
-            default: break;
-            case 'no': break;
-            case 'si': break;
-            case 'sx': break;
-            case 'svalue': break;
-            case 'samount': break;
-            case 'sprice': break;
-            case 'i': break;
-            case 'x': break;
-            case 'value': break;
-            case 'amount': break;
-            case 'price': break;
+            default: return this.getBizPendMidField(fieldName);
+            case 'no': return this.getBizPendSheetField(fieldName);
+            case 'si':
+            case 'sx':
+            case 'svalue':
+            case 'samount':
+            case 'sprice':
+            case 'i':
+            case 'x':
+            case 'value':
+            case 'amount':
+            case 'price': return this.getBizPendBinField(fieldName);
         }
-        for (let entity of this.bizEntityArr) {
-            let b = entity.getBud(fieldName);
-            if (b !== undefined) {
-                bizEntity = entity;
-                bud = b;
-            }
-        }
+    }
+    getBizPendMidField(fieldName) {
+        let { bizPend } = this.pendQuery;
+        let bud = bizPend.getBud(fieldName);
         if (bud === undefined)
-            return undefined;
-        let ret = new BizField_1.BizFieldBud();
-        ret.entity = bizEntity;
+            return;
+        let ret = new BizField_1.BizFieldJsonProp();
+        ret.tbl = 'pend';
         ret.bud = bud;
+        ret.entity = bizPend;
+        return ret;
+    }
+    getBizPendBinField(fieldName) {
+        let ret = new BizField_1.BizFieldField();
+        ret.tbl = 'pend';
+        ret.fieldName = fieldName;
+        return ret;
+    }
+    getBizPendSheetField(fieldName) {
+        let ret = new BizField_1.BizFieldField();
+        ret.tbl = 'sheet';
+        ret.fieldName = fieldName;
         return ret;
     }
 }

@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ValueStatement = exports.ValueXi = void 0;
 const parser_1 = require("../../parser");
-const statement_1 = require("./statement");
+const Statement_1 = require("./Statement");
 class ValueXi {
 }
 exports.ValueXi = ValueXi;
-class ValueStatement extends statement_1.Statement {
+class ValueStatement extends Statement_1.Statement {
     get type() { return 'value'; }
     db(db) {
         return db.value(this);

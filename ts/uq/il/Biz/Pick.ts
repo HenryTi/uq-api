@@ -1,8 +1,8 @@
 import { BBizPick, DbContext } from "../../builder";
 import { PBizPick, PContext, PElement } from "../../parser";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { BizAtom, BizAtomSpec } from "./Atom";
-import { BizPhraseType } from "./Base";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 

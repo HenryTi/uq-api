@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PFromStatementInPend = exports.PFromStatement = void 0;
 const il_1 = require("../../il");
+const il_2 = require("../../il");
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");
 const statement_1 = require("./statement");
@@ -155,7 +156,7 @@ class PFromStatement extends statement_1.PStatement {
                     ok = false;
                     this.log(`${_of} is not defined`);
                 }
-                else if (entity.bizPhraseType !== il_1.BizPhraseType.tie) {
+                else if (entity.bizPhraseType !== il_2.BizPhraseType.tie) {
                     ok = false;
                     this.log(`${_of} is not a TIE`);
                 }
@@ -183,14 +184,17 @@ class PFromStatement extends statement_1.PStatement {
                     }
                     else {
                         // 'no', 'ex'
+                        debugger;
+                        col.field = undefined;
                     }
                 }
                 else {
                     // Query bud
                     let bud = new il_1.BizBudNone(biz, name, ui);
-                    let field = new il_1.BizFieldBud();
-                    field.bud = bud;
-                    col.field = field;
+                    // let field = new BizFieldBud();
+                    // field.bud = bud;
+                    // let field: BizField;
+                    col.field = undefined; // field;
                 }
             }
         }
@@ -209,7 +213,7 @@ class PFromStatementInPend extends PFromStatement {
     }
     scanEntityArr(space) {
         this.element.bizEntityArr = [space.getBizEntity(undefined)];
-        this.element.bizPhraseType = il_1.BizPhraseType.pend;
+        this.element.bizPhraseType = il_2.BizPhraseType.pend;
         this.element.bizEntityTable = il_1.EnumSysTable.pend;
         return true;
     }

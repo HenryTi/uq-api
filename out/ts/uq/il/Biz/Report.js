@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizReport = exports.ReportJoinType = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 var ReportJoinType;
 (function (ReportJoinType) {
@@ -15,7 +15,7 @@ class BizReport extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.fields = [];
-        this.bizPhraseType = Base_1.BizPhraseType.report;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.report;
         this.titles = [];
         this.joins = [];
     }

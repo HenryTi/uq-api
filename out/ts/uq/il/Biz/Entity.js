@@ -4,6 +4,7 @@ exports.BizEntity = exports.BudIndex = void 0;
 const datatype_1 = require("../datatype");
 const field_1 = require("../field");
 const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 var BudIndex;
 (function (BudIndex) {
     BudIndex[BudIndex["none"] = 0] = "none";
@@ -110,17 +111,17 @@ class BizEntity extends Base_1.BizBase {
             default:
                 debugger;
                 throw new Error(`unknown BizBud ${dataType}`);
-            case Base_1.BudDataType.int:
-            case Base_1.BudDataType.ID:
+            case BizPhraseType_1.BudDataType.int:
+            case BizPhraseType_1.BudDataType.ID:
                 fieldDataType = new datatype_1.BigInt();
                 break;
-            case Base_1.BudDataType.date:
+            case BizPhraseType_1.BudDataType.date:
                 fieldDataType = new datatype_1.DDate();
                 break;
-            case Base_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 fieldDataType = new datatype_1.Dec(20, 6);
                 break;
-            case Base_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.char:
                 fieldDataType = new datatype_1.Char(50);
                 break;
         }

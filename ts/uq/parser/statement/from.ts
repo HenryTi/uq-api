@@ -1,8 +1,10 @@
 import {
     BizBudNone
-    , BizFieldBud, BizPhraseType, BizTie, CompareExpression
+    , BizTie, CompareExpression
     , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
+    // , BizField, BizFieldBud
 } from "../../il";
+import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PStatement } from "./statement";
@@ -189,14 +191,17 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     }
                     else {
                         // 'no', 'ex'
+                        debugger;
+                        col.field = undefined;
                     }
                 }
                 else {
                     // Query bud
                     let bud = new BizBudNone(biz, name, ui);
-                    let field = new BizFieldBud();
-                    field.bud = bud;
-                    col.field = field;
+                    // let field = new BizFieldBud();
+                    // field.bud = bud;
+                    // let field: BizField;
+                    col.field = undefined; // field;
                 }
             }
         }

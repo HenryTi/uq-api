@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDataType = exports.createDataProtoType = exports.Bin = exports.Text = exports.Char = exports.JsonDataType = exports.DateTime = exports.TimeStamp = exports.Time = exports.DDate = exports.Double = exports.Float = exports.BigInt = exports.Int = exports.SmallInt = exports.TinyInt = exports.Dec = exports.Of = exports.EnumDataType = exports.TextId = exports.DataTypeDef = exports.IdDataType = exports.StringType = exports.NumType = exports.UnkownType = exports.DataType = exports.defaultStampOnUpdate = exports.defaultStampCurrent = void 0;
 const parser = require("../parser");
-const element_1 = require("./element");
+const IElement_1 = require("./IElement");
 const intMax = 4503599627370495;
 exports.defaultStampCurrent = 'CURRENT_TIMESTAMP';
 exports.defaultStampOnUpdate = 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP';
@@ -18,7 +18,7 @@ function compareDateString(cur, pre) {
     let ret = c === p;
     return ret;
 }
-class DataType extends element_1.IElement {
+class DataType extends IElement_1.IElement {
     get isNum() { return false; }
     get isString() { return false; }
     get isId() { return false; }

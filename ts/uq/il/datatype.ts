@@ -1,5 +1,5 @@
 import * as parser from '../parser';
-import { IElement } from './element';
+import { IElement } from './IElement';
 import { Tuid, Enum } from './entity';
 
 const intMax = 4503599627370495;

@@ -7,10 +7,11 @@ const EnumSysTable_1 = require("../EnumSysTable");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
+const BizPhraseType_1 = require("./BizPhraseType");
 class BinPick extends Bud_1.BizBud {
     constructor(bin, name, ui) {
         super(bin.biz, name, ui);
-        this.dataType = Base_1.BudDataType.none;
+        this.dataType = BizPhraseType_1.BudDataType.none;
         this.bin = bin;
     }
     parser(context) {
@@ -104,7 +105,7 @@ class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
-        this.bizPhraseType = Base_1.BizPhraseType.bin;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
@@ -228,7 +229,7 @@ class BizBin extends Entity_1.BizEntity {
                 return;
             switch (b.dataType) {
                 default: return;
-                case Base_1.BudDataType.atom: break;
+                case BizPhraseType_1.BudDataType.atom: break;
             }
             let { atom } = b;
             bizEntity = atom;
@@ -240,7 +241,7 @@ exports.BizBin = BizBin;
 class BizBinAct extends Base_1.BizBase {
     constructor(biz, bizDetail) {
         super(biz);
-        this.bizPhraseType = Base_1.BizPhraseType.detailAct;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.detailAct;
         this.tableVars = {};
         this.bizDetail = bizDetail;
     }

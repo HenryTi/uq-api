@@ -2,17 +2,18 @@ import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
 import { PBinPick, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizAtomSpec } from "./Atom";
-import { BizBase, BizPhraseType, BudDataType } from "./Base";
+import { BizBase } from "./Base";
 import { Biz } from "./Biz";
 import { BizBudValue, BizBud, BizBudAtom, FieldShowItem, FieldShow } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend } from "./Sheet";
 import { UI } from "../UI";
+import { BizPhraseType, BudDataType } from "./BizPhraseType";
 
 export interface PickParam {
     name: string;

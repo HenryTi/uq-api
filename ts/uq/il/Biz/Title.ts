@@ -1,6 +1,6 @@
 import { PBizTitle, PContext, PElement } from "../../parser";
-import { IElement } from "../element";
-import { BizPhraseType } from "./Base";
+import { IElement } from "../IElement";
+import { BizPhraseType } from "./BizPhraseType";
 import { BizEntity } from "./Entity";
 
 export class BizTitle extends BizEntity {

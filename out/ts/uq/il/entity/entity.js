@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Templet = exports.EntityVarTable = exports.Query = exports.useBusFace = exports.InBusAction = exports.Bus = exports.BusQuery = exports.BusAccept = exports.ActionHasInBus = exports.QueryBase = exports.Returns = exports.ActionBase = exports.Pending = exports.History = exports.HistoryBase = exports.Book = exports.BookBase = exports.Import = exports.Role = exports.Arr = exports.IArr = exports.Index = exports.EntityWithTable = exports.Queue = exports.DataTypeDefine = exports.Const = exports.Enum = exports.Entity = exports.EntityAccessibility = void 0;
 const _ = require("lodash");
 const parser = require("../../parser");
-const element_1 = require("../element");
+const IElement_1 = require("../IElement");
 const pointer_1 = require("../pointer");
 const statement_1 = require("../statement");
 const schema_1 = require("../schema");
@@ -12,7 +12,7 @@ var EntityAccessibility;
     EntityAccessibility[EntityAccessibility["invisible"] = 0] = "invisible";
     EntityAccessibility[EntityAccessibility["visible"] = 1] = "visible";
 })(EntityAccessibility || (exports.EntityAccessibility = EntityAccessibility = {}));
-class Entity extends element_1.IElement {
+class Entity extends IElement_1.IElement {
     constructor(uq) {
         super();
         this.isVarTable = false;
@@ -341,7 +341,7 @@ class ActionBase extends Entity {
     }
 }
 exports.ActionBase = ActionBase;
-class Returns extends element_1.IElement {
+class Returns extends IElement_1.IElement {
     constructor() {
         super(...arguments);
         this.returns = [];

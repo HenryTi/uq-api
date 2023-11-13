@@ -1,4 +1,5 @@
-import { BizAtom, BizAtomSpec, BizBudValue, BizPhraseType, BizReport, BizTitle, ReportJoinType } from "../../il";
+import { BizAtom, BizAtomSpec, BizBudValue, BizReport, BizTitle, ReportJoinType } from "../../il";
+import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

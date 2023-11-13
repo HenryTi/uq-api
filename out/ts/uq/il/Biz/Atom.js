@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizAtomIDAny = exports.BizAtomSpec = exports.BizAtomIDWithBase = exports.BizAtom = exports.BizAtomID = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
-const Base_1 = require("./Base");
+const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 class BizAtomID extends Entity_1.BizEntity {
     get basePhrase() { return this.extends === undefined ? '' : this.extends.phrase; }
@@ -20,7 +20,7 @@ exports.BizAtomID = BizAtomID;
 class BizAtom extends BizAtomID {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.atom;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.atom;
         this.fields = ['id', 'no', 'ex'];
     }
     parser(context) {
@@ -50,7 +50,7 @@ exports.BizAtomIDWithBase = BizAtomIDWithBase;
 class BizAtomSpec extends BizAtomIDWithBase {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.spec;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.spec;
         this.fields = ['id'];
         this.keys = [];
     }
@@ -96,7 +96,7 @@ exports.BizAtomSpec = BizAtomSpec;
 class BizAtomIDAny extends BizAtomID {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = Base_1.BizPhraseType.any;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.any;
         this.fields = ['id'];
         this.name = '*';
     }

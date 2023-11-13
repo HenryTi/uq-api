@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PBizQueryTableInPendStatements = exports.PPendQuery = exports.PBizPend = exports.PBinPick = exports.PBizBin = void 0;
 const il_1 = require("../../il");
+const il_2 = require("../../il");
 const element_1 = require("../element");
 const statement_1 = require("../statement");
 const tokens_1 = require("../tokens");
@@ -181,7 +182,7 @@ class PBizBin extends Base_1.PBizEntity {
             if (bud === undefined)
                 return;
             const { dataType } = bud;
-            if (dataType !== il_1.BudDataType.dec && dataType !== il_1.BudDataType.none) {
+            if (dataType !== il_2.BudDataType.dec && dataType !== il_2.BudDataType.none) {
                 this.log(`${bud.jName} can only be DEC`);
                 ok = false;
             }
@@ -303,17 +304,17 @@ class PBinPick extends element_1.PElement {
             let multipleEntity = false;
             const bizEntity0 = entityArr[0];
             switch (bizPhraseType) {
-                case il_1.BizPhraseType.atom:
+                case il_2.BizPhraseType.atom:
                     pickBase = new il_1.PickAtom(entityArr);
                     multipleEntity = true;
                     break;
-                case il_1.BizPhraseType.spec:
+                case il_2.BizPhraseType.spec:
                     pickBase = new il_1.PickSpec(bizEntity0);
                     break;
-                case il_1.BizPhraseType.pend:
+                case il_2.BizPhraseType.pend:
                     pickBase = new il_1.PickPend(bizEntity0);
                     break;
-                case il_1.BizPhraseType.query:
+                case il_2.BizPhraseType.query:
                     pickBase = new il_1.PickQuery(bizEntity0);
                     break;
             }
@@ -410,9 +411,10 @@ class PPendQuery extends Query_1.PBizQueryTable {
 exports.PPendQuery = PPendQuery;
 class PBizQueryTableInPendStatements extends Query_1.PBizQueryTableStatements {
     statementFromKey(parent, key) {
+        let bizQueryTableInPendStatements = this.element;
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'from': return new il_1.FromStatementInPend(parent);
+            case 'from': return new il_1.FromStatementInPend(parent, bizQueryTableInPendStatements.pendQuery);
         }
     }
 }

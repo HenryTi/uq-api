@@ -1,9 +1,8 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
-import { Entity } from "../entity";
 import { Field } from "../field";
-import { BizBase, BudDataType } from "./Base";
-import { Biz } from "./Biz";
+import { BizBase } from "./Base";
+import { BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizRole } from "./Role";
 

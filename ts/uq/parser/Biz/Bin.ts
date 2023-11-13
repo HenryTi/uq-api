@@ -2,9 +2,10 @@ import {
     BizBin, BizBinAct, BizPend, Field
     , Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer
-    , BizBudValue, BudDataType, BizPhraseType
+    , BizBudValue
     , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud, PendQuery, BizQueryTableStatements, BizQueryTableInPendStatements, FromStatementInPend
 } from "../../il";
+import { BizPhraseType, BudDataType } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -428,9 +429,10 @@ export class PPendQuery extends PBizQueryTable<PendQuery> {
 
 export class PBizQueryTableInPendStatements extends PBizQueryTableStatements {
     protected statementFromKey(parent: Statement, key: string): Statement {
+        let bizQueryTableInPendStatements = this.element as BizQueryTableInPendStatements;
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'from': return new FromStatementInPend(parent);
+            case 'from': return new FromStatementInPend(parent, bizQueryTableInPendStatements.pendQuery);
         }
     }
 }

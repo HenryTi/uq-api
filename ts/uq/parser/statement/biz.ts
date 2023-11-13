@@ -2,12 +2,13 @@ import { Space } from '../space';
 import {
     BizBinActStatement as BizBinStatement, BizBinPendStatement, BizBinSubStatement
     , BizBinTitleStatement, BizPend, ValueExpression
-    , SetEqu, BudDataType, BizBudValue
+    , SetEqu, BizBudValue
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
 import { PElement } from '../element';
 import { Token } from '../tokens';
+import { BudDataType } from '../../il';
 
 export class PBizBinStatement extends PStatement {
     bizStatement: BizBinStatement;

@@ -1,6 +1,6 @@
 import * as il from '.';
 import { PElement, PUq, PContext } from '../parser';
-import { IElement } from './element';
+import { IElement } from './IElement';
 import { Entity, Index, Role, Queue, ID } from './entity';
 import { Biz } from './Biz';
 import { ShareSchema } from './busSchema';

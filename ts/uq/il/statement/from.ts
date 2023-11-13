@@ -1,23 +1,23 @@
 import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../parser";
 import {
     BizBudValue, BizEntity
-    , BizPhraseType, BizTie
+    , BizTie, PendQuery
 } from "../Biz";
 import { EnumSysTable } from "../EnumSysTable";
 import { Builder } from "../builder";
-import { IElement } from "../element";
+import { IElement } from "../IElement";
 import { CompareExpression, ValueExpression } from "../Exp";
-import { Statement } from "./statement";
+import { Statement } from "./Statement";
 import { UI } from "../UI";
-import { BizField, BizFieldBud } from "../BizField";
+// 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
+import { BizPhraseType } from "../Biz/BizPhraseType";
+import { BizField, BizFieldBud, BizFieldField, BizFieldJsonProp } from "../BizField";
 
 export interface FromColumn {
     name: string;
     ui?: Partial<UI>;
     val: ValueExpression;
-    // bud?: BizBudValue;
-    // entity?: BizEntity;
-    field: BizField;
+    field: any; // BizField;
 }
 
 export interface BanColumn {
@@ -43,21 +43,18 @@ export class FromStatement extends Statement {
     parser(context: PContext): PElement<IElement> {
         return new PFromStatement(this, context);
     }
-    /*
-    getBud(fieldName: string): [BizEntity, BizBudValue] {
-        let bizEntity: BizEntity = undefined;
-        let bud: BizBudValue = undefined;
-        for (let entity of this.bizEntityArr) {
-            let b = entity.getBud(fieldName) as BizBudValue;
-            if (b !== undefined) {
-                bizEntity = entity;
-                bud = b;
-            }
+
+    getBizField(fieldName: string): BizField {
+        switch (fieldName) {
+            default:
+                return this.getBudField(fieldName);
+            case 'no':
+            case 'ex':
+                return this.getNoExField(fieldName);
         }
-        return [bizEntity, bud];
     }
-    */
-    getBizField(fieldName: string): any { // } BizField {
+
+    private getBudField(fieldName: string): BizField {
         let bizEntity: BizEntity = undefined;
         let bud: BizBudValue = undefined;
         for (let entity of this.bizEntityArr) {
@@ -73,9 +70,24 @@ export class FromStatement extends Statement {
         ret.bud = bud;
         return ret;
     }
+
+    private getNoExField(fieldName: string): BizField {
+        if (this.bizPhraseType === BizPhraseType.atom) {
+            let ret = new BizFieldField();
+            ret.tbl = 'atom';
+            ret.fieldName = fieldName;
+            return ret;
+        }
+    }
+
 }
 
 export class FromStatementInPend extends FromStatement {
+    readonly pendQuery: PendQuery;
+    constructor(parent: Statement, pendQuery: PendQuery) {
+        super(parent);
+        this.pendQuery = pendQuery;
+    }
     parser(context: PContext): PElement<IElement> {
         return new PFromStatementInPend(this, context);
     }
@@ -83,34 +95,43 @@ export class FromStatementInPend extends FromStatement {
         return db.fromStatementInPend(this);
     }
     override getBizField(fieldName: string): BizField {
-        let bizEntity: BizEntity = undefined;
-        let bud: BizBudValue = undefined;
         switch (fieldName) {
-            default: break;
-            case 'no': break;
-            case 'si': break;
-            case 'sx': break;
-            case 'svalue': break;
-            case 'samount': break;
-            case 'sprice': break;
-            case 'i': break;
-            case 'x': break;
-            case 'value': break;
-            case 'amount': break;
-            case 'price': break;
+            default: return this.getBizPendMidField(fieldName);
+            case 'no': return this.getBizPendSheetField(fieldName);
+            case 'si':
+            case 'sx':
+            case 'svalue':
+            case 'samount':
+            case 'sprice':
+            case 'i':
+            case 'x':
+            case 'value':
+            case 'amount':
+            case 'price': return this.getBizPendBinField(fieldName);
         }
-
-        for (let entity of this.bizEntityArr) {
-            let b = entity.getBud(fieldName) as BizBudValue;
-            if (b !== undefined) {
-                bizEntity = entity;
-                bud = b;
-            }
-        }
-        if (bud === undefined) return undefined;
-        let ret = new BizFieldBud();
-        ret.entity = bizEntity;
+    }
+    private getBizPendMidField(fieldName: string): BizField {
+        let { bizPend } = this.pendQuery;
+        let bud = bizPend.getBud(fieldName) as BizBudValue;
+        if (bud === undefined) return;
+        let ret = new BizFieldJsonProp();
+        ret.tbl = 'pend';
         ret.bud = bud;
+        ret.entity = bizPend;
+        return ret;
+    }
+
+    private getBizPendBinField(fieldName: string): BizField {
+        let ret = new BizFieldField();
+        ret.tbl = 'pend';
+        ret.fieldName = fieldName;
+        return ret;
+    }
+
+    private getBizPendSheetField(fieldName: string): BizField {
+        let ret = new BizFieldField();
+        ret.tbl = 'sheet';
+        ret.fieldName = fieldName;
         return ret;
     }
 }

@@ -1,3 +1,4 @@
+/*
 import {
     BizField, BizFieldBud, BizFieldField, BizFieldJsonProp,
     BudDataType, EnumSysTable
@@ -59,9 +60,8 @@ export const MapFieldTable = {
 }
 
 export class BBizFieldField extends BBizField<BizFieldField> {
-    tbl: 'pend' | 'bin' | 'sheet' | 'sheetBin' | 'atom' | 'baseAtom';
     override to(sb: SqlBuilder): void {
-        let tbl = MapFieldTable[this.tbl];
+        let tbl = MapFieldTable[this.bizField.tbl];
         sb.append(tbl).dot().append(this.bizField.fieldName);
     }
 }
@@ -71,7 +71,7 @@ export class BBizFieldJsonProp extends BBizField<BizFieldJsonProp> {
     override to(sb: SqlBuilder): void {
         let { bud } = this.bizField;
         let tblPend = MapFieldTable['pend'];
-        sb.l().append(`JSON_VALUE(${tblPend}.med, '$."${bud.id}"')`).r();
+        sb.append(`JSON_VALUE(${tblPend}.mid, '$."${bud.id}"')`);
     }
 }
-
+*/

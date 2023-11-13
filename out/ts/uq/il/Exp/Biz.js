@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.BizExpParam = exports.BizExpParamType = void 0;
 const parser_1 = require("../../parser");
-const element_1 = require("../element");
+const IElement_1 = require("../IElement");
 const Op_1 = require("./Op");
 var BizExpParamType;
 (function (BizExpParamType) {
@@ -10,7 +10,7 @@ var BizExpParamType;
     BizExpParamType[BizExpParamType["spec"] = 1] = "spec";
     BizExpParamType[BizExpParamType["ix"] = 2] = "ix";
 })(BizExpParamType || (exports.BizExpParamType = BizExpParamType = {}));
-class BizExpParam extends element_1.IElement {
+class BizExpParam extends IElement_1.IElement {
     constructor() {
         super(...arguments);
         this.type = 'BizExpParam';
@@ -20,7 +20,7 @@ class BizExpParam extends element_1.IElement {
     }
 }
 exports.BizExpParam = BizExpParam;
-class BizExp extends element_1.IElement {
+class BizExp extends IElement_1.IElement {
     constructor() {
         super(...arguments);
         this.type = 'BizExp';
