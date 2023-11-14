@@ -60,11 +60,18 @@ class BizPend extends Entity_1.BizEntity {
         let predefined = {};
         for (let i in this.predefinedBuds) {
             let bud = this.predefinedBuds[i];
-            // let { ui } = bud;
-            // if (uicaption === undefined) continue;
             predefined[i] = bud.buildSchema(res);
         }
         ret.predefined = predefined;
+        let params;
+        if (this.pendQuery !== undefined) {
+            params = [];
+            let { params: queryParams } = this.pendQuery;
+            for (let p of queryParams) {
+                params.push(p.buildSchema(res));
+            }
+        }
+        ret.params = params;
         return ret;
     }
     getBud(name) {
