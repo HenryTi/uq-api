@@ -79,7 +79,6 @@ export class FromStatement extends Statement {
             return ret;
         }
     }
-
 }
 
 export class FromStatementInPend extends FromStatement {
@@ -102,12 +101,13 @@ export class FromStatementInPend extends FromStatement {
             case 'sx':
             case 'svalue':
             case 'samount':
-            case 'sprice':
+            case 'sprice': return this.getBizPendSheetBinField(fieldName);
             case 'i':
             case 'x':
             case 'value':
             case 'amount':
             case 'price': return this.getBizPendBinField(fieldName);
+            case 'pendvalue': return this.getPendValueBinField();
         }
     }
     private getBizPendMidField(fieldName: string): BizField {
@@ -123,7 +123,7 @@ export class FromStatementInPend extends FromStatement {
 
     private getBizPendBinField(fieldName: string): BizField {
         let ret = new BizFieldField();
-        ret.tbl = 'pend';
+        ret.tbl = 'bin';
         ret.fieldName = fieldName;
         return ret;
     }
@@ -132,6 +132,20 @@ export class FromStatementInPend extends FromStatement {
         let ret = new BizFieldField();
         ret.tbl = 'sheet';
         ret.fieldName = fieldName;
+        return ret;
+    }
+
+    private getBizPendSheetBinField(fieldName: string): BizField {
+        let ret = new BizFieldField();
+        ret.tbl = 'sheetBin';
+        ret.fieldName = fieldName.substring(1);
+        return ret;
+    }
+
+    private getPendValueBinField() {
+        let ret = new BizFieldField();
+        ret.tbl = 'pend';
+        ret.fieldName = 'pendvalue';
         return ret;
     }
 }

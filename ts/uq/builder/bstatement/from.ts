@@ -1,4 +1,5 @@
 import { FromStatement, EnumSysTable, ValueExpression, CompareExpression, JoinType, FromStatementInPend } from "../../il";
+import { KeyOfMapFieldTable, MapFieldTable } from "../Biz";
 import {
     Exp, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull
     , ExpLT, ExpNum, ExpStr, ExpVal, ExpVar, StatementBase
@@ -125,8 +126,13 @@ export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
     protected override buildFromMain(cmpStart: ExpCmp) {
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);
-        // INSERT INTO `_$page` (`pend`, `sheet`, `id`, `i`, `x`, `value`, `price`, `amount`, `mid`, `pendvalue`)
-        const a = t1, b = 'b', c = 'c', d = 'd';
+        let tblA: KeyOfMapFieldTable = 'pend';
+        let tblB: KeyOfMapFieldTable = 'bin';
+        let tblSheet: KeyOfMapFieldTable = 'sheet';
+        let tblSheetBin: KeyOfMapFieldTable = 'sheetBin';
+        const a = MapFieldTable[tblA], b = MapFieldTable[tblB], c = 'c', d = 'd';
+        const sheet = MapFieldTable[tblSheet];
+        const sheetBin = MapFieldTable[tblSheetBin];
         select.column(new ExpField('id', a), 'pend');
         select.column(new ExpField('base', d), 'sheet');
         select.column(new ExpField('bin', a), 'id');
@@ -142,7 +148,11 @@ export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
             .join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, c))
             .on(new ExpEQ(new ExpField('id', c), new ExpField('base', a)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bud, false, d))
-            .on(new ExpEQ(new ExpField('id', d), new ExpField('id', b)));
+            .on(new ExpEQ(new ExpField('id', d), new ExpField('id', b)))
+            .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, sheetBin))
+            .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('base', d)))
+            .join(JoinType.left, new EntityTable(EnumSysTable.sheet, false, sheet))
+            .on(new ExpEQ(new ExpField('id', sheet), new ExpField('id', sheetBin)));
 
         let insert = factory.createInsert();
         insert.table = new VarTableWithSchema('$page');

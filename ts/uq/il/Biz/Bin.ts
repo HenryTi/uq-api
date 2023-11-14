@@ -149,17 +149,6 @@ export class BizBin extends BizEntity {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        /*
-        let pend: any;
-        if (this.pend !== undefined) {
-            let { ui, name } = this.pend;
-            pend = {
-                ui,
-                entity: name,
-                // search,
-            }
-        }
-        */
         let picks: any[] = [];
         if (this.picks !== undefined) {
             for (let [, value] of this.picks) {
@@ -177,7 +166,7 @@ export class BizBin extends BizEntity {
         this.schema = {
             ...ret,
             picks: picks.length === 0 ? undefined : picks,
-            // pend,
+            pend: this.pend?.id,
             i: this.i?.buildSchema(res),
             x: this.x?.buildSchema(res),
             value: this.value?.buildSchema(res),

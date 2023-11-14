@@ -11,6 +11,7 @@ import {
 import { PContext } from '../pContext';
 import { DATEPARTS, TIMESTAMPDIFFPARTS } from '../../il/DATEPARTS';
 import { functions, uqFunctions } from '../../il/functions';
+import { ExpVal } from '../../builder';
 
 export abstract class PAtom extends PElement {
     atom: Exp.Atom;
@@ -102,6 +103,9 @@ export abstract class PExpression extends PElement {
             if (selectOperand === undefined) {
                 this.ts.expect(': or FROM');
             }
+            else {
+                this.add(selectOperand);
+            }
             this.ts.assertToken(Token.RPARENTHESE);
             this.ts.readToken();
             let exists = new Exp.ExistsSubOperand();
@@ -140,11 +144,16 @@ export abstract class PExpression extends PElement {
                             for (let i = 0; ; i++) {
                                 this.expValue();
                                 if (this.ts.token !== Token.COMMA) {
+                                    this.add(selectOperand);
                                     this.add(new Exp.OpIn(i + 2));
                                     break;
                                 }
                                 this.ts.readToken();
                             }
+                        }
+                        else {
+                            this.add(selectOperand);
+                            this.add(new Exp.OpIn(2));
                         }
                         if (this.ts.token != Token.RPARENTHESE) this.expectToken(Token.RPARENTHESE);
                         this.ts.readToken();
@@ -307,31 +316,22 @@ export abstract class PExpression extends PElement {
     }
 
     private maySelectOperand(): Exp.Atom {
+        let expVal: Exp.Atom;
         if (this.ts.isKeyword('select') === true) {
             this.ts.readToken();
-            let ret = new Exp.SubSelectOperand();
-            let parser = ret.parser(this.context);
+            expVal = new Exp.SubSelectOperand();
+            let parser = expVal.parser(this.context);
             parser.parse();
-            this.add(ret);
-            return ret;
+            // this.add(ret);
         }
         if (this.ts.token === Token.SHARP) {
             this.ts.readToken();
-            let ret = new Exp.BizExpOperand();
-            this.context.parseElement(ret);
-            this.add(ret);
-            return ret;
+            expVal = new Exp.BizExpOperand();
+            this.context.parseElement(expVal);
+            // this.add(ret);
+            //return ret;
         }
-        /*
-        if (this.ts.token === Token.COLON || this.ts.isKeyword('from') === true) {
-            this.ts.readToken();
-            let ret = new Exp.BizSelectOperand();
-            let parser = ret.parser(this.context);
-            parser.parse();
-            this.add(ret);
-            return ret;
-        }
-        */
+        return expVal;
     }
 
     private f() {

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BFromStatementInPend = exports.BFromStatement = void 0;
 const il_1 = require("../../il");
+const Biz_1 = require("../Biz");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
@@ -109,8 +110,13 @@ class BFromStatementInPend extends BFromStatement {
     buildFromMain(cmpStart) {
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);
-        // INSERT INTO `_$page` (`pend`, `sheet`, `id`, `i`, `x`, `value`, `price`, `amount`, `mid`, `pendvalue`)
-        const a = t1, b = 'b', c = 'c', d = 'd';
+        let tblA = 'pend';
+        let tblB = 'bin';
+        let tblSheet = 'sheet';
+        let tblSheetBin = 'sheetBin';
+        const a = Biz_1.MapFieldTable[tblA], b = Biz_1.MapFieldTable[tblB], c = 'c', d = 'd';
+        const sheet = Biz_1.MapFieldTable[tblSheet];
+        const sheetBin = Biz_1.MapFieldTable[tblSheetBin];
         select.column(new sql_1.ExpField('id', a), 'pend');
         select.column(new sql_1.ExpField('base', d), 'sheet');
         select.column(new sql_1.ExpField('bin', a), 'id');
@@ -126,7 +132,11 @@ class BFromStatementInPend extends BFromStatement {
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, d))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('id', b)));
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('id', b)))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('base', d)))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, sheet))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
         let insert = factory.createInsert();
         insert.table = new statementWithFrom_1.VarTableWithSchema('$page');
         insert.cols = [

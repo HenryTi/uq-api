@@ -44,19 +44,20 @@ export class PBizBinStatement extends PStatement {
 
 export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
     private pend: string;
+    private sets: { [v: string]: ValueExpression };
 
     protected _parse(): void {
         let setEqu: SetEqu;
         if (this.ts.token === Token.VAR) {
             this.pend = this.ts.passVar();
-            let sets = this.element.sets = {};
+            this.sets = {};
             this.ts.passKey('set');
             for (; ;) {
                 let v = this.ts.passVar();
                 this.ts.passToken(Token.EQU);
                 let exp = new ValueExpression();
                 this.context.parseElement(exp);
-                sets[v] = exp;
+                this.sets[v] = exp;
                 let { token } = this.ts;
                 if (token === Token.COMMA as any) {
                     this.ts.readToken();
@@ -98,7 +99,7 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let { val, sets, bizStatement: { bizDetailAct } } = this.element;
+        let { val, bizStatement: { bizDetailAct } } = this.element;
 
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
@@ -107,15 +108,24 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
             }
             else {
                 this.element.pend = pend;
-                for (let i in sets) {
-                    let bud = pend.getBud(i);
-                    if (bud === undefined) {
-                        ok = false;
-                        this.log(`There is no ${i.toUpperCase()} in Pend ${pend.jName}`);
-                    }
-                    let exp = sets[i];
-                    if (exp.pelement.scan(space) === false) {
-                        ok = false;
+                if (this.sets !== undefined) {
+                    this.element.sets = {};
+                    let { sets } = this.element;
+                    for (let i in this.sets) {
+                        let bud = pend.getBud(i);
+                        if (bud === undefined) {
+                            ok = false;
+                            this.log(`There is no ${i.toUpperCase()} in Pend ${pend.jName}`);
+                        }
+                        else {
+                            let exp = this.sets[i];
+                            if (exp.pelement.scan(space) === false) {
+                                ok = false;
+                            }
+                            else {
+                                sets[bud.id] = exp;
+                            }
+                        }
                     }
                 }
             }

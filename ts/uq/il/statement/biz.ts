@@ -34,7 +34,7 @@ export class BizBinPendStatement extends BizBinSubStatement {
     pend: BizPend;
     setEqu: SetEqu;             // 仅用于 Pend -= val;
     val: ValueExpression;       // 仅用于 Pend -= val;
-    sets: { [v: string]: ValueExpression };
+    sets: { [id: number]: ValueExpression };
 
     constructor(bizStatement: BizBinActStatement) {
         super(bizStatement);

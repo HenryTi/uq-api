@@ -185,15 +185,18 @@ class MyFactory extends factory_1.Factory {
     func_cast(sb, params) {
         sb.append('CAST').l().exp(params[0]).append(' AS ').exp(params[1]).r();
     }
-    func_unittimezone(sb) { sb.append(sb.twProfix + '$timezone(_$unit, null)'); }
-    func_timezone(sb) { sb.append(sb.twProfix + '$timezone(_$unit, _$user)'); }
-    func_bizmonth(sb) { sb.append(sb.twProfix + '$biz_month_offset(_$unit)'); }
-    func_bizdate(sb) { sb.append(sb.twProfix + '$biz_date_offset(_$unit)'); }
+    func_unittimezone(sb) { sb.dbName().dot().append(sb.twProfix + '$timezone(_$unit, null)'); }
+    func_timezone(sb) { sb.dbName().dot().append(sb.twProfix + '$timezone(_$unit, _$user)'); }
+    func_bizmonth(sb) { sb.dbName().dot().append(sb.twProfix + '$biz_month_offset(_$unit)'); }
+    func_bizdate(sb) { sb.dbName().dot().append(sb.twProfix + '$biz_date_offset(_$unit)'); }
     func_bizmonthid(sb, params) {
-        sb.append(sb.twProfix + '$biz_month_id(').exp(params[0]).comma().exp(params[1]).r();
+        sb.dbName().dot().append(sb.twProfix + '$biz_month_id(').exp(params[0]).comma().exp(params[1]).r();
     }
     func_bizyearid(sb, params) {
-        sb.append(sb.twProfix + '$biz_year_id(').exp(params[0]).comma().exp(params[1]).r();
+        sb.dbName().dot().append(sb.twProfix + '$biz_year_id(').exp(params[0]).comma().exp(params[1]).r();
+    }
+    func_me(sb) {
+        sb.dbName().dot().append('$me(_$site, _$user)');
     }
 }
 exports.MyFactory = MyFactory;

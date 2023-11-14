@@ -183,7 +183,7 @@ class PFromStatement extends statement_1.PStatement {
                         //col.bud = bud;
                     }
                     else {
-                        // 'no', 'ex'
+                        // 'no', 'ex' 不能出现这样的情况
                         debugger;
                         col.field = undefined;
                     }
@@ -191,10 +191,9 @@ class PFromStatement extends statement_1.PStatement {
                 else {
                     // Query bud
                     let bud = new il_1.BizBudNone(biz, name, ui);
-                    // let field = new BizFieldBud();
-                    // field.bud = bud;
-                    // let field: BizField;
-                    col.field = undefined; // field;
+                    let field = new il_1.BizFieldBud();
+                    field.bud = bud;
+                    col.field = field;
                 }
             }
         }

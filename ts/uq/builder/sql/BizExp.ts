@@ -34,6 +34,7 @@ export class BBizExp {
             case BizPhraseType.spec: this.spec(sb); break;
             case BizPhraseType.bin: this.bin(sb); break;
             case BizPhraseType.title: this.title(sb); break;
+            case BizPhraseType.tie: this.tie(sb); break;
         }
         sb.r();
     }
@@ -75,6 +76,15 @@ export class BBizExp {
         sb.append(`${ta}.${prop ?? 'id'}
         FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
             WHERE ${ta}.id=`)
+            .exp(this.param);
+    }
+
+    private tie(sb: SqlBuilder) {
+        const { bizEntity } = this.bizExp;
+        const { ta, tb } = this;
+        sb.append(`${ta}.x
+        FROM ${this.db}.ixbud as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.i AND ${tb}.base=${bizEntity.id} 
+            WHERE ${tb}.ext=`)
             .exp(this.param);
     }
 

@@ -5,22 +5,6 @@ const il_1 = require("../il");
 const il_2 = require("../il");
 const element_1 = require("./element");
 const tokens_1 = require("./tokens");
-/*
-interface Tbl {
-    entityArr: string[];
-    alias: string;
-}
-
-interface Join {
-    joinType: BizSelectJoinType;
-    tbl: Tbl;
-}
-
-interface From {
-    main: Tbl;
-    joins: Join[];
-}
-*/
 class PBizExpOperand extends element_1.PElement {
     _parse() {
         this.element.bizExp = new il_1.BizExp();
@@ -116,6 +100,9 @@ class PBizExp extends element_1.PElement {
                     break;
                 case il_2.BizPhraseType.title:
                     ret = this.scanTitle(space);
+                    break;
+                case il_2.BizPhraseType.tie:
+                    ret = this.scanTie(space);
                     break;
             }
             if (ret === false) {
@@ -238,6 +225,16 @@ class PBizExp extends element_1.PElement {
             if (arr.includes(prop) === false) {
                 this.log(`Title does not have function ${prop}`);
             }
+        }
+        return ok;
+    }
+    scanTie(space) {
+        let ok = true;
+        const { bizEntity } = this.element;
+        let tie = bizEntity;
+        if (this.bud !== undefined) {
+            this.log(`TIE ${tie.jName} should not follow prop.`);
+            ok = false;
         }
         return ok;
     }

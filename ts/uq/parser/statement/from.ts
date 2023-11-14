@@ -2,7 +2,7 @@ import {
     BizBudNone
     , BizTie, CompareExpression
     , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
-    // , BizField, BizFieldBud
+    , BizField, BizFieldBud
 } from "../../il";
 import { BizPhraseType } from "../../il";
 import { Space } from "../space";
@@ -190,7 +190,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                         //col.bud = bud;
                     }
                     else {
-                        // 'no', 'ex'
+                        // 'no', 'ex' 不能出现这样的情况
                         debugger;
                         col.field = undefined;
                     }
@@ -198,10 +198,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 else {
                     // Query bud
                     let bud = new BizBudNone(biz, name, ui);
-                    // let field = new BizFieldBud();
-                    // field.bud = bud;
-                    // let field: BizField;
-                    col.field = undefined; // field;
+                    let field = new BizFieldBud();
+                    field.bud = bud;
+                    col.field = field;
                 }
             }
         }

@@ -1,4 +1,3 @@
-/*
 import {
     BizField, BizFieldBud, BizFieldField, BizFieldJsonProp,
     BudDataType, EnumSysTable
@@ -50,14 +49,25 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
     }
 }
 
-export const MapFieldTable = {
+export type TypeMapFieldTable = {
     pend: 't1',
     bin: 'b',
-    sheet: 'c',
-    sheetBin: 'd',
+    sheet: 'f',
+    sheetBin: 'e',
     atom: 't1',
     baseAtom: 't1',
 }
+
+export const MapFieldTable: TypeMapFieldTable = {
+    pend: 't1',
+    bin: 'b',
+    sheet: 'f',
+    sheetBin: 'e',
+    atom: 't1',
+    baseAtom: 't1',
+}
+
+export type KeyOfMapFieldTable = keyof TypeMapFieldTable;
 
 export class BBizFieldField extends BBizField<BizFieldField> {
     override to(sb: SqlBuilder): void {
@@ -74,4 +84,3 @@ export class BBizFieldJsonProp extends BBizField<BizFieldJsonProp> {
         sb.append(`JSON_VALUE(${tblPend}.mid, '$."${bud.id}"')`);
     }
 }
-*/

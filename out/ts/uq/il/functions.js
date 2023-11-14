@@ -61,7 +61,7 @@ exports.uqFunctions = {
     uminutedate: 2,
     uminutetime: 2,
     uminutestamp: 1,
-    // me: 0,
+    me: 0,
     phraseid: 1,
     phraseofid: 1,
 };

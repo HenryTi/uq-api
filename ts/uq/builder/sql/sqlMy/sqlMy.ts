@@ -180,17 +180,19 @@ export class MyFactory extends Factory {
     func_minuteidtime = '$minute_id_time';
     func_minuteidmonth = '$minute_id_month';
     func_minuteidperiod = '$minute_id_period';
-    func_unittimezone(sb: SqlBuilder): void { sb.append(sb.twProfix + '$timezone(_$unit, null)') }
-    func_timezone(sb: SqlBuilder): void { sb.append(sb.twProfix + '$timezone(_$unit, _$user)') }
-    func_bizmonth(sb: SqlBuilder): void { sb.append(sb.twProfix + '$biz_month_offset(_$unit)') }
-    func_bizdate(sb: SqlBuilder): void { sb.append(sb.twProfix + '$biz_date_offset(_$unit)') }
+    func_unittimezone(sb: SqlBuilder): void { sb.dbName().dot().append(sb.twProfix + '$timezone(_$unit, null)') }
+    func_timezone(sb: SqlBuilder): void { sb.dbName().dot().append(sb.twProfix + '$timezone(_$unit, _$user)') }
+    func_bizmonth(sb: SqlBuilder): void { sb.dbName().dot().append(sb.twProfix + '$biz_month_offset(_$unit)') }
+    func_bizdate(sb: SqlBuilder): void { sb.dbName().dot().append(sb.twProfix + '$biz_date_offset(_$unit)') }
     func_bizmonthid(sb: SqlBuilder, params: ExpVal[]): void {
-        sb.append(sb.twProfix + '$biz_month_id(').exp(params[0]).comma().exp(params[1]).r();
+        sb.dbName().dot().append(sb.twProfix + '$biz_month_id(').exp(params[0]).comma().exp(params[1]).r();
     }
     func_bizyearid(sb: SqlBuilder, params: ExpVal[]): void {
-        sb.append(sb.twProfix + '$biz_year_id(').exp(params[0]).comma().exp(params[1]).r();
+        sb.dbName().dot().append(sb.twProfix + '$biz_year_id(').exp(params[0]).comma().exp(params[1]).r();
     }
-
+    func_me(sb: SqlBuilder): void {
+        sb.dbName().dot().append('$me(_$site, _$user)');
+    }
     func_uminutedate = '$uminute_date';
     func_uminutetime = '$uminute_time';
     func_uminutestamp = '$uminute_stamp';

@@ -47,6 +47,7 @@ export class SettingProcedures extends SysProcedures {
         this.uminuteStamp(this.coreFunc('$uminute_stamp', new Int()));
         this.uminuteDate(this.coreFunc('$uminute_date', new DDate()));
         this.uminuteTime(this.coreFunc('$uminute_time', new DateTime()));
+        this.me(this.coreFunc('$me', new BigInt()));
     }
 
     private setBusQueueSeed(p: sql.Procedure) {
@@ -1114,6 +1115,24 @@ SELECT i, X, TYPE, base FROM tbl;
         ret.expVal = new ExpMul(
             new ExpBitRight(new ExpVar('minuteId'), new ExpNum(20)),
             new ExpNum(60)
+        );
+    }
+
+    private me(p: sql.Procedure) {
+        let { factory } = this.context;
+        const $site = '$site', $user = '$user';
+        const varSite = new ExpVar($site), varUser = new ExpVar($user);
+        p.parameters.push(
+            bigIntField($site),
+            bigIntField($user),
+        );
+        let ret = factory.createReturn();
+        p.statements.push(ret);
+
+        ret.expVal = new ExpFuncInUq(
+            '$usersite$id',
+            [varSite, varUser, ExpNum.num1, varSite, varUser],
+            true,
         );
     }
 }

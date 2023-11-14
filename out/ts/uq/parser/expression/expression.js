@@ -93,6 +93,9 @@ class PExpression extends element_1.PElement {
             if (selectOperand === undefined) {
                 this.ts.expect(': or FROM');
             }
+            else {
+                this.add(selectOperand);
+            }
             this.ts.assertToken(tokens_1.Token.RPARENTHESE);
             this.ts.readToken();
             let exists = new Exp.ExistsSubOperand();
@@ -131,11 +134,16 @@ class PExpression extends element_1.PElement {
                             for (let i = 0;; i++) {
                                 this.expValue();
                                 if (this.ts.token !== tokens_1.Token.COMMA) {
+                                    this.add(selectOperand);
                                     this.add(new Exp.OpIn(i + 2));
                                     break;
                                 }
                                 this.ts.readToken();
                             }
+                        }
+                        else {
+                            this.add(selectOperand);
+                            this.add(new Exp.OpIn(2));
                         }
                         if (this.ts.token != tokens_1.Token.RPARENTHESE)
                             this.expectToken(tokens_1.Token.RPARENTHESE);
@@ -297,31 +305,22 @@ class PExpression extends element_1.PElement {
         }
     }
     maySelectOperand() {
+        let expVal;
         if (this.ts.isKeyword('select') === true) {
             this.ts.readToken();
-            let ret = new Exp.SubSelectOperand();
-            let parser = ret.parser(this.context);
+            expVal = new Exp.SubSelectOperand();
+            let parser = expVal.parser(this.context);
             parser.parse();
-            this.add(ret);
-            return ret;
+            // this.add(ret);
         }
         if (this.ts.token === tokens_1.Token.SHARP) {
             this.ts.readToken();
-            let ret = new Exp.BizExpOperand();
-            this.context.parseElement(ret);
-            this.add(ret);
-            return ret;
+            expVal = new Exp.BizExpOperand();
+            this.context.parseElement(expVal);
+            // this.add(ret);
+            //return ret;
         }
-        /*
-        if (this.ts.token === Token.COLON || this.ts.isKeyword('from') === true) {
-            this.ts.readToken();
-            let ret = new Exp.BizSelectOperand();
-            let parser = ret.parser(this.context);
-            parser.parse();
-            this.add(ret);
-            return ret;
-        }
-        */
+        return expVal;
     }
     f() {
         let lowerVar;

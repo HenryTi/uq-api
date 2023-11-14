@@ -46,9 +46,6 @@ export class BizExp extends IElement {
 }
 
 export class BizFieldOperand extends Atom {
-    // bizEntity: BizEntity;
-    // bizBud: BizBud;
-    // fieldName: string;
     field: BizField;
     get type(): string { return 'bizfield'; }
     parser(context: PContext) { return new PBizFieldOperand(this, context); }

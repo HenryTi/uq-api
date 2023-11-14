@@ -8,22 +8,6 @@ import { PElement } from "./element";
 import { Space } from "./space";
 import { Token } from "./tokens";
 
-/*
-interface Tbl {
-    entityArr: string[];
-    alias: string;
-}
-
-interface Join {
-    joinType: BizSelectJoinType;
-    tbl: Tbl;
-}
-
-interface From {
-    main: Tbl;
-    joins: Join[];
-}
-*/
 export class PBizExpOperand extends PElement<BizExpOperand> {
     protected _parse(): void {
         this.element.bizExp = new BizExp();
@@ -112,6 +96,7 @@ export class PBizExp extends PElement<BizExp> {
                 case BizPhraseType.spec: ret = this.scanSpec(space); break;
                 case BizPhraseType.bin: ret = this.scanBin(space); break;
                 case BizPhraseType.title: ret = this.scanTitle(space); break;
+                case BizPhraseType.tie: ret = this.scanTie(space); break;
             }
             if (ret === false) {
                 ok = false;
@@ -235,6 +220,17 @@ export class PBizExp extends PElement<BizExp> {
             if (arr.includes(prop) === false) {
                 this.log(`Title does not have function ${prop}`);
             }
+        }
+        return ok;
+    }
+
+    private scanTie(space: Space): boolean {
+        let ok = true;
+        const { bizEntity } = this.element;
+        let tie = bizEntity as BizTie;
+        if (this.bud !== undefined) {
+            this.log(`TIE ${tie.jName} should not follow prop.`);
+            ok = false;
         }
         return ok;
     }
