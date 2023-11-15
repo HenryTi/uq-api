@@ -1,147 +1,126 @@
 import {
     BBizField, DbContext
-    , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar, BBizFieldSheetBin, BBizFieldBinBud, BBizFieldSheetBud
+    , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar, BBizFieldBinBud// , BBizFieldSheetBud
 } from "../builder";
 import { BizBin } from "./Biz/Bin";
 import { BizPhraseType } from "./Biz/BizPhraseType";
-import { BizBud, BizBudValue } from "./Biz/Bud";
+import { BizBudValue } from "./Biz/Bud";
 import { BizEntity } from "./Biz/Entity";
 import { FromStatement, FromStatementInPend } from "./statement";
 
 // in FROM statement, columns use BizField
 // and in Where, BizField is used.
 export abstract class BizField {
-    readonly bizTable: BizTable;
-    readonly name: string;
-    space: BizFieldSpace;
-    tbl: 'pend' | 'bin' | 'sheet' | 'sheetBin' | 'atom' | 'baseAtom';
-    bud: BizBudValue;
-    entity: BizEntity;
-    constructor(bizTable: BizTable, name: string) {
-        this.bizTable = bizTable;
-        this.name = name;
+    readonly space: BizFieldSpace;
+    readonly tableAlias: string;
+    constructor(space: BizFieldSpace, tableAlias: string) {
+        this.space = space;
+        this.tableAlias = tableAlias;
     }
     abstract db(dbContext: DbContext): BBizField;
+    abstract buildSchema(): any;
 }
 
 export class BizFieldBud extends BizField {
-    constructor(bizTable: BizTable, bizBud: BizBudValue) {
-        super(bizTable, bizBud.name);
-        this.bud = bizBud;
+    bud: BizBudValue;
+    entity: BizEntity;
+    constructor(space: BizFieldSpace, tableAlias: string, entity: BizEntity, bud: BizBudValue) {
+        super(space, tableAlias);
+        this.entity = entity;
+        this.bud = bud;
     }
     override db(dbContext: DbContext): BBizField {
-        return this.bizTable.dbBud(this, dbContext);
-        // return new BBizFieldBud(dbContext, this);
+        return this.space.createBBud(dbContext, this);
     }
+    buildSchema() { return [this.entity?.id, this.bud.id]; }
 }
 
 export class BizFieldField extends BizField {
+    readonly name: string;
+    constructor(space: BizFieldSpace, tableAlias: string, name: string) {
+        super(space, tableAlias);
+        this.name = name;
+    }
     override db(dbContext: DbContext): BBizField {
-        return this.bizTable.dbField(this, dbContext);
-        // let ret = new BBizFieldField(dbContext, this);
-        // return ret;
+        return this.space.createBField(dbContext, this);
+    }
+    buildSchema() { return []; }
+}
+
+export class BizFieldJsonProp extends BizFieldBud {
+    override db(dbContext: DbContext): BBizField {
+        return this.space.createBJson(dbContext, this);
+    }
+}
+
+export class BizFieldVar extends BizFieldField {
+    override db(dbContext: DbContext): BBizField {
+        return this.space.createBVar(dbContext, this);
     }
 }
 /*
-export class BizFieldJsonProp extends BizField {
+export class BizFieldSheetBud extends BizFieldBud {
     override db(dbContext: DbContext): BBizField {
-        return new BBizFieldJsonProp(dbContext, this);
+        return new BBizFieldSheetBud(dbContext, this);
     }
 }
 */
-abstract class BizTable {
-    protected readonly alias: string;
-    protected readonly props: { [prop: string]: BizBudValue } = {};
-    protected readonly fields: { [field: string]: boolean } = {};
-    protected hasId: boolean;
-    private inited: boolean;
-    protected abstract get fieldArr(): string[];
-    abstract get defaultFieldName(): string;
-    constructor(alias: string, buds: Iterable<BizBudValue>) {
-        this.alias = alias;
-        this.hasId = true;
-        if (buds !== undefined) {
-            for (let bud of buds) this.props[bud.name] = bud;
-        }
-    }
-    protected init() {
-        let arr = this.fieldArr;
-        if (arr !== undefined) {
-            for (let fn of arr) {
-                this.fields[fn] = true;
-            }
-        }
-    }
 
-    getBizField(name: string): BizField {
-        if (this.inited !== true) {
-            this.init();
-            this.inited = true;
-        }
-        if (this.fields[name] === true) {
-            return new BizFieldField(this, name);
-        }
-        let bud = this.props[name];
-        if (bud !== undefined) {
-            return new BizFieldBud(this, bud);
-        }
-        if (name === undefined && this.hasId === true) {
-            return new BizFieldField(this, this.defaultFieldName);
-        }
-        return undefined;
-    }
-
-    dbBud(bizField: BizField, dbContext: DbContext): BBizField {
-        return new BBizFieldBud(dbContext, bizField);
-    }
-    dbField(bizField: BizFieldField, dbContext: DbContext): BBizField {
-        return new BBizFieldField(dbContext, bizField);
-    }
+// col = field | bud;
+enum ColType {
+    bud,
+    json,
+    var,
+    // sheetBud,
 }
-
-const binFields = ['i', 'x', 'value', 'price', 'amount'];
-class BizTableBin extends BizTable {
-    protected readonly fieldArr = [...binFields];
-    readonly defaultFieldName = 'bin';
-    dbBud(bizField: BizField, dbContext: DbContext): BBizField {
-        return new BBizFieldBinBud(dbContext, bizField);
-    }
-    dbField(bizField: BizFieldField, dbContext: DbContext): BBizField {
-        return new BBizFieldBinVar(dbContext, bizField);
-    }
+interface Cols {
+    names: string[];
+    entity?: BizEntity;
+    buds?: BizBudValue[];
+    alias: string;
+    colType?: ColType;
 }
-class BizTableSheet extends BizTable {
-    protected readonly fieldArr = ['no', ...binFields];
-    readonly defaultFieldName = 's';
-    dbBud(bizField: BizField, dbContext: DbContext): BBizField {
-        return new BBizFieldSheetBud(dbContext, bizField);
-    }
-    dbField(bizField: BizFieldField, dbContext: DbContext): BBizField {
-        return new BBizFieldSheetBin(dbContext, bizField);
-    }
-}
-class BizTablePend extends BizTable {
-    protected readonly fieldArr = [...binFields, 'pendvalue'];
-    readonly defaultFieldName = 'pend';
-    dbBud(bizField: BizField, dbContext: DbContext): BBizField {
-        return new BBizFieldJsonProp(dbContext, bizField);
-    }
-}
-class BizTableAtom extends BizTable {
-    protected readonly fieldArr = ['no', 'ex'];
-    readonly defaultFieldName = 'atom';
-}
-class BizTableSpec extends BizTable {
-    protected readonly fieldArr = [];
-    readonly defaultFieldName = 'spec';
-}
+type TableCols = {
+    [table: string]: Cols[]
+};
+/*
+[
+    string[] | [BizEntity, BizBudValue[]]
+    , string
+    , ColType?][]
+*/
+const binFieldArr = ['i', 'x', 'value', 'price', 'amount'];
+const sheetFieldArr = ['no'];
+const atomFieldArr = ['no', 'ex'];
+const pendFieldArr = ['pendvalue'];
 
 export abstract class BizFieldSpace {
     private inited: boolean;
-    defaultTable: BizTable;
-    readonly tables: { [name: string]: BizTable } = {};
+    protected abstract get fields(): TableCols;
+    protected readonly buds: TableCols = {};
 
     protected init(): void {
+    }
+
+    private arrFromBuds(buds: Iterable<BizBudValue>): BizBudValue[] {
+        let ret: BizBudValue[] = [];
+        for (let bud of buds) ret.push(bud);
+        return ret;
+    }
+
+    protected initBuds(table: string, entity: BizEntity, buds: Iterable<BizBudValue>, alias: string, colType: ColType = ColType.bud) {
+        let cols = this.buds[table];
+        if (cols === undefined) {
+            cols = [];
+            this.buds[table] = cols;
+        }
+        cols.push({
+            names: undefined,
+            entity,
+            buds: this.arrFromBuds(buds),
+            alias,
+            colType,
+        });
     }
 
     getBizField(names: string[]): BizField {
@@ -150,36 +129,85 @@ export abstract class BizFieldSpace {
             this.inited = true;
         }
         let n0 = names[0];
+        let n1: string;
         if (names.length === 1) {
-            if (this.defaultTable === undefined) return undefined;
-            let ret = this.defaultTable.getBizField(n0);
-            if (ret !== undefined) return ret;
-            let table = this.tables[n0];
-            if (table !== undefined) {
-                return table.getBizField(undefined);
-            }
-            return undefined;
+            n1 = n0;
+            n0 = '$';
         }
         else {
-            let n1 = names[1];
-            let table = this.tables[n0];
-            if (table === undefined) return undefined;
-            return table.getBizField(n1);
+            n1 = names[1];
         }
+        let ret = this.buildBizField(this.fields, n0, n1);
+        if (ret === undefined) {
+            ret = this.buildBizField(this.buds, n0, n1);
+            if (ret === undefined) return;
+        }
+        return ret;
+    }
+
+    private buildBizField(tableCols: TableCols, n0: string, n1: string): BizField {
+        let colsList = tableCols[n0];
+        if (colsList === undefined) return;
+        let foundCols: Cols;
+        let foundBud: BizBudValue;
+        for (let cols of colsList) {
+            const { names, buds } = cols;
+            if (names !== undefined) {
+                if (names.includes(n1) === true) {
+                    foundCols = cols;
+                    break;
+                }
+            }
+            else {
+                foundBud = buds.find(v => v.name === n1);
+                if (foundBud !== undefined) {
+                    foundCols = cols;
+                    break;
+                }
+            }
+        }
+        if (foundCols === undefined) return;
+        const { alias, entity, colType } = foundCols;
+        switch (colType) {
+            default: return new BizFieldField(this, alias, n1);
+            case ColType.bud: return new BizFieldBud(this, alias, entity, foundBud);
+            case ColType.json: return new BizFieldJsonProp(this, alias, entity, foundBud);
+            case ColType.var: return new BizFieldVar(this, alias, n1);
+            // case ColType.sheetBud: return new BizFieldSheetBud(this, alias, entity, foundBud);
+        }
+    }
+
+    createBField(dbContext: DbContext, bizField: BizFieldField): BBizField {
+        return new BBizFieldField(dbContext, bizField);
+    }
+    createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
+        return new BBizFieldBud(dbContext, bizField);
+    }
+    createBVar(dbContext: DbContext, bizField: BizFieldVar): BBizField {
+        return new BBizFieldBinVar(dbContext, bizField);
+    }
+    createBJson(dbContext: DbContext, bizField: BizFieldJsonProp): BBizField {
+        return new BBizFieldJsonProp(dbContext, bizField);
     }
 }
 
 export abstract class FromFieldSpace extends BizFieldSpace {
-    // protected readonly from: FromStatement
-    /*
-    override getBizField(name: string[]): BizField {
-        return this.from.getBizField(name[0]);
-    }
-    */
 }
 
 export class FromInQueryFieldSpace extends FromFieldSpace {
+    private static atomCols: TableCols = {
+        $: [
+            {
+                names: atomFieldArr,
+                entity: undefined,
+                buds: undefined,
+                alias: 't1',
+            },
+        ]
+    };
     private readonly from: FromStatement;
+    protected readonly fields: TableCols = {};
+
     constructor(from: FromStatement) {
         super();
         this.from = from;
@@ -195,17 +223,39 @@ export class FromInQueryFieldSpace extends FromFieldSpace {
         }
         switch (bizPhraseType) {
             case BizPhraseType.atom:
-                this.defaultTable = new BizTableAtom('a', bizBuds);
+                this.initBuds('$', bizEntityArr[0], bizBuds, 'a');
+                Object.assign(this.fields, FromInQueryFieldSpace.atomCols);
                 break;
             case BizPhraseType.spec:
-                this.defaultTable = new BizTableSpec('a', bizBuds);
+                this.initBuds('$', bizEntityArr[0], bizBuds, 'a');
                 break;
         }
     }
 }
 
 export class FromInPendFieldSpace extends FromFieldSpace {
+    private static fields: TableCols = {
+        $: [
+            {
+                names: binFieldArr,
+                alias: 'b'
+            },
+        ],
+        sheet: [
+            {
+                names: binFieldArr,
+                alias: 'e'
+            },
+        ],
+        bin: [
+            {
+                names: binFieldArr,
+                alias: 'b'
+            },
+        ],
+    };
     private readonly from: FromStatementInPend;
+    protected readonly fields: TableCols = FromInPendFieldSpace.fields;
     constructor(from: FromStatementInPend) {
         super();
         this.from = from;
@@ -213,22 +263,50 @@ export class FromInPendFieldSpace extends FromFieldSpace {
 
     protected init(): void {
         const { bizPend } = this.from.pendQuery;
-        this.defaultTable = new BizTablePend('a', bizPend.props.values());
-        this.tables['bin'] = new BizTableBin('b', bizPend.getBinProps());
-        this.tables['sheet'] = new BizTableSheet('c', bizPend.getSheetProps());
+        this.initBuds('$', bizPend, bizPend.props.values(), 'a', ColType.json);
+        this.initBuds('bin', undefined, bizPend.getBinProps(), 'b');
+        this.initBuds('sheet', undefined, bizPend.getSheetProps(), 'e');
     }
 }
 
+
 export class BizBinActFieldSpace extends BizFieldSpace {
+    private static fields: TableCols = {
+        '$': [
+            {
+                names: [...binFieldArr, 'bin', 'sheet'],
+                alias: '',
+                colType: ColType.var,
+            }
+        ],
+        bin: [
+            {
+                names: binFieldArr,
+                alias: '',
+                colType: ColType.var,
+            },
+        ],
+        sheet: [
+            {
+                names: binFieldArr,
+                alias: 's',
+                colType: ColType.var,
+            },
+        ]
+    };
     private readonly bizBin: BizBin
+    protected readonly fields: TableCols = BizBinActFieldSpace.fields;
     constructor(bizBin: BizBin) {
         super();
         this.bizBin = bizBin;
     }
 
     protected override init(): void {
-        this.defaultTable = new BizTableBin('bin', this.bizBin.props.values());
-        this.tables['bin'] = this.defaultTable;
-        this.tables['sheet'] = new BizTableSheet('sheet', this.bizBin.getSheetProps());
+        this.initBuds('$', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
+        this.initBuds('bin', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
+        this.initBuds('sheet', this.bizBin.sheetArr[0], this.bizBin.getSheetProps(), 'sheet', ColType.bud);
+    }
+    createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
+        return new BBizFieldBinBud(dbContext, bizField);
     }
 }

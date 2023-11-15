@@ -1,9 +1,9 @@
 import {
-    BizField, BizFieldBud, BizFieldField, // BizFieldJsonProp,
+    BizField, BizFieldBud, BizFieldField,
     BudDataType, EnumSysTable
 } from "../../il";
 import { DbContext } from "../dbContext";
-import { SqlBuilder } from "../sql";
+import { ExpNum, ExpStr, ExpVal, SqlBuilder } from "../sql";
 
 export abstract class BBizField<T extends BizField = BizField> {
     protected readonly dbContext: DbContext;
@@ -13,6 +13,7 @@ export abstract class BBizField<T extends BizField = BizField> {
         this.bizField = bizField;
     }
     abstract to(sb: SqlBuilder): void;
+    abstract buildColArr(): ExpVal[];
 }
 
 export class BBizFieldBud extends BBizField<BizFieldBud> {
@@ -39,7 +40,7 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
         let { bud } = this.bizField;
         sb.l().append('select value from ').dbName().dot().append(tbl)
             .append(' where i=');
-        this.toXValue(sb);
+        this.toIValue(sb);
         sb.append(' and x=').append(bud.id)
             .r();
     }
@@ -52,20 +53,19 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
             .r();
     }
 
-    toXValue(sb: SqlBuilder) {
-        sb.append('t1.id');
+    toIValue(sb: SqlBuilder) {
+        let { tableAlias } = this.bizField;
+        sb.append(tableAlias).dot().append('id');
     }
-}
 
-export class BBizFieldBinBud extends BBizFieldBud {
-    toXValue(sb: SqlBuilder) {
-        sb.append('_').append(this.bizField.bizTable.defaultFieldName);
-    }
-}
-
-export class BBizFieldSheetBud extends BBizFieldBud {
-    toXValue(sb: SqlBuilder) {
-        sb.append('_ss');
+    override buildColArr(): ExpVal[] {
+        let ret: ExpVal[] = [];
+        const { entity, bud } = this.bizField;
+        if (entity !== undefined) {
+            ret.push(new ExpNum(entity.id));
+        }
+        ret.push(new ExpNum(bud.id));
+        return ret;
     }
 }
 
@@ -74,6 +74,7 @@ export type TypeMapFieldTable = {
     bin: 'b',
     sheet: 'f',
     sheetBin: 'e',
+    s: 'e',
     atom: 't1',
     baseAtom: 't1',
 }
@@ -83,6 +84,7 @@ export const MapFieldTable: TypeMapFieldTable = {
     bin: 'b',
     sheet: 'f',
     sheetBin: 'e',
+    s: 'e',
     atom: 't1',
     baseAtom: 't1',
 }
@@ -91,13 +93,16 @@ export type KeyOfMapFieldTable = keyof TypeMapFieldTable;
 
 export class BBizFieldField extends BBizField<BizFieldField> {
     override to(sb: SqlBuilder): void {
-        let tbl = MapFieldTable[this.bizField.tbl];
-        sb.append(tbl).dot().append(this.bizField.name);
+        sb.append(this.bizField.tableAlias).dot().append(this.bizField.name);
+    }
+
+    override buildColArr(): ExpVal[] {
+        return [new ExpStr(this.bizField.name)];
     }
 }
 
 // only for pend med
-export class BBizFieldJsonProp extends BBizField<BizField> {
+export class BBizFieldJsonProp extends BBizFieldBud {
     override to(sb: SqlBuilder): void {
         let { bud } = this.bizField;
         let tblPend = MapFieldTable['pend'];
@@ -105,23 +110,29 @@ export class BBizFieldJsonProp extends BBizField<BizField> {
     }
 }
 
-export class BBizFieldBinVar extends BBizField<BizFieldField> {
+export class BBizFieldBinVar extends BBizFieldField {
     override to(sb: SqlBuilder): void {
-        let { name } = this.bizField;
-        sb.append(`_${name}`);
+        let { name, tableAlias } = this.bizField;
+        sb.append(`_${tableAlias}${name}`);
     }
 }
 
-export class BBizFieldSheet extends BBizField<BizFieldField> {
+export class BBizFieldBinBud extends BBizFieldBud {
+    toIValue(sb: SqlBuilder): void {
+        sb.append('_').append(this.bizField.tableAlias);
+    }
+}
+/*
+export class BBizFieldSheetVar extends BBizFieldField {
     override to(sb: SqlBuilder): void {
-        let { name } = this.bizField;
-        sb.append(`_${name}`);
+        let { tableAlias } = this.bizField;
+        sb.append(`_${tableAlias}`);
     }
 }
 
-export class BBizFieldSheetBin extends BBizField<BizFieldField> {
+export class BBizFieldSheetBud extends BBizFieldBud {
     override to(sb: SqlBuilder): void {
-        let { name, bizTable } = this.bizField;
-        sb.append(`_${bizTable.defaultFieldName}${name}`);
+        super.to(sb);
     }
 }
+*/

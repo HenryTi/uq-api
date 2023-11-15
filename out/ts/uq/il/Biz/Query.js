@@ -70,8 +70,9 @@ class BizQueryTable extends BizQuery {
         ret.params = this.params.map(v => v.buildSchema(res));
         ret.cols = cols.map(v => {
             const { field } = v;
-            const { entity, bud } = field;
-            return [entity === null || entity === void 0 ? void 0 : entity.id, bud === null || bud === void 0 ? void 0 : bud.id];
+            // const { entity, bud } = field;
+            //return [entity?.id, bud?.id];
+            return field.buildSchema();
         });
         return ret;
     }

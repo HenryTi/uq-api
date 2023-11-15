@@ -11,7 +11,7 @@ import { EntityTable, VarTable, VarTableWithSchema } from "../sql/statementWithF
 import { BBizEntity } from "./BizEntity";
 
 const sheetId = 'sheet';
-const ss = 'ss';
+// const ss = 'ss';
 const si = 'si';
 const sx = 'sx';
 const svalue = 'svalue';
@@ -59,7 +59,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         const bigint = new BigInt();
         const decValue = new Dec(18, 6);
         declare.var($site, bigint);
-        declare.var(ss, bigint);
+        declare.var(sheetId, bigint);
         declare.var(si, bigint);
         declare.var(sx, bigint);
         declare.var(svalue, decValue);
@@ -86,7 +86,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         select.column(new ExpField('value', a), value);
         select.column(new ExpField('amount', a), amount);
         select.column(new ExpField('price', a), price);
-        select.column(new ExpField('id', c), ss);
+        select.column(new ExpField('id', c), sheetId);
         select.column(new ExpField('i', c), si);
         select.column(new ExpField('x', c), sx);
         select.column(new ExpField('value', c), svalue);

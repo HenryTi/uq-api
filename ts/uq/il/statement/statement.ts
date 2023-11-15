@@ -52,7 +52,9 @@ export abstract class Statements extends Statement {
     abstract parser(context: parser.PContext): parser.PElement;
 
     eachChild(callback: (el: IElement, name: string) => void) {
-        this.statements.forEach(statement => callback(statement, undefined));
+        this.statements.forEach(statement => {
+            callback(statement, undefined);
+        });
     }
     createStatements: (parent: Statement) => Statements;
     addStatement(statement: Statement) {

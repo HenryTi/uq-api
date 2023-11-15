@@ -88,8 +88,9 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
             let update = factory.createUpdate();
             ifValue.then(update);
             let expMids = [];
-            for (let i in sets) {
-                expMids.push(new sql_1.ExpStr(i), context.expVal(sets[i]));
+            for (let s of sets) {
+                let [bud, val] = s;
+                expMids.push(new sql_1.ExpStr(String(bud.id)), context.expVal(val));
             }
             update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false);
             update.cols = [

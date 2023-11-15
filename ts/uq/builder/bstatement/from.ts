@@ -55,6 +55,9 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         const arr: ExpVal[] = [];
         for (let col of cols) {
             const { name, val, field } = col;
+            let bField = field.db(this.context);
+            let colArr: Exp[] = bField.buildColArr();
+            /*
             let { bud, entity } = field;
             const colArr: Exp[] = [];
             if (bud !== undefined) {
@@ -66,6 +69,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
             else {
                 colArr.push(new ExpStr(name));
             }
+            */
             colArr.push(this.context.expVal(val as ValueExpression));
             arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
         }

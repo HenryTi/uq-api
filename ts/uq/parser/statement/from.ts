@@ -203,10 +203,11 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     let bud = new BizBudNone(biz, name, ui);
                     let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
                     if (field !== undefined) {
-                        field.bud = bud;
+                        debugger;
+                        // field.bud = bud;
                     }
                     else {
-                        field = new BizFieldBud(undefined, bud);
+                        field = new BizFieldBud(undefined, undefined, undefined, bud);
                     }
                     col.field = field;
                 }

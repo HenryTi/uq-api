@@ -35,7 +35,9 @@ class Statements extends Statement {
     }
     get type() { return 'statements'; }
     eachChild(callback) {
-        this.statements.forEach(statement => callback(statement, undefined));
+        this.statements.forEach(statement => {
+            callback(statement, undefined);
+        });
     }
     addStatement(statement) {
         this.statements.push(statement);

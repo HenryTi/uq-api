@@ -71,7 +71,8 @@ export class PBiz extends PEntity<Biz> {
     scan0(space: Space): boolean {
         let ok = true;
         for (let [, p] of this.entity.bizEntities) {
-            if (p.pelement.scan0(space) === false) ok = false;
+            let bizEntitySpace = new BizEntitySpace(space, p);
+            if (p.pelement.scan0(bizEntitySpace) === false) ok = false;
         }
         return ok;
     }
@@ -89,6 +90,7 @@ export class PBiz extends PEntity<Biz> {
                         detail.bin.sheetArr.push(sheet);
                     }
                     break;
+                /*
                 case BizPhraseType.bin:
                     const bin = p as BizBin;
                     const { pend } = bin;
@@ -96,6 +98,7 @@ export class PBiz extends PEntity<Biz> {
                         pend.bizBins.push(bin);
                     }
                     break;
+                */
             }
         }
         for (let [, p] of this.entity.bizEntities) {

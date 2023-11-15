@@ -49,17 +49,21 @@ class BFromStatement extends bstatement_1.BStatement {
         const arr = [];
         for (let col of cols) {
             const { name, val, field } = col;
+            let bField = field.db(this.context);
+            let colArr = bField.buildColArr();
+            /*
             let { bud, entity } = field;
-            const colArr = [];
+            const colArr: Exp[] = [];
             if (bud !== undefined) {
                 if (entity !== undefined) {
-                    colArr.push(new sql_1.ExpNum(entity.id));
+                    colArr.push(new ExpNum(entity.id));
                 }
-                colArr.push(new sql_1.ExpNum(bud.id));
+                colArr.push(new ExpNum(bud.id));
             }
             else {
-                colArr.push(new sql_1.ExpStr(name));
+                colArr.push(new ExpStr(name));
             }
+            */
             colArr.push(this.context.expVal(val));
             arr.push(new sql_1.ExpFunc('JSON_ARRAY', ...colArr));
         }

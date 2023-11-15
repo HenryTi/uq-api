@@ -68,6 +68,7 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
             const coll: { [col: string]: boolean } = {};
             for (let col of from.cols) {
                 let { ui, field } = col;
+                /*
                 let { bud } = field;
                 if (ui.caption !== null) {
                     if (bud === undefined) {
@@ -90,6 +91,7 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
                         props.set(name, bud);
                     }
                 }
+                */
             }
         }
         return ok;

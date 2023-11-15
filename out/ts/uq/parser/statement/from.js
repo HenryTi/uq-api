@@ -195,10 +195,11 @@ class PFromStatement extends statement_1.PStatement {
                     let bud = new il_1.BizBudNone(biz, name, ui);
                     let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
                     if (field !== undefined) {
-                        field.bud = bud;
+                        debugger;
+                        // field.bud = bud;
                     }
                     else {
-                        field = new il_1.BizFieldBud(undefined, bud);
+                        field = new il_1.BizFieldBud(undefined, undefined, undefined, bud);
                     }
                     col.field = field;
                 }

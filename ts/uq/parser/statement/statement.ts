@@ -123,6 +123,14 @@ export abstract class PStatements extends PStatement<Statements> {
         return ok;
     }
 
+    scan0(space: Space): boolean {
+        let ok = true;
+        this.element.eachChild((s: Statement, name) => {
+            if (s.pelement.scan0(space) === false) ok = false;
+        });
+        return ok;
+    }
+
     scan(space: Space): boolean {
         let ok = true;
         let theSpace = new StatementsSpace(space);

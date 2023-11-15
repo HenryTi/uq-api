@@ -109,10 +109,11 @@ export class BBizDetailActSubPend extends BStatement<BizBinPendStatement> {
             let update = factory.createUpdate();
             ifValue.then(update);
             let expMids: ExpVal[] = [];
-            for (let i in sets) {
+            for (let s of sets) {
+                let [bud, val] = s;
                 expMids.push(
-                    new ExpStr(i),
-                    context.expVal(sets[i])
+                    new ExpStr(String(bud.id)),
+                    context.expVal(val)
                 );
             }
 

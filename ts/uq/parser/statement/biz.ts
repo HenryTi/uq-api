@@ -2,7 +2,7 @@ import { Space } from '../space';
 import {
     BizBinActStatement as BizBinStatement, BizBinPendStatement, BizBinSubStatement
     , BizBinTitleStatement, BizPend, ValueExpression
-    , SetEqu, BizBudValue
+    , SetEqu, BizBudValue, BizBin
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -32,6 +32,13 @@ export class PBizBinStatement extends PStatement {
         this.context.parseElement(bizSub);
         this.bizStatement.sub = bizSub;
         this.ts.passToken(Token.SEMICOLON);
+    }
+
+    scan0(space: Space): boolean {
+        let ok = true;
+        let { sub } = this.bizStatement;
+        if (sub.pelement.scan0(space) == false) ok = false;
+        return ok;
     }
 
     scan(space: Space): boolean {
@@ -97,6 +104,18 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
         return pend as BizPend;
     }
 
+    scan0(space: Space): boolean {
+        let ok = true;
+        let bizBin = space.getBizEntity(undefined) as BizBin;
+        if (this.pend !== undefined) {
+            let pend = this.getPend(space, this.pend);
+            if (pend !== undefined) {
+                pend.bizBins.push(bizBin);
+            }
+        }
+        return ok;
+    }
+
     scan(space: Space): boolean {
         let ok = true;
         let { val, bizStatement: { bizDetailAct } } = this.element;
@@ -109,7 +128,7 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
             else {
                 this.element.pend = pend;
                 if (this.sets !== undefined) {
-                    this.element.sets = {};
+                    this.element.sets = [];
                     let { sets } = this.element;
                     for (let i in this.sets) {
                         let bud = pend.getBud(i);
@@ -123,7 +142,7 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
                                 ok = false;
                             }
                             else {
-                                sets[bud.id] = exp;
+                                sets.push([bud, exp]);
                             }
                         }
                     }
@@ -131,9 +150,9 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
             }
         }
         else {
-            const { bizBin: bizDetail } = bizDetailAct;
-            if (bizDetail.pend === undefined) {
-                this.log(`Biz Pend = can not be used here when ${bizDetail.jName} has no PEND`);
+            const { bizBin } = bizDetailAct;
+            if (bizBin.pend === undefined) {
+                this.log(`Biz Pend = can not be used here when ${bizBin.jName} has no PEND`);
                 ok = false;
             }
             if (val !== undefined) {

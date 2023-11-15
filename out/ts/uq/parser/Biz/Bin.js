@@ -90,7 +90,7 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan0(space) {
         let ok = true;
-        const { picks } = this.element;
+        const { picks, act } = this.element;
         for (let [, pick] of picks) {
             if (pick.pelement.scan0(space) === false) {
                 ok = false;
@@ -110,6 +110,11 @@ class PBizBin extends Base_1.PBizEntity {
                     break;
                 }
                 i++;
+            }
+        }
+        if (act !== undefined) {
+            if (act.pelement.scan0(space) === false) {
+                ok = false;
             }
         }
         return ok;
@@ -523,6 +528,14 @@ class PBizBinAct extends Base_1.PBizBase {
         this.element.statement = statement;
         this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
     }
+    scan0(space) {
+        let ok = true;
+        let { pelement } = this.element.statement;
+        if (pelement.scan0(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
     scan(space) {
         let ok = true;
         //  will be removed
@@ -546,6 +559,9 @@ class PBizBinActStatements extends statement_1.PStatements {
     constructor(statements, context, bizDetailAct) {
         super(statements, context);
         this.bizDetailAct = bizDetailAct;
+    }
+    scan0(space) {
+        return super.scan0(space);
     }
     statementFromKey(parent, key) {
         let ret;

@@ -2,7 +2,7 @@ import { BStatement } from '../../builder';
 import * as parser from '../../parser';
 import { Builder } from "../builder";
 import { IElement } from '../IElement';
-import { BizBudValue, BizBinAct, BizEntity, BizPend } from '../Biz';
+import { BizBudValue, BizBinAct, BizEntity, BizPend, BizBud } from '../Biz';
 import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
 import { SetEqu } from '../tool';
@@ -34,7 +34,7 @@ export class BizBinPendStatement extends BizBinSubStatement {
     pend: BizPend;
     setEqu: SetEqu;             // 仅用于 Pend -= val;
     val: ValueExpression;       // 仅用于 Pend -= val;
-    sets: { [id: number]: ValueExpression };
+    sets: [BizBud, ValueExpression][];
 
     constructor(bizStatement: BizBinActStatement) {
         super(bizStatement);

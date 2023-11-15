@@ -26,6 +26,13 @@ class PBizBinStatement extends statement_1.PStatement {
         this.bizStatement.sub = bizSub;
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
+    scan0(space) {
+        let ok = true;
+        let { sub } = this.bizStatement;
+        if (sub.pelement.scan0(space) == false)
+            ok = false;
+        return ok;
+    }
     scan(space) {
         let ok = true;
         let { sub } = this.bizStatement;
@@ -91,6 +98,17 @@ class PBizBinPendStatement extends element_1.PElement {
         }
         return pend;
     }
+    scan0(space) {
+        let ok = true;
+        let bizBin = space.getBizEntity(undefined);
+        if (this.pend !== undefined) {
+            let pend = this.getPend(space, this.pend);
+            if (pend !== undefined) {
+                pend.bizBins.push(bizBin);
+            }
+        }
+        return ok;
+    }
     scan(space) {
         let ok = true;
         let { val, bizStatement: { bizDetailAct } } = this.element;
@@ -102,7 +120,7 @@ class PBizBinPendStatement extends element_1.PElement {
             else {
                 this.element.pend = pend;
                 if (this.sets !== undefined) {
-                    this.element.sets = {};
+                    this.element.sets = [];
                     let { sets } = this.element;
                     for (let i in this.sets) {
                         let bud = pend.getBud(i);
@@ -116,7 +134,7 @@ class PBizBinPendStatement extends element_1.PElement {
                                 ok = false;
                             }
                             else {
-                                sets[bud.id] = exp;
+                                sets.push([bud, exp]);
                             }
                         }
                     }
@@ -124,9 +142,9 @@ class PBizBinPendStatement extends element_1.PElement {
             }
         }
         else {
-            const { bizBin: bizDetail } = bizDetailAct;
-            if (bizDetail.pend === undefined) {
-                this.log(`Biz Pend = can not be used here when ${bizDetail.jName} has no PEND`);
+            const { bizBin } = bizDetailAct;
+            if (bizBin.pend === undefined) {
+                this.log(`Biz Pend = can not be used here when ${bizBin.jName} has no PEND`);
                 ok = false;
             }
             if (val !== undefined) {

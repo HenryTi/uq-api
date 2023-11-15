@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizFieldSheetBin = exports.BBizFieldSheet = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldSheetBud = exports.BBizFieldBinBud = exports.BBizFieldBud = exports.BBizField = void 0;
+exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
+const sql_1 = require("../sql");
 class BBizField {
     constructor(dbContext, bizField) {
         this.dbContext = dbContext;
@@ -33,7 +34,7 @@ class BBizFieldBud extends BBizField {
         let { bud } = this.bizField;
         sb.l().append('select value from ').dbName().dot().append(tbl)
             .append(' where i=');
-        this.toXValue(sb);
+        this.toIValue(sb);
         sb.append(' and x=').append(bud.id)
             .r();
     }
@@ -45,40 +46,41 @@ class BBizFieldBud extends BBizField {
             .append(' where x0.i=t1.id AND x1.base=').append(bud.id)
             .r();
     }
-    toXValue(sb) {
-        sb.append('t1.id');
+    toIValue(sb) {
+        let { tableAlias } = this.bizField;
+        sb.append(tableAlias).dot().append('id');
+    }
+    buildColArr() {
+        let ret = [];
+        const { entity, bud } = this.bizField;
+        if (entity !== undefined) {
+            ret.push(new sql_1.ExpNum(entity.id));
+        }
+        ret.push(new sql_1.ExpNum(bud.id));
+        return ret;
     }
 }
 exports.BBizFieldBud = BBizFieldBud;
-class BBizFieldBinBud extends BBizFieldBud {
-    toXValue(sb) {
-        sb.append('_').append(this.bizField.bizTable.defaultFieldName);
-    }
-}
-exports.BBizFieldBinBud = BBizFieldBinBud;
-class BBizFieldSheetBud extends BBizFieldBud {
-    toXValue(sb) {
-        sb.append('_ss');
-    }
-}
-exports.BBizFieldSheetBud = BBizFieldSheetBud;
 exports.MapFieldTable = {
     pend: 't1',
     bin: 'b',
     sheet: 'f',
     sheetBin: 'e',
+    s: 'e',
     atom: 't1',
     baseAtom: 't1',
 };
 class BBizFieldField extends BBizField {
     to(sb) {
-        let tbl = exports.MapFieldTable[this.bizField.tbl];
-        sb.append(tbl).dot().append(this.bizField.name);
+        sb.append(this.bizField.tableAlias).dot().append(this.bizField.name);
+    }
+    buildColArr() {
+        return [new sql_1.ExpStr(this.bizField.name)];
     }
 }
 exports.BBizFieldField = BBizFieldField;
 // only for pend med
-class BBizFieldJsonProp extends BBizField {
+class BBizFieldJsonProp extends BBizFieldBud {
     to(sb) {
         let { bud } = this.bizField;
         let tblPend = exports.MapFieldTable['pend'];
@@ -86,25 +88,31 @@ class BBizFieldJsonProp extends BBizField {
     }
 }
 exports.BBizFieldJsonProp = BBizFieldJsonProp;
-class BBizFieldBinVar extends BBizField {
+class BBizFieldBinVar extends BBizFieldField {
     to(sb) {
-        let { name } = this.bizField;
-        sb.append(`_${name}`);
+        let { name, tableAlias } = this.bizField;
+        sb.append(`_${tableAlias}${name}`);
     }
 }
 exports.BBizFieldBinVar = BBizFieldBinVar;
-class BBizFieldSheet extends BBizField {
-    to(sb) {
-        let { name } = this.bizField;
-        sb.append(`_${name}`);
+class BBizFieldBinBud extends BBizFieldBud {
+    toIValue(sb) {
+        sb.append('_').append(this.bizField.tableAlias);
     }
 }
-exports.BBizFieldSheet = BBizFieldSheet;
-class BBizFieldSheetBin extends BBizField {
-    to(sb) {
-        let { name, bizTable } = this.bizField;
-        sb.append(`_${bizTable.defaultFieldName}${name}`);
+exports.BBizFieldBinBud = BBizFieldBinBud;
+/*
+export class BBizFieldSheetVar extends BBizFieldField {
+    override to(sb: SqlBuilder): void {
+        let { tableAlias } = this.bizField;
+        sb.append(`_${tableAlias}`);
     }
 }
-exports.BBizFieldSheetBin = BBizFieldSheetBin;
+
+export class BBizFieldSheetBud extends BBizFieldBud {
+    override to(sb: SqlBuilder): void {
+        super.to(sb);
+    }
+}
+*/ 
 //# sourceMappingURL=BizField.js.map

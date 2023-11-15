@@ -115,6 +115,14 @@ class PStatements extends PStatement {
         });
         return ok;
     }
+    scan0(space) {
+        let ok = true;
+        this.element.eachChild((s, name) => {
+            if (s.pelement.scan0(space) === false)
+                ok = false;
+        });
+        return ok;
+    }
     scan(space) {
         let ok = true;
         let theSpace = new StatementsSpace(space);

@@ -104,7 +104,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     scan0(space: Space): boolean {
         let ok = true;
-        const { picks } = this.element;
+        const { picks, act } = this.element;
         for (let [, pick] of picks) {
             if (pick.pelement.scan0(space) === false) {
                 ok = false;
@@ -122,6 +122,11 @@ export class PBizBin extends PBizEntity<BizBin> {
                     break;
                 }
                 i++;
+            }
+        }
+        if (act !== undefined) {
+            if (act.pelement.scan0(space) === false) {
+                ok = false;
             }
         }
         return ok;
@@ -544,6 +549,15 @@ export class PBizBinAct extends PBizBase<BizBinAct> {
         this.ts.mayPassToken(Token.SEMICOLON);
     }
 
+    scan0(space: Space): boolean {
+        let ok = true;
+        let { pelement } = this.element.statement;
+        if (pelement.scan0(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+
     scan(space: Space): boolean {
         let ok = true;
         //  will be removed
@@ -568,6 +582,9 @@ export class PBizBinActStatements extends PStatements {
     constructor(statements: Statements, context: PContext, bizDetailAct: BizBinAct) {
         super(statements, context);
         this.bizDetailAct = bizDetailAct;
+    }
+    scan0(space: Space): boolean {
+        return super.scan0(space);
     }
     protected statementFromKey(parent: Statement, key: string): Statement {
         let ret: Statement;
