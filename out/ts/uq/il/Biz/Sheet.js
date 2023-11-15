@@ -41,6 +41,7 @@ class BizPend extends Entity_1.BizEntity {
         super(biz);
         this.fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
+        this.bizBins = [];
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
             this.predefinedBuds[n] = new Bud_1.BizBudAtom(this.biz, n, undefined);
@@ -54,6 +55,22 @@ class BizPend extends Entity_1.BizEntity {
     }
     db(dbContext) {
         return new builder_1.BBizPend(dbContext, this);
+    }
+    getBinProps() {
+        let budArr = [];
+        for (let bizBin of this.bizBins) {
+            for (let [, p] of bizBin.props) {
+                budArr.push(p);
+            }
+        }
+        return budArr;
+    }
+    getSheetProps() {
+        let budArr = [];
+        for (let bizBin of this.bizBins) {
+            budArr.push(...bizBin.getSheetProps());
+        }
+        return budArr;
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);

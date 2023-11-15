@@ -8,7 +8,7 @@ const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 const sheetId = 'sheet';
-const s = 's';
+const ss = 'ss';
 const si = 'si';
 const sx = 'sx';
 const svalue = 'svalue';
@@ -49,7 +49,7 @@ class BBizBin extends BizEntity_1.BBizEntity {
         const bigint = new il_1.BigInt();
         const decValue = new il_1.Dec(18, 6);
         declare.var(consts_1.$site, bigint);
-        declare.var(s, bigint);
+        declare.var(ss, bigint);
         declare.var(si, bigint);
         declare.var(sx, bigint);
         declare.var(svalue, decValue);
@@ -74,7 +74,7 @@ class BBizBin extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpField('value', a), value);
         select.column(new sql_1.ExpField('amount', a), amount);
         select.column(new sql_1.ExpField('price', a), price);
-        select.column(new sql_1.ExpField('id', c), s);
+        select.column(new sql_1.ExpField('id', c), ss);
         select.column(new sql_1.ExpField('i', c), si);
         select.column(new sql_1.ExpField('x', c), sx);
         select.column(new sql_1.ExpField('value', c), svalue);

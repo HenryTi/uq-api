@@ -116,9 +116,12 @@ class PFromStatement extends statement_1.PStatement {
             this.element.where = where;
         }
     }
+    createFromSpace(space) {
+        return new FromSpace(space, this.element);
+    }
     scan(space) {
         let ok = true;
-        space = new FromSpace(space, this.element);
+        space = this.createFromSpace(space);
         if (this.scanEntityArr(space) === false) {
             ok = false;
         }
@@ -140,6 +143,7 @@ class PFromStatement extends statement_1.PStatement {
     scanEntityArr(space) {
         let ok = true;
         const { biz } = space.uq;
+        let bizFieldSpace = space.getBizFieldSpace();
         const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
@@ -175,24 +179,27 @@ class PFromStatement extends statement_1.PStatement {
                     ok = false;
                 }
                 if (ui.caption === null) {
-                    //let [bizEntity, bud] = this.element.getBud(name);
-                    let field = this.element.getBizField(name);
+                    let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
                     if (field !== undefined) {
                         col.field = field;
-                        // col.entity = bizEntity;
-                        //col.bud = bud;
                     }
                     else {
-                        // 'no', 'ex' 不能出现这样的情况
                         debugger;
+                        bizFieldSpace.getBizField([name]);
+                        // 'no', 'ex' 不能出现这样的情况
                         col.field = undefined;
                     }
                 }
                 else {
                     // Query bud
                     let bud = new il_1.BizBudNone(biz, name, ui);
-                    let field = new il_1.BizFieldBud();
-                    field.bud = bud;
+                    let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
+                    if (field !== undefined) {
+                        field.bud = bud;
+                    }
+                    else {
+                        field = new il_1.BizFieldBud(undefined, bud);
+                    }
                     col.field = field;
                 }
             }
@@ -206,6 +213,9 @@ class PFromStatementInPend extends PFromStatement {
         this.parseTblsOf();
         this.parseWhere();
         this.ts.passToken(tokens_1.Token.SEMICOLON);
+    }
+    createFromSpace(space) {
+        return new FromInPendSpace(space, this.element);
     }
     scan(space) {
         return super.scan(space);
@@ -221,7 +231,11 @@ exports.PFromStatementInPend = PFromStatementInPend;
 class FromSpace extends space_1.Space {
     constructor(outer, from) {
         super(outer);
-        this.from = from;
+        // this.from = from;
+        this.createBizFieldSpace(from);
+    }
+    createBizFieldSpace(from) {
+        this.bizFieldSpace = new il_1.FromInQueryFieldSpace(from);
     }
     _getEntityTable(name) {
         return;
@@ -232,8 +246,13 @@ class FromSpace extends space_1.Space {
     _varPointer(name, isField) {
         return;
     }
-    _getBizFrom() {
-        return this.from;
+    _getBizFieldSpace() {
+        return this.bizFieldSpace;
+    }
+}
+class FromInPendSpace extends FromSpace {
+    createBizFieldSpace(from) {
+        this.bizFieldSpace = new il_1.FromInPendFieldSpace(from);
     }
 }
 //# sourceMappingURL=from.js.map

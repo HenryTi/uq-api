@@ -161,6 +161,9 @@ class PElement extends PElementBase {
     scan(space) {
         return this.childScan(space);
     }
+    scan0(space) {
+        return true;
+    }
     scanDoc1() {
         return true;
     }
@@ -180,6 +183,17 @@ class PElement extends PElementBase {
             if (pelement === undefined)
                 return;
             if (pelement.scan(space) === false)
+                ok = false;
+        });
+        return ok;
+    }
+    childScan0(space) {
+        let ok = true;
+        this.element.eachChild((child, name) => {
+            let pelement = child.pelement;
+            if (pelement === undefined)
+                return;
+            if (pelement.scan0(space) === false)
                 ok = false;
         });
         return ok;

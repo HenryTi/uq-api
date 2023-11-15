@@ -22,7 +22,7 @@ export abstract class BizAtomID extends BizEntity {
 export class BizAtom extends BizAtomID {
     readonly bizPhraseType = BizPhraseType.atom;
     ex: BizBudValue;
-    uom: boolean;
+    // uom: boolean;
     uuid: boolean;
     protected readonly fields = ['id', 'no', 'ex'];
 
@@ -34,7 +34,7 @@ export class BizAtom extends BizAtomID {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             uuid: this.uuid,
-            uom: this.uom,
+            // uom: this.uom,
             ex: this.ex?.buildSchema(res),
         });
     }

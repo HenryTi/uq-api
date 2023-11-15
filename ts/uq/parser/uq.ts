@@ -404,6 +404,11 @@ export class PUq extends PElement {
             this.uq.eachChild(el => {
                 let pelement = el.pelement;
                 if (pelement === undefined) return;
+                if (pelement.scan0(appSpace) === false) ok = false;
+            });
+            this.uq.eachChild(el => {
+                let pelement = el.pelement;
+                if (pelement === undefined) return;
                 if (pelement.scaned === true) return;
                 switch (this.uq.docType) {
                     case 1:

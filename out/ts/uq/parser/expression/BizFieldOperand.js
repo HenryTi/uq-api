@@ -2,43 +2,37 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizFieldOperand = void 0;
 const element_1 = require("../element");
+const tokens_1 = require("../tokens");
 // %开始的字段，是BizField。
 class PBizFieldOperand extends element_1.PElement {
+    constructor() {
+        super(...arguments);
+        this.fieldName = [];
+    }
     _parse() {
-        this.fieldName = this.ts.passVar();
+        this.fieldName.push(this.ts.passVar());
+        if (this.ts.token === tokens_1.Token.DOT) {
+            this.ts.readToken();
+            this.fieldName.push(this.ts.passVar());
+        }
     }
     scan(space) {
         let ok = true;
-        let from = space.getBizFrom();
-        // const { bizEntityArr } = from;
-        /*
-        function hasField(fieldName: string) {
-            for (let be of bizEntityArr) {
-                if (be.hasField(fieldName) === true) return true;
-            }
-            return true;
-        }
-        if (this.fieldName === 'si') debugger;
-        if (hasField(this.fieldName) === true) {
-            // this.element.fieldName = this.fieldName;
-            let field = new BizFieldField();
-            field.fieldName = this.fieldName;
-            this.element.field = field;
-        }
-        else {
-        */
-        //let [bizEntity, bud] = from.getBud(this.fieldName);
-        let field = from.getBizField(this.fieldName);
+        let bizFieldSpace = space.getBizFieldSpace();
+        let field = bizFieldSpace.getBizField(this.fieldName);
         if (field !== undefined) {
             this.element.field = field;
-            //this.element.bizEntity = bizEntity;
-            // this.element.bizBud = bud;
         }
-        else if (this.fieldName !== 'id') {
-            this.log(`Unknown field ${this.fieldName}`);
+        else if (this.fieldName[0] === 'id') {
+            if (this.fieldName[1] !== undefined) {
+                this.log(`Unknown field ${this.fieldName.join('.')}`);
+                ok = false;
+            }
+        }
+        else {
+            this.log(`Unknown field ${this.fieldName.join('.')}`);
             ok = false;
         }
-        // }
         return ok;
     }
 }

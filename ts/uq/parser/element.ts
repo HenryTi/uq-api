@@ -175,6 +175,10 @@ export abstract class PElement<E extends IElement = IElement> extends PElementBa
         return this.childScan(space);
     }
 
+    scan0(space: Space): boolean {
+        return true;
+    }
+
     scanDoc1(): boolean {
         return true;
     }
@@ -197,6 +201,16 @@ export abstract class PElement<E extends IElement = IElement> extends PElementBa
             let pelement = child.pelement;
             if (pelement === undefined) return;
             if (pelement.scan(space) === false) ok = false;
+        });
+        return ok;
+    }
+
+    protected childScan0(space: Space): boolean {
+        let ok = true;
+        this.element.eachChild((child, name) => {
+            let pelement = child.pelement;
+            if (pelement === undefined) return;
+            if (pelement.scan0(space) === false) ok = false;
         });
         return ok;
     }

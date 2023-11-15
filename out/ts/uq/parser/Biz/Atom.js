@@ -65,18 +65,20 @@ class PBizAtom extends PBizAtomID {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
             this.element.ex = bizBud;
         };
-        this.parseUom = () => {
+        /*
+        private parseUom = () => {
             if (this.element.uom !== undefined) {
                 this.ts.error('UOM can only be defined once');
             }
             this.element.uom = true;
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-        };
+            this.ts.passToken(Token.SEMICOLON);
+        }
+        */
         this.parsePermit = () => {
             this.parsePermission('crud');
         };
         this.keyColl = {
-            uom: this.parseUom,
+            // uom: this.parseUom,
             prop: this.parseProp,
             ex: this.parseEx,
             permit: this.parsePermit
@@ -105,14 +107,15 @@ class PBizAtom extends PBizAtomID {
     copyUom() {
         let atoms = [];
         for (let p = this.element; p !== undefined; p = p.extends) {
+            /*
             if (p.uom === true) {
-                for (let atom of atoms)
-                    atom.uom = true;
+                for (let atom of atoms) atom.uom = true;
                 break;
             }
             else {
-                atoms.push(p);
-            }
+            */
+            atoms.push(p);
+            //}
         }
     }
 }

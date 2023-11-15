@@ -71,7 +71,7 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
         this.ts.passToken(Token.SEMICOLON);
         this.element.ex = bizBud;
     }
-
+    /*
     private parseUom = () => {
         if (this.element.uom !== undefined) {
             this.ts.error('UOM can only be defined once');
@@ -79,13 +79,14 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
         this.element.uom = true;
         this.ts.passToken(Token.SEMICOLON);
     }
+    */
 
     private parsePermit = () => {
         this.parsePermission('crud');
     }
 
     readonly keyColl = {
-        uom: this.parseUom,
+        // uom: this.parseUom,
         prop: this.parseProp,
         ex: this.parseEx,
         permit: this.parsePermit
@@ -107,13 +108,15 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
     private copyUom() {
         let atoms: BizAtom[] = [];
         for (let p = this.element; p !== undefined; p = p.extends as any) {
+            /*
             if (p.uom === true) {
                 for (let atom of atoms) atom.uom = true;
                 break;
             }
             else {
-                atoms.push(p);
-            }
+            */
+            atoms.push(p);
+            //}
         }
     }
 }

@@ -106,6 +106,7 @@ class BizBin extends Entity_1.BizEntity {
         super(...arguments);
         this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
+        this.sheetArr = [];
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
@@ -145,6 +146,18 @@ class BizBin extends Entity_1.BizEntity {
         let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
         this.schema = Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, pend: (_b = this.pend) === null || _b === void 0 ? void 0 : _b.id, i: (_c = this.i) === null || _c === void 0 ? void 0 : _c.buildSchema(res), x: (_d = this.x) === null || _d === void 0 ? void 0 : _d.buildSchema(res), value: (_e = this.value) === null || _e === void 0 ? void 0 : _e.buildSchema(res), amount: (_f = this.amount) === null || _f === void 0 ? void 0 : _f.buildSchema(res), price });
         return this.schema;
+    }
+    getSheetProps() {
+        let budArr = [];
+        for (let sheet of this.sheetArr) {
+            let { main } = sheet;
+            if (main === undefined)
+                continue;
+            for (let [, bud] of main.props) {
+                budArr.push(bud);
+            }
+        }
+        return budArr;
     }
     forEachBud(callback) {
         super.forEachBud(callback);
@@ -226,11 +239,11 @@ class BizBin extends Entity_1.BizEntity {
 }
 exports.BizBin = BizBin;
 class BizBinAct extends Base_1.BizBase {
-    constructor(biz, bizDetail) {
+    constructor(biz, bizBin) {
         super(biz);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.detailAct;
         this.tableVars = {};
-        this.bizDetail = bizDetail;
+        this.bizBin = bizBin;
     }
     parser(context) {
         return new parser_1.PBizBinAct(this, context);
@@ -246,7 +259,7 @@ class BizBinAct extends Base_1.BizBase {
     getTableVar(name) { return this.tableVars[name]; }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { detail: this.bizDetail.name });
+        return Object.assign(Object.assign({}, ret), { detail: this.bizBin.name });
     }
 }
 exports.BizBinAct = BizBinAct;

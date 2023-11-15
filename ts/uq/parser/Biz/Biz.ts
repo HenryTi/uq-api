@@ -1,7 +1,7 @@
 import {
     Biz, BizAtom, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
-    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick, BizReport, BizQueryTable, BizAssign
+    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizPick, BizReport, BizQueryTable, BizAssign, BizPhraseType
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -68,23 +68,54 @@ export class PBiz extends PEntity<Biz> {
         bizArr.push(root);
     }
 
+    scan0(space: Space): boolean {
+        let ok = true;
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.pelement.scan0(space) === false) ok = false;
+        }
+        return ok;
+    }
+
     scan(space: Space): boolean {
         let ok = true;
-        let uomAtoms: BizAtom[] = [];
+        for (let [, p] of this.entity.bizEntities) {
+            const { bizPhraseType } = p;
+            switch (bizPhraseType) {
+                case BizPhraseType.sheet:
+                    const sheet = p as BizSheet;
+                    const { main, details } = sheet;
+                    main?.sheetArr.push(sheet);
+                    for (let detail of details) {
+                        detail.bin.sheetArr.push(sheet);
+                    }
+                    break;
+                case BizPhraseType.bin:
+                    const bin = p as BizBin;
+                    const { pend } = bin;
+                    if (pend !== undefined) {
+                        pend.bizBins.push(bin);
+                    }
+                    break;
+            }
+        }
         for (let [, p] of this.entity.bizEntities) {
             let { pelement } = p;
             if (pelement === undefined) continue;
             let bizEntitySpace = new BizEntitySpace(space, p);
             if (pelement.scan(bizEntitySpace) === false) ok = false;
+            /*
             if (p.type === 'atom') {
                 if ((p as BizAtom).uom === true) uomAtoms.push(p as BizAtom);
             }
+            */
         }
+        /*
         if (uomAtoms.length > 1) {
             this.log('only one ATOM can have UOM');
             this.log(`${uomAtoms.map(v => v.jName).join(', ')} have UOM`)
             ok = false;
         }
+        */
         this.entity.buildPhrases();
         return ok;
     }
@@ -107,6 +138,7 @@ export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     readonly bizEntity: T;
     constructor(outer: Space, bizEntity: T) {
         super(outer);
+        if (bizEntity === undefined) debugger;
         this.bizEntity = bizEntity;
     }
     protected _getEntityTable(name: string): Entity & Table {

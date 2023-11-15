@@ -3,7 +3,7 @@ import {
     , Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue
-    , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud, PendQuery, BizQueryTableStatements, BizQueryTableInPendStatements, FromStatementInPend
+    , bigIntField, BizEntity, BinPick, PickBase, PickAtom, BizAtom, PickSpec, BizAtomSpec, PickPend, BizQuery, PickQuery, BizQueryTable, BizBudAtom, DotVarPointer, EnumSysTable, BizBud, PendQuery, BizQueryTableStatements, BizQueryTableInPendStatements, FromStatementInPend, BizBinActFieldSpace
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il";
 import { PElement } from "../element";
@@ -17,58 +17,6 @@ import { PBizBudValue } from "./Bud";
 import { PBizQueryTable, PBizQueryTableStatements } from "./Query";
 
 export class PBizBin extends PBizEntity<BizBin> {
-    /*
-    private pend: string;
-    private pendCaption: string;
-    private pendSearch: string[];
-    */
-
-    /*
-    private parsePend = () => {
-        if (this.pend !== undefined) {
-            this.ts.error(`PEND can only be defined once in Biz Bin`);
-        }
-        this.pend = this.ts.passVar();
-        this.pendCaption = this.ts.mayPassString();
-        this.ts.passToken(Token.LBRACE);
-        for (; ;) {
-            if (this.ts.token === Token.RBRACE) {
-                this.ts.readToken();
-                break;
-            }
-            let key = this.ts.passKey();
-            if (key === 'search') {
-                if (this.ts.token === Token.LPARENTHESE) {
-                    this.pendSearch = [];
-                    for (; ;) {
-                        let sKey = this.ts.passKey();
-                        this.pendSearch.push(sKey);
-                        if (this.ts.token === Token.RPARENTHESE as any) {
-                            this.ts.readToken();
-                            break;
-                        }
-                        if (this.ts.token === Token.COMMA as any) {
-                            this.ts.readToken();
-                            continue;
-                        }
-                        this.ts.expectToken(Token.RPARENTHESE, Token.COMMA);
-                    }
-                }
-                else {
-                    let sKey = this.ts.passKey();
-                    this.pendSearch = [sKey];
-                }
-                this.ts.passToken(Token.SEMICOLON);
-            }
-            else {
-                this.ts.expect('search');
-                break;
-            }
-        }
-        this.ts.passToken(Token.SEMICOLON);
-    }
-    */
-
     private parsePick = () => {
         let { picks } = this.element;
         if (picks === undefined) {
@@ -152,8 +100,32 @@ export class PBizBin extends PBizEntity<BizBin> {
         price: this.parsePrice,
         amount: this.parseAmount,
         act: this.parseAct,
-        // pend: this.parsePend,
     };
+
+    scan0(space: Space): boolean {
+        let ok = true;
+        const { picks } = this.element;
+        for (let [, pick] of picks) {
+            if (pick.pelement.scan0(space) === false) {
+                ok = false;
+            }
+        }
+        if (picks !== undefined) {
+            let { size } = picks;
+            let i = 0;
+            for (let [, pick] of picks) {
+                if (i < size - 1) continue;
+                if (pick.pick.bizEntityTable === EnumSysTable.pend) {
+                    let pend = (pick.pick as PickPend).from;
+                    if (pend === undefined) debugger;
+                    this.element.pend = pend;
+                    break;
+                }
+                i++;
+            }
+        }
+        return ok;
+    }
 
     scan(space: Space): boolean {
         let ok = true;
@@ -177,11 +149,13 @@ export class PBizBin extends PBizEntity<BizBin> {
                         ok = false;
                     }
                 }
+                /*
                 else {
                     if (pick.pick.bizEntityTable === EnumSysTable.pend) {
                         this.element.pend = (pick.pick as PickPend).from;
                     }
                 }
+                */
                 i++;
             }
         }
@@ -308,7 +282,7 @@ export class PBinPick extends PElement<BinPick> {
         }
     }
 
-    scan(space: Space): boolean {
+    scan0(space: Space): boolean {
         let ok = true;
         const { biz } = space.uq;
         const { entityArr, logs, ok: retOk, bizPhraseType, }
@@ -341,7 +315,46 @@ export class PBinPick extends PElement<BinPick> {
                 this.log('from only one object');
                 ok = false;
             }
-            let { params, bin } = this.element;
+        }
+        return ok;
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        const { biz } = space.uq;
+        const { entityArr, logs, ok: retOk, bizPhraseType, }
+            = biz.sameTypeEntityArr(this.from);
+        if (retOk === false) {
+            this.log(...logs);
+            ok = false;
+        }
+        else {
+            // let pickBase: PickBase = this.element.pick;
+            /*
+            let multipleEntity = false;
+            const bizEntity0 = entityArr[0];
+            switch (bizPhraseType) {
+                case BizPhraseType.atom:
+                    pickBase = new PickAtom(entityArr as BizAtom[]);
+                    multipleEntity = true;
+                    break;
+                case BizPhraseType.spec:
+                    pickBase = new PickSpec(bizEntity0 as BizAtomSpec);
+                    break;
+                case BizPhraseType.pend:
+                    pickBase = new PickPend(bizEntity0 as BizPend);
+                    break;
+                case BizPhraseType.query:
+                    pickBase = new PickQuery(bizEntity0 as BizQueryTable);
+                    break;
+            }
+            this.element.pick = pickBase;
+            if (multipleEntity === false && entityArr.length > 1) {
+                this.log('from only one object');
+                ok = false;
+            }
+            */
+            let { params, bin, pick: pickBase } = this.element;
             if (params !== undefined) {
                 for (let p of params) {
                     const { name, bud, prop } = p;
@@ -496,6 +509,10 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
         }
         return true;
     }
+
+    override getBizFieldSpace() {
+        return new BizBinActFieldSpace(this.bizEntity);
+    }
 }
 
 export class PBizBinAct extends PBizBase<BizBinAct> {
@@ -530,21 +547,10 @@ export class PBizBinAct extends PBizBase<BizBinAct> {
     scan(space: Space): boolean {
         let ok = true;
         //  will be removed
-        let actSpace = new BizBinSpace(space, undefined);
+        let actSpace = new BizBinSpace(space, this.element.bizBin);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false) ok = false;
         if (pelement.scan(actSpace) === false) ok = false;
-        /*
-        if (this.fromPend !== undefined) {
-            let pend = this.getBizEntity<BizPend>(space, this.fromPend, 'pend');
-            if (pend === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.fromPend = pend;
-            }
-        }
-        */
         return ok;
     }
 

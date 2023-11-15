@@ -50,6 +50,7 @@ export class BizPend extends BizEntity {
     readonly bizPhraseType = BizPhraseType.pend;
     readonly predefinedBuds: { [name: string]: BizBudValue };
     pendQuery: PendQuery;
+    readonly bizBins: BizBin[] = [];
     constructor(biz: Biz) {
         super(biz);
         this.predefinedBuds = {};
@@ -67,6 +68,24 @@ export class BizPend extends BizEntity {
 
     db(dbContext: DbContext): BBizPend {
         return new BBizPend(dbContext, this);
+    }
+
+    getBinProps(): Iterable<BizBudValue> {
+        let budArr: BizBudValue[] = [];
+        for (let bizBin of this.bizBins) {
+            for (let [, p] of bizBin.props) {
+                budArr.push(p);
+            }
+        }
+        return budArr;
+    }
+
+    getSheetProps(): Iterable<BizBudValue> {
+        let budArr: BizBudValue[] = [];
+        for (let bizBin of this.bizBins) {
+            budArr.push(...bizBin.getSheetProps());
+        }
+        return budArr;
     }
 
     buildSchema(res: { [phrase: string]: string }) {

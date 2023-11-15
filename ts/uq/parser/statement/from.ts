@@ -2,7 +2,7 @@ import {
     BizBudNone
     , BizTie, CompareExpression
     , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
-    , BizField, BizFieldBud
+    , BizField, BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, FromInPendFieldSpace
 } from "../../il";
 import { BizPhraseType } from "../../il";
 import { Space } from "../space";
@@ -122,9 +122,13 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         }
     }
 
+    protected createFromSpace(space: Space): FromSpace {
+        return new FromSpace(space, this.element);
+    }
+
     override scan(space: Space): boolean {
         let ok = true;
-        space = new FromSpace(space, this.element);
+        space = this.createFromSpace(space);
         if (this.scanEntityArr(space) === false) {
             ok = false;
         }
@@ -146,6 +150,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
     protected scanEntityArr(space: Space) {
         let ok = true;
         const { biz } = space.uq;
+        let bizFieldSpace = space.getBizFieldSpace();
         const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
@@ -182,24 +187,27 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     ok = false;
                 }
                 if (ui.caption === null) {
-                    //let [bizEntity, bud] = this.element.getBud(name);
-                    let field = this.element.getBizField(name);
+                    let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
                     if (field !== undefined) {
                         col.field = field;
-                        // col.entity = bizEntity;
-                        //col.bud = bud;
                     }
                     else {
-                        // 'no', 'ex' 不能出现这样的情况
                         debugger;
+                        bizFieldSpace.getBizField([name]);
+                        // 'no', 'ex' 不能出现这样的情况
                         col.field = undefined;
                     }
                 }
                 else {
                     // Query bud
                     let bud = new BizBudNone(biz, name, ui);
-                    let field = new BizFieldBud();
-                    field.bud = bud;
+                    let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
+                    if (field !== undefined) {
+                        field.bud = bud;
+                    }
+                    else {
+                        field = new BizFieldBud(undefined, bud);
+                    }
                     col.field = field;
                 }
             }
@@ -215,6 +223,10 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
         this.ts.passToken(Token.SEMICOLON);
     }
 
+    protected createFromSpace(space: Space): FromSpace {
+        return new FromInPendSpace(space, this.element);
+    }
+
     override scan(space: Space): boolean {
         return super.scan(space);
     }
@@ -228,11 +240,17 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
 }
 
 class FromSpace extends Space {
-    private readonly from: FromStatement;
+    // private readonly from: FromStatement;
+    protected bizFieldSpace: BizFieldSpace;
 
     constructor(outer: Space, from: FromStatement) {
         super(outer);
-        this.from = from;
+        // this.from = from;
+        this.createBizFieldSpace(from);
+    }
+
+    protected createBizFieldSpace(from: FromStatement) {
+        this.bizFieldSpace = new FromInQueryFieldSpace(from);
     }
 
     protected _getEntityTable(name: string): Entity & Table {
@@ -244,7 +262,13 @@ class FromSpace extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
-    protected override _getBizFrom(): FromStatement {
-        return this.from;
+    protected override _getBizFieldSpace(): BizFieldSpace {
+        return this.bizFieldSpace;
+    }
+}
+
+class FromInPendSpace extends FromSpace {
+    protected override createBizFieldSpace(from: FromStatementInPend) {
+        this.bizFieldSpace = new FromInPendFieldSpace(from);
     }
 }

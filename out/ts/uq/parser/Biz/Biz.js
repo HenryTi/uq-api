@@ -61,9 +61,36 @@ class PBiz extends entity_1.PEntity {
         bizEntities.set(name, root);
         bizArr.push(root);
     }
+    scan0(space) {
+        let ok = true;
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.pelement.scan0(space) === false)
+                ok = false;
+        }
+        return ok;
+    }
     scan(space) {
         let ok = true;
-        let uomAtoms = [];
+        for (let [, p] of this.entity.bizEntities) {
+            const { bizPhraseType } = p;
+            switch (bizPhraseType) {
+                case il_1.BizPhraseType.sheet:
+                    const sheet = p;
+                    const { main, details } = sheet;
+                    main === null || main === void 0 ? void 0 : main.sheetArr.push(sheet);
+                    for (let detail of details) {
+                        detail.bin.sheetArr.push(sheet);
+                    }
+                    break;
+                case il_1.BizPhraseType.bin:
+                    const bin = p;
+                    const { pend } = bin;
+                    if (pend !== undefined) {
+                        pend.bizBins.push(bin);
+                    }
+                    break;
+            }
+        }
         for (let [, p] of this.entity.bizEntities) {
             let { pelement } = p;
             if (pelement === undefined)
@@ -71,16 +98,19 @@ class PBiz extends entity_1.PEntity {
             let bizEntitySpace = new BizEntitySpace(space, p);
             if (pelement.scan(bizEntitySpace) === false)
                 ok = false;
+            /*
             if (p.type === 'atom') {
-                if (p.uom === true)
-                    uomAtoms.push(p);
+                if ((p as BizAtom).uom === true) uomAtoms.push(p as BizAtom);
             }
+            */
         }
+        /*
         if (uomAtoms.length > 1) {
             this.log('only one ATOM can have UOM');
-            this.log(`${uomAtoms.map(v => v.jName).join(', ')} have UOM`);
+            this.log(`${uomAtoms.map(v => v.jName).join(', ')} have UOM`)
             ok = false;
         }
+        */
         this.entity.buildPhrases();
         return ok;
     }
@@ -102,6 +132,8 @@ exports.PBiz = PBiz;
 class BizEntitySpace extends space_1.Space {
     constructor(outer, bizEntity) {
         super(outer);
+        if (bizEntity === undefined)
+            debugger;
         this.bizEntity = bizEntity;
     }
     _getEntityTable(name) {

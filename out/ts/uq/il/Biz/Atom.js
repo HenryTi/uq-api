@@ -31,7 +31,7 @@ class BizAtom extends BizAtomID {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             uuid: this.uuid,
-            uom: this.uom,
+            // uom: this.uom,
             ex: (_a = this.ex) === null || _a === void 0 ? void 0 : _a.buildSchema(res),
         });
     }

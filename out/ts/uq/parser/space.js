@@ -21,7 +21,7 @@ class Space {
     _getActionBase() { return undefined; }
     _getBizBase(bizName) { return undefined; }
     _getBizEntity(name) { return undefined; }
-    _getBizFrom() { return undefined; }
+    _getBizFieldSpace() { return undefined; }
     _getUse(name) { return undefined; }
     _addUse(name, statementNo, obj) { return undefined; }
     _varsPointer(names) { return; }
@@ -140,12 +140,12 @@ class Space {
         if (this.outer !== undefined)
             return this.outer.getBizEntity(name);
     }
-    getBizFrom() {
-        let ret = this._getBizFrom();
+    getBizFieldSpace() {
+        let ret = this._getBizFieldSpace();
         if (ret !== undefined)
             return ret;
         if (this.outer !== undefined)
-            return this.outer.getBizFrom();
+            return this.outer.getBizFieldSpace();
     }
     getUse(name) {
         let uv = this._getUse(name);

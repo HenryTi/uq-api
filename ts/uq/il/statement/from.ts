@@ -11,13 +11,13 @@ import { Statement } from "./Statement";
 import { UI } from "../UI";
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
 import { BizPhraseType } from "../Biz/BizPhraseType";
-import { BizField, BizFieldBud, BizFieldField, BizFieldJsonProp } from "../BizField";
+import { BizField } from "../BizField";
 
 export interface FromColumn {
     name: string;
     ui?: Partial<UI>;
     val: ValueExpression;
-    field: any; // BizField;
+    field: BizField;
 }
 
 export interface BanColumn {
@@ -43,7 +43,7 @@ export class FromStatement extends Statement {
     parser(context: PContext): PElement<IElement> {
         return new PFromStatement(this, context);
     }
-
+    /*
     getBizField(fieldName: string): BizField {
         switch (fieldName) {
             default:
@@ -79,6 +79,7 @@ export class FromStatement extends Statement {
             return ret;
         }
     }
+    */
 }
 
 export class FromStatementInPend extends FromStatement {
@@ -93,6 +94,7 @@ export class FromStatementInPend extends FromStatement {
     db(db: Builder): object {
         return db.fromStatementInPend(this);
     }
+    /*
     override getBizField(fieldName: string): BizField {
         switch (fieldName) {
             default: return this.getBizPendMidField(fieldName);
@@ -148,4 +150,5 @@ export class FromStatementInPend extends FromStatement {
         ret.fieldName = 'pendvalue';
         return ret;
     }
+    */
 }

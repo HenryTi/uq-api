@@ -11,7 +11,7 @@ import { Biz } from "./Biz";
 import { BizBudValue, BizBud, BizBudAtom, FieldShowItem, FieldShow } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
-import { BizPend } from "./Sheet";
+import { BizPend, BizSheet } from "./Sheet";
 import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 
@@ -128,6 +128,7 @@ export class BizBin extends BizEntity {
     price: BizBudValue;
     amount: BizBudValue;
 
+    readonly sheetArr: BizSheet[] = [];
     showBuds: { [bud: string]: FieldShow };
 
     parser(context: PContext): PElement<IElement> {
@@ -175,6 +176,19 @@ export class BizBin extends BizEntity {
         }
         return this.schema;
     }
+
+    getSheetProps() {
+        let budArr: BizBudValue[] = [];
+        for (let sheet of this.sheetArr) {
+            let { main } = sheet;
+            if (main === undefined) continue;
+            for (let [, bud] of main.props) {
+                budArr.push(bud);
+            }
+        }
+        return budArr;
+    }
+
     override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
         if (this.picks !== undefined) {
@@ -240,15 +254,15 @@ export class BizBin extends BizEntity {
 
 export class BizBinAct extends BizBase {
     readonly bizPhraseType = BizPhraseType.detailAct;
-    readonly bizDetail: BizBin;
+    readonly bizBin: BizBin;
     readonly tableVars: { [name: string]: TableVar } = {};
 
     idParam: Field;
     statement: ActionStatement;
 
-    constructor(biz: Biz, bizDetail: BizBin) {
+    constructor(biz: Biz, bizBin: BizBin) {
         super(biz);
-        this.bizDetail = bizDetail;
+        this.bizBin = bizBin;
     }
 
     parser(context: PContext): PElement<IElement> {
@@ -269,7 +283,7 @@ export class BizBinAct extends BizBase {
         let ret = super.buildSchema(res);
         return {
             ...ret,
-            detail: this.bizDetail.name,
+            detail: this.bizBin.name,
         };
     }
 }

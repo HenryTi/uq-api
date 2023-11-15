@@ -37,9 +37,8 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         permit: this.parsePermit,
     };
 
-    scan(space: Space): boolean {
+    scan0(space: Space): boolean {
         let ok = true;
-        if (super.scan(space) === false) ok = false;
         if (this.main === undefined) {
             this.log(`Biz Sheet must define main`);
             ok = false;
@@ -60,6 +59,12 @@ export class PBizSheet extends PBizEntity<BizSheet> {
             }
             this.element.details.push({ bin: detail, caption });
         }
+        return ok;
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) ok = false;
         return ok;
     }
 
