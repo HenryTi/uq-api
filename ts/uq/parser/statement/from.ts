@@ -241,12 +241,10 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
 }
 
 class FromSpace extends Space {
-    // private readonly from: FromStatement;
     protected bizFieldSpace: BizFieldSpace;
 
     constructor(outer: Space, from: FromStatement) {
         super(outer);
-        // this.from = from;
         this.createBizFieldSpace(from);
     }
 

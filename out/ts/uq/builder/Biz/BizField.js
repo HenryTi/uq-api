@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
-const sql_1 = require("../sql");
 class BBizField {
     constructor(dbContext, bizField) {
         this.dbContext = dbContext;
@@ -50,15 +49,6 @@ class BBizFieldBud extends BBizField {
         let { tableAlias } = this.bizField;
         sb.append(tableAlias).dot().append('id');
     }
-    buildColArr() {
-        let ret = [];
-        const { entity, bud } = this.bizField;
-        if (entity !== undefined) {
-            ret.push(new sql_1.ExpNum(entity.id));
-        }
-        ret.push(new sql_1.ExpNum(bud.id));
-        return ret;
-    }
 }
 exports.BBizFieldBud = BBizFieldBud;
 exports.MapFieldTable = {
@@ -73,9 +63,6 @@ exports.MapFieldTable = {
 class BBizFieldField extends BBizField {
     to(sb) {
         sb.append(this.bizField.tableAlias).dot().append(this.bizField.name);
-    }
-    buildColArr() {
-        return [new sql_1.ExpStr(this.bizField.name)];
     }
 }
 exports.BBizFieldField = BBizFieldField;

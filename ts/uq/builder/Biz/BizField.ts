@@ -13,7 +13,6 @@ export abstract class BBizField<T extends BizField = BizField> {
         this.bizField = bizField;
     }
     abstract to(sb: SqlBuilder): void;
-    abstract buildColArr(): ExpVal[];
 }
 
 export class BBizFieldBud extends BBizField<BizFieldBud> {
@@ -57,16 +56,6 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
         let { tableAlias } = this.bizField;
         sb.append(tableAlias).dot().append('id');
     }
-
-    override buildColArr(): ExpVal[] {
-        let ret: ExpVal[] = [];
-        const { entity, bud } = this.bizField;
-        if (entity !== undefined) {
-            ret.push(new ExpNum(entity.id));
-        }
-        ret.push(new ExpNum(bud.id));
-        return ret;
-    }
 }
 
 export type TypeMapFieldTable = {
@@ -94,10 +83,6 @@ export type KeyOfMapFieldTable = keyof TypeMapFieldTable;
 export class BBizFieldField extends BBizField<BizFieldField> {
     override to(sb: SqlBuilder): void {
         sb.append(this.bizField.tableAlias).dot().append(this.bizField.name);
-    }
-
-    override buildColArr(): ExpVal[] {
-        return [new ExpStr(this.bizField.name)];
     }
 }
 

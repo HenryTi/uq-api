@@ -55,8 +55,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         const arr: ExpVal[] = [];
         for (let col of cols) {
             const { name, val, field } = col;
-            let bField = field.db(this.context);
-            let colArr: Exp[] = bField.buildColArr();
+            let colArr: Exp[] = field.buildColArr();
             /*
             let { bud, entity } = field;
             const colArr: Exp[] = [];

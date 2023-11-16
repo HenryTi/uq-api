@@ -10,6 +10,9 @@ class BizField {
         this.space = space;
         this.tableAlias = tableAlias;
     }
+    getBud() {
+        return undefined;
+    }
 }
 exports.BizField = BizField;
 class BizFieldBud extends BizField {
@@ -18,10 +21,22 @@ class BizFieldBud extends BizField {
         this.entity = entity;
         this.bud = bud;
     }
+    getBud() {
+        return this.bud;
+    }
     db(dbContext) {
         return this.space.createBBud(dbContext, this);
     }
     buildSchema() { var _a; return [(_a = this.entity) === null || _a === void 0 ? void 0 : _a.id, this.bud.id]; }
+    buildColArr() {
+        let ret = [];
+        const { entity, bud } = this;
+        if (entity !== undefined) {
+            ret.push(new builder_1.ExpNum(entity.id));
+        }
+        ret.push(new builder_1.ExpNum(bud.id));
+        return ret;
+    }
 }
 exports.BizFieldBud = BizFieldBud;
 class BizFieldField extends BizField {
@@ -33,6 +48,9 @@ class BizFieldField extends BizField {
         return this.space.createBField(dbContext, this);
     }
     buildSchema() { return []; }
+    buildColArr() {
+        return [new builder_1.ExpStr(this.name)];
+    }
 }
 exports.BizFieldField = BizFieldField;
 class BizFieldJsonProp extends BizFieldBud {
@@ -70,7 +88,7 @@ var ColType;
 */
 const binFieldArr = ['i', 'x', 'value', 'price', 'amount'];
 const sheetFieldArr = ['no'];
-const atomFieldArr = ['no', 'ex'];
+const atomFieldArr = ['id', 'no', 'ex'];
 const pendFieldArr = ['pendvalue'];
 class BizFieldSpace {
     constructor() {
@@ -186,11 +204,11 @@ class FromInQueryFieldSpace extends FromFieldSpace {
         }
         switch (bizPhraseType) {
             case BizPhraseType_1.BizPhraseType.atom:
-                this.initBuds('$', bizEntityArr[0], bizBuds, 'a');
+                this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
                 Object.assign(this.fields, FromInQueryFieldSpace.atomCols);
                 break;
             case BizPhraseType_1.BizPhraseType.spec:
-                this.initBuds('$', bizEntityArr[0], bizBuds, 'a');
+                this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
                 break;
         }
     }

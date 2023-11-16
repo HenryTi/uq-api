@@ -232,7 +232,6 @@ exports.PFromStatementInPend = PFromStatementInPend;
 class FromSpace extends space_1.Space {
     constructor(outer, from) {
         super(outer);
-        // this.from = from;
         this.createBizFieldSpace(from);
     }
     createBizFieldSpace(from) {

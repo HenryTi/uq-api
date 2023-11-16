@@ -1,10 +1,13 @@
 import {
     BBizField, DbContext
-    , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar, BBizFieldBinBud// , BBizFieldSheetBud
+    , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar, BBizFieldBinBud,// , BBizFieldSheetBud
+    ExpVal,
+    ExpStr,
+    ExpNum
 } from "../builder";
 import { BizBin } from "./Biz/Bin";
 import { BizPhraseType } from "./Biz/BizPhraseType";
-import { BizBudValue } from "./Biz/Bud";
+import { BizBud, BizBudValue } from "./Biz/Bud";
 import { BizEntity } from "./Biz/Entity";
 import { FromStatement, FromStatementInPend } from "./statement";
 
@@ -17,8 +20,12 @@ export abstract class BizField {
         this.space = space;
         this.tableAlias = tableAlias;
     }
+    getBud(): BizBudValue {
+        return undefined;
+    }
     abstract db(dbContext: DbContext): BBizField;
     abstract buildSchema(): any;
+    abstract buildColArr(): ExpVal[];
 }
 
 export class BizFieldBud extends BizField {
@@ -29,10 +36,23 @@ export class BizFieldBud extends BizField {
         this.entity = entity;
         this.bud = bud;
     }
+    override getBud(): BizBudValue {
+        return this.bud;
+    }
     override db(dbContext: DbContext): BBizField {
         return this.space.createBBud(dbContext, this);
     }
     buildSchema() { return [this.entity?.id, this.bud.id]; }
+
+    override buildColArr(): ExpVal[] {
+        let ret: ExpVal[] = [];
+        const { entity, bud } = this;
+        if (entity !== undefined) {
+            ret.push(new ExpNum(entity.id));
+        }
+        ret.push(new ExpNum(bud.id));
+        return ret;
+    }
 }
 
 export class BizFieldField extends BizField {
@@ -45,6 +65,9 @@ export class BizFieldField extends BizField {
         return this.space.createBField(dbContext, this);
     }
     buildSchema() { return []; }
+    override buildColArr(): ExpVal[] {
+        return [new ExpStr(this.name)];
+    }
 }
 
 export class BizFieldJsonProp extends BizFieldBud {
@@ -91,7 +114,7 @@ type TableCols = {
 */
 const binFieldArr = ['i', 'x', 'value', 'price', 'amount'];
 const sheetFieldArr = ['no'];
-const atomFieldArr = ['no', 'ex'];
+const atomFieldArr = ['id', 'no', 'ex'];
 const pendFieldArr = ['pendvalue'];
 
 export abstract class BizFieldSpace {
@@ -223,11 +246,11 @@ export class FromInQueryFieldSpace extends FromFieldSpace {
         }
         switch (bizPhraseType) {
             case BizPhraseType.atom:
-                this.initBuds('$', bizEntityArr[0], bizBuds, 'a');
+                this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
                 Object.assign(this.fields, FromInQueryFieldSpace.atomCols);
                 break;
             case BizPhraseType.spec:
-                this.initBuds('$', bizEntityArr[0], bizBuds, 'a');
+                this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
                 break;
         }
     }

@@ -9,43 +9,6 @@ class FromStatement extends Statement_1.Statement {
         this.bizEntityArr = [];
         this.ofIXs = [];
         this.cols = [];
-        /*
-        getBizField(fieldName: string): BizField {
-            switch (fieldName) {
-                default:
-                    return this.getBudField(fieldName);
-                case 'no':
-                case 'ex':
-                    return this.getNoExField(fieldName);
-            }
-        }
-    
-        private getBudField(fieldName: string): BizField {
-            let bizEntity: BizEntity = undefined;
-            let bud: BizBudValue = undefined;
-            for (let entity of this.bizEntityArr) {
-                let b = entity.getBud(fieldName) as BizBudValue;
-                if (b !== undefined) {
-                    bizEntity = entity;
-                    bud = b;
-                }
-            }
-            if (bud === undefined) return undefined;
-            let ret = new BizFieldBud();
-            ret.entity = bizEntity;
-            ret.bud = bud;
-            return ret;
-        }
-    
-        private getNoExField(fieldName: string): BizField {
-            if (this.bizPhraseType === BizPhraseType.atom) {
-                let ret = new BizFieldField();
-                ret.tbl = 'atom';
-                ret.fieldName = fieldName;
-                return ret;
-            }
-        }
-        */
     }
     get type() { return 'from'; }
     db(db) {
