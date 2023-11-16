@@ -46,10 +46,19 @@ export abstract class BizEntity extends BizBase {
             }
             Object.assign(ret, { props });
         }
-        this.group1.buildSchema(res);
-        for (let i in this.budGroups) {
-            this.budGroups[i].buildSchema(res);
+        let hasGroup = false;
+        let groups = {};
+        function buildGroup(group: BudGroup) {
+            const { buds, name } = group;
+            if (buds.length === 0) return;
+            hasGroup = true;
+            groups[name] = group.buildSchema(res);
         }
+        buildGroup(this.group1);
+        for (let i in this.budGroups) {
+            buildGroup(this.budGroups[i]);
+        }
+        if (hasGroup === true as any) ret.groups = groups;
         this.schema = ret;
         return ret;
     }
