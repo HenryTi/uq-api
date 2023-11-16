@@ -1,8 +1,8 @@
 import { BBizEntity, DbContext } from "../../builder";
-import { UI } from "../UI";
 import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
 import { Field } from "../field";
 import { BizBase } from "./Base";
+import { Biz } from "./Biz";
 import { BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue, BudGroup } from "./Bud";
 import { BizRole } from "./Role";
@@ -30,6 +30,12 @@ export abstract class BizEntity extends BizBase {
     source: string = undefined;
     protected abstract get fields(): string[];
     schema: any;
+    constructor(biz: Biz) {
+        super(biz);
+        this.group0 = new BudGroup(biz);
+        this.group1 = new BudGroup(biz);
+        this.group1.name = '+';
+    }
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -39,6 +45,10 @@ export abstract class BizEntity extends BizBase {
                 props.push(value.buildSchema(res));
             }
             Object.assign(ret, { props });
+        }
+        this.group1.buildSchema(res);
+        for (let i in this.budGroups) {
+            this.budGroups[i].buildSchema(res);
         }
         this.schema = ret;
         return ret;
@@ -62,7 +72,11 @@ export abstract class BizEntity extends BizBase {
         let phrase = this.phrase;
         this.forEachBud(bud => {
             bud.buildPhrases(phrases, phrase)
-        })
+        });
+        this.group1.buildPhrases(phrases, phrase);
+        for (let i in this.budGroups) {
+            this.budGroups[i].buildPhrases(phrases, phrase);
+        }
     }
 
     buildIxRoles(ixRoles: any[]) {

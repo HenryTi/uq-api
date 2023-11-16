@@ -236,12 +236,36 @@ class PBizEntity extends PBizBase {
     constructor() {
         super(...arguments);
         this.parseProp = () => {
+            let name;
+            let ui;
+            if (this.ts.token === tokens_1.Token.ADD) {
+                this.ts.readToken();
+                ui = this.parseUI();
+            }
+            else if (this.ts.token === tokens_1.Token.VAR) {
+                name = this.ts.passVar();
+                ui = this.parseUI();
+            }
             if (this.ts.token === tokens_1.Token.LBRACE) {
                 this.ts.readToken();
+                let budGroup;
+                if (name === undefined) {
+                    budGroup = this.element.group1;
+                }
+                else {
+                    budGroup = this.element.budGroups[name];
+                    if (budGroup === undefined) {
+                        budGroup = new il_1.BudGroup(this.element.biz);
+                        budGroup.name = name;
+                        budGroup.ui = ui;
+                        this.element.budGroups[name] = budGroup;
+                    }
+                }
                 for (;;) {
-                    let prop = this.parseSubItem();
+                    let bud = this.parseSubItem();
                     this.ts.passToken(tokens_1.Token.SEMICOLON);
-                    this.element.props.set(prop.name, prop);
+                    this.element.props.set(bud.name, bud);
+                    budGroup.buds.push(bud);
                     if (this.ts.token === tokens_1.Token.RBRACE) {
                         this.ts.readToken();
                         this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
@@ -250,9 +274,13 @@ class PBizEntity extends PBizBase {
                 }
             }
             else {
-                let prop = this.parseSubItem();
+                if (name === undefined) {
+                    this.ts.expectToken(tokens_1.Token.LBRACE);
+                }
+                let bizBud = this.parseBud(name, ui);
+                this.element.group0.buds.push(bizBud);
                 this.ts.passToken(tokens_1.Token.SEMICOLON);
-                this.element.props.set(prop.name, prop);
+                this.element.props.set(bizBud.name, bizBud);
             }
         };
     }
@@ -353,25 +381,27 @@ class PBizEntity extends PBizBase {
         return ok;
     }
     scanBud(space, bud) {
-        let { pelement, value } = bud;
+        let ok = true;
+        let { pelement, name, value } = bud;
+        if (this.element.budGroups[name] !== undefined) {
+            this.log(`Prop name ${name} duplicates with Group name`);
+            ok = false;
+        }
         if (pelement === undefined) {
             if (value !== undefined) {
                 const { exp } = value;
                 if (exp !== undefined) {
-                    if (exp.pelement.scan(space) === false)
-                        return false;
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
                 }
-                /*
-                if (query !== undefined) {
-                    if (query.pelement.scan(space) === false) return false;
-                }
-                */
             }
-            return true;
+            return ok;
         }
-        if (pelement.scan(space) === false)
-            return false;
-        return true;
+        if (pelement.scan(space) === false) {
+            ok = false;
+        }
+        return ok;
     }
     scanBuds(space, buds) {
         let ok = true;

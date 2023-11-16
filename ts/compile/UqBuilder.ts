@@ -1,6 +1,6 @@
 import { EntityRunner } from "../core";
 import { CompileOptions, DbContext } from "../uq/builder";
-import { Biz, BizBud, BizEntity } from "../uq/il";
+import { Biz, BizBud, BizEntity, BudGroup } from "../uq/il";
 import { Compiler } from "./Compiler";
 import { UqParser } from "./UqParser";
 
@@ -49,6 +49,26 @@ export class UqBuilder {
                 dataType: dataTypeNum, objId, flag
             });
         });
+        function buildGroupParams(group: BudGroup) {
+            if (group.buds.length === 0) return;
+            const { id, phrase, ui, typeNum, memo } = group;
+            let caption: string;
+            if (ui !== undefined) caption = ui.caption;
+            budParams.push({
+                id: id,
+                name: phrase, caption,
+                type: typeNum, memo,
+                dataType: 0,
+                objId: 0,
+                flag: 0,
+            });
+        }
+        let { group1, budGroups } = entity;
+        buildGroupParams(group1);
+        for (let i in budGroups) {
+            buildGroupParams(budGroups[i]);
+        }
+
         let [[ret], budIds] = await this.runner.unitUserTablesFromProc(
             'SaveBizObject'
             , this.site, this.user, this.newSoleEntityId

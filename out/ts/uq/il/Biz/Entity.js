@@ -5,18 +5,22 @@ const datatype_1 = require("../datatype");
 const field_1 = require("../field");
 const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
+const Bud_1 = require("./Bud");
 var BudIndex;
 (function (BudIndex) {
     BudIndex[BudIndex["none"] = 0] = "none";
     BudIndex[BudIndex["index"] = 1] = "index";
 })(BudIndex || (exports.BudIndex = BudIndex = {}));
 class BizEntity extends Base_1.BizBase {
-    constructor() {
-        super(...arguments);
+    constructor(biz) {
+        super(biz);
         this.props = new Map();
         this.budGroups = {};
         this.permissions = {};
         this.source = undefined;
+        this.group0 = new Bud_1.BudGroup(biz);
+        this.group1 = new Bud_1.BudGroup(biz);
+        this.group1.name = '+';
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
@@ -26,6 +30,10 @@ class BizEntity extends Base_1.BizBase {
                 props.push(value.buildSchema(res));
             }
             Object.assign(ret, { props });
+        }
+        this.group1.buildSchema(res);
+        for (let i in this.budGroups) {
+            this.budGroups[i].buildSchema(res);
         }
         this.schema = ret;
         return ret;
@@ -48,6 +56,10 @@ class BizEntity extends Base_1.BizBase {
         this.forEachBud(bud => {
             bud.buildPhrases(phrases, phrase);
         });
+        this.group1.buildPhrases(phrases, phrase);
+        for (let i in this.budGroups) {
+            this.budGroups[i].buildPhrases(phrases, phrase);
+        }
     }
     buildIxRoles(ixRoles) {
         for (let role in this.permissions) {

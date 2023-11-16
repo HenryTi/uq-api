@@ -1,7 +1,7 @@
 import {
     BizBase, BizAtom, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType, Biz, BizQueryValue
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType, Biz, BizQueryValue, BudGroup
 } from "../../il";
 import { UI } from "../../il/UI";
 import { PElement } from "../element";
@@ -270,12 +270,36 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected parseProp = () => {
+        let name: string;
+        let ui: Partial<UI>;
+        if (this.ts.token === Token.ADD) {
+            this.ts.readToken();
+            ui = this.parseUI();
+        }
+        else if (this.ts.token === Token.VAR) {
+            name = this.ts.passVar();
+            ui = this.parseUI();
+        }
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
+            let budGroup: BudGroup;
+            if (name === undefined) {
+                budGroup = this.element.group1;
+            }
+            else {
+                budGroup = this.element.budGroups[name];
+                if (budGroup === undefined) {
+                    budGroup = new BudGroup(this.element.biz);
+                    budGroup.name = name;
+                    budGroup.ui = ui;
+                    this.element.budGroups[name] = budGroup;
+                }
+            }
             for (; ;) {
-                let prop = this.parseSubItem();
+                let bud = this.parseSubItem();
                 this.ts.passToken(Token.SEMICOLON);
-                this.element.props.set(prop.name, prop);
+                this.element.props.set(bud.name, bud);
+                budGroup.buds.push(bud);
                 if (this.ts.token === Token.RBRACE as any) {
                     this.ts.readToken();
                     this.ts.mayPassToken(Token.SEMICOLON);
@@ -284,9 +308,13 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             }
         }
         else {
-            let prop = this.parseSubItem();
+            if (name === undefined) {
+                this.ts.expectToken(Token.LBRACE);
+            }
+            let bizBud = this.parseBud(name, ui);
+            this.element.group0.buds.push(bizBud);
             this.ts.passToken(Token.SEMICOLON);
-            this.element.props.set(prop.name, prop);
+            this.element.props.set(bizBud.name, bizBud);
         }
     }
 
@@ -363,23 +391,27 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected scanBud(space: Space, bud: BizBudValue): boolean {
-        let { pelement, value } = bud;
+        let ok = true;
+        let { pelement, name, value } = bud;
+        if (this.element.budGroups[name] !== undefined) {
+            this.log(`Prop name ${name} duplicates with Group name`);
+            ok = false;
+        }
         if (pelement === undefined) {
             if (value !== undefined) {
                 const { exp } = value;
                 if (exp !== undefined) {
-                    if (exp.pelement.scan(space) === false) return false;
+                    if (exp.pelement.scan(space) === false) {
+                        ok = false;
+                    }
                 }
-                /*
-                if (query !== undefined) {
-                    if (query.pelement.scan(space) === false) return false;
-                }
-                */
             }
-            return true;
+            return ok;
         }
-        if (pelement.scan(space) === false) return false;
-        return true;
+        if (pelement.scan(space) === false) {
+            ok = false;
+        }
+        return ok;
     }
 
     private scanBuds(space: Space, buds: Map<string, BizBudValue>) {
