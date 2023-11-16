@@ -50,19 +50,6 @@ class BFromStatement extends bstatement_1.BStatement {
         for (let col of cols) {
             const { name, val, field } = col;
             let colArr = field.buildColArr();
-            /*
-            let { bud, entity } = field;
-            const colArr: Exp[] = [];
-            if (bud !== undefined) {
-                if (entity !== undefined) {
-                    colArr.push(new ExpNum(entity.id));
-                }
-                colArr.push(new ExpNum(bud.id));
-            }
-            else {
-                colArr.push(new ExpStr(name));
-            }
-            */
             colArr.push(this.context.expVal(val));
             arr.push(new sql_1.ExpFunc('JSON_ARRAY', ...colArr));
         }
@@ -117,11 +104,11 @@ class BFromStatementInPend extends BFromStatement {
         let tblB = 'bin';
         let tblSheet = 'sheet';
         let tblSheetBin = 'sheetBin';
-        const a = Biz_1.MapFieldTable[tblA], b = Biz_1.MapFieldTable[tblB], c = 'c', d = 'd';
+        const a = Biz_1.MapFieldTable[tblA], b = Biz_1.MapFieldTable[tblB], b1 = 'b1', c = 'c', d = 'd';
         const sheet = Biz_1.MapFieldTable[tblSheet];
         const sheetBin = Biz_1.MapFieldTable[tblSheetBin];
         select.column(new sql_1.ExpField('id', a), 'pend');
-        select.column(new sql_1.ExpField('base', d), 'sheet');
+        select.column(new sql_1.ExpField('id', sheetBin), 'sheet');
         select.column(new sql_1.ExpField('bin', a), 'id');
         select.column(new sql_1.ExpField('i', b), 'i');
         select.column(new sql_1.ExpField('x', b), 'x');
@@ -134,11 +121,13 @@ class BFromStatementInPend extends BFromStatement {
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a)))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, b1))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b1), new sql_1.ExpField('id', b)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, d))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('id', b)))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', b1)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('base', d)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, sheet))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, sheet))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
         let insert = factory.createInsert();
         insert.table = new statementWithFrom_1.VarTableWithSchema('$page');

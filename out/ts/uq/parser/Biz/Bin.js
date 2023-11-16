@@ -312,37 +312,12 @@ class PBinPick extends element_1.PElement {
     scan(space) {
         let ok = true;
         const { biz } = space.uq;
-        const { entityArr, logs, ok: retOk, bizPhraseType, } = biz.sameTypeEntityArr(this.from);
+        const { logs, ok: retOk } = biz.sameTypeEntityArr(this.from);
         if (retOk === false) {
             this.log(...logs);
             ok = false;
         }
         else {
-            // let pickBase: PickBase = this.element.pick;
-            /*
-            let multipleEntity = false;
-            const bizEntity0 = entityArr[0];
-            switch (bizPhraseType) {
-                case BizPhraseType.atom:
-                    pickBase = new PickAtom(entityArr as BizAtom[]);
-                    multipleEntity = true;
-                    break;
-                case BizPhraseType.spec:
-                    pickBase = new PickSpec(bizEntity0 as BizAtomSpec);
-                    break;
-                case BizPhraseType.pend:
-                    pickBase = new PickPend(bizEntity0 as BizPend);
-                    break;
-                case BizPhraseType.query:
-                    pickBase = new PickQuery(bizEntity0 as BizQueryTable);
-                    break;
-            }
-            this.element.pick = pickBase;
-            if (multipleEntity === false && entityArr.length > 1) {
-                this.log('from only one object');
-                ok = false;
-            }
-            */
             let { params, bin, pick: pickBase } = this.element;
             if (params !== undefined) {
                 for (let p of params) {

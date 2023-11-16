@@ -6,26 +6,6 @@ const bstatement_1 = require("../bstatement");
 const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const BizEntity_1 = require("./BizEntity");
-const sheetId = 'sheet';
-const s = 's';
-const si = 'si';
-const sx = 'sx';
-const svalue = 'svalue';
-const samount = 'samount';
-const sprice = 'sprice';
-const pendFrom = 'pend';
-const i = 'i';
-const x = 'x';
-const value = 'value';
-const amount = 'amount';
-const price = 'price';
-const binId = 'bin';
-const pBinId = '$pBin';
-const a = 'a';
-const b = 'b';
-const c = 'c';
-const d = 'd';
-const tempBinTable = 'bin';
 class BBizPend extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures();
@@ -39,7 +19,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
             proc.dropOnly = true;
             return;
         }
-        const { params, statement, from } = pendQuery;
+        const { params, statement } = pendQuery;
         const json = '$json';
         const varJson = new sql_1.ExpVar(json);
         let { statements, parameters } = proc;
