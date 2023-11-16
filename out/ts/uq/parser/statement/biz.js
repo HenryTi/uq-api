@@ -144,7 +144,7 @@ class PBizBinPendStatement extends element_1.PElement {
         else {
             const { bizBin } = bizDetailAct;
             if (bizBin.pend === undefined) {
-                this.log(`Biz Pend = can not be used here when ${bizBin.jName} has no PEND`);
+                this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
                 ok = false;
             }
             if (val !== undefined) {

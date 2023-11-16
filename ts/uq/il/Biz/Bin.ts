@@ -108,7 +108,8 @@ export class PickPend extends PickBase {
     }
     fromSchema(): string[] { return [this.from.name]; }
     hasParam(param: string): boolean {
-        return false;
+        let { params } = this.from.pendQuery;
+        return params.findIndex(v => v.name === param) >= 0;
     }
     hasReturn(prop: string): boolean {
         if (prop === undefined || prop === 'id') return true;

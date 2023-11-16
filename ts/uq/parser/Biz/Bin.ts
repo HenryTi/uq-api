@@ -114,14 +114,16 @@ export class PBizBin extends PBizEntity<BizBin> {
             let { size } = picks;
             let i = 0;
             for (let [, pick] of picks) {
-                if (i < size - 1) continue;
+                if (i < size - 1) {
+                    i++;
+                    continue;
+                }
                 if (pick.pick.bizEntityTable === EnumSysTable.pend) {
                     let pend = (pick.pick as PickPend).from;
                     if (pend === undefined) debugger;
                     this.element.pend = pend;
-                    break;
                 }
-                i++;
+                break;
             }
         }
         if (act !== undefined) {

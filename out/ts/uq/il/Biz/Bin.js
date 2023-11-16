@@ -92,7 +92,8 @@ class PickPend extends PickBase {
     }
     fromSchema() { return [this.from.name]; }
     hasParam(param) {
-        return false;
+        let { params } = this.from.pendQuery;
+        return params.findIndex(v => v.name === param) >= 0;
     }
     hasReturn(prop) {
         if (prop === undefined || prop === 'id')

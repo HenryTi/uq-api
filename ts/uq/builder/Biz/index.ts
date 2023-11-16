@@ -5,7 +5,6 @@ export * from './BizSheet';
 export * from './BizBin';
 export * from './BizPend';
 export * from './BizReport';
-export * from './BizPick';
 export * from './BizQuery';
 export * from './BizAssign';
 export * from './BizTie';

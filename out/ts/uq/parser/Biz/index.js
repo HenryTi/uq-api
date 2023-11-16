@@ -21,7 +21,6 @@ __exportStar(require("./Atom"), exports);
 __exportStar(require("./Sheet"), exports);
 __exportStar(require("./Bin"), exports);
 __exportStar(require("./Title"), exports);
-__exportStar(require("./Pick"), exports);
 __exportStar(require("./Bud"), exports);
 __exportStar(require("./Role"), exports);
 __exportStar(require("./Tree"), exports);

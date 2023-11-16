@@ -100,16 +100,17 @@ class PBizBin extends Base_1.PBizEntity {
             let { size } = picks;
             let i = 0;
             for (let [, pick] of picks) {
-                if (i < size - 1)
+                if (i < size - 1) {
+                    i++;
                     continue;
+                }
                 if (pick.pick.bizEntityTable === il_1.EnumSysTable.pend) {
                     let pend = pick.pick.from;
                     if (pend === undefined)
                         debugger;
                     this.element.pend = pend;
-                    break;
                 }
-                i++;
+                break;
             }
         }
         if (act !== undefined) {
