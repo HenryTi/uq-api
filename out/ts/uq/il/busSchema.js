@@ -49,20 +49,6 @@ class FaceSchema {
             let { type, name, fields } = bf;
             name = name.toLowerCase();
             let busField = { name: name, type: type, fields: fields };
-            /*
-            switch (type) {
-                case 'string':
-                case 'number':
-                case 'id':
-                    continue;
-                case 'array':
-                    busField.fields = this.getFaceFields(bf.fields, errorLogs);
-                    break;
-                default:
-                    errorLogs.push(`unknow datatype ${type} in schema ${this.jName}`);
-                    continue;
-            }
-            */
             busFields.push(busField);
         }
         return busFields;

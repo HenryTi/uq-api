@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.FieldShowItem = exports.BudValueAct = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueAct = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -38,6 +38,17 @@ class SpecAtomFieldShowItem extends FieldShowItem {
 }
 class AtomFieldShowItem extends FieldShowItem {
 }
+class BudGroup extends Base_1.BizBase {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.budGroup;
+        this.buds = [];
+    }
+    parser(context) {
+        return;
+    }
+}
+exports.BudGroup = BudGroup;
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     getFieldShows() { return undefined; }

@@ -7,6 +7,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["atom"] = 11] = "atom";
     BizPhraseType[BizPhraseType["spec"] = 12] = "spec";
     BizPhraseType[BizPhraseType["bud"] = 13] = "bud";
+    BizPhraseType[BizPhraseType["budGroup"] = 14] = "budGroup";
     BizPhraseType[BizPhraseType["card"] = 61] = "card";
     BizPhraseType[BizPhraseType["cardDetail"] = 63] = "cardDetail";
     BizPhraseType[BizPhraseType["cardState"] = 62] = "cardState";

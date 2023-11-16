@@ -14,6 +14,7 @@ class BizEntity extends Base_1.BizBase {
     constructor() {
         super(...arguments);
         this.props = new Map();
+        this.budGroups = {};
         this.permissions = {};
         this.source = undefined;
     }
@@ -29,11 +30,11 @@ class BizEntity extends Base_1.BizBase {
         this.schema = ret;
         return ret;
     }
-    okToDefineNewName(name) {
-        if (super.okToDefineNewName(name) === false)
-            return false;
+    hasProp(name) {
+        if (super.hasProp(name) === true)
+            return true;
         let bud = this.props.get(name.toLowerCase());
-        return (bud === undefined);
+        return (bud !== undefined);
     }
     hasField(fieldName) {
         return this.fields.includes(fieldName);

@@ -60,6 +60,14 @@ export interface BudValue {
     str?: string;
 }
 
+export class BudGroup extends BizBase {
+    readonly bizPhraseType = BizPhraseType.budGroup;
+    readonly buds: BizBud[] = [];
+    parser(context: PContext): PElement<IElement> {
+        return;
+    }
+}
+
 export abstract class BizBud extends BizBase {
     readonly bizPhraseType = BizPhraseType.bud;
     abstract get dataType(): BudDataType;

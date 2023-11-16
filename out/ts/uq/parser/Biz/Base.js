@@ -197,7 +197,7 @@ class PBizBase extends element_1.PElement {
             this.ts.readToken();
         }
         bizBud.parser(this.context).parse();
-        if (this.element.okToDefineNewName(name) === false) {
+        if (this.element.hasProp(name) === true) {
             this.ts.error(`${name} can not be used multiple times`);
         }
         const options = {};

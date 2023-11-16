@@ -22,7 +22,6 @@ export abstract class BizAtomID extends BizEntity {
 export class BizAtom extends BizAtomID {
     readonly bizPhraseType = BizPhraseType.atom;
     ex: BizBudValue;
-    // uom: boolean;
     uuid: boolean;
     protected readonly fields = ['id', 'no', 'ex'];
 

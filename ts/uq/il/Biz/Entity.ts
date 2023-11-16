@@ -1,29 +1,17 @@
 import { BBizEntity, DbContext } from "../../builder";
+import { UI } from "../UI";
 import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
 import { Field } from "../field";
 import { BizBase } from "./Base";
 import { BudDataType } from "./BizPhraseType";
-import { BizBud, BizBudValue } from "./Bud";
+import { BizBud, BizBudValue, BudGroup } from "./Bud";
 import { BizRole } from "./Role";
 
 export enum BudIndex {
     none = 0x0000,
     index = 0x0001,
 }
-/*
-export interface IBud {
-    id: number;                 // phrase id
-    phrase: string;
-    caption: string;
-    memo: string;
-    dataType: BudDataType;
-    objName: string;
-    typeNum: string;
-    optionsItemType: OptionsItemValueType;
-    value: string | number;
-    flag: BudFlag;
-}
-*/
+
 export interface Permission {
     a: boolean;                 // all permission
     c: boolean;                 // create
@@ -35,6 +23,9 @@ export interface Permission {
 
 export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBudValue> = new Map();
+    readonly group0: BudGroup;      // 所有不归属组的属性
+    readonly group1: BudGroup;      // 显示时必须的属性
+    readonly budGroups: { [group: string]: BudGroup } = {};
     readonly permissions: { [role: string]: Permission } = {};
     source: string = undefined;
     protected abstract get fields(): string[];
@@ -52,10 +43,10 @@ export abstract class BizEntity extends BizBase {
         this.schema = ret;
         return ret;
     }
-    okToDefineNewName(name: string): boolean {
-        if (super.okToDefineNewName(name) === false) return false;
+    hasProp(name: string): boolean {
+        if (super.hasProp(name) === true) return true;
         let bud = this.props.get(name.toLowerCase());
-        return (bud === undefined);
+        return (bud !== undefined);
     }
 
     hasField(fieldName: string): boolean {

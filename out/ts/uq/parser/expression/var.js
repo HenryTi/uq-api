@@ -86,8 +86,6 @@ class PVarOperand extends element_1.PElement {
                 if (enm !== undefined) {
                     let val = enm.calcKeyValue(var1);
                     if (val !== undefined) {
-                        //this.log(`${enm.type.toUpperCase()} ${enm.jName} 中没有定义 ${var1}`);
-                        //return false;
                         this.element.enumValue = val;
                         return true;
                     }

@@ -165,7 +165,7 @@ class PBizBin extends Base_1.PBizEntity {
                 return;
             const { dataType } = bud;
             if (dataType !== il_2.BudDataType.dec && dataType !== il_2.BudDataType.none) {
-                this.log(`${bud.jName} can only be DEC`);
+                this.log(`${bud.getJName()} can only be DEC`);
                 ok = false;
             }
             const { value } = bud;

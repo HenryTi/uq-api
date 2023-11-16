@@ -168,7 +168,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             this.ts.readToken();
         }
         bizBud.parser(this.context).parse();
-        if (this.element.okToDefineNewName(name) === false) {
+        if (this.element.hasProp(name) === true) {
             this.ts.error(`${name} can not be used multiple times`);
         }
 

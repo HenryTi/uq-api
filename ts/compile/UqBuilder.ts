@@ -74,7 +74,7 @@ export class UqBuilder {
         let schemaText = JSON.stringify(schema);
         await this.runner.unitUserTableFromProc('SaveBizSchema', this.site, this.user, id, schemaText);
     }
-
+    /*
     private async saveBizEntityBuds(entity: BizEntity) {
         let promises: Promise<any>[] = [];
         entity.forEachBud(bud => {
@@ -101,7 +101,7 @@ export class UqBuilder {
         bud.id = budId;
         res[phrase] = caption;
     }
-
+    */
     async build(res: any, log: (msg: string) => boolean) {
         const { newest } = this.compiler;
         await Promise.all(newest.map(entity => {

@@ -36,15 +36,14 @@ export abstract class BizBase extends IElement {
             jName: this.jName,
             type: this.type,
             phrase: this.phrase,
-            // caption: res[this.phrase] ?? this.caption,
             ui: {
                 ...this.ui,
                 caption: res[this.phrase] ?? this.ui?.caption,
             }
         }
     };
-    okToDefineNewName(name: string): boolean {
-        return true;
+    hasProp(name: string): boolean {
+        return false;
     }
     get basePhrase(): string { return ''; }
 

@@ -57,29 +57,34 @@ class UqBuilder {
         let schemaText = JSON.stringify(schema);
         await this.runner.unitUserTableFromProc('SaveBizSchema', this.site, this.user, id, schemaText);
     }
-    async saveBizEntityBuds(entity) {
-        let promises = [];
+    /*
+    private async saveBizEntityBuds(entity: BizEntity) {
+        let promises: Promise<any>[] = [];
         entity.forEachBud(bud => {
             promises.push(this.saveBud(entity, bud));
-        });
+        })
         await Promise.all(promises);
-    }
-    ;
-    async saveBud(entity, bud) {
+    };
+
+    private async saveBud(entity: BizEntity, bud: BizBud) {
         const { objNames, res } = this.compiler;
         const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
         const typeNum = bud.typeNum;
-        let objId;
+        let objId: number;
         if (objName !== undefined) {
             const obj = objNames[objName];
             if (obj !== undefined) {
                 objId = obj.id;
             }
         }
-        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud', this.site, this.user, entity.id, bud.id, phrase, caption, typeNum, memo, dataTypeNum, objId, flag);
+        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud'
+            , this.site, this.user, entity.id, bud.id, phrase, caption
+            , typeNum, memo, dataTypeNum, objId, flag
+        );
         bud.id = budId;
         res[phrase] = caption;
     }
+    */
     async build(res, log) {
         const { newest } = this.compiler;
         await Promise.all(newest.map(entity => {

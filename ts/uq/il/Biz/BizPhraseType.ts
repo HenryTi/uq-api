@@ -3,6 +3,7 @@ export enum BizPhraseType {
     atom = 11,
     spec = 12,
     bud = 13,
+    budGroup = 14,
 
     card = 61,
     cardDetail = 63,

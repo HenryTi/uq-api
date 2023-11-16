@@ -87,7 +87,7 @@ class PBizExp extends element_1.PElement {
             switch (bizEntity.bizPhraseType) {
                 default:
                     ok = false;
-                    this.log(`${bizEntity.jName} must be either Atom, Spec, Bin or Title`);
+                    this.log(`${bizEntity.getJName()} must be either Atom, Spec, Bin or Title`);
                     break;
                 case il_2.BizPhraseType.atom:
                     ret = this.scanAtom(space);
@@ -130,7 +130,7 @@ class PBizExp extends element_1.PElement {
     checkScalar() {
         const { bizEntity, param } = this.element;
         if (param.paramType !== il_1.BizExpParamType.scalar) {
-            this.log(`${bizEntity.type.toUpperCase()} ${bizEntity.jName} does not support TABLE param.`);
+            this.log(`${bizEntity.type.toUpperCase()} ${bizEntity.getJName()} does not support TABLE param.`);
             return false;
         }
         return true;
@@ -142,15 +142,15 @@ class PBizExp extends element_1.PElement {
             ok = false;
         let bizAtom = bizEntity;
         if (this.bud !== undefined) {
-            this.log(`ATOM ${bizEntity.jName} should not .`);
+            this.log(`ATOM ${bizEntity.getJName()} should not .`);
             ok = false;
         }
         if (prop === undefined) {
             this.element.prop = 'id';
         }
         else {
-            if (bizAtom.okToDefineNewName(prop) === false) {
-                this.log(`${bizAtom.jName} does not have prop ${prop}`);
+            if (bizAtom.hasProp(prop) === false) {
+                this.log(`${bizAtom.getJName()} does not have prop ${prop}`);
                 ok = false;
             }
         }
@@ -163,15 +163,15 @@ class PBizExp extends element_1.PElement {
             ok = false;
         let bizSpec = bizEntity;
         if (this.bud !== undefined) {
-            this.log(`SPEC ${bizEntity.jName} should not .`);
+            this.log(`SPEC ${bizEntity.getJName()} should not .`);
             ok = false;
         }
         if (prop === undefined) {
             this.element.prop = 'id';
         }
         else {
-            if (bizSpec.okToDefineNewName(prop) === false) {
-                this.log(`${bizSpec.jName} does not have prop ${prop}`);
+            if (bizSpec.hasProp(prop) === false) {
+                this.log(`${bizSpec.getJName()} does not have prop ${prop}`);
                 ok = false;
             }
         }
@@ -184,7 +184,7 @@ class PBizExp extends element_1.PElement {
             ok = false;
         let bizBin = bizEntity;
         if (this.bud !== undefined) {
-            this.log(`BIN ${bizEntity.jName} should not .`);
+            this.log(`BIN ${bizEntity.getJName()} should not .`);
             ok = false;
         }
         if (prop === undefined) {
@@ -192,8 +192,10 @@ class PBizExp extends element_1.PElement {
         }
         else {
             const arr = ['i', 'x', 'price', 'amount', 'value'];
-            if (arr.includes(prop) === false || bizBin.okToDefineNewName(prop) === false) {
-                this.log(`${bizBin.jName} does not have prop ${prop}`);
+            if (prop === '收货物流中心')
+                debugger;
+            if (arr.includes(prop) === false && bizBin.hasProp(prop) === false) {
+                this.log(`${bizBin.getJName()} does not have prop ${prop}`);
                 ok = false;
             }
         }
@@ -204,7 +206,7 @@ class PBizExp extends element_1.PElement {
         const { bizEntity, prop } = this.element;
         let title = bizEntity;
         if (this.bud === undefined) {
-            this.log(`TITLE ${title.jName} should follow .`);
+            this.log(`TITLE ${title.getJName()} should follow .`);
             ok = false;
         }
         else {
@@ -233,7 +235,7 @@ class PBizExp extends element_1.PElement {
         const { bizEntity } = this.element;
         let tie = bizEntity;
         if (this.bud !== undefined) {
-            this.log(`TIE ${tie.jName} should not follow prop.`);
+            this.log(`TIE ${tie.getJName()} should not follow prop.`);
             ok = false;
         }
         return ok;

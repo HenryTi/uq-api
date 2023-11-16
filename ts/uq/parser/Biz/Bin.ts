@@ -180,7 +180,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             if (bud === undefined) return;
             const { dataType } = bud;
             if (dataType !== BudDataType.dec && dataType !== BudDataType.none) {
-                this.log(`${bud.jName} can only be DEC`);
+                this.log(`${bud.getJName()} can only be DEC`);
                 ok = false;
             }
             const { value } = bud;
