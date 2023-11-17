@@ -63,8 +63,20 @@ export interface BudValue {
 export class BudGroup extends BizBase {
     readonly bizPhraseType = BizPhraseType.budGroup;
     readonly buds: BizBud[] = [];
+
+    constructor(biz: Biz, name: string) {
+        super(biz);
+        this.name = name;
+    }
     parser(context: PContext): PElement<IElement> {
         return;
+    }
+    buildSchema(res: { [phrase: string]: string }): any {
+        let ret = super.buildSchema(res);
+        if (this.buds.length > 0) {
+            ret.buds = this.buds.map(v => v.id);
+        }
+        return ret;
     }
 }
 

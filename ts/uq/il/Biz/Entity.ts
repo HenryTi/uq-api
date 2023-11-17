@@ -25,16 +25,15 @@ export abstract class BizEntity extends BizBase {
     readonly props: Map<string, BizBudValue> = new Map();
     readonly group0: BudGroup;      // 所有不归属组的属性
     readonly group1: BudGroup;      // 显示时必须的属性
-    readonly budGroups: { [group: string]: BudGroup } = {};
+    readonly budGroups: Map<string, BudGroup> = new Map();
     readonly permissions: { [role: string]: Permission } = {};
     source: string = undefined;
     protected abstract get fields(): string[];
     schema: any;
     constructor(biz: Biz) {
         super(biz);
-        this.group0 = new BudGroup(biz);
-        this.group1 = new BudGroup(biz);
-        this.group1.name = '+';
+        this.group0 = new BudGroup(biz, '-');
+        this.group1 = new BudGroup(biz, '+');
     }
 
     buildSchema(res: { [phrase: string]: string }) {
@@ -47,18 +46,17 @@ export abstract class BizEntity extends BizBase {
             Object.assign(ret, { props });
         }
         let hasGroup = false;
-        let groups = {};
-        function buildGroup(group: BudGroup) {
-            const { buds, name } = group;
+        let groups = [];
+        this.forEachGroup((group: BudGroup) => {
+            const { buds } = group;
             if (buds.length === 0) return;
             hasGroup = true;
-            groups[name] = group.buildSchema(res);
+            groups.push(group.buildSchema(res));
+        });
+        if (hasGroup === true as any) {
+            groups.push(this.group0.buildSchema(res));
+            ret.groups = groups;
         }
-        buildGroup(this.group1);
-        for (let i in this.budGroups) {
-            buildGroup(this.budGroups[i]);
-        }
-        if (hasGroup === true as any) ret.groups = groups;
         this.schema = ret;
         return ret;
     }
@@ -83,8 +81,8 @@ export abstract class BizEntity extends BizBase {
             bud.buildPhrases(phrases, phrase)
         });
         this.group1.buildPhrases(phrases, phrase);
-        for (let i in this.budGroups) {
-            this.budGroups[i].buildPhrases(phrases, phrase);
+        for (let [, group] of this.budGroups) {
+            group.buildPhrases(phrases, phrase);
         }
     }
 
@@ -166,6 +164,13 @@ export abstract class BizEntity extends BizBase {
 
     forEachBud(callback: (bud: BizBud) => void) {
         for (let [, bud] of this.props) callback(bud);
+    }
+
+    forEachGroup(callback: (group: BudGroup) => void) {
+        callback(this.group1);
+        for (let [, group] of this.budGroups) {
+            callback(group);
+        }
     }
 
     db(dbContext: DbContext): BBizEntity {

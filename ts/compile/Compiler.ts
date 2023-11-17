@@ -101,6 +101,10 @@ export class Compiler {
                 }
                 bud.id = savedBud.id;
             });
+            entity.forEachGroup(group => {
+                let saveBud = buds[group.phrase];
+                if (saveBud !== undefined) group.id = saveBud.id;
+            });
         }
         // 
         if (indexTobeRemoved !== undefined) {

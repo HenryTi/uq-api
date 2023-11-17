@@ -49,25 +49,20 @@ export class UqBuilder {
                 dataType: dataTypeNum, objId, flag
             });
         });
-        function buildGroupParams(group: BudGroup) {
+        entity.forEachGroup(group => {
             if (group.buds.length === 0) return;
             const { id, phrase, ui, typeNum, memo } = group;
             let caption: string;
             if (ui !== undefined) caption = ui.caption;
             budParams.push({
-                id: id,
+                id,
                 name: phrase, caption,
                 type: typeNum, memo,
                 dataType: 0,
                 objId: 0,
                 flag: 0,
             });
-        }
-        let { group1, budGroups } = entity;
-        buildGroupParams(group1);
-        for (let i in budGroups) {
-            buildGroupParams(budGroups[i]);
-        }
+        });
 
         let [[ret], budIds] = await this.runner.unitUserTablesFromProc(
             'SaveBizObject'

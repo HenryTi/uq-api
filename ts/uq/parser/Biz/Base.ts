@@ -291,12 +291,11 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 budGroup = this.element.group1;
             }
             else {
-                budGroup = this.element.budGroups[name];
+                budGroup = this.element.budGroups.get(name);
                 if (budGroup === undefined) {
-                    budGroup = new BudGroup(this.element.biz);
-                    budGroup.name = name;
+                    budGroup = new BudGroup(this.element.biz, name);
                     budGroup.ui = ui;
-                    this.element.budGroups[name] = budGroup;
+                    this.element.budGroups.set(name, budGroup);
                 }
             }
             for (; ;) {
@@ -397,7 +396,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     protected scanBud(space: Space, bud: BizBudValue): boolean {
         let ok = true;
         let { pelement, name, value } = bud;
-        if (this.element.budGroups[name] !== undefined) {
+        if (this.element.budGroups.has(name) === true) {
             this.log(`Prop name ${name} duplicates with Group name`);
             ok = false;
         }

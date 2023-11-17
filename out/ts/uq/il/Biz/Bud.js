@@ -39,13 +39,21 @@ class SpecAtomFieldShowItem extends FieldShowItem {
 class AtomFieldShowItem extends FieldShowItem {
 }
 class BudGroup extends Base_1.BizBase {
-    constructor() {
-        super(...arguments);
+    constructor(biz, name) {
+        super(biz);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.budGroup;
         this.buds = [];
+        this.name = name;
     }
     parser(context) {
         return;
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        if (this.buds.length > 0) {
+            ret.buds = this.buds.map(v => v.id);
+        }
+        return ret;
     }
 }
 exports.BudGroup = BudGroup;

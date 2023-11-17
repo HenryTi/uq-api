@@ -257,12 +257,11 @@ class PBizEntity extends PBizBase {
                     budGroup = this.element.group1;
                 }
                 else {
-                    budGroup = this.element.budGroups[name];
+                    budGroup = this.element.budGroups.get(name);
                     if (budGroup === undefined) {
-                        budGroup = new il_1.BudGroup(this.element.biz);
-                        budGroup.name = name;
+                        budGroup = new il_1.BudGroup(this.element.biz, name);
                         budGroup.ui = ui;
-                        this.element.budGroups[name] = budGroup;
+                        this.element.budGroups.set(name, budGroup);
                     }
                 }
                 for (;;) {
@@ -387,7 +386,7 @@ class PBizEntity extends PBizBase {
     scanBud(space, bud) {
         let ok = true;
         let { pelement, name, value } = bud;
-        if (this.element.budGroups[name] !== undefined) {
+        if (this.element.budGroups.has(name) === true) {
             this.log(`Prop name ${name} duplicates with Group name`);
             ok = false;
         }

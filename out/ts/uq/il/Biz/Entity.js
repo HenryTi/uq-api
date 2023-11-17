@@ -15,12 +15,11 @@ class BizEntity extends Base_1.BizBase {
     constructor(biz) {
         super(biz);
         this.props = new Map();
-        this.budGroups = {};
+        this.budGroups = new Map();
         this.permissions = {};
         this.source = undefined;
-        this.group0 = new Bud_1.BudGroup(biz);
-        this.group1 = new Bud_1.BudGroup(biz);
-        this.group1.name = '+';
+        this.group0 = new Bud_1.BudGroup(biz, '-');
+        this.group1 = new Bud_1.BudGroup(biz, '+');
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
@@ -32,20 +31,18 @@ class BizEntity extends Base_1.BizBase {
             Object.assign(ret, { props });
         }
         let hasGroup = false;
-        let groups = {};
-        function buildGroup(group) {
-            const { buds, name } = group;
+        let groups = [];
+        this.forEachGroup((group) => {
+            const { buds } = group;
             if (buds.length === 0)
                 return;
             hasGroup = true;
-            groups[name] = group.buildSchema(res);
-        }
-        buildGroup(this.group1);
-        for (let i in this.budGroups) {
-            buildGroup(this.budGroups[i]);
-        }
-        if (hasGroup === true)
+            groups.push(group.buildSchema(res));
+        });
+        if (hasGroup === true) {
+            groups.push(this.group0.buildSchema(res));
             ret.groups = groups;
+        }
         this.schema = ret;
         return ret;
     }
@@ -68,8 +65,8 @@ class BizEntity extends Base_1.BizBase {
             bud.buildPhrases(phrases, phrase);
         });
         this.group1.buildPhrases(phrases, phrase);
-        for (let i in this.budGroups) {
-            this.budGroups[i].buildPhrases(phrases, phrase);
+        for (let [, group] of this.budGroups) {
+            group.buildPhrases(phrases, phrase);
         }
     }
     buildIxRoles(ixRoles) {
@@ -159,6 +156,12 @@ class BizEntity extends Base_1.BizBase {
     forEachBud(callback) {
         for (let [, bud] of this.props)
             callback(bud);
+    }
+    forEachGroup(callback) {
+        callback(this.group1);
+        for (let [, group] of this.budGroups) {
+            callback(group);
+        }
     }
     db(dbContext) {
         return undefined;
