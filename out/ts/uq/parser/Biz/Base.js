@@ -240,6 +240,7 @@ class PBizEntity extends PBizBase {
             let ui;
             if (this.ts.token === tokens_1.Token.ADD) {
                 this.ts.readToken();
+                name = '+';
                 ui = this.parseUI();
             }
             else if (this.ts.token === tokens_1.Token.VAR) {
@@ -250,6 +251,9 @@ class PBizEntity extends PBizBase {
                 this.ts.readToken();
                 let budGroup;
                 if (name === undefined) {
+                    budGroup = this.element.group0;
+                }
+                else if (name === '+') {
                     budGroup = this.element.group1;
                 }
                 else {

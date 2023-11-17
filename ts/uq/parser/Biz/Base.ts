@@ -274,6 +274,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let ui: Partial<UI>;
         if (this.ts.token === Token.ADD) {
             this.ts.readToken();
+            name = '+';
             ui = this.parseUI();
         }
         else if (this.ts.token === Token.VAR) {
@@ -284,6 +285,9 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             this.ts.readToken();
             let budGroup: BudGroup;
             if (name === undefined) {
+                budGroup = this.element.group0;
+            }
+            else if (name === '+') {
                 budGroup = this.element.group1;
             }
             else {
