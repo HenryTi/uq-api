@@ -255,7 +255,14 @@ export class PBinPick extends PElement<BinPick> {
                     this.ts.readToken();
                     let name = this.ts.passVar();
                     this.ts.passToken(Token.EQU);
-                    let bud = this.ts.passVar();
+                    let bud: string;
+                    if (this.ts.token === Token.MOD as any) {
+                        this.ts.readToken();
+                        bud = '%' + this.ts.passVar();
+                    }
+                    else {
+                        bud = this.ts.passVar();
+                    }
                     let prop: string;
                     if (this.ts.token === Token.DOT as any) {
                         this.ts.readToken();
@@ -344,14 +351,25 @@ export class PBinPick extends PElement<BinPick> {
                         this.log(`PARAM ${name} is not defined`);
                         ok = false;
                     }
-                    let pick = bin.getPick(bud);
-                    if (pick === undefined) {
-                        this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
-                        ok = false;
+                    if (bud === '%sheet') {
+                        const sheetProps = ['i', 'x', 'value', 'price', 'amount'];
+                        if (prop === undefined || sheetProps.includes(prop) === true) {
+                        }
+                        else {
+                            this.log(`%sheet. can be one of${sheetProps.join(',')}`);
+                            ok = false;
+                        }
                     }
-                    else if (pick.pick.hasReturn(prop) === false) {
-                        this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
-                        ok = false;
+                    else {
+                        let pick = bin.getPick(bud);
+                        if (pick === undefined) {
+                            this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
+                            ok = false;
+                        }
+                        else if (pick.pick.hasReturn(prop) === false) {
+                            this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
+                            ok = false;
+                        }
                     }
                 }
             }

@@ -101,22 +101,7 @@ class PBizAtom extends PBizAtomID {
         let ok = true;
         if (super.scan2(uq) === false)
             ok = false;
-        this.copyUom();
         return ok;
-    }
-    copyUom() {
-        let atoms = [];
-        for (let p = this.element; p !== undefined; p = p.extends) {
-            /*
-            if (p.uom === true) {
-                for (let atom of atoms) atom.uom = true;
-                break;
-            }
-            else {
-            */
-            atoms.push(p);
-            //}
-        }
     }
 }
 exports.PBizAtom = PBizAtom;

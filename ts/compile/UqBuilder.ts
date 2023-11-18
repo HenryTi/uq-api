@@ -75,13 +75,25 @@ export class UqBuilder {
         objIds[id] = obj;
         objNames[phrase] = obj;
         res[phrase] = caption;
-
-        for (let i = 0; i < buds.length; i++) {
+        let i = 0;
+        for (; i < buds.length; i++) {
             let bud = buds[i];
-            let { id: budId, phrase } = budIds[i];
+            let { id: budId, phrase, ui } = budIds[i];
             bud.id = budId;
-            res[phrase] = caption;
+            if (ui) {
+                const { caption } = ui;
+                if (caption) res[phrase] = caption;
+            }
         }
+        entity.forEachGroup(group => {
+            if (group.buds.length === 0) return;
+            group.id = budIds[i++];
+            const { phrase, ui } = group;
+            if (ui) {
+                const { caption } = ui;
+                if (caption) res[phrase] = caption;
+            }
+        });
     }
 
     private async saveBizSchema(entity: BizEntity) {

@@ -101,23 +101,7 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
     scan2(uq: Uq): boolean {
         let ok = true;
         if (super.scan2(uq) === false) ok = false;
-        this.copyUom();
         return ok;
-    }
-
-    private copyUom() {
-        let atoms: BizAtom[] = [];
-        for (let p = this.element; p !== undefined; p = p.extends as any) {
-            /*
-            if (p.uom === true) {
-                for (let atom of atoms) atom.uom = true;
-                break;
-            }
-            else {
-            */
-            atoms.push(p);
-            //}
-        }
     }
 }
 

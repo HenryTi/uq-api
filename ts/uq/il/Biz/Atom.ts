@@ -15,7 +15,7 @@ export abstract class BizAtomID extends BizEntity {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return Object.assign(ret, { extends: this.extends?.name });
+        return Object.assign(ret, { extends: this.extends?.id });
     }
 }
 

@@ -13,7 +13,7 @@ class BizAtomID extends Entity_1.BizEntity {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(ret, { extends: (_a = this.extends) === null || _a === void 0 ? void 0 : _a.name });
+        return Object.assign(ret, { extends: (_a = this.extends) === null || _a === void 0 ? void 0 : _a.id });
     }
 }
 exports.BizAtomID = BizAtomID;
