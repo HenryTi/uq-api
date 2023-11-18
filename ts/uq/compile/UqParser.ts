@@ -1,6 +1,6 @@
-import { Entity, Uq } from '../uq/il';
-import { log } from '../uq/log';
-import { TokenStream, PContext, PSysContext, PEntity } from '../uq/parser';
+import { Entity, Uq } from '../il';
+import { log } from '../log';
+import { TokenStream, PContext, PSysContext, PEntity } from '../parser';
 import { Compiler } from './Compiler';
 
 export class UqParser {

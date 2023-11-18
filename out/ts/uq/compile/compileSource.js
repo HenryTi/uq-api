@@ -1,8 +1,9 @@
-import { EntityRunner } from "../core";
-import { Compiler } from "./Compiler";
-
-export async function compileSource(runner: EntityRunner, unit: number, user: number, code: string) {
-    const compiler = new Compiler(runner, unit, user);
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.compileDownload = exports.compileBiz = exports.compileSource = void 0;
+const Compiler_1 = require("./Compiler");
+async function compileSource(runner, unit, user, code) {
+    const compiler = new Compiler_1.Compiler(runner, unit, user);
     try {
         await compiler.loadBizObjects();
         compiler.parseCode(code);
@@ -14,9 +15,9 @@ export async function compileSource(runner: EntityRunner, unit: number, user: nu
         return compiler.throwError(err);
     }
 }
-
-export async function compileBiz(runner: EntityRunner, unit: number, user: number) {
-    const compiler = new Compiler(runner, unit, user);
+exports.compileSource = compileSource;
+async function compileBiz(runner, unit, user) {
+    const compiler = new Compiler_1.Compiler(runner, unit, user);
     try {
         await compiler.loadBizObjects();
         compiler.parseBiz();
@@ -27,9 +28,9 @@ export async function compileBiz(runner: EntityRunner, unit: number, user: numbe
         return compiler.throwError(err);
     }
 }
-
-export async function compileDownload(runner: EntityRunner, unit: number, user: number, fileName: string) {
-    const compiler = new Compiler(runner, unit, user);
+exports.compileBiz = compileBiz;
+async function compileDownload(runner, unit, user, fileName) {
+    const compiler = new Compiler_1.Compiler(runner, unit, user);
     try {
         await compiler.loadBizObjects();
         compiler.parseBiz();
@@ -41,3 +42,5 @@ export async function compileDownload(runner: EntityRunner, unit: number, user: 
         return compiler.throwError(err);
     }
 }
+exports.compileDownload = compileDownload;
+//# sourceMappingURL=compileSource.js.map

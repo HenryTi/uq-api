@@ -2,7 +2,7 @@ import { FromStatement, EnumSysTable, ValueExpression, CompareExpression, JoinTy
 import { KeyOfMapFieldTable, MapFieldTable } from "../Biz";
 import {
     Exp, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull
-    , ExpLT, ExpNum, ExpStr, ExpVal, ExpVar, StatementBase
+    , ExpLT, ExpNum, ExpStr, ExpVal, ExpVar, Select, StatementBase
 } from "../sql";
 import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
@@ -52,6 +52,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         else {
             select.column(this.context.expCmp(ban.val) as ExpVal, 'ban');
         }
+        /*
         const arr: ExpVal[] = [];
         for (let col of cols) {
             const { name, val, field } = col;
@@ -60,7 +61,21 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
             arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
         }
         select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');
+        */
+        this.buildSelectCols(select, 'json');
         return select;
+    }
+
+    protected buildSelectCols(select: Select, alias: string) {
+        const { cols } = this.istatement;
+        const arr: ExpVal[] = [];
+        for (let col of cols) {
+            const { name, val, field } = col;
+            let colArr: Exp[] = field.buildColArr();
+            colArr.push(this.context.expVal(val as ValueExpression));
+            arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
+        }
+        select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
     }
 
     protected buildSelect(cmpStart: ExpCmp) {
@@ -131,8 +146,11 @@ export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
         select.column(new ExpField('value', b), 'value');
         select.column(new ExpField('price', b), 'price');
         select.column(new ExpField('amount', b), 'amount');
-        select.column(new ExpField('mid', a), 'mid');
         select.column(new ExpField('value', a), 'pendvalue');
+        select.column(new ExpField('mid', a), 'mid');
+
+        this.buildSelectCols(select, 'cols');
+
         select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('bin', a)))
             .join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, c))
@@ -158,8 +176,9 @@ export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
             { col: 'value', val: undefined },
             { col: 'price', val: undefined },
             { col: 'amount', val: undefined },
-            { col: 'mid', val: undefined },
             { col: 'pendvalue', val: undefined },
+            { col: 'mid', val: undefined },
+            { col: 'cols', val: undefined },
         ];
         insert.select = select;
         return insert;

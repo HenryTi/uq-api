@@ -1,8 +1,9 @@
-import { EntityRunner } from "../core";
-import { Compiler } from "./Compiler";
-
-export async function compileSingle(runner: EntityRunner, unit: number, user: number, id: number, code: string) {
-    const compiler = new Compiler(runner, unit, user);
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.compileSingle = void 0;
+const Compiler_1 = require("./Compiler");
+async function compileSingle(runner, unit, user, id, code) {
+    const compiler = new Compiler_1.Compiler(runner, unit, user);
     try {
         await compiler.loadBizObjects();
         compiler.parseCode(code);
@@ -17,3 +18,5 @@ export async function compileSingle(runner: EntityRunner, unit: number, user: nu
         return compiler.throwError(err);
     }
 }
+exports.compileSingle = compileSingle;
+//# sourceMappingURL=compileSingle.js.map

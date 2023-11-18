@@ -176,8 +176,6 @@ interface BizSchema extends Schema {
 export class BizSchemaBuilder extends SchemaBuilder<Biz> {
     build(schema: BizSchema, res: { [phrase: string]: string }) {
         const { bizArr } = this.entity;
-        for (let entity of bizArr) {
-            schema[entity.name] = entity.buildSchema(res);
-        }
+        schema.biz = bizArr.map(v => v.buildSchema(res));
     }
 }

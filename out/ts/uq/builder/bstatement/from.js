@@ -46,6 +46,21 @@ class BFromStatement extends bstatement_1.BStatement {
         else {
             select.column(this.context.expCmp(ban.val), 'ban');
         }
+        /*
+        const arr: ExpVal[] = [];
+        for (let col of cols) {
+            const { name, val, field } = col;
+            let colArr: Exp[] = field.buildColArr();
+            colArr.push(this.context.expVal(val as ValueExpression));
+            arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
+        }
+        select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');
+        */
+        this.buildSelectCols(select, 'json');
+        return select;
+    }
+    buildSelectCols(select, alias) {
+        const { cols } = this.istatement;
         const arr = [];
         for (let col of cols) {
             const { name, val, field } = col;
@@ -53,8 +68,7 @@ class BFromStatement extends bstatement_1.BStatement {
             colArr.push(this.context.expVal(val));
             arr.push(new sql_1.ExpFunc('JSON_ARRAY', ...colArr));
         }
-        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
-        return select;
+        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), alias);
     }
     buildSelect(cmpStart) {
         const { factory } = this.context;
@@ -115,8 +129,9 @@ class BFromStatementInPend extends BFromStatement {
         select.column(new sql_1.ExpField('value', b), 'value');
         select.column(new sql_1.ExpField('price', b), 'price');
         select.column(new sql_1.ExpField('amount', b), 'amount');
-        select.column(new sql_1.ExpField('mid', a), 'mid');
         select.column(new sql_1.ExpField('value', a), 'pendvalue');
+        select.column(new sql_1.ExpField('mid', a), 'mid');
+        this.buildSelectCols(select, 'cols');
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
@@ -140,8 +155,9 @@ class BFromStatementInPend extends BFromStatement {
             { col: 'value', val: undefined },
             { col: 'price', val: undefined },
             { col: 'amount', val: undefined },
-            { col: 'mid', val: undefined },
             { col: 'pendvalue', val: undefined },
+            { col: 'mid', val: undefined },
+            { col: 'cols', val: undefined },
         ];
         insert.select = select;
         return insert;

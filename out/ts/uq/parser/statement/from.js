@@ -10,7 +10,7 @@ class PFromStatement extends statement_1.PStatement {
     constructor() {
         super(...arguments);
         this.tbls = [];
-        this.ofs = [];
+        this.ofIXs = [];
     }
     _parse() {
         this.parseTbls();
@@ -33,9 +33,9 @@ class PFromStatement extends statement_1.PStatement {
     parseTblsOf() {
         while (this.ts.isKeyword('of') === true) {
             this.ts.readToken();
-            this.ofs.push(this.ts.passVar());
+            this.ofIXs.push(this.ts.passVar());
         }
-        if (this.ofs.length > 0) {
+        if (this.ofIXs.length > 0) {
             this.ts.passKey('on');
             let ofOn = new il_1.ValueExpression();
             this.context.parseElement(ofOn);
@@ -47,31 +47,33 @@ class PFromStatement extends statement_1.PStatement {
             const coll = {};
             this.ts.readToken();
             this.ts.passToken(tokens_1.Token.LPARENTHESE);
-            this.ts.passKey('id');
-            if (this.ts.isKeyword('asc') === true) {
-                this.element.asc = 'asc';
-            }
-            else if (this.ts.isKeyword('desc') === true) {
-                this.element.asc = 'desc';
-            }
-            else {
-                this.ts.expect('ASC', 'DESC');
-            }
-            coll['id'] = true;
-            this.ts.readToken();
-            if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
-                this.ts.passToken(tokens_1.Token.COMMA);
-                const ban = 'ban';
-                if (this.ts.isKeyword(ban) === true) {
-                    this.ts.readToken();
-                    let caption = this.ts.mayPassString();
-                    this.ts.passToken(tokens_1.Token.EQU);
-                    let val = new il_1.CompareExpression();
-                    this.context.parseElement(val);
-                    coll[ban] = true;
-                    this.element.ban = { caption, val };
-                    if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
-                        this.ts.passToken(tokens_1.Token.COMMA);
+            if (this.ts.isKeyword('id') === true) {
+                this.ts.readToken();
+                if (this.ts.isKeyword('asc') === true) {
+                    this.element.asc = 'asc';
+                }
+                else if (this.ts.isKeyword('desc') === true) {
+                    this.element.asc = 'desc';
+                }
+                else {
+                    this.ts.expect('ASC', 'DESC');
+                }
+                coll['id'] = true;
+                this.ts.readToken();
+                if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+                    this.ts.passToken(tokens_1.Token.COMMA);
+                    const ban = 'ban';
+                    if (this.ts.isKeyword(ban) === true) {
+                        this.ts.readToken();
+                        let caption = this.ts.mayPassString();
+                        this.ts.passToken(tokens_1.Token.EQU);
+                        let val = new il_1.CompareExpression();
+                        this.context.parseElement(val);
+                        coll[ban] = true;
+                        this.element.ban = { caption, val };
+                        if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+                            this.ts.passToken(tokens_1.Token.COMMA);
+                        }
                     }
                 }
             }
@@ -87,7 +89,7 @@ class PFromStatement extends statement_1.PStatement {
                     }
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, ui: { caption: null }, val, field: undefined, });
+                    this.element.cols.push({ name: lowerVar, ui: null, val, field: undefined, });
                 }
                 else {
                     let name = this.ts.passVar();
@@ -140,21 +142,27 @@ class PFromStatement extends statement_1.PStatement {
         }
         return ok;
     }
-    scanEntityArr(space) {
-        let ok = true;
+    setEntityArr(space) {
         const { biz } = space.uq;
-        let bizFieldSpace = space.getBizFieldSpace();
         const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
         this.element.bizEntityTable = bizEntityTable;
+        this.log(...logs);
+        return retOk;
+    }
+    scanEntityArr(space) {
+        let ok = true;
+        const { biz } = space.uq;
+        let bizFieldSpace = space.getBizFieldSpace();
+        let retOk = this.setEntityArr(space);
         if (retOk === false) {
-            this.log(...logs);
-            ok = false;
+            return false;
         }
-        else if (entityArr.length > 0) {
+        let { bizEntityArr: entityArr } = this.element;
+        if (entityArr.length > 0) {
             const { ofIXs, ofOn, cols } = this.element;
-            for (let _of of this.ofs) {
+            for (let _of of this.ofIXs) {
                 let entity = space.getBizEntity(_of);
                 if (entity === undefined) {
                     ok = false;
@@ -178,7 +186,7 @@ class PFromStatement extends statement_1.PStatement {
                 if (val.pelement.scan(space) === false) {
                     ok = false;
                 }
-                if (ui.caption === null) {
+                if (ui === null) {
                     let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
                     if (field !== undefined) {
                         col.field = field;
@@ -212,6 +220,7 @@ exports.PFromStatement = PFromStatement;
 class PFromStatementInPend extends PFromStatement {
     _parse() {
         this.parseTblsOf();
+        this.parseColumn();
         this.parseWhere();
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
@@ -221,7 +230,7 @@ class PFromStatementInPend extends PFromStatement {
     scan(space) {
         return super.scan(space);
     }
-    scanEntityArr(space) {
+    setEntityArr(space) {
         this.element.bizEntityArr = [space.getBizEntity(undefined)];
         this.element.bizPhraseType = il_2.BizPhraseType.pend;
         this.element.bizEntityTable = il_1.EnumSysTable.pend;

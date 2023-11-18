@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildCompileRouter = void 0;
-const compile_1 = require("../compile");
+const compile_1 = require("../uq/compile");
 const actionType = 'compile';
 function buildCompileRouter(router, rb) {
     router.get('/compile/hello', async (req, res) => {

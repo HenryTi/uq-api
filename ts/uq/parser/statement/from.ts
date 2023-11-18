@@ -11,7 +11,7 @@ import { PStatement } from "./statement";
 
 export class PFromStatement<T extends FromStatement = FromStatement> extends PStatement<T> {
     private readonly tbls: string[] = [];
-    private readonly ofs: string[] = [];
+    private readonly ofIXs: string[] = [];
     protected _parse(): void {
         this.parseTbls();
         this.parseTblsOf();
@@ -35,9 +35,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
     protected parseTblsOf() {
         while (this.ts.isKeyword('of') === true) {
             this.ts.readToken();
-            this.ofs.push(this.ts.passVar());
+            this.ofIXs.push(this.ts.passVar());
         }
-        if (this.ofs.length > 0) {
+        if (this.ofIXs.length > 0) {
             this.ts.passKey('on');
             let ofOn = new ValueExpression();
             this.context.parseElement(ofOn);
@@ -45,36 +45,38 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         }
     }
 
-    private parseColumn() {
+    protected parseColumn() {
         if (this.ts.isKeyword('column') === true) {
             const coll: { [name: string]: boolean } = {};
             this.ts.readToken();
             this.ts.passToken(Token.LPARENTHESE);
-            this.ts.passKey('id');
-            if (this.ts.isKeyword('asc') === true) {
-                this.element.asc = 'asc';
-            }
-            else if (this.ts.isKeyword('desc') === true) {
-                this.element.asc = 'desc';
-            }
-            else {
-                this.ts.expect('ASC', 'DESC');
-            }
-            coll['id'] = true;
-            this.ts.readToken();
-            if (this.ts.token !== Token.RPARENTHESE) {
-                this.ts.passToken(Token.COMMA);
-                const ban = 'ban';
-                if (this.ts.isKeyword(ban) === true) {
-                    this.ts.readToken();
-                    let caption = this.ts.mayPassString();
-                    this.ts.passToken(Token.EQU);
-                    let val = new CompareExpression();
-                    this.context.parseElement(val);
-                    coll[ban] = true;
-                    this.element.ban = { caption, val };
-                    if (this.ts.token !== Token.RPARENTHESE as any) {
-                        this.ts.passToken(Token.COMMA);
+            if (this.ts.isKeyword('id') === true) {
+                this.ts.readToken();
+                if (this.ts.isKeyword('asc') === true) {
+                    this.element.asc = 'asc';
+                }
+                else if (this.ts.isKeyword('desc') === true) {
+                    this.element.asc = 'desc';
+                }
+                else {
+                    this.ts.expect('ASC', 'DESC');
+                }
+                coll['id'] = true;
+                this.ts.readToken();
+                if (this.ts.token !== Token.RPARENTHESE) {
+                    this.ts.passToken(Token.COMMA);
+                    const ban = 'ban';
+                    if (this.ts.isKeyword(ban) === true) {
+                        this.ts.readToken();
+                        let caption = this.ts.mayPassString();
+                        this.ts.passToken(Token.EQU);
+                        let val = new CompareExpression();
+                        this.context.parseElement(val);
+                        coll[ban] = true;
+                        this.element.ban = { caption, val };
+                        if (this.ts.token !== Token.RPARENTHESE as any) {
+                            this.ts.passToken(Token.COMMA);
+                        }
                     }
                 }
             }
@@ -91,7 +93,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     }
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, ui: { caption: null }, val, field: undefined, });
+                    this.element.cols.push({ name: lowerVar, ui: null, val, field: undefined, });
                 }
                 else {
                     let name = this.ts.passVar();
@@ -147,21 +149,28 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         return ok;
     }
 
-    protected scanEntityArr(space: Space) {
-        let ok = true;
+    protected setEntityArr(space: Space) {
         const { biz } = space.uq;
-        let bizFieldSpace = space.getBizFieldSpace();
         const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
         this.element.bizEntityTable = bizEntityTable;
+        this.log(...logs);
+        return retOk;
+    }
+
+    protected scanEntityArr(space: Space) {
+        let ok = true;
+        const { biz } = space.uq;
+        let bizFieldSpace = space.getBizFieldSpace();
+        let retOk = this.setEntityArr(space);
         if (retOk === false) {
-            this.log(...logs);
-            ok = false;
+            return false;
         }
-        else if (entityArr.length > 0) {
+        let { bizEntityArr: entityArr } = this.element;
+        if (entityArr.length > 0) {
             const { ofIXs, ofOn, cols } = this.element;
-            for (let _of of this.ofs) {
+            for (let _of of this.ofIXs) {
                 let entity = space.getBizEntity(_of);
                 if (entity === undefined) {
                     ok = false;
@@ -186,7 +195,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 if (val.pelement.scan(space) === false) {
                     ok = false;
                 }
-                if (ui.caption === null) {
+                if (ui === null) {
                     let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
                     if (field !== undefined) {
                         col.field = field;
@@ -220,6 +229,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
 export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
     protected _parse(): void {
         this.parseTblsOf();
+        this.parseColumn();
         this.parseWhere();
         this.ts.passToken(Token.SEMICOLON);
     }
@@ -232,7 +242,7 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
         return super.scan(space);
     }
 
-    protected scanEntityArr(space: Space) {
+    protected setEntityArr(space: Space) {
         this.element.bizEntityArr = [space.getBizEntity(undefined)];
         this.element.bizPhraseType = BizPhraseType.pend;
         this.element.bizEntityTable = EnumSysTable.pend;

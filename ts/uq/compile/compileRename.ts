@@ -1,4 +1,4 @@
-import { EntityRunner } from "../core";
+import { EntityRunner } from "../../core";
 import { Compiler } from "./Compiler";
 
 export async function compileRename(runner: EntityRunner, unit: number, user: number, id: number, entityName: string) {

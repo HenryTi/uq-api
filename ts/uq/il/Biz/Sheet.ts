@@ -96,15 +96,14 @@ export class BizPend extends BizEntity {
             predefined[i] = bud.buildSchema(res);
         }
         ret.predefined = predefined;
-        let params: any[];
         if (this.pendQuery !== undefined) {
-            params = [];
-            let { params: queryParams } = this.pendQuery;
-            for (let p of queryParams) {
-                params.push(p.buildSchema(res));
-            }
+            let { params, from } = this.pendQuery;
+            ret.params = params.map(v => v.buildSchema(res));
+            ret.cols = from.cols.map(v => {
+                const bud = v.field.getBud();
+                return bud?.buildSchema(res);
+            });
         }
-        ret.params = params;
         return ret;
     }
 
@@ -114,6 +113,18 @@ export class BizPend extends BizEntity {
             bud = this.predefinedBuds[name];
         }
         return bud;
+    }
+
+    override forEachBud(callback: (bud: BizBud) => void): void {
+        super.forEachBud(callback);
+        if (this.pendQuery === undefined) return;
+        const { from } = this.pendQuery;
+        const { cols } = from;
+        for (let col of cols) {
+            let bud = col.field?.getBud();
+            if (bud === undefined) continue;
+            callback(bud);
+        }
     }
 }
 

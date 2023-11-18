@@ -66,8 +66,6 @@ export class BizQueryTable extends BizQuery {
         ret.params = this.params.map(v => v.buildSchema(res));
         ret.cols = cols.map(v => {
             const { field } = v;
-            // const { entity, bud } = field;
-            //return [entity?.id, bud?.id];
             return field.buildSchema();
         });
         return ret;
