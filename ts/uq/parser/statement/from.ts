@@ -155,7 +155,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
         this.element.bizEntityTable = bizEntityTable;
-        this.log(...logs);
+        if (retOk === false) this.log(...logs);
         return retOk;
     }
 

@@ -72,7 +72,9 @@ export class PBiz extends PEntity<Biz> {
         let ok = true;
         for (let [, p] of this.entity.bizEntities) {
             let bizEntitySpace = new BizEntitySpace(space, p);
-            if (p.pelement.scan0(bizEntitySpace) === false) ok = false;
+            if (p.pelement.scan0(bizEntitySpace) === false) {
+                ok = false;
+            }
         }
         return ok;
     }
@@ -105,31 +107,24 @@ export class PBiz extends PEntity<Biz> {
             let { pelement } = p;
             if (pelement === undefined) continue;
             let bizEntitySpace = new BizEntitySpace(space, p);
-            if (pelement.scan(bizEntitySpace) === false) ok = false;
-            /*
-            if (p.type === 'atom') {
-                if ((p as BizAtom).uom === true) uomAtoms.push(p as BizAtom);
+            if (pelement.scan(bizEntitySpace) === false) {
+                ok = false;
             }
-            */
         }
-        /*
-        if (uomAtoms.length > 1) {
-            this.log('only one ATOM can have UOM');
-            this.log(`${uomAtoms.map(v => v.jName).join(', ')} have UOM`)
-            ok = false;
-        }
-        */
         this.entity.buildPhrases();
         return ok;
     }
 
     scan2(uq: Uq): boolean {
+        let ok = true;
         for (let [, p] of this.entity.bizEntities) {
             let { pelement } = p;
             if (pelement === undefined) continue;
-            if (pelement.scan2(uq) === false) return false;
+            if (pelement.scan2(uq) === false) {
+                ok = false;
+            }
         }
-        return true;
+        return ok;
     }
 
     scanDoc2(): boolean {

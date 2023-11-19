@@ -148,7 +148,8 @@ class PFromStatement extends statement_1.PStatement {
         this.element.bizEntityArr = entityArr;
         this.element.bizPhraseType = bizPhraseType;
         this.element.bizEntityTable = bizEntityTable;
-        this.log(...logs);
+        if (retOk === false)
+            this.log(...logs);
         return retOk;
     }
     scanEntityArr(space) {
