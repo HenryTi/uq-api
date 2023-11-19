@@ -5,13 +5,11 @@ import {
 } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
-import { ExecSql, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNull, ExpNum, ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, SqlVarTable, Statement } from "../sql";
-import { userParamName } from "../sql/sqlBuilder";
+import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNull, ExpNum, ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, SqlVarTable, Statement } from "../sql";
 import { EntityTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 const sheetId = 'sheet';
-// const ss = 'ss';
 const si = 'si';
 const sx = 'sx';
 const svalue = 'svalue';
@@ -24,7 +22,6 @@ const value = 'value';
 const amount = 'amount';
 const price = 'price';
 const binId = 'bin';
-const pBinId = '$pBin';
 const a = 'a';
 const b = 'b';
 const c = 'c';
