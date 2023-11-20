@@ -215,12 +215,8 @@ class PBizBudAtom extends PBizBudValue {
         this.atomName = this.ts.mayPassVar();
         if (this.ts.token === tokens_1.Token.LBRACE) {
             this.parseFieldShow();
-            this.parseBudEqu();
         }
-        else {
-            this.parseBudEqu();
-            this.parseFieldShow();
-        }
+        this.parseBudEqu();
     }
     parseFieldShow() {
         if (this.ts.token !== tokens_1.Token.LBRACE)
