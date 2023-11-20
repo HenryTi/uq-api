@@ -126,6 +126,7 @@ class PFromStatement extends statement_1.PStatement {
         space = this.createFromSpace(space);
         if (this.scanEntityArr(space) === false) {
             ok = false;
+            return ok;
         }
         const { where, asc, ban } = this.element;
         if (where !== undefined) {

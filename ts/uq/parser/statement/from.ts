@@ -133,6 +133,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         space = this.createFromSpace(space);
         if (this.scanEntityArr(space) === false) {
             ok = false;
+            return ok;
         }
         const { where, asc, ban } = this.element;
         if (where !== undefined) {

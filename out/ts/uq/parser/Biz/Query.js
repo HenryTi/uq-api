@@ -58,6 +58,7 @@ class PBizQueryTable extends PBizQuery {
         const { from, props } = this.element;
         if (this.element.statement.pelement.scan(space) === false) {
             ok = false;
+            return ok;
         }
         if (from === undefined || from.type !== 'from') {
             this.log(`FROM must be the last statement in QUERY`);
