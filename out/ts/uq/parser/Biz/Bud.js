@@ -60,20 +60,26 @@ class PBizBudValue extends PBizBud {
         }
         return ok;
     }
-    getFieldShow(bizBin, ...parts) {
+    getFieldShow(entity, ...parts) {
         let show = [];
         let len = parts.length;
         let name0 = parts[0];
-        let bizBud0 = bizBin.getBud(name0);
+        let bizBud0 = entity.getBud(name0);
         if (bizBud0 === undefined) {
-            this.log(`${bizBin.getJName()} has not ${name0}`);
+            this.log(`${entity.getJName()} has not ${name0}`);
             return undefined;
         }
-        else if (bizBin.bizPhraseType !== il_1.BizPhraseType.bin) {
-            this.log('show field can only be in Bin');
-            return undefined;
+        else {
+            switch (entity.bizPhraseType) {
+                default:
+                    this.log('show field can only be in Bin or Pend');
+                    return undefined;
+                case il_1.BizPhraseType.bin:
+                case il_1.BizPhraseType.pend:
+                    break;
+            }
         }
-        show.push(il_1.FieldShowItem.createBinFieldShow(bizBin, bizBud0));
+        show.push(il_1.FieldShowItem.createEntityFieldShow(entity, bizBud0));
         let p = bizBud0;
         for (let i = 1; i < len; i++) {
             let { dataType } = p;
@@ -207,34 +213,43 @@ exports.PBizBudDate = PBizBudDate;
 class PBizBudAtom extends PBizBudValue {
     _parse() {
         this.atomName = this.ts.mayPassVar();
-        this.parseBudEqu();
         if (this.ts.token === tokens_1.Token.LBRACE) {
-            this.fieldShows = [];
-            this.element.fieldShows = [];
-            this.ts.readToken();
-            for (;;) {
-                if (this.ts.token === tokens_1.Token.RBRACE) {
-                    this.ts.readToken();
-                    break;
-                }
-                if (this.ts.token === tokens_1.Token.COLON) {
-                    this.ts.readToken();
-                    let fieldShow = [];
-                    for (;;) {
-                        fieldShow.push(this.ts.passVar());
-                        if (this.ts.token === tokens_1.Token.SEMICOLON) {
-                            this.ts.readToken();
-                            break;
-                        }
-                        if (this.ts.token === tokens_1.Token.DOT) {
-                            this.ts.readToken();
-                        }
+            this.parseFieldShow();
+            this.parseBudEqu();
+        }
+        else {
+            this.parseBudEqu();
+            this.parseFieldShow();
+        }
+    }
+    parseFieldShow() {
+        if (this.ts.token !== tokens_1.Token.LBRACE)
+            return;
+        this.fieldShows = [];
+        this.element.fieldShows = [];
+        this.ts.readToken();
+        for (;;) {
+            if (this.ts.token === tokens_1.Token.RBRACE) {
+                this.ts.readToken();
+                break;
+            }
+            if (this.ts.token === tokens_1.Token.COLON) {
+                this.ts.readToken();
+                let fieldShow = [];
+                for (;;) {
+                    fieldShow.push(this.ts.passVar());
+                    if (this.ts.token === tokens_1.Token.SEMICOLON) {
+                        this.ts.readToken();
+                        break;
                     }
-                    this.fieldShows.push(fieldShow);
+                    if (this.ts.token === tokens_1.Token.DOT) {
+                        this.ts.readToken();
+                    }
                 }
-                else {
-                    this.ts.expectToken(tokens_1.Token.COLON);
-                }
+                this.fieldShows.push(fieldShow);
+            }
+            else {
+                this.ts.expectToken(tokens_1.Token.COLON);
             }
         }
     }

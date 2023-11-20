@@ -354,6 +354,18 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.element.permissions[role] = permission;
     }
 
+    protected parseBudAtom(itemName: string) {
+        let ui = this.parseUI();
+        let bud = new BizBudAtom(this.element.biz, itemName, ui);
+        if (this.ts.isKeyword('pick') === true) {
+            this.ts.readToken();
+        }
+        this.context.parseElement(bud);
+        // this.parseBudEqu(bud);
+        this.ts.passToken(Token.SEMICOLON);
+        return bud;
+    }
+
     protected parsePermission(permissionLetters: string) {
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();

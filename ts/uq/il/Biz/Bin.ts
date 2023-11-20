@@ -130,23 +130,9 @@ export class BizBin extends BizEntity {
     amount: BizBudValue;
 
     readonly sheetArr: BizSheet[] = [];
-    showBuds: { [bud: string]: FieldShow };
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBin(this, context);
-    }
-
-    allShowBuds() {
-        let has = this.showBuds !== undefined;
-        let ret: { [bud: string]: FieldShow } = { ...this.showBuds };
-        let n = 0;
-        this.forEachBud(v => {
-            let shows = v.getFieldShows();
-            if (shows === undefined) return;
-            has = true;
-            for (let show of shows) ret[v.name + '.' + n++] = show;
-        });
-        if (has === true) return ret;
     }
 
     buildSchema(res: { [phrase: string]: string }) {

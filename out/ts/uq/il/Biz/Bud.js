@@ -16,6 +16,9 @@ class FieldShowItem {
         this.bizEntity = bizEntity;
         this.bizBud = bizBud;
     }
+    static createEntityFieldShow(entity, bizBud) {
+        return new EntityFieldShowItem(entity, bizBud);
+    }
     static createBinFieldShow(bizBin, bizBud) {
         return new BinFieldShowItem(bizBin, bizBud);
     }
@@ -30,6 +33,8 @@ class FieldShowItem {
     }
 }
 exports.FieldShowItem = FieldShowItem;
+class EntityFieldShowItem extends FieldShowItem {
+}
 class BinFieldShowItem extends FieldShowItem {
 }
 class SpecFieldShowItem extends FieldShowItem {

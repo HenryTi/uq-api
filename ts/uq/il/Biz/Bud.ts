@@ -27,6 +27,9 @@ export abstract class FieldShowItem<T extends BizEntity = BizEntity> {
         this.bizEntity = bizEntity;
         this.bizBud = bizBud;
     }
+    static createEntityFieldShow(entity: BizEntity, bizBud: BizBud) {
+        return new EntityFieldShowItem(entity, bizBud);
+    }
     static createBinFieldShow(bizBin: BizBin, bizBud: BizBud) {
         return new BinFieldShowItem(bizBin, bizBud);
     }
@@ -39,6 +42,8 @@ export abstract class FieldShowItem<T extends BizEntity = BizEntity> {
     static createAtomFieldShow(bizAtom: BizAtom, bizBud: BizBud) {
         return new AtomFieldShowItem(bizAtom, bizBud);
     }
+}
+class EntityFieldShowItem extends FieldShowItem<BizEntity> {
 }
 class BinFieldShowItem extends FieldShowItem<BizBin> {
 }

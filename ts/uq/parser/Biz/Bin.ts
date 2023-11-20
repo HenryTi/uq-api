@@ -44,18 +44,6 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.element.x = this.parseBudAtom('x');
     }
 
-    private parseBudAtom(itemName: string) {
-        let ui = this.parseUI();
-        let bud = new BizBudAtom(this.element.biz, itemName, ui);
-        if (this.ts.isKeyword('pick') === true) {
-            this.ts.readToken();
-        }
-        this.context.parseElement(bud);
-        // this.parseBudEqu(bud);
-        this.ts.passToken(Token.SEMICOLON);
-        return bud;
-    }
-
     private parseValueBud(bud: BizBudValue, budName: string) {
         if (bud !== undefined) {
             this.ts.error(`${budName} can only define once`);
@@ -156,13 +144,6 @@ export class PBizBin extends PBizEntity<BizBin> {
                         ok = false;
                     }
                 }
-                /*
-                else {
-                    if (pick.pick.bizEntityTable === EnumSysTable.pend) {
-                        this.element.pend = (pick.pick as PickPend).from;
-                    }
-                }
-                */
                 i++;
             }
         }
@@ -394,10 +375,26 @@ export class PBizPend extends PBizEntity<BizPend> {
         this.context.parseElement(pendQuery);
     }
 
+    private parseI = () => {
+        if (this.element.i !== undefined) {
+            this.ts.error(`I can only be defined once in Biz Bin`);
+        }
+        this.element.i = this.parseBudAtom('i');
+    }
+
+    private parseX = () => {
+        if (this.element.x !== undefined) {
+            this.ts.error(`X can only be defined once in Biz Bin`);
+        }
+        this.element.x = this.parseBudAtom('x');
+    }
+
     readonly keyColl: { [key: string]: () => void } = (() => {
         let ret: { [key: string]: () => void } = {
             prop: this.parseProp,
             query: this.parseQuery,
+            i: this.parseI,
+            x: this.parseX,
         };
         const setRet = (n: string) => {
             ret[n] = () => this.parsePredefined(n);
@@ -414,8 +411,28 @@ export class PBizPend extends PBizEntity<BizPend> {
     scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) ok = false;
-        let { props, pendQuery } = this.element;
+        let { props, pendQuery, i, x } = this.element;
         const predefines = [...BizPend.predefinedId, ...BizPend.predefinedValue];
+
+        if (i !== undefined) {
+            if (this.scanBud(space, i) === false) {
+                ok = false;
+            }
+            if (i.value !== undefined) {
+                this.log(`I can not =`);
+                ok = false;
+            }
+        }
+        if (x !== undefined) {
+            if (this.scanBud(space, x) === false) {
+                ok = false;
+            }
+            if (x.value !== undefined) {
+                this.log(`X can not =`);
+                ok = false;
+            }
+        }
+
         for (let [, bud] of props) {
             if (predefines.includes(bud.name) === true) {
                 this.log(`Pend Prop name can not be one of these: ${predefines.join(', ')}`);
@@ -427,6 +444,21 @@ export class PBizPend extends PBizEntity<BizPend> {
                 ok = false;
             }
         }
+        return ok;
+    }
+
+    bizEntityScan2(bizEntity: BizEntity): boolean {
+        let ok = super.bizEntityScan2(bizEntity);
+        let { i, x } = this.element;
+        function check2(bizBud: BizBudValue) {
+            if (bizBud === undefined) return;
+            let { pelement } = bizBud;
+            if (pelement !== undefined) {
+                if ((pelement as PBizBudValue<any>).bizEntityScan2(bizEntity) === false) ok = false;
+            }
+        }
+        check2(i);
+        check2(x);
         return ok;
     }
 }

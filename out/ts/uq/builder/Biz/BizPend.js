@@ -44,6 +44,13 @@ class BBizPend extends BizEntity_1.BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
+        let showBuds = this.bizEntity.allShowBuds();
+        if (showBuds !== undefined) {
+            let memo = factory.createMemo();
+            statements.push(memo);
+            memo.text = this.bizEntity.name + ' show buds';
+            statements.push(...this.buildGetShowBuds(showBuds, '$page', 'id'));
+        }
     }
 }
 exports.BBizPend = BBizPend;

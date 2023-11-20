@@ -88,18 +88,32 @@ class BizPend extends Entity_1.BizEntity {
                 return bud === null || bud === void 0 ? void 0 : bud.buildSchema(res);
             });
         }
+        if (this.i !== undefined)
+            ret.i = this.i.buildSchema(res);
+        if (this.x !== undefined)
+            ret.x = this.x.buildSchema(res);
         return ret;
     }
     getBud(name) {
         let bud = super.getBud(name);
         if (bud === undefined) {
             bud = this.predefinedBuds[name];
+            if (bud === undefined) {
+                if (name === 'i')
+                    return this.i;
+                if (name === 'x')
+                    return this.x;
+            }
         }
         return bud;
     }
     forEachBud(callback) {
         var _a;
         super.forEachBud(callback);
+        if (this.i !== undefined)
+            callback(this.i);
+        if (this.x !== undefined)
+            callback(this.x);
         if (this.pendQuery === undefined)
             return;
         const { from } = this.pendQuery;
@@ -111,9 +125,19 @@ class BizPend extends Entity_1.BizEntity {
             callback(bud);
         }
     }
+    hasField(fieldName) {
+        let ret = this.fields.includes(fieldName);
+        if (ret === true)
+            return ret;
+        if (fieldName === 'i' && this.i !== undefined)
+            return true;
+        if (fieldName === 'x' && this.x !== undefined)
+            return true;
+        return false;
+    }
 }
 exports.BizPend = BizPend;
-BizPend.predefinedId = ['i', 'x', 'si', 'sx', 's'];
+BizPend.predefinedId = ['si', 'sx', 's'];
 BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 class BizQueryTableInPendStatements extends statement_1.Statements {
     constructor(pendQuery) {

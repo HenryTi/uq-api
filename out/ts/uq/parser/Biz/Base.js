@@ -345,6 +345,17 @@ class PBizEntity extends PBizBase {
         }
         this.element.permissions[role] = permission;
     }
+    parseBudAtom(itemName) {
+        let ui = this.parseUI();
+        let bud = new il_1.BizBudAtom(this.element.biz, itemName, ui);
+        if (this.ts.isKeyword('pick') === true) {
+            this.ts.readToken();
+        }
+        this.context.parseElement(bud);
+        // this.parseBudEqu(bud);
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        return bud;
+    }
     parsePermission(permissionLetters) {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();

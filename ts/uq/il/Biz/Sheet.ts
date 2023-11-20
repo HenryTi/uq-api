@@ -43,7 +43,7 @@ export class BizSheet extends BizEntity {
 }
 
 export class BizPend extends BizEntity {
-    static predefinedId = ['i', 'x', 'si', 'sx', 's'];
+    static predefinedId = ['si', 'sx', 's'];
     static predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
@@ -51,6 +51,9 @@ export class BizPend extends BizEntity {
     readonly predefinedBuds: { [name: string]: BizBudValue };
     pendQuery: PendQuery;
     readonly bizBins: BizBin[] = [];
+    i: BizBudAtom;
+    x: BizBudAtom;
+
     constructor(biz: Biz) {
         super(biz);
         this.predefinedBuds = {};
@@ -104,6 +107,8 @@ export class BizPend extends BizEntity {
                 return bud?.buildSchema(res);
             });
         }
+        if (this.i !== undefined) ret.i = this.i.buildSchema(res);
+        if (this.x !== undefined) ret.x = this.x.buildSchema(res);
         return ret;
     }
 
@@ -111,12 +116,18 @@ export class BizPend extends BizEntity {
         let bud = super.getBud(name);
         if (bud === undefined) {
             bud = this.predefinedBuds[name];
+            if (bud === undefined) {
+                if (name === 'i') return this.i;
+                if (name === 'x') return this.x;
+            }
         }
         return bud;
     }
 
     override forEachBud(callback: (bud: BizBud) => void): void {
         super.forEachBud(callback);
+        if (this.i !== undefined) callback(this.i);
+        if (this.x !== undefined) callback(this.x);
         if (this.pendQuery === undefined) return;
         const { from } = this.pendQuery;
         const { cols } = from;
@@ -125,6 +136,13 @@ export class BizPend extends BizEntity {
             if (bud === undefined) continue;
             callback(bud);
         }
+    }
+    hasField(fieldName: string): boolean {
+        let ret = this.fields.includes(fieldName);
+        if (ret === true) return ret;
+        if (fieldName === 'i' && this.i !== undefined) return true;
+        if (fieldName === 'x' && this.x !== undefined) return true;
+        return false;
     }
 }
 

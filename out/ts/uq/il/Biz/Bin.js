@@ -112,21 +112,6 @@ class BizBin extends Entity_1.BizEntity {
     parser(context) {
         return new parser_1.PBizBin(this, context);
     }
-    allShowBuds() {
-        let has = this.showBuds !== undefined;
-        let ret = Object.assign({}, this.showBuds);
-        let n = 0;
-        this.forEachBud(v => {
-            let shows = v.getFieldShows();
-            if (shows === undefined)
-                return;
-            has = true;
-            for (let show of shows)
-                ret[v.name + '.' + n++] = show;
-        });
-        if (has === true)
-            return ret;
-    }
     buildSchema(res) {
         var _a, _b, _c, _d, _e, _f;
         let ret = super.buildSchema(res);

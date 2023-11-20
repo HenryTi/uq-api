@@ -67,20 +67,26 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
         return ok;
     }
 
-    getFieldShow(bizBin: BizBin, ...parts: string[]) {
+    getFieldShow(entity: BizEntity, ...parts: string[]) {
         let show: FieldShowItem[] = [];
         let len = parts.length;
         let name0 = parts[0];
-        let bizBud0 = bizBin.getBud(name0);
+        let bizBud0 = entity.getBud(name0);
         if (bizBud0 === undefined) {
-            this.log(`${bizBin.getJName()} has not ${name0}`);
+            this.log(`${entity.getJName()} has not ${name0}`);
             return undefined;
         }
-        else if (bizBin.bizPhraseType !== BizPhraseType.bin) {
-            this.log('show field can only be in Bin');
-            return undefined;
+        else {
+            switch (entity.bizPhraseType) {
+                default:
+                    this.log('show field can only be in Bin or Pend');
+                    return undefined;
+                case BizPhraseType.bin:
+                case BizPhraseType.pend:
+                    break;
+            }
         }
-        show.push(FieldShowItem.createBinFieldShow(bizBin, bizBud0));
+        show.push(FieldShowItem.createEntityFieldShow(entity, bizBud0));
         let p = bizBud0;
         for (let i = 1; i < len; i++) {
             let { dataType } = p;
@@ -223,34 +229,43 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
     private fieldShows: string[][];
     protected _parse(): void {
         this.atomName = this.ts.mayPassVar();
-        this.parseBudEqu();
         if (this.ts.token === Token.LBRACE) {
-            this.fieldShows = [];
-            this.element.fieldShows = [];
-            this.ts.readToken();
-            for (; ;) {
-                if (this.ts.token === Token.RBRACE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-                if (this.ts.token === Token.COLON as any) {
-                    this.ts.readToken();
-                    let fieldShow: string[] = [];
-                    for (; ;) {
-                        fieldShow.push(this.ts.passVar());
-                        if (this.ts.token === Token.SEMICOLON as any) {
-                            this.ts.readToken();
-                            break;
-                        }
-                        if (this.ts.token === Token.DOT as any) {
-                            this.ts.readToken();
-                        }
+            this.parseFieldShow();
+            this.parseBudEqu();
+        }
+        else {
+            this.parseBudEqu();
+            this.parseFieldShow();
+        }
+    }
+
+    private parseFieldShow() {
+        if (this.ts.token !== Token.LBRACE) return;
+        this.fieldShows = [];
+        this.element.fieldShows = [];
+        this.ts.readToken();
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE as any) {
+                this.ts.readToken();
+                break;
+            }
+            if (this.ts.token === Token.COLON as any) {
+                this.ts.readToken();
+                let fieldShow: string[] = [];
+                for (; ;) {
+                    fieldShow.push(this.ts.passVar());
+                    if (this.ts.token === Token.SEMICOLON as any) {
+                        this.ts.readToken();
+                        break;
                     }
-                    this.fieldShows.push(fieldShow);
+                    if (this.ts.token === Token.DOT as any) {
+                        this.ts.readToken();
+                    }
                 }
-                else {
-                    this.ts.expectToken(Token.COLON);
-                }
+                this.fieldShows.push(fieldShow);
+            }
+            else {
+                this.ts.expectToken(Token.COLON);
             }
         }
     }
