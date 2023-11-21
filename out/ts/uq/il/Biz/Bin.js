@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.PickBase = exports.BinPick = void 0;
+exports.BizBinAct = exports.BizBin = exports.PickInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
+const IElement_1 = require("../IElement");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
@@ -19,12 +20,8 @@ class BinPick extends Bud_1.BizBud {
     }
 }
 exports.BinPick = BinPick;
-class PickBase {
-}
-exports.PickBase = PickBase;
-class PickQuery extends PickBase {
+class PickQuery {
     constructor(query) {
-        super();
         this.bizEntityTable = undefined;
         this.query = query;
     }
@@ -39,9 +36,8 @@ class PickQuery extends PickBase {
     }
 }
 exports.PickQuery = PickQuery;
-class PickAtom extends PickBase {
+class PickAtom {
     constructor(from) {
-        super();
         this.bizEntityTable = EnumSysTable_1.EnumSysTable.atom;
         this.from = from;
     }
@@ -64,9 +60,8 @@ class PickAtom extends PickBase {
     }
 }
 exports.PickAtom = PickAtom;
-class PickSpec extends PickBase {
+class PickSpec {
     constructor(from) {
-        super();
         this.bizEntityTable = EnumSysTable_1.EnumSysTable.spec;
         this.from = from;
     }
@@ -84,9 +79,8 @@ class PickSpec extends PickBase {
     }
 }
 exports.PickSpec = PickSpec;
-class PickPend extends PickBase {
+class PickPend {
     constructor(from) {
-        super();
         this.bizEntityTable = EnumSysTable_1.EnumSysTable.pend;
         this.from = from;
     }
@@ -102,22 +96,50 @@ class PickPend extends PickBase {
     }
 }
 exports.PickPend = PickPend;
+class PickInput extends IElement_1.IElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'pickinput';
+        this.bizEntityTable = undefined;
+    }
+    fromSchema() {
+        return [];
+    }
+    hasParam(param) {
+        return true;
+    }
+    hasReturn(prop) {
+        return true;
+    }
+    parser(context) {
+        return new parser_1.PPickInput(this, context);
+    }
+}
+exports.PickInput = PickInput;
 class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
+        this.pickColl = {};
         this.sheetArr = [];
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
     }
+    setPick(pick) {
+        if (this.pickArr === undefined) {
+            this.pickArr = [];
+        }
+        this.pickArr.push(pick);
+        this.pickColl[pick.name] = pick;
+    }
     buildSchema(res) {
         var _a, _b, _c, _d, _e, _f;
         let ret = super.buildSchema(res);
         let picks = [];
-        if (this.picks !== undefined) {
-            for (let [, value] of this.picks) {
+        if (this.pickArr !== undefined) {
+            for (let value of this.pickArr) {
                 const { name, ui, pick, params, single } = value;
                 picks.push({
                     name,
@@ -147,8 +169,8 @@ class BizBin extends Entity_1.BizEntity {
     }
     forEachBud(callback) {
         super.forEachBud(callback);
-        if (this.picks !== undefined) {
-            for (let [, pick] of this.picks)
+        if (this.pickArr !== undefined) {
+            for (let pick of this.pickArr)
                 callback(pick);
         }
         if (this.i !== undefined)
@@ -192,9 +214,7 @@ class BizBin extends Entity_1.BizEntity {
         return new builder_1.BBizBin(dbContext, this);
     }
     getPick(pickName) {
-        if (this.picks === undefined)
-            return;
-        let pick = this.picks.get(pickName);
+        let pick = this.pickColl[pickName];
         return pick;
     }
     getBinBudEntity(bud) {

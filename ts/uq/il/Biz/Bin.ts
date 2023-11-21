@@ -1,6 +1,6 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
-import { PBinPick, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
+import { PBinPick, PBizBin, PBizBinAct, PContext, PElement, PPickInput } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
@@ -35,17 +35,16 @@ export class BinPick extends BizBud {
         return new PBinPick(this, context);
     }
 }
-export abstract class PickBase {
-    abstract get bizEntityTable(): EnumSysTable;
-    abstract fromSchema(): string[];
-    abstract hasParam(param: string): boolean;
-    abstract hasReturn(prop: string): boolean;
+export interface PickBase {
+    get bizEntityTable(): EnumSysTable;
+    fromSchema(): string[];
+    hasParam(param: string): boolean;
+    hasReturn(prop: string): boolean;
 }
-export class PickQuery extends PickBase {
+export class PickQuery implements PickBase {
     readonly bizEntityTable = undefined;
     query: BizQueryTable;
     constructor(query: BizQueryTable) {
-        super();
         this.query = query;
     }
     fromSchema(): string[] { return [this.query.name]; }
@@ -57,11 +56,10 @@ export class PickQuery extends PickBase {
         return this.query.hasReturn(prop);
     }
 }
-export class PickAtom extends PickBase {
+export class PickAtom implements PickBase {
     readonly bizEntityTable = EnumSysTable.atom;
     readonly from: BizAtom[];
     constructor(from: BizAtom[]) {
-        super();
         this.from = from;
     }
     fromSchema(): string[] { return this.from.map(v => v.name); }
@@ -81,11 +79,10 @@ export class PickAtom extends PickBase {
         return ['id', 'no', 'ex'].includes(prop);
     }
 }
-export class PickSpec extends PickBase {
+export class PickSpec implements PickBase {
     readonly bizEntityTable = EnumSysTable.spec;
     from: BizAtomSpec;
     constructor(from: BizAtomSpec) {
-        super();
         this.from = from;
     }
     fromSchema(): string[] { return [this.from.name]; }
@@ -99,11 +96,10 @@ export class PickSpec extends PickBase {
         return false;
     }
 }
-export class PickPend extends PickBase {
+export class PickPend implements PickBase {
     readonly bizEntityTable = EnumSysTable.pend;
     from: BizPend;
     constructor(from: BizPend) {
-        super();
         this.from = from;
     }
     fromSchema(): string[] { return [this.from.name]; }
@@ -117,11 +113,31 @@ export class PickPend extends PickBase {
     }
 }
 
+export class PickInput extends IElement implements PickBase {
+    readonly type = 'pickinput';
+    readonly bizEntityTable: EnumSysTable = undefined;
+    fromSchema(): string[] {
+        return [];
+    }
+    hasParam(param: string): boolean {
+        return true;
+    }
+    hasReturn(prop: string): boolean {
+        return true;
+    }
+    parser(context: PContext): PElement<IElement> {
+        return new PPickInput(this, context);
+    }
+}
+
 export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
     readonly bizPhraseType = BizPhraseType.bin;
-    picks: Map<string, BinPick>;
+    private readonly pickColl: { [name: string]: BinPick } = {};
+    pickArr: BinPick[];
+    // Map<string, BinPick>;
     pend: BizPend;
+    pickInput: PickInput;
     act: BizBinAct;
     i: BizBudAtom;
     x: BizBudAtom;
@@ -135,11 +151,19 @@ export class BizBin extends BizEntity {
         return new PBizBin(this, context);
     }
 
+    setPick(pick: BinPick) {
+        if (this.pickArr === undefined) {
+            this.pickArr = [];
+        }
+        this.pickArr.push(pick);
+        this.pickColl[pick.name] = pick;
+    }
+
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         let picks: any[] = [];
-        if (this.picks !== undefined) {
-            for (let [, value] of this.picks) {
+        if (this.pickArr !== undefined) {
+            for (let value of this.pickArr) {
                 const { name, ui, pick, params, single } = value;
                 picks.push({
                     name,
@@ -178,8 +202,8 @@ export class BizBin extends BizEntity {
 
     override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
-        if (this.picks !== undefined) {
-            for (let [, pick] of this.picks) callback(pick);
+        if (this.pickArr !== undefined) {
+            for (let pick of this.pickArr) callback(pick);
         }
         if (this.i !== undefined) callback(this.i);
         if (this.x !== undefined) callback(this.x);
@@ -211,8 +235,7 @@ export class BizBin extends BizEntity {
         return new BBizBin(dbContext, this);
     }
     getPick(pickName: string) {
-        if (this.picks === undefined) return;
-        let pick = this.picks.get(pickName);
+        let pick = this.pickColl[pickName];
         return pick;
     }
     getBinBudEntity(bud: string): BizEntity {
