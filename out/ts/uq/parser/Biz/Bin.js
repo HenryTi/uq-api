@@ -74,12 +74,12 @@ class PBizBin extends Base_1.PBizEntity {
     scan0(space) {
         let ok = true;
         const { pickArr, act } = this.element;
-        for (let pick of pickArr) {
-            if (pick.pelement.scan0(space) === false) {
-                ok = false;
-            }
-        }
         if (pickArr !== undefined) {
+            for (let pick of pickArr) {
+                if (pick.pelement.scan0(space) === false) {
+                    ok = false;
+                }
+            }
             let { length } = pickArr;
             let end = length - 1;
             let pick = pickArr[end];
