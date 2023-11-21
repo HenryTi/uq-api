@@ -32,7 +32,9 @@ export class PBizSheet extends PBizEntity<BizSheet> {
 
     readonly keyColl = {
         prop: this.parseProp,
+        i: this.parseMain,
         main: this.parseMain,
+        x: this.parseDetail,
         detail: this.parseDetail,
         permit: this.parsePermit,
     };

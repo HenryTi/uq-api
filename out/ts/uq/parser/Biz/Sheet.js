@@ -26,7 +26,9 @@ class PBizSheet extends Base_1.PBizEntity {
         };
         this.keyColl = {
             prop: this.parseProp,
+            i: this.parseMain,
             main: this.parseMain,
+            x: this.parseDetail,
             detail: this.parseDetail,
             permit: this.parsePermit,
         };
