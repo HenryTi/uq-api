@@ -8,7 +8,7 @@ import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizAtomSpec } from "./Atom";
 import { BizBase } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudAtom, FieldShowItem, FieldShow } from "./Bud";
+import { BizBudValue, BizBud, BizBudAtom } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend, BizSheet } from "./Sheet";
@@ -137,7 +137,7 @@ export class BizBin extends BizEntity {
     pickArr: BinPick[];
     // Map<string, BinPick>;
     pend: BizPend;
-    pickInput: PickInput;
+    // pickInput: PickInput; 暂时不需要了。直接在I里面加参数
     act: BizBinAct;
     i: BizBudAtom;
     x: BizBudAtom;

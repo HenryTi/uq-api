@@ -1,12 +1,8 @@
-import {
-    BigInt, BizBin, BizSheet, Dec, JoinType
-    , bigIntField, decField, idField, EnumSysTable
-    , BudDataType, FieldShowItem, FieldShow, Char
-} from "../../il";
+import { BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
-import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNull, ExpNum, ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, SqlVarTable, Statement } from "../sql";
-import { EntityTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
+import { ExpEQ, ExpField, ExpNum, ExpVar, Procedure } from "../sql";
+import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 const sheetId = 'sheet';

@@ -213,6 +213,21 @@ exports.PBizBudDate = PBizBudDate;
 class PBizBudAtom extends PBizBudValue {
     _parse() {
         this.atomName = this.ts.mayPassVar();
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.readToken();
+            this.ts.passKey('base');
+            this.ts.passToken(tokens_1.Token.EQU);
+            let act = il_1.BudValueAct.equ;
+            let exp = new il_1.ValueExpression();
+            this.context.parseElement(exp);
+            let budValue = {
+                exp,
+                act,
+            };
+            this.element.params['base'] = budValue;
+            this.ts.mayPassToken(tokens_1.Token.COMMA);
+            this.ts.passToken(tokens_1.Token.RPARENTHESE);
+        }
         if (this.ts.token === tokens_1.Token.LBRACE) {
             this.parseFieldShow();
         }
@@ -251,6 +266,7 @@ class PBizBudAtom extends PBizBudValue {
     }
     scan(space) {
         let ok = super.scan(space);
+        const { params } = this.element;
         if (this.atomName !== undefined) {
             let atom = super.scanAtomID(space, this.atomName);
             if (atom === undefined) {
@@ -258,6 +274,11 @@ class PBizBudAtom extends PBizBudValue {
             }
             else {
                 this.element.atom = atom;
+            }
+        }
+        for (let i in params) {
+            if (params[i].exp.pelement.scan(space) === false) {
+                ok = false;
             }
         }
         return ok;

@@ -1,20 +1,16 @@
 import {
-    BigInt, BizBudValue, BizEntity, BizQueryValue, BudValueAct
-    , Char, DataType, Expression, bigIntField, jsonField
-    , JoinType, EnumSysTable, BudDataType, FieldShow
+    BizBudValue, BizEntity, BudValueAct, DataType, Expression
+    , JoinType, EnumSysTable, BudDataType, FieldShow, BudValue
 } from "../../il";
-import { Sqls } from "../bstatement";
 import { DbContext } from "../dbContext";
 import {
-    ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum
-    , ExpStr, ExpVal, ExpVar, Procedure, Statement
+    ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, Statement
 } from "../sql";
 import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 
 const a = 'a';
 const b = 'b';
 const c = 'c';
-const tempBinTable = 'bin';
 
 export class BBizEntity<B extends BizEntity = any> {
     protected readonly context: DbContext;
@@ -36,16 +32,17 @@ export class BBizEntity<B extends BizEntity = any> {
     async buildBudsValue() {
         this.bizEntity.forEachBud((bud) => {
             if (!bud) return;
-            let { value } = bud as BizBudValue;
-            if (value === undefined) return;
-            let { exp, act } = value;
-            let str = this.stringify(exp);
-            switch (act) {
-                case BudValueAct.init: str += '\ninit'; break;
-                case BudValueAct.equ: str += '\nequ'; break;
-                case BudValueAct.show: str += '\nshow'; break;
-            }
-            value.str = str;
+            bud.buildBudValue((value: BudValue) => {
+                if (value === undefined) return;
+                let { exp, act } = value;
+                let str = this.stringify(exp);
+                switch (act) {
+                    case BudValueAct.init: str += '\ninit'; break;
+                    case BudValueAct.equ: str += '\nequ'; break;
+                    case BudValueAct.show: str += '\nshow'; break;
+                }
+                value.str = str;
+            });
         });
     }
 

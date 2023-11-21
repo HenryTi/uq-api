@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue, BizQueryValue, Uq, BizEntity, BizBin, BudDataType, FieldShowItem, BizAtom, BizAtomSpec
+    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue, BizQueryValue, Uq, BizEntity, BizBin, BudDataType, FieldShowItem, BizAtom, BizAtomSpec, BudValue
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -229,6 +229,21 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
     private fieldShows: string[][];
     protected _parse(): void {
         this.atomName = this.ts.mayPassVar();
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            this.ts.passKey('base');
+            this.ts.passToken(Token.EQU);
+            let act = BudValueAct.equ;
+            let exp = new ValueExpression();
+            this.context.parseElement(exp);
+            let budValue: BudValue = {
+                exp,
+                act,
+            }
+            this.element.params['base'] = budValue;
+            this.ts.mayPassToken(Token.COMMA);
+            this.ts.passToken(Token.RPARENTHESE);
+        }
         if (this.ts.token === Token.LBRACE) {
             this.parseFieldShow();
         }
@@ -268,6 +283,7 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
 
     scan(space: BizEntitySpace): boolean {
         let ok = super.scan(space);
+        const { params } = this.element;
         if (this.atomName !== undefined) {
             let atom = super.scanAtomID(space, this.atomName);
             if (atom === undefined) {
@@ -275,6 +291,11 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
             }
             else {
                 this.element.atom = atom;
+            }
+        }
+        for (let i in params) {
+            if (params[i].exp.pelement.scan(space) === false) {
+                ok = false;
             }
         }
         return ok;

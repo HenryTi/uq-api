@@ -2,7 +2,7 @@ import { BBizSpec, DbContext } from "../../builder";
 import { PBizAtom, /*PBizAtomBud, */PBizAtomSpec, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizBudValue } from "./Bud";
+import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export abstract class BizAtomID extends BizEntity {
@@ -16,6 +16,14 @@ export abstract class BizAtomID extends BizEntity {
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return Object.assign(ret, { extends: this.extends?.id });
+    }
+    getBud(name: string): BizBud {
+        let ret = super.getBud(name);
+        if (ret !== undefined) return ret;
+        for (let p: BizAtomID = this.extends; p !== undefined; p = p.extends) {
+            ret = p.getBud(name);
+            if (ret !== undefined) return ret;
+        }
     }
 }
 
@@ -90,7 +98,7 @@ export class BizAtomSpec extends BizAtomIDWithBase {
         for (let kBud of this.keys) {
             if (kBud.name === name) return kBud;
         }
-        return undefined;
+        return this.base.getBud(name);
     }
 
     db(dbContext: DbContext): BBizSpec {

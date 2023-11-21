@@ -15,6 +15,16 @@ class BizAtomID extends Entity_1.BizEntity {
         let ret = super.buildSchema(res);
         return Object.assign(ret, { extends: (_a = this.extends) === null || _a === void 0 ? void 0 : _a.id });
     }
+    getBud(name) {
+        let ret = super.getBud(name);
+        if (ret !== undefined)
+            return ret;
+        for (let p = this.extends; p !== undefined; p = p.extends) {
+            ret = p.getBud(name);
+            if (ret !== undefined)
+                return ret;
+        }
+    }
 }
 exports.BizAtomID = BizAtomID;
 class BizAtom extends BizAtomID {
@@ -86,7 +96,7 @@ class BizAtomSpec extends BizAtomIDWithBase {
             if (kBud.name === name)
                 return kBud;
         }
-        return undefined;
+        return this.base.getBud(name);
     }
     db(dbContext) {
         return new builder_1.BBizSpec(dbContext, this);

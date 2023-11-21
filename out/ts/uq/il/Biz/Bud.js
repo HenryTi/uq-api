@@ -73,6 +73,7 @@ class BizBud extends Base_1.BizBase {
         this.name = name;
         this.ui = ui;
     }
+    buildBudValue(callback) { }
 }
 exports.BizBud = BizBud;
 var SetType;
@@ -92,6 +93,9 @@ class BizBudValue extends BizBud {
         if (this.name === 'item')
             debugger;
         super.buildPhrases(phrases, prefix);
+    }
+    buildBudValue(callback) {
+        callback(this.value);
     }
 }
 exports.BizBudValue = BizBudValue;
@@ -187,6 +191,7 @@ class BizBudAtom extends BizBudValue {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = true;
+        this.params = {}; // 仅仅针对Spec，可能有多级的base
     }
     getFieldShows() { return this.fieldShows; }
     parser(context) {
@@ -195,9 +200,24 @@ class BizBudAtom extends BizBudValue {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { atom: (_a = this.atom) === null || _a === void 0 ? void 0 : _a.name });
+        ret.atom = (_a = this.atom) === null || _a === void 0 ? void 0 : _a.name;
+        let hasParams = false;
+        let params = {};
+        for (let i in this.params) {
+            params[i] = this.params[i].str;
+            hasParams = true;
+        }
+        if (hasParams === true)
+            ret.params = params;
+        return ret;
     }
     get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
+    buildBudValue(callback) {
+        super.buildBudValue(callback);
+        for (let i in this.params) {
+            callback(this.params[i]);
+        }
+    }
 }
 exports.BizBudAtom = BizBudAtom;
 class BizBudOptions extends BizBudValue {

@@ -7,7 +7,6 @@ const statementWithFrom_1 = require("../sql/statementWithFrom");
 const a = 'a';
 const b = 'b';
 const c = 'c';
-const tempBinTable = 'bin';
 class BBizEntity {
     constructor(context, bizEntity) {
         this.context = context;
@@ -26,23 +25,24 @@ class BBizEntity {
         this.bizEntity.forEachBud((bud) => {
             if (!bud)
                 return;
-            let { value } = bud;
-            if (value === undefined)
-                return;
-            let { exp, act } = value;
-            let str = this.stringify(exp);
-            switch (act) {
-                case il_1.BudValueAct.init:
-                    str += '\ninit';
-                    break;
-                case il_1.BudValueAct.equ:
-                    str += '\nequ';
-                    break;
-                case il_1.BudValueAct.show:
-                    str += '\nshow';
-                    break;
-            }
-            value.str = str;
+            bud.buildBudValue((value) => {
+                if (value === undefined)
+                    return;
+                let { exp, act } = value;
+                let str = this.stringify(exp);
+                switch (act) {
+                    case il_1.BudValueAct.init:
+                        str += '\ninit';
+                        break;
+                    case il_1.BudValueAct.equ:
+                        str += '\nequ';
+                        break;
+                    case il_1.BudValueAct.show:
+                        str += '\nshow';
+                        break;
+                }
+                value.str = str;
+            });
         });
     }
     createProcedure(procName) {

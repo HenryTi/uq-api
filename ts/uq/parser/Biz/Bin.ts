@@ -98,10 +98,12 @@ export class PBizBin extends PBizEntity<BizBin> {
             let { length } = pickArr;
             let end = length - 1;
             let pick = pickArr[end];
+            /*
             if (pick.pick.bizEntityTable === undefined) {
                 this.element.pickInput = pick.pick as PickInput;
                 end--;
             }
+            */
             if (end >= 0) {
                 pick = pickArr[end];
                 if (pick.pick.bizEntityTable === EnumSysTable.pend) {
@@ -217,6 +219,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 export class PBinPick extends PElement<BinPick> {
     private from: string[] = [];
     protected _parse(): void {
+        /*
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
             let pickInput = new PickInput();
@@ -225,6 +228,7 @@ export class PBinPick extends PElement<BinPick> {
             this.ts.mayPassToken(Token.SEMICOLON);
             return;
         }
+        */
         this.ts.passKey('from');
         for (; ;) {
             this.from.push(this.ts.passVar());

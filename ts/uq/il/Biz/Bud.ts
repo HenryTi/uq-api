@@ -62,7 +62,7 @@ export interface FieldShow {
 export interface BudValue {
     exp: ValueExpression;
     act: BudValueAct;
-    str?: string;
+    str?: string;           // 传到前台的schema: init, equ, show
 }
 
 export class BudGroup extends BizBase {
@@ -97,6 +97,7 @@ export abstract class BizBud extends BizBase {
         this.name = name;
         this.ui = ui;
     }
+    buildBudValue(callback: (value: BudValue) => void) { }
 }
 
 export enum SetType {
@@ -125,6 +126,9 @@ export abstract class BizBudValue extends BizBud {
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         if (this.name === 'item') debugger;
         super.buildPhrases(phrases, prefix);
+    }
+    buildBudValue(callback: (value: BudValue) => void) {
+        callback(this.value);
     }
 }
 
@@ -204,15 +208,29 @@ export class BizBudAtom extends BizBudValue {
     atom: BizAtomID;
     fieldShows: FieldShow[];
     getFieldShows(): FieldShow[] { return this.fieldShows; }
+    readonly params: { [param: string]: BudValue; } = {};        // 仅仅针对Spec，可能有多级的base
     parser(context: PContext): PElement<IElement> {
         return new PBizBudAtom(this, context);
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return { ...ret, atom: this.atom?.name };
+        ret.atom = this.atom?.name;
+        let hasParams: boolean = false;
+        let params = {} as any;
+        for (let i in this.params) {
+            params[i] = this.params[i].str;
+            hasParams = true;
+        }
+        if (hasParams === true) ret.params = params;
+        return ret;
     }
     get objName(): string { return this.atom?.phrase; }
-
+    buildBudValue(callback: (value: BudValue) => void) {
+        super.buildBudValue(callback);
+        for (let i in this.params) {
+            callback(this.params[i]);
+        }
+    }
 }
 
 export abstract class BizBudOptions extends BizBudValue {
