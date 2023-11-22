@@ -19,7 +19,7 @@ class BizAssign extends Entity_1.BizEntity {
     buildSchema(res) {
         let ret = super.buildSchema(res);
         ret.atom = this.atom.map(v => v.name);
-        ret.title = this.title.map(([entity, bud]) => ([entity.name, bud.name]));
+        ret.title = this.title.map(([entity, bud]) => ([entity.id, bud.id]));
         return ret;
     }
     db(dbContext) {
