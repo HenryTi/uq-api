@@ -82,17 +82,10 @@ class PBizBin extends Base_1.PBizEntity {
             }
             let { length } = pickArr;
             let end = length - 1;
-            let pick = pickArr[end];
-            /*
-            if (pick.pick.bizEntityTable === undefined) {
-                this.element.pickInput = pick.pick as PickInput;
-                end--;
-            }
-            */
             if (end >= 0) {
-                pick = pickArr[end];
-                if (pick.pick.bizEntityTable === il_1.EnumSysTable.pend) {
-                    let pend = pick.pick.from;
+                let { pick: pickBase } = pickArr[end];
+                if (pickBase !== undefined && pickBase.bizEntityTable === il_1.EnumSysTable.pend) {
+                    let pend = pickBase.from;
                     if (pend === undefined)
                         debugger;
                     this.element.pend = pend;
@@ -124,7 +117,8 @@ class PBizBin extends Base_1.PBizEntity {
                         this.log(`Only last PICK can set SINGLE propertity`);
                         ok = false;
                     }
-                    if (pick.pick.bizEntityTable === il_1.EnumSysTable.pend) {
+                    const { pick: pickBase } = pick;
+                    if ((pickBase === null || pickBase === void 0 ? void 0 : pickBase.bizEntityTable) === il_1.EnumSysTable.pend) {
                         this.log(`Only last PICK can be from PEND`);
                         ok = false;
                     }
@@ -340,9 +334,12 @@ class PBinPick extends element_1.PElement {
                             this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
                             ok = false;
                         }
-                        else if (pick.pick.hasReturn(prop) === false) {
-                            this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
-                            ok = false;
+                        else {
+                            let { pick: pickBase } = pick;
+                            if (pickBase !== undefined && pickBase.hasReturn(prop) === false) {
+                                this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
+                                ok = false;
+                            }
                         }
                     }
                 }
@@ -394,7 +391,8 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
             if (pick === undefined) {
                 return undefined;
             }
-            if (pick.pick.hasReturn(pickProp) === false) {
+            const { pick: pickBase } = pick;
+            if (pickBase !== undefined && pickBase.hasReturn(pickProp) === false) {
                 return [undefined, `Pick '${pickName}' has no return '${pickProp}'`];
             }
             return [new il_1.DotVarPointer(), undefined];
