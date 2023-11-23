@@ -20,6 +20,7 @@ class BizExpParam extends IElement_1.IElement {
     }
 }
 exports.BizExpParam = BizExpParam;
+// (#Entity.Bud(id).^|Prop IN timeSpan +- delta)
 class BizExp extends IElement_1.IElement {
     constructor() {
         super(...arguments);

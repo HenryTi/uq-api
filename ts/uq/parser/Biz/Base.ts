@@ -1,7 +1,7 @@
 import {
     BizBase, BizAtom, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType, Biz, BizQueryValue, BudGroup
+    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType, Biz, BizQueryValue, BudGroup, IxField
 } from "../../il";
 import { UI } from "../../il/UI";
 import { PElement } from "../element";
@@ -250,10 +250,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.element.source = entityType + ' ' + this.element.getJName() + ' ' + source;
     }
 
-    protected getSource() {
-        return this.ts.getEntitySource(this.sourceStart);
-    }
-
     protected abstract get keyColl(): { [key: string]: () => void };
     protected parseContent(): void {
         const keyColl = this.keyColl;
@@ -391,6 +387,27 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.ts.passToken(Token.SEMICOLON);
     }
 
+    protected parseIxField(ixField: IxField) {
+        ixField.caption = this.ts.mayPassString();
+        ixField.atoms = this.parseAtoms() as any;
+    }
+
+    private parseAtoms() {
+        if (this.ts.isKeyword('me') === true) {
+            this.ts.readToken();
+            this.ts.passToken(Token.SEMICOLON);
+            return undefined;
+        }
+        let ret: string[] = [this.ts.passVar()];
+        for (; ;) {
+            if (this.ts.token !== Token.BITWISEOR as any) break;
+            this.ts.readToken();
+            ret.push(this.ts.passVar());
+        }
+        this.ts.passToken(Token.SEMICOLON);
+        return ret;
+    }
+
     protected scanPermission(space: Space) {
         let ok = true;
         let { permissions } = this.element;
@@ -434,6 +451,33 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         for (let [, value] of buds) {
             if (this.scanBud(space, value) === false) ok = false;
         }
+        return ok;
+    }
+
+    protected scanIxField(space: Space, tieField: IxField) {
+        let ok = true;
+        let atoms: BizAtomID[] = [];
+        let atomNames = tieField.atoms as unknown as string[];
+        if (atomNames === undefined) {
+            if (tieField.caption !== undefined) {
+                this.log(`TIE ME field should not define caption`);
+                ok = false;
+            }
+            return ok;
+        }
+
+        for (let name of atomNames) {
+            let bizEntity = space.getBizEntity(name);
+            let { bizPhraseType } = bizEntity;
+            if (bizPhraseType === BizPhraseType.atom || bizPhraseType === BizPhraseType.spec) {
+                atoms.push(bizEntity as BizAtomID);
+            }
+            else {
+                this.log(`${name} is neither ATOM nor SPEC`);
+                ok = false;
+            }
+        }
+        tieField.atoms = atoms;
         return ok;
     }
 

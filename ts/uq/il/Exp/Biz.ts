@@ -33,6 +33,7 @@ export class BizExpParam extends IElement {
     }
 }
 
+// (#Entity.Bud(id).^|Prop IN timeSpan +- delta)
 export class BizExp extends IElement {
     bizEntity: BizEntity;
     bud: BizBud;

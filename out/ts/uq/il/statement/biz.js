@@ -23,6 +23,7 @@ exports.BizBinSubStatement = BizBinSubStatement;
 class BizBinPendStatement extends BizBinSubStatement {
     constructor(bizStatement) {
         super(bizStatement);
+        this.sets = [];
         this.bizStatement = bizStatement;
     }
     get type() { return 'bizpend'; }

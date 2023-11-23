@@ -4,6 +4,7 @@ export enum BizPhraseType {
     spec = 12,
     bud = 13,
     budGroup = 14,
+    duo = 15,           // 二重奏
 
     card = 61,
     cardDetail = 63,
@@ -28,6 +29,8 @@ export enum BizPhraseType {
     key = 1001,
     prop = 1011,
     optionsitem = 1031,
+
+    console = 6001,
 };
 
 export enum BudDataType {

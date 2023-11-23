@@ -31,10 +31,10 @@ export abstract class BizBinSubStatement extends Statement {
 
 export class BizBinPendStatement extends BizBinSubStatement {
     readonly bizStatement: BizBinActStatement;
+    readonly sets: [BizBud, ValueExpression][] = [];
     pend: BizPend;
     setEqu: SetEqu;             // 仅用于 Pend -= val;
     val: ValueExpression;       // 仅用于 Pend -= val;
-    sets: [BizBud, ValueExpression][];
 
     constructor(bizStatement: BizBinActStatement) {
         super(bizStatement);

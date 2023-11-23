@@ -1,4 +1,4 @@
-import { BizAtom, /*BizAtomBud, */BizAtomID, BizAtomIDAny, BizAtomIDWithBase, BizAtomSpec, Uq } from "../../il";
+import { BizAtom, /*BizAtomBud, */BizAtomID, BizAtomIDAny, BizAtomIDWithBase, BizAtomSpec, BizDuo, Uq } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -71,22 +71,12 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
         this.ts.passToken(Token.SEMICOLON);
         this.element.ex = bizBud;
     }
-    /*
-    private parseUom = () => {
-        if (this.element.uom !== undefined) {
-            this.ts.error('UOM can only be defined once');
-        }
-        this.element.uom = true;
-        this.ts.passToken(Token.SEMICOLON);
-    }
-    */
 
     private parsePermit = () => {
         this.parsePermission('crud');
     }
 
     readonly keyColl = {
-        // uom: this.parseUom,
         prop: this.parseProp,
         ex: this.parseEx,
         permit: this.parsePermit
@@ -101,6 +91,34 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
     scan2(uq: Uq): boolean {
         let ok = true;
         if (super.scan2(uq) === false) ok = false;
+        return ok;
+    }
+}
+
+export class PBizDuo extends PBizAtomID<BizDuo> {
+    private parseI = () => {
+        this.parseIxField(this.element.i);
+    }
+
+    private parseX = () => {
+        this.parseIxField(this.element.x);
+    }
+
+    readonly keyColl = {
+        i: this.parseI,
+        x: this.parseX,
+    };
+
+
+    scan(space: Space): boolean {
+        let ok = true;
+        let { i, x } = this.element;
+        if (this.scanIxField(space, i) === false) {
+            ok = false;
+        }
+        if (this.scanIxField(space, x) === false) {
+            ok = false;
+        }
         return ok;
     }
 }

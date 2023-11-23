@@ -11,6 +11,7 @@ const groups: { [name: string]: BizPhraseType[] } = {
     relate: [BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
     report: [BizPhraseType.report],
     permit: [BizPhraseType.permit],           // BizPhraseType.role, 
+    console: [BizPhraseType.console],
 };
 
 export class Compiler {

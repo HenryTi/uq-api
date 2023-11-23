@@ -29,6 +29,7 @@ export class UqBuilder {
         const { type, phrase, ui: { caption }, source } = entity;
         const memo = undefined;
         if (phrase === undefined) debugger;
+        if (source === undefined) debugger;
         let budParams = [];
         let buds: BizBud[] = [];
         entity.forEachBud(bud => {

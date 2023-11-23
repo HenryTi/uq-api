@@ -57,23 +57,25 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
         let setEqu: SetEqu;
         if (this.ts.token === Token.VAR) {
             this.pend = this.ts.passVar();
-            this.sets = {};
-            this.ts.passKey('set');
-            for (; ;) {
-                let v = this.ts.passVar();
-                this.ts.passToken(Token.EQU);
-                let exp = new ValueExpression();
-                this.context.parseElement(exp);
-                this.sets[v] = exp;
-                let { token } = this.ts;
-                if (token === Token.COMMA as any) {
-                    this.ts.readToken();
-                    continue;
+            if (this.ts.isKeyword('set') === true) {
+                this.sets = {};
+                this.ts.passKey('set');
+                for (; ;) {
+                    let v = this.ts.passVar();
+                    this.ts.passToken(Token.EQU);
+                    let exp = new ValueExpression();
+                    this.context.parseElement(exp);
+                    this.sets[v] = exp;
+                    let { token } = this.ts;
+                    if (token === Token.COMMA as any) {
+                        this.ts.readToken();
+                        continue;
+                    }
+                    if (token === Token.SEMICOLON as any) {
+                        break;
+                    }
+                    this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
                 }
-                if (token === Token.SEMICOLON as any) {
-                    break;
-                }
-                this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
             }
         }
         else {
@@ -128,7 +130,6 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
             else {
                 this.element.pend = pend;
                 if (this.sets !== undefined) {
-                    this.element.sets = [];
                     let { sets } = this.element;
                     for (let i in this.sets) {
                         let bud = pend.getBud(i);

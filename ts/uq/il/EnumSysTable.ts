@@ -18,6 +18,7 @@ export enum EnumSysTable {
     atom = 'atom',
     spec = 'spec',
     bud = 'bud',
+    duo = 'duo',
     ixBud = 'ixbud',
     ixBudDec = 'ixbuddec',
     ixBudInt = 'ixbudint',

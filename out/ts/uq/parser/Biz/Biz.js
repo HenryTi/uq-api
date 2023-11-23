@@ -24,6 +24,7 @@ class PBiz extends entity_1.PEntity {
             tree: il_1.BizTree,
             tie: il_1.BizTie,
             report: il_1.BizReport,
+            console: il_1.BizConsole,
         };
     }
     parse() {

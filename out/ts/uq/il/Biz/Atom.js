@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizAtomIDAny = exports.BizAtomSpec = exports.BizAtomIDWithBase = exports.BizAtom = exports.BizAtomID = void 0;
+exports.BizAtomIDAny = exports.BizAtomSpec = exports.BizAtomIDWithBase = exports.BizDuo = exports.BizAtom = exports.BizAtomID = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -47,6 +47,19 @@ class BizAtom extends BizAtomID {
     }
 }
 exports.BizAtom = BizAtom;
+class BizDuo extends BizAtomID {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.duo;
+        this.i = {};
+        this.x = {};
+        this.fields = ['id', 'i', 'x'];
+    }
+    parser(context) {
+        return new parser_1.PBizDuo(this, context);
+    }
+}
+exports.BizDuo = BizDuo;
 class BizAtomIDWithBase extends BizAtomID {
     buildSchema(res) {
         let ret = super.buildSchema(res);

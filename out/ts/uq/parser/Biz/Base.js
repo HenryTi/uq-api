@@ -293,9 +293,6 @@ class PBizEntity extends PBizBase {
         let source = this.getSource();
         this.element.source = entityType + ' ' + this.element.getJName() + ' ' + source;
     }
-    getSource() {
-        return this.ts.getEntitySource(this.sourceStart);
-    }
     parseContent() {
         const keyColl = this.keyColl;
         const keys = Object.keys(keyColl);
@@ -380,6 +377,26 @@ class PBizEntity extends PBizBase {
         }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
+    parseIxField(ixField) {
+        ixField.caption = this.ts.mayPassString();
+        ixField.atoms = this.parseAtoms();
+    }
+    parseAtoms() {
+        if (this.ts.isKeyword('me') === true) {
+            this.ts.readToken();
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+            return undefined;
+        }
+        let ret = [this.ts.passVar()];
+        for (;;) {
+            if (this.ts.token !== tokens_1.Token.BITWISEOR)
+                break;
+            this.ts.readToken();
+            ret.push(this.ts.passVar());
+        }
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        return ret;
+    }
     scanPermission(space) {
         let ok = true;
         let { permissions } = this.element;
@@ -423,6 +440,31 @@ class PBizEntity extends PBizBase {
             if (this.scanBud(space, value) === false)
                 ok = false;
         }
+        return ok;
+    }
+    scanIxField(space, tieField) {
+        let ok = true;
+        let atoms = [];
+        let atomNames = tieField.atoms;
+        if (atomNames === undefined) {
+            if (tieField.caption !== undefined) {
+                this.log(`TIE ME field should not define caption`);
+                ok = false;
+            }
+            return ok;
+        }
+        for (let name of atomNames) {
+            let bizEntity = space.getBizEntity(name);
+            let { bizPhraseType } = bizEntity;
+            if (bizPhraseType === il_1.BizPhraseType.atom || bizPhraseType === il_1.BizPhraseType.spec) {
+                atoms.push(bizEntity);
+            }
+            else {
+                this.log(`${name} is neither ATOM nor SPEC`);
+                ok = false;
+            }
+        }
+        tieField.atoms = atoms;
         return ok;
     }
     scan(space) {

@@ -1,6 +1,7 @@
 import { BBizSpec, DbContext } from "../../builder";
-import { PBizAtom, /*PBizAtomBud, */PBizAtomSpec, PContext, PElement } from "../../parser";
+import { PBizAtom, /*PBizAtomBud, */PBizAtomSpec, PBizDuo, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
+import { IxField } from "./Base";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
@@ -45,6 +46,17 @@ export class BizAtom extends BizAtomID {
             ex: this.ex?.buildSchema(res),
         });
     }
+}
+
+export class BizDuo extends BizAtomID {
+    readonly bizPhraseType = BizPhraseType.duo;
+    readonly i = {} as IxField;
+    readonly x = {} as IxField;
+
+    parser(context: PContext): PElement<IElement> {
+        return new PBizDuo(this, context);
+    }
+    protected readonly fields = ['id', 'i', 'x'];
 }
 
 export abstract class BizAtomIDWithBase extends BizAtomID {

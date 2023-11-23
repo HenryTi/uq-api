@@ -18,6 +18,8 @@ class UqBuilder {
         const memo = undefined;
         if (phrase === undefined)
             debugger;
+        if (source === undefined)
+            debugger;
         let budParams = [];
         let buds = [];
         entity.forEachBud(bud => {

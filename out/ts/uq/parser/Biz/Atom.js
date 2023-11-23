@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizAtomSpec = exports.PBizAtom = exports.PBizAtomID = void 0;
+exports.PBizAtomSpec = exports.PBizDuo = exports.PBizAtom = exports.PBizAtomID = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -65,20 +65,10 @@ class PBizAtom extends PBizAtomID {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
             this.element.ex = bizBud;
         };
-        /*
-        private parseUom = () => {
-            if (this.element.uom !== undefined) {
-                this.ts.error('UOM can only be defined once');
-            }
-            this.element.uom = true;
-            this.ts.passToken(Token.SEMICOLON);
-        }
-        */
         this.parsePermit = () => {
             this.parsePermission('crud');
         };
         this.keyColl = {
-            // uom: this.parseUom,
             prop: this.parseProp,
             ex: this.parseEx,
             permit: this.parsePermit
@@ -105,6 +95,33 @@ class PBizAtom extends PBizAtomID {
     }
 }
 exports.PBizAtom = PBizAtom;
+class PBizDuo extends PBizAtomID {
+    constructor() {
+        super(...arguments);
+        this.parseI = () => {
+            this.parseIxField(this.element.i);
+        };
+        this.parseX = () => {
+            this.parseIxField(this.element.x);
+        };
+        this.keyColl = {
+            i: this.parseI,
+            x: this.parseX,
+        };
+    }
+    scan(space) {
+        let ok = true;
+        let { i, x } = this.element;
+        if (this.scanIxField(space, i) === false) {
+            ok = false;
+        }
+        if (this.scanIxField(space, x) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+}
+exports.PBizDuo = PBizDuo;
 class PBizAtomIDWithBase extends PBizAtomID {
     constructor() {
         super(...arguments);

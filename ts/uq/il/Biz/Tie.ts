@@ -1,20 +1,15 @@
 import { BBizEntity, BBizTie, DbContext } from "../../builder";
 import { PBizTie, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
-import { BizAtomID } from "./Atom";
+import { IxField } from "./Base";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizEntity } from "./Entity";
-
-export interface TieField {
-    caption: string;
-    atoms: BizAtomID[];         // atoms === undefined 则 ME
-}
 
 export class BizTie extends BizEntity {
     readonly bizPhraseType = BizPhraseType.tie;
     protected fields = ['i', 'x'];
-    readonly i = {} as TieField;
-    readonly x = {} as TieField;
+    readonly i = {} as IxField;
+    readonly x = {} as IxField;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizTie(this, context);
@@ -27,7 +22,7 @@ export class BizTie extends BizEntity {
         return ret;
     }
 
-    private tieFieldSchema(tieField: TieField) {
+    private tieFieldSchema(tieField: IxField) {
         const { caption, atoms } = tieField;
         let ret = {
             caption,
