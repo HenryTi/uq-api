@@ -133,6 +133,8 @@ class BizPend extends Entity_1.BizEntity {
             return true;
         if (fieldName === 'x' && this.x !== undefined)
             return true;
+        if (this.props.has(fieldName) === true)
+            return true;
         return false;
     }
 }

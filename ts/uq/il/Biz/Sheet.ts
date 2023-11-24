@@ -142,6 +142,7 @@ export class BizPend extends BizEntity {
         if (ret === true) return ret;
         if (fieldName === 'i' && this.i !== undefined) return true;
         if (fieldName === 'x' && this.x !== undefined) return true;
+        if (this.props.has(fieldName) === true) return true;
         return false;
     }
 }
