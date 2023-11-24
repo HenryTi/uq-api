@@ -30,7 +30,10 @@ class BizConsole extends Entity_1.BizEntity {
             name,
             ui,
             folders: folders.map(v => this.buildFolderSchema(res, v)),
-            files: files.map(v => v.name),
+            files: files.map(v => {
+                const { entity, ui } = v;
+                return { id: entity.id, ui };
+            }),
         };
         return ret;
     }
