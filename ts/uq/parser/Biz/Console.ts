@@ -6,25 +6,30 @@ import { Token } from "../tokens";
 export class PBizConsole extends PBizEntity<BizConsole> {
     protected readonly keyColl = {}
     protected _parse(): void {
-        let p = this.ts.getP(); //.sourceStart;
-        this.element.nameStartAt = p;
-        this.sourceStart = p;
+        this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
         this.ts.readToken();
         let name: string;
         if (this.ts.token === Token.DOLLARVAR) {
-            name = this.ts.lowerVar;
+            this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
             this.ts.readToken();
         }
-        else {
-            name = '$console';
-        }
-        this.element.name = name;
         if (this.ts.token !== Token.LBRACE) {
-            this.ts.passToken(Token.SEMICOLON);
-            return;
+            if (this.ts.token === Token.DOLLARVAR) {
+                this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+                this.ts.readToken();
+            }
+            else {
+                this.ts.passToken(Token.SEMICOLON);
+                return;
+            }
         }
+        this.element.name = '$console';
         this.ts.readToken();
         this.parseFolderContent(this.element.folder);
+    }
+
+    protected getNameInSource() {
+        return '';
     }
 
     private parseFolderContent(folder: Folder) {

@@ -9,25 +9,29 @@ class PBizConsole extends Base_1.PBizEntity {
         this.keyColl = {};
     }
     _parse() {
-        let p = this.ts.getP(); //.sourceStart;
-        this.element.nameStartAt = p;
-        this.sourceStart = p;
+        this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
         this.ts.readToken();
         let name;
         if (this.ts.token === tokens_1.Token.DOLLARVAR) {
-            name = this.ts.lowerVar;
+            this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
             this.ts.readToken();
         }
-        else {
-            name = '$console';
-        }
-        this.element.name = name;
         if (this.ts.token !== tokens_1.Token.LBRACE) {
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-            return;
+            if (this.ts.token === tokens_1.Token.DOLLARVAR) {
+                this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+                this.ts.readToken();
+            }
+            else {
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
+                return;
+            }
         }
+        this.element.name = '$console';
         this.ts.readToken();
         this.parseFolderContent(this.element.folder);
+    }
+    getNameInSource() {
+        return '';
     }
     parseFolderContent(folder) {
         for (;;) {

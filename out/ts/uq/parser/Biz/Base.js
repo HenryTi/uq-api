@@ -297,7 +297,10 @@ class PBizEntity extends PBizBase {
         const { type } = this.element;
         let entityType = type.toUpperCase();
         let source = this.getSource();
-        this.element.source = entityType + ' ' + this.element.getJName() + ' ' + source;
+        this.element.source = entityType + ' ' + this.getNameInSource() + ' ' + source;
+    }
+    getNameInSource() {
+        return this.element.getJName();
     }
     parseContent() {
         const keyColl = this.keyColl;
