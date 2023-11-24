@@ -255,11 +255,11 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         const { type } = this.element;
         let entityType = type.toUpperCase();
         let source = this.getSource();
-        this.element.source = entityType + ' ' + this.getNameInSource() + ' ' + source;
+        this.element.source = entityType + ' ' + this.getNameInSource() + source;
     }
 
     protected getNameInSource() {
-        return this.element.getJName();
+        return this.element.getJName() + ' ';
     }
 
     protected abstract get keyColl(): { [key: string]: () => void };
