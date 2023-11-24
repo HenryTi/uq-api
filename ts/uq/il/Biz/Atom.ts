@@ -48,6 +48,7 @@ export class BizAtom extends BizAtomID {
     }
 }
 
+// 分子：atom 原子的合成
 export class BizDuo extends BizAtomID {
     readonly bizPhraseType = BizPhraseType.duo;
     readonly i = {} as IxField;

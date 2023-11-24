@@ -16,6 +16,14 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         this.parseBody();
     }
 
+    protected expectName() {
+        this.ts.expect(`name of ${this.element.type}`);
+    }
+
+    protected nameShouldNotStartsWith$() {
+        this.ts.error('$ can not be in a entity name');
+    }
+
     protected parseHeader() {
         let jName: string;
         const { token } = this.ts;
@@ -33,11 +41,11 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
                 this.ts.readToken();
             }
             else {
-                this.ts.error('$ can not be in a entity name');
+                this.nameShouldNotStartsWith$();
             }
         }
         else {
-            this.ts.expect(`name of ${this.element.type}`);
+            this.expectName();
         }
         if (this.ts.isKeyword('ver') === true) {
             this.ts.readToken();

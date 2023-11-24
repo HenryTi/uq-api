@@ -44,7 +44,7 @@ export class TokenStream {
     }
 
     getSourceAt(pos: number): string {
-        return this.buffer.substring(pos, this.p);
+        return this.buffer.substring(pos, this.lastP - 1);
     }
 
     getEntitySource(pos: number): string {

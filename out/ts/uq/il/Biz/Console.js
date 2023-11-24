@@ -17,7 +17,7 @@ class BizConsole extends Entity_1.BizEntity {
         };
     }
     parser(context) {
-        return new parser_1.PConsole(this, context);
+        return new parser_1.PBizConsole(this, context);
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);

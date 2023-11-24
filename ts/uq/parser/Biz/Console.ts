@@ -3,15 +3,22 @@ import { BizEntity, BizConsole, File, Folder } from '../../il';
 import { BizEntitySpace } from "./Biz";
 import { Token } from "../tokens";
 
-export class PConsole extends PBizEntity<BizConsole> {
+export class PBizConsole extends PBizEntity<BizConsole> {
     protected readonly keyColl = {}
     protected _parse(): void {
+        let p = this.ts.getP(); //.sourceStart;
+        this.element.nameStartAt = p;
+        this.sourceStart = p;
+        this.ts.readToken();
         let name: string;
         if (this.ts.token === Token.DOLLARVAR) {
             name = this.ts.lowerVar;
             this.ts.readToken();
         }
-        this.element.name = name ?? '$console';
+        else {
+            name = '$console';
+        }
+        this.element.name = name;
         if (this.ts.token !== Token.LBRACE) {
             this.ts.passToken(Token.SEMICOLON);
             return;
@@ -24,6 +31,7 @@ export class PConsole extends PBizEntity<BizConsole> {
         for (; ;) {
             if (this.ts.token === Token.RBRACE as any) {
                 this.ts.readToken();
+                this.ts.mayPassToken(Token.SEMICOLON);
                 break;
             }
             let name = this.ts.passVar();
@@ -39,18 +47,14 @@ export class PConsole extends PBizEntity<BizConsole> {
                 this.parseFolder(subFolder);
                 folder.folders.push(subFolder);
             }
-            else if (this.ts.token === Token.SEMICOLON) {
-                this.ts.readToken();
+            else {
                 let file: File = {
                     name,
                     ui,
                     entity: undefined,
                 }
-                file.ui = this.parseUI();
                 folder.files.push(file);
-            }
-            else {
-                this.ts.expectToken(Token.VAR);
+                this.ts.passToken(Token.SEMICOLON);
             }
         }
     }

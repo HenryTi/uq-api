@@ -1,7 +1,8 @@
 import {
     Biz, BizAtom, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
-    , BizPend, BizSheet, BizOptions, /*BizAtomBud, */BizAtomSpec, BizReport, BizQueryTable, BizAssign, BizPhraseType, BizConsole
+    , BizPend, BizSheet, BizOptions, BizAtomSpec
+    , BizReport, BizQueryTable, BizAssign, BizPhraseType, BizConsole, BizDuo
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -16,6 +17,7 @@ export class PBiz extends PEntity<Biz> {
         this.pRoots = {
             atom: BizAtom,
             spec: BizAtomSpec,
+            duo: BizDuo,
 
             title: BizTitle,
             options: BizOptions,
@@ -58,9 +60,12 @@ export class PBiz extends PEntity<Biz> {
                 // case 'query': this.parseQuery(); return;
             }
         }
-        this.ts.readToken();
+        if (entityType !== 'console') {
+            // console 可能没有名字，也可能有$console
+            this.ts.readToken();
+        }
         let root = new Root(this.entity);
-        root.parser(this.context).parse();
+        this.context.parseElement(root);
         let { bizEntities, bizArr } = this.entity;
         let { name } = root;
         if (bizEntities.has(name) === true) {

@@ -10,6 +10,7 @@ class PBiz extends entity_1.PEntity {
         this.pRoots = {
             atom: il_1.BizAtom,
             spec: il_1.BizAtomSpec,
+            duo: il_1.BizDuo,
             title: il_1.BizTitle,
             options: il_1.BizOptions,
             assign: il_1.BizAssign,
@@ -51,9 +52,12 @@ class PBiz extends entity_1.PEntity {
                 // case 'query': this.parseQuery(); return;
             }
         }
-        this.ts.readToken();
+        if (entityType !== 'console') {
+            // console 可能没有名字，也可能有$console
+            this.ts.readToken();
+        }
         let root = new Root(this.entity);
-        root.parser(this.context).parse();
+        this.context.parseElement(root);
         let { bizEntities, bizArr } = this.entity;
         let { name } = root;
         if (bizEntities.has(name) === true) {

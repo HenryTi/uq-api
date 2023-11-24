@@ -47,6 +47,7 @@ class BizAtom extends BizAtomID {
     }
 }
 exports.BizAtom = BizAtom;
+// 分子：atom 原子的合成
 class BizDuo extends BizAtomID {
     constructor() {
         super(...arguments);

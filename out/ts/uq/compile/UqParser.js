@@ -21,6 +21,9 @@ class UqParser {
             this.ok = false;
             if (typeof err !== 'string')
                 this.log(err.message);
+            else {
+                this.log(err);
+            }
         }
     }
     parseBorn(bornCode) {

@@ -17,7 +17,7 @@ class TokenStream {
         this.advance();
     }
     getSourceAt(pos) {
-        return this.buffer.substring(pos, this.p);
+        return this.buffer.substring(pos, this.lastP - 1);
     }
     getEntitySource(pos) {
         let p = this.p;

@@ -53,6 +53,12 @@ class PBizBase extends element_1.PElement {
         this.parseHeader();
         this.parseBody();
     }
+    expectName() {
+        this.ts.expect(`name of ${this.element.type}`);
+    }
+    nameShouldNotStartsWith$() {
+        this.ts.error('$ can not be in a entity name');
+    }
     parseHeader() {
         let jName;
         const { token } = this.ts;
@@ -70,11 +76,11 @@ class PBizBase extends element_1.PElement {
                 this.ts.readToken();
             }
             else {
-                this.ts.error('$ can not be in a entity name');
+                this.nameShouldNotStartsWith$();
             }
         }
         else {
-            this.ts.expect(`name of ${this.element.type}`);
+            this.expectName();
         }
         if (this.ts.isKeyword('ver') === true) {
             this.ts.readToken();

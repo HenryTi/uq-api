@@ -1,4 +1,4 @@
-import { PConsole as PBizConsole, PContext, PElement } from "../../parser";
+import { PBizConsole as PBizConsole, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { UI } from "../UI";
 import { BizPhraseType } from "./BizPhraseType";

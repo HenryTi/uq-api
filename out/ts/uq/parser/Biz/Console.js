@@ -1,20 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PConsole = void 0;
+exports.PBizConsole = void 0;
 const Base_1 = require("./Base");
 const tokens_1 = require("../tokens");
-class PConsole extends Base_1.PBizEntity {
+class PBizConsole extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.keyColl = {};
     }
     _parse() {
+        let p = this.ts.getP(); //.sourceStart;
+        this.element.nameStartAt = p;
+        this.sourceStart = p;
+        this.ts.readToken();
         let name;
         if (this.ts.token === tokens_1.Token.DOLLARVAR) {
             name = this.ts.lowerVar;
             this.ts.readToken();
         }
-        this.element.name = name !== null && name !== void 0 ? name : '$console';
+        else {
+            name = '$console';
+        }
+        this.element.name = name;
         if (this.ts.token !== tokens_1.Token.LBRACE) {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
             return;
@@ -26,6 +33,7 @@ class PConsole extends Base_1.PBizEntity {
         for (;;) {
             if (this.ts.token === tokens_1.Token.RBRACE) {
                 this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
                 break;
             }
             let name = this.ts.passVar();
@@ -41,18 +49,14 @@ class PConsole extends Base_1.PBizEntity {
                 this.parseFolder(subFolder);
                 folder.folders.push(subFolder);
             }
-            else if (this.ts.token === tokens_1.Token.SEMICOLON) {
-                this.ts.readToken();
+            else {
                 let file = {
                     name,
                     ui,
                     entity: undefined,
                 };
-                file.ui = this.parseUI();
                 folder.files.push(file);
-            }
-            else {
-                this.ts.expectToken(tokens_1.Token.VAR);
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
             }
         }
     }
@@ -85,5 +89,5 @@ class PConsole extends Base_1.PBizEntity {
         return ok;
     }
 }
-exports.PConsole = PConsole;
+exports.PBizConsole = PBizConsole;
 //# sourceMappingURL=Console.js.map
