@@ -6,7 +6,6 @@ import { PBizEntity } from "./Base";
 
 export class PBizReport extends PBizEntity<BizReport> {
     private readonly titles: { title: [string, string]; caption: string; }[] = [];
-    // private readonly lists: { name: string, caption: string, atomName: string }[] = [];
     private from: string;
     private joins: { type: ReportJoinType; entity: string; }[] = [];
     private parseTitles = () => {

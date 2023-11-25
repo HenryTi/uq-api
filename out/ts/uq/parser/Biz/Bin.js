@@ -103,13 +103,13 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
-        space = new BizBinSpace(space, this.element);
+        let binSpace = new BizBinSpace(space, this.element);
         const { pickArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (pickArr !== undefined) {
             let { length } = pickArr;
             for (let i = 0; i < length; i++) {
                 let pick = pickArr[i];
-                if (pick.pelement.scan(space) === false) {
+                if (pick.pelement.scan(binSpace) === false) {
                     ok = false;
                 }
                 if (i < this.pickPendPos) {
@@ -126,12 +126,12 @@ class PBizBin extends Base_1.PBizEntity {
             }
         }
         if (i !== undefined) {
-            if (this.scanBud(space, i) === false) {
+            if (this.scanBud(binSpace, i) === false) {
                 ok = false;
             }
         }
         if (x !== undefined) {
-            if (this.scanBud(space, x) === false) {
+            if (this.scanBud(binSpace, x) === false) {
                 ok = false;
             }
         }
@@ -147,7 +147,7 @@ class PBizBin extends Base_1.PBizEntity {
             if (value !== undefined) {
                 const { exp } = value;
                 if (exp !== undefined) {
-                    if (exp.pelement.scan(space) === false) {
+                    if (exp.pelement.scan(binSpace) === false) {
                         ok = false;
                     }
                 }
@@ -156,7 +156,7 @@ class PBizBin extends Base_1.PBizEntity {
         scanBudValue(budValue);
         scanBudValue(budAmount);
         scanBudValue(budPrice);
-        if (super.scan(space) === false)
+        if (super.scan(binSpace) === false)
             ok = false;
         let { act } = this.element;
         if (act !== undefined) {
@@ -424,6 +424,24 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
         return new il_1.BizBinActFieldSpace(this.bizEntity);
     }
 }
+class BizBinActSpace extends BizBinSpace {
+    _varPointer(name, isField) {
+        if (exports.detailPreDefined.indexOf(name) >= 0) {
+            return new il_1.VarPointer();
+        }
+    }
+    _varsPointer(names) {
+        return undefined;
+    }
+    _getBizEntity(name) {
+        switch (name) {
+            default:
+                return super._getBizEntity(name);
+            case 'pend':
+                return;
+        }
+    }
+}
 class PBizBinAct extends Base_1.PBizBase {
     _parse() {
         this.element.name = '$';
@@ -461,7 +479,7 @@ class PBizBinAct extends Base_1.PBizBase {
     scan(space) {
         let ok = true;
         //  will be removed
-        let actSpace = new BizBinSpace(space, this.element.bizBin);
+        let actSpace = new BizBinActSpace(space, this.element.bizBin);
         let { pelement } = this.element.statement;
         if (pelement.preScan(actSpace) === false)
             ok = false;

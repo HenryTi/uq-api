@@ -32,7 +32,6 @@ export class BizReport extends BizEntity {
 
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        // const { title, bud } = this.title;
         ret.title = this.titles.map(v => {
             const { caption, title, bud } = v;
             return {
@@ -48,37 +47,20 @@ export class BizReport extends BizEntity {
                 entity: entity.name,
             }
         });
-        /*
-        ret.lists = this.lists.map(v => {
-            return v.buildSchema(res);
-        });
-        */
         return ret;
     }
 
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
-        /*
-        let phrase = this.phrase;
-        for (let list of this.lists) {
-            list.buildPhrases(phrases, phrase)
-        }
-        */
     }
 
     override forEachBud(callback: (bud: BizBud) => void) {
         super.forEachBud(callback);
-        // for (let list of this.lists) callback(list);
     }
 
     override getBud(name: string) {
         let bud = super.getBud(name);
         if (bud !== undefined) return bud;
-        /*
-        for (let kBud of this.lists) {
-            if (kBud.name === name) return kBud;
-        }
-        */
         return undefined;
     }
 

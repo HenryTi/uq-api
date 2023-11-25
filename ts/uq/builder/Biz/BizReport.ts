@@ -76,7 +76,6 @@ export class BBizReport extends BBizEntity<BizReport> {
         setS1.equ(s1, new ExpFuncInUq('$uminute_from_time', [
             new ExpVar('dateEnd'), varTimeZone
         ], true));
-        // setS1.equ(s1, new ExpAdd(varS0, new ExpNum(24 * 3600 * 1024 * 1024)));
 
         const insert = factory.createInsert();
         statements.push(insert);
