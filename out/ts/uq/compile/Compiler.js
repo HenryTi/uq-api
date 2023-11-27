@@ -6,7 +6,7 @@ const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
 const il_1 = require("../il");
 const groups = {
-    info: [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.title, il_1.BizPhraseType.assign],
+    info: [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.title, il_1.BizPhraseType.assign, il_1.BizPhraseType.duo],
     sheet: [il_1.BizPhraseType.sheet, il_1.BizPhraseType.bin, il_1.BizPhraseType.pend],
     query: [il_1.BizPhraseType.query],
     relate: [il_1.BizPhraseType.pick, il_1.BizPhraseType.options, il_1.BizPhraseType.tie, il_1.BizPhraseType.tree],

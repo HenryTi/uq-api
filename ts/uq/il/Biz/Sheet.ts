@@ -49,6 +49,7 @@ export class BizPend extends BizEntity {
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
     readonly bizPhraseType = BizPhraseType.pend;
     readonly predefinedBuds: { [name: string]: BizBudValue };
+    readonly predefinedFields: string[] = [];
     pendQuery: PendQuery;
     readonly bizBins: BizBin[] = [];
     i: BizBudAtom;
@@ -109,6 +110,7 @@ export class BizPend extends BizEntity {
         }
         if (this.i !== undefined) ret.i = this.i.buildSchema(res);
         if (this.x !== undefined) ret.x = this.x.buildSchema(res);
+        ret.predefinedFields = this.predefinedFields;
         return ret;
     }
 

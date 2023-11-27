@@ -42,6 +42,7 @@ class PBizPend extends Base_1.PBizEntity {
     }
     parsePredefined(name) {
         let caption = this.ts.mayPassString();
+        this.element.predefinedFields.push(name);
         let bud = this.element.predefinedBuds[name];
         if (bud === undefined)
             debugger;

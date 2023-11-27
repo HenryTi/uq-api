@@ -41,6 +41,7 @@ class BizPend extends Entity_1.BizEntity {
         super(biz);
         this.fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
+        this.predefinedFields = [];
         this.bizBins = [];
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
@@ -92,6 +93,7 @@ class BizPend extends Entity_1.BizEntity {
             ret.i = this.i.buildSchema(res);
         if (this.x !== undefined)
             ret.x = this.x.buildSchema(res);
+        ret.predefinedFields = this.predefinedFields;
         return ret;
     }
     getBud(name) {

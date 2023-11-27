@@ -11,6 +11,7 @@ import { PBizQueryTable, PBizQueryTableStatements } from "./Query";
 export class PBizPend extends PBizEntity<BizPend> {
     private parsePredefined(name: string) {
         let caption = this.ts.mayPassString();
+        this.element.predefinedFields.push(name);
         let bud = this.element.predefinedBuds[name];
         if (bud === undefined) debugger;
         // 有caption值，才会显示

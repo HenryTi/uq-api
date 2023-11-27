@@ -5,7 +5,7 @@ import { UqParser } from './UqParser';
 import { Biz, BizEntity, BizPhraseType } from '../il';
 
 const groups: { [name: string]: BizPhraseType[] } = {
-    info: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign],
+    info: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign, BizPhraseType.duo],
     sheet: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
     query: [BizPhraseType.query],
     relate: [BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
