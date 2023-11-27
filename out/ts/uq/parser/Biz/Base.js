@@ -200,6 +200,7 @@ class PBizBase extends element_1.PElement {
         }
         let bizBud = new Bud(this.element.biz, name, ui);
         if (this.ts.isKeyword('required') === true) {
+            bizBud.required = true;
             bizBud.ui.required = true;
             this.ts.readToken();
         }

@@ -286,6 +286,11 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
             this.ts.mayPassToken(Token.COMMA);
             this.ts.passToken(Token.RPARENTHESE);
         }
+        if (this.ts.isKeyword('required') === true) {
+            this.element.required = true;
+            this.element.ui.required = true;
+            this.ts.readToken();
+        }
         if (this.ts.token === Token.LBRACE) {
             this.parseFieldShow();
         }

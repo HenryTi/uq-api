@@ -115,6 +115,7 @@ export abstract class BizBudValue extends BizBud {
     value: BudValueSet;
     hasHistory: boolean;
     setType: SetType;
+    required: boolean;
     get optionsItemType(): OptionsItemValueType { return; }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);

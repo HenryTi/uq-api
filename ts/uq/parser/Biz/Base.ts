@@ -174,6 +174,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         }
         let bizBud = new Bud(this.element.biz, name, ui);
         if (this.ts.isKeyword('required') === true) {
+            bizBud.required = true;
             bizBud.ui.required = true;
             this.ts.readToken();
         }
