@@ -1,7 +1,7 @@
 import {
     ValueExpression
     , BizExp, BizExpOperand, BizAtom
-    , BizAtomSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie
+    , BizAtomSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
 } from "../il";
 import { BizPhraseType } from "../il";
 import { PElement } from "./element";
@@ -97,6 +97,7 @@ export class PBizExp extends PElement<BizExp> {
                 case BizPhraseType.bin: ret = this.scanBin(space); break;
                 case BizPhraseType.title: ret = this.scanTitle(space); break;
                 case BizPhraseType.tie: ret = this.scanTie(space); break;
+                case BizPhraseType.duo: ret = this.scanDuo(space); break;
             }
             if (ret === false) {
                 ok = false;
@@ -235,6 +236,26 @@ export class PBizExp extends PElement<BizExp> {
         }
         return ok;
     }
+
+    private scanDuo(space: Space): boolean {
+        let ok = true;
+        const { bizEntity, param: bizParam } = this.element;
+        const { param, param2 } = bizParam;
+        let duo = bizEntity as BizDuo;
+        if (param2 === undefined) {
+            if (this.bud !== 'i' && this.bud !== 'x') {
+                this.log(`DUO ${duo.getJName()}(p1, p2) should follow I or X`);
+                ok = false;
+            }
+        }
+        else {
+            if (this.bud !== undefined) {
+                this.log(`DUO ${duo.getJName()}(id) should not have prop`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
 }
 
 export class PBizExpParam extends PElement<BizExpParam> {
@@ -246,9 +267,16 @@ export class PBizExpParam extends PElement<BizExpParam> {
         }
         else {
             this.element.param = new ValueExpression();
-            this.element.paramType = BizExpParamType.scalar;
             const { param } = this.element;
             this.context.parseElement(param);
+            if (this.ts.token === Token.COMMA) {
+                this.ts.readToken();
+                this.element.paramType = BizExpParamType.dou;
+                this.element.param2 = new ValueExpression();
+                const { param2 } = this.element;
+                this.context.parseElement(param2);
+            }
+            this.element.paramType = BizExpParamType.scalar;
         }
     }
 
@@ -284,9 +312,14 @@ export class PBizExpParam extends PElement<BizExpParam> {
 
     scan(space: Space): boolean {
         let ok = true;
-        const { param } = this.element;
+        const { param, param2 } = this.element;
         if (param !== undefined) {
             if (param.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (param2 !== undefined) {
+            if (param2.pelement.scan(space) === false) {
                 ok = false;
             }
         }

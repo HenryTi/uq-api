@@ -17,17 +17,8 @@ export class BizTie extends BizEntity {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        ret.i = this.tieFieldSchema(this.i);
-        ret.x = this.tieFieldSchema(this.x);
-        return ret;
-    }
-
-    private tieFieldSchema(tieField: IxField) {
-        const { caption, atoms } = tieField;
-        let ret = {
-            caption,
-            atoms: atoms?.map(v => v.id),
-        }
+        ret.i = this.ixFieldSchema(this.i);
+        ret.x = this.ixFieldSchema(this.x);
         return ret;
     }
 

@@ -109,7 +109,6 @@ export class PBizDuo extends PBizAtomID<BizDuo> {
         x: this.parseX,
     };
 
-
     scan(space: Space): boolean {
         let ok = true;
         let { i, x } = this.element;

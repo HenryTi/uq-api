@@ -1,16 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueAct = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
 const BizPhraseType_1 = require("./BizPhraseType");
-var BudValueAct;
-(function (BudValueAct) {
-    BudValueAct[BudValueAct["equ"] = 1] = "equ";
-    BudValueAct[BudValueAct["init"] = 2] = "init";
-    BudValueAct[BudValueAct["show"] = 3] = "show";
-})(BudValueAct || (exports.BudValueAct = BudValueAct = {}));
+var BudValueSetType;
+(function (BudValueSetType) {
+    BudValueSetType[BudValueSetType["equ"] = 1] = "equ";
+    BudValueSetType[BudValueSetType["init"] = 2] = "init";
+    BudValueSetType[BudValueSetType["show"] = 3] = "show";
+})(BudValueSetType || (exports.BudValueSetType = BudValueSetType = {}));
 class FieldShowItem {
     constructor(bizEntity, bizBud) {
         this.bizEntity = bizEntity;
@@ -73,7 +73,8 @@ class BizBud extends Base_1.BizBase {
         this.name = name;
         this.ui = ui;
     }
-    buildBudValue(callback) { }
+    // buildBudValue(callback: (value: BudValueSet) => void) { }
+    buildBudValue(expStringify) { }
 }
 exports.BizBud = BizBud;
 var SetType;
@@ -94,8 +95,14 @@ class BizBudValue extends BizBud {
             debugger;
         super.buildPhrases(phrases, prefix);
     }
-    buildBudValue(callback) {
-        callback(this.value);
+    buildBudValue(expStringify) {
+        if (this.value === undefined)
+            return;
+        let { exp, setType } = this.value;
+        let str = expStringify(exp);
+        let typeStr = BudValueSetType[setType];
+        str += '\n' + typeStr;
+        this.value.str = str;
     }
 }
 exports.BizBudValue = BizBudValue;
@@ -130,7 +137,29 @@ class BizBudNone extends BizBudValue {
     }
 }
 exports.BizBudNone = BizBudNone;
-class BizBudInt extends BizBudValue {
+class BizBudValueWithRange extends BizBudValue {
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        if (this.min !== undefined) {
+            ret.min = this.min.str;
+        }
+        if (this.max !== undefined) {
+            ret.max = this.max.str;
+        }
+        return ret;
+    }
+    buildBudValue(expStringify) {
+        super.buildBudValue(expStringify);
+        if (this.min !== undefined) {
+            this.min.str = expStringify(this.min.exp);
+        }
+        if (this.max !== undefined) {
+            this.max.str = expStringify(this.max.exp);
+        }
+    }
+}
+exports.BizBudValueWithRange = BizBudValueWithRange;
+class BizBudInt extends BizBudValueWithRange {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.int;
@@ -145,7 +174,7 @@ class BizBudInt extends BizBudValue {
     }
 }
 exports.BizBudInt = BizBudInt;
-class BizBudDec extends BizBudValue {
+class BizBudDec extends BizBudValueWithRange {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.dec;
@@ -156,7 +185,7 @@ class BizBudDec extends BizBudValue {
     }
 }
 exports.BizBudDec = BizBudDec;
-class BizBudChar extends BizBudValue {
+class BizBudChar extends BizBudValueWithRange {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.char;
@@ -171,7 +200,7 @@ class BizBudChar extends BizBudValue {
     }
 }
 exports.BizBudChar = BizBudChar;
-class BizBudDate extends BizBudValue {
+class BizBudDate extends BizBudValueWithRange {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.date;
@@ -192,6 +221,14 @@ class BizBudAtom extends BizBudValue {
         this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = true;
         this.params = {}; // 仅仅针对Spec，可能有多级的base
+        /*
+        buildBudValue(callback: (value: BudValueSet) => void) {
+            super.buildBudValue(callback);
+            for (let i in this.params) {
+                callback(this.params[i]);
+            }
+        }
+        */
     }
     getFieldShows() { return this.fieldShows; }
     parser(context) {
@@ -212,10 +249,12 @@ class BizBudAtom extends BizBudValue {
         return ret;
     }
     get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
-    buildBudValue(callback) {
-        super.buildBudValue(callback);
+    buildBudValue(expStringify) {
+        super.buildBudValue(expStringify);
         for (let i in this.params) {
-            callback(this.params[i]);
+            let param = this.params[i];
+            let { exp } = param;
+            param.str = expStringify(exp);
         }
     }
 }

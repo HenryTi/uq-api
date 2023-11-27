@@ -8,7 +8,7 @@ import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizAtomSpec } from "./Atom";
 import { BizBase } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudAtom } from "./Bud";
+import { BizBudValue, BizBud, BizBudAtom, BizBudDec } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend, BizSheet } from "./Sheet";
@@ -141,9 +141,9 @@ export class BizBin extends BizEntity {
     act: BizBinAct;
     i: BizBudAtom;
     x: BizBudAtom;
-    value: BizBudValue;
-    price: BizBudValue;
-    amount: BizBudValue;
+    value: BizBudDec;
+    price: BizBudDec;
+    amount: BizBudDec;
 
     readonly sheetArr: BizSheet[] = [];
 

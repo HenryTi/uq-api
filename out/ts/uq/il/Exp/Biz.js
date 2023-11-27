@@ -7,8 +7,9 @@ const Op_1 = require("./Op");
 var BizExpParamType;
 (function (BizExpParamType) {
     BizExpParamType[BizExpParamType["scalar"] = 0] = "scalar";
-    BizExpParamType[BizExpParamType["spec"] = 1] = "spec";
-    BizExpParamType[BizExpParamType["ix"] = 2] = "ix";
+    BizExpParamType[BizExpParamType["dou"] = 1] = "dou";
+    BizExpParamType[BizExpParamType["spec"] = 2] = "spec";
+    BizExpParamType[BizExpParamType["ix"] = 3] = "ix";
 })(BizExpParamType || (exports.BizExpParamType = BizExpParamType = {}));
 class BizExpParam extends IElement_1.IElement {
     constructor() {

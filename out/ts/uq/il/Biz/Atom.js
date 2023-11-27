@@ -59,6 +59,12 @@ class BizDuo extends BizAtomID {
     parser(context) {
         return new parser_1.PBizDuo(this, context);
     }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.i = this.ixFieldSchema(this.i);
+        ret.x = this.ixFieldSchema(this.x);
+        return ret;
+    }
 }
 exports.BizDuo = BizDuo;
 class BizAtomIDWithBase extends BizAtomID {

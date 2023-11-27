@@ -104,6 +104,9 @@ class PBizExp extends element_1.PElement {
                 case il_2.BizPhraseType.tie:
                     ret = this.scanTie(space);
                     break;
+                case il_2.BizPhraseType.duo:
+                    ret = this.scanDuo(space);
+                    break;
             }
             if (ret === false) {
                 ok = false;
@@ -240,6 +243,25 @@ class PBizExp extends element_1.PElement {
         }
         return ok;
     }
+    scanDuo(space) {
+        let ok = true;
+        const { bizEntity, param: bizParam } = this.element;
+        const { param, param2 } = bizParam;
+        let duo = bizEntity;
+        if (param2 === undefined) {
+            if (this.bud !== 'i' && this.bud !== 'x') {
+                this.log(`DUO ${duo.getJName()}(p1, p2) should follow I or X`);
+                ok = false;
+            }
+        }
+        else {
+            if (this.bud !== undefined) {
+                this.log(`DUO ${duo.getJName()}(id) should not have prop`);
+                ok = false;
+            }
+        }
+        return ok;
+    }
 }
 exports.PBizExp = PBizExp;
 class PBizExpParam extends element_1.PElement {
@@ -250,9 +272,16 @@ class PBizExpParam extends element_1.PElement {
         }
         else {
             this.element.param = new il_1.ValueExpression();
-            this.element.paramType = il_1.BizExpParamType.scalar;
             const { param } = this.element;
             this.context.parseElement(param);
+            if (this.ts.token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                this.element.paramType = il_1.BizExpParamType.dou;
+                this.element.param2 = new il_1.ValueExpression();
+                const { param2 } = this.element;
+                this.context.parseElement(param2);
+            }
+            this.element.paramType = il_1.BizExpParamType.scalar;
         }
     }
     parseArray() {
@@ -287,9 +316,14 @@ class PBizExpParam extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        const { param } = this.element;
+        const { param, param2 } = this.element;
         if (param !== undefined) {
             if (param.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (param2 !== undefined) {
+            if (param2.pelement.scan(space) === false) {
                 ok = false;
             }
         }

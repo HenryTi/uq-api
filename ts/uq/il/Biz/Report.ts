@@ -1,7 +1,7 @@
 import { BBizReport, DbContext } from "../../builder";
 import { PBizReport, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
-import { BizAtom } from "./Atom";
+import { BizAtom, BizDuo } from "./Atom";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
@@ -23,7 +23,7 @@ export class BizReport extends BizEntity {
     protected readonly fields = [];
     readonly bizPhraseType = BizPhraseType.report;
     readonly titles: ReportTitle[] = [];
-    from: BizAtom;
+    from: BizAtom | BizDuo;
     readonly joins: ReportJoin[] = [];
 
     parser(context: PContext): PElement<IElement> {

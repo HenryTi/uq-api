@@ -50,7 +50,6 @@ class BBizReport extends BizEntity_1.BBizEntity {
         setS1.equ(s1, new sql_1.ExpFuncInUq('$uminute_from_time', [
             new sql_1.ExpVar('dateEnd'), varTimeZone
         ], true));
-        // setS1.equ(s1, new ExpAdd(varS0, new ExpNum(24 * 3600 * 1024 * 1024)));
         const insert = factory.createInsert();
         statements.push(insert);
         insert.table = new statementWithFrom_1.EntityTable('_$page', false);
@@ -63,30 +62,44 @@ class BBizReport extends BizEntity_1.BBizEntity {
         ];
         const selectPage = factory.createSelect();
         insert.select = selectPage;
-        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1);
+        selectPage
+            .from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, a));
+        let mainTbl;
+        let wheres = [new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar('pageStart'))];
+        switch (from.bizPhraseType) {
+            case il_1.BizPhraseType.atom:
+                wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('base', a), varPhrase));
+                mainTbl = a;
+                break;
+            case il_1.BizPhraseType.duo:
+                mainTbl = b;
+                selectPage.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
+                    .on(new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpField('id', a)));
+                wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpVar(atomId)));
+                break;
+        }
+        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1, mainTbl);
         selectPage.column(new sql_1.ExpField('id', a));
         selectPage.column(new sql_1.ExpField('no', a));
         selectPage.column(new sql_1.ExpField('ex', a));
         selectPage.column(expJsonValues, 'value');
         selectPage.column(new sql_1.ExpField('base', a), 'phrase');
-        selectPage
-            .from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, a));
-        selectPage.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), varPhrase), new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar('pageStart'))));
+        selectPage.where(new sql_1.ExpAnd(...wheres));
         selectPage.order(new sql_1.ExpField('id', a), 'asc');
         selectPage.limit(new sql_1.ExpVar('pageSize'));
         let ret = this.buildSelectSpecs(titles, varS0, varS1);
         statements.push(...ret);
     }
-    buildSumJsonValues(titles, varS0, varS1) {
+    buildSumJsonValues(titles, varS0, varS1, mainTbl) {
         const { factory } = this.context;
         let expValues = titles.map(title => {
-            const selectValue = this.buildTitleValueSelect(title, varS0, varS1);
+            const selectValue = this.buildTitleValueSelect(title, varS0, varS1, mainTbl);
             return new sql_1.ExpFunc(factory.func_ifnull, new sql_1.ExpSelect(selectValue), sql_1.ExpNum.num0);
         });
         const expJsonValues = new sql_1.ExpFunc('JSON_ARRAY', ...expValues);
         return expJsonValues;
     }
-    buildTitleValueSelect(reportTitle, varS0, varS1) {
+    buildTitleValueSelect(reportTitle, varS0, varS1, mainTbl) {
         const { factory } = this.context;
         const a = 'a', hb = 'hb', h = 'h';
         const select = factory.createSelect();
@@ -104,7 +117,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
                     break;
             }
             select.from(new statementWithFrom_1.EntityTable(tbl, false, h));
-            select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', h), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', h), new sql_1.ExpNum(bud.id))));
+            select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', h), new sql_1.ExpField('id', mainTbl)), new sql_1.ExpEQ(new sql_1.ExpField('x', h), new sql_1.ExpNum(bud.id))));
         }
         else {
             select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.history, false, h))
@@ -112,7 +125,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', hb), new sql_1.ExpField('bud', h)));
             const wheres = [
                 new sql_1.ExpLT(new sql_1.ExpField('id', h), varS1),
-                new sql_1.ExpEQ(new sql_1.ExpField('base', hb), new sql_1.ExpField('id', a)),
+                new sql_1.ExpEQ(new sql_1.ExpField('base', hb), new sql_1.ExpField('id', mainTbl)),
                 new sql_1.ExpEQ(new sql_1.ExpField('ext', hb), new sql_1.ExpNum(bud.id)),
             ];
             select.column(new sql_1.ExpFunc(factory.func_sum, new sql_1.ExpField('value', h)));
@@ -137,8 +150,8 @@ class BBizReport extends BizEntity_1.BBizEntity {
         let selectPhrase = factory.createSelect();
         selectPhrase.column(new sql_1.ExpField('ext', 'x'));
         selectPhrase.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, 'x'));
-        selectPhrase.where(new sql_1.ExpEQ(new sql_1.ExpField('id', 'x'), new sql_1.ExpField('id', 'b')));
-        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1);
+        selectPhrase.where(new sql_1.ExpEQ(new sql_1.ExpField('id', 'x'), new sql_1.ExpField('id', b)));
+        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1, a);
         let select = factory.createSelect();
         insert.select = select;
         select.column(new sql_1.ExpField('id', a));

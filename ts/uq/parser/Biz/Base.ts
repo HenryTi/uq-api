@@ -1,7 +1,8 @@
 import {
-    BizBase, BizAtom, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
-    , BizBudDec, /*BizBudID, */BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, ID, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf, BizAtomID, BizPhraseType, ValueExpression, BudValueAct, Permission, BizBud, SetType, Biz, BizQueryValue, BudGroup, IxField
+    BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
+    , BizBudDec, BizBudInt, BizBudRadio, BizEntity
+    , BizBudNone, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf
+    , BizAtomID, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField
 } from "../../il";
 import { UI } from "../../il/UI";
 import { PElement } from "../element";
@@ -132,7 +133,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return true;
     }
 
-    protected parseBud(name: string, ui: Partial<UI>): BizBudValue {
+    protected parseBud(name: string, ui: Partial<UI>, defaultType?: string): BizBudValue {
         const keyColl: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
             none: BizBudNone,
             int: BizBudInt,
@@ -145,13 +146,14 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             check: BizBudCheck,
         }
         const keys = Object.keys(keyColl);
-        let key = this.ts.lowerVar;
+        let key: string;
         const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
-            key = 'none';
+            key = defaultType ?? 'none';
         }
         else {
+            key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
                 this.ts.expect(...keys);
             }

@@ -1,7 +1,8 @@
 import {
     BigInt, BizReport, BudDataType, JoinType, ReportTitle
     , SetType, bigIntField, dateField, intField, jsonField
-    , EnumSysTable
+    , EnumSysTable,
+    BizPhraseType
 } from "../../il";
 import {
     ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
@@ -90,18 +91,31 @@ export class BBizReport extends BBizEntity<BizReport> {
 
         const selectPage = factory.createSelect();
         insert.select = selectPage;
-        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1);
+        selectPage
+            .from(new EntityTable(EnumSysTable.atom, false, a));
+
+        let mainTbl: string;
+        let wheres: ExpCmp[] = [new ExpGT(new ExpField('id', a), new ExpVar('pageStart'))];
+        switch (from.bizPhraseType) {
+            case BizPhraseType.atom:
+                wheres.push(new ExpEQ(new ExpField('base', a), varPhrase));
+                mainTbl = a;
+                break;
+            case BizPhraseType.duo:
+                mainTbl = b;
+                selectPage.join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
+                    .on(new ExpEQ(new ExpField('x', b), new ExpField('id', a)));
+                wheres.push(new ExpEQ(new ExpField('i', b), new ExpVar(atomId)));
+                break;
+        }
+
+        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1, mainTbl);
         selectPage.column(new ExpField('id', a));
         selectPage.column(new ExpField('no', a));
         selectPage.column(new ExpField('ex', a));
         selectPage.column(expJsonValues, 'value');
         selectPage.column(new ExpField('base', a), 'phrase');
-        selectPage
-            .from(new EntityTable(EnumSysTable.atom, false, a))
-        selectPage.where(new ExpAnd(
-            new ExpEQ(new ExpField('base', a), varPhrase),
-            new ExpGT(new ExpField('id', a), new ExpVar('pageStart'))
-        ));
+        selectPage.where(new ExpAnd(...wheres));
         selectPage.order(new ExpField('id', a), 'asc');
         selectPage.limit(new ExpVar('pageSize'));
 
@@ -109,10 +123,10 @@ export class BBizReport extends BBizEntity<BizReport> {
         statements.push(...ret);
     }
 
-    private buildSumJsonValues(titles: ReportTitle[], varS0: ExpVal, varS1: ExpVal) {
+    private buildSumJsonValues(titles: ReportTitle[], varS0: ExpVal, varS1: ExpVal, mainTbl: string) {
         const { factory } = this.context;
         let expValues: ExpVal[] = titles.map(title => {
-            const selectValue = this.buildTitleValueSelect(title, varS0, varS1);
+            const selectValue = this.buildTitleValueSelect(title, varS0, varS1, mainTbl);
             return new ExpFunc(
                 factory.func_ifnull,
                 new ExpSelect(selectValue),
@@ -123,7 +137,7 @@ export class BBizReport extends BBizEntity<BizReport> {
         return expJsonValues;
     }
 
-    private buildTitleValueSelect(reportTitle: ReportTitle, varS0: ExpVal, varS1: ExpVal) {
+    private buildTitleValueSelect(reportTitle: ReportTitle, varS0: ExpVal, varS1: ExpVal, mainTbl: string) {
         const { factory } = this.context;
         const a = 'a', hb = 'hb', h = 'h';
         const select = factory.createSelect();
@@ -138,7 +152,7 @@ export class BBizReport extends BBizEntity<BizReport> {
             }
             select.from(new EntityTable(tbl, false, h));
             select.where(new ExpAnd(
-                new ExpEQ(new ExpField('i', h), new ExpField('id', a)),
+                new ExpEQ(new ExpField('i', h), new ExpField('id', mainTbl)),
                 new ExpEQ(new ExpField('x', h), new ExpNum(bud.id)),
             ));
         }
@@ -148,7 +162,7 @@ export class BBizReport extends BBizEntity<BizReport> {
                 .on(new ExpEQ(new ExpField('id', hb), new ExpField('bud', h)));
             const wheres: ExpCmp[] = [
                 new ExpLT(new ExpField('id', h), varS1),
-                new ExpEQ(new ExpField('base', hb), new ExpField('id', a)),
+                new ExpEQ(new ExpField('base', hb), new ExpField('id', mainTbl)),
                 new ExpEQ(new ExpField('ext', hb), new ExpNum(bud.id)),
             ];
             select.column(new ExpFunc(factory.func_sum, new ExpField('value', h)));
@@ -175,8 +189,8 @@ export class BBizReport extends BBizEntity<BizReport> {
         let selectPhrase = factory.createSelect();
         selectPhrase.column(new ExpField('ext', 'x'));
         selectPhrase.from(new EntityTable(EnumSysTable.bud, false, 'x'));
-        selectPhrase.where(new ExpEQ(new ExpField('id', 'x'), new ExpField('id', 'b')));
-        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1);
+        selectPhrase.where(new ExpEQ(new ExpField('id', 'x'), new ExpField('id', b)));
+        let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1, a);
         let select = factory.createSelect();
         insert.select = select;
         select.column(new ExpField('id', a));

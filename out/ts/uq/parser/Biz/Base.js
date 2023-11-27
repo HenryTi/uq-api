@@ -159,7 +159,7 @@ class PBizBase extends element_1.PElement {
         }
         return true;
     }
-    parseBud(name, ui) {
+    parseBud(name, ui, defaultType) {
         const keyColl = {
             none: il_1.BizBudNone,
             int: il_1.BizBudInt,
@@ -172,13 +172,14 @@ class PBizBase extends element_1.PElement {
             check: il_1.BizBudCheck,
         };
         const keys = Object.keys(keyColl);
-        let key = this.ts.lowerVar;
+        let key;
         const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
-            key = 'none';
+            key = defaultType !== null && defaultType !== void 0 ? defaultType : 'none';
         }
         else {
+            key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
                 this.ts.expect(...keys);
             }

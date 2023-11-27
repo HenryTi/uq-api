@@ -120,21 +120,27 @@ class PBizReport extends Base_1.PBizEntity {
                 ok = false;
                 this.log(`${this.from} is not a ATOM`);
             }
-            else if (entity.bizPhraseType !== il_2.BizPhraseType.atom) {
-                ok = false;
-                this.log(`FROM ${this.from} must be ATOM`);
-            }
             else {
-                this.element.from = entity;
-            }
-            for (let join of this.joins) {
-                let { type, entity } = join;
-                let en = space.getBizEntity(entity);
-                if (en === undefined) {
-                    ok = false;
-                    this.log(`${entity} is unknown`);
+                const { bizPhraseType } = entity;
+                switch (bizPhraseType) {
+                    default:
+                        ok = false;
+                        this.log(`FROM ${this.from} must be ATOM`);
+                        break;
+                    case il_2.BizPhraseType.atom:
+                    case il_2.BizPhraseType.duo:
+                        break;
                 }
-                this.element.joins.push({ type, entity: en });
+                this.element.from = entity;
+                for (let join of this.joins) {
+                    let { type, entity } = join;
+                    let en = space.getBizEntity(entity);
+                    if (en === undefined) {
+                        ok = false;
+                        this.log(`${entity} is unknown`);
+                    }
+                    this.element.joins.push({ type, entity: en });
+                }
             }
         }
         return ok;

@@ -1,4 +1,4 @@
-import { BizAtom, BizAtomSpec, BizBudValue, BizReport, BizTitle, ReportJoinType } from "../../il";
+import { BizAtom, BizAtomSpec, BizBudValue, BizDuo, BizReport, BizTitle, ReportJoinType } from "../../il";
 import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -115,21 +115,27 @@ export class PBizReport extends PBizEntity<BizReport> {
                 ok = false;
                 this.log(`${this.from} is not a ATOM`);
             }
-            else if (entity.bizPhraseType !== BizPhraseType.atom) {
-                ok = false;
-                this.log(`FROM ${this.from} must be ATOM`);
-            }
             else {
-                this.element.from = entity as BizAtom;
-            }
-            for (let join of this.joins) {
-                let { type, entity } = join;
-                let en = space.getBizEntity(entity);
-                if (en === undefined) {
-                    ok = false;
-                    this.log(`${entity} is unknown`);
+                const { bizPhraseType } = entity;
+                switch (bizPhraseType) {
+                    default:
+                        ok = false;
+                        this.log(`FROM ${this.from} must be ATOM`);
+                        break;
+                    case BizPhraseType.atom:
+                    case BizPhraseType.duo:
+                        break;
                 }
-                this.element.joins.push({ type, entity: en });
+                this.element.from = entity as BizAtom | BizDuo;
+                for (let join of this.joins) {
+                    let { type, entity } = join;
+                    let en = space.getBizEntity(entity);
+                    if (en === undefined) {
+                        ok = false;
+                        this.log(`${entity} is unknown`);
+                    }
+                    this.element.joins.push({ type, entity: en });
+                }
             }
         }
         return ok;

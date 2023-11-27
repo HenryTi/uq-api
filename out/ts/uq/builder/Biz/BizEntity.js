@@ -22,27 +22,34 @@ class BBizEntity {
         });
     }
     async buildBudsValue() {
+        const expStringify = (value) => {
+            const exp = this.context.convertExp(value);
+            if (exp === undefined)
+                return;
+            let sb = this.context.createClientBuilder();
+            exp.to(sb);
+            const { sql } = sb;
+            return sql;
+        };
         this.bizEntity.forEachBud((bud) => {
             if (!bud)
                 return;
-            bud.buildBudValue((value) => {
-                if (value === undefined)
-                    return;
-                let { exp, act } = value;
+            bud.buildBudValue(expStringify);
+            /*
+            bud.buildBudValue((value: BudValueSet) => {
+                if (value === undefined) return;
+                let { exp, setType } = value;
                 let str = this.stringify(exp);
-                switch (act) {
-                    case il_1.BudValueAct.init:
-                        str += '\ninit';
-                        break;
-                    case il_1.BudValueAct.equ:
-                        str += '\nequ';
-                        break;
-                    case il_1.BudValueAct.show:
-                        str += '\nshow';
-                        break;
-                }
+                let typeStr = BudValueSetType[setType];
+                str += '\n' + typeStr;
+                // switch (setType) {
+                //    case BudValueSetType.init: str += '\ninit'; break;
+                //    case BudValueSetType.equ: str += '\nequ'; break;
+                //    case BudValueSetType.show: str += '\nshow'; break;
+                // }
                 value.str = str;
             });
+            */
         });
     }
     createProcedure(procName) {

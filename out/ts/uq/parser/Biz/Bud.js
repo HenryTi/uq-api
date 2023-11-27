@@ -12,19 +12,19 @@ class PBizBudValue extends PBizBud {
         this.parseBudEqu();
     }
     parseBudEqu() {
-        let act;
+        let setType;
         switch (this.ts.token) {
             case tokens_1.Token.EQU:
-                act = il_1.BudValueAct.equ;
+                setType = il_1.BudValueSetType.equ;
                 break;
             case tokens_1.Token.COLONEQU:
-                act = il_1.BudValueAct.init;
+                setType = il_1.BudValueSetType.init;
                 break;
             case tokens_1.Token.COLON:
-                act = il_1.BudValueAct.show;
+                setType = il_1.BudValueSetType.show;
                 break;
         }
-        if (act === il_1.BudValueAct.show) {
+        if (setType === il_1.BudValueSetType.show) {
             this.ts.readToken();
             let varString = [];
             for (;;) {
@@ -36,13 +36,13 @@ class PBizBudValue extends PBizBud {
             this.fieldString = varString;
             return;
         }
-        if (act !== undefined) {
+        if (setType !== undefined) {
             this.ts.readToken();
             let exp = new il_1.ValueExpression();
             this.context.parseElement(exp);
             this.element.value = {
                 exp,
-                act,
+                setType,
             };
             return;
         }
@@ -162,10 +162,56 @@ exports.PBizBudValue = PBizBudValue;
 class PBizBudNone extends PBizBudValue {
 }
 exports.PBizBudNone = PBizBudNone;
-class PBizBudInt extends PBizBudValue {
+class PBizBudValueWithRange extends PBizBudValue {
+    parseBudEqu() {
+        super.parseBudEqu();
+        for (;;) {
+            const { token } = this.ts;
+            if (token === tokens_1.Token.GE) {
+                if (this.element.min !== undefined) {
+                    this.ts.error(`min can be defined more than once`);
+                }
+                this.ts.readToken();
+                let exp = new il_1.ValueExpression();
+                this.context.parseElement(exp);
+                this.element.min = { exp };
+            }
+            else if (token === tokens_1.Token.LE) {
+                if (this.element.max !== undefined) {
+                    this.ts.error(`min can be defined more than once`);
+                }
+                this.ts.readToken();
+                let exp = new il_1.ValueExpression();
+                this.context.parseElement(exp);
+                this.element.max = { exp };
+            }
+            else {
+                break;
+            }
+        }
+    }
+    scan(space) {
+        let ok = super.scan(space);
+        if (this.element.ui.caption === '入库数量')
+            debugger;
+        let { min, max } = this.element;
+        if (min !== undefined) {
+            if (min.exp.pelement.scan(space) === ok) {
+                ok = false;
+            }
+        }
+        if (max !== undefined) {
+            if (max.exp.pelement.scan(space) === ok) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+}
+class PBizBudInt extends PBizBudValueWithRange {
 }
 exports.PBizBudInt = PBizBudInt;
-class PBizBudDec extends PBizBudValue {
+class PBizBudDec extends PBizBudValueWithRange {
     _parse() {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
@@ -207,7 +253,7 @@ exports.PBizBudDec = PBizBudDec;
 class PBizBudChar extends PBizBudValue {
 }
 exports.PBizBudChar = PBizBudChar;
-class PBizBudDate extends PBizBudValue {
+class PBizBudDate extends PBizBudValueWithRange {
 }
 exports.PBizBudDate = PBizBudDate;
 class PBizBudAtom extends PBizBudValue {
@@ -217,12 +263,12 @@ class PBizBudAtom extends PBizBudValue {
             this.ts.readToken();
             this.ts.passKey('base');
             this.ts.passToken(tokens_1.Token.EQU);
-            let act = il_1.BudValueAct.equ;
+            let setType = il_1.BudValueSetType.equ;
             let exp = new il_1.ValueExpression();
             this.context.parseElement(exp);
             let budValue = {
                 exp,
-                act,
+                setType,
             };
             this.element.params['base'] = budValue;
             this.ts.mayPassToken(tokens_1.Token.COMMA);

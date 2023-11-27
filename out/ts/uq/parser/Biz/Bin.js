@@ -65,7 +65,7 @@ class PBizBin extends Base_1.PBizEntity {
             this.ts.error(`${budName} can only define once`);
         }
         let ui = this.parseUI();
-        let bizBud = this.parseBud(budName, ui);
+        let bizBud = this.parseBud(budName, ui, 'dec');
         if (this.ts.prevToken !== tokens_1.Token.RBRACE) {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
@@ -143,7 +143,21 @@ class PBizBin extends Base_1.PBizEntity {
                 this.log(`${bud.getJName()} can only be DEC`);
                 ok = false;
             }
-            const { value } = bud;
+            const { value, min, max } = bud;
+            function scanValue(v) {
+                if (v === undefined)
+                    return;
+                const { exp } = v;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(binSpace) === false) {
+                        ok = false;
+                    }
+                }
+            }
+            scanValue(value);
+            scanValue(min);
+            scanValue(max);
+            /*
             if (value !== undefined) {
                 const { exp } = value;
                 if (exp !== undefined) {
@@ -152,6 +166,7 @@ class PBizBin extends Base_1.PBizEntity {
                     }
                 }
             }
+            */
         };
         scanBudValue(budValue);
         scanBudValue(budAmount);
@@ -375,6 +390,9 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
         if (exports.detailPreDefined.indexOf(name) >= 0) {
+            return new il_1.VarPointer();
+        }
+        if (this.bizEntity.props.has(name) === true) {
             return new il_1.VarPointer();
         }
         if (this.bizEntity !== undefined) {

@@ -14,7 +14,7 @@ import { UI } from "../UI";
 import { BizBin } from "./Bin";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 
-export enum BudValueAct {
+export enum BudValueSetType {
     equ = 1,            // 设置不可修改. 这是默认
     init = 2,           // 只提供初值，可修改
     show = 3,           // 只显示，不保存
@@ -61,8 +61,11 @@ export interface FieldShow {
 
 export interface BudValue {
     exp: ValueExpression;
-    act: BudValueAct;
     str?: string;           // 传到前台的schema: init, equ, show
+}
+
+export interface BudValueSet extends BudValue {
+    setType: BudValueSetType;
 }
 
 export class BudGroup extends BizBase {
@@ -97,7 +100,8 @@ export abstract class BizBud extends BizBase {
         this.name = name;
         this.ui = ui;
     }
-    buildBudValue(callback: (value: BudValue) => void) { }
+    // buildBudValue(callback: (value: BudValueSet) => void) { }
+    buildBudValue(expStringify: (value: ValueExpression) => string) { }
 }
 
 export enum SetType {
@@ -108,7 +112,7 @@ export enum SetType {
 
 export abstract class BizBudValue extends BizBud {
     abstract get canIndex(): boolean;
-    value: BudValue;
+    value: BudValueSet;
     hasHistory: boolean;
     setType: SetType;
     get optionsItemType(): OptionsItemValueType { return; }
@@ -127,9 +131,19 @@ export abstract class BizBudValue extends BizBud {
         if (this.name === 'item') debugger;
         super.buildPhrases(phrases, prefix);
     }
-    buildBudValue(callback: (value: BudValue) => void) {
+    buildBudValue(expStringify: (value: ValueExpression) => string) {
+        if (this.value === undefined) return;
+        let { exp, setType } = this.value;
+        let str = expStringify(exp);
+        let typeStr = BudValueSetType[setType];
+        str += '\n' + typeStr;
+        this.value.str = str;
+    }
+    /*
+    buildBudValue(callback: (value: BudValueSet) => void) {
         callback(this.value);
     }
+    */
 }
 
 export class BizBudPickable extends BizBudValue {
@@ -158,7 +172,31 @@ export class BizBudNone extends BizBudValue {
     }
 }
 
-export class BizBudInt extends BizBudValue {
+export abstract class BizBudValueWithRange extends BizBudValue {
+    min: BudValue;
+    max: BudValue;
+    override buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        if (this.min !== undefined) {
+            ret.min = this.min.str;
+        }
+        if (this.max !== undefined) {
+            ret.max = this.max.str;
+        }
+        return ret;
+    }
+    override buildBudValue(expStringify: (value: ValueExpression) => string): void {
+        super.buildBudValue(expStringify);
+        if (this.min !== undefined) {
+            this.min.str = expStringify(this.min.exp);
+        }
+        if (this.max !== undefined) {
+            this.max.str = expStringify(this.max.exp);
+        }
+    }
+}
+
+export class BizBudInt extends BizBudValueWithRange {
     readonly dataType = BudDataType.int;
     readonly canIndex = true;
     parser(context: PContext): PElement<IElement> {
@@ -170,7 +208,7 @@ export class BizBudInt extends BizBudValue {
     }
 }
 
-export class BizBudDec extends BizBudValue {
+export class BizBudDec extends BizBudValueWithRange {
     readonly dataType = BudDataType.dec;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
@@ -178,7 +216,7 @@ export class BizBudDec extends BizBudValue {
     }
 }
 
-export class BizBudChar extends BizBudValue {
+export class BizBudChar extends BizBudValueWithRange {
     readonly dataType = BudDataType.char;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
@@ -190,7 +228,7 @@ export class BizBudChar extends BizBudValue {
     }
 }
 
-export class BizBudDate extends BizBudValue {
+export class BizBudDate extends BizBudValueWithRange {
     readonly dataType = BudDataType.date;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
@@ -208,7 +246,7 @@ export class BizBudAtom extends BizBudValue {
     atom: BizAtomID;
     fieldShows: FieldShow[];
     getFieldShows(): FieldShow[] { return this.fieldShows; }
-    readonly params: { [param: string]: BudValue; } = {};        // 仅仅针对Spec，可能有多级的base
+    readonly params: { [param: string]: BudValueSet; } = {};        // 仅仅针对Spec，可能有多级的base
     parser(context: PContext): PElement<IElement> {
         return new PBizBudAtom(this, context);
     }
@@ -225,12 +263,22 @@ export class BizBudAtom extends BizBudValue {
         return ret;
     }
     get objName(): string { return this.atom?.phrase; }
-    buildBudValue(callback: (value: BudValue) => void) {
+    buildBudValue(expStringify: (value: ValueExpression) => string) {
+        super.buildBudValue(expStringify);
+        for (let i in this.params) {
+            let param = this.params[i];
+            let { exp } = param;
+            param.str = expStringify(exp);
+        }
+    }
+    /*
+    buildBudValue(callback: (value: BudValueSet) => void) {
         super.buildBudValue(callback);
         for (let i in this.params) {
             callback(this.params[i]);
         }
     }
+    */
 }
 
 export abstract class BizBudOptions extends BizBudValue {

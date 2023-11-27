@@ -58,6 +58,13 @@ export class BizDuo extends BizAtomID {
         return new PBizDuo(this, context);
     }
     protected readonly fields = ['id', 'i', 'x'];
+
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        ret.i = this.ixFieldSchema(this.i);
+        ret.x = this.ixFieldSchema(this.x);
+        return ret;
+    }
 }
 
 export abstract class BizAtomIDWithBase extends BizAtomID {

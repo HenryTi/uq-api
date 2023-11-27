@@ -149,6 +149,14 @@ class BizEntity extends Base_1.BizBase {
         field.dataType = fieldDataType;
         return field;
     }
+    ixFieldSchema(tieField) {
+        const { caption, atoms } = tieField;
+        let ret = {
+            caption,
+            atoms: atoms === null || atoms === void 0 ? void 0 : atoms.map(v => v.id),
+        };
+        return ret;
+    }
     getBud(name) {
         let bud = this.props.get(name);
         return bud;

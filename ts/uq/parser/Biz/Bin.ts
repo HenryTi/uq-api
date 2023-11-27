@@ -4,7 +4,7 @@ import {
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, bigIntField, BizEntity, BinPick, PickBase, PickAtom
     , BizAtom, PickSpec, BizAtomSpec, PickPend, PickQuery, BizQueryTable
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, PickInput
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, PickInput, BizBudValueWithRange, BizBudDec, BudValueSet, BudValue
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il";
 import { PElement } from "../element";
@@ -45,11 +45,11 @@ export class PBizBin extends PBizEntity<BizBin> {
             this.ts.error(`${budName} can only define once`);
         }
         let ui = this.parseUI();
-        let bizBud = this.parseBud(budName, ui);
+        let bizBud = this.parseBud(budName, ui, 'dec');
         if (this.ts.prevToken !== Token.RBRACE) {
             this.ts.passToken(Token.SEMICOLON);
         }
-        return bizBud;
+        return bizBud as BizBudDec;
     }
 
     private parseValue = () => {
@@ -153,14 +153,27 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
         }
 
-        const scanBudValue = (bud: BizBudValue) => {
+        const scanBudValue = (bud: BizBudDec) => {
             if (bud === undefined) return;
             const { dataType } = bud;
             if (dataType !== BudDataType.dec && dataType !== BudDataType.none) {
                 this.log(`${bud.getJName()} can only be DEC`);
                 ok = false;
             }
-            const { value } = bud;
+            const { value, min, max } = bud;
+            function scanValue(v: BudValue) {
+                if (v === undefined) return;
+                const { exp } = v;
+                if (exp !== undefined) {
+                    if (exp.pelement.scan(binSpace) === false) {
+                        ok = false;
+                    }
+                }
+            }
+            scanValue(value);
+            scanValue(min);
+            scanValue(max);
+            /*
             if (value !== undefined) {
                 const { exp } = value;
                 if (exp !== undefined) {
@@ -169,6 +182,7 @@ export class PBizBin extends PBizEntity<BizBin> {
                     }
                 }
             }
+            */
         }
 
         scanBudValue(budValue);
@@ -390,6 +404,9 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (detailPreDefined.indexOf(name) >= 0) {
+            return new VarPointer();
+        }
+        if (this.bizEntity.props.has(name) === true) {
             return new VarPointer();
         }
         if (this.bizEntity !== undefined) {

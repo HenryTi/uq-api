@@ -18,16 +18,8 @@ class BizTie extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        ret.i = this.tieFieldSchema(this.i);
-        ret.x = this.tieFieldSchema(this.x);
-        return ret;
-    }
-    tieFieldSchema(tieField) {
-        const { caption, atoms } = tieField;
-        let ret = {
-            caption,
-            atoms: atoms === null || atoms === void 0 ? void 0 : atoms.map(v => v.id),
-        };
+        ret.i = this.ixFieldSchema(this.i);
+        ret.x = this.ixFieldSchema(this.x);
         return ret;
     }
     db(dbContext) {

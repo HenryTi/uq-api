@@ -1,7 +1,7 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
 import { Field } from "../field";
-import { BizBase } from "./Base";
+import { BizBase, IxField } from "./Base";
 import { Biz } from "./Biz";
 import { BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue, BudGroup, FieldShow } from "./Bud";
@@ -157,6 +157,15 @@ export abstract class BizEntity extends BizBase {
         }
         field.dataType = fieldDataType;
         return field;
+    }
+
+    protected ixFieldSchema(tieField: IxField) {
+        const { caption, atoms } = tieField;
+        let ret = {
+            caption,
+            atoms: atoms?.map(v => v.id),
+        }
+        return ret;
     }
 
     getBud(name: string): BizBud {

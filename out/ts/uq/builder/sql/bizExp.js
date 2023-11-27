@@ -34,14 +34,18 @@ class BBizExp {
             case il_1.BizPhraseType.tie:
                 this.tie(sb);
                 break;
+            case il_1.BizPhraseType.duo:
+                this.duo(sb);
+                break;
         }
         sb.r();
     }
     convertFrom(context, bizExp) {
         this.db = context.dbName;
         this.bizExp = bizExp;
-        const { param } = bizExp.param;
+        const { param, param2 } = bizExp.param;
         this.param = context.expVal(param);
+        this.param2 = context.expVal(param2);
         const { in: inVar } = bizExp;
         if (inVar !== undefined) {
             const { val: inVal, spanPeiod } = inVar;
@@ -79,6 +83,17 @@ class BBizExp {
         FROM ${this.db}.ixbud as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.i AND ${tb}.base=${bizEntity.id} 
             WHERE ${tb}.ext=`)
             .exp(this.param);
+    }
+    duo(sb) {
+        const { bizEntity, prop } = this.bizExp;
+        const { ta } = this;
+        if (this.param2 !== undefined) {
+            sb.append(`${this.db}.duo$id(_$site,_$user,1,null,`).exp(this.param).comma().exp(this.param2).r();
+        }
+        else {
+            sb.append(`${ta}.${prop} FROM ${this.db}.duo as ${ta} WHERE ${ta}.id=`)
+                .exp(this.param);
+        }
     }
     title(sb) {
         const { prop, in: inVar, param: { paramType } } = this.bizExp;

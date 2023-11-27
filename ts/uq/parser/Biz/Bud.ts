@@ -1,7 +1,9 @@
 import {
     BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType, BudValueAct, ValueExpression, BizBudValue, BizQueryValue, Uq, BizEntity, BizBin, BudDataType, FieldShowItem, BizAtom, BizAtomSpec, BudValue
+    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
+    , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
+    , BudDataType, FieldShowItem, BizAtom, BizAtomSpec, BudValueSet, BizBudValueWithRange
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -18,19 +20,19 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
     }
 
     protected parseBudEqu() {
-        let act: BudValueAct;
+        let setType: BudValueSetType;
         switch (this.ts.token) {
             case Token.EQU:
-                act = BudValueAct.equ;
+                setType = BudValueSetType.equ;
                 break;
             case Token.COLONEQU:
-                act = BudValueAct.init;
+                setType = BudValueSetType.init;
                 break;
             case Token.COLON:
-                act = BudValueAct.show;
+                setType = BudValueSetType.show;
                 break;
         }
-        if (act === BudValueAct.show) {
+        if (setType === BudValueSetType.show) {
             this.ts.readToken();
             let varString: string[] = [];
             for (; ;) {
@@ -41,13 +43,13 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
             this.fieldString = varString;
             return;
         }
-        if (act !== undefined) {
+        if (setType !== undefined) {
             this.ts.readToken();
             let exp = new ValueExpression();
             this.context.parseElement(exp);
             this.element.value = {
                 exp,
-                act,
+                setType,
             };
             return;
         }
@@ -167,16 +169,59 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
 }
 
 export class PBizBudNone extends PBizBudValue<BizBudNone> {
-    //protected _parse(): void {
-    // }
 }
 
-export class PBizBudInt extends PBizBudValue<BizBudInt> {
-    //protected _parse(): void {
-    //}
+class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue<T> {
+    protected override parseBudEqu(): void {
+        super.parseBudEqu();
+        for (; ;) {
+            const { token } = this.ts;
+            if (token === Token.GE) {
+                if (this.element.min !== undefined) {
+                    this.ts.error(`min can be defined more than once`);
+                }
+                this.ts.readToken();
+                let exp = new ValueExpression();
+                this.context.parseElement(exp);
+                this.element.min = { exp }
+            }
+            else if (token === Token.LE) {
+                if (this.element.max !== undefined) {
+                    this.ts.error(`min can be defined more than once`);
+                }
+                this.ts.readToken();
+                let exp = new ValueExpression();
+                this.context.parseElement(exp);
+                this.element.max = { exp }
+            }
+            else {
+                break;
+            }
+        }
+    }
+
+    override scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = super.scan(space);
+        if (this.element.ui.caption === '入库数量') debugger;
+        let { min, max } = this.element;
+        if (min !== undefined) {
+            if (min.exp.pelement.scan(space) === ok) {
+                ok = false;
+            }
+        }
+        if (max !== undefined) {
+            if (max.exp.pelement.scan(space) === ok) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
 }
 
-export class PBizBudDec extends PBizBudValue<BizBudDec> {
+export class PBizBudInt extends PBizBudValueWithRange<BizBudInt> {
+}
+
+export class PBizBudDec extends PBizBudValueWithRange<BizBudDec> {
     protected _parse(): void {
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
@@ -216,14 +261,11 @@ export class PBizBudDec extends PBizBudValue<BizBudDec> {
 }
 
 export class PBizBudChar extends PBizBudValue<BizBudChar> {
-    // protected _parse(): void {
-    //}
 }
 
-export class PBizBudDate extends PBizBudValue<BizBudDate> {
-    //protected _parse(): void {
-    //}
+export class PBizBudDate extends PBizBudValueWithRange<BizBudDate> {
 }
+
 export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
     private atomName: string;
     private fieldShows: string[][];
@@ -233,12 +275,12 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
             this.ts.readToken();
             this.ts.passKey('base');
             this.ts.passToken(Token.EQU);
-            let act = BudValueAct.equ;
+            let setType = BudValueSetType.equ;
             let exp = new ValueExpression();
             this.context.parseElement(exp);
-            let budValue: BudValue = {
+            let budValue: BudValueSet = {
                 exp,
-                act,
+                setType,
             }
             this.element.params['base'] = budValue;
             this.ts.mayPassToken(Token.COMMA);

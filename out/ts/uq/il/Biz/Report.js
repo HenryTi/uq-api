@@ -24,7 +24,6 @@ class BizReport extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        // const { title, bud } = this.title;
         ret.title = this.titles.map(v => {
             const { caption, title, bud } = v;
             return {
@@ -40,35 +39,18 @@ class BizReport extends Entity_1.BizEntity {
                 entity: entity.name,
             };
         });
-        /*
-        ret.lists = this.lists.map(v => {
-            return v.buildSchema(res);
-        });
-        */
         return ret;
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
-        /*
-        let phrase = this.phrase;
-        for (let list of this.lists) {
-            list.buildPhrases(phrases, phrase)
-        }
-        */
     }
     forEachBud(callback) {
         super.forEachBud(callback);
-        // for (let list of this.lists) callback(list);
     }
     getBud(name) {
         let bud = super.getBud(name);
         if (bud !== undefined)
             return bud;
-        /*
-        for (let kBud of this.lists) {
-            if (kBud.name === name) return kBud;
-        }
-        */
         return undefined;
     }
     db(dbContext) {
