@@ -1,8 +1,6 @@
 import {
-    BizBin, BizSheet
-    , Uq
+    BizBin, BizSheet, BizPhraseType, Uq
 } from "../../il";
-import { BizPhraseType } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -30,6 +28,11 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         this.parsePermission('crud');
     }
 
+    private parseSheetSearch = () => {
+        let bizSearch = this.parseSearch(this.element);
+        this.element.bizSearch = bizSearch;
+    }
+
     readonly keyColl = {
         prop: this.parseProp,
         i: this.parseMain,
@@ -37,6 +40,7 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         x: this.parseDetail,
         detail: this.parseDetail,
         permit: this.parsePermit,
+        search: this.parseSheetSearch,
     };
 
     scan0(space: Space): boolean {
@@ -67,6 +71,12 @@ export class PBizSheet extends PBizEntity<BizSheet> {
     scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) ok = false;
+        const { bizSearch } = this.element;
+        if (bizSearch !== undefined) {
+            if (bizSearch.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
         return ok;
     }
 

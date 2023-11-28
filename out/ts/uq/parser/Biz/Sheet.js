@@ -24,6 +24,10 @@ class PBizSheet extends Base_1.PBizEntity {
         this.parsePermit = () => {
             this.parsePermission('crud');
         };
+        this.parseSheetSearch = () => {
+            let bizSearch = this.parseSearch(this.element);
+            this.element.bizSearch = bizSearch;
+        };
         this.keyColl = {
             prop: this.parseProp,
             i: this.parseMain,
@@ -31,6 +35,7 @@ class PBizSheet extends Base_1.PBizEntity {
             x: this.parseDetail,
             detail: this.parseDetail,
             permit: this.parsePermit,
+            search: this.parseSheetSearch,
         };
     }
     scan0(space) {
@@ -61,6 +66,12 @@ class PBizSheet extends Base_1.PBizEntity {
         let ok = true;
         if (super.scan(space) === false)
             ok = false;
+        const { bizSearch } = this.element;
+        if (bizSearch !== undefined) {
+            if (bizSearch.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
         return ok;
     }
     scan2(uq) {

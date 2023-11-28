@@ -3,6 +3,7 @@ import { PBizPend, PBizQueryTableInPendStatements, PBizSheet, PContext, PElement
 import { Builder } from "../builder";
 import { IElement } from "../IElement";
 import { Statements } from "../statement";
+import { BizSearch } from "./Base";
 import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
 import { BizPhraseType } from "./BizPhraseType";
@@ -15,6 +16,7 @@ export class BizSheet extends BizEntity {
     readonly bizPhraseType = BizPhraseType.sheet;
     main: BizBin;
     readonly details: { bin: BizBin; caption: string; }[] = [];
+    bizSearch: BizSearch;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizSheet(this, context);
@@ -23,6 +25,13 @@ export class BizSheet extends BizEntity {
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         if (this.main === undefined) debugger;
+        let search: any;
+        if (this.bizSearch !== undefined) {
+            search = {};
+            for (let { entity, buds } of this.bizSearch.params) {
+                search[entity.id] = buds.map(v => v.id);
+            }
+        }
         ret = {
             ...ret,
             main: this.main.name,
@@ -33,6 +42,7 @@ export class BizSheet extends BizEntity {
                     caption,                // 此处暂时不做res翻译
                 }
             }),
+            search,
         };
         return ret;
     }

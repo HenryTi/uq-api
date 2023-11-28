@@ -12,3 +12,4 @@ export * from './Options';
 export * from './Report';
 export * from './Query';
 export * from './Console';
+export * from './Base';

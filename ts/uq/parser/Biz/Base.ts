@@ -2,7 +2,7 @@ import {
     BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf
-    , BizAtomID, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions
+    , BizAtomID, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud
 } from "../../il";
 import { UI } from "../../il/UI";
 import { PElement } from "../element";
@@ -423,6 +423,12 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ret;
     }
 
+    protected parseSearch(bizEntity: BizEntity) {
+        let bizSearch = new BizSearch(bizEntity);
+        this.context.parseElement(bizSearch);
+        return bizSearch;
+    }
+
     protected scanPermission(space: Space) {
         let ok = true;
         let { permissions } = this.element;
@@ -522,6 +528,122 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             let { pelement } = value;
             if (pelement === undefined) continue;
             if ((pelement as PBizBudValue<any>).bizEntityScan2(bizEntity) === false) ok = false;
+        }
+        return ok;
+    }
+}
+
+export class PBizSearch extends PElement<BizSearch> {
+    private search: { [bin: string]: string[]; } = {};
+    protected override _parse(): void {
+        let main = '$';
+        this.ts.passToken(Token.LPARENTHESE);
+        for (; ;) {
+            if (this.ts.token === Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
+            if (this.ts.token !== Token.VAR) this.ts.expectToken(Token.VAR);
+            let { lowerVar } = this.ts;
+            this.ts.readToken();
+            if (this.ts.token === Token.LPARENTHESE) {
+                this.ts.readToken();
+                for (; ;) {
+                    if (this.ts.token === Token.RPARENTHESE as any) {
+                        this.ts.readToken();
+                        break;
+                    }
+                    if (this.ts.token !== Token.VAR as any) this.ts.expectToken(Token.VAR);
+                    this.addBin(lowerVar, this.ts.lowerVar);
+                    this.ts.readToken();
+                    if (this.ts.token === Token.COMMA as any) {
+                        this.ts.readToken();
+                        continue;
+                    }
+                    if (this.ts.token === Token.RPARENTHESE as any) {
+                        this.ts.readToken();
+                        break;
+                    }
+                }
+            }
+            else {
+                this.addBin(main, lowerVar);
+            }
+            if (this.ts.token === Token.COMMA as any) {
+                this.ts.readToken();
+                continue;
+            }
+            if (this.ts.token === Token.RPARENTHESE as any) {
+                this.ts.readToken();
+                break;
+            }
+        }
+        this.ts.mayPassToken(Token.SEMICOLON);
+    }
+
+    private addBin(bin: string, bud: string) {
+        let arr = this.search[bin];
+        if (arr === undefined) {
+            arr = [];
+            this.search[bin] = arr;
+        }
+        if (arr.includes(bud) === true) {
+            this.ts.error(`duplicate ${bud}`);
+        }
+        else {
+            arr.push(bud);
+        }
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        let bizSheet = this.element.bizEntity as BizSheet;
+        if (bizSheet.bizPhraseType !== BizPhraseType.sheet) {
+            debugger;
+            ok = false;
+            return ok;
+        }
+        const { main, details } = bizSheet;
+        for (let i in this.search) {
+            let bizBin: BizBin;
+            if (i === '$') {
+                bizBin = main;
+            }
+            else {
+                for (let { bin } of details) {
+                    if (bin.name === i) {
+                        bizBin = bin;
+                        break;
+                    }
+                }
+            }
+            if (bizBin === undefined) {
+                this.log(`${i} is not a detail`);
+                ok = false;
+            }
+            else {
+                let buds = this.search[i];
+                let arr: BizBud[] = [];
+                for (let bud of buds) {
+                    if (bud === 'i') {
+                        arr.push(bizBin.i);
+                    }
+                    else if (bud === 'x') {
+                        arr.push(bizBin.x);
+                    }
+                    else {
+                        let prop = bizBin.props.get(bud);
+                        if (prop !== undefined) {
+                            arr.push(prop);
+                        }
+                        else {
+                            this.log(`${bud} is not defined`);
+                            ok = false;
+                        }
+                    }
+                }
+                this.element.params.push({ entity: bizBin, buds: arr });
+            }
         }
         return ok;
     }

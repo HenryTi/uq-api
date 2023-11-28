@@ -22,13 +22,20 @@ class BizSheet extends Entity_1.BizEntity {
         let ret = super.buildSchema(res);
         if (this.main === undefined)
             debugger;
+        let search;
+        if (this.bizSearch !== undefined) {
+            search = {};
+            for (let { entity, buds } of this.bizSearch.params) {
+                search[entity.id] = buds.map(v => v.id);
+            }
+        }
         ret = Object.assign(Object.assign({}, ret), { main: this.main.name, details: this.details.map(v => {
                 const { bin, caption } = v;
                 return {
                     bin: bin.name,
                     caption, // 此处暂时不做res翻译
                 };
-            }) });
+            }), search });
         return ret;
     }
     db(dbContext) {

@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBase = void 0;
+exports.BizSearch = exports.BizBase = void 0;
 const IElement_1 = require("../IElement");
 const BizPhraseType_1 = require("./BizPhraseType");
+const parser_1 = require("../../parser");
 class BizBase extends IElement_1.IElement {
     constructor(biz) {
         super();
@@ -72,4 +73,16 @@ class BizBase extends IElement_1.IElement {
     }
 }
 exports.BizBase = BizBase;
+class BizSearch extends IElement_1.IElement {
+    constructor(bizEntity) {
+        super();
+        this.type = 'bizsearch';
+        this.params = [];
+        this.bizEntity = bizEntity;
+    }
+    parser(context) {
+        return new parser_1.PBizSearch(this, context);
+    }
+}
+exports.BizSearch = BizSearch;
 //# sourceMappingURL=Base.js.map

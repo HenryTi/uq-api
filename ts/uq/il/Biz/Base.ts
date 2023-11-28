@@ -4,6 +4,10 @@ import { UI } from "../UI";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizAtomID } from "./Atom";
 import { BizOptions } from "./Options";
+import { PBizSearch, PContext, PElement } from "../../parser";
+import { BizSheet } from "./Sheet";
+import { BizEntity } from "./Entity";
+import { BizBud } from "./Bud";
 
 export abstract class BizBase extends IElement {
     readonly biz: Biz;
@@ -90,4 +94,17 @@ export abstract class BizBase extends IElement {
 export interface IxField {
     caption: string;
     atoms: (BizAtomID | BizOptions)[];         // atoms === undefined 则 ME
+}
+
+export class BizSearch extends IElement {
+    type = 'bizsearch';
+    readonly bizEntity: BizEntity;
+    readonly params: { entity: BizEntity; buds: BizBud[]; }[] = [];
+    constructor(bizEntity: BizEntity) {
+        super();
+        this.bizEntity = bizEntity;
+    }
+    parser(context: PContext): PElement<IElement> {
+        return new PBizSearch(this, context);
+    }
 }
