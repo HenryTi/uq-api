@@ -453,8 +453,13 @@ class TokenStream {
                         this.cur >= char_1.Char.A && this.cur <= char_1.Char.Z ||
                         this.cur >= 0x100)
                         this.readVar();
-                    else
+                    else if (char_1.Char.isChinesePunctuation(this.cur) === true) {
+                        this.advance();
+                        this.token = token_1.Token.ChinsePunctuation;
+                    }
+                    else {
                         this.error("PARSE_UnexpectChar");
+                    }
                     break;
             }
             return;

@@ -1,7 +1,8 @@
 
-let chars = '+-*\\/%(){}[].,;:^=<>&|\'"_?09$@#~!';
-let lowercase = 'abcdefghijklmnopqrstuvwxyz';
-let uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const chars = '+-*\\/%(){}[].,;:^=<>&|\'"_?09$@#~!';
+const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const chinesePunctuation = '，。、？！·《》—【】';
 
 export class Char {
     static NULL = 0;
@@ -101,4 +102,8 @@ export class Char {
     static Z = uppercase.charCodeAt(25);
 
     static USPACE = 0x3000;
+    static ChinsePunctuation = 0x3001;
+    static isChinesePunctuation(ch: number) {
+        return chinesePunctuation.includes(String.fromCharCode(ch));
+    }
 }

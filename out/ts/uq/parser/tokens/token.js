@@ -50,6 +50,7 @@ var Token;
     Token[Token["COLONEQU"] = 61] = "COLONEQU";
     Token[Token["SubGT"] = 62] = "SubGT";
     Token[Token["Exclamation"] = 66] = "Exclamation";
+    Token[Token["ChinsePunctuation"] = 98] = "ChinsePunctuation";
     Token[Token["Memo"] = 99] = "Memo";
 })(Token || (exports.Token = Token = {}));
 //# sourceMappingURL=token.js.map

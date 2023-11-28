@@ -3,6 +3,7 @@ import { Biz } from "./Biz";
 import { UI } from "../UI";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizAtomID } from "./Atom";
+import { BizOptions } from "./Options";
 
 export abstract class BizBase extends IElement {
     readonly biz: Biz;
@@ -88,5 +89,5 @@ export abstract class BizBase extends IElement {
 // 专门用于 i 和 x。Tie 和 duo 里面需要
 export interface IxField {
     caption: string;
-    atoms: BizAtomID[];         // atoms === undefined 则 ME
+    atoms: (BizAtomID | BizOptions)[];         // atoms === undefined 则 ME
 }

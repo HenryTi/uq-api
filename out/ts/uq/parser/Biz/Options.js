@@ -53,7 +53,6 @@ class PBizOptions extends Base_1.PBizEntity {
                 }
                 this.ts.readToken();
             }
-            this.ts.readToken();
             let type;
             switch (typeof value) {
                 default:

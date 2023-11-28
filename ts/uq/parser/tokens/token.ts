@@ -49,5 +49,6 @@ export enum Token {
     SubGT = 62,         // ->
     Exclamation = 66,   // !
 
+    ChinsePunctuation = 98,
     Memo = 99,
 }

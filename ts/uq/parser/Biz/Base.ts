@@ -2,7 +2,7 @@ import {
     BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf
-    , BizAtomID, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField
+    , BizAtomID, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions
 } from "../../il";
 import { UI } from "../../il/UI";
 import { PElement } from "../element";
@@ -469,30 +469,35 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
-    protected scanIxField(space: Space, tieField: IxField) {
+    protected scanIxField(space: Space, ixField: IxField) {
         let ok = true;
-        let atoms: BizAtomID[] = [];
-        let atomNames = tieField.atoms as unknown as string[];
+        let atoms: (BizAtomID | BizOptions)[] = [];
+        let atomNames = ixField.atoms as unknown as string[];
         if (atomNames === undefined) {
-            if (tieField.caption !== undefined) {
+            if (ixField.caption !== undefined) {
                 this.log(`TIE ME field should not define caption`);
                 ok = false;
             }
             return ok;
         }
-
+        const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.duo, BizPhraseType.options];
         for (let name of atomNames) {
             let bizEntity = space.getBizEntity(name);
+            if (bizEntity === undefined) {
+                this.log(`${name} is not defined`);
+                ok = false;
+                continue;
+            }
             let { bizPhraseType } = bizEntity;
-            if (bizPhraseType === BizPhraseType.atom || bizPhraseType === BizPhraseType.spec) {
-                atoms.push(bizEntity as BizAtomID);
+            if (ids.indexOf(bizPhraseType) >= 0) {
+                atoms.push(bizEntity as BizAtomID | BizOptions);
             }
             else {
-                this.log(`${name} is neither ATOM nor SPEC`);
+                this.log(`${name} must be one of (ATOM, SPEC, DUO, Options)`);
                 ok = false;
             }
         }
-        tieField.atoms = atoms;
+        ixField.atoms = atoms;
         return ok;
     }
 

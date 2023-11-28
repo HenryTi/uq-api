@@ -43,7 +43,6 @@ export class PBizOptions extends PBizEntity<BizOptions> {
                 }
                 this.ts.readToken();
             }
-            this.ts.readToken();
             let type: OptionsItemValueType;
             switch (typeof value) {
                 default:

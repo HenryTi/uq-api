@@ -1,10 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Char = void 0;
-let chars = '+-*\\/%(){}[].,;:^=<>&|\'"_?09$@#~!';
-let lowercase = 'abcdefghijklmnopqrstuvwxyz';
-let uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const chars = '+-*\\/%(){}[].,;:^=<>&|\'"_?09$@#~!';
+const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const chinesePunctuation = '，。、？！·《》—【】';
 class Char {
+    static isChinesePunctuation(ch) {
+        return chinesePunctuation.includes(String.fromCharCode(ch));
+    }
 }
 exports.Char = Char;
 Char.NULL = 0;
@@ -100,4 +104,5 @@ Char.X = uppercase.charCodeAt(23);
 Char.Y = uppercase.charCodeAt(24);
 Char.Z = uppercase.charCodeAt(25);
 Char.USPACE = 0x3000;
+Char.ChinsePunctuation = 0x3001;
 //# sourceMappingURL=char.js.map

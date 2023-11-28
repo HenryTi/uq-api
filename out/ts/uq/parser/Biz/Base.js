@@ -453,29 +453,35 @@ class PBizEntity extends PBizBase {
         }
         return ok;
     }
-    scanIxField(space, tieField) {
+    scanIxField(space, ixField) {
         let ok = true;
         let atoms = [];
-        let atomNames = tieField.atoms;
+        let atomNames = ixField.atoms;
         if (atomNames === undefined) {
-            if (tieField.caption !== undefined) {
+            if (ixField.caption !== undefined) {
                 this.log(`TIE ME field should not define caption`);
                 ok = false;
             }
             return ok;
         }
+        const ids = [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.duo, il_1.BizPhraseType.options];
         for (let name of atomNames) {
             let bizEntity = space.getBizEntity(name);
+            if (bizEntity === undefined) {
+                this.log(`${name} is not defined`);
+                ok = false;
+                continue;
+            }
             let { bizPhraseType } = bizEntity;
-            if (bizPhraseType === il_1.BizPhraseType.atom || bizPhraseType === il_1.BizPhraseType.spec) {
+            if (ids.indexOf(bizPhraseType) >= 0) {
                 atoms.push(bizEntity);
             }
             else {
-                this.log(`${name} is neither ATOM nor SPEC`);
+                this.log(`${name} must be one of (ATOM, SPEC, DUO, Options)`);
                 ok = false;
             }
         }
-        tieField.atoms = atoms;
+        ixField.atoms = atoms;
         return ok;
     }
     scan(space) {
