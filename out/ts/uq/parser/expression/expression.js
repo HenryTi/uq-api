@@ -347,15 +347,20 @@ class PExpression extends element_1.PElement {
             case tokens_1.Token.LPARENTHESE:
                 this.ts.readToken();
                 let selectOperand = this.maySelectOperand();
-                if (selectOperand === undefined) {
+                if (selectOperand !== undefined) {
+                    this.add(selectOperand);
+                }
+                else {
                     this._internalParse();
                 }
-                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                this.ts.passToken(tokens_1.Token.RPARENTHESE);
+                /*
+                if (this.ts.token === Token.RPARENTHESE as any) {
                     this.ts.readToken();
-                    this.add(selectOperand);
                     return;
                 }
-                this.expectToken(tokens_1.Token.RPARENTHESE);
+                this.expectToken(Token.RPARENTHESE);
+                */
                 return;
             case tokens_1.Token.STRING:
                 this.add(new Exp.TextOperand(this.ts.text));

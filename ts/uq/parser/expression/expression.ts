@@ -359,15 +359,20 @@ export abstract class PExpression extends PElement {
             case Token.LPARENTHESE:
                 this.ts.readToken();
                 let selectOperand = this.maySelectOperand();
-                if (selectOperand === undefined) {
+                if (selectOperand !== undefined) {
+                    this.add(selectOperand);
+                }
+                else {
                     this._internalParse();
                 }
+                this.ts.passToken(Token.RPARENTHESE);
+                /*
                 if (this.ts.token === Token.RPARENTHESE as any) {
                     this.ts.readToken();
-                    this.add(selectOperand);
                     return;
                 }
                 this.expectToken(Token.RPARENTHESE);
+                */
                 return;
             case Token.STRING:
                 this.add(new Exp.TextOperand(this.ts.text));
