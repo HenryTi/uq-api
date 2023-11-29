@@ -66,4 +66,6 @@ export const uqFunctions: { [name: string]: number | [number, number] } = {
 
     phraseid: 1,
     phraseofid: 1,
+
+    bs_curdate: 0,
 };

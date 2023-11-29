@@ -64,5 +64,6 @@ exports.uqFunctions = {
     me: 0,
     phraseid: 1,
     phraseofid: 1,
+    bs_curdate: 0,
 };
 //# sourceMappingURL=functions.js.map
