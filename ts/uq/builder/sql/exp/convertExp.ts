@@ -7,7 +7,9 @@ import {
     , Select as IlSelect,
     // BizSelectInline,
     BizExp,
-    BizFieldOperand
+    BizFieldOperand,
+    OptionsItem,
+    BizOptions
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
@@ -18,6 +20,7 @@ import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand } from './ExpBizOperand';
 import {
+    BBizCheckBud,
     BBizExp, BBizFieldOperand
     //    , BBizFieldOperand 
 } from '../BizExp';
@@ -150,6 +153,13 @@ class Stack implements IlStack {
         let bExp = new BBizExp();
         bExp.convertFrom(this.context, exp);
         this.arr.push(new BizExpOperand(bExp));
+    }
+    bizCheckBud(exp1: BizExp, exp2: BizExp, item: OptionsItem) {
+        let bExp1 = new BBizExp();
+        bExp1.convertFrom(this.context, exp1);
+        let bExp2 = new BBizExp();
+        bExp2.convertFrom(this.context, exp2);
+        this.arr.push(new BBizCheckBud(bExp1, bExp2, item));
     }
     bizFieldOperand(bizFieldOperand: BizFieldOperand) {
         let bBizField = bizFieldOperand.field.db(this.context);

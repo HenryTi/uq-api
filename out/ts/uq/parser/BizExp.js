@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizExpParam = exports.PBizExp = exports.PBizExpOperand = void 0;
+exports.PBizCheckBudOperand = exports.PBizExpParam = exports.PBizExp = exports.PBizExpOperand = void 0;
 const il_1 = require("../il");
 const il_2 = require("../il");
 const element_1 = require("./element");
@@ -152,9 +152,13 @@ class PBizExp extends element_1.PElement {
             this.element.prop = 'id';
         }
         else {
-            if (bizAtom.hasProp(prop) === false) {
+            let bud = bizAtom.getBud(prop);
+            if (bud === undefined) {
                 this.log(`${bizAtom.getJName()} does not have prop ${prop}`);
                 ok = false;
+            }
+            else {
+                this.element.budProp = bud;
             }
         }
         return ok;
@@ -173,9 +177,13 @@ class PBizExp extends element_1.PElement {
             this.element.prop = 'id';
         }
         else {
-            if (bizSpec.hasProp(prop) === false) {
+            let bud = bizSpec.getBud(prop);
+            if (bud === undefined) {
                 this.log(`${bizSpec.getJName()} does not have prop ${prop}`);
                 ok = false;
+            }
+            else {
+                this.element.budProp = bud;
             }
         }
         return ok;
@@ -195,11 +203,16 @@ class PBizExp extends element_1.PElement {
         }
         else {
             const arr = ['i', 'x', 'price', 'amount', 'value'];
-            if (prop === '收货物流中心')
-                debugger;
-            if (arr.includes(prop) === false && bizBin.hasProp(prop) === false) {
-                this.log(`${bizBin.getJName()} does not have prop ${prop}`);
-                ok = false;
+            // if (prop === '收货物流中心') debugger;
+            if (arr.includes(prop) === false) {
+                let bud = bizBin.getBud(prop);
+                if (bud === undefined) {
+                    this.log(`${bizBin.getJName()} does not have prop ${prop}`);
+                    ok = false;
+                }
+                else {
+                    this.element.budProp = bud;
+                }
             }
         }
         return ok;
@@ -219,7 +232,7 @@ class PBizExp extends element_1.PElement {
                 ok = false;
             }
             else {
-                this.element.bud = bud;
+                this.element.budEntitySub = bud;
             }
         }
         if (prop === undefined) {
@@ -345,4 +358,109 @@ class PBizExpParam extends element_1.PElement {
     }
 }
 exports.PBizExpParam = PBizExpParam;
+class PBizCheckBudOperand extends element_1.PElement {
+    _parse() {
+        let hasParenthese = false;
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            hasParenthese = true;
+            this.ts.readToken();
+        }
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        this.ts.passToken(tokens_1.Token.SHARP);
+        let bizExp = new il_1.BizExp();
+        this.context.parseElement(bizExp);
+        this.ts.passToken(tokens_1.Token.RPARENTHESE);
+        this.element.bizExp1 = bizExp;
+        if (this.ts.token === tokens_1.Token.EQU) {
+            this.ts.readToken();
+            this.options = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.DOT);
+            this.item = this.ts.passVar();
+        }
+        else {
+            this.ts.passKey('on');
+            this.ts.passToken(tokens_1.Token.LPARENTHESE);
+            this.ts.passToken(tokens_1.Token.SHARP);
+            bizExp = new il_1.BizExp();
+            this.context.parseElement(bizExp);
+            this.ts.passToken(tokens_1.Token.RPARENTHESE);
+            this.element.bizExp2 = bizExp;
+        }
+        if (hasParenthese === true) {
+            this.ts.passToken(tokens_1.Token.RPARENTHESE);
+        }
+    }
+    scan(space) {
+        let ok = true;
+        const { bizExp1, bizExp2 } = this.element;
+        if (bizExp1.pelement.scan(space) === false) {
+            ok = false;
+        }
+        if (bizExp2 !== undefined) {
+            if (bizExp2.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (this.options !== undefined) {
+            let options = space.getBizEntity(this.options);
+            if (options.bizPhraseType !== il_2.BizPhraseType.options) {
+                this.log(`${this.options} is not OPTIONS`);
+                ok = false;
+            }
+            else {
+                let bizOptions = options;
+                let item = bizOptions.items.find(v => v.name === this.item);
+                if (item === undefined) {
+                    this.log(`${this.item} is not an ITEM of OPTIONS ${bizOptions.getJName()}`);
+                    ok = false;
+                }
+                this.element.bizOptions = bizOptions;
+                this.element.item = item;
+            }
+        }
+        return ok;
+    }
+    scan2(uq) {
+        let ok = true;
+        const { bizExp1, bizExp2, bizOptions } = this.element;
+        let options1 = this.checkBudOptions(bizExp1);
+        if (options1 === undefined) {
+            return false;
+        }
+        if (bizExp2 !== undefined) {
+            let options2 = this.checkBudOptions(bizExp2);
+            if (options2 === undefined) {
+                return false;
+            }
+            if (options1 !== options2) {
+                this.log(`the two buds in CHECK have different OPTIONS`);
+                ok = false;
+            }
+        }
+        else if (options1 !== bizOptions) {
+            this.log(`bud is not OPTIONS ${bizOptions.getJName()}`);
+            ok = false;
+        }
+        return ok;
+    }
+    checkBudOptions(bizExp) {
+        let { budProp } = bizExp;
+        const notCheck = () => { this.log(`${bizExp.prop} is not options`); };
+        if (budProp === undefined) {
+            notCheck();
+            return;
+        }
+        const { dataType } = budProp;
+        switch (dataType) {
+            default:
+                notCheck();
+                return;
+            case il_1.BudDataType.check:
+            case il_1.BudDataType.radio:
+                break;
+        }
+        return budProp.options;
+    }
+}
+exports.PBizCheckBudOperand = PBizCheckBudOperand;
 //# sourceMappingURL=BizExp.js.map

@@ -1,4 +1,4 @@
-import { BizBase } from "../Biz";
+import { BizBase, BizOptions, OptionsItem } from "../Biz";
 import { DataType } from "../datatype";
 import { Entity, ID, Queue } from "../entity";
 import { Select } from "../select";
@@ -43,6 +43,7 @@ export interface Stack {
     cast(dataType: DataType): void;
     select(select: Select): void;
     bizExp(exp: BizExp): void;
+    bizCheckBud(exp1: BizExp, exp2: BizExp, item: OptionsItem): void;
     bizFieldOperand(bizField: BizFieldOperand): void;
     searchCase(whenCount: number, hasElse: boolean): void;
     simpleCase(whenCount: number, hasElse: boolean): void;

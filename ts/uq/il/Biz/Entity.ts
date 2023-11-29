@@ -62,11 +62,13 @@ export abstract class BizEntity extends BizBase {
         this.schema = ret;
         return ret;
     }
+    /*
     hasProp(name: string): boolean {
         if (super.hasProp(name) === true) return true;
         let bud = this.props.get(name.toLowerCase());
         return (bud !== undefined);
     }
+    */
 
     hasField(fieldName: string): boolean {
         return this.fields.includes(fieldName);

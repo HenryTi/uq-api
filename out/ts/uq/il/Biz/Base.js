@@ -31,8 +31,13 @@ class BizBase extends IElement_1.IElement {
         };
     }
     ;
-    hasProp(name) {
+    /*
+    hasProp(name: string): boolean {
         return false;
+    }
+    */
+    getBud(name) {
+        return undefined;
     }
     get basePhrase() { return ''; }
     buildPhrase(prefix) {

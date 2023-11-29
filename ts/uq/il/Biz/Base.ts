@@ -48,8 +48,13 @@ export abstract class BizBase extends IElement {
             }
         }
     };
+    /*
     hasProp(name: string): boolean {
         return false;
+    }
+    */
+    getBud(name: string): BizBud {
+        return undefined;
     }
     get basePhrase(): string { return ''; }
 

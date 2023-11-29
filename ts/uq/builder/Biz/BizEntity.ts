@@ -142,7 +142,7 @@ export class BBizEntity<B extends BizEntity = any> {
         }
         let t = 't' + len;
         let { bizEntity, bizBud } = items[len];
-        let tblIxBud: string;
+        let tblIxBud: EnumSysTable;
         switch (bizBud.dataType) {
             default:
                 tblIxBud = EnumSysTable.ixBudInt;

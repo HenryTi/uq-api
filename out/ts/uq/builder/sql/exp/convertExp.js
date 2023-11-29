@@ -142,6 +142,13 @@ class Stack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp));
     }
+    bizCheckBud(exp1, exp2, item) {
+        let bExp1 = new BizExp_1.BBizExp();
+        bExp1.convertFrom(this.context, exp1);
+        let bExp2 = new BizExp_1.BBizExp();
+        bExp2.convertFrom(this.context, exp2);
+        this.arr.push(new BizExp_1.BBizCheckBud(bExp1, bExp2, item));
+    }
     bizFieldOperand(bizFieldOperand) {
         let bBizField = bizFieldOperand.field.db(this.context);
         let bBizFieldOperand = new BizExp_1.BBizFieldOperand(bBizField);

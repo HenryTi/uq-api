@@ -417,6 +417,10 @@ class PExpression extends element_1.PElement {
         let { lowerVar, varBrace } = this.ts;
         if (varBrace === false) {
             switch (lowerVar) {
+                case 'check':
+                    this.ts.readToken();
+                    this.parseCheck();
+                    return;
                 case 'typeof':
                     this.ts.readToken();
                     this.parseTypeof();
@@ -439,7 +443,6 @@ class PExpression extends element_1.PElement {
                         let whenCount = 1;
                         let hasElse = false;
                         this.ts.readToken();
-                        //this.operators.Add(new OpCaseBoolWhen());
                         this.expCompare();
                         if (this.ts.isKeyword('then') === false)
                             this.expect("THEN");
@@ -452,13 +455,11 @@ class PExpression extends element_1.PElement {
                                 this.expect("THEN");
                             this.ts.readToken();
                             this.expValue();
-                            //this.operators.Add(new OpCaseBoolWhen());
                             whenCount++;
                         }
                         if (this.ts.isKeyword('else') === true) {
                             this.ts.readToken();
                             this.expValue();
-                            //this.operators.Add(new OpCaseElse());
                             hasElse = true;
                         }
                         else if (this.ts.isKeyword('end') === false)
@@ -478,16 +479,11 @@ class PExpression extends element_1.PElement {
                                 this.expect("THEN");
                             this.ts.readToken();
                             this.expValue();
-                            //this.operators.Add(new OpCaseEquWhen());
                             whenCount++;
                         }
                         if (this.ts.isKeyword('else') === true) {
                             this.ts.readToken();
                             this.expValue();
-                            //if (this.tokenStream.token != Token.END) this.tokenStream.ThrowException(this, "应该是END");
-                            //this.tokenStream.ReadToken();
-                            //this.operators.Add(new OpCaseElse());
-                            //return;
                             hasElse = true;
                         }
                         if (this.ts.isKeyword('end') === false)
@@ -496,12 +492,6 @@ class PExpression extends element_1.PElement {
                         this.add(new Exp.OpSimpleCase(whenCount, hasElse));
                         return;
                     }
-                /*
-                case 'tagname':
-                    this.ts.readToken();
-                    this.parseTag();
-                    return;
-                */
             }
         }
         this.ts.readToken();
@@ -518,6 +508,11 @@ class PExpression extends element_1.PElement {
                 this.func(lowerVar);
                 return;
         }
+    }
+    parseCheck() {
+        let check = new Exp.BizCheckBudOperand();
+        this.context.parseElement(check);
+        this.add(check);
     }
     parseTypeof() {
         let opTypeof = new Exp.OpTypeof();

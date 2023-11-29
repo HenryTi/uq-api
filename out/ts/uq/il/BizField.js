@@ -65,27 +65,13 @@ class BizFieldVar extends BizFieldField {
     }
 }
 exports.BizFieldVar = BizFieldVar;
-/*
-export class BizFieldSheetBud extends BizFieldBud {
-    override db(dbContext: DbContext): BBizField {
-        return new BBizFieldSheetBud(dbContext, this);
-    }
-}
-*/
 // col = field | bud;
 var ColType;
 (function (ColType) {
     ColType[ColType["bud"] = 0] = "bud";
     ColType[ColType["json"] = 1] = "json";
     ColType[ColType["var"] = 2] = "var";
-    // sheetBud,
 })(ColType || (ColType = {}));
-/*
-[
-    string[] | [BizEntity, BizBudValue[]]
-    , string
-    , ColType?][]
-*/
 const binFieldArr = ['i', 'x', 'value', 'price', 'amount'];
 const sheetFieldArr = ['no'];
 const atomFieldArr = ['id', 'no', 'ex'];

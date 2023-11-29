@@ -1,7 +1,9 @@
 import {
-    ValueExpression
-    , BizExp, BizExpOperand, BizAtom
+    ValueExpression, BizExp, BizAtom
     , BizAtomSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
+    , BizCheckBudOperand, BudDataType, BizBudCheck, BizOptions
+    , BizExpOperand,
+    Uq
 } from "../il";
 import { BizPhraseType } from "../il";
 import { PElement } from "./element";
@@ -144,9 +146,13 @@ export class PBizExp extends PElement<BizExp> {
             this.element.prop = 'id';
         }
         else {
-            if (bizAtom.hasProp(prop) === false) {
+            let bud = bizAtom.getBud(prop);
+            if (bud === undefined) {
                 this.log(`${bizAtom.getJName()} does not have prop ${prop}`);
                 ok = false;
+            }
+            else {
+                this.element.budProp = bud;
             }
         }
         return ok;
@@ -165,9 +171,13 @@ export class PBizExp extends PElement<BizExp> {
             this.element.prop = 'id';
         }
         else {
-            if (bizSpec.hasProp(prop) === false) {
+            let bud = bizSpec.getBud(prop);
+            if (bud === undefined) {
                 this.log(`${bizSpec.getJName()} does not have prop ${prop}`);
                 ok = false;
+            }
+            else {
+                this.element.budProp = bud;
             }
         }
         return ok;
@@ -187,10 +197,16 @@ export class PBizExp extends PElement<BizExp> {
         }
         else {
             const arr = ['i', 'x', 'price', 'amount', 'value'];
-            if (prop === '收货物流中心') debugger;
-            if (arr.includes(prop) === false && bizBin.hasProp(prop) === false) {
-                this.log(`${bizBin.getJName()} does not have prop ${prop}`);
-                ok = false;
+            // if (prop === '收货物流中心') debugger;
+            if (arr.includes(prop) === false) {
+                let bud = bizBin.getBud(prop);
+                if (bud === undefined) {
+                    this.log(`${bizBin.getJName()} does not have prop ${prop}`);
+                    ok = false;
+                }
+                else {
+                    this.element.budProp = bud;
+                }
             }
         }
         return ok;
@@ -211,7 +227,7 @@ export class PBizExp extends PElement<BizExp> {
                 ok = false;
             }
             else {
-                this.element.bud = bud;
+                this.element.budEntitySub = bud;
             }
         }
         if (prop === undefined) {
@@ -338,5 +354,115 @@ export class PBizExpParam extends PElement<BizExpParam> {
             this.element.ixs = ixs;
         }
         return ok;
+    }
+}
+
+export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
+    private options: string;
+    private item: string;
+    protected override _parse(): void {
+        let hasParenthese = false;
+        if (this.ts.token === Token.LPARENTHESE) {
+            hasParenthese = true;
+            this.ts.readToken();
+        }
+        this.ts.passToken(Token.LPARENTHESE);
+        this.ts.passToken(Token.SHARP);
+        let bizExp = new BizExp();
+        this.context.parseElement(bizExp);
+        this.ts.passToken(Token.RPARENTHESE);
+        this.element.bizExp1 = bizExp;
+        if (this.ts.token === Token.EQU) {
+            this.ts.readToken();
+            this.options = this.ts.passVar();
+            this.ts.passToken(Token.DOT);
+            this.item = this.ts.passVar();
+        }
+        else {
+            this.ts.passKey('on');
+            this.ts.passToken(Token.LPARENTHESE);
+            this.ts.passToken(Token.SHARP);
+            bizExp = new BizExp();
+            this.context.parseElement(bizExp);
+            this.ts.passToken(Token.RPARENTHESE);
+            this.element.bizExp2 = bizExp;
+        }
+        if (hasParenthese === true) {
+            this.ts.passToken(Token.RPARENTHESE);
+        }
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        const { bizExp1, bizExp2 } = this.element;
+        if (bizExp1.pelement.scan(space) === false) {
+            ok = false;
+        }
+        if (bizExp2 !== undefined) {
+            if (bizExp2.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (this.options !== undefined) {
+            let options = space.getBizEntity(this.options);
+            if (options.bizPhraseType !== BizPhraseType.options) {
+                this.log(`${this.options} is not OPTIONS`);
+                ok = false;
+            }
+            else {
+                let bizOptions = options as BizOptions;
+                let item = bizOptions.items.find(v => v.name === this.item);
+                if (item === undefined) {
+                    this.log(`${this.item} is not an ITEM of OPTIONS ${bizOptions.getJName()}`);
+                    ok = false;
+                }
+                this.element.bizOptions = bizOptions;
+                this.element.item = item;
+            }
+        }
+        return ok;
+    }
+
+    override scan2(uq: Uq): boolean {
+        let ok = true;
+        const { bizExp1, bizExp2, bizOptions } = this.element;
+        let options1 = this.checkBudOptions(bizExp1);
+        if (options1 === undefined) {
+            return false;
+        }
+        if (bizExp2 !== undefined) {
+            let options2 = this.checkBudOptions(bizExp2);
+            if (options2 === undefined) {
+                return false;
+            }
+            if (options1 !== options2) {
+                this.log(`the two buds in CHECK have different OPTIONS`);
+                ok = false;
+            }
+        }
+        else if (options1 !== bizOptions) {
+            this.log(`bud is not OPTIONS ${bizOptions.getJName()}`);
+            ok = false;
+        }
+        return ok;
+    }
+
+    private checkBudOptions(bizExp: BizExp): BizOptions {
+        let { budProp } = bizExp;
+        const notCheck = () => { this.log(`${bizExp.prop} is not options`); }
+        if (budProp === undefined) {
+            notCheck();
+            return;
+        }
+        const { dataType } = budProp;
+        switch (dataType) {
+            default:
+                notCheck();
+                return;
+            case BudDataType.check:
+            case BudDataType.radio:
+                break;
+        }
+        return (budProp as BizBudCheck).options;
     }
 }

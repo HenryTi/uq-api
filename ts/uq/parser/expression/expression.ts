@@ -4,14 +4,11 @@ import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import {
-    createDataType, Entity, Table, GroupType,
-    Pointer,
-    BizExp
+    createDataType, Entity, Table, GroupType, Pointer,
 } from '../../il';
 import { PContext } from '../pContext';
 import { DATEPARTS, TIMESTAMPDIFFPARTS } from '../../il/DATEPARTS';
 import { functions, uqFunctions } from '../../il/functions';
-import { ExpVal } from '../../builder';
 
 export abstract class PAtom extends PElement {
     atom: Exp.Atom;
@@ -430,6 +427,10 @@ export abstract class PExpression extends PElement {
         let { lowerVar, varBrace } = this.ts;
         if (varBrace === false) {
             switch (lowerVar) {
+                case 'check':
+                    this.ts.readToken();
+                    this.parseCheck();
+                    return;
                 case 'typeof':
                     this.ts.readToken();
                     this.parseTypeof();
@@ -452,7 +453,6 @@ export abstract class PExpression extends PElement {
                         let whenCount = 1;
                         let hasElse = false;
                         this.ts.readToken();
-                        //this.operators.Add(new OpCaseBoolWhen());
                         this.expCompare();
                         if (this.ts.isKeyword('then') === false) this.expect("THEN");
                         this.ts.readToken();
@@ -463,13 +463,11 @@ export abstract class PExpression extends PElement {
                             if (this.ts.isKeyword('then') === false) this.expect("THEN");
                             this.ts.readToken();
                             this.expValue();
-                            //this.operators.Add(new OpCaseBoolWhen());
                             whenCount++;
                         }
                         if (this.ts.isKeyword('else') === true) {
                             this.ts.readToken();
                             this.expValue();
-                            //this.operators.Add(new OpCaseElse());
                             hasElse = true;
                         }
                         else if (this.ts.isKeyword('end') === false) this.expect("END");
@@ -487,16 +485,11 @@ export abstract class PExpression extends PElement {
                             if (this.ts.isKeyword('then') === false) this.expect("THEN");
                             this.ts.readToken();
                             this.expValue();
-                            //this.operators.Add(new OpCaseEquWhen());
                             whenCount++;
                         }
                         if (this.ts.isKeyword('else') === true) {
                             this.ts.readToken();
                             this.expValue();
-                            //if (this.tokenStream.token != Token.END) this.tokenStream.ThrowException(this, "应该是END");
-                            //this.tokenStream.ReadToken();
-                            //this.operators.Add(new OpCaseElse());
-                            //return;
                             hasElse = true;
                         }
                         if (this.ts.isKeyword('end') === false) this.expect("END");
@@ -504,12 +497,6 @@ export abstract class PExpression extends PElement {
                         this.add(new Exp.OpSimpleCase(whenCount, hasElse));
                         return;
                     }
-                /*
-                case 'tagname':
-                    this.ts.readToken();
-                    this.parseTag();
-                    return;
-                */
             }
         }
 
@@ -527,6 +514,12 @@ export abstract class PExpression extends PElement {
                 this.func(lowerVar);
                 return;
         }
+    }
+
+    private parseCheck() {
+        let check = new Exp.BizCheckBudOperand();
+        this.context.parseElement(check);
+        this.add(check);
     }
 
     private parseTypeof() {

@@ -24,7 +24,12 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
                     break;
                 }
                 let bud = this.parseSubItem();
-                this.element.params.push(bud);
+                const { name: budName } = bud;
+                const { params } = this.element;
+                if (params.findIndex(v => v.name === budName) >= 0) {
+                    this.ts.expect(`duplicate ${budName}`);
+                }
+                params.push(bud);
                 if (this.ts.token === Token.COMMA as any) {
                     this.ts.readToken();
                     if (this.ts.token === Token.RPARENTHESE as any) {

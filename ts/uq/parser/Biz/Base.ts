@@ -179,10 +179,13 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             this.ts.readToken();
         }
         bizBud.parser(this.context).parse();
-        if (this.element.hasProp(name) === true) {
+        //if (this.element.hasProp(name) === true) {
+        /*
+        if (name === 'value' && this.element.bizPhraseType === BizPhraseType.bin) debugger;
+        if (this.element.getBud(name) !== undefined) {
             this.ts.error(`${name} can not be used multiple times`);
         }
-
+        */
         const options: { [option: string]: boolean } = {};
         for (; ;) {
             if (this.ts.isKeyword(undefined) === false) break;
@@ -312,7 +315,12 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             for (; ;) {
                 let bud = this.parseSubItem();
                 this.ts.passToken(Token.SEMICOLON);
-                this.element.props.set(bud.name, bud);
+                const { name: budName } = bud;
+                const { props } = this.element;
+                if (props.has(budName) === true) {
+                    this.ts.error(`duplicate ${budName}`)
+                }
+                props.set(budName, bud);
                 budGroup.buds.push(bud);
                 if (this.ts.token === Token.RBRACE as any) {
                     this.ts.readToken();
@@ -326,7 +334,12 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 this.ts.expectToken(Token.LBRACE);
             }
             let bizBud = this.parseBud(name, ui);
-            this.element.group0.buds.push(bizBud);
+            const { name: budName } = bizBud;
+            const { buds } = this.element.group0;
+            if (buds.findIndex(v => v.name === budName) >= 0) {
+                this.ts.error(`duplicate ${budName}`);
+            }
+            buds.push(bizBud);
             this.ts.passToken(Token.SEMICOLON);
             this.element.props.set(bizBud.name, bizBud);
         }

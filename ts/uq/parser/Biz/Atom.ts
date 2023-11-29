@@ -236,7 +236,12 @@ export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
             this.ts.readToken();
             let ui = this.parseUI();
             let bizBud = this.parseBud(name, ui);
-            this.element.keys.push(bizBud);
+            const { name: budName } = bizBud;
+            let { keys } = this.element;
+            if (keys.findIndex(v => v.name === budName) >= 0) {
+                this.ts.expect(`duplicate ${budName}`);
+            }
+            keys.push(bizBud);
             this.ts.passToken(Token.SEMICOLON);
         }
         if (this.ts.token === Token.LBRACE) {

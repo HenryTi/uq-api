@@ -81,20 +81,12 @@ export class BizFieldVar extends BizFieldField {
         return this.space.createBVar(dbContext, this);
     }
 }
-/*
-export class BizFieldSheetBud extends BizFieldBud {
-    override db(dbContext: DbContext): BBizField {
-        return new BBizFieldSheetBud(dbContext, this);
-    }
-}
-*/
 
 // col = field | bud;
 enum ColType {
     bud,
     json,
     var,
-    // sheetBud,
 }
 interface Cols {
     names: string[];
@@ -106,12 +98,7 @@ interface Cols {
 type TableCols = {
     [table: string]: Cols[]
 };
-/*
-[
-    string[] | [BizEntity, BizBudValue[]]
-    , string
-    , ColType?][]
-*/
+
 const binFieldArr = ['i', 'x', 'value', 'price', 'amount'];
 const sheetFieldArr = ['no'];
 const atomFieldArr = ['id', 'no', 'ex'];

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.BizExpParam = exports.BizExpParamType = void 0;
+exports.BizCheckBudOperand = exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.BizExpParam = exports.BizExpParamType = void 0;
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
 const Op_1 = require("./Op");
@@ -48,4 +48,12 @@ class BizExpOperand extends Op_1.Atom {
     }
 }
 exports.BizExpOperand = BizExpOperand;
+class BizCheckBudOperand extends Op_1.Atom {
+    get type() { return 'bizcheckbudoperand'; }
+    parser(context) { return new parser_1.PBizCheckBudOperand(this, context); }
+    to(stack) {
+        stack.bizCheckBud(this.bizExp1, this.bizExp2, this.item);
+    }
+}
+exports.BizCheckBudOperand = BizCheckBudOperand;
 //# sourceMappingURL=Biz.js.map
