@@ -184,11 +184,14 @@ class SqlBuilder {
         this.funcName(func);
         this.l();
         if (isUqFunc === true) {
+            // 2023-11-30:
+            // 所有调用UqFunc的地方，都已经加了site和user，所以这里是不需要的
+            /*
             // 2023-11-29:
             // 当是UQ func的时候，自动加上 _$site, _$user 参数
             this.append('_$site, _$user');
-            if (params.length > 0)
-                this.comma();
+            if (params.length > 0) this.comma();
+            */
         }
         this.sepStart();
         for (let p of params)
