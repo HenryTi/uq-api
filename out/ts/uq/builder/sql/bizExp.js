@@ -271,8 +271,7 @@ class BBizCheckBud extends exp_1.ExpVal {
     }
     to(sb) {
         let t = '$check';
-        sb.l();
-        sb.append('SELECT EXISTS(SELECT ').append(t).dot().append('id FROM (');
+        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM (');
         this.bExp1.to(sb);
         sb.r().append(' AS ').append(t)
             .append(' WHERE ').append(t).dot().alias('id IN (');
@@ -282,7 +281,7 @@ class BBizCheckBud extends exp_1.ExpVal {
         else {
             this.bExp2.to(sb);
         }
-        sb.r().r().r();
+        sb.r().r();
     }
 }
 exports.BBizCheckBud = BBizCheckBud;
