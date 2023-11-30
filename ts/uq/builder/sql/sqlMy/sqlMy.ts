@@ -197,6 +197,9 @@ export class MyFactory extends Factory {
     func_uminutetime = '$uminute_time';
     func_uminutestamp = '$uminute_stamp';
     func_uminute = '$uminute_from_time';
+    func_bs_curdate(sb: SqlBuilder): void {
+        sb.dbName().dot().append('bs_curdate(_$site, _$user)');
+    }
 }
 
 class Declare extends stat.Declare {

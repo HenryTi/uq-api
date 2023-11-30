@@ -198,6 +198,9 @@ class MyFactory extends factory_1.Factory {
     func_me(sb) {
         sb.dbName().dot().append('$me(_$site, _$user)');
     }
+    func_bs_curdate(sb) {
+        sb.dbName().dot().append('bs_curdate(_$site, _$user)');
+    }
 }
 exports.MyFactory = MyFactory;
 class Declare extends stat.Declare {
