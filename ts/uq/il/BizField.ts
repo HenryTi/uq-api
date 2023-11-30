@@ -5,7 +5,7 @@ import {
     ExpStr,
     ExpNum
 } from "../builder";
-import { BizBin } from "./Biz/Bin";
+import { BizBin } from "./Biz";
 import { BizPhraseType } from "./Biz/BizPhraseType";
 import { BizBud, BizBudValue } from "./Biz/Bud";
 import { BizEntity } from "./Biz/Entity";

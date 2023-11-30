@@ -1,0 +1,159 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PBinPick = void 0;
+const il_1 = require("../../../il");
+const element_1 = require("../../element");
+const tokens_1 = require("../../tokens");
+class PBinPick extends element_1.PElement {
+    constructor() {
+        super(...arguments);
+        this.from = [];
+    }
+    _parse() {
+        this.ts.passKey('from');
+        for (;;) {
+            this.from.push(this.ts.passVar());
+            if (this.ts.token !== tokens_1.Token.BITWISEOR)
+                break;
+            this.ts.readToken();
+        }
+        if (this.ts.token === tokens_1.Token.LBRACE) {
+            this.ts.readToken();
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RBRACE) {
+                    this.ts.readToken();
+                    break;
+                }
+                if (this.ts.isKeyword('param') === true) {
+                    this.ts.readToken();
+                    let name = this.ts.passVar();
+                    this.ts.passToken(tokens_1.Token.EQU);
+                    let bud;
+                    if (this.ts.token === tokens_1.Token.MOD) {
+                        this.ts.readToken();
+                        bud = '%' + this.ts.passVar();
+                    }
+                    else {
+                        bud = this.ts.passVar();
+                    }
+                    let prop;
+                    if (this.ts.token === tokens_1.Token.DOT) {
+                        this.ts.readToken();
+                        prop = this.ts.passVar();
+                    }
+                    let { params } = this.element;
+                    if (params === undefined) {
+                        params = this.element.params = [];
+                    }
+                    params.push({
+                        name,
+                        bud,
+                        prop,
+                    });
+                }
+                else {
+                    this.ts.expect('param');
+                }
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
+            }
+        }
+        if (this.ts.isKeyword('single') === true) {
+            this.element.single = true;
+            this.ts.readToken();
+        }
+        if (this.ts.prevToken !== tokens_1.Token.RBRACE) {
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+        }
+        else {
+            this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+        }
+    }
+    scan0(space) {
+        if (this.element.pick !== undefined)
+            return true;
+        let ok = true;
+        const { biz } = space.uq;
+        const { entityArr, logs, ok: retOk, bizPhraseType, } = biz.sameTypeEntityArr(this.from);
+        if (retOk === false) {
+            this.log(...logs);
+            ok = false;
+        }
+        else {
+            let pickBase;
+            let multipleEntity = false;
+            const bizEntity0 = entityArr[0];
+            switch (bizPhraseType) {
+                default:
+                    this.log(`Can only pick from ATOM, SPEC, Pend, or Query`);
+                    ok = false;
+                    break;
+                case il_1.BizPhraseType.atom:
+                    pickBase = new il_1.PickAtom(entityArr);
+                    multipleEntity = true;
+                    break;
+                case il_1.BizPhraseType.spec:
+                    pickBase = new il_1.PickSpec(bizEntity0);
+                    break;
+                case il_1.BizPhraseType.pend:
+                    pickBase = new il_1.PickPend(bizEntity0);
+                    break;
+                case il_1.BizPhraseType.query:
+                    pickBase = new il_1.PickQuery(bizEntity0);
+                    break;
+            }
+            this.element.pick = pickBase;
+            if (multipleEntity === false && entityArr.length > 1) {
+                this.log('from only one object');
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        const { biz } = space.uq;
+        const { logs, ok: retOk } = biz.sameTypeEntityArr(this.from);
+        if (retOk === false) {
+            this.log(...logs);
+            ok = false;
+        }
+        else {
+            let { params, bin, pick: pickBase } = this.element;
+            if (params !== undefined) {
+                for (let p of params) {
+                    const { name, bud, prop } = p;
+                    if (pickBase.hasParam(name) === false) {
+                        this.log(`PARAM ${name} is not defined`);
+                        ok = false;
+                    }
+                    if (bud === '%sheet') {
+                        const sheetProps = ['i', 'x', 'value', 'price', 'amount'];
+                        if (prop === undefined || sheetProps.includes(prop) === true) {
+                        }
+                        else {
+                            this.log(`%sheet. can be one of${sheetProps.join(',')}`);
+                            ok = false;
+                        }
+                    }
+                    else {
+                        let pick = bin.getPick(bud);
+                        if (pick === undefined) {
+                            this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
+                            ok = false;
+                        }
+                        else {
+                            let { pick: pickBase } = pick;
+                            if (pickBase !== undefined && pickBase.hasReturn(prop) === false) {
+                                this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
+                                ok = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ok;
+    }
+}
+exports.PBinPick = PBinPick;
+//# sourceMappingURL=BinPick.js.map

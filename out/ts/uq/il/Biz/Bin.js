@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.PickInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
+exports.BizBinAct = exports.BizBin = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
-const IElement_1 = require("../IElement");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
@@ -96,32 +95,51 @@ class PickPend {
     }
 }
 exports.PickPend = PickPend;
-class PickInput extends IElement_1.IElement {
-    constructor() {
-        super(...arguments);
-        this.type = 'pickinput';
-        this.bizEntityTable = undefined;
-    }
-    fromSchema() {
+/*
+export class PickInput extends IElement implements PickBase {
+    readonly type = 'pickinput';
+    readonly bizEntityTable: EnumSysTable = undefined;
+    fromSchema(): string[] {
         return [];
     }
-    hasParam(param) {
+    hasParam(param: string): boolean {
         return true;
     }
-    hasReturn(prop) {
+    hasReturn(prop: string): boolean {
         return true;
     }
-    parser(context) {
-        return new parser_1.PPickInput(this, context);
+    parser(context: PContext): PElement<IElement> {
+        return new PPickInput(this, context);
     }
 }
-exports.PickInput = PickInput;
+*/
+class BinInput extends Bud_1.BizBud {
+    constructor(bin, name, ui) {
+        super(bin.biz, name, ui);
+        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.bin = bin;
+    }
+}
+exports.BinInput = BinInput;
+class BinInputSpec extends BinInput {
+    parser(context) {
+        return new parser_1.PBinInputSpec(this, context);
+    }
+}
+exports.BinInputSpec = BinInputSpec;
+class BinInputAtom extends BinInput {
+    parser(context) {
+        return new parser_1.PBinInputAtom(this, context);
+    }
+}
+exports.BinInputAtom = BinInputAtom;
 class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
         this.pickColl = {};
+        this.inputColl = {};
         this.sheetArr = [];
     }
     parser(context) {
@@ -133,6 +151,13 @@ class BizBin extends Entity_1.BizEntity {
         }
         this.pickArr.push(pick);
         this.pickColl[pick.name] = pick;
+    }
+    setInput(input) {
+        if (this.inputArr === undefined) {
+            this.inputArr = [];
+        }
+        this.inputArr.push(input);
+        this.inputColl[input.name] = input;
     }
     buildSchema(res) {
         var _a, _b, _c, _d, _e, _f;

@@ -1,6 +1,6 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
-import { PBinPick, PBizBin, PBizBinAct, PContext, PElement, PPickInput } from "../../parser";
+import { PBinInputAtom, PBinInputSpec, PBinPick, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
@@ -14,6 +14,7 @@ import { BizQueryTable } from "./Query";
 import { BizPend, BizSheet } from "./Sheet";
 import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
+import { ValueExpression } from "../Exp";
 
 export interface PickParam {
     name: string;
@@ -112,7 +113,7 @@ export class PickPend implements PickBase {
         return this.from.hasField(prop);
     }
 }
-
+/*
 export class PickInput extends IElement implements PickBase {
     readonly type = 'pickinput';
     readonly bizEntityTable: EnumSysTable = undefined;
@@ -129,12 +130,37 @@ export class PickInput extends IElement implements PickBase {
         return new PPickInput(this, context);
     }
 }
+*/
+export abstract class BinInput extends BizBud {
+    readonly dataType: BudDataType = BudDataType.none;
+    readonly bin: BizBin;
+    constructor(bin: BizBin, name: string, ui: Partial<UI>) {
+        super(bin.biz, name, ui);
+        this.bin = bin;
+    }
+}
+
+export class BinInputSpec extends BinInput {
+    baseValue: ValueExpression;
+
+    parser(context: PContext): PElement<IElement> {
+        return new PBinInputSpec(this, context);
+    }
+}
+
+export class BinInputAtom extends BinInput {
+    parser(context: PContext): PElement<IElement> {
+        return new PBinInputAtom(this, context);
+    }
+}
 
 export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
     readonly bizPhraseType = BizPhraseType.bin;
     private readonly pickColl: { [name: string]: BinPick } = {};
+    private readonly inputColl: { [name: string]: BinInput } = {};
     pickArr: BinPick[];
+    inputArr: BinInput[];
     pend: BizPend;
     act: BizBinAct;
     i: BizBudAtom;
@@ -155,6 +181,14 @@ export class BizBin extends BizEntity {
         }
         this.pickArr.push(pick);
         this.pickColl[pick.name] = pick;
+    }
+
+    setInput(input: BinInput) {
+        if (this.inputArr === undefined) {
+            this.inputArr = [];
+        }
+        this.inputArr.push(input);
+        this.inputColl[input.name] = input;
     }
 
     buildSchema(res: { [phrase: string]: string }) {
