@@ -144,7 +144,7 @@ class BizBin extends Entity_1.BizEntity {
                 picks.push({
                     name,
                     ui,
-                    from: pick.fromSchema(),
+                    from: pick === null || pick === void 0 ? void 0 : pick.fromSchema(),
                     params,
                     single,
                 });

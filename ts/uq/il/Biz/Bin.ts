@@ -135,9 +135,7 @@ export class BizBin extends BizEntity {
     readonly bizPhraseType = BizPhraseType.bin;
     private readonly pickColl: { [name: string]: BinPick } = {};
     pickArr: BinPick[];
-    // Map<string, BinPick>;
     pend: BizPend;
-    // pickInput: PickInput; 暂时不需要了。直接在I里面加参数
     act: BizBinAct;
     i: BizBudAtom;
     x: BizBudAtom;
@@ -168,7 +166,7 @@ export class BizBin extends BizEntity {
                 picks.push({
                     name,
                     ui,
-                    from: pick.fromSchema(),
+                    from: pick?.fromSchema(),
                     params,
                     single,
                 });
