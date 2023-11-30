@@ -227,16 +227,6 @@ export class PBizBin extends PBizEntity<BizBin> {
 export class PBinPick extends PElement<BinPick> {
     private from: string[] = [];
     protected _parse(): void {
-        /*
-        if (this.ts.token === Token.LBRACE) {
-            this.ts.readToken();
-            let pickInput = new PickInput();
-            this.element.pick = pickInput;
-            this.context.parseElement(pickInput);
-            this.ts.mayPassToken(Token.SEMICOLON);
-            return;
-        }
-        */
         this.ts.passKey('from');
         for (; ;) {
             this.from.push(this.ts.passVar());
@@ -310,6 +300,10 @@ export class PBinPick extends PElement<BinPick> {
             let multipleEntity = false;
             const bizEntity0 = entityArr[0];
             switch (bizPhraseType) {
+                default:
+                    this.log(`Can only pick from ATOM, SPEC, Pend, or Query`);
+                    ok = false;
+                    break;
                 case BizPhraseType.atom:
                     pickBase = new PickAtom(entityArr as BizAtom[]);
                     multipleEntity = true;

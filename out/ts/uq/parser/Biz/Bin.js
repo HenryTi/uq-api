@@ -212,16 +212,6 @@ class PBinPick extends element_1.PElement {
         this.from = [];
     }
     _parse() {
-        /*
-        if (this.ts.token === Token.LBRACE) {
-            this.ts.readToken();
-            let pickInput = new PickInput();
-            this.element.pick = pickInput;
-            this.context.parseElement(pickInput);
-            this.ts.mayPassToken(Token.SEMICOLON);
-            return;
-        }
-        */
         this.ts.passKey('from');
         for (;;) {
             this.from.push(this.ts.passVar());
@@ -295,6 +285,10 @@ class PBinPick extends element_1.PElement {
             let multipleEntity = false;
             const bizEntity0 = entityArr[0];
             switch (bizPhraseType) {
+                default:
+                    this.log(`Can only pick from ATOM, SPEC, Pend, or Query`);
+                    ok = false;
+                    break;
                 case il_2.BizPhraseType.atom:
                     pickBase = new il_1.PickAtom(entityArr);
                     multipleEntity = true;
