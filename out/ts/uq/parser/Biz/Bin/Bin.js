@@ -90,7 +90,7 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan0(space) {
         let ok = true;
-        const { pickArr, act } = this.element;
+        const { pickArr, inputArr, act } = this.element;
         if (pickArr !== undefined) {
             for (let pick of pickArr) {
                 if (pick.pelement.scan0(space) === false) {
@@ -110,6 +110,13 @@ class PBizBin extends Base_1.PBizEntity {
                 }
             }
             this.pickPendPos = end;
+        }
+        if (inputArr !== undefined) {
+            for (let input of inputArr) {
+                if (input.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
         }
         if (act !== undefined) {
             if (act.pelement.scan0(space) === false) {

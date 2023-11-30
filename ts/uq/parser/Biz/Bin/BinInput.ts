@@ -1,4 +1,4 @@
-import { BinInput, BinInputAtom, BinInputSpec, BizEntity, ValueExpression } from "../../../il";
+import { BinInput, BinInputAtom, BinInputSpec, BizAtom, BizAtomSpec, BizEntity, BizPhraseType, ValueExpression } from "../../../il";
 import { Token } from "../../tokens";
 import { BizEntitySpace } from "../Biz";
 import { PBizBud } from "../Bud";
@@ -21,6 +21,12 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
 
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
+        let ret = space.getBizEntity(this.spec);
+        if (ret?.bizPhraseType !== BizPhraseType.spec) {
+            this.log(`${this.spec} is not SPEC`);
+            ok = false;
+        }
+        this.element.spec = ret as BizAtomSpec;
         return ok;
     }
 }
@@ -34,6 +40,12 @@ export class PBinInputAtom extends PBinInput<BinInputAtom> {
 
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
+        let ret = space.getBizEntity(this.atom);
+        if (ret?.bizPhraseType !== BizPhraseType.atom) {
+            this.log(`${this.atom} is not ATOM`);
+            ok = false;
+        }
+        this.element.atom = ret as BizAtom;
         return ok;
     }
 }

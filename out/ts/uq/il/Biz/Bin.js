@@ -125,11 +125,21 @@ class BinInputSpec extends BinInput {
     parser(context) {
         return new parser_1.PBinInputSpec(this, context);
     }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.spec = this.spec.id;
+        return ret;
+    }
 }
 exports.BinInputSpec = BinInputSpec;
 class BinInputAtom extends BinInput {
     parser(context) {
         return new parser_1.PBinInputAtom(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.atom = this.atom.id;
+        return ret;
     }
 }
 exports.BinInputAtom = BinInputAtom;
@@ -176,8 +186,15 @@ class BizBin extends Entity_1.BizEntity {
             }
         }
         ;
+        let inputs = [];
+        if (this.inputArr !== undefined) {
+            for (let input of this.inputArr) {
+                let schema = input.buildSchema(res);
+                inputs.push(schema);
+            }
+        }
         let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
-        this.schema = Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, pend: (_b = this.pend) === null || _b === void 0 ? void 0 : _b.id, i: (_c = this.i) === null || _c === void 0 ? void 0 : _c.buildSchema(res), x: (_d = this.x) === null || _d === void 0 ? void 0 : _d.buildSchema(res), value: (_e = this.value) === null || _e === void 0 ? void 0 : _e.buildSchema(res), amount: (_f = this.amount) === null || _f === void 0 ? void 0 : _f.buildSchema(res), price });
+        this.schema = Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, inputs: inputs.length === 0 ? undefined : inputs, pend: (_b = this.pend) === null || _b === void 0 ? void 0 : _b.id, i: (_c = this.i) === null || _c === void 0 ? void 0 : _c.buildSchema(res), x: (_d = this.x) === null || _d === void 0 ? void 0 : _d.buildSchema(res), value: (_e = this.value) === null || _e === void 0 ? void 0 : _e.buildSchema(res), amount: (_f = this.amount) === null || _f === void 0 ? void 0 : _f.buildSchema(res), price });
         return this.schema;
     }
     getSheetProps() {
@@ -197,6 +214,10 @@ class BizBin extends Entity_1.BizEntity {
         if (this.pickArr !== undefined) {
             for (let pick of this.pickArr)
                 callback(pick);
+        }
+        if (this.inputArr !== undefined) {
+            for (let input of this.inputArr)
+                callback(input);
         }
         if (this.i !== undefined)
             callback(this.i);

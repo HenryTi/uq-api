@@ -141,16 +141,28 @@ export abstract class BinInput extends BizBud {
 }
 
 export class BinInputSpec extends BinInput {
+    spec: BizAtomSpec;
     baseValue: ValueExpression;
 
     parser(context: PContext): PElement<IElement> {
         return new PBinInputSpec(this, context);
     }
+    override buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        ret.spec = this.spec.id;
+        return ret;
+    }
 }
 
 export class BinInputAtom extends BinInput {
+    atom: BizAtom;
     parser(context: PContext): PElement<IElement> {
         return new PBinInputAtom(this, context);
+    }
+    override buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        ret.atom = this.atom.id;
+        return ret;
     }
 }
 
@@ -206,10 +218,18 @@ export class BizBin extends BizEntity {
                 });
             }
         };
+        let inputs: any[] = [];
+        if (this.inputArr !== undefined) {
+            for (let input of this.inputArr) {
+                let schema = input.buildSchema(res);
+                inputs.push(schema);
+            }
+        }
         let price = this.price?.buildSchema(res);
         this.schema = {
             ...ret,
             picks: picks.length === 0 ? undefined : picks,
+            inputs: inputs.length === 0 ? undefined : inputs,
             pend: this.pend?.id,
             i: this.i?.buildSchema(res),
             x: this.x?.buildSchema(res),
@@ -236,6 +256,9 @@ export class BizBin extends BizEntity {
         super.forEachBud(callback);
         if (this.pickArr !== undefined) {
             for (let pick of this.pickArr) callback(pick);
+        }
+        if (this.inputArr !== undefined) {
+            for (let input of this.inputArr) callback(input);
         }
         if (this.i !== undefined) callback(this.i);
         if (this.x !== undefined) callback(this.x);
