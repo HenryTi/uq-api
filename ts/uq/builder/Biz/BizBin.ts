@@ -25,6 +25,15 @@ const d = 'd';
 const tempBinTable = 'bin';
 
 export class BBizBin extends BBizEntity<BizBin> {
+    async buildBudsValue() {
+        super.buildBudsValue();
+        const { inputArr } = this.bizEntity;
+        if (inputArr !== undefined) {
+            for (let input of inputArr) {
+                input.buildBudValue(this.expStringify);
+            }
+        }
+    }
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
         const { id } = this.bizEntity;

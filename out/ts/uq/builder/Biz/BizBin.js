@@ -26,6 +26,15 @@ const c = 'c';
 const d = 'd';
 const tempBinTable = 'bin';
 class BBizBin extends BizEntity_1.BBizEntity {
+    async buildBudsValue() {
+        super.buildBudsValue();
+        const { inputArr } = this.bizEntity;
+        if (inputArr !== undefined) {
+            for (let input of inputArr) {
+                input.buildBudValue(this.expStringify);
+            }
+        }
+    }
     async buildProcedures() {
         super.buildProcedures();
         const { id } = this.bizEntity;

@@ -125,9 +125,14 @@ class BinInputSpec extends BinInput {
     parser(context) {
         return new parser_1.PBinInputSpec(this, context);
     }
+    buildBudValue(expStringify) {
+        super.buildBudValue(expStringify);
+        this.baseValueStr = expStringify(this.baseValue);
+    }
     buildSchema(res) {
         let ret = super.buildSchema(res);
         ret.spec = this.spec.id;
+        ret.base = this.baseValueStr;
         return ret;
     }
 }
@@ -259,10 +264,12 @@ class BizBin extends Entity_1.BizEntity {
     db(dbContext) {
         return new builder_1.BBizBin(dbContext, this);
     }
-    getPick(pickName) {
+    /*
+    getPick(pickName: string) {
         let pick = this.pickColl[pickName];
         return pick;
     }
+    */
     getBinBudEntity(bud) {
         let bizEntity;
         if (bud === 'i') {

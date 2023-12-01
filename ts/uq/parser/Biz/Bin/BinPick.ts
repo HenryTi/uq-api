@@ -137,7 +137,7 @@ export class PBinPick extends PElement<BinPick> {
                         }
                     }
                     else {
-                        let pick = bin.getPick(bud);
+                        let pick = bin.pickColl[bud];
                         if (pick === undefined) {
                             this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
                             ok = false;

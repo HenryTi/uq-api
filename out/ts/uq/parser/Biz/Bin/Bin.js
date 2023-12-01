@@ -111,13 +111,6 @@ class PBizBin extends Base_1.PBizEntity {
             }
             this.pickPendPos = end;
         }
-        if (inputArr !== undefined) {
-            for (let input of inputArr) {
-                if (input.pelement.scan(space) === false) {
-                    ok = false;
-                }
-            }
-        }
         if (act !== undefined) {
             if (act.pelement.scan0(space) === false) {
                 ok = false;
@@ -128,7 +121,7 @@ class PBizBin extends Base_1.PBizEntity {
     scan(space) {
         let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
-        const { pickArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
+        const { pickArr, inputArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (pickArr !== undefined) {
             let { length } = pickArr;
             for (let i = 0; i < length; i++) {
@@ -146,6 +139,13 @@ class PBizBin extends Base_1.PBizEntity {
                         this.log(`Only last PICK can be from PEND`);
                         ok = false;
                     }
+                }
+            }
+        }
+        if (inputArr !== undefined) {
+            for (let input of inputArr) {
+                if (input.pelement.scan(binSpace) === false) {
+                    ok = false;
                 }
             }
         }
@@ -262,26 +262,35 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
         if (this.bizEntity.props.has(name) === true) {
             return new il_1.VarPointer();
         }
-        if (this.bizEntity !== undefined) {
-            let pick = this.bizEntity.getPick(name);
-            if (pick !== undefined) {
+        let pick = this.bizEntity.pickColl[name];
+        if (pick !== undefined) {
+            return new il_1.VarPointer();
+        }
+        else {
+            let input = this.bizEntity.inputColl[name];
+            if (input !== undefined) {
                 return new il_1.VarPointer();
             }
         }
     }
     _varsPointer(names) {
-        if (this.bizEntity !== undefined) {
-            let [pickName, pickProp] = names;
-            let pick = this.bizEntity.getPick(pickName);
-            if (pick === undefined) {
+        let [pickName, pickProp] = names;
+        let pick = this.bizEntity.pickColl[pickName];
+        if (pick === undefined) {
+            /*
+            input only scalar
+            let input = this.bizEntity.inputColl[pickName];
+            if (input === undefined) {
                 return undefined;
             }
-            const { pick: pickBase } = pick;
-            if (pickBase !== undefined && pickBase.hasReturn(pickProp) === false) {
-                return [undefined, `Pick '${pickName}' has no return '${pickProp}'`];
-            }
-            return [new il_1.DotVarPointer(), undefined];
+            */
+            return;
         }
+        const { pick: pickBase } = pick;
+        if (pickBase !== undefined && pickBase.hasReturn(pickProp) === false) {
+            return [undefined, `Pick '${pickName}' has no return '${pickProp}'`];
+        }
+        return [new il_1.DotVarPointer(), undefined];
     }
     _getBizEntity(name) {
         switch (name) {

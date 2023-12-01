@@ -23,7 +23,13 @@ class PBinInputSpec extends PBinInput {
             this.log(`${this.spec} is not SPEC`);
             ok = false;
         }
-        this.element.spec = ret;
+        else {
+            this.element.spec = ret;
+            let { baseValue } = this.element;
+            if (baseValue.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
         return ok;
     }
 }
