@@ -3,7 +3,7 @@ import {
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizAtom, BizAtomSpec, BudValueSet, BizBudValueWithRange
+    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -119,17 +119,17 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                             break;
                         case BizPhraseType.spec:
                             if (bizBud !== undefined) {
-                                show.push(FieldShowItem.createSpecFieldShow(atom as BizAtomSpec, bizBud));
+                                show.push(FieldShowItem.createSpecFieldShow(atom as BizSpec, bizBud));
                                 break;
                             }
-                            const { base } = atom as BizAtomSpec;
+                            const { base } = atom as BizSpec;
                             bizBud = base.getBud(prop);
                             p = bizBud;
                             if (bizBud === undefined) {
                                 this.log(`${base.getJName()} has not ${prop}`);
                                 return undefined;
                             }
-                            show.push(FieldShowItem.createSpecAtomFieldShow(atom as BizAtomSpec, bizBud));
+                            show.push(FieldShowItem.createSpecAtomFieldShow(atom as BizSpec, bizBud));
                             break;
                     }
                     break;

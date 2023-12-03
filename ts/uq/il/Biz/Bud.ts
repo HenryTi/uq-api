@@ -5,7 +5,7 @@ import {
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
-import { BizAtom, BizAtomID, BizAtomSpec } from "./Atom";
+import { BizAtom, BizIDExtendable, BizSpec } from "./BizID";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
@@ -33,10 +33,10 @@ export abstract class FieldShowItem<T extends BizEntity = BizEntity> {
     static createBinFieldShow(bizBin: BizBin, bizBud: BizBud) {
         return new BinFieldShowItem(bizBin, bizBud);
     }
-    static createSpecFieldShow(bizSpec: BizAtomSpec, bizBud: BizBud) {
+    static createSpecFieldShow(bizSpec: BizSpec, bizBud: BizBud) {
         return new SpecFieldShowItem(bizSpec, bizBud);
     }
-    static createSpecAtomFieldShow(bizSpec: BizAtomSpec, bizBud: BizBud) {
+    static createSpecAtomFieldShow(bizSpec: BizSpec, bizBud: BizBud) {
         return new SpecAtomFieldShowItem(bizSpec, bizBud);
     }
     static createAtomFieldShow(bizAtom: BizAtom, bizBud: BizBud) {
@@ -47,9 +47,9 @@ class EntityFieldShowItem extends FieldShowItem<BizEntity> {
 }
 class BinFieldShowItem extends FieldShowItem<BizBin> {
 }
-class SpecFieldShowItem extends FieldShowItem<BizAtomSpec> {
+class SpecFieldShowItem extends FieldShowItem<BizSpec> {
 }
-class SpecAtomFieldShowItem extends FieldShowItem<BizAtomSpec> {
+class SpecAtomFieldShowItem extends FieldShowItem<BizSpec> {
 }
 class AtomFieldShowItem extends FieldShowItem<BizAtom> {
 }
@@ -244,7 +244,7 @@ export class BizBudDate extends BizBudValueWithRange {
 export class BizBudAtom extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
-    atom: BizAtomID;
+    atom: BizIDExtendable;
     fieldShows: FieldShow[];
     getFieldShows(): FieldShow[] { return this.fieldShows; }
     readonly params: { [param: string]: BudValueSet; } = {};        // 仅仅针对Spec，可能有多级的base

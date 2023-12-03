@@ -1,6 +1,6 @@
 import {
     BizPhraseType, BizPend, BinPick, PickBase, PickAtom
-    , BizAtom, PickSpec, BizAtomSpec, PickPend, PickQuery, BizQueryTable
+    , BizAtom, PickSpec, BizSpec, PickPend, PickQuery, BizQueryTable
 } from "../../../il";
 import { PElement } from "../../element";
 import { Space } from "../../space";
@@ -91,7 +91,7 @@ export class PBinPick extends PElement<BinPick> {
                     multipleEntity = true;
                     break;
                 case BizPhraseType.spec:
-                    pickBase = new PickSpec(bizEntity0 as BizAtomSpec);
+                    pickBase = new PickSpec(bizEntity0 as BizSpec);
                     break;
                 case BizPhraseType.pend:
                     pickBase = new PickPend(bizEntity0 as BizPend);

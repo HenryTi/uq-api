@@ -1,9 +1,12 @@
-import { BizAtom, /*BizAtomBud, */BizAtomID, BizAtomIDAny, BizAtomIDWithBase, BizAtomSpec, BizDuo, Uq } from "../../il";
+import { BizAtom, /*BizAtomBud, */BizIDExtendable, BizIDAny, BizIDWithBase, BizSpec, BizDuo, Uq, BizID } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
-export abstract class PBizAtomID<T extends BizAtomID> extends PBizEntity<T> {
+export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
+}
+
+export abstract class PBizIDExtendable<T extends BizIDExtendable> extends PBizID<T> {
     private extendsName: string;
 
     protected parseParam(): void {
@@ -37,7 +40,7 @@ export abstract class PBizAtomID<T extends BizAtomID> extends PBizEntity<T> {
 
     protected checkRecursive(recursiveCaption: string, getPrev: (p: T) => T) {
         let ok = true;
-        const coll: { [name: string]: BizAtomID } = {};
+        const coll: { [name: string]: BizIDExtendable } = {};
         const atomName = this.element.name;
         coll[atomName] = this.element;
         for (let p = this.element; p !== undefined;) {
@@ -56,7 +59,7 @@ export abstract class PBizAtomID<T extends BizAtomID> extends PBizEntity<T> {
     }
 }
 
-export class PBizAtom extends PBizAtomID<BizAtom> {
+export class PBizAtom extends PBizIDExtendable<BizAtom> {
     protected parseParam(): void {
         super.parseParam();
         if (this.ts.isKeyword('uuid') === true) {
@@ -95,7 +98,7 @@ export class PBizAtom extends PBizAtomID<BizAtom> {
     }
 }
 
-export class PBizDuo extends PBizAtomID<BizDuo> {
+export class PBizDuo extends PBizID<BizDuo> {
     private parseI = () => {
         this.parseIxField(this.element.i);
     }
@@ -122,7 +125,7 @@ export class PBizDuo extends PBizAtomID<BizDuo> {
     }
 }
 
-abstract class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomID<T> {
+abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<T> {
     protected baseName: string;
     protected parseIxBase = () => {
         if (this.ts.isKeyword('base') === false) {
@@ -151,7 +154,7 @@ abstract class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomI
         let ok = true;
         if (super.scan(space) === false) ok = false;
         if (this.baseName === null) {
-            this.element.base = BizAtomIDAny.current as any;
+            this.element.base = BizIDAny.current as any;
         }
         else if (this.baseName === undefined) {
             this.log('BASE must be defined');
@@ -228,7 +231,7 @@ abstract class PBizAtomIDWithBase<T extends BizAtomIDWithBase> extends PBizAtomI
     }
 }
 
-export class PBizAtomSpec extends PBizAtomIDWithBase<BizAtomSpec> {
+export class PBizSpec extends PBizIDWithBase<BizSpec> {
     private parseKey = () => {
         const parseKey = () => {
             this.ts.assertToken(Token.VAR);

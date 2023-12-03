@@ -1,7 +1,7 @@
 import {
     Biz, BizAtom, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
-    , BizPend, BizSheet, BizOptions, BizAtomSpec
+    , BizPend, BizSheet, BizOptions, BizSpec
     , BizReport, BizQueryTable, BizAssign, BizPhraseType, BizConsole, BizDuo
 } from "../../il";
 import { PContext } from "../pContext";
@@ -16,7 +16,7 @@ export class PBiz extends PEntity<Biz> {
         super(entity, context);
         this.pRoots = {
             atom: BizAtom,
-            spec: BizAtomSpec,
+            spec: BizSpec,
             duo: BizDuo,
 
             title: BizTitle,

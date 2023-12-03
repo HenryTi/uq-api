@@ -17,7 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBiz = void 0;
 var Biz_1 = require("./Biz");
 Object.defineProperty(exports, "PBiz", { enumerable: true, get: function () { return Biz_1.PBiz; } });
-__exportStar(require("./Atom"), exports);
+__exportStar(require("./BizID"), exports);
 __exportStar(require("./Sheet"), exports);
 __exportStar(require("./Bin"), exports);
 __exportStar(require("./Pend"), exports);

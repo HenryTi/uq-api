@@ -1,5 +1,5 @@
 export { PBiz } from './Biz';
-export * from './Atom';
+export * from './BizID';
 export * from './Sheet';
 export * from './Bin';
 export * from './Pend';

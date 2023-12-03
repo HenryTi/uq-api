@@ -1,5 +1,5 @@
 import {
-    BigInt, BizAtomSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
+    BigInt, BizSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
     , JsonDataType, bigIntField, idField, jsonField
 } from "../../il";
 import {
@@ -9,7 +9,7 @@ import {
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
-export class BBizSpec extends BBizEntity<BizAtomSpec> {
+export class BBizSpec extends BBizEntity<BizSpec> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures
         const { id } = this.bizEntity;

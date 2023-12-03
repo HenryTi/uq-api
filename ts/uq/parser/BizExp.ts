@@ -1,6 +1,6 @@
 import {
     ValueExpression, BizExp, BizAtom
-    , BizAtomSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
+    , BizSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
     , BizCheckBudOperand, BudDataType, BizBudCheck, BizOptions
     , BizExpOperand,
     Uq
@@ -162,7 +162,7 @@ export class PBizExp extends PElement<BizExp> {
         let ok = true;
         const { bizEntity, prop } = this.element;
         if (this.checkScalar() === false) ok = false;
-        let bizSpec = bizEntity as BizAtomSpec;
+        let bizSpec = bizEntity as BizSpec;
         if (this.bud !== undefined) {
             this.log(`SPEC ${bizEntity.getJName()} should not .`);
             ok = false;

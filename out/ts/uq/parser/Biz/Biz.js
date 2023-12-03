@@ -9,7 +9,7 @@ class PBiz extends entity_1.PEntity {
         super(entity, context);
         this.pRoots = {
             atom: il_1.BizAtom,
-            spec: il_1.BizAtomSpec,
+            spec: il_1.BizSpec,
             duo: il_1.BizDuo,
             title: il_1.BizTitle,
             options: il_1.BizOptions,

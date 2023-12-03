@@ -5,7 +5,7 @@ import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
 import { ActionStatement, TableVar } from "../statement";
-import { BizAtom, BizAtomSpec } from "./Atom";
+import { BizAtom, BizSpec } from "./BizID";
 import { BizBase } from "./Base";
 import { Biz } from "./Biz";
 import { BizBudValue, BizBud, BizBudAtom, BizBudDec } from "./Bud";
@@ -82,8 +82,8 @@ export class PickAtom implements PickBase {
 }
 export class PickSpec implements PickBase {
     readonly bizEntityTable = EnumSysTable.spec;
-    from: BizAtomSpec;
-    constructor(from: BizAtomSpec) {
+    from: BizSpec;
+    constructor(from: BizSpec) {
         this.from = from;
     }
     fromSchema(): string[] { return [this.from.name]; }
@@ -141,7 +141,7 @@ export abstract class BinInput extends BizBud {
 }
 
 export class BinInputSpec extends BinInput {
-    spec: BizAtomSpec;
+    spec: BizSpec;
     baseValue: ValueExpression;
     private baseValueStr: string;
 

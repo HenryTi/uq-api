@@ -42,7 +42,7 @@ export class BizOptions extends BizEntity {
         super.buildPhrases(phrases, prefix);
         for (const item of this.items) {
             const { name, caption } = item;
-            phrases.push([`${this.phrase}`, caption, this.basePhrase, this.typeNum]);
+            phrases.push([`${this.phrase}`, caption, this.extendsPhrase, this.typeNum]);
         }
     }
 

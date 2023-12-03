@@ -2,7 +2,7 @@ import { IElement } from "../IElement";
 import { Biz } from "./Biz";
 import { UI } from "../UI";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizAtomID } from "./Atom";
+import { BizIDExtendable } from "./BizID";
 import { BizOptions } from "./Options";
 import { PBizSearch, PContext, PElement } from "../../parser";
 import { BizSheet } from "./Sheet";
@@ -48,15 +48,10 @@ export abstract class BizBase extends IElement {
             }
         }
     };
-    /*
-    hasProp(name: string): boolean {
-        return false;
-    }
-    */
     getBud(name: string): BizBud {
         return undefined;
     }
-    get basePhrase(): string { return ''; }
+    get extendsPhrase(): string { return ''; }
 
     protected buildPhrase(prefix: string) {
         this.phrase = `${prefix}.${this.name}`;
@@ -64,7 +59,7 @@ export abstract class BizBase extends IElement {
 
     buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         this.buildPhrase(prefix);
-        phrases.push([this.phrase, this.ui.caption ?? '', this.basePhrase, this.typeNum]);
+        phrases.push([this.phrase, this.ui.caption ?? '', this.extendsPhrase, this.typeNum]);
     }
 
     get typeNum(): string {
@@ -98,7 +93,7 @@ export abstract class BizBase extends IElement {
 // 专门用于 i 和 x。Tie 和 duo 里面需要
 export interface IxField {
     caption: string;
-    atoms: (BizAtomID | BizOptions)[];         // atoms === undefined 则 ME
+    atoms: (BizIDExtendable | BizOptions)[];         // atoms === undefined 则 ME
 }
 
 export class BizSearch extends IElement {

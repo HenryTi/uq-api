@@ -1,15 +1,22 @@
 import { BBizSpec, DbContext } from "../../builder";
-import { PBizAtom, /*PBizAtomBud, */PBizAtomSpec, PBizDuo, PContext, PElement } from "../../parser";
+import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { IxField } from "./Base";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
-export abstract class BizAtomID extends BizEntity {
-    extends: BizAtomID;
+// 任何可以独立存在，可被引用ID
+// 扩展和继承：有两个方式，一个是typescript里面的extends，一个是spec的base
+// 按照这个原则，BizBin应该也是BizID。当前不处理。以后可以处理
+// BizBin是一次操作行为记录，跟普通的BizID区别明显。作为ID仅用于引用。
+export abstract class BizID extends BizEntity {
+}
 
-    get basePhrase(): string { return this.extends === undefined ? '' : this.extends.phrase; }
+export abstract class BizIDExtendable extends BizID {
+    extends: BizIDExtendable;
+
+    get extendsPhrase(): string { return this.extends === undefined ? '' : this.extends.phrase; }
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
     }
@@ -21,14 +28,14 @@ export abstract class BizAtomID extends BizEntity {
     getBud(name: string): BizBud {
         let ret = super.getBud(name);
         if (ret !== undefined) return ret;
-        for (let p: BizAtomID = this.extends; p !== undefined; p = p.extends) {
+        for (let p: BizIDExtendable = this.extends; p !== undefined; p = p.extends) {
             ret = p.getBud(name);
             if (ret !== undefined) return ret;
         }
     }
 }
 
-export class BizAtom extends BizAtomID {
+export class BizAtom extends BizIDExtendable {
     readonly bizPhraseType = BizPhraseType.atom;
     ex: BizBudValue;
     uuid: boolean;
@@ -49,7 +56,8 @@ export class BizAtom extends BizAtomID {
 }
 
 // 分子：atom 原子的合成
-export class BizDuo extends BizAtomID {
+// duo: 二重奏
+export class BizDuo extends BizID {
     readonly bizPhraseType = BizPhraseType.duo;
     readonly i = {} as IxField;
     readonly x = {} as IxField;
@@ -67,9 +75,9 @@ export class BizDuo extends BizAtomID {
     }
 }
 
-export abstract class BizAtomIDWithBase extends BizAtomID {
-    base: BizAtomIDWithBase;              // only base, not base atom, then bizAtomFlag
-    isIxBase: boolean;
+export abstract class BizIDWithBase extends BizIDExtendable {
+    base: BizIDWithBase;    // only base, not base atom, then bizAtomFlag
+    isIxBase: boolean;          // 如果true，不能临时录入，只能选择。
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -80,13 +88,13 @@ export abstract class BizAtomIDWithBase extends BizAtomID {
     }
 }
 
-export class BizAtomSpec extends BizAtomIDWithBase {
+export class BizSpec extends BizIDWithBase {
     readonly bizPhraseType = BizPhraseType.spec;
     protected readonly fields = ['id'];
     keys: BizBudValue[] = [];
 
     parser(context: PContext): PElement<IElement> {
-        return new PBizAtomSpec(this, context);
+        return new PBizSpec(this, context);
     }
 
     buildSchema(res: { [phrase: string]: string }) {
@@ -126,8 +134,8 @@ export class BizAtomSpec extends BizAtomIDWithBase {
     }
 }
 
-export class BizAtomIDAny extends BizAtomID {
-    static current: BizAtomIDAny = new BizAtomIDAny(undefined);
+export class BizIDAny extends BizID {
+    static current: BizIDAny = new BizIDAny(undefined);
     readonly bizPhraseType = BizPhraseType.any;
     protected readonly fields = ['id'];
     name = '*';

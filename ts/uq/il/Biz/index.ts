@@ -2,7 +2,7 @@ export { Biz } from './Biz';
 export * from './Base';
 export * from './Sheet';
 export * from './Bin';
-export * from './Atom';
+export * from './BizID';
 export * from './Title';
 export * from './Bud';
 export * from './Role';

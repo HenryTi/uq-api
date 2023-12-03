@@ -2,7 +2,7 @@ import {
     BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf
-    , BizAtomID, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud
+    , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud
 } from "../../il";
 import { UI } from "../../il/UI";
 import { PElement } from "../element";
@@ -87,7 +87,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     protected parseDefault(): void {
     }
 
-    scanAtomID(space: Space, atomName: string): BizAtomID {
+    scanAtomID(space: Space, atomName: string): BizIDExtendable {
         let Atom = space.uq.biz.bizEntities.get(atomName);
         const types = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.bud];
         if (Atom === undefined || types.indexOf(Atom.bizPhraseType) < 0) {
@@ -95,7 +95,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             return undefined;
         }
         else {
-            return Atom as BizAtomID;
+            return Atom as BizIDExtendable;
         }
     }
 
@@ -490,7 +490,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
 
     protected scanIxField(space: Space, ixField: IxField) {
         let ok = true;
-        let atoms: (BizAtomID | BizOptions)[] = [];
+        let atoms: (BizIDExtendable | BizOptions)[] = [];
         let atomNames = ixField.atoms as unknown as string[];
         if (atomNames === undefined) {
             if (ixField.caption !== undefined) {
@@ -509,7 +509,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             }
             let { bizPhraseType } = bizEntity;
             if (ids.indexOf(bizPhraseType) >= 0) {
-                atoms.push(bizEntity as BizAtomID | BizOptions);
+                atoms.push(bizEntity as BizIDExtendable | BizOptions);
             }
             else {
                 this.log(`${name} must be one of (ATOM, SPEC, DUO, Options)`);

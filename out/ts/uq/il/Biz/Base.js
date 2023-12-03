@@ -31,22 +31,17 @@ class BizBase extends IElement_1.IElement {
         };
     }
     ;
-    /*
-    hasProp(name: string): boolean {
-        return false;
-    }
-    */
     getBud(name) {
         return undefined;
     }
-    get basePhrase() { return ''; }
+    get extendsPhrase() { return ''; }
     buildPhrase(prefix) {
         this.phrase = `${prefix}.${this.name}`;
     }
     buildPhrases(phrases, prefix) {
         var _a;
         this.buildPhrase(prefix);
-        phrases.push([this.phrase, (_a = this.ui.caption) !== null && _a !== void 0 ? _a : '', this.basePhrase, this.typeNum]);
+        phrases.push([this.phrase, (_a = this.ui.caption) !== null && _a !== void 0 ? _a : '', this.extendsPhrase, this.typeNum]);
     }
     get typeNum() {
         var _a;

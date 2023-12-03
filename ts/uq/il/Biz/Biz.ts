@@ -6,7 +6,7 @@ import { Entity, EntityAccessibility } from "../entity/entity";
 import { BizBase } from "./Base";
 import { BizEntity } from "./Entity";
 import { BizRole } from "./Role";
-import { BizAtom } from "./Atom";
+import { BizAtom } from "./BizID";
 import { EnumSysTable } from "../EnumSysTable";
 import { BizPhraseType } from "./BizPhraseType";
 
