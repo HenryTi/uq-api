@@ -1,11 +1,11 @@
 import {
-    PBizBudAtom, PBizBudChar, PBizBudCheck, PBizBudDate
+    PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
-import { BizAtom, BizIDExtendable, BizSpec } from "./BizID";
+import { BizAtom, BizID, BizIDExtendable, BizSpec } from "./BizID";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
@@ -241,19 +241,27 @@ export class BizBudDate extends BizBudValueWithRange {
     }
 }
 
-export class BizBudAtom extends BizBudValue {
+export class BizBudIDBase extends BizBud {
+    readonly dataType = BudDataType.atom;
+    // readonly canIndex = false;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudIDBase(this, context);
+    }
+}
+
+export class BizBudID extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
-    atom: BizIDExtendable;
+    ID: BizID;
     fieldShows: FieldShow[];
     getFieldShows(): FieldShow[] { return this.fieldShows; }
     readonly params: { [param: string]: BudValueSet; } = {};        // 仅仅针对Spec，可能有多级的base
     parser(context: PContext): PElement<IElement> {
-        return new PBizBudAtom(this, context);
+        return new PBizBudID(this, context);
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        ret.atom = this.atom?.name;
+        ret.atom = this.ID?.name;
         let hasParams: boolean = false;
         let params = {} as any;
         for (let i in this.params) {
@@ -263,7 +271,7 @@ export class BizBudAtom extends BizBudValue {
         if (hasParams === true) ret.params = params;
         return ret;
     }
-    get objName(): string { return this.atom?.phrase; }
+    get objName(): string { return this.ID?.phrase; }
     buildBudValue(expStringify: (value: ValueExpression) => string) {
         super.buildBudValue(expStringify);
         for (let i in this.params) {

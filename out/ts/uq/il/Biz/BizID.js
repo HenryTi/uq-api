@@ -6,8 +6,9 @@ const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 // 任何可以独立存在，可被引用ID
-// 按照这个原则，BizBin应该也是BizID。当前不处理。以后可以处理
 // 扩展和继承：有两个方式，一个是typescript里面的extends，一个是spec的base
+// 按照这个原则，BizBin应该也是BizID。当前不处理。以后可以处理
+// BizBin是一次操作行为记录，跟普通的BizID区别明显。作为ID仅用于引用。
 class BizID extends Entity_1.BizEntity {
 }
 exports.BizID = BizID;

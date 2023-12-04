@@ -7,8 +7,8 @@ const tokens_1 = require("../../tokens");
 const Base_1 = require("../Base");
 const Biz_1 = require("../Biz");
 class PBizBin extends Base_1.PBizEntity {
-    constructor() {
-        super(...arguments);
+    constructor(element, context) {
+        super(element, context);
         this.parsePick = () => {
             let name = this.ts.passVar();
             let ui = this.parseUI();
@@ -33,27 +33,81 @@ class PBizBin extends Base_1.PBizEntity {
             }
             this.context.parseElement(input);
             this.element.setInput(input);
+            this.div.inputs.push(input);
         };
         this.parseI = () => {
+            let budKeyID = this.parseKeyID('i');
+            if (budKeyID === undefined)
+                return;
             if (this.element.i !== undefined) {
                 this.ts.error(`I can only be defined once in Biz Bin`);
             }
-            this.element.i = this.parseBudAtom('i');
+            this.element.i = budKeyID;
         };
         this.parseX = () => {
+            let budKeyID = this.parseKeyID('x');
+            if (budKeyID === undefined)
+                return;
             if (this.element.x !== undefined) {
                 this.ts.error(`X can only be defined once in Biz Bin`);
             }
-            this.element.x = this.parseBudAtom('x');
+            this.element.x = budKeyID;
         };
         this.parseValue = () => {
-            this.element.value = this.parseValueBud(this.element.value, 'value');
+            let bud = this.parseValueBud(this.element.value, 'value');
+            this.element.value = bud;
+            this.div.buds.push(bud);
         };
         this.parsePrice = () => {
-            this.element.price = this.parseValueBud(this.element.price, 'price');
+            let bud = this.parseValueBud(this.element.price, 'price');
+            this.element.price = bud;
+            this.div.buds.push(bud);
         };
         this.parseAmount = () => {
-            this.element.amount = this.parseValueBud(this.element.amount, 'amount');
+            let bud = this.parseValueBud(this.element.amount, 'amount');
+            this.element.amount = bud;
+            this.div.buds.push(bud);
+        };
+        this.parseDiv = () => {
+            if (this.div.div !== undefined) {
+                this.ts.error(`duplicate DIV`);
+            }
+            const keyParse = {
+                input: this.parseInput,
+                div: this.parseDiv,
+                prop: this.parseBinProp,
+                i: this.parseI,
+                x: this.parseX,
+                value: this.parseValue,
+                price: this.parsePrice,
+                amount: this.parseAmount,
+            };
+            let ui = this.parseUI();
+            this.div = new il_1.BinDiv(this.div, ui);
+            this.ts.passToken(tokens_1.Token.LBRACE);
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RBRACE) {
+                    this.ts.readToken();
+                    this.div = this.div.parent;
+                    break;
+                }
+                if (this.ts.token !== tokens_1.Token.VAR) {
+                    this.ts.expectToken(tokens_1.Token.VAR);
+                }
+                let parse = keyParse[this.ts.lowerVar];
+                if (parse === undefined) {
+                    this.ts.error(`Unknown ${this.ts._var}`);
+                }
+                this.ts.readToken();
+                parse();
+            }
+        };
+        this.parseBinProp = () => {
+            let { group, budArr } = this.parseProp();
+            if (group !== undefined && group.name !== '-') {
+                this.ts.error(`Bin prop group should not have name`);
+            }
+            this.div.buds.push(...budArr);
         };
         this.parseAct = () => {
             const { act } = this.element;
@@ -68,7 +122,8 @@ class PBizBin extends Base_1.PBizEntity {
         this.keyColl = {
             pick: this.parsePick,
             input: this.parseInput,
-            prop: this.parseProp,
+            div: this.parseDiv,
+            prop: this.parseBinProp,
             i: this.parseI,
             x: this.parseX,
             value: this.parseValue,
@@ -76,6 +131,21 @@ class PBizBin extends Base_1.PBizEntity {
             amount: this.parseAmount,
             act: this.parseAct,
         };
+        this.div = element.div;
+    }
+    parseKeyID(keyID) {
+        if (this.ts.token === tokens_1.Token.DOT) {
+            this.ts.readToken();
+            this.ts.passKey('base');
+            this.div.buds.push(new il_1.BizBudIDBase(this.element.biz, keyID + '.', undefined));
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+            return undefined;
+        }
+        else {
+            let bud = this.parseBudAtom(keyID);
+            this.div.buds.push(bud);
+            return bud;
+        }
     }
     parseValueBud(bud, budName) {
         if (bud !== undefined) {

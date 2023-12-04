@@ -1,9 +1,9 @@
 import {
-    BizBud, BizBudAtom, BizBudChar, BizBudCheck, BizBudDate
+    BizBud, BizBudID, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
+    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange, BizBudIDBase
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -99,7 +99,7 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                     this.log(`${p.name} is neither ATOM nor SPEC`);
                     return undefined;
                 case BudDataType.atom:
-                    let { atom } = p as BizBudAtom;
+                    let { ID: atom } = p as BizBudID;
                     if (atom === undefined) {
                         this.log(`${p.name} does not define ATOM or SPEC`);
                         return undefined;
@@ -266,7 +266,14 @@ export class PBizBudChar extends PBizBudValue<BizBudChar> {
 export class PBizBudDate extends PBizBudValueWithRange<BizBudDate> {
 }
 
-export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
+export class PBizBudIDBase extends PBizBud<BizBudIDBase> {
+    scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = true;
+        return ok;
+    }
+}
+
+export class PBizBudID extends PBizBudValue<BizBudID> {
     private atomName: string;
     private fieldShows: string[][];
     protected _parse(): void {
@@ -337,7 +344,7 @@ export class PBizBudAtom extends PBizBudValue<BizBudAtom> {
                 ok = false;
             }
             else {
-                this.element.atom = atom;
+                this.element.ID = atom;
             }
         }
         for (let i in params) {

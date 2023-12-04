@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
+exports.BizBinAct = exports.BizBin = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
@@ -47,13 +47,6 @@ class PickAtom {
     hasReturn(prop) {
         if (prop === undefined)
             return true;
-        // || prop === 'id') return true;
-        /*
-        for (let atom of this.from) {
-            let bud = atom.getBud(prop);
-            if (bud !== undefined) return true;
-        }
-        */
         // 不支持atom的其它字段属性。只能用查询
         return ['id', 'no', 'ex'].includes(prop);
     }
@@ -95,24 +88,6 @@ class PickPend {
     }
 }
 exports.PickPend = PickPend;
-/*
-export class PickInput extends IElement implements PickBase {
-    readonly type = 'pickinput';
-    readonly bizEntityTable: EnumSysTable = undefined;
-    fromSchema(): string[] {
-        return [];
-    }
-    hasParam(param: string): boolean {
-        return true;
-    }
-    hasReturn(prop: string): boolean {
-        return true;
-    }
-    parser(context: PContext): PElement<IElement> {
-        return new PPickInput(this, context);
-    }
-}
-*/
 class BinInput extends Bud_1.BizBud {
     constructor(bin, name, ui) {
         super(bin.biz, name, ui);
@@ -148,6 +123,38 @@ class BinInputAtom extends BinInput {
     }
 }
 exports.BinInputAtom = BinInputAtom;
+// column: maybe I, Value, Amount, Price, I.base, I.base.base, Prop
+class BinDiv {
+    constructor(parent, ui) {
+        this.inputs = [];
+        this.buds = [];
+        this.parent = parent;
+        this.ui = ui;
+        if (parent !== undefined) {
+            parent.div = this;
+        }
+    }
+    buildSchema(res) {
+        var _a;
+        let inputs = [];
+        if (this.inputs !== undefined) {
+            for (let input of this.inputs) {
+                let schema = input.buildSchema(res);
+                inputs.push(schema);
+            }
+        }
+        if (inputs.length === 0)
+            inputs = undefined;
+        let ret = {
+            ui: this.ui,
+            buds: this.buds.map(v => v.name),
+            div: (_a = this.div) === null || _a === void 0 ? void 0 : _a.buildSchema(res),
+            inputs,
+        };
+        return ret;
+    }
+}
+exports.BinDiv = BinDiv;
 class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
@@ -155,7 +162,8 @@ class BizBin extends Entity_1.BizEntity {
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
         this.pickColl = {};
         this.inputColl = {};
-        this.sheetArr = [];
+        this.sheetArr = []; // 被多少sheet引用了
+        this.div = new BinDiv(undefined, undefined); // 输入和显示的层级结构
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
@@ -199,7 +207,7 @@ class BizBin extends Entity_1.BizEntity {
             }
         }
         let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
-        this.schema = Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, inputs: inputs.length === 0 ? undefined : inputs, pend: (_b = this.pend) === null || _b === void 0 ? void 0 : _b.id, i: (_c = this.i) === null || _c === void 0 ? void 0 : _c.buildSchema(res), x: (_d = this.x) === null || _d === void 0 ? void 0 : _d.buildSchema(res), value: (_e = this.value) === null || _e === void 0 ? void 0 : _e.buildSchema(res), amount: (_f = this.amount) === null || _f === void 0 ? void 0 : _f.buildSchema(res), price });
+        this.schema = Object.assign(Object.assign({}, ret), { picks: picks.length === 0 ? undefined : picks, inputs: inputs.length === 0 ? undefined : inputs, pend: (_b = this.pend) === null || _b === void 0 ? void 0 : _b.id, i: (_c = this.i) === null || _c === void 0 ? void 0 : _c.buildSchema(res), x: (_d = this.x) === null || _d === void 0 ? void 0 : _d.buildSchema(res), value: (_e = this.value) === null || _e === void 0 ? void 0 : _e.buildSchema(res), amount: (_f = this.amount) === null || _f === void 0 ? void 0 : _f.buildSchema(res), price, div: this.div.buildSchema(res) });
         return this.schema;
     }
     getSheetProps() {
@@ -264,23 +272,17 @@ class BizBin extends Entity_1.BizEntity {
     db(dbContext) {
         return new builder_1.BBizBin(dbContext, this);
     }
-    /*
-    getPick(pickName: string) {
-        let pick = this.pickColl[pickName];
-        return pick;
-    }
-    */
     getBinBudEntity(bud) {
         let bizEntity;
         if (bud === 'i') {
             if (this.i === undefined)
                 return;
-            bizEntity = this.i.atom;
+            bizEntity = this.i.ID;
         }
         else if (bud === 'x') {
             if (this.x === undefined)
                 return;
-            bizEntity = this.x.atom;
+            bizEntity = this.x.ID;
         }
         else {
             let b = this.getBud(bud);
@@ -290,7 +292,7 @@ class BizBin extends Entity_1.BizEntity {
                 default: return;
                 case BizPhraseType_1.BudDataType.atom: break;
             }
-            let { atom } = b;
+            let { ID: atom } = b;
             bizEntity = atom;
         }
         return bizEntity;

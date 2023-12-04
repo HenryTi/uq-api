@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudAtom = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -215,7 +215,18 @@ class BizBudDate extends BizBudValueWithRange {
     }
 }
 exports.BizBudDate = BizBudDate;
-class BizBudAtom extends BizBudValue {
+class BizBudIDBase extends BizBud {
+    constructor() {
+        super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.atom;
+    }
+    // readonly canIndex = false;
+    parser(context) {
+        return new parser_1.PBizBudIDBase(this, context);
+    }
+}
+exports.BizBudIDBase = BizBudIDBase;
+class BizBudID extends BizBudValue {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.atom;
@@ -232,12 +243,12 @@ class BizBudAtom extends BizBudValue {
     }
     getFieldShows() { return this.fieldShows; }
     parser(context) {
-        return new parser_1.PBizBudAtom(this, context);
+        return new parser_1.PBizBudID(this, context);
     }
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        ret.atom = (_a = this.atom) === null || _a === void 0 ? void 0 : _a.name;
+        ret.atom = (_a = this.ID) === null || _a === void 0 ? void 0 : _a.name;
         let hasParams = false;
         let params = {};
         for (let i in this.params) {
@@ -248,7 +259,7 @@ class BizBudAtom extends BizBudValue {
             ret.params = params;
         return ret;
     }
-    get objName() { var _a; return (_a = this.atom) === null || _a === void 0 ? void 0 : _a.phrase; }
+    get objName() { var _a; return (_a = this.ID) === null || _a === void 0 ? void 0 : _a.phrase; }
     buildBudValue(expStringify) {
         super.buildBudValue(expStringify);
         for (let i in this.params) {
@@ -258,7 +269,7 @@ class BizBudAtom extends BizBudValue {
         }
     }
 }
-exports.BizBudAtom = BizBudAtom;
+exports.BizBudID = BizBudID;
 class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;

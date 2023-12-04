@@ -8,7 +8,7 @@ import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizSpec } from "./BizID";
 import { BizBase } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudAtom, BizBudDec } from "./Bud";
+import { BizBudValue, BizBud, BizBudID, BizBudDec } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend, BizSheet } from "./Sheet";
@@ -69,13 +69,6 @@ export class PickAtom implements PickBase {
     }
     hasReturn(prop: string): boolean {
         if (prop === undefined) return true;
-        // || prop === 'id') return true;
-        /*
-        for (let atom of this.from) {
-            let bud = atom.getBud(prop);
-            if (bud !== undefined) return true;
-        }
-        */
         // 不支持atom的其它字段属性。只能用查询
         return ['id', 'no', 'ex'].includes(prop);
     }
@@ -113,24 +106,7 @@ export class PickPend implements PickBase {
         return this.from.hasField(prop);
     }
 }
-/*
-export class PickInput extends IElement implements PickBase {
-    readonly type = 'pickinput';
-    readonly bizEntityTable: EnumSysTable = undefined;
-    fromSchema(): string[] {
-        return [];
-    }
-    hasParam(param: string): boolean {
-        return true;
-    }
-    hasReturn(prop: string): boolean {
-        return true;
-    }
-    parser(context: PContext): PElement<IElement> {
-        return new PPickInput(this, context);
-    }
-}
-*/
+
 export abstract class BinInput extends BizBud {
     readonly dataType: BudDataType = BudDataType.none;
     readonly bin: BizBin;
@@ -174,22 +150,56 @@ export class BinInputAtom extends BinInput {
     }
 }
 
+// column: maybe I, Value, Amount, Price, I.base, I.base.base, Prop
+export class BinDiv {
+    readonly parent: BinDiv;
+    readonly ui: Partial<UI>;
+    readonly inputs: BinInput[] = [];
+    readonly buds: BizBud[] = [];
+    div: BinDiv;
+    constructor(parent: BinDiv, ui: Partial<UI>) {
+        this.parent = parent;
+        this.ui = ui;
+        if (parent !== undefined) {
+            parent.div = this;
+        }
+    }
+
+    buildSchema(res: { [phrase: string]: string }) {
+        let inputs: any[] = [];
+        if (this.inputs !== undefined) {
+            for (let input of this.inputs) {
+                let schema = input.buildSchema(res);
+                inputs.push(schema);
+            }
+        }
+        if (inputs.length === 0) inputs = undefined;
+        let ret = {
+            ui: this.ui,
+            buds: this.buds.map(v => v.name),
+            div: this.div?.buildSchema(res),
+            inputs,
+        };
+        return ret;
+    }
+}
+
 export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
     readonly bizPhraseType = BizPhraseType.bin;
     readonly pickColl: { [name: string]: BinPick } = {};
     readonly inputColl: { [name: string]: BinInput } = {};
+    readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了
+    readonly div: BinDiv = new BinDiv(undefined, undefined);    // 输入和显示的层级结构
     pickArr: BinPick[];
     inputArr: BinInput[];
     pend: BizPend;
     act: BizBinAct;
-    i: BizBudAtom;
-    x: BizBudAtom;
+    i: BizBudID;
+    x: BizBudID;
     value: BizBudDec;
     price: BizBudDec;
     amount: BizBudDec;
-
-    readonly sheetArr: BizSheet[] = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBin(this, context);
@@ -244,6 +254,7 @@ export class BizBin extends BizEntity {
             value: this.value?.buildSchema(res),
             amount: this.amount?.buildSchema(res),
             price,
+            div: this.div.buildSchema(res),
         }
         return this.schema;
     }
@@ -297,21 +308,15 @@ export class BizBin extends BizEntity {
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizBin(dbContext, this);
     }
-    /*
-    getPick(pickName: string) {
-        let pick = this.pickColl[pickName];
-        return pick;
-    }
-    */
     getBinBudEntity(bud: string): BizEntity {
         let bizEntity: BizEntity;
         if (bud === 'i') {
             if (this.i === undefined) return;
-            bizEntity = this.i.atom;
+            bizEntity = this.i.ID;
         }
         else if (bud === 'x') {
             if (this.x === undefined) return;
-            bizEntity = this.x.atom;
+            bizEntity = this.x.ID;
         }
         else {
             let b = this.getBud(bud);
@@ -320,7 +325,7 @@ export class BizBin extends BizEntity {
                 default: return;
                 case BudDataType.atom: break;
             }
-            let { atom } = b as BizBudAtom;
+            let { ID: atom } = b as BizBudID;
             bizEntity = atom;
         }
         return bizEntity;

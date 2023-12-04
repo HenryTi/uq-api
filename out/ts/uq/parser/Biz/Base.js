@@ -165,7 +165,7 @@ class PBizBase extends element_1.PElement {
             int: il_1.BizBudInt,
             dec: il_1.BizBudDec,
             char: il_1.BizBudChar,
-            atom: il_1.BizBudAtom,
+            atom: il_1.BizBudID,
             date: il_1.BizBudDate,
             intof: il_1.BizBudIntOf,
             radio: il_1.BizBudRadio,
@@ -248,6 +248,8 @@ class PBizEntity extends PBizBase {
     constructor() {
         super(...arguments);
         this.parseProp = () => {
+            let budGroup;
+            let budArr = [];
             let name;
             let ui;
             if (this.ts.token === tokens_1.Token.ADD) {
@@ -261,7 +263,6 @@ class PBizEntity extends PBizBase {
             }
             if (this.ts.token === tokens_1.Token.LBRACE) {
                 this.ts.readToken();
-                let budGroup;
                 if (name === undefined) {
                     budGroup = this.element.group0;
                 }
@@ -286,6 +287,7 @@ class PBizEntity extends PBizBase {
                     }
                     props.set(budName, bud);
                     budGroup.buds.push(bud);
+                    budArr.push(bud);
                     if (this.ts.token === tokens_1.Token.RBRACE) {
                         this.ts.readToken();
                         this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
@@ -306,7 +308,9 @@ class PBizEntity extends PBizBase {
                 buds.push(bizBud);
                 this.ts.passToken(tokens_1.Token.SEMICOLON);
                 this.element.props.set(bizBud.name, bizBud);
+                budArr.push(bizBud);
             }
+            return { group: budGroup, budArr };
         };
     }
     saveSource() {
@@ -369,7 +373,7 @@ class PBizEntity extends PBizBase {
     }
     parseBudAtom(itemName) {
         let ui = this.parseUI();
-        let bud = new il_1.BizBudAtom(this.element.biz, itemName, ui);
+        let bud = new il_1.BizBudID(this.element.biz, itemName, ui);
         if (this.ts.isKeyword('pick') === true) {
             this.ts.readToken();
         }

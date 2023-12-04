@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudAtom = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -90,7 +90,7 @@ class PBizBudValue extends PBizBud {
                     this.log(`${p.name} is neither ATOM nor SPEC`);
                     return undefined;
                 case il_1.BudDataType.atom:
-                    let { atom } = p;
+                    let { ID: atom } = p;
                     if (atom === undefined) {
                         this.log(`${p.name} does not define ATOM or SPEC`);
                         return undefined;
@@ -256,7 +256,14 @@ exports.PBizBudChar = PBizBudChar;
 class PBizBudDate extends PBizBudValueWithRange {
 }
 exports.PBizBudDate = PBizBudDate;
-class PBizBudAtom extends PBizBudValue {
+class PBizBudIDBase extends PBizBud {
+    scan(space) {
+        let ok = true;
+        return ok;
+    }
+}
+exports.PBizBudIDBase = PBizBudIDBase;
+class PBizBudID extends PBizBudValue {
     _parse() {
         this.atomName = this.ts.mayPassVar();
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
@@ -324,7 +331,7 @@ class PBizBudAtom extends PBizBudValue {
                 ok = false;
             }
             else {
-                this.element.atom = atom;
+                this.element.ID = atom;
             }
         }
         for (let i in params) {
@@ -353,7 +360,7 @@ class PBizBudAtom extends PBizBudValue {
         return ok;
     }
 }
-exports.PBizBudAtom = PBizBudAtom;
+exports.PBizBudID = PBizBudID;
 class PBizBudPickable extends PBizBudValue {
     _parse() {
         if (this.ts.token === tokens_1.Token.VAR) {

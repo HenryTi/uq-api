@@ -7,7 +7,7 @@ import { BizSearch } from "./Base";
 import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizBudValue, BizBudAtom, BizBudDec, BizBud } from "./Bud";
+import { BizBudValue, BizBudID, BizBudDec, BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 
@@ -62,14 +62,14 @@ export class BizPend extends BizEntity {
     readonly predefinedFields: string[] = [];
     pendQuery: PendQuery;
     readonly bizBins: BizBin[] = [];
-    i: BizBudAtom;
-    x: BizBudAtom;
+    i: BizBudID;
+    x: BizBudID;
 
     constructor(biz: Biz) {
         super(biz);
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
-            this.predefinedBuds[n] = new BizBudAtom(this.biz, n, undefined);
+            this.predefinedBuds[n] = new BizBudID(this.biz, n, undefined);
         }
         for (let n of BizPend.predefinedValue) {
             this.predefinedBuds[n] = new BizBudDec(this.biz, n, undefined);

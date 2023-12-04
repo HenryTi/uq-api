@@ -2,9 +2,8 @@ import {
     BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase
 } from "../../../il";
-import { PElement } from "../../element";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
 import { PStatements } from "../../statement";
@@ -15,6 +14,12 @@ import { PBizBudValue } from "../Bud";
 
 export class PBizBin extends PBizEntity<BizBin> {
     private pickPendPos: number;
+    private div: BinDiv;
+    constructor(element: BizBin, context: PContext) {
+        super(element, context);
+        this.div = element.div;
+    }
+
     private parsePick = () => {
         let name = this.ts.passVar();
         let ui = this.parseUI();
@@ -40,20 +45,40 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
         this.context.parseElement(input);
         this.element.setInput(input);
+        this.div.inputs.push(input);
+    }
+
+    private parseKeyID(keyID: 'i' | 'x') {
+        if (this.ts.token === Token.DOT) {
+            this.ts.readToken();
+            this.ts.passKey('base');
+            this.div.buds.push(new BizBudIDBase(this.element.biz, keyID + '.', undefined));
+            this.ts.passToken(Token.SEMICOLON);
+            return undefined;
+        }
+        else {
+            let bud = this.parseBudAtom(keyID);
+            this.div.buds.push(bud);
+            return bud;
+        }
     }
 
     private parseI = () => {
+        let budKeyID = this.parseKeyID('i');
+        if (budKeyID === undefined) return;
         if (this.element.i !== undefined) {
             this.ts.error(`I can only be defined once in Biz Bin`);
         }
-        this.element.i = this.parseBudAtom('i');
+        this.element.i = budKeyID;
     }
 
     private parseX = () => {
+        let budKeyID = this.parseKeyID('x');
+        if (budKeyID === undefined) return;
         if (this.element.x !== undefined) {
             this.ts.error(`X can only be defined once in Biz Bin`);
         }
-        this.element.x = this.parseBudAtom('x');
+        this.element.x = budKeyID;
     }
 
     private parseValueBud(bud: BizBudValue, budName: string) {
@@ -69,15 +94,64 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     private parseValue = () => {
-        this.element.value = this.parseValueBud(this.element.value, 'value');
+        let bud = this.parseValueBud(this.element.value, 'value');
+        this.element.value = bud;
+        this.div.buds.push(bud);
     }
 
     private parsePrice = () => {
-        this.element.price = this.parseValueBud(this.element.price, 'price');
+        let bud = this.parseValueBud(this.element.price, 'price');
+        this.element.price = bud;
+        this.div.buds.push(bud);
     }
 
     private parseAmount = () => {
-        this.element.amount = this.parseValueBud(this.element.amount, 'amount');
+        let bud = this.parseValueBud(this.element.amount, 'amount');
+        this.element.amount = bud;
+        this.div.buds.push(bud);
+    }
+
+    private parseDiv = () => {
+        if (this.div.div !== undefined) {
+            this.ts.error(`duplicate DIV`);
+        }
+        const keyParse: { [key: string]: () => void } = {
+            input: this.parseInput,
+            div: this.parseDiv,
+            prop: this.parseBinProp,
+            i: this.parseI,
+            x: this.parseX,
+            value: this.parseValue,
+            price: this.parsePrice,
+            amount: this.parseAmount,
+        }
+        let ui = this.parseUI();
+        this.div = new BinDiv(this.div, ui);
+        this.ts.passToken(Token.LBRACE);
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE) {
+                this.ts.readToken();
+                this.div = this.div.parent;
+                break;
+            }
+            if (this.ts.token !== Token.VAR) {
+                this.ts.expectToken(Token.VAR);
+            }
+            let parse = keyParse[this.ts.lowerVar];
+            if (parse === undefined) {
+                this.ts.error(`Unknown ${this.ts._var}`);
+            }
+            this.ts.readToken();
+            parse();
+        }
+    }
+
+    private parseBinProp = () => {
+        let { group, budArr } = this.parseProp();
+        if (group !== undefined && group.name !== '-') {
+            this.ts.error(`Bin prop group should not have name`);
+        }
+        this.div.buds.push(...budArr);
     }
 
     private parseAct = () => {
@@ -94,7 +168,8 @@ export class PBizBin extends PBizEntity<BizBin> {
     readonly keyColl = {
         pick: this.parsePick,
         input: this.parseInput,
-        prop: this.parseProp,
+        div: this.parseDiv,
+        prop: this.parseBinProp,
         i: this.parseI,
         x: this.parseX,
         value: this.parseValue,

@@ -1,7 +1,7 @@
 import {
     BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, BizBudAtom, Uq, IX, BudIndex, BizBudIntOf
+    , BizBudNone, BizBudID, Uq, IX, BudIndex, BizBudIntOf
     , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud
 } from "../../il";
 import { UI } from "../../il/UI";
@@ -139,7 +139,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             int: BizBudInt,
             dec: BizBudDec,
             char: BizBudChar,
-            atom: BizBudAtom,
+            atom: BizBudID,
             date: BizBudDate,
             intof: BizBudIntOf,
             radio: BizBudRadio,
@@ -284,6 +284,8 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected parseProp = () => {
+        let budGroup: BudGroup;
+        let budArr: BizBud[] = [];
         let name: string;
         let ui: Partial<UI>;
         if (this.ts.token === Token.ADD) {
@@ -297,7 +299,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
-            let budGroup: BudGroup;
             if (name === undefined) {
                 budGroup = this.element.group0;
             }
@@ -322,6 +323,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 }
                 props.set(budName, bud);
                 budGroup.buds.push(bud);
+                budArr.push(bud);
                 if (this.ts.token === Token.RBRACE as any) {
                     this.ts.readToken();
                     this.ts.mayPassToken(Token.SEMICOLON);
@@ -342,7 +344,9 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             buds.push(bizBud);
             this.ts.passToken(Token.SEMICOLON);
             this.element.props.set(bizBud.name, bizBud);
+            budArr.push(bizBud);
         }
+        return { group: budGroup, budArr };
     }
 
     private parsePermitOne(permissionLetters: string) {
@@ -380,7 +384,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
 
     protected parseBudAtom(itemName: string) {
         let ui = this.parseUI();
-        let bud = new BizBudAtom(this.element.biz, itemName, ui);
+        let bud = new BizBudID(this.element.biz, itemName, ui);
         if (this.ts.isKeyword('pick') === true) {
             this.ts.readToken();
         }
