@@ -242,7 +242,7 @@ export class BizBudDate extends BizBudValueWithRange {
 }
 
 export class BizBudIDBase extends BizBud {
-    readonly dataType = BudDataType.atom;
+    readonly dataType = BudDataType.none;
     // readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIDBase(this, context);

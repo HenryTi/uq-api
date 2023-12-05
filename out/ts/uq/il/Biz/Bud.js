@@ -218,7 +218,7 @@ exports.BizBudDate = BizBudDate;
 class BizBudIDBase extends BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.atom;
+        this.dataType = BizPhraseType_1.BudDataType.none;
     }
     // readonly canIndex = false;
     parser(context) {

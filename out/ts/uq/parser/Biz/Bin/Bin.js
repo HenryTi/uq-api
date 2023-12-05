@@ -37,8 +37,10 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parseI = () => {
             let budKeyID = this.parseKeyID('i');
-            if (budKeyID === undefined)
+            if (budKeyID.dataType === il_1.BudDataType.none) {
+                this.iBase = budKeyID;
                 return;
+            }
             if (this.element.i !== undefined) {
                 this.ts.error(`I can only be defined once in Biz Bin`);
             }
@@ -46,8 +48,10 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parseX = () => {
             let budKeyID = this.parseKeyID('x');
-            if (budKeyID === undefined)
+            if (budKeyID.dataType === il_1.BudDataType.none) {
+                this.xBase = budKeyID;
                 return;
+            }
             if (this.element.x !== undefined) {
                 this.ts.error(`X can only be defined once in Biz Bin`);
             }
@@ -137,9 +141,10 @@ class PBizBin extends Base_1.PBizEntity {
         if (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
             this.ts.passKey('base');
-            this.div.buds.push(new il_1.BizBudIDBase(this.element.biz, keyID + '.', undefined));
+            let bud = new il_1.BizBudIDBase(this.element.biz, keyID + '.', undefined);
+            this.div.buds.push(bud);
             this.ts.passToken(tokens_1.Token.SEMICOLON);
-            return undefined;
+            return bud;
         }
         else {
             let bud = this.parseBudAtom(keyID);
@@ -191,6 +196,18 @@ class PBizBin extends Base_1.PBizEntity {
     scan(space) {
         let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
+        if (this.iBase !== undefined) {
+            if (this.element.i === undefined) {
+                this.log('i.base need I declare');
+                ok = false;
+            }
+        }
+        if (this.xBase !== undefined) {
+            if (this.element.x === undefined) {
+                this.log('x.base need X declare');
+                ok = false;
+            }
+        }
         const { pickArr, inputArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (pickArr !== undefined) {
             let { length } = pickArr;

@@ -15,6 +15,8 @@ import { PBizBudValue } from "../Bud";
 export class PBizBin extends PBizEntity<BizBin> {
     private pickPendPos: number;
     private div: BinDiv;
+    private iBase: BizBudIDBase;
+    private xBase: BizBudIDBase;
     constructor(element: BizBin, context: PContext) {
         super(element, context);
         this.div = element.div;
@@ -52,9 +54,10 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (this.ts.token === Token.DOT) {
             this.ts.readToken();
             this.ts.passKey('base');
-            this.div.buds.push(new BizBudIDBase(this.element.biz, keyID + '.', undefined));
+            let bud = new BizBudIDBase(this.element.biz, keyID + '.', undefined);
+            this.div.buds.push(bud);
             this.ts.passToken(Token.SEMICOLON);
-            return undefined;
+            return bud;
         }
         else {
             let bud = this.parseBudAtom(keyID);
@@ -65,7 +68,10 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parseI = () => {
         let budKeyID = this.parseKeyID('i');
-        if (budKeyID === undefined) return;
+        if (budKeyID.dataType === BudDataType.none) {
+            this.iBase = budKeyID;
+            return;
+        }
         if (this.element.i !== undefined) {
             this.ts.error(`I can only be defined once in Biz Bin`);
         }
@@ -74,7 +80,10 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parseX = () => {
         let budKeyID = this.parseKeyID('x');
-        if (budKeyID === undefined) return;
+        if (budKeyID.dataType === BudDataType.none) {
+            this.xBase = budKeyID;
+            return;
+        }
         if (this.element.x !== undefined) {
             this.ts.error(`X can only be defined once in Biz Bin`);
         }
@@ -211,6 +220,20 @@ export class PBizBin extends PBizEntity<BizBin> {
     scan(space: Space): boolean {
         let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
+
+        if (this.iBase !== undefined) {
+            if (this.element.i === undefined) {
+                this.log('i.base need I declare');
+                ok = false;
+            }
+        }
+
+        if (this.xBase !== undefined) {
+            if (this.element.x === undefined) {
+                this.log('x.base need X declare');
+                ok = false;
+            }
+        }
 
         const { pickArr, inputArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (pickArr !== undefined) {
