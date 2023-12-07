@@ -212,7 +212,7 @@ class QueueOut {
                     queueId: id,
                     defer,
                     to,
-                    from: uqOwner + '/' + uq,
+                    from: uqOwner + '/' + uq, // from uq
                     busOwner,
                     bus: busName,
                     face,

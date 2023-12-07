@@ -11,7 +11,7 @@ const groups = {
     query: [il_1.BizPhraseType.query],
     relate: [il_1.BizPhraseType.pick, il_1.BizPhraseType.options, il_1.BizPhraseType.tie, il_1.BizPhraseType.tree],
     report: [il_1.BizPhraseType.report],
-    permit: [il_1.BizPhraseType.permit],
+    permit: [il_1.BizPhraseType.permit], // BizPhraseType.role, 
     console: [il_1.BizPhraseType.console],
 };
 class Compiler {

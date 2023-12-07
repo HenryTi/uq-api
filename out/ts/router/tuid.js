@@ -15,7 +15,7 @@ function buildTuidRouter(router, rb) {
         runner.setModifyMax(unit, modifyMax);
         */
         return {
-            queue: [],
+            queue: [], // ret[0],
             queueMax: 0, //modifyMax
         };
     });

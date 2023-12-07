@@ -54,7 +54,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (this.ts.token === Token.DOT) {
             this.ts.readToken();
             this.ts.passKey('base');
-            let bud = new BizBudIDBase(this.element.biz, keyID + '.', undefined);
+            let bud = new BizBudIDBase(this.element.biz, '.' + keyID, undefined);
             this.div.buds.push(bud);
             this.ts.passToken(Token.SEMICOLON);
             return bud;
