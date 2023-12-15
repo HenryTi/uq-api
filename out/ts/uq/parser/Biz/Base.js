@@ -199,12 +199,12 @@ class PBizBase extends element_1.PElement {
             this.ts.expect(...keys);
         }
         let bizBud = new Bud(this.element.biz, name, ui);
+        bizBud.parser(this.context).parse();
         if (this.ts.isKeyword('required') === true) {
             bizBud.required = true;
             bizBud.ui.required = true;
             this.ts.readToken();
         }
-        bizBud.parser(this.context).parse();
         //if (this.element.hasProp(name) === true) {
         /*
         if (name === 'value' && this.element.bizPhraseType === BizPhraseType.bin) debugger;
