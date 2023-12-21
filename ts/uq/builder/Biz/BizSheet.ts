@@ -4,7 +4,7 @@ import {
 } from "../../il";
 import { $site } from "../consts";
 import {
-    ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNull, ExpNum
+    ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNotNull, ExpIsNull, ExpNum
     , ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, Statement
 } from "../sql";
 import { userParamName } from "../sql/sqlBuilder";
@@ -111,11 +111,14 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         select.column(new ExpField('id', a), binId);
         select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)));
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('id', a)));
         select.where(new ExpAnd(
             new ExpGT(new ExpField('id', a), new ExpVar(pBinId)),
             new ExpEQ(new ExpField('ext', b), new ExpNum(entityId)),
             new ExpEQ(new ExpField('base', b), new ExpVar('$id')),
+            new ExpIsNotNull(new ExpField('value', c)),
         ));
         select.order(new ExpField('id', a), 'asc');
         select.limit(ExpNum.num1);
