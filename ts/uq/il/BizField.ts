@@ -5,10 +5,11 @@ import {
     ExpStr,
     ExpNum
 } from "../builder";
-import { BizBin } from "./Biz";
+import { BinDiv, BizBin } from "./Biz";
 import { BizPhraseType } from "./Biz/BizPhraseType";
 import { BizBud, BizBudValue } from "./Biz/Bud";
 import { BizEntity } from "./Biz/Entity";
+import { binFieldArr } from "../consts";
 import { FromStatement, FromStatementInPend } from "./statement";
 
 // in FROM statement, columns use BizField
@@ -26,11 +27,13 @@ export abstract class BizField {
     abstract db(dbContext: DbContext): BBizField;
     abstract buildSchema(): any;
     abstract buildColArr(): ExpVal[];
+    scanBinDiv() { }
 }
 
 export class BizFieldBud extends BizField {
     bud: BizBudValue;
     entity: BizEntity;
+    div: BinDiv;
     constructor(space: BizFieldSpace, tableAlias: string, entity: BizEntity, bud: BizBudValue) {
         super(space, tableAlias);
         this.entity = entity;
@@ -52,6 +55,16 @@ export class BizFieldBud extends BizField {
         }
         ret.push(new ExpNum(bud.id));
         return ret;
+    }
+
+    override scanBinDiv(): void {
+        const { bizPhraseType } = this.entity;
+        if (bizPhraseType === BizPhraseType.bin) {
+            let entityBin = this.entity as BizBin;
+            this.div = entityBin.getDivFromBud(this.bud);
+            if (this.div === undefined) debugger;
+            // console.log('BizFieldBud', this.bud.name, this.entity.name, this.entity.bizPhraseType);
+        }
     }
 }
 
@@ -99,10 +112,8 @@ type TableCols = {
     [table: string]: Cols[]
 };
 
-const binFieldArr = ['i', 'x', 'value', 'price', 'amount'];
-const sheetFieldArr = ['no'];
+
 const atomFieldArr = ['id', 'no', 'ex'];
-const pendFieldArr = ['pendvalue'];
 
 export abstract class BizFieldSpace {
     private inited: boolean;
@@ -183,7 +194,6 @@ export abstract class BizFieldSpace {
             case ColType.bud: return new BizFieldBud(this, alias, entity, foundBud);
             case ColType.json: return new BizFieldJsonProp(this, alias, entity, foundBud);
             case ColType.var: return new BizFieldVar(this, alias, n1);
-            // case ColType.sheetBud: return new BizFieldSheetBud(this, alias, entity, foundBud);
         }
     }
 

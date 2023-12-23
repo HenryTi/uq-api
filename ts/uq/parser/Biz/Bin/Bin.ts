@@ -1,3 +1,4 @@
+import { binAmount, binFieldArr, binPrice, binValue } from "../../../consts";
 import {
     BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
@@ -103,19 +104,19 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     private parseValue = () => {
-        let bud = this.parseValueBud(this.element.value, 'value');
+        let bud = this.parseValueBud(this.element.value, binValue);
         this.element.value = bud;
         this.div.buds.push(bud);
     }
 
     private parsePrice = () => {
-        let bud = this.parseValueBud(this.element.price, 'price');
+        let bud = this.parseValueBud(this.element.price, binPrice);
         this.element.price = bud;
         this.div.buds.push(bud);
     }
 
     private parseAmount = () => {
-        let bud = this.parseValueBud(this.element.amount, 'amount');
+        let bud = this.parseValueBud(this.element.amount, binAmount);
         this.element.amount = bud;
         this.div.buds.push(bud);
     }
@@ -358,9 +359,9 @@ export class PPickInput extends PElement<PickInput> {
 */
 export const detailPreDefined = [
     '$site', '$user'
-    , 'bin', 'i', 'x'
-    , 'value', 'amount', 'price'
+    , 'bin',
     , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
+    , ...binFieldArr
 ];
 class BizBinSpace extends BizEntitySpace<BizBin> {
     protected readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no

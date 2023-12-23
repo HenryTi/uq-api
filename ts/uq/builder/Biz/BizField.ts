@@ -104,20 +104,8 @@ export class BBizFieldBinVar extends BBizFieldField {
 
 export class BBizFieldBinBud extends BBizFieldBud {
     toIValue(sb: SqlBuilder): void {
-        sb.append('_').append(this.bizField.tableAlias);
+        let { tableAlias, div } = this.bizField;
+        if (div === undefined) debugger;
+        sb.append('_').append(tableAlias + div.level);
     }
 }
-/*
-export class BBizFieldSheetVar extends BBizFieldField {
-    override to(sb: SqlBuilder): void {
-        let { tableAlias } = this.bizField;
-        sb.append(`_${tableAlias}`);
-    }
-}
-
-export class BBizFieldSheetBud extends BBizFieldBud {
-    override to(sb: SqlBuilder): void {
-        super.to(sb);
-    }
-}
-*/

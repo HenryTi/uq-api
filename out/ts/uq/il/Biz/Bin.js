@@ -8,6 +8,7 @@ const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 const BizPhraseType_1 = require("./BizPhraseType");
+const consts_1 = require("../../consts");
 class BinPick extends Bud_1.BizBud {
     constructor(bin, name, ui) {
         super(bin.biz, name, ui);
@@ -133,6 +134,7 @@ class BinDiv {
         if (parent !== undefined) {
             parent.div = this;
         }
+        this.level = this.parent === undefined ? 1 : this.parent.level + 1;
     }
     buildSchema(res) {
         var _a;
@@ -158,7 +160,7 @@ exports.BinDiv = BinDiv;
 class BizBin extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
+        this.fields = ['id', 'pend', ...consts_1.binFieldArr];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
         this.pickColl = {};
         this.inputColl = {};
@@ -296,6 +298,17 @@ class BizBin extends Entity_1.BizEntity {
             bizEntity = atom;
         }
         return bizEntity;
+    }
+    getDivFromBud(bud) {
+        for (let p = this.div; p !== undefined; p = p.div) {
+            let b = p.buds.find(v => v.name === bud.name);
+            if (b !== undefined) {
+                if (b !== bud)
+                    debugger;
+                return p;
+            }
+        }
+        return undefined;
     }
 }
 exports.BizBin = BizBin;

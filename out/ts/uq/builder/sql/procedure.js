@@ -75,7 +75,7 @@ class Procedure {
                 continue;
             s.to(sb, tab);
         }
-        this.returnPuts(sb, tab, puts);
+        // this.returnPuts(sb, tab, puts);
         this.end(sb);
     }
     buildParameters(sb) {

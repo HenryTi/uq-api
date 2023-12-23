@@ -128,7 +128,7 @@ class MsProcedure extends procedure_1.Procedure {
     end(sb) {
     }
     param(sb, p) { sb.append(p.name); }
-    returnPuts(sb, tab, puts) { }
+    // protected returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }) { }
     declareStart(sb) {
         sb.append('DECLARE ');
     }

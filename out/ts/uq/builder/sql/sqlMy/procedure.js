@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProcedureUpdater = exports.MyProcedure = void 0;
 const procedure_1 = require("../procedure");
 const lodash_1 = require("lodash");
-const __1 = require("..");
 const il_1 = require("../../../il");
 class MyProcedure extends procedure_1.Procedure {
     get dbProcName() { return this.dbContext.twProfix + this.name; }
@@ -51,10 +50,11 @@ class MyProcedure extends procedure_1.Procedure {
     declareStart(sb) {
         sb.append('DECLARE ');
     }
-    returnPuts(sb, tab, puts) {
-        let params = [];
+    /*
+    protected returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }) {
+        let params: ExpVal[] = [];
         for (let i in puts) {
-            params.push(new __1.ExpStr(i), new __1.ExpVar('$ret$' + i));
+            params.push(new ExpStr(i), new ExpVar('$ret$' + i));
         }
         if (params.length > 0) {
             sb.tab(tab);
@@ -72,6 +72,7 @@ class MyProcedure extends procedure_1.Procedure {
             sb.r().append(' AS $ret').ln();
         }
     }
+    */
     declareVar(sb, v) {
         sb.var(v.name).space();
         v.dataType.sql(sb);

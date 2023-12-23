@@ -1,4 +1,4 @@
-import { BizFieldOperand } from '../../il';
+import { BizFieldOperand, Uq } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -31,6 +31,7 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
             this.log(`Unknown field ${this.fieldName.join('.')}`);
             ok = false;
         }
+        field.scanBinDiv();
         return ok;
     }
 }

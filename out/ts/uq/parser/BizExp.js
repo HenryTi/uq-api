@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizCheckBudOperand = exports.PBizExpParam = exports.PBizExp = exports.PBizExpOperand = void 0;
+const consts_1 = require("../consts");
 const il_1 = require("../il");
 const il_2 = require("../il");
 const element_1 = require("./element");
@@ -202,7 +203,7 @@ class PBizExp extends element_1.PElement {
             this.element.prop = 'id';
         }
         else {
-            const arr = ['i', 'x', 'price', 'amount', 'value'];
+            const arr = consts_1.binFieldArr;
             // if (prop === '收货物流中心') debugger;
             if (arr.includes(prop) === false) {
                 let bud = bizBin.getBud(prop);

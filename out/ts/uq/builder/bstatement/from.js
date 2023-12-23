@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BFromStatementInPend = exports.BFromStatement = void 0;
+const consts_1 = require("../../consts");
 const il_1 = require("../../il");
 const Biz_1 = require("../Biz");
 const sql_1 = require("../sql");
@@ -126,9 +127,9 @@ class BFromStatementInPend extends BFromStatement {
         select.column(new sql_1.ExpField('bin', a), 'id');
         select.column(new sql_1.ExpField('i', b), 'i');
         select.column(new sql_1.ExpField('x', b), 'x');
-        select.column(new sql_1.ExpField('value', b), 'value');
-        select.column(new sql_1.ExpField('price', b), 'price');
-        select.column(new sql_1.ExpField('amount', b), 'amount');
+        select.column(new sql_1.ExpField(consts_1.binValue, b), consts_1.binValue);
+        select.column(new sql_1.ExpField(consts_1.binPrice, b), consts_1.binPrice);
+        select.column(new sql_1.ExpField(consts_1.binAmount, b), consts_1.binAmount);
         select.column(new sql_1.ExpField('value', a), 'pendvalue');
         select.column(new sql_1.ExpField('mid', a), 'mid');
         this.buildSelectCols(select, 'cols');
@@ -152,9 +153,9 @@ class BFromStatementInPend extends BFromStatement {
             { col: 'id', val: undefined },
             { col: 'i', val: undefined },
             { col: 'x', val: undefined },
-            { col: 'value', val: undefined },
-            { col: 'price', val: undefined },
-            { col: 'amount', val: undefined },
+            { col: consts_1.binValue, val: undefined },
+            { col: consts_1.binPrice, val: undefined },
+            { col: consts_1.binAmount, val: undefined },
             { col: 'pendvalue', val: undefined },
             { col: 'mid', val: undefined },
             { col: 'cols', val: undefined },

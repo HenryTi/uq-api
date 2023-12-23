@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
 const il_1 = require("../../il");
+const consts_1 = require("../../consts");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 class PBizBase extends element_1.PElement {
@@ -236,7 +237,7 @@ class PBizBase extends element_1.PElement {
     }
 }
 exports.PBizBase = PBizBase;
-const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
+const names = ['si', 'sx', ...consts_1.binFieldArr];
 const invalidPropNames = (function () {
     let ret = {};
     for (let v of names) {

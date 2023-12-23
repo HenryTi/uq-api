@@ -5,6 +5,7 @@ import {
     , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud
 } from "../../il";
 import { UI } from "../../il/UI";
+import { binFieldArr } from "../../consts";
 import { PElement } from "../element";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -247,7 +248,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     }
 }
 
-const names = ['i', 'x', 'value', 'price', 'amount', 'si', 'sx'];
+const names = ['si', 'sx', ...binFieldArr];
 const invalidPropNames: { [key: string]: boolean } = (function () {
     let ret = {};
     for (let v of names) {

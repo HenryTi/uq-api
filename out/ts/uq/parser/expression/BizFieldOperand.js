@@ -33,6 +33,7 @@ class PBizFieldOperand extends element_1.PElement {
             this.log(`Unknown field ${this.fieldName.join('.')}`);
             ok = false;
         }
+        field.scanBinDiv();
         return ok;
     }
 }

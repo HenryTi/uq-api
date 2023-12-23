@@ -1,3 +1,4 @@
+import { binAmount, binPrice, binValue } from "../../consts";
 import { FromStatement, EnumSysTable, ValueExpression, CompareExpression, JoinType, FromStatementInPend } from "../../il";
 import { KeyOfMapFieldTable, MapFieldTable } from "../Biz";
 import {
@@ -143,9 +144,9 @@ export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
         select.column(new ExpField('bin', a), 'id');
         select.column(new ExpField('i', b), 'i');
         select.column(new ExpField('x', b), 'x');
-        select.column(new ExpField('value', b), 'value');
-        select.column(new ExpField('price', b), 'price');
-        select.column(new ExpField('amount', b), 'amount');
+        select.column(new ExpField(binValue, b), binValue);
+        select.column(new ExpField(binPrice, b), binPrice);
+        select.column(new ExpField(binAmount, b), binAmount);
         select.column(new ExpField('value', a), 'pendvalue');
         select.column(new ExpField('mid', a), 'mid');
 
@@ -173,9 +174,9 @@ export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
             { col: 'id', val: undefined },
             { col: 'i', val: undefined },
             { col: 'x', val: undefined },
-            { col: 'value', val: undefined },
-            { col: 'price', val: undefined },
-            { col: 'amount', val: undefined },
+            { col: binValue, val: undefined },
+            { col: binPrice, val: undefined },
+            { col: binAmount, val: undefined },
             { col: 'pendvalue', val: undefined },
             { col: 'mid', val: undefined },
             { col: 'cols', val: undefined },

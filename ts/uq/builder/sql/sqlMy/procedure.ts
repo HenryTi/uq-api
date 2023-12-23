@@ -48,6 +48,7 @@ export class MyProcedure extends Procedure {
     protected declareStart(sb: SqlBuilder) {
         sb.append('DECLARE ');
     }
+    /*
     protected returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }) {
         let params: ExpVal[] = [];
         for (let i in puts) {
@@ -69,6 +70,7 @@ export class MyProcedure extends Procedure {
             sb.r().append(' AS $ret').ln();
         }
     }
+    */
     protected declareVar(sb: SqlBuilder, v: il.Field) {
         sb.var(v.name).space();
         v.dataType.sql(sb);

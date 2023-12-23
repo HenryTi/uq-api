@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromFieldSpace = exports.BizFieldSpace = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldBud = exports.BizField = void 0;
 const builder_1 = require("../builder");
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
+const consts_1 = require("../consts");
 // in FROM statement, columns use BizField
 // and in Where, BizField is used.
 class BizField {
@@ -13,6 +14,7 @@ class BizField {
     getBud() {
         return undefined;
     }
+    scanBinDiv() { }
 }
 exports.BizField = BizField;
 class BizFieldBud extends BizField {
@@ -36,6 +38,16 @@ class BizFieldBud extends BizField {
         }
         ret.push(new builder_1.ExpNum(bud.id));
         return ret;
+    }
+    scanBinDiv() {
+        const { bizPhraseType } = this.entity;
+        if (bizPhraseType === BizPhraseType_1.BizPhraseType.bin) {
+            let entityBin = this.entity;
+            this.div = entityBin.getDivFromBud(this.bud);
+            if (this.div === undefined)
+                debugger;
+            // console.log('BizFieldBud', this.bud.name, this.entity.name, this.entity.bizPhraseType);
+        }
     }
 }
 exports.BizFieldBud = BizFieldBud;
@@ -72,10 +84,7 @@ var ColType;
     ColType[ColType["json"] = 1] = "json";
     ColType[ColType["var"] = 2] = "var";
 })(ColType || (ColType = {}));
-const binFieldArr = ['i', 'x', 'value', 'price', 'amount'];
-const sheetFieldArr = ['no'];
 const atomFieldArr = ['id', 'no', 'ex'];
-const pendFieldArr = ['pendvalue'];
 class BizFieldSpace {
     constructor() {
         this.buds = {};
@@ -154,7 +163,6 @@ class BizFieldSpace {
             case ColType.bud: return new BizFieldBud(this, alias, entity, foundBud);
             case ColType.json: return new BizFieldJsonProp(this, alias, entity, foundBud);
             case ColType.var: return new BizFieldVar(this, alias, n1);
-            // case ColType.sheetBud: return new BizFieldSheetBud(this, alias, entity, foundBud);
         }
     }
     createBField(dbContext, bizField) {
@@ -227,19 +235,19 @@ exports.FromInPendFieldSpace = FromInPendFieldSpace;
 FromInPendFieldSpace.fields = {
     $: [
         {
-            names: binFieldArr,
+            names: consts_1.binFieldArr,
             alias: 'b'
         },
     ],
     sheet: [
         {
-            names: binFieldArr,
+            names: consts_1.binFieldArr,
             alias: 'e'
         },
     ],
     bin: [
         {
-            names: binFieldArr,
+            names: consts_1.binFieldArr,
             alias: 'b'
         },
     ],
@@ -263,21 +271,21 @@ exports.BizBinActFieldSpace = BizBinActFieldSpace;
 BizBinActFieldSpace.fields = {
     '$': [
         {
-            names: [...binFieldArr, 'bin', 'sheet'],
+            names: [...consts_1.binFieldArr, 'bin', 'sheet'],
             alias: '',
             colType: ColType.var,
         }
     ],
     bin: [
         {
-            names: binFieldArr,
+            names: consts_1.binFieldArr,
             alias: '',
             colType: ColType.var,
         },
     ],
     sheet: [
         {
-            names: binFieldArr,
+            names: consts_1.binFieldArr,
             alias: 's',
             colType: ColType.var,
         },

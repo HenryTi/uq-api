@@ -15,6 +15,7 @@ import { BizPend, BizSheet } from "./Sheet";
 import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { ValueExpression } from "../Exp";
+import { binFieldArr } from "../../consts";
 
 export interface PickParam {
     name: string;
@@ -157,12 +158,14 @@ export class BinDiv {
     readonly inputs: BinInput[] = [];
     readonly buds: BizBud[] = [];
     div: BinDiv;
+    level: number;
     constructor(parent: BinDiv, ui: Partial<UI>) {
         this.parent = parent;
         this.ui = ui;
         if (parent !== undefined) {
             parent.div = this;
         }
+        this.level = this.parent === undefined ? 1 : this.parent.level + 1;
     }
 
     buildSchema(res: { [phrase: string]: string }) {
@@ -185,7 +188,7 @@ export class BinDiv {
 }
 
 export class BizBin extends BizEntity {
-    protected readonly fields = ['id', 'i', 'x', 'pend', 'value', 'price', 'amount'];
+    protected readonly fields = ['id', 'pend', ...binFieldArr];
     readonly bizPhraseType = BizPhraseType.bin;
     readonly pickColl: { [name: string]: BinPick } = {};
     readonly inputColl: { [name: string]: BinInput } = {};
@@ -329,6 +332,16 @@ export class BizBin extends BizEntity {
             bizEntity = atom;
         }
         return bizEntity;
+    }
+    getDivFromBud(bud: BizBudValue): BinDiv {
+        for (let p = this.div; p !== undefined; p = p.div) {
+            let b = p.buds.find(v => v.name === bud.name);
+            if (b !== undefined) {
+                if (b !== bud) debugger;
+                return p;
+            }
+        }
+        return undefined;
     }
 }
 

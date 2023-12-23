@@ -1,3 +1,4 @@
+import { binFieldArr } from "../../../consts";
 import {
     BizPhraseType, BizPend, BinPick, PickBase, PickAtom
     , BizAtom, PickSpec, BizSpec, PickPend, PickQuery, BizQueryTable
@@ -128,7 +129,7 @@ export class PBinPick extends PElement<BinPick> {
                         ok = false;
                     }
                     if (bud === '%sheet') {
-                        const sheetProps = ['i', 'x', 'value', 'price', 'amount'];
+                        const sheetProps = binFieldArr;
                         if (prop === undefined || sheetProps.includes(prop) === true) {
                         }
                         else {

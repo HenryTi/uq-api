@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PBizBin = void 0;
+const consts_1 = require("../../../consts");
 const il_1 = require("../../../il");
 const statement_1 = require("../../statement");
 const tokens_1 = require("../../tokens");
@@ -58,17 +59,17 @@ class PBizBin extends Base_1.PBizEntity {
             this.element.x = budKeyID;
         };
         this.parseValue = () => {
-            let bud = this.parseValueBud(this.element.value, 'value');
+            let bud = this.parseValueBud(this.element.value, consts_1.binValue);
             this.element.value = bud;
             this.div.buds.push(bud);
         };
         this.parsePrice = () => {
-            let bud = this.parseValueBud(this.element.price, 'price');
+            let bud = this.parseValueBud(this.element.price, consts_1.binPrice);
             this.element.price = bud;
             this.div.buds.push(bud);
         };
         this.parseAmount = () => {
-            let bud = this.parseValueBud(this.element.amount, 'amount');
+            let bud = this.parseValueBud(this.element.amount, consts_1.binAmount);
             this.element.amount = bud;
             this.div.buds.push(bud);
         };
@@ -331,9 +332,10 @@ export class PPickInput extends PElement<PickInput> {
 */
 exports.detailPreDefined = [
     '$site', '$user',
-    'bin', 'i', 'x',
-    'value', 'amount', 'price',
-    's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
+    'bin',
+    ,
+    's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend',
+    ...consts_1.binFieldArr
 ];
 class BizBinSpace extends Biz_1.BizEntitySpace {
     constructor() {

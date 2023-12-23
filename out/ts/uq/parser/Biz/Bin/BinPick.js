@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinPick = void 0;
+const consts_1 = require("../../../consts");
 const il_1 = require("../../../il");
 const element_1 = require("../../element");
 const tokens_1 = require("../../tokens");
@@ -127,7 +128,7 @@ class PBinPick extends element_1.PElement {
                         ok = false;
                     }
                     if (bud === '%sheet') {
-                        const sheetProps = ['i', 'x', 'value', 'price', 'amount'];
+                        const sheetProps = consts_1.binFieldArr;
                         if (prop === undefined || sheetProps.includes(prop) === true) {
                         }
                         else {

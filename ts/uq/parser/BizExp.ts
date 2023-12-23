@@ -1,9 +1,10 @@
+import { binFieldArr } from "../consts";
 import {
     ValueExpression, BizExp, BizAtom
     , BizSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
     , BizCheckBudOperand, BudDataType, BizBudCheck, BizOptions
     , BizExpOperand,
-    Uq
+    Uq,
 } from "../il";
 import { BizPhraseType } from "../il";
 import { PElement } from "./element";
@@ -196,7 +197,7 @@ export class PBizExp extends PElement<BizExp> {
             this.element.prop = 'id';
         }
         else {
-            const arr = ['i', 'x', 'price', 'amount', 'value'];
+            const arr = binFieldArr;
             // if (prop === '收货物流中心') debugger;
             if (arr.includes(prop) === false) {
                 let bud = bizBin.getBud(prop);
