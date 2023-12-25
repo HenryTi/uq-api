@@ -21,6 +21,9 @@ class BizFieldBud extends BizField {
     constructor(space, tableAlias, entity, bud) {
         super(space, tableAlias);
         this.entity = entity;
+        if ((entity === null || entity === void 0 ? void 0 : entity.bizPhraseType) === BizPhraseType_1.BizPhraseType.sheet) {
+            debugger;
+        }
         this.bud = bud;
     }
     getBud() {
@@ -261,7 +264,7 @@ class BizBinActFieldSpace extends BizFieldSpace {
     init() {
         this.initBuds('$', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
         this.initBuds('bin', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
-        this.initBuds('sheet', this.bizBin.sheetArr[0], this.bizBin.getSheetProps(), 'sheet', ColType.bud);
+        this.initBuds('sheet', this.bizBin.sheetArr[0].main, this.bizBin.getSheetProps(), 'sheet', ColType.bud);
     }
     createBBud(dbContext, bizField) {
         return new builder_1.BBizFieldBinBud(dbContext, bizField);

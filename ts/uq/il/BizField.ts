@@ -37,6 +37,9 @@ export class BizFieldBud extends BizField {
     constructor(space: BizFieldSpace, tableAlias: string, entity: BizEntity, bud: BizBudValue) {
         super(space, tableAlias);
         this.entity = entity;
+        if (entity?.bizPhraseType === BizPhraseType.sheet) {
+            debugger;
+        }
         this.bud = bud;
     }
     override getBud(): BizBudValue {
@@ -324,7 +327,7 @@ export class BizBinActFieldSpace extends BizFieldSpace {
     protected override init(): void {
         this.initBuds('$', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
         this.initBuds('bin', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
-        this.initBuds('sheet', this.bizBin.sheetArr[0], this.bizBin.getSheetProps(), 'sheet', ColType.bud);
+        this.initBuds('sheet', this.bizBin.sheetArr[0].main, this.bizBin.getSheetProps(), 'sheet', ColType.bud);
     }
     createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
         return new BBizFieldBinBud(dbContext, bizField);
