@@ -8,7 +8,7 @@ const consts_2 = require("../consts");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
-const sheetId = 'sheet';
+const sheetId = 'sheet1'; // 实际写表时，会加上bin div.level=1
 const si = 'si';
 const sx = 'sx';
 const svalue = 'svalue';

@@ -6,7 +6,7 @@ import { ExpEQ, ExpField, ExpNum, ExpVar, Procedure } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
-const sheetId = 'sheet';
+const sheetId = 'sheet1';   // 实际写表时，会加上bin div.level=1
 const si = 'si';
 const sx = 'sx';
 const svalue = 'svalue';
