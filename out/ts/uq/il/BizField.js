@@ -10,8 +10,6 @@ class BizField {
     constructor(space, tableAlias) {
         this.space = space;
         this.tableAlias = tableAlias;
-        if (tableAlias === 'sheet')
-            debugger;
     }
     getBud() {
         return undefined;
