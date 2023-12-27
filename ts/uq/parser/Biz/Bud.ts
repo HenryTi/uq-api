@@ -423,10 +423,16 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBud
         }
         this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
+        this.parseBudEqu();
     }
     scan(space: Space): boolean {
+        let ok = true;
+        if (this.element.value !== undefined) debugger;
+        if (super.scan(space as BizEntitySpace) === false) {
+            ok = false;
+        }
         const { optionsName } = this;
-        if (optionsName === undefined) return true;
+        if (optionsName === undefined) return ok;
         let options = space.uq.biz.bizEntities.get(optionsName);
         if (options === undefined) {
             this.log(`Options ${optionsName} not exists`);
@@ -437,6 +443,7 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBud
             return false;
         }
         this.element.options = options as BizOptions;
+        return ok;
     }
 }
 

@@ -404,11 +404,18 @@ class PBizBudRadioOrCheck extends PBizBudValue {
         }
         this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
+        this.parseBudEqu();
     }
     scan(space) {
+        let ok = true;
+        if (this.element.value !== undefined)
+            debugger;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
         const { optionsName } = this;
         if (optionsName === undefined)
-            return true;
+            return ok;
         let options = space.uq.biz.bizEntities.get(optionsName);
         if (options === undefined) {
             this.log(`Options ${optionsName} not exists`);
@@ -419,6 +426,7 @@ class PBizBudRadioOrCheck extends PBizBudValue {
             return false;
         }
         this.element.options = options;
+        return ok;
     }
 }
 class PBizBudIntOf extends PBizBudRadioOrCheck {
