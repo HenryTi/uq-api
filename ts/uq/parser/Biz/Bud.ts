@@ -427,7 +427,6 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBud
     }
     scan(space: Space): boolean {
         let ok = true;
-        if (this.element.value !== undefined) debugger;
         if (super.scan(space as BizEntitySpace) === false) {
             ok = false;
         }

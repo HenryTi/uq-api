@@ -408,8 +408,6 @@ class PBizBudRadioOrCheck extends PBizBudValue {
     }
     scan(space) {
         let ok = true;
-        if (this.element.value !== undefined)
-            debugger;
         if (super.scan(space) === false) {
             ok = false;
         }
