@@ -119,6 +119,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         delBinPend.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(binId)));
         return statements;
     }
+    // 这个应该是之前试验的老版本，现在应该不用了。
+    // 直接在uq GetSheet里面实现了。
     buildGetProc(proc) {
         let { statements, parameters } = proc;
         let { factory, site } = this.context;

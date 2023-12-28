@@ -161,6 +161,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         return statements;
     }
 
+    // 这个应该是之前试验的老版本，现在应该不用了。
+    // 直接在uq GetSheet里面实现了。
     private buildGetProc(proc: Procedure) {
         let { statements, parameters } = proc;
         let { factory, site } = this.context;
