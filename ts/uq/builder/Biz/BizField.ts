@@ -3,7 +3,7 @@ import {
     BudDataType, EnumSysTable
 } from "../../il";
 import { DbContext } from "../dbContext";
-import { ExpNum, ExpStr, ExpVal, SqlBuilder } from "../sql";
+import { SqlBuilder } from "../sql";
 
 export abstract class BBizField<T extends BizField = BizField> {
     protected readonly dbContext: DbContext;
@@ -45,11 +45,11 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
     }
     private buildSelectMulti(sb: SqlBuilder) {
         let { bud } = this.bizField;
-        const x0 = 'x0', x1 = 'x1';
+        const t1 = 't1', x0 = 'x0', x1 = 'x1';
         sb.l().append(`select JSON_ARRAYAGG(${x1}.ext) from `)
             .dbName().dot().append(EnumSysTable.ixBud).append(` AS ${x0} JOIN `)
             .dbName().dot().append(EnumSysTable.bud).append(` AS ${x1} ON ${x1}.id=${x0}.x `)
-            .append(` where ${x0}.i=${x1}.id AND ${x1}.base=`).append(bud.id)
+            .append(` where ${x0}.i=${t1}.id AND ${x1}.base=`).append(bud.id)
             .r();
     }
 

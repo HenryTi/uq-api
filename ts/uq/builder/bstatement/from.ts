@@ -53,16 +53,6 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         else {
             select.column(this.context.expCmp(ban.val) as ExpVal, 'ban');
         }
-        /*
-        const arr: ExpVal[] = [];
-        for (let col of cols) {
-            const { name, val, field } = col;
-            let colArr: Exp[] = field.buildColArr();
-            colArr.push(this.context.expVal(val as ValueExpression));
-            arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
-        }
-        select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');
-        */
         this.buildSelectCols(select, 'json');
         return select;
     }
