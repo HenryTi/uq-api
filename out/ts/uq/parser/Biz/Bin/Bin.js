@@ -10,6 +10,10 @@ const Biz_1 = require("../Biz");
 class PBizBin extends Base_1.PBizEntity {
     constructor(element, context) {
         super(element, context);
+        this.parseMain = () => {
+            this.main = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+        };
         this.parsePick = () => {
             let name = this.ts.passVar();
             let ui = this.parseUI();
@@ -125,6 +129,7 @@ class PBizBin extends Base_1.PBizEntity {
             this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
         };
         this.keyColl = {
+            main: this.parseMain,
             pick: this.parsePick,
             input: this.parseInput,
             div: this.parseDiv,
@@ -197,6 +202,20 @@ class PBizBin extends Base_1.PBizEntity {
     scan(space) {
         let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
+        if (this.main !== undefined) {
+            let m = binSpace.getBizEntity(this.main);
+            if (m === undefined || m.bizPhraseType !== il_1.BizPhraseType.bin) {
+                this.log(`${this.main} is not BIN`);
+                ok = false;
+            }
+            else if (this.element.name === this.main) {
+                this.log(`MAIN can not be self`);
+                ok = false;
+            }
+            else {
+                this.element.main = m;
+            }
+        }
         if (this.iBase !== undefined) {
             if (this.element.i === undefined) {
                 this.log('i.base need I declare');

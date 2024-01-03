@@ -3,7 +3,7 @@ import {
     BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
@@ -14,6 +14,7 @@ import { BizEntitySpace } from "../Biz";
 import { PBizBudValue } from "../Bud";
 
 export class PBizBin extends PBizEntity<BizBin> {
+    private main: string;
     private pickPendPos: number;
     private div: BinDiv;
     private iBase: BizBudIDBase;
@@ -21,6 +22,11 @@ export class PBizBin extends PBizEntity<BizBin> {
     constructor(element: BizBin, context: PContext) {
         super(element, context);
         this.div = element.div;
+    }
+
+    private parseMain = () => {
+        this.main = this.ts.passVar();
+        this.ts.passToken(Token.SEMICOLON);
     }
 
     private parsePick = () => {
@@ -176,6 +182,7 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     readonly keyColl = {
+        main: this.parseMain,
         pick: this.parsePick,
         input: this.parseInput,
         div: this.parseDiv,
@@ -222,6 +229,20 @@ export class PBizBin extends PBizEntity<BizBin> {
         let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
 
+        if (this.main !== undefined) {
+            let m = binSpace.getBizEntity(this.main);
+            if (m === undefined || m.bizPhraseType !== BizPhraseType.bin) {
+                this.log(`${this.main} is not BIN`);
+                ok = false;
+            }
+            else if (this.element.name === this.main) {
+                this.log(`MAIN can not be self`);
+                ok = false;
+            }
+            else {
+                this.element.main = m as BizBin;
+            }
+        }
         if (this.iBase !== undefined) {
             if (this.element.i === undefined) {
                 this.log('i.base need I declare');

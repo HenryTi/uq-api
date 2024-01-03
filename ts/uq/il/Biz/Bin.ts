@@ -194,6 +194,7 @@ export class BizBin extends BizEntity {
     readonly inputColl: { [name: string]: BinInput } = {};
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了
     readonly div: BinDiv = new BinDiv(undefined, undefined);    // 输入和显示的层级结构
+    main: BizBin;           // 只有指定main的bin，才能引用%sheet.prop
     pickArr: BinPick[];
     inputArr: BinInput[];
     pend: BizPend;
@@ -249,6 +250,7 @@ export class BizBin extends BizEntity {
         let price = this.price?.buildSchema(res);
         this.schema = {
             ...ret,
+            main: this.main?.id,
             picks: picks.length === 0 ? undefined : picks,
             inputs: inputs.length === 0 ? undefined : inputs,
             pend: this.pend?.id,

@@ -132,8 +132,15 @@ class PBinPick extends element_1.PElement {
                         if (prop === undefined || sheetProps.includes(prop) === true) {
                         }
                         else {
-                            this.log(`%sheet. can be one of${sheetProps.join(',')}`);
-                            ok = false;
+                            let { main } = bin;
+                            if (main === undefined) {
+                                this.log(`%sheet. can be one of ${sheetProps.join(',')}`);
+                                ok = false;
+                            }
+                            else if (main.props.has(prop) === false) {
+                                this.log(`${prop} is not a prop of ${main.getJName()}`);
+                                ok = false;
+                            }
                         }
                     }
                     else {
