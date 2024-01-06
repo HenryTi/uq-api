@@ -67,15 +67,21 @@ export class BizExpOperand extends Atom {
     }
 }
 
+export enum CheckAction {
+    on,
+    equ,
+    in,
+}
 export class BizCheckBudOperand extends Atom {
     bizExp1: BizExp;
     bizExp2: BizExp;
     bizOptions: BizOptions;
-    item: OptionsItem;
+    valExp: ValueExpression;
+    items: OptionsItem[];
 
     get type(): string { return 'bizcheckbudoperand'; }
     parser(context: PContext) { return new PBizCheckBudOperand(this, context); }
     to(stack: Stack): void {
-        stack.bizCheckBud(this.bizExp1, this.bizExp2, this.item);
+        stack.bizCheckBud(this/* BizCheckBudOperand this.bizExp1, this.bizExp2, this.item*/);
     }
 }

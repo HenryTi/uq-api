@@ -2,7 +2,7 @@ import { BizBase, BizBud, BizEntity, BizOptions, OptionsItem } from "../Biz";
 import { DataType } from "../datatype";
 import { Entity, ID, Queue } from "../entity";
 import { Select } from "../select";
-import { BizExp, BizFieldOperand } from "./Biz";
+import { BizCheckBudOperand, BizExp, BizFieldOperand } from "./Biz";
 import { ValueExpression } from "./Expression";
 import { IDNewType, OpQueueAction, VarOperand } from "./Op";
 
@@ -43,7 +43,7 @@ export interface Stack {
     cast(dataType: DataType): void;
     select(select: Select): void;
     bizExp(exp: BizExp): void;
-    bizCheckBud(exp1: BizExp, exp2: BizExp, item: OptionsItem): void;
+    bizCheckBud(checkBud: BizCheckBudOperand/*exp1: BizExp, exp2: BizExp, item: OptionsItem*/): void;
     bizFieldOperand(bizField: BizFieldOperand): void;
     searchCase(whenCount: number, hasElse: boolean): void;
     simpleCase(whenCount: number, hasElse: boolean): void;

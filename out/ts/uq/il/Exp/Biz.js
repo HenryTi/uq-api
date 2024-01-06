@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizCheckBudOperand = exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.BizExpParam = exports.BizExpParamType = void 0;
+exports.BizCheckBudOperand = exports.CheckAction = exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.BizExpParam = exports.BizExpParamType = void 0;
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
 const Op_1 = require("./Op");
@@ -48,11 +48,17 @@ class BizExpOperand extends Op_1.Atom {
     }
 }
 exports.BizExpOperand = BizExpOperand;
+var CheckAction;
+(function (CheckAction) {
+    CheckAction[CheckAction["on"] = 0] = "on";
+    CheckAction[CheckAction["equ"] = 1] = "equ";
+    CheckAction[CheckAction["in"] = 2] = "in";
+})(CheckAction || (exports.CheckAction = CheckAction = {}));
 class BizCheckBudOperand extends Op_1.Atom {
     get type() { return 'bizcheckbudoperand'; }
     parser(context) { return new parser_1.PBizCheckBudOperand(this, context); }
     to(stack) {
-        stack.bizCheckBud(this.bizExp1, this.bizExp2, this.item);
+        stack.bizCheckBud(this /* BizCheckBudOperand this.bizExp1, this.bizExp2, this.item*/);
     }
 }
 exports.BizCheckBudOperand = BizCheckBudOperand;

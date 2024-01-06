@@ -141,7 +141,7 @@ export abstract class PExpression extends PElement {
                             for (let i = 0; ; i++) {
                                 this.expValue();
                                 if (this.ts.token !== Token.COMMA) {
-                                    this.add(selectOperand);
+                                    //this.add(selectOperand);
                                     this.add(new Exp.OpIn(i + 2));
                                     break;
                                 }

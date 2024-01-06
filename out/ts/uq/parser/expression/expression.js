@@ -134,7 +134,7 @@ class PExpression extends element_1.PElement {
                             for (let i = 0;; i++) {
                                 this.expValue();
                                 if (this.ts.token !== tokens_1.Token.COMMA) {
-                                    this.add(selectOperand);
+                                    //this.add(selectOperand);
                                     this.add(new Exp.OpIn(i + 2));
                                     break;
                                 }

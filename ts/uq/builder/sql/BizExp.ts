@@ -1,5 +1,5 @@
 import {
-    BizExp, BizExpParamType, BizOptions, BizPhraseType, BudDataType, OptionsItem
+    BizExp, BizExpParamType, BizOptions, BizPhraseType, BudDataType, CheckAction, OptionsItem
 } from "../../il";
 import { ExpVal, ExpInterval } from "./exp";
 import { DbContext } from "../dbContext";
@@ -288,27 +288,49 @@ export class BBizFieldOperand extends ExpVal {
 export class BBizCheckBud extends ExpVal {
     private readonly bExp1: BBizExp;
     private readonly bExp2: BBizExp;
-    private readonly item: OptionsItem;
-    constructor(bExp1: BBizExp, bExp2: BBizExp, item: OptionsItem) {
+    private readonly valExp: ExpVal;
+    private readonly items: OptionsItem[];
+    constructor(bExp1: BBizExp, bExp2: BBizExp, valExp: ExpVal, items: OptionsItem[]) {
         super();
         this.bExp1 = bExp1;
         this.bExp2 = bExp2;
-        this.item = item;
+        this.valExp = valExp;
+        this.items = items;
     }
     to(sb: SqlBuilder): void {
+        if (this.bExp1 !== undefined) {
+            this.buildBizExp(sb);
+        }
+        else {
+            this.buildValExp(sb);
+        }
+    }
+
+    private buildBizExp(sb: SqlBuilder) {
         let t = '$check';
         sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM (');
         this.bExp1.to(sb);
         sb.r().append(' AS ').append(t)
             .append(' WHERE ').append(t).dot().alias('id IN (');
 
-        if (this.item !== undefined) {
-            sb.append(this.item.id);
+        if (this.items !== undefined) {
+            for (let item of this.items) {
+                sb.append(item.id);
+            }
         }
         else {
             this.bExp2.to(sb);
         }
         sb.r().r();
+    }
+
+    private buildValExp(sb: SqlBuilder) {
+        sb.l();
+        this.valExp.to(sb);
+        sb.r();
+        sb.append(' IN (');
+        sb.append(this.items.map(v => v.id).join(','));
+        sb.r();
     }
 }
 /*
@@ -326,6 +348,7 @@ SELECT EXISTS(
 
 bzscript 源码
     CHECK (#zz(%id).dd) ON (#bb(%id).ee)
-    CHECK (#zz(%id).dd) ON OPTIONS.a)
-
+    CHECK (#zz(%id).dd) = OPTIONS.a)
+    CHECK %field = OPTIONS.a
+    -- CHECK %field in (OPTIONS.a, OPTIONS.b) 未实现
 */

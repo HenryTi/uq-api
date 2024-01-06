@@ -11,7 +11,8 @@ import {
     OptionsItem,
     BizOptions,
     BizEntity,
-    BizBud
+    BizBud,
+    BizCheckBudOperand
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
@@ -157,12 +158,20 @@ class Stack implements IlStack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new BizExpOperand(bExp));
     }
-    bizCheckBud(exp1: BizExp, exp2: BizExp, item: OptionsItem) {
-        let bExp1 = new BBizExp();
-        bExp1.convertFrom(this.context, exp1);
-        let bExp2 = new BBizExp();
-        bExp2.convertFrom(this.context, exp2);
-        this.arr.push(new BBizCheckBud(bExp1, bExp2, item));
+    bizCheckBud(checkBud: BizCheckBudOperand/* exp1: BizExp, exp2: BizExp, item: OptionsItem*/) {
+        const { bizExp1, bizExp2, valExp, items } = checkBud;
+        let bExp1: BBizExp;
+        if (bizExp1 !== undefined) {
+            bExp1 = new BBizExp();
+            bExp1.convertFrom(this.context, bizExp1);
+        }
+        let bExp2: BBizExp;
+        if (bizExp2 !== undefined) {
+            bExp2 = new BBizExp();
+            bExp2.convertFrom(this.context, bizExp2);
+        }
+        let ve = this.context.expVal(valExp);
+        this.arr.push(new BBizCheckBud(bExp1, bExp2, ve, items));
     }
     bizFieldOperand(bizFieldOperand: BizFieldOperand) {
         let bBizField = bizFieldOperand.field.db(this.context);
