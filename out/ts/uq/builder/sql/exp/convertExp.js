@@ -11,6 +11,7 @@ const ExpSearch_1 = require("./ExpSearch");
 const ExpBizOperand_1 = require("./ExpBizOperand");
 const BizExp_1 = require("../BizExp");
 const ExpRole_1 = require("./ExpRole");
+const ExpBizEntityBud_1 = require("./ExpBizEntityBud");
 function convertExp(context, exp) {
     if (!exp)
         return;
@@ -173,6 +174,9 @@ class Stack {
         this.arr.push(new exps_1.ExpFuncInUq(func, params, true));
     }
     var(name) { this.arr.push(new exps_1.ExpVar(name)); }
+    varOfBizEntity(bizEntity, bud) {
+        this.arr.push(new ExpBizEntityBud_1.ExpBizEntityBud(bizEntity, bud));
+    }
     dotVar(varNames) { this.arr.push(new exps_1.ExpDotVar(varNames)); }
     field(name, tbl) { this.arr.push(new exps_1.ExpField(name, tbl)); }
     expr(exp) { this.arr.push(convertExp(this.context, exp)); }

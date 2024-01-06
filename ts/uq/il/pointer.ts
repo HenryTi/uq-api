@@ -94,7 +94,8 @@ export class BizEntityPointer extends Pointer {
         this.bud = bud;
     }
     override to(stack: Stack, v: VarOperand): void {
-        stack.var(this.entity.name); //, this.bud.name);
+        // stack.var(this.entity.name); //, this.bud.name);
+        stack.varOfBizEntity(this.entity, this.bud); //, this.bud.name);
     }
 }
 /*

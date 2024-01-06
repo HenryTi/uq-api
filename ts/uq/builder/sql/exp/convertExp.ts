@@ -9,7 +9,9 @@ import {
     BizExp,
     BizFieldOperand,
     OptionsItem,
-    BizOptions
+    BizOptions,
+    BizEntity,
+    BizBud
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
@@ -25,6 +27,7 @@ import {
     //    , BBizFieldOperand 
 } from '../BizExp';
 import { ExpRole } from './ExpRole';
+import { ExpBizEntityBud } from './ExpBizEntityBud';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {
     if (!exp) return;
@@ -184,6 +187,9 @@ class Stack implements IlStack {
     }
 
     var(name: string) { this.arr.push(new ExpVar(name)) }
+    varOfBizEntity(bizEntity: BizEntity, bud: BizBud): void {
+        this.arr.push(new ExpBizEntityBud(bizEntity, bud));
+    }
     dotVar(varNames: string[]) { this.arr.push(new ExpDotVar(varNames)) }
     field(name: string, tbl?: string) { this.arr.push(new ExpField(name, tbl)); }
     expr(exp: ValueExpression) { this.arr.push(convertExp(this.context, exp)) }
