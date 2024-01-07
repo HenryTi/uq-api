@@ -6,6 +6,7 @@ import {
     , BizExpOperand,
     Uq,
     CheckAction,
+    BizFieldOperand,
 } from "../il";
 import { BizPhraseType } from "../il";
 import { PElement } from "./element";
@@ -377,12 +378,18 @@ export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
             this.element.bizExp1 = bizExp;
         }
         else {
+            this.ts.passToken(Token.MOD);
+            let bizField = new BizFieldOperand();
+            this.context.parseElement(bizField);
+            this.element.bizField = bizField;
+            /*
             let val = new ValueExpression();
             this.context.parseElement(val);
             this.element.valExp = val;
+            */
         }
         if (this.ts.token === Token.EQU) {
-            if (this.element.valExp === undefined) {
+            if (this.element.bizField === undefined) {
                 this.ts.error('= not expected');
             }
             this.ts.readToken();
@@ -391,9 +398,10 @@ export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
             this.items = [this.ts.passVar()];
         }
         else if (this.ts.isKeyword('in') === true) {
-            if (this.element.valExp === undefined) {
+            if (this.element.bizField === undefined) {
                 this.ts.error('IN not expected');
             }
+            this.items = [];
             this.ts.readToken();
             this.options = this.ts.passVar();
             this.ts.passToken(Token.LPARENTHESE);
@@ -426,15 +434,15 @@ export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
 
     scan(space: Space): boolean {
         let ok = true;
-        const { bizExp1, bizExp2, valExp } = this.element;
+        const { bizExp1, bizExp2, bizField } = this.element;
         if (bizExp1 !== undefined) {
             if (bizExp1.pelement.scan(space) === false) ok = false;
         }
         if (bizExp2 !== undefined) {
             if (bizExp2.pelement.scan(space) === false) ok = false;
         }
-        if (valExp !== undefined) {
-            if (valExp.pelement.scan(space) === false) ok = false;
+        if (bizField !== undefined) {
+            if (bizField.pelement.scan(space) === false) ok = false;
         }
         if (this.options !== undefined) {
             let options = space.getBizEntity(this.options);

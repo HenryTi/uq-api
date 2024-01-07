@@ -40,8 +40,15 @@ class BBizFieldBud extends BBizField {
     buildSelectMulti(sb) {
         let { bud } = this.bizField;
         const x0 = 'x0', x1 = 'x1';
-        sb.l().append(`select JSON_ARRAYAGG(${x1}.ext) from `)
-            .dbName().dot().append(il_1.EnumSysTable.ixBud).append(` AS ${x0} JOIN `)
+        sb.l().append('SELECT ');
+        if (this.noArrayAgg === true) {
+            sb.append(`${x1}.ext as id`);
+        }
+        else {
+            sb.append(`JSON_ARRAYAGG(${x1}.ext)`);
+        }
+        ;
+        sb.append(' FROM ').dbName().dot().append(il_1.EnumSysTable.ixBud).append(` AS ${x0} JOIN `)
             .dbName().dot().append(il_1.EnumSysTable.bud).append(` AS ${x1} ON ${x1}.id=${x0}.x `)
             .append(` where ${x0}.i=`);
         this.toIValue(sb);

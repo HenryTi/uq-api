@@ -76,7 +76,7 @@ export class BizCheckBudOperand extends Atom {
     bizExp1: BizExp;
     bizExp2: BizExp;
     bizOptions: BizOptions;
-    valExp: ValueExpression;
+    bizField: BizFieldOperand;
     items: OptionsItem[];
 
     get type(): string { return 'bizcheckbudoperand'; }

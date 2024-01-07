@@ -1,10 +1,11 @@
 import {
-    BizExp, BizExpParamType, BizOptions, BizPhraseType, BudDataType, CheckAction, OptionsItem
+    BizExp, BizExpParamType, BizField, BizFieldOperand, BizOptions, BizPhraseType, BudDataType, CheckAction, OptionsItem
 } from "../../il";
 import { ExpVal, ExpInterval } from "./exp";
 import { DbContext } from "../dbContext";
 import { SqlBuilder } from "./sqlBuilder";
 import { BBudSelect } from "./BBudSelect";
+import { BBizField } from "../Biz";
 
 let bizEpxTblNo = 0;
 
@@ -288,49 +289,50 @@ export class BBizFieldOperand extends ExpVal {
 export class BBizCheckBud extends ExpVal {
     private readonly bExp1: BBizExp;
     private readonly bExp2: BBizExp;
-    private readonly valExp: ExpVal;
+    private readonly bizField: BBizField<BizField>;
     private readonly items: OptionsItem[];
-    constructor(bExp1: BBizExp, bExp2: BBizExp, valExp: ExpVal, items: OptionsItem[]) {
+    constructor(bExp1: BBizExp, bExp2: BBizExp, bizField: BBizField<BizField>, items: OptionsItem[]) {
         super();
         this.bExp1 = bExp1;
         this.bExp2 = bExp2;
-        this.valExp = valExp;
+        this.bizField = bizField;
         this.items = items;
     }
     to(sb: SqlBuilder): void {
+        let t = '$check';
+        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM ');
+        if (this.bExp1 !== undefined) {
+            sb.l();
+            this.bExp1.to(sb);
+            sb.r();
+        }
+        else {
+            this.buildValExp(sb);
+        }
+        sb.append(' AS ').append(t)
+            .append(' WHERE ').append(t).dot().alias('id IN (');
+
+        if (this.items !== undefined) {
+            sb.append(this.items.map(v => v.id).join(','));
+        }
+        else {
+            this.bExp2.to(sb);
+        }
+        sb.r().r();
+        /*
         if (this.bExp1 !== undefined) {
             this.buildBizExp(sb);
         }
         else {
             this.buildValExp(sb);
         }
-    }
-
-    private buildBizExp(sb: SqlBuilder) {
-        let t = '$check';
-        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM (');
-        this.bExp1.to(sb);
-        sb.r().append(' AS ').append(t)
-            .append(' WHERE ').append(t).dot().alias('id IN (');
-
-        if (this.items !== undefined) {
-            for (let item of this.items) {
-                sb.append(item.id);
-            }
-        }
-        else {
-            this.bExp2.to(sb);
-        }
-        sb.r().r();
+        */
     }
 
     private buildValExp(sb: SqlBuilder) {
-        sb.l();
-        this.valExp.to(sb);
-        sb.r();
-        sb.append(' IN (');
-        sb.append(this.items.map(v => v.id).join(','));
-        sb.r();
+        // sb.append('JSON_TABLE(');
+        this.bizField.to(sb);
+        // sb.append(`,'$[*]' COLUMNS(id INT PATH '$')`);
     }
 }
 /*

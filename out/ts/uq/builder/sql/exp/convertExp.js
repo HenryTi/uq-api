@@ -144,7 +144,7 @@ class Stack {
         this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp));
     }
     bizCheckBud(checkBud /* exp1: BizExp, exp2: BizExp, item: OptionsItem*/) {
-        const { bizExp1, bizExp2, valExp, items } = checkBud;
+        const { bizExp1, bizExp2, bizField, items } = checkBud;
         let bExp1;
         if (bizExp1 !== undefined) {
             bExp1 = new BizExp_1.BBizExp();
@@ -155,8 +155,13 @@ class Stack {
             bExp2 = new BizExp_1.BBizExp();
             bExp2.convertFrom(this.context, bizExp2);
         }
-        let ve = this.context.expVal(valExp);
-        this.arr.push(new BizExp_1.BBizCheckBud(bExp1, bExp2, ve, items));
+        // let ve = this.context.expVal(valExp);
+        if (bizField !== undefined) {
+            let bBizField = bizField.field.db(this.context);
+            bBizField.noArrayAgg = true;
+            // let bBizFieldOperand = new BBizFieldOperand(bBizField);
+            this.arr.push(new BizExp_1.BBizCheckBud(bExp1, bExp2, bBizField, items));
+        }
     }
     bizFieldOperand(bizFieldOperand) {
         let bBizField = bizFieldOperand.field.db(this.context);

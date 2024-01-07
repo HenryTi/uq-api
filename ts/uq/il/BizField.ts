@@ -290,6 +290,12 @@ export class FromInPendFieldSpace extends FromFieldSpace {
         this.initBuds('bin', undefined, bizPend.getBinProps(), 'b');
         this.initBuds('sheet', undefined, bizPend.getSheetProps(), 'e');
     }
+
+    override createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
+        let ret = super.createBBud(dbContext, bizField);
+        ret.noArrayAgg = true;
+        return ret;
+    }
 }
 
 
@@ -329,7 +335,9 @@ export class BizBinActFieldSpace extends BizFieldSpace {
         this.initBuds('bin', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
         this.initBuds('sheet', this.bizBin.sheetArr[0].main, this.bizBin.getSheetProps(), 'sheet', ColType.bud);
     }
-    createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
-        return new BBizFieldBinBud(dbContext, bizField);
+    override createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
+        let ret = new BBizFieldBinBud(dbContext, bizField);
+        ret.noArrayAgg = true;
+        return ret;
     }
 }

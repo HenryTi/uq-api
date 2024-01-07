@@ -375,12 +375,18 @@ class PBizCheckBudOperand extends element_1.PElement {
             this.element.bizExp1 = bizExp;
         }
         else {
-            let val = new il_1.ValueExpression();
+            this.ts.passToken(tokens_1.Token.MOD);
+            let bizField = new il_1.BizFieldOperand();
+            this.context.parseElement(bizField);
+            this.element.bizField = bizField;
+            /*
+            let val = new ValueExpression();
             this.context.parseElement(val);
             this.element.valExp = val;
+            */
         }
         if (this.ts.token === tokens_1.Token.EQU) {
-            if (this.element.valExp === undefined) {
+            if (this.element.bizField === undefined) {
                 this.ts.error('= not expected');
             }
             this.ts.readToken();
@@ -389,9 +395,10 @@ class PBizCheckBudOperand extends element_1.PElement {
             this.items = [this.ts.passVar()];
         }
         else if (this.ts.isKeyword('in') === true) {
-            if (this.element.valExp === undefined) {
+            if (this.element.bizField === undefined) {
                 this.ts.error('IN not expected');
             }
+            this.items = [];
             this.ts.readToken();
             this.options = this.ts.passVar();
             this.ts.passToken(tokens_1.Token.LPARENTHESE);
@@ -423,7 +430,7 @@ class PBizCheckBudOperand extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        const { bizExp1, bizExp2, valExp } = this.element;
+        const { bizExp1, bizExp2, bizField } = this.element;
         if (bizExp1 !== undefined) {
             if (bizExp1.pelement.scan(space) === false)
                 ok = false;
@@ -432,8 +439,8 @@ class PBizCheckBudOperand extends element_1.PElement {
             if (bizExp2.pelement.scan(space) === false)
                 ok = false;
         }
-        if (valExp !== undefined) {
-            if (valExp.pelement.scan(space) === false)
+        if (bizField !== undefined) {
+            if (bizField.pelement.scan(space) === false)
                 ok = false;
         }
         if (this.options !== undefined) {

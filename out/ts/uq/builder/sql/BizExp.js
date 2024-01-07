@@ -263,44 +263,46 @@ class BBizFieldOperand extends exp_1.ExpVal {
 }
 exports.BBizFieldOperand = BBizFieldOperand;
 class BBizCheckBud extends exp_1.ExpVal {
-    constructor(bExp1, bExp2, valExp, items) {
+    constructor(bExp1, bExp2, bizField, items) {
         super();
         this.bExp1 = bExp1;
         this.bExp2 = bExp2;
-        this.valExp = valExp;
+        this.bizField = bizField;
         this.items = items;
     }
     to(sb) {
+        let t = '$check';
+        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM ');
+        if (this.bExp1 !== undefined) {
+            sb.l();
+            this.bExp1.to(sb);
+            sb.r();
+        }
+        else {
+            this.buildValExp(sb);
+        }
+        sb.append(' AS ').append(t)
+            .append(' WHERE ').append(t).dot().alias('id IN (');
+        if (this.items !== undefined) {
+            sb.append(this.items.map(v => v.id).join(','));
+        }
+        else {
+            this.bExp2.to(sb);
+        }
+        sb.r().r();
+        /*
         if (this.bExp1 !== undefined) {
             this.buildBizExp(sb);
         }
         else {
             this.buildValExp(sb);
         }
-    }
-    buildBizExp(sb) {
-        let t = '$check';
-        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM (');
-        this.bExp1.to(sb);
-        sb.r().append(' AS ').append(t)
-            .append(' WHERE ').append(t).dot().alias('id IN (');
-        if (this.items !== undefined) {
-            for (let item of this.items) {
-                sb.append(item.id);
-            }
-        }
-        else {
-            this.bExp2.to(sb);
-        }
-        sb.r().r();
+        */
     }
     buildValExp(sb) {
-        sb.l();
-        this.valExp.to(sb);
-        sb.r();
-        sb.append(' IN (');
-        sb.append(this.items.map(v => v.id).join(','));
-        sb.r();
+        // sb.append('JSON_TABLE(');
+        this.bizField.to(sb);
+        // sb.append(`,'$[*]' COLUMNS(id INT PATH '$')`);
     }
 }
 exports.BBizCheckBud = BBizCheckBud;
