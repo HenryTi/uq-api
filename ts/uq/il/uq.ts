@@ -228,7 +228,6 @@ export class Uq extends IElement {
         tuid.fields = [user, date, sheet, version, flow, app, state, discription, data, processing];
         function buildIndex(name: string, unique: boolean, ...fields: il.Field[]): Index {
             let ret = new Index(name, unique);
-            //ret.unit = true;
             ret.fields = fields;
             return ret;
         }

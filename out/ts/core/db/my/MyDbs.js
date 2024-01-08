@@ -5,6 +5,7 @@ const MyDb_Res_1 = require("./MyDb$Res");
 const MyDb_Site_1 = require("./MyDb$Site");
 const MyDb_Unitx_1 = require("./MyDb$Unitx");
 const MyDb_Uq_1 = require("./MyDb$Uq");
+const MyDb_X_ts_1 = require("./MyDb$X.ts");
 const MyDbNoName_1 = require("./MyDbNoName");
 const MyDbUq_1 = require("./MyDbUq");
 class MyDbs {
@@ -13,6 +14,7 @@ class MyDbs {
         this.db$Uq = new MyDb_Uq_1.MyDb$Uq(this);
         this.db$Res = new MyDb_Res_1.MyDb$Res(this);
         this.db$Site = new MyDb_Site_1.MyDb$Site(this);
+        this.db$X = new MyDb_X_ts_1.MyDb$X(this);
         this.db$UnitxTest = new MyDb_Unitx_1.MyDb$Unitx(this, true);
         this.db$UnitxProd = new MyDb_Unitx_1.MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName_1.MyDbNoName(this);
@@ -35,6 +37,7 @@ class MyDbs {
                 this.db$Uq.createDatabase(),
                 this.db$Res.createDatabase(),
                 this.db$Site.createDatabase(),
+                this.db$X.createDatabase(),
             ]);
             await this.dbNoName.saveUqVersion();
         }
