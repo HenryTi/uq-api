@@ -6,16 +6,16 @@ import { Token } from "../tokens";
 export class PBizConsole extends PBizEntity<BizConsole> {
     protected readonly keyColl = {}
     protected _parse(): void {
-        this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+        this.sourceStart = this.element.nameStartAt = this.ts.getP() - 1; //.sourceStart;
         this.ts.readToken();
         let name: string;
         if (this.ts.token === Token.DOLLARVAR) {
-            this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+            this.sourceStart = this.element.nameStartAt = this.ts.getP() - 1; //.sourceStart;
             this.ts.readToken();
         }
         if (this.ts.token !== Token.LBRACE) {
             if (this.ts.token === Token.DOLLARVAR) {
-                this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+                this.sourceStart = this.element.nameStartAt = this.ts.getP() - 1; //.sourceStart;
                 this.ts.readToken();
             }
             else {
