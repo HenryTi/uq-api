@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizSearch = exports.BizBase = void 0;
+exports.BizAct = exports.BizSearch = exports.BizBase = void 0;
 const IElement_1 = require("../IElement");
 const BizPhraseType_1 = require("./BizPhraseType");
 const parser_1 = require("../../parser");
@@ -85,4 +85,21 @@ class BizSearch extends IElement_1.IElement {
     }
 }
 exports.BizSearch = BizSearch;
+class BizAct extends BizBase {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.act;
+        this.tableVars = {};
+    }
+    addTableVar(tableVar) {
+        let name = tableVar.name;
+        let t = this.tableVars[name];
+        if (t !== undefined)
+            return false;
+        this.tableVars[name] = tableVar;
+        return true;
+    }
+    getTableVar(name) { return this.tableVars[name]; }
+}
+exports.BizAct = BizAct;
 //# sourceMappingURL=Base.js.map

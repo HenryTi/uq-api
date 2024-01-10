@@ -262,7 +262,8 @@ class DbContext {
     withIDXSet(v) { return new stat.BWithIDXSet(this, v); }
     withIXSet(v) { return new stat.BWithIXSet(this, v); }
     withTruncate(v) { return new stat.BWithTruncate(this, v); }
-    bizDetailActStatement(v) { return new stat.BBizDetailActStatement(this, v); }
+    bizBinActStatement(v) { return new stat.BBizBinActStatement(this, v); }
+    bizInActStatement(v) { return new stat.BBizInActStatement(this, v); }
     bizDetailActSubPend(v) { return new stat.BBizDetailActSubPend(this, v); }
     bizDetailActSubSubject(v) { return new stat.BBizDetailActTitle(this, v); }
     value(v) { return new stat.BValueStatement(this, v); }

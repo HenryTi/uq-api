@@ -13,7 +13,7 @@ export enum BizPhraseType {
     sheet = 101,
     bin = 102,
     pend = 104,
-    detailAct = 111,
+    act = 111,
     query = 151,
     pick = 161,
 
@@ -23,6 +23,8 @@ export enum BizPhraseType {
     tree = 401,
     tie = 501,
     report = 601,
+    in = 701,
+    out = 700,
     title = 901,
     assign = 902,
 

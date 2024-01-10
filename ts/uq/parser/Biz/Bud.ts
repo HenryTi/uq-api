@@ -202,7 +202,6 @@ class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue
 
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = super.scan(space);
-        if (this.element.ui.caption === '入库数量') debugger;
         let { min, max } = this.element;
         if (min !== undefined) {
             if (min.exp.pelement.scan(space) === ok) {

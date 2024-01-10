@@ -2,8 +2,10 @@ import {
     BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, BizBudID, Uq, IX, BudIndex, BizBudIntOf
-    , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud
+    , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
+    , Statements, Statement, BizInActStatement, BizBinActStatement
 } from "../../il";
+import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
 import { binFieldArr } from "../../consts";
 import { PElement } from "../element";
@@ -11,6 +13,7 @@ import { Space } from "../space";
 import { Token } from "../tokens";
 import { BizEntitySpace } from "./Biz";
 import { PBizBudValue } from "./Bud";
+import { PContext } from "../pContext";
 
 export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     protected _parse(): void {
@@ -266,7 +269,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected getNameInSource() {
-        return this.element.getJName() + ' ';
+        return this.element.getJName();
     }
 
     protected abstract get keyColl(): { [key: string]: () => void };
@@ -665,4 +668,31 @@ export class PBizSearch extends PElement<BizSearch> {
         }
         return ok;
     }
+}
+
+export class PBizActStatements<T extends BizAct> extends PStatements {
+    protected readonly bizAct: T;
+
+    constructor(statements: Statements, context: PContext, bizAct: T) {
+        super(statements, context);
+        this.bizAct = bizAct;
+    }
+    scan0(space: Space): boolean {
+        return super.scan0(space);
+    }
+    /*
+    protected statementFromKey(parent: Statement, key: string): Statement {
+        let ret: Statement;
+        switch (key) {
+            default:
+                ret = super.statementFromKey(parent, key);
+                break;
+            case 'biz':
+                ret = new BizBinActStatement(parent, this.bizAct);
+                break;
+        }
+        if (ret !== undefined) ret.inSheet = true;
+        return ret;
+    }
+    */
 }

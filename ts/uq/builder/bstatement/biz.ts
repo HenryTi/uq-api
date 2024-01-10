@@ -1,6 +1,6 @@
 import {
     EnumSysTable, BigInt, BizBinActStatement, BizBinPendStatement
-    , BizBinTitleStatement, BudDataType, BudIndex, SetEqu
+    , BizBinTitleStatement, BudDataType, BudIndex, SetEqu, BizInActStatement
 } from "../../il";
 import { sysTable } from "../dbContext";
 import {
@@ -11,7 +11,22 @@ import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
-export class BBizDetailActStatement extends BStatement<BizBinActStatement> {
+export class BBizBinActStatement extends BStatement<BizBinActStatement> {
+    head(sqls: Sqls) {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.head(sqls);
+    }
+    body(sqls: Sqls) {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.body(sqls);
+    }
+    foot(sqls: Sqls): void {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.foot(sqls);
+    }
+}
+
+export class BBizInActStatement extends BStatement<BizInActStatement> {
     head(sqls: Sqls) {
         let bSub = this.istatement.sub.db(this.context);
         bSub.head(sqls);

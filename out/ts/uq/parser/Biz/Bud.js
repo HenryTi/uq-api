@@ -192,8 +192,6 @@ class PBizBudValueWithRange extends PBizBudValue {
     }
     scan(space) {
         let ok = super.scan(space);
-        if (this.element.ui.caption === '入库数量')
-            debugger;
         let { min, max } = this.element;
         if (min !== undefined) {
             if (min.exp.pelement.scan(space) === ok) {

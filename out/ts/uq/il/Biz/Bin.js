@@ -312,28 +312,17 @@ class BizBin extends Entity_1.BizEntity {
     }
 }
 exports.BizBin = BizBin;
-class BizBinAct extends Base_1.BizBase {
+class BizBinAct extends Base_1.BizAct {
     constructor(biz, bizBin) {
         super(biz);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.detailAct;
-        this.tableVars = {};
         this.bizBin = bizBin;
     }
     parser(context) {
         return new parser_1.PBizBinAct(this, context);
     }
-    addTableVar(tableVar) {
-        let name = tableVar.name;
-        let t = this.tableVars[name];
-        if (t !== undefined)
-            return false;
-        this.tableVars[name] = tableVar;
-        return true;
-    }
-    getTableVar(name) { return this.tableVars[name]; }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { detail: this.bizBin.name });
+        return Object.assign(Object.assign({}, ret), { bin: this.bizBin.name });
     }
 }
 exports.BizBinAct = BizBinAct;

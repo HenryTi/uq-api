@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizDetailActTitle = exports.BBizDetailActSubPend = exports.BBizDetailActStatement = void 0;
+exports.BBizDetailActTitle = exports.BBizDetailActSubPend = exports.BBizInActStatement = exports.BBizBinActStatement = void 0;
 const il_1 = require("../../il");
 const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
-class BBizDetailActStatement extends bstatement_1.BStatement {
+class BBizBinActStatement extends bstatement_1.BStatement {
     head(sqls) {
         let bSub = this.istatement.sub.db(this.context);
         bSub.head(sqls);
@@ -20,7 +20,22 @@ class BBizDetailActStatement extends bstatement_1.BStatement {
         bSub.foot(sqls);
     }
 }
-exports.BBizDetailActStatement = BBizDetailActStatement;
+exports.BBizBinActStatement = BBizBinActStatement;
+class BBizInActStatement extends bstatement_1.BStatement {
+    head(sqls) {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.head(sqls);
+    }
+    body(sqls) {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.body(sqls);
+    }
+    foot(sqls) {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.foot(sqls);
+    }
+}
+exports.BBizInActStatement = BBizInActStatement;
 const pendFrom = 'pend';
 const binId = 'bin';
 class BBizDetailActSubPend extends bstatement_1.BStatement {

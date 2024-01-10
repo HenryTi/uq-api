@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
+exports.PBizActStatements = exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
 const il_1 = require("../../il");
+const statement_1 = require("../statement");
 const consts_1 = require("../../consts");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -321,7 +322,7 @@ class PBizEntity extends PBizBase {
         this.element.source = entityType + ' ' + this.getNameInSource() + source;
     }
     getNameInSource() {
-        return this.element.getJName() + ' ';
+        return this.element.getJName();
     }
     parseContent() {
         const keyColl = this.keyColl;
@@ -656,4 +657,14 @@ class PBizSearch extends element_1.PElement {
     }
 }
 exports.PBizSearch = PBizSearch;
+class PBizActStatements extends statement_1.PStatements {
+    constructor(statements, context, bizAct) {
+        super(statements, context);
+        this.bizAct = bizAct;
+    }
+    scan0(space) {
+        return super.scan0(space);
+    }
+}
+exports.PBizActStatements = PBizActStatements;
 //# sourceMappingURL=Base.js.map

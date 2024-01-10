@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBinTitleStatement = exports.PBizBinPendStatement = exports.PBizBinStatement = void 0;
+exports.PBizBinTitleStatement = exports.PBizBinPendStatement = exports.PBizInActStatement = exports.PBizBinActStatement = exports.PBizActStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 const il_2 = require("../../il");
-class PBizBinStatement extends statement_1.PStatement {
+class PBizActStatement extends statement_1.PStatement {
     constructor(bizStatement, context) {
         super(bizStatement, context);
         this.bizSubs = {
@@ -41,7 +41,13 @@ class PBizBinStatement extends statement_1.PStatement {
         return ok;
     }
 }
-exports.PBizBinStatement = PBizBinStatement;
+exports.PBizActStatement = PBizActStatement;
+class PBizBinActStatement extends PBizActStatement {
+}
+exports.PBizBinActStatement = PBizBinActStatement;
+class PBizInActStatement extends PBizActStatement {
+}
+exports.PBizInActStatement = PBizInActStatement;
 class PBizBinPendStatement extends element_1.PElement {
     _parse() {
         let setEqu;
@@ -113,7 +119,7 @@ class PBizBinPendStatement extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        let { val, bizStatement: { bizDetailAct } } = this.element;
+        let { val, bizStatement: { bizAct } } = this.element;
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
             if (pend === undefined) {
@@ -143,7 +149,7 @@ class PBizBinPendStatement extends element_1.PElement {
             }
         }
         else {
-            const { bizBin } = bizDetailAct;
+            const { bizBin } = bizAct;
             if (bizBin.pend === undefined) {
                 this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
                 ok = false;

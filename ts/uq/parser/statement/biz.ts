@@ -2,7 +2,7 @@ import { Space } from '../space';
 import {
     BizBinActStatement as BizBinStatement, BizBinPendStatement, BizBinSubStatement
     , BizBinTitleStatement, BizPend, ValueExpression
-    , SetEqu, BizBudValue, BizBin
+    , SetEqu, BizBudValue, BizBin, BizActStatement, BizBinActStatement, BizInActStatement
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -10,14 +10,14 @@ import { PElement } from '../element';
 import { Token } from '../tokens';
 import { BudDataType } from '../../il';
 
-export class PBizBinStatement extends PStatement {
-    bizStatement: BizBinStatement;
-    constructor(bizStatement: BizBinStatement, context: PContext) {
+export abstract class PBizActStatement<T extends BizActStatement<any>> extends PStatement {
+    bizStatement: T;
+    constructor(bizStatement: T, context: PContext) {
         super(bizStatement, context);
         this.bizStatement = bizStatement;
     }
 
-    private bizSubs: { [key: string]: new (bizStatement: BizBinStatement) => BizBinSubStatement } = {
+    private bizSubs: { [key: string]: new (bizStatement: T) => BizBinSubStatement } = {
         pend: BizBinPendStatement,
         title: BizBinTitleStatement,
     };
@@ -47,6 +47,12 @@ export class PBizBinStatement extends PStatement {
         if (sub.pelement.scan(space) == false) ok = false;
         return ok;
     }
+}
+
+export class PBizBinActStatement extends PBizActStatement<BizBinActStatement> {
+}
+
+export class PBizInActStatement extends PBizActStatement<BizInActStatement> {
 }
 
 export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
@@ -120,7 +126,7 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let { val, bizStatement: { bizDetailAct } } = this.element;
+        let { val, bizStatement: { bizAct } } = this.element;
 
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
@@ -151,7 +157,7 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
             }
         }
         else {
-            const { bizBin } = bizDetailAct;
+            const { bizBin } = bizAct;
             if (bizBin.pend === undefined) {
                 this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
                 ok = false;
