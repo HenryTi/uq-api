@@ -9,7 +9,7 @@ import { PContext } from "../../pContext";
 import { Space } from "../../space";
 import { PStatements } from "../../statement";
 import { Token } from "../../tokens";
-import { PBizBase, PBizEntity } from "../Base";
+import { PBizAct, PBizActStatements, PBizBase, PBizEntity } from "../Base";
 import { BizEntitySpace } from "../Biz";
 import { PBizBudValue } from "../Bud";
 
@@ -378,7 +378,7 @@ export class PPickInput extends PElement<PickInput> {
     }
 }
 */
-export const detailPreDefined = [
+export const binPreDefined = [
     '$site', '$user'
     , 'bin',
     , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
@@ -389,7 +389,7 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
-        if (detailPreDefined.indexOf(name) >= 0) {
+        if (binPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
         if (this.bizEntity.props.has(name) === true) {
@@ -458,7 +458,7 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
 
 class BizBinActSpace extends BizBinSpace {
     protected _varPointer(name: string, isField: boolean): Pointer {
-        if (detailPreDefined.indexOf(name) >= 0) {
+        if (binPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
     }
@@ -477,11 +477,8 @@ class BizBinActSpace extends BizBinSpace {
     }
 }
 
-export class PBizBinAct extends PBizBase<BizBinAct> {
-    _parse(): void {
-        this.element.name = '$';
-
-        this.element.ui = this.parseUI();
+export class PBizBinAct extends PBizAct<BizBinAct> {
+    protected override parseParam(): void {
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.passToken(Token.LPARENTHESE);
             let field = new Field();
@@ -496,64 +493,19 @@ export class PBizBinAct extends PBizBase<BizBinAct> {
             let field = bigIntField('detailid');
             this.element.idParam = field;
         }
-
-        let statement = new BizBinActStatements(undefined, this.element);
-        statement.level = 0;
-        this.context.createStatements = statement.createStatements;
-        let parser = statement.parser(this.context)
-        parser.parse();
-        this.element.statement = statement;
-        this.ts.mayPassToken(Token.SEMICOLON);
     }
 
-    scan0(space: Space): boolean {
-        let ok = true;
-        let { pelement } = this.element.statement;
-        if (pelement.scan0(space) === false) {
-            ok = false;
-        }
-        return ok;
+    protected override createBizActStatements(): Statements {
+        return new BizBinActStatements(undefined, this.element);
     }
 
-    scan(space: Space): boolean {
-        let ok = true;
-        //  will be removed
-        let actSpace = new BizBinActSpace(space, this.element.bizBin);
-        let { pelement } = this.element.statement;
-        if (pelement.preScan(actSpace) === false) ok = false;
-        if (pelement.scan(actSpace) === false) ok = false;
-        return ok;
-    }
-
-    scan2(uq: Uq): boolean {
-        if (this.element.statement.pelement.scan2(uq) === false) {
-            return false;
-        }
-        return true;
+    protected override createBizActSpace(space: Space): Space {
+        return new BizBinActSpace(space, this.element.bizBin);
     }
 }
 
-export class PBizBinActStatements extends PStatements {
-    private readonly bizDetailAct: BizBinAct;
-
-    constructor(statements: Statements, context: PContext, bizDetailAct: BizBinAct) {
-        super(statements, context);
-        this.bizDetailAct = bizDetailAct;
-    }
-    scan0(space: Space): boolean {
-        return super.scan0(space);
-    }
-    protected statementFromKey(parent: Statement, key: string): Statement {
-        let ret: Statement;
-        switch (key) {
-            default:
-                ret = super.statementFromKey(parent, key);
-                break;
-            case 'biz':
-                ret = new BizBinActStatement(parent, this.bizDetailAct);
-                break;
-        }
-        if (ret !== undefined) ret.inSheet = true;
-        return ret;
+export class PBizBinActStatements extends PBizActStatements<BizBinAct> {
+    protected override createBizActStatement(parent: Statement): Statement {
+        return new BizBinActStatement(parent, this.bizAct);
     }
 }

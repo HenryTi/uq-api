@@ -9,7 +9,7 @@ import { SetEqu } from '../tool';
 
 export abstract class BizActStatement<T extends BizAct> extends Statement {
     readonly bizAct: T;
-    sub: BizBinSubStatement;
+    sub: BizActSubStatement;
     constructor(parent: Statement, bizAct: T) {
         super(parent);
         this.bizAct = bizAct;
@@ -17,7 +17,7 @@ export abstract class BizActStatement<T extends BizAct> extends Statement {
 }
 
 export class BizBinActStatement extends BizActStatement<BizBinAct> {
-    sub: BizBinSubStatement;
+    sub: BizActSubStatement;
     get type(): string { return 'bizstatement'; }
     db(db: Builder): object { return db.bizBinActStatement(this); }
     parser(context: parser.PContext) { return new parser.PBizBinActStatement(this, context); }
@@ -37,13 +37,13 @@ export class BizInActStatement extends BizActStatement<BizInAct> {
     }
 }
 
-export abstract class BizBinSubStatement extends Statement {
+export abstract class BizActSubStatement extends Statement {
     abstract parser(context: parser.PContext): parser.PElement;
     abstract db(db: Builder): BStatement;
 }
 
-export class BizBinPendStatement extends BizBinSubStatement {
-    readonly bizStatement: BizActStatement<any>;
+export abstract class BizPendStatement<T extends BizAct> extends BizActSubStatement {
+    readonly bizStatement: BizActStatement<T>;
     readonly sets: [BizBud, ValueExpression][] = [];
     pend: BizPend;
     setEqu: SetEqu;             // 仅用于 Pend -= val;
@@ -54,14 +54,29 @@ export class BizBinPendStatement extends BizBinSubStatement {
         this.bizStatement = bizStatement;
     }
     get type(): string { return 'bizpend'; }
+    /*
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizBinPendStatement(this, context);
     }
-    db(db: Builder): BStatement { return db.bizDetailActSubPend(this); }
+    */
 }
 
-export class BizBinTitleStatement extends BizBinSubStatement {
-    readonly bizStatement: BizActStatement<any>;
+export class BizBinPendStatement extends BizPendStatement<BizBinAct> {
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return new parser.PBizBinPendStatement(this, context);
+    }
+    db(db: Builder): BStatement { return db.bizBinActSubPend(this); }
+}
+
+export class BizInPendStatement extends BizPendStatement<BizInAct> {
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return new parser.PBizInPendStatement(this, context);
+    }
+    db(db: Builder): BStatement { return db.bizInActSubPend(this); }
+}
+
+export class BizTitleStatement extends BizActSubStatement {
+    readonly bizStatement: BizActStatement<BizAct>;
     entity: BizEntity;
     bud: BizBudValue;
     of: ValueExpression;
@@ -74,7 +89,7 @@ export class BizBinTitleStatement extends BizBinSubStatement {
     }
     get type(): string { return 'biztitle'; }
     parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizBinTitleStatement(this, context);
+        return new parser.PBizTitleStatement(this, context);
     }
-    db(db: Builder): BStatement { return db.bizDetailActSubSubject(this); }
+    db(db: Builder): BStatement { return db.bizActSubTitle(this); }
 }

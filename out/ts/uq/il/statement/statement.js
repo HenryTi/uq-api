@@ -138,31 +138,31 @@ class QueryStatement extends QueryBaseStatement {
 }
 exports.QueryStatement = QueryStatement;
 class BizBinActStatements extends Statements {
-    constructor(parent, bizBinAct) {
+    constructor(parent, bizAct) {
         super(parent);
         this.createStatements = (parent) => {
-            return new BizBinActStatements(parent, this.bizBinAct);
+            return new BizBinActStatements(parent, this.bizAct);
         };
-        this.bizBinAct = bizBinAct;
+        this.bizAct = bizAct;
     }
     get type() { return 'bizactstatement'; }
     parser(context) {
-        return new parser.PBizBinActStatements(this, context, this.bizBinAct);
+        return new parser.PBizBinActStatements(this, context, this.bizAct);
     }
     db(db) { return; }
 }
 exports.BizBinActStatements = BizBinActStatements;
 class BizInActStatements extends Statements {
-    constructor(parent, bizBinAct) {
+    constructor(parent, bizAct) {
         super(parent);
         this.createStatements = (parent) => {
-            return new BizBinActStatements(parent, this.bizBinAct);
+            return new BizInActStatements(parent, this.bizAct);
         };
-        this.bizBinAct = bizBinAct;
+        this.bizAct = bizAct;
     }
     get type() { return 'bizactstatement'; }
     parser(context) {
-        return new parser.PBizBinActStatements(this, context, this.bizBinAct);
+        return new parser.PBizInActStatements(this, context, this.bizAct);
     }
     db(db) { return; }
 }

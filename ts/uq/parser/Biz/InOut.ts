@@ -1,42 +1,31 @@
-import { BizBudValue, BizIn, BizInOut, BizOut, BudDataType, Statements, Statement, BizInAct, BizInActStatement } from "../../il";
+import { BizBudValue, BizIn, BizInOut, BizOut, BudDataType, Statements, Statement, BizInAct, BizInActStatement, BizInActStatements, Pointer, BizEntity, VarPointer } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
-import { PBizActStatements, PBizEntity } from "./Base";
+import { PBizAct, PBizActStatements, PBizEntity } from "./Base";
+import { BizEntitySpace } from "./Biz";
 
 abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
+    readonly keyColl = {};
+
     private parseProps(): BizBudValue[] {
         let budArr: BizBudValue[] = [];
-        let name: string;
-        if (this.ts.token === Token.VAR) {
-            name = this.ts.passVar();
-        }
-        if (this.ts.token === Token.LBRACE) {
-            this.ts.readToken();
-            for (; ;) {
-                let bud = this.parseSubItem();
-                this.ts.passToken(Token.SEMICOLON);
-                this.checkBudType(bud);
-                const { name: budName } = bud;
-                if (budArr.findIndex(v => v.name === name) >= 0) {
-                    this.ts.error(`duplicate ${budName}`)
-                }
-                budArr.push(bud);
-                if (this.ts.token === Token.RBRACE as any) {
+        this.ts.passToken(Token.LPARENTHESE);
+        for (; ;) {
+            let bud = this.parseSubItem();
+            this.checkBudType(bud);
+            budArr.push(bud);
+            let { token } = this.ts;
+            if (token === Token.COMMA) {
+                this.ts.readToken();
+                if (this.ts.token === Token.RPARENTHESE as any) {
                     this.ts.readToken();
-                    this.ts.mayPassToken(Token.SEMICOLON);
                     break;
                 }
             }
-        }
-        else {
-            if (name === undefined) {
-                this.ts.expectToken(Token.LBRACE);
+            else if (token === Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
             }
-            let ui = this.parseUI();
-            let bizBud = this.parseBud(name, ui);
-            this.checkBudType(bizBud);
-            this.ts.passToken(Token.SEMICOLON);
-            budArr.push(bizBud);
         }
         return budArr;
     }
@@ -48,74 +37,41 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
         }
     }
 
-    private parsePropMap(props: Map<string, BizBudValue>) {
+    protected override parseParam(): void {
+        const { arrs, props } = this.element;
         let propArr = this.parseProps();
+        this.parsePropMap(props, propArr);
+        for (; this.ts.isKeyword('arr') === true;) {
+            this.ts.readToken();
+            let name = this.ts.passVar();
+            propArr = this.parseProps();
+            let map = new Map<string, BizBudValue>();
+            this.parsePropMap(map, propArr);
+            arrs[name] = {
+                name,
+                props: map,
+            }
+        }
+    }
+
+    protected override parseBody(): void {
+    }
+
+    private parsePropMap(map: Map<string, BizBudValue>, propArr: BizBudValue[]) {
         for (let p of propArr) {
             let { name } = p;
-            if (props.has(name) === true) {
+            if (map.has(name) === true) {
                 this.ts.error(`duplicate ${name}`);
             }
-            props.set(name, p);
+            map.set(name, p);
         }
-    }
-
-    private parseActObj(): BizInAct {
-        this.ts.passToken(Token.LBRACE);
-        this.ts.passToken(Token.RBRACE);
-        this.ts.mayPassToken(Token.SEMICOLON);
-        return;
-    }
-
-    protected parseInOutProp = () => {
-        this.parsePropMap(this.element.props);
-    }
-
-    protected parseArr = () => {
-        let name = this.ts.passVar();
-        let props = new Map<string, BizBudValue>();
-        let act: BizInAct;
-        this.ts.passToken(Token.LBRACE);
-        for (; ;) {
-            if (this.ts.token === Token.RBRACE) {
-                this.ts.readToken();
-                this.ts.mayPassToken(Token.SEMICOLON);
-                break;
-            }
-            let v = this.ts.passKey();
-            switch (v) {
-                default:
-                    this.ts.expect('prop', 'act');
-                    break;
-                case 'prop':
-                    this.parsePropMap(props);
-                    break;
-                case 'act':
-                    this.parseAct();
-                    break;
-            }
-            if (this.ts.token === Token.COMMA) {
-                this.ts.readToken();
-                continue;
-            }
-        }
-        if (props.size === 0) {
-            this.ts.error('no prop defined in ARR');
-        }
-        let { arrs } = this.element;
-        arrs[name] = {
-            name,
-            props,
-            act,
-        }
-    }
-
-    protected parseAct = () => {
-        this.element.act = this.parseActObj();
     }
 
     override scan(space: Space): boolean {
-        if (super.scan(space) === false) return false;
         let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
         const { props, arrs } = this.element;
         for (let i in arrs) {
             let arr = arrs[i];
@@ -136,35 +92,58 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
 }
 
 export class PBizIn extends PBizInOut<BizIn> {
-    readonly keyColl = {
-        prop: this.parseInOutProp,
-        arr: this.parseArr,
-        act: this.parseAct,
-    };
+    protected override parseBody(): void {
+        if (this.ts.token !== Token.LBRACE) {
+            this.ts.expectToken(Token.LBRACE);
+        }
+        let bizAct = new BizInAct(this.element.biz, this.element);
+        this.context.parseElement(bizAct);
+        this.element.act = bizAct;
+    }
 }
 
 export class PBizOut extends PBizInOut<BizOut> {
-    readonly keyColl = {
-        prop: this.parseInOutProp,
-        arr: this.parseArr,
-    };
+    protected override parseBody(): void {
+        this.ts.passToken(Token.SEMICOLON);
+    }
+}
+
+export class PBizInAct extends PBizAct<BizInAct> {
+    protected override createBizActStatements(): Statements {
+        return new BizInActStatements(undefined, this.element);
+    }
+
+    protected override createBizActSpace(space: Space): Space {
+        return new BizInActSpace(space, this.element.bizIn);
+    }
 }
 
 export class PBizInActStatements extends PBizActStatements<BizInAct> {
-    scan0(space: Space): boolean {
-        return super.scan0(space);
+    protected override createBizActStatement(parent: Statement): Statement {
+        return new BizInActStatement(parent, this.bizAct);
     }
-    protected statementFromKey(parent: Statement, key: string): Statement {
-        let ret: Statement;
-        switch (key) {
-            default:
-                ret = super.statementFromKey(parent, key);
-                break;
-            case 'biz':
-                ret = new BizInActStatement(parent, this.bizAct);
-                break;
+}
+
+export const inPreDefined = [
+];
+
+class BizInActSpace extends BizEntitySpace<BizIn> {
+    protected _varPointer(name: string, isField: boolean): Pointer {
+        if (inPreDefined.indexOf(name) >= 0) {
+            return new VarPointer();
         }
-        if (ret !== undefined) ret.inSheet = true;
-        return ret;
+    }
+
+    protected _varsPointer(names: string[]): [Pointer, string] {
+        return undefined;
+    }
+
+    protected override _getBizEntity(name: string): BizEntity {
+        switch (name) {
+            default:
+                return super._getBizEntity(name);
+            case 'pend':
+                return;
+        }
     }
 }

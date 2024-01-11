@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizActStatements = exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
+exports.PBizActStatements = exports.PBizAct = exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("../statement");
 const consts_1 = require("../../consts");
@@ -657,6 +657,48 @@ class PBizSearch extends element_1.PElement {
     }
 }
 exports.PBizSearch = PBizSearch;
+class PBizAct extends PBizBase {
+    _parse() {
+        this.element.name = '$';
+        this.element.ui = this.parseUI();
+        this.parseParam();
+        let statement = this.createBizActStatements();
+        statement.level = 0;
+        this.context.createStatements = statement.createStatements;
+        let parser = statement.parser(this.context);
+        parser.parse();
+        this.element.statement = statement;
+        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+    }
+    parseParam() {
+    }
+    scan0(space) {
+        let ok = true;
+        let { pelement } = this.element.statement;
+        if (pelement.scan0(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        //  will be removed
+        let actSpace = this.createBizActSpace(space);
+        let { pelement } = this.element.statement;
+        if (pelement.preScan(actSpace) === false)
+            ok = false;
+        if (pelement.scan(actSpace) === false)
+            ok = false;
+        return ok;
+    }
+    scan2(uq) {
+        if (this.element.statement.pelement.scan2(uq) === false) {
+            return false;
+        }
+        return true;
+    }
+}
+exports.PBizAct = PBizAct;
 class PBizActStatements extends statement_1.PStatements {
     constructor(statements, context, bizAct) {
         super(statements, context);
@@ -664,6 +706,21 @@ class PBizActStatements extends statement_1.PStatements {
     }
     scan0(space) {
         return super.scan0(space);
+    }
+    statementFromKey(parent, key) {
+        let ret;
+        switch (key) {
+            default:
+                ret = super.statementFromKey(parent, key);
+                break;
+            case 'biz':
+                //ret = new BizBinActStatement(parent, this.bizAct);
+                ret = this.createBizActStatement(parent);
+                break;
+        }
+        if (ret !== undefined)
+            ret.inSheet = true;
+        return ret;
     }
 }
 exports.PBizActStatements = PBizActStatements;

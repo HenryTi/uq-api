@@ -1,9 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBinActStatements = exports.PBizBinAct = exports.detailPreDefined = exports.PBizBin = void 0;
+exports.PBizBinActStatements = exports.PBizBinAct = exports.binPreDefined = exports.PBizBin = void 0;
 const consts_1 = require("../../../consts");
 const il_1 = require("../../../il");
-const statement_1 = require("../../statement");
 const tokens_1 = require("../../tokens");
 const Base_1 = require("../Base");
 const Biz_1 = require("../Biz");
@@ -349,7 +348,7 @@ export class PPickInput extends PElement<PickInput> {
     }
 }
 */
-exports.detailPreDefined = [
+exports.binPreDefined = [
     '$site', '$user',
     'bin',
     ,
@@ -364,7 +363,7 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
-        if (exports.detailPreDefined.indexOf(name) >= 0) {
+        if (exports.binPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
         }
         if (this.bizEntity.props.has(name) === true) {
@@ -428,7 +427,7 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
 }
 class BizBinActSpace extends BizBinSpace {
     _varPointer(name, isField) {
-        if (exports.detailPreDefined.indexOf(name) >= 0) {
+        if (exports.binPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
         }
     }
@@ -444,10 +443,8 @@ class BizBinActSpace extends BizBinSpace {
         }
     }
 }
-class PBizBinAct extends Base_1.PBizBase {
-    _parse() {
-        this.element.name = '$';
-        this.element.ui = this.parseUI();
+class PBizBinAct extends Base_1.PBizAct {
+    parseParam() {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.passToken(tokens_1.Token.LPARENTHESE);
             let field = new il_1.Field();
@@ -462,62 +459,18 @@ class PBizBinAct extends Base_1.PBizBase {
             let field = (0, il_1.bigIntField)('detailid');
             this.element.idParam = field;
         }
-        let statement = new il_1.BizBinActStatements(undefined, this.element);
-        statement.level = 0;
-        this.context.createStatements = statement.createStatements;
-        let parser = statement.parser(this.context);
-        parser.parse();
-        this.element.statement = statement;
-        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
     }
-    scan0(space) {
-        let ok = true;
-        let { pelement } = this.element.statement;
-        if (pelement.scan0(space) === false) {
-            ok = false;
-        }
-        return ok;
+    createBizActStatements() {
+        return new il_1.BizBinActStatements(undefined, this.element);
     }
-    scan(space) {
-        let ok = true;
-        //  will be removed
-        let actSpace = new BizBinActSpace(space, this.element.bizBin);
-        let { pelement } = this.element.statement;
-        if (pelement.preScan(actSpace) === false)
-            ok = false;
-        if (pelement.scan(actSpace) === false)
-            ok = false;
-        return ok;
-    }
-    scan2(uq) {
-        if (this.element.statement.pelement.scan2(uq) === false) {
-            return false;
-        }
-        return true;
+    createBizActSpace(space) {
+        return new BizBinActSpace(space, this.element.bizBin);
     }
 }
 exports.PBizBinAct = PBizBinAct;
-class PBizBinActStatements extends statement_1.PStatements {
-    constructor(statements, context, bizDetailAct) {
-        super(statements, context);
-        this.bizDetailAct = bizDetailAct;
-    }
-    scan0(space) {
-        return super.scan0(space);
-    }
-    statementFromKey(parent, key) {
-        let ret;
-        switch (key) {
-            default:
-                ret = super.statementFromKey(parent, key);
-                break;
-            case 'biz':
-                ret = new il_1.BizBinActStatement(parent, this.bizDetailAct);
-                break;
-        }
-        if (ret !== undefined)
-            ret.inSheet = true;
-        return ret;
+class PBizBinActStatements extends Base_1.PBizActStatements {
+    createBizActStatement(parent) {
+        return new il_1.BizBinActStatement(parent, this.bizAct);
     }
 }
 exports.PBizBinActStatements = PBizBinActStatements;

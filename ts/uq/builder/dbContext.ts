@@ -322,8 +322,11 @@ export class DbContext implements il.Builder {
 
     bizBinActStatement(v: il.BizBinActStatement) { return new stat.BBizBinActStatement(this, v); }
     bizInActStatement(v: il.BizInActStatement) { return new stat.BBizInActStatement(this, v); }
-    bizDetailActSubPend(v: il.BizBinPendStatement) { return new stat.BBizDetailActSubPend(this, v); }
-    bizDetailActSubSubject(v: il.BizBinTitleStatement) { return new stat.BBizDetailActTitle(this, v); }
+    // bizBinActSubPend(v: il.BizPendStatement<il.BizBinAct>) { return new stat.BBizBinActSubPend(this, v); }
+    // bizBinActSubSubject(v: il.BizTitleStatement<il.BizBinAct>) { return new stat.BBizBinActTitle(this, v); }
+    bizBinActSubPend(v: il.BizBinPendStatement) { return new stat.BBizBinActSubPend(this, v); }
+    bizActSubTitle(v: il.BizTitleStatement) { return new stat.BBizBinActTitle(this, v); }
+    bizInActSubPend(v: il.BizInPendStatement) { return new stat.BBizInActSubPend(this, v); }
 
     value(v: il.ValueStatement) { return new stat.BValueStatement(this, v); }
     settingStatement(v: il.SettingStatement) { return new stat.BSettingStatement(this, v) }

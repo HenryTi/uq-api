@@ -11,7 +11,7 @@ import { FieldPointer, Pointer, VarPointer } from '../pointer';
 import { Builder } from '../builder';
 import { Select, Delete, CTE } from '../select';
 import { FaceDataType } from '../busSchema';
-import { BizBinAct } from '../Biz';
+import { BizAct, BizBinAct, BizInAct } from '../Biz';
 import { SetEqu } from '../tool';
 
 export abstract class Statement extends IElement {
@@ -146,33 +146,33 @@ export class QueryStatement extends QueryBaseStatement {
 }
 
 export class BizBinActStatements extends Statements {
-    private readonly bizBinAct: BizBinAct;
-    constructor(parent: Statement, bizBinAct: BizBinAct) {
+    private readonly bizAct: BizBinAct;
+    constructor(parent: Statement, bizAct: BizBinAct) {
         super(parent);
-        this.bizBinAct = bizBinAct;
+        this.bizAct = bizAct;
     }
     get type(): string { return 'bizactstatement'; }
     parser(context: parser.PContext) {
-        return new parser.PBizBinActStatements(this, context, this.bizBinAct);
+        return new parser.PBizBinActStatements(this, context, this.bizAct);
     }
     createStatements = (parent: Statement) => {
-        return new BizBinActStatements(parent, this.bizBinAct);
+        return new BizBinActStatements(parent, this.bizAct);
     }
     db(db: Builder): object { return; }
 }
 
 export class BizInActStatements extends Statements {
-    private readonly bizBinAct: BizBinAct;
-    constructor(parent: Statement, bizBinAct: BizBinAct) {
+    private readonly bizAct: BizInAct;
+    constructor(parent: Statement, bizAct: BizInAct) {
         super(parent);
-        this.bizBinAct = bizBinAct;
+        this.bizAct = bizAct;
     }
     get type(): string { return 'bizactstatement'; }
     parser(context: parser.PContext) {
-        return new parser.PBizBinActStatements(this, context, this.bizBinAct);
+        return new parser.PBizInActStatements(this, context, this.bizAct);
     }
     createStatements = (parent: Statement) => {
-        return new BizBinActStatements(parent, this.bizBinAct);
+        return new BizInActStatements(parent, this.bizAct);
     }
     db(db: Builder): object { return; }
 }

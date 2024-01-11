@@ -1,8 +1,9 @@
 import { Space } from '../space';
 import {
-    BizBinActStatement as BizBinStatement, BizBinPendStatement, BizBinSubStatement
-    , BizBinTitleStatement, BizPend, ValueExpression
+    BizPendStatement, BizActSubStatement
+    , BizTitleStatement, BizPend, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizActStatement, BizBinActStatement, BizInActStatement
+    , BizAct, BizBinAct, BizInAct, BizBinPendStatement, BizInPendStatement
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -12,15 +13,23 @@ import { BudDataType } from '../../il';
 
 export abstract class PBizActStatement<T extends BizActStatement<any>> extends PStatement {
     bizStatement: T;
+    private readonly bizSubs: { [key: string]: new (bizStatement: T) => BizActSubStatement } = {
+        title: BizTitleStatement,
+    }
     constructor(bizStatement: T, context: PContext) {
         super(bizStatement, context);
         this.bizStatement = bizStatement;
+        this.init();
     }
 
-    private bizSubs: { [key: string]: new (bizStatement: T) => BizBinSubStatement } = {
-        pend: BizBinPendStatement,
-        title: BizBinTitleStatement,
-    };
+    private init() {
+        let ex = this.getBizSubsEx();
+        for (let i in ex) {
+            this.bizSubs[i] = ex[i];
+        }
+    }
+
+    protected abstract getBizSubsEx(): { [key: string]: new (bizStatement: T) => BizActSubStatement };
 
     protected _parse() {
         let key = this.ts.passKey();
@@ -50,13 +59,23 @@ export abstract class PBizActStatement<T extends BizActStatement<any>> extends P
 }
 
 export class PBizBinActStatement extends PBizActStatement<BizBinActStatement> {
+    protected getBizSubsEx() {
+        return {
+            pend: BizBinPendStatement,
+        };
+    }
 }
 
 export class PBizInActStatement extends PBizActStatement<BizInActStatement> {
+    protected getBizSubsEx() {
+        return {
+            pend: BizInPendStatement,
+        };
+    }
 }
 
-export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
-    private pend: string;
+export abstract class PBizPendStatement<T extends BizAct> extends PElement<BizPendStatement<T>> {
+    protected pend: string;
     private sets: { [v: string]: ValueExpression };
 
     protected _parse(): void {
@@ -126,8 +145,6 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let { val, bizStatement: { bizAct } } = this.element;
-
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
             if (pend === undefined) {
@@ -156,7 +173,30 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
                 }
             }
         }
+        /*
         else {
+            const { bizBin } = bizAct;
+            if (bizBin.pend === undefined) {
+                this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
+                ok = false;
+            }
+            if (val !== undefined) {
+                if (val.pelement.scan(space) === false) ok = false;
+            }
+        }
+        */
+        return ok;
+    }
+}
+
+export class PBizBinPendStatement extends PBizPendStatement<BizBinAct> {
+    scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        let { val, bizStatement: { bizAct } } = this.element;
+        if (this.pend === undefined) {
             const { bizBin } = bizAct;
             if (bizBin.pend === undefined) {
                 this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
@@ -170,7 +210,10 @@ export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
     }
 }
 
-export class PBizBinTitleStatement extends PElement<BizBinTitleStatement> {
+export class PBizInPendStatement extends PBizPendStatement<BizInAct> {
+}
+
+export class PBizTitleStatement extends PElement<BizTitleStatement> {
     private buds: string[];
 
     protected _parse(): void {

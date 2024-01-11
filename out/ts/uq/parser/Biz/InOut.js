@@ -1,90 +1,34 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizInActStatements = exports.PBizOut = exports.PBizIn = void 0;
+exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
+const Biz_1 = require("./Biz");
 class PBizInOut extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
-        this.parseInOutProp = () => {
-            this.parsePropMap(this.element.props);
-        };
-        this.parseArr = () => {
-            let name = this.ts.passVar();
-            let props = new Map();
-            let act;
-            this.ts.passToken(tokens_1.Token.LBRACE);
-            for (;;) {
-                if (this.ts.token === tokens_1.Token.RBRACE) {
-                    this.ts.readToken();
-                    this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
-                    break;
-                }
-                let v = this.ts.passKey();
-                switch (v) {
-                    default:
-                        this.ts.expect('prop', 'act');
-                        break;
-                    case 'prop':
-                        this.parsePropMap(props);
-                        break;
-                    case 'act':
-                        this.parseAct();
-                        break;
-                }
-                if (this.ts.token === tokens_1.Token.COMMA) {
-                    this.ts.readToken();
-                    continue;
-                }
-            }
-            if (props.size === 0) {
-                this.ts.error('no prop defined in ARR');
-            }
-            let { arrs } = this.element;
-            arrs[name] = {
-                name,
-                props,
-                act,
-            };
-        };
-        this.parseAct = () => {
-            this.element.act = this.parseActObj();
-        };
+        this.keyColl = {};
     }
     parseProps() {
         let budArr = [];
-        let name;
-        if (this.ts.token === tokens_1.Token.VAR) {
-            name = this.ts.passVar();
-        }
-        if (this.ts.token === tokens_1.Token.LBRACE) {
-            this.ts.readToken();
-            for (;;) {
-                let bud = this.parseSubItem();
-                this.ts.passToken(tokens_1.Token.SEMICOLON);
-                this.checkBudType(bud);
-                const { name: budName } = bud;
-                if (budArr.findIndex(v => v.name === name) >= 0) {
-                    this.ts.error(`duplicate ${budName}`);
-                }
-                budArr.push(bud);
-                if (this.ts.token === tokens_1.Token.RBRACE) {
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        for (;;) {
+            let bud = this.parseSubItem();
+            this.checkBudType(bud);
+            budArr.push(bud);
+            let { token } = this.ts;
+            if (token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
                     this.ts.readToken();
-                    this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
                     break;
                 }
             }
-        }
-        else {
-            if (name === undefined) {
-                this.ts.expectToken(tokens_1.Token.LBRACE);
+            else if (token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
             }
-            let ui = this.parseUI();
-            let bizBud = this.parseBud(name, ui);
-            this.checkBudType(bizBud);
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-            budArr.push(bizBud);
         }
         return budArr;
     }
@@ -94,26 +38,38 @@ class PBizInOut extends Base_1.PBizEntity {
             this.ts.error(`IN and OUT support only ${types.map(v => il_1.BudDataType[v]).join(', ')}`);
         }
     }
-    parsePropMap(props) {
+    parseParam() {
+        const { arrs, props } = this.element;
         let propArr = this.parseProps();
-        for (let p of propArr) {
-            let { name } = p;
-            if (props.has(name) === true) {
-                this.ts.error(`duplicate ${name}`);
-            }
-            props.set(name, p);
+        this.parsePropMap(props, propArr);
+        for (; this.ts.isKeyword('arr') === true;) {
+            this.ts.readToken();
+            let name = this.ts.passVar();
+            propArr = this.parseProps();
+            let map = new Map();
+            this.parsePropMap(map, propArr);
+            arrs[name] = {
+                name,
+                props: map,
+            };
         }
     }
-    parseActObj() {
-        this.ts.passToken(tokens_1.Token.LBRACE);
-        this.ts.passToken(tokens_1.Token.RBRACE);
-        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
-        return;
+    parseBody() {
+    }
+    parsePropMap(map, propArr) {
+        for (let p of propArr) {
+            let { name } = p;
+            if (map.has(name) === true) {
+                this.ts.error(`duplicate ${name}`);
+            }
+            map.set(name, p);
+        }
     }
     scan(space) {
-        if (super.scan(space) === false)
-            return false;
         let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
         const { props, arrs } = this.element;
         for (let i in arrs) {
             let arr = arrs[i];
@@ -133,44 +89,54 @@ class PBizInOut extends Base_1.PBizEntity {
     }
 }
 class PBizIn extends PBizInOut {
-    constructor() {
-        super(...arguments);
-        this.keyColl = {
-            prop: this.parseInOutProp,
-            arr: this.parseArr,
-            act: this.parseAct,
-        };
+    parseBody() {
+        if (this.ts.token !== tokens_1.Token.LBRACE) {
+            this.ts.expectToken(tokens_1.Token.LBRACE);
+        }
+        let bizAct = new il_1.BizInAct(this.element.biz, this.element);
+        this.context.parseElement(bizAct);
+        this.element.act = bizAct;
     }
 }
 exports.PBizIn = PBizIn;
 class PBizOut extends PBizInOut {
-    constructor() {
-        super(...arguments);
-        this.keyColl = {
-            prop: this.parseInOutProp,
-            arr: this.parseArr,
-        };
+    parseBody() {
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
 }
 exports.PBizOut = PBizOut;
-class PBizInActStatements extends Base_1.PBizActStatements {
-    scan0(space) {
-        return super.scan0(space);
+class PBizInAct extends Base_1.PBizAct {
+    createBizActStatements() {
+        return new il_1.BizInActStatements(undefined, this.element);
     }
-    statementFromKey(parent, key) {
-        let ret;
-        switch (key) {
-            default:
-                ret = super.statementFromKey(parent, key);
-                break;
-            case 'biz':
-                ret = new il_1.BizInActStatement(parent, this.bizAct);
-                break;
-        }
-        if (ret !== undefined)
-            ret.inSheet = true;
-        return ret;
+    createBizActSpace(space) {
+        return new BizInActSpace(space, this.element.bizIn);
+    }
+}
+exports.PBizInAct = PBizInAct;
+class PBizInActStatements extends Base_1.PBizActStatements {
+    createBizActStatement(parent) {
+        return new il_1.BizInActStatement(parent, this.bizAct);
     }
 }
 exports.PBizInActStatements = PBizInActStatements;
+exports.inPreDefined = [];
+class BizInActSpace extends Biz_1.BizEntitySpace {
+    _varPointer(name, isField) {
+        if (exports.inPreDefined.indexOf(name) >= 0) {
+            return new il_1.VarPointer();
+        }
+    }
+    _varsPointer(names) {
+        return undefined;
+    }
+    _getBizEntity(name) {
+        switch (name) {
+            default:
+                return super._getBizEntity(name);
+            case 'pend':
+                return;
+        }
+    }
+}
 //# sourceMappingURL=InOut.js.map

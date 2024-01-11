@@ -1,6 +1,6 @@
 import {
-    EnumSysTable, BigInt, BizBinActStatement, BizBinPendStatement
-    , BizBinTitleStatement, BudDataType, BudIndex, SetEqu, BizInActStatement
+    EnumSysTable, BigInt, BizBinActStatement, BizPendStatement
+    , BizTitleStatement, BudDataType, BudIndex, SetEqu, BizInActStatement, BizBinAct, BizAct, BizInAct
 } from "../../il";
 import { sysTable } from "../dbContext";
 import {
@@ -43,7 +43,7 @@ export class BBizInActStatement extends BStatement<BizInActStatement> {
 
 const pendFrom = 'pend';
 const binId = 'bin';
-export class BBizDetailActSubPend extends BStatement<BizBinPendStatement> {
+export abstract class BBizActSubPend<T extends BizAct> extends BStatement<BizPendStatement<T>> {
     // 可以发送sheet主表，也可以是Detail
     body(sqls: Sqls) {
         const { context } = this;
@@ -148,11 +148,17 @@ export class BBizDetailActSubPend extends BStatement<BizBinPendStatement> {
     }
 }
 
+export class BBizBinActSubPend extends BBizActSubPend<BizBinAct> {
+}
+
+export class BBizInActSubPend extends BBizActSubPend<BizInAct> {
+}
+
 const phraseId = '$phraseId_';
 const objId = '$objId_';
 const budId = '$budId_';
 const historyId = '$history_';
-export class BBizDetailActTitle extends BStatement<BizBinTitleStatement> {
+export class BBizBinActTitle extends BStatement<BizTitleStatement> {
     head(sqls: Sqls): void {
         let { factory } = this.context;
         let { bud, no } = this.istatement;

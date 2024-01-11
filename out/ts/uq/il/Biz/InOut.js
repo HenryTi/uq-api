@@ -1,16 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizOut = exports.BizIn = exports.BizInOut = exports.BizInAct = void 0;
+exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizInAct extends Base_1.BizAct {
-    parser(context) {
-        return;
-    }
-}
-exports.BizInAct = BizInAct;
 class BizInOut extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
@@ -39,4 +33,14 @@ class BizOut extends BizInOut {
     }
 }
 exports.BizOut = BizOut;
+class BizInAct extends Base_1.BizAct {
+    constructor(biz, bizIn) {
+        super(biz);
+        this.bizIn = bizIn;
+    }
+    parser(context) {
+        return new parser_1.PBizInAct(this, context);
+    }
+}
+exports.BizInAct = BizInAct;
 //# sourceMappingURL=InOut.js.map

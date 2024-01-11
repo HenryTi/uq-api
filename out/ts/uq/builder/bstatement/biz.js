@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizDetailActTitle = exports.BBizDetailActSubPend = exports.BBizInActStatement = exports.BBizBinActStatement = void 0;
+exports.BBizBinActTitle = exports.BBizInActSubPend = exports.BBizBinActSubPend = exports.BBizActSubPend = exports.BBizInActStatement = exports.BBizBinActStatement = void 0;
 const il_1 = require("../../il");
 const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
@@ -38,7 +38,7 @@ class BBizInActStatement extends bstatement_1.BStatement {
 exports.BBizInActStatement = BBizInActStatement;
 const pendFrom = 'pend';
 const binId = 'bin';
-class BBizDetailActSubPend extends bstatement_1.BStatement {
+class BBizActSubPend extends bstatement_1.BStatement {
     // 可以发送sheet主表，也可以是Detail
     body(sqls) {
         const { context } = this;
@@ -119,12 +119,18 @@ class BBizDetailActSubPend extends bstatement_1.BStatement {
         }
     }
 }
-exports.BBizDetailActSubPend = BBizDetailActSubPend;
+exports.BBizActSubPend = BBizActSubPend;
+class BBizBinActSubPend extends BBizActSubPend {
+}
+exports.BBizBinActSubPend = BBizBinActSubPend;
+class BBizInActSubPend extends BBizActSubPend {
+}
+exports.BBizInActSubPend = BBizInActSubPend;
 const phraseId = '$phraseId_';
 const objId = '$objId_';
 const budId = '$budId_';
 const historyId = '$history_';
-class BBizDetailActTitle extends bstatement_1.BStatement {
+class BBizBinActTitle extends bstatement_1.BStatement {
     head(sqls) {
         let { factory } = this.context;
         let { bud, no } = this.istatement;
@@ -238,5 +244,5 @@ class BBizDetailActTitle extends bstatement_1.BStatement {
         }
     }
 }
-exports.BBizDetailActTitle = BBizDetailActTitle;
+exports.BBizBinActTitle = BBizBinActTitle;
 //# sourceMappingURL=biz.js.map

@@ -670,7 +670,56 @@ export class PBizSearch extends PElement<BizSearch> {
     }
 }
 
-export class PBizActStatements<T extends BizAct> extends PStatements {
+export abstract class PBizAct<T extends BizAct> extends PBizBase<T> {
+    _parse(): void {
+        this.element.name = '$';
+
+        this.element.ui = this.parseUI();
+        this.parseParam();
+        let statement = this.createBizActStatements();
+        statement.level = 0;
+        this.context.createStatements = statement.createStatements;
+        let parser = statement.parser(this.context)
+        parser.parse();
+        this.element.statement = statement;
+        this.ts.mayPassToken(Token.SEMICOLON);
+    }
+
+    protected parseParam() {
+
+    }
+    protected abstract createBizActStatements(): Statements;
+
+    scan0(space: Space): boolean {
+        let ok = true;
+        let { pelement } = this.element.statement;
+        if (pelement.scan0(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+
+    protected abstract createBizActSpace(space: Space): Space;
+
+    scan(space: Space): boolean {
+        let ok = true;
+        //  will be removed
+        let actSpace = this.createBizActSpace(space);
+        let { pelement } = this.element.statement;
+        if (pelement.preScan(actSpace) === false) ok = false;
+        if (pelement.scan(actSpace) === false) ok = false;
+        return ok;
+    }
+
+    scan2(uq: Uq): boolean {
+        if (this.element.statement.pelement.scan2(uq) === false) {
+            return false;
+        }
+        return true;
+    }
+}
+
+export abstract class PBizActStatements<T extends BizAct> extends PStatements {
     protected readonly bizAct: T;
 
     constructor(statements: Statements, context: PContext, bizAct: T) {
@@ -680,7 +729,6 @@ export class PBizActStatements<T extends BizAct> extends PStatements {
     scan0(space: Space): boolean {
         return super.scan0(space);
     }
-    /*
     protected statementFromKey(parent: Statement, key: string): Statement {
         let ret: Statement;
         switch (key) {
@@ -688,11 +736,13 @@ export class PBizActStatements<T extends BizAct> extends PStatements {
                 ret = super.statementFromKey(parent, key);
                 break;
             case 'biz':
-                ret = new BizBinActStatement(parent, this.bizAct);
+                //ret = new BizBinActStatement(parent, this.bizAct);
+                ret = this.createBizActStatement(parent);
                 break;
         }
         if (ret !== undefined) ret.inSheet = true;
         return ret;
     }
-    */
+
+    protected abstract createBizActStatement(parent: Statement): Statement;
 }

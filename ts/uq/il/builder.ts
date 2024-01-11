@@ -1,7 +1,7 @@
 import * as stat from './statement';
 import * as ent from './entity';
 import { BEntity, BStatement, BID, BIDX, BIX, BForList, BBiz } from '../builder';
-import { Biz } from './Biz';
+import { Biz, BizAct, BizBinAct } from './Biz';
 
 export interface Builder {
     arr(v: ent.Arr): BEntity<ent.Arr>;
@@ -42,8 +42,9 @@ export interface Builder {
 
     bizBinActStatement(v: stat.BizBinActStatement): BStatement;
     bizInActStatement(v: stat.BizInActStatement): BStatement;
-    bizDetailActSubPend(v: stat.BizBinPendStatement): BStatement;
-    bizDetailActSubSubject(v: stat.BizBinTitleStatement): BStatement;
+    bizBinActSubPend(v: stat.BizBinPendStatement): BStatement;
+    bizActSubTitle(v: stat.BizTitleStatement): BStatement;
+    bizInActSubPend(v: stat.BizInPendStatement): BStatement;
 
     value(v: stat.ValueStatement): BStatement;
     setStatement(v: stat.SetStatement): BStatement;

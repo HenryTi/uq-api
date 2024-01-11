@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBinTitleStatement = exports.PBizBinPendStatement = exports.PBizInActStatement = exports.PBizBinActStatement = exports.PBizActStatement = void 0;
+exports.PBizTitleStatement = exports.PBizInPendStatement = exports.PBizBinPendStatement = exports.PBizPendStatement = exports.PBizInActStatement = exports.PBizBinActStatement = exports.PBizActStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
@@ -10,10 +10,16 @@ class PBizActStatement extends statement_1.PStatement {
     constructor(bizStatement, context) {
         super(bizStatement, context);
         this.bizSubs = {
-            pend: il_1.BizBinPendStatement,
-            title: il_1.BizBinTitleStatement,
+            title: il_1.BizTitleStatement,
         };
         this.bizStatement = bizStatement;
+        this.init();
+    }
+    init() {
+        let ex = this.getBizSubsEx();
+        for (let i in ex) {
+            this.bizSubs[i] = ex[i];
+        }
     }
     _parse() {
         let key = this.ts.passKey();
@@ -43,12 +49,22 @@ class PBizActStatement extends statement_1.PStatement {
 }
 exports.PBizActStatement = PBizActStatement;
 class PBizBinActStatement extends PBizActStatement {
+    getBizSubsEx() {
+        return {
+            pend: il_1.BizBinPendStatement,
+        };
+    }
 }
 exports.PBizBinActStatement = PBizBinActStatement;
 class PBizInActStatement extends PBizActStatement {
+    getBizSubsEx() {
+        return {
+            pend: il_1.BizInPendStatement,
+        };
+    }
 }
 exports.PBizInActStatement = PBizInActStatement;
-class PBizBinPendStatement extends element_1.PElement {
+class PBizPendStatement extends element_1.PElement {
     _parse() {
         let setEqu;
         if (this.ts.token === tokens_1.Token.VAR) {
@@ -119,7 +135,6 @@ class PBizBinPendStatement extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        let { val, bizStatement: { bizAct } } = this.element;
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
             if (pend === undefined) {
@@ -148,7 +163,30 @@ class PBizBinPendStatement extends element_1.PElement {
                 }
             }
         }
+        /*
         else {
+            const { bizBin } = bizAct;
+            if (bizBin.pend === undefined) {
+                this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
+                ok = false;
+            }
+            if (val !== undefined) {
+                if (val.pelement.scan(space) === false) ok = false;
+            }
+        }
+        */
+        return ok;
+    }
+}
+exports.PBizPendStatement = PBizPendStatement;
+class PBizBinPendStatement extends PBizPendStatement {
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        let { val, bizStatement: { bizAct } } = this.element;
+        if (this.pend === undefined) {
             const { bizBin } = bizAct;
             if (bizBin.pend === undefined) {
                 this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
@@ -163,7 +201,10 @@ class PBizBinPendStatement extends element_1.PElement {
     }
 }
 exports.PBizBinPendStatement = PBizBinPendStatement;
-class PBizBinTitleStatement extends element_1.PElement {
+class PBizInPendStatement extends PBizPendStatement {
+}
+exports.PBizInPendStatement = PBizInPendStatement;
+class PBizTitleStatement extends element_1.PElement {
     _parse() {
         this.buds = [];
         for (;;) {
@@ -234,5 +275,5 @@ class PBizBinTitleStatement extends element_1.PElement {
         return ok;
     }
 }
-exports.PBizBinTitleStatement = PBizBinTitleStatement;
+exports.PBizTitleStatement = PBizTitleStatement;
 //# sourceMappingURL=biz.js.map
