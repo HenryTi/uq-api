@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -20,6 +21,9 @@ class BizIn extends BizInOut {
     }
     parser(context) {
         return new parser_1.PBizIn(this, context);
+    }
+    db(dbContext) {
+        return new builder_1.BBizIn(dbContext, this);
     }
 }
 exports.BizIn = BizIn;

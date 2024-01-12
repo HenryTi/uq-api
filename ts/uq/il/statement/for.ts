@@ -6,6 +6,7 @@ import { IElement } from '../IElement';
 import { Select } from '../select';
 import { BForList } from '../../builder';
 import { ValueExpression } from '../Exp';
+import { BizInOutArr } from '../Biz';
 
 export class ForEach extends Statement {
     isInProc: boolean;          // for temporary table, not drop in proc, maybe called multiple times in one session
@@ -40,6 +41,17 @@ export class ForArr extends ForList {
     }
     db(db: Builder, forEach: ForEach): BForList {
         return db.foreachArr(forEach, this);
+    }
+}
+
+export class ForBizInOutArr extends ForList {
+    readonly arr: BizInOutArr;
+    constructor(arr: BizInOutArr) {
+        super();
+        this.arr = arr;
+    }
+    db(db: Builder, forEach: ForEach): BForList {
+        return db.foreachBizInOutArr(forEach, this);
     }
 }
 

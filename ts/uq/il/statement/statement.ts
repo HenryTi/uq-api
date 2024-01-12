@@ -298,7 +298,10 @@ export class TableStatement extends Statement {
     db(db: Builder): object { return db.tableStatement(this); }
     parser(context: parser.PContext) { return new parser.PTableStatement(this, context); }
 }
-
+export interface JsonTableColumn {
+    field: Field;
+    path: string;
+}
 // split text into table
 export class TextStatement extends Statement {
     textVar: string;

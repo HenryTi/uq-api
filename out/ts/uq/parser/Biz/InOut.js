@@ -97,6 +97,17 @@ class PBizIn extends PBizInOut {
         this.context.parseElement(bizAct);
         this.element.act = bizAct;
     }
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        let { act } = this.element;
+        if (act.pelement.scan(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
 }
 exports.PBizIn = PBizIn;
 class PBizOut extends PBizInOut {

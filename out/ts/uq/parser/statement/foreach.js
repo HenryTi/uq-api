@@ -117,6 +117,19 @@ class PForEach extends statement_1.PStatement {
             }
         }
     }
+    createBizInArrSpace(space) {
+        let bizEntity = space.getBizEntity(undefined);
+        if (bizEntity === undefined)
+            return;
+        if (bizEntity.bizPhraseType !== il_1.BizPhraseType.in)
+            return;
+        let bizIn = bizEntity;
+        let bizInArr = bizIn.arrs[this.arrName];
+        if (bizInArr === undefined)
+            return;
+        this.element.list = new il_1.ForBizInOutArr(bizInArr);
+        return new ForBizInOutArrSpace(space, bizInArr);
+    }
     scan(space) {
         var _a;
         let ok = true;
@@ -124,15 +137,17 @@ class PForEach extends statement_1.PStatement {
         this.element.isInProc = ((_a = space.getActionBase()) === null || _a === void 0 ? void 0 : _a.type) === 'proc';
         if (this.arrName !== undefined) {
             let arr = space.getArr(this.arrName);
-            if (arr === undefined) {
-                ok = false;
-                this.log('参数没有arr ' + this.arrName);
-                theSpace = space;
+            if (arr !== undefined) {
+                theSpace = new ForEachArrSpace(space, arr);
+                this.element.list = new il_1.ForArr(arr);
             }
             else {
-                theSpace = new ForEachArrSpace(space, arr);
+                theSpace = this.createBizInArrSpace(space);
+                if (theSpace === undefined) {
+                    ok = false;
+                    this.log('参数没有ARR ' + this.arrName);
+                }
             }
-            this.element.list = new il_1.ForArr(arr);
         }
         else if (this.select !== undefined) {
             if (this.select.pelement.scan(space) === false)
@@ -231,6 +246,17 @@ class PForEach extends statement_1.PStatement {
     }
 }
 exports.PForEach = PForEach;
+class ForBizInOutArrSpace extends space_1.Space {
+    constructor(space, arr) {
+        super(space);
+        this.arr = arr;
+    }
+    _getEntityTable(name) { return; }
+    _getTableByAlias(alias) { return; }
+    _varPointer(name, isField) {
+        return;
+    }
+}
 class ForEachArrSpace extends space_1.Space {
     constructor(outer, arr) {
         super(outer);

@@ -2,7 +2,7 @@ import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 import {
     EnumSysTable, ForEach, Field, Int, intField, ForArr
-    , ForSelect, ForQueue, ForListWithVars, bigIntField, tinyIntField, JoinType
+    , ForSelect, ForQueue, ForListWithVars, bigIntField, tinyIntField, JoinType, ForBizInOutArr
 } from '../../il';
 import {
     ExpNeg, ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpIsNotNull
@@ -10,10 +10,10 @@ import {
     , ExpAnd, ExpGT, ExpFuncCustom, ExpCmp, ExpSub
     , Statements,
     ExpNull,
-    ExpAtVar
+    ExpAtVar,
 } from '../sql';
 import { convertSelect, LockType } from '../sql/select';
-import { EntityTable, VarTable as FromVarTable } from '../sql/statementWithFrom';
+import { EntityTable, VarTable as FromVarTable, VarTable } from '../sql/statementWithFrom';
 import { DbContext, sysTable } from "../dbContext";
 
 export abstract class BForList extends BStatement {
@@ -38,6 +38,21 @@ export class BForArr extends BForList {
     }
     body(sqls: Sqls) {
         this.context.forArr(this.forArr.arr, sqls, this.istatement.no, (body: Statement[]) => {
+            let forSqls = new Sqls(sqls.context, body);
+            forSqls.body(this.forEach.statements.statements);
+        });
+    }
+}
+
+export class BForBizInOutArr extends BForList {
+    readonly forArr: ForBizInOutArr;
+    constructor(context: DbContext, forEach: ForEach, forArr: ForBizInOutArr) {
+        super(context, forEach);
+        this.forArr = forArr;
+    }
+    body(sqls: Sqls) {
+        const { arr } = this.forArr;
+        this.context.forBizInOutArr(arr, sqls, this.istatement.no, (body: Statement[]) => {
             let forSqls = new Sqls(sqls.context, body);
             forSqls.body(this.forEach.statements.statements);
         });

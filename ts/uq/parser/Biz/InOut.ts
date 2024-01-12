@@ -100,6 +100,17 @@ export class PBizIn extends PBizInOut<BizIn> {
         this.context.parseElement(bizAct);
         this.element.act = bizAct;
     }
+    override scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        let { act } = this.element;
+        if (act.pelement.scan(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
 }
 
 export class PBizOut extends PBizInOut<BizOut> {
@@ -116,6 +127,19 @@ export class PBizInAct extends PBizAct<BizInAct> {
     protected override createBizActSpace(space: Space): Space {
         return new BizInActSpace(space, this.element.bizIn);
     }
+    /*
+    override scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        let { statement } = this.element;
+        if (statement.pelement.scan(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+    */
 }
 
 export class PBizInActStatements extends PBizActStatements<BizInAct> {

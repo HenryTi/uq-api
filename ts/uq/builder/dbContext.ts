@@ -4,7 +4,7 @@ import {
     Table, Procedure, ExpVal, ExpField, ExpEQ, ExpExists,
     ExpNum, ExpVar, Statement, ExpFunc, ExpAnd, ExpIsNotNull, ExpStr,
     ExpSelect, ExpLE, ExpAdd, SqlVarTable, ExpSub, ExpGE, ExpCmp,
-    ExpGT, ExpLT, If, ExpIsNull, Declare, While, ExpDecDiv, ColVal, convertExp, ExpFuncInUq
+    ExpGT, ExpLT, If, ExpIsNull, Declare, While, ExpDecDiv, ColVal, convertExp, ExpFuncInUq, ExpNull
 } from './sql';
 import { Factory } from './sql/factory';
 import { unitFieldName, userParamName } from './sql/sqlBuilder';
@@ -339,6 +339,7 @@ export class DbContext implements il.Builder {
     returnEndStatement() { return new stat.BReturnEndStatement(this, undefined); }
     procStatement(v: il.ProcStatement) { return new stat.BProcStatement(this, v) }
     foreachArr(v: il.ForEach, forArr: il.ForArr) { return new stat.BForArr(this, v, forArr) }
+    foreachBizInOutArr(v: il.ForEach, forArr: il.ForBizInOutArr) { return new stat.BForBizInOutArr(this, v, forArr) }
     foreachSelect(v: il.ForEach, forSelect: il.ForSelect) { return new stat.BForSelect(this, v, forSelect) }
     foreachQueue(v: il.ForEach, forQueue: il.ForQueue) { return new stat.BForQueue(this, v, forQueue) }
     selectStatement(v: il.SelectStatement) { return new stat.BSelect(this, v) }
@@ -1121,6 +1122,44 @@ export class DbContext implements il.Builder {
             selectField.column(new ExpDecDiv(ExpVal.num1, vP), d);
             forS.push(set1, selectField);
         }
+        bodyCallback(forS);
+    }
+
+    forBizInOutArr(arr: il.BizInOutArr, sqls: Sqls, no: number, bodyCallback: (statements: Statement[]) => void) {
+        const { factory } = this;
+        let setRowId0 = factory.createSet();
+        sqls.push(setRowId0);
+        setRowId0.equ('$rowId', ExpNum.num0);
+        let _for = factory.createWhile();
+        let forS = _for.statements.statements;
+        sqls.push(_for);
+        _for.no = no;
+        _for.cmp = new ExpEQ(ExpVal.num1, ExpVal.num1);
+
+        let setId = factory.createSet();
+        forS.push(setId);
+        setId.equ('$id', new ExpNull());
+        let select = factory.createSelect();
+        forS.push(select);
+        select.from(new VarTable(arr.name));
+        select.toVar = true;
+        select.col('$id', '$id');
+        for (let [name,] of arr.props) {
+            select.col(name, name);
+        }
+        select.where(new ExpGT(new ExpField('$id'), new ExpVar('$rowId')));
+        select.order(new ExpField('$id'), 'asc');
+        select.limit(ExpNum.num1);
+
+        let iff = factory.createIf();
+        forS.push(iff);
+        iff.cmp = new ExpIsNull(new ExpVar('$id'));
+        let leave = factory.createBreak();
+        leave.no = _for.no;
+        iff.then(leave);
+        let setRowId = factory.createSet();
+        iff.else(setRowId);
+        setRowId.equ('$rowId', new ExpVar('$id'));
         bodyCallback(forS);
     }
 

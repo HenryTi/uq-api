@@ -4,7 +4,6 @@ import { MyDb$Res } from "./MyDb$Res";
 import { MyDb$Site } from "./MyDb$Site";
 import { MyDb$Unitx } from "./MyDb$Unitx";
 import { MyDb$Uq } from "./MyDb$Uq";
-import { MyDb$X } from "./MyDb$X.ts";
 import { DbSqlsVersion, MyDbNoName } from "./MyDbNoName";
 import { MyDbUq } from "./MyDbUq";
 
@@ -25,7 +24,6 @@ export class MyDbs implements Dbs {
         this.db$Uq = new MyDb$Uq(this);
         this.db$Res = new MyDb$Res(this);
         this.db$Site = new MyDb$Site(this);
-        this.db$X = new MyDb$X(this);
         this.db$UnitxTest = new MyDb$Unitx(this, true);
         this.db$UnitxProd = new MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName(this);

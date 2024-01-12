@@ -61,6 +61,7 @@ export interface Builder {
     returnEndStatement(): BStatement;
     procStatement(v: stat.ProcStatement): BStatement;
     foreachArr(v: stat.ForEach, forArr: stat.ForArr): BForList;
+    foreachBizInOutArr(v: stat.ForEach, forArr: stat.ForBizInOutArr): BForList;
     foreachSelect(v: stat.ForEach, forSelect: stat.ForSelect): BForList;
     foreachQueue(v: stat.ForEach, forQueue: stat.ForQueue): BForList;
     selectStatement(v: stat.SelectStatement): BStatement;

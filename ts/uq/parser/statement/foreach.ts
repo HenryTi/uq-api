@@ -2,9 +2,10 @@ import { Space } from '../space';
 import { Token } from '../tokens';
 import {
     ForEach, Select, Arr, Table, Entity,
-    Pointer, VarPointer, Var, createDataType, ForSelect, ForArr, ForQueue, Queue, ValueExpression, BigInt
+    Pointer, VarPointer, Var, createDataType, ForSelect, ForArr, ForQueue, Queue, ValueExpression, BigInt, BizPhraseType, BizIn, ForBizInOutArr, BizInOutArr
 } from '../../il';
 import { PStatement } from './statement';
+import { BizEntitySpace } from '../Biz/Biz';
 
 const wordsAfterOf = ['select', 'queue'];
 
@@ -126,21 +127,34 @@ export class PForEach extends PStatement<ForEach> {
         }
     }
 
+    private createBizInArrSpace(space: Space): Space {
+        let bizEntity = space.getBizEntity(undefined);
+        if (bizEntity === undefined) return;
+        if (bizEntity.bizPhraseType !== BizPhraseType.in) return;
+        let bizIn = bizEntity as BizIn;
+        let bizInArr = bizIn.arrs[this.arrName];
+        if (bizInArr === undefined) return;
+        this.element.list = new ForBizInOutArr(bizInArr);
+        return new ForBizInOutArrSpace(space, bizInArr);
+    }
+
     scan(space: Space): boolean {
         let ok = true;
         let theSpace: Space;
         this.element.isInProc = space.getActionBase()?.type === 'proc';
         if (this.arrName !== undefined) {
             let arr = space.getArr(this.arrName);
-            if (arr === undefined) {
-                ok = false;
-                this.log('参数没有arr ' + this.arrName);
-                theSpace = space;
+            if (arr !== undefined) {
+                theSpace = new ForEachArrSpace(space, arr);
+                this.element.list = new ForArr(arr);
             }
             else {
-                theSpace = new ForEachArrSpace(space, arr);
+                theSpace = this.createBizInArrSpace(space);
+                if (theSpace === undefined) {
+                    ok = false;
+                    this.log('参数没有ARR ' + this.arrName);
+                }
             }
-            this.element.list = new ForArr(arr);
         }
         else if (this.select !== undefined) {
             if (this.select.pelement.scan(space) === false) ok = false;
@@ -231,6 +245,19 @@ export class PForEach extends PStatement<ForEach> {
             }
         }
         return ok;
+    }
+}
+
+class ForBizInOutArrSpace extends Space {
+    private readonly arr: BizInOutArr;
+    constructor(space: Space, arr: BizInOutArr) {
+        super(space);
+        this.arr = arr;
+    }
+    protected _getEntityTable(name: string): Entity & Table { return; }
+    protected _getTableByAlias(alias: string): Table { return; }
+    protected _varPointer(name: string, isField: boolean): Pointer {
+        return;
     }
 }
 

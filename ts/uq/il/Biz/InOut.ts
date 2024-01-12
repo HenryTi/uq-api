@@ -1,3 +1,4 @@
+import { DbContext, BBizEntity, BBizIn } from "../../builder";
 import { PBizIn, PBizInAct, PBizOut, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizAct } from "./Base";
@@ -6,14 +7,14 @@ import { BizPhraseType } from "./BizPhraseType";
 import { BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
-export interface InOutArr {
+export interface BizInOutArr {
     name: string;
     props: Map<string, BizBudValue>;
 }
 
 export abstract class BizInOut extends BizEntity {
     protected readonly fields = [];
-    readonly arrs: { [name: string]: InOutArr; } = {};
+    readonly arrs: { [name: string]: BizInOutArr; } = {};
 }
 
 export class BizIn extends BizInOut {
@@ -22,6 +23,10 @@ export class BizIn extends BizInOut {
 
     parser(context: PContext): PElement<IElement> {
         return new PBizIn(this, context);
+    }
+
+    db(dbContext: DbContext): BBizEntity<any> {
+        return new BBizIn(dbContext, this);
     }
 }
 
