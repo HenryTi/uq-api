@@ -40,11 +40,11 @@ export interface Builder {
     withIXSet(v: stat.WithStatement): BStatement;
     withTruncate(v: stat.WithStatement): BStatement;
 
-    bizBinActStatement(v: stat.BizBinActStatement): BStatement;
-    bizInActStatement(v: stat.BizInActStatement): BStatement;
-    bizBinActSubPend(v: stat.BizBinPendStatement): BStatement;
-    bizActSubTitle(v: stat.BizTitleStatement): BStatement;
-    bizInActSubPend(v: stat.BizInPendStatement): BStatement;
+    bizActStatement(v: stat.BizStatement<any>): BStatement;
+    // bizInActStatement(v: stat.BizInActStatement): BStatement;
+    // bizBinActSubPend(v: stat.BizBinPendStatement): BStatement;
+    // bizActSubTitle(v: stat.BizTitleStatement): BStatement;
+    // bizInActSubPend(v: stat.BizInPendStatement): BStatement;
 
     value(v: stat.ValueStatement): BStatement;
     setStatement(v: stat.SetStatement): BStatement;

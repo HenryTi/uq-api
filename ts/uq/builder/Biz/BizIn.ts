@@ -1,6 +1,7 @@
 import { BizBudValue, BizIn, BudDataType, DataType, EnumDataType, Field, JsonTableColumn, charField, dateField, decField, intField, jsonField } from "../../il";
 import { Sqls } from "../bstatement";
-import { ExpField, ExpFunc, ExpStr, ExpVar, Procedure, SqlVarTable } from "../sql";
+import { $site } from "../consts";
+import { ExpField, ExpFunc, ExpNum, ExpStr, ExpVar, Procedure, SqlVarTable } from "../sql";
 import { LockType } from "../sql/select";
 import { FromJsonTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
@@ -24,9 +25,13 @@ export class BBizIn extends BBizEntity<BizIn> {
         const declare = factory.createDeclare();
         statements.push(declare);
         let vars: Field[] = [
+            intField($site),
             intField('$id'),
             intField('$rowId'),
         ];
+        let setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ($site, new ExpNum(this.context.site));
         for (let [name, bud] of props) {
             vars.push(this.fieldFromBud(bud));
             let set = factory.createSet();

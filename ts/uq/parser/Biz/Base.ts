@@ -3,7 +3,7 @@ import {
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, BizBudID, Uq, IX, BudIndex, BizBudIntOf
     , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
-    , Statements, Statement, BizInActStatement, BizBinActStatement
+    , Statements, Statement //, BizInActStatement, BizBinActStatement
 } from "../../il";
 import { PStatements } from "../statement";
 import { UI } from "../../il/UI";

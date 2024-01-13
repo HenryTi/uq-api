@@ -262,13 +262,13 @@ class DbContext {
     withIDXSet(v) { return new stat.BWithIDXSet(this, v); }
     withIXSet(v) { return new stat.BWithIXSet(this, v); }
     withTruncate(v) { return new stat.BWithTruncate(this, v); }
-    bizBinActStatement(v) { return new stat.BBizBinActStatement(this, v); }
-    bizInActStatement(v) { return new stat.BBizInActStatement(this, v); }
+    bizActStatement(v) { return new stat.BBizStatement(this, v); }
+    // bizInActStatement(v: il.BizInActStatement) { return new stat.BBizInActStatement(this, v); }
     // bizBinActSubPend(v: il.BizPendStatement<il.BizBinAct>) { return new stat.BBizBinActSubPend(this, v); }
     // bizBinActSubSubject(v: il.BizTitleStatement<il.BizBinAct>) { return new stat.BBizBinActTitle(this, v); }
-    bizBinActSubPend(v) { return new stat.BBizBinActSubPend(this, v); }
-    bizActSubTitle(v) { return new stat.BBizBinActTitle(this, v); }
-    bizInActSubPend(v) { return new stat.BBizInActSubPend(this, v); }
+    // bizBinActSubPend(v: il.BizBinPendStatement) { return new stat.BBizBinActSubPend(this, v); }
+    // bizInActSubPend(v: il.BizInPendStatement) { return new stat.BBizInActSubPend(this, v); }
+    // bizActSubTitle(v: il.BizTitleStatement) { return new stat.BBizBinActTitle(this, v); }
     value(v) { return new stat.BValueStatement(this, v); }
     settingStatement(v) { return new stat.BSettingStatement(this, v); }
     ifStatement(v) { return new stat.BIfStatement(this, v); }

@@ -1,71 +1,103 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizTitleStatement = exports.BizInPendStatement = exports.BizBinPendStatement = exports.BizPendStatement = exports.BizActSubStatement = exports.BizInActStatement = exports.BizBinActStatement = exports.BizActStatement = void 0;
+exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementDetail = exports.BizStatementSheet = exports.BizStatementSheetBase = exports.BizStatementTitle = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
+const builder_1 = require("../../builder");
 const parser = require("../../parser");
 const Statement_1 = require("./Statement");
-class BizActStatement extends Statement_1.Statement {
+class BizStatement extends Statement_1.Statement {
+    get type() { return 'bizstatement'; }
     constructor(parent, bizAct) {
         super(parent);
         this.bizAct = bizAct;
     }
-}
-exports.BizActStatement = BizActStatement;
-class BizBinActStatement extends BizActStatement {
-    get type() { return 'bizstatement'; }
-    db(db) { return db.bizBinActStatement(this); }
-    parser(context) { return new parser.PBizBinActStatement(this, context); }
     setNo(no) {
         this.no = no;
         this.sub.setNo(no);
     }
+    db(db) { return this.sub.db(db); /* db.bizActStatement(this); */ }
 }
-exports.BizBinActStatement = BizBinActStatement;
-class BizInActStatement extends BizActStatement {
-    get type() { return 'bizstatement'; }
-    db(db) { return db.bizInActStatement(this); }
-    parser(context) { return new parser.PBizInActStatement(this, context); }
-    setNo(no) {
-        this.no = no;
-        this.sub.setNo(no);
-    }
+exports.BizStatement = BizStatement;
+class BizStatementBin extends BizStatement {
+    parser(context) { return new parser.PBizStatementBin(this, context); }
 }
-exports.BizInActStatement = BizInActStatement;
-class BizActSubStatement extends Statement_1.Statement {
+exports.BizStatementBin = BizStatementBin;
+class BizStatementIn extends BizStatement {
+    parser(context) { return new parser.PBizStatementIn(this, context); }
 }
-exports.BizActSubStatement = BizActSubStatement;
-class BizPendStatement extends BizActSubStatement {
+exports.BizStatementIn = BizStatementIn;
+class BizStatementSub extends Statement_1.Statement {
     constructor(bizStatement) {
         super(bizStatement);
-        this.sets = [];
         this.bizStatement = bizStatement;
+    }
+}
+exports.BizStatementSub = BizStatementSub;
+class BizStatementPend extends BizStatementSub {
+    constructor() {
+        super(...arguments);
+        this.sets = [];
     }
     get type() { return 'bizpend'; }
 }
-exports.BizPendStatement = BizPendStatement;
-class BizBinPendStatement extends BizPendStatement {
+exports.BizStatementPend = BizStatementPend;
+class BizStatementBinPend extends BizStatementPend {
     parser(context) {
-        return new parser.PBizBinPendStatement(this, context);
+        return new parser.PBizStatementBinPend(this, context);
     }
-    db(db) { return db.bizBinActSubPend(this); }
+    db(db) { return new builder_1.BBizStatementBinPend(db, this); /* return db.bizBinActSubPend(this);*/ }
 }
-exports.BizBinPendStatement = BizBinPendStatement;
-class BizInPendStatement extends BizPendStatement {
+exports.BizStatementBinPend = BizStatementBinPend;
+class BizStatementInPend extends BizStatementPend {
     parser(context) {
-        return new parser.PBizInPendStatement(this, context);
+        return new parser.PBizStatementInPend(this, context);
     }
-    db(db) { return db.bizInActSubPend(this); }
+    db(db) { return new builder_1.BBizStatementInPend(db, this); /* db.bizInActSubPend(this); */ }
 }
-exports.BizInPendStatement = BizInPendStatement;
-class BizTitleStatement extends BizActSubStatement {
-    constructor(bizStatement) {
-        super(bizStatement);
-        this.bizStatement = bizStatement;
-    }
-    get type() { return 'biztitle'; }
+exports.BizStatementInPend = BizStatementInPend;
+class BizStatementTitle extends BizStatementSub {
     parser(context) {
-        return new parser.PBizTitleStatement(this, context);
+        return new parser.PBizStatementTitle(this, context);
     }
-    db(db) { return db.bizActSubTitle(this); }
+    db(db) { return new builder_1.BBizStatementTitle(db, this); }
 }
-exports.BizTitleStatement = BizTitleStatement;
+exports.BizStatementTitle = BizStatementTitle;
+class BizStatementSheetBase extends BizStatementSub {
+    constructor() {
+        super(...arguments);
+        this.fields = {};
+        this.buds = {};
+    }
+}
+exports.BizStatementSheetBase = BizStatementSheetBase;
+class BizStatementSheet extends BizStatementSheetBase {
+    parser(context) {
+        return new parser.PBizStatementSheet(this, context);
+    }
+    db(db) { return new builder_1.BBizStatementSheet(db, this); }
+}
+exports.BizStatementSheet = BizStatementSheet;
+class BizStatementDetail extends BizStatementSheetBase {
+    parser(context) {
+        return new parser.PBizStatementDetail(this, context);
+    }
+    db(db) { return new builder_1.BBizStatementDetail(db, this); }
+}
+exports.BizStatementDetail = BizStatementDetail;
+class BizStatementID extends BizStatementSub {
+}
+exports.BizStatementID = BizStatementID;
+class BizStatementAtom extends BizStatementID {
+    parser(context) {
+        return new parser.PBizStatementAtom(this, context);
+    }
+    db(db) { return new builder_1.BBizStatementAtom(db, this); }
+}
+exports.BizStatementAtom = BizStatementAtom;
+class BizStatementSpec extends BizStatementID {
+    parser(context) {
+        return new parser.PBizStatementSpec(this, context);
+    }
+    db(db) { return new builder_1.BBizStatementSpec(db, this); }
+}
+exports.BizStatementSpec = BizStatementSpec;
 //# sourceMappingURL=biz.js.map

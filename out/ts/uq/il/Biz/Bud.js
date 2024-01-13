@@ -65,7 +65,6 @@ exports.BudGroup = BudGroup;
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     getFieldShows() { return undefined; }
-    // show: boolean;      // 仅用于显示
     constructor(biz, name, ui) {
         super(biz);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
@@ -73,7 +72,6 @@ class BizBud extends Base_1.BizBase {
         this.name = name;
         this.ui = ui;
     }
-    // buildBudValue(callback: (value: BudValueSet) => void) { }
     buildBudValue(expStringify) { }
 }
 exports.BizBud = BizBud;

@@ -1,16 +1,33 @@
 import {
-    EnumSysTable, BigInt, BizBinActStatement, BizPendStatement
-    , BizTitleStatement, BudDataType, BudIndex, SetEqu, BizInActStatement, BizBinAct, BizAct, BizInAct
+    EnumSysTable, BigInt, BizStatementPend
+    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct, BizStatement, BizStatementSheet, BizStatementDetail, BizStatementSheetBase, intField, ValueExpression, BizStatementID, BizStatementAtom, BizStatementSpec
 } from "../../il";
+import { $site } from "../consts";
 import { sysTable } from "../dbContext";
 import {
     ColVal, ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
-    , ExpGT, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, Statement
+    , ExpGT, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, Statement
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
+import { SysTables } from "../sys/tables";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
+export class BBizStatement extends BStatement<BizStatement<BizAct>> {
+    head(sqls: Sqls) {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.head(sqls);
+    }
+    body(sqls: Sqls) {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.body(sqls);
+    }
+    foot(sqls: Sqls): void {
+        let bSub = this.istatement.sub.db(this.context);
+        bSub.foot(sqls);
+    }
+}
+/*
 export class BBizBinActStatement extends BStatement<BizBinActStatement> {
     head(sqls: Sqls) {
         let bSub = this.istatement.sub.db(this.context);
@@ -40,10 +57,10 @@ export class BBizInActStatement extends BStatement<BizInActStatement> {
         bSub.foot(sqls);
     }
 }
-
+*/
 const pendFrom = 'pend';
 const binId = 'bin';
-export abstract class BBizActSubPend<T extends BizAct> extends BStatement<BizPendStatement<T>> {
+export abstract class BBizStatementPend<T extends BizAct> extends BStatement<BizStatementPend<T>> {
     // 可以发送sheet主表，也可以是Detail
     body(sqls: Sqls) {
         const { context } = this;
@@ -148,17 +165,17 @@ export abstract class BBizActSubPend<T extends BizAct> extends BStatement<BizPen
     }
 }
 
-export class BBizBinActSubPend extends BBizActSubPend<BizBinAct> {
+export class BBizStatementBinPend extends BBizStatementPend<BizBinAct> {
 }
 
-export class BBizInActSubPend extends BBizActSubPend<BizInAct> {
+export class BBizStatementInPend extends BBizStatementPend<BizInAct> {
 }
 
 const phraseId = '$phraseId_';
 const objId = '$objId_';
 const budId = '$budId_';
 const historyId = '$history_';
-export class BBizBinActTitle extends BStatement<BizTitleStatement> {
+export class BBizStatementTitle extends BStatement<BizStatementTitle> {
     head(sqls: Sqls): void {
         let { factory } = this.context;
         let { bud, no } = this.istatement;
@@ -268,5 +285,144 @@ export class BBizBinActTitle extends BStatement<BizTitleStatement> {
             }
             update.cols = cols;
         }
+    }
+}
+
+abstract class BBizStatementSheetBase<T extends BizStatementSheetBase> extends BStatement<T> {
+    protected createUpdate(idVarName: string) {
+        const { factory } = this.context;
+        const varId = new ExpVar(idVarName);
+        const update = factory.createUpdate();
+        const { fields, buds, bin } = this.istatement;
+        const { cols } = update;
+        const { props } = bin;
+        for (let i in fields) {
+            cols.push({ col: i, val: this.context.expVal(fields[i]) });
+        }
+        update.table = new EntityTable(EnumSysTable.bizBin, false);
+        update.where = new ExpEQ(new ExpField('id'), varId);
+
+        let ret: Statement[] = [update];
+        for (let i in buds) {
+            let val = buds[i];
+            let bud = props.get(i);
+            let memo = factory.createMemo();
+            ret.push(memo);
+            memo.text = bud.getJName();
+            let expVal = this.context.expVal(val);
+
+            let insert = factory.createInsert();
+            insert.ignore = true;
+            const createIxBudValue = (table: EnumSysTable, valValue: ExpVal) => {
+                insert.table = new EntityTable(table, false);
+                insert.cols = [
+                    { col: 'i', val: varId },
+                    { col: 'x', val: new ExpNum(bud.id) },
+                    { col: 'value', val: valValue },
+                ]
+                return insert;
+            }
+            const createIxBud = (table: EnumSysTable, valValue: ExpVal) => {
+                insert.table = new EntityTable(table, false);
+                insert.cols = [
+                    { col: 'i', val: varId },
+                    { col: 'x', val: valValue },
+                ]
+                return insert;
+            }
+            switch (bud.dataType) {
+                default: debugger; break;
+                case BudDataType.check: debugger; break;
+                case BudDataType.datetime: debugger; break;
+                case BudDataType.int: break;
+                case BudDataType.atom:
+                    insert = createIxBudValue(EnumSysTable.ixBudInt, expVal);
+                    break;
+                case BudDataType.char:
+                case BudDataType.str:
+                    insert = createIxBudValue(EnumSysTable.ixBudStr, expVal);
+                    break;
+                case BudDataType.radio:
+                    insert = createIxBud(EnumSysTable.ixBud, expVal);
+                    break;
+                case BudDataType.date:
+                    insert = createIxBudValue(EnumSysTable.ixBudInt, new ExpNum(10000) /* expVal*/);
+                    break;
+                case BudDataType.dec:
+                    insert = createIxBudValue(EnumSysTable.ixBudDec, expVal);
+                    break;
+            }
+            ret.push(insert);
+        }
+        return ret;
+    }
+}
+
+export class BBizStatementSheet extends BBizStatementSheetBase<BizStatementSheet> {
+    body(sqls: Sqls) {
+        const { factory } = this.context;
+        const { sheet, idPointer } = this.istatement;
+        const memo = factory.createMemo();
+        sqls.push(memo);
+        memo.text = 'Biz Sheet ' + sheet.getJName();
+        const setId = factory.createSet();
+        sqls.push(setId);
+        let idVarName = idPointer.varName(undefined);
+        let idParams: ExpVal[] = [
+            new ExpVar($site),
+            ExpNum.num0,
+            ExpNum.num1,
+            ExpNull.null,
+            new ExpNum(sheet.id),
+            new ExpFuncInUq('$no', [new ExpVar($site), new ExpStr('sheet'), ExpNull.null], true),
+        ];
+        setId.equ(idVarName, new ExpFuncInUq('sheet$id', idParams, true));
+        sqls.push(...this.createUpdate(idVarName));
+    }
+}
+
+export class BBizStatementDetail extends BBizStatementSheetBase<BizStatementDetail> {
+    body(sqls: Sqls) {
+        const { factory } = this.context;
+        let idVarName = 'detail$id';
+        const declare = factory.createDeclare();
+        sqls.push(declare);
+        declare.vars(intField(idVarName));
+        const { sheet, bin, idVal } = this.istatement;
+        const memo = factory.createMemo();
+        sqls.push(memo);
+        memo.text = `Biz Detail ${bin.getJName()} OF Sheet ${sheet.getJName()}`;
+        const setBinId = factory.createSet();
+        sqls.push(setBinId);
+        let idParams: ExpVal[] = [
+            new ExpVar($site),
+            ExpNum.num0,
+            ExpNum.num1,
+            ExpNull.null,
+            new ExpFuncInUq('bud$id', [
+                new ExpVar($site), ExpNum.num0, ExpNum.num1, ExpNull.null
+                , this.context.expVal(idVal), new ExpNum(bin.id)
+            ], true),
+        ];
+        setBinId.equ(idVarName, new ExpFuncInUq('detail$id', idParams, true));
+        sqls.push(...this.createUpdate(idVarName));
+    }
+}
+
+abstract class BBizStatementID<T extends BizStatementID> extends BStatement<T> {
+    override body(sqls: Sqls): void {
+
+    }
+}
+
+export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
+    override body(sqls: Sqls): void {
+
+    }
+}
+
+export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
+    override body(sqls: Sqls): void {
+
     }
 }

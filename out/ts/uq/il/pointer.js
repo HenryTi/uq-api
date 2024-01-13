@@ -11,14 +11,18 @@ class Pointer {
 }
 exports.Pointer = Pointer;
 class VarPointer extends Pointer {
-    constructor() {
-        super(...arguments);
+    constructor(name) {
+        super();
         this.groupType = GroupType.Single;
+        this.name = name;
     }
     to(stack, v) {
         stack.var(this.varName(v._var[0]));
     }
     varName(v) {
+        if (v === undefined) {
+            v = this.name;
+        }
         if (this.arr !== undefined) {
             v = this.arr + '_' + v;
         }

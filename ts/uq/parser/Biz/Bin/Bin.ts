@@ -1,13 +1,12 @@
 import { binAmount, binFieldArr, binPrice, binValue } from "../../../consts";
 import {
-    BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements, BizBinActStatement
+    BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements //, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
-import { PStatements } from "../../statement";
 import { Token } from "../../tokens";
 import { PBizAct, PBizActStatements, PBizBase, PBizEntity } from "../Base";
 import { BizEntitySpace } from "../Biz";
@@ -506,6 +505,6 @@ export class PBizBinAct extends PBizAct<BizBinAct> {
 
 export class PBizBinActStatements extends PBizActStatements<BizBinAct> {
     protected override createBizActStatement(parent: Statement): Statement {
-        return new BizBinActStatement(parent, this.bizAct);
+        return new BizStatementBin(parent, this.bizAct);
     }
 }

@@ -94,13 +94,11 @@ export abstract class BizBud extends BizBase {
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     getFieldShows(): FieldShow[] { return undefined }
-    // show: boolean;      // 仅用于显示
     constructor(biz: Biz, name: string, ui: Partial<UI>) {
         super(biz);
         this.name = name;
         this.ui = ui;
     }
-    // buildBudValue(callback: (value: BudValueSet) => void) { }
     buildBudValue(expStringify: (value: ValueExpression) => string) { }
 }
 

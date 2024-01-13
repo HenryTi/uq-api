@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizIn = void 0;
 const il_1 = require("../../il");
 const bstatement_1 = require("../bstatement");
+const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
@@ -25,9 +26,13 @@ class BBizIn extends BizEntity_1.BBizEntity {
         const declare = factory.createDeclare();
         statements.push(declare);
         let vars = [
+            (0, il_1.intField)(consts_1.$site),
             (0, il_1.intField)('$id'),
             (0, il_1.intField)('$rowId'),
         ];
+        let setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ(consts_1.$site, new sql_1.ExpNum(this.context.site));
         for (let [name, bud] of props) {
             vars.push(this.fieldFromBud(bud));
             let set = factory.createSet();

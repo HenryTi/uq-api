@@ -127,7 +127,7 @@ class PBizInAct extends Base_1.PBizAct {
 exports.PBizInAct = PBizInAct;
 class PBizInActStatements extends Base_1.PBizActStatements {
     createBizActStatement(parent) {
-        return new il_1.BizInActStatement(parent, this.bizAct);
+        return new il_1.BizStatementIn(parent, this.bizAct);
     }
 }
 exports.PBizInActStatements = PBizInActStatements;

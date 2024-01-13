@@ -1,4 +1,4 @@
-import { BizBudValue, BizIn, BizInOut, BizOut, BudDataType, Statements, Statement, BizInAct, BizInActStatement, BizInActStatements, Pointer, BizEntity, VarPointer } from "../../il";
+import { BizBudValue, BizIn, BizInOut, BizOut, BudDataType, Statements, Statement, BizInAct, BizStatementIn, BizInActStatements, Pointer, BizEntity, VarPointer } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizAct, PBizActStatements, PBizEntity } from "./Base";
@@ -144,7 +144,7 @@ export class PBizInAct extends PBizAct<BizInAct> {
 
 export class PBizInActStatements extends PBizActStatements<BizInAct> {
     protected override createBizActStatement(parent: Statement): Statement {
-        return new BizInActStatement(parent, this.bizAct);
+        return new BizStatementIn(parent, this.bizAct);
     }
 }
 

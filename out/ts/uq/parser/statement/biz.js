@@ -1,16 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizTitleStatement = exports.PBizInPendStatement = exports.PBizBinPendStatement = exports.PBizPendStatement = exports.PBizInActStatement = exports.PBizBinActStatement = exports.PBizActStatement = void 0;
+exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementDetail = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 const il_2 = require("../../il");
-class PBizActStatement extends statement_1.PStatement {
+const consts_1 = require("../../consts");
+class PBizStatement extends statement_1.PStatement {
     constructor(bizStatement, context) {
         super(bizStatement, context);
         this.bizSubs = {
-            title: il_1.BizTitleStatement,
+            title: il_1.BizStatementTitle,
+            sheet: il_1.BizStatementSheet,
+            detail: il_1.BizStatementDetail,
+            atom: il_1.BizStatementAtom,
+            spec: il_1.BizStatementSpec,
         };
         this.bizStatement = bizStatement;
         this.init();
@@ -47,24 +52,26 @@ class PBizActStatement extends statement_1.PStatement {
         return ok;
     }
 }
-exports.PBizActStatement = PBizActStatement;
-class PBizBinActStatement extends PBizActStatement {
+exports.PBizStatement = PBizStatement;
+class PBizStatementBin extends PBizStatement {
     getBizSubsEx() {
         return {
-            pend: il_1.BizBinPendStatement,
+            pend: il_1.BizStatementBinPend,
         };
     }
 }
-exports.PBizBinActStatement = PBizBinActStatement;
-class PBizInActStatement extends PBizActStatement {
+exports.PBizStatementBin = PBizStatementBin;
+class PBizStatementIn extends PBizStatement {
     getBizSubsEx() {
         return {
-            pend: il_1.BizInPendStatement,
+        // pend: BizStatementInPend,
         };
     }
 }
-exports.PBizInActStatement = PBizInActStatement;
-class PBizPendStatement extends element_1.PElement {
+exports.PBizStatementIn = PBizStatementIn;
+class PBizStatementSub extends element_1.PElement {
+}
+class PBizStatementPend extends PBizStatementSub {
     _parse() {
         let setEqu;
         if (this.ts.token === tokens_1.Token.VAR) {
@@ -163,23 +170,11 @@ class PBizPendStatement extends element_1.PElement {
                 }
             }
         }
-        /*
-        else {
-            const { bizBin } = bizAct;
-            if (bizBin.pend === undefined) {
-                this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
-                ok = false;
-            }
-            if (val !== undefined) {
-                if (val.pelement.scan(space) === false) ok = false;
-            }
-        }
-        */
         return ok;
     }
 }
-exports.PBizPendStatement = PBizPendStatement;
-class PBizBinPendStatement extends PBizPendStatement {
+exports.PBizStatementPend = PBizStatementPend;
+class PBizStatementBinPend extends PBizStatementPend {
     scan(space) {
         let ok = true;
         if (super.scan(space) === false) {
@@ -200,11 +195,11 @@ class PBizBinPendStatement extends PBizPendStatement {
         return ok;
     }
 }
-exports.PBizBinPendStatement = PBizBinPendStatement;
-class PBizInPendStatement extends PBizPendStatement {
+exports.PBizStatementBinPend = PBizStatementBinPend;
+class PBizStatementInPend extends PBizStatementPend {
 }
-exports.PBizInPendStatement = PBizInPendStatement;
-class PBizTitleStatement extends element_1.PElement {
+exports.PBizStatementInPend = PBizStatementInPend;
+class PBizStatementTitle extends PBizStatementSub {
     _parse() {
         this.buds = [];
         for (;;) {
@@ -275,5 +270,184 @@ class PBizTitleStatement extends element_1.PElement {
         return ok;
     }
 }
-exports.PBizTitleStatement = PBizTitleStatement;
+exports.PBizStatementTitle = PBizStatementTitle;
+class PBizStatementSheetBase extends PBizStatementSub {
+    constructor() {
+        super(...arguments);
+        this.sets = {};
+    }
+    parseSet() {
+        this.ts.passKey('set');
+        for (;;) {
+            let name = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.EQU);
+            let val = new il_1.ValueExpression();
+            this.context.parseElement(val);
+            this.sets[name] = val;
+            if (this.ts.token === tokens_1.Token.SEMICOLON)
+                break;
+            if (this.ts.token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.SEMICOLON);
+        }
+    }
+    scanSets(space) {
+        let ok = true;
+        const { bin, fields, buds } = this.element;
+        const { props } = bin;
+        for (let i in this.sets) {
+            let val = this.sets[i];
+            if (val.pelement.scan(space) === false) {
+                ok = false;
+            }
+            if (consts_1.binFieldArr.findIndex(v => v === i) >= 0) {
+                fields[i] = val;
+                continue;
+            }
+            if (props.has(i) === true) {
+                buds[i] = val;
+                continue;
+            }
+            ok = false;
+            this.log(`${i} is not defined in ${bin.getJName()}`);
+        }
+        return ok;
+    }
+}
+class PBizStatementSheet extends PBizStatementSheetBase {
+    _parse() {
+        this.sheet = this.ts.passVar();
+        this.ts.passKey('to');
+        this.id = this.ts.passVar();
+        this.parseSet();
+    }
+    scan(space) {
+        let ok = true;
+        let sheet = space.getBizEntity(this.sheet);
+        if (sheet === undefined || sheet.bizPhraseType !== il_1.BizPhraseType.sheet) {
+            ok = false;
+            this.log(`${this.sheet} is not a SHEET`);
+        }
+        this.element.sheet = sheet;
+        this.element.bin = sheet.main;
+        let pointer = space.varPointer(this.id, false);
+        if (pointer === undefined) {
+            ok = false;
+            this.log(`没有定义${this.id}`);
+        }
+        else {
+            pointer.name = this.id;
+        }
+        this.element.idPointer = pointer;
+        if (this.scanSets(space) === false)
+            ok = false;
+        return ok;
+    }
+}
+exports.PBizStatementSheet = PBizStatementSheet;
+class PBizStatementDetail extends PBizStatementSheetBase {
+    _parse() {
+        this.detail = this.ts.passVar();
+        this.ts.passKey('of');
+        this.sheet = this.ts.passVar();
+        this.ts.passToken(tokens_1.Token.EQU);
+        this.element.idVal = new il_1.ValueExpression();
+        let { idVal } = this.element;
+        this.context.parseElement(idVal);
+        this.parseSet();
+    }
+    scan(space) {
+        let ok = true;
+        let sheet = space.getBizEntity(this.sheet);
+        if (sheet === undefined || sheet.bizPhraseType !== il_1.BizPhraseType.sheet) {
+            ok = false;
+            this.log(`${this.sheet} is not a SHEET`);
+        }
+        else {
+            this.element.sheet = sheet;
+            let getDetail = () => {
+                let bin = space.getBizEntity(this.detail);
+                if (bin === undefined)
+                    return;
+                for (let detail of sheet.details) {
+                    if (detail.bin === bin)
+                        return bin;
+                }
+                return undefined;
+            };
+            this.element.bin = getDetail();
+            let { bin } = this.element;
+            if (bin === undefined) {
+                ok = false;
+                this.log(`${this.detail} is not a detail of SHEET ${this.sheet}`);
+            }
+        }
+        if (this.scanSets(space) === false)
+            ok = false;
+        let { idVal } = this.element;
+        if (idVal.pelement.scan(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+}
+exports.PBizStatementDetail = PBizStatementDetail;
+var IDAct;
+(function (IDAct) {
+    IDAct[IDAct["in"] = 0] = "in";
+    IDAct[IDAct["id"] = 1] = "id";
+})(IDAct || (IDAct = {}));
+class PBizStatementID extends PBizStatementSub {
+    constructor() {
+        super(...arguments);
+        this.vals = [];
+    }
+    _parse() {
+        this.entity = this.ts.passVar();
+        this.ts.passKey('to');
+        this.toVar = this.ts.passVar();
+        let key = this.ts.passKey();
+        switch (key) {
+            default: this.ts.expect('in', 'id');
+            case 'in':
+                this.idAct = IDAct.in;
+                break;
+            case 'id':
+                this.idAct = IDAct.id;
+                break;
+        }
+        this.ts.passToken(tokens_1.Token.EQU);
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (;;) {
+                let val = new il_1.ValueExpression();
+                this.context.parseElement(val);
+                this.vals.push(val);
+                const { token } = this.ts;
+                if (token === tokens_1.Token.COMMA) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (token === tokens_1.Token.RPARENTHESE) {
+                    this.ts.readToken();
+                    break;
+                }
+                this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
+            }
+        }
+        else {
+            let val = new il_1.ValueExpression();
+            this.context.parseElement(val);
+            this.vals.push(val);
+        }
+    }
+}
+class PBizStatementAtom extends PBizStatementID {
+}
+exports.PBizStatementAtom = PBizStatementAtom;
+class PBizStatementSpec extends PBizStatementID {
+}
+exports.PBizStatementSpec = PBizStatementSpec;
 //# sourceMappingURL=biz.js.map
