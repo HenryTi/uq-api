@@ -86,7 +86,14 @@ class BizBudValue extends BizBud {
     buildSchema(res) {
         var _a, _b;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
+        return {
+            ...ret,
+            dataType: this.dataType,
+            value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str,
+            history: this.hasHistory === true ? true : undefined,
+            setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign,
+            // show: this.show,
+        };
     }
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')
@@ -272,7 +279,9 @@ class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase });
+        return {
+            ...ret, options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase
+        };
     }
     get objName() { var _a; return (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase; }
 }

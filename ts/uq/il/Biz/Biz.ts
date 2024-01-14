@@ -9,6 +9,7 @@ import { BizRole } from "./Role";
 import { BizAtom } from "./BizID";
 import { EnumSysTable } from "../EnumSysTable";
 import { BizPhraseType } from "./BizPhraseType";
+import { flatMap } from "lodash";
 
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
@@ -174,8 +175,12 @@ interface BizSchema extends Schema {
     biz: any;
 }
 export class BizSchemaBuilder extends SchemaBuilder<Biz> {
+    // filter out system uq defines
     build(schema: BizSchema, res: { [phrase: string]: string }) {
         const { bizArr } = this.entity;
-        schema.biz = bizArr.map(v => v.buildSchema(res));
+        schema.biz = bizArr.flatMap(v => {
+            if (v.name[0] === '$') return [];
+            return [v.buildSchema(res)];
+        });
     }
 }

@@ -1,4 +1,5 @@
 import * as jsonpack from 'jsonpack';
+import sysBizCode from "../biz-sys";
 import { EntityRunner } from "../../core";
 import { UqBuilder } from "./UqBuilder";
 import { UqParser } from './UqParser';
@@ -178,6 +179,10 @@ export class Compiler {
     }
 
     parseBiz() {
+        for (let part of sysBizCode) {
+            this.uqParser.parse(part, 'sys', true);
+        }
+
         for (let obj of this.objs) {
             const { id, phrase, source } = obj;
             if (!source) continue;

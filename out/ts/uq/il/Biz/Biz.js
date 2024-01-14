@@ -164,7 +164,11 @@ exports.Biz = Biz;
 class BizSchemaBuilder extends schema_1.SchemaBuilder {
     build(schema, res) {
         const { bizArr } = this.entity;
-        schema.biz = bizArr.map(v => v.buildSchema(res));
+        schema.biz = bizArr.flatMap(v => {
+            if (v.name[0] === '$')
+                return [];
+            return [v.buildSchema(res)];
+        });
     }
 }
 exports.BizSchemaBuilder = BizSchemaBuilder;

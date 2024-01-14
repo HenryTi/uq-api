@@ -1,0 +1,4 @@
+export default `
+ATOM $Site {
+}
+`;

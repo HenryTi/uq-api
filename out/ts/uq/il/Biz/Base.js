@@ -27,7 +27,10 @@ class BizBase extends IElement_1.IElement {
             jName: this.jName,
             type: this.type,
             phrase: this.phrase,
-            ui: Object.assign(Object.assign({}, this.ui), { caption: (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : (_b = this.ui) === null || _b === void 0 ? void 0 : _b.caption })
+            ui: {
+                ...this.ui,
+                caption: (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : (_b = this.ui) === null || _b === void 0 ? void 0 : _b.caption,
+            }
         };
     }
     ;
