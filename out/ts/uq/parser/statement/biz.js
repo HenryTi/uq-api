@@ -14,8 +14,6 @@ class PBizStatement extends statement_1.PStatement {
             title: il_1.BizStatementTitle,
             sheet: il_1.BizStatementSheet,
             detail: il_1.BizStatementDetail,
-            atom: il_1.BizStatementAtom,
-            spec: il_1.BizStatementSpec,
         };
         this.bizStatement = bizStatement;
         this.init();
@@ -64,7 +62,8 @@ exports.PBizStatementBin = PBizStatementBin;
 class PBizStatementIn extends PBizStatement {
     getBizSubsEx() {
         return {
-        // pend: BizStatementInPend,
+            atom: il_1.BizStatementAtom,
+            spec: il_1.BizStatementSpec,
         };
     }
 }
@@ -394,37 +393,21 @@ class PBizStatementDetail extends PBizStatementSheetBase {
     }
 }
 exports.PBizStatementDetail = PBizStatementDetail;
-var IDAct;
-(function (IDAct) {
-    IDAct[IDAct["in"] = 0] = "in";
-    IDAct[IDAct["id"] = 1] = "id";
-})(IDAct || (IDAct = {}));
 class PBizStatementID extends PBizStatementSub {
     constructor() {
         super(...arguments);
-        this.vals = [];
+        this.inVals = [];
     }
     _parse() {
-        this.entity = this.ts.passVar();
-        this.ts.passKey('to');
-        this.toVar = this.ts.passVar();
-        let key = this.ts.passKey();
-        switch (key) {
-            default: this.ts.expect('in', 'id');
-            case 'in':
-                this.idAct = IDAct.in;
-                break;
-            case 'id':
-                this.idAct = IDAct.id;
-                break;
-        }
+        this.entityName = this.ts.passVar();
+        this.ts.passKey('in');
         this.ts.passToken(tokens_1.Token.EQU);
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             for (;;) {
                 let val = new il_1.ValueExpression();
                 this.context.parseElement(val);
-                this.vals.push(val);
+                this.inVals.push(val);
                 const { token } = this.ts;
                 if (token === tokens_1.Token.COMMA) {
                     this.ts.readToken();
@@ -440,14 +423,79 @@ class PBizStatementID extends PBizStatementSub {
         else {
             let val = new il_1.ValueExpression();
             this.context.parseElement(val);
-            this.vals.push(val);
+            this.inVals.push(val);
         }
+        this.ts.passKey('to');
+        this.toVar = this.ts.passVar();
+    }
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        this.entity = space.getBizEntity(this.entityName);
+        if (this.entity === undefined) {
+            ok = false;
+            this.log(`${this.entityName} is not defined`);
+        }
+        this.element.toVar = space.varPointer(this.toVar, false);
+        if (this.element.toVar === undefined) {
+            ok = false;
+            this.log(`${this.toVar} is not defined`);
+        }
+        for (let inVal of this.inVals) {
+            if (inVal.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        this.element.inVals = this.inVals;
+        return ok;
     }
 }
 class PBizStatementAtom extends PBizStatementID {
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+            return ok;
+        }
+        if (this.entity.bizPhraseType !== il_1.BizPhraseType.atom) {
+            ok = false;
+            this.log(`${this.entityName} is not ATOM`);
+        }
+        else {
+            this.element.atom = this.entity;
+        }
+        let { length } = this.inVals;
+        if (length !== 1) {
+            ok = false;
+            this.log(`IN ${length} variables, can only have 1 variable`);
+        }
+        return ok;
+    }
 }
 exports.PBizStatementAtom = PBizStatementAtom;
 class PBizStatementSpec extends PBizStatementID {
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+            return ok;
+        }
+        if (this.entity.bizPhraseType !== il_1.BizPhraseType.spec) {
+            ok = false;
+            this.log(`${this.entityName} is not SPEC`);
+        }
+        else {
+            this.element.spec = this.entity;
+            let length = this.element.spec.keys.length + 1;
+            if (length !== this.inVals.length) {
+                ok = false;
+                this.log(`IN ${this.inVals.length} variables, must have ${length} variables`);
+            }
+        }
+        return ok;
+    }
 }
 exports.PBizStatementSpec = PBizStatementSpec;
 //# sourceMappingURL=biz.js.map

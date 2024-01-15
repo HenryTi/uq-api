@@ -144,6 +144,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             dec: BizBudDec,
             char: BizBudChar,
             atom: BizBudID,
+            id: BizBudID,
             date: BizBudDate,
             intof: BizBudIntOf,
             radio: BizBudRadio,

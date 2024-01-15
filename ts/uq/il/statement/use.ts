@@ -1,10 +1,11 @@
-import { BUseBase, BUseMonthZone, BUseTimeSpan, BUseTimeZone, BUseYearZone, DbContext } from "../../builder";
-import { PContext, PElement, PUseMonthZone, PUseStatement, PUseTimeSpan, PUseTimeZone, PUseYearZone } from "../../parser";
+import { BUseBase, BUseMonthZone, BUseOut, BUseTimeSpan, BUseTimeZone, BUseYearZone, DbContext } from "../../builder";
+import { PContext, PElement, PUseMonthZone, PUseOut, PUseStatement, PUseTimeSpan, PUseTimeZone, PUseYearZone } from "../../parser";
 import { Builder } from "../builder";
 import { IElement } from "../IElement";
 import { ValueExpression } from "../Exp";
 import { SpanPeriod } from "../tool";
 import { Statement } from "./Statement";
+import { BizOut } from "../Biz";
 
 // use 某些特定的值，比如年月日，时段
 export abstract class UseBase extends IElement {
@@ -55,6 +56,16 @@ export class UseTimeSpan extends UseBase {
         return new PUseTimeSpan(this, context);
     }
     override db(context: DbContext) { return new BUseTimeSpan(this, context) }
+}
+
+export class UseOut extends UseBase {
+    readonly type = 'out';
+    varName: string;
+    outEntity: BizOut;
+    parser(context: PContext): PElement<IElement> {
+        return new PUseOut(this, context);
+    }
+    override db(context: DbContext) { return new BUseOut(this, context) }
 }
 
 export class UseStatement extends Statement {

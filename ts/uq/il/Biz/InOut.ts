@@ -1,4 +1,4 @@
-import { DbContext, BBizEntity, BBizIn } from "../../builder";
+import { DbContext, BBizEntity, BBizIn, BBizOut } from "../../builder";
 import { PBizIn, PBizInAct, PBizOut, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizAct } from "./Base";
@@ -35,6 +35,10 @@ export class BizOut extends BizInOut {
 
     parser(context: PContext): PElement<IElement> {
         return new PBizOut(this, context);
+    }
+
+    db(dbContext: DbContext): BBizEntity<any> {
+        return new BBizOut(dbContext, this);
     }
 }
 

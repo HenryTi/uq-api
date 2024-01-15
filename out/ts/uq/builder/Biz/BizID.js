@@ -34,7 +34,6 @@ class BBizSpec extends BizEntity_1.BBizEntity {
         const varProps = new sql_1.ExpVar(cProps);
         const varSite = new sql_1.ExpVar(site);
         const prefixBud = '$bud_';
-        // const prefixProp = '$prop_';
         const prefixPhrase = '$phrase_';
         const props = [];
         for (let [, value] of propsMap)
@@ -64,14 +63,7 @@ class BBizSpec extends BizEntity_1.BBizEntity {
                 declare.var(prefixPhrase + name, new il_1.BigInt());
                 let setPhraseId = factory.createSet();
                 statements.push(setPhraseId);
-                setPhraseId.equ(prefixPhrase + name, new sql_1.ExpNum(id)
-                /*
-                new ExpFuncInUq(
-                    'phraseid',
-                    [varSite, new ExpStr(phrase)],
-                    true)
-                */
-                );
+                setPhraseId.equ(prefixPhrase + name, new sql_1.ExpNum(id));
             }
         }
         declareBuds(keys);
@@ -101,19 +93,17 @@ class BBizSpec extends BizEntity_1.BBizEntity {
             let tbl;
             switch (dataType) {
                 default:
-                    tbl = 'ixbudint';
+                    tbl = il_1.EnumSysTable.ixBudInt;
                     break;
                 case il_1.BudDataType.date:
-                    tbl = 'ixbudint';
-                    // const daysOf19700101 = 719528; // to_days('1970-01-01')
-                    // varVal = new ExpSub(new ExpFunc('to_days', varVal), new ExpNum(daysOf19700101));
+                    tbl = il_1.EnumSysTable.ixBudInt;
                     break;
                 case il_1.BudDataType.str:
                 case il_1.BudDataType.char:
-                    tbl = 'ixbudstr';
+                    tbl = il_1.EnumSysTable.ixBudStr;
                     break;
                 case il_1.BudDataType.dec:
-                    tbl = 'ixbuddec';
+                    tbl = il_1.EnumSysTable.ixBudDec;
                     break;
             }
             return { varVal, tbl };

@@ -22,37 +22,6 @@ class BBizStatement extends bstatement_1.BStatement {
     }
 }
 exports.BBizStatement = BBizStatement;
-/*
-export class BBizBinActStatement extends BStatement<BizBinActStatement> {
-    head(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.head(sqls);
-    }
-    body(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.body(sqls);
-    }
-    foot(sqls: Sqls): void {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.foot(sqls);
-    }
-}
-
-export class BBizInActStatement extends BStatement<BizInActStatement> {
-    head(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.head(sqls);
-    }
-    body(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.body(sqls);
-    }
-    foot(sqls: Sqls): void {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.foot(sqls);
-    }
-}
-*/
 const pendFrom = 'pend';
 const binId = 'bin';
 class BBizStatementPend extends bstatement_1.BStatement {
@@ -390,13 +359,59 @@ class BBizStatementID extends bstatement_1.BStatement {
     body(sqls) {
     }
 }
+const a = 'a';
 class BBizStatementAtom extends BBizStatementID {
     body(sqls) {
+        const { factory } = this.context;
+        let select = factory.createSelect();
+        sqls.push(select);
+        select.toVar = true;
+        select.column(new sql_1.ExpField('atom', a), undefined, this.istatement.toVar);
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtom, false, a));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('outer', a), new sql_1.ExpVar('$outer')), new sql_1.ExpEQ(new sql_1.ExpField('phrase', a), new sql_1.ExpVar('$in')), new sql_1.ExpEQ(new sql_1.ExpField('no', a), this.context.expVal(this.istatement.inVals[0]))));
     }
 }
 exports.BBizStatementAtom = BBizStatementAtom;
 class BBizStatementSpec extends BBizStatementID {
     body(sqls) {
+        const { inVals, spec } = this.istatement;
+        const { factory } = this.context;
+        let select = factory.createSelect();
+        sqls.push(select);
+        select.toVar = true;
+        select.column(new sql_1.ExpField('id', a), undefined, this.istatement.toVar);
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, a));
+        let wheres = [
+            new sql_1.ExpEQ(new sql_1.ExpField('base', a), this.context.expVal(inVals[0])),
+        ];
+        let { keys } = spec;
+        let len = keys.length;
+        for (let i = 0; i < len; i++) {
+            const key = keys[i];
+            const { id, dataType } = key;
+            let tbl, val = this.context.expVal(inVals[i + 1]);
+            switch (dataType) {
+                default:
+                    tbl = il_1.EnumSysTable.ixBudInt;
+                    break;
+                case il_1.BudDataType.date:
+                    tbl = il_1.EnumSysTable.ixBudInt;
+                    val = new sql_1.ExpFunc('DATEDIFF', val, new sql_1.ExpStr('1970-01-01'));
+                    break;
+                case il_1.BudDataType.str:
+                case il_1.BudDataType.char:
+                    tbl = il_1.EnumSysTable.ixBudStr;
+                    break;
+                case il_1.BudDataType.dec:
+                    tbl = il_1.EnumSysTable.ixBudDec;
+                    break;
+            }
+            let t = 't' + i;
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, t));
+            select.on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(id))));
+            wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('value', t), val));
+        }
+        select.where(new sql_1.ExpAnd(...wheres));
     }
 }
 exports.BBizStatementSpec = BBizStatementSpec;

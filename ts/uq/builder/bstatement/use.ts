@@ -1,12 +1,12 @@
-import { BigInt, DateTime, SpanPeriod, UseBase, UseMonthZone, UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone } from "../../il";
+import { BigInt, DateTime, EnumSysTable, JsonDataType, ProcParamType, SpanPeriod, UseBase, UseMonthZone, UseOut, UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone } from "../../il";
 import { DbContext } from "../dbContext";
 import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpSub, ExpVal, ExpVar } from "../sql";
-import { BStatement } from "./bstatement";
+import { BStatementBase } from "./bstatement";
 import { Sqls } from "./sqls";
 
-export class BUseStatement extends BStatement<UseStatement> {
+export class BUseStatement extends BStatementBase<UseStatement> {
     protected readonly bUse: BUseBase<any>;
-    singleKey = '$use';
+    get singleKey() { return this.bUse.singleKey };
     constructor(context: DbContext, stat: UseStatement) {
         super(context, stat);
         const { useBase } = stat;
@@ -14,18 +14,22 @@ export class BUseStatement extends BStatement<UseStatement> {
         this.bUse.convertFrom();
         this.bUse.setStatement(stat);
     }
-    singleHead(sqls: Sqls): void {
+    override singleHead(sqls: Sqls): void {
         this.bUse.singleHead(sqls);
     }
-    head(sqls: Sqls): void {
+    override head(sqls: Sqls): void {
         this.bUse.head(sqls);
     }
-    body(sqls: Sqls): void {
+    override body(sqls: Sqls): void {
         this.bUse.body(sqls);
+    }
+    override singleFoot(sqls: Sqls): void {
+        this.bUse.singleFoot(sqls);
     }
 }
 
-export class BUseBase<T extends UseBase> {
+export abstract class BUseBase<T extends UseBase> {
+    abstract get singleKey(): string;
     protected context: DbContext;
     protected statement: UseStatement;
     readonly useObj: T;
@@ -41,12 +45,14 @@ export class BUseBase<T extends UseBase> {
     singleHead(sqls: Sqls): void { }
     head(sqls: Sqls): void { }
     body(sqls: Sqls): void { }
+    singleFoot(sqls: Sqls): void { }
 }
 
-export class BUseSetting<T extends UseSetting> extends BUseBase<T> {
+export abstract class BUseSetting<T extends UseSetting> extends BUseBase<T> {
 }
 
 export class BUseTimeZone extends BUseSetting<UseTimeZone> {
+    readonly singleKey = 'timezone';
     head(sqls: Sqls): void {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -56,6 +62,7 @@ export class BUseTimeZone extends BUseSetting<UseTimeZone> {
 }
 
 export class BUseMonthZone extends BUseSetting<UseMonthZone> {
+    readonly singleKey = 'monthzone';
     head(sqls: Sqls): void {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -65,6 +72,7 @@ export class BUseMonthZone extends BUseSetting<UseMonthZone> {
 }
 
 export class BUseYearZone extends BUseSetting<UseYearZone> {
+    readonly singleKey = 'yearzone';
     head(sqls: Sqls): void {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -79,6 +87,7 @@ const weekZone = '$weekzone';
 const monthZone = '$monthzone';
 const yearZone = '$yearzone';
 export class BUseTimeSpan extends BUseBase<UseTimeSpan> {
+    readonly singleKey = 'timespan';
     singleHead(sqls: Sqls): void {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -232,5 +241,32 @@ export class BUseTimeSpan extends BUseBase<UseTimeSpan> {
             buildSet(vStart);
             buildSet(vEnd);
         }
+    }
+}
+
+export class BUseOut extends BUseBase<UseOut> {
+    readonly singleKey = 'out';
+    override singleHead(sqls: Sqls): void {
+        const { varName } = this.useObj;
+        const { factory } = this.context;
+        let declare = factory.createDeclare();
+        sqls.push(declare);
+        declare.var(varName, new JsonDataType());
+    }
+
+    override singleFoot(sqls: Sqls) {
+        const { varName, outEntity } = this.useObj;
+        const { factory } = this.context;
+        const memo = factory.createMemo();
+        sqls.push(memo);
+        memo.text = `call PROC to write OUT ${varName} ${outEntity.getJName()}`;
+        const proc = factory.createCall();
+        sqls.push(proc);
+        proc.db = '$site';
+        proc.procName = `${this.context.site}.${outEntity.id}`;
+        proc.params.push({
+            paramType: ProcParamType.in,
+            value: new ExpVar('$ret'),
+        });
     }
 }

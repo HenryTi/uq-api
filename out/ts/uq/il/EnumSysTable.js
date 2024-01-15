@@ -31,6 +31,11 @@ var EnumSysTable;
     EnumSysTable["pend"] = "pend";
     EnumSysTable["binPend"] = "binpend";
     EnumSysTable["history"] = "history";
+    // IO
+    EnumSysTable["IOQueue"] = "ioqueue";
+    EnumSysTable["IOOuter"] = "ioouter";
+    EnumSysTable["IOEndPoint"] = "ioendpoint";
+    EnumSysTable["IOAtom"] = "ioatom";
     EnumSysTable["messageQueue"] = "$message_queue";
     EnumSysTable["messageQueueEnd"] = "$message_queue_end";
     EnumSysTable["messageQueueFailed"] = "$message_queue_failed";

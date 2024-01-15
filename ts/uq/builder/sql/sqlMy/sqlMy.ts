@@ -262,7 +262,14 @@ class If extends stat.If {
 
 class While extends stat.While {
     protected start(sb: SqlBuilder, tab: number) {
-        sb.tab(tab).append('__loop_' + this.no + ': WHILE ').exp(this.cmp).append(' DO').n();
+        sb.tab(tab).append('__loop_' + this.no + ': WHILE ');
+        if (this.cmp === undefined) {
+            sb.append('1=1');
+        }
+        else {
+            sb.exp(this.cmp);
+        }
+        sb.append(' DO').n();
     }
     protected end(sb: SqlBuilder, tab: number) {
         sb.tab(tab).append('END WHILE; -- ').append('__loop_' + this.no).n();

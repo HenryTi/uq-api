@@ -16,23 +16,30 @@ class BBizIn extends BizEntity_1.BBizEntity {
         this.buildSubmitProc(procSubmit);
     }
     buildSubmitProc(proc) {
-        const paramJson = 'json';
+        const paramOuter = '$outer';
+        const paramJson = '$json';
+        const vIn = '$in';
         const { parameters, statements } = proc;
         const { factory } = this.context;
         const { act, props, arrs } = this.bizEntity;
         let varJson = new sql_1.ExpVar(paramJson);
+        parameters.push((0, il_1.bigIntField)(paramOuter));
         let json = (0, il_1.jsonField)(paramJson);
         parameters.push(json);
         const declare = factory.createDeclare();
         statements.push(declare);
         let vars = [
-            (0, il_1.intField)(consts_1.$site),
-            (0, il_1.intField)('$id'),
-            (0, il_1.intField)('$rowId'),
+            (0, il_1.bigIntField)(consts_1.$site),
+            (0, il_1.bigIntField)(vIn),
+            (0, il_1.bigIntField)('$id'),
+            (0, il_1.bigIntField)('$rowId'),
         ];
         let setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ(consts_1.$site, new sql_1.ExpNum(this.context.site));
+        let setIn = factory.createSet();
+        statements.push(setIn);
+        setIn.equ(vIn, new sql_1.ExpNum(this.bizEntity.id));
         for (let [name, bud] of props) {
             vars.push(this.fieldFromBud(bud));
             let set = factory.createSet();

@@ -1,11 +1,11 @@
 import {
     EnumSysTable, BigInt, BizStatementPend
-    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct, BizStatement, BizStatementSheet, BizStatementDetail, BizStatementSheetBase, intField, ValueExpression, BizStatementID, BizStatementAtom, BizStatementSpec
+    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct, BizStatement, BizStatementSheet, BizStatementDetail, BizStatementSheetBase, intField, ValueExpression, BizStatementID, BizStatementAtom, BizStatementSpec, JoinType
 } from "../../il";
 import { $site } from "../consts";
 import { sysTable } from "../dbContext";
 import {
-    ColVal, ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
+    ColVal, ExpAdd, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
     , ExpGT, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, Statement
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -27,37 +27,7 @@ export class BBizStatement extends BStatement<BizStatement<BizAct>> {
         bSub.foot(sqls);
     }
 }
-/*
-export class BBizBinActStatement extends BStatement<BizBinActStatement> {
-    head(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.head(sqls);
-    }
-    body(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.body(sqls);
-    }
-    foot(sqls: Sqls): void {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.foot(sqls);
-    }
-}
 
-export class BBizInActStatement extends BStatement<BizInActStatement> {
-    head(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.head(sqls);
-    }
-    body(sqls: Sqls) {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.body(sqls);
-    }
-    foot(sqls: Sqls): void {
-        let bSub = this.istatement.sub.db(this.context);
-        bSub.foot(sqls);
-    }
-}
-*/
 const pendFrom = 'pend';
 const binId = 'bin';
 export abstract class BBizStatementPend<T extends BizAct> extends BStatement<BizStatementPend<T>> {
@@ -411,18 +381,68 @@ export class BBizStatementDetail extends BBizStatementSheetBase<BizStatementDeta
 
 abstract class BBizStatementID<T extends BizStatementID> extends BStatement<T> {
     override body(sqls: Sqls): void {
-
     }
 }
 
+const a = 'a';
 export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
     override body(sqls: Sqls): void {
-
+        const { factory } = this.context;
+        let select = factory.createSelect();
+        sqls.push(select);
+        select.toVar = true;
+        select.column(new ExpField('atom', a), undefined, this.istatement.toVar);
+        select.from(new EntityTable(EnumSysTable.IOAtom, false, a));
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('outer', a), new ExpVar('$outer')),
+            new ExpEQ(new ExpField('phrase', a), new ExpVar('$in')),
+            new ExpEQ(new ExpField('no', a), this.context.expVal(this.istatement.inVals[0])),
+        ));
     }
 }
 
 export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
     override body(sqls: Sqls): void {
-
+        const { inVals, spec } = this.istatement;
+        const { factory } = this.context;
+        let select = factory.createSelect();
+        sqls.push(select);
+        select.toVar = true;
+        select.column(new ExpField('id', a), undefined, this.istatement.toVar);
+        select.from(new EntityTable(EnumSysTable.spec, false, a));
+        let wheres: ExpCmp[] = [
+            new ExpEQ(new ExpField('base', a), this.context.expVal(inVals[0])),
+        ]
+        let { keys } = spec;
+        let len = keys.length;
+        for (let i = 0; i < len; i++) {
+            const key = keys[i];
+            const { id, dataType } = key;
+            let tbl: EnumSysTable, val: ExpVal = this.context.expVal(inVals[i + 1]);
+            switch (dataType) {
+                default:
+                    tbl = EnumSysTable.ixBudInt;
+                    break;
+                case BudDataType.date:
+                    tbl = EnumSysTable.ixBudInt;
+                    val = new ExpFunc('DATEDIFF', val, new ExpStr('1970-01-01'));
+                    break;
+                case BudDataType.str:
+                case BudDataType.char:
+                    tbl = EnumSysTable.ixBudStr;
+                    break;
+                case BudDataType.dec:
+                    tbl = EnumSysTable.ixBudDec;
+                    break;
+            }
+            let t = 't' + i;
+            select.join(JoinType.join, new EntityTable(tbl, false, t))
+            select.on(new ExpAnd(
+                new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
+                new ExpEQ(new ExpField('x', t), new ExpNum(id)),
+            ));
+            wheres.push(new ExpEQ(new ExpField('value', t), val));
+        }
+        select.where(new ExpAnd(...wheres));
     }
 }

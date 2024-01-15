@@ -35,6 +35,9 @@ class BizOut extends BizInOut {
     parser(context) {
         return new parser_1.PBizOut(this, context);
     }
+    db(dbContext) {
+        return new builder_1.BBizOut(dbContext, this);
+    }
 }
 exports.BizOut = BizOut;
 class BizInAct extends Base_1.BizAct {

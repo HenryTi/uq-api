@@ -1,9 +1,7 @@
-import { Int, Text, Statement, } from '../../il';
-import { Statement as SqlStatement, VarTable, ExpEQ, ExpNum, ExpField, ExpVar, ExpGT, ExpAnd, ExpStr, ExpNull, ExpIsNull, SqlVarTable, ExpFunc, ExpSelect, Procedure, ExpVal, ExpAdd, ExpFuncCustom } from '../sql';
+import { Statement, } from '../../il';
+import { Statement as SqlStatement, VarTable, Procedure } from '../sql';
 import { BStatement } from './bstatement';
 import { DbContext } from '../dbContext';
-import { VarTable as SelectVarTable, EntityTable } from '../sql/statementWithFrom';
-import { LockType } from '../sql/select';
 
 export class Sqls {
     private singleHeads: { [key: string]: boolean } = {};

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PUseTimeSpan = exports.PUseYearZone = exports.PUseMonthZone = exports.PUseTimeZone = exports.PUseSetting = exports.PUseBase = exports.PUseStatement = void 0;
+exports.PUseOut = exports.PUseTimeSpan = exports.PUseYearZone = exports.PUseMonthZone = exports.PUseTimeZone = exports.PUseSetting = exports.PUseBase = exports.PUseStatement = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -24,6 +24,9 @@ class PUseStatement extends statement_1.PStatement {
                 break;
             case 'timespan':
                 useBase = new il_1.UseTimeSpan(this.element);
+                break;
+            case 'out':
+                useBase = new il_1.UseOut(this.element);
                 break;
         }
         this.element.useBase = useBase;
@@ -108,10 +111,10 @@ class PUseTimeSpan extends PUseBase {
     }
     scan(space) {
         let ok = true;
-        const { varName, op, value, spanPeriod: spanPeiod } = this.element;
+        const { varName, op, value, spanPeriod } = this.element;
         const { no } = this.element.statement;
         if (op === undefined) {
-            if (space.addUse(varName, no, spanPeiod) === false) {
+            if (space.addUse(varName, no, spanPeriod) === false) {
                 this.log(`Duplicate define ${varName}`);
                 ok = false;
             }
@@ -123,8 +126,8 @@ class PUseTimeSpan extends PUseBase {
                 ok = false;
             }
             else {
-                const { obj: spanPeiod, statementNo } = useObj;
-                this.element.spanPeriod = spanPeiod;
+                const { obj: spanPeriod, statementNo } = useObj;
+                this.element.spanPeriod = spanPeriod;
                 this.element.statementNo = statementNo;
             }
         }
@@ -137,4 +140,22 @@ class PUseTimeSpan extends PUseBase {
     }
 }
 exports.PUseTimeSpan = PUseTimeSpan;
+class PUseOut extends PUseBase {
+    _parse() {
+        this.element.varName = this.ts.passVar();
+        this.outEntity = this.ts.passVar();
+    }
+    scan(space) {
+        let ok = true;
+        this.element.outEntity = space.getBizEntity(this.outEntity);
+        let { outEntity, statement, varName } = this.element;
+        if (outEntity === undefined || outEntity.bizPhraseType !== il_1.BizPhraseType.out) {
+            ok = false;
+            this.log(`${this.outEntity} is not OUT`);
+        }
+        space.addUse(varName, statement.no, this.outEntity);
+        return ok;
+    }
+}
+exports.PUseOut = PUseOut;
 //# sourceMappingURL=use.js.map

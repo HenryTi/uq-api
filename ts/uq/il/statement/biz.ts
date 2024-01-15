@@ -2,7 +2,7 @@ import { BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStateme
 import * as parser from '../../parser';
 import { Builder } from "../builder";
 import { IElement } from '../IElement';
-import { BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct, BizInAct, BizBin, BizSheet } from '../Biz';
+import { BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct, BizInAct, BizBin, BizSheet, BizAtom, BizSpec } from '../Biz';
 import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
 import { SetEqu } from '../tool';
@@ -99,9 +99,12 @@ export class BizStatementDetail<T extends BizAct = BizAct> extends BizStatementS
 }
 
 export abstract class BizStatementID<T extends BizAct = BizAct> extends BizStatementSub<T> {
+    toVar: VarPointer;
+    inVals: ValueExpression[];
 }
 
 export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<T> {
+    atom: BizAtom;
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementAtom(this, context);
     }
@@ -109,6 +112,7 @@ export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<
 }
 
 export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<T> {
+    spec: BizSpec;
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementSpec(this, context);
     }

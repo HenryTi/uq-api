@@ -2,9 +2,9 @@ import { Entity, ID, IX, IDX, WithActSet, WithID, WithIX, WithIDX, WithStatement
 // import { EnumIdType } from "../../il";
 import {
     ColVal, ColValUpdate, convertExp, ExpAdd, ExpAnd, ExpCmp, ExpEQ,
-    ExpField, ExpFunc, ExpNum, ExpSub, ExpVal, ExpVar, ExpNull,
+    ExpField, ExpFunc, ExpNum, ExpSub, ExpVal, ExpVar,
     Insert, ExpAtVar,
-    InsertOnDuplicate, Set, Update, SqlSysTable, ExpSelect, ExpFuncDb, ExpLT
+    InsertOnDuplicate, Update, ExpSelect, ExpFuncDb, ExpLT
 } from "../sql";
 import { DeleteStatement, TruncateStatement } from "../sql/deleteStatement";
 import { LockType } from "../sql/select";

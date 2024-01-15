@@ -30,6 +30,12 @@ export enum EnumSysTable {
     binPend = 'binpend',
     history = 'history',
 
+    // IO
+    IOQueue = 'ioqueue',
+    IOOuter = 'ioouter',
+    IOEndPoint = 'ioendpoint',
+    IOAtom = 'ioatom',
+
     messageQueue = '$message_queue',
     messageQueueEnd = '$message_queue_end',
     messageQueueFailed = '$message_queue_failed',

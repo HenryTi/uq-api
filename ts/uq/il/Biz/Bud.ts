@@ -241,7 +241,6 @@ export class BizBudDate extends BizBudValueWithRange {
 
 export class BizBudIDBase extends BizBud {
     readonly dataType = BudDataType.none;
-    // readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIDBase(this, context);
     }
@@ -278,18 +277,9 @@ export class BizBudID extends BizBudValue {
             param.str = expStringify(exp);
         }
     }
-    /*
-    buildBudValue(callback: (value: BudValueSet) => void) {
-        super.buildBudValue(callback);
-        for (let i in this.params) {
-            callback(this.params[i]);
-        }
-    }
-    */
 }
 
 export abstract class BizBudOptions extends BizBudValue {
-    // readonly items: BizSubItem[] = [];
     options: BizOptions;
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);

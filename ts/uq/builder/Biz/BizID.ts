@@ -1,6 +1,6 @@
 import {
     BigInt, BizSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
-    , JsonDataType, bigIntField, idField, jsonField
+    , JsonDataType, bigIntField, idField, jsonField, EnumSysTable
 } from "../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNum
@@ -41,7 +41,6 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         const varProps = new ExpVar(cProps);
         const varSite = new ExpVar(site);
         const prefixBud = '$bud_';
-        // const prefixProp = '$prop_';
         const prefixPhrase = '$phrase_';
 
         const props: BizBudValue[] = [];
@@ -82,12 +81,6 @@ export class BBizSpec extends BBizEntity<BizSpec> {
                 statements.push(setPhraseId);
                 setPhraseId.equ(prefixPhrase + name,
                     new ExpNum(id)
-                    /*
-                    new ExpFuncInUq(
-                        'phraseid',
-                        [varSite, new ExpStr(phrase)],
-                        true)
-                    */
                 )
             }
         }
@@ -117,22 +110,20 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         function tblAndValFromBud(bud: BizBudValue): { varVal: ExpVal; tbl: string; } {
             const { name, dataType } = bud;
             let varVal: ExpVal = new ExpVar(`${prefixBud}${name}`);
-            let tbl: string;
+            let tbl: EnumSysTable;
             switch (dataType) {
                 default:
-                    tbl = 'ixbudint';
+                    tbl = EnumSysTable.ixBudInt;
                     break;
                 case BudDataType.date:
-                    tbl = 'ixbudint';
-                    // const daysOf19700101 = 719528; // to_days('1970-01-01')
-                    // varVal = new ExpSub(new ExpFunc('to_days', varVal), new ExpNum(daysOf19700101));
+                    tbl = EnumSysTable.ixBudInt;
                     break;
                 case BudDataType.str:
                 case BudDataType.char:
-                    tbl = 'ixbudstr';
+                    tbl = EnumSysTable.ixBudStr;
                     break;
                 case BudDataType.dec:
-                    tbl = 'ixbuddec';
+                    tbl = EnumSysTable.ixBudDec;
                     break;
             }
             return { varVal, tbl };

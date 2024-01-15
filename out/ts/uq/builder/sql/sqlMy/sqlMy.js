@@ -266,7 +266,14 @@ class If extends stat.If {
 }
 class While extends stat.While {
     start(sb, tab) {
-        sb.tab(tab).append('__loop_' + this.no + ': WHILE ').exp(this.cmp).append(' DO').n();
+        sb.tab(tab).append('__loop_' + this.no + ': WHILE ');
+        if (this.cmp === undefined) {
+            sb.append('1=1');
+        }
+        else {
+            sb.exp(this.cmp);
+        }
+        sb.append(' DO').n();
     }
     end(sb, tab) {
         sb.tab(tab).append('END WHILE; -- ').append('__loop_' + this.no).n();

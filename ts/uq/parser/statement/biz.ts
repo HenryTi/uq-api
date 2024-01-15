@@ -3,7 +3,7 @@ import {
     BizStatementPend, BizStatementSub
     , BizStatementTitle, BizPend, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementInPend, BizStatementSheet, BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase, VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
+    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementInPend, BizStatementSheet, BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase, VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec, BizEntity, BizAtom, BizSpec
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -18,8 +18,6 @@ export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>>
         title: BizStatementTitle,
         sheet: BizStatementSheet,
         detail: BizStatementDetail,
-        atom: BizStatementAtom,
-        spec: BizStatementSpec,
     }
     constructor(bizStatement: T, context: PContext) {
         super(bizStatement, context);
@@ -74,7 +72,8 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
 export class PBizStatementIn extends PBizStatement<BizInAct, BizStatementIn> {
     protected getBizSubsEx() {
         return {
-            // pend: BizStatementInPend,
+            atom: BizStatementAtom,
+            spec: BizStatementSpec,
         };
     }
 }
@@ -396,29 +395,21 @@ export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizState
     }
 }
 
-enum IDAct { in, id }
 abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> extends PBizStatementSub<A, T> {
-    protected entity: string;
+    protected entityName: string;
+    protected entity: BizEntity;
     protected toVar: string;
-    protected idAct: IDAct;
-    protected vals: ValueExpression[] = [];
+    protected inVals: ValueExpression[] = [];
     protected override _parse(): void {
-        this.entity = this.ts.passVar();
-        this.ts.passKey('to');
-        this.toVar = this.ts.passVar();
-        let key = this.ts.passKey();
-        switch (key) {
-            default: this.ts.expect('in', 'id');
-            case 'in': this.idAct = IDAct.in; break;
-            case 'id': this.idAct = IDAct.id; break;
-        }
+        this.entityName = this.ts.passVar();
+        this.ts.passKey('in');
         this.ts.passToken(Token.EQU);
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
             for (; ;) {
                 let val = new ValueExpression();
                 this.context.parseElement(val);
-                this.vals.push(val);
+                this.inVals.push(val);
                 const { token } = this.ts;
                 if (token === Token.COMMA as any) {
                     this.ts.readToken();
@@ -434,13 +425,79 @@ abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> ex
         else {
             let val = new ValueExpression();
             this.context.parseElement(val);
-            this.vals.push(val);
+            this.inVals.push(val);
         }
+        this.ts.passKey('to');
+        this.toVar = this.ts.passVar();
+    }
+
+    override scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        this.entity = space.getBizEntity(this.entityName);
+        if (this.entity === undefined) {
+            ok = false;
+            this.log(`${this.entityName} is not defined`);
+        }
+        this.element.toVar = space.varPointer(this.toVar, false) as VarPointer;
+        if (this.element.toVar === undefined) {
+            ok = false;
+            this.log(`${this.toVar} is not defined`);
+        }
+        for (let inVal of this.inVals) {
+            if (inVal.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        this.element.inVals = this.inVals;
+        return ok;
     }
 }
 
 export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> extends PBizStatementID<A, T> {
+    override scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+            return ok;
+        }
+        if (this.entity.bizPhraseType !== BizPhraseType.atom) {
+            ok = false;
+            this.log(`${this.entityName} is not ATOM`);
+        }
+        else {
+            this.element.atom = this.entity as BizAtom;
+        }
+        let { length } = this.inVals;
+        if (length !== 1) {
+            ok = false;
+            this.log(`IN ${length} variables, can only have 1 variable`);
+        }
+        return ok;
+    }
 }
 
 export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> extends PBizStatementID<A, T> {
+    override scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+            return ok;
+        }
+        if (this.entity.bizPhraseType !== BizPhraseType.spec) {
+            ok = false;
+            this.log(`${this.entityName} is not SPEC`);
+        }
+        else {
+            this.element.spec = this.entity as BizSpec;
+            let length = this.element.spec.keys.length + 1;
+            if (length !== this.inVals.length) {
+                ok = false;
+                this.log(`IN ${this.inVals.length} variables, must have ${length} variables`);
+            }
+        }
+        return ok;
+    }
 }
