@@ -32,6 +32,8 @@ export enum EnumSysTable {
 
     // IO
     IOQueue = 'ioqueue',
+    IOInOut = 'ioinout',
+    IODone = 'iodone',
     IOOuter = 'ioouter',
     IOEndPoint = 'ioendpoint',
     IOAtom = 'ioatom',

@@ -220,11 +220,18 @@ class BUseOut extends BUseBase {
         this.singleKey = 'out';
     }
     singleHead(sqls) {
-        const { varName } = this.useObj;
+        const { varName, outEntity } = this.useObj;
         const { factory } = this.context;
         let declare = factory.createDeclare();
         sqls.push(declare);
         declare.var(varName, new il_1.JsonDataType());
+        let set = factory.createSet();
+        sqls.push(set);
+        let params = [];
+        for (let i in outEntity.arrs) {
+            params.push(new sql_1.ExpStr(i), new sql_1.ExpFunc('JSON_ARRAY'));
+        }
+        set.equ(varName, new sql_1.ExpFunc('JSON_OBJECT', ...params));
     }
     singleFoot(sqls) {
         const { varName, outEntity } = this.useObj;
@@ -238,7 +245,7 @@ class BUseOut extends BUseBase {
         proc.procName = `${this.context.site}.${outEntity.id}`;
         proc.params.push({
             paramType: il_1.ProcParamType.in,
-            value: new sql_1.ExpVar('$ret'),
+            value: new sql_1.ExpVar(varName),
         });
     }
 }

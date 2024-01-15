@@ -3,7 +3,9 @@ import {
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, BizBudID, Uq, IX, BudIndex, BizBudIntOf
     , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
-    , Statements, Statement //, BizInActStatement, BizBinActStatement
+    , Statements, Statement, //, BizInActStatement, BizBinActStatement
+    budClasses,
+    budClassKeys
 } from "../../il";
 import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
@@ -137,20 +139,14 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return true;
     }
 
+    protected getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+        return budClasses[budClass];
+    }
+    protected getBudClassKeys() {
+        return budClassKeys;
+    }
+
     protected parseBud(name: string, ui: Partial<UI>, defaultType?: string): BizBudValue {
-        const keyColl: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
-            none: BizBudNone,
-            int: BizBudInt,
-            dec: BizBudDec,
-            char: BizBudChar,
-            atom: BizBudID,
-            id: BizBudID,
-            date: BizBudDate,
-            intof: BizBudIntOf,
-            radio: BizBudRadio,
-            check: BizBudCheck,
-        }
-        const keys = Object.keys(keyColl);
         let key: string;
         const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
         const { token } = this.ts;
@@ -160,7 +156,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         else {
             key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
-                this.ts.expect(...keys);
+                this.ts.expect(...this.getBudClassKeys());
             }
             if (key === 'int') {
                 this.ts.readToken()
@@ -173,9 +169,9 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
                 this.ts.readToken();
             }
         }
-        let Bud = keyColl[key];
+        let Bud = this.getBudClass(key); // keyColl[key];
         if (Bud === undefined) {
-            this.ts.expect(...keys);
+            this.ts.expect(...this.getBudClassKeys());
         }
         let bizBud = new Bud(this.element.biz, name, ui);
         bizBud.parser(this.context).parse();
@@ -184,13 +180,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             bizBud.ui.required = true;
             this.ts.readToken();
         }
-        //if (this.element.hasProp(name) === true) {
-        /*
-        if (name === 'value' && this.element.bizPhraseType === BizPhraseType.bin) debugger;
-        if (this.element.getBud(name) !== undefined) {
-            this.ts.error(`${name} can not be used multiple times`);
-        }
-        */
         const options: { [option: string]: boolean } = {};
         for (; ;) {
             if (this.ts.isKeyword(undefined) === false) break;

@@ -33,6 +33,8 @@ var EnumSysTable;
     EnumSysTable["history"] = "history";
     // IO
     EnumSysTable["IOQueue"] = "ioqueue";
+    EnumSysTable["IOInOut"] = "ioinout";
+    EnumSysTable["IODone"] = "iodone";
     EnumSysTable["IOOuter"] = "ioouter";
     EnumSysTable["IOEndPoint"] = "ioendpoint";
     EnumSysTable["IOAtom"] = "ioatom";

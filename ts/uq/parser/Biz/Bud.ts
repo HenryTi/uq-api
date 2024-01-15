@@ -3,7 +3,7 @@ import {
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange, BizBudIDBase
+    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange, BizBudIDBase, BizBudIDOut
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -263,6 +263,15 @@ export class PBizBudChar extends PBizBudValue<BizBudChar> {
 }
 
 export class PBizBudDate extends PBizBudValueWithRange<BizBudDate> {
+}
+
+export class PBizBudIDOut extends PBizBud<BizBudIDOut> {
+    protected _parse(): void {
+    }
+    scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = true;
+        return ok;
+    }
 }
 
 export class PBizBudIDBase extends PBizBud<BizBudIDBase> {

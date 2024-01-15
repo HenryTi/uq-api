@@ -1,4 +1,4 @@
-import { BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext, BBizStatementSheet, BBizStatementDetail, BBizStatementAtom, BBizStatementSpec } from '../../builder';
+import { BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext, BBizStatementSheet, BBizStatementDetail, BBizStatementAtom, BBizStatementSpec, BBizStatementOut } from '../../builder';
 import * as parser from '../../parser';
 import { Builder } from "../builder";
 import { IElement } from '../IElement';
@@ -7,6 +7,7 @@ import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
 import { SetEqu } from '../tool';
 import { Pointer, VarPointer } from '../pointer';
+import { UseOut } from './use';
 
 export abstract class BizStatement<T extends BizAct> extends Statement {
     get type(): string { return 'bizstatement'; }
@@ -117,4 +118,14 @@ export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<
         return new parser.PBizStatementSpec(this, context);
     }
     db(db: DbContext): BStatement { return new BBizStatementSpec(db, this); }
+}
+
+export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<T> {
+    useOut: UseOut;
+    detail: string;
+    readonly sets: { [bud: string]: ValueExpression } = {};
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return new parser.PBizStatementOut(this, context);
+    }
+    db(db: DbContext): BStatement { return new BBizStatementOut(db, this); }
 }

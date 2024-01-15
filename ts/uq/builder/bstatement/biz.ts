@@ -1,6 +1,6 @@
 import {
     EnumSysTable, BigInt, BizStatementPend
-    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct, BizStatement, BizStatementSheet, BizStatementDetail, BizStatementSheetBase, intField, ValueExpression, BizStatementID, BizStatementAtom, BizStatementSpec, JoinType
+    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct, BizStatement, BizStatementSheet, BizStatementDetail, BizStatementSheetBase, intField, ValueExpression, BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut
 } from "../../il";
 import { $site } from "../consts";
 import { sysTable } from "../dbContext";
@@ -444,5 +444,32 @@ export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
             wheres.push(new ExpEQ(new ExpField('value', t), val));
         }
         select.where(new ExpAnd(...wheres));
+    }
+}
+
+export class BBizStatementOut extends BStatement<BizStatementOut> {
+    override body(sqls: Sqls): void {
+        const { factory } = this.context;
+        const { useOut, detail, sets } = this.istatement;
+        const { varName } = useOut;
+        let setV = factory.createSet();
+        sqls.push(setV);
+        let params: ExpVal[] = [];
+        let vNew: ExpVal;
+        for (let i in sets) {
+            params.push(new ExpStr('$.' + i), this.context.expVal(sets[i]));
+        }
+        if (detail === undefined) {
+            vNew = new ExpFunc('JSON_SET', new ExpVar(varName), ...params);
+        }
+        else {
+            vNew = new ExpFunc(
+                'JSON_ARRAY_Append',
+                new ExpVar(varName),
+                new ExpStr('$.' + detail),
+                new ExpFunc('JSON_OBJECT', ...params),
+            );
+        }
+        setV.equ(varName, vNew);
     }
 }

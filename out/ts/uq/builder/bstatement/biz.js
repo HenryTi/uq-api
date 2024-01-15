@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementDetail = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
+exports.BBizStatementOut = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementDetail = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
 const il_1 = require("../../il");
 const consts_1 = require("../consts");
 const dbContext_1 = require("../dbContext");
@@ -415,4 +415,26 @@ class BBizStatementSpec extends BBizStatementID {
     }
 }
 exports.BBizStatementSpec = BBizStatementSpec;
+class BBizStatementOut extends bstatement_1.BStatement {
+    body(sqls) {
+        const { factory } = this.context;
+        const { useOut, detail, sets } = this.istatement;
+        const { varName } = useOut;
+        let setV = factory.createSet();
+        sqls.push(setV);
+        let params = [];
+        let vNew;
+        for (let i in sets) {
+            params.push(new sql_1.ExpStr('$.' + i), this.context.expVal(sets[i]));
+        }
+        if (detail === undefined) {
+            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpVar(varName), ...params);
+        }
+        else {
+            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpVar(varName), new sql_1.ExpStr('$.' + detail), new sql_1.ExpFunc('JSON_OBJECT', ...params));
+        }
+        setV.equ(varName, vNew);
+    }
+}
+exports.BBizStatementOut = BBizStatementOut;
 //# sourceMappingURL=biz.js.map

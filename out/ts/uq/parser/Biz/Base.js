@@ -161,19 +161,13 @@ class PBizBase extends element_1.PElement {
         }
         return true;
     }
+    getBudClass(budClass) {
+        return il_1.budClasses[budClass];
+    }
+    getBudClassKeys() {
+        return il_1.budClassKeys;
+    }
     parseBud(name, ui, defaultType) {
-        const keyColl = {
-            none: il_1.BizBudNone,
-            int: il_1.BizBudInt,
-            dec: il_1.BizBudDec,
-            char: il_1.BizBudChar,
-            atom: il_1.BizBudID,
-            date: il_1.BizBudDate,
-            intof: il_1.BizBudIntOf,
-            radio: il_1.BizBudRadio,
-            check: il_1.BizBudCheck,
-        };
-        const keys = Object.keys(keyColl);
         let key;
         const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
         const { token } = this.ts;
@@ -183,7 +177,7 @@ class PBizBase extends element_1.PElement {
         else {
             key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
-                this.ts.expect(...keys);
+                this.ts.expect(...this.getBudClassKeys());
             }
             if (key === 'int') {
                 this.ts.readToken();
@@ -196,9 +190,9 @@ class PBizBase extends element_1.PElement {
                 this.ts.readToken();
             }
         }
-        let Bud = keyColl[key];
+        let Bud = this.getBudClass(key); // keyColl[key];
         if (Bud === undefined) {
-            this.ts.expect(...keys);
+            this.ts.expect(...this.getBudClassKeys());
         }
         let bizBud = new Bud(this.element.biz, name, ui);
         bizBud.parser(this.context).parse();
@@ -207,13 +201,6 @@ class PBizBase extends element_1.PElement {
             bizBud.ui.required = true;
             this.ts.readToken();
         }
-        //if (this.element.hasProp(name) === true) {
-        /*
-        if (name === 'value' && this.element.bizPhraseType === BizPhraseType.bin) debugger;
-        if (this.element.getBud(name) !== undefined) {
-            this.ts.error(`${name} can not be used multiple times`);
-        }
-        */
         const options = {};
         for (;;) {
             if (this.ts.isKeyword(undefined) === false)

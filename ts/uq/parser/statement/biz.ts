@@ -3,7 +3,7 @@ import {
     BizStatementPend, BizStatementSub
     , BizStatementTitle, BizPend, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementInPend, BizStatementSheet, BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase, VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec, BizEntity, BizAtom, BizSpec
+    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementInPend, BizStatementSheet, BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase, VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec, BizEntity, BizAtom, BizSpec, BizStatementOut, UseOut
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -18,6 +18,7 @@ export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>>
         title: BizStatementTitle,
         sheet: BizStatementSheet,
         detail: BizStatementDetail,
+        out: BizStatementOut,
     }
     constructor(bizStatement: T, context: PContext) {
         super(bizStatement, context);
@@ -496,6 +497,77 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
             if (length !== this.inVals.length) {
                 ok = false;
                 this.log(`IN ${this.inVals.length} variables, must have ${length} variables`);
+            }
+        }
+        return ok;
+    }
+}
+
+export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> extends PBizStatementSub<A, T> {
+    private varName: string;
+    protected override _parse(): void {
+        this.varName = this.ts.passVar();
+        if (this.ts.isKeyword('add') === true) {
+            this.ts.readToken();
+            this.element.detail = this.ts.passVar();
+        }
+        this.ts.passKey('set');
+        for (; ;) {
+            let name = this.ts.passVar();
+            this.ts.passToken(Token.EQU);
+            let val = new ValueExpression();
+            this.context.parseElement(val);
+            this.element.sets[name] = val;
+            if (this.ts.token === Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            if (this.ts.token === Token.SEMICOLON) {
+                break;
+            }
+            this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
+        }
+    }
+    override scan(space: Space): boolean {
+        let ok = true;
+        let { detail, sets } = this.element;
+        let useOut: UseOut;
+        let useRet = space.getUse(this.varName);
+        if (useRet === undefined) {
+            ok = false;
+            this.log(`${this.varName} is not defined`);
+        }
+        else {
+            useOut = useRet.obj as UseOut;
+            if (useOut.type !== 'out') {
+                ok = false;
+                this.log(`USE OUT ${this.varName} is not exists`);
+            }
+            else {
+                this.element.useOut = useOut;
+                let { outEntity } = useOut;
+                let { props } = outEntity;
+                if (detail !== undefined) {
+                    let arr = outEntity.arrs[detail];
+                    if (arr === undefined) {
+                        ok = false;
+                        this.log(`${detail} is not a ARR of ${outEntity.getJName()}`);
+                    }
+                    else {
+                        props = arr.props;
+                    }
+                }
+                if (props !== undefined) {
+                    for (let i in sets) {
+                        if (props.has(i) === false) {
+                            ok = false;
+                            this.log(`${i} is not defined`);
+                        }
+                        else if (sets[i].pelement.scan(space) === false) {
+                            ok = false;
+                        }
+                    }
+                }
             }
         }
         return ok;

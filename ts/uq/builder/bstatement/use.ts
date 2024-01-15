@@ -1,6 +1,6 @@
 import { BigInt, DateTime, EnumSysTable, JsonDataType, ProcParamType, SpanPeriod, UseBase, UseMonthZone, UseOut, UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone } from "../../il";
 import { DbContext } from "../dbContext";
-import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpSub, ExpVal, ExpVar } from "../sql";
+import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
 import { BStatementBase } from "./bstatement";
 import { Sqls } from "./sqls";
 
@@ -247,11 +247,18 @@ export class BUseTimeSpan extends BUseBase<UseTimeSpan> {
 export class BUseOut extends BUseBase<UseOut> {
     readonly singleKey = 'out';
     override singleHead(sqls: Sqls): void {
-        const { varName } = this.useObj;
+        const { varName, outEntity } = this.useObj;
         const { factory } = this.context;
         let declare = factory.createDeclare();
         sqls.push(declare);
         declare.var(varName, new JsonDataType());
+        let set = factory.createSet();
+        sqls.push(set);
+        let params: ExpVal[] = [];
+        for (let i in outEntity.arrs) {
+            params.push(new ExpStr(i), new ExpFunc('JSON_ARRAY'));
+        }
+        set.equ(varName, new ExpFunc('JSON_OBJECT', ...params));
     }
 
     override singleFoot(sqls: Sqls) {
@@ -266,7 +273,7 @@ export class BUseOut extends BUseBase<UseOut> {
         proc.procName = `${this.context.site}.${outEntity.id}`;
         proc.params.push({
             paramType: ProcParamType.in,
-            value: new ExpVar('$ret'),
+            value: new ExpVar(varName),
         });
     }
 }

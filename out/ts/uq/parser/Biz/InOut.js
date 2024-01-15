@@ -15,7 +15,6 @@ class PBizInOut extends Base_1.PBizEntity {
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
         for (;;) {
             let bud = this.parseSubItem();
-            this.checkBudType(bud);
             budArr.push(bud);
             let { token } = this.ts;
             if (token === tokens_1.Token.COMMA) {
@@ -31,12 +30,6 @@ class PBizInOut extends Base_1.PBizEntity {
             }
         }
         return budArr;
-    }
-    checkBudType(bud) {
-        const types = [il_1.BudDataType.int, il_1.BudDataType.char, il_1.BudDataType.date, il_1.BudDataType.dec];
-        if (types.indexOf(bud.dataType) < 0) {
-            this.ts.error(`IN and OUT support only ${types.map(v => il_1.BudDataType[v]).join(', ')}`);
-        }
     }
     parseParam() {
         const { arrs, props } = this.element;
@@ -89,6 +82,12 @@ class PBizInOut extends Base_1.PBizEntity {
     }
 }
 class PBizIn extends PBizInOut {
+    getBudClass(budClass) {
+        return il_1.budClassesIn[budClass];
+    }
+    getBudClassKeys() {
+        return il_1.budClassKeysIn;
+    }
     parseBody() {
         if (this.ts.token !== tokens_1.Token.LBRACE) {
             this.ts.expectToken(tokens_1.Token.LBRACE);
@@ -111,6 +110,12 @@ class PBizIn extends PBizInOut {
 }
 exports.PBizIn = PBizIn;
 class PBizOut extends PBizInOut {
+    getBudClass(budClass) {
+        return il_1.budClassesOut[budClass];
+    }
+    getBudClassKeys() {
+        return il_1.budClassKeysOut;
+    }
     parseBody() {
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }

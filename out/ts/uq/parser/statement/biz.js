@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementDetail = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementOut = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementDetail = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
@@ -14,6 +14,7 @@ class PBizStatement extends statement_1.PStatement {
             title: il_1.BizStatementTitle,
             sheet: il_1.BizStatementSheet,
             detail: il_1.BizStatementDetail,
+            out: il_1.BizStatementOut,
         };
         this.bizStatement = bizStatement;
         this.init();
@@ -498,4 +499,74 @@ class PBizStatementSpec extends PBizStatementID {
     }
 }
 exports.PBizStatementSpec = PBizStatementSpec;
+class PBizStatementOut extends PBizStatementSub {
+    _parse() {
+        this.varName = this.ts.passVar();
+        if (this.ts.isKeyword('add') === true) {
+            this.ts.readToken();
+            this.element.detail = this.ts.passVar();
+        }
+        this.ts.passKey('set');
+        for (;;) {
+            let name = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.EQU);
+            let val = new il_1.ValueExpression();
+            this.context.parseElement(val);
+            this.element.sets[name] = val;
+            if (this.ts.token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            if (this.ts.token === tokens_1.Token.SEMICOLON) {
+                break;
+            }
+            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.SEMICOLON);
+        }
+    }
+    scan(space) {
+        let ok = true;
+        let { detail, sets } = this.element;
+        let useOut;
+        let useRet = space.getUse(this.varName);
+        if (useRet === undefined) {
+            ok = false;
+            this.log(`${this.varName} is not defined`);
+        }
+        else {
+            useOut = useRet.obj;
+            if (useOut.type !== 'out') {
+                ok = false;
+                this.log(`USE OUT ${this.varName} is not exists`);
+            }
+            else {
+                this.element.useOut = useOut;
+                let { outEntity } = useOut;
+                let { props } = outEntity;
+                if (detail !== undefined) {
+                    let arr = outEntity.arrs[detail];
+                    if (arr === undefined) {
+                        ok = false;
+                        this.log(`${detail} is not a ARR of ${outEntity.getJName()}`);
+                    }
+                    else {
+                        props = arr.props;
+                    }
+                }
+                if (props !== undefined) {
+                    for (let i in sets) {
+                        if (props.has(i) === false) {
+                            ok = false;
+                            this.log(`${i} is not defined`);
+                        }
+                        else if (sets[i].pelement.scan(space) === false) {
+                            ok = false;
+                        }
+                    }
+                }
+            }
+        }
+        return ok;
+    }
+}
+exports.PBizStatementOut = PBizStatementOut;
 //# sourceMappingURL=biz.js.map

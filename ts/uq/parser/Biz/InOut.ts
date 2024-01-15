@@ -1,4 +1,9 @@
-import { BizBudValue, BizIn, BizInOut, BizOut, BudDataType, Statements, Statement, BizInAct, BizStatementIn, BizInActStatements, Pointer, BizEntity, VarPointer } from "../../il";
+import {
+    BizBudValue, BizIn, BizInOut, BizOut, Statements
+    , Statement, BizInAct, BizStatementIn, BizInActStatements
+    , Pointer, BizEntity, VarPointer, Biz, UI, BizBudInt
+    , BizBudDec, BizBudChar, BizBudDate, BizBudIDOut, budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn
+} from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizAct, PBizActStatements, PBizEntity } from "./Base";
@@ -6,13 +11,11 @@ import { BizEntitySpace } from "./Biz";
 
 abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
     readonly keyColl = {};
-
     private parseProps(): BizBudValue[] {
         let budArr: BizBudValue[] = [];
         this.ts.passToken(Token.LPARENTHESE);
         for (; ;) {
             let bud = this.parseSubItem();
-            this.checkBudType(bud);
             budArr.push(bud);
             let { token } = this.ts;
             if (token === Token.COMMA) {
@@ -28,13 +31,6 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
             }
         }
         return budArr;
-    }
-
-    private checkBudType(bud: BizBudValue) {
-        const types: BudDataType[] = [BudDataType.int, BudDataType.char, BudDataType.date, BudDataType.dec];
-        if (types.indexOf(bud.dataType) < 0) {
-            this.ts.error(`IN and OUT support only ${types.map(v => BudDataType[v]).join(', ')}`);
-        }
     }
 
     protected override parseParam(): void {
@@ -92,6 +88,12 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
 }
 
 export class PBizIn extends PBizInOut<BizIn> {
+    protected override getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+        return budClassesIn[budClass];
+    }
+    protected override getBudClassKeys() {
+        return budClassKeysIn;
+    }
     protected override parseBody(): void {
         if (this.ts.token !== Token.LBRACE) {
             this.ts.expectToken(Token.LBRACE);
@@ -114,6 +116,12 @@ export class PBizIn extends PBizInOut<BizIn> {
 }
 
 export class PBizOut extends PBizInOut<BizOut> {
+    protected override getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+        return budClassesOut[budClass];
+    }
+    protected override getBudClassKeys() {
+        return budClassKeysOut;
+    }
     protected override parseBody(): void {
         this.ts.passToken(Token.SEMICOLON);
     }
@@ -127,19 +135,6 @@ export class PBizInAct extends PBizAct<BizInAct> {
     protected override createBizActSpace(space: Space): Space {
         return new BizInActSpace(space, this.element.bizIn);
     }
-    /*
-    override scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-        }
-        let { statement } = this.element;
-        if (statement.pelement.scan(space) === false) {
-            ok = false;
-        }
-        return ok;
-    }
-    */
 }
 
 export class PBizInActStatements extends PBizActStatements<BizInAct> {

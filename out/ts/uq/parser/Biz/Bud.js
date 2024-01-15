@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudIDOut = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -254,6 +254,15 @@ exports.PBizBudChar = PBizBudChar;
 class PBizBudDate extends PBizBudValueWithRange {
 }
 exports.PBizBudDate = PBizBudDate;
+class PBizBudIDOut extends PBizBud {
+    _parse() {
+    }
+    scan(space) {
+        let ok = true;
+        return ok;
+    }
+}
+exports.PBizBudIDOut = PBizBudIDOut;
 class PBizBudIDBase extends PBizBud {
     scan(space) {
         let ok = true;

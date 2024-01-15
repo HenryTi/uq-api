@@ -1,7 +1,7 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDOut
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -246,6 +246,15 @@ export class BizBudIDBase extends BizBud {
     }
 }
 
+// 仅仅Out的属性定义，ID表示需要转换
+export class BizBudIDOut extends BizBudValue {
+    readonly dataType = BudDataType.ID;
+    readonly canIndex = false;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudIDOut(this, context);
+    }
+}
+
 export class BizBudID extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
@@ -313,3 +322,25 @@ export class BizBudCheck extends BizBudOptions {
         return new PBizBudCheck(this, context);
     }
 }
+
+export const budClassesIn: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
+    int: BizBudInt,
+    dec: BizBudDec,
+    char: BizBudChar,
+    date: BizBudDate,
+}
+export const budClasses: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
+    ...budClassesIn,
+    none: BizBudNone,
+    atom: BizBudID,
+    intof: BizBudIntOf,
+    radio: BizBudRadio,
+    check: BizBudCheck,
+}
+export const budClassKeys = Object.keys(budClasses);
+export const budClassKeysIn = Object.keys(budClassesIn);
+export const budClassesOut: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
+    ...budClassesIn,
+    id: BizBudIDOut,
+}
+export const budClassKeysOut = Object.keys(budClassesOut);

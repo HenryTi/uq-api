@@ -153,7 +153,7 @@ class PUseOut extends PUseBase {
             ok = false;
             this.log(`${this.outEntity} is not OUT`);
         }
-        space.addUse(varName, statement.no, this.outEntity);
+        space.addUse(varName, statement.no, this.element);
         return ok;
     }
 }
