@@ -178,9 +178,8 @@ export class BizSchemaBuilder extends SchemaBuilder<Biz> {
     // filter out system uq defines
     build(schema: BizSchema, res: { [phrase: string]: string }) {
         const { bizArr } = this.entity;
-        schema.biz = bizArr.flatMap(v => {
-            if (v.name[0] === '$') return [];
-            return [v.buildSchema(res)];
+        schema.biz = bizArr.map(v => {
+            return v.buildSchema(res);
         });
     }
 }

@@ -172,9 +172,9 @@ class Compiler {
         return this.newest.find(v => v.name === phrase) !== undefined;
     }
     parseBiz() {
-        for (let part of biz_sys_1.default) {
-            this.uqParser.parse(part, 'sys', true);
-        }
+        this.parseSysCode();
+        this.newest.splice(0);
+        this.newest.push(...this.biz.bizArr);
         for (let obj of this.objs) {
             const { id, phrase, source } = obj;
             if (!source)
@@ -182,6 +182,11 @@ class Compiler {
             if (this.isNewest(phrase) === true)
                 continue;
             this.uqParser.parse(source, phrase);
+        }
+    }
+    parseSysCode() {
+        for (let part of biz_sys_1.default) {
+            this.uqParser.parse(part, 'sys', true);
         }
     }
     async buildDb() {

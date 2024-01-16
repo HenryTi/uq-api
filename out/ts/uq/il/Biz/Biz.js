@@ -165,10 +165,8 @@ class BizSchemaBuilder extends schema_1.SchemaBuilder {
     // filter out system uq defines
     build(schema, res) {
         const { bizArr } = this.entity;
-        schema.biz = bizArr.flatMap(v => {
-            if (v.name[0] === '$')
-                return [];
-            return [v.buildSchema(res)];
+        schema.biz = bizArr.map(v => {
+            return v.buildSchema(res);
         });
     }
 }

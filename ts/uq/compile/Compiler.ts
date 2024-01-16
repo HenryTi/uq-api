@@ -179,16 +179,22 @@ export class Compiler {
     }
 
     parseBiz() {
-        for (let part of sysBizCode) {
-            this.uqParser.parse(part, 'sys', true);
-        }
-
+        this.parseSysCode();
+        this.newest.splice(0);
+        this.newest.push(...this.biz.bizArr);
         for (let obj of this.objs) {
             const { id, phrase, source } = obj;
             if (!source) continue;
             if (this.isNewest(phrase) === true) continue;
             this.uqParser.parse(source, phrase);
         }
+    }
+
+    private parseSysCode() {
+        for (let part of sysBizCode) {
+            this.uqParser.parse(part, 'sys', true);
+        }
+
     }
 
     async buildDb() {
