@@ -126,6 +126,7 @@ class BBizIn extends BizEntity_1.BBizEntity {
     }
 }
 exports.BBizIn = BBizIn;
+const a = 'a', b = 'b';
 class BBizOut extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures();
@@ -186,9 +187,11 @@ class BBizOut extends BizEntity_1.BBizEntity {
             if (bud.dataType !== il_1.BudDataType.ID)
                 return val;
             let select = factory.createSelect();
-            select.col('no');
-            select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtom, false));
-            select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('outer'), varOuter), new sql_1.ExpEQ(new sql_1.ExpField('atom'), val)));
+            select.col('no', undefined, a);
+            select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtom, false, a))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtomType, false, b))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('type', a)));
+            select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('outer', b), varOuter), new sql_1.ExpEQ(new sql_1.ExpField('atom', a), val)));
             return new sql_1.ExpSelect(select);
         }
         for (let [name, bud] of props) {

@@ -37,6 +37,7 @@ var EnumSysTable;
     EnumSysTable["IODone"] = "iodone";
     EnumSysTable["IOOuter"] = "ioouter";
     EnumSysTable["IOEndPoint"] = "ioendpoint";
+    EnumSysTable["IOAtomType"] = "ioatomtype";
     EnumSysTable["IOAtom"] = "ioatom";
     EnumSysTable["messageQueue"] = "$message_queue";
     EnumSysTable["messageQueueEnd"] = "$message_queue_end";

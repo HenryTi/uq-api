@@ -384,7 +384,7 @@ abstract class BBizStatementID<T extends BizStatementID> extends BStatement<T> {
     }
 }
 
-const a = 'a';
+const a = 'a', b = 'b';
 export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
     override body(sqls: Sqls): void {
         const { factory } = this.context;
@@ -392,10 +392,12 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         sqls.push(select);
         select.toVar = true;
         select.column(new ExpField('atom', a), undefined, this.istatement.toVar);
-        select.from(new EntityTable(EnumSysTable.IOAtom, false, a));
+        select.from(new EntityTable(EnumSysTable.IOAtom, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.IOAtomType, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('type', a)));
         select.where(new ExpAnd(
-            new ExpEQ(new ExpField('outer', a), new ExpVar('$outer')),
-            new ExpEQ(new ExpField('phrase', a), new ExpVar('$in')),
+            new ExpEQ(new ExpField('outer', b), new ExpVar('$outer')),
+            new ExpEQ(new ExpField('phrase', b), new ExpVar('$in')),
             new ExpEQ(new ExpField('no', a), this.context.expVal(this.istatement.inVals[0])),
         ));
     }

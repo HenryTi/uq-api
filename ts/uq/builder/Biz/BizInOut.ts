@@ -142,6 +142,7 @@ export class BBizIn extends BBizEntity<BizIn> {
     }
 }
 
+const a = 'a', b = 'b';
 export class BBizOut extends BBizEntity<BizOut> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
@@ -224,11 +225,13 @@ export class BBizOut extends BBizEntity<BizOut> {
         function getBudVal(bud: BizBudValue, val: ExpVal): ExpVal {
             if (bud.dataType !== BudDataType.ID) return val;
             let select = factory.createSelect();
-            select.col('no');
-            select.from(new EntityTable(EnumSysTable.IOAtom, false));
+            select.col('no', undefined, a);
+            select.from(new EntityTable(EnumSysTable.IOAtom, false, a))
+                .join(JoinType.join, new EntityTable(EnumSysTable.IOAtomType, false, b))
+                .on(new ExpEQ(new ExpField('id', b), new ExpField('type', a)));
             select.where(new ExpAnd(
-                new ExpEQ(new ExpField('outer'), varOuter),
-                new ExpEQ(new ExpField('atom'), val),
+                new ExpEQ(new ExpField('outer', b), varOuter),
+                new ExpEQ(new ExpField('atom', a), val),
             ));
             return new ExpSelect(select);
         }

@@ -359,7 +359,7 @@ class BBizStatementID extends bstatement_1.BStatement {
     body(sqls) {
     }
 }
-const a = 'a';
+const a = 'a', b = 'b';
 class BBizStatementAtom extends BBizStatementID {
     body(sqls) {
         const { factory } = this.context;
@@ -367,8 +367,10 @@ class BBizStatementAtom extends BBizStatementID {
         sqls.push(select);
         select.toVar = true;
         select.column(new sql_1.ExpField('atom', a), undefined, this.istatement.toVar);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtom, false, a));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('outer', a), new sql_1.ExpVar('$outer')), new sql_1.ExpEQ(new sql_1.ExpField('phrase', a), new sql_1.ExpVar('$in')), new sql_1.ExpEQ(new sql_1.ExpField('no', a), this.context.expVal(this.istatement.inVals[0]))));
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtom, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtomType, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('type', a)));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('outer', b), new sql_1.ExpVar('$outer')), new sql_1.ExpEQ(new sql_1.ExpField('phrase', b), new sql_1.ExpVar('$in')), new sql_1.ExpEQ(new sql_1.ExpField('no', a), this.context.expVal(this.istatement.inVals[0]))));
     }
 }
 exports.BBizStatementAtom = BBizStatementAtom;
