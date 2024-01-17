@@ -3,7 +3,7 @@ import {
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange, BizBudIDBase, BizBudIDOut
+    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange, BizBudIDBase, BizBudIDOut, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -169,6 +169,20 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
 }
 
 export class PBizBudNone extends PBizBudValue<BizBudNone> {
+}
+
+export class PBizBudArr extends PBizBudValue<BizBudArr> {
+    protected override _parse(): void {
+        let propArr = this.parsePropArr();
+        let { props } = this.element;
+        this.parsePropMap(props, propArr);
+    }
+    protected override getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+        return budClassesOut[budClass];
+    }
+    protected override getBudClassKeys() {
+        return budClassKeysOut;
+    }
 }
 
 class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue<T> {

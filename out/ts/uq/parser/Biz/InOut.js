@@ -10,60 +10,38 @@ class PBizInOut extends Base_1.PBizEntity {
         super(...arguments);
         this.keyColl = {};
     }
-    parseProps() {
-        let budArr = [];
-        this.ts.passToken(tokens_1.Token.LPARENTHESE);
-        for (;;) {
-            let bud = this.parseSubItem();
-            budArr.push(bud);
-            let { token } = this.ts;
-            if (token === tokens_1.Token.COMMA) {
-                this.ts.readToken();
-                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                    this.ts.readToken();
-                    break;
-                }
-            }
-            else if (token === tokens_1.Token.RPARENTHESE) {
-                this.ts.readToken();
-                break;
-            }
-        }
-        return budArr;
-    }
     parseParam() {
-        const { arrs, props } = this.element;
-        let propArr = this.parseProps();
+        const { props } = this.element;
+        let propArr = this.parsePropArr();
         this.parsePropMap(props, propArr);
+        /*
         for (; this.ts.isKeyword('arr') === true;) {
             this.ts.readToken();
             let name = this.ts.passVar();
-            propArr = this.parseProps();
-            let map = new Map();
+            propArr = this.parsePropArr();
+            let map = new Map<string, BizBudValue>();
             this.parsePropMap(map, propArr);
             arrs[name] = {
                 name,
                 props: map,
-            };
+                arrs: undefined,
+            }
         }
+        */
     }
     parseBody() {
-    }
-    parsePropMap(map, propArr) {
-        for (let p of propArr) {
-            let { name } = p;
-            if (map.has(name) === true) {
-                this.ts.error(`duplicate ${name}`);
-            }
-            map.set(name, p);
-        }
     }
     scan(space) {
         let ok = true;
         if (super.scan(space) === false) {
             ok = false;
         }
-        const { props, arrs } = this.element;
+        const { props } = this.element;
+        const nameColl = {};
+        if (this.checkBudDuplicate(nameColl, props) === false) {
+            ok = false;
+        }
+        /*
         for (let i in arrs) {
             let arr = arrs[i];
             let { name, props: arrProps } = arr;
@@ -74,6 +52,26 @@ class PBizInOut extends Base_1.PBizEntity {
             for (let [propName,] of arrProps) {
                 if (props.has(propName) === true) {
                     this.log(`ARR prop '${name}' duplicate main prop name`);
+                    ok = false;
+                }
+            }
+        }
+        */
+        return ok;
+    }
+    checkBudDuplicate(nameColl, props) {
+        let ok = true;
+        for (let [, bud] of props) {
+            let { name, dataType } = bud;
+            if (nameColl[name] === true) {
+                this.log(`'${name}' duplicate prop name`);
+                ok = false;
+            }
+            else {
+                nameColl[name] = true;
+            }
+            if (dataType === il_1.BudDataType.arr) {
+                if (this.checkBudDuplicate(nameColl, bud.props) === false) {
                     ok = false;
                 }
             }

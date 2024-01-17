@@ -1,4 +1,4 @@
-import { BigInt, DateTime, EnumSysTable, JsonDataType, ProcParamType, SpanPeriod, UseBase, UseMonthZone, UseOut, UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone } from "../../il";
+import { BigInt, BudDataType, DateTime, EnumSysTable, JsonDataType, ProcParamType, SpanPeriod, UseBase, UseMonthZone, UseOut, UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone } from "../../il";
 import { DbContext } from "../dbContext";
 import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
 import { BStatementBase } from "./bstatement";
@@ -255,8 +255,10 @@ export class BUseOut extends BUseBase<UseOut> {
         let set = factory.createSet();
         sqls.push(set);
         let params: ExpVal[] = [];
-        for (let i in outEntity.arrs) {
-            params.push(new ExpStr(i), new ExpFunc('JSON_ARRAY'));
+        for (let [, bud] of outEntity.props) {
+            const { dataType, name } = bud;
+            if (dataType !== BudDataType.arr) continue;
+            params.push(new ExpStr(name), new ExpFunc('JSON_ARRAY'));
         }
         set.equ(varName, new ExpFunc('JSON_OBJECT', ...params));
     }

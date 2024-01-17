@@ -1,11 +1,11 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDOut
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDOut, PBizBudArr
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
-import { BizAtom, BizID, BizIDExtendable, BizSpec } from "./BizID";
+import { BizAtom, BizID, BizSpec } from "./BizID";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
@@ -123,7 +123,6 @@ export abstract class BizBudValue extends BizBud {
             value: this.value?.str,
             history: this.hasHistory === true ? true : undefined,
             setType: this.setType ?? SetType.assign,
-            // show: this.show,
         }
     }
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
@@ -138,11 +137,26 @@ export abstract class BizBudValue extends BizBud {
         str += '\n' + typeStr;
         this.value.str = str;
     }
-    /*
-    buildBudValue(callback: (value: BudValueSet) => void) {
-        callback(this.value);
+}
+
+export class BizBudArr extends BizBudValue {
+    readonly dataType = BudDataType.arr;
+    readonly canIndex = false;
+    readonly props: Map<string, BizBudValue> = new Map();
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudArr(this, context);
     }
-    */
+    buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        if (this.props.size > 0) {
+            let props = [];
+            for (let [, value] of this.props) {
+                props.push(value.buildSchema(res));
+            }
+            Object.assign(ret, { props });
+        }
+        return ret;
+    }
 }
 
 export class BizBudPickable extends BizBudValue {
@@ -328,6 +342,7 @@ export const budClassesIn: { [key: string]: new (biz: Biz, name: string, ui: Par
     dec: BizBudDec,
     char: BizBudChar,
     date: BizBudDate,
+    $arr: BizBudArr,
 }
 export const budClasses: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
     ...budClassesIn,

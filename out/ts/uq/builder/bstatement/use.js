@@ -228,8 +228,11 @@ class BUseOut extends BUseBase {
         let set = factory.createSet();
         sqls.push(set);
         let params = [];
-        for (let i in outEntity.arrs) {
-            params.push(new sql_1.ExpStr(i), new sql_1.ExpFunc('JSON_ARRAY'));
+        for (let [, bud] of outEntity.props) {
+            const { dataType, name } = bud;
+            if (dataType !== il_1.BudDataType.arr)
+                continue;
+            params.push(new sql_1.ExpStr(name), new sql_1.ExpFunc('JSON_ARRAY'));
         }
         set.equ(varName, new sql_1.ExpFunc('JSON_OBJECT', ...params));
     }

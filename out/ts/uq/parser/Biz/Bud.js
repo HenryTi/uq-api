@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudIDOut = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudIDOut = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -162,6 +162,20 @@ exports.PBizBudValue = PBizBudValue;
 class PBizBudNone extends PBizBudValue {
 }
 exports.PBizBudNone = PBizBudNone;
+class PBizBudArr extends PBizBudValue {
+    _parse() {
+        let propArr = this.parsePropArr();
+        let { props } = this.element;
+        this.parsePropMap(props, propArr);
+    }
+    getBudClass(budClass) {
+        return il_1.budClassesOut[budClass];
+    }
+    getBudClassKeys() {
+        return il_1.budClassKeysOut;
+    }
+}
+exports.PBizBudArr = PBizBudArr;
 class PBizBudValueWithRange extends PBizBudValue {
     parseBudEqu() {
         super.parseBudEqu();

@@ -124,7 +124,7 @@ class PForEach extends statement_1.PStatement {
         if (bizEntity.bizPhraseType !== il_1.BizPhraseType.in)
             return;
         let bizIn = bizEntity;
-        let bizInArr = bizIn.arrs[this.arrName];
+        let bizInArr = bizIn.props.get(this.arrName); // .arrs[this.arrName];
         if (bizInArr === undefined)
             return;
         this.element.list = new il_1.ForBizInOutArr(bizInArr);

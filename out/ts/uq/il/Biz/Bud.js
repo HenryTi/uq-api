@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudID = exports.BizBudIDOut = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudID = exports.BizBudIDOut = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -92,7 +92,6 @@ class BizBudValue extends BizBud {
             value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str,
             history: this.hasHistory === true ? true : undefined,
             setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign,
-            // show: this.show,
         };
     }
     buildPhrases(phrases, prefix) {
@@ -111,6 +110,29 @@ class BizBudValue extends BizBud {
     }
 }
 exports.BizBudValue = BizBudValue;
+class BizBudArr extends BizBudValue {
+    constructor() {
+        super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.arr;
+        this.canIndex = false;
+        this.props = new Map();
+    }
+    parser(context) {
+        return new parser_1.PBizBudArr(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        if (this.props.size > 0) {
+            let props = [];
+            for (let [, value] of this.props) {
+                props.push(value.buildSchema(res));
+            }
+            Object.assign(ret, { props });
+        }
+        return ret;
+    }
+}
+exports.BizBudArr = BizBudArr;
 class BizBudPickable extends BizBudValue {
     constructor() {
         super(...arguments);
@@ -327,6 +349,7 @@ exports.budClassesIn = {
     dec: BizBudDec,
     char: BizBudChar,
     date: BizBudDate,
+    $arr: BizBudArr,
 };
 exports.budClasses = {
     ...exports.budClassesIn,

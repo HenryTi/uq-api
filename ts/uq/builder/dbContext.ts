@@ -1125,7 +1125,7 @@ export class DbContext implements il.Builder {
         bodyCallback(forS);
     }
 
-    forBizInOutArr(arr: il.BizInOutArr, sqls: Sqls, no: number, bodyCallback: (statements: Statement[]) => void) {
+    forBizInOutArr(arr: il.BizBudArr, sqls: Sqls, no: number, bodyCallback: (statements: Statement[]) => void) {
         const { factory } = this;
         let setRowId0 = factory.createSet();
         sqls.push(setRowId0);

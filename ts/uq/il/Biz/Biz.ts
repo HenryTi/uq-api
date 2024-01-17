@@ -9,7 +9,6 @@ import { BizRole } from "./Role";
 import { BizAtom } from "./BizID";
 import { EnumSysTable } from "../EnumSysTable";
 import { BizPhraseType } from "./BizPhraseType";
-import { flatMap } from "lodash";
 
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;

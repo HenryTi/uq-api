@@ -2,10 +2,10 @@ import { Space } from '../space';
 import { Token } from '../tokens';
 import {
     ForEach, Select, Arr, Table, Entity,
-    Pointer, VarPointer, Var, createDataType, ForSelect, ForArr, ForQueue, Queue, ValueExpression, BigInt, BizPhraseType, BizIn, ForBizInOutArr, BizInOutArr
+    Pointer, VarPointer, Var, createDataType, ForSelect, ForArr, ForQueue
+    , Queue, ValueExpression, BigInt, BizPhraseType, BizIn, ForBizInOutArr, BizBudArr
 } from '../../il';
 import { PStatement } from './statement';
-import { BizEntitySpace } from '../Biz/Biz';
 
 const wordsAfterOf = ['select', 'queue'];
 
@@ -132,7 +132,7 @@ export class PForEach extends PStatement<ForEach> {
         if (bizEntity === undefined) return;
         if (bizEntity.bizPhraseType !== BizPhraseType.in) return;
         let bizIn = bizEntity as BizIn;
-        let bizInArr = bizIn.arrs[this.arrName];
+        let bizInArr = bizIn.props.get(this.arrName) as BizBudArr; // .arrs[this.arrName];
         if (bizInArr === undefined) return;
         this.element.list = new ForBizInOutArr(bizInArr);
         return new ForBizInOutArrSpace(space, bizInArr);
@@ -249,8 +249,8 @@ export class PForEach extends PStatement<ForEach> {
 }
 
 class ForBizInOutArrSpace extends Space {
-    private readonly arr: BizInOutArr;
-    constructor(space: Space, arr: BizInOutArr) {
+    private readonly arr: BizBudArr;
+    constructor(space: Space, arr: BizBudArr) {
         super(space);
         this.arr = arr;
     }

@@ -5,7 +5,8 @@ import {
     , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
     , Statements, Statement, //, BizInActStatement, BizBinActStatement
     budClasses,
-    budClassKeys
+    budClassKeys,
+    BudDataType
 } from "../../il";
 import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
@@ -122,6 +123,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
+
     protected parseSubItem(): BizBudValue {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
@@ -153,7 +155,10 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         if (tokens.includes(token) === true) {
             key = defaultType ?? 'none';
         }
-        else {
+        else if (token === Token.LPARENTHESE) {
+            key = '$arr';
+        }
+        else if (token === Token.VAR) {
             key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
                 this.ts.expect(...this.getBudClassKeys());
@@ -168,6 +173,9 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             else {
                 this.ts.readToken();
             }
+        }
+        else {
+            this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
         }
         let Bud = this.getBudClass(key); // keyColl[key];
         if (Bud === undefined) {
@@ -234,6 +242,46 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             bizBud.setType = setType;
         }
     }
+
+    protected parsePropArr(): BizBudValue[] {
+        let budArr: BizBudValue[] = [];
+        let arrArr: BizBudValue[] = [];
+        this.ts.passToken(Token.LPARENTHESE);
+        for (; ;) {
+            let bud = this.parseSubItem();
+            if (bud.dataType === BudDataType.arr) {
+                arrArr.push(bud);
+            }
+            else {
+                budArr.push(bud);
+            }
+            let { token } = this.ts;
+            if (token === Token.COMMA) {
+                this.ts.readToken();
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+            else if (token === Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
+        }
+        budArr.push(...arrArr);
+        return budArr;
+    }
+
+    protected parsePropMap(map: Map<string, BizBudValue>, propArr: BizBudValue[]) {
+        for (let p of propArr) {
+            let { name } = p;
+            if (map.has(name) === true) {
+                this.ts.error(`duplicate ${name}`);
+            }
+            map.set(name, p);
+        }
+    }
+
     abstract scan(space: BizEntitySpace): boolean;
 
     bizEntityScan2(bizEntity: BizEntity): boolean {

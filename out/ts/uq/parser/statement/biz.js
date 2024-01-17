@@ -543,8 +543,8 @@ class PBizStatementOut extends PBizStatementSub {
                 let { outEntity } = useOut;
                 let { props } = outEntity;
                 if (detail !== undefined) {
-                    let arr = outEntity.arrs[detail];
-                    if (arr === undefined) {
+                    let arr = outEntity.props.get(detail);
+                    if (arr === undefined || arr.dataType !== il_2.BudDataType.arr) {
                         ok = false;
                         this.log(`${detail} is not a ARR of ${outEntity.getJName()}`);
                     }

@@ -174,7 +174,10 @@ class PBizBase extends element_1.PElement {
         if (tokens.includes(token) === true) {
             key = defaultType !== null && defaultType !== void 0 ? defaultType : 'none';
         }
-        else {
+        else if (token === tokens_1.Token.LPARENTHESE) {
+            key = '$arr';
+        }
+        else if (token === tokens_1.Token.VAR) {
             key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
                 this.ts.expect(...this.getBudClassKeys());
@@ -189,6 +192,9 @@ class PBizBase extends element_1.PElement {
             else {
                 this.ts.readToken();
             }
+        }
+        else {
+            this.ts.expectToken(tokens_1.Token.VAR, tokens_1.Token.LPARENTHESE);
         }
         let Bud = this.getBudClass(key); // keyColl[key];
         if (Bud === undefined) {
@@ -219,6 +225,43 @@ class PBizBase extends element_1.PElement {
             bizBud.setType = il_1.SetType.assign;
         }
         return bizBud;
+    }
+    parsePropArr() {
+        let budArr = [];
+        let arrArr = [];
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        for (;;) {
+            let bud = this.parseSubItem();
+            if (bud.dataType === il_1.BudDataType.arr) {
+                arrArr.push(bud);
+            }
+            else {
+                budArr.push(bud);
+            }
+            let { token } = this.ts;
+            if (token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+            else if (token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
+        }
+        budArr.push(...arrArr);
+        return budArr;
+    }
+    parsePropMap(map, propArr) {
+        for (let p of propArr) {
+            let { name } = p;
+            if (map.has(name) === true) {
+                this.ts.error(`duplicate ${name}`);
+            }
+            map.set(name, p);
+        }
     }
     bizEntityScan2(bizEntity) {
         return true;

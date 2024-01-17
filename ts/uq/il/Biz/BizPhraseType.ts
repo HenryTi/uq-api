@@ -51,5 +51,7 @@ export enum BudDataType {
 
     date = 41,
     datetime = 42,
+
+    arr = 99,
 };
 

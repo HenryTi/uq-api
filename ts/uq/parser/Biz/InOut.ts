@@ -1,8 +1,8 @@
 import {
     BizBudValue, BizIn, BizInOut, BizOut, Statements
     , Statement, BizInAct, BizStatementIn, BizInActStatements
-    , Pointer, BizEntity, VarPointer, Biz, UI, BizBudInt
-    , BizBudDec, BizBudChar, BizBudDate, BizBudIDOut, budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn
+    , Pointer, BizEntity, VarPointer, Biz, UI
+    , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -11,56 +11,28 @@ import { BizEntitySpace } from "./Biz";
 
 abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
     readonly keyColl = {};
-    private parseProps(): BizBudValue[] {
-        let budArr: BizBudValue[] = [];
-        this.ts.passToken(Token.LPARENTHESE);
-        for (; ;) {
-            let bud = this.parseSubItem();
-            budArr.push(bud);
-            let { token } = this.ts;
-            if (token === Token.COMMA) {
-                this.ts.readToken();
-                if (this.ts.token === Token.RPARENTHESE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-            }
-            else if (token === Token.RPARENTHESE) {
-                this.ts.readToken();
-                break;
-            }
-        }
-        return budArr;
-    }
 
     protected override parseParam(): void {
-        const { arrs, props } = this.element;
-        let propArr = this.parseProps();
+        const { props } = this.element;
+        let propArr = this.parsePropArr();
         this.parsePropMap(props, propArr);
+        /*
         for (; this.ts.isKeyword('arr') === true;) {
             this.ts.readToken();
             let name = this.ts.passVar();
-            propArr = this.parseProps();
+            propArr = this.parsePropArr();
             let map = new Map<string, BizBudValue>();
             this.parsePropMap(map, propArr);
             arrs[name] = {
                 name,
                 props: map,
+                arrs: undefined,
             }
         }
+        */
     }
 
     protected override parseBody(): void {
-    }
-
-    private parsePropMap(map: Map<string, BizBudValue>, propArr: BizBudValue[]) {
-        for (let p of propArr) {
-            let { name } = p;
-            if (map.has(name) === true) {
-                this.ts.error(`duplicate ${name}`);
-            }
-            map.set(name, p);
-        }
     }
 
     override scan(space: Space): boolean {
@@ -68,7 +40,12 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
         if (super.scan(space) === false) {
             ok = false;
         }
-        const { props, arrs } = this.element;
+        const { props } = this.element;
+        const nameColl: { [name: string]: boolean } = {};
+        if (this.checkBudDuplicate(nameColl, props) === false) {
+            ok = false;
+        }
+        /*
         for (let i in arrs) {
             let arr = arrs[i];
             let { name, props: arrProps } = arr;
@@ -79,6 +56,27 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
             for (let [propName,] of arrProps) {
                 if (props.has(propName) === true) {
                     this.log(`ARR prop '${name}' duplicate main prop name`);
+                    ok = false;
+                }
+            }
+        }
+        */
+        return ok;
+    }
+
+    private checkBudDuplicate(nameColl: { [name: string]: boolean }, props: Map<string, BizBudValue>): boolean {
+        let ok = true;
+        for (let [, bud] of props) {
+            let { name, dataType } = bud;
+            if (nameColl[name] === true) {
+                this.log(`'${name}' duplicate prop name`);
+                ok = false;
+            }
+            else {
+                nameColl[name] = true;
+            }
+            if (dataType === BudDataType.arr) {
+                if (this.checkBudDuplicate(nameColl, (bud as BizBudArr).props) === false) {
                     ok = false;
                 }
             }

@@ -1,4 +1,5 @@
 import {
+    BizBudArr,
     BizBudValue, BizIn, BizOut, BudDataType, EnumSysTable, Field
     , JoinType, JsonTableColumn, bigIntField, charField, dateField
     , decField, intField, jsonField
@@ -29,7 +30,7 @@ export class BBizIn extends BBizEntity<BizIn> {
         const vIn = '$in', vOuter = '$outer';
         const { parameters, statements } = proc;
         const { factory } = this.context;
-        const { act, props, arrs } = this.bizEntity;
+        const { act, props } = this.bizEntity;
         let varJson = new ExpVar(vJson);
         parameters.push(
             bigIntField(vId),
@@ -63,40 +64,42 @@ export class BBizIn extends BBizEntity<BizIn> {
         selectQueue.where(new ExpEQ(new ExpField('id'), new ExpVar(vId)));
 
         for (let [name, bud] of props) {
-            vars.push(this.fieldFromBud(bud));
-            let set = factory.createSet();
-            statements.push(set);
-            set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)));
-        }
-        for (let i in arrs) {
-            let { name: arrName, props } = arrs[i];
-            let varTable = factory.createVarTable();
-            statements.push(varTable);
-            varTable.name = arrName;
-            let idField = intField('$id');
-            idField.autoInc = true;
-            varTable.keys = [idField];
-            varTable.fields = [idField];
-            const { fields } = varTable;
-            let insertArr = factory.createInsert();
-            statements.push(insertArr);
-            insertArr.table = new SqlVarTable(arrName);
-            insertArr.cols = [];
-            const { cols } = insertArr;
-            let selectJsonArr = factory.createSelect();
-            insertArr.select = selectJsonArr;
-            let jsonColumns: JsonTableColumn[] = [];
-            let jsonTable = new FromJsonTable('a', varJson, `$.${arrName}[*]`, jsonColumns);
-            selectJsonArr.from(jsonTable);
-            selectJsonArr.lock = LockType.none;
-            for (let [name, bud] of props) {
-                let field = this.fieldFromBud(bud);
-                vars.push(field);
-                field.nullable = true;
-                fields.push(field);
-                cols.push({ col: name, val: new ExpField(name, 'a') });
-                selectJsonArr.column(new ExpField(name, 'a'));
-                jsonColumns.push({ field: this.fieldFromBud(bud), path: `$.${name}` });
+            if (bud.dataType !== BudDataType.arr) {
+                vars.push(this.fieldFromBud(bud));
+                let set = factory.createSet();
+                statements.push(set);
+                set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)));
+            }
+            else {
+                let { name: arrName, props: arrProps } = bud as BizBudArr;
+                let varTable = factory.createVarTable();
+                statements.push(varTable);
+                varTable.name = arrName;
+                let idField = intField('$id');
+                idField.autoInc = true;
+                varTable.keys = [idField];
+                varTable.fields = [idField];
+                const { fields } = varTable;
+                let insertArr = factory.createInsert();
+                statements.push(insertArr);
+                insertArr.table = new SqlVarTable(arrName);
+                insertArr.cols = [];
+                const { cols } = insertArr;
+                let selectJsonArr = factory.createSelect();
+                insertArr.select = selectJsonArr;
+                let jsonColumns: JsonTableColumn[] = [];
+                let jsonTable = new FromJsonTable('a', varJson, `$.${arrName}[*]`, jsonColumns);
+                selectJsonArr.from(jsonTable);
+                selectJsonArr.lock = LockType.none;
+                for (let [name, bud] of arrProps) {
+                    let field = this.fieldFromBud(bud);
+                    vars.push(field);
+                    field.nullable = true;
+                    fields.push(field);
+                    cols.push({ col: name, val: new ExpField(name, 'a') });
+                    selectJsonArr.column(new ExpField(name, 'a'));
+                    jsonColumns.push({ field: this.fieldFromBud(bud), path: `$.${name}` });
+                }
             }
         }
         declare.vars(...vars);
@@ -155,7 +158,7 @@ export class BBizOut extends BBizEntity<BizOut> {
         const json = '$json', out = '$out', ret = '$ret', endPoint = '$endPoint'
             , outer = '$outer', prevOuter = '$prevOuter'
             , arrI = '$i', row = '$row', arrLen = '$len', queueId = '$queueId';
-        const { id, props, arrs } = this.bizEntity;
+        const { id, props } = this.bizEntity;
         const { parameters, statements } = proc;
         const { factory } = this.context;
         parameters.push(jsonField(json));
@@ -237,59 +240,60 @@ export class BBizOut extends BBizEntity<BizOut> {
         }
 
         for (let [name, bud] of props) {
-            params.push(
-                new ExpStr(name),
-                getBudVal(bud, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$.${name}`))),
-            );
-        }
-        for (let i in arrs) {
-            const arrParams: ExpVal[] = [];
-            const arr = arrs[i];
-            const { name: arrName, props: arrProps } = arr;
-            declare.vars(jsonField(arrName));
-            const varArrJson = new ExpVar(arrName);
-            const setArrJson = factory.createSet();
-            loopStats.add(setArrJson);
-            setArrJson.equ(arrName, new ExpFunc('JSON_ARRAY'));
-            const setI0 = factory.createSet();
-            loopStats.add(setI0);
-            setI0.equ(arrI, ExpNum.num0);
-            const setLen = factory.createSet();
-            loopStats.add(setLen);
-            setLen.equ(arrLen, new ExpFunc('JSON_LENGTH', new ExpStr(`$.${arrName}`)));
-            const loopArr = factory.createWhile();
-            loopStats.add(loopArr);
-            loopArr.no = 98;
-            loopArr.cmp = new ExpLT(new ExpVar(arrI), new ExpVar(arrLen));
-            const { statements: laStats } = loopArr;
-            const setRow = factory.createSet();
-            laStats.add(setRow);
-            setRow.equ(row, new ExpFunc('JSON_UNQUOTE',
-                new ExpFunc(
-                    'JSON_EXTRACT',
-                    varJson,
-                    new ExpFunc(
-                        factory.func_concat,
-                        new ExpStr(`$.${arrName}[`), new ExpVar(arrI), new ExpStr(']')
-                    ),
-                )
-            ));
-            const setIInc = factory.createSet();
-            laStats.add(setIInc);
-            setIInc.equ(arrI, new ExpAdd(new ExpVar(arrI), ExpNum.num1));
-            for (let [name, bud] of arrProps) {
-                arrParams.push(new ExpStr(name));
-                arrParams.push(getBudVal(bud, new ExpFunc('JSON_VALUE', varRow, new ExpStr(`$.${name}`))));
+            if (bud.dataType !== BudDataType.arr) {
+                params.push(
+                    new ExpStr(name),
+                    getBudVal(bud, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$.${name}`))),
+                );
             }
-            const appendArrJson = factory.createSet();
-            laStats.add(appendArrJson);
-            appendArrJson.equ(arrName, new ExpFunc(
-                'JSON_ARRAY_APPEND',
-                varArrJson,
-                new ExpStr('$'),
-                new ExpFunc('JSON_OBJECT', ...arrParams),
-            ));
-            params.push(new ExpStr(arrName), new ExpVar(arrName));
+            else {
+                const arrParams: ExpVal[] = [];
+                const { name: arrName, props: arrProps } = bud as BizBudArr;
+                declare.vars(jsonField(arrName));
+                const varArrJson = new ExpVar(arrName);
+                const setArrJson = factory.createSet();
+                loopStats.add(setArrJson);
+                setArrJson.equ(arrName, new ExpFunc('JSON_ARRAY'));
+                const setI0 = factory.createSet();
+                loopStats.add(setI0);
+                setI0.equ(arrI, ExpNum.num0);
+                const setLen = factory.createSet();
+                loopStats.add(setLen);
+                setLen.equ(arrLen, new ExpFunc('JSON_LENGTH', new ExpStr(`$.${arrName}`)));
+                const loopArr = factory.createWhile();
+                loopStats.add(loopArr);
+                loopArr.no = 98;
+                loopArr.cmp = new ExpLT(new ExpVar(arrI), new ExpVar(arrLen));
+                const { statements: laStats } = loopArr;
+                const setRow = factory.createSet();
+                laStats.add(setRow);
+                setRow.equ(row, new ExpFunc('JSON_UNQUOTE',
+                    new ExpFunc(
+                        'JSON_EXTRACT',
+                        varJson,
+                        new ExpFunc(
+                            factory.func_concat,
+                            new ExpStr(`$.${arrName}[`), new ExpVar(arrI), new ExpStr(']')
+                        ),
+                    )
+                ));
+                const setIInc = factory.createSet();
+                laStats.add(setIInc);
+                setIInc.equ(arrI, new ExpAdd(new ExpVar(arrI), ExpNum.num1));
+                for (let [name, bud] of arrProps) {
+                    arrParams.push(new ExpStr(name));
+                    arrParams.push(getBudVal(bud, new ExpFunc('JSON_VALUE', varRow, new ExpStr(`$.${name}`))));
+                }
+                const appendArrJson = factory.createSet();
+                laStats.add(appendArrJson);
+                appendArrJson.equ(arrName, new ExpFunc(
+                    'JSON_ARRAY_APPEND',
+                    varArrJson,
+                    new ExpStr('$'),
+                    new ExpFunc('JSON_OBJECT', ...arrParams),
+                ));
+                params.push(new ExpStr(arrName), new ExpVar(arrName));
+            }
         }
         const setRet = factory.createSet();
         loopStats.add(setRet);

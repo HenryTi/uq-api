@@ -3,7 +3,7 @@ import {
     BizStatementPend, BizStatementSub
     , BizStatementTitle, BizPend, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementInPend, BizStatementSheet, BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase, VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec, BizEntity, BizAtom, BizSpec, BizStatementOut, UseOut
+    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementInPend, BizStatementSheet, BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase, VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec, BizEntity, BizAtom, BizSpec, BizStatementOut, UseOut, BizBudArr
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -548,8 +548,8 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
                 let { outEntity } = useOut;
                 let { props } = outEntity;
                 if (detail !== undefined) {
-                    let arr = outEntity.arrs[detail];
-                    if (arr === undefined) {
+                    let arr = outEntity.props.get(detail) as BizBudArr;
+                    if (arr === undefined || arr.dataType !== BudDataType.arr) {
                         ok = false;
                         this.log(`${detail} is not a ARR of ${outEntity.getJName()}`);
                     }
