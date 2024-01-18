@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudID = exports.BizBudIDOut = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -252,18 +252,6 @@ class BizBudIDBase extends BizBud {
     }
 }
 exports.BizBudIDBase = BizBudIDBase;
-// 仅仅Out的属性定义，ID表示需要转换
-class BizBudIDOut extends BizBudValue {
-    constructor() {
-        super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.ID;
-        this.canIndex = false;
-    }
-    parser(context) {
-        return new parser_1.PBizBudIDOut(this, context);
-    }
-}
-exports.BizBudIDOut = BizBudIDOut;
 class BizBudID extends BizBudValue {
     constructor() {
         super(...arguments);
@@ -300,6 +288,25 @@ class BizBudID extends BizBudValue {
     }
 }
 exports.BizBudID = BizBudID;
+// ID的属性定义，ID表示需要转换
+// 后面仅仅可以Atom
+class BizBudIDIO extends BizBudValue {
+    constructor() {
+        super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.ID;
+        this.canIndex = false;
+    }
+    parser(context) {
+        return new parser_1.PBizBudIDIO(this, context);
+    }
+    buildSchema(res) {
+        var _a;
+        let ret = super.buildSchema(res);
+        ret.atom = (_a = this.entityAtom) === null || _a === void 0 ? void 0 : _a.id;
+        return ret;
+    }
+}
+exports.BizBudIDIO = BizBudIDIO;
 class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;
@@ -349,6 +356,7 @@ exports.budClassesIn = {
     dec: BizBudDec,
     char: BizBudChar,
     date: BizBudDate,
+    id: BizBudIDIO,
     $arr: BizBudArr,
 };
 exports.budClasses = {
@@ -363,7 +371,6 @@ exports.budClassKeys = Object.keys(exports.budClasses);
 exports.budClassKeysIn = Object.keys(exports.budClassesIn);
 exports.budClassesOut = {
     ...exports.budClassesIn,
-    id: BizBudIDOut,
 };
 exports.budClassKeysOut = Object.keys(exports.budClassesOut);
 //# sourceMappingURL=Bud.js.map

@@ -1,4 +1,7 @@
-import { BigInt, BudDataType, DateTime, EnumSysTable, JsonDataType, ProcParamType, SpanPeriod, UseBase, UseMonthZone, UseOut, UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone } from "../../il";
+import {
+    BigInt, DateTime, SpanPeriod, UseBase, UseMonthZone
+    , UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone
+} from "../../il";
 import { DbContext } from "../dbContext";
 import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
 import { BStatementBase } from "./bstatement";
@@ -243,7 +246,7 @@ export class BUseTimeSpan extends BUseBase<UseTimeSpan> {
         }
     }
 }
-
+/*
 export class BUseOut extends BUseBase<UseOut> {
     readonly singleKey = 'out';
     override singleHead(sqls: Sqls): void {
@@ -279,3 +282,4 @@ export class BUseOut extends BUseBase<UseOut> {
         });
     }
 }
+*/

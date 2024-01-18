@@ -335,8 +335,15 @@ export class PBizBin extends PBizEntity<BizBin> {
 
         let { act } = this.element;
         if (act !== undefined) {
-            if (act.pelement.scan(space) === false) {
+            if (act.pelement.scan(binSpace) === false) {
                 ok = false;
+            }
+        }
+        const { useColl } = binSpace;
+        for (let i in useColl) {
+            if (i[0] === '$') {
+                let uc = useColl[i];
+                this.element.outs.push(uc.obj);
             }
         }
         return ok;
@@ -365,18 +372,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         return ok;
     }
 }
-/*
-export class PPickInput extends PElement<PickInput> {
-    protected _parse(): void {
-        for (; ;) {
-            if (this.ts.token === Token.RBRACE) {
-                this.ts.readToken();
-                break;
-            }
-        }
-    }
-}
-*/
+
 export const binPreDefined = [
     '$site', '$user'
     , 'bin',
@@ -384,7 +380,7 @@ export const binPreDefined = [
     , ...binFieldArr
 ];
 class BizBinSpace extends BizEntitySpace<BizBin> {
-    protected readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
+    readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
@@ -436,11 +432,11 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
         }
     }
 
-    protected _getUse(name: string): { statementNo: number; obj: any; } {
+    protected override _getUse(name: string): { statementNo: number; obj: any; } {
         return this.useColl[name];
     }
 
-    protected _addUse(name: string, statementNo: number, obj: any): boolean {
+    protected override _addUse(name: string, statementNo: number, obj: any): boolean {
         let v = this.useColl[name];
         if (v !== undefined) return false;
         this.useColl[name] = {
@@ -455,7 +451,7 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
     }
 }
 
-class BizBinActSpace extends BizBinSpace {
+class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (binPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
@@ -473,6 +469,10 @@ class BizBinActSpace extends BizBinSpace {
             case 'pend':
                 return;
         }
+    }
+
+    override getBizFieldSpace() {
+        return new BizBinActFieldSpace(this.bizEntity);
     }
 }
 

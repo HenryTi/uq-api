@@ -6,18 +6,10 @@ const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-/*
-export interface BizInOutArr {
-    name: string;
-    props: Map<string, BizBudValue>;
-    arrs: { [name: string]: BizInOutArr; };
-}
-*/
 class BizInOut extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.fields = [];
-        // readonly arrs: { [name: string]: BizInOutArr; } = {};
     }
 }
 exports.BizInOut = BizInOut;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BUseOut = exports.BUseTimeSpan = exports.BUseYearZone = exports.BUseMonthZone = exports.BUseTimeZone = exports.BUseSetting = exports.BUseBase = exports.BUseStatement = void 0;
+exports.BUseTimeSpan = exports.BUseYearZone = exports.BUseMonthZone = exports.BUseTimeZone = exports.BUseSetting = exports.BUseBase = exports.BUseStatement = void 0;
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const bstatement_1 = require("./bstatement");
@@ -214,29 +214,27 @@ class BUseTimeSpan extends BUseBase {
     }
 }
 exports.BUseTimeSpan = BUseTimeSpan;
-class BUseOut extends BUseBase {
-    constructor() {
-        super(...arguments);
-        this.singleKey = 'out';
-    }
-    singleHead(sqls) {
+/*
+export class BUseOut extends BUseBase<UseOut> {
+    readonly singleKey = 'out';
+    override singleHead(sqls: Sqls): void {
         const { varName, outEntity } = this.useObj;
         const { factory } = this.context;
         let declare = factory.createDeclare();
         sqls.push(declare);
-        declare.var(varName, new il_1.JsonDataType());
+        declare.var(varName, new JsonDataType());
         let set = factory.createSet();
         sqls.push(set);
-        let params = [];
+        let params: ExpVal[] = [];
         for (let [, bud] of outEntity.props) {
             const { dataType, name } = bud;
-            if (dataType !== il_1.BudDataType.arr)
-                continue;
-            params.push(new sql_1.ExpStr(name), new sql_1.ExpFunc('JSON_ARRAY'));
+            if (dataType !== BudDataType.arr) continue;
+            params.push(new ExpStr(name), new ExpFunc('JSON_ARRAY'));
         }
-        set.equ(varName, new sql_1.ExpFunc('JSON_OBJECT', ...params));
+        set.equ(varName, new ExpFunc('JSON_OBJECT', ...params));
     }
-    singleFoot(sqls) {
+
+    override singleFoot(sqls: Sqls) {
         const { varName, outEntity } = this.useObj;
         const { factory } = this.context;
         const memo = factory.createMemo();
@@ -247,10 +245,10 @@ class BUseOut extends BUseBase {
         proc.db = '$site';
         proc.procName = `${this.context.site}.${outEntity.id}`;
         proc.params.push({
-            paramType: il_1.ProcParamType.in,
-            value: new sql_1.ExpVar(varName),
+            paramType: ProcParamType.in,
+            value: new ExpVar(varName),
         });
     }
 }
-exports.BUseOut = BUseOut;
+*/
 //# sourceMappingURL=use.js.map

@@ -305,8 +305,15 @@ class PBizBin extends Base_1.PBizEntity {
             ok = false;
         let { act } = this.element;
         if (act !== undefined) {
-            if (act.pelement.scan(space) === false) {
+            if (act.pelement.scan(binSpace) === false) {
                 ok = false;
+            }
+        }
+        const { useColl } = binSpace;
+        for (let i in useColl) {
+            if (i[0] === '$') {
+                let uc = useColl[i];
+                this.element.outs.push(uc.obj);
             }
         }
         return ok;
@@ -336,18 +343,6 @@ class PBizBin extends Base_1.PBizEntity {
     }
 }
 exports.PBizBin = PBizBin;
-/*
-export class PPickInput extends PElement<PickInput> {
-    protected _parse(): void {
-        for (; ;) {
-            if (this.ts.token === Token.RBRACE) {
-                this.ts.readToken();
-                break;
-            }
-        }
-    }
-}
-*/
 exports.binPreDefined = [
     '$site', '$user',
     'bin',
@@ -425,7 +420,7 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
         return new il_1.BizBinActFieldSpace(this.bizEntity);
     }
 }
-class BizBinActSpace extends BizBinSpace {
+class BizBinActSpace extends Biz_1.BizEntitySpace {
     _varPointer(name, isField) {
         if (exports.binPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer();
@@ -441,6 +436,9 @@ class BizBinActSpace extends BizBinSpace {
             case 'pend':
                 return;
         }
+    }
+    getBizFieldSpace() {
+        return new il_1.BizBinActFieldSpace(this.bizEntity);
     }
 }
 class PBizBinAct extends Base_1.PBizAct {

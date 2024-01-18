@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PUseOut = exports.PUseTimeSpan = exports.PUseYearZone = exports.PUseMonthZone = exports.PUseTimeZone = exports.PUseSetting = exports.PUseBase = exports.PUseStatement = void 0;
+exports.PUseTimeSpan = exports.PUseYearZone = exports.PUseMonthZone = exports.PUseTimeZone = exports.PUseSetting = exports.PUseBase = exports.PUseStatement = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -24,9 +24,6 @@ class PUseStatement extends statement_1.PStatement {
                 break;
             case 'timespan':
                 useBase = new il_1.UseTimeSpan(this.element);
-                break;
-            case 'out':
-                useBase = new il_1.UseOut(this.element);
                 break;
         }
         this.element.useBase = useBase;
@@ -140,16 +137,18 @@ class PUseTimeSpan extends PUseBase {
     }
 }
 exports.PUseTimeSpan = PUseTimeSpan;
-class PUseOut extends PUseBase {
-    _parse() {
+/*
+export class PUseOut extends PUseBase<UseOut> {
+    private outEntity: string;
+    protected _parse(): void {
         this.element.varName = this.ts.passVar();
         this.outEntity = this.ts.passVar();
     }
-    scan(space) {
+    scan(space: Space): boolean {
         let ok = true;
         this.element.outEntity = space.getBizEntity(this.outEntity);
         let { outEntity, statement, varName } = this.element;
-        if (outEntity === undefined || outEntity.bizPhraseType !== il_1.BizPhraseType.out) {
+        if (outEntity === undefined || outEntity.bizPhraseType !== BizPhraseType.out) {
             ok = false;
             this.log(`${this.outEntity} is not OUT`);
         }
@@ -157,5 +156,5 @@ class PUseOut extends PUseBase {
         return ok;
     }
 }
-exports.PUseOut = PUseOut;
+*/ 
 //# sourceMappingURL=use.js.map

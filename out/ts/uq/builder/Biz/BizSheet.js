@@ -35,12 +35,23 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
         const { main, details } = this.bizEntity;
+        const outs = [...main.outs];
+        for (let detail of details) {
+            for (let out of detail.bin.outs) {
+                if (outs.findIndex(v => v === out) < 0) {
+                    outs.push(out);
+                }
+            }
+        }
         const site = '$site';
         const cId = '$id';
         parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.idField)(cId, 'big'));
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars((0, il_1.bigIntField)(sheetId), (0, il_1.bigIntField)(si), (0, il_1.bigIntField)(sx), (0, il_1.decField)(svalue, 18, 6), (0, il_1.decField)(samount, 18, 6), (0, il_1.decField)(sprice, 18, 6));
+        for (let out of outs) {
+            this.buildOutInit(statements, out);
+        }
         // main
         const memo = factory.createMemo();
         statements.push(memo);
@@ -56,6 +67,9 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         for (let i = 0; i < len; i++) {
             let { bin } = details[i];
             this.buildBin(statements, bin, i + 101);
+        }
+        for (let out of outs) {
+            this.buildOut(statements, out);
         }
     }
     buildBin(statements, bin, statementNo) {
@@ -171,6 +185,36 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         iff.then(execSql);
         execSql.no = bizBin.id;
         execSql.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `' + consts_1.$site + '`.`'), new sql_1.ExpVar(vProc), new sql_1.ExpStr('`()'));
+    }
+    buildOutInit(statements, out) {
+        const varName = '$' + out.name;
+        const { factory } = this.context;
+        let set = factory.createSet();
+        statements.push(set);
+        let params = [];
+        for (let [, bud] of out.props) {
+            const { dataType, name } = bud;
+            if (dataType !== il_1.BudDataType.arr)
+                continue;
+            params.push(new sql_1.ExpStr(name), new sql_1.ExpFunc('JSON_ARRAY'));
+        }
+        set.isAtVar = true;
+        set.equ(varName, new sql_1.ExpFunc('JSON_OBJECT', ...params));
+    }
+    buildOut(statements, out) {
+        const { factory } = this.context;
+        const varName = '$' + out.name;
+        const memo = factory.createMemo();
+        statements.push(memo);
+        memo.text = `call PROC to write OUT @${varName} ${out.getJName()}`;
+        const proc = factory.createCall();
+        statements.push(proc);
+        proc.db = '$site';
+        proc.procName = `${this.context.site}.${out.id}`;
+        proc.params.push({
+            paramType: il_1.ProcParamType.in,
+            value: new sql_1.ExpAtVar(varName),
+        });
     }
 }
 exports.BBizSheet = BBizSheet;

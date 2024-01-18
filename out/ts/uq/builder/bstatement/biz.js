@@ -420,20 +420,21 @@ exports.BBizStatementSpec = BBizStatementSpec;
 class BBizStatementOut extends bstatement_1.BStatement {
     body(sqls) {
         const { factory } = this.context;
-        const { useOut, detail, sets } = this.istatement;
-        const { varName } = useOut;
+        const { bizOut, detail, sets } = this.istatement;
+        let varName = '$' + bizOut.name;
         let setV = factory.createSet();
         sqls.push(setV);
+        setV.isAtVar = true;
         let params = [];
         let vNew;
         for (let i in sets) {
             params.push(new sql_1.ExpStr('$.' + i), this.context.expVal(sets[i]));
         }
         if (detail === undefined) {
-            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpVar(varName), ...params);
+            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpAtVar(varName), ...params);
         }
         else {
-            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpVar(varName), new sql_1.ExpStr('$.' + detail), new sql_1.ExpFunc('JSON_OBJECT', ...params));
+            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpAtVar(varName), new sql_1.ExpStr('$.' + detail), new sql_1.ExpFunc('JSON_OBJECT', ...params));
         }
         setV.equ(varName, vNew);
     }

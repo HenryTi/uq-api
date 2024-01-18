@@ -1,13 +1,13 @@
 import { BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext, BBizStatementSheet, BBizStatementDetail, BBizStatementAtom, BBizStatementSpec, BBizStatementOut } from '../../builder';
 import * as parser from '../../parser';
-import { Builder } from "../builder";
+// import { Builder } from "../builder";
 import { IElement } from '../IElement';
-import { BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct, BizInAct, BizBin, BizSheet, BizAtom, BizSpec } from '../Biz';
+import { BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct, BizInAct, BizBin, BizSheet, BizAtom, BizSpec, BizOut } from '../Biz';
 import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
 import { SetEqu } from '../tool';
 import { Pointer, VarPointer } from '../pointer';
-import { UseOut } from './use';
+// import { UseOut } from './use';
 
 export abstract class BizStatement<T extends BizAct> extends Statement {
     get type(): string { return 'bizstatement'; }
@@ -121,7 +121,9 @@ export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<
 }
 
 export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<T> {
-    useOut: UseOut;
+    // useOut: UseOut;
+    // detail: string;
+    bizOut: BizOut;
     detail: string;
     readonly sets: { [bud: string]: ValueExpression } = {};
     parser(context: parser.PContext): parser.PElement<IElement> {

@@ -1,7 +1,7 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDOut, PBizBudArr
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDIO, PBizBudArr
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -260,15 +260,6 @@ export class BizBudIDBase extends BizBud {
     }
 }
 
-// 仅仅Out的属性定义，ID表示需要转换
-export class BizBudIDOut extends BizBudValue {
-    readonly dataType = BudDataType.ID;
-    readonly canIndex = false;
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudIDOut(this, context);
-    }
-}
-
 export class BizBudID extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
@@ -299,6 +290,22 @@ export class BizBudID extends BizBudValue {
             let { exp } = param;
             param.str = expStringify(exp);
         }
+    }
+}
+
+// ID的属性定义，ID表示需要转换
+// 后面仅仅可以Atom
+export class BizBudIDIO extends BizBudValue {
+    readonly dataType = BudDataType.ID;
+    readonly canIndex = false;
+    entityAtom: BizAtom;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudIDIO(this, context);
+    }
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        ret.atom = this.entityAtom?.id;
+        return ret;
     }
 }
 
@@ -342,6 +349,7 @@ export const budClassesIn: { [key: string]: new (biz: Biz, name: string, ui: Par
     dec: BizBudDec,
     char: BizBudChar,
     date: BizBudDate,
+    id: BizBudIDIO,
     $arr: BizBudArr,
 }
 export const budClasses: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
@@ -356,6 +364,5 @@ export const budClassKeys = Object.keys(budClasses);
 export const budClassKeysIn = Object.keys(budClassesIn);
 export const budClassesOut: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
     ...budClassesIn,
-    id: BizBudIDOut,
 }
 export const budClassKeysOut = Object.keys(budClassesOut);

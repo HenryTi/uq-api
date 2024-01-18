@@ -1,6 +1,6 @@
 import {
     BizPhraseType,
-    SpanPeriod, UseBase, UseMonthZone, UseOut, UseSetting, UseStatement
+    SpanPeriod, UseBase, UseMonthZone, UseSetting, UseStatement
     , UseTimeSpan, UseTimeZone, UseYearZone, ValueExpression
 } from "../../il";
 import { PElement } from "../element";
@@ -20,7 +20,6 @@ export class PUseStatement extends PStatement<UseStatement> {
             case 'monthzone': useBase = new UseMonthZone(this.element); break;
             case 'yearzone': useBase = new UseYearZone(this.element); break;
             case 'timespan': useBase = new UseTimeSpan(this.element); break;
-            case 'out': useBase = new UseOut(this.element); break;
         }
         this.element.useBase = useBase;
         this.context.parseElement(useBase);
@@ -134,7 +133,7 @@ export class PUseTimeSpan extends PUseBase<UseTimeSpan> {
         return ok;
     }
 }
-
+/*
 export class PUseOut extends PUseBase<UseOut> {
     private outEntity: string;
     protected _parse(): void {
@@ -153,3 +152,4 @@ export class PUseOut extends PUseBase<UseOut> {
         return ok;
     }
 }
+*/

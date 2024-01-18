@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudIDOut = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -174,6 +174,16 @@ class PBizBudArr extends PBizBudValue {
     getBudClassKeys() {
         return il_1.budClassKeysOut;
     }
+    scan(space) {
+        let ok = super.scan(space);
+        const { props } = this.element;
+        for (let [, bud] of props) {
+            if (bud.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
 }
 exports.PBizBudArr = PBizBudArr;
 class PBizBudValueWithRange extends PBizBudValue {
@@ -268,15 +278,23 @@ exports.PBizBudChar = PBizBudChar;
 class PBizBudDate extends PBizBudValueWithRange {
 }
 exports.PBizBudDate = PBizBudDate;
-class PBizBudIDOut extends PBizBud {
+class PBizBudIDIO extends PBizBud {
     _parse() {
+        this.atomName = this.ts.mayPassVar();
     }
     scan(space) {
         let ok = true;
+        if (this.atomName !== undefined) {
+            let entityAtom = this.element.entityAtom = space.getBizEntity(this.atomName);
+            if (entityAtom !== undefined && entityAtom.bizPhraseType !== il_1.BizPhraseType.atom) {
+                ok = false;
+                this.log(`${this.atomName} is not ATOM. IO ID only support ATOM`);
+            }
+        }
         return ok;
     }
 }
-exports.PBizBudIDOut = PBizBudIDOut;
+exports.PBizBudIDIO = PBizBudIDIO;
 class PBizBudIDBase extends PBizBud {
     scan(space) {
         let ok = true;

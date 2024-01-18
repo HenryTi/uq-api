@@ -3,7 +3,10 @@ import {
     BizStatementPend, BizStatementSub
     , BizStatementTitle, BizPend, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementInPend, BizStatementSheet, BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase, VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec, BizEntity, BizAtom, BizSpec, BizStatementOut, UseOut, BizBudArr
+    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
+    , BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase
+    , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
+    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -18,7 +21,6 @@ export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>>
         title: BizStatementTitle,
         sheet: BizStatementSheet,
         detail: BizStatementDetail,
-        out: BizStatementOut,
     }
     constructor(bizStatement: T, context: PContext) {
         super(bizStatement, context);
@@ -66,6 +68,7 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
     protected getBizSubsEx() {
         return {
             pend: BizStatementBinPend,
+            out: BizStatementOut,
         };
     }
 }
@@ -504,9 +507,9 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
 }
 
 export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> extends PBizStatementSub<A, T> {
-    private varName: string;
+    private outName: string;
     protected override _parse(): void {
-        this.varName = this.ts.passVar();
+        this.outName = this.ts.passVar();
         if (this.ts.isKeyword('add') === true) {
             this.ts.readToken();
             this.element.detail = this.ts.passVar();
@@ -531,41 +534,33 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
     override scan(space: Space): boolean {
         let ok = true;
         let { detail, sets } = this.element;
-        let useOut: UseOut;
-        let useRet = space.getUse(this.varName);
-        if (useRet === undefined) {
+        let bizOut = space.getBizEntity<BizOut>(this.outName);
+        if (bizOut === undefined || bizOut.bizPhraseType !== BizPhraseType.out) {
             ok = false;
-            this.log(`${this.varName} is not defined`);
+            this.log(`${this.outName} is not OUT`);
         }
         else {
-            useOut = useRet.obj as UseOut;
-            if (useOut.type !== 'out') {
-                ok = false;
-                this.log(`USE OUT ${this.varName} is not exists`);
-            }
-            else {
-                this.element.useOut = useOut;
-                let { outEntity } = useOut;
-                let { props } = outEntity;
-                if (detail !== undefined) {
-                    let arr = outEntity.props.get(detail) as BizBudArr;
-                    if (arr === undefined || arr.dataType !== BudDataType.arr) {
-                        ok = false;
-                        this.log(`${detail} is not a ARR of ${outEntity.getJName()}`);
-                    }
-                    else {
-                        props = arr.props;
-                    }
+            space.addUse('$' + bizOut.name, 0, bizOut);
+            this.element.bizOut = bizOut;
+            let { props } = bizOut;
+            if (detail !== undefined) {
+                let arr = bizOut.props.get(detail) as BizBudArr;
+                if (arr === undefined || arr.dataType !== BudDataType.arr) {
+                    ok = false;
+                    this.log(`${detail} is not a ARR of ${bizOut.getJName()}`);
                 }
-                if (props !== undefined) {
-                    for (let i in sets) {
-                        if (props.has(i) === false) {
-                            ok = false;
-                            this.log(`${i} is not defined`);
-                        }
-                        else if (sets[i].pelement.scan(space) === false) {
-                            ok = false;
-                        }
+                else {
+                    props = arr.props;
+                }
+            }
+            if (props !== undefined) {
+                for (let i in sets) {
+                    if (props.has(i) === false) {
+                        ok = false;
+                        this.log(`${i} is not defined`);
+                    }
+                    else if (sets[i].pelement.scan(space) === false) {
+                        ok = false;
                     }
                 }
             }

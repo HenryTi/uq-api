@@ -1,11 +1,13 @@
 import {
     EnumSysTable, BigInt, BizStatementPend
-    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct, BizStatement, BizStatementSheet, BizStatementDetail, BizStatementSheetBase, intField, ValueExpression, BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut
+    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
+    , BizStatement, BizStatementSheet, BizStatementDetail, BizStatementSheetBase, intField
+    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut
 } from "../../il";
 import { $site } from "../consts";
 import { sysTable } from "../dbContext";
 import {
-    ColVal, ExpAdd, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
+    ColVal, ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
     , ExpGT, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, Statement
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -452,22 +454,23 @@ export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
 export class BBizStatementOut extends BStatement<BizStatementOut> {
     override body(sqls: Sqls): void {
         const { factory } = this.context;
-        const { useOut, detail, sets } = this.istatement;
-        const { varName } = useOut;
+        const { bizOut, detail, sets } = this.istatement;
+        let varName = '$' + bizOut.name;
         let setV = factory.createSet();
         sqls.push(setV);
+        setV.isAtVar = true;
         let params: ExpVal[] = [];
         let vNew: ExpVal;
         for (let i in sets) {
             params.push(new ExpStr('$.' + i), this.context.expVal(sets[i]));
         }
         if (detail === undefined) {
-            vNew = new ExpFunc('JSON_SET', new ExpVar(varName), ...params);
+            vNew = new ExpFunc('JSON_SET', new ExpAtVar(varName), ...params);
         }
         else {
             vNew = new ExpFunc(
                 'JSON_ARRAY_Append',
-                new ExpVar(varName),
+                new ExpAtVar(varName),
                 new ExpStr('$.' + detail),
                 new ExpFunc('JSON_OBJECT', ...params),
             );

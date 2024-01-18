@@ -3,7 +3,8 @@ import {
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange, BizBudIDBase, BizBudIDOut, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI
+    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
+    , BizBudIDBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -183,6 +184,16 @@ export class PBizBudArr extends PBizBudValue<BizBudArr> {
     protected override getBudClassKeys() {
         return budClassKeysOut;
     }
+    override scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = super.scan(space);
+        const { props } = this.element;
+        for (let [, bud] of props) {
+            if (bud.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
 }
 
 class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue<T> {
@@ -279,11 +290,20 @@ export class PBizBudChar extends PBizBudValue<BizBudChar> {
 export class PBizBudDate extends PBizBudValueWithRange<BizBudDate> {
 }
 
-export class PBizBudIDOut extends PBizBud<BizBudIDOut> {
+export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
+    private atomName: string;
     protected _parse(): void {
+        this.atomName = this.ts.mayPassVar();
     }
     scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
+        if (this.atomName !== undefined) {
+            let entityAtom = this.element.entityAtom = space.getBizEntity<BizAtom>(this.atomName);
+            if (entityAtom !== undefined && entityAtom.bizPhraseType !== BizPhraseType.atom) {
+                ok = false;
+                this.log(`${this.atomName} is not ATOM. IO ID only support ATOM`);
+            }
+        }
         return ok;
     }
 }

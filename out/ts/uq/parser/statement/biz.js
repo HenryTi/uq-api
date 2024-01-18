@@ -14,7 +14,6 @@ class PBizStatement extends statement_1.PStatement {
             title: il_1.BizStatementTitle,
             sheet: il_1.BizStatementSheet,
             detail: il_1.BizStatementDetail,
-            out: il_1.BizStatementOut,
         };
         this.bizStatement = bizStatement;
         this.init();
@@ -56,6 +55,7 @@ class PBizStatementBin extends PBizStatement {
     getBizSubsEx() {
         return {
             pend: il_1.BizStatementBinPend,
+            out: il_1.BizStatementOut,
         };
     }
 }
@@ -501,7 +501,7 @@ class PBizStatementSpec extends PBizStatementID {
 exports.PBizStatementSpec = PBizStatementSpec;
 class PBizStatementOut extends PBizStatementSub {
     _parse() {
-        this.varName = this.ts.passVar();
+        this.outName = this.ts.passVar();
         if (this.ts.isKeyword('add') === true) {
             this.ts.readToken();
             this.element.detail = this.ts.passVar();
@@ -526,41 +526,33 @@ class PBizStatementOut extends PBizStatementSub {
     scan(space) {
         let ok = true;
         let { detail, sets } = this.element;
-        let useOut;
-        let useRet = space.getUse(this.varName);
-        if (useRet === undefined) {
+        let bizOut = space.getBizEntity(this.outName);
+        if (bizOut === undefined || bizOut.bizPhraseType !== il_1.BizPhraseType.out) {
             ok = false;
-            this.log(`${this.varName} is not defined`);
+            this.log(`${this.outName} is not OUT`);
         }
         else {
-            useOut = useRet.obj;
-            if (useOut.type !== 'out') {
-                ok = false;
-                this.log(`USE OUT ${this.varName} is not exists`);
-            }
-            else {
-                this.element.useOut = useOut;
-                let { outEntity } = useOut;
-                let { props } = outEntity;
-                if (detail !== undefined) {
-                    let arr = outEntity.props.get(detail);
-                    if (arr === undefined || arr.dataType !== il_2.BudDataType.arr) {
-                        ok = false;
-                        this.log(`${detail} is not a ARR of ${outEntity.getJName()}`);
-                    }
-                    else {
-                        props = arr.props;
-                    }
+            space.addUse('$' + bizOut.name, 0, bizOut);
+            this.element.bizOut = bizOut;
+            let { props } = bizOut;
+            if (detail !== undefined) {
+                let arr = bizOut.props.get(detail);
+                if (arr === undefined || arr.dataType !== il_2.BudDataType.arr) {
+                    ok = false;
+                    this.log(`${detail} is not a ARR of ${bizOut.getJName()}`);
                 }
-                if (props !== undefined) {
-                    for (let i in sets) {
-                        if (props.has(i) === false) {
-                            ok = false;
-                            this.log(`${i} is not defined`);
-                        }
-                        else if (sets[i].pelement.scan(space) === false) {
-                            ok = false;
-                        }
+                else {
+                    props = arr.props;
+                }
+            }
+            if (props !== undefined) {
+                for (let i in sets) {
+                    if (props.has(i) === false) {
+                        ok = false;
+                        this.log(`${i} is not defined`);
+                    }
+                    else if (sets[i].pelement.scan(space) === false) {
+                        ok = false;
                     }
                 }
             }
