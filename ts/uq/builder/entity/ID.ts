@@ -8,7 +8,7 @@ import { sysTable } from "../dbContext";
 import {
     ExpDatePart, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGE, ExpGT, ExpIsNull, ExpNum
     , ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement, ExpFuncCustom
-    , ExpBitLeft, ExpSub, ExpDiv, ExpAdd, ExpLT, ExpNeg, Statements, ExpFuncInUq, ExpCmp, ExpIsNotNull, ExpKey, ExpLE, ExpBitRight, ExpNE
+    , ExpBitLeft, ExpSub, ExpDiv, ExpAdd, ExpLT, ExpNeg, Statements, ExpFuncInUq, ExpCmp, ExpIsNotNull, ExpKey, ExpLE, ExpBitRight, ExpNE, ExpOr
 } from "../sql";
 import { LockType } from "../sql/select";
 import { unitFieldName } from "../sql/sqlBuilder";
@@ -109,6 +109,14 @@ export class BID extends BEntity<ID> {
         }
 
         if (keys.length > 0) {
+            let ifAnyKeyNull = factory.createIf();
+            statements.push(ifAnyKeyNull);
+            ifAnyKeyNull.cmp = new ExpOr(
+                ...keys.map(v => new ExpIsNull(new ExpVar(v.name)))
+            );
+            let err = factory.createSignal();
+            ifAnyKeyNull.then(err);
+            err.text = new ExpStr('ID keys can not be NULL');
             let keyCompares = keys.map(v => {
                 let fName = v.name;
                 return new ExpEQ(new ExpField(fName), new ExpVar(fName))

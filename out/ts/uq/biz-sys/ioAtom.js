@@ -2,6 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = `
 ATOM $IOOuter {
+    PROP {
+        url CHAR;
+        appKey CHAR;
+    }
 }
 
 ATOM $IOApp {
@@ -10,6 +14,10 @@ ATOM $IOApp {
 DUO $IOOuterApp {
     I $IOOuter;
     X $IOApp;
+    PROP {
+        url CHAR;
+        appKey CHAR;
+    }
 }
 
 DUO $IOAppInOut {
