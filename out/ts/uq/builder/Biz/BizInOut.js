@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizOut = exports.BBizIn = void 0;
+exports.BBizIOApp = exports.BBizOut = exports.BBizIn = void 0;
 const il_1 = require("../../il");
 const bstatement_1 = require("../bstatement");
 const consts_1 = require("../consts");
@@ -137,14 +137,14 @@ class BBizOut extends BizEntity_1.BBizEntity {
         this.buildProc(proc);
     }
     buildProc(proc) {
-        const json = '$json', out = '$out', ret = '$ret', endPoint = '$endPoint', outer = '$outer', prevOuter = '$prevOuter', arrI = '$i', row = '$row', arrLen = '$len', queueId = '$queueId';
+        const json = '$json', out = '$out', ret = '$ret', endPoint = '$endPoint', outer = '$outer', prevEndPoint = '$prevEndPoint', arrI = '$i', row = '$row', arrLen = '$len', queueId = '$queueId';
         const { id, props } = this.bizEntity;
         const { parameters, statements } = proc;
         const { factory } = this.context;
         parameters.push((0, il_1.jsonField)(json));
         const declare = factory.createDeclare();
         statements.push(declare);
-        declare.vars((0, il_1.bigIntField)(consts_1.$site), (0, il_1.bigIntField)(out), (0, il_1.jsonField)(ret), (0, il_1.bigIntField)(endPoint), (0, il_1.bigIntField)(outer), (0, il_1.bigIntField)(prevOuter), (0, il_1.intField)(arrI), (0, il_1.jsonField)(row), (0, il_1.intField)(arrLen), (0, il_1.bigIntField)(queueId));
+        declare.vars((0, il_1.bigIntField)(consts_1.$site), (0, il_1.bigIntField)(out), (0, il_1.jsonField)(ret), (0, il_1.bigIntField)(endPoint), (0, il_1.bigIntField)(outer), (0, il_1.bigIntField)(prevEndPoint), (0, il_1.intField)(arrI), (0, il_1.jsonField)(row), (0, il_1.intField)(arrLen), (0, il_1.bigIntField)(queueId));
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ(consts_1.$site, new sql_1.ExpNum(this.context.site));
@@ -153,8 +153,9 @@ class BBizOut extends BizEntity_1.BBizEntity {
         setOut.equ(out, new sql_1.ExpNum(id));
         const setPrevOuter0 = factory.createSet();
         statements.push(setPrevOuter0);
-        setPrevOuter0.equ(prevOuter, sql_1.ExpNum.num0);
+        setPrevOuter0.equ(prevEndPoint, sql_1.ExpNum.num0);
         const varOuter = new sql_1.ExpVar(outer);
+        const varEndPoint = new sql_1.ExpVar(endPoint);
         // 针对所有的outer循环写
         const loop = factory.createWhile();
         statements.push(loop);
@@ -169,8 +170,8 @@ class BBizOut extends BizEntity_1.BBizEntity {
         selectOuter.col('outer', outer);
         selectOuter.col('id', endPoint);
         selectOuter.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOEndPoint, false));
-        selectOuter.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('inout'), new sql_1.ExpVar(out)), new sql_1.ExpGT(new sql_1.ExpField('outer'), new sql_1.ExpVar(prevOuter))));
-        selectOuter.order(new sql_1.ExpField('outer'), 'asc');
+        selectOuter.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('inout'), new sql_1.ExpVar(out)), new sql_1.ExpGT(new sql_1.ExpField('id'), new sql_1.ExpVar(prevEndPoint))));
+        selectOuter.order(new sql_1.ExpField('id'), 'asc');
         selectOuter.limit(sql_1.ExpNum.num1);
         const ifOuterNull = factory.createIf();
         loopStats.add(ifOuterNull);
@@ -180,7 +181,7 @@ class BBizOut extends BizEntity_1.BBizEntity {
         leave.no = loop.no;
         const setPrevOuter = factory.createSet();
         loopStats.add(setPrevOuter);
-        setPrevOuter.equ(prevOuter, varOuter);
+        setPrevOuter.equ(prevEndPoint, varEndPoint);
         const params = [];
         const varJson = new sql_1.ExpVar(json);
         const varRet = new sql_1.ExpVar(ret);
@@ -238,7 +239,6 @@ class BBizOut extends BizEntity_1.BBizEntity {
         const setRet = factory.createSet();
         loopStats.add(setRet);
         setRet.equ(ret, new sql_1.ExpFunc('JSON_OBJECT', ...params));
-        const varEndPoint = new sql_1.ExpVar(endPoint);
         const setQueueId = factory.createSet();
         loopStats.add(setQueueId);
         setQueueId.equ(queueId, new sql_1.ExpFuncInUq('ioqueue$id', [
@@ -263,4 +263,7 @@ class BBizOut extends BizEntity_1.BBizEntity {
     }
 }
 exports.BBizOut = BBizOut;
+class BBizIOApp extends BizEntity_1.BBizEntity {
+}
+exports.BBizIOApp = BBizIOApp;
 //# sourceMappingURL=BizInOut.js.map

@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
+const IElement_1 = require("../IElement");
 const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
+const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 class BizInOut extends Entity_1.BizEntity {
     constructor() {
@@ -49,4 +51,100 @@ class BizInAct extends Base_1.BizAct {
     }
 }
 exports.BizInAct = BizInAct;
+class IOAppID extends Bud_1.BizBud {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
+        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.atoms = [];
+    }
+    parser(context) {
+        return new parser_1.PIOAppID(this, context);
+    }
+}
+exports.IOAppID = IOAppID;
+class IOPeer extends IElement_1.IElement {
+    constructor() {
+        super(...arguments);
+        this.type = 'iopeer';
+    }
+}
+exports.IOPeer = IOPeer;
+class IOPeerScalar extends IOPeer {
+    parser(context) {
+        return new parser_1.PIOPeerScalar(this, context);
+    }
+}
+exports.IOPeerScalar = IOPeerScalar;
+class IOPeerID extends IOPeerScalar {
+    constructor(ioApp) {
+        super();
+        this.ioApp = ioApp;
+    }
+    parser(context) {
+        return new parser_1.PIOPeerID(this, context);
+    }
+}
+exports.IOPeerID = IOPeerID;
+class IOPeerArr extends IOPeer {
+    constructor(ioApp) {
+        super();
+        this.peers = [];
+        this.ioApp = ioApp;
+    }
+    parser(context) {
+        return new parser_1.PIOPeerArr(this, context);
+    }
+}
+exports.IOPeerArr = IOPeerArr;
+class IOAppIO extends Bud_1.BizBud {
+    constructor(ioApp) {
+        super(ioApp.biz, undefined, {});
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
+        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.peers = [];
+        this.ioApp = ioApp;
+    }
+}
+exports.IOAppIO = IOAppIO;
+class IOAppIn extends IOAppIO {
+    parser(context) {
+        return new parser_1.PIOAppIn(this, context);
+    }
+}
+exports.IOAppIn = IOAppIn;
+class IOAppOut extends IOAppIO {
+    parser(context) {
+        return new parser_1.PIOAppOut(this, context);
+    }
+}
+exports.IOAppOut = IOAppOut;
+class BizIOApp extends Entity_1.BizEntity {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioApp;
+        this.fields = [];
+        this.IDs = [];
+        this.ins = [];
+        this.outs = [];
+    }
+    parser(context) {
+        return new parser_1.PBizIOApp(this, context);
+    }
+    db(dbContext) {
+        return new builder_1.BBizIOApp(dbContext, this);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.IDs = this.IDs.map(v => v.buildSchema(res));
+        ret.ins = this.ins.map(v => v.buildSchema(res));
+        ret.outs = this.outs.map(v => v.buildSchema(res));
+        ret.props = undefined;
+        return ret;
+    }
+    buildPhrases(phrases, prefix) {
+        super.buildPhrases(phrases, prefix);
+    }
+}
+exports.BizIOApp = BizIOApp;
 //# sourceMappingURL=InOut.js.map

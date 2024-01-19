@@ -25,6 +25,7 @@ export enum BizPhraseType {
     report = 601,
     in = 701,
     out = 700,
+    ioApp = 710,
     title = 901,
     assign = 902,
 

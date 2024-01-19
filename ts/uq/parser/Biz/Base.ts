@@ -272,7 +272,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return budArr;
     }
 
-    protected parsePropMap(map: Map<string, BizBudValue>, propArr: BizBudValue[]) {
+    protected parsePropMap(map: Map<string, BizBud>, propArr: BizBud[]) {
         for (let p of propArr) {
             let { name } = p;
             if (map.has(name) === true) {
@@ -502,7 +502,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
-    protected scanBud(space: Space, bud: BizBudValue): boolean {
+    protected scanBud(space: Space, bud: BizBud): boolean {
         let ok = true;
         let { pelement, name, value } = bud;
         if (this.element.budGroups.has(name) === true) {
@@ -526,7 +526,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
-    private scanBuds(space: Space, buds: Map<string, BizBudValue>) {
+    private scanBuds(space: Space, buds: Map<string, BizBud>) {
         let ok = true;
         for (let [, value] of buds) {
             if (this.scanBud(space, value) === false) ok = false;

@@ -266,7 +266,7 @@ export class BizBin extends BizEntity {
     }
 
     getSheetProps() {
-        let budArr: BizBudValue[] = [];
+        let budArr: BizBud[] = [];
         for (let sheet of this.sheetArr) {
             let { main } = sheet;
             if (main === undefined) continue;
@@ -336,7 +336,7 @@ export class BizBin extends BizEntity {
         }
         return bizEntity;
     }
-    getDivFromBud(bud: BizBudValue): BinDiv {
+    getDivFromBud(bud: BizBud): BinDiv {
         for (let p = this.div; p !== undefined; p = p.div) {
             let b = p.buds.find(v => v.name === bud.name);
             if (b !== undefined) {

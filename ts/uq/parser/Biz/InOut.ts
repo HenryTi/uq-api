@@ -2,11 +2,13 @@ import {
     BizBudValue, BizIn, BizInOut, BizOut, Statements
     , Statement, BizInAct, BizStatementIn, BizInActStatements
     , Pointer, BizEntity, VarPointer, Biz, UI
-    , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr
+    , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp, IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO, IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud
 } from "../../il";
+import { PElement } from "../element";
+import { PContext } from "../pContext";
 import { Space } from "../space";
-import { Token } from "../tokens";
-import { PBizAct, PBizActStatements, PBizEntity } from "./Base";
+import { Token, TokenStream } from "../tokens";
+import { PBizAct, PBizActStatements, PBizBase, PBizEntity } from "./Base";
 import { BizEntitySpace } from "./Biz";
 
 abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
@@ -45,26 +47,10 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
         if (this.checkBudDuplicate(nameColl, props) === false) {
             ok = false;
         }
-        /*
-        for (let i in arrs) {
-            let arr = arrs[i];
-            let { name, props: arrProps } = arr;
-            if (props.has(name) === true) {
-                this.log(`ARR '${name}' duplicate prop name`);
-                ok = false;
-            }
-            for (let [propName,] of arrProps) {
-                if (props.has(propName) === true) {
-                    this.log(`ARR prop '${name}' duplicate main prop name`);
-                    ok = false;
-                }
-            }
-        }
-        */
         return ok;
     }
 
-    private checkBudDuplicate(nameColl: { [name: string]: boolean }, props: Map<string, BizBudValue>): boolean {
+    private checkBudDuplicate(nameColl: { [name: string]: boolean }, props: Map<string, BizBud>): boolean {
         let ok = true;
         for (let [, bud] of props) {
             let { name, dataType } = bud;
@@ -162,5 +148,204 @@ class BizInActSpace extends BizEntitySpace<BizIn> {
             case 'pend':
                 return;
         }
+    }
+}
+
+export class PBizIOApp extends PBizEntity<BizIOApp> {
+    private parseID = () => {
+        let name = this.ts.passVar();
+        let ui = this.parseUI();
+        const id = new IOAppID(this.element.biz, name, ui);
+        this.context.parseElement(id);
+        this.element.IDs.push(id);
+    }
+
+    private parseIn = () => {
+        const ioAppIn = new IOAppIn(this.element);
+        this.context.parseElement(ioAppIn);
+        this.element.ins.push(ioAppIn);
+    }
+
+    private parseOut = () => {
+        const ioAppOut = new IOAppOut(this.element);
+        this.context.parseElement(ioAppOut);
+        this.element.outs.push(ioAppOut);
+    }
+
+    protected readonly keyColl = {
+        id: this.parseID,
+        in: this.parseIn,
+        out: this.parseOut,
+    }
+
+    override scan(space: Space): boolean {
+        let ok = true;
+        const { props, IDs, ins, outs } = this.element;
+        for (let item of [...IDs, ...ins, ...outs]) {
+            if (item.pelement.scan(space) === false) {
+                ok = false;
+            }
+            else {
+                props.set(item.name, item);
+            }
+        }
+        return ok;
+    }
+}
+
+export class PIOAppID extends PBizBase<IOAppID> {
+    private atomNames: string[] = [];
+    protected override _parse(): void {
+        this.ts.passKey('to');
+        for (; ;) {
+            this.atomNames.push(this.ts.passVar());
+            if (this.ts.token !== Token.BITWISEOR) break;
+            this.ts.readToken();
+        }
+        this.ts.passToken(Token.SEMICOLON);
+    }
+    override scan(space: Space): boolean {
+        let ok = true;
+        for (let atomName of this.atomNames) {
+            const bizAtom = space.getBizEntity<BizAtom>(atomName);
+            if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType.atom) {
+                ok = false;
+                this.log(`${atomName} is not an ATOM`);
+            }
+            this.element.atoms.push(bizAtom);
+        }
+        return ok;
+    }
+}
+
+export class PIOPeerScalar extends PElement<IOPeerScalar> {
+    protected override _parse(): void {
+        this.ts.passToken(Token.SEMICOLON);
+    }
+    override scan(space: Space): boolean {
+        let ok = true;
+        return ok;
+    }
+}
+
+export class PIOPeerID extends PElement<IOPeerID> {
+    private ioId: string;
+    protected override _parse(): void {
+        this.ioId = this.ts.passVar();
+        this.ts.passToken(Token.SEMICOLON);
+    }
+    override scan(space: Space): boolean {
+        let ok = true;
+        let id = this.element.id = this.element.ioApp.IDs.find(v => v.name === this.ioId);
+        if (id === undefined) {
+            ok = false;
+            this.log(`${this.ioId} is not IOApp ID`);
+        }
+        return ok;
+    }
+}
+
+function parsePeers(context: PContext, ioApp: BizIOApp, ts: TokenStream): IOPeer[] {
+    let peers: IOPeer[] = [];
+    if (ts.token === Token.RBRACE) {
+        ts.readToken();
+        ts.mayPassToken(Token.SEMICOLON);
+        return peers;
+    }
+    for (; ;) {
+        let peer = parsePeer();
+        peers.push(peer);
+        if (ts.token === Token.RBRACE as any) {
+            ts.readToken();
+            ts.mayPassToken(Token.SEMICOLON);
+            break;
+        }
+    }
+    function parsePeer() {
+        let peer: IOPeer;
+        let name = ts.passVar();
+        ts.passToken(Token.COLON);
+        if (ts.token === Token.LBRACE) {
+            peer = new IOPeerArr(ioApp);
+        }
+        else {
+            let peerScalar: IOPeerScalar;
+            let to = ts.passVar();
+            if (ts.isKeyword('id') === true) {
+                ts.readToken();
+                peerScalar = new IOPeerID(ioApp);
+            }
+            else {
+                peerScalar = new IOPeerScalar();
+            }
+            peerScalar.to = to;
+            peer = peerScalar;
+        }
+        context.parseElement(peer);
+        peer.name = name;
+        return peer;
+    }
+    return peers;
+}
+
+export class PIOPeerArr extends PElement<IOPeerArr> {
+    protected override _parse(): void {
+        this.ts.readToken();
+        const peers = parsePeers(this.context, this.element.ioApp, this.ts);
+        this.element.peers.push(...peers);
+    }
+    override scan(space: Space): boolean {
+        let ok = true;
+        const { peers } = this.element;
+        for (let peer of peers) {
+            if (peer.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+}
+
+abstract class PIOAppIO<T extends IOAppIO> extends PBizBase<T> {
+    protected override _parse(): void {
+        this.element.name = this.ts.passVar();
+        if (this.ts.token === Token.LBRACE) {
+            this.ts.readToken();
+            const peers = parsePeers(this.context, this.element.ioApp, this.ts);
+            this.element.peers.push(...peers);
+        } else {
+            this.ts.passToken(Token.SEMICOLON);
+        }
+    }
+
+    override scan(space: Space): boolean {
+        let ok = true;
+        const { name, peers } = this.element;
+        let bizEntity = space.getBizEntity(name);
+        let bizPhraseType = this.entityBizPhraseType;
+        if (bizEntity === undefined || bizEntity.bizPhraseType !== bizPhraseType) {
+            ok = false;
+            this.log(`${name} is not ${BizPhraseType[bizPhraseType].toUpperCase()}`)
+        }
+        for (let peer of peers) {
+            if (peer.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
+    protected abstract get entityBizPhraseType(): BizPhraseType;
+}
+
+export class PIOAppIn extends PIOAppIO<IOAppIn> {
+    protected get entityBizPhraseType(): BizPhraseType {
+        return BizPhraseType.in;
+    }
+}
+
+export class PIOAppOut extends PIOAppIO<IOAppOut> {
+    protected get entityBizPhraseType(): BizPhraseType {
+        return BizPhraseType.out;
     }
 }

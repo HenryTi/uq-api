@@ -73,6 +73,15 @@ class BizBud extends Base_1.BizBase {
         this.ui = ui;
     }
     buildBudValue(expStringify) { }
+    buildSchema(res) {
+        var _a;
+        let ret = super.buildSchema(res);
+        return {
+            ...ret,
+            dataType: this.dataType,
+            value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str,
+        };
+    }
 }
 exports.BizBud = BizBud;
 var SetType;
@@ -84,14 +93,12 @@ var SetType;
 class BizBudValue extends BizBud {
     get optionsItemType() { return; }
     buildSchema(res) {
-        var _a, _b;
+        var _a;
         let ret = super.buildSchema(res);
         return {
             ...ret,
-            dataType: this.dataType,
-            value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str,
             history: this.hasHistory === true ? true : undefined,
-            setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign,
+            setType: (_a = this.setType) !== null && _a !== void 0 ? _a : SetType.assign,
         };
     }
     buildPhrases(phrases, prefix) {

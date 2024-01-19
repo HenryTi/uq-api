@@ -1,6 +1,7 @@
 import {
+    BizBud,
     BizBudArr,
-    BizBudValue, BizIn, BizOut, BudDataType, EnumSysTable, Field
+    BizBudValue, BizIOApp, BizIn, BizOut, BudDataType, EnumSysTable, Field
     , JoinType, JsonTableColumn, bigIntField, charField, dateField
     , decField, intField, jsonField
 } from "../../il";
@@ -113,7 +114,7 @@ export class BBizIn extends BBizEntity<BizIn> {
         this.buildDone(statements);
     }
 
-    private fieldFromBud(bud: BizBudValue) {
+    private fieldFromBud(bud: BizBud) {
         const { name } = bud;
         switch (bud.dataType) {
             default: debugger; return;
@@ -156,7 +157,7 @@ export class BBizOut extends BBizEntity<BizOut> {
 
     private buildProc(proc: Procedure) {
         const json = '$json', out = '$out', ret = '$ret', endPoint = '$endPoint'
-            , outer = '$outer', prevOuter = '$prevOuter'
+            , outer = '$outer', prevEndPoint = '$prevEndPoint'
             , arrI = '$i', row = '$row', arrLen = '$len', queueId = '$queueId';
         const { id, props } = this.bizEntity;
         const { parameters, statements } = proc;
@@ -170,7 +171,7 @@ export class BBizOut extends BBizEntity<BizOut> {
             jsonField(ret),
             bigIntField(endPoint),
             bigIntField(outer),
-            bigIntField(prevOuter),
+            bigIntField(prevEndPoint),
             intField(arrI),
             jsonField(row),
             intField(arrLen),
@@ -184,9 +185,10 @@ export class BBizOut extends BBizEntity<BizOut> {
         setOut.equ(out, new ExpNum(id));
         const setPrevOuter0 = factory.createSet();
         statements.push(setPrevOuter0);
-        setPrevOuter0.equ(prevOuter, ExpNum.num0);
+        setPrevOuter0.equ(prevEndPoint, ExpNum.num0);
 
         const varOuter = new ExpVar(outer);
+        const varEndPoint = new ExpVar(endPoint);
 
         // 针对所有的outer循环写
         const loop = factory.createWhile();
@@ -204,9 +206,9 @@ export class BBizOut extends BBizEntity<BizOut> {
         selectOuter.from(new EntityTable(EnumSysTable.IOEndPoint, false));
         selectOuter.where(new ExpAnd(
             new ExpEQ(new ExpField('inout'), new ExpVar(out)),
-            new ExpGT(new ExpField('outer'), new ExpVar(prevOuter)),
+            new ExpGT(new ExpField('id'), new ExpVar(prevEndPoint)),
         ));
-        selectOuter.order(new ExpField('outer'), 'asc');
+        selectOuter.order(new ExpField('id'), 'asc');
         selectOuter.limit(ExpNum.num1);
 
         const ifOuterNull = factory.createIf();
@@ -218,14 +220,14 @@ export class BBizOut extends BBizEntity<BizOut> {
 
         const setPrevOuter = factory.createSet();
         loopStats.add(setPrevOuter);
-        setPrevOuter.equ(prevOuter, varOuter);
+        setPrevOuter.equ(prevEndPoint, varEndPoint);
 
         const params: ExpVal[] = [];
         const varJson = new ExpVar(json);
         const varRet = new ExpVar(ret);
         const varRow = new ExpVar(row);
 
-        function getBudVal(bud: BizBudValue, val: ExpVal): ExpVal {
+        function getBudVal(bud: BizBud, val: ExpVal): ExpVal {
             if (bud.dataType !== BudDataType.ID) return val;
             let select = factory.createSelect();
             select.col('no', undefined, a);
@@ -299,7 +301,6 @@ export class BBizOut extends BBizEntity<BizOut> {
         loopStats.add(setRet);
         setRet.equ(ret, new ExpFunc('JSON_OBJECT', ...params));
 
-        const varEndPoint = new ExpVar(endPoint);
         const setQueueId = factory.createSet();
         loopStats.add(setQueueId);
         setQueueId.equ(queueId, new ExpFuncInUq('ioqueue$id', [
@@ -322,4 +323,7 @@ export class BBizOut extends BBizEntity<BizOut> {
             { col: 'x', val: new ExpVar(queueId) },
         ];
     }
+}
+
+export class BBizIOApp extends BBizEntity<BizIOApp> {
 }

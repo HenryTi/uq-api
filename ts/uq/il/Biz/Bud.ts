@@ -91,6 +91,7 @@ export class BudGroup extends BizBase {
 export abstract class BizBud extends BizBase {
     readonly bizPhraseType = BizPhraseType.bud;
     abstract get dataType(): BudDataType;
+    value: BudValueSet;
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     getFieldShows(): FieldShow[] { return undefined }
@@ -100,6 +101,14 @@ export abstract class BizBud extends BizBase {
         this.ui = ui;
     }
     buildBudValue(expStringify: (value: ValueExpression) => string) { }
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        return {
+            ...ret,
+            dataType: this.dataType,
+            value: this.value?.str,
+        }
+    }
 }
 
 export enum SetType {
@@ -110,7 +119,6 @@ export enum SetType {
 
 export abstract class BizBudValue extends BizBud {
     abstract get canIndex(): boolean;
-    value: BudValueSet;
     hasHistory: boolean;
     setType: SetType;
     required: boolean;
@@ -119,8 +127,6 @@ export abstract class BizBudValue extends BizBud {
         let ret = super.buildSchema(res);
         return {
             ...ret,
-            dataType: this.dataType,
-            value: this.value?.str,
             history: this.hasHistory === true ? true : undefined,
             setType: this.setType ?? SetType.assign,
         }
