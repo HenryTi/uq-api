@@ -57,6 +57,11 @@ export class IOAppID extends BizBud {
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppID(this, context);
     }
+    override buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        ret.atoms = this.atoms.map(v => v.id);
+        return ret;
+    }
 }
 
 export abstract class IOPeer extends IElement {

@@ -8,9 +8,6 @@ ATOM $IOOuter {
     }
 }
 
-ATOM $IOApp {
-}
-
 DUO $IOOuterApp {
     I $IOOuter;
     X $IOApp;
@@ -18,6 +15,10 @@ DUO $IOOuterApp {
         url CHAR;
         appKey CHAR;
     }
+}
+
+-- obsolete
+ATOM $IOApp {
 }
 
 DUO $IOAppInOut {

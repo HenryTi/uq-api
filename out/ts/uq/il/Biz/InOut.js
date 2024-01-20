@@ -61,6 +61,11 @@ class IOAppID extends Bud_1.BizBud {
     parser(context) {
         return new parser_1.PIOAppID(this, context);
     }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.atoms = this.atoms.map(v => v.id);
+        return ret;
+    }
 }
 exports.IOAppID = IOAppID;
 class IOPeer extends IElement_1.IElement {
