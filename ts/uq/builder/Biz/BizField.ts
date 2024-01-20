@@ -8,6 +8,7 @@ import { SqlBuilder } from "../sql";
 export abstract class BBizField<T extends BizField = BizField> {
     protected readonly dbContext: DbContext;
     protected readonly bizField: T;
+    noArrayAgg: boolean;
     constructor(dbContext: DbContext, bizField: T) {
         this.dbContext = dbContext;
         this.bizField = bizField;
@@ -46,8 +47,14 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
     private buildSelectMulti(sb: SqlBuilder) {
         let { bud } = this.bizField;
         const x0 = 'x0', x1 = 'x1';
-        sb.l().append(`select JSON_ARRAYAGG(${x1}.ext) from `)
-            .dbName().dot().append(EnumSysTable.ixBud).append(` AS ${x0} JOIN `)
+        sb.l().append('SELECT ');
+        if (this.noArrayAgg === true) {
+            sb.append(`${x1}.ext as id`)
+        }
+        else {
+            sb.append(`JSON_ARRAYAGG(${x1}.ext)`)
+        };
+        sb.append(' FROM ').dbName().dot().append(EnumSysTable.ixBud).append(` AS ${x0} JOIN `)
             .dbName().dot().append(EnumSysTable.bud).append(` AS ${x1} ON ${x1}.id=${x0}.x `)
             .append(` where ${x0}.i=`)
         this.toIValue(sb);

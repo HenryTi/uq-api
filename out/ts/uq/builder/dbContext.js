@@ -262,9 +262,13 @@ class DbContext {
     withIDXSet(v) { return new stat.BWithIDXSet(this, v); }
     withIXSet(v) { return new stat.BWithIXSet(this, v); }
     withTruncate(v) { return new stat.BWithTruncate(this, v); }
-    bizDetailActStatement(v) { return new stat.BBizDetailActStatement(this, v); }
-    bizDetailActSubPend(v) { return new stat.BBizDetailActSubPend(this, v); }
-    bizDetailActSubSubject(v) { return new stat.BBizDetailActTitle(this, v); }
+    bizActStatement(v) { return new stat.BBizStatement(this, v); }
+    // bizInActStatement(v: il.BizInActStatement) { return new stat.BBizInActStatement(this, v); }
+    // bizBinActSubPend(v: il.BizPendStatement<il.BizBinAct>) { return new stat.BBizBinActSubPend(this, v); }
+    // bizBinActSubSubject(v: il.BizTitleStatement<il.BizBinAct>) { return new stat.BBizBinActTitle(this, v); }
+    // bizBinActSubPend(v: il.BizBinPendStatement) { return new stat.BBizBinActSubPend(this, v); }
+    // bizInActSubPend(v: il.BizInPendStatement) { return new stat.BBizInActSubPend(this, v); }
+    // bizActSubTitle(v: il.BizTitleStatement) { return new stat.BBizBinActTitle(this, v); }
     value(v) { return new stat.BValueStatement(this, v); }
     settingStatement(v) { return new stat.BSettingStatement(this, v); }
     ifStatement(v) { return new stat.BIfStatement(this, v); }
@@ -276,6 +280,7 @@ class DbContext {
     returnEndStatement() { return new stat.BReturnEndStatement(this, undefined); }
     procStatement(v) { return new stat.BProcStatement(this, v); }
     foreachArr(v, forArr) { return new stat.BForArr(this, v, forArr); }
+    foreachBizInOutArr(v, forArr) { return new stat.BForBizInOutArr(this, v, forArr); }
     foreachSelect(v, forSelect) { return new stat.BForSelect(this, v, forSelect); }
     foreachQueue(v, forQueue) { return new stat.BForQueue(this, v, forQueue); }
     selectStatement(v) { return new stat.BSelect(this, v); }
@@ -955,6 +960,41 @@ class DbContext {
             selectField.column(new sql_1.ExpDecDiv(sql_1.ExpVal.num1, vP), d);
             forS.push(set1, selectField);
         }
+        bodyCallback(forS);
+    }
+    forBizInOutArr(arr, sqls, no, bodyCallback) {
+        const { factory } = this;
+        let setRowId0 = factory.createSet();
+        sqls.push(setRowId0);
+        setRowId0.equ('$rowId', sql_1.ExpNum.num0);
+        let _for = factory.createWhile();
+        let forS = _for.statements.statements;
+        sqls.push(_for);
+        _for.no = no;
+        _for.cmp = new sql_1.ExpEQ(sql_1.ExpVal.num1, sql_1.ExpVal.num1);
+        let setId = factory.createSet();
+        forS.push(setId);
+        setId.equ('$id', new sql_1.ExpNull());
+        let select = factory.createSelect();
+        forS.push(select);
+        select.from(new statementWithFrom_1.VarTable(arr.name));
+        select.toVar = true;
+        select.col('$id', '$id');
+        for (let [name,] of arr.props) {
+            select.col(name, name);
+        }
+        select.where(new sql_1.ExpGT(new sql_1.ExpField('$id'), new sql_1.ExpVar('$rowId')));
+        select.order(new sql_1.ExpField('$id'), 'asc');
+        select.limit(sql_1.ExpNum.num1);
+        let iff = factory.createIf();
+        forS.push(iff);
+        iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar('$id'));
+        let leave = factory.createBreak();
+        leave.no = _for.no;
+        iff.then(leave);
+        let setRowId = factory.createSet();
+        iff.else(setRowId);
+        setRowId.equ('$rowId', new sql_1.ExpVar('$id'));
         bodyCallback(forS);
     }
     buildExpBudId(expBud) {

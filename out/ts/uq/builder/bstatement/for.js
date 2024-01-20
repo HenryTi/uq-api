@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BForQueue = exports.BForSelect = exports.BForListWithVars = exports.BForArr = exports.BForList = void 0;
+exports.BForQueue = exports.BForSelect = exports.BForListWithVars = exports.BForBizInOutArr = exports.BForArr = exports.BForList = void 0;
 const bstatement_1 = require("./bstatement");
 const sqls_1 = require("./sqls");
 const il_1 = require("../../il");
@@ -34,6 +34,20 @@ class BForArr extends BForList {
     }
 }
 exports.BForArr = BForArr;
+class BForBizInOutArr extends BForList {
+    constructor(context, forEach, forArr) {
+        super(context, forEach);
+        this.forArr = forArr;
+    }
+    body(sqls) {
+        const { arr } = this.forArr;
+        this.context.forBizInOutArr(arr, sqls, this.istatement.no, (body) => {
+            let forSqls = new sqls_1.Sqls(sqls.context, body);
+            forSqls.body(this.forEach.statements.statements);
+        });
+    }
+}
+exports.BForBizInOutArr = BForBizInOutArr;
 class BForListWithVars extends BForList {
     constructor(context, forEach, forListWithVars) {
         super(context, forEach);

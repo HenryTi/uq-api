@@ -4,9 +4,8 @@ import { PBinInputAtom, PBinInputSpec, PBinPick, PBizBin, PBizBinAct, PContext, 
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
-import { ActionStatement, TableVar } from "../statement";
 import { BizAtom, BizSpec } from "./BizID";
-import { BizBase } from "./Base";
+import { BizAct, BizBase } from "./Base";
 import { Biz } from "./Biz";
 import { BizBudValue, BizBud, BizBudID, BizBudDec } from "./Bud";
 import { BizEntity } from "./Entity";
@@ -16,6 +15,7 @@ import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { ValueExpression } from "../Exp";
 import { binFieldArr } from "../../consts";
+import { BizOut } from "./InOut";
 
 export interface PickParam {
     name: string;
@@ -194,6 +194,7 @@ export class BizBin extends BizEntity {
     readonly inputColl: { [name: string]: BinInput } = {};
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了
     readonly div: BinDiv = new BinDiv(undefined, undefined);    // 输入和显示的层级结构
+    readonly outs: BizOut[] = [];
     main: BizBin;           // 只有指定main的bin，才能引用%sheet.prop
     pickArr: BinPick[];
     inputArr: BinInput[];
@@ -265,7 +266,7 @@ export class BizBin extends BizEntity {
     }
 
     getSheetProps() {
-        let budArr: BizBudValue[] = [];
+        let budArr: BizBud[] = [];
         for (let sheet of this.sheetArr) {
             let { main } = sheet;
             if (main === undefined) continue;
@@ -335,7 +336,7 @@ export class BizBin extends BizEntity {
         }
         return bizEntity;
     }
-    getDivFromBud(bud: BizBudValue): BinDiv {
+    getDivFromBud(bud: BizBud): BinDiv {
         for (let p = this.div; p !== undefined; p = p.div) {
             let b = p.buds.find(v => v.name === bud.name);
             if (b !== undefined) {
@@ -347,13 +348,9 @@ export class BizBin extends BizEntity {
     }
 }
 
-export class BizBinAct extends BizBase {
-    readonly bizPhraseType = BizPhraseType.detailAct;
+export class BizBinAct extends BizAct {
     readonly bizBin: BizBin;
-    readonly tableVars: { [name: string]: TableVar } = {};
-
     idParam: Field;
-    statement: ActionStatement;
 
     constructor(biz: Biz, bizBin: BizBin) {
         super(biz);
@@ -364,21 +361,11 @@ export class BizBinAct extends BizBase {
         return new PBizBinAct(this, context);
     }
 
-    addTableVar(tableVar: TableVar): boolean {
-        let name = tableVar.name;
-        let t = this.tableVars[name];
-        if (t !== undefined) return false;
-        this.tableVars[name] = tableVar;
-        return true;
-    }
-
-    getTableVar(name: string): TableVar { return this.tableVars[name] }
-
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return {
             ...ret,
-            detail: this.bizBin.name,
+            bin: this.bizBin.name,
         };
     }
 }

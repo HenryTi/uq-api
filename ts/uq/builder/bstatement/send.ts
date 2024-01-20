@@ -3,7 +3,7 @@ import { Sqls } from "./sqls";
 import { EnumSysTable, SendMsgStatement, SendAppStatement, Text } from "../../il";
 import {
     ExpVal, convertExp, ExpStr, ExpNum, SqlSysTable
-    , ExpVar, ExpAdd, ExpEQ, ExpFunc, ExpFuncCustom, Statement as SqlStatement
+    , ExpVar, ExpEQ, ExpFunc, ExpFuncCustom, Statement as SqlStatement
 } from "../sql";
 import { settingQueueSeed } from "../consts";
 

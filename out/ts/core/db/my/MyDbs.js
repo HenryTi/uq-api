@@ -35,6 +35,7 @@ class MyDbs {
                 this.db$Uq.createDatabase(),
                 this.db$Res.createDatabase(),
                 this.db$Site.createDatabase(),
+                this.db$X.createDatabase(),
             ]);
             await this.dbNoName.saveUqVersion();
         }

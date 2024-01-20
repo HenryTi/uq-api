@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
+exports.PBizActStatements = exports.PBizAct = exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
 const il_1 = require("../../il");
+const statement_1 = require("../statement");
 const consts_1 = require("../../consts");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -160,29 +161,26 @@ class PBizBase extends element_1.PElement {
         }
         return true;
     }
+    getBudClass(budClass) {
+        return il_1.budClasses[budClass];
+    }
+    getBudClassKeys() {
+        return il_1.budClassKeys;
+    }
     parseBud(name, ui, defaultType) {
-        const keyColl = {
-            none: il_1.BizBudNone,
-            int: il_1.BizBudInt,
-            dec: il_1.BizBudDec,
-            char: il_1.BizBudChar,
-            atom: il_1.BizBudID,
-            date: il_1.BizBudDate,
-            intof: il_1.BizBudIntOf,
-            radio: il_1.BizBudRadio,
-            check: il_1.BizBudCheck,
-        };
-        const keys = Object.keys(keyColl);
         let key;
         const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
             key = defaultType !== null && defaultType !== void 0 ? defaultType : 'none';
         }
-        else {
+        else if (token === tokens_1.Token.LPARENTHESE) {
+            key = '$arr';
+        }
+        else if (token === tokens_1.Token.VAR) {
             key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
-                this.ts.expect(...keys);
+                this.ts.expect(...this.getBudClassKeys());
             }
             if (key === 'int') {
                 this.ts.readToken();
@@ -195,9 +193,12 @@ class PBizBase extends element_1.PElement {
                 this.ts.readToken();
             }
         }
-        let Bud = keyColl[key];
+        else {
+            this.ts.expectToken(tokens_1.Token.VAR, tokens_1.Token.LPARENTHESE);
+        }
+        let Bud = this.getBudClass(key); // keyColl[key];
         if (Bud === undefined) {
-            this.ts.expect(...keys);
+            this.ts.expect(...this.getBudClassKeys());
         }
         let bizBud = new Bud(this.element.biz, name, ui);
         bizBud.parser(this.context).parse();
@@ -206,13 +207,6 @@ class PBizBase extends element_1.PElement {
             bizBud.ui.required = true;
             this.ts.readToken();
         }
-        //if (this.element.hasProp(name) === true) {
-        /*
-        if (name === 'value' && this.element.bizPhraseType === BizPhraseType.bin) debugger;
-        if (this.element.getBud(name) !== undefined) {
-            this.ts.error(`${name} can not be used multiple times`);
-        }
-        */
         const options = {};
         for (;;) {
             if (this.ts.isKeyword(undefined) === false)
@@ -231,6 +225,43 @@ class PBizBase extends element_1.PElement {
             bizBud.setType = il_1.SetType.assign;
         }
         return bizBud;
+    }
+    parsePropArr() {
+        let budArr = [];
+        let arrArr = [];
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        for (;;) {
+            let bud = this.parseSubItem();
+            if (bud.dataType === il_1.BudDataType.arr) {
+                arrArr.push(bud);
+            }
+            else {
+                budArr.push(bud);
+            }
+            let { token } = this.ts;
+            if (token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+            else if (token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
+        }
+        budArr.push(...arrArr);
+        return budArr;
+    }
+    parsePropMap(map, propArr) {
+        for (let p of propArr) {
+            let { name } = p;
+            if (map.has(name) === true) {
+                this.ts.error(`duplicate ${name}`);
+            }
+            map.set(name, p);
+        }
     }
     bizEntityScan2(bizEntity) {
         return true;
@@ -321,7 +352,7 @@ class PBizEntity extends PBizBase {
         this.element.source = entityType + ' ' + this.getNameInSource() + source;
     }
     getNameInSource() {
-        return this.element.getJName() + ' ';
+        return this.element.getJName();
     }
     parseContent() {
         const keyColl = this.keyColl;
@@ -656,4 +687,71 @@ class PBizSearch extends element_1.PElement {
     }
 }
 exports.PBizSearch = PBizSearch;
+class PBizAct extends PBizBase {
+    _parse() {
+        this.element.name = '$';
+        this.element.ui = this.parseUI();
+        this.parseParam();
+        let statement = this.createBizActStatements();
+        statement.level = 0;
+        this.context.createStatements = statement.createStatements;
+        let parser = statement.parser(this.context);
+        parser.parse();
+        this.element.statement = statement;
+        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+    }
+    parseParam() {
+    }
+    scan0(space) {
+        let ok = true;
+        let { pelement } = this.element.statement;
+        if (pelement.scan0(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        //  will be removed
+        let actSpace = this.createBizActSpace(space);
+        let { pelement } = this.element.statement;
+        if (pelement.preScan(actSpace) === false)
+            ok = false;
+        if (pelement.scan(actSpace) === false)
+            ok = false;
+        return ok;
+    }
+    scan2(uq) {
+        if (this.element.statement.pelement.scan2(uq) === false) {
+            return false;
+        }
+        return true;
+    }
+}
+exports.PBizAct = PBizAct;
+class PBizActStatements extends statement_1.PStatements {
+    constructor(statements, context, bizAct) {
+        super(statements, context);
+        this.bizAct = bizAct;
+    }
+    scan0(space) {
+        return super.scan0(space);
+    }
+    statementFromKey(parent, key) {
+        let ret;
+        switch (key) {
+            default:
+                ret = super.statementFromKey(parent, key);
+                break;
+            case 'biz':
+                //ret = new BizBinActStatement(parent, this.bizAct);
+                ret = this.createBizActStatement(parent);
+                break;
+        }
+        if (ret !== undefined)
+            ret.inSheet = true;
+        return ret;
+    }
+}
+exports.PBizActStatements = PBizActStatements;
 //# sourceMappingURL=Base.js.map

@@ -97,6 +97,12 @@ class BID extends entity_1.BEntity {
             setStamp.equ('$stamp', new sql_1.ExpFuncCustom(factory.func_unix_timestamp));
         }
         if (keys.length > 0) {
+            let ifAnyKeyNull = factory.createIf();
+            statements.push(ifAnyKeyNull);
+            ifAnyKeyNull.cmp = new sql_1.ExpOr(...keys.map(v => new sql_1.ExpIsNull(new sql_1.ExpVar(v.name))));
+            let err = factory.createSignal();
+            ifAnyKeyNull.then(err);
+            err.text = new sql_1.ExpStr('ID keys can not be NULL');
             let keyCompares = keys.map(v => {
                 let fName = v.name;
                 return new sql_1.ExpEQ(new sql_1.ExpField(fName), new sql_1.ExpVar(fName));

@@ -11,7 +11,7 @@ import { FieldPointer, Pointer, VarPointer } from '../pointer';
 import { Builder } from '../builder';
 import { Select, Delete, CTE } from '../select';
 import { FaceDataType } from '../busSchema';
-import { BizBinAct } from '../Biz';
+import { BizAct, BizBinAct, BizInAct } from '../Biz';
 import { SetEqu } from '../tool';
 
 export abstract class Statement extends IElement {
@@ -146,17 +146,33 @@ export class QueryStatement extends QueryBaseStatement {
 }
 
 export class BizBinActStatements extends Statements {
-    private readonly bizDetailAct: BizBinAct;
-    constructor(parent: Statement, bizDetailAct: BizBinAct) {
+    private readonly bizAct: BizBinAct;
+    constructor(parent: Statement, bizAct: BizBinAct) {
         super(parent);
-        this.bizDetailAct = bizDetailAct;
+        this.bizAct = bizAct;
     }
     get type(): string { return 'bizactstatement'; }
     parser(context: parser.PContext) {
-        return new parser.PBizBinActStatements(this, context, this.bizDetailAct);
+        return new parser.PBizBinActStatements(this, context, this.bizAct);
     }
     createStatements = (parent: Statement) => {
-        return new BizBinActStatements(parent, this.bizDetailAct);
+        return new BizBinActStatements(parent, this.bizAct);
+    }
+    db(db: Builder): object { return; }
+}
+
+export class BizInActStatements extends Statements {
+    private readonly bizAct: BizInAct;
+    constructor(parent: Statement, bizAct: BizInAct) {
+        super(parent);
+        this.bizAct = bizAct;
+    }
+    get type(): string { return 'bizactstatement'; }
+    parser(context: parser.PContext) {
+        return new parser.PBizInActStatements(this, context, this.bizAct);
+    }
+    createStatements = (parent: Statement) => {
+        return new BizInActStatements(parent, this.bizAct);
     }
     db(db: Builder): object { return; }
 }
@@ -282,7 +298,10 @@ export class TableStatement extends Statement {
     db(db: Builder): object { return db.tableStatement(this); }
     parser(context: parser.PContext) { return new parser.PTableStatement(this, context); }
 }
-
+export interface JsonTableColumn {
+    field: Field;
+    path: string;
+}
 // split text into table
 export class TextStatement extends Statement {
     textVar: string;

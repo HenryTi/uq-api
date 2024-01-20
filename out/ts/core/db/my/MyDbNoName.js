@@ -56,7 +56,7 @@ class MyDbNoName extends MyDbBase_1.MyDbBase {
                 return;
             return ret[0].value;
         }
-        catch (_a) {
+        catch {
             return undefined;
         }
     }

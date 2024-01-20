@@ -108,6 +108,7 @@ class PBizDuo extends PBizID {
             this.parseIxField(this.element.x);
         };
         this.keyColl = {
+            prop: this.parseProp,
             i: this.parseI,
             x: this.parseX,
         };

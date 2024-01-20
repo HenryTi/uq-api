@@ -1,6 +1,6 @@
 import {
     BigInt, BizSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
-    , JsonDataType, bigIntField, idField, jsonField
+    , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud
 } from "../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNum
@@ -41,10 +41,9 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         const varProps = new ExpVar(cProps);
         const varSite = new ExpVar(site);
         const prefixBud = '$bud_';
-        // const prefixProp = '$prop_';
         const prefixPhrase = '$phrase_';
 
-        const props: BizBudValue[] = [];
+        const props: BizBud[] = [];
         for (let [, value] of propsMap) props.push(value);
 
         parameters.push(
@@ -59,7 +58,7 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         declare.var(cId, new BigInt());
         statements.push(declare);
 
-        function declareBuds(buds: BizBudValue[]) {
+        function declareBuds(buds: BizBud[]) {
             for (let bud of buds) {
                 const { name, id, dataType } = bud;
                 let dt: DataType;
@@ -82,19 +81,13 @@ export class BBizSpec extends BBizEntity<BizSpec> {
                 statements.push(setPhraseId);
                 setPhraseId.equ(prefixPhrase + name,
                     new ExpNum(id)
-                    /*
-                    new ExpFuncInUq(
-                        'phraseid',
-                        [varSite, new ExpStr(phrase)],
-                        true)
-                    */
                 )
             }
         }
         declareBuds(keys);
         declareBuds(props);
 
-        function selectJsonValue(varJson: ExpVar, buds: BizBudValue[], prefix: string) {
+        function selectJsonValue(varJson: ExpVar, buds: BizBud[], prefix: string) {
             if (buds.length === 0) return;
             const select = factory.createSelect();
             statements.push(select);
@@ -114,25 +107,23 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         select.from(new EntityTable('spec', false, a));
         const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
 
-        function tblAndValFromBud(bud: BizBudValue): { varVal: ExpVal; tbl: string; } {
+        function tblAndValFromBud(bud: BizBud): { varVal: ExpVal; tbl: string; } {
             const { name, dataType } = bud;
             let varVal: ExpVal = new ExpVar(`${prefixBud}${name}`);
-            let tbl: string;
+            let tbl: EnumSysTable;
             switch (dataType) {
                 default:
-                    tbl = 'ixbudint';
+                    tbl = EnumSysTable.ixBudInt;
                     break;
                 case BudDataType.date:
-                    tbl = 'ixbudint';
-                    // const daysOf19700101 = 719528; // to_days('1970-01-01')
-                    // varVal = new ExpSub(new ExpFunc('to_days', varVal), new ExpNum(daysOf19700101));
+                    tbl = EnumSysTable.ixBudInt;
                     break;
                 case BudDataType.str:
                 case BudDataType.char:
-                    tbl = 'ixbudstr';
+                    tbl = EnumSysTable.ixBudStr;
                     break;
                 case BudDataType.dec:
-                    tbl = 'ixbuddec';
+                    tbl = EnumSysTable.ixBudDec;
                     break;
             }
             return { varVal, tbl };
@@ -168,7 +159,7 @@ export class BBizSpec extends BBizEntity<BizSpec> {
 
         selectJsonValue(varProps, props, prefixBud);
 
-        function setBud(bud: BizBudValue) {
+        function setBud(bud: BizBud) {
             const { name } = bud;
             const { varVal, tbl } = tblAndValFromBud(bud);
             const insert = factory.createInsertOnDuplicate();
@@ -182,7 +173,7 @@ export class BBizSpec extends BBizEntity<BizSpec> {
             );
             insert.cols.push({ col: 'value', val: varVal });
         }
-        function setBuds(buds: BizBudValue[]) {
+        function setBuds(buds: BizBud[]) {
             for (let bud of buds) setBud(bud);
         }
         setBuds(keys);

@@ -84,8 +84,8 @@ export class BizPend extends BizEntity {
         return new BBizPend(dbContext, this);
     }
 
-    getBinProps(): Iterable<BizBudValue> {
-        let budArr: BizBudValue[] = [];
+    getBinProps(): Iterable<BizBud> {
+        let budArr: BizBud[] = [];
         for (let bizBin of this.bizBins) {
             for (let [, p] of bizBin.props) {
                 budArr.push(p);
@@ -94,8 +94,8 @@ export class BizPend extends BizEntity {
         return budArr;
     }
 
-    getSheetProps(): Iterable<BizBudValue> {
-        let budArr: BizBudValue[] = [];
+    getSheetProps(): Iterable<BizBud> {
+        let budArr: BizBud[] = [];
         for (let bizBin of this.bizBins) {
             budArr.push(...bizBin.getSheetProps());
         }

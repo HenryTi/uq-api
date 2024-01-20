@@ -2,7 +2,7 @@ import { Statement } from '../../il';
 import { DbContext } from '../dbContext';
 import { Sqls } from './sqls';
 
-export abstract class BStatement<T extends Statement = Statement> {
+export abstract class BStatementBase<T extends Statement = Statement> {
     protected context: DbContext;
     protected istatement: T;
     constructor(context: DbContext, istatement: T) {
@@ -10,10 +10,14 @@ export abstract class BStatement<T extends Statement = Statement> {
         this.istatement = istatement;
     }
 
-    singleKey: string;
+    abstract get singleKey(): string;
     singleHead(sqls: Sqls): void { }
     singleFoot(sqls: Sqls): void { }
     head(sqls: Sqls): void { }
     foot(sqls: Sqls): void { }
     abstract body(sqls: Sqls): void;
+}
+
+export abstract class BStatement<T extends Statement = Statement> extends BStatementBase<T> {
+    readonly singleKey = undefined;
 }

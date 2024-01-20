@@ -60,6 +60,17 @@ class UseTimeSpan extends UseBase {
     db(context) { return new builder_1.BUseTimeSpan(this, context); }
 }
 exports.UseTimeSpan = UseTimeSpan;
+/*
+export class UseOut extends UseBase {
+    readonly type = 'out';
+    varName: string;
+    outEntity: BizOut;
+    parser(context: PContext): PElement<IElement> {
+        return new PUseOut(this, context);
+    }
+    override db(context: DbContext) { return new BUseOut(this, context) }
+}
+*/
 class UseStatement extends Statement_1.Statement {
     get type() { return 'use'; }
     parser(context) {

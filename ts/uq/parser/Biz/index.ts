@@ -13,3 +13,4 @@ export * from './Report';
 export * from './Query';
 export * from './Console';
 export * from './Base';
+export * from './InOut';

@@ -108,10 +108,10 @@ class PUseTimeSpan extends PUseBase {
     }
     scan(space) {
         let ok = true;
-        const { varName, op, value, spanPeriod: spanPeiod } = this.element;
+        const { varName, op, value, spanPeriod } = this.element;
         const { no } = this.element.statement;
         if (op === undefined) {
-            if (space.addUse(varName, no, spanPeiod) === false) {
+            if (space.addUse(varName, no, spanPeriod) === false) {
                 this.log(`Duplicate define ${varName}`);
                 ok = false;
             }
@@ -123,8 +123,8 @@ class PUseTimeSpan extends PUseBase {
                 ok = false;
             }
             else {
-                const { obj: spanPeiod, statementNo } = useObj;
-                this.element.spanPeriod = spanPeiod;
+                const { obj: spanPeriod, statementNo } = useObj;
+                this.element.spanPeriod = spanPeriod;
                 this.element.statementNo = statementNo;
             }
         }
@@ -137,4 +137,24 @@ class PUseTimeSpan extends PUseBase {
     }
 }
 exports.PUseTimeSpan = PUseTimeSpan;
+/*
+export class PUseOut extends PUseBase<UseOut> {
+    private outEntity: string;
+    protected _parse(): void {
+        this.element.varName = this.ts.passVar();
+        this.outEntity = this.ts.passVar();
+    }
+    scan(space: Space): boolean {
+        let ok = true;
+        this.element.outEntity = space.getBizEntity(this.outEntity);
+        let { outEntity, statement, varName } = this.element;
+        if (outEntity === undefined || outEntity.bizPhraseType !== BizPhraseType.out) {
+            ok = false;
+            this.log(`${this.outEntity} is not OUT`);
+        }
+        space.addUse(varName, statement.no, this.element);
+        return ok;
+    }
+}
+*/ 
 //# sourceMappingURL=use.js.map

@@ -124,9 +124,9 @@ export abstract class Space {
         if (this.outer !== undefined)
             return this.outer.getEntityTable(name);
     }
-    getBizEntity(name: string): BizEntity {
+    getBizEntity<T extends BizEntity = BizEntity>(name: string): T {
         let bizEntity = this._getBizEntity(name);
-        if (bizEntity !== undefined) return bizEntity;
+        if (bizEntity !== undefined) return bizEntity as T;
         if (this.outer !== undefined)
             return this.outer.getBizEntity(name);
     }

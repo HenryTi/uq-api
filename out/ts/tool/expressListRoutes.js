@@ -48,7 +48,7 @@ function getPathFromRegex(regexp) {
 function combineStacks(acc, stack) {
     if (stack.handle.stack) {
         const routerPath = getPathFromRegex(stack.regexp);
-        return [...acc, ...stack.handle.stack.map((stack) => (Object.assign({ routerPath }, stack)))];
+        return [...acc, ...stack.handle.stack.map((stack) => ({ routerPath, ...stack }))];
     }
     return [...acc, stack];
 }
@@ -76,7 +76,7 @@ function getStacks(app) {
 }
 function expressListRoutes(app, opts) {
     const stacks = getStacks(app);
-    const options = Object.assign(Object.assign({}, defaultOptions), opts);
+    const options = { ...defaultOptions, ...opts };
     if (stacks) {
         for (const stack of stacks) {
             if (stack.route) {

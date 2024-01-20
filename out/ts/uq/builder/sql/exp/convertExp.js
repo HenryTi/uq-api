@@ -11,6 +11,7 @@ const ExpSearch_1 = require("./ExpSearch");
 const ExpBizOperand_1 = require("./ExpBizOperand");
 const BizExp_1 = require("../BizExp");
 const ExpRole_1 = require("./ExpRole");
+const ExpBizEntityBud_1 = require("./ExpBizEntityBud");
 function convertExp(context, exp) {
     if (!exp)
         return;
@@ -142,12 +143,25 @@ class Stack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp));
     }
-    bizCheckBud(exp1, exp2, item) {
-        let bExp1 = new BizExp_1.BBizExp();
-        bExp1.convertFrom(this.context, exp1);
-        let bExp2 = new BizExp_1.BBizExp();
-        bExp2.convertFrom(this.context, exp2);
-        this.arr.push(new BizExp_1.BBizCheckBud(bExp1, bExp2, item));
+    bizCheckBud(checkBud /* exp1: BizExp, exp2: BizExp, item: OptionsItem*/) {
+        const { bizExp1, bizExp2, bizField, items } = checkBud;
+        let bExp1;
+        if (bizExp1 !== undefined) {
+            bExp1 = new BizExp_1.BBizExp();
+            bExp1.convertFrom(this.context, bizExp1);
+        }
+        let bExp2;
+        if (bizExp2 !== undefined) {
+            bExp2 = new BizExp_1.BBizExp();
+            bExp2.convertFrom(this.context, bizExp2);
+        }
+        // let ve = this.context.expVal(valExp);
+        if (bizField !== undefined) {
+            let bBizField = bizField.field.db(this.context);
+            bBizField.noArrayAgg = true;
+            // let bBizFieldOperand = new BBizFieldOperand(bBizField);
+            this.arr.push(new BizExp_1.BBizCheckBud(bExp1, bExp2, bBizField, items));
+        }
     }
     bizFieldOperand(bizFieldOperand) {
         let bBizField = bizFieldOperand.field.db(this.context);
@@ -173,6 +187,9 @@ class Stack {
         this.arr.push(new exps_1.ExpFuncInUq(func, params, true));
     }
     var(name) { this.arr.push(new exps_1.ExpVar(name)); }
+    varOfBizEntity(bizEntity, bud) {
+        this.arr.push(new ExpBizEntityBud_1.ExpBizEntityBud(bizEntity, bud));
+    }
     dotVar(varNames) { this.arr.push(new exps_1.ExpDotVar(varNames)); }
     field(name, tbl) { this.arr.push(new exps_1.ExpField(name, tbl)); }
     expr(exp) { this.arr.push(convertExp(this.context, exp)); }

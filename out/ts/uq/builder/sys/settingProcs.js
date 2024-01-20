@@ -18,7 +18,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         this.constStrsProc(this.coreProc('$const_strs'));
         this.constStrProc(this.coreProc('$const_str'));
         this.savePhrasesProc(this.coreProc('$save_phrases'));
-        this.saveRoleIxPhraseProc(this.coreProc('$save_ixphrases_role'));
+        // this.saveRoleIxPhraseProc(this.coreProc('$save_ixphrases_role'));
         this.finishBuildDb(this.coreProc('$finish_build_db'));
         this.setUser(this.coreProc('$set_user'));
         this.setBusQueueSeed(this.sysProc('$set_bus_queue_seed'));
@@ -273,82 +273,83 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
             .join(il_1.JoinType.join, tbConst)
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', 'a'), new sql_1.ExpField('name', 'b')));
     }
-    saveRoleIxPhraseProc(p) {
+    /*
+    private saveRoleIxPhraseProc(p: sql.Procedure) {
         let { factory } = this.context;
         let { parameters, statements } = p;
         const param = 'phrases';
-        parameters.push((0, il_1.textField)(param));
+        parameters.push(
+            textField(param),
+        );
+
         let declare = factory.createDeclare();
         let vRoleId = 'roleId';
         let vPermitId = 'permitId';
-        declare.var('id', new il_1.Int());
-        declare.var('role', new il_1.Char(200));
-        declare.var('permit', new il_1.Char(200));
-        declare.var(vRoleId, new il_1.BigInt());
-        declare.var(vPermitId, new il_1.BigInt());
+        declare.var('id', new Int());
+        declare.var('role', new Char(200));
+        declare.var('permit', new Char(200));
+        declare.var(vRoleId, new BigInt());
+        declare.var(vPermitId, new BigInt());
         statements.push(declare);
-        let idField = (0, il_1.intField)('$id');
+        let idField = intField('$id');
         idField.autoInc = true;
-        let fields = [
+        let fields: Field[] = [
             idField,
-            (0, il_1.charField)('role', 200),
-            (0, il_1.charField)('permit', 200),
+            charField('role', 200),
+            charField('permit', 200),
         ];
+
         let setId0 = factory.createSet();
         statements.push(setId0);
-        setId0.equ('id', sql_1.ExpNum.num0);
+        setId0.equ('id', ExpNum.num0);
+
         let varTable = this.strToTable(statements, param, '\\n', '\\t', fields);
+
         // 循环, 保存$ixphrase
         let loop = factory.createWhile();
         statements.push(loop);
         loop.no = 999;
-        loop.cmp = new sql_1.ExpEQ(sql_1.ExpNum.num1, sql_1.ExpNum.num1);
+        loop.cmp = new ExpEQ(ExpNum.num1, ExpNum.num1);
         let lstats = loop.statements;
+
         let setRoleNull = factory.createSet();
         lstats.add(setRoleNull);
-        setRoleNull.equ('role', sql_1.ExpVal.null);
+        setRoleNull.equ('role', ExpVal.null);
+
         let selectRole = factory.createSelect();
         lstats.add(selectRole);
         selectRole.toVar = true;
         selectRole.col('$id', 'id');
         selectRole.col('role', 'role');
         selectRole.col('permit', 'permit');
-        selectRole.from(new statementWithFrom_1.VarTable(varTable.name));
-        selectRole.where(new sql_1.ExpGT(new sql_1.ExpField('$id'), new sql_1.ExpVar('id')));
-        selectRole.order(new sql_1.ExpField('$id'), 'asc');
-        selectRole.limit(sql_1.ExpNum.num1);
+        selectRole.from(new FromVarTable(varTable.name));
+        selectRole.where(new ExpGT(new ExpField('$id'), new ExpVar('id')));
+        selectRole.order(new ExpField('$id'), 'asc');
+        selectRole.limit(ExpNum.num1);
+
         let ifRoleNull = factory.createIf();
         lstats.add(ifRoleNull);
-        ifRoleNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar('role'));
+        ifRoleNull.cmp = new ExpIsNull(new ExpVar('role'));
         let leave = factory.createBreak();
         ifRoleNull.then(leave);
         leave.no = loop.no;
-        let tblPhrase = (0, __1.sysTable)(il.EnumSysTable.phrase);
+
+        let tblPhrase = sysTable(il.EnumSysTable.phrase);
         let selectRoleId = factory.createSelect();
         lstats.add(selectRoleId);
         selectRoleId.toVar = true;
         selectRoleId.from(tblPhrase);
         selectRoleId.col('id', vRoleId);
-        selectRoleId.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('role')));
+        selectRoleId.where(new ExpEQ(new ExpField('name'), new ExpVar('role')));
+
         let selectPermitId = factory.createSelect();
         lstats.add(selectPermitId);
         selectPermitId.toVar = true;
         selectPermitId.from(tblPhrase);
         selectPermitId.col('id', vPermitId);
-        selectPermitId.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpVar('permit')));
-        /*
-        let upsert = factory.createUpsert();
-        lstats.add(upsert);
-        upsert.table = sysTable(il.EnumSysTable.ixPhrase);
-        upsert.keys = [
-            { col: 'i', val: new ExpVar(vRoleId) },
-            { col: 'x', val: new ExpVar(vPermitId) },
-        ];
-        upsert.cols = [
-            { col: 'type', val: ExpNum.num0 }
-        ];
-        */
+        selectPermitId.where(new ExpEQ(new ExpField('name'), new ExpVar('permit')));
     }
+    */
     savePhrasesProc(p) {
         const param = 'phrases';
         const tblPhrase = (0, __1.sysTable)(il.EnumSysTable.phrase);

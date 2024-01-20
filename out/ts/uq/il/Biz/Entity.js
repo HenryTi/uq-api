@@ -46,13 +46,6 @@ class BizEntity extends Base_1.BizBase {
         this.schema = ret;
         return ret;
     }
-    /*
-    hasProp(name: string): boolean {
-        if (super.hasProp(name) === true) return true;
-        let bud = this.props.get(name.toLowerCase());
-        return (bud !== undefined);
-    }
-    */
     hasField(fieldName) {
         return this.fields.includes(fieldName);
     }
@@ -177,7 +170,7 @@ class BizEntity extends Base_1.BizBase {
     }
     allShowBuds() {
         let has = this.showBuds !== undefined;
-        let ret = Object.assign({}, this.showBuds);
+        let ret = { ...this.showBuds };
         let n = 0;
         this.forEachBud(v => {
             let shows = v.getFieldShows();

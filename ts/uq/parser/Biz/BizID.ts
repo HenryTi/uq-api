@@ -108,6 +108,7 @@ export class PBizDuo extends PBizID<BizDuo> {
     }
 
     readonly keyColl = {
+        prop: this.parseProp,
         i: this.parseI,
         x: this.parseX,
     };

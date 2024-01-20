@@ -162,9 +162,12 @@ class Biz extends entity_1.Entity {
 }
 exports.Biz = Biz;
 class BizSchemaBuilder extends schema_1.SchemaBuilder {
+    // filter out system uq defines
     build(schema, res) {
         const { bizArr } = this.entity;
-        schema.biz = bizArr.map(v => v.buildSchema(res));
+        schema.biz = bizArr.map(v => {
+            return v.buildSchema(res);
+        });
     }
 }
 exports.BizSchemaBuilder = BizSchemaBuilder;

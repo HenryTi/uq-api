@@ -67,7 +67,7 @@ class MyDb$Uq extends MyDb_1.MyDb {
                 return false;
             return true;
         }
-        catch (_b) {
+        catch {
             return false;
         }
     }
@@ -75,7 +75,7 @@ class MyDb$Uq extends MyDb_1.MyDb {
         try {
             await this.sql(`insert into $uq.setting (name, value) values ('$uq_version', '${dbUqVersion}');`);
         }
-        catch (_a) {
+        catch {
         }
     }
     async create$UqDb() {

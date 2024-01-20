@@ -9,16 +9,16 @@ class PBizConsole extends Base_1.PBizEntity {
         this.keyColl = {};
     }
     _parse() {
-        this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+        this.sourceStart = this.element.nameStartAt = this.ts.getP() - 1; //.sourceStart;
         this.ts.readToken();
         let name;
         if (this.ts.token === tokens_1.Token.DOLLARVAR) {
-            this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+            this.sourceStart = this.element.nameStartAt = this.ts.getP() - 1; //.sourceStart;
             this.ts.readToken();
         }
         if (this.ts.token !== tokens_1.Token.LBRACE) {
             if (this.ts.token === tokens_1.Token.DOLLARVAR) {
-                this.sourceStart = this.element.nameStartAt = this.ts.getP(); //.sourceStart;
+                this.sourceStart = this.element.nameStartAt = this.ts.getP() - 1; //.sourceStart;
                 this.ts.readToken();
             }
             else {

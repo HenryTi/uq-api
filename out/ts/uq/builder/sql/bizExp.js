@@ -263,25 +263,46 @@ class BBizFieldOperand extends exp_1.ExpVal {
 }
 exports.BBizFieldOperand = BBizFieldOperand;
 class BBizCheckBud extends exp_1.ExpVal {
-    constructor(bExp1, bExp2, item) {
+    constructor(bExp1, bExp2, bizField, items) {
         super();
         this.bExp1 = bExp1;
         this.bExp2 = bExp2;
-        this.item = item;
+        this.bizField = bizField;
+        this.items = items;
     }
     to(sb) {
         let t = '$check';
-        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM (');
-        this.bExp1.to(sb);
-        sb.r().append(' AS ').append(t)
+        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM ');
+        if (this.bExp1 !== undefined) {
+            sb.l();
+            this.bExp1.to(sb);
+            sb.r();
+        }
+        else {
+            this.buildValExp(sb);
+        }
+        sb.append(' AS ').append(t)
             .append(' WHERE ').append(t).dot().alias('id IN (');
-        if (this.item !== undefined) {
-            sb.append(this.item.id);
+        if (this.items !== undefined) {
+            sb.append(this.items.map(v => v.id).join(','));
         }
         else {
             this.bExp2.to(sb);
         }
         sb.r().r();
+        /*
+        if (this.bExp1 !== undefined) {
+            this.buildBizExp(sb);
+        }
+        else {
+            this.buildValExp(sb);
+        }
+        */
+    }
+    buildValExp(sb) {
+        // sb.append('JSON_TABLE(');
+        this.bizField.to(sb);
+        // sb.append(`,'$[*]' COLUMNS(id INT PATH '$')`);
     }
 }
 exports.BBizCheckBud = BBizCheckBud;
@@ -300,7 +321,8 @@ SELECT EXISTS(
 
 bzscript 源码
     CHECK (#zz(%id).dd) ON (#bb(%id).ee)
-    CHECK (#zz(%id).dd) ON OPTIONS.a)
-
-*/ 
+    CHECK (#zz(%id).dd) = OPTIONS.a)
+    CHECK %field = OPTIONS.a
+    -- CHECK %field in (OPTIONS.a, OPTIONS.b) 未实现
+*/
 //# sourceMappingURL=BizExp.js.map

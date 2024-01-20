@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": [
+            "es2019"
+        ],
+        "target": "es2019",
+        "sourceMap": true,
+        "module": "commonjs",
+        "allowJs": true,
+        "checkJs": true,
+        "outDir": "out",
+        "resolveJsonModule": true,
+        //"baseUrl": "ts"
+        //"sourceRoot": "ts"
+    },
+    "include": [
+        "package.json",
+        "ts/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "*.js"
+    ]
+}

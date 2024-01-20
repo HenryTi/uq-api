@@ -21,7 +21,7 @@ export abstract class BizField {
         this.space = space;
         this.tableAlias = tableAlias;
     }
-    getBud(): BizBudValue {
+    getBud(): BizBud {
         return undefined;
     }
     abstract db(dbContext: DbContext): BBizField;
@@ -31,10 +31,10 @@ export abstract class BizField {
 }
 
 export class BizFieldBud extends BizField {
-    bud: BizBudValue;
+    bud: BizBud
     entity: BizEntity;
     div: BinDiv;
-    constructor(space: BizFieldSpace, tableAlias: string, entity: BizEntity, bud: BizBudValue) {
+    constructor(space: BizFieldSpace, tableAlias: string, entity: BizEntity, bud: BizBud) {
         super(space, tableAlias);
         this.entity = entity;
         if (entity?.bizPhraseType === BizPhraseType.sheet) {
@@ -42,7 +42,7 @@ export class BizFieldBud extends BizField {
         }
         this.bud = bud;
     }
-    override getBud(): BizBudValue {
+    override getBud(): BizBud {
         return this.bud;
     }
     override db(dbContext: DbContext): BBizField {
@@ -107,7 +107,7 @@ enum ColType {
 interface Cols {
     names: string[];
     entity?: BizEntity;
-    buds?: BizBudValue[];
+    buds?: BizBud[];
     alias: string;
     colType?: ColType;
 }
@@ -126,13 +126,13 @@ export abstract class BizFieldSpace {
     protected init(): void {
     }
 
-    private arrFromBuds(buds: Iterable<BizBudValue>): BizBudValue[] {
-        let ret: BizBudValue[] = [];
+    private arrFromBuds(buds: Iterable<BizBud>): BizBud[] {
+        let ret: BizBud[] = [];
         for (let bud of buds) ret.push(bud);
         return ret;
     }
 
-    protected initBuds(table: string, entity: BizEntity, buds: Iterable<BizBudValue>, alias: string, colType: ColType = ColType.bud) {
+    protected initBuds(table: string, entity: BizEntity, buds: Iterable<BizBud>, alias: string, colType: ColType = ColType.bud) {
         let cols = this.buds[table];
         if (cols === undefined) {
             cols = [];
@@ -173,7 +173,7 @@ export abstract class BizFieldSpace {
         let colsList = tableCols[n0];
         if (colsList === undefined) return;
         let foundCols: Cols;
-        let foundBud: BizBudValue;
+        let foundBud: BizBud;
         for (let cols of colsList) {
             const { names, buds } = cols;
             if (names !== undefined) {
@@ -238,7 +238,7 @@ export class FromInQueryFieldSpace extends FromFieldSpace {
 
     protected override init(): void {
         const { bizPhraseType, bizEntityArr } = this.from;
-        let bizBuds: BizBudValue[] = [];
+        let bizBuds: BizBud[] = [];
         for (let entity of bizEntityArr) {
             for (let [, p] of entity.props) {
                 bizBuds.push(p);
@@ -290,6 +290,12 @@ export class FromInPendFieldSpace extends FromFieldSpace {
         this.initBuds('bin', undefined, bizPend.getBinProps(), 'b');
         this.initBuds('sheet', undefined, bizPend.getSheetProps(), 'e');
     }
+
+    override createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
+        let ret = super.createBBud(dbContext, bizField);
+        ret.noArrayAgg = true;
+        return ret;
+    }
 }
 
 
@@ -329,7 +335,9 @@ export class BizBinActFieldSpace extends BizFieldSpace {
         this.initBuds('bin', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
         this.initBuds('sheet', this.bizBin.sheetArr[0].main, this.bizBin.getSheetProps(), 'sheet', ColType.bud);
     }
-    createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
-        return new BBizFieldBinBud(dbContext, bizField);
+    override createBBud(dbContext: DbContext, bizField: BizFieldBud): BBizField {
+        let ret = new BBizFieldBinBud(dbContext, bizField);
+        ret.noArrayAgg = true;
+        return ret;
     }
 }
