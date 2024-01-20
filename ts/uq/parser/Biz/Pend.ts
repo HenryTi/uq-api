@@ -60,9 +60,7 @@ export class PBizPend extends PBizEntity<BizPend> {
 
     scan(space: Space): boolean {
         let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-        }
+        if (super.scan(space) === false) ok = false;
         let { props, pendQuery, i, x } = this.element;
         const predefines = [...BizPend.predefinedId, ...BizPend.predefinedValue];
 

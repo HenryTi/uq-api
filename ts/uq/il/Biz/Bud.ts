@@ -1,11 +1,11 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDIO, PBizBudArr
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
-import { BizAtom, BizID, BizSpec } from "./BizID";
+import { BizAtom, BizID, BizIDExtendable, BizSpec } from "./BizID";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
@@ -91,24 +91,17 @@ export class BudGroup extends BizBase {
 export abstract class BizBud extends BizBase {
     readonly bizPhraseType = BizPhraseType.bud;
     abstract get dataType(): BudDataType;
-    value: BudValueSet;
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     getFieldShows(): FieldShow[] { return undefined }
+    // show: boolean;      // 仅用于显示
     constructor(biz: Biz, name: string, ui: Partial<UI>) {
         super(biz);
         this.name = name;
         this.ui = ui;
     }
+    // buildBudValue(callback: (value: BudValueSet) => void) { }
     buildBudValue(expStringify: (value: ValueExpression) => string) { }
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            dataType: this.dataType,
-            value: this.value?.str,
-        }
-    }
 }
 
 export enum SetType {
@@ -119,6 +112,7 @@ export enum SetType {
 
 export abstract class BizBudValue extends BizBud {
     abstract get canIndex(): boolean;
+    value: BudValueSet;
     hasHistory: boolean;
     setType: SetType;
     required: boolean;
@@ -127,8 +121,11 @@ export abstract class BizBudValue extends BizBud {
         let ret = super.buildSchema(res);
         return {
             ...ret,
+            dataType: this.dataType,
+            value: this.value?.str,
             history: this.hasHistory === true ? true : undefined,
             setType: this.setType ?? SetType.assign,
+            // show: this.show,
         }
     }
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
@@ -143,26 +140,11 @@ export abstract class BizBudValue extends BizBud {
         str += '\n' + typeStr;
         this.value.str = str;
     }
-}
-
-export class BizBudArr extends BizBudValue {
-    readonly dataType = BudDataType.arr;
-    readonly canIndex = false;
-    readonly props: Map<string, BizBudValue> = new Map();
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudArr(this, context);
+    /*
+    buildBudValue(callback: (value: BudValueSet) => void) {
+        callback(this.value);
     }
-    buildSchema(res: { [phrase: string]: string; }) {
-        let ret = super.buildSchema(res);
-        if (this.props.size > 0) {
-            let props = [];
-            for (let [, value] of this.props) {
-                props.push(value.buildSchema(res));
-            }
-            Object.assign(ret, { props });
-        }
-        return ret;
-    }
+    */
 }
 
 export class BizBudPickable extends BizBudValue {
@@ -261,6 +243,7 @@ export class BizBudDate extends BizBudValueWithRange {
 
 export class BizBudIDBase extends BizBud {
     readonly dataType = BudDataType.none;
+    // readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIDBase(this, context);
     }
@@ -297,25 +280,18 @@ export class BizBudID extends BizBudValue {
             param.str = expStringify(exp);
         }
     }
-}
-
-// ID的属性定义，ID表示需要转换
-// 后面仅仅可以Atom
-export class BizBudIDIO extends BizBudValue {
-    readonly dataType = BudDataType.ID;
-    readonly canIndex = false;
-    entityAtom: BizAtom;
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudIDIO(this, context);
+    /*
+    buildBudValue(callback: (value: BudValueSet) => void) {
+        super.buildBudValue(callback);
+        for (let i in this.params) {
+            callback(this.params[i]);
+        }
     }
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        ret.atom = this.entityAtom?.id;
-        return ret;
-    }
+    */
 }
 
 export abstract class BizBudOptions extends BizBudValue {
+    // readonly items: BizSubItem[] = [];
     options: BizOptions;
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -349,26 +325,3 @@ export class BizBudCheck extends BizBudOptions {
         return new PBizBudCheck(this, context);
     }
 }
-
-export const budClassesIn: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
-    int: BizBudInt,
-    dec: BizBudDec,
-    char: BizBudChar,
-    date: BizBudDate,
-    id: BizBudIDIO,
-    $arr: BizBudArr,
-}
-export const budClasses: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
-    ...budClassesIn,
-    none: BizBudNone,
-    atom: BizBudID,
-    intof: BizBudIntOf,
-    radio: BizBudRadio,
-    check: BizBudCheck,
-}
-export const budClassKeys = Object.keys(budClasses);
-export const budClassKeysIn = Object.keys(budClassesIn);
-export const budClassesOut: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
-    ...budClassesIn,
-}
-export const budClassKeysOut = Object.keys(budClassesOut);

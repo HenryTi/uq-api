@@ -1,10 +1,10 @@
 import {
     BigInt, BizBin, BizSheet, JoinType
-    , bigIntField, decField, idField, EnumSysTable, Char, BizOut, ProcParamType, BudDataType
+    , bigIntField, decField, idField, EnumSysTable, Char
 } from "../../il";
 import { $site } from "../consts";
 import {
-    ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNotNull, ExpIsNull, ExpNum
+    ExpAnd, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNotNull, ExpIsNull, ExpNum
     , ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, Statement
 } from "../sql";
 import { userParamName } from "../sql/sqlBuilder";
@@ -41,14 +41,6 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
         const { main, details } = this.bizEntity;
-        const outs: BizOut[] = [...main.outs];
-        for (let detail of details) {
-            for (let out of detail.bin.outs) {
-                if (outs.findIndex(v => v === out) < 0) {
-                    outs.push(out);
-                }
-            }
-        }
 
         const site = '$site';
         const cId = '$id';
@@ -70,10 +62,6 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             decField(sprice, 18, 6),
         );
 
-        for (let out of outs) {
-            this.buildOutInit(statements, out);
-        }
-
         // main
         const memo = factory.createMemo();
         statements.push(memo);
@@ -94,10 +82,6 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         for (let i = 0; i < len; i++) {
             let { bin } = details[i];
             this.buildBin(statements, bin, i + 101);
-        }
-
-        for (let out of outs) {
-            this.buildOut(statements, out);
         }
     }
 
@@ -236,36 +220,5 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         iff.then(execSql);
         execSql.no = bizBin.id;
         execSql.sql = new ExpFunc(factory.func_concat, new ExpStr('CALL `' + $site + '`.`'), new ExpVar(vProc), new ExpStr('`()'));
-    }
-
-    private buildOutInit(statements: Statement[], out: BizOut): void {
-        const varName = '$' + out.name;
-        const { factory } = this.context;
-        let set = factory.createSet();
-        statements.push(set);
-        let params: ExpVal[] = [];
-        for (let [, bud] of out.props) {
-            const { dataType, name } = bud;
-            if (dataType !== BudDataType.arr) continue;
-            params.push(new ExpStr(name), new ExpFunc('JSON_ARRAY'));
-        }
-        set.isAtVar = true;
-        set.equ(varName, new ExpFunc('JSON_OBJECT', ...params));
-    }
-
-    private buildOut(statements: Statement[], out: BizOut) {
-        const { factory } = this.context;
-        const varName = '$' + out.name;
-        const memo = factory.createMemo();
-        statements.push(memo);
-        memo.text = `call PROC to write OUT @${varName} ${out.getJName()}`;
-        const proc = factory.createCall();
-        statements.push(proc);
-        proc.db = '$site';
-        proc.procName = `${this.context.site}.${out.id}`;
-        proc.params.push({
-            paramType: ProcParamType.in,
-            value: new ExpAtVar(varName),
-        });
     }
 }

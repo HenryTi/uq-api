@@ -3,8 +3,7 @@ import {
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
-    , BizBudIDBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI
+    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange, BizBudIDBase
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -172,30 +171,6 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
 export class PBizBudNone extends PBizBudValue<BizBudNone> {
 }
 
-export class PBizBudArr extends PBizBudValue<BizBudArr> {
-    protected override _parse(): void {
-        let propArr = this.parsePropArr();
-        let { props } = this.element;
-        this.parsePropMap(props, propArr);
-    }
-    protected override getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
-        return budClassesOut[budClass];
-    }
-    protected override getBudClassKeys() {
-        return budClassKeysOut;
-    }
-    override scan(space: BizEntitySpace<BizEntity>): boolean {
-        let ok = super.scan(space);
-        const { props } = this.element;
-        for (let [, bud] of props) {
-            if (bud.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        return ok;
-    }
-}
-
 class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue<T> {
     protected override parseBudEqu(): void {
         super.parseBudEqu();
@@ -227,6 +202,7 @@ class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue
 
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = super.scan(space);
+        if (this.element.ui.caption === '入库数量') debugger;
         let { min, max } = this.element;
         if (min !== undefined) {
             if (min.exp.pelement.scan(space) === ok) {
@@ -288,24 +264,6 @@ export class PBizBudChar extends PBizBudValue<BizBudChar> {
 }
 
 export class PBizBudDate extends PBizBudValueWithRange<BizBudDate> {
-}
-
-export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
-    private atomName: string;
-    protected _parse(): void {
-        this.atomName = this.ts.mayPassVar();
-    }
-    scan(space: BizEntitySpace<BizEntity>): boolean {
-        let ok = true;
-        if (this.atomName !== undefined) {
-            let entityAtom = this.element.entityAtom = space.getBizEntity<BizAtom>(this.atomName);
-            if (entityAtom !== undefined && entityAtom.bizPhraseType !== BizPhraseType.atom) {
-                ok = false;
-                this.log(`${this.atomName} is not ATOM. IO ID only support ATOM`);
-            }
-        }
-        return ok;
-    }
 }
 
 export class PBizBudIDBase extends PBizBud<BizBudIDBase> {

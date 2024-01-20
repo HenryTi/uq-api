@@ -166,7 +166,6 @@ class BizBin extends Entity_1.BizEntity {
         this.inputColl = {};
         this.sheetArr = []; // 被多少sheet引用了
         this.div = new BinDiv(undefined, undefined); // 输入和显示的层级结构
-        this.outs = [];
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
@@ -210,19 +209,7 @@ class BizBin extends Entity_1.BizEntity {
             }
         }
         let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
-        this.schema = {
-            ...ret,
-            main: (_b = this.main) === null || _b === void 0 ? void 0 : _b.id,
-            picks: picks.length === 0 ? undefined : picks,
-            inputs: inputs.length === 0 ? undefined : inputs,
-            pend: (_c = this.pend) === null || _c === void 0 ? void 0 : _c.id,
-            i: (_d = this.i) === null || _d === void 0 ? void 0 : _d.buildSchema(res),
-            x: (_e = this.x) === null || _e === void 0 ? void 0 : _e.buildSchema(res),
-            value: (_f = this.value) === null || _f === void 0 ? void 0 : _f.buildSchema(res),
-            amount: (_g = this.amount) === null || _g === void 0 ? void 0 : _g.buildSchema(res),
-            price,
-            div: this.div.buildSchema(res),
-        };
+        this.schema = Object.assign(Object.assign({}, ret), { main: (_b = this.main) === null || _b === void 0 ? void 0 : _b.id, picks: picks.length === 0 ? undefined : picks, inputs: inputs.length === 0 ? undefined : inputs, pend: (_c = this.pend) === null || _c === void 0 ? void 0 : _c.id, i: (_d = this.i) === null || _d === void 0 ? void 0 : _d.buildSchema(res), x: (_e = this.x) === null || _e === void 0 ? void 0 : _e.buildSchema(res), value: (_f = this.value) === null || _f === void 0 ? void 0 : _f.buildSchema(res), amount: (_g = this.amount) === null || _g === void 0 ? void 0 : _g.buildSchema(res), price, div: this.div.buildSchema(res) });
         return this.schema;
     }
     getSheetProps() {
@@ -325,20 +312,28 @@ class BizBin extends Entity_1.BizEntity {
     }
 }
 exports.BizBin = BizBin;
-class BizBinAct extends Base_1.BizAct {
+class BizBinAct extends Base_1.BizBase {
     constructor(biz, bizBin) {
         super(biz);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.detailAct;
+        this.tableVars = {};
         this.bizBin = bizBin;
     }
     parser(context) {
         return new parser_1.PBizBinAct(this, context);
     }
+    addTableVar(tableVar) {
+        let name = tableVar.name;
+        let t = this.tableVars[name];
+        if (t !== undefined)
+            return false;
+        this.tableVars[name] = tableVar;
+        return true;
+    }
+    getTableVar(name) { return this.tableVars[name]; }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            bin: this.bizBin.name,
-        };
+        return Object.assign(Object.assign({}, ret), { detail: this.bizBin.name });
     }
 }
 exports.BizBinAct = BizBinAct;

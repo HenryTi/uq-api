@@ -1,7 +1,7 @@
 import {
     Field, Returns,
     Uq, InBusAction, InBusActionStatement, VarStatement, Return, Var,
-    SelectStatement, Select, VarOperand, ValueExpression, VarPointer, Column, Arr
+    SelectStatement, Select, VarOperand, ValueExpression, VarPointer, Arr, Column
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';

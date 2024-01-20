@@ -1,4 +1,4 @@
-import { Entity, JoinType, JsonTableColumn, VarPointer } from "../../il";
+import { Entity, JoinType, VarPointer } from "../../il";
 import { SqlBuilder } from './sqlBuilder';
 import { ExpCmp, ExpVal } from "./exp";
 import { SqlSysTable, SqlTable, StatementBase } from './statement';
@@ -125,40 +125,6 @@ export abstract class Table extends SqlTable {
     }
     get alias(): string { return this._alias }
 }
-export class FromJsonTable extends Table {
-    private value: ExpVal;
-    private path: string;
-    private columns: JsonTableColumn[];
-    constructor(alias: string, value: ExpVal, path: string, columns: JsonTableColumn[]) {
-        super(alias);
-        this.value = value;
-        this.path = path;
-        this.columns = columns;
-    }
-    to(sb: SqlBuilder) {
-        sb.append('JSON_TABLE(')
-            .exp(this.value)
-            .comma()
-            .string(this.path)
-            .space()
-            .append('COLUMNS(');
-        let first = true;
-        for (let col of this.columns) {
-            if (first === true) {
-                first = false;
-            }
-            else {
-                sb.comma();
-            }
-            const { field, path } = col;
-            sb.fld(field.name);
-            sb.space();
-            field.dataType.sql(sb);
-            sb.space().append('PATH ').string(path);
-        }
-        sb.r().r().append(' AS ').append(this._alias);
-    }
-}
 export class GlobalTable extends Table {
     protected readonly name: string;
     private schema: string;
@@ -208,7 +174,7 @@ export class VarTable extends Table {
         this.name = name;
     }
     to(sb: SqlBuilder) {
-        sb.dbName().dot().var(this.name);
+        sb.var(this.name);
         super.to(sb);
     }
 }

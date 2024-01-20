@@ -1,6 +1,6 @@
 import { EntityRunner } from "../../core";
 import { CompileOptions, DbContext } from "../builder";
-import { Biz, BizBin, BizBud, BizEntity, BizPhraseType, BudGroup } from "../il";
+import { Biz, BizBud, BizEntity, BudGroup } from "../il";
 import { Compiler } from "./Compiler";
 import { UqParser } from "./UqParser";
 
@@ -136,6 +136,7 @@ export class UqBuilder {
             return this.saveBizObject(entity);
         }));
         const ixPairs = this.biz.getEntityIxPairs(newest);
+        console.log(ixPairs);
         await this.runner.unitUserTableFromProc('SaveBizIX'
             , this.site, this.user, JSON.stringify(ixPairs));
         const ixBizRoles = this.biz.getIxRoles();
@@ -163,29 +164,13 @@ export class UqBuilder {
             autoRemoveTableField: false,
             autoRemoveTableIndex: false,
         }
-        const { newest } = this.compiler;
-        for (let bizEntity of newest) {
+        for (let bizEntity of this.compiler.newest) {
             let builder = bizEntity.db(context);
             if (builder === undefined) continue;
             await builder.buildProcedures();
-            await this.mayBuildSheet(context, bizEntity, newest);
         }
 
         await context.coreObjs.updateDb(this.runner, compileOptions);
-    }
-
-    // Bin 里面变化了，则相关的 Sheet 也要重新生成存储过程
-    // 因为Out的影响
-    private async mayBuildSheet(context: DbContext, entity: BizEntity, newest: BizEntity[]) {
-        if (entity.bizPhraseType !== BizPhraseType.bin) return;
-        const { sheetArr } = entity as BizBin;
-        for (let sheet of sheetArr) {
-            if (newest.findIndex(v => v === sheet) < 0) {
-                let builder = sheet.db(context);
-                if (builder === undefined) continue;
-                await builder.buildProcedures();
-            }
-        }
     }
 
     private buildBudsValue(context: DbContext) {

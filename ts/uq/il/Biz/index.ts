@@ -16,4 +16,3 @@ export * from './Query';
 export * from './Assign';
 export * from './Console';
 export * from './BizPhraseType';
-export * from './InOut';

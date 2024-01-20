@@ -55,9 +55,8 @@ class PBizPend extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
-        if (super.scan(space) === false) {
+        if (super.scan(space) === false)
             ok = false;
-        }
         let { props, pendQuery, i, x } = this.element;
         const predefines = [...il_1.BizPend.predefinedId, ...il_1.BizPend.predefinedValue];
         if (i !== undefined) {

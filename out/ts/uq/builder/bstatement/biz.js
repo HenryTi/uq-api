@@ -1,13 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizStatementOut = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementDetail = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
+exports.BBizDetailActTitle = exports.BBizDetailActSubPend = exports.BBizDetailActStatement = void 0;
 const il_1 = require("../../il");
-const consts_1 = require("../consts");
 const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
-class BBizStatement extends bstatement_1.BStatement {
+class BBizDetailActStatement extends bstatement_1.BStatement {
     head(sqls) {
         let bSub = this.istatement.sub.db(this.context);
         bSub.head(sqls);
@@ -21,10 +20,10 @@ class BBizStatement extends bstatement_1.BStatement {
         bSub.foot(sqls);
     }
 }
-exports.BBizStatement = BBizStatement;
+exports.BBizDetailActStatement = BBizDetailActStatement;
 const pendFrom = 'pend';
 const binId = 'bin';
-class BBizStatementPend extends bstatement_1.BStatement {
+class BBizDetailActSubPend extends bstatement_1.BStatement {
     // 可以发送sheet主表，也可以是Detail
     body(sqls) {
         const { context } = this;
@@ -105,18 +104,12 @@ class BBizStatementPend extends bstatement_1.BStatement {
         }
     }
 }
-exports.BBizStatementPend = BBizStatementPend;
-class BBizStatementBinPend extends BBizStatementPend {
-}
-exports.BBizStatementBinPend = BBizStatementBinPend;
-class BBizStatementInPend extends BBizStatementPend {
-}
-exports.BBizStatementInPend = BBizStatementInPend;
+exports.BBizDetailActSubPend = BBizDetailActSubPend;
 const phraseId = '$phraseId_';
 const objId = '$objId_';
 const budId = '$budId_';
 const historyId = '$history_';
-class BBizStatementTitle extends bstatement_1.BStatement {
+class BBizDetailActTitle extends bstatement_1.BStatement {
     head(sqls) {
         let { factory } = this.context;
         let { bud, no } = this.istatement;
@@ -230,214 +223,5 @@ class BBizStatementTitle extends bstatement_1.BStatement {
         }
     }
 }
-exports.BBizStatementTitle = BBizStatementTitle;
-class BBizStatementSheetBase extends bstatement_1.BStatement {
-    createUpdate(idVarName) {
-        const { factory } = this.context;
-        const varId = new sql_1.ExpVar(idVarName);
-        const update = factory.createUpdate();
-        const { fields, buds, bin } = this.istatement;
-        const { cols } = update;
-        const { props } = bin;
-        for (let i in fields) {
-            cols.push({ col: i, val: this.context.expVal(fields[i]) });
-        }
-        update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false);
-        update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
-        let ret = [update];
-        for (let i in buds) {
-            let val = buds[i];
-            let bud = props.get(i);
-            let memo = factory.createMemo();
-            ret.push(memo);
-            memo.text = bud.getJName();
-            let expVal = this.context.expVal(val);
-            let insert = factory.createInsert();
-            insert.ignore = true;
-            const createIxBudValue = (table, valValue) => {
-                insert.table = new statementWithFrom_1.EntityTable(table, false);
-                insert.cols = [
-                    { col: 'i', val: varId },
-                    { col: 'x', val: new sql_1.ExpNum(bud.id) },
-                    { col: 'value', val: valValue },
-                ];
-                return insert;
-            };
-            const createIxBud = (table, valValue) => {
-                insert.table = new statementWithFrom_1.EntityTable(table, false);
-                insert.cols = [
-                    { col: 'i', val: varId },
-                    { col: 'x', val: valValue },
-                ];
-                return insert;
-            };
-            switch (bud.dataType) {
-                default:
-                    debugger;
-                    break;
-                case il_1.BudDataType.check:
-                    debugger;
-                    break;
-                case il_1.BudDataType.datetime:
-                    debugger;
-                    break;
-                case il_1.BudDataType.int: break;
-                case il_1.BudDataType.atom:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
-                    break;
-                case il_1.BudDataType.char:
-                case il_1.BudDataType.str:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudStr, expVal);
-                    break;
-                case il_1.BudDataType.radio:
-                    insert = createIxBud(il_1.EnumSysTable.ixBud, expVal);
-                    break;
-                case il_1.BudDataType.date:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudInt, new sql_1.ExpNum(10000) /* expVal*/);
-                    break;
-                case il_1.BudDataType.dec:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudDec, expVal);
-                    break;
-            }
-            ret.push(insert);
-        }
-        return ret;
-    }
-}
-class BBizStatementSheet extends BBizStatementSheetBase {
-    body(sqls) {
-        const { factory } = this.context;
-        const { sheet, idPointer } = this.istatement;
-        const memo = factory.createMemo();
-        sqls.push(memo);
-        memo.text = 'Biz Sheet ' + sheet.getJName();
-        const setId = factory.createSet();
-        sqls.push(setId);
-        let idVarName = idPointer.varName(undefined);
-        let idParams = [
-            new sql_1.ExpVar(consts_1.$site),
-            sql_1.ExpNum.num0,
-            sql_1.ExpNum.num1,
-            sql_1.ExpNull.null,
-            new sql_1.ExpNum(sheet.id),
-            new sql_1.ExpFuncInUq('$no', [new sql_1.ExpVar(consts_1.$site), new sql_1.ExpStr('sheet'), sql_1.ExpNull.null], true),
-        ];
-        setId.equ(idVarName, new sql_1.ExpFuncInUq('sheet$id', idParams, true));
-        sqls.push(...this.createUpdate(idVarName));
-    }
-}
-exports.BBizStatementSheet = BBizStatementSheet;
-class BBizStatementDetail extends BBizStatementSheetBase {
-    body(sqls) {
-        const { factory } = this.context;
-        let idVarName = 'detail$id';
-        const declare = factory.createDeclare();
-        sqls.push(declare);
-        declare.vars((0, il_1.intField)(idVarName));
-        const { sheet, bin, idVal } = this.istatement;
-        const memo = factory.createMemo();
-        sqls.push(memo);
-        memo.text = `Biz Detail ${bin.getJName()} OF Sheet ${sheet.getJName()}`;
-        const setBinId = factory.createSet();
-        sqls.push(setBinId);
-        let idParams = [
-            new sql_1.ExpVar(consts_1.$site),
-            sql_1.ExpNum.num0,
-            sql_1.ExpNum.num1,
-            sql_1.ExpNull.null,
-            new sql_1.ExpFuncInUq('bud$id', [
-                new sql_1.ExpVar(consts_1.$site), sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
-                this.context.expVal(idVal), new sql_1.ExpNum(bin.id)
-            ], true),
-        ];
-        setBinId.equ(idVarName, new sql_1.ExpFuncInUq('detail$id', idParams, true));
-        sqls.push(...this.createUpdate(idVarName));
-    }
-}
-exports.BBizStatementDetail = BBizStatementDetail;
-class BBizStatementID extends bstatement_1.BStatement {
-    body(sqls) {
-    }
-}
-const a = 'a', b = 'b';
-class BBizStatementAtom extends BBizStatementID {
-    body(sqls) {
-        const { factory } = this.context;
-        let select = factory.createSelect();
-        sqls.push(select);
-        select.toVar = true;
-        select.column(new sql_1.ExpField('atom', a), undefined, this.istatement.toVar);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtom, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtomType, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('type', a)));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('outer', b), new sql_1.ExpVar('$outer')), new sql_1.ExpEQ(new sql_1.ExpField('phrase', b), new sql_1.ExpVar('$in')), new sql_1.ExpEQ(new sql_1.ExpField('no', a), this.context.expVal(this.istatement.inVals[0]))));
-    }
-}
-exports.BBizStatementAtom = BBizStatementAtom;
-class BBizStatementSpec extends BBizStatementID {
-    body(sqls) {
-        const { inVals, spec } = this.istatement;
-        const { factory } = this.context;
-        let select = factory.createSelect();
-        sqls.push(select);
-        select.toVar = true;
-        select.column(new sql_1.ExpField('id', a), undefined, this.istatement.toVar);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, a));
-        let wheres = [
-            new sql_1.ExpEQ(new sql_1.ExpField('base', a), this.context.expVal(inVals[0])),
-        ];
-        let { keys } = spec;
-        let len = keys.length;
-        for (let i = 0; i < len; i++) {
-            const key = keys[i];
-            const { id, dataType } = key;
-            let tbl, val = this.context.expVal(inVals[i + 1]);
-            switch (dataType) {
-                default:
-                    tbl = il_1.EnumSysTable.ixBudInt;
-                    break;
-                case il_1.BudDataType.date:
-                    tbl = il_1.EnumSysTable.ixBudInt;
-                    val = new sql_1.ExpFunc('DATEDIFF', val, new sql_1.ExpStr('1970-01-01'));
-                    break;
-                case il_1.BudDataType.str:
-                case il_1.BudDataType.char:
-                    tbl = il_1.EnumSysTable.ixBudStr;
-                    break;
-                case il_1.BudDataType.dec:
-                    tbl = il_1.EnumSysTable.ixBudDec;
-                    break;
-            }
-            let t = 't' + i;
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, t));
-            select.on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(id))));
-            wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('value', t), val));
-        }
-        select.where(new sql_1.ExpAnd(...wheres));
-    }
-}
-exports.BBizStatementSpec = BBizStatementSpec;
-class BBizStatementOut extends bstatement_1.BStatement {
-    body(sqls) {
-        const { factory } = this.context;
-        const { bizOut, detail, sets } = this.istatement;
-        let varName = '$' + bizOut.name;
-        let setV = factory.createSet();
-        sqls.push(setV);
-        setV.isAtVar = true;
-        let params = [];
-        let vNew;
-        for (let i in sets) {
-            params.push(new sql_1.ExpStr('$.' + i), this.context.expVal(sets[i]));
-        }
-        if (detail === undefined) {
-            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpAtVar(varName), ...params);
-        }
-        else {
-            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpAtVar(varName), new sql_1.ExpStr('$.' + detail), new sql_1.ExpFunc('JSON_OBJECT', ...params));
-        }
-        setV.equ(varName, vNew);
-    }
-}
-exports.BBizStatementOut = BBizStatementOut;
+exports.BBizDetailActTitle = BBizDetailActTitle;
 //# sourceMappingURL=biz.js.map

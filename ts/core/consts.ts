@@ -4,7 +4,6 @@ export const consts = {
     $uq: '$uq',
     $res: '$res',
     $site: '$site',
-    $x: '$x',
     $$$unitx: '$$$/$unitx',
     $test: '$test',
     sheetMessage: 'sheetMessage',

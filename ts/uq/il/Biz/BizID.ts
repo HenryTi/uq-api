@@ -91,7 +91,7 @@ export abstract class BizIDWithBase extends BizIDExtendable {
 export class BizSpec extends BizIDWithBase {
     readonly bizPhraseType = BizPhraseType.spec;
     protected readonly fields = ['id'];
-    keys: BizBud[] = [];
+    keys: BizBudValue[] = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizSpec(this, context);
@@ -115,7 +115,7 @@ export class BizSpec extends BizIDWithBase {
         }
     }
 
-    override forEachBud(callback: (bud: BizBud) => void) {
+    override forEachBud(callback: (bud: BizBudValue) => void) {
         super.forEachBud(callback);
         for (let key of this.keys) callback(key);
     }

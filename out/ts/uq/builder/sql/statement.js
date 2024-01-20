@@ -227,7 +227,7 @@ class SqlTable {
 exports.SqlTable = SqlTable;
 class SqlVarTable extends SqlTable {
     constructor(name) { super(); this.name = name; }
-    to(sb) { sb.dbName().dot().var(this.name); }
+    to(sb) { sb.var(this.name); }
 }
 exports.SqlVarTable = SqlVarTable;
 class SqlSysTable extends SqlTable {

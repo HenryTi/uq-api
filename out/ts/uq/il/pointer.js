@@ -11,18 +11,14 @@ class Pointer {
 }
 exports.Pointer = Pointer;
 class VarPointer extends Pointer {
-    constructor(name) {
-        super();
+    constructor() {
+        super(...arguments);
         this.groupType = GroupType.Single;
-        this.name = name;
     }
     to(stack, v) {
         stack.var(this.varName(v._var[0]));
     }
     varName(v) {
-        if (v === undefined) {
-            v = this.name;
-        }
         if (this.arr !== undefined) {
             v = this.arr + '_' + v;
         }
@@ -108,8 +104,7 @@ class BizEntityPointer extends Pointer {
         this.bud = bud;
     }
     to(stack, v) {
-        // stack.var(this.entity.name); //, this.bud.name);
-        stack.varOfBizEntity(this.entity, this.bud); //, this.bud.name);
+        stack.var(this.entity.name); //, this.bud.name);
     }
 }
 exports.BizEntityPointer = BizEntityPointer;

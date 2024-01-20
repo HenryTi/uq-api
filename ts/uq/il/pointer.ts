@@ -14,20 +14,12 @@ export abstract class Pointer {
 
 export class VarPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
-    name: string;
     no: number;     // 扫描之后的局部变量编号
     arr: string;    // arr name
-    constructor(name?: string) {
-        super();
-        this.name = name;
-    }
     to(stack: Stack, v: VarOperand) {
         stack.var(this.varName(v._var[0]));
     }
     varName(v: string) {
-        if (v === undefined) {
-            v = this.name;
-        }
         if (this.arr !== undefined) {
             v = this.arr + '_' + v;
         }
@@ -102,8 +94,7 @@ export class BizEntityPointer extends Pointer {
         this.bud = bud;
     }
     override to(stack: Stack, v: VarOperand): void {
-        // stack.var(this.entity.name); //, this.bud.name);
-        stack.varOfBizEntity(this.entity, this.bud); //, this.bud.name);
+        stack.var(this.entity.name); //, this.bud.name);
     }
 }
 /*

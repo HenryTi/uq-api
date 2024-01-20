@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Compiler = void 0;
 const jsonpack = require("jsonpack");
-const biz_sys_1 = require("../biz-sys");
 const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
 const il_1 = require("../il");
@@ -172,9 +171,6 @@ class Compiler {
         return this.newest.find(v => v.name === phrase) !== undefined;
     }
     parseBiz() {
-        this.parseSysCode();
-        this.newest.splice(0);
-        this.newest.push(...this.biz.bizArr);
         for (let obj of this.objs) {
             const { id, phrase, source } = obj;
             if (!source)
@@ -182,11 +178,6 @@ class Compiler {
             if (this.isNewest(phrase) === true)
                 continue;
             this.uqParser.parse(source, phrase);
-        }
-    }
-    parseSysCode() {
-        for (let part of biz_sys_1.default) {
-            this.uqParser.parse(part, 'sys', true);
         }
     }
     async buildDb() {

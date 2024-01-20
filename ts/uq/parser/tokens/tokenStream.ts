@@ -4,7 +4,6 @@ import { Char } from './char';
 
 export class TokenStream {
     private bracket: boolean;
-    private isSys: boolean;
     private buffer: string;
     private p: number;
     private len: number;
@@ -32,12 +31,8 @@ export class TokenStream {
 
     file: string;
 
-    constructor(log: log, input: string, options?: { bracket?: boolean; isSys?: boolean; }) {
-        if (options !== undefined) {
-            const { bracket, isSys } = options;
-            this.bracket = bracket;
-            this.isSys = isSys;
-        }
+    constructor(log: log, input: string, options?: { bracket: boolean }) {
+        if (options !== undefined) this.bracket = options.bracket;
         this.log = log;
         this.lastP = 1;
         this.buffer = input;
@@ -113,11 +108,7 @@ export class TokenStream {
     }
 
     assertVar() {
-        if (this.token !== Token.VAR) {
-            if (!(this.isSys === true && this.token === Token.DOLLARVAR)) {
-                this.expect('变量名');
-            }
-        }
+        if (this.token !== Token.VAR) this.expect('变量名');
     }
 
     assertKey(key: string) {
@@ -125,11 +116,7 @@ export class TokenStream {
     }
 
     passVar(v?: string) {
-        if (this.token !== Token.VAR) {
-            if (!(this.isSys === true && this.token === Token.DOLLARVAR)) {
-                this.expect('变量名');
-            }
-        }
+        if (this.token !== Token.VAR) this.expect('变量名');
         let ret = this.lowerVar;
         if (v !== undefined) {
             if (ret !== v) this.expect(v);
@@ -139,7 +126,7 @@ export class TokenStream {
     }
 
     mayPassVar() {
-        if (this.token !== Token.VAR && !(this.isSys === true && this.token === Token.DOLLARVAR)) return;
+        if (this.token !== Token.VAR) return;
         let ret = this.lowerVar;
         this.readToken();
         return ret;

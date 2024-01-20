@@ -2,13 +2,8 @@ import {
     BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizBudRadio, BizEntity
     , BizBudNone, BizBudID, Uq, IX, BudIndex, BizBudIntOf
-    , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
-    , Statements, Statement, //, BizInActStatement, BizBinActStatement
-    budClasses,
-    budClassKeys,
-    BudDataType
+    , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud
 } from "../../il";
-import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
 import { binFieldArr } from "../../consts";
 import { PElement } from "../element";
@@ -16,7 +11,6 @@ import { Space } from "../space";
 import { Token } from "../tokens";
 import { BizEntitySpace } from "./Biz";
 import { PBizBudValue } from "./Bud";
-import { PContext } from "../pContext";
 
 export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     protected _parse(): void {
@@ -123,7 +117,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
-
     protected parseSubItem(): BizBudValue {
         this.ts.assertToken(Token.VAR);
         let name = this.ts.lowerVar;
@@ -141,27 +134,29 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return true;
     }
 
-    protected getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
-        return budClasses[budClass];
-    }
-    protected getBudClassKeys() {
-        return budClassKeys;
-    }
-
     protected parseBud(name: string, ui: Partial<UI>, defaultType?: string): BizBudValue {
+        const keyColl: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
+            none: BizBudNone,
+            int: BizBudInt,
+            dec: BizBudDec,
+            char: BizBudChar,
+            atom: BizBudID,
+            date: BizBudDate,
+            intof: BizBudIntOf,
+            radio: BizBudRadio,
+            check: BizBudCheck,
+        }
+        const keys = Object.keys(keyColl);
         let key: string;
         const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
             key = defaultType ?? 'none';
         }
-        else if (token === Token.LPARENTHESE) {
-            key = '$arr';
-        }
-        else if (token === Token.VAR) {
+        else {
             key = this.ts.lowerVar;
             if (this.ts.varBrace === true) {
-                this.ts.expect(...this.getBudClassKeys());
+                this.ts.expect(...keys);
             }
             if (key === 'int') {
                 this.ts.readToken()
@@ -174,12 +169,9 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
                 this.ts.readToken();
             }
         }
-        else {
-            this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
-        }
-        let Bud = this.getBudClass(key); // keyColl[key];
+        let Bud = keyColl[key];
         if (Bud === undefined) {
-            this.ts.expect(...this.getBudClassKeys());
+            this.ts.expect(...keys);
         }
         let bizBud = new Bud(this.element.biz, name, ui);
         bizBud.parser(this.context).parse();
@@ -188,6 +180,13 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             bizBud.ui.required = true;
             this.ts.readToken();
         }
+        //if (this.element.hasProp(name) === true) {
+        /*
+        if (name === 'value' && this.element.bizPhraseType === BizPhraseType.bin) debugger;
+        if (this.element.getBud(name) !== undefined) {
+            this.ts.error(`${name} can not be used multiple times`);
+        }
+        */
         const options: { [option: string]: boolean } = {};
         for (; ;) {
             if (this.ts.isKeyword(undefined) === false) break;
@@ -242,46 +241,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             bizBud.setType = setType;
         }
     }
-
-    protected parsePropArr(): BizBudValue[] {
-        let budArr: BizBudValue[] = [];
-        let arrArr: BizBudValue[] = [];
-        this.ts.passToken(Token.LPARENTHESE);
-        for (; ;) {
-            let bud = this.parseSubItem();
-            if (bud.dataType === BudDataType.arr) {
-                arrArr.push(bud);
-            }
-            else {
-                budArr.push(bud);
-            }
-            let { token } = this.ts;
-            if (token === Token.COMMA) {
-                this.ts.readToken();
-                if (this.ts.token === Token.RPARENTHESE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-            }
-            else if (token === Token.RPARENTHESE) {
-                this.ts.readToken();
-                break;
-            }
-        }
-        budArr.push(...arrArr);
-        return budArr;
-    }
-
-    protected parsePropMap(map: Map<string, BizBud>, propArr: BizBud[]) {
-        for (let p of propArr) {
-            let { name } = p;
-            if (map.has(name) === true) {
-                this.ts.error(`duplicate ${name}`);
-            }
-            map.set(name, p);
-        }
-    }
-
     abstract scan(space: BizEntitySpace): boolean;
 
     bizEntityScan2(bizEntity: BizEntity): boolean {
@@ -307,7 +266,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     }
 
     protected getNameInSource() {
-        return this.element.getJName();
+        return this.element.getJName() + ' ';
     }
 
     protected abstract get keyColl(): { [key: string]: () => void };
@@ -502,7 +461,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
-    protected scanBud(space: Space, bud: BizBud): boolean {
+    protected scanBud(space: Space, bud: BizBudValue): boolean {
         let ok = true;
         let { pelement, name, value } = bud;
         if (this.element.budGroups.has(name) === true) {
@@ -526,7 +485,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
-    private scanBuds(space: Space, buds: Map<string, BizBud>) {
+    private scanBuds(space: Space, buds: Map<string, BizBudValue>) {
         let ok = true;
         for (let [, value] of buds) {
             if (this.scanBud(space, value) === false) ok = false;
@@ -706,81 +665,4 @@ export class PBizSearch extends PElement<BizSearch> {
         }
         return ok;
     }
-}
-
-export abstract class PBizAct<T extends BizAct> extends PBizBase<T> {
-    _parse(): void {
-        this.element.name = '$';
-
-        this.element.ui = this.parseUI();
-        this.parseParam();
-        let statement = this.createBizActStatements();
-        statement.level = 0;
-        this.context.createStatements = statement.createStatements;
-        let parser = statement.parser(this.context)
-        parser.parse();
-        this.element.statement = statement;
-        this.ts.mayPassToken(Token.SEMICOLON);
-    }
-
-    protected parseParam() {
-
-    }
-    protected abstract createBizActStatements(): Statements;
-
-    scan0(space: Space): boolean {
-        let ok = true;
-        let { pelement } = this.element.statement;
-        if (pelement.scan0(space) === false) {
-            ok = false;
-        }
-        return ok;
-    }
-
-    protected abstract createBizActSpace(space: Space): Space;
-
-    scan(space: Space): boolean {
-        let ok = true;
-        //  will be removed
-        let actSpace = this.createBizActSpace(space);
-        let { pelement } = this.element.statement;
-        if (pelement.preScan(actSpace) === false) ok = false;
-        if (pelement.scan(actSpace) === false) ok = false;
-        return ok;
-    }
-
-    scan2(uq: Uq): boolean {
-        if (this.element.statement.pelement.scan2(uq) === false) {
-            return false;
-        }
-        return true;
-    }
-}
-
-export abstract class PBizActStatements<T extends BizAct> extends PStatements {
-    protected readonly bizAct: T;
-
-    constructor(statements: Statements, context: PContext, bizAct: T) {
-        super(statements, context);
-        this.bizAct = bizAct;
-    }
-    scan0(space: Space): boolean {
-        return super.scan0(space);
-    }
-    protected statementFromKey(parent: Statement, key: string): Statement {
-        let ret: Statement;
-        switch (key) {
-            default:
-                ret = super.statementFromKey(parent, key);
-                break;
-            case 'biz':
-                //ret = new BizBinActStatement(parent, this.bizAct);
-                ret = this.createBizActStatement(parent);
-                break;
-        }
-        if (ret !== undefined) ret.inSheet = true;
-        return ret;
-    }
-
-    protected abstract createBizActStatement(parent: Statement): Statement;
 }

@@ -1,5 +1,4 @@
 import {
-    BizPhraseType,
     SpanPeriod, UseBase, UseMonthZone, UseSetting, UseStatement
     , UseTimeSpan, UseTimeZone, UseYearZone, ValueExpression
 } from "../../il";
@@ -105,10 +104,10 @@ export class PUseTimeSpan extends PUseBase<UseTimeSpan> {
 
     scan(space: Space): boolean {
         let ok = true;
-        const { varName, op, value, spanPeriod } = this.element;
+        const { varName, op, value, spanPeriod: spanPeiod } = this.element;
         const { no } = this.element.statement;
         if (op === undefined) {
-            if (space.addUse(varName, no, spanPeriod) === false) {
+            if (space.addUse(varName, no, spanPeiod) === false) {
                 this.log(`Duplicate define ${varName}`);
                 ok = false;
             }
@@ -120,8 +119,8 @@ export class PUseTimeSpan extends PUseBase<UseTimeSpan> {
                 ok = false;
             }
             else {
-                const { obj: spanPeriod, statementNo } = useObj;
-                this.element.spanPeriod = spanPeriod;
+                const { obj: spanPeiod, statementNo } = useObj;
+                this.element.spanPeriod = spanPeiod;
                 this.element.statementNo = statementNo;
             }
         }
@@ -133,23 +132,3 @@ export class PUseTimeSpan extends PUseBase<UseTimeSpan> {
         return ok;
     }
 }
-/*
-export class PUseOut extends PUseBase<UseOut> {
-    private outEntity: string;
-    protected _parse(): void {
-        this.element.varName = this.ts.passVar();
-        this.outEntity = this.ts.passVar();
-    }
-    scan(space: Space): boolean {
-        let ok = true;
-        this.element.outEntity = space.getBizEntity(this.outEntity);
-        let { outEntity, statement, varName } = this.element;
-        if (outEntity === undefined || outEntity.bizPhraseType !== BizPhraseType.out) {
-            ok = false;
-            this.log(`${this.outEntity} is not OUT`);
-        }
-        space.addUse(varName, statement.no, this.element);
-        return ok;
-    }
-}
-*/

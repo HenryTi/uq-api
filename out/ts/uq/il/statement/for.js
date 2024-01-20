@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ForQueue = exports.ForSelect = exports.ForListWithVars = exports.ForBizInOutArr = exports.ForArr = exports.ForList = exports.ForEach = void 0;
+exports.ForQueue = exports.ForSelect = exports.ForListWithVars = exports.ForArr = exports.ForList = exports.ForEach = void 0;
 const parser = require("../../parser");
 const Statement_1 = require("./Statement");
 class ForEach extends Statement_1.Statement {
@@ -33,16 +33,6 @@ class ForArr extends ForList {
     }
 }
 exports.ForArr = ForArr;
-class ForBizInOutArr extends ForList {
-    constructor(arr) {
-        super();
-        this.arr = arr;
-    }
-    db(db, forEach) {
-        return db.foreachBizInOutArr(forEach, this);
-    }
-}
-exports.ForBizInOutArr = ForBizInOutArr;
 class ForListWithVars extends ForList {
     constructor(vars) {
         super();

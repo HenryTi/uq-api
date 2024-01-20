@@ -34,7 +34,7 @@ async function fetchHello(url) {
         let text = await ret.text();
         return url;
     }
-    catch {
+    catch (_a) {
         return null;
     }
 }

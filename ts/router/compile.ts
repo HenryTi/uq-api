@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { RouterBuilder } from './routerBuilder';
 import { EntityRunner, Net } from '../core';
-import { compileBiz, compileSingle, compileSource, compileDelEntity, compileRename, compileDownload } from '../uq/compile';
+import { compileBiz, compileSingle, compileSource as compileSource, compileDelEntity, compileRename, compileDownload } from '../uq/compile';
 
 const actionType = 'compile';
 

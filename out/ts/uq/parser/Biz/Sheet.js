@@ -53,12 +53,12 @@ class PBizSheet extends Base_1.PBizEntity {
             this.element.main = main;
         }
         for (let { name, caption } of this.details) {
-            let bin = this.getBizEntity(space, name, il_1.BizPhraseType.bin);
-            if (bin === undefined) {
+            let detail = this.getBizEntity(space, name, il_1.BizPhraseType.bin);
+            if (detail === undefined) {
                 ok = false;
                 continue;
             }
-            this.element.details.push({ bin, caption });
+            this.element.details.push({ bin: detail, caption });
         }
         return ok;
     }

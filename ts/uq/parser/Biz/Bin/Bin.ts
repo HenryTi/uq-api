@@ -1,14 +1,15 @@
 import { binAmount, binFieldArr, binPrice, binValue } from "../../../consts";
 import {
-    BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements //, BizBinActStatement
+    BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
+import { PStatements } from "../../statement";
 import { Token } from "../../tokens";
-import { PBizAct, PBizActStatements, PBizBase, PBizEntity } from "../Base";
+import { PBizBase, PBizEntity } from "../Base";
 import { BizEntitySpace } from "../Biz";
 import { PBizBudValue } from "../Bud";
 
@@ -335,15 +336,8 @@ export class PBizBin extends PBizEntity<BizBin> {
 
         let { act } = this.element;
         if (act !== undefined) {
-            if (act.pelement.scan(binSpace) === false) {
+            if (act.pelement.scan(space) === false) {
                 ok = false;
-            }
-        }
-        const { useColl } = binSpace;
-        for (let i in useColl) {
-            if (i[0] === '$') {
-                let uc = useColl[i];
-                this.element.outs.push(uc.obj);
             }
         }
         return ok;
@@ -372,19 +366,30 @@ export class PBizBin extends PBizEntity<BizBin> {
         return ok;
     }
 }
-
-export const binPreDefined = [
+/*
+export class PPickInput extends PElement<PickInput> {
+    protected _parse(): void {
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE) {
+                this.ts.readToken();
+                break;
+            }
+        }
+    }
+}
+*/
+export const detailPreDefined = [
     '$site', '$user'
     , 'bin',
     , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
     , ...binFieldArr
 ];
 class BizBinSpace extends BizEntitySpace<BizBin> {
-    readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
+    protected readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
-        if (binPreDefined.indexOf(name) >= 0) {
+        if (detailPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
         if (this.bizEntity.props.has(name) === true) {
@@ -432,11 +437,11 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
         }
     }
 
-    protected override _getUse(name: string): { statementNo: number; obj: any; } {
+    protected _getUse(name: string): { statementNo: number; obj: any; } {
         return this.useColl[name];
     }
 
-    protected override _addUse(name: string, statementNo: number, obj: any): boolean {
+    protected _addUse(name: string, statementNo: number, obj: any): boolean {
         let v = this.useColl[name];
         if (v !== undefined) return false;
         this.useColl[name] = {
@@ -451,9 +456,9 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
     }
 }
 
-class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
+class BizBinActSpace extends BizBinSpace {
     protected _varPointer(name: string, isField: boolean): Pointer {
-        if (binPreDefined.indexOf(name) >= 0) {
+        if (detailPreDefined.indexOf(name) >= 0) {
             return new VarPointer();
         }
     }
@@ -470,14 +475,13 @@ class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
                 return;
         }
     }
-
-    override getBizFieldSpace() {
-        return new BizBinActFieldSpace(this.bizEntity);
-    }
 }
 
-export class PBizBinAct extends PBizAct<BizBinAct> {
-    protected override parseParam(): void {
+export class PBizBinAct extends PBizBase<BizBinAct> {
+    _parse(): void {
+        this.element.name = '$';
+
+        this.element.ui = this.parseUI();
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.passToken(Token.LPARENTHESE);
             let field = new Field();
@@ -492,19 +496,64 @@ export class PBizBinAct extends PBizAct<BizBinAct> {
             let field = bigIntField('detailid');
             this.element.idParam = field;
         }
+
+        let statement = new BizBinActStatements(undefined, this.element);
+        statement.level = 0;
+        this.context.createStatements = statement.createStatements;
+        let parser = statement.parser(this.context)
+        parser.parse();
+        this.element.statement = statement;
+        this.ts.mayPassToken(Token.SEMICOLON);
     }
 
-    protected override createBizActStatements(): Statements {
-        return new BizBinActStatements(undefined, this.element);
+    scan0(space: Space): boolean {
+        let ok = true;
+        let { pelement } = this.element.statement;
+        if (pelement.scan0(space) === false) {
+            ok = false;
+        }
+        return ok;
     }
 
-    protected override createBizActSpace(space: Space): Space {
-        return new BizBinActSpace(space, this.element.bizBin);
+    scan(space: Space): boolean {
+        let ok = true;
+        //  will be removed
+        let actSpace = new BizBinActSpace(space, this.element.bizBin);
+        let { pelement } = this.element.statement;
+        if (pelement.preScan(actSpace) === false) ok = false;
+        if (pelement.scan(actSpace) === false) ok = false;
+        return ok;
+    }
+
+    scan2(uq: Uq): boolean {
+        if (this.element.statement.pelement.scan2(uq) === false) {
+            return false;
+        }
+        return true;
     }
 }
 
-export class PBizBinActStatements extends PBizActStatements<BizBinAct> {
-    protected override createBizActStatement(parent: Statement): Statement {
-        return new BizStatementBin(parent, this.bizAct);
+export class PBizBinActStatements extends PStatements {
+    private readonly bizDetailAct: BizBinAct;
+
+    constructor(statements: Statements, context: PContext, bizDetailAct: BizBinAct) {
+        super(statements, context);
+        this.bizDetailAct = bizDetailAct;
+    }
+    scan0(space: Space): boolean {
+        return super.scan0(space);
+    }
+    protected statementFromKey(parent: Statement, key: string): Statement {
+        let ret: Statement;
+        switch (key) {
+            default:
+                ret = super.statementFromKey(parent, key);
+                break;
+            case 'biz':
+                ret = new BizBinActStatement(parent, this.bizDetailAct);
+                break;
+        }
+        if (ret !== undefined) ret.inSheet = true;
+        return ret;
     }
 }

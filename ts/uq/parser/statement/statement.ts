@@ -141,12 +141,9 @@ export abstract class PStatements extends PStatement<Statements> {
             no = theSpace.newStatementNo() + 1;
             s.setNo(no);
             theSpace.setStatementNo(no);
-            if (s.pelement.scan(theSpace) === false) {
-                ok = false;
-            }
+            if (s.pelement.scan(theSpace) === false) ok = false;
             theSpace.scanedStatement(s);
         });
-        if (ok === false as any) debugger;
         return ok;
     }
 

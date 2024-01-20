@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizAct = exports.BizSearch = exports.BizBase = void 0;
+exports.BizSearch = exports.BizBase = void 0;
 const IElement_1 = require("../IElement");
 const BizPhraseType_1 = require("./BizPhraseType");
 const parser_1 = require("../../parser");
@@ -27,10 +27,7 @@ class BizBase extends IElement_1.IElement {
             jName: this.jName,
             type: this.type,
             phrase: this.phrase,
-            ui: {
-                ...this.ui,
-                caption: (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : (_b = this.ui) === null || _b === void 0 ? void 0 : _b.caption,
-            }
+            ui: Object.assign(Object.assign({}, this.ui), { caption: (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : (_b = this.ui) === null || _b === void 0 ? void 0 : _b.caption })
         };
     }
     ;
@@ -88,21 +85,4 @@ class BizSearch extends IElement_1.IElement {
     }
 }
 exports.BizSearch = BizSearch;
-class BizAct extends BizBase {
-    constructor() {
-        super(...arguments);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.act;
-        this.tableVars = {};
-    }
-    addTableVar(tableVar) {
-        let name = tableVar.name;
-        let t = this.tableVars[name];
-        if (t !== undefined)
-            return false;
-        this.tableVars[name] = tableVar;
-        return true;
-    }
-    getTableVar(name) { return this.tableVars[name]; }
-}
-exports.BizAct = BizAct;
 //# sourceMappingURL=Base.js.map

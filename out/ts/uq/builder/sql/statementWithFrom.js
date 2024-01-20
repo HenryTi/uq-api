@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VarTableWithSchema = exports.VarTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalTable = exports.FromJsonTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
+exports.VarTableWithSchema = exports.VarTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
 const statement_1 = require("./statement");
 class WithFromBuilder {
     where(exp) {
@@ -100,38 +100,6 @@ class Table extends statement_1.SqlTable {
     get alias() { return this._alias; }
 }
 exports.Table = Table;
-class FromJsonTable extends Table {
-    constructor(alias, value, path, columns) {
-        super(alias);
-        this.value = value;
-        this.path = path;
-        this.columns = columns;
-    }
-    to(sb) {
-        sb.append('JSON_TABLE(')
-            .exp(this.value)
-            .comma()
-            .string(this.path)
-            .space()
-            .append('COLUMNS(');
-        let first = true;
-        for (let col of this.columns) {
-            if (first === true) {
-                first = false;
-            }
-            else {
-                sb.comma();
-            }
-            const { field, path } = col;
-            sb.fld(field.name);
-            sb.space();
-            field.dataType.sql(sb);
-            sb.space().append('PATH ').string(path);
-        }
-        sb.r().r().append(' AS ').append(this._alias);
-    }
-}
-exports.FromJsonTable = FromJsonTable;
 class GlobalTable extends Table {
     constructor(schema, tableName, alias) {
         super(alias);
@@ -184,7 +152,7 @@ class VarTable extends Table {
         this.name = name;
     }
     to(sb) {
-        sb.dbName().dot().var(this.name);
+        sb.var(this.name);
         super.to(sb);
     }
 }

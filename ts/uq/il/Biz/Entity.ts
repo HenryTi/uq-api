@@ -22,7 +22,7 @@ export interface Permission {
 }
 
 export abstract class BizEntity extends BizBase {
-    readonly props: Map<string, BizBud> = new Map();
+    readonly props: Map<string, BizBudValue> = new Map();
     readonly group0: BudGroup;      // 所有不归属组的属性
     readonly group1: BudGroup;      // 显示时必须的属性
     readonly budGroups: Map<string, BudGroup> = new Map();
@@ -62,6 +62,13 @@ export abstract class BizEntity extends BizBase {
         this.schema = ret;
         return ret;
     }
+    /*
+    hasProp(name: string): boolean {
+        if (super.hasProp(name) === true) return true;
+        let bud = this.props.get(name.toLowerCase());
+        return (bud !== undefined);
+    }
+    */
 
     hasField(fieldName: string): boolean {
         return this.fields.includes(fieldName);

@@ -1,5 +1,4 @@
 import * as jsonpack from 'jsonpack';
-import sysBizCode from "../biz-sys";
 import { EntityRunner } from "../../core";
 import { UqBuilder } from "./UqBuilder";
 import { UqParser } from './UqParser';
@@ -179,22 +178,12 @@ export class Compiler {
     }
 
     parseBiz() {
-        this.parseSysCode();
-        this.newest.splice(0);
-        this.newest.push(...this.biz.bizArr);
         for (let obj of this.objs) {
             const { id, phrase, source } = obj;
             if (!source) continue;
             if (this.isNewest(phrase) === true) continue;
             this.uqParser.parse(source, phrase);
         }
-    }
-
-    private parseSysCode() {
-        for (let part of sysBizCode) {
-            this.uqParser.parse(part, 'sys', true);
-        }
-
     }
 
     async buildDb() {

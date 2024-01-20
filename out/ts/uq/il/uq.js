@@ -209,6 +209,7 @@ class Uq extends IElement_1.IElement {
         tuid.fields = [user, date, sheet, version, flow, app, state, discription, data, processing];
         function buildIndex(name, unique, ...fields) {
             let ret = new entity_1.Index(name, unique);
+            //ret.unit = true;
             ret.fields = fields;
             return ret;
         }

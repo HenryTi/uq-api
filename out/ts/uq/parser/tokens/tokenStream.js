@@ -5,11 +5,8 @@ const token_1 = require("./token");
 const char_1 = require("./char");
 class TokenStream {
     constructor(log, input, options) {
-        if (options !== undefined) {
-            const { bracket, isSys } = options;
-            this.bracket = bracket;
-            this.isSys = isSys;
-        }
+        if (options !== undefined)
+            this.bracket = options.bracket;
         this.log = log;
         this.lastP = 1;
         this.buffer = input;
@@ -79,22 +76,16 @@ class TokenStream {
             this.readToken();
     }
     assertVar() {
-        if (this.token !== token_1.Token.VAR) {
-            if (!(this.isSys === true && this.token === token_1.Token.DOLLARVAR)) {
-                this.expect('变量名');
-            }
-        }
+        if (this.token !== token_1.Token.VAR)
+            this.expect('变量名');
     }
     assertKey(key) {
         if (this.lowerVar !== key || this.varBrace === true)
             this.expect(key);
     }
     passVar(v) {
-        if (this.token !== token_1.Token.VAR) {
-            if (!(this.isSys === true && this.token === token_1.Token.DOLLARVAR)) {
-                this.expect('变量名');
-            }
-        }
+        if (this.token !== token_1.Token.VAR)
+            this.expect('变量名');
         let ret = this.lowerVar;
         if (v !== undefined) {
             if (ret !== v)
@@ -104,7 +95,7 @@ class TokenStream {
         return ret;
     }
     mayPassVar() {
-        if (this.token !== token_1.Token.VAR && !(this.isSys === true && this.token === token_1.Token.DOLLARVAR))
+        if (this.token !== token_1.Token.VAR)
             return;
         let ret = this.lowerVar;
         this.readToken();

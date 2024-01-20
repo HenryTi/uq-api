@@ -9,10 +9,7 @@ import {
     BizExp,
     BizFieldOperand,
     OptionsItem,
-    BizOptions,
-    BizEntity,
-    BizBud,
-    BizCheckBudOperand
+    BizOptions
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
@@ -28,7 +25,6 @@ import {
     //    , BBizFieldOperand 
 } from '../BizExp';
 import { ExpRole } from './ExpRole';
-import { ExpBizEntityBud } from './ExpBizEntityBud';
 
 export function convertExp(context: DbContext, exp: Expression): Exp {
     if (!exp) return;
@@ -158,25 +154,12 @@ class Stack implements IlStack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new BizExpOperand(bExp));
     }
-    bizCheckBud(checkBud: BizCheckBudOperand/* exp1: BizExp, exp2: BizExp, item: OptionsItem*/) {
-        const { bizExp1, bizExp2, bizField, items } = checkBud;
-        let bExp1: BBizExp;
-        if (bizExp1 !== undefined) {
-            bExp1 = new BBizExp();
-            bExp1.convertFrom(this.context, bizExp1);
-        }
-        let bExp2: BBizExp;
-        if (bizExp2 !== undefined) {
-            bExp2 = new BBizExp();
-            bExp2.convertFrom(this.context, bizExp2);
-        }
-        // let ve = this.context.expVal(valExp);
-        if (bizField !== undefined) {
-            let bBizField = bizField.field.db(this.context);
-            bBizField.noArrayAgg = true;
-            // let bBizFieldOperand = new BBizFieldOperand(bBizField);
-            this.arr.push(new BBizCheckBud(bExp1, bExp2, bBizField, items));
-        }
+    bizCheckBud(exp1: BizExp, exp2: BizExp, item: OptionsItem) {
+        let bExp1 = new BBizExp();
+        bExp1.convertFrom(this.context, exp1);
+        let bExp2 = new BBizExp();
+        bExp2.convertFrom(this.context, exp2);
+        this.arr.push(new BBizCheckBud(bExp1, bExp2, item));
     }
     bizFieldOperand(bizFieldOperand: BizFieldOperand) {
         let bBizField = bizFieldOperand.field.db(this.context);
@@ -201,9 +184,6 @@ class Stack implements IlStack {
     }
 
     var(name: string) { this.arr.push(new ExpVar(name)) }
-    varOfBizEntity(bizEntity: BizEntity, bud: BizBud): void {
-        this.arr.push(new ExpBizEntityBud(bizEntity, bud));
-    }
     dotVar(varNames: string[]) { this.arr.push(new ExpDotVar(varNames)) }
     field(name: string, tbl?: string) { this.arr.push(new ExpField(name, tbl)); }
     expr(exp: ValueExpression) { this.arr.push(convertExp(this.context, exp)) }

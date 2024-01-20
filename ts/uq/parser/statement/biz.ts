@@ -1,41 +1,26 @@
 import { Space } from '../space';
 import {
-    BizStatementPend, BizStatementSub
-    , BizStatementTitle, BizPend, ValueExpression
-    , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
-    , BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase
-    , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
-    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut
+    BizBinActStatement as BizBinStatement, BizBinPendStatement, BizBinSubStatement
+    , BizBinTitleStatement, BizPend, ValueExpression
+    , SetEqu, BizBudValue, BizBin
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
 import { PElement } from '../element';
 import { Token } from '../tokens';
 import { BudDataType } from '../../il';
-import { binFieldArr } from '../../consts';
 
-export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>> extends PStatement {
-    bizStatement: T;
-    private readonly bizSubs: { [key: string]: new (bizStatement: T) => BizStatementSub<A> } = {
-        title: BizStatementTitle,
-        sheet: BizStatementSheet,
-        detail: BizStatementDetail,
-    }
-    constructor(bizStatement: T, context: PContext) {
+export class PBizBinStatement extends PStatement {
+    bizStatement: BizBinStatement;
+    constructor(bizStatement: BizBinStatement, context: PContext) {
         super(bizStatement, context);
         this.bizStatement = bizStatement;
-        this.init();
     }
 
-    private init() {
-        let ex = this.getBizSubsEx();
-        for (let i in ex) {
-            this.bizSubs[i] = ex[i];
-        }
-    }
-
-    protected abstract getBizSubsEx(): { [key: string]: new (bizStatement: T) => BizStatementSub<A> };
+    private bizSubs: { [key: string]: new (bizStatement: BizBinStatement) => BizBinSubStatement } = {
+        pend: BizBinPendStatement,
+        title: BizBinTitleStatement,
+    };
 
     protected _parse() {
         let key = this.ts.passKey();
@@ -64,29 +49,8 @@ export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>>
     }
 }
 
-export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> {
-    protected getBizSubsEx() {
-        return {
-            pend: BizStatementBinPend,
-            out: BizStatementOut,
-        };
-    }
-}
-
-export class PBizStatementIn extends PBizStatement<BizInAct, BizStatementIn> {
-    protected getBizSubsEx() {
-        return {
-            atom: BizStatementAtom,
-            spec: BizStatementSpec,
-        };
-    }
-}
-
-abstract class PBizStatementSub<A extends BizAct, T extends BizStatementSub<A>> extends PElement<T> {
-}
-
-export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementSub<A, BizStatementPend<A>> {
-    protected pend: string;
+export class PBizBinPendStatement extends PElement<BizBinPendStatement> {
+    private pend: string;
     private sets: { [v: string]: ValueExpression };
 
     protected _parse(): void {
@@ -156,6 +120,8 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
 
     scan(space: Space): boolean {
         let ok = true;
+        let { val, bizStatement: { bizDetailAct } } = this.element;
+
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
             if (pend === undefined) {
@@ -184,19 +150,8 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
                 }
             }
         }
-        return ok;
-    }
-}
-
-export class PBizStatementBinPend extends PBizStatementPend<BizBinAct> {
-    scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-        }
-        let { val, bizStatement: { bizAct } } = this.element;
-        if (this.pend === undefined) {
-            const { bizBin } = bizAct;
+        else {
+            const { bizBin } = bizDetailAct;
             if (bizBin.pend === undefined) {
                 this.log(`Biz Pend = can not be used here when ${bizBin.getJName()} has no PEND`);
                 ok = false;
@@ -209,10 +164,7 @@ export class PBizStatementBinPend extends PBizStatementPend<BizBinAct> {
     }
 }
 
-export class PBizStatementInPend extends PBizStatementPend<BizInAct> {
-}
-
-export class PBizStatementTitle extends PBizStatementSub<BizAct, BizStatementTitle> {
+export class PBizBinTitleStatement extends PElement<BizBinTitleStatement> {
     private buds: string[];
 
     protected _parse(): void {
@@ -271,299 +223,6 @@ export class PBizStatementTitle extends PBizStatementSub<BizAct, BizStatementTit
         }
         if (of !== undefined) {
             if (of.pelement.scan(space) === false) ok = false;
-        }
-        return ok;
-    }
-}
-
-abstract class PBizStatementSheetBase<A extends BizAct, T extends BizStatementSheetBase<A>> extends PBizStatementSub<A, T> {
-    private readonly sets: { [name: string]: ValueExpression } = {};
-    protected parseSet() {
-        this.ts.passKey('set');
-        for (; ;) {
-            let name = this.ts.passVar();
-            this.ts.passToken(Token.EQU);
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.sets[name] = val;
-            if (this.ts.token === Token.SEMICOLON) break;
-            if (this.ts.token === Token.COMMA) {
-                this.ts.readToken();
-                continue;
-            }
-            this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
-        }
-    }
-
-    protected scanSets(space: Space): boolean {
-        let ok = true;
-        const { bin, fields, buds } = this.element;
-        const { props } = bin;
-        for (let i in this.sets) {
-            let val = this.sets[i];
-            if (val.pelement.scan(space) === false) {
-                ok = false;
-            }
-            if (binFieldArr.findIndex(v => v === i) >= 0) {
-                fields[i] = val;
-                continue;
-            }
-            if (props.has(i) === true) {
-                buds[i] = val;
-                continue;
-            }
-            ok = false;
-            this.log(`${i} is not defined in ${bin.getJName()}`);
-        }
-        return ok;
-    }
-}
-
-export class PBizStatementSheet extends PBizStatementSheetBase<BizAct, BizStatementSheet> {
-    private sheet: string;
-    private id: string;
-    protected _parse(): void {
-        this.sheet = this.ts.passVar();
-        this.ts.passKey('to');
-        this.id = this.ts.passVar();
-        this.parseSet();
-    }
-
-    override scan(space: Space): boolean {
-        let ok = true;
-        let sheet = space.getBizEntity<BizSheet>(this.sheet);
-        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
-            ok = false;
-            this.log(`${this.sheet} is not a SHEET`);
-        }
-        this.element.sheet = sheet;
-        this.element.bin = sheet.main;
-        let pointer = space.varPointer(this.id, false) as VarPointer;
-        if (pointer === undefined) {
-            ok = false;
-            this.log(`没有定义${this.id}`);
-        }
-        else {
-            pointer.name = this.id;
-        }
-        this.element.idPointer = pointer;
-        if (this.scanSets(space) === false) ok = false;
-        return ok;
-    }
-}
-
-export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizStatementDetail> {
-    private sheet: string;
-    private detail: string;
-    protected _parse(): void {
-        this.detail = this.ts.passVar();
-        this.ts.passKey('of');
-        this.sheet = this.ts.passVar();
-        this.ts.passToken(Token.EQU);
-        this.element.idVal = new ValueExpression();
-        let { idVal } = this.element;
-        this.context.parseElement(idVal);
-        this.parseSet();
-    }
-
-    override scan(space: Space): boolean {
-        let ok = true;
-        let sheet = space.getBizEntity<BizSheet>(this.sheet);
-        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
-            ok = false;
-            this.log(`${this.sheet} is not a SHEET`);
-        }
-        else {
-            this.element.sheet = sheet;
-            let getDetail = (): BizBin => {
-                let bin = space.getBizEntity<BizBin>(this.detail);
-                if (bin === undefined) return;
-                for (let detail of sheet.details) {
-                    if (detail.bin === bin) return bin;
-                }
-                return undefined;
-            }
-            this.element.bin = getDetail();
-            let { bin } = this.element;
-            if (bin === undefined) {
-                ok = false;
-                this.log(`${this.detail} is not a detail of SHEET ${this.sheet}`);
-            }
-        }
-        if (this.scanSets(space) === false) ok = false;
-        let { idVal } = this.element;
-        if (idVal.pelement.scan(space) === false) {
-            ok = false;
-        }
-        return ok;
-    }
-}
-
-abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> extends PBizStatementSub<A, T> {
-    protected entityName: string;
-    protected entity: BizEntity;
-    protected toVar: string;
-    protected inVals: ValueExpression[] = [];
-    protected override _parse(): void {
-        this.entityName = this.ts.passVar();
-        this.ts.passKey('in');
-        this.ts.passToken(Token.EQU);
-        if (this.ts.token === Token.LPARENTHESE) {
-            this.ts.readToken();
-            for (; ;) {
-                let val = new ValueExpression();
-                this.context.parseElement(val);
-                this.inVals.push(val);
-                const { token } = this.ts;
-                if (token === Token.COMMA as any) {
-                    this.ts.readToken();
-                    continue;
-                }
-                if (token === Token.RPARENTHESE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-                this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
-            }
-        }
-        else {
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.inVals.push(val);
-        }
-        this.ts.passKey('to');
-        this.toVar = this.ts.passVar();
-    }
-
-    override scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-        }
-        this.entity = space.getBizEntity(this.entityName);
-        if (this.entity === undefined) {
-            ok = false;
-            this.log(`${this.entityName} is not defined`);
-        }
-        this.element.toVar = space.varPointer(this.toVar, false) as VarPointer;
-        if (this.element.toVar === undefined) {
-            ok = false;
-            this.log(`${this.toVar} is not defined`);
-        }
-        for (let inVal of this.inVals) {
-            if (inVal.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        this.element.inVals = this.inVals;
-        return ok;
-    }
-}
-
-export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> extends PBizStatementID<A, T> {
-    override scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-            return ok;
-        }
-        if (this.entity.bizPhraseType !== BizPhraseType.atom) {
-            ok = false;
-            this.log(`${this.entityName} is not ATOM`);
-        }
-        else {
-            this.element.atom = this.entity as BizAtom;
-        }
-        let { length } = this.inVals;
-        if (length !== 1) {
-            ok = false;
-            this.log(`IN ${length} variables, can only have 1 variable`);
-        }
-        return ok;
-    }
-}
-
-export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> extends PBizStatementID<A, T> {
-    override scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-            return ok;
-        }
-        if (this.entity.bizPhraseType !== BizPhraseType.spec) {
-            ok = false;
-            this.log(`${this.entityName} is not SPEC`);
-        }
-        else {
-            this.element.spec = this.entity as BizSpec;
-            let length = this.element.spec.keys.length + 1;
-            if (length !== this.inVals.length) {
-                ok = false;
-                this.log(`IN ${this.inVals.length} variables, must have ${length} variables`);
-            }
-        }
-        return ok;
-    }
-}
-
-export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> extends PBizStatementSub<A, T> {
-    private outName: string;
-    protected override _parse(): void {
-        this.outName = this.ts.passVar();
-        if (this.ts.isKeyword('add') === true) {
-            this.ts.readToken();
-            this.element.detail = this.ts.passVar();
-        }
-        this.ts.passKey('set');
-        for (; ;) {
-            let name = this.ts.passVar();
-            this.ts.passToken(Token.EQU);
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.element.sets[name] = val;
-            if (this.ts.token === Token.COMMA) {
-                this.ts.readToken();
-                continue;
-            }
-            if (this.ts.token === Token.SEMICOLON) {
-                break;
-            }
-            this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
-        }
-    }
-    override scan(space: Space): boolean {
-        let ok = true;
-        let { detail, sets } = this.element;
-        let bizOut = space.getBizEntity<BizOut>(this.outName);
-        if (bizOut === undefined || bizOut.bizPhraseType !== BizPhraseType.out) {
-            ok = false;
-            this.log(`${this.outName} is not OUT`);
-        }
-        else {
-            space.addUse('$' + bizOut.name, 0, bizOut);
-            this.element.bizOut = bizOut;
-            let { props } = bizOut;
-            if (detail !== undefined) {
-                let arr = bizOut.props.get(detail) as BizBudArr;
-                if (arr === undefined || arr.dataType !== BudDataType.arr) {
-                    ok = false;
-                    this.log(`${detail} is not a ARR of ${bizOut.getJName()}`);
-                }
-                else {
-                    props = arr.props;
-                }
-            }
-            if (props !== undefined) {
-                for (let i in sets) {
-                    if (props.has(i) === false) {
-                        ok = false;
-                        this.log(`${i} is not defined`);
-                    }
-                    else if (sets[i].pelement.scan(space) === false) {
-                        ok = false;
-                    }
-                }
-            }
         }
         return ok;
     }

@@ -71,6 +71,3 @@ export interface Db$Unitx extends Db {
 
 export interface Db$Site extends Db {
 }
-
-export interface Db$X extends Db {
-}

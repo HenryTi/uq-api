@@ -4,11 +4,10 @@ exports.BUseTimeSpan = exports.BUseYearZone = exports.BUseMonthZone = exports.BU
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const bstatement_1 = require("./bstatement");
-class BUseStatement extends bstatement_1.BStatementBase {
-    get singleKey() { return this.bUse.singleKey; }
-    ;
+class BUseStatement extends bstatement_1.BStatement {
     constructor(context, stat) {
         super(context, stat);
+        this.singleKey = '$use';
         const { useBase } = stat;
         this.bUse = useBase.db(context);
         this.bUse.convertFrom();
@@ -22,9 +21,6 @@ class BUseStatement extends bstatement_1.BStatementBase {
     }
     body(sqls) {
         this.bUse.body(sqls);
-    }
-    singleFoot(sqls) {
-        this.bUse.singleFoot(sqls);
     }
 }
 exports.BUseStatement = BUseStatement;
@@ -40,17 +36,12 @@ class BUseBase {
     singleHead(sqls) { }
     head(sqls) { }
     body(sqls) { }
-    singleFoot(sqls) { }
 }
 exports.BUseBase = BUseBase;
 class BUseSetting extends BUseBase {
 }
 exports.BUseSetting = BUseSetting;
 class BUseTimeZone extends BUseSetting {
-    constructor() {
-        super(...arguments);
-        this.singleKey = 'timezone';
-    }
     head(sqls) {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -60,10 +51,6 @@ class BUseTimeZone extends BUseSetting {
 }
 exports.BUseTimeZone = BUseTimeZone;
 class BUseMonthZone extends BUseSetting {
-    constructor() {
-        super(...arguments);
-        this.singleKey = 'monthzone';
-    }
     head(sqls) {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -73,10 +60,6 @@ class BUseMonthZone extends BUseSetting {
 }
 exports.BUseMonthZone = BUseMonthZone;
 class BUseYearZone extends BUseSetting {
-    constructor() {
-        super(...arguments);
-        this.singleKey = 'yearzone';
-    }
     head(sqls) {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -91,10 +74,6 @@ const weekZone = '$weekzone';
 const monthZone = '$monthzone';
 const yearZone = '$yearzone';
 class BUseTimeSpan extends BUseBase {
-    constructor() {
-        super(...arguments);
-        this.singleKey = 'timespan';
-    }
     singleHead(sqls) {
         const { factory } = this.context;
         let declare = factory.createDeclare();
@@ -214,41 +193,4 @@ class BUseTimeSpan extends BUseBase {
     }
 }
 exports.BUseTimeSpan = BUseTimeSpan;
-/*
-export class BUseOut extends BUseBase<UseOut> {
-    readonly singleKey = 'out';
-    override singleHead(sqls: Sqls): void {
-        const { varName, outEntity } = this.useObj;
-        const { factory } = this.context;
-        let declare = factory.createDeclare();
-        sqls.push(declare);
-        declare.var(varName, new JsonDataType());
-        let set = factory.createSet();
-        sqls.push(set);
-        let params: ExpVal[] = [];
-        for (let [, bud] of outEntity.props) {
-            const { dataType, name } = bud;
-            if (dataType !== BudDataType.arr) continue;
-            params.push(new ExpStr(name), new ExpFunc('JSON_ARRAY'));
-        }
-        set.equ(varName, new ExpFunc('JSON_OBJECT', ...params));
-    }
-
-    override singleFoot(sqls: Sqls) {
-        const { varName, outEntity } = this.useObj;
-        const { factory } = this.context;
-        const memo = factory.createMemo();
-        sqls.push(memo);
-        memo.text = `call PROC to write OUT ${varName} ${outEntity.getJName()}`;
-        const proc = factory.createCall();
-        sqls.push(proc);
-        proc.db = '$site';
-        proc.procName = `${this.context.site}.${outEntity.id}`;
-        proc.params.push({
-            paramType: ProcParamType.in,
-            value: new ExpVar(varName),
-        });
-    }
-}
-*/
 //# sourceMappingURL=use.js.map

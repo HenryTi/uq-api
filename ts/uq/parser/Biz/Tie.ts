@@ -1,5 +1,7 @@
-import { BizTie } from "../../il";
+import { BizIDExtendable, BizTie, IxField } from "../../il";
+import { BizPhraseType } from "../../il";
 import { Space } from "../space";
+import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
 export class PBizTie extends PBizEntity<BizTie> {

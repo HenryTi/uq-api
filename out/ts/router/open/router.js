@@ -59,7 +59,7 @@ function buildOpenRouter(router, rb) {
             let ret = await runner.tablesFromProc(bus + '$q_' + faceName, [unit, 0, ...params]);
             return ret;
         }
-        catch {
+        catch (_a) {
             let ret = await runner.tablesFromProc(bus + '_' + faceName, [unit, 0, ...params]);
             return ret;
         }

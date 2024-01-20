@@ -5,7 +5,7 @@ import { BizPhraseType } from "./BizPhraseType";
 import { BizIDExtendable } from "./BizID";
 import { BizOptions } from "./Options";
 import { PBizSearch, PContext, PElement } from "../../parser";
-import { ActionStatement, TableVar } from "../statement";
+import { BizSheet } from "./Sheet";
 import { BizEntity } from "./Entity";
 import { BizBud } from "./Bud";
 
@@ -108,21 +108,3 @@ export class BizSearch extends IElement {
         return new PBizSearch(this, context);
     }
 }
-
-export abstract class BizAct extends BizBase {
-    readonly bizPhraseType = BizPhraseType.act;
-    readonly tableVars: { [name: string]: TableVar } = {};
-
-    statement: ActionStatement;
-
-    addTableVar(tableVar: TableVar): boolean {
-        let name = tableVar.name;
-        let t = this.tableVars[name];
-        if (t !== undefined) return false;
-        this.tableVars[name] = tableVar;
-        return true;
-    }
-
-    getTableVar(name: string): TableVar { return this.tableVars[name] }
-}
-

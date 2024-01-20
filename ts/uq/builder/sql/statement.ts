@@ -262,7 +262,7 @@ export abstract class SqlTable {
 export class SqlVarTable extends SqlTable {
     protected readonly name: string;
     constructor(name: string) { super(); this.name = name }
-    to(sb: SqlBuilder) { sb.dbName().dot().var(this.name) }
+    to(sb: SqlBuilder) { sb.var(this.name) }
 }
 export class SqlSysTable extends SqlTable {
     protected readonly name: string;

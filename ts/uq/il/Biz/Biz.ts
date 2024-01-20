@@ -174,11 +174,8 @@ interface BizSchema extends Schema {
     biz: any;
 }
 export class BizSchemaBuilder extends SchemaBuilder<Biz> {
-    // filter out system uq defines
     build(schema: BizSchema, res: { [phrase: string]: string }) {
         const { bizArr } = this.entity;
-        schema.biz = bizArr.map(v => {
-            return v.buildSchema(res);
-        });
+        schema.biz = bizArr.map(v => v.buildSchema(res));
     }
 }

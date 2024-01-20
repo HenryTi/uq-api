@@ -1,7 +1,7 @@
 import * as stat from './statement';
 import * as ent from './entity';
 import { BEntity, BStatement, BID, BIDX, BIX, BForList, BBiz } from '../builder';
-import { Biz, BizAct, BizBinAct } from './Biz';
+import { Biz } from './Biz';
 
 export interface Builder {
     arr(v: ent.Arr): BEntity<ent.Arr>;
@@ -40,11 +40,9 @@ export interface Builder {
     withIXSet(v: stat.WithStatement): BStatement;
     withTruncate(v: stat.WithStatement): BStatement;
 
-    bizActStatement(v: stat.BizStatement<any>): BStatement;
-    // bizInActStatement(v: stat.BizInActStatement): BStatement;
-    // bizBinActSubPend(v: stat.BizBinPendStatement): BStatement;
-    // bizActSubTitle(v: stat.BizTitleStatement): BStatement;
-    // bizInActSubPend(v: stat.BizInPendStatement): BStatement;
+    bizDetailActStatement(v: stat.BizBinActStatement): BStatement;
+    bizDetailActSubPend(v: stat.BizBinPendStatement): BStatement;
+    bizDetailActSubSubject(v: stat.BizBinTitleStatement): BStatement;
 
     value(v: stat.ValueStatement): BStatement;
     setStatement(v: stat.SetStatement): BStatement;
@@ -61,7 +59,6 @@ export interface Builder {
     returnEndStatement(): BStatement;
     procStatement(v: stat.ProcStatement): BStatement;
     foreachArr(v: stat.ForEach, forArr: stat.ForArr): BForList;
-    foreachBizInOutArr(v: stat.ForEach, forArr: stat.ForBizInOutArr): BForList;
     foreachSelect(v: stat.ForEach, forSelect: stat.ForSelect): BForList;
     foreachQueue(v: stat.ForEach, forQueue: stat.ForQueue): BForList;
     selectStatement(v: stat.SelectStatement): BStatement;

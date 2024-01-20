@@ -24,7 +24,7 @@ export class SettingProcedures extends SysProcedures {
         this.constStrsProc(this.coreProc('$const_strs'));
         this.constStrProc(this.coreProc('$const_str'));
         this.savePhrasesProc(this.coreProc('$save_phrases'));
-        // this.saveRoleIxPhraseProc(this.coreProc('$save_ixphrases_role'));
+        this.saveRoleIxPhraseProc(this.coreProc('$save_ixphrases_role'));
         this.finishBuildDb(this.coreProc('$finish_build_db'));
         this.setUser(this.coreProc('$set_user'));
 
@@ -331,7 +331,6 @@ export class SettingProcedures extends SysProcedures {
             .on(new ExpEQ(new ExpField('id', 'a'), new ExpField('name', 'b')));
     }
 
-    /*
     private saveRoleIxPhraseProc(p: sql.Procedure) {
         let { factory } = this.context;
         let { parameters, statements } = p;
@@ -406,8 +405,20 @@ export class SettingProcedures extends SysProcedures {
         selectPermitId.from(tblPhrase);
         selectPermitId.col('id', vPermitId);
         selectPermitId.where(new ExpEQ(new ExpField('name'), new ExpVar('permit')));
+
+        /*
+        let upsert = factory.createUpsert();
+        lstats.add(upsert);
+        upsert.table = sysTable(il.EnumSysTable.ixPhrase);
+        upsert.keys = [
+            { col: 'i', val: new ExpVar(vRoleId) },
+            { col: 'x', val: new ExpVar(vPermitId) },
+        ];
+        upsert.cols = [
+            { col: 'type', val: ExpNum.num0 }
+        ];
+        */
     }
-    */
 
     private savePhrasesProc(p: sql.Procedure) {
         const param = 'phrases';

@@ -366,60 +366,23 @@ class PBizCheckBudOperand extends element_1.PElement {
             hasParenthese = true;
             this.ts.readToken();
         }
-        if (this.ts.token == tokens_1.Token.LPARENTHESE && this.ts.peekToken().peekToken === tokens_1.Token.SHARP) {
-            this.ts.passToken(tokens_1.Token.LPARENTHESE);
-            this.ts.passToken(tokens_1.Token.SHARP);
-            let bizExp = new il_1.BizExp();
-            this.context.parseElement(bizExp);
-            this.ts.passToken(tokens_1.Token.RPARENTHESE);
-            this.element.bizExp1 = bizExp;
-        }
-        else {
-            this.ts.passToken(tokens_1.Token.MOD);
-            let bizField = new il_1.BizFieldOperand();
-            this.context.parseElement(bizField);
-            this.element.bizField = bizField;
-            /*
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.element.valExp = val;
-            */
-        }
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        this.ts.passToken(tokens_1.Token.SHARP);
+        let bizExp = new il_1.BizExp();
+        this.context.parseElement(bizExp);
+        this.ts.passToken(tokens_1.Token.RPARENTHESE);
+        this.element.bizExp1 = bizExp;
         if (this.ts.token === tokens_1.Token.EQU) {
-            if (this.element.bizField === undefined) {
-                this.ts.error('= not expected');
-            }
             this.ts.readToken();
             this.options = this.ts.passVar();
             this.ts.passToken(tokens_1.Token.DOT);
-            this.items = [this.ts.passVar()];
-        }
-        else if (this.ts.isKeyword('in') === true) {
-            if (this.element.bizField === undefined) {
-                this.ts.error('IN not expected');
-            }
-            this.items = [];
-            this.ts.readToken();
-            this.options = this.ts.passVar();
-            this.ts.passToken(tokens_1.Token.LPARENTHESE);
-            for (;;) {
-                this.items.push(this.ts.passVar());
-                const { token } = this.ts;
-                if (token === tokens_1.Token.COMMA) {
-                    this.ts.readToken();
-                    continue;
-                }
-                if (token === tokens_1.Token.RPARENTHESE) {
-                    this.ts.readToken();
-                    break;
-                }
-            }
+            this.item = this.ts.passVar();
         }
         else {
             this.ts.passKey('on');
             this.ts.passToken(tokens_1.Token.LPARENTHESE);
             this.ts.passToken(tokens_1.Token.SHARP);
-            let bizExp = new il_1.BizExp();
+            bizExp = new il_1.BizExp();
             this.context.parseElement(bizExp);
             this.ts.passToken(tokens_1.Token.RPARENTHESE);
             this.element.bizExp2 = bizExp;
@@ -430,18 +393,14 @@ class PBizCheckBudOperand extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        const { bizExp1, bizExp2, bizField } = this.element;
-        if (bizExp1 !== undefined) {
-            if (bizExp1.pelement.scan(space) === false)
-                ok = false;
+        const { bizExp1, bizExp2 } = this.element;
+        if (bizExp1.pelement.scan(space) === false) {
+            ok = false;
         }
         if (bizExp2 !== undefined) {
-            if (bizExp2.pelement.scan(space) === false)
+            if (bizExp2.pelement.scan(space) === false) {
                 ok = false;
-        }
-        if (bizField !== undefined) {
-            if (bizField.pelement.scan(space) === false)
-                ok = false;
+            }
         }
         if (this.options !== undefined) {
             let options = space.getBizEntity(this.options);
@@ -451,23 +410,13 @@ class PBizCheckBudOperand extends element_1.PElement {
             }
             else {
                 let bizOptions = options;
-                this.element.bizOptions = bizOptions;
-                this.element.items = [];
-                const { items } = this.element;
-                if (this.items.length === 0) {
-                    this.log(`no ITEM of OPTIONS ${bizOptions.getJName()} defined`);
+                let item = bizOptions.items.find(v => v.name === this.item);
+                if (item === undefined) {
+                    this.log(`${this.item} is not an ITEM of OPTIONS ${bizOptions.getJName()}`);
                     ok = false;
                 }
-                else {
-                    for (let itm of this.items) {
-                        let item = bizOptions.items.find(v => v.name === itm);
-                        if (item === undefined) {
-                            this.log(`${itm} is not an ITEM of OPTIONS ${bizOptions.getJName()}`);
-                            ok = false;
-                        }
-                        items.push(item);
-                    }
-                }
+                this.element.bizOptions = bizOptions;
+                this.element.item = item;
             }
         }
         return ok;

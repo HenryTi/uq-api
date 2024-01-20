@@ -24,9 +24,6 @@ class PBiz extends entity_1.PEntity {
             tree: il_1.BizTree,
             tie: il_1.BizTie,
             report: il_1.BizReport,
-            in: il_1.BizIn,
-            out: il_1.BizOut,
-            ioapp: il_1.BizIOApp,
             console: il_1.BizConsole,
         };
     }

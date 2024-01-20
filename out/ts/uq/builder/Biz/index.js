@@ -27,5 +27,4 @@ __exportStar(require("./BizQuery"), exports);
 __exportStar(require("./BizAssign"), exports);
 __exportStar(require("./BizTie"), exports);
 __exportStar(require("./BizField"), exports);
-__exportStar(require("./BizInOut"), exports);
 //# sourceMappingURL=index.js.map

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
+exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -65,6 +65,7 @@ exports.BudGroup = BudGroup;
 class BizBud extends Base_1.BizBase {
     get objName() { return undefined; }
     getFieldShows() { return undefined; }
+    // show: boolean;      // 仅用于显示
     constructor(biz, name, ui) {
         super(biz);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
@@ -72,16 +73,8 @@ class BizBud extends Base_1.BizBase {
         this.name = name;
         this.ui = ui;
     }
+    // buildBudValue(callback: (value: BudValueSet) => void) { }
     buildBudValue(expStringify) { }
-    buildSchema(res) {
-        var _a;
-        let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            dataType: this.dataType,
-            value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str,
-        };
-    }
 }
 exports.BizBud = BizBud;
 var SetType;
@@ -93,13 +86,9 @@ var SetType;
 class BizBudValue extends BizBud {
     get optionsItemType() { return; }
     buildSchema(res) {
-        var _a;
+        var _a, _b;
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            history: this.hasHistory === true ? true : undefined,
-            setType: (_a = this.setType) !== null && _a !== void 0 ? _a : SetType.assign,
-        };
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str, history: this.hasHistory === true ? true : undefined, setType: (_b = this.setType) !== null && _b !== void 0 ? _b : SetType.assign });
     }
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')
@@ -117,29 +106,6 @@ class BizBudValue extends BizBud {
     }
 }
 exports.BizBudValue = BizBudValue;
-class BizBudArr extends BizBudValue {
-    constructor() {
-        super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.arr;
-        this.canIndex = false;
-        this.props = new Map();
-    }
-    parser(context) {
-        return new parser_1.PBizBudArr(this, context);
-    }
-    buildSchema(res) {
-        let ret = super.buildSchema(res);
-        if (this.props.size > 0) {
-            let props = [];
-            for (let [, value] of this.props) {
-                props.push(value.buildSchema(res));
-            }
-            Object.assign(ret, { props });
-        }
-        return ret;
-    }
-}
-exports.BizBudArr = BizBudArr;
 class BizBudPickable extends BizBudValue {
     constructor() {
         super(...arguments);
@@ -254,6 +220,7 @@ class BizBudIDBase extends BizBud {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.none;
     }
+    // readonly canIndex = false;
     parser(context) {
         return new parser_1.PBizBudIDBase(this, context);
     }
@@ -265,6 +232,14 @@ class BizBudID extends BizBudValue {
         this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = true;
         this.params = {}; // 仅仅针对Spec，可能有多级的base
+        /*
+        buildBudValue(callback: (value: BudValueSet) => void) {
+            super.buildBudValue(callback);
+            for (let i in this.params) {
+                callback(this.params[i]);
+            }
+        }
+        */
     }
     getFieldShows() { return this.fieldShows; }
     parser(context) {
@@ -295,32 +270,11 @@ class BizBudID extends BizBudValue {
     }
 }
 exports.BizBudID = BizBudID;
-// ID的属性定义，ID表示需要转换
-// 后面仅仅可以Atom
-class BizBudIDIO extends BizBudValue {
-    constructor() {
-        super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.ID;
-        this.canIndex = false;
-    }
-    parser(context) {
-        return new parser_1.PBizBudIDIO(this, context);
-    }
-    buildSchema(res) {
-        var _a;
-        let ret = super.buildSchema(res);
-        ret.atom = (_a = this.entityAtom) === null || _a === void 0 ? void 0 : _a.id;
-        return ret;
-    }
-}
-exports.BizBudIDIO = BizBudIDIO;
 class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return {
-            ...ret, options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase
-        };
+        return Object.assign(Object.assign({}, ret), { options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase });
     }
     get objName() { var _a; return (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
@@ -358,26 +312,4 @@ class BizBudCheck extends BizBudOptions {
     }
 }
 exports.BizBudCheck = BizBudCheck;
-exports.budClassesIn = {
-    int: BizBudInt,
-    dec: BizBudDec,
-    char: BizBudChar,
-    date: BizBudDate,
-    id: BizBudIDIO,
-    $arr: BizBudArr,
-};
-exports.budClasses = {
-    ...exports.budClassesIn,
-    none: BizBudNone,
-    atom: BizBudID,
-    intof: BizBudIntOf,
-    radio: BizBudRadio,
-    check: BizBudCheck,
-};
-exports.budClassKeys = Object.keys(exports.budClasses);
-exports.budClassKeysIn = Object.keys(exports.budClassesIn);
-exports.budClassesOut = {
-    ...exports.budClassesIn,
-};
-exports.budClassKeysOut = Object.keys(exports.budClassesOut);
 //# sourceMappingURL=Bud.js.map
