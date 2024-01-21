@@ -33,17 +33,11 @@ class SqlActDetail extends MySqlBuilder_1.MySqlBuilder {
         };
         sql += this.buildInsert(detail, detailOverride);
         if (detail2) {
-            let detailOverride2 = {
-                ...detailOverride,
-                id: `(@id:=${this.twProfix}$id(${detail2.schema.typeId}))`,
-            };
+            let detailOverride2 = Object.assign(Object.assign({}, detailOverride), { id: `(@id:=${this.twProfix}$id(${detail2.schema.typeId}))` });
             sql += this.buildInsert(detail2, detailOverride2);
         }
         if (detail3) {
-            let detailOverride3 = {
-                ...detailOverride,
-                id: `(@id:=${this.twProfix}$id(${detail3.schema.typeId}))`,
-            };
+            let detailOverride3 = Object.assign(Object.assign({}, detailOverride), { id: `(@id:=${this.twProfix}$id(${detail3.schema.typeId}))` });
             sql += this.buildInsert(detail3, detailOverride3);
         }
         sql += 'SELECT @ret as ret' + MySqlBuilder_1.sqlLineEnd;

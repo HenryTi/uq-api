@@ -291,12 +291,13 @@ export class PBizBudDate extends PBizBudValueWithRange<BizBudDate> {
 }
 
 export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
-    private atomName: string;
+    // private atomName: string;
     protected _parse(): void {
-        this.atomName = this.ts.mayPassVar();
+        // this.atomName = this.ts.mayPassVar();
     }
     scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
+        /*
         if (this.atomName !== undefined) {
             let entityAtom = this.element.entityAtom = space.getBizEntity<BizAtom>(this.atomName);
             if (entityAtom !== undefined && entityAtom.bizPhraseType !== BizPhraseType.atom) {
@@ -304,6 +305,7 @@ export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
                 this.log(`${this.atomName} is not ATOM. IO ID only support ATOM`);
             }
         }
+        */
         return ok;
     }
 }

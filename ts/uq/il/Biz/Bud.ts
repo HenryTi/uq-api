@@ -304,15 +304,17 @@ export class BizBudID extends BizBudValue {
 export class BizBudIDIO extends BizBudValue {
     readonly dataType = BudDataType.ID;
     readonly canIndex = false;
-    entityAtom: BizAtom;
+    // entityAtom: BizAtom;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIDIO(this, context);
     }
+    /*
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         ret.atom = this.entityAtom?.id;
         return ret;
     }
+    */
 }
 
 export abstract class BizBudOptions extends BizBudValue {

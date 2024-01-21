@@ -2,7 +2,7 @@ import {
     BizBud,
     BizBudArr,
     BizBudValue, BizIOApp, BizIn, BizOut, BudDataType, EnumSysTable, Field
-    , JoinType, JsonTableColumn, bigIntField, charField, dateField
+    , IOAppIn, IOAppOut, JoinType, JsonTableColumn, bigIntField, charField, dateField
     , decField, intField, jsonField
 } from "../../il";
 import { Sqls } from "../bstatement";
@@ -325,5 +325,47 @@ export class BBizOut extends BBizEntity<BizOut> {
     }
 }
 
+const outer = '$outer';
+const ioAppIO = '$ioAppIO';
 export class BBizIOApp extends BBizEntity<BizIOApp> {
+    override async buildProcedures(): Promise<void> {
+        super.buildProcedures();
+        const { ins, outs } = this.bizEntity;
+        for (let ioAppIn of ins) {
+            const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
+            this.buildInProc(proc, ioAppIn);
+        }
+        for (let ioAppOut of ins) {
+            const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
+            this.buildOutProc(proc, ioAppOut);
+        }
+    }
+
+    private buildInProc(proc: Procedure, ioAppIn: IOAppIn) {
+        const { factory } = this.context;
+        const { parameters, statements } = proc;
+        parameters.push(bigIntField(outer));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.vars(
+            bigIntField(ioAppIO)
+        );
+        let setIOAppIO = factory.createSet();
+        statements.push(setIOAppIO);
+        setIOAppIO.equ(ioAppIO, new ExpNum(ioAppIn.id));
+    }
+
+    private buildOutProc(proc: Procedure, ioAppOut: IOAppOut) {
+        const { factory } = this.context;
+        const { parameters, statements } = proc;
+        parameters.push(bigIntField(outer));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.vars(
+            bigIntField(ioAppIO)
+        );
+        let setIOAppIO = factory.createSet();
+        statements.push(setIOAppIO);
+        setIOAppIO.equ(ioAppIO, new ExpNum(ioAppOut.id));
+    }
 }

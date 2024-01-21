@@ -263,7 +263,43 @@ class BBizOut extends BizEntity_1.BBizEntity {
     }
 }
 exports.BBizOut = BBizOut;
+const outer = '$outer';
+const ioAppIO = '$ioAppIO';
 class BBizIOApp extends BizEntity_1.BBizEntity {
+    async buildProcedures() {
+        super.buildProcedures();
+        const { ins, outs } = this.bizEntity;
+        for (let ioAppIn of ins) {
+            const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
+            this.buildInProc(proc, ioAppIn);
+        }
+        for (let ioAppOut of ins) {
+            const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
+            this.buildOutProc(proc, ioAppOut);
+        }
+    }
+    buildInProc(proc, ioAppIn) {
+        const { factory } = this.context;
+        const { parameters, statements } = proc;
+        parameters.push((0, il_1.bigIntField)(outer));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.vars((0, il_1.bigIntField)(ioAppIO));
+        let setIOAppIO = factory.createSet();
+        statements.push(setIOAppIO);
+        setIOAppIO.equ(ioAppIO, new sql_1.ExpNum(ioAppIn.id));
+    }
+    buildOutProc(proc, ioAppOut) {
+        const { factory } = this.context;
+        const { parameters, statements } = proc;
+        parameters.push((0, il_1.bigIntField)(outer));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.vars((0, il_1.bigIntField)(ioAppIO));
+        let setIOAppIO = factory.createSet();
+        statements.push(setIOAppIO);
+        setIOAppIO.equ(ioAppIO, new sql_1.ExpNum(ioAppOut.id));
+    }
 }
 exports.BBizIOApp = BBizIOApp;
 //# sourceMappingURL=BizInOut.js.map

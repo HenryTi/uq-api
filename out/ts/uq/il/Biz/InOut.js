@@ -69,22 +69,27 @@ class IOAppID extends Bud_1.BizBud {
 }
 exports.IOAppID = IOAppID;
 class IOPeer extends IElement_1.IElement {
-    constructor() {
-        super(...arguments);
-        this.type = 'iopeer';
+    constructor(parentPeer) {
+        super();
+        this.parentPeer = parentPeer;
     }
 }
 exports.IOPeer = IOPeer;
 class IOPeerScalar extends IOPeer {
+    constructor() {
+        super(...arguments);
+        this.type = 'iopeerscalar';
+    }
     parser(context) {
         return new parser_1.PIOPeerScalar(this, context);
     }
 }
 exports.IOPeerScalar = IOPeerScalar;
 class IOPeerID extends IOPeerScalar {
-    constructor(ioApp) {
-        super();
-        this.ioApp = ioApp;
+    constructor(ioAppIO, parentPeer) {
+        super(parentPeer);
+        this.type = 'iopeerid';
+        this.ioAppIO = ioAppIO;
     }
     parser(context) {
         return new parser_1.PIOPeerID(this, context);
@@ -92,10 +97,11 @@ class IOPeerID extends IOPeerScalar {
 }
 exports.IOPeerID = IOPeerID;
 class IOPeerArr extends IOPeer {
-    constructor(ioApp) {
-        super();
-        this.peers = [];
-        this.ioApp = ioApp;
+    constructor(ioAppIO, parentPeer) {
+        super(parentPeer);
+        this.type = 'iopeerarr';
+        this.peers = {};
+        this.ioAppIO = ioAppIO;
     }
     parser(context) {
         return new parser_1.PIOPeerArr(this, context);
@@ -107,7 +113,7 @@ class IOAppIO extends Bud_1.BizBud {
         super(ioApp.biz, undefined, {});
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.dataType = BizPhraseType_1.BudDataType.none;
-        this.peers = [];
+        this.peers = {};
         this.ioApp = ioApp;
     }
 }

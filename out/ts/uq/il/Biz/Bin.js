@@ -210,19 +210,7 @@ class BizBin extends Entity_1.BizEntity {
             }
         }
         let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
-        this.schema = {
-            ...ret,
-            main: (_b = this.main) === null || _b === void 0 ? void 0 : _b.id,
-            picks: picks.length === 0 ? undefined : picks,
-            inputs: inputs.length === 0 ? undefined : inputs,
-            pend: (_c = this.pend) === null || _c === void 0 ? void 0 : _c.id,
-            i: (_d = this.i) === null || _d === void 0 ? void 0 : _d.buildSchema(res),
-            x: (_e = this.x) === null || _e === void 0 ? void 0 : _e.buildSchema(res),
-            value: (_f = this.value) === null || _f === void 0 ? void 0 : _f.buildSchema(res),
-            amount: (_g = this.amount) === null || _g === void 0 ? void 0 : _g.buildSchema(res),
-            price,
-            div: this.div.buildSchema(res),
-        };
+        this.schema = Object.assign(Object.assign({}, ret), { main: (_b = this.main) === null || _b === void 0 ? void 0 : _b.id, picks: picks.length === 0 ? undefined : picks, inputs: inputs.length === 0 ? undefined : inputs, pend: (_c = this.pend) === null || _c === void 0 ? void 0 : _c.id, i: (_d = this.i) === null || _d === void 0 ? void 0 : _d.buildSchema(res), x: (_e = this.x) === null || _e === void 0 ? void 0 : _e.buildSchema(res), value: (_f = this.value) === null || _f === void 0 ? void 0 : _f.buildSchema(res), amount: (_g = this.amount) === null || _g === void 0 ? void 0 : _g.buildSchema(res), price, div: this.div.buildSchema(res) });
         return this.schema;
     }
     getSheetProps() {
@@ -335,10 +323,7 @@ class BizBinAct extends Base_1.BizAct {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            bin: this.bizBin.name,
-        };
+        return Object.assign(Object.assign({}, ret), { bin: this.bizBin.name });
     }
 }
 exports.BizBinAct = BizBinAct;

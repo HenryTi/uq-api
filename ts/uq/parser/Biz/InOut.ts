@@ -2,7 +2,9 @@ import {
     BizBudValue, BizIn, BizInOut, BizOut, Statements
     , Statement, BizInAct, BizStatementIn, BizInActStatements
     , Pointer, BizEntity, VarPointer, Biz, UI
-    , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp, IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO, IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud
+    , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp
+    , IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO
+    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -18,20 +20,6 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
         const { props } = this.element;
         let propArr = this.parsePropArr();
         this.parsePropMap(props, propArr);
-        /*
-        for (; this.ts.isKeyword('arr') === true;) {
-            this.ts.readToken();
-            let name = this.ts.passVar();
-            propArr = this.parsePropArr();
-            let map = new Map<string, BizBudValue>();
-            this.parsePropMap(map, propArr);
-            arrs[name] = {
-                name,
-                props: map,
-                arrs: undefined,
-            }
-        }
-        */
     }
 
     protected override parseBody(): void {
@@ -236,7 +224,7 @@ export class PIOPeerID extends PElement<IOPeerID> {
     }
     override scan(space: Space): boolean {
         let ok = true;
-        let id = this.element.id = this.element.ioApp.IDs.find(v => v.name === this.ioId);
+        let id = this.element.id = this.element.ioAppIO.ioApp.IDs.find(v => v.name === this.ioId);
         if (id === undefined) {
             ok = false;
             this.log(`${this.ioId} is not IOApp ID`);
@@ -245,8 +233,8 @@ export class PIOPeerID extends PElement<IOPeerID> {
     }
 }
 
-function parsePeers(context: PContext, ioApp: BizIOApp, ts: TokenStream): IOPeer[] {
-    let peers: IOPeer[] = [];
+function parsePeers(context: PContext, ioAppIO: IOAppIO, parentPeer: IOPeerArr, ts: TokenStream): { [name: string]: IOPeer; } {
+    let peers: { [name: string]: IOPeer; } = {};
     if (ts.token === Token.RBRACE) {
         ts.readToken();
         ts.mayPassToken(Token.SEMICOLON);
@@ -254,7 +242,7 @@ function parsePeers(context: PContext, ioApp: BizIOApp, ts: TokenStream): IOPeer
     }
     for (; ;) {
         let peer = parsePeer();
-        peers.push(peer);
+        peers[peer.name] = peer;
         if (ts.token === Token.RBRACE as any) {
             ts.readToken();
             ts.mayPassToken(Token.SEMICOLON);
@@ -266,17 +254,17 @@ function parsePeers(context: PContext, ioApp: BizIOApp, ts: TokenStream): IOPeer
         let name = ts.passVar();
         ts.passToken(Token.COLON);
         if (ts.token === Token.LBRACE) {
-            peer = new IOPeerArr(ioApp);
+            peer = new IOPeerArr(ioAppIO, parentPeer);
         }
         else {
             let peerScalar: IOPeerScalar;
             let to = ts.passVar();
             if (ts.isKeyword('id') === true) {
                 ts.readToken();
-                peerScalar = new IOPeerID(ioApp);
+                peerScalar = new IOPeerID(ioAppIO, parentPeer);
             }
             else {
-                peerScalar = new IOPeerScalar();
+                peerScalar = new IOPeerScalar(parentPeer);
             }
             peerScalar.to = to;
             peer = peerScalar;
@@ -288,19 +276,74 @@ function parsePeers(context: PContext, ioApp: BizIOApp, ts: TokenStream): IOPeer
     return peers;
 }
 
+function checkPeers(space: Space, pElement: PElement, props: Map<string, BizBud>, peers: { [name: string]: IOPeer; }) {
+    let ok = true;
+    for (let i in peers) {
+        let peer = peers[i];
+        if (peer.pelement.scan(space) === false) {
+            ok = false;
+        }
+        const { name } = peer;
+        let log: string;
+        if (props.has(name) === false) {
+            ok = false;
+            log = `${name} is not defined`;
+        }
+        else {
+            let bud = props.get(name);
+            if (peer.type === 'iopeerid') {
+                if (bud.dataType !== BudDataType.ID) {
+                    ok = false;
+                    log = `${name} should not be ID`;
+                }
+            }
+            else {
+                if (bud.dataType === BudDataType.ID) {
+                    ok = false;
+                    log = `${name} should be ID`;
+                }
+            }
+        }
+        pElement.log(log);
+    }
+    for (let [, bud] of props) {
+        if (bud.dataType === BudDataType.ID) {
+            let peer = peers[bud.name];
+            if (peer === undefined) {
+                ok = false;
+                pElement.log(`${bud.name} must define ID`);
+            }
+            else if (peer.type !== 'iopeerid') {
+                ok = false;
+                pElement.log(`${peer.name} must be ID`);
+            }
+        }
+    }
+    return ok;
+}
+
 export class PIOPeerArr extends PElement<IOPeerArr> {
     protected override _parse(): void {
         this.ts.readToken();
-        const peers = parsePeers(this.context, this.element.ioApp, this.ts);
-        this.element.peers.push(...peers);
+        const { ioAppIO, parentPeer } = this.element;
+        const peers = parsePeers(this.context, ioAppIO, parentPeer, this.ts);
+        Object.assign(this.element.peers, peers);
     }
     override scan(space: Space): boolean {
         let ok = true;
-        const { peers } = this.element;
-        for (let peer of peers) {
-            if (peer.pelement.scan(space) === false) {
-                ok = false;
-            }
+        const { name, peers, ioAppIO, parentPeer } = this.element;
+        let peerNames: string[] = [];
+        for (let p = parentPeer; p != undefined; p = parentPeer.parentPeer) peerNames.push(p.name);
+        peerNames.push(name);
+        peerNames.reverse();
+        const { bizIO } = ioAppIO;
+        let pProps = bizIO.props;
+        for (let p of peerNames) {
+            let bud = pProps.get(p) as BizBudArr;
+            pProps = bud.props;
+        }
+        if (checkPeers(space, this, pProps, peers) === false) {
+            ok = false;
         }
         return ok;
     }
@@ -311,8 +354,8 @@ abstract class PIOAppIO<T extends IOAppIO> extends PBizBase<T> {
         this.element.name = this.ts.passVar();
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();
-            const peers = parsePeers(this.context, this.element.ioApp, this.ts);
-            this.element.peers.push(...peers);
+            const peers = parsePeers(this.context, this.element, undefined, this.ts);
+            Object.assign(this.element.peers, peers);
         } else {
             this.ts.passToken(Token.SEMICOLON);
         }
@@ -321,16 +364,17 @@ abstract class PIOAppIO<T extends IOAppIO> extends PBizBase<T> {
     override scan(space: Space): boolean {
         let ok = true;
         const { name, peers } = this.element;
-        let bizEntity = space.getBizEntity(name);
+        let bizEntity = space.getBizEntity<BizInOut>(name);
         let bizPhraseType = this.entityBizPhraseType;
         if (bizEntity === undefined || bizEntity.bizPhraseType !== bizPhraseType) {
             ok = false;
             this.log(`${name} is not ${BizPhraseType[bizPhraseType].toUpperCase()}`)
         }
-        for (let peer of peers) {
-            if (peer.pelement.scan(space) === false) {
-                ok = false;
-            }
+        else {
+            this.element.bizIO = bizEntity;
+        }
+        if (checkPeers(space, this, bizEntity.props, peers) === false) {
+            ok = false;
         }
         return ok;
     }

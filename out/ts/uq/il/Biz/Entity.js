@@ -170,7 +170,7 @@ class BizEntity extends Base_1.BizBase {
     }
     allShowBuds() {
         let has = this.showBuds !== undefined;
-        let ret = { ...this.showBuds };
+        let ret = Object.assign({}, this.showBuds);
         let n = 0;
         this.forEachBud(v => {
             let shows = v.getFieldShows();

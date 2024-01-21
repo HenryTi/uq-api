@@ -76,11 +76,7 @@ class BizBud extends Base_1.BizBase {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            dataType: this.dataType,
-            value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str,
-        };
+        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str });
     }
 }
 exports.BizBud = BizBud;
@@ -95,11 +91,7 @@ class BizBudValue extends BizBud {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            history: this.hasHistory === true ? true : undefined,
-            setType: (_a = this.setType) !== null && _a !== void 0 ? _a : SetType.assign,
-        };
+        return Object.assign(Object.assign({}, ret), { history: this.hasHistory === true ? true : undefined, setType: (_a = this.setType) !== null && _a !== void 0 ? _a : SetType.assign });
     }
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')
@@ -302,15 +294,17 @@ class BizBudIDIO extends BizBudValue {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.ID;
         this.canIndex = false;
+        /*
+        buildSchema(res: { [phrase: string]: string }) {
+            let ret = super.buildSchema(res);
+            ret.atom = this.entityAtom?.id;
+            return ret;
+        }
+        */
     }
+    // entityAtom: BizAtom;
     parser(context) {
         return new parser_1.PBizBudIDIO(this, context);
-    }
-    buildSchema(res) {
-        var _a;
-        let ret = super.buildSchema(res);
-        ret.atom = (_a = this.entityAtom) === null || _a === void 0 ? void 0 : _a.id;
-        return ret;
     }
 }
 exports.BizBudIDIO = BizBudIDIO;
@@ -318,9 +312,7 @@ class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return {
-            ...ret, options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase
-        };
+        return Object.assign(Object.assign({}, ret), { options: (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase });
     }
     get objName() { var _a; return (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
@@ -366,18 +358,9 @@ exports.budClassesIn = {
     id: BizBudIDIO,
     $arr: BizBudArr,
 };
-exports.budClasses = {
-    ...exports.budClassesIn,
-    none: BizBudNone,
-    atom: BizBudID,
-    intof: BizBudIntOf,
-    radio: BizBudRadio,
-    check: BizBudCheck,
-};
+exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudNone, atom: BizBudID, intof: BizBudIntOf, radio: BizBudRadio, check: BizBudCheck });
 exports.budClassKeys = Object.keys(exports.budClasses);
 exports.budClassKeysIn = Object.keys(exports.budClassesIn);
-exports.budClassesOut = {
-    ...exports.budClassesIn,
-};
+exports.budClassesOut = Object.assign({}, exports.budClassesIn);
 exports.budClassKeysOut = Object.keys(exports.budClassesOut);
 //# sourceMappingURL=Bud.js.map
