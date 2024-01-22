@@ -8,9 +8,6 @@ class MySqlBuilder extends sqlBuilder_1.SqlBuilder {
     var(p) { this.append('`_').append(p).append('`'); return this; } // proc var
     fld(f) { this.append('`').append(f).append('`'); return this; } // field: alias.field
     param(p) { this.var(p); return this; } // proc parameter
-    funcName(func) {
-        this.append(func.toUpperCase());
-    }
     text(dt) {
         let tSize;
         switch (dt.size) {

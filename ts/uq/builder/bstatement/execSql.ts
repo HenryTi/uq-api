@@ -1,7 +1,7 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 import { ExecSqlStatement } from "../../il";
-import { convertExp, ExpStr, ExpVal, ExpVar } from "../sql";
+import { convertExp, ExpVal } from "../sql";
 
 export class BExecSqlStatement extends BStatement {
     protected istatement: ExecSqlStatement;

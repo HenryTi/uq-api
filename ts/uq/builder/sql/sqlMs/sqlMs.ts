@@ -4,7 +4,7 @@ import { Procedure, ProcedureUpdater } from '../procedure';
 import { SqlBuilder } from '../sqlBuilder';
 import * as stat from '../statement';
 import { Select } from '../select';
-import { ExpVal } from '../exp';
+import { Exp, ExpVal } from '../exp';
 import { DataType, Field, Index } from '../../../il';
 import { DeleteStatement, TruncateStatement } from '../deleteStatement';
 
@@ -149,7 +149,6 @@ export class MsProcedure extends Procedure {
 export class MsSqlBuilder extends SqlBuilder {
     var$unit(): SqlBuilder { return this; }
     var$user(): SqlBuilder { return this; }
-    func(func: string, params: ExpVal[]) {
-
-    }
+    func(func: string, isUqFunc: boolean): void { }
+    funcParams(params: Exp[]): void { }
 }

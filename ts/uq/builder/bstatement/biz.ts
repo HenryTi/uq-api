@@ -389,6 +389,8 @@ abstract class BBizStatementID<T extends BizStatementID> extends BStatement<T> {
 const a = 'a', b = 'b';
 export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
     override body(sqls: Sqls): void {
+        // 底层自动转换，所以没有必要显式转化ID
+        /*
         const { factory } = this.context;
         let select = factory.createSelect();
         sqls.push(select);
@@ -402,6 +404,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
             new ExpEQ(new ExpField('phrase', b), new ExpVar('$in')),
             new ExpEQ(new ExpField('no', a), this.context.expVal(this.istatement.inVals[0])),
         ));
+        */
     }
 }
 

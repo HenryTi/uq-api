@@ -225,3 +225,16 @@ export class VarTableWithSchema extends Table {
         super.to(sb);
     }
 }
+export class VarTableWithDb extends Table {
+    protected dbName: string;
+    protected name: string;
+    constructor(dbName: string, name: string, alias?: string) {
+        super(alias);
+        this.dbName = dbName;
+        this.name = name;
+    }
+    to(sb: SqlBuilder) {
+        sb.name(this.dbName).dot().var(this.name);
+        super.to(sb);
+    }
+}

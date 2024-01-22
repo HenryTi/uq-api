@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
@@ -68,9 +68,17 @@ class IOAppID extends Bud_1.BizBud {
     }
 }
 exports.IOAppID = IOAppID;
+var PeerType;
+(function (PeerType) {
+    PeerType[PeerType["peerScalar"] = 0] = "peerScalar";
+    PeerType[PeerType["peerId"] = 1] = "peerId";
+    PeerType[PeerType["peerArr"] = 2] = "peerArr";
+})(PeerType || (exports.PeerType = PeerType = {}));
+;
 class IOPeer extends IElement_1.IElement {
-    constructor(parentPeer) {
+    constructor(ioAppIO, parentPeer) {
         super();
+        this.ioAppIO = ioAppIO;
         this.parentPeer = parentPeer;
     }
 }
@@ -78,18 +86,17 @@ exports.IOPeer = IOPeer;
 class IOPeerScalar extends IOPeer {
     constructor() {
         super(...arguments);
-        this.type = 'iopeerscalar';
+        this.peerType = PeerType.peerScalar;
     }
     parser(context) {
         return new parser_1.PIOPeerScalar(this, context);
     }
 }
 exports.IOPeerScalar = IOPeerScalar;
-class IOPeerID extends IOPeerScalar {
-    constructor(ioAppIO, parentPeer) {
-        super(parentPeer);
-        this.type = 'iopeerid';
-        this.ioAppIO = ioAppIO;
+class IOPeerID extends IOPeer {
+    constructor() {
+        super(...arguments);
+        this.peerType = PeerType.peerId;
     }
     parser(context) {
         return new parser_1.PIOPeerID(this, context);
@@ -97,11 +104,10 @@ class IOPeerID extends IOPeerScalar {
 }
 exports.IOPeerID = IOPeerID;
 class IOPeerArr extends IOPeer {
-    constructor(ioAppIO, parentPeer) {
-        super(parentPeer);
-        this.type = 'iopeerarr';
+    constructor() {
+        super(...arguments);
+        this.peerType = PeerType.peerArr;
         this.peers = {};
-        this.ioAppIO = ioAppIO;
     }
     parser(context) {
         return new parser_1.PIOPeerArr(this, context);

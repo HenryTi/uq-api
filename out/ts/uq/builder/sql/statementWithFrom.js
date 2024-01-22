@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VarTableWithSchema = exports.VarTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalTable = exports.FromJsonTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
+exports.VarTableWithDb = exports.VarTableWithSchema = exports.VarTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalTable = exports.FromJsonTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
 const statement_1 = require("./statement");
 class WithFromBuilder {
     where(exp) {
@@ -202,4 +202,16 @@ class VarTableWithSchema extends Table {
     }
 }
 exports.VarTableWithSchema = VarTableWithSchema;
+class VarTableWithDb extends Table {
+    constructor(dbName, name, alias) {
+        super(alias);
+        this.dbName = dbName;
+        this.name = name;
+    }
+    to(sb) {
+        sb.name(this.dbName).dot().var(this.name);
+        super.to(sb);
+    }
+}
+exports.VarTableWithDb = VarTableWithDb;
 //# sourceMappingURL=statementWithFrom.js.map

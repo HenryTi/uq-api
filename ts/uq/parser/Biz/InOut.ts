@@ -4,7 +4,7 @@ import {
     , Pointer, BizEntity, VarPointer, Biz, UI
     , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp
     , IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO
-    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud
+    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -252,25 +252,26 @@ function parsePeers(context: PContext, ioAppIO: IOAppIO, parentPeer: IOPeerArr, 
     function parsePeer() {
         let peer: IOPeer;
         let name = ts.passVar();
-        ts.passToken(Token.COLON);
+        let to: string;
+        if (ts.token === Token.COLON) {
+            ts.readToken();
+            to = ts.passVar();
+        }
         if (ts.token === Token.LBRACE) {
             peer = new IOPeerArr(ioAppIO, parentPeer);
         }
         else {
-            let peerScalar: IOPeerScalar;
-            let to = ts.passVar();
             if (ts.isKeyword('id') === true) {
                 ts.readToken();
-                peerScalar = new IOPeerID(ioAppIO, parentPeer);
+                peer = new IOPeerID(ioAppIO, parentPeer);
             }
             else {
-                peerScalar = new IOPeerScalar(parentPeer);
+                peer = new IOPeerScalar(ioAppIO, parentPeer);
             }
-            peerScalar.to = to;
-            peer = peerScalar;
         }
         context.parseElement(peer);
         peer.name = name;
+        peer.to = to;
         return peer;
     }
     return peers;
@@ -291,7 +292,7 @@ function checkPeers(space: Space, pElement: PElement, props: Map<string, BizBud>
         }
         else {
             let bud = props.get(name);
-            if (peer.type === 'iopeerid') {
+            if (peer.peerType === PeerType.peerId) {
                 if (bud.dataType !== BudDataType.ID) {
                     ok = false;
                     log = `${name} should not be ID`;
@@ -313,7 +314,7 @@ function checkPeers(space: Space, pElement: PElement, props: Map<string, BizBud>
                 ok = false;
                 pElement.log(`${bud.name} must define ID`);
             }
-            else if (peer.type !== 'iopeerid') {
+            else if (peer.peerType !== PeerType.peerId) {
                 ok = false;
                 pElement.log(`${peer.name} must be ID`);
             }

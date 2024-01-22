@@ -376,7 +376,8 @@ class ExpFunc extends ExpVal {
         this.params = params;
     }
     to(sb) {
-        sb.func(this.fName, this.params, false);
+        sb.func(this.fName, false);
+        sb.funcParams(this.params);
     }
 }
 exports.ExpFunc = ExpFunc;
@@ -386,8 +387,8 @@ class ExpFuncDb extends ExpFunc {
         this.db = db;
     }
     to(sb) {
-        sb.name(this.db).dot();
-        super.to(sb);
+        sb.name(this.db).dot().name(this.fName);
+        sb.funcParams(this.params);
     }
 }
 exports.ExpFuncDb = ExpFuncDb;
@@ -475,13 +476,15 @@ class ExpFuncInUq extends ExpVal {
         let f = sb.factory['func_' + this.func];
         switch (typeof f) {
             default:
-                sb.func(this.func, this.params, this.isUqFunc);
+                sb.func(this.func, this.isUqFunc);
+                sb.funcParams(this.params);
                 break;
             case 'function':
                 f(sb, this.params);
                 break;
             case 'string':
-                sb.func(f, this.params, this.isUqFunc);
+                sb.func(f, this.isUqFunc);
+                sb.funcParams(this.params);
                 break;
         }
     }

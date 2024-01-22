@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PExecSqlStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
-const tokens_1 = require("../tokens");
 class PExecSqlStatement extends statement_1.PStatement {
     constructor(execSqlStatement, context) {
         super(execSqlStatement, context);
@@ -15,11 +14,7 @@ class PExecSqlStatement extends statement_1.PStatement {
         this.execSqlStatement.sql = val;
         if (this.ts.isKeyword('to') === true) {
             this.ts.readToken();
-            if (this.ts.token !== tokens_1.Token.VAR) {
-                this.ts.expectToken(tokens_1.Token.VAR);
-            }
-            this.toVar = this.ts.lowerVar;
-            this.ts.readToken();
+            this.toVar = this.ts.passVar();
         }
     }
     scan(space) {

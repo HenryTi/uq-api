@@ -66,41 +66,37 @@ export class IOAppID extends BizBud {
     }
 }
 
+export enum PeerType { peerScalar, peerId, peerArr };
 export abstract class IOPeer extends IElement {
+    readonly ioAppIO: IOAppIO;
+    readonly type: undefined;
     name: string;
+    to: string;
+    abstract get peerType(): PeerType;
     readonly parentPeer: IOPeerArr;
-    constructor(parentPeer: IOPeerArr) {
+    constructor(ioAppIO: IOAppIO, parentPeer: IOPeerArr) {
         super();
+        this.ioAppIO = ioAppIO;
         this.parentPeer = parentPeer;
     }
 }
 export class IOPeerScalar extends IOPeer {
-    type = 'iopeerscalar';
-    to: string;
+    readonly peerType = PeerType.peerScalar;
+
     override parser(context: PContext): PElement<IElement> {
         return new PIOPeerScalar(this, context);
     }
 }
-export class IOPeerID extends IOPeerScalar {
-    type = 'iopeerid';
-    readonly ioAppIO: IOAppIO;
+export class IOPeerID extends IOPeer {
+    readonly peerType = PeerType.peerId;
     id: IOAppID;
-    constructor(ioAppIO: IOAppIO, parentPeer: IOPeerArr) {
-        super(parentPeer);
-        this.ioAppIO = ioAppIO;
-    }
     override parser(context: PContext): PElement<IElement> {
         return new PIOPeerID(this, context);
     }
 }
 export class IOPeerArr extends IOPeer {
-    type = 'iopeerarr';
-    readonly ioAppIO: IOAppIO;
+    readonly peerType = PeerType.peerArr;
     readonly peers: { [name: string]: IOPeer; } = {};
-    constructor(ioAppIO: IOAppIO, parentPeer: IOPeerArr) {
-        super(parentPeer);
-        this.ioAppIO = ioAppIO;
-    }
     override parser(context: PContext): PElement<IElement> {
         return new PIOPeerArr(this, context);
     }

@@ -2,7 +2,7 @@ import { Procedure, ProcedureUpdater as CommonProcedureUpdater } from '../proced
 import * as il from '../../../il';
 import { SqlBuilder } from '../sqlBuilder';
 import { isArray } from 'lodash';
-import { ExpStr, ExpVal, ExpVar, Statement } from '..';
+import { Statement } from '..';
 import { ProcParamType } from '../../../il';
 import { EntityRunner } from '../../../../core';
 

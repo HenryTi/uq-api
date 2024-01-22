@@ -146,8 +146,8 @@ exports.MsProcedure = MsProcedure;
 class MsSqlBuilder extends sqlBuilder_1.SqlBuilder {
     var$unit() { return this; }
     var$user() { return this; }
-    func(func, params) {
-    }
+    func(func, isUqFunc) { }
+    funcParams(params) { }
 }
 exports.MsSqlBuilder = MsSqlBuilder;
 //# sourceMappingURL=sqlMs.js.map

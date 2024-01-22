@@ -18,11 +18,7 @@ export class PExecSqlStatement extends PStatement {
         this.execSqlStatement.sql = val;
         if (this.ts.isKeyword('to') === true) {
             this.ts.readToken();
-            if (this.ts.token !== Token.VAR) {
-                this.ts.expectToken(Token.VAR);
-            }
-            this.toVar = this.ts.lowerVar;
-            this.ts.readToken();
+            this.toVar = this.ts.passVar();
         }
     }
 

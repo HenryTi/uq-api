@@ -177,29 +177,21 @@ class SqlBuilder {
         this.append(dt.size).append('TEXT');
     }
     timestamp() { this.append('TIMESTAMP'); }
-    func(func, params, isUqFunc) {
+    func(func, isUqFunc) {
         if (isUqFunc === true) {
-            this.dbName().dot().append(this.twProfix);
+            func = this.twProfix + func;
+            this.dbName().dot().name(func.toUpperCase());
         }
-        this.funcName(func);
+        else {
+            this.append(func.toUpperCase());
+        }
+    }
+    funcParams(params) {
         this.l();
-        if (isUqFunc === true) {
-            // 2023-11-30:
-            // 所有调用UqFunc的地方，都已经加了site和user，所以这里是不需要的
-            /*
-            // 2023-11-29:
-            // 当是UQ func的时候，自动加上 _$site, _$user 参数
-            this.append('_$site, _$user');
-            if (params.length > 0) this.comma();
-            */
-        }
         this.sepStart();
         for (let p of params)
             this.sep().exp(p);
         this.sepEnd().r();
-    }
-    funcName(func) {
-        this.append(func.toUpperCase());
     }
 }
 exports.SqlBuilder = SqlBuilder;

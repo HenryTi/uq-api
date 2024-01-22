@@ -239,25 +239,26 @@ function parsePeers(context, ioAppIO, parentPeer, ts) {
     function parsePeer() {
         let peer;
         let name = ts.passVar();
-        ts.passToken(tokens_1.Token.COLON);
+        let to;
+        if (ts.token === tokens_1.Token.COLON) {
+            ts.readToken();
+            to = ts.passVar();
+        }
         if (ts.token === tokens_1.Token.LBRACE) {
             peer = new il_1.IOPeerArr(ioAppIO, parentPeer);
         }
         else {
-            let peerScalar;
-            let to = ts.passVar();
             if (ts.isKeyword('id') === true) {
                 ts.readToken();
-                peerScalar = new il_1.IOPeerID(ioAppIO, parentPeer);
+                peer = new il_1.IOPeerID(ioAppIO, parentPeer);
             }
             else {
-                peerScalar = new il_1.IOPeerScalar(parentPeer);
+                peer = new il_1.IOPeerScalar(ioAppIO, parentPeer);
             }
-            peerScalar.to = to;
-            peer = peerScalar;
         }
         context.parseElement(peer);
         peer.name = name;
+        peer.to = to;
         return peer;
     }
     return peers;
@@ -277,7 +278,7 @@ function checkPeers(space, pElement, props, peers) {
         }
         else {
             let bud = props.get(name);
-            if (peer.type === 'iopeerid') {
+            if (peer.peerType === il_1.PeerType.peerId) {
                 if (bud.dataType !== il_1.BudDataType.ID) {
                     ok = false;
                     log = `${name} should not be ID`;
@@ -299,7 +300,7 @@ function checkPeers(space, pElement, props, peers) {
                 ok = false;
                 pElement.log(`${bud.name} must define ID`);
             }
-            else if (peer.type !== 'iopeerid') {
+            else if (peer.peerType !== il_1.PeerType.peerId) {
                 ok = false;
                 pElement.log(`${peer.name} must be ID`);
             }

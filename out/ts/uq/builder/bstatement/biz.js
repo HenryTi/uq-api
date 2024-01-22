@@ -362,15 +362,22 @@ class BBizStatementID extends bstatement_1.BStatement {
 const a = 'a', b = 'b';
 class BBizStatementAtom extends BBizStatementID {
     body(sqls) {
+        // 底层自动转换，所以没有必要显式转化ID
+        /*
         const { factory } = this.context;
         let select = factory.createSelect();
         sqls.push(select);
         select.toVar = true;
-        select.column(new sql_1.ExpField('atom', a), undefined, this.istatement.toVar);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtom, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAtomType, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('type', a)));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('outer', b), new sql_1.ExpVar('$outer')), new sql_1.ExpEQ(new sql_1.ExpField('phrase', b), new sql_1.ExpVar('$in')), new sql_1.ExpEQ(new sql_1.ExpField('no', a), this.context.expVal(this.istatement.inVals[0]))));
+        select.column(new ExpField('atom', a), undefined, this.istatement.toVar);
+        select.from(new EntityTable(EnumSysTable.IOAtom, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.IOAtomType, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('type', a)));
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('outer', b), new ExpVar('$outer')),
+            new ExpEQ(new ExpField('phrase', b), new ExpVar('$in')),
+            new ExpEQ(new ExpField('no', a), this.context.expVal(this.istatement.inVals[0])),
+        ));
+        */
     }
 }
 exports.BBizStatementAtom = BBizStatementAtom;

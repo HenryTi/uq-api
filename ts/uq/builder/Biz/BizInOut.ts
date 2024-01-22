@@ -1,19 +1,24 @@
 import {
+    BigInt,
     BizBud,
     BizBudArr,
-    BizBudValue, BizIOApp, BizIn, BizOut, BudDataType, EnumSysTable, Field
-    , IOAppIn, IOAppOut, JoinType, JsonTableColumn, bigIntField, charField, dateField
+    BizBudIDIO,
+    BizIOApp, BizIn, BizOut, BudDataType, Char, EnumSysTable, Field
+    , IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, JoinType
+    , JsonTableColumn, ProcParamType, bigIntField, charField, dateField
     , decField, intField, jsonField
 } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
+import { DbContext } from "../dbContext";
 import {
-    ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
+    ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncDb, ExpFuncInUq
     , ExpGT, ExpIsNull, ExpLT, ExpNull, ExpNum, ExpSelect, ExpStr
     , ExpVal, ExpVar, Procedure, SqlVarTable, Statement
 } from "../sql";
-import { LockType } from "../sql/select";
-import { EntityTable, FromJsonTable } from "../sql/statementWithFrom";
+import { Factory } from "../sql/factory";
+import { LockType, Select } from "../sql/select";
+import { EntityTable, VarTable, FromJsonTable, VarTableWithDb } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizIn extends BBizEntity<BizIn> {
@@ -227,25 +232,11 @@ export class BBizOut extends BBizEntity<BizOut> {
         const varRet = new ExpVar(ret);
         const varRow = new ExpVar(row);
 
-        function getBudVal(bud: BizBud, val: ExpVal): ExpVal {
-            if (bud.dataType !== BudDataType.ID) return val;
-            let select = factory.createSelect();
-            select.col('no', undefined, a);
-            select.from(new EntityTable(EnumSysTable.IOAtom, false, a))
-                .join(JoinType.join, new EntityTable(EnumSysTable.IOAtomType, false, b))
-                .on(new ExpEQ(new ExpField('id', b), new ExpField('type', a)));
-            select.where(new ExpAnd(
-                new ExpEQ(new ExpField('outer', b), varOuter),
-                new ExpEQ(new ExpField('atom', a), val),
-            ));
-            return new ExpSelect(select);
-        }
-
         for (let [name, bud] of props) {
             if (bud.dataType !== BudDataType.arr) {
                 params.push(
                     new ExpStr(name),
-                    getBudVal(bud, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$.${name}`))),
+                    new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$.${name}`)),
                 );
             }
             else {
@@ -284,7 +275,7 @@ export class BBizOut extends BBizEntity<BizOut> {
                 setIInc.equ(arrI, new ExpAdd(new ExpVar(arrI), ExpNum.num1));
                 for (let [name, bud] of arrProps) {
                     arrParams.push(new ExpStr(name));
-                    arrParams.push(getBudVal(bud, new ExpFunc('JSON_VALUE', varRow, new ExpStr(`$.${name}`))));
+                    arrParams.push(new ExpFunc('JSON_VALUE', varRow, new ExpStr(`$.${name}`)));
                 }
                 const appendArrJson = factory.createSet();
                 laStats.add(appendArrJson);
@@ -325,47 +316,227 @@ export class BBizOut extends BBizEntity<BizOut> {
     }
 }
 
-const outer = '$outer';
-const ioAppIO = '$ioAppIO';
+type BuildVal = (bud: BizBud) => ExpVal;
 export class BBizIOApp extends BBizEntity<BizIOApp> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
+        const { factory } = this.context;
+        const funcAtomToNo = this.createFunction(`${this.context.site}.ATOMTONO`, new Char(100));
+        new FuncAtomToNo(factory, funcAtomToNo).build();
+        const funcNoToAtom = this.createFunction(`${this.context.site}.NOTOATOM`, new BigInt());
+        new FuncNoToAtom(factory, funcNoToAtom).build();
+
         const { ins, outs } = this.bizEntity;
         for (let ioAppIn of ins) {
             const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
-            this.buildInProc(proc, ioAppIn);
+            let ioProc = new IOProcIn(this.context, ioAppIn, proc);
+            ioProc.buildProc();
         }
-        for (let ioAppOut of ins) {
+        for (let ioAppOut of outs) {
             const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
-            this.buildOutProc(proc, ioAppOut);
+            let ioProc = new IOProcOut(this.context, ioAppOut, proc);
+            ioProc.buildProc();
         }
     }
+}
 
-    private buildInProc(proc: Procedure, ioAppIn: IOAppIn) {
-        const { factory } = this.context;
-        const { parameters, statements } = proc;
-        parameters.push(bigIntField(outer));
-        const declare = factory.createDeclare();
-        statements.push(declare);
-        declare.vars(
-            bigIntField(ioAppIO)
-        );
-        let setIOAppIO = factory.createSet();
-        statements.push(setIOAppIO);
-        setIOAppIO.equ(ioAppIO, new ExpNum(ioAppIn.id));
+abstract class FuncTo {
+    protected readonly param = 'param';
+    protected readonly factory: Factory;
+    protected readonly func: Procedure;
+    constructor(factory: Factory, func: Procedure) {
+        this.factory = factory;
+        this.func = func;
     }
 
-    private buildOutProc(proc: Procedure, ioAppOut: IOAppOut) {
-        const { factory } = this.context;
-        const { parameters, statements } = proc;
-        parameters.push(bigIntField(outer));
+    protected abstract get fromName(): string;
+    protected abstract get toName(): string;
+    protected abstract fromField(): Field;
+    protected abstract toField(): Field;
+
+    build() {
+        const { parameters, statements } = this.func;
+        parameters.push(
+            bigIntField('appID'),
+            this.fromField(),
+        );
+        let declare = this.factory.createDeclare();
+        statements.push(declare);
+        declare.vars(this.toField());
+
+        let select = this.factory.createSelect();
+        statements.push(select);
+        select.toVar = true;
+        select.lock = LockType.none;
+        select.col(this.toName, this.toName);
+        select.from(new EntityTable(EnumSysTable.IOAppAtom, false));
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('appID'), new ExpVar('appID')),
+            new ExpEQ(new ExpField(this.fromName), new ExpVar(this.param)),
+        ));
+        let iff = this.factory.createIf();
+        statements.push(iff);
+        iff.cmp = new ExpIsNull(new ExpVar(this.toName));
+        const insertErr = this.factory.createInsert();
+        iff.then(insertErr);
+        insertErr.ignore = true;
+        insertErr.table = new VarTableWithDb($site, 'transerr');
+        insertErr.cols = [
+            { col: 'appID', val: new ExpVar('appID') },
+            { col: this.fromName, val: new ExpVar(this.param) },
+        ];
+        let ret = this.factory.createReturn();
+        statements.push(ret);
+        ret.returnVar = this.toName;
+    }
+}
+class FuncNoToAtom extends FuncTo {
+    protected fromName = 'no';
+    protected toName = 'atom';
+    protected fromField(): Field { return charField(this.param, 100); }
+    protected toField(): Field { return bigIntField(this.toName); }
+}
+class FuncAtomToNo extends FuncTo {
+    protected fromName = 'atom';
+    protected toName = 'no';
+    protected fromField(): Field { return bigIntField(this.param); }
+    protected toField(): Field { return charField(this.toName, 100); }
+}
+
+abstract class IOProc<T extends IOAppIO> {
+    static outer = '$outer';
+    static ioAppIO = '$ioAppIO';
+    static vJson = '$json';
+    static vRet = '$ret';
+    static jsonTable = 't';
+    protected readonly context: DbContext;
+    protected readonly factory: Factory;
+    protected readonly ioAppIO: T;
+    protected readonly proc: Procedure;
+    protected readonly expJson: ExpVal;
+    constructor(context: DbContext, ioAppIO: T, proc: Procedure) {
+        this.context = context;
+        this.factory = context.factory;
+        this.ioAppIO = ioAppIO;
+        this.proc = proc;
+        this.expJson = new ExpVar(IOProc.vJson);
+    }
+
+    protected abstract transID(peer: IOPeerID, val: ExpVal): ExpVal;
+
+    buildProc() {
+        const { factory } = this;
+        const { parameters, statements } = this.proc;
+        let outField = jsonField(IOProc.vRet);
+        outField.paramType = ProcParamType.out;
+        parameters.push(
+            bigIntField(IOProc.outer),
+            jsonField(IOProc.vJson),
+            outField,
+        );
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars(
-            bigIntField(ioAppIO)
+            bigIntField(IOProc.ioAppIO)
         );
         let setIOAppIO = factory.createSet();
         statements.push(setIOAppIO);
-        setIOAppIO.equ(ioAppIO, new ExpNum(ioAppOut.id));
+        setIOAppIO.equ(IOProc.ioAppIO, new ExpNum(this.ioAppIO.id));
+
+        let set = factory.createSet();
+        statements.push(set);
+        set.equ(IOProc.vRet, new ExpSelect(this.buildJsonTrans()));
+    }
+
+    private buildJsonTrans(): Select {
+        const { bizIO, peers } = this.ioAppIO;
+        const { props } = bizIO;
+        let select = this.factory.createSelect();
+        select.lock = LockType.none;
+        select.column(this.buidlJsonObj(props, peers, this.buildVal));
+        return select;
+    }
+
+    private buildVal = (bud: BizBud) => {
+        return new ExpFunc('JSON_VALUE', this.expJson, new ExpStr(`$.${bud.name}`));
+    }
+
+    private buidlJsonObj(props: Map<string, BizBud>, peers: { [name: string]: IOPeer }, func: BuildVal): ExpVal {
+        let objParams: ExpVal[] = [];
+        for (let [name, bud] of props) {
+            let peer = peers[name];
+            let val: ExpVal;
+            switch (bud.dataType) {
+                default:
+                    val = func(bud);
+                    break;
+                case BudDataType.arr:
+                    val = this.buidlJsonArr(name, (bud as BizBudArr).props, (peer as IOPeerArr).peers);
+                    break;
+                case BudDataType.ID:
+                    val = this.transID(peer as IOPeerID, func(bud));
+                    break;
+            }
+            objParams.push(
+                new ExpStr(peer === undefined ? name : peer.to),
+                bud.dataType !== BudDataType.arr ?
+                    val
+                    :
+                    this.buidlJsonArr(name, (bud as BizBudArr).props, (peer as IOPeerArr).peers)
+            );
+        }
+        return new ExpFunc('JSON_OBJECT', ...objParams);
+    }
+
+    private buildValInArr = (bud: BizBud) => {
+        const { name } = bud;
+        return new ExpField(name, IOProc.jsonTable);
+    }
+
+    private buidlJsonArr(arrName: string, props: Map<string, BizBud>, peers: { [name: string]: IOPeer }): ExpVal {
+        let select = this.factory.createSelect();
+        select.lock = LockType.none;
+        const columns: JsonTableColumn[] = Array.from(props).map(
+            ([name, bud]) => {
+                let field: Field;
+                switch (bud.dataType) {
+                    default: debugger; break;
+                    case BudDataType.ID:
+                    case BudDataType.date:
+                    case BudDataType.int: field = bigIntField(name); break;
+                    case BudDataType.dec: field = decField(name, 24, 6); break;
+                    case BudDataType.arr: field = jsonField(name); break;
+                    case BudDataType.char:
+                    case BudDataType.str: field = charField(name, 400); break;
+                }
+                let ret: JsonTableColumn = {
+                    field,
+                    path: `$.${name}`,
+                };
+                return ret;
+            }
+        );
+        select.column(new ExpFunc('JSON_ARRAYAGG', this.buidlJsonObj(props, peers, this.buildValInArr)));
+        select.from(new FromJsonTable(IOProc.jsonTable, this.expJson, `$.${arrName}[*]`, columns));
+        return new ExpSelect(select);
+    }
+}
+
+class IOProcIn extends IOProc<IOAppIn> {
+    protected override transID(peer: IOPeerID, val: ExpVal): ExpVal {
+        return new ExpFuncDb('$site',
+            `${this.context.site}.notoatom`,
+            new ExpNum(peer.id.id),
+            val);
+    }
+}
+
+class IOProcOut extends IOProc<IOAppOut> {
+    protected override transID(peer: IOPeerID, val: ExpVal): ExpVal {
+        return new ExpFuncDb('$site',
+            `${this.context.site}.atomtono`,
+            new ExpNum(peer.id.id),
+            val
+        );
     }
 }

@@ -7,9 +7,6 @@ export class MySqlBuilder extends SqlBuilder {
     var(p: string): SqlBuilder { this.append('`_').append(p).append('`'); return this; }   // proc var
     fld(f: string): SqlBuilder { this.append('`').append(f).append('`'); return this; }  // field: alias.field
     param(p: string): SqlBuilder { this.var(p); return this; }   // proc parameter
-    funcName(func: string): void {
-        this.append(func.toUpperCase());
-    }
     text(dt: Text) {
         let tSize: string;
         switch (dt.size) {

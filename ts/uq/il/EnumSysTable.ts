@@ -36,8 +36,7 @@ export enum EnumSysTable {
     IODone = 'iodone',
     IOOuter = 'ioouter',
     IOEndPoint = 'ioendpoint',
-    IOAtomType = 'ioatomtype',
-    IOAtom = 'ioatom',
+    IOAppAtom = 'ioappatom',
 
     messageQueue = '$message_queue',
     messageQueueEnd = '$message_queue_end',
