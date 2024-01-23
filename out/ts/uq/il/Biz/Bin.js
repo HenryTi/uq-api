@@ -166,7 +166,7 @@ class BizBin extends Entity_1.BizEntity {
         this.inputColl = {};
         this.sheetArr = []; // 被多少sheet引用了
         this.div = new BinDiv(undefined, undefined); // 输入和显示的层级结构
-        this.outs = [];
+        this.outs = {};
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);

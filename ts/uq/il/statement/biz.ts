@@ -1,13 +1,18 @@
-import { BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext, BBizStatementSheet, BBizStatementDetail, BBizStatementAtom, BBizStatementSpec, BBizStatementOut } from '../../builder';
+import {
+    BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext
+    , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut
+} from '../../builder';
 import * as parser from '../../parser';
-// import { Builder } from "../builder";
 import { IElement } from '../IElement';
-import { BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct, BizInAct, BizBin, BizSheet, BizAtom, BizSpec, BizOut } from '../Biz';
+import {
+    BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
+    , BizInAct, BizBin, BizAtom, BizSpec, BizOut
+} from '../Biz';
 import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
 import { SetEqu } from '../tool';
-import { Pointer, VarPointer } from '../pointer';
-// import { UseOut } from './use';
+import { VarPointer } from '../pointer';
+import { UseSheet } from './use';
 
 export abstract class BizStatement<T extends BizAct> extends Statement {
     get type(): string { return 'bizstatement'; }
@@ -21,7 +26,7 @@ export abstract class BizStatement<T extends BizAct> extends Statement {
         this.no = no;
         this.sub.setNo(no);
     }
-    db(db: DbContext): object { return this.sub.db(db);/* db.bizActStatement(this); */ }
+    db(db: DbContext): object { return this.sub.db(db); }
 }
 
 export class BizStatementBin extends BizStatement<BizBinAct> {
@@ -75,22 +80,22 @@ export class BizStatementTitle<T extends BizAct = BizAct> extends BizStatementSu
     }
     db(db: DbContext): BStatement { return new BBizStatementTitle(db, this); }
 }
-
+/*
 export abstract class BizStatementSheetBase<T extends BizAct = BizAct> extends BizStatementSub<T> {
-    sheet: BizSheet;
+}
+*/
+export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSub<T> {
+    useSheet: UseSheet;
+    detail: BizBin;
     bin: BizBin;
     fields: { [name: string]: ValueExpression } = {};
     buds: { [name: string]: ValueExpression } = {};
-}
-
-export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSheetBase<T> {
-    idPointer: VarPointer;
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementSheet(this, context);
     }
     db(db: DbContext): BStatement { return new BBizStatementSheet(db, this); }
 }
-
+/*
 export class BizStatementDetail<T extends BizAct = BizAct> extends BizStatementSheetBase<T> {
     idVal: ValueExpression;
     parser(context: parser.PContext): parser.PElement<IElement> {
@@ -98,7 +103,7 @@ export class BizStatementDetail<T extends BizAct = BizAct> extends BizStatementS
     }
     db(db: DbContext): BStatement { return new BBizStatementDetail(db, this); }
 }
-
+*/
 export abstract class BizStatementID<T extends BizAct = BizAct> extends BizStatementSub<T> {
     toVar: VarPointer;
     inVals: ValueExpression[];
@@ -121,8 +126,6 @@ export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<
 }
 
 export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<T> {
-    // useOut: UseOut;
-    // detail: string;
     bizOut: BizOut;
     detail: string;
     readonly sets: { [bud: string]: ValueExpression } = {};

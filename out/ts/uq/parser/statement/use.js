@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PUseTimeSpan = exports.PUseYearZone = exports.PUseMonthZone = exports.PUseTimeZone = exports.PUseSetting = exports.PUseBase = exports.PUseStatement = void 0;
+exports.PUseSheet = exports.PUseTimeSpan = exports.PUseYearZone = exports.PUseMonthZone = exports.PUseTimeZone = exports.PUseSetting = exports.PUseBase = exports.PUseStatement = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -24,6 +24,9 @@ class PUseStatement extends statement_1.PStatement {
                 break;
             case 'timespan':
                 useBase = new il_1.UseTimeSpan(this.element);
+                break;
+            case 'sheet':
+                useBase = new il_1.UseSheet(this.element);
                 break;
         }
         this.element.useBase = useBase;
@@ -137,24 +140,22 @@ class PUseTimeSpan extends PUseBase {
     }
 }
 exports.PUseTimeSpan = PUseTimeSpan;
-/*
-export class PUseOut extends PUseBase<UseOut> {
-    private outEntity: string;
-    protected _parse(): void {
+class PUseSheet extends PUseBase {
+    _parse() {
         this.element.varName = this.ts.passVar();
-        this.outEntity = this.ts.passVar();
+        this.sheet = this.ts.passVar();
     }
-    scan(space: Space): boolean {
+    scan(space) {
         let ok = true;
-        this.element.outEntity = space.getBizEntity(this.outEntity);
-        let { outEntity, statement, varName } = this.element;
-        if (outEntity === undefined || outEntity.bizPhraseType !== BizPhraseType.out) {
+        this.element.sheet = space.getBizEntity(this.sheet);
+        let { sheet, statement, varName } = this.element;
+        if (sheet === undefined || sheet.bizPhraseType !== il_1.BizPhraseType.sheet) {
             ok = false;
-            this.log(`${this.outEntity} is not OUT`);
+            this.log(`${this.sheet} is not SHEET`);
         }
         space.addUse(varName, statement.no, this.element);
         return ok;
     }
 }
-*/ 
+exports.PUseSheet = PUseSheet;
 //# sourceMappingURL=use.js.map

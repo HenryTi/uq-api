@@ -30,6 +30,7 @@ export class BizIn extends BizInOut {
 
 export class BizOut extends BizInOut {
     readonly bizPhraseType = BizPhraseType.out;
+    ioAppOuts: IOAppOut[];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizOut(this, context);
@@ -37,6 +38,10 @@ export class BizOut extends BizInOut {
 
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizOut(dbContext, this);
+    }
+
+    setIOAppOuts() {
+        this.ioAppOuts = this.biz.getIOAppOuts(this)
     }
 }
 

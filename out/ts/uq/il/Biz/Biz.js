@@ -159,6 +159,21 @@ class Biz extends entity_1.Entity {
             ok, entityArr, logs, bizPhraseType, bizEntityTable
         };
     }
+    getIOAppOuts(bizOut) {
+        let ret = [];
+        for (let entity of this.bizArr) {
+            if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.ioApp)
+                continue;
+            const { outs } = entity;
+            for (let out of outs) {
+                if (out.bizIO === bizOut) {
+                    ret.push(out);
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
 }
 exports.Biz = Biz;
 class BizSchemaBuilder extends schema_1.SchemaBuilder {

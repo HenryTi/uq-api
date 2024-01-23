@@ -39,6 +39,9 @@ class BizOut extends BizInOut {
     db(dbContext) {
         return new builder_1.BBizOut(dbContext, this);
     }
+    setIOAppOuts() {
+        this.ioAppOuts = this.biz.getIOAppOuts(this);
+    }
 }
 exports.BizOut = BizOut;
 class BizInAct extends Base_1.BizAct {

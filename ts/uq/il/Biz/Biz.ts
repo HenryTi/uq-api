@@ -9,6 +9,7 @@ import { BizRole } from "./Role";
 import { BizAtom } from "./BizID";
 import { EnumSysTable } from "../EnumSysTable";
 import { BizPhraseType } from "./BizPhraseType";
+import { BizIOApp, BizOut, IOAppOut } from "./InOut";
 
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
@@ -167,6 +168,21 @@ export class Biz extends Entity {
         return {
             ok, entityArr, logs, bizPhraseType, bizEntityTable
         };
+    }
+
+    getIOAppOuts(bizOut: BizOut): IOAppOut[] {
+        let ret: IOAppOut[] = [];
+        for (let entity of this.bizArr) {
+            if (entity.bizPhraseType !== BizPhraseType.ioApp) continue;
+            const { outs } = entity as BizIOApp;
+            for (let out of outs) {
+                if (out.bizIO === bizOut) {
+                    ret.push(out);
+                    break;
+                }
+            }
+        }
+        return ret;
     }
 }
 

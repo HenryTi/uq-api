@@ -4,7 +4,7 @@ import {
     , BizStatementTitle, BizPend, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
-    , BizStatementDetail, BizPhraseType, BizSheet, BizStatementSheetBase
+    , BizPhraseType, BizSheet
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
     , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut
 } from '../../il';
@@ -20,7 +20,6 @@ export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>>
     private readonly bizSubs: { [key: string]: new (bizStatement: T) => BizStatementSub<A> } = {
         title: BizStatementTitle,
         sheet: BizStatementSheet,
-        detail: BizStatementDetail,
     }
     constructor(bizStatement: T, context: PContext) {
         super(bizStatement, context);
@@ -276,7 +275,40 @@ export class PBizStatementTitle extends PBizStatementSub<BizAct, BizStatementTit
     }
 }
 
-abstract class PBizStatementSheetBase<A extends BizAct, T extends BizStatementSheetBase<A>> extends PBizStatementSub<A, T> {
+export class PBizStatementSheet extends PBizStatementSub<BizAct, BizStatementSheet> {
+    private useSheet: string;
+    private detail: string;
+    protected _parse(): void {
+        this.useSheet = this.ts.passVar();
+        if (this.ts.isKeyword('detail') === true) {
+            this.ts.readToken();
+            this.detail = this.ts.passVar();
+        }
+        this.parseSet();
+    }
+
+    override scan(space: Space): boolean {
+        let ok = true;
+        let useSheet = space.getUse(this.useSheet);
+        if (useSheet === undefined || useSheet.obj.type !== 'sheet') {
+            ok = false;
+            this.log(`${this.useSheet} is not a USE SHEET`);
+        }
+        else {
+            this.element.useSheet = useSheet.obj;
+            let { sheet } = this.element.useSheet;
+            const detail = sheet.details.find(v => v.bin.name === this.detail);
+            if (detail !== undefined) {
+                this.element.bin = this.element.detail = detail.bin;
+            }
+            else {
+                this.element.bin = sheet.main;
+            }
+            if (this.scanSets(space) === false) ok = false;
+        }
+        return ok;
+    }
+
     private readonly sets: { [name: string]: ValueExpression } = {};
     protected parseSet() {
         this.ts.passKey('set');
@@ -318,40 +350,7 @@ abstract class PBizStatementSheetBase<A extends BizAct, T extends BizStatementSh
         return ok;
     }
 }
-
-export class PBizStatementSheet extends PBizStatementSheetBase<BizAct, BizStatementSheet> {
-    private sheet: string;
-    private id: string;
-    protected _parse(): void {
-        this.sheet = this.ts.passVar();
-        this.ts.passKey('to');
-        this.id = this.ts.passVar();
-        this.parseSet();
-    }
-
-    override scan(space: Space): boolean {
-        let ok = true;
-        let sheet = space.getBizEntity<BizSheet>(this.sheet);
-        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
-            ok = false;
-            this.log(`${this.sheet} is not a SHEET`);
-        }
-        this.element.sheet = sheet;
-        this.element.bin = sheet.main;
-        let pointer = space.varPointer(this.id, false) as VarPointer;
-        if (pointer === undefined) {
-            ok = false;
-            this.log(`没有定义${this.id}`);
-        }
-        else {
-            pointer.name = this.id;
-        }
-        this.element.idPointer = pointer;
-        if (this.scanSets(space) === false) ok = false;
-        return ok;
-    }
-}
-
+/*
 export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizStatementDetail> {
     private sheet: string;
     private detail: string;
@@ -398,7 +397,7 @@ export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizState
         return ok;
     }
 }
-
+*/
 abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> extends PBizStatementSub<A, T> {
     protected entityName: string;
     protected entity: BizEntity;
@@ -542,6 +541,7 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
         else {
             space.addUse('$' + bizOut.name, 0, bizOut);
             this.element.bizOut = bizOut;
+            space.regUseBizOut(bizOut);
             let { props } = bizOut;
             if (detail !== undefined) {
                 let arr = bizOut.props.get(detail) as BizBudArr;

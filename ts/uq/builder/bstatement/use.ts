@@ -1,7 +1,8 @@
 import {
-    BigInt, DateTime, SpanPeriod, UseBase, UseMonthZone
-    , UseSetting, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone
+    BigInt, BudDataType, DateTime, JsonDataType, ProcParamType, SpanPeriod, UseBase, UseMonthZone
+    , UseSetting, UseSheet, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone, bigIntField
 } from "../../il";
+import { $site } from "../consts";
 import { DbContext } from "../dbContext";
 import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
 import { BStatementBase } from "./bstatement";
@@ -246,40 +247,40 @@ export class BUseTimeSpan extends BUseBase<UseTimeSpan> {
         }
     }
 }
-/*
-export class BUseOut extends BUseBase<UseOut> {
-    readonly singleKey = 'out';
+
+export class BUseSheet extends BUseBase<UseSheet> {
+    readonly singleKey = 'sheet';
     override singleHead(sqls: Sqls): void {
-        const { varName, outEntity } = this.useObj;
+        const { varName } = this.useObj;
         const { factory } = this.context;
         let declare = factory.createDeclare();
         sqls.push(declare);
-        declare.var(varName, new JsonDataType());
-        let set = factory.createSet();
-        sqls.push(set);
-        let params: ExpVal[] = [];
-        for (let [, bud] of outEntity.props) {
-            const { dataType, name } = bud;
-            if (dataType !== BudDataType.arr) continue;
-            params.push(new ExpStr(name), new ExpFunc('JSON_ARRAY'));
-        }
-        set.equ(varName, new ExpFunc('JSON_OBJECT', ...params));
+        declare.vars(bigIntField(varName));
     }
 
     override singleFoot(sqls: Sqls) {
-        const { varName, outEntity } = this.useObj;
+        const { varName, sheet } = this.useObj;
         const { factory } = this.context;
         const memo = factory.createMemo();
         sqls.push(memo);
-        memo.text = `call PROC to write OUT ${varName} ${outEntity.getJName()}`;
+        memo.text = `call Sheet.Submit ${varName} ${sheet.getJName()}`;
         const proc = factory.createCall();
         sqls.push(proc);
         proc.db = '$site';
-        proc.procName = `${this.context.site}.${outEntity.id}`;
-        proc.params.push({
-            paramType: ProcParamType.in,
-            value: new ExpVar(varName),
-        });
+        proc.procName = `${this.context.site}.${sheet.id}`;
+        proc.params.push(
+            {
+                paramType: ProcParamType.in,
+                value: new ExpVar($site),
+            },
+            {
+                paramType: ProcParamType.in,
+                value: ExpNum.num0,
+            },
+            {
+                paramType: ProcParamType.in,
+                value: new ExpVar(varName),
+            }
+        );
     }
 }
-*/

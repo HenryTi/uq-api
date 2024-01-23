@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizStatementOut = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementDetail = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
+exports.BBizStatementOut = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
 const il_1 = require("../../il");
 const consts_1 = require("../consts");
 const dbContext_1 = require("../dbContext");
@@ -231,7 +231,61 @@ class BBizStatementTitle extends bstatement_1.BStatement {
     }
 }
 exports.BBizStatementTitle = BBizStatementTitle;
-class BBizStatementSheetBase extends bstatement_1.BStatement {
+class BBizStatementSheet extends bstatement_1.BStatement {
+    body(sqls) {
+        const { detail } = this.istatement;
+        if (detail === undefined)
+            this.buildMain(sqls);
+        else
+            this.buildDetail(sqls);
+    }
+    buildMain(sqls) {
+        const { factory } = this.context;
+        const { useSheet } = this.istatement;
+        const { sheet } = useSheet;
+        const memo = factory.createMemo();
+        sqls.push(memo);
+        memo.text = 'Biz Sheet ' + sheet.getJName();
+        const setId = factory.createSet();
+        sqls.push(setId);
+        let idVarName = useSheet.varName;
+        let idParams = [
+            new sql_1.ExpVar(consts_1.$site),
+            sql_1.ExpNum.num0,
+            sql_1.ExpNum.num1,
+            sql_1.ExpNull.null,
+            new sql_1.ExpNum(sheet.id),
+            new sql_1.ExpFuncInUq('$no', [new sql_1.ExpVar(consts_1.$site), new sql_1.ExpStr('sheet'), sql_1.ExpNull.null], true),
+        ];
+        setId.equ(idVarName, new sql_1.ExpFuncInUq('sheet$id', idParams, true));
+        sqls.push(...this.createUpdate(idVarName));
+    }
+    buildDetail(sqls) {
+        const { factory } = this.context;
+        let idVarName = 'detail$id';
+        const declare = factory.createDeclare();
+        sqls.push(declare);
+        declare.vars((0, il_1.intField)(idVarName));
+        const { useSheet, bin } = this.istatement;
+        const { varName, sheet } = useSheet;
+        const memo = factory.createMemo();
+        sqls.push(memo);
+        memo.text = `Biz Detail ${bin.getJName()} OF Sheet ${sheet.getJName()}`;
+        const setBinId = factory.createSet();
+        sqls.push(setBinId);
+        let idParams = [
+            new sql_1.ExpVar(consts_1.$site),
+            sql_1.ExpNum.num0,
+            sql_1.ExpNum.num1,
+            sql_1.ExpNull.null,
+            new sql_1.ExpFuncInUq('bud$id', [
+                new sql_1.ExpVar(consts_1.$site), sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
+                new sql_1.ExpVar(varName), new sql_1.ExpNum(bin.id)
+            ], true),
+        ];
+        setBinId.equ(idVarName, new sql_1.ExpFuncInUq('detail$id', idParams, true));
+        sqls.push(...this.createUpdate(idVarName));
+    }
     createUpdate(idVarName) {
         const { factory } = this.context;
         const varId = new sql_1.ExpVar(idVarName);
@@ -304,57 +358,7 @@ class BBizStatementSheetBase extends bstatement_1.BStatement {
         return ret;
     }
 }
-class BBizStatementSheet extends BBizStatementSheetBase {
-    body(sqls) {
-        const { factory } = this.context;
-        const { sheet, idPointer } = this.istatement;
-        const memo = factory.createMemo();
-        sqls.push(memo);
-        memo.text = 'Biz Sheet ' + sheet.getJName();
-        const setId = factory.createSet();
-        sqls.push(setId);
-        let idVarName = idPointer.varName(undefined);
-        let idParams = [
-            new sql_1.ExpVar(consts_1.$site),
-            sql_1.ExpNum.num0,
-            sql_1.ExpNum.num1,
-            sql_1.ExpNull.null,
-            new sql_1.ExpNum(sheet.id),
-            new sql_1.ExpFuncInUq('$no', [new sql_1.ExpVar(consts_1.$site), new sql_1.ExpStr('sheet'), sql_1.ExpNull.null], true),
-        ];
-        setId.equ(idVarName, new sql_1.ExpFuncInUq('sheet$id', idParams, true));
-        sqls.push(...this.createUpdate(idVarName));
-    }
-}
 exports.BBizStatementSheet = BBizStatementSheet;
-class BBizStatementDetail extends BBizStatementSheetBase {
-    body(sqls) {
-        const { factory } = this.context;
-        let idVarName = 'detail$id';
-        const declare = factory.createDeclare();
-        sqls.push(declare);
-        declare.vars((0, il_1.intField)(idVarName));
-        const { sheet, bin, idVal } = this.istatement;
-        const memo = factory.createMemo();
-        sqls.push(memo);
-        memo.text = `Biz Detail ${bin.getJName()} OF Sheet ${sheet.getJName()}`;
-        const setBinId = factory.createSet();
-        sqls.push(setBinId);
-        let idParams = [
-            new sql_1.ExpVar(consts_1.$site),
-            sql_1.ExpNum.num0,
-            sql_1.ExpNum.num1,
-            sql_1.ExpNull.null,
-            new sql_1.ExpFuncInUq('bud$id', [
-                new sql_1.ExpVar(consts_1.$site), sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
-                this.context.expVal(idVal), new sql_1.ExpNum(bin.id)
-            ], true),
-        ];
-        setBinId.equ(idVarName, new sql_1.ExpFuncInUq('detail$id', idParams, true));
-        sqls.push(...this.createUpdate(idVarName));
-    }
-}
-exports.BBizStatementDetail = BBizStatementDetail;
 class BBizStatementID extends bstatement_1.BStatement {
     body(sqls) {
     }

@@ -1,10 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizStatementOut = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementDetail = exports.BizStatementSheet = exports.BizStatementSheetBase = exports.BizStatementTitle = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
+exports.BizStatementOut = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementTitle = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
 const builder_1 = require("../../builder");
 const parser = require("../../parser");
 const Statement_1 = require("./Statement");
-// import { UseOut } from './use';
 class BizStatement extends Statement_1.Statement {
     get type() { return 'bizstatement'; }
     constructor(parent, bizAct) {
@@ -15,7 +14,7 @@ class BizStatement extends Statement_1.Statement {
         this.no = no;
         this.sub.setNo(no);
     }
-    db(db) { return this.sub.db(db); /* db.bizActStatement(this); */ }
+    db(db) { return this.sub.db(db); }
 }
 exports.BizStatement = BizStatement;
 class BizStatementBin extends BizStatement {
@@ -62,28 +61,31 @@ class BizStatementTitle extends BizStatementSub {
     db(db) { return new builder_1.BBizStatementTitle(db, this); }
 }
 exports.BizStatementTitle = BizStatementTitle;
-class BizStatementSheetBase extends BizStatementSub {
+/*
+export abstract class BizStatementSheetBase<T extends BizAct = BizAct> extends BizStatementSub<T> {
+}
+*/
+class BizStatementSheet extends BizStatementSub {
     constructor() {
         super(...arguments);
         this.fields = {};
         this.buds = {};
     }
-}
-exports.BizStatementSheetBase = BizStatementSheetBase;
-class BizStatementSheet extends BizStatementSheetBase {
     parser(context) {
         return new parser.PBizStatementSheet(this, context);
     }
     db(db) { return new builder_1.BBizStatementSheet(db, this); }
 }
 exports.BizStatementSheet = BizStatementSheet;
-class BizStatementDetail extends BizStatementSheetBase {
-    parser(context) {
+/*
+export class BizStatementDetail<T extends BizAct = BizAct> extends BizStatementSheetBase<T> {
+    idVal: ValueExpression;
+    parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementDetail(this, context);
     }
-    db(db) { return new builder_1.BBizStatementDetail(db, this); }
+    db(db: DbContext): BStatement { return new BBizStatementDetail(db, this); }
 }
-exports.BizStatementDetail = BizStatementDetail;
+*/
 class BizStatementID extends BizStatementSub {
 }
 exports.BizStatementID = BizStatementID;

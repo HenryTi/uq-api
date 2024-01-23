@@ -35,12 +35,14 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
         const { main, details } = this.bizEntity;
-        const outs = [...main.outs];
+        const outs = {};
+        const mainOuts = main.outs;
+        for (let i in mainOuts)
+            outs[i] = mainOuts[i];
         for (let detail of details) {
-            for (let out of detail.bin.outs) {
-                if (outs.findIndex(v => v === out) < 0) {
-                    outs.push(out);
-                }
+            const detailOuts = detail.bin.outs;
+            for (let i in detailOuts) {
+                outs[i] = detailOuts[i];
             }
         }
         const site = '$site';
@@ -49,7 +51,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars((0, il_1.bigIntField)(sheetId), (0, il_1.bigIntField)(si), (0, il_1.bigIntField)(sx), (0, il_1.decField)(svalue, 18, 6), (0, il_1.decField)(samount, 18, 6), (0, il_1.decField)(sprice, 18, 6));
-        for (let out of outs) {
+        for (let i in outs) {
+            let out = outs[i];
             this.buildOutInit(statements, out);
         }
         // main
@@ -68,7 +71,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             let { bin } = details[i];
             this.buildBin(statements, bin, i + 101);
         }
-        for (let out of outs) {
+        for (let i in outs) {
+            let out = outs[i];
             this.buildOut(statements, out);
         }
     }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementOut = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementDetail = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementOut = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
@@ -13,7 +13,6 @@ class PBizStatement extends statement_1.PStatement {
         this.bizSubs = {
             title: il_1.BizStatementTitle,
             sheet: il_1.BizStatementSheet,
-            detail: il_1.BizStatementDetail,
         };
         this.bizStatement = bizStatement;
         this.init();
@@ -271,10 +270,40 @@ class PBizStatementTitle extends PBizStatementSub {
     }
 }
 exports.PBizStatementTitle = PBizStatementTitle;
-class PBizStatementSheetBase extends PBizStatementSub {
+class PBizStatementSheet extends PBizStatementSub {
     constructor() {
         super(...arguments);
         this.sets = {};
+    }
+    _parse() {
+        this.useSheet = this.ts.passVar();
+        if (this.ts.isKeyword('detail') === true) {
+            this.ts.readToken();
+            this.detail = this.ts.passVar();
+        }
+        this.parseSet();
+    }
+    scan(space) {
+        let ok = true;
+        let useSheet = space.getUse(this.useSheet);
+        if (useSheet === undefined || useSheet.obj.type !== 'sheet') {
+            ok = false;
+            this.log(`${this.useSheet} is not a USE SHEET`);
+        }
+        else {
+            this.element.useSheet = useSheet.obj;
+            let { sheet } = this.element.useSheet;
+            const detail = sheet.details.find(v => v.bin.name === this.detail);
+            if (detail !== undefined) {
+                this.element.bin = this.element.detail = detail.bin;
+            }
+            else {
+                this.element.bin = sheet.main;
+            }
+            if (this.scanSets(space) === false)
+                ok = false;
+        }
+        return ok;
     }
     parseSet() {
         this.ts.passKey('set');
@@ -316,67 +345,39 @@ class PBizStatementSheetBase extends PBizStatementSub {
         return ok;
     }
 }
-class PBizStatementSheet extends PBizStatementSheetBase {
-    _parse() {
-        this.sheet = this.ts.passVar();
-        this.ts.passKey('to');
-        this.id = this.ts.passVar();
-        this.parseSet();
-    }
-    scan(space) {
-        let ok = true;
-        let sheet = space.getBizEntity(this.sheet);
-        if (sheet === undefined || sheet.bizPhraseType !== il_1.BizPhraseType.sheet) {
-            ok = false;
-            this.log(`${this.sheet} is not a SHEET`);
-        }
-        this.element.sheet = sheet;
-        this.element.bin = sheet.main;
-        let pointer = space.varPointer(this.id, false);
-        if (pointer === undefined) {
-            ok = false;
-            this.log(`没有定义${this.id}`);
-        }
-        else {
-            pointer.name = this.id;
-        }
-        this.element.idPointer = pointer;
-        if (this.scanSets(space) === false)
-            ok = false;
-        return ok;
-    }
-}
 exports.PBizStatementSheet = PBizStatementSheet;
-class PBizStatementDetail extends PBizStatementSheetBase {
-    _parse() {
+/*
+export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizStatementDetail> {
+    private sheet: string;
+    private detail: string;
+    protected _parse(): void {
         this.detail = this.ts.passVar();
         this.ts.passKey('of');
         this.sheet = this.ts.passVar();
-        this.ts.passToken(tokens_1.Token.EQU);
-        this.element.idVal = new il_1.ValueExpression();
+        this.ts.passToken(Token.EQU);
+        this.element.idVal = new ValueExpression();
         let { idVal } = this.element;
         this.context.parseElement(idVal);
         this.parseSet();
     }
-    scan(space) {
+
+    override scan(space: Space): boolean {
         let ok = true;
-        let sheet = space.getBizEntity(this.sheet);
-        if (sheet === undefined || sheet.bizPhraseType !== il_1.BizPhraseType.sheet) {
+        let sheet = space.getBizEntity<BizSheet>(this.sheet);
+        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
             ok = false;
             this.log(`${this.sheet} is not a SHEET`);
         }
         else {
             this.element.sheet = sheet;
-            let getDetail = () => {
-                let bin = space.getBizEntity(this.detail);
-                if (bin === undefined)
-                    return;
+            let getDetail = (): BizBin => {
+                let bin = space.getBizEntity<BizBin>(this.detail);
+                if (bin === undefined) return;
                 for (let detail of sheet.details) {
-                    if (detail.bin === bin)
-                        return bin;
+                    if (detail.bin === bin) return bin;
                 }
                 return undefined;
-            };
+            }
             this.element.bin = getDetail();
             let { bin } = this.element;
             if (bin === undefined) {
@@ -384,8 +385,7 @@ class PBizStatementDetail extends PBizStatementSheetBase {
                 this.log(`${this.detail} is not a detail of SHEET ${this.sheet}`);
             }
         }
-        if (this.scanSets(space) === false)
-            ok = false;
+        if (this.scanSets(space) === false) ok = false;
         let { idVal } = this.element;
         if (idVal.pelement.scan(space) === false) {
             ok = false;
@@ -393,7 +393,7 @@ class PBizStatementDetail extends PBizStatementSheetBase {
         return ok;
     }
 }
-exports.PBizStatementDetail = PBizStatementDetail;
+*/
 class PBizStatementID extends PBizStatementSub {
     constructor() {
         super(...arguments);
@@ -534,6 +534,7 @@ class PBizStatementOut extends PBizStatementSub {
         else {
             space.addUse('$' + bizOut.name, 0, bizOut);
             this.element.bizOut = bizOut;
+            space.regUseBizOut(bizOut);
             let { props } = bizOut;
             if (detail !== undefined) {
                 let arr = bizOut.props.get(detail);

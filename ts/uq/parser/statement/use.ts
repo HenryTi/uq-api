@@ -1,6 +1,7 @@
 import {
     BizPhraseType,
-    SpanPeriod, UseBase, UseMonthZone, UseSetting, UseStatement
+    BizSheet,
+    SpanPeriod, UseBase, UseMonthZone, UseSetting, UseSheet, UseStatement
     , UseTimeSpan, UseTimeZone, UseYearZone, ValueExpression
 } from "../../il";
 import { PElement } from "../element";
@@ -20,6 +21,7 @@ export class PUseStatement extends PStatement<UseStatement> {
             case 'monthzone': useBase = new UseMonthZone(this.element); break;
             case 'yearzone': useBase = new UseYearZone(this.element); break;
             case 'timespan': useBase = new UseTimeSpan(this.element); break;
+            case 'sheet': useBase = new UseSheet(this.element); break;
         }
         this.element.useBase = useBase;
         this.context.parseElement(useBase);
@@ -133,23 +135,22 @@ export class PUseTimeSpan extends PUseBase<UseTimeSpan> {
         return ok;
     }
 }
-/*
-export class PUseOut extends PUseBase<UseOut> {
-    private outEntity: string;
+
+export class PUseSheet extends PUseBase<UseSheet> {
+    private sheet: string;
     protected _parse(): void {
         this.element.varName = this.ts.passVar();
-        this.outEntity = this.ts.passVar();
+        this.sheet = this.ts.passVar();
     }
     scan(space: Space): boolean {
         let ok = true;
-        this.element.outEntity = space.getBizEntity(this.outEntity);
-        let { outEntity, statement, varName } = this.element;
-        if (outEntity === undefined || outEntity.bizPhraseType !== BizPhraseType.out) {
+        this.element.sheet = space.getBizEntity<BizSheet>(this.sheet);
+        let { sheet, statement, varName } = this.element;
+        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
             ok = false;
-            this.log(`${this.outEntity} is not OUT`);
+            this.log(`${this.sheet} is not SHEET`);
         }
         space.addUse(varName, statement.no, this.element);
         return ok;
     }
 }
-*/

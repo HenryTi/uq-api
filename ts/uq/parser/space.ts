@@ -1,7 +1,7 @@
 import {
     Field, Table, Arr, Entity, GroupType
     , Pointer, Return, Bus, Uq, TableVar, Enum, LocalTableBase
-    , Const, ActionBase, Role, DataType, BizBase, BizEntity, FromStatement, BizFieldSpace
+    , Const, ActionBase, Role, DataType, BizBase, BizEntity, FromStatement, BizFieldSpace, BizOut
 } from '../il';
 
 export abstract class Space {
@@ -28,6 +28,7 @@ export abstract class Space {
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
     protected _getBizEntity(name: string): BizEntity { return undefined; }
     protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
+    protected _regUseBizOut(bizOut: BizOut): boolean { return undefined }
     protected _getUse(name: string): { statementNo: number; obj: any; } { return undefined; }
     protected _addUse(name: string, statementNo: number, obj: any): boolean { return undefined; }
     protected abstract _getEntityTable(name: string): Entity & Table;
@@ -134,6 +135,11 @@ export abstract class Space {
         let ret = this._getBizFieldSpace();
         if (ret !== undefined) return ret;
         if (this.outer !== undefined) return this.outer.getBizFieldSpace();
+    }
+    regUseBizOut(bizOut: BizOut): boolean {
+        let ret = this._regUseBizOut(bizOut);
+        if (ret === true) return true;
+        return this.outer.regUseBizOut(bizOut);
     }
     getUse(name: string): { statementNo: number; obj: any; } {  // return useStatement no
         let uv = this._getUse(name);

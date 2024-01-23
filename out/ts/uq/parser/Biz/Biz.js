@@ -134,6 +134,7 @@ exports.PBiz = PBiz;
 class BizEntitySpace extends space_1.Space {
     constructor(outer, bizEntity) {
         super(outer);
+        this.useColl = {};
         if (bizEntity === undefined)
             debugger;
         this.bizEntity = bizEntity;
@@ -151,6 +152,19 @@ class BizEntitySpace extends space_1.Space {
         if (name === undefined)
             return this.bizEntity;
         return super._getBizEntity(name);
+    }
+    _getUse(name) {
+        return this.useColl[name];
+    }
+    _addUse(name, statementNo, obj) {
+        let v = this.useColl[name];
+        if (v !== undefined)
+            return false;
+        this.useColl[name] = {
+            statementNo,
+            obj,
+        };
+        return true;
     }
 }
 exports.BizEntitySpace = BizEntitySpace;

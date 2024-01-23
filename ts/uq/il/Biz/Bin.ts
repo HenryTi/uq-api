@@ -194,7 +194,7 @@ export class BizBin extends BizEntity {
     readonly inputColl: { [name: string]: BinInput } = {};
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了
     readonly div: BinDiv = new BinDiv(undefined, undefined);    // 输入和显示的层级结构
-    readonly outs: BizOut[] = [];
+    readonly outs: { [name: string]: BizOut } = {};
     main: BizBin;           // 只有指定main的bin，才能引用%sheet.prop
     pickArr: BinPick[];
     inputArr: BinInput[];

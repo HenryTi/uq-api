@@ -4,7 +4,7 @@ import {
     , Pointer, BizEntity, VarPointer, Biz, UI
     , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp
     , IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO
-    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType
+    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -97,6 +97,12 @@ export class PBizOut extends PBizInOut<BizOut> {
     protected override parseBody(): void {
         this.ts.passToken(Token.SEMICOLON);
     }
+
+    override scan2(uq: Uq): boolean {
+        let ok = super.scan2(uq);
+        this.element.setIOAppOuts();
+        return ok;
+    }
 }
 
 export class PBizInAct extends PBizAct<BizInAct> {
@@ -121,7 +127,7 @@ export const inPreDefined = [
 class BizInActSpace extends BizEntitySpace<BizIn> {
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (inPreDefined.indexOf(name) >= 0) {
-            return new VarPointer();
+            return new VarPointer(name);
         }
     }
 

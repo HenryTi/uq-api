@@ -41,12 +41,13 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
         const { main, details } = this.bizEntity;
-        const outs: BizOut[] = [...main.outs];
+        const outs: { [name: string]: BizOut } = {};
+        const mainOuts = main.outs;
+        for (let i in mainOuts) outs[i] = mainOuts[i];
         for (let detail of details) {
-            for (let out of detail.bin.outs) {
-                if (outs.findIndex(v => v === out) < 0) {
-                    outs.push(out);
-                }
+            const detailOuts = detail.bin.outs
+            for (let i in detailOuts) {
+                outs[i] = detailOuts[i];
             }
         }
 
@@ -70,7 +71,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             decField(sprice, 18, 6),
         );
 
-        for (let out of outs) {
+        for (let i in outs) {
+            let out = outs[i];
             this.buildOutInit(statements, out);
         }
 
@@ -96,7 +98,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             this.buildBin(statements, bin, i + 101);
         }
 
-        for (let out of outs) {
+        for (let i in outs) {
+            let out = outs[i];
             this.buildOut(statements, out);
         }
     }

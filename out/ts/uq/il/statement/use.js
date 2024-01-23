@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UseStatement = exports.UseTimeSpan = exports.UseYearZone = exports.UseMonthZone = exports.UseTimeZone = exports.UseSetting = exports.UseBase = void 0;
+exports.UseStatement = exports.UseSheet = exports.UseTimeSpan = exports.UseYearZone = exports.UseMonthZone = exports.UseTimeZone = exports.UseSetting = exports.UseBase = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
@@ -60,17 +60,17 @@ class UseTimeSpan extends UseBase {
     db(context) { return new builder_1.BUseTimeSpan(this, context); }
 }
 exports.UseTimeSpan = UseTimeSpan;
-/*
-export class UseOut extends UseBase {
-    readonly type = 'out';
-    varName: string;
-    outEntity: BizOut;
-    parser(context: PContext): PElement<IElement> {
-        return new PUseOut(this, context);
+class UseSheet extends UseBase {
+    constructor() {
+        super(...arguments);
+        this.type = 'sheet';
     }
-    override db(context: DbContext) { return new BUseOut(this, context) }
+    parser(context) {
+        return new parser_1.PUseSheet(this, context);
+    }
+    db(context) { return new builder_1.BUseSheet(this, context); }
 }
-*/
+exports.UseSheet = UseSheet;
 class UseStatement extends Statement_1.Statement {
     get type() { return 'use'; }
     parser(context) {

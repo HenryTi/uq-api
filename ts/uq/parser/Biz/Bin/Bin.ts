@@ -3,7 +3,7 @@ import {
     BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements //, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin, BizOut
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
@@ -315,16 +315,6 @@ export class PBizBin extends PBizEntity<BizBin> {
             scanValue(value);
             scanValue(min);
             scanValue(max);
-            /*
-            if (value !== undefined) {
-                const { exp } = value;
-                if (exp !== undefined) {
-                    if (exp.pelement.scan(binSpace) === false) {
-                        ok = false;
-                    }
-                }
-            }
-            */
         }
 
         scanBudValue(budValue);
@@ -339,13 +329,7 @@ export class PBizBin extends PBizEntity<BizBin> {
                 ok = false;
             }
         }
-        const { useColl } = binSpace;
-        for (let i in useColl) {
-            if (i[0] === '$') {
-                let uc = useColl[i];
-                this.element.outs.push(uc.obj);
-            }
-        }
+        Object.assign(this.element.outs, binSpace.bizOuts);
         return ok;
     }
 
@@ -380,24 +364,24 @@ export const binPreDefined = [
     , ...binFieldArr
 ];
 class BizBinSpace extends BizEntitySpace<BizBin> {
-    readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};  // useStatement no
+    readonly bizOuts: { [name: string]: BizOut; } = {};
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (binPreDefined.indexOf(name) >= 0) {
-            return new VarPointer();
+            return new VarPointer(name);
         }
         if (this.bizEntity.props.has(name) === true) {
-            return new VarPointer();
+            return new VarPointer(name);
         }
         let pick = this.bizEntity.pickColl[name];
         if (pick !== undefined) {
-            return new VarPointer();
+            return new VarPointer(name);
         }
         else {
             let input = this.bizEntity.inputColl[name];
             if (input !== undefined) {
-                return new VarPointer();
+                return new VarPointer(name);
             }
         }
     }
@@ -432,29 +416,20 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
         }
     }
 
-    protected override _getUse(name: string): { statementNo: number; obj: any; } {
-        return this.useColl[name];
-    }
-
-    protected override _addUse(name: string, statementNo: number, obj: any): boolean {
-        let v = this.useColl[name];
-        if (v !== undefined) return false;
-        this.useColl[name] = {
-            statementNo,
-            obj,
-        }
-        return true;
-    }
-
     override getBizFieldSpace() {
         return new BizBinActFieldSpace(this.bizEntity);
+    }
+
+    protected _regUseBizOut(bizOut: BizOut): boolean {
+        this.bizOuts[bizOut.name] = bizOut;
+        return true;
     }
 }
 
 class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (binPreDefined.indexOf(name) >= 0) {
-            return new VarPointer();
+            return new VarPointer(name);
         }
     }
 

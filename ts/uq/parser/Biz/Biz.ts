@@ -144,6 +144,7 @@ export class PBiz extends PEntity<Biz> {
 
 export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     readonly bizEntity: T;
+    readonly useColl: { [name: string]: { statementNo: number; obj: any; } } = {};
     constructor(outer: Space, bizEntity: T) {
         super(outer);
         if (bizEntity === undefined) debugger;
@@ -161,5 +162,18 @@ export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     protected override _getBizEntity(name: string): BizEntity {
         if (name === undefined) return this.bizEntity;
         return super._getBizEntity(name);
+    }
+    protected override _getUse(name: string): { statementNo: number; obj: any; } {
+        return this.useColl[name];
+    }
+
+    protected override _addUse(name: string, statementNo: number, obj: any): boolean {
+        let v = this.useColl[name];
+        if (v !== undefined) return false;
+        this.useColl[name] = {
+            statementNo,
+            obj,
+        }
+        return true;
     }
 }

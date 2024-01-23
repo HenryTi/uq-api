@@ -88,6 +88,11 @@ class PBizOut extends PBizInOut {
     parseBody() {
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
+    scan2(uq) {
+        let ok = super.scan2(uq);
+        this.element.setIOAppOuts();
+        return ok;
+    }
 }
 exports.PBizOut = PBizOut;
 class PBizInAct extends Base_1.PBizAct {
@@ -109,7 +114,7 @@ exports.inPreDefined = [];
 class BizInActSpace extends Biz_1.BizEntitySpace {
     _varPointer(name, isField) {
         if (exports.inPreDefined.indexOf(name) >= 0) {
-            return new il_1.VarPointer();
+            return new il_1.VarPointer(name);
         }
     }
     _varsPointer(names) {
