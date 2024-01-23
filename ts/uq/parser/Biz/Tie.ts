@@ -4,11 +4,11 @@ import { PBizEntity } from "./Base";
 
 export class PBizTie extends PBizEntity<BizTie> {
     private parseI = () => {
-        this.parseIxField(this.element.i);
+        this.parseIField(this.element.i);
     }
 
     private parseX = () => {
-        this.parseIxField(this.element.x);
+        this.parseXField(this.element.x);
     }
 
     readonly keyColl = {

@@ -442,6 +442,20 @@ class PBizEntity extends PBizBase {
         ixField.caption = this.ts.mayPassString();
         ixField.atoms = this.parseAtoms();
     }
+    parseIField(ixField) {
+        this.parseIxField(ixField);
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+    }
+    parseXField(ixField) {
+        this.parseIxField(ixField);
+        /*
+        if (this.ts.isKeyword('index') === true) {
+            this.ts.readToken();
+            ixField.isIndex = true;
+        }
+        */
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+    }
     parseAtoms() {
         if (this.ts.isKeyword('me') === true) {
             this.ts.readToken();
@@ -455,7 +469,6 @@ class PBizEntity extends PBizBase {
             this.ts.readToken();
             ret.push(this.ts.passVar());
         }
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
         return ret;
     }
     parseSearch(bizEntity) {

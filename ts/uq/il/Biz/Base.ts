@@ -94,6 +94,7 @@ export abstract class BizBase extends IElement {
 export interface IxField {
     caption: string;
     atoms: (BizIDExtendable | BizOptions)[];         // atoms === undefined 则 ME
+    // isIndex: boolean;
 }
 
 export class BizSearch extends IElement {

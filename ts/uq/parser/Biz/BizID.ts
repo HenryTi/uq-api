@@ -100,11 +100,11 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
 
 export class PBizDuo extends PBizID<BizDuo> {
     private parseI = () => {
-        this.parseIxField(this.element.i);
+        this.parseIField(this.element.i);
     }
 
     private parseX = () => {
-        this.parseIxField(this.element.x);
+        this.parseXField(this.element.x);
     }
 
     readonly keyColl = {

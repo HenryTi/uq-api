@@ -461,9 +461,25 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.ts.passToken(Token.SEMICOLON);
     }
 
-    protected parseIxField(ixField: IxField) {
+    private parseIxField(ixField: IxField) {
         ixField.caption = this.ts.mayPassString();
         ixField.atoms = this.parseAtoms() as any;
+    }
+
+    protected parseIField(ixField: IxField) {
+        this.parseIxField(ixField);
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
+    protected parseXField(ixField: IxField) {
+        this.parseIxField(ixField);
+        /*
+        if (this.ts.isKeyword('index') === true) {
+            this.ts.readToken();
+            ixField.isIndex = true;
+        }
+        */
+        this.ts.passToken(Token.SEMICOLON);
     }
 
     private parseAtoms() {
@@ -478,7 +494,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             this.ts.readToken();
             ret.push(this.ts.passVar());
         }
-        this.ts.passToken(Token.SEMICOLON);
         return ret;
     }
 
