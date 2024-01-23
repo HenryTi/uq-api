@@ -485,7 +485,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     private parseAtoms() {
         if (this.ts.isKeyword('me') === true) {
             this.ts.readToken();
-            this.ts.passToken(Token.SEMICOLON);
             return undefined;
         }
         let ret: string[] = [this.ts.passVar()];

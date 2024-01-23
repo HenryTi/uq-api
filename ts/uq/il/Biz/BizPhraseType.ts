@@ -26,6 +26,7 @@ export enum BizPhraseType {
     in = 701,
     out = 700,
     ioApp = 710,
+    ioSite = 711,
     title = 901,
     assign = 902,
 

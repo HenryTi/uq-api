@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+exports.BizIOSite = exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
@@ -167,4 +167,22 @@ class BizIOApp extends Entity_1.BizEntity {
     }
 }
 exports.BizIOApp = BizIOApp;
+class BizIOSite extends Entity_1.BizEntity {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioSite;
+        this.fields = [];
+        this.ioApps = [];
+    }
+    parser(context) {
+        return new parser_1.PBizIOSite(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.tie = this.tie.id;
+        ret.apps = this.ioApps.map(v => v.id);
+        return ret;
+    }
+}
+exports.BizIOSite = BizIOSite;
 //# sourceMappingURL=InOut.js.map

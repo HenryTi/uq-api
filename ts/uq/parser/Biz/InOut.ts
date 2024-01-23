@@ -4,7 +4,7 @@ import {
     , Pointer, BizEntity, VarPointer, Biz, UI
     , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp
     , IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO
-    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq
+    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq, BizIOSite
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -398,5 +398,73 @@ export class PIOAppIn extends PIOAppIO<IOAppIn> {
 export class PIOAppOut extends PIOAppIO<IOAppOut> {
     protected get entityBizPhraseType(): BizPhraseType {
         return BizPhraseType.out;
+    }
+}
+
+export class PBizIOSite extends PBizEntity<BizIOSite> {
+    private tie: string;
+    private readonly apps: Set<string> = new Set();
+
+    private parseTieAtom = () => {
+        this.tie = this.ts.passVar();
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
+    private parseApp = () => {
+        if (this.ts.token === Token.LBRACE) {
+            this.ts.readToken();
+            for (; ;) {
+                this.apps.add(this.ts.passVar());
+                this.ts.passToken(Token.SEMICOLON);
+                if (this.ts.token === Token.COMMA as any) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (this.ts.token === Token.RBRACE as any) {
+                    this.ts.readToken();
+                    this.ts.mayPassToken(Token.SEMICOLON);
+                    break;
+                }
+            }
+        }
+        else {
+            this.apps.add(this.ts.passVar());
+            this.ts.passToken(Token.SEMICOLON);
+        }
+    }
+
+    protected readonly keyColl = {
+        tie: this.parseTieAtom,
+        ioapp: this.parseApp,
+    }
+
+    override scan(space: Space): boolean {
+        let ok = super.scan(space);
+        if (this.tie === undefined) {
+            ok = false;
+            this.log(`IOSite must define TIE atom`);
+        }
+        else {
+            let atom = space.getBizEntity<BizAtom>(this.tie);
+            if (atom === undefined || atom.bizPhraseType !== BizPhraseType.atom) {
+                ok = false;
+                this.log(`IOSite TIE ${this.tie} must be ATOM`);
+            }
+            else {
+                this.element.tie = atom;
+            }
+        }
+        const { ioApps } = this.element;
+        for (let app of this.apps) {
+            let ioApp = space.getBizEntity<BizIOApp>(app);
+            if (ioApp === undefined || ioApp.bizPhraseType !== BizPhraseType.ioApp) {
+                ok = false;
+                this.log(`${app} is not IOApp`);
+            }
+            else {
+                ioApps.push(ioApp);
+            }
+        }
+        return ok;
     }
 }

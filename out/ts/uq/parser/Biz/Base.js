@@ -459,7 +459,6 @@ class PBizEntity extends PBizBase {
     parseAtoms() {
         if (this.ts.isKeyword('me') === true) {
             this.ts.readToken();
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
             return undefined;
         }
         let ret = [this.ts.passVar()];

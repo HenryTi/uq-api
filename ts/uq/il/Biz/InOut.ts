@@ -1,6 +1,6 @@
 import { DbContext, BBizEntity, BBizIn, BBizOut, BBizIOApp } from "../../builder";
 import {
-    PBizIOApp, PBizIn, PBizInAct, PBizOut, PContext, PElement
+    PBizIOApp, PBizIOSite, PBizIn, PBizInAct, PBizOut, PContext, PElement
     , PIOAppID, PIOAppIn, PIOAppOut, PIOPeerArr, PIOPeerID, PIOPeerScalar
 } from "../../parser";
 import { IElement } from "../IElement";
@@ -157,5 +157,21 @@ export class BizIOApp extends BizEntity {
 
     override buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
+    }
+}
+
+export class BizIOSite extends BizEntity {
+    readonly bizPhraseType = BizPhraseType.ioSite;
+    readonly fields = [];
+    tie: BizAtom;
+    readonly ioApps: BizIOApp[] = [];
+    parser(context: PContext): PElement<IElement> {
+        return new PBizIOSite(this, context);
+    }
+    override buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        ret.tie = this.tie.id;
+        ret.apps = this.ioApps.map(v => v.id);
+        return ret;
     }
 }

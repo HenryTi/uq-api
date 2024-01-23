@@ -27,6 +27,7 @@ class PBiz extends entity_1.PEntity {
             in: il_1.BizIn,
             out: il_1.BizOut,
             ioapp: il_1.BizIOApp,
+            iosite: il_1.BizIOSite,
             console: il_1.BizConsole,
         };
     }

@@ -27,6 +27,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["in"] = 701] = "in";
     BizPhraseType[BizPhraseType["out"] = 700] = "out";
     BizPhraseType[BizPhraseType["ioApp"] = 710] = "ioApp";
+    BizPhraseType[BizPhraseType["ioSite"] = 711] = "ioSite";
     BizPhraseType[BizPhraseType["title"] = 901] = "title";
     BizPhraseType[BizPhraseType["assign"] = 902] = "assign";
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";

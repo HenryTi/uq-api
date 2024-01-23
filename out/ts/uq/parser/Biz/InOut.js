@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PIOAppOut = exports.PIOAppIn = exports.PIOPeerArr = exports.PIOPeerID = exports.PIOPeerScalar = exports.PIOAppID = exports.PBizIOApp = exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
+exports.PBizIOSite = exports.PIOAppOut = exports.PIOAppIn = exports.PIOPeerArr = exports.PIOPeerID = exports.PIOPeerScalar = exports.PIOAppID = exports.PBizIOApp = exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -383,4 +383,70 @@ class PIOAppOut extends PIOAppIO {
     }
 }
 exports.PIOAppOut = PIOAppOut;
+class PBizIOSite extends Base_1.PBizEntity {
+    constructor() {
+        super(...arguments);
+        this.apps = new Set();
+        this.parseTieAtom = () => {
+            this.tie = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+        };
+        this.parseApp = () => {
+            if (this.ts.token === tokens_1.Token.LBRACE) {
+                this.ts.readToken();
+                for (;;) {
+                    this.apps.add(this.ts.passVar());
+                    this.ts.passToken(tokens_1.Token.SEMICOLON);
+                    if (this.ts.token === tokens_1.Token.COMMA) {
+                        this.ts.readToken();
+                        continue;
+                    }
+                    if (this.ts.token === tokens_1.Token.RBRACE) {
+                        this.ts.readToken();
+                        this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+                        break;
+                    }
+                }
+            }
+            else {
+                this.apps.add(this.ts.passVar());
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
+            }
+        };
+        this.keyColl = {
+            tie: this.parseTieAtom,
+            ioapp: this.parseApp,
+        };
+    }
+    scan(space) {
+        let ok = super.scan(space);
+        if (this.tie === undefined) {
+            ok = false;
+            this.log(`IOSite must define TIE atom`);
+        }
+        else {
+            let atom = space.getBizEntity(this.tie);
+            if (atom === undefined || atom.bizPhraseType !== il_1.BizPhraseType.atom) {
+                ok = false;
+                this.log(`IOSite TIE ${this.tie} must be ATOM`);
+            }
+            else {
+                this.element.tie = atom;
+            }
+        }
+        const { ioApps } = this.element;
+        for (let app of this.apps) {
+            let ioApp = space.getBizEntity(app);
+            if (ioApp === undefined || ioApp.bizPhraseType !== il_1.BizPhraseType.ioApp) {
+                ok = false;
+                this.log(`${app} is not IOApp`);
+            }
+            else {
+                ioApps.push(ioApp);
+            }
+        }
+        return ok;
+    }
+}
+exports.PBizIOSite = PBizIOSite;
 //# sourceMappingURL=InOut.js.map

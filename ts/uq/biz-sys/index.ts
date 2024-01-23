@@ -1,4 +1,4 @@
-import atom from './ioAtom';
+import atom from './IOAtom';
 import sys from './sys';
 
 // 好像暂时用不着系统的biz 2024-1-13
