@@ -61,10 +61,6 @@ class BizStatementTitle extends BizStatementSub {
     db(db) { return new builder_1.BBizStatementTitle(db, this); }
 }
 exports.BizStatementTitle = BizStatementTitle;
-/*
-export abstract class BizStatementSheetBase<T extends BizAct = BizAct> extends BizStatementSub<T> {
-}
-*/
 class BizStatementSheet extends BizStatementSub {
     constructor() {
         super(...arguments);
@@ -77,15 +73,6 @@ class BizStatementSheet extends BizStatementSub {
     db(db) { return new builder_1.BBizStatementSheet(db, this); }
 }
 exports.BizStatementSheet = BizStatementSheet;
-/*
-export class BizStatementDetail<T extends BizAct = BizAct> extends BizStatementSheetBase<T> {
-    idVal: ValueExpression;
-    parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizStatementDetail(this, context);
-    }
-    db(db: DbContext): BStatement { return new BBizStatementDetail(db, this); }
-}
-*/
 class BizStatementID extends BizStatementSub {
 }
 exports.BizStatementID = BizStatementID;

@@ -253,11 +253,12 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     private buildOut(statements: Statement[], out: UseOut) {
         const { factory } = this.context;
         const { varName, ioSite, ioApp, ioAppOut } = out;
+        const { bizIO } = ioAppOut;
         const vName = '$' + varName;
         const memo = factory.createMemo();
         statements.push(memo);
-        memo.text = `call PROC to write OUT @${vName} ${ioAppOut.getJName()}`;
-
+        memo.text = `call PROC to write OUT @${vName} ${bizIO.getJName()}`;
+        /*
         let selectSiteAtomApp = factory.createSelect();
         statements.push(selectSiteAtomApp);
         selectSiteAtomApp.toVar = true;
@@ -276,12 +277,12 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             ),
             new ExpEQ(new ExpField('ioApp'), new ExpNum(ioApp.id)),
         ));
-
-        const proc = factory.createCall();
-        statements.push(proc);
-        proc.db = '$site';
-        proc.procName = `${this.context.site}.${ioAppOut.id}`;
-        proc.params.push(
+        */
+        const call = factory.createCall();
+        statements.push(call);
+        call.db = '$site';
+        call.procName = `${this.context.site}.${bizIO.id}`;
+        call.params.push(
             /*
             {
                 paramType: ProcParamType.in,
@@ -298,7 +299,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             */
             {
                 paramType: ProcParamType.in,
-                value: new ExpVar(siteAtomApp),
+                // value: new ExpVar(siteAtomApp),
+                value: new ExpAtVar(vName + '$TO'),
             },
             {
                 paramType: ProcParamType.in,

@@ -168,11 +168,11 @@ export class BBizOut extends BBizEntity<BizOut> {
             , queueId = '$queueId';
         const { id, ioAppOuts } = this.bizEntity;
         const { parameters, statements } = proc;
-        const { factory } = this.context;
+        const { factory, site } = this.context;
         parameters.push(
-            bigIntField(ioSite),
+            // bigIntField(ioSite),
             bigIntField(atom),
-            bigIntField(ioApp),
+            // bigIntField(ioApp),
             jsonField(json),
         );
         if (ioAppOuts.length === 0) return;
@@ -185,6 +185,24 @@ export class BBizOut extends BBizEntity<BizOut> {
             bigIntField(siteAtomApp),
             bigIntField(queueId),
         );
+
+        let vtTransErr = factory.createVarTable();
+        statements.push(vtTransErr);
+        vtTransErr.noDrop = true;
+        vtTransErr.name = IOProc.transerr;
+        const transErrIdField = intField('id');
+        transErrIdField.autoInc = true;
+        const atomField = bigIntField('atom');
+        atomField.nullable = true;
+        const noField = charField('no', 100);
+        noField.nullable = true;
+        vtTransErr.keys = [
+            transErrIdField,
+        ];
+        vtTransErr.fields = [
+            transErrIdField, bigIntField('appID'), atomField, noField,
+        ];
+
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new ExpNum(this.context.site));
@@ -192,6 +210,25 @@ export class BBizOut extends BBizEntity<BizOut> {
         statements.push(setOut);
         setOut.equ(out, new ExpNum(id));
 
+        for (let ioAppOut of ioAppOuts) {
+            const { ioApp } = ioAppOut;
+            for (let ioSite of ioApp.ioSites) {
+                let memo = factory.createMemo();
+                statements.push(memo);
+                memo.text = `IOSite: ${ioSite.getJName()} IOApp: ${ioApp.getJName()} Out: ${ioAppOut.bizIO.getJName()}`;
+                let call = factory.createCall();
+                statements.push(call);
+                call.db = '$site';
+                call.procName = `${site}.${ioAppOut.id}`;
+                call.params = [
+                    { value: new ExpNum(ioSite.id) },
+                    { value: new ExpVar(atom) },
+                    { value: new ExpVar(json) },
+                ];
+            }
+        }
+
+        /*
         const varEndPoint = new ExpVar(endPoint);
 
         const selectEndPoint = factory.createSelect();
@@ -230,6 +267,7 @@ export class BBizOut extends BBizEntity<BizOut> {
             { col: 'i', val: ExpNum.num0 },
             { col: 'x', val: new ExpVar(queueId) },
         ];
+        */
     }
 }
 
@@ -324,7 +362,9 @@ class FuncAtomToNo extends FuncTo {
 }
 
 abstract class IOProc<T extends IOAppIO> {
+    static atom = '$atom';
     static appID = '$appID';
+    static ioSite = '$ioSite';
     static ioAppIO = '$ioAppIO';
     static vJson = '$json';
     static vRetJson = '$retJson';
@@ -347,7 +387,7 @@ abstract class IOProc<T extends IOAppIO> {
     }
 
     protected abstract get transFuncName(): string;
-    protected abstract buildAfterTrans(statements: Statement[]): void;
+    protected abstract buildAfterTrans(): Statement[];
 
     protected transID(ioAppID: IOAppID, val: ExpVal): ExpVal {
         return new ExpFuncDb('$site',
@@ -366,41 +406,53 @@ abstract class IOProc<T extends IOAppIO> {
         const { factory } = this;
         const { parameters, statements } = this.proc;
         parameters.push(
-            bigIntField(IOProc.siteAtomApp),
+            bigIntField(IOProc.ioSite),
+            bigIntField(IOProc.atom),
             jsonField(IOProc.vJson),
         );
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars(
             jsonField(IOProc.vRetJson),
+            bigIntField(IOProc.siteAtomApp),
             bigIntField(IOProc.ioAppIO),
             bigIntField(IOProc.queueId),
             bigIntField(IOProc.endPoint),
         );
-        let vtTransErr = factory.createVarTable();
-        statements.push(vtTransErr);
-        vtTransErr.name = IOProc.transerr;
-        const transErrIdField = intField('id');
-        transErrIdField.autoInc = true;
-        const atomField = bigIntField('atom');
-        atomField.nullable = true;
-        const noField = charField('no', 100);
-        noField.nullable = true;
-        vtTransErr.keys = [
-            transErrIdField,
-        ];
-        vtTransErr.fields = [
-            transErrIdField, bigIntField('appID'), atomField, noField,
-        ];
 
         let setIOAppIO = factory.createSet();
         statements.push(setIOAppIO);
         setIOAppIO.equ(IOProc.ioAppIO, new ExpNum(this.ioAppIO.id));
+
+        let selectSiteAtomApp = factory.createSelect();
+        statements.push(selectSiteAtomApp);
+        selectSiteAtomApp.toVar = true;
+        selectSiteAtomApp.col('id', IOProc.siteAtomApp);
+        selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOSiteAtomApp, false));
+        selectSiteAtomApp.where(new ExpAnd(
+            new ExpEQ(
+                new ExpField('ioSiteAtom'),
+                new ExpFuncInUq('duo$id',
+                    [
+                        ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNull.null,
+                        new ExpVar(IOProc.ioSite), new ExpVar(IOProc.atom),
+                    ],
+                    true
+                ),
+            ),
+            new ExpEQ(new ExpField('ioApp'), new ExpNum(this.ioAppIO.ioApp.id)),
+        ));
+
+        let ifSiteAtomApp = factory.createIf();
+        statements.push(ifSiteAtomApp);
+        ifSiteAtomApp.cmp = new ExpIsNotNull(new ExpVar(IOProc.siteAtomApp));
+
         let set = factory.createSet();
-        statements.push(set);
+        ifSiteAtomApp.then(set);
         set.equ(IOProc.vRetJson, new ExpSelect(this.buildJsonTrans()));
 
-        this.buildAfterTrans(statements);
+        let stats = this.buildAfterTrans();
+        ifSiteAtomApp.then(...stats);
     }
 
     private buildJsonTrans(): Select {
@@ -479,13 +531,16 @@ abstract class IOProc<T extends IOAppIO> {
 
 class IOProcIn extends IOProc<IOAppIn> {
     protected readonly transFuncName = 'NoToAtom';
-    protected buildAfterTrans(statements: Statement[]): void {
+    protected buildAfterTrans(): Statement[] {
+        let statements: Statement[] = [];
+        return statements;
     }
 }
 
 class IOProcOut extends IOProc<IOAppOut> {
     protected readonly transFuncName = 'AtomToNo';
-    protected buildAfterTrans(statements: Statement[]): void {
+    protected buildAfterTrans(): Statement[] {
+        let statements: Statement[] = [];
         const selectEndPoint = this.factory.createSelect();
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
@@ -524,5 +579,6 @@ class IOProcOut extends IOProc<IOAppOut> {
             { col: 'i', val: ExpNum.num0 },
             { col: 'x', val: new ExpVar(IOProc.queueId) },
         ];
+        return statements;
     }
 }

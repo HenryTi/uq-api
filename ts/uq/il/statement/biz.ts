@@ -6,7 +6,7 @@ import * as parser from '../../parser';
 import { IElement } from '../IElement';
 import {
     BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizSpec, BizOut, BizIOSite, BizIOApp, UseOut
+    , BizInAct, BizBin, BizAtom, BizSpec, UseOut
 } from '../Biz';
 import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
@@ -80,10 +80,7 @@ export class BizStatementTitle<T extends BizAct = BizAct> extends BizStatementSu
     }
     db(db: DbContext): BStatement { return new BBizStatementTitle(db, this); }
 }
-/*
-export abstract class BizStatementSheetBase<T extends BizAct = BizAct> extends BizStatementSub<T> {
-}
-*/
+
 export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSub<T> {
     useSheet: UseSheet;
     detail: BizBin;
@@ -95,15 +92,7 @@ export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSu
     }
     db(db: DbContext): BStatement { return new BBizStatementSheet(db, this); }
 }
-/*
-export class BizStatementDetail<T extends BizAct = BizAct> extends BizStatementSheetBase<T> {
-    idVal: ValueExpression;
-    parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizStatementDetail(this, context);
-    }
-    db(db: DbContext): BStatement { return new BBizStatementDetail(db, this); }
-}
-*/
+
 export abstract class BizStatementID<T extends BizAct = BizAct> extends BizStatementSub<T> {
     toVar: VarPointer;
     inVals: ValueExpression[];

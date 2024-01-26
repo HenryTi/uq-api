@@ -197,6 +197,14 @@ export class PBizIOApp extends PBizEntity<BizIOApp> {
                 props.set(item.name, item);
             }
         }
+        let ioApp = this.element;
+        for (let entity of space.uq.biz.bizArr) {
+            if (entity.bizPhraseType !== BizPhraseType.ioSite) continue;
+            let { ioApps } = entity as BizIOSite;
+            if (ioApps.find(v => v === ioApp) !== undefined) {
+                ioApp.ioSites.push(entity as BizIOSite);
+            }
+        }
         return ok;
     }
 }

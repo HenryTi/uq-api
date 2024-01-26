@@ -199,24 +199,36 @@ class BBizSheet extends BizEntity_1.BBizEntity {
     buildOut(statements, out) {
         const { factory } = this.context;
         const { varName, ioSite, ioApp, ioAppOut } = out;
+        const { bizIO } = ioAppOut;
         const vName = '$' + varName;
         const memo = factory.createMemo();
         statements.push(memo);
-        memo.text = `call PROC to write OUT @${vName} ${ioAppOut.getJName()}`;
+        memo.text = `call PROC to write OUT @${vName} ${bizIO.getJName()}`;
+        /*
         let selectSiteAtomApp = factory.createSelect();
         statements.push(selectSiteAtomApp);
         selectSiteAtomApp.toVar = true;
         selectSiteAtomApp.col('id', siteAtomApp);
-        selectSiteAtomApp.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOSiteAtomApp, false));
-        selectSiteAtomApp.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('ioSiteAtom'), new sql_1.ExpFuncInUq('duo$id', [
-            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNull.null,
-            new sql_1.ExpNum(ioSite.id), new sql_1.ExpAtVar(vName + '$to'),
-        ], true)), new sql_1.ExpEQ(new sql_1.ExpField('ioApp'), new sql_1.ExpNum(ioApp.id))));
-        const proc = factory.createCall();
-        statements.push(proc);
-        proc.db = '$site';
-        proc.procName = `${this.context.site}.${ioAppOut.id}`;
-        proc.params.push(
+        selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOSiteAtomApp, false));
+        selectSiteAtomApp.where(new ExpAnd(
+            new ExpEQ(
+                new ExpField('ioSiteAtom'),
+                new ExpFuncInUq('duo$id',
+                    [
+                        ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNull.null,
+                        new ExpNum(ioSite.id), new ExpAtVar(vName + '$to'),
+                    ],
+                    true
+                ),
+            ),
+            new ExpEQ(new ExpField('ioApp'), new ExpNum(ioApp.id)),
+        ));
+        */
+        const call = factory.createCall();
+        statements.push(call);
+        call.db = '$site';
+        call.procName = `${this.context.site}.${bizIO.id}`;
+        call.params.push(
         /*
         {
             paramType: ProcParamType.in,
@@ -233,7 +245,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         */
         {
             paramType: il_1.ProcParamType.in,
-            value: new sql_1.ExpVar(siteAtomApp),
+            // value: new ExpVar(siteAtomApp),
+            value: new sql_1.ExpAtVar(vName + '$TO'),
         }, {
             paramType: il_1.ProcParamType.in,
             value: new sql_1.ExpAtVar(vName),

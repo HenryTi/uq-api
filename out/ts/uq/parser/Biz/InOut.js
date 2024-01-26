@@ -179,6 +179,15 @@ class PBizIOApp extends Base_1.PBizEntity {
                 props.set(item.name, item);
             }
         }
+        let ioApp = this.element;
+        for (let entity of space.uq.biz.bizArr) {
+            if (entity.bizPhraseType !== il_1.BizPhraseType.ioSite)
+                continue;
+            let { ioApps } = entity;
+            if (ioApps.find(v => v === ioApp) !== undefined) {
+                ioApp.ioSites.push(entity);
+            }
+        }
         return ok;
     }
 }

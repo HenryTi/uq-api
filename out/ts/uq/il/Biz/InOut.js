@@ -8,6 +8,12 @@ const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
+// ???
+// 2024-01-26
+// 隐藏问题：同一个对象atom，属于不同的IOSite，但是IOSite下的App可能指向同一个服务器
+// 有可能同一份数据在这个app中出现两份。
+// 以后再解决。可能的办法是，这份数据有ID，然后在同一个App服务器去重复。
+// ???
 class BizInOut extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
@@ -144,6 +150,7 @@ class BizIOApp extends Entity_1.BizEntity {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioApp;
         this.fields = [];
+        this.ioSites = [];
         this.IDs = [];
         this.ins = [];
         this.outs = [];
@@ -193,7 +200,8 @@ class UseOut {
         this.to = to;
     }
     get varName() {
-        return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
+        //return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
+        return `${this.ioAppOut.bizIO.id}`;
     }
 }
 exports.UseOut = UseOut;

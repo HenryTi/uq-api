@@ -11,6 +11,13 @@ import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 
+// ???
+// 2024-01-26
+// 隐藏问题：同一个对象atom，属于不同的IOSite，但是IOSite下的App可能指向同一个服务器
+// 有可能同一份数据在这个app中出现两份。
+// 以后再解决。可能的办法是，这份数据有ID，然后在同一个App服务器去重复。
+// ???
+
 export abstract class BizInOut extends BizEntity {
     protected readonly fields = [];
 }
@@ -134,6 +141,7 @@ export class IOAppOut extends IOAppIO {
 export class BizIOApp extends BizEntity {
     readonly bizPhraseType = BizPhraseType.ioApp;
     readonly fields = [];
+    readonly ioSites: BizIOSite[] = [];
     readonly IDs: IOAppID[] = [];
     readonly ins: IOAppIn[] = [];
     readonly outs: IOAppOut[] = [];
@@ -188,6 +196,7 @@ export class UseOut {
         this.to = to;
     }
     get varName(): string {
-        return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
+        //return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
+        return `${this.ioAppOut.bizIO.id}`;
     }
 }

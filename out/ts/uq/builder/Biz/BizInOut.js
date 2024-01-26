@@ -141,51 +141,96 @@ class BBizOut extends BizEntity_1.BBizEntity {
         const json = '$json', out = '$out', endPoint = '$endPoint', ioSite = '$ioSite', atom = '$atom', ioApp = '$ioApp', siteAtomApp = '$siteAtomApp', queueId = '$queueId';
         const { id, ioAppOuts } = this.bizEntity;
         const { parameters, statements } = proc;
-        const { factory } = this.context;
-        parameters.push((0, il_1.bigIntField)(ioSite), (0, il_1.bigIntField)(atom), (0, il_1.bigIntField)(ioApp), (0, il_1.jsonField)(json));
+        const { factory, site } = this.context;
+        parameters.push(
+        // bigIntField(ioSite),
+        (0, il_1.bigIntField)(atom), 
+        // bigIntField(ioApp),
+        (0, il_1.jsonField)(json));
         if (ioAppOuts.length === 0)
             return;
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars((0, il_1.bigIntField)(consts_1.$site), (0, il_1.bigIntField)(out), (0, il_1.bigIntField)(endPoint), (0, il_1.bigIntField)(siteAtomApp), (0, il_1.bigIntField)(queueId));
+        let vtTransErr = factory.createVarTable();
+        statements.push(vtTransErr);
+        vtTransErr.noDrop = true;
+        vtTransErr.name = IOProc.transerr;
+        const transErrIdField = (0, il_1.intField)('id');
+        transErrIdField.autoInc = true;
+        const atomField = (0, il_1.bigIntField)('atom');
+        atomField.nullable = true;
+        const noField = (0, il_1.charField)('no', 100);
+        noField.nullable = true;
+        vtTransErr.keys = [
+            transErrIdField,
+        ];
+        vtTransErr.fields = [
+            transErrIdField, (0, il_1.bigIntField)('appID'), atomField, noField,
+        ];
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ(consts_1.$site, new sql_1.ExpNum(this.context.site));
         const setOut = factory.createSet();
         statements.push(setOut);
         setOut.equ(out, new sql_1.ExpNum(id));
-        const varEndPoint = new sql_1.ExpVar(endPoint);
+        for (let ioAppOut of ioAppOuts) {
+            const { ioApp } = ioAppOut;
+            for (let ioSite of ioApp.ioSites) {
+                let memo = factory.createMemo();
+                statements.push(memo);
+                memo.text = `IOSite: ${ioSite.getJName()} IOApp: ${ioApp.getJName()} Out: ${ioAppOut.bizIO.getJName()}`;
+                let call = factory.createCall();
+                statements.push(call);
+                call.db = '$site';
+                call.procName = `${site}.${ioAppOut.id}`;
+                call.params = [
+                    { value: new sql_1.ExpNum(ioSite.id) },
+                    { value: new sql_1.ExpVar(atom) },
+                    { value: new sql_1.ExpVar(json) },
+                ];
+            }
+        }
+        /*
+        const varEndPoint = new ExpVar(endPoint);
+
         const selectEndPoint = factory.createSelect();
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
         selectEndPoint.col('id', endPoint, a);
-        selectEndPoint.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOEndPoint, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOSiteAtomApp, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('siteAtomApp', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('ioSiteAtom', b)));
-        selectEndPoint.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), new sql_1.ExpVar(ioSite)), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpVar(atom)), new sql_1.ExpEQ(new sql_1.ExpField('out', a), new sql_1.ExpNum(id))));
+        selectEndPoint.from(new EntityTable(EnumSysTable.IOEndPoint, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.IOSiteAtomApp, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('siteAtomApp', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('ioSiteAtom', b)));
+        selectEndPoint.where(new ExpAnd(
+            new ExpEQ(new ExpField('i', c), new ExpVar(ioSite)),
+            new ExpEQ(new ExpField('x', c), new ExpVar(atom)),
+            new ExpEQ(new ExpField('out', a), new ExpNum(id)),
+        ));
+
         const setQueueId = factory.createSet();
         statements.push(setQueueId);
-        setQueueId.equ(queueId, new sql_1.ExpFuncInUq('ioqueue$id', [
-            new sql_1.ExpVar(consts_1.$site), sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
+        setQueueId.equ(queueId, new ExpFuncInUq('ioqueue$id', [
+            new ExpVar($site), ExpNum.num0, ExpNum.num1, ExpNull.null,
             varEndPoint
         ], true));
         const update = factory.createUpdate();
         statements.push(update);
-        update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOQueue, false);
+        update.table = new EntityTable(EnumSysTable.IOQueue, false);
         update.cols = [
-            { col: 'value', val: new sql_1.ExpVar(json) },
+            { col: 'value', val: new ExpVar(json) },
         ];
-        update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(queueId));
+        update.where = new ExpEQ(new ExpField('id'), new ExpVar(queueId));
         const insertPending = factory.createInsert();
         statements.push(insertPending);
         insertPending.ignore = true;
-        insertPending.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOInOut, false);
+        insertPending.table = new EntityTable(EnumSysTable.IOInOut, false);
         insertPending.cols = [
-            { col: 'i', val: sql_1.ExpNum.num0 },
-            { col: 'x', val: new sql_1.ExpVar(queueId) },
+            { col: 'i', val: ExpNum.num0 },
+            { col: 'x', val: new ExpVar(queueId) },
         ];
+        */
     }
 }
 exports.BBizOut = BBizOut;
@@ -293,32 +338,30 @@ class IOProc {
     buildProc() {
         const { factory } = this;
         const { parameters, statements } = this.proc;
-        parameters.push((0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.jsonField)(IOProc.vJson));
+        parameters.push((0, il_1.bigIntField)(IOProc.ioSite), (0, il_1.bigIntField)(IOProc.atom), (0, il_1.jsonField)(IOProc.vJson));
         const declare = factory.createDeclare();
         statements.push(declare);
-        declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.ioAppIO), (0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.endPoint));
-        let vtTransErr = factory.createVarTable();
-        statements.push(vtTransErr);
-        vtTransErr.name = IOProc.transerr;
-        const transErrIdField = (0, il_1.intField)('id');
-        transErrIdField.autoInc = true;
-        const atomField = (0, il_1.bigIntField)('atom');
-        atomField.nullable = true;
-        const noField = (0, il_1.charField)('no', 100);
-        noField.nullable = true;
-        vtTransErr.keys = [
-            transErrIdField,
-        ];
-        vtTransErr.fields = [
-            transErrIdField, (0, il_1.bigIntField)('appID'), atomField, noField,
-        ];
+        declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.bigIntField)(IOProc.ioAppIO), (0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.endPoint));
         let setIOAppIO = factory.createSet();
         statements.push(setIOAppIO);
         setIOAppIO.equ(IOProc.ioAppIO, new sql_1.ExpNum(this.ioAppIO.id));
+        let selectSiteAtomApp = factory.createSelect();
+        statements.push(selectSiteAtomApp);
+        selectSiteAtomApp.toVar = true;
+        selectSiteAtomApp.col('id', IOProc.siteAtomApp);
+        selectSiteAtomApp.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOSiteAtomApp, false));
+        selectSiteAtomApp.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('ioSiteAtom'), new sql_1.ExpFuncInUq('duo$id', [
+            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNull.null,
+            new sql_1.ExpVar(IOProc.ioSite), new sql_1.ExpVar(IOProc.atom),
+        ], true)), new sql_1.ExpEQ(new sql_1.ExpField('ioApp'), new sql_1.ExpNum(this.ioAppIO.ioApp.id))));
+        let ifSiteAtomApp = factory.createIf();
+        statements.push(ifSiteAtomApp);
+        ifSiteAtomApp.cmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(IOProc.siteAtomApp));
         let set = factory.createSet();
-        statements.push(set);
+        ifSiteAtomApp.then(set);
         set.equ(IOProc.vRetJson, new sql_1.ExpSelect(this.buildJsonTrans()));
-        this.buildAfterTrans(statements);
+        let stats = this.buildAfterTrans();
+        ifSiteAtomApp.then(...stats);
     }
     buildJsonTrans() {
         const { bizIO, peers } = this.ioAppIO;
@@ -387,7 +430,9 @@ class IOProc {
         return new sql_1.ExpSelect(select);
     }
 }
+IOProc.atom = '$atom';
 IOProc.appID = '$appID';
+IOProc.ioSite = '$ioSite';
 IOProc.ioAppIO = '$ioAppIO';
 IOProc.vJson = '$json';
 IOProc.vRetJson = '$retJson';
@@ -401,7 +446,9 @@ class IOProcIn extends IOProc {
         super(...arguments);
         this.transFuncName = 'NoToAtom';
     }
-    buildAfterTrans(statements) {
+    buildAfterTrans() {
+        let statements = [];
+        return statements;
     }
 }
 class IOProcOut extends IOProc {
@@ -409,7 +456,8 @@ class IOProcOut extends IOProc {
         super(...arguments);
         this.transFuncName = 'AtomToNo';
     }
-    buildAfterTrans(statements) {
+    buildAfterTrans() {
+        let statements = [];
         const selectEndPoint = this.factory.createSelect();
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
@@ -436,6 +484,7 @@ class IOProcOut extends IOProc {
             { col: 'i', val: sql_1.ExpNum.num0 },
             { col: 'x', val: new sql_1.ExpVar(IOProc.queueId) },
         ];
+        return statements;
     }
 }
 //# sourceMappingURL=BizInOut.js.map
