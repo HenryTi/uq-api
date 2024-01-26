@@ -58,7 +58,7 @@ export class Uq extends IElement {
     get type(): string { return 'uq'; }
     owner: string;
     name: string;
-    docType: 1 | 2;
+    docType: 1 | 2;             // doc version 1 or 2
     version: UqVersion;
     author: string;
     date: string;

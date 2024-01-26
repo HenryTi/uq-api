@@ -16,15 +16,16 @@ class BBizIn extends BizEntity_1.BBizEntity {
         this.buildSubmitProc(procSubmit);
     }
     buildSubmitProc(proc) {
-        const vId = '$id';
-        const vEndPoint = '$endPoint';
+        const vQueueId = '$id';
         const vJson = '$json';
-        const vIn = '$in', vOuter = '$outer';
+        const vIn = '$in';
+        // const vOuter = '$outer';
+        // const vEndPoint = '$endPoint';
         const { parameters, statements } = proc;
         const { factory } = this.context;
         const { act, props } = this.bizEntity;
         let varJson = new sql_1.ExpVar(vJson);
-        parameters.push((0, il_1.bigIntField)(vId));
+        parameters.push((0, il_1.bigIntField)(vQueueId));
         const declare = factory.createDeclare();
         statements.push(declare);
         let vars = [
@@ -32,9 +33,9 @@ class BBizIn extends BizEntity_1.BBizEntity {
             (0, il_1.bigIntField)(vIn),
             (0, il_1.bigIntField)('$id'),
             (0, il_1.bigIntField)('$rowId'),
-            (0, il_1.bigIntField)(vOuter),
+            // bigIntField(vOuter),
             (0, il_1.jsonField)(vJson),
-            (0, il_1.bigIntField)(vEndPoint),
+            // bigIntField(vEndPoint),
         ];
         let setSite = factory.createSet();
         statements.push(setSite);
@@ -45,13 +46,13 @@ class BBizIn extends BizEntity_1.BBizEntity {
         let selectQueue = factory.createSelect();
         statements.push(selectQueue);
         selectQueue.toVar = true;
-        selectQueue.col('outer', vOuter, 'b');
+        // selectQueue.col('outer', vOuter, 'b');
         selectQueue.col('value', vJson, 'a');
-        selectQueue.col('endPoint', vEndPoint, 'a');
+        // selectQueue.col('endPoint', vEndPoint, 'a');
         selectQueue.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOQueue, false, 'a'))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOEndPoint, false, 'b'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', 'b'), new sql_1.ExpField('endPoint', 'a')));
-        selectQueue.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(vId)));
+        selectQueue.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(vQueueId)));
         for (let [name, bud] of props) {
             if (bud.dataType !== il_1.BudDataType.arr) {
                 vars.push(this.fieldFromBud(bud));
@@ -128,7 +129,7 @@ class BBizIn extends BizEntity_1.BBizEntity {
     }
 }
 exports.BBizIn = BBizIn;
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 class BBizOut extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures();
@@ -137,136 +138,48 @@ class BBizOut extends BizEntity_1.BBizEntity {
         this.buildProc(proc);
     }
     buildProc(proc) {
-        const json = '$json', out = '$out', endPoint = '$endPoint', outer = '$outer', prevEndPoint = '$prevEndPoint'
-        // , arrI = '$i', row = '$row', arrLen = '$len', ret = '$ret'
-        , queueId = '$queueId';
+        const json = '$json', out = '$out', endPoint = '$endPoint', ioSite = '$ioSite', atom = '$atom', ioApp = '$ioApp', siteAtomApp = '$siteAtomApp', queueId = '$queueId';
         const { id, ioAppOuts } = this.bizEntity;
         const { parameters, statements } = proc;
         const { factory } = this.context;
-        parameters.push((0, il_1.jsonField)(json));
+        parameters.push((0, il_1.bigIntField)(ioSite), (0, il_1.bigIntField)(atom), (0, il_1.bigIntField)(ioApp), (0, il_1.jsonField)(json));
         if (ioAppOuts.length === 0)
             return;
         const declare = factory.createDeclare();
         statements.push(declare);
-        declare.vars((0, il_1.bigIntField)(consts_1.$site), (0, il_1.bigIntField)(out), (0, il_1.bigIntField)(endPoint), (0, il_1.bigIntField)(outer), (0, il_1.bigIntField)(prevEndPoint), (0, il_1.bigIntField)(queueId));
+        declare.vars((0, il_1.bigIntField)(consts_1.$site), (0, il_1.bigIntField)(out), (0, il_1.bigIntField)(endPoint), (0, il_1.bigIntField)(siteAtomApp), (0, il_1.bigIntField)(queueId));
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ(consts_1.$site, new sql_1.ExpNum(this.context.site));
         const setOut = factory.createSet();
         statements.push(setOut);
         setOut.equ(out, new sql_1.ExpNum(id));
-        const setPrevOuter0 = factory.createSet();
-        statements.push(setPrevOuter0);
-        setPrevOuter0.equ(prevEndPoint, sql_1.ExpNum.num0);
-        const varOuter = new sql_1.ExpVar(outer);
         const varEndPoint = new sql_1.ExpVar(endPoint);
-        // 针对所有的outer循环写
-        const loop = factory.createWhile();
-        statements.push(loop);
-        loop.no = 97;
-        const { statements: loopStats } = loop;
-        const setOuter = factory.createSet();
-        loopStats.add(setOuter);
-        setOuter.equ(outer, sql_1.ExpNull.null);
-        const selectOuter = factory.createSelect();
-        loopStats.add(selectOuter);
-        selectOuter.toVar = true;
-        selectOuter.col('outer', outer);
-        selectOuter.col('id', endPoint);
-        selectOuter.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOEndPoint, false));
-        selectOuter.where(new sql_1.ExpAnd(new sql_1.ExpIn(new sql_1.ExpField('appIO'), ...ioAppOuts.map(v => new sql_1.ExpNum(v.id))), new sql_1.ExpGT(new sql_1.ExpField('id'), new sql_1.ExpVar(prevEndPoint))));
-        selectOuter.order(new sql_1.ExpField('id'), 'asc');
-        selectOuter.limit(sql_1.ExpNum.num1);
-        const ifOuterNull = factory.createIf();
-        loopStats.add(ifOuterNull);
-        ifOuterNull.cmp = new sql_1.ExpIsNull(varOuter);
-        const leave = factory.createBreak();
-        ifOuterNull.then(leave);
-        leave.no = loop.no;
-        const setPrevEndPoint = factory.createSet();
-        loopStats.add(setPrevEndPoint);
-        setPrevEndPoint.equ(prevEndPoint, varEndPoint);
-        /*
-        const params: ExpVal[] = [];
-        const varJson = new ExpVar(json);
-        const varRet = new ExpVar(ret);
-        const varRow = new ExpVar(row);
-
-        for (let [name, bud] of props) {
-            if (bud.dataType !== BudDataType.arr) {
-                params.push(
-                    new ExpStr(name),
-                    new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$.${name}`)),
-                );
-            }
-            else {
-                const arrParams: ExpVal[] = [];
-                const { name: arrName, props: arrProps } = bud as BizBudArr;
-                declare.vars(jsonField(arrName));
-                const varArrJson = new ExpVar(arrName);
-                const setArrJson = factory.createSet();
-                loopStats.add(setArrJson);
-                setArrJson.equ(arrName, new ExpFunc('JSON_ARRAY'));
-                const setI0 = factory.createSet();
-                loopStats.add(setI0);
-                setI0.equ(arrI, ExpNum.num0);
-                const setLen = factory.createSet();
-                loopStats.add(setLen);
-                setLen.equ(arrLen, new ExpFunc('JSON_LENGTH', new ExpStr(`$.${arrName}`)));
-                const loopArr = factory.createWhile();
-                loopStats.add(loopArr);
-                loopArr.no = 98;
-                loopArr.cmp = new ExpLT(new ExpVar(arrI), new ExpVar(arrLen));
-                const { statements: laStats } = loopArr;
-                const setRow = factory.createSet();
-                laStats.add(setRow);
-                setRow.equ(row, new ExpFunc('JSON_UNQUOTE',
-                    new ExpFunc(
-                        'JSON_EXTRACT',
-                        varJson,
-                        new ExpFunc(
-                            factory.func_concat,
-                            new ExpStr(`$.${arrName}[`), new ExpVar(arrI), new ExpStr(']')
-                        ),
-                    )
-                ));
-                const setIInc = factory.createSet();
-                laStats.add(setIInc);
-                setIInc.equ(arrI, new ExpAdd(new ExpVar(arrI), ExpNum.num1));
-                for (let [name, bud] of arrProps) {
-                    arrParams.push(new ExpStr(name));
-                    arrParams.push(new ExpFunc('JSON_VALUE', varRow, new ExpStr(`$.${name}`)));
-                }
-                const appendArrJson = factory.createSet();
-                laStats.add(appendArrJson);
-                appendArrJson.equ(arrName, new ExpFunc(
-                    'JSON_ARRAY_APPEND',
-                    varArrJson,
-                    new ExpStr('$'),
-                    new ExpFunc('JSON_OBJECT', ...arrParams),
-                ));
-                params.push(new ExpStr(arrName), new ExpVar(arrName));
-            }
-        }
-        const setRet = factory.createSet();
-        loopStats.add(setRet);
-        setRet.equ(ret, new ExpFunc('JSON_OBJECT', ...params));
-        */
+        const selectEndPoint = factory.createSelect();
+        statements.push(selectEndPoint);
+        selectEndPoint.toVar = true;
+        selectEndPoint.col('id', endPoint, a);
+        selectEndPoint.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOEndPoint, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOSiteAtomApp, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('siteAtomApp', a)))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, c))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('ioSiteAtom', b)));
+        selectEndPoint.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), new sql_1.ExpVar(ioSite)), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpVar(atom)), new sql_1.ExpEQ(new sql_1.ExpField('out', a), new sql_1.ExpNum(id))));
         const setQueueId = factory.createSet();
-        loopStats.add(setQueueId);
+        statements.push(setQueueId);
         setQueueId.equ(queueId, new sql_1.ExpFuncInUq('ioqueue$id', [
             new sql_1.ExpVar(consts_1.$site), sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
             varEndPoint
         ], true));
         const update = factory.createUpdate();
-        loopStats.add(update);
+        statements.push(update);
         update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOQueue, false);
         update.cols = [
             { col: 'value', val: new sql_1.ExpVar(json) },
         ];
         update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(queueId));
         const insertPending = factory.createInsert();
-        loopStats.add(insertPending);
+        statements.push(insertPending);
         insertPending.ignore = true;
         insertPending.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOInOut, false);
         insertPending.cols = [
@@ -306,24 +219,28 @@ class FuncTo {
     }
     build() {
         const { parameters, statements } = this.func;
-        parameters.push((0, il_1.bigIntField)('appID'), this.fromField());
+        parameters.push((0, il_1.bigIntField)(FuncTo.appID), // IOApp.ID
+        this.fromField());
         let declare = this.factory.createDeclare();
         statements.push(declare);
         declare.vars(this.toField());
+        let ifParamNotNull = this.factory.createIf();
+        statements.push(ifParamNotNull);
+        ifParamNotNull.cmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(this.param));
         let select = this.factory.createSelect();
-        statements.push(select);
+        ifParamNotNull.then(select);
         select.toVar = true;
         select.lock = select_1.LockType.none;
         select.col(this.toName, this.toName);
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAppAtom, false));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('appID'), new sql_1.ExpVar('appID')), new sql_1.ExpEQ(new sql_1.ExpField(this.fromName), new sql_1.ExpVar(this.param))));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('appID'), new sql_1.ExpVar(FuncTo.appID)), new sql_1.ExpEQ(new sql_1.ExpField(this.fromName), new sql_1.ExpVar(this.param))));
         let iff = this.factory.createIf();
-        statements.push(iff);
+        ifParamNotNull.then(iff);
         iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(this.toName));
         const insertErr = this.factory.createInsert();
         iff.then(insertErr);
         insertErr.ignore = true;
-        insertErr.table = new statementWithFrom_1.VarTableWithDb(consts_1.$site, 'transerr');
+        insertErr.table = new statementWithFrom_1.VarTable(IOProc.transerr);
         insertErr.cols = [
             { col: 'appID', val: new sql_1.ExpVar('appID') },
             { col: this.fromName, val: new sql_1.ExpVar(this.param) },
@@ -333,6 +250,7 @@ class FuncTo {
         ret.returnVar = this.toName;
     }
 }
+FuncTo.appID = 'appID';
 class FuncNoToAtom extends FuncTo {
     constructor() {
         super(...arguments);
@@ -366,21 +284,41 @@ class IOProc {
         this.proc = proc;
         this.expJson = new sql_1.ExpVar(IOProc.vJson);
     }
+    transID(ioAppID, val) {
+        return new sql_1.ExpFuncDb('$site', `${this.context.site}.${this.transFuncName}`, new sql_1.ExpFuncInUq('duo$id', [
+            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNull.null,
+            new sql_1.ExpVar(IOProc.siteAtomApp), new sql_1.ExpNum(ioAppID.id),
+        ], true), val);
+    }
     buildProc() {
         const { factory } = this;
         const { parameters, statements } = this.proc;
-        let outField = (0, il_1.jsonField)(IOProc.vRet);
-        outField.paramType = il_1.ProcParamType.out;
-        parameters.push((0, il_1.bigIntField)(IOProc.outer), (0, il_1.jsonField)(IOProc.vJson), outField);
+        parameters.push((0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.jsonField)(IOProc.vJson));
         const declare = factory.createDeclare();
         statements.push(declare);
-        declare.vars((0, il_1.bigIntField)(IOProc.ioAppIO));
+        declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.ioAppIO), (0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.endPoint));
+        let vtTransErr = factory.createVarTable();
+        statements.push(vtTransErr);
+        vtTransErr.name = IOProc.transerr;
+        const transErrIdField = (0, il_1.intField)('id');
+        transErrIdField.autoInc = true;
+        const atomField = (0, il_1.bigIntField)('atom');
+        atomField.nullable = true;
+        const noField = (0, il_1.charField)('no', 100);
+        noField.nullable = true;
+        vtTransErr.keys = [
+            transErrIdField,
+        ];
+        vtTransErr.fields = [
+            transErrIdField, (0, il_1.bigIntField)('appID'), atomField, noField,
+        ];
         let setIOAppIO = factory.createSet();
         statements.push(setIOAppIO);
         setIOAppIO.equ(IOProc.ioAppIO, new sql_1.ExpNum(this.ioAppIO.id));
         let set = factory.createSet();
         statements.push(set);
-        set.equ(IOProc.vRet, new sql_1.ExpSelect(this.buildJsonTrans()));
+        set.equ(IOProc.vRetJson, new sql_1.ExpSelect(this.buildJsonTrans()));
+        this.buildAfterTrans(statements);
     }
     buildJsonTrans() {
         const { bizIO, peers } = this.ioAppIO;
@@ -403,7 +341,7 @@ class IOProc {
                     val = this.buidlJsonArr(name, bud.props, peer.peers);
                     break;
                 case il_1.BudDataType.ID:
-                    val = this.transID(peer, func(bud));
+                    val = this.transID(peer.id, func(bud));
                     break;
             }
             objParams.push(new sql_1.ExpStr(peer === undefined ? name : peer.to), bud.dataType !== il_1.BudDataType.arr ?
@@ -449,19 +387,55 @@ class IOProc {
         return new sql_1.ExpSelect(select);
     }
 }
-IOProc.outer = '$outer';
+IOProc.appID = '$appID';
 IOProc.ioAppIO = '$ioAppIO';
 IOProc.vJson = '$json';
-IOProc.vRet = '$ret';
+IOProc.vRetJson = '$retJson';
 IOProc.jsonTable = 't';
+IOProc.siteAtomApp = '$siteAtomApp';
+IOProc.queueId = '$queueId';
+IOProc.transerr = '$transerr';
+IOProc.endPoint = '$endPoint';
 class IOProcIn extends IOProc {
-    transID(peer, val) {
-        return new sql_1.ExpFuncDb('$site', `${this.context.site}.notoatom`, new sql_1.ExpNum(peer.id.id), val);
+    constructor() {
+        super(...arguments);
+        this.transFuncName = 'NoToAtom';
+    }
+    buildAfterTrans(statements) {
     }
 }
 class IOProcOut extends IOProc {
-    transID(peer, val) {
-        return new sql_1.ExpFuncDb('$site', `${this.context.site}.atomtono`, new sql_1.ExpNum(peer.id.id), val);
+    constructor() {
+        super(...arguments);
+        this.transFuncName = 'AtomToNo';
+    }
+    buildAfterTrans(statements) {
+        const selectEndPoint = this.factory.createSelect();
+        statements.push(selectEndPoint);
+        selectEndPoint.toVar = true;
+        selectEndPoint.col('id', IOProc.endPoint);
+        selectEndPoint.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOEndPoint, false));
+        selectEndPoint.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('siteAtomApp'), new sql_1.ExpVar(IOProc.siteAtomApp)), new sql_1.ExpEQ(new sql_1.ExpField('appIO'), new sql_1.ExpVar(IOProc.ioAppIO))));
+        const ifEndPoint = this.factory.createIf();
+        statements.push(ifEndPoint);
+        ifEndPoint.cmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(IOProc.endPoint));
+        const setQueueId = this.factory.createSet();
+        ifEndPoint.then(setQueueId);
+        setQueueId.equ(IOProc.queueId, new sql_1.ExpFuncInUq('IOQueue$id', [sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null, new sql_1.ExpVar(IOProc.endPoint)], true));
+        const update = this.factory.createUpdate();
+        ifEndPoint.then(update);
+        update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOQueue, false);
+        update.cols = [
+            { col: 'value', val: new sql_1.ExpVar(IOProc.vRetJson) },
+        ];
+        update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(IOProc.queueId));
+        const insert = this.factory.createInsert();
+        ifEndPoint.then(insert);
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOInOut, false);
+        insert.cols = [
+            { col: 'i', val: sql_1.ExpNum.num0 },
+            { col: 'x', val: new sql_1.ExpVar(IOProc.queueId) },
+        ];
     }
 }
 //# sourceMappingURL=BizInOut.js.map

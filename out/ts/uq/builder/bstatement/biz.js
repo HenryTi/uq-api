@@ -431,21 +431,31 @@ exports.BBizStatementSpec = BBizStatementSpec;
 class BBizStatementOut extends bstatement_1.BStatement {
     body(sqls) {
         const { factory } = this.context;
-        const { bizOut, detail, sets } = this.istatement;
-        let varName = '$' + bizOut.name;
+        const { useOut, to, detail, sets } = this.istatement;
+        let varName = '$' + useOut.varName;
+        if (to !== undefined) {
+            let setTo = factory.createSet();
+            sqls.push(setTo);
+            setTo.isAtVar = true;
+            setTo.equ(varName + '$TO', this.context.expVal(to));
+        }
         let setV = factory.createSet();
         sqls.push(setV);
         setV.isAtVar = true;
-        let params = [];
-        let vNew;
-        for (let i in sets) {
-            params.push(new sql_1.ExpStr('$.' + i), this.context.expVal(sets[i]));
+        const context = this.context;
+        function buildParams(path) {
+            let params = [];
+            for (let i in sets) {
+                params.push(new sql_1.ExpStr(path + i), context.expVal(sets[i]));
+            }
+            return params;
         }
+        let vNew;
         if (detail === undefined) {
-            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpAtVar(varName), ...params);
+            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpAtVar(varName), ...buildParams('$.'));
         }
         else {
-            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpAtVar(varName), new sql_1.ExpStr('$.' + detail), new sql_1.ExpFunc('JSON_OBJECT', ...params));
+            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpAtVar(varName), new sql_1.ExpStr('$.' + detail), new sql_1.ExpFunc('JSON_OBJECT', ...buildParams('')));
         }
         setV.equ(varName, vNew);
     }

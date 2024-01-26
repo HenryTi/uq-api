@@ -155,6 +155,19 @@ class PBizIOApp extends Base_1.PBizEntity {
             out: this.parseOut,
         };
     }
+    scan0(space) {
+        let ok = true;
+        const { props, IDs, ins, outs } = this.element;
+        for (let item of [...IDs, ...ins, ...outs]) {
+            if (item.pelement.scan0(space) === false) {
+                ok = false;
+            }
+            else {
+                props.set(item.name, item);
+            }
+        }
+        return ok;
+    }
     scan(space) {
         let ok = true;
         const { props, IDs, ins, outs } = this.element;
@@ -296,7 +309,8 @@ function checkPeers(space, pElement, props, peers) {
                 }
             }
         }
-        pElement.log(log);
+        if (log !== undefined)
+            pElement.log(log);
     }
     for (let [, bud] of props) {
         if (bud.dataType === il_1.BudDataType.ID) {
@@ -353,9 +367,9 @@ class PIOAppIO extends Base_1.PBizBase {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
     }
-    scan(space) {
+    scan0(space) {
         let ok = true;
-        const { name, peers } = this.element;
+        const { name } = this.element;
         let bizEntity = space.getBizEntity(name);
         let bizPhraseType = this.entityBizPhraseType;
         if (bizEntity === undefined || bizEntity.bizPhraseType !== bizPhraseType) {
@@ -365,8 +379,15 @@ class PIOAppIO extends Base_1.PBizBase {
         else {
             this.element.bizIO = bizEntity;
         }
-        if (checkPeers(space, this, bizEntity.props, peers) === false) {
-            ok = false;
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        const { peers, bizIO } = this.element;
+        if (bizIO !== undefined) {
+            if (checkPeers(space, this, bizIO.props, peers) === false) {
+                ok = false;
+            }
         }
         return ok;
     }
@@ -418,8 +439,8 @@ class PBizIOSite extends Base_1.PBizEntity {
             ioapp: this.parseApp,
         };
     }
-    scan(space) {
-        let ok = super.scan(space);
+    scan0(space) {
+        let ok = super.scan0(space);
         if (this.tie === undefined) {
             ok = false;
             this.log(`IOSite must define TIE atom`);
@@ -445,6 +466,10 @@ class PBizIOSite extends Base_1.PBizEntity {
                 ioApps.push(ioApp);
             }
         }
+        return ok;
+    }
+    scan(space) {
+        let ok = super.scan(space);
         return ok;
     }
 }

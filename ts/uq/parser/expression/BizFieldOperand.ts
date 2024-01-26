@@ -20,6 +20,7 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
         let field = bizFieldSpace.getBizField(this.fieldName);
         if (field !== undefined) {
             this.element.field = field;
+            field.scanBinDiv();
         }
         else if (this.fieldName[0] === 'id') {
             if (this.fieldName[1] !== undefined) {
@@ -31,7 +32,6 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
             this.log(`Unknown field ${this.fieldName.join('.')}`);
             ok = false;
         }
-        field.scanBinDiv();
         return ok;
     }
 }

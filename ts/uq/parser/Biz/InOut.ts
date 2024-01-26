@@ -172,6 +172,20 @@ export class PBizIOApp extends PBizEntity<BizIOApp> {
         out: this.parseOut,
     }
 
+    override scan0(space: Space): boolean {
+        let ok = true;
+        const { props, IDs, ins, outs } = this.element;
+        for (let item of [...IDs, ...ins, ...outs]) {
+            if (item.pelement.scan0(space) === false) {
+                ok = false;
+            }
+            else {
+                props.set(item.name, item);
+            }
+        }
+        return ok;
+    }
+
     override scan(space: Space): boolean {
         let ok = true;
         const { props, IDs, ins, outs } = this.element;
@@ -311,7 +325,7 @@ function checkPeers(space: Space, pElement: PElement, props: Map<string, BizBud>
                 }
             }
         }
-        pElement.log(log);
+        if (log !== undefined) pElement.log(log);
     }
     for (let [, bud] of props) {
         if (bud.dataType === BudDataType.ID) {
@@ -368,9 +382,9 @@ abstract class PIOAppIO<T extends IOAppIO> extends PBizBase<T> {
         }
     }
 
-    override scan(space: Space): boolean {
+    override scan0(space: Space): boolean {
         let ok = true;
-        const { name, peers } = this.element;
+        const { name } = this.element;
         let bizEntity = space.getBizEntity<BizInOut>(name);
         let bizPhraseType = this.entityBizPhraseType;
         if (bizEntity === undefined || bizEntity.bizPhraseType !== bizPhraseType) {
@@ -380,8 +394,16 @@ abstract class PIOAppIO<T extends IOAppIO> extends PBizBase<T> {
         else {
             this.element.bizIO = bizEntity;
         }
-        if (checkPeers(space, this, bizEntity.props, peers) === false) {
-            ok = false;
+        return ok;
+    }
+
+    override scan(space: Space): boolean {
+        let ok = true;
+        const { peers, bizIO } = this.element;
+        if (bizIO !== undefined) {
+            if (checkPeers(space, this, bizIO.props, peers) === false) {
+                ok = false;
+            }
         }
         return ok;
     }
@@ -438,8 +460,8 @@ export class PBizIOSite extends PBizEntity<BizIOSite> {
         ioapp: this.parseApp,
     }
 
-    override scan(space: Space): boolean {
-        let ok = super.scan(space);
+    override scan0(space: Space): boolean {
+        let ok = super.scan0(space);
         if (this.tie === undefined) {
             ok = false;
             this.log(`IOSite must define TIE atom`);
@@ -465,6 +487,11 @@ export class PBizIOSite extends PBizEntity<BizIOSite> {
                 ioApps.push(ioApp);
             }
         }
+        return ok;
+    }
+
+    override scan(space: Space): boolean {
+        let ok = super.scan(space);
         return ok;
     }
 }

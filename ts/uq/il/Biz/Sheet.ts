@@ -9,11 +9,13 @@ import { Biz } from "./Biz";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBudValue, BizBudID, BizBudDec, BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
+import { UseOut } from "./InOut";
 import { BizQueryTable } from "./Query";
 
 export class BizSheet extends BizEntity {
     protected readonly fields = ['id', 'no'];
     readonly bizPhraseType = BizPhraseType.sheet;
+    readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;
     readonly details: { bin: BizBin; caption: string; }[] = [];
     bizSearch: BizSearch;

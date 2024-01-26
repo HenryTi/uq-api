@@ -4,7 +4,7 @@ import {
     BizBudArr,
     BizBudIDIO,
     BizIOApp, BizIn, BizOut, BudDataType, Char, EnumSysTable, Field
-    , IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, JoinType
+    , IOAppID, IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, JoinType
     , JsonTableColumn, ProcParamType, bigIntField, charField, dateField
     , decField, intField, jsonField
 } from "../../il";
@@ -13,7 +13,7 @@ import { $site } from "../consts";
 import { DbContext } from "../dbContext";
 import {
     ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncDb, ExpFuncInUq
-    , ExpGT, ExpIn, ExpIsNull, ExpLT, ExpNull, ExpNum, ExpSelect, ExpStr
+    , ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpLT, ExpNull, ExpNum, ExpSelect, ExpStr
     , ExpVal, ExpVar, Procedure, SqlVarTable, Statement
 } from "../sql";
 import { Factory } from "../sql/factory";
@@ -30,16 +30,17 @@ export class BBizIn extends BBizEntity<BizIn> {
     }
 
     private buildSubmitProc(proc: Procedure) {
-        const vId = '$id';
-        const vEndPoint = '$endPoint';
+        const vQueueId = '$id';
         const vJson = '$json';
-        const vIn = '$in', vOuter = '$outer';
+        const vIn = '$in';
+        // const vOuter = '$outer';
+        // const vEndPoint = '$endPoint';
         const { parameters, statements } = proc;
         const { factory } = this.context;
         const { act, props } = this.bizEntity;
         let varJson = new ExpVar(vJson);
         parameters.push(
-            bigIntField(vId),
+            bigIntField(vQueueId),       // IO queue id
         );
         const declare = factory.createDeclare();
         statements.push(declare);
@@ -48,9 +49,9 @@ export class BBizIn extends BBizEntity<BizIn> {
             bigIntField(vIn),
             bigIntField('$id'),
             bigIntField('$rowId'),
-            bigIntField(vOuter),
+            // bigIntField(vOuter),
             jsonField(vJson),
-            bigIntField(vEndPoint),
+            // bigIntField(vEndPoint),
         ];
         let setSite = factory.createSet();
         statements.push(setSite);
@@ -61,13 +62,13 @@ export class BBizIn extends BBizEntity<BizIn> {
         let selectQueue = factory.createSelect();
         statements.push(selectQueue);
         selectQueue.toVar = true;
-        selectQueue.col('outer', vOuter, 'b');
+        // selectQueue.col('outer', vOuter, 'b');
         selectQueue.col('value', vJson, 'a');
-        selectQueue.col('endPoint', vEndPoint, 'a');
+        // selectQueue.col('endPoint', vEndPoint, 'a');
         selectQueue.from(new EntityTable(EnumSysTable.IOQueue, false, 'a'))
             .join(JoinType.join, new EntityTable(EnumSysTable.IOEndPoint, false, 'b'))
             .on(new ExpEQ(new ExpField('id', 'b'), new ExpField('endPoint', 'a')));
-        selectQueue.where(new ExpEQ(new ExpField('id'), new ExpVar(vId)));
+        selectQueue.where(new ExpEQ(new ExpField('id'), new ExpVar(vQueueId)));
 
         for (let [name, bud] of props) {
             if (bud.dataType !== BudDataType.arr) {
@@ -151,7 +152,7 @@ export class BBizIn extends BBizEntity<BizIn> {
     }
 }
 
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 export class BBizOut extends BBizEntity<BizOut> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
@@ -162,13 +163,18 @@ export class BBizOut extends BBizEntity<BizOut> {
 
     private buildProc(proc: Procedure) {
         const json = '$json', out = '$out', endPoint = '$endPoint'
-            , outer = '$outer', prevEndPoint = '$prevEndPoint'
-            // , arrI = '$i', row = '$row', arrLen = '$len', ret = '$ret'
+            , ioSite = '$ioSite', atom = '$atom', ioApp = '$ioApp'
+            , siteAtomApp = '$siteAtomApp'
             , queueId = '$queueId';
         const { id, ioAppOuts } = this.bizEntity;
         const { parameters, statements } = proc;
         const { factory } = this.context;
-        parameters.push(jsonField(json));
+        parameters.push(
+            bigIntField(ioSite),
+            bigIntField(atom),
+            bigIntField(ioApp),
+            jsonField(json),
+        );
         if (ioAppOuts.length === 0) return;
         const declare = factory.createDeclare();
         statements.push(declare);
@@ -176,13 +182,8 @@ export class BBizOut extends BBizEntity<BizOut> {
             bigIntField($site),
             bigIntField(out),
             bigIntField(endPoint),
-            bigIntField(outer),
-            bigIntField(prevEndPoint),
+            bigIntField(siteAtomApp),
             bigIntField(queueId),
-            // intField(arrI),
-            // jsonField(row),
-            // intField(arrLen),
-            // jsonField(ret),
         );
         const setSite = factory.createSet();
         statements.push(setSite);
@@ -190,125 +191,39 @@ export class BBizOut extends BBizEntity<BizOut> {
         const setOut = factory.createSet();
         statements.push(setOut);
         setOut.equ(out, new ExpNum(id));
-        const setPrevOuter0 = factory.createSet();
-        statements.push(setPrevOuter0);
-        setPrevOuter0.equ(prevEndPoint, ExpNum.num0);
 
-        const varOuter = new ExpVar(outer);
         const varEndPoint = new ExpVar(endPoint);
 
-        // 针对所有的outer循环写
-        const loop = factory.createWhile();
-        statements.push(loop);
-        loop.no = 97;
-        const { statements: loopStats } = loop;
-        const setOuter = factory.createSet();
-        loopStats.add(setOuter);
-        setOuter.equ(outer, ExpNull.null);
-        const selectOuter = factory.createSelect();
-        loopStats.add(selectOuter);
-        selectOuter.toVar = true;
-        selectOuter.col('outer', outer);
-        selectOuter.col('id', endPoint);
-        selectOuter.from(new EntityTable(EnumSysTable.IOEndPoint, false));
-        selectOuter.where(new ExpAnd(
-            new ExpIn(new ExpField('appIO'), ...ioAppOuts.map(v => new ExpNum(v.id))),
-            new ExpGT(new ExpField('id'), new ExpVar(prevEndPoint)),
+        const selectEndPoint = factory.createSelect();
+        statements.push(selectEndPoint);
+        selectEndPoint.toVar = true;
+        selectEndPoint.col('id', endPoint, a);
+        selectEndPoint.from(new EntityTable(EnumSysTable.IOEndPoint, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.IOSiteAtomApp, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('siteAtomApp', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('ioSiteAtom', b)));
+        selectEndPoint.where(new ExpAnd(
+            new ExpEQ(new ExpField('i', c), new ExpVar(ioSite)),
+            new ExpEQ(new ExpField('x', c), new ExpVar(atom)),
+            new ExpEQ(new ExpField('out', a), new ExpNum(id)),
         ));
-        selectOuter.order(new ExpField('id'), 'asc');
-        selectOuter.limit(ExpNum.num1);
 
-        const ifOuterNull = factory.createIf();
-        loopStats.add(ifOuterNull);
-        ifOuterNull.cmp = new ExpIsNull(varOuter);
-        const leave = factory.createBreak();
-        ifOuterNull.then(leave);
-        leave.no = loop.no;
-
-        const setPrevEndPoint = factory.createSet();
-        loopStats.add(setPrevEndPoint);
-        setPrevEndPoint.equ(prevEndPoint, varEndPoint);
-        /*
-        const params: ExpVal[] = [];
-        const varJson = new ExpVar(json);
-        const varRet = new ExpVar(ret);
-        const varRow = new ExpVar(row);
-
-        for (let [name, bud] of props) {
-            if (bud.dataType !== BudDataType.arr) {
-                params.push(
-                    new ExpStr(name),
-                    new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$.${name}`)),
-                );
-            }
-            else {
-                const arrParams: ExpVal[] = [];
-                const { name: arrName, props: arrProps } = bud as BizBudArr;
-                declare.vars(jsonField(arrName));
-                const varArrJson = new ExpVar(arrName);
-                const setArrJson = factory.createSet();
-                loopStats.add(setArrJson);
-                setArrJson.equ(arrName, new ExpFunc('JSON_ARRAY'));
-                const setI0 = factory.createSet();
-                loopStats.add(setI0);
-                setI0.equ(arrI, ExpNum.num0);
-                const setLen = factory.createSet();
-                loopStats.add(setLen);
-                setLen.equ(arrLen, new ExpFunc('JSON_LENGTH', new ExpStr(`$.${arrName}`)));
-                const loopArr = factory.createWhile();
-                loopStats.add(loopArr);
-                loopArr.no = 98;
-                loopArr.cmp = new ExpLT(new ExpVar(arrI), new ExpVar(arrLen));
-                const { statements: laStats } = loopArr;
-                const setRow = factory.createSet();
-                laStats.add(setRow);
-                setRow.equ(row, new ExpFunc('JSON_UNQUOTE',
-                    new ExpFunc(
-                        'JSON_EXTRACT',
-                        varJson,
-                        new ExpFunc(
-                            factory.func_concat,
-                            new ExpStr(`$.${arrName}[`), new ExpVar(arrI), new ExpStr(']')
-                        ),
-                    )
-                ));
-                const setIInc = factory.createSet();
-                laStats.add(setIInc);
-                setIInc.equ(arrI, new ExpAdd(new ExpVar(arrI), ExpNum.num1));
-                for (let [name, bud] of arrProps) {
-                    arrParams.push(new ExpStr(name));
-                    arrParams.push(new ExpFunc('JSON_VALUE', varRow, new ExpStr(`$.${name}`)));
-                }
-                const appendArrJson = factory.createSet();
-                laStats.add(appendArrJson);
-                appendArrJson.equ(arrName, new ExpFunc(
-                    'JSON_ARRAY_APPEND',
-                    varArrJson,
-                    new ExpStr('$'),
-                    new ExpFunc('JSON_OBJECT', ...arrParams),
-                ));
-                params.push(new ExpStr(arrName), new ExpVar(arrName));
-            }
-        }
-        const setRet = factory.createSet();
-        loopStats.add(setRet);
-        setRet.equ(ret, new ExpFunc('JSON_OBJECT', ...params));
-        */
         const setQueueId = factory.createSet();
-        loopStats.add(setQueueId);
+        statements.push(setQueueId);
         setQueueId.equ(queueId, new ExpFuncInUq('ioqueue$id', [
             new ExpVar($site), ExpNum.num0, ExpNum.num1, ExpNull.null,
             varEndPoint
         ], true));
         const update = factory.createUpdate();
-        loopStats.add(update);
+        statements.push(update);
         update.table = new EntityTable(EnumSysTable.IOQueue, false);
         update.cols = [
             { col: 'value', val: new ExpVar(json) },
         ];
         update.where = new ExpEQ(new ExpField('id'), new ExpVar(queueId));
         const insertPending = factory.createInsert();
-        loopStats.add(insertPending);
+        statements.push(insertPending);
         insertPending.ignore = true;
         insertPending.table = new EntityTable(EnumSysTable.IOInOut, false);
         insertPending.cols = [
@@ -343,6 +258,7 @@ export class BBizIOApp extends BBizEntity<BizIOApp> {
 }
 
 abstract class FuncTo {
+    static appID = 'appID';
     protected readonly param = 'param';
     protected readonly factory: Factory;
     protected readonly func: Procedure;
@@ -359,30 +275,32 @@ abstract class FuncTo {
     build() {
         const { parameters, statements } = this.func;
         parameters.push(
-            bigIntField('appID'),
+            bigIntField(FuncTo.appID),             // IOApp.ID
             this.fromField(),
         );
         let declare = this.factory.createDeclare();
         statements.push(declare);
         declare.vars(this.toField());
-
+        let ifParamNotNull = this.factory.createIf();
+        statements.push(ifParamNotNull);
+        ifParamNotNull.cmp = new ExpIsNotNull(new ExpVar(this.param));
         let select = this.factory.createSelect();
-        statements.push(select);
+        ifParamNotNull.then(select);
         select.toVar = true;
         select.lock = LockType.none;
         select.col(this.toName, this.toName);
         select.from(new EntityTable(EnumSysTable.IOAppAtom, false));
         select.where(new ExpAnd(
-            new ExpEQ(new ExpField('appID'), new ExpVar('appID')),
+            new ExpEQ(new ExpField('appID'), new ExpVar(FuncTo.appID)),
             new ExpEQ(new ExpField(this.fromName), new ExpVar(this.param)),
         ));
         let iff = this.factory.createIf();
-        statements.push(iff);
+        ifParamNotNull.then(iff);
         iff.cmp = new ExpIsNull(new ExpVar(this.toName));
         const insertErr = this.factory.createInsert();
         iff.then(insertErr);
         insertErr.ignore = true;
-        insertErr.table = new VarTableWithDb($site, 'transerr');
+        insertErr.table = new VarTable(IOProc.transerr);
         insertErr.cols = [
             { col: 'appID', val: new ExpVar('appID') },
             { col: this.fromName, val: new ExpVar(this.param) },
@@ -406,11 +324,15 @@ class FuncAtomToNo extends FuncTo {
 }
 
 abstract class IOProc<T extends IOAppIO> {
-    static outer = '$outer';
+    static appID = '$appID';
     static ioAppIO = '$ioAppIO';
     static vJson = '$json';
-    static vRet = '$ret';
+    static vRetJson = '$retJson';
     static jsonTable = 't';
+    static siteAtomApp = '$siteAtomApp';
+    static queueId = '$queueId';
+    static transerr = '$transerr';
+    static endPoint = '$endPoint';
     protected readonly context: DbContext;
     protected readonly factory: Factory;
     protected readonly ioAppIO: T;
@@ -424,30 +346,61 @@ abstract class IOProc<T extends IOAppIO> {
         this.expJson = new ExpVar(IOProc.vJson);
     }
 
-    protected abstract transID(peer: IOPeerID, val: ExpVal): ExpVal;
+    protected abstract get transFuncName(): string;
+    protected abstract buildAfterTrans(statements: Statement[]): void;
+
+    protected transID(ioAppID: IOAppID, val: ExpVal): ExpVal {
+        return new ExpFuncDb('$site',
+            `${this.context.site}.${this.transFuncName}`,
+            new ExpFuncInUq('duo$id',
+                [
+                    ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNull.null,
+                    new ExpVar(IOProc.siteAtomApp), new ExpNum(ioAppID.id),
+                ],
+                true
+            ),
+            val);
+    }
 
     buildProc() {
         const { factory } = this;
         const { parameters, statements } = this.proc;
-        let outField = jsonField(IOProc.vRet);
-        outField.paramType = ProcParamType.out;
         parameters.push(
-            bigIntField(IOProc.outer),
+            bigIntField(IOProc.siteAtomApp),
             jsonField(IOProc.vJson),
-            outField,
         );
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars(
-            bigIntField(IOProc.ioAppIO)
+            jsonField(IOProc.vRetJson),
+            bigIntField(IOProc.ioAppIO),
+            bigIntField(IOProc.queueId),
+            bigIntField(IOProc.endPoint),
         );
+        let vtTransErr = factory.createVarTable();
+        statements.push(vtTransErr);
+        vtTransErr.name = IOProc.transerr;
+        const transErrIdField = intField('id');
+        transErrIdField.autoInc = true;
+        const atomField = bigIntField('atom');
+        atomField.nullable = true;
+        const noField = charField('no', 100);
+        noField.nullable = true;
+        vtTransErr.keys = [
+            transErrIdField,
+        ];
+        vtTransErr.fields = [
+            transErrIdField, bigIntField('appID'), atomField, noField,
+        ];
+
         let setIOAppIO = factory.createSet();
         statements.push(setIOAppIO);
         setIOAppIO.equ(IOProc.ioAppIO, new ExpNum(this.ioAppIO.id));
-
         let set = factory.createSet();
         statements.push(set);
-        set.equ(IOProc.vRet, new ExpSelect(this.buildJsonTrans()));
+        set.equ(IOProc.vRetJson, new ExpSelect(this.buildJsonTrans()));
+
+        this.buildAfterTrans(statements);
     }
 
     private buildJsonTrans(): Select {
@@ -476,7 +429,7 @@ abstract class IOProc<T extends IOAppIO> {
                     val = this.buidlJsonArr(name, (bud as BizBudArr).props, (peer as IOPeerArr).peers);
                     break;
                 case BudDataType.ID:
-                    val = this.transID(peer as IOPeerID, func(bud));
+                    val = this.transID((peer as IOPeerID).id, func(bud));
                     break;
             }
             objParams.push(
@@ -525,20 +478,51 @@ abstract class IOProc<T extends IOAppIO> {
 }
 
 class IOProcIn extends IOProc<IOAppIn> {
-    protected override transID(peer: IOPeerID, val: ExpVal): ExpVal {
-        return new ExpFuncDb('$site',
-            `${this.context.site}.notoatom`,
-            new ExpNum(peer.id.id),
-            val);
+    protected readonly transFuncName = 'NoToAtom';
+    protected buildAfterTrans(statements: Statement[]): void {
     }
 }
 
 class IOProcOut extends IOProc<IOAppOut> {
-    protected override transID(peer: IOPeerID, val: ExpVal): ExpVal {
-        return new ExpFuncDb('$site',
-            `${this.context.site}.atomtono`,
-            new ExpNum(peer.id.id),
-            val
+    protected readonly transFuncName = 'AtomToNo';
+    protected buildAfterTrans(statements: Statement[]): void {
+        const selectEndPoint = this.factory.createSelect();
+        statements.push(selectEndPoint);
+        selectEndPoint.toVar = true;
+        selectEndPoint.col('id', IOProc.endPoint);
+        selectEndPoint.from(new EntityTable(EnumSysTable.IOEndPoint, false));
+        selectEndPoint.where(new ExpAnd(
+            new ExpEQ(new ExpField('siteAtomApp'), new ExpVar(IOProc.siteAtomApp)),
+            new ExpEQ(new ExpField('appIO'), new ExpVar(IOProc.ioAppIO)),
+        ));
+
+        const ifEndPoint = this.factory.createIf();
+        statements.push(ifEndPoint);
+        ifEndPoint.cmp = new ExpIsNotNull(new ExpVar(IOProc.endPoint));
+
+        const setQueueId = this.factory.createSet();
+        ifEndPoint.then(setQueueId);
+        setQueueId.equ(IOProc.queueId, new ExpFuncInUq(
+            'IOQueue$id',
+            [ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNull.null, new ExpVar(IOProc.endPoint)],
+            true
+        ));
+
+        const update = this.factory.createUpdate();
+        ifEndPoint.then(update);
+        update.table = new EntityTable(EnumSysTable.IOQueue, false);
+        update.cols = [
+            { col: 'value', val: new ExpVar(IOProc.vRetJson) },
+        ];
+        update.where = new ExpEQ(
+            new ExpField('id'), new ExpVar(IOProc.queueId)
         );
+        const insert = this.factory.createInsert();
+        ifEndPoint.then(insert);
+        insert.table = new EntityTable(EnumSysTable.IOInOut, false);
+        insert.cols = [
+            { col: 'i', val: ExpNum.num0 },
+            { col: 'x', val: new ExpVar(IOProc.queueId) },
+        ];
     }
 }

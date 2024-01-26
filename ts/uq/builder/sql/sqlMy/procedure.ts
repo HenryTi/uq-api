@@ -48,29 +48,6 @@ export class MyProcedure extends Procedure {
     protected declareStart(sb: SqlBuilder) {
         sb.append('DECLARE ');
     }
-    /*
-    protected returnPuts(sb: SqlBuilder, tab: number, puts: { [put: string]: boolean }) {
-        let params: ExpVal[] = [];
-        for (let i in puts) {
-            params.push(new ExpStr(i), new ExpVar('$ret$' + i));
-        }
-        if (params.length > 0) {
-            sb.tab(tab);
-            sb.append('SELECT JSON_OBJECT(');
-            let first = true;
-            for (let p of params) {
-                if (first === true) {
-                    first = false;
-                }
-                else {
-                    sb.comma();
-                }
-                sb.exp(p);
-            }
-            sb.r().append(' AS $ret').ln();
-        }
-    }
-    */
     protected declareVar(sb: SqlBuilder, v: il.Field) {
         sb.var(v.name).space();
         v.dataType.sql(sb);

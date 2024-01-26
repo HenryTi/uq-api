@@ -460,25 +460,37 @@ export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
 export class BBizStatementOut extends BStatement<BizStatementOut> {
     override body(sqls: Sqls): void {
         const { factory } = this.context;
-        const { bizOut, detail, sets } = this.istatement;
-        let varName = '$' + bizOut.name;
+        const { useOut, to, detail, sets } = this.istatement;
+        let varName = '$' + useOut.varName;
+
+        if (to !== undefined) {
+            let setTo = factory.createSet();
+            sqls.push(setTo);
+            setTo.isAtVar = true;
+            setTo.equ(varName + '$TO', this.context.expVal(to));
+        }
+
         let setV = factory.createSet();
         sqls.push(setV);
         setV.isAtVar = true;
-        let params: ExpVal[] = [];
-        let vNew: ExpVal;
-        for (let i in sets) {
-            params.push(new ExpStr('$.' + i), this.context.expVal(sets[i]));
+        const context = this.context;
+        function buildParams(path: string) {
+            let params: ExpVal[] = [];
+            for (let i in sets) {
+                params.push(new ExpStr(path + i), context.expVal(sets[i]));
+            }
+            return params;
         }
+        let vNew: ExpVal;
         if (detail === undefined) {
-            vNew = new ExpFunc('JSON_SET', new ExpAtVar(varName), ...params);
+            vNew = new ExpFunc('JSON_SET', new ExpAtVar(varName), ...buildParams('$.'));
         }
         else {
             vNew = new ExpFunc(
                 'JSON_ARRAY_Append',
                 new ExpAtVar(varName),
                 new ExpStr('$.' + detail),
-                new ExpFunc('JSON_OBJECT', ...params),
+                new ExpFunc('JSON_OBJECT', ...buildParams('')),
             );
         }
         setV.equ(varName, vNew);

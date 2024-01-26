@@ -3,7 +3,7 @@ import {
     BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements //, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin, BizOut
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin, BizOut, BizIOSite, BizIOApp, UseOut, IOAppOut
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
@@ -364,7 +364,7 @@ export const binPreDefined = [
     , ...binFieldArr
 ];
 class BizBinSpace extends BizEntitySpace<BizBin> {
-    readonly bizOuts: { [name: string]: BizOut; } = {};
+    readonly bizOuts: { [name: string]: UseOut; } = {};
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
@@ -420,9 +420,13 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
         return new BizBinActFieldSpace(this.bizEntity);
     }
 
-    protected _regUseBizOut(bizOut: BizOut): boolean {
-        this.bizOuts[bizOut.name] = bizOut;
-        return true;
+    protected _regUseBizOut(ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, to: boolean): UseOut {
+        let name = `${ioSite.name}.${ioApp.name}.${ioAppOut.name}`;
+        let bo = this.bizOuts[name];
+        if (bo !== undefined && bo.to === true) to = true;
+        let useOut = new UseOut(ioSite, ioApp, ioAppOut, to);
+        this.bizOuts[name] = useOut;
+        return useOut;
     }
 }
 

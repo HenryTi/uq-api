@@ -103,15 +103,6 @@ export class PBiz extends PEntity<Biz> {
                         detail.bin.sheetArr.push(sheet);
                     }
                     break;
-                /*
-                case BizPhraseType.bin:
-                    const bin = p as BizBin;
-                    const { pend } = bin;
-                    if (pend !== undefined) {
-                        pend.bizBins.push(bin);
-                    }
-                    break;
-                */
             }
         }
         for (let [, p] of this.entity.bizEntities) {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIOSite = exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+exports.UseOut = exports.BizIOSite = exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
@@ -185,4 +185,16 @@ class BizIOSite extends Entity_1.BizEntity {
     }
 }
 exports.BizIOSite = BizIOSite;
+class UseOut {
+    constructor(ioSite, ioApp, ioAppOut, to) {
+        this.ioSite = ioSite;
+        this.ioApp = ioApp;
+        this.ioAppOut = ioAppOut;
+        this.to = to;
+    }
+    get varName() {
+        return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
+    }
+}
+exports.UseOut = UseOut;
 //# sourceMappingURL=InOut.js.map

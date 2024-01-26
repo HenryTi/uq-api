@@ -6,7 +6,7 @@ import * as parser from '../../parser';
 import { IElement } from '../IElement';
 import {
     BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizSpec, BizOut
+    , BizInAct, BizBin, BizAtom, BizSpec, BizOut, BizIOSite, BizIOApp, UseOut
 } from '../Biz';
 import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
@@ -126,7 +126,13 @@ export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<
 }
 
 export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<T> {
+    /*
+    ioSite: BizIOSite;
+    ioApp: BizIOApp;
     bizOut: BizOut;
+    */
+    useOut: UseOut;
+    to: ValueExpression;
     detail: string;
     readonly sets: { [bud: string]: ValueExpression } = {};
     parser(context: parser.PContext): parser.PElement<IElement> {

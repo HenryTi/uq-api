@@ -76,6 +76,34 @@ class PBizSheet extends Base_1.PBizEntity {
     }
     scan2(uq) {
         let ok = true;
+        const { outs, main, details } = this.element;
+        const mainOuts = main.outs;
+        function setOut(name, useOut) {
+            let out = outs[name];
+            if (out === undefined) {
+                outs[name] = useOut;
+                return;
+            }
+            if (useOut.to === true)
+                out.to = true;
+        }
+        for (let i in mainOuts) {
+            setOut(i, mainOuts[i]);
+        }
+        for (let detail of details) {
+            const detailOuts = detail.bin.outs;
+            for (let i in detailOuts) {
+                setOut(i, detailOuts[i]);
+            }
+        }
+        for (let i in outs) {
+            let out = outs[i];
+            if (out.to !== true) {
+                ok = false;
+                const { ioSite, ioApp, ioAppOut } = out;
+                this.log(`Biz OUT ${ioAppOut.getJName()} of ${ioSite.getJName()}.${ioApp.getJName()} in Sheet ${this.element.getJName()} without TO`);
+            }
+        }
         return ok;
     }
 }

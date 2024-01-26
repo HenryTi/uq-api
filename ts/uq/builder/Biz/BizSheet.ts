@@ -1,11 +1,11 @@
 import {
     BigInt, BizBin, BizSheet, JoinType
-    , bigIntField, decField, idField, EnumSysTable, Char, BizOut, ProcParamType, BudDataType
+    , bigIntField, decField, idField, EnumSysTable, Char, BizOut, ProcParamType, BudDataType, BizIOApp, BizIOSite, UseOut
 } from "../../il";
 import { $site } from "../consts";
 import {
-    ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNotNull, ExpIsNull, ExpNum
-    , ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, Statement
+    ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpGT, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum
+    , ExpRoutineExists, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement
 } from "../sql";
 import { userParamName } from "../sql/sqlBuilder";
 import { EntityTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
@@ -26,8 +26,10 @@ const b = 'b';
 const c = 'c';
 const d = 'd';
 const tempBinTable = 'bin';
+const siteAtomApp = '$siteAtomApp';
 
 export class BBizSheet extends BBizEntity<BizSheet> {
+
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
         const { id } = this.bizEntity;
@@ -40,16 +42,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     private buildSubmitProc(proc: Procedure) {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
-        const { main, details } = this.bizEntity;
-        const outs: { [name: string]: BizOut } = {};
-        const mainOuts = main.outs;
-        for (let i in mainOuts) outs[i] = mainOuts[i];
-        for (let detail of details) {
-            const detailOuts = detail.bin.outs
-            for (let i in detailOuts) {
-                outs[i] = detailOuts[i];
-            }
-        }
+        const { main, details, outs } = this.bizEntity;
 
         const site = '$site';
         const cId = '$id';
@@ -69,6 +62,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             decField(svalue, 18, 6),
             decField(samount, 18, 6),
             decField(sprice, 18, 6),
+            bigIntField(siteAtomApp),
         );
 
         for (let i in outs) {
@@ -241,13 +235,13 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         execSql.sql = new ExpFunc(factory.func_concat, new ExpStr('CALL `' + $site + '`.`'), new ExpVar(vProc), new ExpStr('`()'));
     }
 
-    private buildOutInit(statements: Statement[], out: BizOut): void {
-        const varName = '$' + out.name;
+    private buildOutInit(statements: Statement[], out: UseOut): void {
+        const varName = '$' + out.varName;
         const { factory } = this.context;
         let set = factory.createSet();
         statements.push(set);
         let params: ExpVal[] = [];
-        for (let [, bud] of out.props) {
+        for (let [, bud] of out.ioAppOut.bizIO.props) {
             const { dataType, name } = bud;
             if (dataType !== BudDataType.arr) continue;
             params.push(new ExpStr(name), new ExpFunc('JSON_ARRAY'));
@@ -256,19 +250,59 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         set.equ(varName, new ExpFunc('JSON_OBJECT', ...params));
     }
 
-    private buildOut(statements: Statement[], out: BizOut) {
+    private buildOut(statements: Statement[], out: UseOut) {
         const { factory } = this.context;
-        const varName = '$' + out.name;
+        const { varName, ioSite, ioApp, ioAppOut } = out;
+        const vName = '$' + varName;
         const memo = factory.createMemo();
         statements.push(memo);
-        memo.text = `call PROC to write OUT @${varName} ${out.getJName()}`;
+        memo.text = `call PROC to write OUT @${vName} ${ioAppOut.getJName()}`;
+
+        let selectSiteAtomApp = factory.createSelect();
+        statements.push(selectSiteAtomApp);
+        selectSiteAtomApp.toVar = true;
+        selectSiteAtomApp.col('id', siteAtomApp);
+        selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOSiteAtomApp, false));
+        selectSiteAtomApp.where(new ExpAnd(
+            new ExpEQ(
+                new ExpField('ioSiteAtom'),
+                new ExpFuncInUq('duo$id',
+                    [
+                        ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNull.null,
+                        new ExpNum(ioSite.id), new ExpAtVar(vName + '$to'),
+                    ],
+                    true
+                ),
+            ),
+            new ExpEQ(new ExpField('ioApp'), new ExpNum(ioApp.id)),
+        ));
+
         const proc = factory.createCall();
         statements.push(proc);
         proc.db = '$site';
-        proc.procName = `${this.context.site}.${out.id}`;
-        proc.params.push({
-            paramType: ProcParamType.in,
-            value: new ExpAtVar(varName),
-        });
+        proc.procName = `${this.context.site}.${ioAppOut.id}`;
+        proc.params.push(
+            /*
+            {
+                paramType: ProcParamType.in,
+                value: new ExpNum(ioSite.id),
+            },
+            {
+                paramType: ProcParamType.in,
+                value: new ExpAtVar(vName + '$to'),
+            },
+            {
+                paramType: ProcParamType.in,
+                value: new ExpNum(ioApp.id),
+            },
+            */
+            {
+                paramType: ProcParamType.in,
+                value: new ExpVar(siteAtomApp),
+            },
+            {
+                paramType: ProcParamType.in,
+                value: new ExpAtVar(vName),
+            });
     }
 }

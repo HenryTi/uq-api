@@ -175,3 +175,19 @@ export class BizIOSite extends BizEntity {
         return ret;
     }
 }
+
+export class UseOut {
+    readonly ioSite: BizIOSite;
+    readonly ioApp: BizIOApp;
+    readonly ioAppOut: IOAppOut;
+    to: boolean;
+    constructor(ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, to: boolean) {
+        this.ioSite = ioSite;
+        this.ioApp = ioApp;
+        this.ioAppOut = ioAppOut;
+        this.to = to;
+    }
+    get varName(): string {
+        return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
+    }
+}
