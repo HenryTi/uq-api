@@ -50,7 +50,7 @@ export class ApiRunner extends Runner {
             let strMd5 = stamp + strData + appPassword;
             console.log(strMd5);
             let hash = md5(strMd5);
-            if (token !== hash) {
+            if ((token as string).toLowerCase() !== hash) {
                 throw new Error('MD5 token error');
             }
 

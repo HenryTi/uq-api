@@ -45,7 +45,7 @@ class ApiRunner extends Runner_1.Runner {
             let strMd5 = stamp + strData + appPassword;
             console.log(strMd5);
             let hash = md5(strMd5);
-            if (token !== hash) {
+            if (token.toLowerCase() !== hash) {
                 throw new Error('MD5 token error');
             }
             let ret = await this.dbUq.call('SaveIOInQueue', [0, 0, endPoint, strData, uiq]);
