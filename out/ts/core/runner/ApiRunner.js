@@ -43,8 +43,8 @@ class ApiRunner extends Runner_1.Runner {
             let [{ appPassword, endPoint }] = retAppPassword;
             let strData = JSON.stringify(data);
             let strMd5 = stamp + strData + appPassword;
-            console.log(strMd5);
             let hash = md5(strMd5);
+            console.log(strMd5, hash, token);
             if (token.toLowerCase() !== hash) {
                 throw new Error('MD5 token error');
             }
