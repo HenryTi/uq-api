@@ -56,9 +56,10 @@ class ApiRunner extends Runner_1.Runner {
             };
         }
         catch (err) {
+            console.error(err);
             return {
                 ok: false,
-                err: 'error',
+                err: err.message,
             };
         }
     }
