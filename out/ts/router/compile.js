@@ -55,12 +55,18 @@ function buildCompileRouter(router, rb) {
     rb.entityPost(router, actionType, '/app-key', async (unit, user, name, db, urlParams, runner, body, schema, run, net) => {
         const { ioSite, atom, app, valid } = body;
         let ret = await runner.call('SetIOSiteAtomApp', [0, 0, ioSite, atom, app, valid]);
+        const [{ id: siteAtomApp }] = ret;
+        let appKey, appPassword;
         if (valid === 1) {
-            const [{ id: siteAtomApp }] = ret;
-            let appKey = siteAtomAppToAppKey(siteAtomApp);
-            let appPassword = createPassword();
+            appKey = siteAtomAppToAppKey(siteAtomApp);
+            appPassword = createPassword();
             await runner.call('SetIOSiteAtomAppKey', [0, 0, siteAtomApp, appKey, appPassword]);
         }
+        return {
+            siteAtomApp,
+            appKey,
+            appPassword,
+        };
     });
 }
 exports.buildCompileRouter = buildCompileRouter;
