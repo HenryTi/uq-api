@@ -32,7 +32,6 @@ class ApiRunner extends Runner_1.Runner {
     }
     async saveIOInQueue(inBody) {
         const { data, stamp, appKey, appkey, token, uiq, act } = inBody;
-        console.log(inBody);
         try {
             let siteAtomApp = siteAtomAppFromAppKey(appKey !== null && appKey !== void 0 ? appKey : appkey);
             let retAppPassword = await this.dbUq.call('IOGetAppPassword', [
@@ -43,6 +42,7 @@ class ApiRunner extends Runner_1.Runner {
             }
             let [{ appPassword, endPoint }] = retAppPassword;
             let strData = JSON.stringify(data);
+            console.log(strData);
             let hash = md5(stamp + strData + appPassword);
             if (token !== hash) {
                 throw new Error('MD5 token error');
