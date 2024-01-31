@@ -33,10 +33,10 @@ export class ApiRunner extends Runner {
     }
 
     async saveIOInQueue(inBody: any) {
-        const { data, stamp, appKey, token, uiq, act } = inBody;
+        const { data, stamp, appKey, appkey, token, uiq, act } = inBody;
         console.log(inBody);
         try {
-            let siteAtomApp = siteAtomAppFromAppKey(appKey);
+            let siteAtomApp = siteAtomAppFromAppKey(appKey ?? appkey);
             let retAppPassword: { appPassword: string; endPoint: number; }[] = await this.dbUq.call(
                 'IOGetAppPassword',
                 [
