@@ -19,7 +19,7 @@ export function buildApiRouter(rb: RouterWebBuilder) {
 
     router.post('/', async (req: Request, res: Response) => {
         let apiRunner = new ApiRunner();
-        console.log(req.header);
+        console.log(req.headers);
         let ret = await apiRunner.saveIOInQueue(req.body);
         res.json(ret);
     });

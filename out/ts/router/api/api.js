@@ -17,7 +17,7 @@ function buildApiRouter(rb) {
     });
     router.post('/', async (req, res) => {
         let apiRunner = new core_1.ApiRunner();
-        console.log(req.header);
+        console.log(req.headers);
         let ret = await apiRunner.saveIOInQueue(req.body);
         res.json(ret);
     });
