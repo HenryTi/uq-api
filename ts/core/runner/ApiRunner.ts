@@ -33,6 +33,7 @@ export class ApiRunner extends Runner {
     }
 
     async saveIOInQueue(inBody: any) {
+        console.log(inBody);
         const { data, stamp, appKey, appkey, token, uiq, act } = inBody;
         try {
             let siteAtomApp = siteAtomAppFromAppKey(appKey ?? appkey);

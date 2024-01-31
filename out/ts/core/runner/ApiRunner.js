@@ -31,6 +31,7 @@ class ApiRunner extends Runner_1.Runner {
         return length;
     }
     async saveIOInQueue(inBody) {
+        console.log(inBody);
         const { data, stamp, appKey, appkey, token, uiq, act } = inBody;
         try {
             let siteAtomApp = siteAtomAppFromAppKey(appKey !== null && appKey !== void 0 ? appKey : appkey);
