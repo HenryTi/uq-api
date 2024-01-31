@@ -113,14 +113,18 @@ $		13	20220906091418173873	2022-09-06 09:14:18
      * @returns 
      */
     async run(): Promise<void> {
+        const totalTimeGaps = 100;
+        let showGap = totalTimeGaps;
         this.db$Uq.uqLog(0, '$uid', '+++++++++++', '********** start ***********');
         await this.beforeRun();
         logger.debug('\n');
         logger.debug('\n');
         logger.debug('====== Jobs loop started! ======');
-        for (; ;) {
-            logger.debug('\n');
-            logger.info(`====== ${process.env.NODE_ENV} one loop at ${new Date().toLocaleString()} ======`);
+        for (; ; --showGap) {
+            if (showGap <= 0) {
+                logger.debug('\n');
+                logger.info(`====== ${process.env.NODE_ENV} one loop at ${new Date().toLocaleString()} ======`);
+            }
             try {
                 await this.uqsJob();
             }
@@ -163,7 +167,10 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                     this.loopWait = true;
                 }
             }
-            logger.info(`###### one loop end at ${new Date().toLocaleString()} ######`);
+            if (showGap <= 0) {
+                logger.info(`###### one loop end at ${new Date().toLocaleString()} ######`);
+                showGap = totalTimeGaps;
+            }
         }
     }
 

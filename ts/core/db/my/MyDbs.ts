@@ -14,6 +14,7 @@ export class MyDbs implements Dbs {
     readonly db$UnitxTest: Db$Unitx;
     readonly db$UnitxProd: Db$Unitx;
     readonly dbNoName: MyDbNoName;
+    readonly dbBiz: DbUq;
     readonly dbUqs: { [name: string]: DbUq; };
     readonly uq_api_version: string;
     sqlsVersion: DbSqlsVersion;
@@ -26,7 +27,11 @@ export class MyDbs implements Dbs {
         this.db$UnitxTest = new MyDb$Unitx(this, true);
         this.db$UnitxProd = new MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName(this);
+
+        const dbBizName = 'jksoft_mini_jxc_trial';
+        this.dbBiz = new MyDbUq(this, dbBizName);
         this.dbUqs = {};
+        this.dbUqs[dbBizName] = this.dbBiz;
     }
 
     async getDbUq(dbName: string): Promise<DbUq> {
@@ -51,5 +56,6 @@ export class MyDbs implements Dbs {
             ]);
             await this.dbNoName.saveUqVersion();
         }
+        await this.dbBiz.initLoad();
     }
 }

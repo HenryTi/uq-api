@@ -2,7 +2,7 @@ import {
     EnumSysTable, BigInt, BizStatementPend
     , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet, intField
-    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut
+    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField
 } from "../../il";
 import { $site } from "../consts";
 import { sysTable } from "../dbContext";
@@ -293,7 +293,7 @@ export class BBizStatementSheet extends BStatement<BizStatementSheet> {
         let idVarName = 'detail$id';
         const declare = factory.createDeclare();
         sqls.push(declare);
-        declare.vars(intField(idVarName));
+        declare.vars(bigIntField(idVarName));
         const { useSheet, bin } = this.istatement;
         const { varName, sheet } = useSheet;
         const memo = factory.createMemo();

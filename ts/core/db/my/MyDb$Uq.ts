@@ -2,6 +2,7 @@ import { env, logger } from "../../../tool";
 import { consts } from "../../consts";
 import { locals } from "../../locals";
 import { Db$Uq } from "../Db";
+import { SpanLog } from "../dbLogger";
 import { MyDb } from "./MyDb";
 import { MyDbs } from "./MyDbs";
 
@@ -21,6 +22,10 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
             await this.create$UqDb();
             await this.setNewVersion();
         }
+    }
+
+    protected override openSpaceLog(callProc: string, params: any[]): SpanLog {
+        return undefined;
     }
 
     async logPerformance(tick: number, log: string, ms: number): Promise<void> {
@@ -114,7 +119,7 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
 	create procedure $uq.performance(_tick bigint, _log text, _ms int) begin
         declare _time, _tmax timestamp(6);
         set _time=current_timestamp(6);
-        select max(\`time\`) into _tmax from \`performance\` where \`time\`>_time for update;
+        select \`time\` into _tmax from \`performance\` where \`time\`>_time order by \`time\` DESC limit 1 for update;
         if _tmax is null then
             set _tmax = _time;
         else

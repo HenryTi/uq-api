@@ -1,5 +1,5 @@
 import { env } from '../tool';
-import { Jobs } from '../jobs';
+import { Jobs, bizJob } from '../jobs';
 
 /**
  * 所有Job运行的总入口点
@@ -10,6 +10,7 @@ export async function startJobs() {
             // 只有在开发方式下，才可以屏蔽jobs
             // return;
         }
+        bizJob.start();
         let jobs = new Jobs();
         await jobs.run();
     }

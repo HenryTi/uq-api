@@ -16,7 +16,10 @@ class MyDbs {
         this.db$UnitxTest = new MyDb_Unitx_1.MyDb$Unitx(this, true);
         this.db$UnitxProd = new MyDb_Unitx_1.MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName_1.MyDbNoName(this);
+        const dbBizName = 'jksoft_mini_jxc_trial';
+        this.dbBiz = new MyDbUq_1.MyDbUq(this, dbBizName);
         this.dbUqs = {};
+        this.dbUqs[dbBizName] = this.dbBiz;
     }
     async getDbUq(dbName) {
         let dbUq = this.dbUqs[dbName];
@@ -38,6 +41,7 @@ class MyDbs {
             ]);
             await this.dbNoName.saveUqVersion();
         }
+        await this.dbBiz.initLoad();
     }
 }
 exports.MyDbs = MyDbs;

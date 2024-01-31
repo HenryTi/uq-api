@@ -10,6 +10,7 @@ export interface Dbs {
     readonly db$UnitxProd: Db$Unitx;
     readonly dbNoName: DbNoName;
     readonly dbUqs: { [name: string]: DbUq };
+    readonly dbBiz: DbUq;
 
     start(): Promise<void>;
     getDbUq(dbName: string): Promise<DbUq>;      // dbName = uqName [+ $test]

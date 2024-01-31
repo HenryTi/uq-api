@@ -6,10 +6,11 @@ import { router as resRouter, initResPath } from '../res';
 import { authCheck, authUnitx, getCompileNet, getDbs, getNet } from '../core';
 import {
     buildOpenRouter, buildEntityRouter, buildUnitxRouter, buildBuildRouter,
-    CompileRouterBuilder, RouterBuilder, RouterWebBuilder, RouterLocalBuilder, UnitxRouterBuilder
+    CompileRouterBuilder, RouterBuilder, RouterWebBuilder, RouterLocalBuilder, UnitxRouterBuilder, ApiRouterBuilder
 } from '../router';
 import { authJoint, authUpBuild } from '../core/auth';
 import { buildProcRouter } from '../router/proc';
+import { buildApiRouter } from '../router/api';
 
 export async function startApi(): Promise<void> {
     process.on('uncaughtException', function (err: any) {
@@ -92,6 +93,9 @@ export async function startApi(): Promise<void> {
         app.use('/uq/test/:db/', buildUqRouter(uqTestRouterBuilder, compileTestRouterBuilder));
         app.use('/uq/unitx-prod/', buildUnitxRouter(unitxProdRouterBuilder));
         app.use('/uq/unitx-test/', buildUnitxRouter(unitxTestRouterBuilder));
+
+        const apiRouterBuilder = new ApiRouterBuilder(net);
+        app.use('/api', buildApiRouter(apiRouterBuilder));
         await dbs.start();
         const { uq_api_version } = dbs;
         let { port, localPort, connection } = env;

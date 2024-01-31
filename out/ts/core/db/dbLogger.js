@@ -37,7 +37,7 @@ class DbLogger {
         this.spans = [];
         this.minSpan = minSpan;
     }
-    async open(log) {
+    open(log) {
         return new SpanLog(this, log);
     }
     add(span) {

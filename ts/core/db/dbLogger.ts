@@ -46,7 +46,7 @@ export class DbLogger {
         this.minSpan = minSpan;
     }
 
-    async open(log: string): Promise<SpanLog> {
+    open(log: string): SpanLog {
         return new SpanLog(this, log);
     }
 

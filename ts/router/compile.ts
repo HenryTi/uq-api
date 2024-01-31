@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
+import { createHash, randomBytes } from "crypto";
 import { RouterBuilder } from './routerBuilder';
 import { EntityRunner, Net } from '../core';
 import { compileBiz, compileSingle, compileSource, compileDelEntity, compileRename, compileDownload } from '../uq/compile';
+import { from62, to62 } from '../tool';
+import { Buffer } from 'buffer';
+import { minteIdOf2020_01_01 } from '../uq/builder/consts';
 
 const actionType = 'compile';
 
@@ -66,4 +70,29 @@ export function buildCompileRouter(router: Router, rb: RouterBuilder) {
             let ret = await compileDownload(runner, unit, user, urlParams.file);
             return ret;
         });
+
+    rb.entityPost(router, actionType, '/app-key',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
+            const { ioSite, atom, app, valid } = body;
+            let ret = await runner.call('SetIOSiteAtomApp', [0, 0, ioSite, atom, app, valid]);
+            if (valid === 1) {
+                const [{ id: siteAtomApp }] = ret;
+                let appKey = siteAtomAppToAppKey(siteAtomApp);
+                let appPassword = createPassword();
+                await runner.call('SetIOSiteAtomAppKey', [0, 0, siteAtomApp, appKey, appPassword]);
+            }
+        });
+}
+
+function createPassword() {
+    let rand = randomBytes(20).toString('base64').substring(0, 16);
+    return rand;
+}
+
+function siteAtomAppToAppKey(siteAtomApp: number) {
+    let bufRand = randomBytes(1);
+    let salt = bufRand.readUInt8();
+    let saa = salt * 0x10000000000 + siteAtomApp;
+    let appKey = to62(saa);
+    return appKey;
 }

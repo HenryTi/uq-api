@@ -19,6 +19,9 @@ class MyDb$Uq extends MyDb_1.MyDb {
             await this.setNewVersion();
         }
     }
+    openSpaceLog(callProc, params) {
+        return undefined;
+    }
     async logPerformance(tick, log, ms) {
         try {
             await this.proc('performance', [tick, log, ms]);
@@ -105,7 +108,7 @@ class MyDb$Uq extends MyDb_1.MyDb {
 	create procedure $uq.performance(_tick bigint, _log text, _ms int) begin
         declare _time, _tmax timestamp(6);
         set _time=current_timestamp(6);
-        select max(\`time\`) into _tmax from \`performance\` where \`time\`>_time for update;
+        select \`time\` into _tmax from \`performance\` where \`time\`>_time order by \`time\` DESC limit 1 for update;
         if _tmax is null then
             set _tmax = _time;
         else

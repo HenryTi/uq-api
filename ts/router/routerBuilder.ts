@@ -314,3 +314,6 @@ export class UnitxRouterBuilder extends RouterWebBuilder {
         throw `Database $unitx 不存在`;
     }
 }
+
+export class ApiRouterBuilder extends RouterWebBuilder {
+}

@@ -265,7 +265,7 @@ class BBizStatementSheet extends bstatement_1.BStatement {
         let idVarName = 'detail$id';
         const declare = factory.createDeclare();
         sqls.push(declare);
-        declare.vars((0, il_1.intField)(idVarName));
+        declare.vars((0, il_1.bigIntField)(idVarName));
         const { useSheet, bin } = this.istatement;
         const { varName, sheet } = useSheet;
         const memo = factory.createMemo();

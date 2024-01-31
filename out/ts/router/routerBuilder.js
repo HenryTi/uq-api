@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UnitxRouterBuilder = exports.CompileRouterBuilder = exports.RouterLocalBuilder = exports.RouterWebBuilder = exports.RouterBuilder = void 0;
+exports.ApiRouterBuilder = exports.UnitxRouterBuilder = exports.CompileRouterBuilder = exports.RouterLocalBuilder = exports.RouterWebBuilder = exports.RouterBuilder = void 0;
 const tool_1 = require("../tool");
 const buildDbNameFromReq_1 = require("./buildDbNameFromReq");
 ;
@@ -300,4 +300,7 @@ class UnitxRouterBuilder extends RouterWebBuilder {
     }
 }
 exports.UnitxRouterBuilder = UnitxRouterBuilder;
+class ApiRouterBuilder extends RouterWebBuilder {
+}
+exports.ApiRouterBuilder = ApiRouterBuilder;
 //# sourceMappingURL=routerBuilder.js.map

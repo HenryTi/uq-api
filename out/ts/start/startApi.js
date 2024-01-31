@@ -10,6 +10,7 @@ const core_1 = require("../core");
 const router_1 = require("../router");
 const auth_1 = require("../core/auth");
 const proc_1 = require("../router/proc");
+const api_1 = require("../router/api");
 async function startApi() {
     process.on('uncaughtException', function (err) {
         tool_1.logger.error('uncaughtException', err);
@@ -87,6 +88,8 @@ async function startApi() {
         app.use('/uq/test/:db/', buildUqRouter(uqTestRouterBuilder, compileTestRouterBuilder));
         app.use('/uq/unitx-prod/', (0, router_1.buildUnitxRouter)(unitxProdRouterBuilder));
         app.use('/uq/unitx-test/', (0, router_1.buildUnitxRouter)(unitxTestRouterBuilder));
+        const apiRouterBuilder = new router_1.ApiRouterBuilder(net);
+        app.use('/api', (0, api_1.buildApiRouter)(apiRouterBuilder));
         await dbs.start();
         const { uq_api_version } = dbs;
         let { port, localPort, connection } = tool_1.env;

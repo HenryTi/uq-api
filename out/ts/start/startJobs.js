@@ -12,6 +12,7 @@ async function startJobs() {
             // 只有在开发方式下，才可以屏蔽jobs
             // return;
         }
+        jobs_1.bizJob.start();
         let jobs = new jobs_1.Jobs();
         await jobs.run();
     }

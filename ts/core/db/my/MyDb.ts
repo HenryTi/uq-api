@@ -47,25 +47,27 @@ export abstract class MyDb extends MyDbBase implements Db {
     protected async procWithLog(proc: string, params: any[]): Promise<any> {
         let c = this.buildCallProc(proc);
         let sql = c + this.buildCallProcParameters(params);
-        let spanLog: SpanLog;
-        if (this.name !== '$uq') {
-            let log = c;
-            if (params !== undefined) {
-                let len = params.length;
-                for (let i = 0; i < len; i++) {
-                    if (i > 0) log += ',';
-                    let v = params[i];
-                    if (v === undefined) log += 'null';
-                    else if (v === null) log += 'null';
-                    else {
-                        log += '\'' + v + '\'';
-                    }
+        let spanLog = this.openSpaceLog(c, params);
+        return await this.sql(sql, params, spanLog);
+    }
+
+    protected openSpaceLog(callProc: string, params: any[]): SpanLog {
+        let log = callProc;
+        if (params !== undefined) {
+            let len = params.length;
+            for (let i = 0; i < len; i++) {
+                if (i > 0) log += ',';
+                let v = params[i];
+                if (v === undefined) log += 'null';
+                else if (v === null) log += 'null';
+                else {
+                    log += '\'' + v + '\'';
                 }
             }
-            log += ')';
-            spanLog = await this.dbLogger.open(log);
         }
-        return await this.sql(sql, params, spanLog);
+        log += ')';
+        let spanLog = this.dbLogger.open(log);
+        return spanLog;
     }
 
     // return exists
