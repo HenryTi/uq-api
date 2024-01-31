@@ -32,6 +32,7 @@ class ApiRunner extends Runner_1.Runner {
     }
     async saveIOInQueue(inBody) {
         const { data, stamp, appKey, token, uiq, act } = inBody;
+        console.log(inBody);
         try {
             let siteAtomApp = siteAtomAppFromAppKey(appKey);
             let retAppPassword = await this.dbUq.call('IOGetAppPassword', [
