@@ -121,7 +121,7 @@ export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<
     bizOut: BizOut;
     */
     useOut: UseOut;
-    to: ValueExpression;
+    readonly tos: ValueExpression[] = [];
     detail: string;
     readonly sets: { [bud: string]: ValueExpression } = {};
     parser(context: parser.PContext): parser.PElement<IElement> {

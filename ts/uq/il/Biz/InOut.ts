@@ -185,18 +185,24 @@ export class BizIOSite extends BizEntity {
 }
 
 export class UseOut {
+    /*
     readonly ioSite: BizIOSite;
     readonly ioApp: BizIOApp;
     readonly ioAppOut: IOAppOut;
+    */
+    readonly out: BizOut;
     to: boolean;
-    constructor(ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, to: boolean) {
+    constructor(/*ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, */out: BizOut, to: boolean) {
+        /*
         this.ioSite = ioSite;
         this.ioApp = ioApp;
         this.ioAppOut = ioAppOut;
+        */
+        this.out = out;
         this.to = to;
     }
     get varName(): string {
         //return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
-        return `${this.ioAppOut.bizIO.id}`;
+        return `${this.out.id}`;
     }
 }

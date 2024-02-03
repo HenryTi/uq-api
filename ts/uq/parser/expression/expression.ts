@@ -500,6 +500,9 @@ export abstract class PExpression extends PElement {
             }
         }
 
+        let at = this.ts.prevAt - 1;
+        let line = this.ts.prevLine;
+        let sourceStart = this.ts.lastP - 1;
         this.ts.readToken();
         switch (this.ts.token as any) {
             default:
@@ -509,6 +512,7 @@ export abstract class PExpression extends PElement {
                 let parser = varOperand.parser(this.context);
                 parser.parse();
                 this.add(varOperand);
+                parser.setPos(at, line, sourceStart);
                 return;
             case Token.LPARENTHESE:
                 this.func(lowerVar);

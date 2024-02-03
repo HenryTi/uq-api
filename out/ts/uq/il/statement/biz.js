@@ -93,6 +93,7 @@ exports.BizStatementSpec = BizStatementSpec;
 class BizStatementOut extends BizStatementSub {
     constructor() {
         super(...arguments);
+        this.tos = [];
         this.sets = {};
     }
     parser(context) {

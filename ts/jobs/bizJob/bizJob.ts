@@ -42,7 +42,11 @@ class BizJob {
     }
 
     private runOut = async () => {
+        // let url = 'http://localhost:3015/api/';
         for (; ;) {
+            // let ret = await fetch(url);
+            // let retJson = await ret.json();
+            // console.log(url, retJson);
             let result = await this.apiRunner.getIOOut(1);
             const { length } = result;
             if (length === 0) return 0;

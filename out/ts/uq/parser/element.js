@@ -20,6 +20,11 @@ class PElementBase {
         this.line = this.ts.prevLine;
         this.sourceStart = this.ts.getP() - 1; // this.ts.lastP - 1;
     }
+    setPos(at, line, sourceStart) {
+        this.at = at;
+        this.line = line;
+        this.sourceStart = sourceStart;
+    }
     getSource() {
         return this.ts.getSourceAt(this.sourceStart);
     }

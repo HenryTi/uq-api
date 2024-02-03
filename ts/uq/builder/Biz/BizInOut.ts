@@ -12,7 +12,7 @@ import { Sqls } from "../bstatement";
 import { $site } from "../consts";
 import { DbContext } from "../dbContext";
 import {
-    ExpAdd, ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncDb, ExpFuncInUq
+    ExpAdd, ExpAnd, ExpEQ, ExpEntityId, ExpField, ExpFunc, ExpFuncDb, ExpFuncInUq
     , ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpLT, ExpNull, ExpNum, ExpSelect, ExpStr
     , ExpVal, ExpVar, Procedure, SqlVarTable, Statement
 } from "../sql";
@@ -105,8 +105,9 @@ export class BBizIn extends BBizEntity<BizIn> {
         const { name } = bud;
         switch (bud.dataType) {
             default: debugger; return;
-            case BudDataType.char: return charField(name, 200);
+            case BudDataType.ID:
             case BudDataType.int: return intField(name);
+            case BudDataType.char: return charField(name, 200);
             case BudDataType.dec: return decField(name, 18, 6);
             case BudDataType.date: return dateField(name);
         }
@@ -310,6 +311,7 @@ abstract class IOProc<T extends IOAppIO> {
     static vRetJson = '$retJson';
     static jsonTable = 't';
     static siteAtomApp = '$siteAtomApp';
+    static pSiteAtomApp = '$pSiteAtomApp';
     static queueId = '$queueId';
     static transerr = '$transerr';
     static endPoint = '$endPoint';
@@ -425,7 +427,7 @@ abstract class IOProc<T extends IOAppIO> {
     }
 }
 
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 class IOProcIn extends IOProc<IOAppIn> {
     protected readonly transFuncName = 'NoToAtom';
 
@@ -498,6 +500,7 @@ class IOProcOut extends IOProc<IOAppOut> {
         declare.vars(
             jsonField(IOProc.vRetJson),
             bigIntField(IOProc.siteAtomApp),
+            bigIntField(IOProc.pSiteAtomApp),
             bigIntField(IOProc.ioAppIO),
             bigIntField(IOProc.queueId),
             bigIntField(IOProc.endPoint),
@@ -507,35 +510,56 @@ class IOProcOut extends IOProc<IOAppOut> {
         statements.push(setIOAppIO);
         setIOAppIO.equ(IOProc.ioAppIO, new ExpNum(this.ioAppIO.id));
 
+        let setP0 = factory.createSet();
+        statements.push(setP0);
+        setP0.equ(IOProc.pSiteAtomApp, ExpNum.num0);
+
+        let loop = factory.createWhile();
+        statements.push(loop);
+        loop.no = 99;
+        loop.cmp = new ExpEQ(ExpNum.num1, ExpNum.num1);
+        let setSiteAtomAppNull = factory.createSet();
+        loop.statements.add(setSiteAtomAppNull);
+        setSiteAtomAppNull.equ(IOProc.siteAtomApp, ExpNull.null);
+
         let selectSiteAtomApp = factory.createSelect();
-        statements.push(selectSiteAtomApp);
+        loop.statements.add(selectSiteAtomApp);
         selectSiteAtomApp.toVar = true;
-        selectSiteAtomApp.col('id', IOProc.siteAtomApp);
-        selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOSiteAtomApp, false));
+        selectSiteAtomApp.col('id', IOProc.siteAtomApp, a);
+        selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOSiteAtomApp, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('ioSiteAtom', a), new ExpField('id', b)),
+                new ExpEQ(new ExpField('i', b), new ExpVar(IOProc.ioSite))
+            ))
+            .join(JoinType.join, new VarTable('$' + this.ioAppIO.bizIO.id + '$TO', c))
+            .on(new ExpEQ(new ExpField('x', b), new ExpField('to', c)));
         selectSiteAtomApp.where(new ExpAnd(
-            new ExpEQ(
+            new ExpGT(
                 new ExpField('ioSiteAtom'),
-                new ExpFuncInUq('duo$id',
-                    [
-                        ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNull.null,
-                        new ExpVar(IOProc.ioSite), new ExpVar(IOProc.atom),
-                    ],
-                    true
-                ),
+                new ExpVar(IOProc.pSiteAtomApp),
             ),
             new ExpEQ(new ExpField('ioApp'), new ExpNum(this.ioAppIO.ioApp.id)),
         ));
+        selectSiteAtomApp.order(new ExpField('id', a), 'asc');
+        selectSiteAtomApp.limit(ExpNum.num1);
 
-        let ifSiteAtomApp = factory.createIf();
-        statements.push(ifSiteAtomApp);
-        ifSiteAtomApp.cmp = new ExpIsNotNull(new ExpVar(IOProc.siteAtomApp));
+        let iffSiteAtomAppNull = factory.createIf();
+        loop.statements.add(iffSiteAtomAppNull);
+        iffSiteAtomAppNull.cmp = new ExpIsNull(new ExpVar(IOProc.siteAtomApp));
+        let leave = factory.createBreak();
+        iffSiteAtomAppNull.then(leave);
+        leave.no = loop.no;
+        let setP = factory.createSet();
+        iffSiteAtomAppNull.else(setP);
+        setP.equ(IOProc.pSiteAtomApp, new ExpVar(IOProc.siteAtomApp));
 
         let set = factory.createSet();
-        ifSiteAtomApp.then(set);
+        loop.statements.add(set);
         set.equ(IOProc.vRetJson, new ExpSelect(this.buildJsonTrans()));
 
         let stats = this.buildAfterTrans();
-        ifSiteAtomApp.then(...stats);
+        loop.statements.add(...stats);
     }
 
     private buildAfterTrans(): Statement[] {

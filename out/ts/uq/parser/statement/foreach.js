@@ -254,7 +254,9 @@ class ForBizInOutArrSpace extends space_1.Space {
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
-        return;
+        if (this.arr.props.has(name) === true) {
+            return new il_1.VarPointer(name);
+        }
     }
 }
 class ForEachArrSpace extends space_1.Space {

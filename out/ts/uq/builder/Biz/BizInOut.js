@@ -86,8 +86,9 @@ class BBizIn extends BizEntity_1.BBizEntity {
             default:
                 debugger;
                 return;
-            case il_1.BudDataType.char: return (0, il_1.charField)(name, 200);
+            case il_1.BudDataType.ID:
             case il_1.BudDataType.int: return (0, il_1.intField)(name);
+            case il_1.BudDataType.char: return (0, il_1.charField)(name, 200);
             case il_1.BudDataType.dec: return (0, il_1.decField)(name, 18, 6);
             case il_1.BudDataType.date: return (0, il_1.dateField)(name);
         }
@@ -358,10 +359,11 @@ IOProc.vJson = '$json';
 IOProc.vRetJson = '$retJson';
 IOProc.jsonTable = 't';
 IOProc.siteAtomApp = '$siteAtomApp';
+IOProc.pSiteAtomApp = '$pSiteAtomApp';
 IOProc.queueId = '$queueId';
 IOProc.transerr = '$transerr';
 IOProc.endPoint = '$endPoint';
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 class IOProcIn extends IOProc {
     constructor() {
         super(...arguments);
@@ -422,27 +424,46 @@ class IOProcOut extends IOProc {
         parameters.push(...this.buildParams());
         const declare = factory.createDeclare();
         statements.push(declare);
-        declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.bigIntField)(IOProc.ioAppIO), (0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.endPoint));
+        declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.bigIntField)(IOProc.pSiteAtomApp), (0, il_1.bigIntField)(IOProc.ioAppIO), (0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.endPoint));
         let setIOAppIO = factory.createSet();
         statements.push(setIOAppIO);
         setIOAppIO.equ(IOProc.ioAppIO, new sql_1.ExpNum(this.ioAppIO.id));
+        let setP0 = factory.createSet();
+        statements.push(setP0);
+        setP0.equ(IOProc.pSiteAtomApp, sql_1.ExpNum.num0);
+        let loop = factory.createWhile();
+        statements.push(loop);
+        loop.no = 99;
+        loop.cmp = new sql_1.ExpEQ(sql_1.ExpNum.num1, sql_1.ExpNum.num1);
+        let setSiteAtomAppNull = factory.createSet();
+        loop.statements.add(setSiteAtomAppNull);
+        setSiteAtomAppNull.equ(IOProc.siteAtomApp, sql_1.ExpNull.null);
         let selectSiteAtomApp = factory.createSelect();
-        statements.push(selectSiteAtomApp);
+        loop.statements.add(selectSiteAtomApp);
         selectSiteAtomApp.toVar = true;
-        selectSiteAtomApp.col('id', IOProc.siteAtomApp);
-        selectSiteAtomApp.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOSiteAtomApp, false));
-        selectSiteAtomApp.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('ioSiteAtom'), new sql_1.ExpFuncInUq('duo$id', [
-            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNull.null,
-            new sql_1.ExpVar(IOProc.ioSite), new sql_1.ExpVar(IOProc.atom),
-        ], true)), new sql_1.ExpEQ(new sql_1.ExpField('ioApp'), new sql_1.ExpNum(this.ioAppIO.ioApp.id))));
-        let ifSiteAtomApp = factory.createIf();
-        statements.push(ifSiteAtomApp);
-        ifSiteAtomApp.cmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(IOProc.siteAtomApp));
+        selectSiteAtomApp.col('id', IOProc.siteAtomApp, a);
+        selectSiteAtomApp.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOSiteAtomApp, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
+            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('ioSiteAtom', a), new sql_1.ExpField('id', b)), new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpVar(IOProc.ioSite))))
+            .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$' + this.ioAppIO.bizIO.id + '$TO', c))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpField('to', c)));
+        selectSiteAtomApp.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('ioSiteAtom'), new sql_1.ExpVar(IOProc.pSiteAtomApp)), new sql_1.ExpEQ(new sql_1.ExpField('ioApp'), new sql_1.ExpNum(this.ioAppIO.ioApp.id))));
+        selectSiteAtomApp.order(new sql_1.ExpField('id', a), 'asc');
+        selectSiteAtomApp.limit(sql_1.ExpNum.num1);
+        let iffSiteAtomAppNull = factory.createIf();
+        loop.statements.add(iffSiteAtomAppNull);
+        iffSiteAtomAppNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(IOProc.siteAtomApp));
+        let leave = factory.createBreak();
+        iffSiteAtomAppNull.then(leave);
+        leave.no = loop.no;
+        let setP = factory.createSet();
+        iffSiteAtomAppNull.else(setP);
+        setP.equ(IOProc.pSiteAtomApp, new sql_1.ExpVar(IOProc.siteAtomApp));
         let set = factory.createSet();
-        ifSiteAtomApp.then(set);
+        loop.statements.add(set);
         set.equ(IOProc.vRetJson, new sql_1.ExpSelect(this.buildJsonTrans()));
         let stats = this.buildAfterTrans();
-        ifSiteAtomApp.then(...stats);
+        loop.statements.add(...stats);
     }
     buildAfterTrans() {
         let statements = [];

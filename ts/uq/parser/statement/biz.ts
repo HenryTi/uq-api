@@ -297,14 +297,19 @@ export class PBizStatementSheet extends PBizStatementSub<BizAct, BizStatementShe
         else {
             this.element.useSheet = useSheet.obj;
             let { sheet } = this.element.useSheet;
-            const detail = sheet.details.find(v => v.bin.name === this.detail);
-            if (detail !== undefined) {
-                this.element.bin = this.element.detail = detail.bin;
+            if (sheet === undefined) {
+                ok = false;
             }
             else {
-                this.element.bin = sheet.main;
+                const detail = sheet.details.find(v => v.bin.name === this.detail);
+                if (detail !== undefined) {
+                    this.element.bin = this.element.detail = detail.bin;
+                }
+                else {
+                    this.element.bin = sheet.main;
+                }
+                if (this.scanSets(space) === false) ok = false;
             }
-            if (this.scanSets(space) === false) ok = false;
         }
         return ok;
     }
@@ -507,19 +512,32 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
 
 export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> extends PBizStatementSub<A, T> {
     private outName: string;
-    private ioSite: string;
-    private ioApp: string;
+    // private ioSite: string;
+    // private ioApp: string;
     protected override _parse(): void {
         this.outName = this.ts.passVar();
-        this.ts.passKey('of');
-        this.ioSite = this.ts.passVar();
-        this.ts.passToken(Token.DOT);
-        this.ioApp = this.ts.passVar();
         if (this.ts.isKeyword('to') === true) {
             this.ts.readToken();
-            let to = new ValueExpression();
-            this.element.to = to;
-            this.context.parseElement(to);
+            if (this.ts.token === Token.LPARENTHESE) {
+                this.ts.readToken();
+                for (; ;) {
+                    let to = new ValueExpression();
+                    this.element.tos.push(to);
+                    this.context.parseElement(to);
+                    if (this.ts.token === Token.COMMA as any) {
+                        this.ts.readToken();
+                    }
+                    if (this.ts.token === Token.RPARENTHESE as any) {
+                        this.ts.readToken();
+                        break;
+                    }
+                }
+            }
+            else {
+                let to = new ValueExpression();
+                this.element.tos.push(to);
+                this.context.parseElement(to);
+            }
         }
         else if (this.ts.isKeyword('add') === true) {
             this.ts.readToken();
@@ -547,7 +565,7 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
     }
     override scan(space: Space): boolean {
         let ok = true;
-        let { to, detail, sets } = this.element;
+        let { tos, detail, sets } = this.element;
         let bizOut = space.getBizEntity<BizOut>(this.outName);
         if (bizOut === undefined || bizOut.bizPhraseType !== BizPhraseType.out) {
             ok = false;
@@ -555,32 +573,18 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
         }
         else {
             let hasTo: boolean;
-            if (to !== undefined) {
-                if (to.pelement.scan(space) === false) {
-                    ok = false;
-                }
-                hasTo = true;
-            }
-            else {
-                hasTo = false;
-            }
-            let ioSite = space.getBizEntity<BizIOSite>(this.ioSite);
-            if (ioSite === undefined || ioSite.bizPhraseType !== BizPhraseType.ioSite) {
-                ok = false;
-                this.log(`${this.ioSite} is not IOSite`);
-            }
-            else {
-                let ioApp = ioSite.ioApps.find(v => v.name === this.ioApp);
-                if (ioApp === undefined) {
-                    ok = false;
-                    this.log(`${this.ioApp} is a IOApp of ${this.ioSite}`);
+            for (let to of tos) {
+                if (to !== undefined) {
+                    if (to.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                    hasTo = true;
                 }
                 else {
-                    let ioAppOut = ioApp.outs.find(v => v.bizIO === bizOut);
-                    if (ioAppOut === undefined) debugger;
-                    this.element.useOut = space.regUseBizOut(ioSite, ioApp, ioAppOut, hasTo);
+                    hasTo = false;
                 }
             }
+            this.element.useOut = space.regUseBizOut(bizOut, hasTo);
             let { props } = bizOut;
 
             if (detail !== undefined) {

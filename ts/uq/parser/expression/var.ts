@@ -5,6 +5,9 @@ import { Space } from '../space';
 import { Token } from '../tokens';
 
 export class PVarOperand extends PElement<VarOperand> {
+    override parse(): void {
+        super.parse();
+    }
     _parse() {
         // # column 中的value，是生成的，没有ts
         if (this.ts === undefined) return;

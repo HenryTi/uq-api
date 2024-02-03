@@ -8,7 +8,7 @@ import { $site } from "../consts";
 import { sysTable } from "../dbContext";
 import {
     ColVal, ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
-    , ExpGT, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, Statement
+    , ExpGT, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, VarTable
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
@@ -460,14 +460,23 @@ export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
 export class BBizStatementOut extends BStatement<BizStatementOut> {
     override body(sqls: Sqls): void {
         const { factory } = this.context;
-        const { useOut, to, detail, sets } = this.istatement;
+        const { useOut, tos, detail, sets } = this.istatement;
         let varName = '$' + useOut.varName;
 
-        if (to !== undefined) {
+        const tblTo = new SqlVarTable(varName + '$TO');
+        for (let to of tos) {
+            const insert = factory.createInsert();
+            sqls.push(insert);
+            insert.table = tblTo;
+            insert.cols = [
+                { col: 'to', val: this.context.expVal(to) }
+            ];
+            /*
             let setTo = factory.createSet();
             sqls.push(setTo);
             setTo.isAtVar = true;
             setTo.equ(varName + '$TO', this.context.expVal(to));
+            */
         }
 
         let setV = factory.createSet();

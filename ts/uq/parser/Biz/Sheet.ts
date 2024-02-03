@@ -105,8 +105,8 @@ export class PBizSheet extends PBizEntity<BizSheet> {
             let out = outs[i];
             if (out.to !== true) {
                 ok = false;
-                const { ioSite, ioApp, ioAppOut } = out;
-                this.log(`Biz OUT ${ioAppOut.getJName()} of ${ioSite.getJName()}.${ioApp.getJName()} in Sheet ${this.element.getJName()} without TO`);
+                const { out: bizOut } = out;
+                this.log(`Biz OUT ${bizOut.getJName()} in Sheet ${this.element.getJName()} without TO`);
             }
         }
         return ok;

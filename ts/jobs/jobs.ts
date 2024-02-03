@@ -211,7 +211,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                     logger.info('========= set debugging jobs =========');
                 }
                 now = Date.now();
-                logger.info(`====== ${uqDbName} job start: ${new Date(now)}`);
+                logger.info(`====== ${uqDbName} job start: ${new Date(now).toLocaleTimeString()}`);
                 let doneRows = await uqJob.run();
                 logger.info(`====== ${uqDbName} job end: ${(Date.now() - now)}`);
                 // let doneRows = await this.uqJob(uqDbName, compile_tick);

@@ -29,6 +29,12 @@ export abstract class PElementBase {
         this.sourceStart = this.ts.getP() - 1; // this.ts.lastP - 1;
     }
 
+    setPos(at: number, line: number, sourceStart: number) {
+        this.at = at;
+        this.line = line;
+        this.sourceStart = sourceStart;
+    }
+
     protected getSource() {
         return this.ts.getSourceAt(this.sourceStart);
     }

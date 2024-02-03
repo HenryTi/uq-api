@@ -257,7 +257,9 @@ class ForBizInOutArrSpace extends Space {
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
-        return;
+        if (this.arr.props.has(name) === true) {
+            return new VarPointer(name);
+        }
     }
 }
 

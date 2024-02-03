@@ -5,6 +5,9 @@ const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 class PVarOperand extends element_1.PElement {
+    parse() {
+        super.parse();
+    }
     _parse() {
         // # column 中的value，是生成的，没有ts
         if (this.ts === undefined)

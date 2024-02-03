@@ -28,7 +28,7 @@ export abstract class Space {
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
     protected _getBizEntity(name: string): BizEntity { return undefined; }
     protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
-    protected _regUseBizOut(ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, to: boolean): UseOut { return undefined; }
+    protected _regUseBizOut(out: BizOut, to: boolean): UseOut { return undefined; }
     protected _getUse(name: string): { statementNo: number; obj: any; } { return undefined; }
     protected _addUse(name: string, statementNo: number, obj: any): boolean { return undefined; }
     protected abstract _getEntityTable(name: string): Entity & Table;
@@ -136,10 +136,10 @@ export abstract class Space {
         if (ret !== undefined) return ret;
         if (this.outer !== undefined) return this.outer.getBizFieldSpace();
     }
-    regUseBizOut(ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, to: boolean): UseOut {
-        let ret = this._regUseBizOut(ioSite, ioApp, ioAppOut, to);
+    regUseBizOut(out: BizOut, to: boolean): UseOut {
+        let ret = this._regUseBizOut(out, to);
         if (ret !== undefined) return ret;
-        return this.outer.regUseBizOut(ioSite, ioApp, ioAppOut, to);
+        return this.outer.regUseBizOut(out, to);
     }
     getUse(name: string): { statementNo: number; obj: any; } {  // return useStatement no
         let uv = this._getUse(name);

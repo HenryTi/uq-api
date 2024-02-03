@@ -431,13 +431,22 @@ exports.BBizStatementSpec = BBizStatementSpec;
 class BBizStatementOut extends bstatement_1.BStatement {
     body(sqls) {
         const { factory } = this.context;
-        const { useOut, to, detail, sets } = this.istatement;
+        const { useOut, tos, detail, sets } = this.istatement;
         let varName = '$' + useOut.varName;
-        if (to !== undefined) {
+        const tblTo = new sql_1.SqlVarTable(varName + '$TO');
+        for (let to of tos) {
+            const insert = factory.createInsert();
+            sqls.push(insert);
+            insert.table = tblTo;
+            insert.cols = [
+                { col: 'to', val: this.context.expVal(to) }
+            ];
+            /*
             let setTo = factory.createSet();
             sqls.push(setTo);
             setTo.isAtVar = true;
             setTo.equ(varName + '$TO', this.context.expVal(to));
+            */
         }
         let setV = factory.createSet();
         sqls.push(setV);

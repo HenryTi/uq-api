@@ -238,10 +238,17 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     private buildOutInit(statements: Statement[], out: UseOut): void {
         const varName = '$' + out.varName;
         const { factory } = this.context;
+        let tblTo = factory.createVarTable();
+        statements.push(tblTo);
+        tblTo.name = varName + '$TO';
+        let fieldTo = bigIntField('to')
+        tblTo.fields = [fieldTo];
+        tblTo.keys = [fieldTo];
+
         let set = factory.createSet();
         statements.push(set);
         let params: ExpVal[] = [];
-        for (let [, bud] of out.ioAppOut.bizIO.props) {
+        for (let [, bud] of out.out.props) {
             const { dataType, name } = bud;
             if (dataType !== BudDataType.arr) continue;
             params.push(new ExpStr(name), new ExpFunc('JSON_ARRAY'));
@@ -252,12 +259,11 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
     private buildOut(statements: Statement[], out: UseOut) {
         const { factory } = this.context;
-        const { varName, ioSite, ioApp, ioAppOut } = out;
-        const { bizIO } = ioAppOut;
+        const { varName, out: bizOut } = out;
         const vName = '$' + varName;
         const memo = factory.createMemo();
         statements.push(memo);
-        memo.text = `call PROC to write OUT @${vName} ${bizIO.getJName()}`;
+        memo.text = `call PROC to write OUT @${vName} ${bizOut.getJName()}`;
         /*
         let selectSiteAtomApp = factory.createSelect();
         statements.push(selectSiteAtomApp);
@@ -281,7 +287,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const call = factory.createCall();
         statements.push(call);
         call.db = '$site';
-        call.procName = `${this.context.site}.${bizIO.id}`;
+        call.procName = `${this.context.site}.${bizOut.id}`;
         call.params.push(
             /*
             {

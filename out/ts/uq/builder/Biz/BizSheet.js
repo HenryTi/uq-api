@@ -184,10 +184,16 @@ class BBizSheet extends BizEntity_1.BBizEntity {
     buildOutInit(statements, out) {
         const varName = '$' + out.varName;
         const { factory } = this.context;
+        let tblTo = factory.createVarTable();
+        statements.push(tblTo);
+        tblTo.name = varName + '$TO';
+        let fieldTo = (0, il_1.bigIntField)('to');
+        tblTo.fields = [fieldTo];
+        tblTo.keys = [fieldTo];
         let set = factory.createSet();
         statements.push(set);
         let params = [];
-        for (let [, bud] of out.ioAppOut.bizIO.props) {
+        for (let [, bud] of out.out.props) {
             const { dataType, name } = bud;
             if (dataType !== il_1.BudDataType.arr)
                 continue;
@@ -198,12 +204,11 @@ class BBizSheet extends BizEntity_1.BBizEntity {
     }
     buildOut(statements, out) {
         const { factory } = this.context;
-        const { varName, ioSite, ioApp, ioAppOut } = out;
-        const { bizIO } = ioAppOut;
+        const { varName, out: bizOut } = out;
         const vName = '$' + varName;
         const memo = factory.createMemo();
         statements.push(memo);
-        memo.text = `call PROC to write OUT @${vName} ${bizIO.getJName()}`;
+        memo.text = `call PROC to write OUT @${vName} ${bizOut.getJName()}`;
         /*
         let selectSiteAtomApp = factory.createSelect();
         statements.push(selectSiteAtomApp);
@@ -227,7 +232,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const call = factory.createCall();
         statements.push(call);
         call.db = '$site';
-        call.procName = `${this.context.site}.${bizIO.id}`;
+        call.procName = `${this.context.site}.${bizOut.id}`;
         call.params.push(
         /*
         {

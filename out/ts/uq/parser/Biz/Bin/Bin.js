@@ -390,12 +390,12 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
     getBizFieldSpace() {
         return new il_1.BizBinActFieldSpace(this.bizEntity);
     }
-    _regUseBizOut(ioSite, ioApp, ioAppOut, to) {
-        let name = `${ioSite.name}.${ioApp.name}.${ioAppOut.name}`;
+    _regUseBizOut(out, to) {
+        let { name } = out;
         let bo = this.bizOuts[name];
         if (bo !== undefined && bo.to === true)
             to = true;
-        let useOut = new il_1.UseOut(ioSite, ioApp, ioAppOut, to);
+        let useOut = new il_1.UseOut(out, to);
         this.bizOuts[name] = useOut;
         return useOut;
     }

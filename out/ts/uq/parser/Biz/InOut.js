@@ -113,7 +113,7 @@ exports.PBizInActStatements = PBizInActStatements;
 exports.inPreDefined = [];
 class BizInActSpace extends Biz_1.BizEntitySpace {
     _varPointer(name, isField) {
-        if (exports.inPreDefined.indexOf(name) >= 0) {
+        if (this.bizEntity.props.has(name) === true) {
             return new il_1.VarPointer(name);
         }
     }

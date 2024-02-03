@@ -126,7 +126,7 @@ export const inPreDefined = [
 
 class BizInActSpace extends BizEntitySpace<BizIn> {
     protected _varPointer(name: string, isField: boolean): Pointer {
-        if (inPreDefined.indexOf(name) >= 0) {
+        if (this.bizEntity.props.has(name) === true) {
             return new VarPointer(name);
         }
     }

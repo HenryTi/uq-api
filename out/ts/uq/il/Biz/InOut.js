@@ -193,15 +193,18 @@ class BizIOSite extends Entity_1.BizEntity {
 }
 exports.BizIOSite = BizIOSite;
 class UseOut {
-    constructor(ioSite, ioApp, ioAppOut, to) {
+    constructor(/*ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, */ out, to) {
+        /*
         this.ioSite = ioSite;
         this.ioApp = ioApp;
         this.ioAppOut = ioAppOut;
+        */
+        this.out = out;
         this.to = to;
     }
     get varName() {
         //return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
-        return `${this.ioAppOut.bizIO.id}`;
+        return `${this.out.id}`;
     }
 }
 exports.UseOut = UseOut;
