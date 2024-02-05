@@ -144,16 +144,12 @@ export class BBizOut extends BBizEntity<BizOut> {
 
     private buildProc(proc: Procedure) {
         const json = '$json', out = '$out', endPoint = '$endPoint'
-            , ioSite = '$ioSite', atom = '$atom', ioApp = '$ioApp'
             , siteAtomApp = '$siteAtomApp'
             , queueId = '$queueId';
         const { id, ioAppOuts } = this.bizEntity;
         const { parameters, statements } = proc;
         const { factory, site } = this.context;
         parameters.push(
-            // bigIntField(ioSite),
-            bigIntField(atom),
-            // bigIntField(ioApp),
             jsonField(json),
         );
         if (ioAppOuts.length === 0) return;
@@ -203,7 +199,6 @@ export class BBizOut extends BBizEntity<BizOut> {
                 call.procName = `${site}.${ioAppOut.id}`;
                 call.params = [
                     { value: new ExpNum(ioSite.id) },
-                    { value: new ExpVar(atom) },
                     { value: new ExpVar(json) },
                 ];
             }
@@ -486,7 +481,6 @@ class IOProcOut extends IOProc<IOAppOut> {
     private buildParams(): Field[] {
         return [
             bigIntField(IOProc.ioSite),
-            bigIntField(IOProc.atom),
             jsonField(IOProc.vJson),
         ];
     }
@@ -536,10 +530,10 @@ class IOProcOut extends IOProc<IOAppOut> {
             .on(new ExpEQ(new ExpField('x', b), new ExpField('to', c)));
         selectSiteAtomApp.where(new ExpAnd(
             new ExpGT(
-                new ExpField('ioSiteAtom'),
+                new ExpField('id', a),
                 new ExpVar(IOProc.pSiteAtomApp),
             ),
-            new ExpEQ(new ExpField('ioApp'), new ExpNum(this.ioAppIO.ioApp.id)),
+            new ExpEQ(new ExpField('ioApp', a), new ExpNum(this.ioAppIO.ioApp.id)),
         ));
         selectSiteAtomApp.order(new ExpField('id', a), 'asc');
         selectSiteAtomApp.limit(ExpNum.num1);

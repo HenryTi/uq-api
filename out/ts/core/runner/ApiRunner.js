@@ -5,6 +5,7 @@ const crypto_1 = require("crypto");
 const tool_1 = require("../../tool");
 const db_1 = require("../db");
 const Runner_1 = require("./Runner");
+const node_fetch_1 = require("node-fetch");
 class ApiRunner extends Runner_1.Runner {
     constructor() {
         let dbs = (0, db_1.getDbs)();
@@ -14,8 +15,8 @@ class ApiRunner extends Runner_1.Runner {
         return 'yes, it is ApiRunner';
     }
     async getIOOut(batchNumber) {
-        let ret = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
-        return ret;
+        let result = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
+        return result;
     }
     async doneIOOut(id, result) {
         await this.dbUq.call('ProcessIOOutDone', [0, 0, id, result]);
@@ -65,6 +66,45 @@ class ApiRunner extends Runner_1.Runner {
                 err: err.message,
             };
         }
+    }
+    // if return true, then everything done
+    async processIOOut(batchNumber) {
+        let result = await this.getIOOut(batchNumber);
+        const { length } = result;
+        if (length === 0)
+            return 0;
+        for (let row of result) {
+            const { id: queueId, value, // -- JSON,
+            outName, outUrl, // CHAR(200),
+            outKey, // CHAR(400),
+            outPassword, // CHAR(30),
+             } = row;
+            await this.pushOut(outName, outUrl, outKey, outPassword, value, queueId);
+            // await this.doneIOOut(queueId, undefined);
+            console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n');
+        }
+        return length;
+    }
+    async pushOut(outName, outUrl, outKey, outPassword, value, queueId) {
+        let stamp = Date.now();
+        let strData = JSON.stringify(value);
+        let token = md5(stamp + strData + outPassword);
+        let ret = await (0, node_fetch_1.default)(outUrl, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: value,
+                stamp,
+                appKey: outKey,
+                token,
+                act: outName,
+                uiq: queueId,
+            }),
+        });
+        return ret;
     }
 }
 exports.ApiRunner = ApiRunner;

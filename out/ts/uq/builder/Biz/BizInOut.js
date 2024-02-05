@@ -119,15 +119,11 @@ class BBizOut extends BizEntity_1.BBizEntity {
         this.buildProc(proc);
     }
     buildProc(proc) {
-        const json = '$json', out = '$out', endPoint = '$endPoint', ioSite = '$ioSite', atom = '$atom', ioApp = '$ioApp', siteAtomApp = '$siteAtomApp', queueId = '$queueId';
+        const json = '$json', out = '$out', endPoint = '$endPoint', siteAtomApp = '$siteAtomApp', queueId = '$queueId';
         const { id, ioAppOuts } = this.bizEntity;
         const { parameters, statements } = proc;
         const { factory, site } = this.context;
-        parameters.push(
-        // bigIntField(ioSite),
-        (0, il_1.bigIntField)(atom), 
-        // bigIntField(ioApp),
-        (0, il_1.jsonField)(json));
+        parameters.push((0, il_1.jsonField)(json));
         if (ioAppOuts.length === 0)
             return;
         const declare = factory.createDeclare();
@@ -167,7 +163,6 @@ class BBizOut extends BizEntity_1.BBizEntity {
                 call.procName = `${site}.${ioAppOut.id}`;
                 call.params = [
                     { value: new sql_1.ExpNum(ioSite.id) },
-                    { value: new sql_1.ExpVar(atom) },
                     { value: new sql_1.ExpVar(json) },
                 ];
             }
@@ -414,7 +409,6 @@ class IOProcOut extends IOProc {
     buildParams() {
         return [
             (0, il_1.bigIntField)(IOProc.ioSite),
-            (0, il_1.bigIntField)(IOProc.atom),
             (0, il_1.jsonField)(IOProc.vJson),
         ];
     }
@@ -447,7 +441,7 @@ class IOProcOut extends IOProc {
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('ioSiteAtom', a), new sql_1.ExpField('id', b)), new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpVar(IOProc.ioSite))))
             .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$' + this.ioAppIO.bizIO.id + '$TO', c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpField('to', c)));
-        selectSiteAtomApp.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('ioSiteAtom'), new sql_1.ExpVar(IOProc.pSiteAtomApp)), new sql_1.ExpEQ(new sql_1.ExpField('ioApp'), new sql_1.ExpNum(this.ioAppIO.ioApp.id))));
+        selectSiteAtomApp.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar(IOProc.pSiteAtomApp)), new sql_1.ExpEQ(new sql_1.ExpField('ioApp', a), new sql_1.ExpNum(this.ioAppIO.ioApp.id))));
         selectSiteAtomApp.order(new sql_1.ExpField('id', a), 'asc');
         selectSiteAtomApp.limit(sql_1.ExpNum.num1);
         let iffSiteAtomAppNull = factory.createIf();

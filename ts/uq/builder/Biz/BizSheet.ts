@@ -264,53 +264,15 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const memo = factory.createMemo();
         statements.push(memo);
         memo.text = `call PROC to write OUT @${vName} ${bizOut.getJName()}`;
-        /*
-        let selectSiteAtomApp = factory.createSelect();
-        statements.push(selectSiteAtomApp);
-        selectSiteAtomApp.toVar = true;
-        selectSiteAtomApp.col('id', siteAtomApp);
-        selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOSiteAtomApp, false));
-        selectSiteAtomApp.where(new ExpAnd(
-            new ExpEQ(
-                new ExpField('ioSiteAtom'),
-                new ExpFuncInUq('duo$id',
-                    [
-                        ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNull.null,
-                        new ExpNum(ioSite.id), new ExpAtVar(vName + '$to'),
-                    ],
-                    true
-                ),
-            ),
-            new ExpEQ(new ExpField('ioApp'), new ExpNum(ioApp.id)),
-        ));
-        */
         const call = factory.createCall();
         statements.push(call);
         call.db = '$site';
         call.procName = `${this.context.site}.${bizOut.id}`;
         call.params.push(
-            /*
-            {
-                paramType: ProcParamType.in,
-                value: new ExpNum(ioSite.id),
-            },
-            {
-                paramType: ProcParamType.in,
-                value: new ExpAtVar(vName + '$to'),
-            },
-            {
-                paramType: ProcParamType.in,
-                value: new ExpNum(ioApp.id),
-            },
-            */
-            {
-                paramType: ProcParamType.in,
-                // value: new ExpVar(siteAtomApp),
-                value: new ExpAtVar(vName + '$TO'),
-            },
             {
                 paramType: ProcParamType.in,
                 value: new ExpAtVar(vName),
-            });
+            }
+        );
     }
 }

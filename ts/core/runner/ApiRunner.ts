@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import { from62 } from "../../tool";
 import { getDbs } from "../db";
 import { Runner } from "./Runner";
+import fetch from "node-fetch";
 
 export class ApiRunner extends Runner {
     constructor() {
@@ -14,8 +15,8 @@ export class ApiRunner extends Runner {
     }
 
     async getIOOut(batchNumber: number) {
-        let ret = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
-        return ret;
+        let result = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
+        return result;
     }
 
     async doneIOOut(id: number, result: any) {
@@ -71,6 +72,47 @@ export class ApiRunner extends Runner {
                 err: err.message,
             };
         }
+    }
+
+    // if return true, then everything done
+    async processIOOut(batchNumber: number): Promise<number> {
+        let result = await this.getIOOut(batchNumber);
+        const { length } = result;
+        if (length === 0) return 0;
+        for (let row of result) {
+            const { id: queueId, value, // -- JSON,
+                outName,
+                outUrl, // CHAR(200),
+                outKey, // CHAR(400),
+                outPassword, // CHAR(30),
+            } = row;
+            await this.pushOut(outName, outUrl, outKey, outPassword, value, queueId);
+            // await this.doneIOOut(queueId, undefined);
+            console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n');
+        }
+        return length;
+    }
+
+    private async pushOut(outName: string, outUrl: string, outKey: string, outPassword: string, value: any, queueId: number) {
+        let stamp = Date.now();
+        let strData = JSON.stringify(value);
+        let token: string = md5(stamp + strData + outPassword);
+        let ret = await fetch(outUrl, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: value,
+                stamp,
+                appKey: outKey,
+                token,
+                act: outName,
+                uiq: queueId,
+            }),
+        });
+        return ret;
     }
 }
 

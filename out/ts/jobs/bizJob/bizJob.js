@@ -10,21 +10,10 @@ class BizJob {
             return await this.apiRunner.processIOIn(1);
         };
         this.runOut = async () => {
-            // let url = 'http://localhost:3015/api/';
-            for (;;) {
-                // let ret = await fetch(url);
-                // let retJson = await ret.json();
-                // console.log(url, retJson);
-                let result = await this.apiRunner.getIOOut(1);
-                const { length } = result;
-                if (length === 0)
-                    return 0;
-                for (let row of result) {
-                    await this.apiRunner.doneIOOut(row.id, undefined);
-                    console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n');
-                }
-                return length;
-            }
+            debugger;
+            let length = await this.apiRunner.processIOOut(1);
+            debugger;
+            return length;
         };
         this.apiRunner = new core_1.ApiRunner();
         this.queued = true;
@@ -34,7 +23,7 @@ class BizJob {
     }
     async start() {
         this.runLoop(this.runIn);
-        this.runLoop(this.runOut);
+        // this.runLoop(this.runOut);
     }
     async runLoop(func) {
         for (;;) {
