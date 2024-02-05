@@ -10,10 +10,7 @@ class BizJob {
             return await this.apiRunner.processIOIn(1);
         };
         this.runOut = async () => {
-            debugger;
-            let length = await this.apiRunner.processIOOut(1);
-            debugger;
-            return length;
+            return await this.apiRunner.processIOOut(1);
         };
         this.apiRunner = new core_1.ApiRunner();
         this.queued = true;
@@ -23,7 +20,7 @@ class BizJob {
     }
     async start() {
         this.runLoop(this.runIn);
-        // this.runLoop(this.runOut);
+        this.runLoop(this.runOut);
     }
     async runLoop(func) {
         for (;;) {

@@ -80,15 +80,22 @@ export class ApiRunner extends Runner {
         const { length } = result;
         if (length === 0) return 0;
         for (let row of result) {
-            const { id: queueId, value, // -- JSON,
-                outName,
-                outUrl, // CHAR(200),
-                outKey, // CHAR(400),
-                outPassword, // CHAR(30),
-            } = row;
-            await this.pushOut(outName, outUrl, outKey, outPassword, value, queueId);
-            // await this.doneIOOut(queueId, undefined);
-            console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n');
+            try {
+                const { id: queueId, value, // -- JSON,
+                    outName,
+                    outUrl, // CHAR(200),
+                    outKey, // CHAR(400),
+                    outPassword, // CHAR(30),
+                } = row;
+                let ret = await this.pushOut(outName, outUrl, outKey, outPassword, value, queueId);
+                // await this.doneIOOut(queueId, undefined);
+                console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n', ret);
+            }
+            catch (err) {
+                // debugger;
+                console.error('push out error', err);
+                break;
+            }
         }
         return length;
     }
@@ -97,6 +104,7 @@ export class ApiRunner extends Runner {
         let stamp = Date.now();
         let strData = JSON.stringify(value);
         let token: string = md5(stamp + strData + outPassword);
+        let uiq: number = 0; // queueId;
         let ret = await fetch(outUrl, {
             method: 'POST',
             headers: {
@@ -107,12 +115,14 @@ export class ApiRunner extends Runner {
                 data: value,
                 stamp,
                 appKey: outKey,
+                appkey: outKey,
                 token,
                 act: outName,
-                uiq: queueId,
+                uiq,
             }),
         });
-        return ret;
+        let retJson = await ret.json();
+        return retJson;
     }
 }
 

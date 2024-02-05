@@ -16,7 +16,7 @@ class BizJob {
 
     async start() {
         this.runLoop(this.runIn);
-        // this.runLoop(this.runOut);
+        this.runLoop(this.runOut);
     }
 
     async runLoop(func: () => Promise<number>): Promise<number> {
@@ -42,10 +42,7 @@ class BizJob {
     }
 
     private runOut = async () => {
-        debugger;
-        let length = await this.apiRunner.processIOOut(1);
-        debugger;
-        return length;
+        return await this.apiRunner.processIOOut(1);
     }
 }
 

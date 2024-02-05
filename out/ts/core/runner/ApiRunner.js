@@ -74,21 +74,29 @@ class ApiRunner extends Runner_1.Runner {
         if (length === 0)
             return 0;
         for (let row of result) {
-            const { id: queueId, value, // -- JSON,
-            outName, outUrl, // CHAR(200),
-            outKey, // CHAR(400),
-            outPassword, // CHAR(30),
-             } = row;
-            await this.pushOut(outName, outUrl, outKey, outPassword, value, queueId);
-            // await this.doneIOOut(queueId, undefined);
-            console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n');
+            try {
+                const { id: queueId, value, // -- JSON,
+                outName, outUrl, // CHAR(200),
+                outKey, // CHAR(400),
+                outPassword, // CHAR(30),
+                 } = row;
+                let ret = await this.pushOut(outName, outUrl, outKey, outPassword, value, queueId);
+                // await this.doneIOOut(queueId, undefined);
+                console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n', ret);
+            }
+            catch (err) {
+                // debugger;
+                console.error('push out error', err);
+                break;
+            }
         }
         return length;
     }
     async pushOut(outName, outUrl, outKey, outPassword, value, queueId) {
-        let stamp = Date.now();
+        let stamp = Math.floor(Date.now() / 1000);
         let strData = JSON.stringify(value);
         let token = md5(stamp + strData + outPassword);
+        let uiq = 0; // queueId;
         let ret = await (0, node_fetch_1.default)(outUrl, {
             method: 'POST',
             headers: {
@@ -97,14 +105,16 @@ class ApiRunner extends Runner_1.Runner {
             },
             body: JSON.stringify({
                 data: value,
-                stamp,
+                stamp: String(stamp),
                 appKey: outKey,
+                appkey: outKey,
                 token,
                 act: outName,
-                uiq: queueId,
+                uiq,
             }),
         });
-        return ret;
+        let retJson = await ret.json();
+        return retJson;
     }
 }
 exports.ApiRunner = ApiRunner;
