@@ -83,7 +83,7 @@ class ApiRunner extends Runner_1.Runner {
         if (length === 0)
             return 0;
         for (let row of result) {
-            let retPushOut, doneType, doneResult;
+            let doneType, doneResult;
             const { id: queueId, value, // -- JSON,
             outName, outUrl, // CHAR(200),
             outKey, // CHAR(400),

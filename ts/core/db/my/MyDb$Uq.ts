@@ -241,13 +241,35 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
     }
 
     async setDebugJobs(): Promise<void> {
+        if (env.isDevelopment !== true) return;
         try {
+            logger.info('========= set debugging jobs =========');
             let sql = `insert into $uq.setting (\`name\`, \`value\`) VALUES ('debugging_jobs', 'yes') 
 			ON DUPLICATE KEY UPDATE value='yes', update_time=current_timestamp;`;
             await this.sql(sql, undefined);
         }
         catch (err) {
             console.error(err);
+        }
+    }
+
+    async isDebugging(): Promise<boolean> {
+        if (env.isDevelopment === true) return false;
+        try {
+            let sql = `
+            SELECT 1 -- a.name, a.update_time, UNIX_TIMESTAMP()-unix_timestamp(a.update_time) AS c
+            from $uq.setting AS a 
+            where a.name='debugging_jobs' 
+                and a.value='yes' 
+                AND UNIX_TIMESTAMP()-unix_timestamp(a.update_time)<600
+                ;
+            `;
+            let ret = await this.sql(sql, undefined);
+            return ret.length > 0;
+        }
+        catch (err) {
+            console.error(err);
+            return false;
         }
     }
 

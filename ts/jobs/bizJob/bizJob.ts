@@ -1,11 +1,13 @@
-import { ApiRunner } from "../../core";
+import { ApiRunner, Db$Uq, getDbs } from "../../core";
 
 class BizJob {
     private readonly waitGap = 5000;
     private readonly yieldGap = 10;
     private readonly apiRunner: ApiRunner;
+    private readonly db$Uq: Db$Uq;
     private queued: boolean;    // 也许可以在sheet act，或者in act，set queued=true，trigger the loop
     constructor() {
+        this.db$Uq = getDbs().db$Uq;
         this.apiRunner = new ApiRunner();
         this.queued = true;
     }
@@ -20,12 +22,15 @@ class BizJob {
     }
 
     async runLoop(func: () => Promise<number>): Promise<number> {
+        await this.db$Uq.setDebugJobs();
         for (; ;) {
             let timeGap: number = this.waitGap;
             try {
-                if (this.queued === true) {
-                    let rowCount = await func();
-                    if (rowCount > 0) timeGap = this.yieldGap;
+                if (await this.db$Uq.isDebugging() === false) {
+                    if (this.queued === true) {
+                        let rowCount = await func();
+                        if (rowCount > 0) timeGap = this.yieldGap;
+                    }
                 }
             }
             catch (err) {
@@ -33,6 +38,7 @@ class BizJob {
             }
             finally {
                 await wait(timeGap);
+                await this.db$Uq.setDebugJobs();
             }
         }
     }

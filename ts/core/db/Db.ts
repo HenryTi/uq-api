@@ -56,6 +56,7 @@ export interface Db$Uq extends Db {
      */
     uqDbs(): Promise<any[]>;
     setDebugJobs(): Promise<void>;
+    isDebugging(): Promise<boolean>;
     logPerformance(tick: number, log: string, ms: number): Promise<void>;
     uqLog(unit: number, uq: string, subject: string, content: string): Promise<void>;
     uqLogError(unit: number, uq: string, subject: string, content: string): Promise<void>;

@@ -58,15 +58,15 @@ export class Jobs {
 
     private async beforeRun() {
         if (env.isDevelopment === true) {
-            // 只有在开发状态下，才可以屏蔽jobs        
+            // 只有在开发状态下，才可以屏蔽jobs
             // logger.debug('jobs loop: developing, no loop!');
             // return;
             if (env.isDevdo === true) return;
-            logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
-            await this.db$Uq.setDebugJobs();
-            logger.debug('========= set debugging jobs =========');
+            // logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
+            // await this.db$Uq.setDebugJobs();
+            // logger.debug('========= set debugging jobs =========');
+            this.db$Uq.setDebugJobs();
             await this.sleep(waitForOtherStopJobs);
-
             let uqDbNames = env.configDebugging.uqs;
             await this.debugUqJobs(uqDbNames);
         }
@@ -206,10 +206,7 @@ $		13	20220906091418173873	2022-09-06 09:14:18
                 if (isExists !== true) continue;
                 let uqJob = await this.createUqJob(uqDbName, compile_tick);
                 if (uqJob === undefined) continue;
-                if (env.isDevelopment === true) {
-                    await this.db$Uq.setDebugJobs();
-                    logger.info('========= set debugging jobs =========');
-                }
+                await this.db$Uq.setDebugJobs();
                 now = Date.now();
                 logger.info(`====== ${uqDbName} job start: ${new Date(now).toLocaleTimeString()}`);
                 let doneRows = await uqJob.run();

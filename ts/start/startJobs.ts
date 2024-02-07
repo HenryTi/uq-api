@@ -1,4 +1,3 @@
-import { env } from '../tool';
 import { Jobs, bizJob } from '../jobs';
 
 /**
@@ -6,10 +5,6 @@ import { Jobs, bizJob } from '../jobs';
  */
 export async function startJobs() {
     try {
-        if (env.isDevelopment === true) {
-            // 只有在开发方式下，才可以屏蔽jobs
-            // return;
-        }
         bizJob.start();
         let jobs = new Jobs();
         await jobs.run();

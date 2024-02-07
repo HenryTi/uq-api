@@ -12,6 +12,7 @@ class BizJob {
         this.runOut = async () => {
             return await this.apiRunner.processIOOut(1);
         };
+        this.db$Uq = (0, core_1.getDbs)().db$Uq;
         this.apiRunner = new core_1.ApiRunner();
         this.queued = true;
     }
@@ -23,13 +24,16 @@ class BizJob {
         this.runLoop(this.runOut);
     }
     async runLoop(func) {
+        await this.db$Uq.setDebugJobs();
         for (;;) {
             let timeGap = this.waitGap;
             try {
-                if (this.queued === true) {
-                    let rowCount = await func();
-                    if (rowCount > 0)
-                        timeGap = this.yieldGap;
+                if (await this.db$Uq.isDebugging() === false) {
+                    if (this.queued === true) {
+                        let rowCount = await func();
+                        if (rowCount > 0)
+                            timeGap = this.yieldGap;
+                    }
                 }
             }
             catch (err) {
@@ -37,6 +41,7 @@ class BizJob {
             }
             finally {
                 await wait(timeGap);
+                await this.db$Uq.setDebugJobs();
             }
         }
     }

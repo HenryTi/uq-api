@@ -2,7 +2,6 @@ import { createHash } from "crypto";
 import { from62 } from "../../tool";
 import { getDbs } from "../db";
 import { Runner } from "./Runner";
-import fetch from "node-fetch";
 import { push } from "./PushOut";
 
 enum EnumQueueDoneType {
@@ -89,7 +88,7 @@ export class ApiRunner extends Runner {
         const { length } = result;
         if (length === 0) return 0;
         for (let row of result) {
-            let retPushOut: any, doneType: EnumQueueDoneType, doneResult: any;
+            let doneType: EnumQueueDoneType, doneResult: any;
             const { id: queueId, value, // -- JSON,
                 outName,
                 outUrl, // CHAR(200),
