@@ -10,9 +10,9 @@ class UqParser {
         this.uq = new il_1.Uq();
     }
     parse(input, fileName, isSys = false) {
+        let ts = new parser_1.TokenStream(this.log, input, { isSys });
+        ts.file = fileName;
         try {
-            let ts = new parser_1.TokenStream(this.log, input, { isSys });
-            ts.file = fileName;
             let context = isSys === true ? new parser_1.PSysContext(ts) : new parser_1.PContext(ts);
             let parser = this.uq.bizParser(context);
             parser.parse();

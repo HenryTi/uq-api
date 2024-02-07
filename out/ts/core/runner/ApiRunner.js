@@ -5,7 +5,16 @@ const crypto_1 = require("crypto");
 const tool_1 = require("../../tool");
 const db_1 = require("../db");
 const Runner_1 = require("./Runner");
-const node_fetch_1 = require("node-fetch");
+const PushOut_1 = require("./PushOut");
+var EnumQueueDoneType;
+(function (EnumQueueDoneType) {
+    EnumQueueDoneType[EnumQueueDoneType["pending"] = 0] = "pending";
+    EnumQueueDoneType[EnumQueueDoneType["done"] = 1] = "done";
+    EnumQueueDoneType[EnumQueueDoneType["error"] = 2] = "error";
+    EnumQueueDoneType[EnumQueueDoneType["errorDeliver"] = 21] = "errorDeliver";
+    EnumQueueDoneType[EnumQueueDoneType["errorID"] = 31] = "errorID";
+})(EnumQueueDoneType || (EnumQueueDoneType = {}));
+;
 class ApiRunner extends Runner_1.Runner {
     constructor() {
         let dbs = (0, db_1.getDbs)();
@@ -18,8 +27,8 @@ class ApiRunner extends Runner_1.Runner {
         let result = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
         return result;
     }
-    async doneIOOut(id, result) {
-        await this.dbUq.call('ProcessIOOutDone', [0, 0, id, result]);
+    async doneIOOut(id, doneType, doneResult) {
+        await this.dbUq.call('ProcessIOOutDone', [0, 0, id, doneType, JSON.stringify(doneResult)]);
     }
     async processIOIn(batchNumber) {
         let ret = await this.dbUq.call('ProcessIOIn', [0, 0, batchNumber]);
@@ -36,11 +45,11 @@ class ApiRunner extends Runner_1.Runner {
         const { data, stamp, appKey, appkey, token, uiq, act } = inBody;
         try {
             let siteAtomApp = siteAtomAppFromAppKey(appKey !== null && appKey !== void 0 ? appKey : appkey);
-            let retAppPassword = await this.dbUq.call('IOGetAppPassword', [
+            let retAppPassword = await this.dbUq.call('IOGetAppIn', [
                 0, 0, siteAtomApp, act
             ]);
             if (retAppPassword.length === 0) {
-                throw new Error('unauthorized');
+                throw new Error(`unauthorized siteAtomApp=${siteAtomApp} act=${act}`);
             }
             let [{ appPassword, endPoint }] = retAppPassword;
             let strData = JSON.stringify(data);
@@ -74,47 +83,47 @@ class ApiRunner extends Runner_1.Runner {
         if (length === 0)
             return 0;
         for (let row of result) {
+            let retPushOut, doneType, doneResult;
+            const { id: queueId, value, // -- JSON,
+            outName, outUrl, // CHAR(200),
+            outKey, // CHAR(400),
+            outPassword, // CHAR(30),
+            outConnect: { type, outs } } = row;
             try {
-                const { id: queueId, value, // -- JSON,
-                outName, outUrl, // CHAR(200),
-                outKey, // CHAR(400),
-                outPassword, // CHAR(30),
-                 } = row;
-                let ret = await this.pushOut(outName, outUrl, outKey, outPassword, value, queueId);
-                // await this.doneIOOut(queueId, undefined);
-                console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n', ret);
+                let p = outName.lastIndexOf('.');
+                let outN = outName.substring(p + 1);
+                let outNm = outs[outN];
+                let retPushOut = await (0, PushOut_1.push)(type, outNm, outUrl, outKey, outPassword, value);
+                if (retPushOut === undefined) {
+                    doneType = EnumQueueDoneType.done;
+                }
+                else {
+                    doneType = EnumQueueDoneType.errorDeliver;
+                    doneResult = retPushOut;
+                }
+                /*
+                retPushOut = await this.pushOut(outNm, outUrl, outKey, outPassword, value, queueId);
+                doneType = EnumQueueDoneType.done;
+                if (retPushOut !== undefined) {
+                    if (retPushOut.success !== true) {
+                        doneResult = retPushOut;
+                        doneType = EnumQueueDoneType.errorDeliver;
+                    }
+                }
+                */
             }
             catch (err) {
                 // debugger;
                 console.error('push out error', err);
-                break;
+                doneType = EnumQueueDoneType.error;
+                doneResult = { error: err.message };
+            }
+            finally {
+                await this.doneIOOut(queueId, doneType, doneResult);
+                console.log('Done out ', new Date().toLocaleTimeString(), '\n', row, '\n', doneResult);
             }
         }
         return length;
-    }
-    async pushOut(outName, outUrl, outKey, outPassword, value, queueId) {
-        let stamp = Math.floor(Date.now() / 1000);
-        let strData = JSON.stringify(value);
-        let token = md5(stamp + strData + outPassword);
-        let uiq = 0; // queueId;
-        let ret = await (0, node_fetch_1.default)(outUrl, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                data: value,
-                stamp: String(stamp),
-                appKey: outKey,
-                appkey: outKey,
-                token,
-                act: outName,
-                uiq,
-            }),
-        });
-        let retJson = await ret.json();
-        return retJson;
     }
 }
 exports.ApiRunner = ApiRunner;

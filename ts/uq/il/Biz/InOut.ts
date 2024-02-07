@@ -133,13 +133,22 @@ export class IOAppIn extends IOAppIO {
 }
 
 export class IOAppOut extends IOAppIO {
+    to: string;     // peer act name
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppOut(this, context);
     }
 }
 
+export enum IOConnectType {
+    connect1 = 1,
+    connect2 = 2,
+}
+interface IOAppConnect {
+    type: IOConnectType;
+}
 export class BizIOApp extends BizEntity {
     readonly bizPhraseType = BizPhraseType.ioApp;
+    readonly connect: IOAppConnect = { type: undefined, };
     readonly fields = [];
     readonly ioSites: BizIOSite[] = [];
     readonly IDs: IOAppID[] = [];

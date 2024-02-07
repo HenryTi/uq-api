@@ -192,6 +192,7 @@ export class DbContext implements il.Builder {
     readonly coreObjs: DbObjs;
     readonly sysObjs: DbObjs;
     readonly appObjs: DbObjs;
+    readonly sqls: string[] = [];
     readonly dbName: string;
     readonly twProfix: string;
     readonly compilerVersion: string;

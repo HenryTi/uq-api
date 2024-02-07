@@ -30,6 +30,7 @@ class BBizEntity {
                 return;
         });
     }
+    async buildDirectSqls() { }
     async buildBudsValue() {
         this.bizEntity.forEachBud((bud) => {
             if (!bud)

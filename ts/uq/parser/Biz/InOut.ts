@@ -4,7 +4,7 @@ import {
     , Pointer, BizEntity, VarPointer, Biz, UI
     , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp
     , IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO
-    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq, BizIOSite
+    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq, BizIOSite, IOConnectType
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -146,6 +146,24 @@ class BizInActSpace extends BizEntitySpace<BizIn> {
 }
 
 export class PBizIOApp extends PBizEntity<BizIOApp> {
+    private parseConnect = () => {
+        this.ts.passToken(Token.LBRACE);
+        this.ts.passKey('type');
+        if (this.ts.token !== Token.VAR) {
+            this.ts.expectToken(Token.VAR);
+        }
+        let type = this.ts.lowerVar;
+        let connects = Object.keys(IOConnectType);
+        if (connects.includes(type) === false) {
+            this.ts.error(`Connect type must be one of ${connects.join(',')}`);
+        }
+        this.element.connect.type = IOConnectType[type];
+        this.ts.readToken();
+        this.ts.passToken(Token.SEMICOLON);
+        this.ts.passToken(Token.RBRACE);
+        this.ts.mayPassToken(Token.SEMICOLON);
+    }
+
     private parseID = () => {
         let name = this.ts.passVar();
         let ui = this.parseUI();
@@ -167,6 +185,7 @@ export class PBizIOApp extends PBizEntity<BizIOApp> {
     }
 
     protected readonly keyColl = {
+        connect: this.parseConnect,
         id: this.parseID,
         in: this.parseIn,
         out: this.parseOut,
@@ -236,7 +255,7 @@ export class PIOAppID extends PBizBase<IOAppID> {
 
 export class PIOPeerScalar extends PElement<IOPeerScalar> {
     protected override _parse(): void {
-        this.ts.passToken(Token.SEMICOLON);
+        this.ts.passToken(Token.COMMA);
     }
     override scan(space: Space): boolean {
         let ok = true;
@@ -248,7 +267,7 @@ export class PIOPeerID extends PElement<IOPeerID> {
     private ioId: string;
     protected override _parse(): void {
         this.ioId = this.ts.passVar();
-        this.ts.passToken(Token.SEMICOLON);
+        this.ts.passToken(Token.COMMA);
     }
     override scan(space: Space): boolean {
         let ok = true;
@@ -263,17 +282,17 @@ export class PIOPeerID extends PElement<IOPeerID> {
 
 function parsePeers(context: PContext, ioAppIO: IOAppIO, parentPeer: IOPeerArr, ts: TokenStream): { [name: string]: IOPeer; } {
     let peers: { [name: string]: IOPeer; } = {};
-    if (ts.token === Token.RBRACE) {
+    if (ts.token === Token.RPARENTHESE) {
         ts.readToken();
-        ts.mayPassToken(Token.SEMICOLON);
+        ts.mayPassToken(Token.COMMA);
         return peers;
     }
     for (; ;) {
         let peer = parsePeer();
         peers[peer.name] = peer;
-        if (ts.token === Token.RBRACE as any) {
+        if (ts.token === Token.RPARENTHESE as any) {
             ts.readToken();
-            ts.mayPassToken(Token.SEMICOLON);
+            ts.mayPassToken(Token.COMMA);
             break;
         }
     }
@@ -285,7 +304,7 @@ function parsePeers(context: PContext, ioAppIO: IOAppIO, parentPeer: IOPeerArr, 
             ts.readToken();
             to = ts.passVar();
         }
-        if (ts.token === Token.LBRACE) {
+        if (ts.token === Token.LPARENTHESE) {
             peer = new IOPeerArr(ioAppIO, parentPeer);
         }
         else {
@@ -381,13 +400,20 @@ export class PIOPeerArr extends PElement<IOPeerArr> {
 abstract class PIOAppIO<T extends IOAppIO> extends PBizBase<T> {
     protected override _parse(): void {
         this.element.name = this.ts.passVar();
-        if (this.ts.token === Token.LBRACE) {
+        this.parseTo();
+        if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
             const peers = parsePeers(this.context, this.element, undefined, this.ts);
             Object.assign(this.element.peers, peers);
-        } else {
-            this.ts.passToken(Token.SEMICOLON);
         }
+        this.parseConfig();
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
+    protected parseTo(): void {
+    }
+
+    protected parseConfig(): void {
     }
 
     override scan0(space: Space): boolean {
@@ -428,6 +454,30 @@ export class PIOAppIn extends PIOAppIO<IOAppIn> {
 export class PIOAppOut extends PIOAppIO<IOAppOut> {
     protected get entityBizPhraseType(): BizPhraseType {
         return BizPhraseType.out;
+    }
+    protected parseTo(): void {
+        if (this.ts.token === Token.COLON) {
+            this.ts.readToken();
+            switch (this.ts.token as any) {
+                default:
+                    this.ts.expectToken(Token.VAR, Token.STRING);
+                    break;
+                case Token.STRING:
+                    this.element.to = this.ts.text;
+                    this.ts.readToken();
+                    break;
+                case Token.VAR:
+                    this.element.to = this.ts.lowerVar;
+                    this.ts.readToken();
+                    break;
+            }
+        }
+    }
+    protected parseConfig(): void {
+        if (this.ts.token !== Token.LBRACE) return;
+        this.ts.readToken();
+
+        this.ts.passToken(Token.RBRACE);
     }
 }
 

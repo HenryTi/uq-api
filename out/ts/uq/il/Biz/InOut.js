@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UseOut = exports.BizIOSite = exports.BizIOApp = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+exports.UseOut = exports.BizIOSite = exports.BizIOApp = exports.IOConnectType = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
@@ -145,10 +145,16 @@ class IOAppOut extends IOAppIO {
     }
 }
 exports.IOAppOut = IOAppOut;
+var IOConnectType;
+(function (IOConnectType) {
+    IOConnectType[IOConnectType["connect1"] = 1] = "connect1";
+    IOConnectType[IOConnectType["connect2"] = 2] = "connect2";
+})(IOConnectType || (exports.IOConnectType = IOConnectType = {}));
 class BizIOApp extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioApp;
+        this.connect = { type: undefined, };
         this.fields = [];
         this.ioSites = [];
         this.IDs = [];

@@ -1,8 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { logger } from '../../tool';
-import { BuildRunner, EntityRunner, setUqBuildSecret, centerApi, getDbs, getNet, consts, ApiRunner } from '../../core';
+import { ApiRunner } from '../../core';
 import { RouterWebBuilder } from "../routerBuilder";
-import { buildDbNameFromReq } from '../buildDbNameFromReq';
 
 export function buildApiRouter(rb: RouterWebBuilder) {
     let router: Router = Router();

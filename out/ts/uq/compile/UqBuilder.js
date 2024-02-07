@@ -156,8 +156,12 @@ class UqBuilder {
                 continue;
             await builder.buildProcedures();
             await this.mayBuildSheet(context, bizEntity, newest);
+            await builder.buildDirectSqls();
         }
         await context.coreObjs.updateDb(this.runner, compileOptions);
+        for (let sql of context.sqls) {
+            await this.runner.sql(sql, []);
+        }
     }
     // Bin 里面变化了，则相关的 Sheet 也要重新生成存储过程
     // 因为Out的影响

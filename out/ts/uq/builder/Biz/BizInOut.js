@@ -178,17 +178,27 @@ class BBizIOApp extends BizEntity_1.BBizEntity {
         new FuncAtomToNo(factory, funcAtomToNo).build();
         const funcNoToAtom = this.createFunction(`${this.context.site}.NOTOATOM`, new il_1.BigInt());
         new FuncNoToAtom(factory, funcNoToAtom).build();
-        const { ins, outs } = this.bizEntity;
+        const objConnect = {};
+        const { id, connect, ins, outs } = this.bizEntity;
+        objConnect.type = connect.type;
         for (let ioAppIn of ins) {
             const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
             let ioProc = new IOProcIn(this.context, ioAppIn, proc);
             ioProc.buildProc();
         }
+        let objOuts = {};
         for (let ioAppOut of outs) {
             const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
             let ioProc = new IOProcOut(this.context, ioAppOut, proc);
             ioProc.buildProc();
+            objOuts[ioAppOut.name] = ioAppOut.to;
         }
+        objConnect.outs = objOuts;
+        this.context.sqls.push(`
+            INSERT INTO \`${this.context.dbName}\`.ioapp (id, connect) 
+                VALUES (${id}, '${JSON.stringify(objConnect)}')
+                ON DUPLICATE KEY UPDATE connect=VALUES(connect);
+        `);
     }
 }
 exports.BBizIOApp = BBizIOApp;
@@ -267,7 +277,7 @@ class IOProc {
     }
     transID(ioAppID, val) {
         return new sql_1.ExpFuncDb('$site', `${this.context.site}.${this.transFuncName}`, new sql_1.ExpFuncInUq('duo$id', [
-            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNull.null,
+            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
             new sql_1.ExpVar(IOProc.siteAtomApp), new sql_1.ExpNum(ioAppID.id),
         ], true), val);
     }

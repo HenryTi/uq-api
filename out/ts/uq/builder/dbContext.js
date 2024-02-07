@@ -156,6 +156,7 @@ function sysTable(t, alias = undefined, hasUnit = false) {
 exports.sysTable = sysTable;
 class DbContext {
     constructor(compilerVersion, sqlType, dbName, twProfix, log, hasUnit) {
+        this.sqls = [];
         this.compilerVersion = compilerVersion;
         this.factory = createFactory(this, sqlType);
         this.log = log;

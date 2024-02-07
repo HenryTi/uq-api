@@ -29,6 +29,8 @@ export class BBizEntity<B extends BizEntity = any> {
         });
     }
 
+    async buildDirectSqls() { }
+
     async buildBudsValue() {
         this.bizEntity.forEachBud((bud) => {
             if (!bud) return;

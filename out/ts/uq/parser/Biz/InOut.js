@@ -132,6 +132,23 @@ class BizInActSpace extends Biz_1.BizEntitySpace {
 class PBizIOApp extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
+        this.parseConnect = () => {
+            this.ts.passToken(tokens_1.Token.LBRACE);
+            this.ts.passKey('type');
+            if (this.ts.token !== tokens_1.Token.VAR) {
+                this.ts.expectToken(tokens_1.Token.VAR);
+            }
+            let type = this.ts.lowerVar;
+            let connects = Object.keys(il_1.IOConnectType);
+            if (connects.includes(type) === false) {
+                this.ts.error(`Connect type must be one of ${connects.join(',')}`);
+            }
+            this.element.connect.type = il_1.IOConnectType[type];
+            this.ts.readToken();
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+            this.ts.passToken(tokens_1.Token.RBRACE);
+            this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+        };
         this.parseID = () => {
             let name = this.ts.passVar();
             let ui = this.parseUI();
@@ -150,6 +167,7 @@ class PBizIOApp extends Base_1.PBizEntity {
             this.element.outs.push(ioAppOut);
         };
         this.keyColl = {
+            connect: this.parseConnect,
             id: this.parseID,
             in: this.parseIn,
             out: this.parseOut,
@@ -223,7 +241,7 @@ class PIOAppID extends Base_1.PBizBase {
 exports.PIOAppID = PIOAppID;
 class PIOPeerScalar extends element_1.PElement {
     _parse() {
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        this.ts.passToken(tokens_1.Token.COMMA);
     }
     scan(space) {
         let ok = true;
@@ -234,7 +252,7 @@ exports.PIOPeerScalar = PIOPeerScalar;
 class PIOPeerID extends element_1.PElement {
     _parse() {
         this.ioId = this.ts.passVar();
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        this.ts.passToken(tokens_1.Token.COMMA);
     }
     scan(space) {
         let ok = true;
@@ -249,17 +267,17 @@ class PIOPeerID extends element_1.PElement {
 exports.PIOPeerID = PIOPeerID;
 function parsePeers(context, ioAppIO, parentPeer, ts) {
     let peers = {};
-    if (ts.token === tokens_1.Token.RBRACE) {
+    if (ts.token === tokens_1.Token.RPARENTHESE) {
         ts.readToken();
-        ts.mayPassToken(tokens_1.Token.SEMICOLON);
+        ts.mayPassToken(tokens_1.Token.COMMA);
         return peers;
     }
     for (;;) {
         let peer = parsePeer();
         peers[peer.name] = peer;
-        if (ts.token === tokens_1.Token.RBRACE) {
+        if (ts.token === tokens_1.Token.RPARENTHESE) {
             ts.readToken();
-            ts.mayPassToken(tokens_1.Token.SEMICOLON);
+            ts.mayPassToken(tokens_1.Token.COMMA);
             break;
         }
     }
@@ -271,7 +289,7 @@ function parsePeers(context, ioAppIO, parentPeer, ts) {
             ts.readToken();
             to = ts.passVar();
         }
-        if (ts.token === tokens_1.Token.LBRACE) {
+        if (ts.token === tokens_1.Token.LPARENTHESE) {
             peer = new il_1.IOPeerArr(ioAppIO, parentPeer);
         }
         else {
@@ -367,14 +385,18 @@ exports.PIOPeerArr = PIOPeerArr;
 class PIOAppIO extends Base_1.PBizBase {
     _parse() {
         this.element.name = this.ts.passVar();
-        if (this.ts.token === tokens_1.Token.LBRACE) {
+        this.parseTo();
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             const peers = parsePeers(this.context, this.element, undefined, this.ts);
             Object.assign(this.element.peers, peers);
         }
-        else {
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-        }
+        this.parseConfig();
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+    }
+    parseTo() {
+    }
+    parseConfig() {
     }
     scan0(space) {
         let ok = true;
@@ -410,6 +432,30 @@ exports.PIOAppIn = PIOAppIn;
 class PIOAppOut extends PIOAppIO {
     get entityBizPhraseType() {
         return il_1.BizPhraseType.out;
+    }
+    parseTo() {
+        if (this.ts.token === tokens_1.Token.COLON) {
+            this.ts.readToken();
+            switch (this.ts.token) {
+                default:
+                    this.ts.expectToken(tokens_1.Token.VAR, tokens_1.Token.STRING);
+                    break;
+                case tokens_1.Token.STRING:
+                    this.element.to = this.ts.text;
+                    this.ts.readToken();
+                    break;
+                case tokens_1.Token.VAR:
+                    this.element.to = this.ts.lowerVar;
+                    this.ts.readToken();
+                    break;
+            }
+        }
+    }
+    parseConfig() {
+        if (this.ts.token !== tokens_1.Token.LBRACE)
+            return;
+        this.ts.readToken();
+        this.ts.passToken(tokens_1.Token.RBRACE);
     }
 }
 exports.PIOAppOut = PIOAppOut;

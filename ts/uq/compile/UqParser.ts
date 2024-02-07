@@ -15,9 +15,9 @@ export class UqParser {
     }
 
     parse(input: string, fileName: string, isSys: boolean = false) {
+        let ts = new TokenStream(this.log, input, { isSys });
+        ts.file = fileName;
         try {
-            let ts = new TokenStream(this.log, input, { isSys });
-            ts.file = fileName;
             let context: PContext = isSys === true ? new PSysContext(ts) : new PContext(ts);
             let parser = this.uq.bizParser(context);
             parser.parse();
