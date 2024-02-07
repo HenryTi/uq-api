@@ -46,7 +46,7 @@ export class ApiRunner extends Runner {
         const { data, stamp, appKey, appkey, token, uiq, act } = inBody;
         try {
             let siteAtomApp = siteAtomAppFromAppKey(appKey ?? appkey);
-            let retAppPassword: { appPassword: string; endPoint: number; }[] = await this.dbUq.call(
+            let retAppPassword: { inPassword: string; endPoint: number; }[] = await this.dbUq.call(
                 'IOGetAppIn',
                 [
                     0, 0, siteAtomApp, act
@@ -55,9 +55,9 @@ export class ApiRunner extends Runner {
             if (retAppPassword.length === 0) {
                 throw new Error(`unauthorized siteAtomApp=${siteAtomApp} act=${act}`);
             }
-            let [{ appPassword, endPoint }] = retAppPassword;
+            let [{ inPassword, endPoint }] = retAppPassword;
             let strData = JSON.stringify(data);
-            let strMd5 = stamp + strData + appPassword;
+            let strMd5 = stamp + strData + inPassword;
             let hash = md5(strMd5);
             console.log(strMd5, hash, token);
             if ((token as string).toLowerCase() !== hash) {

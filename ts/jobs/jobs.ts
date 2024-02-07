@@ -65,7 +65,7 @@ export class Jobs {
             // logger.debug(`It's ${new Date().toLocaleTimeString()}, waiting 1 minutes for other jobs to stop.`);
             // await this.db$Uq.setDebugJobs();
             // logger.debug('========= set debugging jobs =========');
-            this.db$Uq.setDebugJobs();
+            await this.db$Uq.setDebugJobs();
             await this.sleep(waitForOtherStopJobs);
             let uqDbNames = env.configDebugging.uqs;
             await this.debugUqJobs(uqDbNames);

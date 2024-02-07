@@ -240,9 +240,12 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
         await this.sql(sql, undefined);
     }
 
+    private debugSetting: number = 0;
     async setDebugJobs(): Promise<void> {
         if (env.isDevelopment !== true) return;
         try {
+            if (Date.now() - this.debugSetting < 5 * 60 * 1000) return;
+            this.debugSetting = Date.now();
             logger.info('========= set debugging jobs =========');
             let sql = `insert into $uq.setting (\`name\`, \`value\`) VALUES ('debugging_jobs', 'yes') 
 			ON DUPLICATE KEY UPDATE value='yes', update_time=current_timestamp;`;

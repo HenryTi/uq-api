@@ -9,6 +9,7 @@ const dbUqVersion = '1.0';
 class MyDb$Uq extends MyDb_1.MyDb {
     constructor(myDbs) {
         super(myDbs, consts_1.consts.$uq);
+        this.debugSetting = 0;
     }
     initConfig(dbName) { return tool_1.env.connection; }
     async createDatabase() {
@@ -227,6 +228,9 @@ class MyDb$Uq extends MyDb_1.MyDb {
         if (tool_1.env.isDevelopment !== true)
             return;
         try {
+            if (Date.now() - this.debugSetting < 5 * 60 * 1000)
+                return;
+            this.debugSetting = Date.now();
             tool_1.logger.info('========= set debugging jobs =========');
             let sql = `insert into $uq.setting (\`name\`, \`value\`) VALUES ('debugging_jobs', 'yes') 
 			ON DUPLICATE KEY UPDATE value='yes', update_time=current_timestamp;`;
