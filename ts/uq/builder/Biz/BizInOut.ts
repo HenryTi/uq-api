@@ -12,7 +12,7 @@ import { Sqls } from "../bstatement";
 import { $site } from "../consts";
 import { DbContext } from "../dbContext";
 import {
-    ExpAdd, ExpAnd, ExpEQ, ExpEntityId, ExpField, ExpFunc, ExpFuncDb, ExpFuncInUq
+    ExpAdd, ExpAnd, ExpComplex, ExpDatePart, ExpEQ, ExpEntityId, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpFuncInUq
     , ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpLT, ExpNull, ExpNum, ExpSelect, ExpStr
     , ExpVal, ExpVar, Procedure, SqlVarTable, Statement
 } from "../sql";
@@ -52,11 +52,20 @@ export class BBizIn extends BBizEntity<BizIn> {
         setSite.equ($site, new ExpNum(this.context.site));
 
         for (let [name, bud] of props) {
-            if (bud.dataType !== BudDataType.arr) {
+            const { dataType } = bud;
+            if (dataType !== BudDataType.arr) {
                 vars.push(this.fieldFromBud(bud));
                 let set = factory.createSet();
                 statements.push(set);
-                set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)));
+                let expVal: ExpVal = new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`));
+                if (dataType === BudDataType.date) {
+                    expVal = new ExpFuncCustom(factory.func_dateadd,
+                        new ExpDatePart('second'),
+                        expVal,
+                        new ExpStr('1970-01-01')
+                    );
+                }
+                set.equ(name, expVal);
             }
             else {
                 let { name: arrName, props: arrProps } = bud as BizBudArr;
@@ -360,7 +369,23 @@ abstract class IOProc<T extends IOAppIO> {
     }
 
     private buildVal = (bud: BizBud) => {
-        return new ExpFunc('JSON_VALUE', this.expJson, new ExpStr(`$.${bud.name}`));
+        let suffix: string;
+        switch (bud.dataType) {
+            default: debugger; throw new Error('unknown data type ' + bud.dataType);
+            case BudDataType.char:
+            case BudDataType.str:
+                suffix = undefined;
+                break;
+            case BudDataType.date:
+            case BudDataType.int:
+            case BudDataType.ID:
+                suffix = 'RETURNING SIGNED';
+                break;
+            case BudDataType.dec:
+                suffix = 'RETURNING DECIMAL';
+                break;
+        }
+        return new ExpFunc('JSON_VALUE', this.expJson, new ExpComplex(new ExpStr(`$.${bud.name}`), undefined, suffix));
     }
 
     private buidlJsonObj(props: Map<string, BizBud>, peers: { [name: string]: IOPeer }, func: BuildVal): ExpVal {

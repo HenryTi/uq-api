@@ -520,6 +520,7 @@ var EnumTransaction;
     EnumTransaction[EnumTransaction["off"] = 0] = "off";
     EnumTransaction[EnumTransaction["start"] = 1] = "start";
     EnumTransaction[EnumTransaction["commit"] = 2] = "commit";
+    EnumTransaction[EnumTransaction["rollBackOnError"] = 3] = "rollBackOnError";
 })(EnumTransaction || (exports.EnumTransaction = EnumTransaction = {}));
 class TransactionStatement extends Statement {
     get type() { return 'transaction'; }

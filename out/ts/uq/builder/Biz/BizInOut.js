@@ -34,11 +34,16 @@ class BBizIn extends BizEntity_1.BBizEntity {
         statements.push(setSite);
         setSite.equ(consts_1.$site, new sql_1.ExpNum(this.context.site));
         for (let [name, bud] of props) {
-            if (bud.dataType !== il_1.BudDataType.arr) {
+            const { dataType } = bud;
+            if (dataType !== il_1.BudDataType.arr) {
                 vars.push(this.fieldFromBud(bud));
                 let set = factory.createSet();
                 statements.push(set);
-                set.equ(name, new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`)));
+                let expVal = new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`));
+                if (dataType === il_1.BudDataType.date) {
+                    expVal = new sql_1.ExpFuncCustom(factory.func_dateadd, new sql_1.ExpDatePart('second'), expVal, new sql_1.ExpStr('1970-01-01'));
+                }
+                set.equ(name, expVal);
             }
             else {
                 let { name: arrName, props: arrProps } = bud;
@@ -263,7 +268,25 @@ class FuncAtomToNo extends FuncTo {
 class IOProc {
     constructor(context, ioAppIO, proc) {
         this.buildVal = (bud) => {
-            return new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpStr(`$.${bud.name}`));
+            let suffix;
+            switch (bud.dataType) {
+                default:
+                    debugger;
+                    throw new Error('unknown data type ' + bud.dataType);
+                case il_1.BudDataType.char:
+                case il_1.BudDataType.str:
+                    suffix = undefined;
+                    break;
+                case il_1.BudDataType.date:
+                case il_1.BudDataType.int:
+                case il_1.BudDataType.ID:
+                    suffix = 'RETURNING SIGNED';
+                    break;
+                case il_1.BudDataType.dec:
+                    suffix = 'RETURNING DECIMAL';
+                    break;
+            }
+            return new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpComplex(new sql_1.ExpStr(`$.${bud.name}`), undefined, suffix));
         };
         this.buildValInArr = (bud) => {
             const { name } = bud;

@@ -265,7 +265,7 @@ export class MyDb$Uq extends MyDb implements Db$Uq {
             where a.name='debugging_jobs' 
                 and a.value='yes' 
                 AND UNIX_TIMESTAMP()-unix_timestamp(a.update_time)<600
-                ;
+                for update;
             `;
             let ret = await this.sql(sql, undefined);
             return ret.length > 0;

@@ -15,7 +15,7 @@ export abstract class ExpVal extends Exp {
     static num_1: ExpVal;
 
     brace: boolean = false;
-    protected val: ExpVal;
+    // protected val: ExpVal;
 }
 
 export abstract class ExpCmp extends Exp {
@@ -661,6 +661,30 @@ export class ExpInterval extends ExpVal {
     to(sb: SqlBuilder) {
         sb.append('INTERVAL ').exp(this.value).space()
             .append(SpanPeriod[this.spanPeriod]);
+    }
+}
+
+// used in JSON_VALUE(j, '$.a' RETURNING SIGNED)
+export class ExpComplex extends ExpVal {
+    private readonly val: ExpVal;
+    private readonly prefix: string;
+    private readonly suffix: string;
+    constructor(val: ExpVal, prefix: string, suffix: string) {
+        super();
+        this.val = val;
+        this.prefix = prefix;
+        this.suffix = suffix;
+    }
+    to(sb: SqlBuilder) {
+        if (this.prefix !== undefined) {
+            sb.append(this.prefix).space();
+        }
+        if (this.val !== undefined) {
+            this.val.to(sb);
+        }
+        if (this.suffix !== undefined) {
+            sb.space().append(this.suffix);
+        }
     }
 }
 

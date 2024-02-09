@@ -625,7 +625,7 @@ export class SleepStatement extends Statement {
     parser(context: parser.PContext) { return new parser.PSleepStatement(this, context); }
 }
 
-export enum EnumTransaction { off, start, commit }
+export enum EnumTransaction { off, start, commit, rollBackOnError }
 export class TransactionStatement extends Statement {
     act: EnumTransaction;
     get type(): string { return 'transaction'; }
