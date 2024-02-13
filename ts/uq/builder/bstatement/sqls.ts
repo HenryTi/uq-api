@@ -8,7 +8,7 @@ export class Sqls {
     private singleFoots: { [key: string]: boolean } = {};
     constructor(context: DbContext, statements: SqlStatement[]) {
         this.context = context;
-        this.statements = statements;
+        this.statements = statements ?? [];
     }
     context: DbContext;
     varTables: { [name: string]: VarTable } = {}

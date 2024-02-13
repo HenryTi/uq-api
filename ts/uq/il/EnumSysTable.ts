@@ -33,8 +33,8 @@ export enum EnumSysTable {
     // IO
     IOQueue = 'ioqueue',
     IOInOut = 'ioinout',
-    IODone = 'iodone',
-    IOEndPoint = 'ioendpoint',
+    IOError = 'ioerror',
+    // IOEndPoint = 'ioendpoint',
     IOAppAtom = 'ioappatom',
     IOSiteAtomApp = 'iositeatomapp',
 

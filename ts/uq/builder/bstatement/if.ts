@@ -25,7 +25,7 @@ export class BIfStatement extends BStatement {
         let { factory } = this.context;
         let _if = factory.createIf();
         _if.cmp = convertExp(this.context, this.istatement.condition) as ExpCmp;
-        let thenSqls = new Sqls(sqls.context, _if._then.statements);
+        let thenSqls = new Sqls(sqls.context, _if.thenStatements);
         let { then: ifThen, else: ifElse, elseIfs } = this.istatement;
         thenSqls.body(ifThen.statements);
         if (elseIfs !== undefined) {
@@ -38,8 +38,7 @@ export class BIfStatement extends BStatement {
             });
         }
         if (ifElse !== undefined) {
-            _if._else = new SqlStatements();
-            let elseSqls = new Sqls(sqls.context, _if._else.statements);
+            let elseSqls = new Sqls(sqls.context, _if.elseStatements);
             elseSqls.body(ifElse.statements);
         }
         sqls.push(_if);

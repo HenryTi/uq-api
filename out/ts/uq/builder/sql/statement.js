@@ -38,23 +38,23 @@ class If extends StatementBase {
         this._then = new Statements();
     }
     then(...stats) { this._then.add(...stats); }
-    else(stat) {
+    else(...stat) {
         if (!stat)
             return;
         if (this._else === undefined)
             this._else = new Statements;
-        this._else.add(stat);
+        this._else.add(...stat);
     }
     elseIf(cmp, statements) {
         if (this._elseIfs === undefined)
             this._elseIfs = [];
-        //let statements = new Statements();
-        //statements.add(...stats);
         this._elseIfs.push({
             cmp: cmp,
             statements: statements,
         });
     }
+    get thenStatements() { return this._then.statements; }
+    get elseStatements() { var _a; return (_a = this._else) === null || _a === void 0 ? void 0 : _a.statements; }
     declare(vars, puts) {
         var _a, _b;
         this._then.declare(vars, puts);

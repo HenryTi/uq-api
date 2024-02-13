@@ -1521,7 +1521,7 @@ class BTuidUser extends BTuid {
         declare.var(dollarId, new BigInt());
 
         let syncStats: Statement[] = [];
-        this.buildTuidUpsert(iff._then.statements, this.entity, syncStats, proc.createCommit());
+        this.buildTuidUpsert(iff.thenStatements, this.entity, syncStats, proc.createCommit());
 
         iff.then(proc.createCommit());
 

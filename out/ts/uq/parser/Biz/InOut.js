@@ -251,15 +251,17 @@ class PIOPeerScalar extends element_1.PElement {
 exports.PIOPeerScalar = PIOPeerScalar;
 class PIOPeerID extends element_1.PElement {
     _parse() {
-        this.ioId = this.ts.passVar();
+        this.ioId = this.ts.mayPassVar();
         this.ts.passToken(tokens_1.Token.COMMA);
     }
     scan(space) {
         let ok = true;
-        let id = this.element.id = this.element.ioAppIO.ioApp.IDs.find(v => v.name === this.ioId);
-        if (id === undefined) {
-            ok = false;
-            this.log(`${this.ioId} is not IOApp ID`);
+        if (this.ioId !== undefined) {
+            let id = this.element.id = this.element.ioAppIO.ioApp.IDs.find(v => v.name === this.ioId);
+            if (id === undefined) {
+                ok = false;
+                this.log(`${this.ioId} is not IOApp ID`);
+            }
         }
         return ok;
     }

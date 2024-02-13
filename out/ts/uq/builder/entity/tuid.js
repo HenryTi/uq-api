@@ -1322,7 +1322,7 @@ class BTuidUser extends BTuid {
         stats.push(declare);
         declare.var(dollarId, new il_1.BigInt());
         let syncStats = [];
-        this.buildTuidUpsert(iff._then.statements, this.entity, syncStats, proc.createCommit());
+        this.buildTuidUpsert(iff.thenStatements, this.entity, syncStats, proc.createCommit());
         iff.then(proc.createCommit());
         let retSel = factory.createSelect();
         stats.push(retSel);

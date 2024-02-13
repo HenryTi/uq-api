@@ -38,26 +38,27 @@ export interface ElseIf {
 }
 export abstract class If extends StatementBase {
     cmp: ExpCmp;
-    _then: Statements = new Statements();
-    _else: Statements;
-    _elseIfs: ElseIf[];
+    private _then: Statements = new Statements();
+    private _else: Statements;
+    private _elseIfs: ElseIf[];
 
     protected abstract nop(sb: SqlBuilder, tab: number): void;
     then(...stats: Statement[]) { this._then.add(...stats) }
-    else(stat: Statement) {
+    else(...stat: Statement[]) {
         if (!stat) return;
         if (this._else === undefined) this._else = new Statements;
-        this._else.add(stat);
+        this._else.add(...stat);
     }
     elseIf(cmp: ExpCmp, statements: Statements) {
         if (this._elseIfs === undefined) this._elseIfs = [];
-        //let statements = new Statements();
-        //statements.add(...stats);
         this._elseIfs.push({
             cmp: cmp,
             statements: statements,
         });
     }
+
+    get thenStatements() { return this._then.statements; }
+    get elseStatements() { return this._else?.statements; }
 
     declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) {
         this._then.declare(vars, puts);

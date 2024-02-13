@@ -266,15 +266,17 @@ export class PIOPeerScalar extends PElement<IOPeerScalar> {
 export class PIOPeerID extends PElement<IOPeerID> {
     private ioId: string;
     protected override _parse(): void {
-        this.ioId = this.ts.passVar();
+        this.ioId = this.ts.mayPassVar();
         this.ts.passToken(Token.COMMA);
     }
     override scan(space: Space): boolean {
         let ok = true;
-        let id = this.element.id = this.element.ioAppIO.ioApp.IDs.find(v => v.name === this.ioId);
-        if (id === undefined) {
-            ok = false;
-            this.log(`${this.ioId} is not IOApp ID`);
+        if (this.ioId !== undefined) {
+            let id = this.element.id = this.element.ioAppIO.ioApp.IDs.find(v => v.name === this.ioId);
+            if (id === undefined) {
+                ok = false;
+                this.log(`${this.ioId} is not IOApp ID`);
+            }
         }
         return ok;
     }

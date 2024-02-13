@@ -7,7 +7,7 @@ class Sqls {
         this.singleFoots = {};
         this.varTables = {};
         this.context = context;
-        this.statements = statements;
+        this.statements = statements !== null && statements !== void 0 ? statements : [];
     }
     push(...statement) { this.statements.push(...statement); }
     addStatements(statements) {

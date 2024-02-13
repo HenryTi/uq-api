@@ -1,27 +1,27 @@
+import { delimiter } from "path";
 import {
-    BigInt,
-    BizBud,
-    BizBudArr,
-    BizBudIDIO,
-    BizIOApp, BizIn, BizOut, BudDataType, Char, EnumSysTable, Field
+    BigInt, BizBud, BizBudArr, BizIOApp, BizIn, BizInOut, BizOut, BudDataType, Char, EnumSysTable, Field
     , IOAppID, IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, JoinType
     , JsonTableColumn, ProcParamType, bigIntField, charField, dateField
-    , decField, intField, jsonField
+    , decField, intField, jsonField, tinyIntField
 } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
 import { DbContext } from "../dbContext";
 import {
-    ExpAdd, ExpAnd, ExpComplex, ExpDatePart, ExpEQ, ExpEntityId, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpFuncInUq
-    , ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpLT, ExpNull, ExpNum, ExpSelect, ExpStr
+    ExpAnd, ExpComplex, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpFuncInUq
+    , ExpGT, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum, ExpSelect, ExpStar, ExpStr
     , ExpVal, ExpVar, Procedure, SqlVarTable, Statement
 } from "../sql";
 import { Factory } from "../sql/factory";
 import { LockType, Select } from "../sql/select";
-import { EntityTable, VarTable, FromJsonTable, VarTableWithDb } from "../sql/statementWithFrom";
+import { EntityTable, VarTable, FromJsonTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
-export class BBizIn extends BBizEntity<BizIn> {
+abstract class BBizInOut<T extends BizInOut> extends BBizEntity<T> {
+}
+
+export class BBizIn extends BBizInOut<BizIn> {
     static queueId = '$queueId';
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
@@ -143,7 +143,7 @@ export class BBizIn extends BBizEntity<BizIn> {
     }
 }
 
-export class BBizOut extends BBizEntity<BizOut> {
+export class BBizOut extends BBizInOut<BizOut> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
         const { id } = this.bizEntity;
@@ -172,22 +172,8 @@ export class BBizOut extends BBizEntity<BizOut> {
             bigIntField(queueId),
         );
 
-        let vtTransErr = factory.createVarTable();
-        statements.push(vtTransErr);
-        vtTransErr.noDrop = true;
-        vtTransErr.name = IOProc.transerr;
-        const transErrIdField = intField('id');
-        transErrIdField.autoInc = true;
-        const atomField = bigIntField('atom');
-        atomField.nullable = true;
-        const noField = charField('no', 100);
-        noField.nullable = true;
-        vtTransErr.keys = [
-            transErrIdField,
-        ];
-        vtTransErr.fields = [
-            transErrIdField, bigIntField('appID'), atomField, noField,
-        ];
+        let ioStatementBuilder = new IOStatementBuilder(factory);
+        statements.push(ioStatementBuilder.transErrorTable());
 
         const setSite = factory.createSet();
         statements.push(setSite);
@@ -290,14 +276,9 @@ abstract class FuncTo {
         let iff = this.factory.createIf();
         ifParamNotNull.then(iff);
         iff.cmp = new ExpIsNull(new ExpVar(this.toName));
-        const insertErr = this.factory.createInsert();
+        let ioStatementBuilder = new IOStatementBuilder(this.factory);
+        const insertErr = ioStatementBuilder.transErrorInsert(new ExpVar('appID'), this.fromName, this.param);
         iff.then(insertErr);
-        insertErr.ignore = true;
-        insertErr.table = new VarTable(IOProc.transerr);
-        insertErr.cols = [
-            { col: 'appID', val: new ExpVar('appID') },
-            { col: this.fromName, val: new ExpVar(this.param) },
-        ];
         let ret = this.factory.createReturn();
         statements.push(ret);
         ret.returnVar = this.toName;
@@ -327,8 +308,8 @@ abstract class IOProc<T extends IOAppIO> {
     static siteAtomApp = '$siteAtomApp';
     static pSiteAtomApp = '$pSiteAtomApp';
     static queueId = '$queueId';
-    static transerr = '$transerr';
     static endPoint = '$endPoint';
+    static vDone = '$done';
     protected readonly context: DbContext;
     protected readonly factory: Factory;
     protected readonly ioAppIO: T;
@@ -345,6 +326,9 @@ abstract class IOProc<T extends IOAppIO> {
     protected abstract get transFuncName(): string;
 
     protected transID(ioAppID: IOAppID, val: ExpVal): ExpVal {
+        if (ioAppID === undefined) {
+            return val;
+        }
         return new ExpFuncDb('$site',
             `${this.context.site}.${this.transFuncName}`,
             new ExpFuncInUq('duo$id',
@@ -474,14 +458,21 @@ class IOProcIn extends IOProc<IOAppIn> {
             jsonField(IOProc.vRetJson),
             bigIntField(IOProc.siteAtomApp),
             bigIntField(IOProc.endPoint),
+            bigIntField(IOProc.ioAppIO),
         );
+
+        let ioStatementBuilder = new IOStatementBuilder(factory);
+        statements.push(ioStatementBuilder.transErrorTable());
+        statements.push(ioStatementBuilder.transErrTruncate());
 
         let selectSiteAtomApp = factory.createSelect();
         statements.push(selectSiteAtomApp);
         selectSiteAtomApp.toVar = true;
-        selectSiteAtomApp.col('siteAtomApp', IOProc.siteAtomApp, b);
+        selectSiteAtomApp.col('i', IOProc.siteAtomApp, b);
+        selectSiteAtomApp.col('x', IOProc.ioAppIO, b);
         selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOQueue, false, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.IOEndPoint, false, b))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.IOEndPoint, false, b))
+            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('endPoint', a)));
         selectSiteAtomApp.where(new ExpEQ(new ExpField('id', a), new ExpVar(IOProc.queueId)));
 
@@ -493,8 +484,26 @@ class IOProcIn extends IOProc<IOAppIn> {
         ifSiteAtomApp.then(set);
         set.equ(IOProc.vRetJson, new ExpSelect(this.buildJsonTrans()));
 
+        let ifTransErr = factory.createIf();
+        ifSiteAtomApp.then(ifTransErr);
+        let selectTransErrCount = ioStatementBuilder.transErrCount();
+        ifTransErr.cmp = new ExpGT(new ExpSelect(selectTransErrCount), ExpNum.num0);
+        ifTransErr.then();
+        let insertIODone = ioStatementBuilder.insertIOError();
+        ifTransErr.then(insertIODone);
+        let delInOut = factory.createDelete();
+        ifTransErr.then(delInOut);
+        delInOut.from(new EntityTable(EnumSysTable.IOInOut, false, a));
+        delInOut.tables = [a];
+        delInOut.where(new ExpAnd(
+            new ExpEQ(new ExpField('i', a), ExpNum.num1),
+            new ExpEQ(new ExpField('x', a), new ExpVar(IOProc.queueId)),
+        ));
+
+        ioStatementBuilder.transSelect()
+
         let stats = this.buildAfterTrans();
-        ifSiteAtomApp.then(...stats);
+        ifTransErr.else(...stats);
     }
 
     private buildAfterTrans(): Statement[] {
@@ -533,6 +542,7 @@ class IOProcOut extends IOProc<IOAppOut> {
             bigIntField(IOProc.ioAppIO),
             bigIntField(IOProc.queueId),
             bigIntField(IOProc.endPoint),
+            tinyIntField(IOProc.vDone),
         );
 
         let setIOAppIO = factory.createSet();
@@ -550,6 +560,10 @@ class IOProcOut extends IOProc<IOAppOut> {
         let setSiteAtomAppNull = factory.createSet();
         loop.statements.add(setSiteAtomAppNull);
         setSiteAtomAppNull.equ(IOProc.siteAtomApp, ExpNull.null);
+
+        let ioStatementBuilder = new IOStatementBuilder(factory);
+        let truncateTransErr = ioStatementBuilder.transErrTruncate();
+        loop.statements.add(truncateTransErr);
 
         let selectSiteAtomApp = factory.createSelect();
         loop.statements.add(selectSiteAtomApp);
@@ -593,14 +607,16 @@ class IOProcOut extends IOProc<IOAppOut> {
 
     private buildAfterTrans(): Statement[] {
         let statements: Statement[] = [];
+
         const selectEndPoint = this.factory.createSelect();
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
         selectEndPoint.col('id', IOProc.endPoint);
-        selectEndPoint.from(new EntityTable(EnumSysTable.IOEndPoint, false));
+        // selectEndPoint.from(new EntityTable(EnumSysTable.IOEndPoint, false));
+        selectEndPoint.from(new EntityTable(EnumSysTable.duo, false));
         selectEndPoint.where(new ExpAnd(
-            new ExpEQ(new ExpField('siteAtomApp'), new ExpVar(IOProc.siteAtomApp)),
-            new ExpEQ(new ExpField('appIO'), new ExpVar(IOProc.ioAppIO)),
+            new ExpEQ(new ExpField('i'), new ExpVar(IOProc.siteAtomApp)),
+            new ExpEQ(new ExpField('x'), new ExpVar(IOProc.ioAppIO)),
         ));
 
         const ifEndPoint = this.factory.createIf();
@@ -615,22 +631,129 @@ class IOProcOut extends IOProc<IOAppOut> {
             true
         ));
 
-        const update = this.factory.createUpdate();
-        ifEndPoint.then(update);
-        update.table = new EntityTable(EnumSysTable.IOQueue, false);
-        update.cols = [
-            { col: 'value', val: new ExpVar(IOProc.vRetJson) },
-        ];
-        update.where = new ExpEQ(
-            new ExpField('id'), new ExpVar(IOProc.queueId)
-        );
+        let ioStatementBuilder = new IOStatementBuilder(this.factory);
+        let ifTransErr = this.factory.createIf();
+        ifEndPoint.then(ifTransErr);
+        let selectTransErrCount = ioStatementBuilder.transErrCount();
+        ifTransErr.cmp = new ExpGT(new ExpSelect(selectTransErrCount), ExpNum.num0);
+
+        let setDoneErrID = this.factory.createSet();
+        ifTransErr.then(setDoneErrID);
+        setDoneErrID.equ(IOProc.vDone, new ExpNum(31)); // EnumQueueDoneType.errorID
+
+        let insertIODone = ioStatementBuilder.insertIOError();
+        ifTransErr.then(insertIODone);
+
+        let setDonePending = this.factory.createSet();
+        ifTransErr.else(setDonePending);
+        setDonePending.equ(IOProc.vDone, new ExpNum(0)); // EnumQueueDoneType.pending
+
         const insert = this.factory.createInsert();
-        ifEndPoint.then(insert);
+        ifTransErr.else(insert);
         insert.table = new EntityTable(EnumSysTable.IOInOut, false);
         insert.cols = [
             { col: 'i', val: ExpNum.num0 },
             { col: 'x', val: new ExpVar(IOProc.queueId) },
         ];
+
+        const update = this.factory.createUpdate();
+        ifEndPoint.then(update);
+        update.table = new EntityTable(EnumSysTable.IOQueue, false);
+        update.cols = [
+            { col: 'value', val: new ExpVar(IOProc.vRetJson) },
+            { col: 'done', val: new ExpVar(IOProc.vDone) },
+        ];
+        update.where = new ExpEQ(
+            new ExpField('id'), new ExpVar(IOProc.queueId)
+        );
+
         return statements;
+    }
+}
+
+class IOStatementBuilder {
+    static transerr = '$transerr';
+    private readonly factory: Factory;
+    constructor(factory: Factory) {
+        this.factory = factory;
+    }
+
+    transErrorTable() {
+        let vtTransErr = this.factory.createVarTable();
+        vtTransErr.noDrop = true;
+        vtTransErr.name = IOStatementBuilder.transerr;
+        const transErrIdField = intField('id');
+        transErrIdField.autoInc = true;
+        const atomField = bigIntField('atom');
+        atomField.nullable = true;
+        const noField = charField('no', 100);
+        noField.nullable = true;
+        vtTransErr.keys = [
+            transErrIdField,
+        ];
+        vtTransErr.fields = [
+            transErrIdField, bigIntField('appID'), atomField, noField,
+        ];
+        return vtTransErr;
+    }
+
+    transErrorInsert(varAppID: ExpVal, fromField: string, fromVar: string) {
+        const insertErr = this.factory.createInsert();
+        insertErr.ignore = true;
+        insertErr.table = new VarTable(IOStatementBuilder.transerr);
+        insertErr.cols = [
+            { col: 'appID', val: varAppID },
+            { col: fromField, val: new ExpVar(fromVar) },
+        ];
+        return insertErr;
+    }
+
+    transErrTruncate() {
+        let truncateTransErr = this.factory.createTruncate();
+        truncateTransErr.table = new VarTable(IOStatementBuilder.transerr);
+        return truncateTransErr;
+    }
+
+    transErrCount() {
+        let tblTransErr = new VarTable(IOStatementBuilder.transerr, a);
+        let selectTransErrCount = this.factory.createSelect();
+        selectTransErrCount.from(tblTransErr);
+        selectTransErrCount.column(new ExpFunc(this.factory.func_count, new ExpStar()));
+        selectTransErrCount.limit(ExpNum.num1);
+        return selectTransErrCount;
+    }
+
+    transSelect() {
+        let tblTransErr = new VarTable(IOStatementBuilder.transerr, a);
+        let selectTranErr = this.factory.createSelect();
+        selectTranErr.from(tblTransErr)
+            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('appID', a)));
+        selectTranErr.column(
+            new ExpFunc('JSON_ARRAYAGG',
+                new ExpFunc('JSON_OBJECT',
+                    new ExpStr('siteAtomApp'), new ExpField('i', b),
+                    new ExpStr('ID'), new ExpField('x', b),
+                    new ExpStr('atom'), new ExpField('atom', a),
+                    new ExpStr('no'), new ExpField('no', a),
+                )
+            ),
+            'v'
+        );
+        return selectTranErr;
+    }
+
+    insertIOError() {
+        let insertIOError = this.factory.createInsert();
+        let selectTranErr = this.transSelect();
+        insertIOError.table = new EntityTable(EnumSysTable.IOError, false);
+        insertIOError.cols = [
+            { col: 'id', val: new ExpVar(IOProc.queueId) },
+            //{ col: 'endPoint', val: new ExpVar(IOProc.endPoint) },
+            { col: 'siteAtomApp', val: new ExpVar(IOProc.siteAtomApp) },
+            { col: 'appIO', val: new ExpVar(IOProc.ioAppIO) },
+            { col: 'result', val: new ExpSelect(selectTranErr) },
+        ];
+        return insertIOError;
     }
 }
