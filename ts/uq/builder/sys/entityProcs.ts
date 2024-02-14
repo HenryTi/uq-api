@@ -74,7 +74,7 @@ export class EntityProcedures extends SysProcedures {
         iff.then(setNo);
         setNo.equ('no', ExpNum.num1);
 
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new EntityTable('$no', hasUnit);
         upsert.keys.push({ col: 'sheet', val: new ExpVar('entityId') });
@@ -231,7 +231,7 @@ export class EntityProcedures extends SysProcedures {
         p.addUnitParameter();
         p.parameters.push(il.charField('entity', 100));
         p.parameters.push(il.bigIntField('modifyMax'));
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         p.statements.push(upsert);
         upsert.table = new EntityTable('$sync_from', hasUnit);
         upsert.cols = [
@@ -481,7 +481,7 @@ export class EntityProcedures extends SysProcedures {
         ifNotSame.then(selectVersion);
         ifNotSame.then(iff);
         ifNotSame.cmp = new ExpNot(new ExpExists(notSameSelect));
-        let upsertVersion = factory.createInsert();
+        let upsertVersion = factory.createUpsert();
         ifNotSame.then(upsertVersion);
         upsertVersion.table = new sql.SqlSysTable(EnumSysTable.version);
         upsertVersion.keys.push(

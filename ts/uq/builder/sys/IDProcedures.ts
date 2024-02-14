@@ -234,7 +234,7 @@ export class IDProcedures extends SysProcedures {
         iff.then(setNo);
         setNo.equ('no', ExpNum.num1);
 
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new EntityTable('$no', hasUnit);
         upsert.keys.push({ col: 'sheet', val: new ExpVar('entityId') });

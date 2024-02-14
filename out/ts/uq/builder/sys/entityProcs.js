@@ -58,7 +58,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         let setNo = factory.createSet();
         iff.then(setNo);
         setNo.equ('no', sql_1.ExpNum.num1);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new statementWithFrom_1.EntityTable('$no', hasUnit);
         upsert.keys.push({ col: 'sheet', val: new sql_1.ExpVar('entityId') });
@@ -188,7 +188,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         p.addUnitParameter();
         p.parameters.push(il.charField('entity', 100));
         p.parameters.push(il.bigIntField('modifyMax'));
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         p.statements.push(upsert);
         upsert.table = new statementWithFrom_1.EntityTable('$sync_from', hasUnit);
         upsert.cols = [
@@ -353,7 +353,7 @@ class EntityProcedures extends sysProcedures_1.SysProcedures {
         ifNotSame.then(selectVersion);
         ifNotSame.then(iff);
         ifNotSame.cmp = new sql_1.ExpNot(new sql_1.ExpExists(notSameSelect));
-        let upsertVersion = factory.createInsert();
+        let upsertVersion = factory.createUpsert();
         ifNotSame.then(upsertVersion);
         upsertVersion.table = new sql.SqlSysTable(il_1.EnumSysTable.version);
         upsertVersion.keys.push({ col: 'entity', val: new sql.ExpVar('id') }, { col: 'date', val: new sql.ExpFunc(factory.func_date, new sql.ExpVar('date')) });

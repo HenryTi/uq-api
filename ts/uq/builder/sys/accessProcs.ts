@@ -47,7 +47,7 @@ export class AccessProcedures extends SysProcedures {
         let iffUnit = factory.createIf();
         stats.push(iffUnit);
         iffUnit.cmp = expCmpUnit;
-        let upsertUnit = factory.createInsert();
+        let upsertUnit = factory.createUpsert();
         iffUnit.then(upsertUnit);
         upsertUnit.table = sysTable(EnumSysTable.unit);
         upsertUnit.cols.push({
@@ -59,7 +59,7 @@ export class AccessProcedures extends SysProcedures {
             val: new ExpVar(unitFieldName)
         });
 
-        let upsertUnitSetting = factory.createInsert();
+        let upsertUnitSetting = factory.createUpsert();
         iffUnit.then(upsertUnitSetting);
         upsertUnitSetting.table = new EntityTable('$setting', hasUnit);
         upsertUnitSetting.cols.push({
@@ -170,7 +170,7 @@ export class AccessProcedures extends SysProcedures {
             textField('roles'),
         );
         //this.checkAdmin(statements);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new EntityTable('$user_roles', false);
         upsert.keys = [
@@ -212,7 +212,7 @@ export class AccessProcedures extends SysProcedures {
             unitField,
             idField('theUser', 'big'),
         );
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = sysTable(EnumSysTable.unit);
         upsert.keys = [
@@ -358,7 +358,7 @@ export class AccessProcedures extends SysProcedures {
         let leave = factory.createLeaveProc();
         iff.then(leave);
 
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.keys = [
             { col: 'id', val: new ExpVar('user') },

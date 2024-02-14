@@ -121,7 +121,7 @@ export class QueueProcedures extends SysProcedures {
         let iff = factory.createIf();
         stats.push(iff);
         iff.cmp = new ExpEQ(new ExpVar(finish), ExpVal.num1); // 消息发送完成，删去
-        let upsertEnd = factory.createInsert();
+        let upsertEnd = factory.createUpsert();
         iff.then(upsertEnd);
         upsertEnd.cols = cols;
         upsertEnd.keys = keys;
@@ -157,7 +157,7 @@ export class QueueProcedures extends SysProcedures {
         let iff3 = factory.createIf();
         iff2.else(iff3);
         iff3.cmp = new ExpEQ(new ExpVar(finish), new ExpNum(3)); // tris 多次，进入 message_failed
-        let upsertFail = factory.createInsert();
+        let upsertFail = factory.createUpsert();
         iff3.then(upsertFail);
         upsertFail.cols = cols;
         upsertFail.keys = keys;

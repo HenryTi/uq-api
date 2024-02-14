@@ -64,7 +64,7 @@ export class BTuidWrite extends BStatement {
             return updateVId;
         }
         let createUpsert = () => {
-            let upsert = factory.createInsert();
+            let upsert = factory.createUpsert();
             upsert.table = new SqlEntityTable(tuidEntityName, undefined, hasUnit);
             let { cols, keys } = upsert;
             for (let s of set) {

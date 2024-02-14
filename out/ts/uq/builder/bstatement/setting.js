@@ -44,7 +44,7 @@ class BSettingStatement extends bstatement_1.BStatement {
             select.lock = select_1.LockType.update;
         }
         else {
-            let upsert = factory.createInsert();
+            let upsert = factory.createUpsert();
             sqls.push(upsert);
             upsert.table = new statementWithFrom_1.EntityTable('$setting', hasUnit);
             upsert.keys = [
@@ -63,7 +63,7 @@ class BSettingStatement extends bstatement_1.BStatement {
     buildAddUnit() {
         let { factory } = this.context;
         let { val } = this.istatement;
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.unit);
         upsert.keys = [
             { col: 'unit', val: (0, sql_1.convertExp)(this.context, val) }

@@ -42,7 +42,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         let iffUnit = factory.createIf();
         stats.push(iffUnit);
         iffUnit.cmp = expCmpUnit;
-        let upsertUnit = factory.createInsert();
+        let upsertUnit = factory.createUpsert();
         iffUnit.then(upsertUnit);
         upsertUnit.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.unit);
         upsertUnit.cols.push({
@@ -53,7 +53,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
             col: 'unit',
             val: new sql_1.ExpVar(unitFieldName)
         });
-        let upsertUnitSetting = factory.createInsert();
+        let upsertUnitSetting = factory.createUpsert();
         iffUnit.then(upsertUnitSetting);
         upsertUnitSetting.table = new statementWithFrom_1.EntityTable('$setting', hasUnit);
         upsertUnitSetting.cols.push({
@@ -139,7 +139,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         let { parameters, statements } = p;
         parameters.push(unitField, userParam, (0, il_1.idField)('theUser', 'big'), (0, il_1.textField)('roles'));
         //this.checkAdmin(statements);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new statementWithFrom_1.EntityTable('$user_roles', false);
         upsert.keys = [
@@ -168,7 +168,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         let { unitField, userParam, factory } = this.context;
         let { parameters, statements } = p;
         parameters.push(unitField, (0, il_1.idField)('theUser', 'big'));
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.unit);
         upsert.keys = [
@@ -252,7 +252,7 @@ class AccessProcedures extends sysProcedures_1.SysProcedures {
         new sql_1.ExpEQ(new sql_1.ExpVar('role'), sql_1.ExpNum.num1), new sql_1.ExpEQ(new sql_1.ExpVar('role'), sql_1.ExpNum.num2), new sql_1.ExpEQ(new sql_1.ExpVar('role'), sql_1.ExpNum.num_1), new sql_1.ExpEQ(new sql_1.ExpVar('role'), new sql_1.ExpNum(-2)))));
         let leave = factory.createLeaveProc();
         iff.then(leave);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.keys = [
             { col: 'id', val: new sql_1.ExpVar('user') },

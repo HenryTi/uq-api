@@ -76,7 +76,7 @@ class BBook extends BBookBase {
         statements.push(declare);
         keys.forEach(v => this.context.buildParam(v, parameters, statements, declare));
         fields.forEach(v => this.context.buildParam(v, parameters, statements, declare));
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new statementWithFrom_1.EntityTable(name, hasUnit);
         upsert.keys = keys.map(v => { let vn = v.name; return { col: vn, val: new sql_1.ExpVar(vn) }; });
@@ -106,7 +106,7 @@ class BMap extends BBookBase {
         }
         let keyCols = keys.map(fieldToCol);
         let fieldCols = fields.map(fieldToCol);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new statementWithFrom_1.EntityTable(name, hasUnit);
         upsert.cols = fieldCols;

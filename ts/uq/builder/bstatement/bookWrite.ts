@@ -97,7 +97,7 @@ export class BBookWrite extends BStatement {
             update.where = new ExpAnd(...wheres);
         }
         else {
-            let upsert = factory.createInsert();
+            let upsert = factory.createUpsert();
             sqls.push(upsert);
             upsert.table = new SqlEntityTable(map, undefined, hasUnit);
             upsert.cols = cols;
@@ -128,7 +128,7 @@ export class BBookWrite extends BStatement {
         let varOrder = new ExpVar(vOrder);
         declare.var(vOrder, new Int());
 
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         sqls.push(upsert);
         if (book.type === 'tablevar') {
             upsert.table = new SqlVarTable(book.name);

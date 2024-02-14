@@ -199,7 +199,7 @@ export class BBizStatementTitle extends BStatement<BizStatementTitle> {
         const expUser = new ExpVar('$user');
         function buildIxBudIndex() {
             if ((flag & BudIndex.index) !== BudIndex.index) return;
-            let upsert = factory.createInsert();
+            let upsert = factory.createUpsert();
             sqls.push(upsert);
             upsert.table = new EntityTable(EnumSysTable.ixBud, false);
             const expBud = new ExpFuncInUq('bud$id'
@@ -211,7 +211,7 @@ export class BBizStatementTitle extends BStatement<BizStatementTitle> {
             ];
         }
 
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         sqls.push(upsert);
         upsert.table = sysTable(table);
         upsert.keys = [

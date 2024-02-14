@@ -177,7 +177,7 @@ class IDProcedures extends sysProcedures_1.SysProcedures {
         let setNo = factory.createSet();
         iff.then(setNo);
         setNo.equ('no', sql_1.ExpNum.num1);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.table = new statementWithFrom_1.EntityTable('$no', hasUnit);
         upsert.keys.push({ col: 'sheet', val: new sql_1.ExpVar('entityId') });

@@ -143,7 +143,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         let { parameters, statements } = p;
         parameters.push((0, il_1.bigIntField)('id'), // tonwaUserId
         (0, il_1.charField)('name', 100), (0, il_1.charField)('nick', 100), (0, il_1.charField)('icon', 200));
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.cols = [
             { col: 'name', val: new sql_1.ExpVar('name') },
@@ -197,7 +197,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
         dt.size = 1000;
         p.addUnitParameter();
         p.parameters.push(name, value);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         p.statements.push(upsert);
         upsert.table = new sql.SqlSysTable('$setting');
         upsert.cols.push({ col: value.name, val: new sql.ExpVar(value.name) });

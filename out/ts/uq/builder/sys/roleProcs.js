@@ -106,7 +106,7 @@ class RoleProcedures extends sysProcedures_1.SysProcedures {
         let iff = factory.createIf();
         statements.push(iff);
         iff.cmp = new sql_1.ExpAnd(this.expExistsAdmin(), new sql_1.ExpIsNotNull(new sql_1.ExpVar('roleId')));
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         iff.then(upsert);
         upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.ixRole);
         upsert.keys = [
@@ -140,7 +140,7 @@ class RoleProcedures extends sysProcedures_1.SysProcedures {
         let iff = factory.createIf();
         statements.push(iff);
         iff.cmp = this.expExistsAdmin();
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         iff.then(upsert);
         upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.ixRole);
         upsert.keys = [
@@ -219,7 +219,7 @@ class RoleProcedures extends sysProcedures_1.SysProcedures {
         new sql_1.ExpEQ(new sql_1.ExpVar('role'), sql_1.ExpNum.num1), new sql_1.ExpEQ(new sql_1.ExpVar('role'), sql_1.ExpNum.num2), new sql_1.ExpEQ(new sql_1.ExpVar('role'), sql_1.ExpNum.num_1), new sql_1.ExpEQ(new sql_1.ExpVar('role'), new sql_1.ExpNum(-2)))));
         let leave = factory.createLeaveProc();
         iff.then(leave);
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.keys = [
             { col: 'id', val: new sql_1.ExpVar('user') },

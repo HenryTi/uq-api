@@ -9,7 +9,7 @@ class BPokeStatement extends bstatement_1.BStatement {
     body(sqls) {
         let { user } = this.istatement;
         let { factory } = this.context;
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         sqls.push(upsert);
         let val = (0, sql_1.convertExp)(this.context, user);
         upsert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.user);

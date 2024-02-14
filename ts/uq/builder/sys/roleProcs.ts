@@ -145,7 +145,7 @@ export class RoleProcedures extends SysProcedures {
             this.expExistsAdmin(),
             new ExpIsNotNull(new ExpVar('roleId'))
         );
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         iff.then(upsert);
         upsert.table = sysTable(EnumSysTable.ixRole);
         upsert.keys = [
@@ -202,7 +202,7 @@ export class RoleProcedures extends SysProcedures {
         statements.push(iff);
         iff.cmp = this.expExistsAdmin();
 
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         iff.then(upsert);
         upsert.table = sysTable(EnumSysTable.ixRole);
         upsert.keys = [
@@ -346,7 +346,7 @@ export class RoleProcedures extends SysProcedures {
         let leave = factory.createLeaveProc();
         iff.then(leave);
 
-        let upsert = factory.createInsert();
+        let upsert = factory.createUpsert();
         statements.push(upsert);
         upsert.keys = [
             { col: 'id', val: new ExpVar('user') },
