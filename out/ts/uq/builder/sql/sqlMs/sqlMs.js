@@ -53,7 +53,7 @@ class MsFactory extends factory_1.Factory {
     createUpdate() { return; }
     createInsert() { return; }
     createInsertOnDuplicate() { return; }
-    createUpsert() { return; }
+    createInsert() { return; }
     createSelect() { return; }
     createLog() { return; }
     createCall() { return; }

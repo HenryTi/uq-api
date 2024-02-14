@@ -9,7 +9,7 @@ export class BPokeStatement extends BStatement {
     body(sqls: Sqls) {
         let { user } = this.istatement;
         let { factory } = this.context;
-        let upsert = factory.createUpsert();
+        let upsert = factory.createInsert();
         sqls.push(upsert);
         let val = convertExp(this.context, user) as ExpVal;
         upsert.table = sysTable(EnumSysTable.user);

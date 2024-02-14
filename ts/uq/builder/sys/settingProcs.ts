@@ -176,7 +176,7 @@ export class SettingProcedures extends SysProcedures {
             charField('nick', 100),
             charField('icon', 200),
         );
-        let upsert = factory.createUpsert();
+        let upsert = factory.createInsert();
         statements.push(upsert);
         upsert.cols = [
             { col: 'name', val: new ExpVar('name') },
@@ -238,7 +238,7 @@ export class SettingProcedures extends SysProcedures {
         p.addUnitParameter();
         p.parameters.push(name, value);
 
-        let upsert = factory.createUpsert();
+        let upsert = factory.createInsert();
         p.statements.push(upsert);
         upsert.table = new sql.SqlSysTable('$setting');
         upsert.cols.push(

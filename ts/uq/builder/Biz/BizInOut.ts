@@ -9,7 +9,8 @@ import { Sqls } from "../bstatement";
 import { $site } from "../consts";
 import { DbContext } from "../dbContext";
 import {
-    ExpAnd, ExpComplex, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpFuncInUq
+    ExpAdd,
+    ExpAnd, ExpComplex, ExpDatePart, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpFuncInUq
     , ExpGT, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum, ExpSelect, ExpStar, ExpStr
     , ExpVal, ExpVar, Procedure, SqlVarTable, Statement
 } from "../sql";
@@ -489,8 +490,8 @@ class IOProcIn extends IOProc<IOAppIn> {
         let selectTransErrCount = ioStatementBuilder.transErrCount();
         ifTransErr.cmp = new ExpGT(new ExpSelect(selectTransErrCount), ExpNum.num0);
         ifTransErr.then();
-        let insertIODone = ioStatementBuilder.insertIOError();
-        ifTransErr.then(insertIODone);
+        let insertIODone = ioStatementBuilder.insertIOError(1);
+        ifTransErr.then(...insertIODone);
         let delInOut = factory.createDelete();
         ifTransErr.then(delInOut);
         delInOut.from(new EntityTable(EnumSysTable.IOInOut, false, a));
@@ -499,6 +500,11 @@ class IOProcIn extends IOProc<IOAppIn> {
             new ExpEQ(new ExpField('i', a), ExpNum.num1),
             new ExpEQ(new ExpField('x', a), new ExpVar(IOProc.queueId)),
         ));
+        let delError = factory.createDelete();
+        ifTransErr.else(delError);
+        delError.from(new EntityTable(EnumSysTable.IOError, false, a));
+        delError.tables = [a];
+        delError.where(new ExpEQ(new ExpField('id'), new ExpVar(IOProc.queueId)));
 
         ioStatementBuilder.transSelect()
 
@@ -641,8 +647,8 @@ class IOProcOut extends IOProc<IOAppOut> {
         ifTransErr.then(setDoneErrID);
         setDoneErrID.equ(IOProc.vDone, new ExpNum(31)); // EnumQueueDoneType.errorID
 
-        let insertIODone = ioStatementBuilder.insertIOError();
-        ifTransErr.then(insertIODone);
+        let insertIODone = ioStatementBuilder.insertIOError(0);
+        ifTransErr.then(...insertIODone);
 
         let setDonePending = this.factory.createSet();
         ifTransErr.else(setDonePending);
@@ -743,17 +749,35 @@ class IOStatementBuilder {
         return selectTranErr;
     }
 
-    insertIOError() {
-        let insertIOError = this.factory.createInsert();
+    insertIOError(inOut: 0 | 1) {
+        let select = this.factory.createSelect();
+        select.from(new EntityTable(EnumSysTable.IOError, false));
+        select.col('id');
+        select.where(new ExpEQ(new ExpField('id'), new ExpVar(IOProc.queueId)));
+
         let selectTranErr = this.transSelect();
+
+        let iff = this.factory.createIf();
+        iff.cmp = new ExpExists(select);
+        let update = this.factory.createUpdate();
+        iff.then(update);
+        update.table = new EntityTable(EnumSysTable.IOError, false);
+        update.cols = [
+            { col: 'result', val: new ExpSelect(selectTranErr) },
+            { col: 'times', val: new ExpAdd(new ExpField('times'), ExpNum.num1) },
+        ];
+        update.where = new ExpEQ(new ExpField('id'), new ExpVar(IOProc.queueId));
+
+        let insertIOError = this.factory.createInsert();
+        iff.else(insertIOError);
         insertIOError.table = new EntityTable(EnumSysTable.IOError, false);
         insertIOError.cols = [
             { col: 'id', val: new ExpVar(IOProc.queueId) },
-            //{ col: 'endPoint', val: new ExpVar(IOProc.endPoint) },
             { col: 'siteAtomApp', val: new ExpVar(IOProc.siteAtomApp) },
             { col: 'appIO', val: new ExpVar(IOProc.ioAppIO) },
             { col: 'result', val: new ExpSelect(selectTranErr) },
+            { col: 'inout', val: new ExpNum(inOut) },
         ];
-        return insertIOError;
+        return [insertIOError];
     }
 }

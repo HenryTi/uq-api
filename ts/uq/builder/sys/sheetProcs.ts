@@ -177,7 +177,7 @@ export class SheetProcedures extends SysProcedures {
         set = factory.createSet();
         iff.else(set);
         set.equ('noDate', new sql.ExpVar(date));
-        let upsert = factory.createUpsert();
+        let upsert = factory.createInsert();
         iff.else(upsert);
         upsert.table = new sql.SqlSysTable('$no');
         upsert.cols = [

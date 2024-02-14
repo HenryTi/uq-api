@@ -167,7 +167,7 @@ class BBizStatementTitle extends bstatement_1.BStatement {
         function buildIxBudIndex() {
             if ((flag & il_1.BudIndex.index) !== il_1.BudIndex.index)
                 return;
-            let upsert = factory.createUpsert();
+            let upsert = factory.createInsert();
             sqls.push(upsert);
             upsert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false);
             const expBud = new sql_1.ExpFuncInUq('bud$id', [expSite, expUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, expValue, expPhraseId], true);
@@ -176,7 +176,7 @@ class BBizStatementTitle extends bstatement_1.BStatement {
                 { col: 'x', val: expObjId },
             ];
         }
-        let upsert = factory.createUpsert();
+        let upsert = factory.createInsert();
         sqls.push(upsert);
         upsert.table = (0, dbContext_1.sysTable)(table);
         upsert.keys = [

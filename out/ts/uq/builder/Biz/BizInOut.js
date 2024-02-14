@@ -414,13 +414,18 @@ class IOProcIn extends IOProc {
         let selectTransErrCount = ioStatementBuilder.transErrCount();
         ifTransErr.cmp = new sql_1.ExpGT(new sql_1.ExpSelect(selectTransErrCount), sql_1.ExpNum.num0);
         ifTransErr.then();
-        let insertIODone = ioStatementBuilder.insertIOError();
-        ifTransErr.then(insertIODone);
+        let insertIODone = ioStatementBuilder.insertIOError(1);
+        ifTransErr.then(...insertIODone);
         let delInOut = factory.createDelete();
         ifTransErr.then(delInOut);
         delInOut.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOInOut, false, a));
         delInOut.tables = [a];
         delInOut.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), sql_1.ExpNum.num1), new sql_1.ExpEQ(new sql_1.ExpField('x', a), new sql_1.ExpVar(IOProc.queueId))));
+        let delError = factory.createDelete();
+        ifTransErr.else(delError);
+        delError.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOError, false, a));
+        delError.tables = [a];
+        delError.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(IOProc.queueId)));
         ioStatementBuilder.transSelect();
         let stats = this.buildAfterTrans();
         ifTransErr.else(...stats);
@@ -522,8 +527,8 @@ class IOProcOut extends IOProc {
         let setDoneErrID = this.factory.createSet();
         ifTransErr.then(setDoneErrID);
         setDoneErrID.equ(IOProc.vDone, new sql_1.ExpNum(31)); // EnumQueueDoneType.errorID
-        let insertIODone = ioStatementBuilder.insertIOError();
-        ifTransErr.then(insertIODone);
+        let insertIODone = ioStatementBuilder.insertIOError(0);
+        ifTransErr.then(...insertIODone);
         let setDonePending = this.factory.createSet();
         ifTransErr.else(setDonePending);
         setDonePending.equ(IOProc.vDone, new sql_1.ExpNum(0)); // EnumQueueDoneType.pending
@@ -599,18 +604,33 @@ class IOStatementBuilder {
         selectTranErr.column(new sql_1.ExpFunc('JSON_ARRAYAGG', new sql_1.ExpFunc('JSON_OBJECT', new sql_1.ExpStr('siteAtomApp'), new sql_1.ExpField('i', b), new sql_1.ExpStr('ID'), new sql_1.ExpField('x', b), new sql_1.ExpStr('atom'), new sql_1.ExpField('atom', a), new sql_1.ExpStr('no'), new sql_1.ExpField('no', a))), 'v');
         return selectTranErr;
     }
-    insertIOError() {
-        let insertIOError = this.factory.createInsert();
+    insertIOError(inOut) {
+        let select = this.factory.createSelect();
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOError, false));
+        select.col('id');
+        select.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(IOProc.queueId)));
         let selectTranErr = this.transSelect();
+        let iff = this.factory.createIf();
+        iff.cmp = new sql_1.ExpExists(select);
+        let update = this.factory.createUpdate();
+        iff.then(update);
+        update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOError, false);
+        update.cols = [
+            { col: 'result', val: new sql_1.ExpSelect(selectTranErr) },
+            { col: 'times', val: new sql_1.ExpAdd(new sql_1.ExpField('times'), sql_1.ExpNum.num1) },
+        ];
+        update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(IOProc.queueId));
+        let insertIOError = this.factory.createInsert();
+        iff.else(insertIOError);
         insertIOError.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOError, false);
         insertIOError.cols = [
             { col: 'id', val: new sql_1.ExpVar(IOProc.queueId) },
-            //{ col: 'endPoint', val: new ExpVar(IOProc.endPoint) },
             { col: 'siteAtomApp', val: new sql_1.ExpVar(IOProc.siteAtomApp) },
             { col: 'appIO', val: new sql_1.ExpVar(IOProc.ioAppIO) },
             { col: 'result', val: new sql_1.ExpSelect(selectTranErr) },
+            { col: 'inout', val: new sql_1.ExpNum(inOut) },
         ];
-        return insertIOError;
+        return [insertIOError];
     }
 }
 IOStatementBuilder.transerr = '$transerr';

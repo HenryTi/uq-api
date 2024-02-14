@@ -29,7 +29,7 @@ export class MsFactory extends Factory {
     createUpdate(): stat.Update { return; }
     createInsert(): stat.Insert { return; }
     createInsertOnDuplicate(): stat.InsertOnDuplicate { return; }
-    createUpsert(): stat.Upsert { return; }
+    createInsert(): stat.Upsert { return; }
     createSelect(): Select { return; }
     createLog(): stat.Log { return; }
     createCall(): stat.Call { return; }
