@@ -1,13 +1,13 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
-import { PBinInputAtom, PBinInputSpec, PBinPick, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
+import { PBinInputAtom, PBinInputSpec, PBinPick, PBinValue, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
 import { BizAtom, BizSpec } from "./BizID";
 import { BizAct, BizBase } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudID, BizBudDec } from "./Bud";
+import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend, BizSheet } from "./Sheet";
@@ -202,7 +202,7 @@ export class BizBin extends BizEntity {
     act: BizBinAct;
     i: BizBudID;
     x: BizBudID;
-    value: BizBudDec;
+    value: BinValue;
     price: BizBudDec;
     amount: BizBudDec;
 

@@ -3,14 +3,14 @@ import {
     BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements //, BizBinActStatement
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin, BizOut, BizIOSite, BizIOApp, UseOut, IOAppOut
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin, BizOut, BizIOSite, BizIOApp, UseOut, IOAppOut, BinValue
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { PBizAct, PBizActStatements, PBizBase, PBizEntity } from "../Base";
 import { BizEntitySpace } from "../Biz";
-import { PBizBudValue } from "../Bud";
+import { PBizBud, PBizBudDec, PBizBudValue } from "../Bud";
 
 export class PBizBin extends PBizEntity<BizBin> {
     private main: string;
@@ -96,12 +96,12 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.element.x = budKeyID;
     }
 
-    private parseValueBud(bud: BizBudValue, budName: string) {
+    private parseValueBud(bud: BizBudValue, budName: string, defaultType: string = 'dec') {
         if (bud !== undefined) {
             this.ts.error(`${budName} can only define once`);
         }
         let ui = this.parseUI();
-        let bizBud = this.parseBud(budName, ui, 'dec');
+        let bizBud = this.parseBud(budName, ui, defaultType);
         if (this.ts.prevToken !== Token.RBRACE) {
             this.ts.passToken(Token.SEMICOLON);
         }
@@ -109,8 +109,19 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     private parseValue = () => {
-        let bud = this.parseValueBud(this.element.value, binValue);
-        this.element.value = bud;
+        /*
+        if (this.element.value !== undefined) {
+            this.ts.error('Duplicate VALUE');
+        }
+        let ui = this.parseUI();
+        let bud = new BinValue(this.element.biz, binValue, ui);
+        this.context.parseElement(bud);
+        if (this.ts.prevToken !== Token.RBRACE) {
+            this.ts.passToken(Token.SEMICOLON);
+        }
+        */
+        let bud = this.parseValueBud(this.element.value, binPrice, 'binValue');
+        this.element.value = bud as BinValue;
         this.div.buds.push(bud);
     }
 

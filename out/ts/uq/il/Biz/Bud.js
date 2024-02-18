@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -211,6 +211,27 @@ class BizBudDec extends BizBudValueWithRange {
     }
 }
 exports.BizBudDec = BizBudDec;
+class BinValue extends BizBudDec {
+    constructor() {
+        super(...arguments);
+        this.values = [];
+    }
+    parser(context) {
+        return new parser_1.PBinValue(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.values = this.values.map(v => v.buildSchema(res));
+        return ret;
+    }
+    buildBudValue(expStringify) {
+        super.buildBudValue(expStringify);
+        for (let v of this.values) {
+            v.buildBudValue(expStringify);
+        }
+    }
+}
+exports.BinValue = BinValue;
 class BizBudChar extends BizBudValueWithRange {
     constructor() {
         super(...arguments);
@@ -358,7 +379,7 @@ exports.budClassesIn = {
     id: BizBudIDIO,
     $arr: BizBudArr,
 };
-exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudNone, atom: BizBudID, intof: BizBudIntOf, radio: BizBudRadio, check: BizBudCheck });
+exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudNone, atom: BizBudID, intof: BizBudIntOf, radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });
 exports.budClassKeys = Object.keys(exports.budClasses);
 exports.budClassKeysIn = Object.keys(exports.budClassesIn);
 exports.budClassesOut = Object.assign({}, exports.budClassesIn);

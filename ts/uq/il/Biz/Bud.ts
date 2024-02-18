@@ -1,7 +1,7 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDIO, PBizBudArr
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDIO, PBizBudArr, PBinValue
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -235,6 +235,24 @@ export class BizBudDec extends BizBudValueWithRange {
     }
 }
 
+export class BinValue extends BizBudDec {
+    readonly values: BizBudDec[] = [];
+    override parser(context: PContext): PElement<IElement> {
+        return new PBinValue(this, context);
+    }
+    override buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        ret.values = this.values.map(v => v.buildSchema(res));
+        return ret;
+    }
+    override buildBudValue(expStringify: (value: ValueExpression) => string): void {
+        super.buildBudValue(expStringify);
+        for (let v of this.values) {
+            v.buildBudValue(expStringify);
+        }
+    }
+}
+
 export class BizBudChar extends BizBudValueWithRange {
     readonly dataType = BudDataType.char;
     readonly canIndex = false;
@@ -367,6 +385,7 @@ export const budClasses: { [key: string]: new (biz: Biz, name: string, ui: Parti
     intof: BizBudIntOf,
     radio: BizBudRadio,
     check: BizBudCheck,
+    binValue: BinValue
 }
 export const budClassKeys = Object.keys(budClasses);
 export const budClassKeysIn = Object.keys(budClassesIn);

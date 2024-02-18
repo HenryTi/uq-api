@@ -4,7 +4,7 @@ import {
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
     , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
-    , BizBudIDBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI
+    , BizBudIDBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -245,7 +245,7 @@ class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue
 export class PBizBudInt extends PBizBudValueWithRange<BizBudInt> {
 }
 
-export class PBizBudDec extends PBizBudValueWithRange<BizBudDec> {
+export class PBizBudDec<T extends BizBudDec = BizBudDec> extends PBizBudValueWithRange<T> {
     protected _parse(): void {
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
@@ -281,6 +281,39 @@ export class PBizBudDec extends PBizBudValueWithRange<BizBudDec> {
             this.element.ui.fraction = n;
         }
         this.parseBudEqu();
+    }
+}
+
+export class PBinValue extends PBizBudDec<BinValue> {
+    protected _parse(): void {
+        if (this.ts.token === Token.LBRACE) {
+            this.ts.readToken();
+            for (; ;) {
+                if (this.ts.token === Token.RBRACE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                let name = this.ts.passVar();
+                let ui = this.parseUI();
+                let bizBudDec = new BizBudDec(this.element.biz, name, ui);
+                bizBudDec.parser(this.context).parse();
+                this.element.values.push(bizBudDec);
+                this.ts.passToken(Token.SEMICOLON);
+            }
+        }
+        super._parse();
+    }
+    override scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        for (let bud of this.element.values) {
+            if (bud.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
     }
 }
 

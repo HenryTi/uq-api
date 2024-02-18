@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIDBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudNone = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -272,6 +272,39 @@ class PBizBudDec extends PBizBudValueWithRange {
     }
 }
 exports.PBizBudDec = PBizBudDec;
+class PBinValue extends PBizBudDec {
+    _parse() {
+        if (this.ts.token === tokens_1.Token.LBRACE) {
+            this.ts.readToken();
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RBRACE) {
+                    this.ts.readToken();
+                    break;
+                }
+                let name = this.ts.passVar();
+                let ui = this.parseUI();
+                let bizBudDec = new il_1.BizBudDec(this.element.biz, name, ui);
+                bizBudDec.parser(this.context).parse();
+                this.element.values.push(bizBudDec);
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
+            }
+        }
+        super._parse();
+    }
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
+        for (let bud of this.element.values) {
+            if (bud.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+}
+exports.PBinValue = PBinValue;
 class PBizBudChar extends PBizBudValue {
 }
 exports.PBizBudChar = PBizBudChar;

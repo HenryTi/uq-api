@@ -148,12 +148,12 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return budClassKeys;
     }
 
-    protected parseBud(name: string, ui: Partial<UI>, defaultType?: string): BizBudValue {
+    protected parseBud(name: string, ui: Partial<UI>, budType?: string): BizBudValue {
         let key: string;
         const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
-            key = defaultType ?? 'none';
+            key = budType ?? 'none';
         }
         else if (token === Token.LPARENTHESE) {
             key = '$arr';
@@ -172,11 +172,15 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             }
             else {
                 this.ts.readToken();
+                if (budType !== undefined) key = budType;
             }
         }
         else {
-            this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
+            key = budType;
         }
+        //else {
+        // this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
+        //}
         let Bud = this.getBudClass(key); // keyColl[key];
         if (Bud === undefined) {
             this.ts.expect(...this.getBudClassKeys());

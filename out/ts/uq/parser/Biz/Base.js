@@ -167,12 +167,12 @@ class PBizBase extends element_1.PElement {
     getBudClassKeys() {
         return il_1.budClassKeys;
     }
-    parseBud(name, ui, defaultType) {
+    parseBud(name, ui, budType) {
         let key;
         const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
-            key = defaultType !== null && defaultType !== void 0 ? defaultType : 'none';
+            key = budType !== null && budType !== void 0 ? budType : 'none';
         }
         else if (token === tokens_1.Token.LPARENTHESE) {
             key = '$arr';
@@ -191,11 +191,16 @@ class PBizBase extends element_1.PElement {
             }
             else {
                 this.ts.readToken();
+                if (budType !== undefined)
+                    key = budType;
             }
         }
         else {
-            this.ts.expectToken(tokens_1.Token.VAR, tokens_1.Token.LPARENTHESE);
+            key = budType;
         }
+        //else {
+        // this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
+        //}
         let Bud = this.getBudClass(key); // keyColl[key];
         if (Bud === undefined) {
             this.ts.expect(...this.getBudClassKeys());

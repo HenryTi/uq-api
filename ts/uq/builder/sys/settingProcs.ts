@@ -204,10 +204,12 @@ export class SettingProcedures extends SysProcedures {
             })
             return [insert];
         }
-        p.statements.push(...createInitSetting(settingQueueSeed, 'big', ExpVal.num0));
-        p.statements.push(...createInitSetting(settingQueueInSeed, 'big', ExpVal.num0));
-        p.statements.push(...createInitSetting(settingQueueInSeed, 'big', ExpVal.num0));
-        p.statements.push(...createInitSetting(settingIDLocalSeed, 'big', ExpVal.num0));
+        p.statements.push(
+            ...createInitSetting(settingQueueSeed, 'big', ExpVal.num0),
+            ...createInitSetting(settingQueueInSeed, 'big', ExpVal.num0),
+            ...createInitSetting(settingQueueInSeed, 'big', ExpVal.num0),
+            ...createInitSetting(settingIDLocalSeed, 'big', ExpVal.num0)
+        );
 
         let selectSheetSeed = factory.createSelect();
         selectSheetSeed.column(new ExpFunc(factory.func_max, new ExpField('id')));

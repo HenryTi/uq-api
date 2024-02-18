@@ -171,10 +171,7 @@ class SettingProcedures extends sysProcedures_1.SysProcedures {
                 });
             return [insert];
         }
-        p.statements.push(...createInitSetting(consts_1.settingQueueSeed, 'big', sql_1.ExpVal.num0));
-        p.statements.push(...createInitSetting(consts_1.settingQueueInSeed, 'big', sql_1.ExpVal.num0));
-        p.statements.push(...createInitSetting(consts_1.settingQueueInSeed, 'big', sql_1.ExpVal.num0));
-        p.statements.push(...createInitSetting(consts_1.settingIDLocalSeed, 'big', sql_1.ExpVal.num0));
+        p.statements.push(...createInitSetting(consts_1.settingQueueSeed, 'big', sql_1.ExpVal.num0), ...createInitSetting(consts_1.settingQueueInSeed, 'big', sql_1.ExpVal.num0), ...createInitSetting(consts_1.settingQueueInSeed, 'big', sql_1.ExpVal.num0), ...createInitSetting(consts_1.settingIDLocalSeed, 'big', sql_1.ExpVal.num0));
         let selectSheetSeed = factory.createSelect();
         selectSheetSeed.column(new sql_1.ExpFunc(factory.func_max, new sql_1.ExpField('id')));
         // il.EnumSysTable.sheet 是带$unit字段的。

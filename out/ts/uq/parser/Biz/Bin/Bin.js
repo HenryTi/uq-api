@@ -62,7 +62,18 @@ class PBizBin extends Base_1.PBizEntity {
             this.element.x = budKeyID;
         };
         this.parseValue = () => {
-            let bud = this.parseValueBud(this.element.value, consts_1.binValue);
+            /*
+            if (this.element.value !== undefined) {
+                this.ts.error('Duplicate VALUE');
+            }
+            let ui = this.parseUI();
+            let bud = new BinValue(this.element.biz, binValue, ui);
+            this.context.parseElement(bud);
+            if (this.ts.prevToken !== Token.RBRACE) {
+                this.ts.passToken(Token.SEMICOLON);
+            }
+            */
+            let bud = this.parseValueBud(this.element.value, consts_1.binPrice, 'binValue');
             this.element.value = bud;
             this.div.buds.push(bud);
         };
@@ -157,12 +168,12 @@ class PBizBin extends Base_1.PBizEntity {
             return bud;
         }
     }
-    parseValueBud(bud, budName) {
+    parseValueBud(bud, budName, defaultType = 'dec') {
         if (bud !== undefined) {
             this.ts.error(`${budName} can only define once`);
         }
         let ui = this.parseUI();
-        let bizBud = this.parseBud(budName, ui, 'dec');
+        let bizBud = this.parseBud(budName, ui, defaultType);
         if (this.ts.prevToken !== tokens_1.Token.RBRACE) {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
