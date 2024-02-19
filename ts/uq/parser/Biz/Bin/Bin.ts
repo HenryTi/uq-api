@@ -120,7 +120,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             this.ts.passToken(Token.SEMICOLON);
         }
         */
-        let bud = this.parseValueBud(this.element.value, binPrice, 'binValue');
+        let bud = this.parseValueBud(this.element.value, binValue, 'binValue');
         this.element.value = bud as BinValue;
         this.div.buds.push(bud);
     }

@@ -73,7 +73,7 @@ class PBizBin extends Base_1.PBizEntity {
                 this.ts.passToken(Token.SEMICOLON);
             }
             */
-            let bud = this.parseValueBud(this.element.value, consts_1.binPrice, 'binValue');
+            let bud = this.parseValueBud(this.element.value, consts_1.binValue, 'binValue');
             this.element.value = bud;
             this.div.buds.push(bud);
         };
