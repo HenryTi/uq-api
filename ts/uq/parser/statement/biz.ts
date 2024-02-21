@@ -92,14 +92,17 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
         let setEqu: SetEqu;
         if (this.ts.token === Token.VAR) {
             this.pend = this.ts.passVar();
+            if (this.ts.token === Token.EQU as any) {
+                this.ts.readToken();
+                this.element.val = this.context.parse(ValueExpression);
+            }
             if (this.ts.isKeyword('set') === true) {
                 this.sets = {};
                 this.ts.passKey('set');
                 for (; ;) {
                     let v = this.ts.passVar();
                     this.ts.passToken(Token.EQU);
-                    let exp = new ValueExpression();
-                    this.context.parseElement(exp);
+                    let exp = this.context.parse(ValueExpression);
                     this.sets[v] = exp;
                     let { token } = this.ts;
                     if (token === Token.COMMA as any) {
@@ -181,6 +184,12 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
                         }
                     }
                 }
+            }
+        }
+        let { val } = this.element;
+        if (val !== undefined) {
+            if (val.pelement.scan(space) === false) {
+                ok = false;
             }
         }
         return ok;

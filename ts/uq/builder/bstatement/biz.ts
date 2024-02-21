@@ -95,9 +95,12 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             let pendId = '$pendId_' + no;
             declare.var(pendId, new BigInt());
 
+            if (val === undefined) {
+                expValue = new ExpVar('value');
+            }
             let ifValue = factory.createIf();
             sqls.push(ifValue);
-            ifValue.cmp = new ExpGT(new ExpVar('value'), ExpNum.num0);
+            ifValue.cmp = new ExpGT(expValue, ExpNum.num0);
 
             let setPendId = factory.createSet();
             ifValue.then(setPendId);
@@ -124,7 +127,7 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             update.cols = [
                 { col: 'base', val: new ExpNum(pend.id) },
                 { col: 'bin', val: new ExpVar(binId) },
-                { col: 'value', val: new ExpVar('value') },
+                { col: 'value', val: expValue },
                 { col: 'mid', val: new ExpFunc('JSON_OBJECT', ...expMids) },
             ];
             update.where = new ExpEQ(

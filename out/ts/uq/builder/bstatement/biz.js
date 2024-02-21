@@ -80,9 +80,12 @@ class BBizStatementPend extends bstatement_1.BStatement {
         function buildWritePend() {
             let pendId = '$pendId_' + no;
             declare.var(pendId, new il_1.BigInt());
+            if (val === undefined) {
+                expValue = new sql_1.ExpVar('value');
+            }
             let ifValue = factory.createIf();
             sqls.push(ifValue);
-            ifValue.cmp = new sql_1.ExpGT(new sql_1.ExpVar('value'), sql_1.ExpNum.num0);
+            ifValue.cmp = new sql_1.ExpGT(expValue, sql_1.ExpNum.num0);
             let setPendId = factory.createSet();
             ifValue.then(setPendId);
             setPendId.equ(pendId, new sql_1.ExpFuncInUq('pend$id', [varSite, varUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, new sql_1.ExpNum(pend.id)], true));
@@ -97,7 +100,7 @@ class BBizStatementPend extends bstatement_1.BStatement {
             update.cols = [
                 { col: 'base', val: new sql_1.ExpNum(pend.id) },
                 { col: 'bin', val: new sql_1.ExpVar(binId) },
-                { col: 'value', val: new sql_1.ExpVar('value') },
+                { col: 'value', val: expValue },
                 { col: 'mid', val: new sql_1.ExpFunc('JSON_OBJECT', ...expMids) },
             ];
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));

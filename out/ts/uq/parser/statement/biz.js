@@ -75,14 +75,17 @@ class PBizStatementPend extends PBizStatementSub {
         let setEqu;
         if (this.ts.token === tokens_1.Token.VAR) {
             this.pend = this.ts.passVar();
+            if (this.ts.token === tokens_1.Token.EQU) {
+                this.ts.readToken();
+                this.element.val = this.context.parse(il_1.ValueExpression);
+            }
             if (this.ts.isKeyword('set') === true) {
                 this.sets = {};
                 this.ts.passKey('set');
                 for (;;) {
                     let v = this.ts.passVar();
                     this.ts.passToken(tokens_1.Token.EQU);
-                    let exp = new il_1.ValueExpression();
-                    this.context.parseElement(exp);
+                    let exp = this.context.parse(il_1.ValueExpression);
                     this.sets[v] = exp;
                     let { token } = this.ts;
                     if (token === tokens_1.Token.COMMA) {
@@ -167,6 +170,12 @@ class PBizStatementPend extends PBizStatementSub {
                         }
                     }
                 }
+            }
+        }
+        let { val } = this.element;
+        if (val !== undefined) {
+            if (val.pelement.scan(space) === false) {
+                ok = false;
             }
         }
         return ok;
