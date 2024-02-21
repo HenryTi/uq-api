@@ -338,7 +338,7 @@ class BBizStatementSheet extends bstatement_1.BStatement {
                 case il_1.BudDataType.datetime:
                     debugger;
                     break;
-                case il_1.BudDataType.int: break;
+                case il_1.BudDataType.int: // break;
                 case il_1.BudDataType.atom:
                     insert = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
                     break;

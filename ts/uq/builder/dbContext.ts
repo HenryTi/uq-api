@@ -151,8 +151,6 @@ export class DbObjs {
 
             let sbDrop = this.context.createSqlBuilder();
             p.drop(sbDrop);
-
-
             let sb = this.context.createSqlBuilder();
             p.to(sb);
             log('///++++++' + p.name);  // 压缩界面显示

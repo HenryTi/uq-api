@@ -363,7 +363,7 @@ export class BBizStatementSheet extends BStatement<BizStatementSheet> {
                 default: debugger; break;
                 case BudDataType.check: debugger; break;
                 case BudDataType.datetime: debugger; break;
-                case BudDataType.int: break;
+                case BudDataType.int: // break;
                 case BudDataType.atom:
                     insert = createIxBudValue(EnumSysTable.ixBudInt, expVal);
                     break;
