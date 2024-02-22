@@ -86,7 +86,7 @@ export class BBizIn extends BBizInOut<BizIn> {
                 let selectJsonArr = factory.createSelect();
                 insertArr.select = selectJsonArr;
                 let jsonColumns: JsonTableColumn[] = [];
-                let jsonTable = new FromJsonTable('a', varJson, `$.${arrName}[*]`, jsonColumns);
+                let jsonTable = new FromJsonTable('a', varJson, `$."${arrName}"[*]`, jsonColumns);
                 selectJsonArr.from(jsonTable);
                 selectJsonArr.lock = LockType.none;
                 for (let [name, bud] of arrProps) {
@@ -96,7 +96,7 @@ export class BBizIn extends BBizInOut<BizIn> {
                     fields.push(field);
                     cols.push({ col: name, val: new ExpField(name, 'a') });
                     selectJsonArr.column(new ExpField(name, 'a'));
-                    jsonColumns.push({ field: this.fieldFromBud(bud), path: `$.${name}` });
+                    jsonColumns.push({ field: this.fieldFromBud(bud), path: `$."${name}"` });
                 }
             }
         }
@@ -370,7 +370,7 @@ abstract class IOProc<T extends IOAppIO> {
                 suffix = 'RETURNING DECIMAL';
                 break;
         }
-        return new ExpFunc('JSON_VALUE', this.expJson, new ExpComplex(new ExpStr(`$.${bud.name}`), undefined, suffix));
+        return new ExpFunc('JSON_VALUE', this.expJson, new ExpComplex(new ExpStr(`$."${bud.name}"`), undefined, suffix));
     }
 
     private buidlJsonObj(props: Map<string, BizBud>, peers: { [name: string]: IOPeer }, func: BuildVal): ExpVal {
@@ -431,13 +431,13 @@ abstract class IOProc<T extends IOAppIO> {
                 }
                 let ret: JsonTableColumn = {
                     field,
-                    path: `$.${name}`,
+                    path: `$."${name}"`,
                 };
                 return ret;
             }
         );
         select.column(new ExpFunc('JSON_ARRAYAGG', this.buidlJsonObj(props, peers, this.buildValInArr)));
-        select.from(new FromJsonTable(IOProc.jsonTable, this.expJson, `$.${arrName}[*]`, columns));
+        select.from(new FromJsonTable(IOProc.jsonTable, this.expJson, `$."${arrName}"[*]`, columns));
         return new ExpSelect(select);
     }
 }

@@ -455,19 +455,19 @@ class BBizStatementOut extends bstatement_1.BStatement {
         sqls.push(setV);
         setV.isAtVar = true;
         const context = this.context;
-        function buildParams(path) {
+        function buildParams(pathFunc) {
             let params = [];
             for (let i in sets) {
-                params.push(new sql_1.ExpStr(path + i), context.expVal(sets[i]));
+                params.push(new sql_1.ExpStr(pathFunc(i)), context.expVal(sets[i]));
             }
             return params;
         }
         let vNew;
         if (detail === undefined) {
-            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpAtVar(varName), ...buildParams('$.'));
+            vNew = new sql_1.ExpFunc('JSON_SET', new sql_1.ExpAtVar(varName), ...buildParams((path) => `$."${path}"`));
         }
         else {
-            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpAtVar(varName), new sql_1.ExpStr('$.' + detail), new sql_1.ExpFunc('JSON_OBJECT', ...buildParams('')));
+            vNew = new sql_1.ExpFunc('JSON_ARRAY_Append', new sql_1.ExpAtVar(varName), new sql_1.ExpStr(`$."${detail}"`), new sql_1.ExpFunc('JSON_OBJECT', ...buildParams((path) => path)));
         }
         setV.equ(varName, vNew);
     }

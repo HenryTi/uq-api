@@ -65,7 +65,7 @@ class BBizIn extends BBizInOut {
                 let selectJsonArr = factory.createSelect();
                 insertArr.select = selectJsonArr;
                 let jsonColumns = [];
-                let jsonTable = new statementWithFrom_1.FromJsonTable('a', varJson, `$.${arrName}[*]`, jsonColumns);
+                let jsonTable = new statementWithFrom_1.FromJsonTable('a', varJson, `$."${arrName}"[*]`, jsonColumns);
                 selectJsonArr.from(jsonTable);
                 selectJsonArr.lock = select_1.LockType.none;
                 for (let [name, bud] of arrProps) {
@@ -75,7 +75,7 @@ class BBizIn extends BBizInOut {
                     fields.push(field);
                     cols.push({ col: name, val: new sql_1.ExpField(name, 'a') });
                     selectJsonArr.column(new sql_1.ExpField(name, 'a'));
-                    jsonColumns.push({ field: this.fieldFromBud(bud), path: `$.${name}` });
+                    jsonColumns.push({ field: this.fieldFromBud(bud), path: `$."${name}"` });
                 }
             }
         }
@@ -269,7 +269,7 @@ class IOProc {
                     suffix = 'RETURNING DECIMAL';
                     break;
             }
-            return new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpComplex(new sql_1.ExpStr(`$.${bud.name}`), undefined, suffix));
+            return new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpComplex(new sql_1.ExpStr(`$."${bud.name}"`), undefined, suffix));
         };
         this.buildValInArr = (bud) => {
             const { name } = bud;
@@ -356,12 +356,12 @@ class IOProc {
             }
             let ret = {
                 field,
-                path: `$.${name}`,
+                path: `$."${name}"`,
             };
             return ret;
         });
         select.column(new sql_1.ExpFunc('JSON_ARRAYAGG', this.buidlJsonObj(props, peers, this.buildValInArr)));
-        select.from(new statementWithFrom_1.FromJsonTable(IOProc.jsonTable, this.expJson, `$.${arrName}[*]`, columns));
+        select.from(new statementWithFrom_1.FromJsonTable(IOProc.jsonTable, this.expJson, `$."${arrName}"[*]`, columns));
         return new sql_1.ExpSelect(select);
     }
 }
