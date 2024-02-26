@@ -292,16 +292,17 @@ class BBizStatementSheet extends bstatement_1.BStatement {
     createUpdate(idVarName) {
         const { factory } = this.context;
         const varId = new sql_1.ExpVar(idVarName);
-        const update = factory.createUpdate();
+        const insert = factory.createInsert();
         const { fields, buds, bin } = this.istatement;
-        const { cols } = update;
+        const { cols } = insert;
         const { props } = bin;
+        cols.push({ col: 'id', val: varId });
         for (let i in fields) {
             cols.push({ col: i, val: this.context.expVal(fields[i]) });
         }
-        update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false);
-        update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
-        let ret = [update];
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false);
+        // insert.where = new ExpEQ(new ExpField('id'), varId);
+        let ret = [insert];
         for (let i in buds) {
             let val = buds[i];
             let bud = props.get(i);

@@ -94,7 +94,7 @@ class BBizIn extends BBizInOut {
                 debugger;
                 return;
             case il_1.BudDataType.ID:
-            case il_1.BudDataType.int: return (0, il_1.intField)(name);
+            case il_1.BudDataType.int: return (0, il_1.bigIntField)(name);
             case il_1.BudDataType.char: return (0, il_1.charField)(name, 200);
             case il_1.BudDataType.dec: return (0, il_1.decField)(name, 18, 6);
             case il_1.BudDataType.date: return (0, il_1.dateField)(name);
@@ -256,13 +256,14 @@ class IOProc {
                 default:
                     debugger;
                     throw new Error('unknown data type ' + bud.dataType);
+                case il_1.BudDataType.ID:
                 case il_1.BudDataType.char:
                 case il_1.BudDataType.str:
                     suffix = undefined;
                     break;
                 case il_1.BudDataType.date:
+                    return this.buildDateVal(bud);
                 case il_1.BudDataType.int:
-                case il_1.BudDataType.ID:
                     suffix = 'RETURNING SIGNED';
                     break;
                 case il_1.BudDataType.dec:
@@ -272,8 +273,14 @@ class IOProc {
             return new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpComplex(new sql_1.ExpStr(`$."${bud.name}"`), undefined, suffix));
         };
         this.buildValInArr = (bud) => {
-            const { name } = bud;
-            return new sql_1.ExpField(name, IOProc.jsonTable);
+            const { name, dataType } = bud;
+            let exp = new sql_1.ExpField(name, IOProc.jsonTable);
+            switch (dataType) {
+                default:
+                    return exp;
+                case il_1.BudDataType.date:
+                    return new sql_1.ExpFunc('DATEDIFF', exp, new sql_1.ExpStr('1970-01-01'));
+            }
         };
         this.context = context;
         this.factory = context.factory;
@@ -297,6 +304,10 @@ class IOProc {
         select.lock = select_1.LockType.none;
         select.column(this.buidlJsonObj(props, peers, this.buildVal));
         return select;
+    }
+    buildDateVal(bud) {
+        let exp = new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpComplex(new sql_1.ExpStr(`$."${bud.name}"`), undefined, undefined));
+        return new sql_1.ExpFunc('DATEDIFF', exp, new sql_1.ExpStr('1970-01-01'));
     }
     buidlJsonObj(props, peers, func) {
         let objParams = [];
@@ -338,8 +349,6 @@ class IOProc {
                 default:
                     debugger;
                     break;
-                case il_1.BudDataType.ID:
-                case il_1.BudDataType.date:
                 case il_1.BudDataType.int:
                     field = (0, il_1.bigIntField)(name);
                     break;
@@ -349,6 +358,8 @@ class IOProc {
                 case il_1.BudDataType.arr:
                     field = (0, il_1.jsonField)(name);
                     break;
+                case il_1.BudDataType.ID:
+                case il_1.BudDataType.date:
                 case il_1.BudDataType.char:
                 case il_1.BudDataType.str:
                     field = (0, il_1.charField)(name, 400);

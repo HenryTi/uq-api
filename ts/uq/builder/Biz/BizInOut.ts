@@ -116,7 +116,7 @@ export class BBizIn extends BBizInOut<BizIn> {
         switch (bud.dataType) {
             default: debugger; return;
             case BudDataType.ID:
-            case BudDataType.int: return intField(name);
+            case BudDataType.int: return bigIntField(name);
             case BudDataType.char: return charField(name, 200);
             case BudDataType.dec: return decField(name, 18, 6);
             case BudDataType.date: return dateField(name);
@@ -357,13 +357,14 @@ abstract class IOProc<T extends IOAppIO> {
         let suffix: string;
         switch (bud.dataType) {
             default: debugger; throw new Error('unknown data type ' + bud.dataType);
+            case BudDataType.ID:
             case BudDataType.char:
             case BudDataType.str:
                 suffix = undefined;
                 break;
             case BudDataType.date:
+                return this.buildDateVal(bud);
             case BudDataType.int:
-            case BudDataType.ID:
                 suffix = 'RETURNING SIGNED';
                 break;
             case BudDataType.dec:
@@ -371,6 +372,11 @@ abstract class IOProc<T extends IOAppIO> {
                 break;
         }
         return new ExpFunc('JSON_VALUE', this.expJson, new ExpComplex(new ExpStr(`$."${bud.name}"`), undefined, suffix));
+    }
+
+    private buildDateVal(bud: BizBud) {
+        let exp = new ExpFunc('JSON_VALUE', this.expJson, new ExpComplex(new ExpStr(`$."${bud.name}"`), undefined, undefined));
+        return new ExpFunc('DATEDIFF', exp, new ExpStr('1970-01-01'));
     }
 
     private buidlJsonObj(props: Map<string, BizBud>, peers: { [name: string]: IOPeer }, func: BuildVal): ExpVal {
@@ -409,8 +415,14 @@ abstract class IOProc<T extends IOAppIO> {
     }
 
     private buildValInArr = (bud: BizBud) => {
-        const { name } = bud;
-        return new ExpField(name, IOProc.jsonTable);
+        const { name, dataType } = bud;
+        let exp = new ExpField(name, IOProc.jsonTable);
+        switch (dataType) {
+            default:
+                return exp;
+            case BudDataType.date:
+                return new ExpFunc('DATEDIFF', exp, new ExpStr('1970-01-01'));
+        }
     }
 
     private buidlJsonArr(arrName: string, props: Map<string, BizBud>, peers: { [name: string]: IOPeer }): ExpVal {
@@ -421,11 +433,11 @@ abstract class IOProc<T extends IOAppIO> {
                 let field: Field;
                 switch (bud.dataType) {
                     default: debugger; break;
-                    case BudDataType.ID:
-                    case BudDataType.date:
                     case BudDataType.int: field = bigIntField(name); break;
                     case BudDataType.dec: field = decField(name, 24, 6); break;
                     case BudDataType.arr: field = jsonField(name); break;
+                    case BudDataType.ID:
+                    case BudDataType.date:
                     case BudDataType.char:
                     case BudDataType.str: field = charField(name, 400); break;
                 }
