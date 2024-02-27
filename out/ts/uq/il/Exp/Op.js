@@ -267,9 +267,11 @@ class OpNotBetween extends Atom {
     to(stack) { }
 }
 exports.OpNotBetween = OpNotBetween;
-const dollarVars = ['unit', 'user', 'site', 'stamp', 'importing',
+const dollarVars = [
+    'unit', 'user', 'site', 'insite', 'stamp', 'importing',
     'pagestart', 'pagesize',
-    'date', 'id', 'state', 'row', 'sheet_date', 'sheet_no', 'sheet_discription'];
+    'date', 'id', 'state', 'row', 'sheet_date', 'sheet_no', 'sheet_discription'
+];
 class OpDollarVar extends Atom {
     static isValid(name) { return dollarVars.find(v => v === name) !== undefined; }
     constructor(_var) { super(); this._var = _var; }

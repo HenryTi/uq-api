@@ -24,7 +24,7 @@ class BBizIn extends BBizInOut {
         const { act, props } = this.bizEntity;
         let varJson = new sql_1.ExpVar(vJson);
         parameters.push((0, il_1.bigIntField)(BBizIn.queueId), // IO queue id
-        (0, il_1.jsonField)(vJson));
+        (0, il_1.bigIntField)(BBizIn.inSite), (0, il_1.jsonField)(vJson));
         const declare = factory.createDeclare();
         statements.push(declare);
         let vars = [
@@ -43,7 +43,7 @@ class BBizIn extends BBizInOut {
                 statements.push(set);
                 let expVal = new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`));
                 if (dataType === il_1.BudDataType.date) {
-                    expVal = new sql_1.ExpFuncCustom(factory.func_dateadd, new sql_1.ExpDatePart('second'), expVal, new sql_1.ExpStr('1970-01-01'));
+                    expVal = new sql_1.ExpFuncCustom(factory.func_dateadd, new sql_1.ExpDatePart('day'), expVal, new sql_1.ExpStr('1970-01-01'));
                 }
                 set.equ(name, expVal);
             }
@@ -118,6 +118,7 @@ class BBizIn extends BBizInOut {
 }
 exports.BBizIn = BBizIn;
 BBizIn.queueId = '$queueId';
+BBizIn.inSite = '$inSite';
 class BBizOut extends BBizInOut {
     async buildProcedures() {
         super.buildProcedures();
@@ -297,6 +298,16 @@ class IOProc {
             new sql_1.ExpVar(IOProc.siteAtomApp), new sql_1.ExpNum(ioAppID.id),
         ], true), val);
     }
+    transOptions(peer, val) {
+        const { options } = peer;
+        const select = this.factory.createSelect();
+        select.column(new sql_1.ExpField('id', a));
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(options.id)), new sql_1.ExpEQ(new sql_1.ExpField('name', a), new sql_1.ExpFunc(this.factory.func_concat, new sql_1.ExpField('name', b), new sql_1.ExpStr('.'), val))));
+        return new sql_1.ExpSelect(select);
+    }
     buildJsonTrans() {
         const { bizIO, peers } = this.ioAppIO;
         const { props } = bizIO;
@@ -314,16 +325,24 @@ class IOProc {
         for (let [name, bud] of props) {
             let peer = peers[name];
             let val;
-            switch (bud.dataType) {
-                default:
-                    val = func(bud);
-                    break;
-                case il_1.BudDataType.arr:
-                    val = this.buidlJsonArr(name, bud.props, peer.peers);
-                    break;
-                case il_1.BudDataType.ID:
-                    val = this.transID(peer.id, func(bud));
-                    break;
+            if (peer === undefined) {
+                val = func(bud);
+            }
+            else {
+                switch (peer.peerType) {
+                    default:
+                        val = func(bud);
+                        break;
+                    case il_1.PeerType.peerArr:
+                        val = this.buidlJsonArr(name, bud.props, peer.peers);
+                        break;
+                    case il_1.PeerType.peerId:
+                        val = this.transID(peer.id, func(bud));
+                        break;
+                    case il_1.PeerType.peerOptions:
+                        val = this.transOptions(peer, func(bud));
+                        break;
+                }
             }
             let objName;
             if (peer === undefined) {
@@ -386,6 +405,7 @@ IOProc.jsonTable = 't';
 IOProc.siteAtomApp = '$siteAtomApp';
 IOProc.pSiteAtomApp = '$pSiteAtomApp';
 IOProc.queueId = '$queueId';
+IOProc.inSite = '$inSite';
 IOProc.endPoint = '$endPoint';
 IOProc.vDone = '$done';
 const a = 'a', b = 'b', c = 'c';
@@ -397,7 +417,7 @@ class IOProcIn extends IOProc {
     buildProc() {
         const { factory } = this;
         const { parameters, statements } = this.proc;
-        parameters.push((0, il_1.bigIntField)(IOProc.queueId), (0, il_1.jsonField)(IOProc.vJson));
+        parameters.push((0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.inSite), (0, il_1.jsonField)(IOProc.vJson));
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.bigIntField)(IOProc.endPoint), (0, il_1.bigIntField)(IOProc.ioAppIO));
@@ -449,6 +469,7 @@ class IOProcIn extends IOProc {
         call.procName = `${this.context.site}.${this.ioAppIO.bizIO.id}`;
         call.params = [
             { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.queueId) },
+            { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.inSite) },
             { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.vRetJson) },
         ];
         return statements;

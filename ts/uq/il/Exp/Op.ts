@@ -256,9 +256,11 @@ export class OpBetween extends Atom {
 export class OpNotBetween extends Atom {
     to(stack: Stack) { }
 }
-const dollarVars = ['unit', 'user', 'site', 'stamp', 'importing',
-    'pagestart', 'pagesize',
-    'date', 'id', 'state', 'row', 'sheet_date', 'sheet_no', 'sheet_discription'];
+const dollarVars = [
+    'unit', 'user', 'site', 'insite', 'stamp', 'importing'
+    , 'pagestart', 'pagesize'
+    , 'date', 'id', 'state', 'row', 'sheet_date', 'sheet_no', 'sheet_discription'
+];
 export class OpDollarVar extends Atom {
     static isValid(name: string): boolean { return dollarVars.find(v => v === name) !== undefined }
     _var: string;

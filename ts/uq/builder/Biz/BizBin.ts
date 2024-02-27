@@ -1,8 +1,8 @@
 import { binAmount, binFieldArr, binPrice, binValue } from "../../consts";
-import { BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable, BizBudValue, BizBud, Char, DataType, BudDataType } from "../../il";
+import { BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable, BizBudValue, BizBud, Char, DataType, BudDataType, JsonDataType, EnumDataType } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
-import { ExpAnd, ExpEQ, ExpField, ExpNum, ExpVar, Procedure } from "../sql";
+import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, ExpVar, Procedure, Select } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
@@ -65,6 +65,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         const bigint = new BigInt();
         const decValue = new Dec(18, 6);
         const str = new Char(200);
+        const json = new JsonDataType();
         declare.var($site, bigint);
         declare.var(sheetId, bigint);
         declare.var(si, bigint);
@@ -125,38 +126,64 @@ export class BBizBin extends BBizEntity<BizBin> {
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new ExpVar(bin));
 
-        function buildBud(bud: BizBud) {
-            const { name, dataType } = bud;
-            let declareType: DataType;
-            let tbl: EnumSysTable;
-            switch (dataType) {
-                default: throw new Error('unknown type');
-                case BudDataType.ID:
-                case BudDataType.atom:
-                case BudDataType.date:
-                case BudDataType.int:
-                    tbl = EnumSysTable.ixBudInt;
-                    declareType = bigint;
-                    break;
-                case BudDataType.str:
-                case BudDataType.char:
-                    tbl = EnumSysTable.ixBudStr;
-                    declareType = str;
-                    break;
-                case BudDataType.dec:
-                    tbl = EnumSysTable.ixBudDec;
-                    declareType = decValue;
-                    break;
-            }
+        function buildSelectBudValue(bud: BizBud, tbl: EnumSysTable): Select {
             let selectBud = factory.createSelect();
-            statements.push(selectBud);
             selectBud.toVar = true;
-            selectBud.col('value', name, a);
+            selectBud.col('value', bud.name, a);
             selectBud.from(new EntityTable(tbl, false, a));
             selectBud.where(new ExpAnd(
                 new ExpEQ(new ExpField('i', a), varBin),
                 new ExpEQ(new ExpField('x', a), new ExpNum(bud.id)),
             ));
+            return selectBud;
+        }
+
+        function buildSelectBudIx(bud: BizBud, isRadio: boolean): Select {
+            let selectBud = factory.createSelect();
+            selectBud.toVar = true;
+            let exp: ExpVal = isRadio === true ?
+                new ExpField('x', a)
+                : new ExpFunc('JSON_ARRAYAGG', new ExpField('x', a));
+            selectBud.column(exp, bud.name);
+            selectBud.from(new EntityTable(EnumSysTable.ixBud, false, a));
+            selectBud.where(new ExpEQ(new ExpField('i', a), varBin));
+            return selectBud;
+        }
+
+        function buildBud(bud: BizBud) {
+            const { name, dataType } = bud;
+            let declareType: DataType;
+            let selectBud: Select;
+            switch (dataType) {
+                default: throw new Error('unknown type ' + EnumDataType[dataType]);
+                case BudDataType.none:
+                    return;
+                case BudDataType.ID:
+                case BudDataType.atom:
+                case BudDataType.date:
+                case BudDataType.int:
+                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
+                    declareType = bigint;
+                    break;
+                case BudDataType.str:
+                case BudDataType.char:
+                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudStr);
+                    declareType = str;
+                    break;
+                case BudDataType.dec:
+                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudDec);
+                    declareType = decValue;
+                    break;
+                case BudDataType.radio:
+                    selectBud = buildSelectBudIx(bud, true);
+                    declareType = bigint;
+                    break;
+                case BudDataType.check:
+                    selectBud = buildSelectBudIx(bud, false);
+                    declareType = json;
+                    break;
+            }
+            statements.push(selectBud);
             declare.var(name, declareType);
         }
 

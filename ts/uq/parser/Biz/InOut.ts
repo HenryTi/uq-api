@@ -4,7 +4,7 @@ import {
     , Pointer, BizEntity, VarPointer, Biz, UI
     , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BudDataType, BizBudArr, BizIOApp
     , IOAppID, IOAppIn, IOAppOut, BizAtom, BizPhraseType, IOAppIO
-    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq, BizIOSite, IOConnectType
+    , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq, BizIOSite, IOConnectType, Entity, Table, IOAppOptions, IOPeerOptions, BizOptions
 } from "../../il";
 import { PElement } from "../element";
 import { PContext } from "../pContext";
@@ -124,10 +124,15 @@ export class PBizInActStatements extends PBizActStatements<BizInAct> {
 export const inPreDefined = [
 ];
 
+const inSite = '$insite';
 class BizInActSpace extends BizEntitySpace<BizIn> {
     protected _varPointer(name: string, isField: boolean): Pointer {
+
         if (this.bizEntity.props.has(name) === true) {
             return new VarPointer(name);
+        }
+        if (name === inSite) {
+            return new VarPointer(inSite);
         }
     }
 
@@ -253,6 +258,15 @@ export class PIOAppID extends PBizBase<IOAppID> {
     }
 }
 
+export class PIOAppOptions extends PBizBase<IOAppOptions> {
+    protected override _parse(): void {
+    }
+    override scan(space: Space): boolean {
+        let ok = true;
+        return true;
+    }
+}
+
 export class PIOPeerScalar extends PElement<IOPeerScalar> {
     protected override _parse(): void {
         this.ts.passToken(Token.COMMA);
@@ -276,6 +290,25 @@ export class PIOPeerID extends PElement<IOPeerID> {
             if (id === undefined) {
                 ok = false;
                 this.log(`${this.ioId} is not IOApp ID`);
+            }
+        }
+        return ok;
+    }
+}
+
+export class PIOPeerOptions extends PElement<IOPeerOptions> {
+    private ioOptions: string;
+    protected override _parse(): void {
+        this.ioOptions = this.ts.mayPassVar();
+        this.ts.passToken(Token.COMMA);
+    }
+    override scan(space: Space): boolean {
+        let ok = true;
+        if (this.ioOptions !== undefined) {
+            let options = this.element.options = space.getBizEntity<BizOptions>(this.ioOptions);
+            if (options === undefined) {
+                ok = false;
+                this.log(`${this.ioOptions} is not OPTIONS`);
             }
         }
         return ok;
@@ -313,6 +346,10 @@ function parsePeers(context: PContext, ioAppIO: IOAppIO, parentPeer: IOPeerArr, 
             if (ts.isKeyword('id') === true) {
                 ts.readToken();
                 peer = new IOPeerID(ioAppIO, parentPeer);
+            }
+            else if (ts.isKeyword('options') === true) {
+                ts.readToken();
+                peer = new IOPeerOptions(ioAppIO, parentPeer);
             }
             else {
                 peer = new IOPeerScalar(ioAppIO, parentPeer);

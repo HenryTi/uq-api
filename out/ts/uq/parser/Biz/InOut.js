@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizIOSite = exports.PIOAppOut = exports.PIOAppIn = exports.PIOPeerArr = exports.PIOPeerID = exports.PIOPeerScalar = exports.PIOAppID = exports.PBizIOApp = exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
+exports.PBizIOSite = exports.PIOAppOut = exports.PIOAppIn = exports.PIOPeerArr = exports.PIOPeerOptions = exports.PIOPeerID = exports.PIOPeerScalar = exports.PIOAppOptions = exports.PIOAppID = exports.PBizIOApp = exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -111,10 +111,14 @@ class PBizInActStatements extends Base_1.PBizActStatements {
 }
 exports.PBizInActStatements = PBizInActStatements;
 exports.inPreDefined = [];
+const inSite = '$insite';
 class BizInActSpace extends Biz_1.BizEntitySpace {
     _varPointer(name, isField) {
         if (this.bizEntity.props.has(name) === true) {
             return new il_1.VarPointer(name);
+        }
+        if (name === inSite) {
+            return new il_1.VarPointer(inSite);
         }
     }
     _varsPointer(names) {
@@ -239,6 +243,15 @@ class PIOAppID extends Base_1.PBizBase {
     }
 }
 exports.PIOAppID = PIOAppID;
+class PIOAppOptions extends Base_1.PBizBase {
+    _parse() {
+    }
+    scan(space) {
+        let ok = true;
+        return true;
+    }
+}
+exports.PIOAppOptions = PIOAppOptions;
 class PIOPeerScalar extends element_1.PElement {
     _parse() {
         this.ts.passToken(tokens_1.Token.COMMA);
@@ -267,6 +280,24 @@ class PIOPeerID extends element_1.PElement {
     }
 }
 exports.PIOPeerID = PIOPeerID;
+class PIOPeerOptions extends element_1.PElement {
+    _parse() {
+        this.ioOptions = this.ts.mayPassVar();
+        this.ts.passToken(tokens_1.Token.COMMA);
+    }
+    scan(space) {
+        let ok = true;
+        if (this.ioOptions !== undefined) {
+            let options = this.element.options = space.getBizEntity(this.ioOptions);
+            if (options === undefined) {
+                ok = false;
+                this.log(`${this.ioOptions} is not OPTIONS`);
+            }
+        }
+        return ok;
+    }
+}
+exports.PIOPeerOptions = PIOPeerOptions;
 function parsePeers(context, ioAppIO, parentPeer, ts) {
     let peers = {};
     if (ts.token === tokens_1.Token.RPARENTHESE) {
@@ -298,6 +329,10 @@ function parsePeers(context, ioAppIO, parentPeer, ts) {
             if (ts.isKeyword('id') === true) {
                 ts.readToken();
                 peer = new il_1.IOPeerID(ioAppIO, parentPeer);
+            }
+            else if (ts.isKeyword('options') === true) {
+                ts.readToken();
+                peer = new il_1.IOPeerOptions(ioAppIO, parentPeer);
             }
             else {
                 peer = new il_1.IOPeerScalar(ioAppIO, parentPeer);

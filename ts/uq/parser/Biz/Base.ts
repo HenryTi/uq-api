@@ -702,22 +702,34 @@ export class PBizSearch extends PElement<BizSearch> {
                 let buds = this.search[i];
                 let arr: BizBud[] = [];
                 for (let bud of buds) {
+                    let prop: BizBud;
                     if (bud === 'i') {
-                        arr.push(bizBin.i);
+                        prop = bizBin.i
+                        // arr.push(bizBin.i);
+                        if (prop === undefined) {
+                            this.log(`I is not defined`);
+                            ok = false;
+                            continue;
+                        }
                     }
                     else if (bud === 'x') {
-                        arr.push(bizBin.x);
+                        prop = bizBin.x;
+                        //arr.push(bizBin.x);
+                        if (prop === undefined) {
+                            this.log(`X is not defined`);
+                            ok = false;
+                            continue;
+                        }
                     }
                     else {
-                        let prop = bizBin.props.get(bud);
-                        if (prop !== undefined) {
-                            arr.push(prop);
-                        }
-                        else {
+                        prop = bizBin.props.get(bud);
+                        if (prop === undefined) {
                             this.log(`${bud} is not defined`);
                             ok = false;
+                            continue;
                         }
                     }
+                    arr.push(prop);
                 }
                 this.element.params.push({ entity: bizBin, buds: arr });
             }

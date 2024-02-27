@@ -1,7 +1,7 @@
 import { DbContext, BBizEntity, BBizIn, BBizOut, BBizIOApp } from "../../builder";
 import {
     PBizIOApp, PBizIOSite, PBizIn, PBizInAct, PBizOut, PContext, PElement
-    , PIOAppID, PIOAppIn, PIOAppOut, PIOPeerArr, PIOPeerID, PIOPeerScalar
+    , PIOAppID, PIOAppIn, PIOAppOptions, PIOAppOut, PIOPeerArr, PIOPeerID, PIOPeerOptions, PIOPeerScalar
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizAct } from "./Base";
@@ -10,6 +10,7 @@ import { BizAtom } from "./BizID";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
+import { BizOptions } from "./Options";
 
 // ???
 // 2024-01-26
@@ -78,7 +79,21 @@ export class IOAppID extends BizBud {
     }
 }
 
-export enum PeerType { peerScalar, peerId, peerArr };
+export class IOAppOptions extends BizBud {
+    readonly bizPhraseType = BizPhraseType.bud;
+    readonly dataType = BudDataType.none;
+    options: BizOptions;
+    override parser(context: PContext): PElement<IElement> {
+        return new PIOAppOptions(this, context);
+    }
+    override buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        ret.options = this.options?.id;
+        return ret;
+    }
+}
+
+export enum PeerType { peerScalar, peerId, peerOptions, peerArr };
 export abstract class IOPeer extends IElement {
     readonly ioAppIO: IOAppIO;
     readonly type: undefined;
@@ -104,6 +119,13 @@ export class IOPeerID extends IOPeer {
     id: IOAppID;
     override parser(context: PContext): PElement<IElement> {
         return new PIOPeerID(this, context);
+    }
+}
+export class IOPeerOptions extends IOPeer {
+    readonly peerType = PeerType.peerOptions;
+    options: BizOptions;
+    override parser(context: PContext): PElement<IElement> {
+        return new PIOPeerOptions(this, context);
     }
 }
 export class IOPeerArr extends IOPeer {

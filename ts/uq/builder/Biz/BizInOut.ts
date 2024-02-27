@@ -1,8 +1,8 @@
 import { delimiter } from "path";
 import {
     BigInt, BizBud, BizBudArr, BizIOApp, BizIn, BizInOut, BizOut, BudDataType, Char, EnumSysTable, Field
-    , IOAppID, IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, JoinType
-    , JsonTableColumn, ProcParamType, bigIntField, charField, dateField
+    , IOAppID, IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, IOPeerOptions, JoinType
+    , JsonTableColumn, PeerType, ProcParamType, bigIntField, charField, dateField
     , decField, intField, jsonField, tinyIntField
 } from "../../il";
 import { Sqls } from "../bstatement";
@@ -24,6 +24,7 @@ abstract class BBizInOut<T extends BizInOut> extends BBizEntity<T> {
 
 export class BBizIn extends BBizInOut<BizIn> {
     static queueId = '$queueId';
+    static inSite = '$inSite';
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
         const { id } = this.bizEntity;
@@ -39,6 +40,7 @@ export class BBizIn extends BBizInOut<BizIn> {
         let varJson = new ExpVar(vJson);
         parameters.push(
             bigIntField(BBizIn.queueId),       // IO queue id
+            bigIntField(BBizIn.inSite),
             jsonField(vJson),
         );
         const declare = factory.createDeclare();
@@ -61,7 +63,7 @@ export class BBizIn extends BBizInOut<BizIn> {
                 let expVal: ExpVal = new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`));
                 if (dataType === BudDataType.date) {
                     expVal = new ExpFuncCustom(factory.func_dateadd,
-                        new ExpDatePart('second'),
+                        new ExpDatePart('day'),
                         expVal,
                         new ExpStr('1970-01-01')
                     );
@@ -309,6 +311,7 @@ abstract class IOProc<T extends IOAppIO> {
     static siteAtomApp = '$siteAtomApp';
     static pSiteAtomApp = '$pSiteAtomApp';
     static queueId = '$queueId';
+    static inSite = '$inSite';
     static endPoint = '$endPoint';
     static vDone = '$done';
     protected readonly context: DbContext;
@@ -340,6 +343,20 @@ abstract class IOProc<T extends IOAppIO> {
                 true
             ),
             val);
+    }
+
+    protected transOptions(peer: IOPeerOptions, val: ExpVal): ExpVal {
+        const { options } = peer;
+        const select = this.factory.createSelect();
+        select.column(new ExpField('id', a))
+        select.from(new EntityTable(EnumSysTable.bizPhrase, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)));
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('base', a), new ExpNum(options.id)),
+            new ExpEQ(new ExpField('name', a), new ExpFunc(this.factory.func_concat, new ExpField('name', b), new ExpStr('.'), val)),
+        ));
+        return new ExpSelect(select);
     }
 
     abstract buildProc(): void;
@@ -384,16 +401,24 @@ abstract class IOProc<T extends IOAppIO> {
         for (let [name, bud] of props) {
             let peer = peers[name];
             let val: ExpVal;
-            switch (bud.dataType) {
-                default:
-                    val = func(bud);
-                    break;
-                case BudDataType.arr:
-                    val = this.buidlJsonArr(name, (bud as BizBudArr).props, (peer as IOPeerArr).peers);
-                    break;
-                case BudDataType.ID:
-                    val = this.transID((peer as IOPeerID).id, func(bud));
-                    break;
+            if (peer === undefined) {
+                val = func(bud);
+            }
+            else {
+                switch (peer.peerType) {
+                    default:
+                        val = func(bud);
+                        break;
+                    case PeerType.peerArr:
+                        val = this.buidlJsonArr(name, (bud as BizBudArr).props, (peer as IOPeerArr).peers);
+                        break;
+                    case PeerType.peerId:
+                        val = this.transID((peer as IOPeerID).id, func(bud));
+                        break;
+                    case PeerType.peerOptions:
+                        val = this.transOptions(peer as IOPeerOptions, func(bud));
+                        break;
+                }
             }
             let objName: string;
             if (peer === undefined) {
@@ -463,6 +488,7 @@ class IOProcIn extends IOProc<IOAppIn> {
         const { parameters, statements } = this.proc;
         parameters.push(
             bigIntField(IOProc.queueId),
+            bigIntField(IOProc.inSite),
             jsonField(IOProc.vJson),
         );
         const declare = factory.createDeclare();
@@ -532,6 +558,7 @@ class IOProcIn extends IOProc<IOAppIn> {
         call.procName = `${this.context.site}.${this.ioAppIO.bizIO.id}`;
         call.params = [
             { paramType: ProcParamType.in, value: new ExpVar(IOProc.queueId) },
+            { paramType: ProcParamType.in, value: new ExpVar(IOProc.inSite) },
             { paramType: ProcParamType.in, value: new ExpVar(IOProc.vRetJson) },
         ];
         return statements;

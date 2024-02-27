@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UseOut = exports.BizIOSite = exports.BizIOApp = exports.IOConnectType = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+exports.UseOut = exports.BizIOSite = exports.BizIOApp = exports.IOConnectType = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerOptions = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppOptions = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
@@ -77,11 +77,29 @@ class IOAppID extends Bud_1.BizBud {
     }
 }
 exports.IOAppID = IOAppID;
+class IOAppOptions extends Bud_1.BizBud {
+    constructor() {
+        super(...arguments);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
+        this.dataType = BizPhraseType_1.BudDataType.none;
+    }
+    parser(context) {
+        return new parser_1.PIOAppOptions(this, context);
+    }
+    buildSchema(res) {
+        var _a;
+        let ret = super.buildSchema(res);
+        ret.options = (_a = this.options) === null || _a === void 0 ? void 0 : _a.id;
+        return ret;
+    }
+}
+exports.IOAppOptions = IOAppOptions;
 var PeerType;
 (function (PeerType) {
     PeerType[PeerType["peerScalar"] = 0] = "peerScalar";
     PeerType[PeerType["peerId"] = 1] = "peerId";
-    PeerType[PeerType["peerArr"] = 2] = "peerArr";
+    PeerType[PeerType["peerOptions"] = 2] = "peerOptions";
+    PeerType[PeerType["peerArr"] = 3] = "peerArr";
 })(PeerType || (exports.PeerType = PeerType = {}));
 ;
 class IOPeer extends IElement_1.IElement {
@@ -112,6 +130,16 @@ class IOPeerID extends IOPeer {
     }
 }
 exports.IOPeerID = IOPeerID;
+class IOPeerOptions extends IOPeer {
+    constructor() {
+        super(...arguments);
+        this.peerType = PeerType.peerOptions;
+    }
+    parser(context) {
+        return new parser_1.PIOPeerOptions(this, context);
+    }
+}
+exports.IOPeerOptions = IOPeerOptions;
 class IOPeerArr extends IOPeer {
     constructor() {
         super(...arguments);

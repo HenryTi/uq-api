@@ -31,7 +31,17 @@ export class BizSheet extends BizEntity {
         if (this.bizSearch !== undefined) {
             search = {};
             for (let { entity, buds } of this.bizSearch.params) {
-                search[entity.id] = buds.map(v => v.id);
+                const { id } = entity;
+                for (let bud of buds) {
+                    if (bud === undefined) debugger;
+                    search[id] = bud.id;
+                }
+                /*
+                search[entity.id] = buds.map(v => {
+                    if (v === undefined) debugger;
+                    return v.id;
+                });
+                */
             }
         }
         ret = {
