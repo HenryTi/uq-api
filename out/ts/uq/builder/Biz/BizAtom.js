@@ -1,213 +1,91 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizSpec = void 0;
+exports.BBizAtom = void 0;
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
-class BBizSpec extends BizEntity_1.BBizEntity {
+class BBizAtom extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures;
-        const { id } = this.bizEntity;
-        const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
-        this.buildSaveProc(procSave);
-        const funcGet = this.createFunction(`${this.context.site}.${id}`, new il_1.JsonDataType());
-        this.buildGetFunc(funcGet);
-    }
-    buildSaveProc(proc) {
-        const { base, keys, props: propsMap } = this.bizEntity;
-        if (base === undefined) {
-            proc.dropOnly = true;
-            return;
+        const { id, uniques } = this.bizEntity;
+        if (uniques !== undefined) {
+            const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
+            this.buildUniqueProc(procUnqiue);
         }
+    }
+    buildUniqueProc(proc) {
+        const { uniques } = this.bizEntity;
         const { parameters, statements } = proc;
-        const { factory, unitField, userParam } = this.context;
+        const { factory } = this.context;
         const cBase = '$base';
-        const cKeys = '$keys';
-        const cProps = '$props';
         const cId = '$id';
-        const a = 'a';
         const site = '$site';
-        const len = keys.length;
-        const varKeys = new sql_1.ExpVar(cKeys);
-        const varBase = new sql_1.ExpVar(cBase);
-        const varProps = new sql_1.ExpVar(cProps);
-        const varSite = new sql_1.ExpVar(site);
-        const prefixBud = '$bud_';
-        // const prefixProp = '$prop_';
-        const prefixPhrase = '$phrase_';
-        const props = [];
-        for (let [, value] of propsMap)
-            props.push(value);
-        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.idField)(cBase, 'big'), (0, il_1.jsonField)(cKeys), (0, il_1.jsonField)(cProps));
-        const declare = factory.createDeclare();
-        declare.var(cId, new il_1.BigInt());
-        statements.push(declare);
-        function declareBuds(buds) {
-            for (let bud of buds) {
-                const { name, id, dataType } = bud;
-                let dt;
-                switch (dataType) {
-                    default:
-                    case il_1.BudDataType.date:
-                        dt = new il_1.BigInt();
-                        break;
-                    case il_1.BudDataType.str:
-                    case il_1.BudDataType.char:
-                        dt = new il_1.Char(200);
-                        break;
-                    case il_1.BudDataType.dec:
-                        dt = new il_1.Dec(18, 6);
-                        break;
-                }
-                declare.var(prefixBud + name, dt);
-                declare.var(prefixPhrase + name, new il_1.BigInt());
-                let setPhraseId = factory.createSet();
-                statements.push(setPhraseId);
-                setPhraseId.equ(prefixPhrase + name, new sql_1.ExpNum(id)
-                /*
-                new ExpFuncInUq(
-                    'phraseid',
-                    [varSite, new ExpStr(phrase)],
-                    true)
-                */
-                );
-            }
-        }
-        declareBuds(keys);
-        declareBuds(props);
-        function selectJsonValue(varJson, buds, prefix) {
-            if (buds.length === 0)
-                return;
-            const select = factory.createSelect();
-            statements.push(select);
-            select.toVar = true;
-            for (let bud of buds) {
-                const { name } = bud;
-                select.column(new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`)), `${prefix}${name}`);
-            }
-        }
-        selectJsonValue(varKeys, keys, prefixBud);
-        const select = factory.createSelect();
-        statements.push(select);
-        select.toVar = true;
-        select.limit(sql_1.ExpNum.num1);
-        select.column(new sql_1.ExpField('id', a), cId);
-        select.from(new statementWithFrom_1.EntityTable('spec', false, a));
-        const wheres = [new sql_1.ExpEQ(new sql_1.ExpField('base', a), varBase)];
-        function tblAndValFromBud(bud) {
-            const { name, dataType } = bud;
-            let varVal = new sql_1.ExpVar(`${prefixBud}${name}`);
-            let tbl;
-            switch (dataType) {
-                default:
-                    tbl = 'ixbudint';
-                    break;
-                case il_1.BudDataType.date:
-                    tbl = 'ixbudint';
-                    // const daysOf19700101 = 719528; // to_days('1970-01-01')
-                    // varVal = new ExpSub(new ExpFunc('to_days', varVal), new ExpNum(daysOf19700101));
-                    break;
-                case il_1.BudDataType.str:
-                case il_1.BudDataType.char:
-                    tbl = 'ixbudstr';
-                    break;
-                case il_1.BudDataType.dec:
-                    tbl = 'ixbuddec';
-                    break;
-            }
-            return { varVal, tbl };
-        }
-        for (let i = 0; i < len; i++) {
-            const key = keys[i];
-            const { name } = key;
-            const { varVal, tbl } = tblAndValFromBud(key);
-            let t = 't' + i;
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, t));
-            select.on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpVar(prefixPhrase + name))));
-            wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('value', t), varVal));
-        }
-        select.where(new sql_1.ExpAnd(...wheres));
-        const ifIdNull = factory.createIf();
-        statements.push(ifIdNull);
-        ifIdNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(cId));
-        const setId = factory.createSet();
-        ifIdNull.then(setId);
-        setId.equ(cId, new sql_1.ExpFuncInUq('spec$id', [varSite, new sql_1.ExpVar(userParam.name), sql_1.ExpNum.num1, varBase], true));
-        selectJsonValue(varProps, props, prefixBud);
-        function setBud(bud) {
-            const { name } = bud;
-            const { varVal, tbl } = tblAndValFromBud(bud);
-            const insert = factory.createInsertOnDuplicate();
-            statements.push(insert);
-            insert.table = new statementWithFrom_1.EntityTable(tbl, false);
-            insert.keys.push({ col: 'i', val: new sql_1.ExpVar(cId) }, {
-                col: 'x', val: new sql_1.ExpVar(prefixPhrase + name),
-            });
-            insert.cols.push({ col: 'value', val: varVal });
-        }
-        function setBuds(buds) {
-            for (let bud of buds)
-                setBud(bud);
-        }
-        setBuds(keys);
-        setBuds(props);
-        const setExecSqlValue = factory.createSet();
-        statements.push(setExecSqlValue);
-        setExecSqlValue.isAtVar = true;
-        setExecSqlValue.equ('execSqlValue', new sql_1.ExpVar(cId));
-    }
-    buildGetFunc(func) {
-        const { base, keys, props } = this.bizEntity;
-        if (base === undefined) {
-            func.dropOnly = true;
-            return;
-        }
-        const { parameters, statements } = func;
-        const { factory, userParam } = this.context;
-        const id = 'id';
-        const a = 'a';
-        const site = '$site';
-        const valJson = 'valJson';
-        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.idField)(id, 'big'));
+        const budPhrase = '$budPhrase';
+        parameters.push((0, il_1.bigIntField)(site), (0, il_1.bigIntField)(cId), (0, il_1.bigIntField)(cBase), (0, il_1.bigIntField)(budPhrase));
         const declare = factory.createDeclare();
         statements.push(declare);
-        declare.var(valJson, new il_1.JsonDataType());
-        const all = [...keys];
-        for (let [, value] of props)
-            all.push(value);
-        const len = all.length;
-        let expArr = [];
-        const t = 't';
-        for (let i = 0; i < len; i++) {
-            let p = all[i];
-            const { id: budId, dataType } = p;
-            let tbl;
-            switch (dataType) {
-                default:
-                    tbl = 'ixbudint';
-                    break;
-                case il_1.BudDataType.char:
-                case il_1.BudDataType.str:
-                    tbl = 'ixbudstr';
-                    break;
-                case il_1.BudDataType.dec:
-                    tbl = 'ixbuddec';
-                    break;
+        function buildUnique(unique) {
+            const { name, keys, no } = unique;
+            let vKey = `${name}_key`;
+            let vNo = `${name}_no`;
+            let vI = `${name}_i`;
+            declare.var(vKey, new il_1.BigInt());
+            declare.var(vNo, new il_1.BigInt());
+            declare.var(vI, new il_1.BigInt());
+            let noNullCmp;
+            let valKey;
+            let ifUnique = factory.createIf();
+            let inArr = [new sql_1.ExpVar(budPhrase), ...keys.map(v => new sql_1.ExpNum(v.id)), new sql_1.ExpNum(no.id)];
+            ifUnique.cmp = new sql_1.ExpIn(...inArr);
+            if (keys.length > 0) {
+                let setKey = factory.createSet();
+                ifUnique.then(setKey);
+                let selectKey = factory.createSelect();
+                selectKey.col('value');
+                selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false));
+                selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(keys[0].id))));
+                setKey.equ(vKey, new sql_1.ExpSelect(selectKey));
+                noNullCmp = new sql_1.ExpAnd(new sql_1.ExpIsNotNull(new sql_1.ExpVar(vKey)), new sql_1.ExpIsNotNull(new sql_1.ExpVar(vNo)));
+                valKey = new sql_1.ExpFuncInUq('bud$id', [
+                    sql_1.ExpNull.null, sql_1.ExpNull.null, sql_1.ExpNum.num1, sql_1.ExpNull.null,
+                    new sql_1.ExpVar(cBase), new sql_1.ExpVar(vKey)
+                ], true);
             }
-            const selectVal = factory.createSelect();
-            selectVal.column(new sql_1.ExpField('value', t));
-            selectVal.from(new statementWithFrom_1.EntityTable(tbl, false, t));
-            selectVal.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpVar(id)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(budId))));
-            expArr.push(new sql_1.ExpSelect(selectVal));
+            else {
+                noNullCmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(vNo));
+                valKey = new sql_1.ExpVar(cBase);
+            }
+            let setNo = factory.createSet();
+            ifUnique.then(setNo);
+            let selectNO = factory.createSelect();
+            selectNO.col('value');
+            selectNO.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudStr, false));
+            selectNO.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(no.id))));
+            setNo.equ(vNo, new sql_1.ExpSelect(selectNO));
+            let ifNoNull = factory.createIf();
+            ifUnique.then(ifNoNull);
+            ifNoNull.cmp = noNullCmp;
+            let setI = factory.createSet();
+            ifNoNull.then(setI);
+            setI.equ(vI, valKey);
+            let upsert = factory.createUpsert();
+            ifNoNull.then(upsert);
+            upsert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false);
+            upsert.keys = [
+                { col: 'i', val: new sql_1.ExpVar(vI) },
+                { col: 'x', val: new sql_1.ExpVar(vNo) },
+            ];
+            upsert.cols = [
+                { col: 'atom', val: new sql_1.ExpVar(cId) },
+            ];
+            return ifUnique;
         }
-        const setVal = factory.createSet();
-        statements.push(setVal);
-        setVal.equ(valJson, new sql_1.ExpFunc('JSON_ARRAY', ...expArr));
-        const ret = factory.createReturn();
-        statements.push(ret);
-        ret.returnVar = valJson;
+        for (let unique of uniques) {
+            let ret = buildUnique(unique);
+            statements.push(ret);
+        }
     }
 }
-exports.BBizSpec = BBizSpec;
+exports.BBizAtom = BBizAtom;
 //# sourceMappingURL=BizAtom.js.map

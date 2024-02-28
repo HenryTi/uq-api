@@ -16,6 +16,7 @@ export enum EnumSysTable {
 
     ixState = 'ixstate',
     atom = 'atom',
+    atomUnique = 'atomunique',
     spec = 'spec',
     bud = 'bud',
     duo = 'duo',

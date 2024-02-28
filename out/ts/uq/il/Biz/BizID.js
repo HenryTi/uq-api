@@ -43,6 +43,9 @@ class BizAtom extends BizIDExtendable {
     parser(context) {
         return new parser_1.PBizAtom(this, context);
     }
+    db(dbContext) {
+        return new builder_1.BBizAtom(dbContext, this);
+    }
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);

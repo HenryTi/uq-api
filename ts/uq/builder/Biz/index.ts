@@ -1,6 +1,7 @@
 export { BBiz } from './Biz';
 export * from './BizEntity';
-export * from './BizID';
+export * from './BizAtom';
+export * from './BizSpec';
 export * from './BizSheet';
 export * from './BizBin';
 export * from './BizPend';

@@ -71,10 +71,56 @@ class PBizAtom extends PBizIDExtendable {
         this.parsePermit = () => {
             this.parsePermission('crud');
         };
+        this.parseUnique = () => {
+            if (this.uniques === undefined)
+                this.uniques = {};
+            let name = this.ts.passVar();
+            if (this.uniques[name] !== undefined) {
+                this.ts.error(`UNIQUE ${name} duplicate`);
+            }
+            let keys = [];
+            let no;
+            this.ts.passToken(tokens_1.Token.LBRACE);
+            for (;;) {
+                const { token } = this.ts;
+                if (token === tokens_1.Token.RBRACE) {
+                    this.ts.readToken();
+                    this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+                    break;
+                }
+                else if (token === tokens_1.Token.VAR) {
+                    if (this.ts.isKeyword('key') === true) {
+                        this.ts.readToken();
+                        let k = this.ts.passVar();
+                        if (keys.includes(k) === true) {
+                            this.ts.error(`KEY ${k} already defined`);
+                        }
+                        keys.push(k);
+                        this.ts.passToken(tokens_1.Token.SEMICOLON);
+                    }
+                    else if (this.ts.isKeyword('no') === true) {
+                        if (no !== undefined) {
+                            this.ts.error('NO can only define once');
+                        }
+                        this.ts.readToken();
+                        no = this.ts.passVar();
+                        this.ts.passToken(tokens_1.Token.SEMICOLON);
+                    }
+                    else {
+                        this.ts.expect('key', 'no');
+                    }
+                }
+                else {
+                    this.ts.expect('} or key or no');
+                }
+            }
+            this.uniques[name] = { keys, no };
+        };
         this.keyColl = {
             prop: this.parseProp,
             ex: this.parseEx,
-            permit: this.parsePermit
+            permit: this.parsePermit,
+            unique: this.parseUnique,
         };
     }
     parseParam() {
@@ -88,6 +134,49 @@ class PBizAtom extends PBizIDExtendable {
         let ok = true;
         if (super.scan(space) === false)
             ok = false;
+        if (this.uniques !== undefined) {
+            const { props } = this.element;
+            const getBud = (budName, types) => {
+                let bud = props.get(budName);
+                if (bud === undefined) {
+                    this.log(`${budName} is not a PROP`);
+                    ok = false;
+                }
+                else {
+                    if (types.includes(bud.dataType) === false) {
+                        this.log(`${budName} must be ${types.map(v => il_1.BudDataType[v].toUpperCase()).join(', ')}`);
+                        ok = false;
+                    }
+                }
+                return bud;
+            };
+            for (let i in this.uniques) {
+                if (props.get(i) !== undefined) {
+                    ok = false;
+                    this.log(`Duplicate ${i}`);
+                    continue;
+                }
+                const { keys, no } = this.uniques[i];
+                let noBud = getBud(no, [il_1.BudDataType.char]);
+                let keyBuds = [];
+                for (let key of keys) {
+                    let keyBud = getBud(key, [il_1.BudDataType.ID, il_1.BudDataType.int, il_1.BudDataType.atom]);
+                    keyBuds.push(keyBud);
+                }
+                let { uniques } = this.element;
+                if (uniques === undefined) {
+                    this.element.uniques = uniques = [];
+                }
+                uniques.push({
+                    name: i,
+                    keys: keyBuds,
+                    no: noBud,
+                });
+                if (keyBuds.length > 1) {
+                    this.log('KEY only one');
+                }
+            }
+        }
         return ok;
     }
     scan2(uq) {

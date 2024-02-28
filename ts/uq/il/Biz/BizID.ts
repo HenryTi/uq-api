@@ -1,4 +1,4 @@
-import { BBizSpec, DbContext } from "../../builder";
+import { BBizAtom, BBizSpec, DbContext } from "../../builder";
 import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { IxField } from "./Base";
@@ -35,14 +35,25 @@ export abstract class BizIDExtendable extends BizID {
     }
 }
 
+export interface AtomUnique {
+    name: string;
+    keys: BizBud[];
+    no: BizBud;
+}
+
 export class BizAtom extends BizIDExtendable {
     readonly bizPhraseType = BizPhraseType.atom;
     ex: BizBudValue;
     uuid: boolean;
     protected readonly fields = ['id', 'no', 'ex'];
+    uniques: AtomUnique[];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);
+    }
+
+    db(dbContext: DbContext): BBizAtom {
+        return new BBizAtom(dbContext, this);
     }
 
     buildSchema(res: { [phrase: string]: string }) {

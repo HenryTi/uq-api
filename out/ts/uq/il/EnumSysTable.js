@@ -18,6 +18,7 @@ var EnumSysTable;
     EnumSysTable["ixRole"] = "$ixrole";
     EnumSysTable["ixState"] = "ixstate";
     EnumSysTable["atom"] = "atom";
+    EnumSysTable["atomUnique"] = "atomunique";
     EnumSysTable["spec"] = "spec";
     EnumSysTable["bud"] = "bud";
     EnumSysTable["duo"] = "duo";
