@@ -227,17 +227,49 @@ class PIOAppID extends Base_1.PBizBase {
                 break;
             this.ts.readToken();
         }
+        if (this.ts.isKeyword('unique') === true) {
+            this.ts.readToken();
+            this.unique = this.ts.passVar();
+        }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
     scan(space) {
         let ok = true;
+        const { atoms } = this.element;
         for (let atomName of this.atomNames) {
             const bizAtom = space.getBizEntity(atomName);
             if (bizAtom === undefined || bizAtom.bizPhraseType !== il_1.BizPhraseType.atom) {
                 ok = false;
                 this.log(`${atomName} is not an ATOM`);
             }
-            this.element.atoms.push(bizAtom);
+            atoms.push(bizAtom);
+        }
+        return ok;
+    }
+    scan2(uq) {
+        let ok = true;
+        if (this.unique !== undefined) {
+            const { atoms } = this.element;
+            let un = this.unique;
+            let uniques = atoms.map(v => v.getUnique(un));
+            let u0 = uniques[0];
+            if (u0 === undefined) {
+                ok = false;
+                this.log(`${atoms[0].name} has not defined UNIQUE ${un}`);
+            }
+            else {
+                let unique0 = uniques[0];
+                let atom0 = atoms[0];
+                for (let i = 1; i < uniques.length; i++) {
+                    let atom = atoms[i];
+                    let u = atom.getUnique(un);
+                    if (u !== unique0) {
+                        ok = false;
+                        this.log(`${atom.getJName()} does not match ${atom0.getJName()} UNIQUE ${un}`);
+                    }
+                }
+                this.element.unique = unique0;
+            }
         }
         return ok;
     }

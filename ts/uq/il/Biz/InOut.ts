@@ -6,7 +6,7 @@ import {
 import { IElement } from "../IElement";
 import { BizAct } from "./Base";
 import { Biz } from "./Biz";
-import { BizAtom } from "./BizID";
+import { IDUnique, BizAtom } from "./BizID";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
@@ -69,6 +69,7 @@ export class IOAppID extends BizBud {
     readonly bizPhraseType = BizPhraseType.bud;
     readonly dataType = BudDataType.none;
     readonly atoms: BizAtom[] = [];
+    unique: IDUnique;
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppID(this, context);
     }

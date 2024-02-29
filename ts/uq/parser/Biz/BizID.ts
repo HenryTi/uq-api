@@ -1,4 +1,4 @@
-import { BizAtom, /*BizAtomBud, */BizIDExtendable, BizIDAny, BizIDWithBase, BizSpec, BizDuo, Uq, BizID, BudDataType, BizBud, AtomUnique } from "../../il";
+import { BizAtom, /*BizAtomBud, */BizIDExtendable, BizIDAny, BizIDWithBase, BizSpec, BizDuo, Uq, BizID, BudDataType, BizBud, IDUnique } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -172,7 +172,8 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
                     name: i,
                     keys: keyBuds,
                     no: noBud,
-                } as AtomUnique);
+                    IDOwner: this.element,
+                } as IDUnique);
                 if (keyBuds.length > 1) {
                     this.log('KEY only one');
                 }

@@ -1,6 +1,6 @@
 import {
     BigInt, BizSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
-    , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud, BizAtom, AtomUnique
+    , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud, BizAtom, IDUnique
 } from "../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIn, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum
@@ -40,7 +40,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         const declare = factory.createDeclare();
         statements.push(declare);
 
-        function buildUnique(unique: AtomUnique) {
+        function buildUnique(unique: IDUnique) {
             const { name, keys, no } = unique;
             let vKey = `${name}_key`;
             let vNo = `${name}_no`;

@@ -15,6 +15,7 @@ export abstract class BizID extends BizEntity {
 
 export abstract class BizIDExtendable extends BizID {
     extends: BizIDExtendable;
+    uniques: IDUnique[];
 
     get extendsPhrase(): string { return this.extends === undefined ? '' : this.extends.phrase; }
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
@@ -33,12 +34,18 @@ export abstract class BizIDExtendable extends BizID {
             if (ret !== undefined) return ret;
         }
     }
+    getUnique(name: string): IDUnique {
+        let u = this.uniques?.find(v => v.name === name);
+        if (u !== undefined) return u;
+        return this.extends?.getUnique(name);
+    }
 }
 
-export interface AtomUnique {
+export interface IDUnique {
     name: string;
     keys: BizBud[];
     no: BizBud;
+    IDOwner: BizIDExtendable;
 }
 
 export class BizAtom extends BizIDExtendable {
@@ -46,7 +53,6 @@ export class BizAtom extends BizIDExtendable {
     ex: BizBudValue;
     uuid: boolean;
     protected readonly fields = ['id', 'no', 'ex'];
-    uniques: AtomUnique[];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);

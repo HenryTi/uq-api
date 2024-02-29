@@ -235,6 +235,7 @@ export class PBizIOApp extends PBizEntity<BizIOApp> {
 
 export class PIOAppID extends PBizBase<IOAppID> {
     private atomNames: string[] = [];
+    private unique: string;
     protected override _parse(): void {
         this.ts.passKey('to');
         for (; ;) {
@@ -242,17 +243,50 @@ export class PIOAppID extends PBizBase<IOAppID> {
             if (this.ts.token !== Token.BITWISEOR) break;
             this.ts.readToken();
         }
+        if (this.ts.isKeyword('unique') === true) {
+            this.ts.readToken();
+            this.unique = this.ts.passVar();
+        }
         this.ts.passToken(Token.SEMICOLON);
     }
     override scan(space: Space): boolean {
         let ok = true;
+        const { atoms } = this.element;
         for (let atomName of this.atomNames) {
             const bizAtom = space.getBizEntity<BizAtom>(atomName);
             if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType.atom) {
                 ok = false;
                 this.log(`${atomName} is not an ATOM`);
             }
-            this.element.atoms.push(bizAtom);
+            atoms.push(bizAtom);
+        }
+        return ok;
+    }
+
+    override scan2(uq: Uq): boolean {
+        let ok = true;
+        if (this.unique !== undefined) {
+            const { atoms } = this.element;
+            let un = this.unique;
+            let uniques = atoms.map(v => v.getUnique(un));
+            let u0 = uniques[0];
+            if (u0 === undefined) {
+                ok = false;
+                this.log(`${atoms[0].name} has not defined UNIQUE ${un}`);
+            }
+            else {
+                let unique0 = uniques[0];
+                let atom0 = atoms[0];
+                for (let i = 1; i < uniques.length; i++) {
+                    let atom = atoms[i];
+                    let u = atom.getUnique(un);
+                    if (u !== unique0) {
+                        ok = false;
+                        this.log(`${atom.getJName()} does not match ${atom0.getJName()} UNIQUE ${un}`);
+                    }
+                }
+                this.element.unique = unique0;
+            }
         }
         return ok;
     }

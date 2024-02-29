@@ -32,6 +32,13 @@ class BizIDExtendable extends BizID {
                 return ret;
         }
     }
+    getUnique(name) {
+        var _a, _b;
+        let u = (_a = this.uniques) === null || _a === void 0 ? void 0 : _a.find(v => v.name === name);
+        if (u !== undefined)
+            return u;
+        return (_b = this.extends) === null || _b === void 0 ? void 0 : _b.getUnique(name);
+    }
 }
 exports.BizIDExtendable = BizIDExtendable;
 class BizAtom extends BizIDExtendable {

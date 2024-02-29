@@ -168,13 +168,16 @@ class BBizIOApp extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures();
         const { factory } = this.context;
-        const funcAtomToNo = this.createFunction(`${this.context.site}.ATOMTONO`, new il_1.Char(100));
+        const funcAtomToNo = this.createFunction(`${this.context.site}.${toNO}`, new il_1.Char(100));
         new FuncAtomToNo(factory, funcAtomToNo).build();
-        const funcNoToAtom = this.createFunction(`${this.context.site}.NOTOATOM`, new il_1.BigInt());
+        const funcNoToAtom = this.createFunction(`${this.context.site}.${fromNO}`, new il_1.BigInt());
         new FuncNoToAtom(factory, funcNoToAtom).build();
         const objConnect = {};
-        const { id, connect, ins, outs } = this.bizEntity;
+        const { id, connect, ins, outs, IDs } = this.bizEntity;
         objConnect.type = connect.type;
+        for (let ioAppID of IDs) {
+            this.buildUniqueFunc(ioAppID);
+        }
         for (let ioAppIn of ins) {
             const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
             let ioProc = new IOProcIn(this.context, ioAppIn, proc);
@@ -194,8 +197,75 @@ class BBizIOApp extends BizEntity_1.BBizEntity {
                 ON DUPLICATE KEY UPDATE connect=VALUES(connect);
         `);
     }
+    buildUniqueFunc(ioAppID) {
+        const { unique } = ioAppID;
+        if (unique === unique)
+            return;
+        const { factory, site } = this.context;
+        const { id } = ioAppID;
+        const funcUniqueToNo = this.createFunction(`${site}.${id}.${toNO}`, new il_1.Char(100));
+        new FuncUniqueToNo(factory, funcUniqueToNo, ioAppID).build();
+        const funcUniqueFromNo = this.createFunction(`${site}.${id}.${fromNO}`, new il_1.BigInt());
+        new FuncUniqueFromNo(factory, funcUniqueFromNo, ioAppID).build();
+    }
 }
 exports.BBizIOApp = BBizIOApp;
+class FuncUniqueTo {
+    constructor(factory, func, ioAppID) {
+        this.param = 'param';
+        this.factory = factory;
+        this.func = func;
+        this.ioAppID = ioAppID;
+    }
+    build() {
+        const { parameters, statements } = this.func;
+        parameters.push((0, il_1.bigIntField)(FuncUniqueTo.otherSite), this.fromField());
+        let declare = this.factory.createDeclare();
+        statements.push(declare);
+        declare.vars(this.toField());
+        let ifParamNotNull = this.factory.createIf();
+        statements.push(ifParamNotNull);
+        ifParamNotNull.cmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(this.param));
+        let select = this.factory.createSelect();
+        ifParamNotNull.then(select);
+        select.toVar = true;
+        select.lock = select_1.LockType.none;
+        select.col(this.toName, this.toName, a);
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('i', a)));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(this.ioAppID.unique.IDOwner.id)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpVar(FuncUniqueTo.otherSite)), new sql_1.ExpEQ(new sql_1.ExpField(this.fromName), new sql_1.ExpVar(this.param))));
+        let iff = this.factory.createIf();
+        ifParamNotNull.then(iff);
+        iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(this.toName));
+        let ioStatementBuilder = new IOStatementBuilder(this.factory);
+        const insertErr = ioStatementBuilder.transErrorInsert(new sql_1.ExpNum(this.ioAppID.id), this.fromName, this.param);
+        iff.then(insertErr);
+        let ret = this.factory.createReturn();
+        statements.push(ret);
+        ret.returnVar = this.toName;
+    }
+}
+FuncUniqueTo.otherSite = '$otherSite'; // In Out other site ID
+FuncUniqueTo.atomPhraseId = '$atomPhraseId';
+class FuncUniqueFromNo extends FuncUniqueTo {
+    constructor() {
+        super(...arguments);
+        this.fromName = 'x';
+        this.toName = 'atom';
+    }
+    fromField() { return (0, il_1.charField)(this.param, 100); }
+    toField() { return (0, il_1.bigIntField)(this.toName); }
+}
+class FuncUniqueToNo extends FuncUniqueTo {
+    constructor() {
+        super(...arguments);
+        this.fromName = 'atom';
+        this.toName = 'x';
+    }
+    fromField() { return (0, il_1.bigIntField)(this.param); }
+    toField() { return (0, il_1.charField)(this.toName, 100); }
+}
 class FuncTo {
     constructor(factory, func) {
         this.param = 'param';
@@ -249,6 +319,8 @@ class FuncAtomToNo extends FuncTo {
     fromField() { return (0, il_1.bigIntField)(this.param); }
     toField() { return (0, il_1.charField)(this.toName, 100); }
 }
+const toNO = 'TONO';
+const fromNO = 'FROMNO';
 class IOProc {
     constructor(context, ioAppIO, proc) {
         this.buildVal = (bud) => {
@@ -293,10 +365,17 @@ class IOProc {
         if (ioAppID === undefined) {
             return val;
         }
-        return new sql_1.ExpFuncDb('$site', `${this.context.site}.${this.transFuncName}`, new sql_1.ExpFuncInUq('duo$id', [
-            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
-            new sql_1.ExpVar(IOProc.siteAtomApp), new sql_1.ExpNum(ioAppID.id),
-        ], true), val);
+        const { unique, id } = ioAppID;
+        const { site } = this.context;
+        if (unique === undefined) {
+            return new sql_1.ExpFuncDb('$site', `${site}.${this.transFuncName}`, new sql_1.ExpFuncInUq('duo$id', [
+                sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
+                new sql_1.ExpVar(IOProc.siteAtomApp), new sql_1.ExpNum(ioAppID.id),
+            ], true), val);
+        }
+        else {
+            return new sql_1.ExpFuncDb('$site', `${site}.${id}.${this.transFuncName}`, new sql_1.ExpVar(IOProc.otherSite), val);
+        }
     }
     transOptions(peer, val) {
         const { options } = peer;
@@ -405,19 +484,19 @@ IOProc.jsonTable = 't';
 IOProc.siteAtomApp = '$siteAtomApp';
 IOProc.pSiteAtomApp = '$pSiteAtomApp';
 IOProc.queueId = '$queueId';
-IOProc.inSite = '$inSite';
+IOProc.otherSite = '$otherSite';
 IOProc.endPoint = '$endPoint';
 IOProc.vDone = '$done';
 const a = 'a', b = 'b', c = 'c';
 class IOProcIn extends IOProc {
     constructor() {
         super(...arguments);
-        this.transFuncName = 'NoToAtom';
+        this.transFuncName = fromNO;
     }
     buildProc() {
         const { factory } = this;
         const { parameters, statements } = this.proc;
-        parameters.push((0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.inSite), (0, il_1.jsonField)(IOProc.vJson));
+        parameters.push((0, il_1.bigIntField)(IOProc.queueId), (0, il_1.bigIntField)(IOProc.otherSite), (0, il_1.jsonField)(IOProc.vJson));
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.bigIntField)(IOProc.endPoint), (0, il_1.bigIntField)(IOProc.ioAppIO));
@@ -430,7 +509,6 @@ class IOProcIn extends IOProc {
         selectSiteAtomApp.col('i', IOProc.siteAtomApp, b);
         selectSiteAtomApp.col('x', IOProc.ioAppIO, b);
         selectSiteAtomApp.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOQueue, false, a))
-            // .join(JoinType.join, new EntityTable(EnumSysTable.IOEndPoint, false, b))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('endPoint', a)));
         selectSiteAtomApp.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(IOProc.queueId)));
@@ -469,7 +547,7 @@ class IOProcIn extends IOProc {
         call.procName = `${this.context.site}.${this.ioAppIO.bizIO.id}`;
         call.params = [
             { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.queueId) },
-            { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.inSite) },
+            { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.otherSite) },
             { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.vRetJson) },
         ];
         return statements;
@@ -478,7 +556,7 @@ class IOProcIn extends IOProc {
 class IOProcOut extends IOProc {
     constructor() {
         super(...arguments);
-        this.transFuncName = 'AtomToNo';
+        this.transFuncName = toNO;
     }
     buildParams() {
         return [

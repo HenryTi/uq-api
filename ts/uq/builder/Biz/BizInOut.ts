@@ -1,7 +1,7 @@
 import { delimiter } from "path";
 import {
     BigInt, BizBud, BizBudArr, BizIOApp, BizIn, BizInOut, BizOut, BudDataType, Char, EnumSysTable, Field
-    , IOAppID, IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, IOPeerOptions, JoinType
+    , IDUnique, IOAppID, IOAppIO, IOAppIn, IOAppOut, IOPeer, IOPeerArr, IOPeerID, IOPeerOptions, JoinType
     , JsonTableColumn, PeerType, ProcParamType, bigIntField, charField, dateField
     , decField, intField, jsonField, tinyIntField
 } from "../../il";
@@ -210,14 +210,17 @@ export class BBizIOApp extends BBizEntity<BizIOApp> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
         const { factory } = this.context;
-        const funcAtomToNo = this.createFunction(`${this.context.site}.ATOMTONO`, new Char(100));
+        const funcAtomToNo = this.createFunction(`${this.context.site}.${toNO}`, new Char(100));
         new FuncAtomToNo(factory, funcAtomToNo).build();
-        const funcNoToAtom = this.createFunction(`${this.context.site}.NOTOATOM`, new BigInt());
+        const funcNoToAtom = this.createFunction(`${this.context.site}.${fromNO}`, new BigInt());
         new FuncNoToAtom(factory, funcNoToAtom).build();
 
         const objConnect: { [prop: string]: any } = {};
-        const { id, connect, ins, outs } = this.bizEntity;
+        const { id, connect, ins, outs, IDs } = this.bizEntity;
         objConnect.type = connect.type;
+        for (let ioAppID of IDs) {
+            this.buildUniqueFunc(ioAppID);
+        }
         for (let ioAppIn of ins) {
             const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
             let ioProc = new IOProcIn(this.context, ioAppIn, proc);
@@ -237,6 +240,84 @@ export class BBizIOApp extends BBizEntity<BizIOApp> {
                 ON DUPLICATE KEY UPDATE connect=VALUES(connect);
         `);
     }
+
+    private buildUniqueFunc(ioAppID: IOAppID) {
+        const { unique } = ioAppID;
+        if (unique === unique) return;
+        const { factory, site } = this.context;
+        const { id } = ioAppID;
+        const funcUniqueToNo = this.createFunction(`${site}.${id}.${toNO}`, new Char(100));
+        new FuncUniqueToNo(factory, funcUniqueToNo, ioAppID).build();
+        const funcUniqueFromNo = this.createFunction(`${site}.${id}.${fromNO}`, new BigInt());
+        new FuncUniqueFromNo(factory, funcUniqueFromNo, ioAppID).build();
+    }
+}
+
+abstract class FuncUniqueTo {
+    static otherSite = '$otherSite';        // In Out other site ID
+    static atomPhraseId = '$atomPhraseId';
+    protected readonly factory: Factory;
+    protected readonly func: Procedure;
+    protected readonly ioAppID: IOAppID;
+    protected readonly param = 'param';
+    protected abstract get fromName(): string;
+    protected abstract get toName(): string;
+    protected abstract fromField(): Field;
+    protected abstract toField(): Field;
+    constructor(factory: Factory, func: Procedure, ioAppID: IOAppID) {
+        this.factory = factory;
+        this.func = func;
+        this.ioAppID = ioAppID;
+    }
+
+    build() {
+        const { parameters, statements } = this.func;
+        parameters.push(
+            bigIntField(FuncUniqueTo.otherSite),
+            this.fromField(),
+        );
+        let declare = this.factory.createDeclare();
+        statements.push(declare);
+
+        declare.vars(this.toField());
+        let ifParamNotNull = this.factory.createIf();
+        statements.push(ifParamNotNull);
+        ifParamNotNull.cmp = new ExpIsNotNull(new ExpVar(this.param));
+        let select = this.factory.createSelect();
+        ifParamNotNull.then(select);
+        select.toVar = true;
+        select.lock = LockType.none;
+        select.col(this.toName, this.toName, a);
+        select.from(new EntityTable(EnumSysTable.atomUnique, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('i', a)));
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('base', b), new ExpNum(this.ioAppID.unique.IDOwner.id)),
+            new ExpEQ(new ExpField('ext', b), new ExpVar(FuncUniqueTo.otherSite)),
+            new ExpEQ(new ExpField(this.fromName), new ExpVar(this.param)),
+        ));
+        let iff = this.factory.createIf();
+        ifParamNotNull.then(iff);
+        iff.cmp = new ExpIsNull(new ExpVar(this.toName));
+        let ioStatementBuilder = new IOStatementBuilder(this.factory);
+        const insertErr = ioStatementBuilder.transErrorInsert(new ExpNum(this.ioAppID.id), this.fromName, this.param);
+        iff.then(insertErr);
+        let ret = this.factory.createReturn();
+        statements.push(ret);
+        ret.returnVar = this.toName;
+    }
+}
+class FuncUniqueFromNo extends FuncUniqueTo {
+    protected fromName = 'x';
+    protected toName = 'atom';
+    protected fromField(): Field { return charField(this.param, 100); }
+    protected toField(): Field { return bigIntField(this.toName); }
+}
+class FuncUniqueToNo extends FuncUniqueTo {
+    protected fromName = 'atom';
+    protected toName = 'x';
+    protected fromField(): Field { return bigIntField(this.param); }
+    protected toField(): Field { return charField(this.toName, 100); }
 }
 
 abstract class FuncTo {
@@ -300,6 +381,8 @@ class FuncAtomToNo extends FuncTo {
     protected toField(): Field { return charField(this.toName, 100); }
 }
 
+const toNO = 'TONO';
+const fromNO = 'FROMNO';
 abstract class IOProc<T extends IOAppIO> {
     static atom = '$atom';
     static appID = '$appID';
@@ -311,7 +394,7 @@ abstract class IOProc<T extends IOAppIO> {
     static siteAtomApp = '$siteAtomApp';
     static pSiteAtomApp = '$pSiteAtomApp';
     static queueId = '$queueId';
-    static inSite = '$inSite';
+    static otherSite = '$otherSite';
     static endPoint = '$endPoint';
     static vDone = '$done';
     protected readonly context: DbContext;
@@ -333,16 +416,26 @@ abstract class IOProc<T extends IOAppIO> {
         if (ioAppID === undefined) {
             return val;
         }
-        return new ExpFuncDb('$site',
-            `${this.context.site}.${this.transFuncName}`,
-            new ExpFuncInUq('duo$id',
-                [
-                    ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNull.null,
-                    new ExpVar(IOProc.siteAtomApp), new ExpNum(ioAppID.id),
-                ],
-                true
-            ),
-            val);
+        const { unique, id } = ioAppID;
+        const { site } = this.context;
+        if (unique === undefined) {
+            return new ExpFuncDb('$site',
+                `${site}.${this.transFuncName}`,
+                new ExpFuncInUq('duo$id',
+                    [
+                        ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNull.null,
+                        new ExpVar(IOProc.siteAtomApp), new ExpNum(ioAppID.id),
+                    ],
+                    true
+                ),
+                val);
+        }
+        else {
+            return new ExpFuncDb('$site',
+                `${site}.${id}.${this.transFuncName}`,
+                new ExpVar(IOProc.otherSite),
+                val);
+        }
     }
 
     protected transOptions(peer: IOPeerOptions, val: ExpVal): ExpVal {
@@ -481,14 +574,14 @@ abstract class IOProc<T extends IOAppIO> {
 
 const a = 'a', b = 'b', c = 'c';
 class IOProcIn extends IOProc<IOAppIn> {
-    protected readonly transFuncName = 'NoToAtom';
+    protected readonly transFuncName = fromNO;
 
     override buildProc(): void {
         const { factory } = this;
         const { parameters, statements } = this.proc;
         parameters.push(
             bigIntField(IOProc.queueId),
-            bigIntField(IOProc.inSite),
+            bigIntField(IOProc.otherSite),
             jsonField(IOProc.vJson),
         );
         const declare = factory.createDeclare();
@@ -510,7 +603,6 @@ class IOProcIn extends IOProc<IOAppIn> {
         selectSiteAtomApp.col('i', IOProc.siteAtomApp, b);
         selectSiteAtomApp.col('x', IOProc.ioAppIO, b);
         selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOQueue, false, a))
-            // .join(JoinType.join, new EntityTable(EnumSysTable.IOEndPoint, false, b))
             .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('endPoint', a)));
         selectSiteAtomApp.where(new ExpEQ(new ExpField('id', a), new ExpVar(IOProc.queueId)));
@@ -558,7 +650,7 @@ class IOProcIn extends IOProc<IOAppIn> {
         call.procName = `${this.context.site}.${this.ioAppIO.bizIO.id}`;
         call.params = [
             { paramType: ProcParamType.in, value: new ExpVar(IOProc.queueId) },
-            { paramType: ProcParamType.in, value: new ExpVar(IOProc.inSite) },
+            { paramType: ProcParamType.in, value: new ExpVar(IOProc.otherSite) },
             { paramType: ProcParamType.in, value: new ExpVar(IOProc.vRetJson) },
         ];
         return statements;
@@ -566,7 +658,7 @@ class IOProcIn extends IOProc<IOAppIn> {
 }
 
 class IOProcOut extends IOProc<IOAppOut> {
-    protected readonly transFuncName = 'AtomToNo';
+    protected readonly transFuncName = toNO;
     private buildParams(): Field[] {
         return [
             bigIntField(IOProc.ioSite),

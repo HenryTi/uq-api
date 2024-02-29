@@ -171,6 +171,7 @@ class PBizAtom extends PBizIDExtendable {
                     name: i,
                     keys: keyBuds,
                     no: noBud,
+                    IDOwner: this.element,
                 });
                 if (keyBuds.length > 1) {
                     this.log('KEY only one');
