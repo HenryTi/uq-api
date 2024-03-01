@@ -109,19 +109,8 @@ export class ApiRunner extends Runner {
                     doneType = EnumQueueDoneType.errorDeliver;
                     doneResult = retPushOut;
                 }
-                /*
-                retPushOut = await this.pushOut(outNm, outUrl, outKey, outPassword, value, queueId);
-                doneType = EnumQueueDoneType.done;
-                if (retPushOut !== undefined) {
-                    if (retPushOut.success !== true) {
-                        doneResult = retPushOut;
-                        doneType = EnumQueueDoneType.errorDeliver;
-                    }
-                }
-                */
             }
             catch (err) {
-                // debugger;
                 console.error('push out error', err);
                 doneType = EnumQueueDoneType.error;
                 doneResult = { error: err.message };
@@ -133,38 +122,11 @@ export class ApiRunner extends Runner {
         }
         return length;
     }
-    /*
-    private async pushOut(outName: string, outUrl: string, outKey: string, outPassword: string, value: any, queueId: number) {
-        try {
-            let stamp = Date.now();
-            let strData = JSON.stringify(value);
-            let token: string = md5(stamp + strData + outPassword);
-            let uiq: number = 0; // queueId;
-            let ret = await fetch(outUrl, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    data: value,
-                    stamp,
-                    appKey: outKey,
-                    appkey: outKey,
-                    token,
-                    act: outName,
-                    uiq,
-                }),
-            });
-            let retJson = await ret.json();
-            return retJson;
-        }
-        catch (err) {
-            debugger;
-            throw err;
-        }
+
+    // 每次要更新Atom Unique，就会Atom Phrase id写入IOInOut队列。逐个处理。
+    async processAtomUnique(batchNumber: number): Promise<number> {
+        return 0;
     }
-    */
 }
 
 function md5(content: string) {

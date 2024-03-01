@@ -101,19 +101,8 @@ class ApiRunner extends Runner_1.Runner {
                     doneType = EnumQueueDoneType.errorDeliver;
                     doneResult = retPushOut;
                 }
-                /*
-                retPushOut = await this.pushOut(outNm, outUrl, outKey, outPassword, value, queueId);
-                doneType = EnumQueueDoneType.done;
-                if (retPushOut !== undefined) {
-                    if (retPushOut.success !== true) {
-                        doneResult = retPushOut;
-                        doneType = EnumQueueDoneType.errorDeliver;
-                    }
-                }
-                */
             }
             catch (err) {
-                // debugger;
                 console.error('push out error', err);
                 doneType = EnumQueueDoneType.error;
                 doneResult = { error: err.message };
@@ -124,6 +113,10 @@ class ApiRunner extends Runner_1.Runner {
             }
         }
         return length;
+    }
+    // 每次要更新Atom Unique，就会Atom Phrase id写入IOInOut队列。逐个处理。
+    async processAtomUnique(batchNumber) {
+        return 0;
     }
 }
 exports.ApiRunner = ApiRunner;

@@ -212,6 +212,16 @@ class PBizIOApp extends Base_1.PBizEntity {
         }
         return ok;
     }
+    scan2(uq) {
+        let ok = true;
+        const { IDs, ins, outs } = this.element;
+        for (let item of [...IDs, ...ins, ...outs]) {
+            if (item.pelement.scan2(uq) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
 }
 exports.PBizIOApp = PBizIOApp;
 class PIOAppID extends Base_1.PBizBase {

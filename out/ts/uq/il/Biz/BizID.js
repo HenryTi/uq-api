@@ -18,9 +18,12 @@ class BizIDExtendable extends BizID {
         super.buildPhrases(phrases, prefix);
     }
     buildSchema(res) {
-        var _a;
+        var _a, _b;
         let ret = super.buildSchema(res);
-        return Object.assign(ret, { extends: (_a = this.extends) === null || _a === void 0 ? void 0 : _a.id });
+        return Object.assign(ret, {
+            extends: (_a = this.extends) === null || _a === void 0 ? void 0 : _a.id,
+            uniques: (_b = this.uniques) === null || _b === void 0 ? void 0 : _b.map(v => v.name),
+        });
     }
     getBud(name) {
         let ret = super.getBud(name);

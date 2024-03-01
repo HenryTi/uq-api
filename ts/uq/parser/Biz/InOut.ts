@@ -231,6 +231,17 @@ export class PBizIOApp extends PBizEntity<BizIOApp> {
         }
         return ok;
     }
+
+    override scan2(uq: Uq): boolean {
+        let ok = true;
+        const { IDs, ins, outs } = this.element;
+        for (let item of [...IDs, ...ins, ...outs]) {
+            if (item.pelement.scan2(uq) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
 }
 
 export class PIOAppID extends PBizBase<IOAppID> {

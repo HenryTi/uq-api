@@ -243,7 +243,7 @@ export class BBizIOApp extends BBizEntity<BizIOApp> {
 
     private buildUniqueFunc(ioAppID: IOAppID) {
         const { unique } = ioAppID;
-        if (unique === unique) return;
+        if (unique === undefined) return;
         const { factory, site } = this.context;
         const { id } = ioAppID;
         const funcUniqueToNo = this.createFunction(`${site}.${id}.${toNO}`, new Char(100));

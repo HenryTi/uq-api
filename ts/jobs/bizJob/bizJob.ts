@@ -50,6 +50,10 @@ class BizJob {
     private runOut = async () => {
         return await this.apiRunner.processIOOut(1);
     }
+
+    private runAtomUnique = async () => {
+        return await this.apiRunner.processAtomUnique(20);
+    }
 }
 
 // gap seconds

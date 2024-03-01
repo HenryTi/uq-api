@@ -31,13 +31,14 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             let vNo = `${name}_no`;
             let vI = `${name}_i`;
             declare.var(vKey, new il_1.BigInt());
-            declare.var(vNo, new il_1.BigInt());
+            declare.var(vNo, new il_1.Char(400));
             declare.var(vI, new il_1.BigInt());
             let noNullCmp;
             let valKey;
             let ifUnique = factory.createIf();
-            let inArr = [new sql_1.ExpVar(budPhrase), ...keys.map(v => new sql_1.ExpNum(v.id)), new sql_1.ExpNum(no.id)];
-            ifUnique.cmp = new sql_1.ExpIn(...inArr);
+            let varBudPhrase = new sql_1.ExpVar(budPhrase);
+            let inArr = [varBudPhrase, ...keys.map(v => new sql_1.ExpNum(v.id)), new sql_1.ExpNum(no.id)];
+            ifUnique.cmp = new sql_1.ExpOr(new sql_1.ExpIsNull(varBudPhrase), new sql_1.ExpIn(...inArr));
             if (keys.length > 0) {
                 let setKey = factory.createSet();
                 ifUnique.then(setKey);

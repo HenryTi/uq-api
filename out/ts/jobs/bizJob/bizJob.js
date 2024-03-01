@@ -12,6 +12,9 @@ class BizJob {
         this.runOut = async () => {
             return await this.apiRunner.processIOOut(1);
         };
+        this.runAtomUnique = async () => {
+            return await this.apiRunner.processAtomUnique(20);
+        };
         this.db$Uq = (0, core_1.getDbs)().db$Uq;
         this.apiRunner = new core_1.ApiRunner();
         this.queued = true;

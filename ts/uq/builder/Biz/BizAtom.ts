@@ -4,7 +4,7 @@ import {
 } from "../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIn, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum
-    , ExpSelect, ExpStr, ExpVal, ExpVar, Procedure
+    , ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
@@ -14,9 +14,31 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         super.buildProcedures
         const { id, uniques } = this.bizEntity;
         if (uniques !== undefined) {
-            const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
-            this.buildUniqueProc(procUnqiue);
+            const budUniques: Map<BizBud, IDUnique[]> = new Map();
+            for (let uq of uniques) {
+                const { keys, no } = uq;
+                function addBudUniques(bud: BizBud) {
+                    let bu = budUniques.get(bud);
+                    if (bu === undefined) {
+                        bu = [uq];
+                        budUniques.set(bud, bu);
+                    }
+                    else bu.push(uq);
+                }
+                for (let key of keys) addBudUniques(key);
+                addBudUniques(no);
+            }
+            for (let [bud, unique] of budUniques) {
+                const procUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
+                this.buildBudUniqueProc(procUnqiue, bud, unique);
+            }
+            // const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
+            // this.buildUniqueProc(procUnqiue);
         }
+    }
+
+    private buildBudUniqueProc(proc: Procedure, bud: BizBud, uniqueArr: IDUnique[]) {
+
     }
 
     private buildUniqueProc(proc: Procedure) {
@@ -46,13 +68,14 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             let vNo = `${name}_no`;
             let vI = `${name}_i`;
             declare.var(vKey, new BigInt());
-            declare.var(vNo, new BigInt());
+            declare.var(vNo, new Char(400));
             declare.var(vI, new BigInt());
             let noNullCmp: ExpCmp;
             let valKey: ExpVal;
             let ifUnique = factory.createIf();
-            let inArr = [new ExpVar(budPhrase), ...keys.map(v => new ExpNum(v.id)), new ExpNum(no.id)];
-            ifUnique.cmp = new ExpIn(...inArr);
+            let varBudPhrase = new ExpVar(budPhrase);
+            let inArr = [varBudPhrase, ...keys.map(v => new ExpNum(v.id)), new ExpNum(no.id)];
+            ifUnique.cmp = new ExpOr(new ExpIsNull(varBudPhrase), new ExpIn(...inArr));
             if (keys.length > 0) {
                 let setKey = factory.createSet();
                 ifUnique.then(setKey);

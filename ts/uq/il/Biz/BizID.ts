@@ -24,7 +24,10 @@ export abstract class BizIDExtendable extends BizID {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return Object.assign(ret, { extends: this.extends?.id });
+        return Object.assign(ret, {
+            extends: this.extends?.id,
+            uniques: this.uniques?.map(v => v.name),
+        });
     }
     getBud(name: string): BizBud {
         let ret = super.getBud(name);

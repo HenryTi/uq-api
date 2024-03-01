@@ -199,7 +199,7 @@ class BBizIOApp extends BizEntity_1.BBizEntity {
     }
     buildUniqueFunc(ioAppID) {
         const { unique } = ioAppID;
-        if (unique === unique)
+        if (unique === undefined)
             return;
         const { factory, site } = this.context;
         const { id } = ioAppID;
