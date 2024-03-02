@@ -10,7 +10,7 @@ import { $site } from "../consts";
 import { DbContext } from "../dbContext";
 import {
     ExpAdd,
-    ExpAnd, ExpComplex, ExpDatePart, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpFuncInUq
+    ExpAnd, ExpAtVar, ExpComplex, ExpDatePart, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpFuncInUq
     , ExpGT, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum, ExpSelect, ExpStar, ExpStr
     , ExpVal, ExpVar, Procedure, SqlVarTable, Statement
 } from "../sql";
@@ -177,6 +177,8 @@ export class BBizOut extends BBizInOut<BizOut> {
 
         let ioStatementBuilder = new IOStatementBuilder(factory);
         statements.push(ioStatementBuilder.transErrorTable());
+        statements.push(ioStatementBuilder.transErrTruncate());
+        statements.push(ioStatementBuilder.transErrorJsonInit());
 
         const setSite = factory.createSet();
         statements.push(setSite);
@@ -300,8 +302,10 @@ abstract class FuncUniqueTo {
         ifParamNotNull.then(iff);
         iff.cmp = new ExpIsNull(new ExpVar(this.toName));
         let ioStatementBuilder = new IOStatementBuilder(this.factory);
-        const insertErr = ioStatementBuilder.transErrorInsert(new ExpNum(this.ioAppID.id), this.fromName, this.param);
-        iff.then(insertErr);
+        // const insertErr = ioStatementBuilder.transErrorInsert(new ExpNum(this.ioAppID.id), this.fromName, this.param);
+        // iff.then(insertErr);
+        const appendErr = ioStatementBuilder.transErrorAppend(new ExpNum(this.ioAppID.id), this.fromName, this.param);
+        iff.then(appendErr);
         let ret = this.factory.createReturn();
         statements.push(ret);
         ret.returnVar = this.toName;
@@ -596,6 +600,7 @@ class IOProcIn extends IOProc<IOAppIn> {
         let ioStatementBuilder = new IOStatementBuilder(factory);
         statements.push(ioStatementBuilder.transErrorTable());
         statements.push(ioStatementBuilder.transErrTruncate());
+        statements.push(ioStatementBuilder.transErrorJsonInit());
 
         let selectSiteAtomApp = factory.createSelect();
         statements.push(selectSiteAtomApp);
@@ -615,6 +620,7 @@ class IOProcIn extends IOProc<IOAppIn> {
         ifSiteAtomApp.then(set);
         set.equ(IOProc.vRetJson, new ExpSelect(this.buildJsonTrans()));
 
+        ifSiteAtomApp.then(ioStatementBuilder.transErrMerge());
         let ifTransErr = factory.createIf();
         ifSiteAtomApp.then(ifTransErr);
         let selectTransErrCount = ioStatementBuilder.transErrCount();
@@ -769,6 +775,8 @@ class IOProcOut extends IOProc<IOAppOut> {
         ));
 
         let ioStatementBuilder = new IOStatementBuilder(this.factory);
+        ifEndPoint.then(ioStatementBuilder.transErrMerge());
+
         let ifTransErr = this.factory.createIf();
         ifEndPoint.then(ifTransErr);
         let selectTransErrCount = ioStatementBuilder.transErrCount();
@@ -808,6 +816,7 @@ class IOProcOut extends IOProc<IOAppOut> {
     }
 }
 
+const transErr = 'transerr';
 class IOStatementBuilder {
     static transerr = '$transerr';
     private readonly factory: Factory;
@@ -834,6 +843,13 @@ class IOStatementBuilder {
         return vtTransErr;
     }
 
+    transErrorJsonInit() {
+        let initTranErr = this.factory.createSet();
+        initTranErr.isAtVar = true;
+        initTranErr.equ(transErr, new ExpFunc('JSON_ARRAY'));
+        return initTranErr;
+    }
+
     transErrorInsert(varAppID: ExpVal, fromField: string, fromVar: string) {
         const insertErr = this.factory.createInsert();
         insertErr.ignore = true;
@@ -845,17 +861,57 @@ class IOStatementBuilder {
         return insertErr;
     }
 
+    transErrorAppend(varAppID: ExpVal, fromField: string, fromVar: string) {
+        const setAppend = this.factory.createSet();
+        setAppend.isAtVar = true;
+        setAppend.equ(transErr, new ExpFunc(
+            'JSON_ARRAY_APPEND'
+            , new ExpAtVar(transErr), new ExpStr('$')
+            , new ExpFunc(
+                'JSON_OBJECT',
+                new ExpStr('appID'), varAppID,
+                new ExpStr(fromField), new ExpVar(fromVar)
+            )
+        ));
+        return setAppend;
+    }
+
     transErrTruncate() {
         let truncateTransErr = this.factory.createTruncate();
         truncateTransErr.table = new VarTable(IOStatementBuilder.transerr);
         return truncateTransErr;
     }
 
+    transErrMerge() {
+        let insert = this.factory.createInsert();
+        let tblTransErr = new VarTable(IOStatementBuilder.transerr);
+        insert.table = tblTransErr;
+        const cols = insert.cols = [
+            { col: 'appID', val: undefined },
+            { col: 'atom', val: undefined },
+            { col: 'no', val: undefined },
+        ];
+        let select = this.factory.createSelect();
+        insert.select = select;
+        let jsonColumns: JsonTableColumn[] = [
+            { field: bigIntField('appID'), path: `$.appID` },
+            { field: bigIntField('atom'), path: `$.atom` },
+            { field: charField('no', 100), path: `$.no` },
+        ];
+        let jsonTable = new FromJsonTable('a', new ExpAtVar(transErr), `$[*]`, jsonColumns);
+        cols.forEach(v => select.col(v.col));
+        select.from(jsonTable);
+        select.lock = LockType.none;
+        return insert;
+    }
+
     transErrCount() {
         let tblTransErr = new VarTable(IOStatementBuilder.transerr, a);
         let selectTransErrCount = this.factory.createSelect();
         selectTransErrCount.from(tblTransErr);
-        selectTransErrCount.column(new ExpFunc(this.factory.func_count, new ExpStar()));
+        selectTransErrCount.column(
+            new ExpFunc(this.factory.func_count, new ExpStar()),
+        );
         selectTransErrCount.limit(ExpNum.num1);
         return selectTransErrCount;
     }

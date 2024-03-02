@@ -38,7 +38,105 @@ export class BBizAtom extends BBizEntity<BizAtom> {
     }
 
     private buildBudUniqueProc(proc: Procedure, bud: BizBud, uniqueArr: IDUnique[]) {
+        const { parameters, statements } = proc;
+        const { factory } = this.context;
 
+        //const cBase = '$base';
+        const cId = '$id';
+        const a = 'a';
+        //const site = '$site';
+        //const budPhrase = '$budPhrase';
+        let varBudPhrase = new ExpNum(bud.id);
+        let varAtomPhrase = new ExpNum(this.bizEntity.id);
+
+        parameters.push(
+            //bigIntField(site),
+            bigIntField(cId),
+            //bigIntField(cBase),
+            //bigIntField(budPhrase),
+        );
+
+        const declare = factory.createDeclare();
+        statements.push(declare);
+
+        function buildUnique(unique: IDUnique) {
+            const { name, keys, no } = unique;
+            let vKey = `${name}_key`;
+            let vNo = `${name}_no`;
+            let vI = `${name}_i`;
+            declare.var(vKey, new BigInt());
+            declare.var(vNo, new Char(400));
+            declare.var(vI, new BigInt());
+            let noNullCmp: ExpCmp;
+            let valKey: ExpVal;
+            if (keys.length > 0) {
+                let setKey = factory.createSet();
+                statements.push(setKey);
+                let selectKey = factory.createSelect();
+                selectKey.col('value');
+                selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
+                selectKey.where(new ExpAnd(
+                    new ExpEQ(new ExpField('i'), new ExpVar(cId)),
+                    new ExpEQ(new ExpField('x'), new ExpNum(keys[0].id)),
+                ));
+                setKey.equ(vKey, new ExpSelect(selectKey));
+                noNullCmp = new ExpAnd(
+                    new ExpIsNotNull(new ExpVar(vKey)),
+                    new ExpIsNotNull(new ExpVar(vNo)),
+                );
+                valKey = new ExpFuncInUq('bud$id', [
+                    ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
+                    varAtomPhrase, new ExpVar(vKey)
+                ], true);
+            }
+            else {
+                noNullCmp = new ExpIsNotNull(new ExpVar(vNo));
+                valKey = varAtomPhrase;
+            }
+            let setNo = factory.createSet();
+            statements.push(setNo);
+            let selectNO = factory.createSelect();
+            selectNO.col('value');
+            selectNO.from(new EntityTable(EnumSysTable.ixBudStr, false));
+            selectNO.where(new ExpAnd(
+                new ExpEQ(new ExpField('i'), new ExpVar(cId)),
+                new ExpEQ(new ExpField('x'), new ExpNum(no.id)),
+            ));
+            setNo.equ(vNo, new ExpSelect(selectNO));
+
+            let ifNoNull = factory.createIf();
+            statements.push(ifNoNull);
+            ifNoNull.cmp = noNullCmp;
+
+            let setI = factory.createSet();
+            ifNoNull.then(setI);
+            setI.equ(vI, valKey);
+
+            let del = factory.createDelete();
+            ifNoNull.then(del);
+            del.tables = [a];
+            del.from(new EntityTable(EnumSysTable.atomUnique, false, a));
+            del.where(new ExpAnd(
+                new ExpEQ(new ExpField('i', a), new ExpVar(vI)),
+                new ExpOr(
+                    new ExpEQ(new ExpField('atom', a), new ExpVar(cId)),
+                    new ExpEQ(new ExpField('x', a), new ExpVar(vNo)),
+                ),
+            ))
+            let insert = factory.createInsert();
+            ifNoNull.then(insert);
+            insert.table = new EntityTable(EnumSysTable.atomUnique, false);
+            insert.ignore = true;
+            insert.cols = [
+                { col: 'i', val: new ExpVar(vI) },
+                { col: 'x', val: new ExpVar(vNo) },
+                { col: 'atom', val: new ExpVar(cId) },
+            ]
+        }
+
+        for (let unique of uniqueArr) {
+            buildUnique(unique);
+        }
     }
 
     private buildUniqueProc(proc: Procedure) {
