@@ -98,7 +98,7 @@ export abstract class BizBud extends BizBase {
     constructor(biz: Biz, name: string, ui: Partial<UI>) {
         super(biz);
         this.name = name;
-        this.ui = ui;
+        Object.assign(this.ui, ui);
     }
     buildBudValue(expStringify: (value: ValueExpression) => string) { }
     buildSchema(res: { [phrase: string]: string }) {

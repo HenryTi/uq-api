@@ -70,7 +70,7 @@ class BizBud extends Base_1.BizBase {
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.flag = Entity_1.BudIndex.none;
         this.name = name;
-        this.ui = ui;
+        Object.assign(this.ui, ui);
     }
     buildBudValue(expStringify) { }
     buildSchema(res) {

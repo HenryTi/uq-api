@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizSpec = exports.PBizDuo = exports.PBizAtom = exports.PBizIDExtendable = exports.PBizID = void 0;
+exports.PBizSpec = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizID = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
+const Bud_1 = require("./Bud");
 class PBizID extends Base_1.PBizEntity {
 }
 exports.PBizID = PBizID;
@@ -58,6 +59,93 @@ class PBizIDExtendable extends PBizID {
     }
 }
 exports.PBizIDExtendable = PBizIDExtendable;
+class PIDUnique extends Bud_1.PBizBud {
+    _parse() {
+        this.element.name = this.ts.passVar();
+        this.keys = [];
+        this.ts.passToken(tokens_1.Token.LBRACE);
+        for (;;) {
+            const { token } = this.ts;
+            if (token === tokens_1.Token.RBRACE) {
+                this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+                break;
+            }
+            else if (token === tokens_1.Token.VAR) {
+                if (this.ts.isKeyword('key') === true) {
+                    this.ts.readToken();
+                    let k = this.ts.passVar();
+                    if (this.keys.includes(k) === true) {
+                        this.ts.error(`KEY ${k} already defined`);
+                    }
+                    this.keys.push(k);
+                    this.ts.passToken(tokens_1.Token.SEMICOLON);
+                }
+                else if (this.ts.isKeyword('no') === true) {
+                    if (this.no !== undefined) {
+                        this.ts.error('NO can only define once');
+                    }
+                    this.ts.readToken();
+                    this.no = this.ts.passVar();
+                    this.ts.passToken(tokens_1.Token.SEMICOLON);
+                }
+                else {
+                    this.ts.expect('key', 'no');
+                }
+            }
+            else {
+                this.ts.expect('} or key or no');
+            }
+        }
+    }
+    getBud(budName, types) {
+        let bud = this.element.bizAtom.props.get(budName);
+        if (bud === undefined) {
+            this.log(`${budName} is not a PROP`);
+            return undefined;
+        }
+        else {
+            if (types.includes(bud.dataType) === false) {
+                this.log(`${budName} must be ${types.map(v => il_1.BudDataType[v].toUpperCase()).join(', ')}`);
+                return undefined;
+            }
+        }
+        return bud;
+    }
+    scan(space) {
+        let ok = true;
+        const { name, bizAtom } = this.element;
+        const { props } = bizAtom;
+        if (props.get(name) !== undefined) {
+            ok = false;
+            this.log(`Duplicate ${name}`);
+            ok = false;
+        }
+        let noBud = this.getBud(this.no, [il_1.BudDataType.char]);
+        if (noBud === undefined) {
+            ok = false;
+        }
+        else {
+            this.element.no = noBud;
+        }
+        let keyBuds = [];
+        for (let key of this.keys) {
+            let keyBud = this.getBud(key, [il_1.BudDataType.ID, il_1.BudDataType.int, il_1.BudDataType.atom]);
+            if (keyBud === undefined) {
+                ok = false;
+            }
+            else {
+                keyBuds.push(keyBud);
+            }
+        }
+        if (keyBuds.length > 1) {
+            this.log('KEY only one');
+        }
+        this.element.keys = keyBuds;
+        return ok;
+    }
+}
+exports.PIDUnique = PIDUnique;
 class PBizAtom extends PBizIDExtendable {
     constructor() {
         super(...arguments);
@@ -74,47 +162,13 @@ class PBizAtom extends PBizIDExtendable {
         this.parseUnique = () => {
             if (this.uniques === undefined)
                 this.uniques = {};
-            let name = this.ts.passVar();
+            let unique = new il_1.IDUnique(this.element.biz, this.element, undefined, undefined);
+            this.context.parseElement(unique);
+            const { name } = unique;
             if (this.uniques[name] !== undefined) {
                 this.ts.error(`UNIQUE ${name} duplicate`);
             }
-            let keys = [];
-            let no;
-            this.ts.passToken(tokens_1.Token.LBRACE);
-            for (;;) {
-                const { token } = this.ts;
-                if (token === tokens_1.Token.RBRACE) {
-                    this.ts.readToken();
-                    this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
-                    break;
-                }
-                else if (token === tokens_1.Token.VAR) {
-                    if (this.ts.isKeyword('key') === true) {
-                        this.ts.readToken();
-                        let k = this.ts.passVar();
-                        if (keys.includes(k) === true) {
-                            this.ts.error(`KEY ${k} already defined`);
-                        }
-                        keys.push(k);
-                        this.ts.passToken(tokens_1.Token.SEMICOLON);
-                    }
-                    else if (this.ts.isKeyword('no') === true) {
-                        if (no !== undefined) {
-                            this.ts.error('NO can only define once');
-                        }
-                        this.ts.readToken();
-                        no = this.ts.passVar();
-                        this.ts.passToken(tokens_1.Token.SEMICOLON);
-                    }
-                    else {
-                        this.ts.expect('key', 'no');
-                    }
-                }
-                else {
-                    this.ts.expect('} or key or no');
-                }
-            }
-            this.uniques[name] = { keys, no };
+            this.uniques[name] = unique;
         };
         this.keyColl = {
             prop: this.parseProp,
@@ -135,46 +189,17 @@ class PBizAtom extends PBizIDExtendable {
         if (super.scan(space) === false)
             ok = false;
         if (this.uniques !== undefined) {
-            const { props } = this.element;
-            const getBud = (budName, types) => {
-                let bud = props.get(budName);
-                if (bud === undefined) {
-                    this.log(`${budName} is not a PROP`);
+            let { uniques } = this.element;
+            if (uniques === undefined) {
+                this.element.uniques = uniques = [];
+            }
+            for (let i in this.uniques) {
+                let unique = this.uniques[i];
+                if (unique.pelement.scan(space) === false) {
                     ok = false;
                 }
                 else {
-                    if (types.includes(bud.dataType) === false) {
-                        this.log(`${budName} must be ${types.map(v => il_1.BudDataType[v].toUpperCase()).join(', ')}`);
-                        ok = false;
-                    }
-                }
-                return bud;
-            };
-            for (let i in this.uniques) {
-                if (props.get(i) !== undefined) {
-                    ok = false;
-                    this.log(`Duplicate ${i}`);
-                    continue;
-                }
-                const { keys, no } = this.uniques[i];
-                let noBud = getBud(no, [il_1.BudDataType.char]);
-                let keyBuds = [];
-                for (let key of keys) {
-                    let keyBud = getBud(key, [il_1.BudDataType.ID, il_1.BudDataType.int, il_1.BudDataType.atom]);
-                    keyBuds.push(keyBud);
-                }
-                let { uniques } = this.element;
-                if (uniques === undefined) {
-                    this.element.uniques = uniques = [];
-                }
-                uniques.push({
-                    name: i,
-                    keys: keyBuds,
-                    no: noBud,
-                    IDOwner: this.element,
-                });
-                if (keyBuds.length > 1) {
-                    this.log('KEY only one');
+                    uniques.push(unique);
                 }
             }
         }

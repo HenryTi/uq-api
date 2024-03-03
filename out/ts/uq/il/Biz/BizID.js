@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIDAny = exports.BizSpec = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.BizIDExtendable = exports.BizID = void 0;
+exports.BizIDAny = exports.BizSpec = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizID = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
+const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 // 任何可以独立存在，可被引用ID
 // 扩展和继承：有两个方式，一个是typescript里面的extends，一个是spec的base
@@ -42,8 +43,27 @@ class BizIDExtendable extends BizID {
             return u;
         return (_b = this.extends) === null || _b === void 0 ? void 0 : _b.getUnique(name);
     }
+    forEachBud(callback) {
+        super.forEachBud(callback);
+        if (this.uniques !== undefined) {
+            for (let unique of this.uniques) {
+                callback(unique);
+            }
+        }
+    }
 }
 exports.BizIDExtendable = BizIDExtendable;
+class IDUnique extends Bud_1.BizBud {
+    constructor(biz, bizAtom, name, ui) {
+        super(biz, name, ui);
+        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.bizAtom = bizAtom;
+    }
+    parser(context) {
+        return new parser_1.PIDUnique(this, context);
+    }
+}
+exports.IDUnique = IDUnique;
 class BizAtom extends BizIDExtendable {
     constructor() {
         super(...arguments);

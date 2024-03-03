@@ -236,13 +236,11 @@ class FuncUniqueTo {
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('i', a)));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(this.ioAppID.unique.IDOwner.id)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpVar(FuncUniqueTo.otherSite)), new sql_1.ExpEQ(new sql_1.ExpField(this.fromName), new sql_1.ExpVar(this.param))));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(this.ioAppID.unique.id)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpVar(FuncUniqueTo.otherSite)), new sql_1.ExpEQ(new sql_1.ExpField(this.fromName), new sql_1.ExpVar(this.param))));
         let iff = this.factory.createIf();
         ifParamNotNull.then(iff);
         iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(this.toName));
         let ioStatementBuilder = new IOStatementBuilder(this.factory);
-        // const insertErr = ioStatementBuilder.transErrorInsert(new ExpNum(this.ioAppID.id), this.fromName, this.param);
-        // iff.then(insertErr);
         const appendErr = ioStatementBuilder.transErrorAppend(new sql_1.ExpNum(this.ioAppID.id), this.fromName, this.param);
         iff.then(appendErr);
         let ret = this.factory.createReturn();

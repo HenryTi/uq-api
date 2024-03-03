@@ -1,8 +1,10 @@
 import { BBizAtom, BBizSpec, DbContext } from "../../builder";
-import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement } from "../../parser";
+import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement, PIDUnique } from "../../parser";
 import { IElement } from "../IElement";
+import { UI } from "../UI";
 import { IxField } from "./Base";
-import { BizPhraseType } from "./BizPhraseType";
+import { Biz } from "./Biz";
+import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
@@ -42,13 +44,31 @@ export abstract class BizIDExtendable extends BizID {
         if (u !== undefined) return u;
         return this.extends?.getUnique(name);
     }
+    forEachBud(callback: (bud: BizBud) => void): void {
+        super.forEachBud(callback);
+        if (this.uniques !== undefined) {
+            for (let unique of this.uniques) {
+                callback(unique);
+            }
+        }
+    }
 }
 
-export interface IDUnique {
-    name: string;
+export class IDUnique extends BizBud {
+    readonly dataType = BudDataType.none;
+    readonly bizAtom: BizIDExtendable;
     keys: BizBud[];
     no: BizBud;
     IDOwner: BizIDExtendable;
+
+    constructor(biz: Biz, bizAtom: BizIDExtendable, name: string, ui: Partial<UI>) {
+        super(biz, name, ui);
+        this.bizAtom = bizAtom;
+    }
+
+    override parser(context: PContext): PElement<IElement> {
+        return new PIDUnique(this, context);
+    }
 }
 
 export class BizAtom extends BizIDExtendable {

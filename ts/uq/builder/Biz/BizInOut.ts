@@ -294,7 +294,7 @@ abstract class FuncUniqueTo {
             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('i', a)));
         select.where(new ExpAnd(
-            new ExpEQ(new ExpField('base', b), new ExpNum(this.ioAppID.unique.IDOwner.id)),
+            new ExpEQ(new ExpField('base', b), new ExpNum(this.ioAppID.unique.id)),
             new ExpEQ(new ExpField('ext', b), new ExpVar(FuncUniqueTo.otherSite)),
             new ExpEQ(new ExpField(this.fromName), new ExpVar(this.param)),
         ));
@@ -302,8 +302,6 @@ abstract class FuncUniqueTo {
         ifParamNotNull.then(iff);
         iff.cmp = new ExpIsNull(new ExpVar(this.toName));
         let ioStatementBuilder = new IOStatementBuilder(this.factory);
-        // const insertErr = ioStatementBuilder.transErrorInsert(new ExpNum(this.ioAppID.id), this.fromName, this.param);
-        // iff.then(insertErr);
         const appendErr = ioStatementBuilder.transErrorAppend(new ExpNum(this.ioAppID.id), this.fromName, this.param);
         iff.then(appendErr);
         let ret = this.factory.createReturn();

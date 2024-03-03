@@ -3,12 +3,14 @@ import {
     , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud, BizAtom, IDUnique
 } from "../../il";
 import {
-    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIn, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum
-    , ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure
+    ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpIn, ExpIsNotNull, ExpIsNull, ExpNE, ExpNot, ExpNull, ExpNum
+    , ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement, VarTable
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
+const cId = '$id';
+const a = 'a';
 export class BBizAtom extends BBizEntity<BizAtom> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures
@@ -28,212 +30,147 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 for (let key of keys) addBudUniques(key);
                 addBudUniques(no);
             }
-            for (let [bud, unique] of budUniques) {
-                const procUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
-                this.buildBudUniqueProc(procUnqiue, bud, unique);
+            for (let [bud, uniqueArr] of budUniques) {
+                const procBudUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
+                this.buildBudUniqueProc(procBudUnqiue, uniqueArr);
             }
-            // const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
-            // this.buildUniqueProc(procUnqiue);
-        }
-    }
 
-    private buildBudUniqueProc(proc: Procedure, bud: BizBud, uniqueArr: IDUnique[]) {
-        const { parameters, statements } = proc;
-        const { factory } = this.context;
-
-        //const cBase = '$base';
-        const cId = '$id';
-        const a = 'a';
-        //const site = '$site';
-        //const budPhrase = '$budPhrase';
-        let varBudPhrase = new ExpNum(bud.id);
-        let varAtomPhrase = new ExpNum(this.bizEntity.id);
-
-        parameters.push(
-            //bigIntField(site),
-            bigIntField(cId),
-            //bigIntField(cBase),
-            //bigIntField(budPhrase),
-        );
-
-        const declare = factory.createDeclare();
-        statements.push(declare);
-
-        function buildUnique(unique: IDUnique) {
-            const { name, keys, no } = unique;
-            let vKey = `${name}_key`;
-            let vNo = `${name}_no`;
-            let vI = `${name}_i`;
-            declare.var(vKey, new BigInt());
-            declare.var(vNo, new Char(400));
-            declare.var(vI, new BigInt());
-            let noNullCmp: ExpCmp;
-            let valKey: ExpVal;
-            if (keys.length > 0) {
-                let setKey = factory.createSet();
-                statements.push(setKey);
-                let selectKey = factory.createSelect();
-                selectKey.col('value');
-                selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
-                selectKey.where(new ExpAnd(
-                    new ExpEQ(new ExpField('i'), new ExpVar(cId)),
-                    new ExpEQ(new ExpField('x'), new ExpNum(keys[0].id)),
-                ));
-                setKey.equ(vKey, new ExpSelect(selectKey));
-                noNullCmp = new ExpAnd(
-                    new ExpIsNotNull(new ExpVar(vKey)),
-                    new ExpIsNotNull(new ExpVar(vNo)),
-                );
-                valKey = new ExpFuncInUq('bud$id', [
-                    ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
-                    varAtomPhrase, new ExpVar(vKey)
-                ], true);
-            }
-            else {
-                noNullCmp = new ExpIsNotNull(new ExpVar(vNo));
-                valKey = varAtomPhrase;
-            }
-            let setNo = factory.createSet();
-            statements.push(setNo);
-            let selectNO = factory.createSelect();
-            selectNO.col('value');
-            selectNO.from(new EntityTable(EnumSysTable.ixBudStr, false));
-            selectNO.where(new ExpAnd(
-                new ExpEQ(new ExpField('i'), new ExpVar(cId)),
-                new ExpEQ(new ExpField('x'), new ExpNum(no.id)),
-            ));
-            setNo.equ(vNo, new ExpSelect(selectNO));
-
-            let ifNoNull = factory.createIf();
-            statements.push(ifNoNull);
-            ifNoNull.cmp = noNullCmp;
-
-            let setI = factory.createSet();
-            ifNoNull.then(setI);
-            setI.equ(vI, valKey);
-
-            let del = factory.createDelete();
-            ifNoNull.then(del);
-            del.tables = [a];
-            del.from(new EntityTable(EnumSysTable.atomUnique, false, a));
-            del.where(new ExpAnd(
-                new ExpEQ(new ExpField('i', a), new ExpVar(vI)),
-                new ExpOr(
-                    new ExpEQ(new ExpField('atom', a), new ExpVar(cId)),
-                    new ExpEQ(new ExpField('x', a), new ExpVar(vNo)),
-                ),
-            ))
-            let insert = factory.createInsert();
-            ifNoNull.then(insert);
-            insert.table = new EntityTable(EnumSysTable.atomUnique, false);
-            insert.ignore = true;
-            insert.cols = [
-                { col: 'i', val: new ExpVar(vI) },
-                { col: 'x', val: new ExpVar(vNo) },
-                { col: 'atom', val: new ExpVar(cId) },
-            ]
-        }
-
-        for (let unique of uniqueArr) {
-            buildUnique(unique);
+            const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
+            this.buildUniqueProc(procUnqiue);
         }
     }
 
     private buildUniqueProc(proc: Procedure) {
-        const { uniques } = this.bizEntity;
-
         const { parameters, statements } = proc;
         const { factory } = this.context;
-
-        const cBase = '$base';
         const cId = '$id';
-        const site = '$site';
-        const budPhrase = '$budPhrase';
-
         parameters.push(
-            bigIntField(site),
             bigIntField(cId),
-            bigIntField(cBase),
-            bigIntField(budPhrase),
         );
-
         const declare = factory.createDeclare();
         statements.push(declare);
-
-        function buildUnique(unique: IDUnique) {
-            const { name, keys, no } = unique;
-            let vKey = `${name}_key`;
+        const { uniques } = this.bizEntity;
+        for (let unique of uniques) {
+            const { id: unqiueId, name } = unique;
             let vNo = `${name}_no`;
             let vI = `${name}_i`;
-            declare.var(vKey, new BigInt());
-            declare.var(vNo, new Char(400));
-            declare.var(vI, new BigInt());
-            let noNullCmp: ExpCmp;
-            let valKey: ExpVal;
-            let ifUnique = factory.createIf();
-            let varBudPhrase = new ExpVar(budPhrase);
-            let inArr = [varBudPhrase, ...keys.map(v => new ExpNum(v.id)), new ExpNum(no.id)];
-            ifUnique.cmp = new ExpOr(new ExpIsNull(varBudPhrase), new ExpIn(...inArr));
-            if (keys.length > 0) {
-                let setKey = factory.createSet();
-                ifUnique.then(setKey);
-                let selectKey = factory.createSelect();
-                selectKey.col('value');
-                selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
-                selectKey.where(new ExpAnd(
-                    new ExpEQ(new ExpField('i'), new ExpVar(cId)),
-                    new ExpEQ(new ExpField('x'), new ExpNum(keys[0].id)),
-                ));
-                setKey.equ(vKey, new ExpSelect(selectKey));
-                noNullCmp = new ExpAnd(
-                    new ExpIsNotNull(new ExpVar(vKey)),
-                    new ExpIsNotNull(new ExpVar(vNo)),
-                );
-                valKey = new ExpFuncInUq('bud$id', [
-                    ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
-                    new ExpVar(cBase), new ExpVar(vKey)
-                ], true);
-            }
-            else {
-                noNullCmp = new ExpIsNotNull(new ExpVar(vNo));
-                valKey = new ExpVar(cBase);
-            }
-            let setNo = factory.createSet();
-            ifUnique.then(setNo);
-            let selectNO = factory.createSelect();
-            selectNO.col('value');
-            selectNO.from(new EntityTable(EnumSysTable.ixBudStr, false));
-            selectNO.where(new ExpAnd(
-                new ExpEQ(new ExpField('i'), new ExpVar(cId)),
-                new ExpEQ(new ExpField('x'), new ExpNum(no.id)),
+            let ifNotDup = factory.createIf();
+            let selectExists = factory.createSelect();
+            ifNotDup.cmp = new ExpNot(new ExpExists(selectExists));
+            selectExists.col('i', a, a);
+            selectExists.from(new EntityTable(EnumSysTable.atomUnique, false, a));
+            selectExists.where(new ExpAnd(
+                new ExpEQ(new ExpField('i', a), new ExpVar(vI)),
+                new ExpEQ(new ExpField('x', a), new ExpVar(vNo)),
+                new ExpNE(new ExpField('atom', a), new ExpVar(cId)),
             ));
-            setNo.equ(vNo, new ExpSelect(selectNO));
-
-            let ifNoNull = factory.createIf();
-            ifUnique.then(ifNoNull);
-            ifNoNull.cmp = noNullCmp;
-
-            let setI = factory.createSet();
-            ifNoNull.then(setI);
-            setI.equ(vI, valKey);
-
-            let upsert = factory.createUpsert();
-            ifNoNull.then(upsert);
-            upsert.table = new EntityTable(EnumSysTable.atomUnique, false);
-            upsert.keys = [
+            let insertDup = factory.createInsert();
+            ifNotDup.else(insertDup);
+            insertDup.ignore = true;
+            insertDup.table = new SqlVarTable('duptable');
+            insertDup.cols = [
+                { col: 'unique', val: new ExpNum(unqiueId) },
                 { col: 'i', val: new ExpVar(vI) },
                 { col: 'x', val: new ExpVar(vNo) },
-            ];
-            upsert.cols = [
                 { col: 'atom', val: new ExpVar(cId) },
-            ]
-
-            return ifUnique;
+            ];
+            statements.push(...this.buildUnique(unique, ifNotDup));
         }
+    }
 
-        for (let unique of uniques) {
-            let ret = buildUnique(unique);
-            statements.push(ret);
+    private buildBudUniqueProc(proc: Procedure, uniqueArr: IDUnique[]) {
+        const { parameters, statements } = proc;
+        parameters.push(
+            bigIntField(cId),
+        );
+        const { factory } = this.context;
+        for (let unique of uniqueArr) {
+            let ifNotDup = factory.createIf();
+            ifNotDup.cmp = new ExpEQ(ExpNum.num1, ExpNum.num1);
+            statements.push(...this.buildUnique(unique, ifNotDup));
         }
+    }
+
+    private buildUnique(unique: IDUnique, ifNotDup: If) {
+        let statements: Statement[] = [];
+        const { factory } = this.context;
+        const { id, name, keys, no } = unique;
+        let vKey = `${name}_key`;
+        let vNo = `${name}_no`;
+        let vI = `${name}_i`;
+        let varUniquePhrase = new ExpNum(id);
+        let declare = factory.createDeclare();
+        statements.push(declare);
+        declare.var(vKey, new BigInt());
+        declare.var(vNo, new Char(400));
+        declare.var(vI, new BigInt());
+        let noNullCmp: ExpCmp;
+        let valKey: ExpVal;
+        if (keys.length > 0) {
+            let setKey = factory.createSet();
+            statements.push(setKey);
+            let selectKey = factory.createSelect();
+            selectKey.col('value');
+            selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
+            selectKey.where(new ExpAnd(
+                new ExpEQ(new ExpField('i'), new ExpVar(cId)),
+                new ExpEQ(new ExpField('x'), new ExpNum(keys[0].id)),
+            ));
+            setKey.equ(vKey, new ExpSelect(selectKey));
+            noNullCmp = new ExpAnd(
+                new ExpIsNotNull(new ExpVar(vKey)),
+                new ExpIsNotNull(new ExpVar(vNo)),
+            );
+            valKey = new ExpFuncInUq('bud$id', [
+                ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
+                varUniquePhrase, new ExpVar(vKey)
+            ], true);
+        }
+        else {
+            noNullCmp = new ExpIsNotNull(new ExpVar(vNo));
+            valKey = varUniquePhrase;
+        }
+        let setNo = factory.createSet();
+        statements.push(setNo);
+        let selectNO = factory.createSelect();
+        selectNO.col('value');
+        selectNO.from(new EntityTable(EnumSysTable.ixBudStr, false));
+        selectNO.where(new ExpAnd(
+            new ExpEQ(new ExpField('i'), new ExpVar(cId)),
+            new ExpEQ(new ExpField('x'), new ExpNum(no.id)),
+        ));
+        setNo.equ(vNo, new ExpSelect(selectNO));
+
+        let ifNoNull = factory.createIf();
+        statements.push(ifNoNull);
+        ifNoNull.cmp = noNullCmp;
+
+        let setI = factory.createSet();
+        ifNoNull.then(setI);
+        setI.equ(vI, valKey);
+
+        ifNoNull.then(ifNotDup);
+
+        let del = factory.createDelete();
+        ifNotDup.then(del);
+        del.tables = [a];
+        del.from(new EntityTable(EnumSysTable.atomUnique, false, a));
+        del.where(new ExpAnd(
+            new ExpEQ(new ExpField('i', a), new ExpVar(vI)),
+            new ExpOr(
+                new ExpEQ(new ExpField('atom', a), new ExpVar(cId)),
+                new ExpEQ(new ExpField('x', a), new ExpVar(vNo)),
+            ),
+        ));
+        let insert = factory.createInsert();
+        ifNotDup.then(insert);
+        insert.table = new EntityTable(EnumSysTable.atomUnique, false);
+        insert.ignore = true;
+        insert.cols = [
+            { col: 'i', val: new ExpVar(vI) },
+            { col: 'x', val: new ExpVar(vNo) },
+            { col: 'atom', val: new ExpVar(cId) },
+        ];
+        return statements;
     }
 }
