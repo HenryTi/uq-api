@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UseOut = exports.BizIOSite = exports.BizIOApp = exports.IOConnectType = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeerArr = exports.IOPeerOptions = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppOptions = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
+exports.UseOut = exports.BizIOSite = exports.BizIOApp = exports.IOConnectType = exports.IOAppOut = exports.IOAppIn = exports.IOAppIO = exports.IOPeers = exports.IOPeerArr = exports.IOPeerOptions = exports.IOPeerID = exports.IOPeerScalar = exports.IOPeer = exports.PeerType = exports.IOAppOptions = exports.IOAppID = exports.BizInAct = exports.BizOut = exports.BizIn = exports.BizInOut = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
@@ -103,10 +103,9 @@ var PeerType;
 })(PeerType || (exports.PeerType = PeerType = {}));
 ;
 class IOPeer extends IElement_1.IElement {
-    constructor(ioAppIO, parentPeer) {
+    constructor(owner) {
         super();
-        this.ioAppIO = ioAppIO;
-        this.parentPeer = parentPeer;
+        this.owner = owner;
     }
 }
 exports.IOPeer = IOPeer;
@@ -144,19 +143,29 @@ class IOPeerArr extends IOPeer {
     constructor() {
         super(...arguments);
         this.peerType = PeerType.peerArr;
-        this.peers = {};
     }
     parser(context) {
         return new parser_1.PIOPeerArr(this, context);
     }
 }
 exports.IOPeerArr = IOPeerArr;
+class IOPeers extends IElement_1.IElement {
+    constructor(ioAppIO) {
+        super();
+        this.type = 'iopeers';
+        this.peers = {};
+        this.ioAppIO = ioAppIO;
+    }
+    parser(context) {
+        return new parser_1.PIOPeers(this, context);
+    }
+}
+exports.IOPeers = IOPeers;
 class IOAppIO extends Bud_1.BizBud {
     constructor(ioApp) {
         super(ioApp.biz, undefined, {});
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.dataType = BizPhraseType_1.BudDataType.none;
-        this.peers = {};
         this.ioApp = ioApp;
     }
 }

@@ -1,10 +1,10 @@
 import {
-    BigInt, BizSpec, BizBudValue, BudDataType, Char, DataType, Dec, JoinType
-    , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud, BizAtom, IDUnique
+    BigInt, Char
+    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique
 } from "../../il";
 import {
-    ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpIn, ExpIsNotNull, ExpIsNull, ExpNE, ExpNot, ExpNull, ExpNum
-    , ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement, VarTable
+    ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
+    , ExpOr, ExpSelect, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
@@ -95,32 +95,59 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         let statements: Statement[] = [];
         const { factory } = this.context;
         const { id, name, keys, no } = unique;
-        let vKey = `${name}_key`;
         let vNo = `${name}_no`;
         let vI = `${name}_i`;
         let varUniquePhrase = new ExpNum(id);
         let declare = factory.createDeclare();
         statements.push(declare);
-        declare.var(vKey, new BigInt());
         declare.var(vNo, new Char(400));
         declare.var(vI, new BigInt());
         let noNullCmp: ExpCmp;
         let valKey: ExpVal;
-        if (keys.length > 0) {
-            let setKey = factory.createSet();
-            statements.push(setKey);
-            let selectKey = factory.createSelect();
-            selectKey.col('value');
-            selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
-            selectKey.where(new ExpAnd(
-                new ExpEQ(new ExpField('i'), new ExpVar(cId)),
-                new ExpEQ(new ExpField('x'), new ExpNum(keys[0].id)),
-            ));
-            setKey.equ(vKey, new ExpSelect(selectKey));
-            noNullCmp = new ExpAnd(
-                new ExpIsNotNull(new ExpVar(vKey)),
-                new ExpIsNotNull(new ExpVar(vNo)),
-            );
+        let len = keys.length;
+        let keyStatements: Statement[] = [];
+        if (len > 0) {
+            const noNullCmpAnds: ExpCmp[] = [new ExpIsNotNull(new ExpVar(vNo))];
+            const vKey = `${name}_key`;
+            declare.var(vKey, new BigInt());
+            for (let i = 0; i < len; i++) {
+                let key = keys[i];
+                let vKeyI = vKey + i;
+                declare.var(vKeyI, new BigInt());
+                // let setKey = factory.createSet();
+                //statements.push(setKey);
+                let selectKey = factory.createSelect();
+                statements.push(selectKey);
+                selectKey.toVar = true;
+                selectKey.col('value', vKeyI);
+                selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
+                selectKey.where(new ExpAnd(
+                    new ExpEQ(new ExpField('i'), new ExpVar(cId)),
+                    new ExpEQ(new ExpField('x'), new ExpNum(key.id)),
+                ));
+                // setKey.equ(vKeyI, new ExpSelect(selectKey));
+                noNullCmpAnds.push(new ExpIsNotNull(new ExpVar(vKeyI)));
+            }
+
+            let setKey0 = factory.createSet();
+            keyStatements.push(setKey0);
+            setKey0.equ(vKey, new ExpVar(vKey + 0));
+            for (let i = 1; i < len; i++) {
+                let setKeyi = factory.createSet();
+                keyStatements.push(setKeyi);
+                setKeyi.equ(vKey, new ExpFuncInUq('duo$id',
+                    [
+                        ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNull.null,
+                        new ExpVar(vKey), new ExpVar(vKey + i),
+                    ],
+                    true
+                ));
+            }
+
+            noNullCmp = new ExpAnd(...noNullCmpAnds);
+            // new ExpIsNotNull(new ExpVar(vKey)),
+            // new ExpIsNotNull(new ExpVar(vNo)),
+            // );
             valKey = new ExpFuncInUq('bud$id', [
                 ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
                 varUniquePhrase, new ExpVar(vKey)
@@ -144,7 +171,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         let ifNoNull = factory.createIf();
         statements.push(ifNoNull);
         ifNoNull.cmp = noNullCmp;
-
+        ifNoNull.then(...keyStatements);
         let setI = factory.createSet();
         ifNoNull.then(setI);
         setI.equ(vI, valKey);

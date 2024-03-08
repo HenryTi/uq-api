@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizIOSite = exports.PIOAppOut = exports.PIOAppIn = exports.PIOPeerArr = exports.PIOPeerOptions = exports.PIOPeerID = exports.PIOPeerScalar = exports.PIOAppOptions = exports.PIOAppID = exports.PBizIOApp = exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
+exports.PBizIOSite = exports.PIOAppOut = exports.PIOAppIn = exports.PIOPeers = exports.PIOPeerArr = exports.PIOPeerOptions = exports.PIOPeerID = exports.PIOPeerScalar = exports.PIOAppOptions = exports.PIOAppID = exports.PBizIOApp = exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -254,18 +254,14 @@ class PIOAppID extends Base_1.PBizBase {
             }
             atoms.push(bizAtom);
         }
-        return ok;
-    }
-    scan2(uq) {
-        let ok = true;
         if (this.unique !== undefined) {
-            const { atoms } = this.element;
             let un = this.unique;
             let uniques = atoms.map(v => v.getUnique(un));
             let u0 = uniques[0];
             if (u0 === undefined) {
                 ok = false;
                 this.log(`${atoms[0].name} has not defined UNIQUE ${un}`);
+                let r = atoms.map(v => v.getUnique(un));
             }
             else {
                 let unique0 = uniques[0];
@@ -307,16 +303,84 @@ exports.PIOPeerScalar = PIOPeerScalar;
 class PIOPeerID extends element_1.PElement {
     _parse() {
         this.ioId = this.ts.mayPassVar();
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.readToken();
+            this.keys = [];
+            for (;;) {
+                this.keys.push(this.ts.passVar());
+                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                    this.ts.readToken();
+                    break;
+                }
+                if (this.ts.token === tokens_1.Token.COMMA) {
+                    this.ts.readToken();
+                    continue;
+                }
+                this.ts.expectToken(tokens_1.Token.RPARENTHESE, tokens_1.Token.COMMA);
+            }
+        }
         this.ts.passToken(tokens_1.Token.COMMA);
     }
     scan(space) {
         let ok = true;
+        const { owner: { ioAppIO } } = this.element;
+        const { IDs } = ioAppIO.ioApp;
         if (this.ioId !== undefined) {
-            let id = this.element.id = this.element.ioAppIO.ioApp.IDs.find(v => v.name === this.ioId);
+            let id = this.element.id = IDs.find(v => v.name === this.ioId);
             if (id === undefined) {
                 ok = false;
                 this.log(`${this.ioId} is not IOApp ID`);
             }
+            if (this.keys !== undefined) {
+                const { unique } = id;
+                if (unique === undefined) {
+                    ok = false;
+                    this.log(`${id.name} does not define unique`);
+                }
+                else {
+                    if (this.keys.length !== unique.keys.length) {
+                        ok = false;
+                        this.log(`keys count is not match with UNIQUE ${unique.name}`);
+                    }
+                    else if (this.scanKeys() === false) {
+                        ok = false;
+                    }
+                }
+            }
+        }
+        return ok;
+    }
+    scanKeys() {
+        let ok = true;
+        const { owner: { bizIOBuds, peers, owner } } = this.element;
+        this.element.keys = [];
+        const { keys } = this.element;
+        for (let k of this.keys) {
+            let bud = bizIOBuds.get(k);
+            let peer = peers[k];
+            if (bud !== undefined) {
+                keys.push({
+                    bud,
+                    peer,
+                    sameLevel: true,
+                });
+                continue;
+            }
+            else if (owner !== undefined) {
+                const { bizIOBuds: ownerBizIOBuds, peers: ownerPeers } = owner;
+                bud = ownerBizIOBuds.get(k);
+                peer = ownerPeers[k];
+                if (bud !== undefined) {
+                    keys.push({
+                        bud,
+                        peer,
+                        sameLevel: false,
+                    });
+                    continue;
+                }
+            }
+            ok = false;
+            this.log(`${k} not exists`);
         }
         return ok;
     }
@@ -340,136 +404,158 @@ class PIOPeerOptions extends element_1.PElement {
     }
 }
 exports.PIOPeerOptions = PIOPeerOptions;
-function parsePeers(context, ioAppIO, parentPeer, ts) {
-    let peers = {};
-    if (ts.token === tokens_1.Token.RPARENTHESE) {
-        ts.readToken();
-        ts.mayPassToken(tokens_1.Token.COMMA);
-        return peers;
-    }
-    for (;;) {
-        let peer = parsePeer();
-        peers[peer.name] = peer;
-        if (ts.token === tokens_1.Token.RPARENTHESE) {
-            ts.readToken();
-            ts.mayPassToken(tokens_1.Token.COMMA);
-            break;
-        }
-    }
-    function parsePeer() {
-        let peer;
-        let name = ts.passVar();
-        let to;
-        if (ts.token === tokens_1.Token.COLON) {
-            ts.readToken();
-            to = ts.passVar();
-        }
-        if (ts.token === tokens_1.Token.LPARENTHESE) {
-            peer = new il_1.IOPeerArr(ioAppIO, parentPeer);
-        }
-        else {
-            if (ts.isKeyword('id') === true) {
-                ts.readToken();
-                peer = new il_1.IOPeerID(ioAppIO, parentPeer);
-            }
-            else if (ts.isKeyword('options') === true) {
-                ts.readToken();
-                peer = new il_1.IOPeerOptions(ioAppIO, parentPeer);
-            }
-            else {
-                peer = new il_1.IOPeerScalar(ioAppIO, parentPeer);
-            }
-        }
-        context.parseElement(peer);
-        peer.name = name;
-        peer.to = to;
-        return peer;
-    }
-    return peers;
-}
-function checkPeers(space, pElement, props, peers) {
-    let ok = true;
-    for (let i in peers) {
-        let peer = peers[i];
-        if (peer.pelement.scan(space) === false) {
-            ok = false;
-        }
-        const { name } = peer;
-        let log;
-        if (props.has(name) === false) {
-            ok = false;
-            log = `${name} is not defined`;
-        }
-        else {
-            let bud = props.get(name);
-            if (peer.peerType === il_1.PeerType.peerId) {
-                if (bud.dataType !== il_1.BudDataType.ID) {
-                    ok = false;
-                    log = `${name} should not be ID`;
-                }
-            }
-            else {
-                if (bud.dataType === il_1.BudDataType.ID) {
-                    ok = false;
-                    log = `${name} should be ID`;
-                }
-            }
-        }
-        if (log !== undefined)
-            pElement.log(log);
-    }
-    for (let [, bud] of props) {
-        if (bud.dataType === il_1.BudDataType.ID) {
-            let peer = peers[bud.name];
-            if (peer === undefined) {
-                ok = false;
-                pElement.log(`${bud.name} must define ID`);
-            }
-            else if (peer.peerType !== il_1.PeerType.peerId) {
-                ok = false;
-                pElement.log(`${peer.name} must be ID`);
-            }
-        }
-    }
-    return ok;
-}
 class PIOPeerArr extends element_1.PElement {
     _parse() {
-        this.ts.readToken();
-        const { ioAppIO, parentPeer } = this.element;
-        const peers = parsePeers(this.context, ioAppIO, parentPeer, this.ts);
-        Object.assign(this.element.peers, peers);
+        this.element.peers = new il_1.IOPeers(this.element.owner.ioAppIO);
+        const { peers } = this.element;
+        peers.owner = this.element.owner;
+        this.context.parseElement(peers);
+    }
+    scan0(space) {
+        let ok = true;
+        let { name, peers, owner: { ioAppIO } } = this.element;
+        if (peers.pelement.scan0(space) === false) {
+            ok = false;
+        }
+        let { bizIO } = ioAppIO;
+        let bizBud = bizIO.props.get(name);
+        if (bizBud === undefined) {
+            this.log(`${bizIO.getJName()}.${name} not exists`);
+            ok = false;
+        }
+        else if (bizBud.dataType !== il_1.BudDataType.arr) {
+            this.log(`${bizIO.getJName()}.${name} is not Array`);
+            ok = false;
+        }
+        else {
+            peers.bizIOBuds = bizBud.props;
+        }
+        return ok;
     }
     scan(space) {
         let ok = true;
-        const { name, peers, ioAppIO, parentPeer } = this.element;
-        let peerNames = [];
-        for (let p = parentPeer; p != undefined; p = parentPeer.parentPeer)
-            peerNames.push(p.name);
-        peerNames.push(name);
-        peerNames.reverse();
-        const { bizIO } = ioAppIO;
-        let pProps = bizIO.props;
-        for (let p of peerNames) {
-            let bud = pProps.get(p);
-            pProps = bud.props;
-        }
-        if (checkPeers(space, this, pProps, peers) === false) {
+        const { peers } = this.element;
+        if (peers.pelement.scan(space) === false) {
             ok = false;
         }
         return ok;
     }
 }
 exports.PIOPeerArr = PIOPeerArr;
+class PIOPeers extends element_1.PElement {
+    _parse() {
+        let { peers } = this.element;
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        for (;;) {
+            let peer = this.parsePeer();
+            peers[peer.name] = peer;
+            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.COMMA);
+                break;
+            }
+        }
+    }
+    parsePeer() {
+        let peer;
+        let name = this.ts.passVar();
+        let to;
+        if (this.ts.token === tokens_1.Token.COLON) {
+            this.ts.readToken();
+            to = this.ts.passVar();
+        }
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            peer = new il_1.IOPeerArr(this.element);
+        }
+        else {
+            if (this.ts.isKeyword('id') === true) {
+                this.ts.readToken();
+                peer = new il_1.IOPeerID(this.element);
+            }
+            else if (this.ts.isKeyword('options') === true) {
+                this.ts.readToken();
+                peer = new il_1.IOPeerOptions(this.element);
+            }
+            else {
+                peer = new il_1.IOPeerScalar(this.element);
+            }
+        }
+        this.context.parseElement(peer);
+        peer.name = name;
+        peer.to = to;
+        return peer;
+    }
+    scan0(space) {
+        let ok = true;
+        let { peers } = this.element;
+        for (let i in peers) {
+            if (peers[i].pelement.scan0(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        const { ioAppIO, peers, bizIOBuds } = this.element;
+        for (let i in peers) {
+            let peer = peers[i];
+            if (peer.pelement.scan(space) === false) {
+                ok = false;
+            }
+            const { name } = peer;
+            let log;
+            let bud = bizIOBuds.get(name);
+            if (bud === undefined) {
+                ok = false;
+                log = `${name} is not defined`;
+            }
+            else {
+                if (peer.peerType === il_1.PeerType.peerId) {
+                    if (bud.dataType !== il_1.BudDataType.ID) {
+                        // ok = false;
+                        log = `${name} should be ID`;
+                    }
+                }
+                else {
+                    if (bud.dataType === il_1.BudDataType.ID) {
+                        ok = false;
+                        log = `${name} should be ID`;
+                    }
+                }
+            }
+            if (log !== undefined)
+                this.log(log);
+        }
+        for (let [, bud] of bizIOBuds) {
+            if (bud.dataType === il_1.BudDataType.ID) {
+                let peer = peers[bud.name];
+                if (peer === undefined) {
+                    ok = false;
+                    this.log(`${bud.name} must define ID in IOApp ${ioAppIO.ioApp.getJName()} ${ioAppIO.name}`);
+                }
+                else if (peer.peerType !== il_1.PeerType.peerId) {
+                    ok = false;
+                    this.log(`${peer.name} must be ID`);
+                }
+            }
+        }
+        return ok;
+    }
+}
+exports.PIOPeers = PIOPeers;
 class PIOAppIO extends Base_1.PBizBase {
     _parse() {
         this.element.name = this.ts.passVar();
         this.parseTo();
-        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
-            this.ts.readToken();
-            const peers = parsePeers(this.context, this.element, undefined, this.ts);
-            Object.assign(this.element.peers, peers);
-        }
+        //if (this.ts.token === Token.LPARENTHESE) {
+        //this.ts.readToken();
+        const peers = new il_1.IOPeers(this.element);
+        this.element.peers = peers;
+        // const peers = parsePeers(this.context, this.element, undefined, this.ts);
+        // Object.assign(this.element.peers, peers);
+        this.context.parseElement(peers);
+        //}
         this.parseConfig();
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
@@ -488,6 +574,11 @@ class PIOAppIO extends Base_1.PBizBase {
         }
         else {
             this.element.bizIO = bizEntity;
+            const { peers } = this.element;
+            peers.bizIOBuds = bizEntity.props;
+            if (peers.pelement.scan0(space) === false) {
+                ok = false;
+            }
         }
         return ok;
     }
@@ -495,9 +586,14 @@ class PIOAppIO extends Base_1.PBizBase {
         let ok = true;
         const { peers, bizIO } = this.element;
         if (bizIO !== undefined) {
-            if (checkPeers(space, this, bizIO.props, peers) === false) {
+            if (peers.pelement.scan(space) === false) {
                 ok = false;
             }
+            /*
+            if (checkPeers(space, this, this.element, bizIO.props, peers) === false) {
+                ok = false;
+            }
+            */
         }
         return ok;
     }

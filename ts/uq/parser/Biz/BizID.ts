@@ -22,9 +22,8 @@ export abstract class PBizIDExtendable<T extends BizIDExtendable> extends PBizID
         }
     }
 
-    scan(space: Space): boolean {
+    scan0(space: Space): boolean {
         let ok = true;
-        if (super.scan(space) === false) ok = false;
         if (this.extendsName !== undefined) {
             let atom = this.scanAtomID(space, this.extendsName);
             if (atom === undefined) {
@@ -37,6 +36,12 @@ export abstract class PBizIDExtendable<T extends BizIDExtendable> extends PBizID
                 }
             }
         }
+        return ok;
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) ok = false;
         return ok;
     }
 
@@ -135,7 +140,7 @@ export class PIDUnique extends PBizBud<IDUnique> {
         }
         let keyBuds: BizBud[] = [];
         for (let key of this.keys) {
-            let keyBud = this.getBud(key, [BudDataType.ID, BudDataType.int, BudDataType.atom]);
+            let keyBud = this.getBud(key, [BudDataType.ID, BudDataType.int, BudDataType.atom, BudDataType.radio]);
             if (keyBud === undefined) {
                 ok = false;
             }
@@ -144,7 +149,8 @@ export class PIDUnique extends PBizBud<IDUnique> {
             }
         }
         if (keyBuds.length > 1) {
-            this.log('KEY only one');
+            // 得允许多个keys
+            // this.log('KEY only one');
         }
         this.element.keys = keyBuds;
         return ok;
@@ -190,9 +196,8 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
         unique: this.parseUnique,
     };
 
-    scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) ok = false;
+    override scan0(space: Space): boolean {
+        let ok = super.scan0(space);
         if (this.uniques !== undefined) {
             let { uniques } = this.element;
             if (uniques === undefined) {
@@ -208,6 +213,12 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
                 }
             }
         }
+        return ok;
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) ok = false;
         return ok;
     }
 

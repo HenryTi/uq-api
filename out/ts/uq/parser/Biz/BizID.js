@@ -19,10 +19,8 @@ class PBizIDExtendable extends PBizID {
             this.ts.readToken();
         }
     }
-    scan(space) {
+    scan0(space) {
         let ok = true;
-        if (super.scan(space) === false)
-            ok = false;
         if (this.extendsName !== undefined) {
             let atom = this.scanAtomID(space, this.extendsName);
             if (atom === undefined) {
@@ -35,6 +33,12 @@ class PBizIDExtendable extends PBizID {
                 }
             }
         }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false)
+            ok = false;
         return ok;
     }
     checkRecursive(recursiveCaption, getPrev) {
@@ -130,7 +134,7 @@ class PIDUnique extends Bud_1.PBizBud {
         }
         let keyBuds = [];
         for (let key of this.keys) {
-            let keyBud = this.getBud(key, [il_1.BudDataType.ID, il_1.BudDataType.int, il_1.BudDataType.atom]);
+            let keyBud = this.getBud(key, [il_1.BudDataType.ID, il_1.BudDataType.int, il_1.BudDataType.atom, il_1.BudDataType.radio]);
             if (keyBud === undefined) {
                 ok = false;
             }
@@ -139,7 +143,8 @@ class PIDUnique extends Bud_1.PBizBud {
             }
         }
         if (keyBuds.length > 1) {
-            this.log('KEY only one');
+            // 得允许多个keys
+            // this.log('KEY only one');
         }
         this.element.keys = keyBuds;
         return ok;
@@ -184,10 +189,8 @@ class PBizAtom extends PBizIDExtendable {
             this.ts.readToken();
         }
     }
-    scan(space) {
-        let ok = true;
-        if (super.scan(space) === false)
-            ok = false;
+    scan0(space) {
+        let ok = super.scan0(space);
         if (this.uniques !== undefined) {
             let { uniques } = this.element;
             if (uniques === undefined) {
@@ -203,6 +206,12 @@ class PBizAtom extends PBizIDExtendable {
                 }
             }
         }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false)
+            ok = false;
         return ok;
     }
     scan2(uq) {

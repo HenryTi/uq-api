@@ -1,7 +1,7 @@
 import { DbContext, BBizEntity, BBizIn, BBizOut, BBizIOApp } from "../../builder";
 import {
     PBizIOApp, PBizIOSite, PBizIn, PBizInAct, PBizOut, PContext, PElement
-    , PIOAppID, PIOAppIn, PIOAppOptions, PIOAppOut, PIOPeerArr, PIOPeerID, PIOPeerOptions, PIOPeerScalar
+    , PIOAppID, PIOAppIn, PIOAppOptions, PIOAppOut, PIOPeerArr, PIOPeerID, PIOPeerOptions, PIOPeerScalar, PIOPeers
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizAct } from "./Base";
@@ -96,16 +96,14 @@ export class IOAppOptions extends BizBud {
 
 export enum PeerType { peerScalar, peerId, peerOptions, peerArr };
 export abstract class IOPeer extends IElement {
-    readonly ioAppIO: IOAppIO;
     readonly type: undefined;
     name: string;
     to: string;
+    readonly owner: IOPeers;
     abstract get peerType(): PeerType;
-    readonly parentPeer: IOPeerArr;
-    constructor(ioAppIO: IOAppIO, parentPeer: IOPeerArr) {
+    constructor(owner: IOPeers) {
         super();
-        this.ioAppIO = ioAppIO;
-        this.parentPeer = parentPeer;
+        this.owner = owner;
     }
 }
 export class IOPeerScalar extends IOPeer {
@@ -115,9 +113,16 @@ export class IOPeerScalar extends IOPeer {
         return new PIOPeerScalar(this, context);
     }
 }
+
+export interface PeerIDKey {
+    bud: BizBud;
+    peer: IOPeer;
+    sameLevel: boolean;         // same level or parent level
+}
 export class IOPeerID extends IOPeer {
     readonly peerType = PeerType.peerId;
     id: IOAppID;
+    keys: PeerIDKey[];
     override parser(context: PContext): PElement<IElement> {
         return new PIOPeerID(this, context);
     }
@@ -131,17 +136,41 @@ export class IOPeerOptions extends IOPeer {
 }
 export class IOPeerArr extends IOPeer {
     readonly peerType = PeerType.peerArr;
-    readonly peers: { [name: string]: IOPeer; } = {};
+    peers: IOPeers;
     override parser(context: PContext): PElement<IElement> {
         return new PIOPeerArr(this, context);
+    }
+}
+
+export interface PeersContainer {
+    name: string;
+    owner: PeersContainer;
+    peers: { [name: string]: IOPeer };
+}
+
+export class IOPeers extends IElement {
+    readonly type = 'iopeers';
+    owner: IOPeers;
+    readonly ioAppIO: IOAppIO;
+    readonly peers: { [name: string]: IOPeer } = {};
+    bizIOBuds: Map<string, BizBud>;
+    constructor(ioAppIO: IOAppIO) {
+        super();
+        this.ioAppIO = ioAppIO;
+    }
+    override parser(context: PContext): PElement<IElement> {
+        return new PIOPeers(this, context);
     }
 }
 
 export abstract class IOAppIO extends BizBud {
     readonly bizPhraseType = BizPhraseType.bud;
     readonly dataType = BudDataType.none;
-    readonly peers: { [name: string]: IOPeer } = {};
+    // readonly peersContainer: PeersContainer; // { [name: string]: IOPeer } = {};
     readonly ioApp: BizIOApp;
+    // owner: PeersContainer;
+    // readonly peers: { [name: string]: IOPeer; } = {};
+    peers: IOPeers;
     bizIO: BizInOut;
     constructor(ioApp: BizIOApp) {
         super(ioApp.biz, undefined, {});

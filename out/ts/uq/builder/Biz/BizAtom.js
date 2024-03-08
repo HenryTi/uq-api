@@ -81,26 +81,51 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         let statements = [];
         const { factory } = this.context;
         const { id, name, keys, no } = unique;
-        let vKey = `${name}_key`;
         let vNo = `${name}_no`;
         let vI = `${name}_i`;
         let varUniquePhrase = new sql_1.ExpNum(id);
         let declare = factory.createDeclare();
         statements.push(declare);
-        declare.var(vKey, new il_1.BigInt());
         declare.var(vNo, new il_1.Char(400));
         declare.var(vI, new il_1.BigInt());
         let noNullCmp;
         let valKey;
-        if (keys.length > 0) {
-            let setKey = factory.createSet();
-            statements.push(setKey);
-            let selectKey = factory.createSelect();
-            selectKey.col('value');
-            selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false));
-            selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(keys[0].id))));
-            setKey.equ(vKey, new sql_1.ExpSelect(selectKey));
-            noNullCmp = new sql_1.ExpAnd(new sql_1.ExpIsNotNull(new sql_1.ExpVar(vKey)), new sql_1.ExpIsNotNull(new sql_1.ExpVar(vNo)));
+        let len = keys.length;
+        let keyStatements = [];
+        if (len > 0) {
+            const noNullCmpAnds = [new sql_1.ExpIsNotNull(new sql_1.ExpVar(vNo))];
+            const vKey = `${name}_key`;
+            declare.var(vKey, new il_1.BigInt());
+            for (let i = 0; i < len; i++) {
+                let key = keys[i];
+                let vKeyI = vKey + i;
+                declare.var(vKeyI, new il_1.BigInt());
+                // let setKey = factory.createSet();
+                //statements.push(setKey);
+                let selectKey = factory.createSelect();
+                statements.push(selectKey);
+                selectKey.toVar = true;
+                selectKey.col('value', vKeyI);
+                selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false));
+                selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(key.id))));
+                // setKey.equ(vKeyI, new ExpSelect(selectKey));
+                noNullCmpAnds.push(new sql_1.ExpIsNotNull(new sql_1.ExpVar(vKeyI)));
+            }
+            let setKey0 = factory.createSet();
+            keyStatements.push(setKey0);
+            setKey0.equ(vKey, new sql_1.ExpVar(vKey + 0));
+            for (let i = 1; i < len; i++) {
+                let setKeyi = factory.createSet();
+                keyStatements.push(setKeyi);
+                setKeyi.equ(vKey, new sql_1.ExpFuncInUq('duo$id', [
+                    sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
+                    new sql_1.ExpVar(vKey), new sql_1.ExpVar(vKey + i),
+                ], true));
+            }
+            noNullCmp = new sql_1.ExpAnd(...noNullCmpAnds);
+            // new ExpIsNotNull(new ExpVar(vKey)),
+            // new ExpIsNotNull(new ExpVar(vNo)),
+            // );
             valKey = new sql_1.ExpFuncInUq('bud$id', [
                 sql_1.ExpNull.null, sql_1.ExpNull.null, sql_1.ExpNum.num1, sql_1.ExpNull.null,
                 varUniquePhrase, new sql_1.ExpVar(vKey)
@@ -120,6 +145,7 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         let ifNoNull = factory.createIf();
         statements.push(ifNoNull);
         ifNoNull.cmp = noNullCmp;
+        ifNoNull.then(...keyStatements);
         let setI = factory.createSet();
         ifNoNull.then(setI);
         setI.equ(vI, valKey);

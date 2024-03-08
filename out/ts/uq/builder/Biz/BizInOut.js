@@ -8,6 +8,8 @@ const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
+const JsonTrans_1 = require("./JsonTrans/JsonTrans");
+const JsonTrans_2 = require("./JsonTrans");
 class BBizInOut extends BizEntity_1.BBizEntity {
 }
 class BBizIn extends BBizInOut {
@@ -137,7 +139,7 @@ class BBizOut extends BBizInOut {
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars((0, il_1.bigIntField)(consts_1.$site), (0, il_1.bigIntField)(out), (0, il_1.bigIntField)(endPoint), (0, il_1.bigIntField)(siteAtomApp), (0, il_1.bigIntField)(queueId));
-        let ioStatementBuilder = new IOStatementBuilder(factory);
+        let ioStatementBuilder = new JsonTrans_2.IOStatementBuilder(factory);
         statements.push(ioStatementBuilder.transErrorTable());
         statements.push(ioStatementBuilder.transErrTruncate());
         statements.push(ioStatementBuilder.transErrorJsonInit());
@@ -171,9 +173,9 @@ class BBizIOApp extends BizEntity_1.BBizEntity {
         super.buildProcedures();
         const { factory } = this.context;
         const funcAtomToNo = this.createFunction(`${this.context.site}.${toNO}`, new il_1.Char(100));
-        new FuncAtomToNo(factory, funcAtomToNo).build();
+        new JsonTrans_2.FuncAtomToNo(factory, funcAtomToNo).build();
         const funcNoToAtom = this.createFunction(`${this.context.site}.${fromNO}`, new il_1.BigInt());
-        new FuncNoToAtom(factory, funcNoToAtom).build();
+        new JsonTrans_2.FuncNoToAtom(factory, funcNoToAtom).build();
         const objConnect = {};
         const { id, connect, ins, outs, IDs } = this.bizEntity;
         objConnect.type = connect.type;
@@ -206,274 +208,31 @@ class BBizIOApp extends BizEntity_1.BBizEntity {
         const { factory, site } = this.context;
         const { id } = ioAppID;
         const funcUniqueToNo = this.createFunction(`${site}.${id}.${toNO}`, new il_1.Char(100));
-        new FuncUniqueToNo(factory, funcUniqueToNo, ioAppID).build();
+        new JsonTrans_2.FuncUniqueToNo(factory, funcUniqueToNo, ioAppID).build();
         const funcUniqueFromNo = this.createFunction(`${site}.${id}.${fromNO}`, new il_1.BigInt());
-        new FuncUniqueFromNo(factory, funcUniqueFromNo, ioAppID).build();
+        new JsonTrans_2.FuncUniqueFromNo(factory, funcUniqueFromNo, ioAppID).build();
     }
 }
 exports.BBizIOApp = BBizIOApp;
-class FuncUniqueTo {
-    constructor(factory, func, ioAppID) {
-        this.param = 'param';
-        this.factory = factory;
-        this.func = func;
-        this.ioAppID = ioAppID;
-    }
-    build() {
-        const { parameters, statements } = this.func;
-        parameters.push((0, il_1.bigIntField)(FuncUniqueTo.otherSite), this.fromField());
-        let declare = this.factory.createDeclare();
-        statements.push(declare);
-        declare.vars(this.toField());
-        let ifParamNotNull = this.factory.createIf();
-        statements.push(ifParamNotNull);
-        ifParamNotNull.cmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(this.param));
-        let select = this.factory.createSelect();
-        ifParamNotNull.then(select);
-        select.toVar = true;
-        select.lock = select_1.LockType.none;
-        select.col(this.toName, this.toName, a);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('i', a)));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(this.ioAppID.unique.id)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpVar(FuncUniqueTo.otherSite)), new sql_1.ExpEQ(new sql_1.ExpField(this.fromName), new sql_1.ExpVar(this.param))));
-        let iff = this.factory.createIf();
-        ifParamNotNull.then(iff);
-        iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(this.toName));
-        let ioStatementBuilder = new IOStatementBuilder(this.factory);
-        const appendErr = ioStatementBuilder.transErrorAppend(new sql_1.ExpNum(this.ioAppID.id), this.fromName, this.param);
-        iff.then(appendErr);
-        let ret = this.factory.createReturn();
-        statements.push(ret);
-        ret.returnVar = this.toName;
-    }
-}
-FuncUniqueTo.otherSite = '$otherSite'; // In Out other site ID
-FuncUniqueTo.atomPhraseId = '$atomPhraseId';
-class FuncUniqueFromNo extends FuncUniqueTo {
-    constructor() {
-        super(...arguments);
-        this.fromName = 'x';
-        this.toName = 'atom';
-    }
-    fromField() { return (0, il_1.charField)(this.param, 100); }
-    toField() { return (0, il_1.bigIntField)(this.toName); }
-}
-class FuncUniqueToNo extends FuncUniqueTo {
-    constructor() {
-        super(...arguments);
-        this.fromName = 'atom';
-        this.toName = 'x';
-    }
-    fromField() { return (0, il_1.bigIntField)(this.param); }
-    toField() { return (0, il_1.charField)(this.toName, 100); }
-}
-class FuncTo {
-    constructor(factory, func) {
-        this.param = 'param';
-        this.factory = factory;
-        this.func = func;
-    }
-    build() {
-        const { parameters, statements } = this.func;
-        parameters.push((0, il_1.bigIntField)(FuncTo.appID), // IOApp.ID
-        this.fromField());
-        let declare = this.factory.createDeclare();
-        statements.push(declare);
-        declare.vars(this.toField());
-        let ifParamNotNull = this.factory.createIf();
-        statements.push(ifParamNotNull);
-        ifParamNotNull.cmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(this.param));
-        let select = this.factory.createSelect();
-        ifParamNotNull.then(select);
-        select.toVar = true;
-        select.lock = select_1.LockType.none;
-        select.col(this.toName, this.toName);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOAppAtom, false));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('appID'), new sql_1.ExpVar(FuncTo.appID)), new sql_1.ExpEQ(new sql_1.ExpField(this.fromName), new sql_1.ExpVar(this.param))));
-        let iff = this.factory.createIf();
-        ifParamNotNull.then(iff);
-        iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(this.toName));
-        let ioStatementBuilder = new IOStatementBuilder(this.factory);
-        const insertErr = ioStatementBuilder.transErrorInsert(new sql_1.ExpVar('appID'), this.fromName, this.param);
-        iff.then(insertErr);
-        let ret = this.factory.createReturn();
-        statements.push(ret);
-        ret.returnVar = this.toName;
-    }
-}
-FuncTo.appID = 'appID';
-class FuncNoToAtom extends FuncTo {
-    constructor() {
-        super(...arguments);
-        this.fromName = 'no';
-        this.toName = 'atom';
-    }
-    fromField() { return (0, il_1.charField)(this.param, 100); }
-    toField() { return (0, il_1.bigIntField)(this.toName); }
-}
-class FuncAtomToNo extends FuncTo {
-    constructor() {
-        super(...arguments);
-        this.fromName = 'atom';
-        this.toName = 'no';
-    }
-    fromField() { return (0, il_1.bigIntField)(this.param); }
-    toField() { return (0, il_1.charField)(this.toName, 100); }
-}
 const toNO = 'TONO';
 const fromNO = 'FROMNO';
 class IOProc {
     constructor(context, ioAppIO, proc) {
-        this.buildVal = (bud) => {
-            let suffix;
-            switch (bud.dataType) {
-                default:
-                    debugger;
-                    throw new Error('unknown data type ' + bud.dataType);
-                case il_1.BudDataType.ID:
-                case il_1.BudDataType.char:
-                case il_1.BudDataType.str:
-                    suffix = undefined;
-                    break;
-                case il_1.BudDataType.date:
-                    return this.buildDateVal(bud);
-                case il_1.BudDataType.int:
-                    suffix = 'RETURNING SIGNED';
-                    break;
-                case il_1.BudDataType.dec:
-                    suffix = 'RETURNING DECIMAL';
-                    break;
-            }
-            return new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpComplex(new sql_1.ExpStr(`$."${bud.name}"`), undefined, suffix));
-        };
-        this.buildValInArr = (bud) => {
-            const { name, dataType } = bud;
-            let exp = new sql_1.ExpField(name, IOProc.jsonTable);
-            switch (dataType) {
-                default:
-                    return exp;
-                case il_1.BudDataType.date:
-                    return new sql_1.ExpFunc('DATEDIFF', exp, new sql_1.ExpStr('1970-01-01'));
-            }
-        };
         this.context = context;
         this.factory = context.factory;
         this.ioAppIO = ioAppIO;
         this.proc = proc;
         this.expJson = new sql_1.ExpVar(IOProc.vJson);
     }
-    transID(ioAppID, val) {
-        if (ioAppID === undefined) {
-            return val;
-        }
-        const { unique, id } = ioAppID;
-        const { site } = this.context;
-        if (unique === undefined) {
-            return new sql_1.ExpFuncDb('$site', `${site}.${this.transFuncName}`, new sql_1.ExpFuncInUq('duo$id', [
-                sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
-                new sql_1.ExpVar(IOProc.siteAtomApp), new sql_1.ExpNum(ioAppID.id),
-            ], true), val);
-        }
-        else {
-            return new sql_1.ExpFuncDb('$site', `${site}.${id}.${this.transFuncName}`, new sql_1.ExpVar(IOProc.otherSite), val);
-        }
-    }
-    transOptions(peer, val) {
-        const { options } = peer;
-        const select = this.factory.createSelect();
-        select.column(new sql_1.ExpField('id', a));
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(options.id)), new sql_1.ExpEQ(new sql_1.ExpField('name', a), new sql_1.ExpFunc(this.factory.func_concat, new sql_1.ExpField('name', b), new sql_1.ExpStr('.'), val))));
-        return new sql_1.ExpSelect(select);
-    }
     buildJsonTrans() {
         const { bizIO, peers } = this.ioAppIO;
         const { props } = bizIO;
         let select = this.factory.createSelect();
         select.lock = select_1.LockType.none;
-        select.column(this.buidlJsonObj(props, peers, this.buildVal));
+        let jsonTrans = new JsonTrans_1.JsonTrans(this, peers);
+        const jo = jsonTrans.build();
+        select.column(jo);
         return select;
-    }
-    buildDateVal(bud) {
-        let exp = new sql_1.ExpFunc('JSON_VALUE', this.expJson, new sql_1.ExpComplex(new sql_1.ExpStr(`$."${bud.name}"`), undefined, undefined));
-        return new sql_1.ExpFunc('DATEDIFF', exp, new sql_1.ExpStr('1970-01-01'));
-    }
-    buidlJsonObj(props, peers, func) {
-        let objParams = [];
-        for (let [name, bud] of props) {
-            let peer = peers[name];
-            let val;
-            if (peer === undefined) {
-                val = func(bud);
-            }
-            else {
-                switch (peer.peerType) {
-                    default:
-                        val = func(bud);
-                        break;
-                    case il_1.PeerType.peerArr:
-                        val = this.buidlJsonArr(name, bud.props, peer.peers);
-                        break;
-                    case il_1.PeerType.peerId:
-                        val = this.transID(peer.id, func(bud));
-                        break;
-                    case il_1.PeerType.peerOptions:
-                        val = this.transOptions(peer, func(bud));
-                        break;
-                }
-            }
-            let objName;
-            if (peer === undefined) {
-                objName = name;
-            }
-            else {
-                const { to, name: peerName } = peer;
-                objName = to !== null && to !== void 0 ? to : peerName;
-            }
-            objParams.push(new sql_1.ExpStr(objName), bud.dataType !== il_1.BudDataType.arr ?
-                val
-                :
-                    this.buidlJsonArr(name, bud.props, peer.peers));
-        }
-        return new sql_1.ExpFunc('JSON_OBJECT', ...objParams);
-    }
-    buidlJsonArr(arrName, props, peers) {
-        let select = this.factory.createSelect();
-        select.lock = select_1.LockType.none;
-        const columns = Array.from(props).map(([name, bud]) => {
-            let field;
-            switch (bud.dataType) {
-                default:
-                    debugger;
-                    break;
-                case il_1.BudDataType.int:
-                    field = (0, il_1.bigIntField)(name);
-                    break;
-                case il_1.BudDataType.dec:
-                    field = (0, il_1.decField)(name, 24, 6);
-                    break;
-                case il_1.BudDataType.arr:
-                    field = (0, il_1.jsonField)(name);
-                    break;
-                case il_1.BudDataType.ID:
-                case il_1.BudDataType.date:
-                case il_1.BudDataType.char:
-                case il_1.BudDataType.str:
-                    field = (0, il_1.charField)(name, 400);
-                    break;
-            }
-            let ret = {
-                field,
-                path: `$."${name}"`,
-            };
-            return ret;
-        });
-        select.column(new sql_1.ExpFunc('JSON_ARRAYAGG', this.buidlJsonObj(props, peers, this.buildValInArr)));
-        select.from(new statementWithFrom_1.FromJsonTable(IOProc.jsonTable, this.expJson, `$."${arrName}"[*]`, columns));
-        return new sql_1.ExpSelect(select);
     }
 }
 IOProc.atom = '$atom';
@@ -502,7 +261,7 @@ class IOProcIn extends IOProc {
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.vars((0, il_1.jsonField)(IOProc.vRetJson), (0, il_1.bigIntField)(IOProc.siteAtomApp), (0, il_1.bigIntField)(IOProc.endPoint), (0, il_1.bigIntField)(IOProc.ioAppIO));
-        let ioStatementBuilder = new IOStatementBuilder(factory);
+        let ioStatementBuilder = new JsonTrans_2.IOStatementBuilder(factory);
         statements.push(ioStatementBuilder.transErrorTable());
         statements.push(ioStatementBuilder.transErrTruncate());
         statements.push(ioStatementBuilder.transErrorJsonInit());
@@ -588,7 +347,7 @@ class IOProcOut extends IOProc {
         let setSiteAtomAppNull = factory.createSet();
         loop.statements.add(setSiteAtomAppNull);
         setSiteAtomAppNull.equ(IOProc.siteAtomApp, sql_1.ExpNull.null);
-        let ioStatementBuilder = new IOStatementBuilder(factory);
+        let ioStatementBuilder = new JsonTrans_2.IOStatementBuilder(factory);
         let truncateTransErr = ioStatementBuilder.transErrTruncate();
         loop.statements.add(truncateTransErr);
         let selectSiteAtomApp = factory.createSelect();
@@ -633,7 +392,7 @@ class IOProcOut extends IOProc {
         const setQueueId = this.factory.createSet();
         ifEndPoint.then(setQueueId);
         setQueueId.equ(IOProc.queueId, new sql_1.ExpFuncInUq('IOQueue$id', [sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null, new sql_1.ExpVar(IOProc.endPoint)], true));
-        let ioStatementBuilder = new IOStatementBuilder(this.factory);
+        let ioStatementBuilder = new JsonTrans_2.IOStatementBuilder(this.factory);
         ifEndPoint.then(ioStatementBuilder.transErrMerge());
         let ifTransErr = this.factory.createIf();
         ifEndPoint.then(ifTransErr);
@@ -665,123 +424,4 @@ class IOProcOut extends IOProc {
         return statements;
     }
 }
-const transErr = 'transerr';
-class IOStatementBuilder {
-    constructor(factory) {
-        this.factory = factory;
-    }
-    transErrorTable() {
-        let vtTransErr = this.factory.createVarTable();
-        vtTransErr.noDrop = true;
-        vtTransErr.name = IOStatementBuilder.transerr;
-        const transErrIdField = (0, il_1.intField)('id');
-        transErrIdField.autoInc = true;
-        const atomField = (0, il_1.bigIntField)('atom');
-        atomField.nullable = true;
-        const noField = (0, il_1.charField)('no', 100);
-        noField.nullable = true;
-        vtTransErr.keys = [
-            transErrIdField,
-        ];
-        vtTransErr.fields = [
-            transErrIdField, (0, il_1.bigIntField)('appID'), atomField, noField,
-        ];
-        return vtTransErr;
-    }
-    transErrorJsonInit() {
-        let initTranErr = this.factory.createSet();
-        initTranErr.isAtVar = true;
-        initTranErr.equ(transErr, new sql_1.ExpFunc('JSON_ARRAY'));
-        return initTranErr;
-    }
-    transErrorInsert(varAppID, fromField, fromVar) {
-        const insertErr = this.factory.createInsert();
-        insertErr.ignore = true;
-        insertErr.table = new statementWithFrom_1.VarTable(IOStatementBuilder.transerr);
-        insertErr.cols = [
-            { col: 'appID', val: varAppID },
-            { col: fromField, val: new sql_1.ExpVar(fromVar) },
-        ];
-        return insertErr;
-    }
-    transErrorAppend(varAppID, fromField, fromVar) {
-        const setAppend = this.factory.createSet();
-        setAppend.isAtVar = true;
-        setAppend.equ(transErr, new sql_1.ExpFunc('JSON_ARRAY_APPEND', new sql_1.ExpAtVar(transErr), new sql_1.ExpStr('$'), new sql_1.ExpFunc('JSON_OBJECT', new sql_1.ExpStr('appID'), varAppID, new sql_1.ExpStr(fromField), new sql_1.ExpVar(fromVar))));
-        return setAppend;
-    }
-    transErrTruncate() {
-        let truncateTransErr = this.factory.createTruncate();
-        truncateTransErr.table = new statementWithFrom_1.VarTable(IOStatementBuilder.transerr);
-        return truncateTransErr;
-    }
-    transErrMerge() {
-        let insert = this.factory.createInsert();
-        let tblTransErr = new statementWithFrom_1.VarTable(IOStatementBuilder.transerr);
-        insert.table = tblTransErr;
-        const cols = insert.cols = [
-            { col: 'appID', val: undefined },
-            { col: 'atom', val: undefined },
-            { col: 'no', val: undefined },
-        ];
-        let select = this.factory.createSelect();
-        insert.select = select;
-        let jsonColumns = [
-            { field: (0, il_1.bigIntField)('appID'), path: `$.appID` },
-            { field: (0, il_1.bigIntField)('atom'), path: `$.atom` },
-            { field: (0, il_1.charField)('no', 100), path: `$.no` },
-        ];
-        let jsonTable = new statementWithFrom_1.FromJsonTable('a', new sql_1.ExpAtVar(transErr), `$[*]`, jsonColumns);
-        cols.forEach(v => select.col(v.col));
-        select.from(jsonTable);
-        select.lock = select_1.LockType.none;
-        return insert;
-    }
-    transErrCount() {
-        let tblTransErr = new statementWithFrom_1.VarTable(IOStatementBuilder.transerr, a);
-        let selectTransErrCount = this.factory.createSelect();
-        selectTransErrCount.from(tblTransErr);
-        selectTransErrCount.column(new sql_1.ExpFunc(this.factory.func_count, new sql_1.ExpStar()));
-        selectTransErrCount.limit(sql_1.ExpNum.num1);
-        return selectTransErrCount;
-    }
-    transSelect() {
-        let tblTransErr = new statementWithFrom_1.VarTable(IOStatementBuilder.transerr, a);
-        let selectTranErr = this.factory.createSelect();
-        selectTranErr.from(tblTransErr)
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('appID', a)));
-        selectTranErr.column(new sql_1.ExpFunc('JSON_ARRAYAGG', new sql_1.ExpFunc('JSON_OBJECT', new sql_1.ExpStr('siteAtomApp'), new sql_1.ExpField('i', b), new sql_1.ExpStr('ID'), new sql_1.ExpField('x', b), new sql_1.ExpStr('atom'), new sql_1.ExpField('atom', a), new sql_1.ExpStr('no'), new sql_1.ExpField('no', a))), 'v');
-        return selectTranErr;
-    }
-    insertIOError(inOut) {
-        let select = this.factory.createSelect();
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOError, false));
-        select.col('id');
-        select.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(IOProc.queueId)));
-        let selectTranErr = this.transSelect();
-        let iff = this.factory.createIf();
-        iff.cmp = new sql_1.ExpExists(select);
-        let update = this.factory.createUpdate();
-        iff.then(update);
-        update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOError, false);
-        update.cols = [
-            { col: 'result', val: new sql_1.ExpSelect(selectTranErr) },
-            { col: 'times', val: new sql_1.ExpAdd(new sql_1.ExpField('times'), sql_1.ExpNum.num1) },
-        ];
-        update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(IOProc.queueId));
-        let insertIOError = this.factory.createInsert();
-        iff.else(insertIOError);
-        insertIOError.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOError, false);
-        insertIOError.cols = [
-            { col: 'id', val: new sql_1.ExpVar(IOProc.queueId) },
-            { col: 'siteAtomApp', val: new sql_1.ExpVar(IOProc.siteAtomApp) },
-            { col: 'appIO', val: new sql_1.ExpVar(IOProc.ioAppIO) },
-            { col: 'result', val: new sql_1.ExpSelect(selectTranErr) },
-            { col: 'inout', val: new sql_1.ExpNum(inOut) },
-        ];
-        return [insertIOError];
-    }
-}
-IOStatementBuilder.transerr = '$transerr';
 //# sourceMappingURL=BizInOut.js.map
