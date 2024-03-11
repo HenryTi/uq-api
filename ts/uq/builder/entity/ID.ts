@@ -15,6 +15,8 @@ import { unitFieldName } from "../sql/sqlBuilder";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BEntity } from "./entity";
 
+const $stamp = '$stamp';
+
 export class BID extends BEntity<ID> {
     protected entity: ID;
 
@@ -102,10 +104,10 @@ export class BID extends BEntity<ID> {
         if (idIsKey === true) {
             let iffStampNull = factory.createIf();
             statements.push(iffStampNull);
-            iffStampNull.cmp = new ExpIsNull(new ExpVar('$stamp'));
+            iffStampNull.cmp = new ExpIsNull(new ExpVar($stamp));
             let setStamp = factory.createSet();
             iffStampNull.then(setStamp);
-            setStamp.equ('$stamp', new ExpFuncCustom(factory.func_unix_timestamp));
+            setStamp.equ($stamp, new ExpFuncCustom(factory.func_unix_timestamp));
         }
 
         if (keys.length > 0) {
@@ -138,7 +140,7 @@ export class BID extends BEntity<ID> {
                 select.limit(ExpNum.num1);
                 keyCompares.push(new ExpLE(
                     new ExpField('id'),
-                    new ExpBitLeft(new ExpDiv(new ExpVar('$stamp'), new ExpNum(60)), new ExpNum(20))
+                    new ExpBitLeft(new ExpDiv(new ExpVar($stamp), new ExpNum(60)), new ExpNum(20))
                 ));
             }
             select.where(new ExpAnd(...keyCompares));
@@ -172,7 +174,7 @@ export class BID extends BEntity<ID> {
         selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr(name)));
         selectEntity.lock = LockType.update;
         if (idType === EnumIdType.MinuteId) {
-            parameters.push(intField('$stamp'));
+            parameters.push(intField($stamp));
             statements.push(...this.build$MinuteId());
         }
         else if (isConst === false || idType === EnumIdType.ULocal /*UConst*/) {
@@ -197,8 +199,8 @@ export class BID extends BEntity<ID> {
                         idFunc = '$id_minute';
                         break;
                 }
-                parameters.push(intField('$stamp'));
-                idFuncParams.push(new ExpVar('$stamp'));
+                parameters.push(intField($stamp));
+                idFuncParams.push(new ExpVar($stamp));
             }
             else {
                 switch (idType) {
@@ -222,8 +224,8 @@ export class BID extends BEntity<ID> {
                     case EnumIdType.Minute:
                         idFuncParams.unshift(new ExpVar(unitFieldName));
                         idFunc = '$id_minute';
-                        parameters.push(intField('$stamp'));
-                        idFuncParams.push(new ExpVar('$stamp'));
+                        parameters.push(intField($stamp));
+                        idFuncParams.push(new ExpVar($stamp));
                         break;
                 }
             }
@@ -316,24 +318,24 @@ export class BID extends BEntity<ID> {
         declare.vars(bigIntField(idminute), bigIntField(idminute0));
         let iffStampNull = factory.createIf();
         ret.push(iffStampNull);
-        iffStampNull.cmp = new ExpIsNull(new ExpVar('$stamp'));
+        iffStampNull.cmp = new ExpIsNull(new ExpVar($stamp));
         let setStamp = factory.createSet();
         iffStampNull.then(setStamp);
-        setStamp.equ('$stamp', new ExpFuncCustom(factory.func_unix_timestamp));
+        setStamp.equ($stamp, new ExpFuncCustom(factory.func_unix_timestamp));
 
         let setMinStamp = factory.createSet();
         ret.push(setMinStamp);
-        setMinStamp.equ('$stamp', new ExpSub(
-            new ExpDiv(new ExpVar('$stamp'), new ExpNum(60)),
+        setMinStamp.equ($stamp, new ExpSub(
+            new ExpDiv(new ExpVar($stamp), new ExpNum(60)),
             new ExpNum(minteIdOf2020_01_01)	// 2020-1-1 0:0:0 utc的分钟数
         ));
 
         let setIdMinute0 = factory.createSet();
         ret.push(setIdMinute0);
         setIdMinute0.equ(idminute0, new ExpFunc(factory.func_if,
-            new ExpLT(new ExpVar('$stamp'), ExpNum.num0),
-            new ExpNeg(new ExpBitLeft(new ExpNeg(new ExpVar('$stamp')), new ExpNum(20))),
-            new ExpBitLeft(new ExpVar('$stamp'), new ExpNum(20)),
+            new ExpLT(new ExpVar($stamp), ExpNum.num0),
+            new ExpNeg(new ExpBitLeft(new ExpNeg(new ExpVar($stamp)), new ExpNum(20))),
+            new ExpBitLeft(new ExpVar($stamp), new ExpNum(20)),
         ));
         const idName = this.entity.id.name;
         const idField = new ExpField(idName);

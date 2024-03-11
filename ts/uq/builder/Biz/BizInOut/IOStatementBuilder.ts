@@ -130,12 +130,12 @@ export class IOStatementBuilder {
         let tblTransErr = new VarTable(IOStatementBuilder.transerr, a);
         let selectTranErr = this.factory.createSelect();
         selectTranErr.from(tblTransErr)
-            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
+            .join(JoinType.left, new EntityTable(EnumSysTable.duo, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('appID', a)));
         selectTranErr.column(
             new ExpFunc('JSON_ARRAYAGG',
                 new ExpFunc('JSON_OBJECT',
-                    new ExpStr('siteAtomApp'), new ExpField('i', b),
+                    // new ExpStr('siteAtomApp'), new ExpField('i', b),
                     new ExpStr('ID'), new ExpField('x', b),
                     new ExpStr('atom'), new ExpField('atom', a),
                     new ExpStr('no'), new ExpField('no', a),
@@ -147,10 +147,11 @@ export class IOStatementBuilder {
     }
 
     insertIOError(inOut: 0 | 1) {
+        let varQueueId = new ExpVar(queueId);
         let select = this.factory.createSelect();
         select.from(new EntityTable(EnumSysTable.IOError, false));
         select.col('id');
-        select.where(new ExpEQ(new ExpField('id'), new ExpVar(queueId)));
+        select.where(new ExpEQ(new ExpField('id'), varQueueId));
 
         let selectTranErr = this.transSelect();
 
@@ -163,18 +164,18 @@ export class IOStatementBuilder {
             { col: 'result', val: new ExpSelect(selectTranErr) },
             { col: 'times', val: new ExpAdd(new ExpField('times'), ExpNum.num1) },
         ];
-        update.where = new ExpEQ(new ExpField('id'), new ExpVar(queueId));
+        update.where = new ExpEQ(new ExpField('id'), varQueueId);
 
         let insertIOError = this.factory.createInsert();
         iff.else(insertIOError);
         insertIOError.table = new EntityTable(EnumSysTable.IOError, false);
         insertIOError.cols = [
-            { col: 'id', val: new ExpVar(queueId) },
+            { col: 'id', val: varQueueId },
             { col: 'siteAtomApp', val: new ExpVar(siteAtomApp) },
             { col: 'appIO', val: new ExpVar(ioAppIO) },
             { col: 'result', val: new ExpSelect(selectTranErr) },
             { col: 'inout', val: new ExpNum(inOut) },
         ];
-        return [insertIOError];
+        return [iff];
     }
 }

@@ -10,6 +10,7 @@ const select_1 = require("../sql/select");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const entity_1 = require("./entity");
+const $stamp = '$stamp';
 class BID extends entity_1.BEntity {
     buildTables() {
         if (this.entity.onlyForSyntax === true)
@@ -91,10 +92,10 @@ class BID extends entity_1.BEntity {
         if (idIsKey === true) {
             let iffStampNull = factory.createIf();
             statements.push(iffStampNull);
-            iffStampNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar('$stamp'));
+            iffStampNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar($stamp));
             let setStamp = factory.createSet();
             iffStampNull.then(setStamp);
-            setStamp.equ('$stamp', new sql_1.ExpFuncCustom(factory.func_unix_timestamp));
+            setStamp.equ($stamp, new sql_1.ExpFuncCustom(factory.func_unix_timestamp));
         }
         if (keys.length > 0) {
             let ifAnyKeyNull = factory.createIf();
@@ -122,7 +123,7 @@ class BID extends entity_1.BEntity {
             if (idIsKey === true) {
                 select.order(new sql_1.ExpField('id'), 'desc');
                 select.limit(sql_1.ExpNum.num1);
-                keyCompares.push(new sql_1.ExpLE(new sql_1.ExpField('id'), new sql_1.ExpBitLeft(new sql_1.ExpDiv(new sql_1.ExpVar('$stamp'), new sql_1.ExpNum(60)), new sql_1.ExpNum(20))));
+                keyCompares.push(new sql_1.ExpLE(new sql_1.ExpField('id'), new sql_1.ExpBitLeft(new sql_1.ExpDiv(new sql_1.ExpVar($stamp), new sql_1.ExpNum(60)), new sql_1.ExpNum(20))));
             }
             select.where(new sql_1.ExpAnd(...keyCompares));
         }
@@ -152,7 +153,7 @@ class BID extends entity_1.BEntity {
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr(name)));
         selectEntity.lock = select_1.LockType.update;
         if (idType === il_2.EnumIdType.MinuteId) {
-            parameters.push((0, il_1.intField)('$stamp'));
+            parameters.push((0, il_1.intField)($stamp));
             statements.push(...this.build$MinuteId());
         }
         else if (isConst === false || idType === il_2.EnumIdType.ULocal /*UConst*/) {
@@ -177,8 +178,8 @@ class BID extends entity_1.BEntity {
                         idFunc = '$id_minute';
                         break;
                 }
-                parameters.push((0, il_1.intField)('$stamp'));
-                idFuncParams.push(new sql_1.ExpVar('$stamp'));
+                parameters.push((0, il_1.intField)($stamp));
+                idFuncParams.push(new sql_1.ExpVar($stamp));
             }
             else {
                 switch (idType) {
@@ -202,8 +203,8 @@ class BID extends entity_1.BEntity {
                     case il_2.EnumIdType.Minute:
                         idFuncParams.unshift(new sql_1.ExpVar(sqlBuilder_1.unitFieldName));
                         idFunc = '$id_minute';
-                        parameters.push((0, il_1.intField)('$stamp'));
-                        idFuncParams.push(new sql_1.ExpVar('$stamp'));
+                        parameters.push((0, il_1.intField)($stamp));
+                        idFuncParams.push(new sql_1.ExpVar($stamp));
                         break;
                 }
             }
@@ -280,17 +281,17 @@ class BID extends entity_1.BEntity {
         declare.vars((0, il_1.bigIntField)(idminute), (0, il_1.bigIntField)(idminute0));
         let iffStampNull = factory.createIf();
         ret.push(iffStampNull);
-        iffStampNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar('$stamp'));
+        iffStampNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar($stamp));
         let setStamp = factory.createSet();
         iffStampNull.then(setStamp);
-        setStamp.equ('$stamp', new sql_1.ExpFuncCustom(factory.func_unix_timestamp));
+        setStamp.equ($stamp, new sql_1.ExpFuncCustom(factory.func_unix_timestamp));
         let setMinStamp = factory.createSet();
         ret.push(setMinStamp);
-        setMinStamp.equ('$stamp', new sql_1.ExpSub(new sql_1.ExpDiv(new sql_1.ExpVar('$stamp'), new sql_1.ExpNum(60)), new sql_1.ExpNum(consts_1.minteIdOf2020_01_01) // 2020-1-1 0:0:0 utc的分钟数
+        setMinStamp.equ($stamp, new sql_1.ExpSub(new sql_1.ExpDiv(new sql_1.ExpVar($stamp), new sql_1.ExpNum(60)), new sql_1.ExpNum(consts_1.minteIdOf2020_01_01) // 2020-1-1 0:0:0 utc的分钟数
         ));
         let setIdMinute0 = factory.createSet();
         ret.push(setIdMinute0);
-        setIdMinute0.equ(idminute0, new sql_1.ExpFunc(factory.func_if, new sql_1.ExpLT(new sql_1.ExpVar('$stamp'), sql_1.ExpNum.num0), new sql_1.ExpNeg(new sql_1.ExpBitLeft(new sql_1.ExpNeg(new sql_1.ExpVar('$stamp')), new sql_1.ExpNum(20))), new sql_1.ExpBitLeft(new sql_1.ExpVar('$stamp'), new sql_1.ExpNum(20))));
+        setIdMinute0.equ(idminute0, new sql_1.ExpFunc(factory.func_if, new sql_1.ExpLT(new sql_1.ExpVar($stamp), sql_1.ExpNum.num0), new sql_1.ExpNeg(new sql_1.ExpBitLeft(new sql_1.ExpNeg(new sql_1.ExpVar($stamp)), new sql_1.ExpNum(20))), new sql_1.ExpBitLeft(new sql_1.ExpVar($stamp), new sql_1.ExpNum(20))));
         const idName = this.entity.id.name;
         const idField = new sql_1.ExpField(idName);
         const idHasUnit = false; // this.context.hasUnit && !this.entity.global;
