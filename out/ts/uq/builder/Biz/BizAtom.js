@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizAtom = void 0;
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
+const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 const cId = '$id';
@@ -15,6 +16,8 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             const budUniques = new Map();
             for (let uq of uniques) {
                 const { keys, no } = uq;
+                if (uq.name === 'no')
+                    continue;
                 function addBudUniques(bud) {
                     let bu = budUniques.get(bud);
                     if (bu === undefined) {
@@ -46,6 +49,10 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         const { uniques } = this.bizEntity;
         for (let unique of uniques) {
             const { id: unqiueId, name } = unique;
+            if (name === 'no') {
+                statements.push(...this.buildUniqueNO(unique));
+                continue;
+            }
             let vNo = `${name}_no`;
             let vI = `${name}_i`;
             let ifNotDup = factory.createIf();
@@ -79,8 +86,9 @@ class BBizAtom extends BizEntity_1.BBizEntity {
     }
     buildUnique(unique, ifNotDup) {
         let statements = [];
+        const { name } = unique;
+        const { id, keys, no } = unique;
         const { factory } = this.context;
-        const { id, name, keys, no } = unique;
         let vNo = `${name}_no`;
         let vI = `${name}_i`;
         let varUniquePhrase = new sql_1.ExpNum(id);
@@ -100,15 +108,12 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 let key = keys[i];
                 let vKeyI = vKey + i;
                 declare.var(vKeyI, new il_1.BigInt());
-                // let setKey = factory.createSet();
-                //statements.push(setKey);
                 let selectKey = factory.createSelect();
                 statements.push(selectKey);
                 selectKey.toVar = true;
                 selectKey.col('value', vKeyI);
                 selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false));
                 selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(key.id))));
-                // setKey.equ(vKeyI, new ExpSelect(selectKey));
                 noNullCmpAnds.push(new sql_1.ExpIsNotNull(new sql_1.ExpVar(vKeyI)));
             }
             let setKey0 = factory.createSet();
@@ -123,9 +128,6 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 ], true));
             }
             noNullCmp = new sql_1.ExpAnd(...noNullCmpAnds);
-            // new ExpIsNotNull(new ExpVar(vKey)),
-            // new ExpIsNotNull(new ExpVar(vNo)),
-            // );
             valKey = new sql_1.ExpFuncInUq('bud$id', [
                 sql_1.ExpNull.null, sql_1.ExpNull.null, sql_1.ExpNum.num1, sql_1.ExpNull.null,
                 varUniquePhrase, new sql_1.ExpVar(vKey)
@@ -164,6 +166,25 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             { col: 'x', val: new sql_1.ExpVar(vNo) },
             { col: 'atom', val: new sql_1.ExpVar(cId) },
         ];
+        return statements;
+    }
+    buildUniqueNO(unique) {
+        const { factory } = this.context;
+        let statements = [];
+        let selectNo = factory.createSelect();
+        selectNo.lock = select_1.LockType.none;
+        selectNo.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false));
+        selectNo.col('no');
+        selectNo.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(cId)));
+        let insert = factory.createInsert();
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false);
+        insert.ignore = true;
+        insert.cols = [
+            { col: 'i', val: new sql_1.ExpNum(unique.id) },
+            { col: 'x', val: new sql_1.ExpSelect(selectNo) },
+            { col: 'atom', val: new sql_1.ExpVar(cId) },
+        ];
+        statements.push(insert);
         return statements;
     }
 }

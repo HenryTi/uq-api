@@ -66,7 +66,6 @@ export class BizInAct extends BizAct {
 }
 
 export class IOAppID extends BizBud {
-    readonly bizPhraseType = BizPhraseType.bud;
     readonly dataType = BudDataType.none;
     readonly atoms: BizAtom[] = [];
     unique: IDUnique;
@@ -81,7 +80,6 @@ export class IOAppID extends BizBud {
 }
 
 export class IOAppOptions extends BizBud {
-    readonly bizPhraseType = BizPhraseType.bud;
     readonly dataType = BudDataType.none;
     options: BizOptions;
     override parser(context: PContext): PElement<IElement> {
@@ -130,6 +128,7 @@ export class IOPeerID extends IOPeer {
 export class IOPeerOptions extends IOPeer {
     readonly peerType = PeerType.peerOptions;
     options: BizOptions;
+    isValue: boolean = false;
     override parser(context: PContext): PElement<IElement> {
         return new PIOPeerOptions(this, context);
     }
@@ -164,12 +163,8 @@ export class IOPeers extends IElement {
 }
 
 export abstract class IOAppIO extends BizBud {
-    readonly bizPhraseType = BizPhraseType.bud;
     readonly dataType = BudDataType.none;
-    // readonly peersContainer: PeersContainer; // { [name: string]: IOPeer } = {};
     readonly ioApp: BizIOApp;
-    // owner: PeersContainer;
-    // readonly peers: { [name: string]: IOPeer; } = {};
     peers: IOPeers;
     bizIO: BizInOut;
     constructor(ioApp: BizIOApp) {

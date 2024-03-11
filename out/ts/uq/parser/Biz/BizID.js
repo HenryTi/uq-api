@@ -66,8 +66,16 @@ exports.PBizIDExtendable = PBizIDExtendable;
 class PIDUnique extends Bud_1.PBizBud {
     _parse() {
         this.element.name = this.ts.passVar();
+        const { name } = this.element;
         this.keys = [];
-        this.ts.passToken(tokens_1.Token.LBRACE);
+        if (this.ts.token !== tokens_1.Token.LBRACE) {
+            if (name !== 'no') {
+                this.ts.error('should be UNQIUE NO');
+            }
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+            return;
+        }
+        this.ts.readToken();
         for (;;) {
             const { token } = this.ts;
             if (token === tokens_1.Token.RBRACE) {
@@ -119,6 +127,8 @@ class PIDUnique extends Bud_1.PBizBud {
     scan(space) {
         let ok = true;
         const { name, bizAtom } = this.element;
+        if (name === 'no')
+            return true;
         const { props } = bizAtom;
         if (props.get(name) !== undefined) {
             ok = false;

@@ -389,6 +389,13 @@ exports.PIOPeerID = PIOPeerID;
 class PIOPeerOptions extends element_1.PElement {
     _parse() {
         this.ioOptions = this.ts.mayPassVar();
+        if (this.ioOptions !== undefined) {
+            if (this.ts.token === tokens_1.Token.DOT) {
+                this.ts.readToken();
+                this.ts.passKey('value');
+                this.element.isValue = true;
+            }
+        }
         this.ts.passToken(tokens_1.Token.COMMA);
     }
     scan(space) {

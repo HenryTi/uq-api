@@ -63,7 +63,6 @@ exports.BizInAct = BizInAct;
 class IOAppID extends Bud_1.BizBud {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.dataType = BizPhraseType_1.BudDataType.none;
         this.atoms = [];
     }
@@ -80,7 +79,6 @@ exports.IOAppID = IOAppID;
 class IOAppOptions extends Bud_1.BizBud {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.dataType = BizPhraseType_1.BudDataType.none;
     }
     parser(context) {
@@ -133,6 +131,7 @@ class IOPeerOptions extends IOPeer {
     constructor() {
         super(...arguments);
         this.peerType = PeerType.peerOptions;
+        this.isValue = false;
     }
     parser(context) {
         return new parser_1.PIOPeerOptions(this, context);
@@ -164,7 +163,6 @@ exports.IOPeers = IOPeers;
 class IOAppIO extends Bud_1.BizBud {
     constructor(ioApp) {
         super(ioApp.biz, undefined, {});
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.dataType = BizPhraseType_1.BudDataType.none;
         this.ioApp = ioApp;
     }

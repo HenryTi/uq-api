@@ -162,7 +162,6 @@ export abstract class EntityWithTable extends Entity implements Table {
 export class Index {
     name: string;
     unique: boolean = false;
-    //unit: boolean = true;
     global: boolean;
     fields: Field[] = [];
     constructor(name: string, unique: boolean = false) {

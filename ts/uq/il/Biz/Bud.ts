@@ -89,7 +89,7 @@ export class BudGroup extends BizBase {
 }
 
 export abstract class BizBud extends BizBase {
-    readonly bizPhraseType = BizPhraseType.bud;
+    get bizPhraseType() { return BizPhraseType.bud; }
     abstract get dataType(): BudDataType;
     value: BudValueSet;
     get objName(): string { return undefined; }

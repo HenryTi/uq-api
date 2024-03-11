@@ -672,6 +672,26 @@ class VarTable extends stat.VarTable {
         else if (autoId !== undefined) {
             sb.comma().append('PRIMARY KEY(').fld(autoId.name).r();
         }
+        if (this.indexes !== undefined) {
+            for (let index of this.indexes) {
+                let { name, unique, fields } = index;
+                sb.comma();
+                if (unique === true)
+                    sb.append('UNIQUE ');
+                sb.append('INDEX ').name(name).l();
+                let first = true;
+                for (let f of fields) {
+                    if (first === true) {
+                        first = false;
+                    }
+                    else {
+                        sb.comma();
+                    }
+                    sb.name(f.name);
+                }
+                sb.r();
+            }
+        }
         sb.r().append(' ENGINE=MyISAM').ln();
     }
 }

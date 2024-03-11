@@ -63,11 +63,11 @@ class BudGroup extends Base_1.BizBase {
 }
 exports.BudGroup = BudGroup;
 class BizBud extends Base_1.BizBase {
+    get bizPhraseType() { return BizPhraseType_1.BizPhraseType.bud; }
     get objName() { return undefined; }
     getFieldShows() { return undefined; }
     constructor(biz, name, ui) {
         super(biz);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.bud;
         this.flag = Entity_1.BudIndex.none;
         this.name = name;
         Object.assign(this.ui, ui);

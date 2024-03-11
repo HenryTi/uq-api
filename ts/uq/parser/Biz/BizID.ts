@@ -71,16 +71,24 @@ export class PIDUnique extends PBizBud<IDUnique> {
     private no: string;
     protected override _parse(): void {
         this.element.name = this.ts.passVar();
+        const { name } = this.element;
         this.keys = [];
-        this.ts.passToken(Token.LBRACE);
+        if (this.ts.token !== Token.LBRACE) {
+            if (name !== 'no') {
+                this.ts.error('should be UNQIUE NO');
+            }
+            this.ts.passToken(Token.SEMICOLON);
+            return;
+        }
+        this.ts.readToken();
         for (; ;) {
             const { token } = this.ts;
-            if (token === Token.RBRACE) {
+            if (token === Token.RBRACE as any) {
                 this.ts.readToken();
                 this.ts.mayPassToken(Token.SEMICOLON);
                 break;
             }
-            else if (token === Token.VAR) {
+            else if (token === Token.VAR as any) {
                 if (this.ts.isKeyword('key') === true) {
                     this.ts.readToken();
                     let k = this.ts.passVar();
@@ -124,6 +132,7 @@ export class PIDUnique extends PBizBud<IDUnique> {
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
         const { name, bizAtom } = this.element;
+        if (name === 'no') return true;
         const { props } = bizAtom;
         if (props.get(name) !== undefined) {
             ok = false;

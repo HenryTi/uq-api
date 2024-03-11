@@ -223,7 +223,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             this.ts.readToken();
             this.ts.mayPassToken(Token.EQU);
             let format = this.ts.passString();
-            // bizBud.format = format;
             bizBud.ui.format = format;
         },
         set: (bizBud: BizBudValue) => {

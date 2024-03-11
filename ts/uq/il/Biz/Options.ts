@@ -11,10 +11,10 @@ export enum OptionsItemValueType {
     str = 3,
 }
 export class OptionsItem extends BizBudValue {
+    get bizPhraseType() { return BizPhraseType.optionsitem; }
     id: number;
     name: string;
     caption: string;
-    // value: string | number;
     itemValue: string | number;
     _itemType: OptionsItemValueType;
     get optionsItemType(): OptionsItemValueType { return this._itemType; }

@@ -69,6 +69,7 @@ class PBizOptions extends Base_1.PBizEntity {
             let item = new il_1.OptionsItem(this.element.biz, name, ui);
             item._itemType = type;
             item.itemValue = value;
+            item.memo = String(value);
             this.element.items.push(item);
             if (this.ts.token === tokens_1.Token.COMMA) {
                 this.ts.readToken();

@@ -6,6 +6,7 @@ import {
     ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
     , ExpOr, ExpSelect, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement
 } from "../sql";
+import { LockType } from "../sql/select";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
@@ -19,6 +20,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             const budUniques: Map<BizBud, IDUnique[]> = new Map();
             for (let uq of uniques) {
                 const { keys, no } = uq;
+                if (uq.name === 'no') continue;
                 function addBudUniques(bud: BizBud) {
                     let bu = budUniques.get(bud);
                     if (bu === undefined) {
@@ -52,6 +54,10 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         const { uniques } = this.bizEntity;
         for (let unique of uniques) {
             const { id: unqiueId, name } = unique;
+            if (name === 'no') {
+                statements.push(...this.buildUniqueNO(unique))
+                continue;
+            }
             let vNo = `${name}_no`;
             let vI = `${name}_i`;
             let ifNotDup = factory.createIf();
@@ -93,8 +99,9 @@ export class BBizAtom extends BBizEntity<BizAtom> {
 
     private buildUnique(unique: IDUnique, ifNotDup: If) {
         let statements: Statement[] = [];
+        const { name } = unique;
+        const { id, keys, no } = unique;
         const { factory } = this.context;
-        const { id, name, keys, no } = unique;
         let vNo = `${name}_no`;
         let vI = `${name}_i`;
         let varUniquePhrase = new ExpNum(id);
@@ -114,8 +121,6 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 let key = keys[i];
                 let vKeyI = vKey + i;
                 declare.var(vKeyI, new BigInt());
-                // let setKey = factory.createSet();
-                //statements.push(setKey);
                 let selectKey = factory.createSelect();
                 statements.push(selectKey);
                 selectKey.toVar = true;
@@ -125,7 +130,6 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                     new ExpEQ(new ExpField('i'), new ExpVar(cId)),
                     new ExpEQ(new ExpField('x'), new ExpNum(key.id)),
                 ));
-                // setKey.equ(vKeyI, new ExpSelect(selectKey));
                 noNullCmpAnds.push(new ExpIsNotNull(new ExpVar(vKeyI)));
             }
 
@@ -145,9 +149,6 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             }
 
             noNullCmp = new ExpAnd(...noNullCmpAnds);
-            // new ExpIsNotNull(new ExpVar(vKey)),
-            // new ExpIsNotNull(new ExpVar(vNo)),
-            // );
             valKey = new ExpFuncInUq('bud$id', [
                 ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
                 varUniquePhrase, new ExpVar(vKey)
@@ -198,6 +199,26 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             { col: 'x', val: new ExpVar(vNo) },
             { col: 'atom', val: new ExpVar(cId) },
         ];
+        return statements;
+    }
+
+    private buildUniqueNO(unique: IDUnique) {
+        const { factory } = this.context;
+        let statements: Statement[] = [];
+        let selectNo = factory.createSelect();
+        selectNo.lock = LockType.none;
+        selectNo.from(new EntityTable(EnumSysTable.atom, false));
+        selectNo.col('no');
+        selectNo.where(new ExpEQ(new ExpField('id'), new ExpVar(cId)));
+        let insert = factory.createInsert();
+        insert.table = new EntityTable(EnumSysTable.atomUnique, false);
+        insert.ignore = true;
+        insert.cols = [
+            { col: 'i', val: new ExpNum(unique.id) },
+            { col: 'x', val: new ExpSelect(selectNo) },
+            { col: 'atom', val: new ExpVar(cId) },
+        ];
+        statements.push(insert);
         return statements;
     }
 }

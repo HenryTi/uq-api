@@ -1,7 +1,7 @@
 import { ExpCmp, ExpVal } from './exp';
 import { SqlBuilder } from './sqlBuilder';
 import { Select } from './select';
-import { Field, DataType, Entity, VarPointer, SetEqu, TableVar, ProcParamType } from '../../il';
+import { Field, DataType, Entity, VarPointer, SetEqu, TableVar, ProcParamType, Index } from '../../il';
 
 export interface Statement {
     declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }): void;
@@ -234,6 +234,7 @@ export abstract class VarTable extends StatementBase {
     name: string;
     fields: Field[];
     keys: Field[];
+    indexes: Index[];
     noDrop: boolean;
     abstract declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }): void;
     to(sb: SqlBuilder, tab: number) { }

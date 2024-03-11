@@ -410,6 +410,13 @@ export class PIOPeerOptions extends PElement<IOPeerOptions> {
     private ioOptions: string;
     protected override _parse(): void {
         this.ioOptions = this.ts.mayPassVar();
+        if (this.ioOptions !== undefined) {
+            if (this.ts.token === Token.DOT) {
+                this.ts.readToken();
+                this.ts.passKey('value');
+                this.element.isValue = true;
+            }
+        }
         this.ts.passToken(Token.COMMA);
     }
     override scan(space: Space): boolean {

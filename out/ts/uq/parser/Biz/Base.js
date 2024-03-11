@@ -22,7 +22,6 @@ class PBizBase extends element_1.PElement {
                 this.ts.readToken();
                 this.ts.mayPassToken(tokens_1.Token.EQU);
                 let format = this.ts.passString();
-                // bizBud.format = format;
                 bizBud.ui.format = format;
             },
             set: (bizBud) => {
