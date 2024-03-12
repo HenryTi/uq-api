@@ -54,6 +54,8 @@ class BudGroup extends Base_1.BizBase {
         return;
     }
     buildSchema(res) {
+        if (typeof this.id === 'object')
+            debugger;
         let ret = super.buildSchema(res);
         if (this.buds.length > 0) {
             ret.buds = this.buds.map(v => v.id);

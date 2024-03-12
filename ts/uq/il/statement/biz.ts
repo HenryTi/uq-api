@@ -6,7 +6,7 @@ import * as parser from '../../parser';
 import { IElement } from '../IElement';
 import {
     BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizSpec, UseOut
+    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique
 } from '../Biz';
 import { ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
@@ -100,6 +100,8 @@ export abstract class BizStatementID<T extends BizAct = BizAct> extends BizState
 
 export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<T> {
     atom: BizAtom;
+    unique: IDUnique;   // if unique===undefined，no as unique, inVals are parameters of unique
+    readonly sets: { [bud: string]: ValueExpression } = {};
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementAtom(this, context);
     }

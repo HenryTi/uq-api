@@ -417,6 +417,10 @@ class PBizStatementID extends PBizStatementSub {
         this.entityName = this.ts.passVar();
         this.ts.passKey('in');
         this.ts.passToken(tokens_1.Token.EQU);
+        this.parseUnique();
+        this.parseTo();
+    }
+    parseUnique() {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             for (;;) {
@@ -440,6 +444,8 @@ class PBizStatementID extends PBizStatementSub {
             this.context.parseElement(val);
             this.inVals.push(val);
         }
+    }
+    parseTo() {
         this.ts.passKey('to');
         this.toVar = this.ts.passVar();
     }
@@ -468,6 +474,45 @@ class PBizStatementID extends PBizStatementSub {
     }
 }
 class PBizStatementAtom extends PBizStatementID {
+    _parse() {
+        this.entityName = this.ts.passVar();
+        let key = this.ts.passKey();
+        switch (key) {
+            case 'no': break;
+            case 'unique':
+                this.unique = this.ts.passVar();
+                break;
+            default: this.ts.expect('no', 'unique');
+        }
+        this.parseUnique();
+        this.parseTo();
+        this.parseSets();
+    }
+    parseSets() {
+        if (this.ts.token !== tokens_1.Token.VAR)
+            return;
+        if (this.ts.varBrace === true || this.ts.lowerVar !== 'set') {
+            this.ts.expect('set');
+        }
+        this.ts.readToken();
+        for (;;) {
+            let bud = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.EQU);
+            let val = new il_1.ValueExpression();
+            this.context.parseElement(val);
+            this.element.sets[bud] = val;
+            const { token } = this.ts;
+            if (token === tokens_1.Token.SEMICOLON) {
+                // this.ts.readToken();
+                break;
+            }
+            if (token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.SEMICOLON);
+        }
+    }
     scan(space) {
         let ok = true;
         if (super.scan(space) === false) {
@@ -481,10 +526,44 @@ class PBizStatementAtom extends PBizStatementID {
         else {
             this.element.atom = this.entity;
         }
+        const { atom, sets } = this.element;
         let { length } = this.inVals;
-        if (length !== 1) {
+        if (this.unique === undefined) {
+            if (length !== 1) {
+                ok = false;
+                this.log(`NO ${length} variables, can only have 1 variable`);
+            }
+        }
+        else {
+            let unique = this.element.atom.getUnique(this.unique);
+            if (unique === undefined) {
+                ok = false;
+                this.log(`ATOM ${this.entityName} has no UNIQUE ${this.unique}`);
+            }
+            else {
+                this.element.unique = unique;
+            }
+        }
+        for (let i in sets) {
+            let s = sets[i];
+            if (s.pelement.scan(space) === false) {
+                ok = false;
+            }
+            if (i === 'ex')
+                continue;
+            if (atom.props.has(i) === false) {
+                ok = false;
+                this.log(`ATOM ${this.entityName} has no PROP ${i}`);
+            }
+        }
+        return ok;
+    }
+    scan2(uq) {
+        let ok = true;
+        const { unique } = this.element;
+        if (unique.keys.length + 1 !== this.inVals.length) {
             ok = false;
-            this.log(`IN ${length} variables, can only have 1 variable`);
+            this.log(`ATOM ${this.entityName} UNIQUE ${this.unique} keys count mismatch`);
         }
         return ok;
     }

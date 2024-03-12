@@ -370,6 +370,10 @@ class BBizStatementID extends bstatement_1.BStatement {
 const a = 'a', b = 'b';
 class BBizStatementAtom extends BBizStatementID {
     body(sqls) {
+        const { factory } = this.context;
+        let memo = factory.createMemo();
+        sqls.push(memo);
+        memo.text = 'Biz Atom';
         // 底层自动转换，所以没有必要显式转化ID
         /*
         const { factory } = this.context;

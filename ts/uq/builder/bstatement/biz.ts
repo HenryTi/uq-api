@@ -396,6 +396,10 @@ abstract class BBizStatementID<T extends BizStatementID> extends BStatement<T> {
 const a = 'a', b = 'b';
 export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
     override body(sqls: Sqls): void {
+        const { factory } = this.context;
+        let memo = factory.createMemo();
+        sqls.push(memo);
+        memo.text = 'Biz Atom';
         // 底层自动转换，所以没有必要显式转化ID
         /*
         const { factory } = this.context;

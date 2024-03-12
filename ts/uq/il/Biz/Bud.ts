@@ -80,6 +80,7 @@ export class BudGroup extends BizBase {
         return;
     }
     buildSchema(res: { [phrase: string]: string }): any {
+        if (typeof this.id === 'object') debugger;
         let ret = super.buildSchema(res);
         if (this.buds.length > 0) {
             ret.buds = this.buds.map(v => v.id);

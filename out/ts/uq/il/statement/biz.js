@@ -77,6 +77,10 @@ class BizStatementID extends BizStatementSub {
 }
 exports.BizStatementID = BizStatementID;
 class BizStatementAtom extends BizStatementID {
+    constructor() {
+        super(...arguments);
+        this.sets = {};
+    }
     parser(context) {
         return new parser.PBizStatementAtom(this, context);
     }

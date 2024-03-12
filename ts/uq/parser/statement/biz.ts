@@ -6,7 +6,7 @@ import {
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
     , BizPhraseType, BizSheet
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
-    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut, BizIOSite, BizIOApp
+    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut, BizIOSite, BizIOApp, Uq
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -421,6 +421,11 @@ abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> ex
         this.entityName = this.ts.passVar();
         this.ts.passKey('in');
         this.ts.passToken(Token.EQU);
+        this.parseUnique();
+        this.parseTo();
+    }
+
+    protected parseUnique() {
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
             for (; ;) {
@@ -444,6 +449,9 @@ abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> ex
             this.context.parseElement(val);
             this.inVals.push(val);
         }
+    }
+
+    protected parseTo() {
         this.ts.passKey('to');
         this.toVar = this.ts.passVar();
     }
@@ -474,6 +482,45 @@ abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> ex
 }
 
 export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> extends PBizStatementID<A, T> {
+    private unique: string;
+    protected override _parse(): void {
+        this.entityName = this.ts.passVar();
+        let key = this.ts.passKey();
+        switch (key) {
+            case 'no': break;
+            case 'unique': this.unique = this.ts.passVar(); break;
+            default: this.ts.expect('no', 'unique');
+        }
+        this.parseUnique();
+        this.parseTo();
+        this.parseSets();
+    }
+
+    private parseSets() {
+        if (this.ts.token !== Token.VAR) return;
+        if (this.ts.varBrace === true || this.ts.lowerVar !== 'set') {
+            this.ts.expect('set');
+        }
+        this.ts.readToken();
+        for (; ;) {
+            let bud = this.ts.passVar();
+            this.ts.passToken(Token.EQU);
+            let val = new ValueExpression();
+            this.context.parseElement(val);
+            this.element.sets[bud] = val;
+            const { token } = this.ts;
+            if (token === Token.SEMICOLON as any) {
+                // this.ts.readToken();
+                break;
+            }
+            if (token === Token.COMMA as any) {
+                this.ts.readToken();
+                continue;
+            }
+            this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
+        }
+    }
+
     override scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) {
@@ -487,10 +534,44 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
         else {
             this.element.atom = this.entity as BizAtom;
         }
+        const { atom, sets } = this.element;
         let { length } = this.inVals;
-        if (length !== 1) {
+        if (this.unique === undefined) {
+            if (length !== 1) {
+                ok = false;
+                this.log(`NO ${length} variables, can only have 1 variable`);
+            }
+        }
+        else {
+            let unique = this.element.atom.getUnique(this.unique);
+            if (unique === undefined) {
+                ok = false;
+                this.log(`ATOM ${this.entityName} has no UNIQUE ${this.unique}`);
+            }
+            else {
+                this.element.unique = unique;
+            }
+        }
+        for (let i in sets) {
+            let s = sets[i];
+            if (s.pelement.scan(space) === false) {
+                ok = false;
+            }
+            if (i === 'ex') continue;
+            if (atom.props.has(i) === false) {
+                ok = false;
+                this.log(`ATOM ${this.entityName} has no PROP ${i}`);
+            }
+        }
+        return ok;
+    }
+
+    scan2(uq: Uq): boolean {
+        let ok = true;
+        const { unique } = this.element;
+        if (unique.keys.length + 1 !== this.inVals.length) {
             ok = false;
-            this.log(`IN ${length} variables, can only have 1 variable`);
+            this.log(`ATOM ${this.entityName} UNIQUE ${this.unique} keys count mismatch`);
         }
         return ok;
     }
