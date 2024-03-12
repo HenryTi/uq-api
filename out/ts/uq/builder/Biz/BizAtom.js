@@ -7,7 +7,7 @@ const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 const cId = '$id';
-const a = 'a';
+const a = 'a', b = 'b';
 class BBizAtom extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures;
@@ -111,9 +111,20 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 let selectKey = factory.createSelect();
                 statements.push(selectKey);
                 selectKey.toVar = true;
-                selectKey.col('value', vKeyI);
-                selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false));
-                selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(key.id))));
+                switch (key.dataType) {
+                    case il_1.BudDataType.radio:
+                        selectKey.column(new sql_1.ExpField('ext', b), vKeyI);
+                        selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a))
+                            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('x', a)));
+                        selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(key.id))));
+                        break;
+                    default:
+                        selectKey.col('value', vKeyI);
+                        selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false));
+                        selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(key.id))));
+                        break;
+                }
                 noNullCmpAnds.push(new sql_1.ExpIsNotNull(new sql_1.ExpVar(vKeyI)));
             }
             let setKey0 = factory.createSet();

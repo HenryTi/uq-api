@@ -1,6 +1,6 @@
 import {
     BigInt, Char
-    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique
+    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, BizPhraseType, BudDataType, JoinType
 } from "../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
@@ -11,7 +11,7 @@ import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 const cId = '$id';
-const a = 'a';
+const a = 'a', b = 'b';
 export class BBizAtom extends BBizEntity<BizAtom> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures
@@ -124,12 +124,26 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 let selectKey = factory.createSelect();
                 statements.push(selectKey);
                 selectKey.toVar = true;
-                selectKey.col('value', vKeyI);
-                selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
-                selectKey.where(new ExpAnd(
-                    new ExpEQ(new ExpField('i'), new ExpVar(cId)),
-                    new ExpEQ(new ExpField('x'), new ExpNum(key.id)),
-                ));
+                switch (key.dataType) {
+                    case BudDataType.radio:
+                        selectKey.column(new ExpField('ext', b), vKeyI);
+                        selectKey.from(new EntityTable(EnumSysTable.ixBud, false, a))
+                            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+                            .on(new ExpEQ(new ExpField('id', b), new ExpField('x', a)));
+                        selectKey.where(new ExpAnd(
+                            new ExpEQ(new ExpField('i', a), new ExpVar(cId)),
+                            new ExpEQ(new ExpField('base', b), new ExpNum(key.id)),
+                        ))
+                        break;
+                    default:
+                        selectKey.col('value', vKeyI);
+                        selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
+                        selectKey.where(new ExpAnd(
+                            new ExpEQ(new ExpField('i'), new ExpVar(cId)),
+                            new ExpEQ(new ExpField('x'), new ExpNum(key.id)),
+                        ));
+                        break;
+                }
                 noNullCmpAnds.push(new ExpIsNotNull(new ExpVar(vKeyI)));
             }
 
