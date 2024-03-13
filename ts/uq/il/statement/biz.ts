@@ -101,7 +101,8 @@ export abstract class BizStatementID<T extends BizAct = BizAct> extends BizState
 export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<T> {
     atom: BizAtom;
     unique: IDUnique;   // if unique===undefined，no as unique, inVals are parameters of unique
-    readonly sets: { [bud: string]: ValueExpression } = {};
+    ex: ValueExpression;
+    readonly sets: Map<BizBud, ValueExpression> = new Map();
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementAtom(this, context);
     }

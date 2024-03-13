@@ -474,6 +474,10 @@ class PBizStatementID extends PBizStatementSub {
     }
 }
 class PBizStatementAtom extends PBizStatementID {
+    constructor() {
+        super(...arguments);
+        this.sets = {};
+    }
     _parse() {
         this.entityName = this.ts.passVar();
         let key = this.ts.passKey();
@@ -500,7 +504,12 @@ class PBizStatementAtom extends PBizStatementID {
             this.ts.passToken(tokens_1.Token.EQU);
             let val = new il_1.ValueExpression();
             this.context.parseElement(val);
-            this.element.sets[bud] = val;
+            if (bud === 'ex') {
+                this.element.ex = val;
+            }
+            else {
+                this.sets[bud] = val;
+            }
             const { token } = this.ts;
             if (token === tokens_1.Token.SEMICOLON) {
                 // this.ts.readToken();
@@ -526,7 +535,7 @@ class PBizStatementAtom extends PBizStatementID {
         else {
             this.element.atom = this.entity;
         }
-        const { atom, sets } = this.element;
+        const { atom, sets, ex } = this.element;
         let { length } = this.inVals;
         if (this.unique === undefined) {
             if (length !== 1) {
@@ -544,17 +553,22 @@ class PBizStatementAtom extends PBizStatementID {
                 this.element.unique = unique;
             }
         }
-        for (let i in sets) {
-            let s = sets[i];
-            if (s.pelement.scan(space) === false) {
+        if (ex !== undefined) {
+            if (ex.pelement.scan(space) === false) {
                 ok = false;
             }
-            if (i === 'ex')
-                continue;
-            if (atom.props.has(i) === false) {
+        }
+        for (let i in this.sets) {
+            let val = this.sets[i];
+            if (val.pelement.scan(space) === false) {
+                ok = false;
+            }
+            let bud = atom.props.get(i);
+            if (bud === undefined) {
                 ok = false;
                 this.log(`ATOM ${this.entityName} has no PROP ${i}`);
             }
+            sets.set(bud, val);
         }
         return ok;
     }

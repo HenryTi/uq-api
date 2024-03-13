@@ -483,6 +483,7 @@ abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> ex
 
 export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> extends PBizStatementID<A, T> {
     private unique: string;
+    private sets: { [bud: string]: ValueExpression } = {};
     protected override _parse(): void {
         this.entityName = this.ts.passVar();
         let key = this.ts.passKey();
@@ -507,7 +508,12 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
             this.ts.passToken(Token.EQU);
             let val = new ValueExpression();
             this.context.parseElement(val);
-            this.element.sets[bud] = val;
+            if (bud === 'ex') {
+                this.element.ex = val;
+            }
+            else {
+                this.sets[bud] = val;
+            }
             const { token } = this.ts;
             if (token === Token.SEMICOLON as any) {
                 // this.ts.readToken();
@@ -534,7 +540,7 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
         else {
             this.element.atom = this.entity as BizAtom;
         }
-        const { atom, sets } = this.element;
+        const { atom, sets, ex } = this.element;
         let { length } = this.inVals;
         if (this.unique === undefined) {
             if (length !== 1) {
@@ -552,16 +558,22 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
                 this.element.unique = unique;
             }
         }
-        for (let i in sets) {
-            let s = sets[i];
-            if (s.pelement.scan(space) === false) {
+        if (ex !== undefined) {
+            if (ex.pelement.scan(space) === false) {
                 ok = false;
             }
-            if (i === 'ex') continue;
-            if (atom.props.has(i) === false) {
+        }
+        for (let i in this.sets) {
+            let val = this.sets[i];
+            if (val.pelement.scan(space) === false) {
+                ok = false;
+            }
+            let bud = atom.props.get(i);
+            if (bud === undefined) {
                 ok = false;
                 this.log(`ATOM ${this.entityName} has no PROP ${i}`);
             }
+            sets.set(bud, val);
         }
         return ok;
     }

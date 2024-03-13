@@ -2,13 +2,13 @@ import {
     EnumSysTable, BigInt, BizStatementPend
     , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet, intField
-    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField
+    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud
 } from "../../il";
 import { $site } from "../consts";
 import { sysTable } from "../dbContext";
 import {
     ColVal, ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
-    , ExpGT, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, VarTable
+    , ExpGT, ExpIsNull, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, VarTable
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
@@ -400,22 +400,122 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         let memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'Biz Atom';
-        // 底层自动转换，所以没有必要显式转化ID
-        /*
-        const { factory } = this.context;
+        const { unique, inVals, atom, no, toVar, ex, sets } = this.istatement;
+        let inExps = inVals.map(v => this.context.expVal(v));
+        let declare = factory.createDeclare();
+        sqls.push(declare);
+        let vId: string;
+        if (toVar === undefined) {
+            vId = 'bizatom_' + no;
+        }
+        else {
+            vId = toVar.varName(undefined);
+        }
+        let varId = new ExpVar(vId);
         let select = factory.createSelect();
         sqls.push(select);
         select.toVar = true;
-        select.column(new ExpField('atom', a), undefined, this.istatement.toVar);
-        select.from(new EntityTable(EnumSysTable.IOAtom, false, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.IOAtomType, false, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('type', a)));
-        select.where(new ExpAnd(
-            new ExpEQ(new ExpField('outer', b), new ExpVar('$outer')),
-            new ExpEQ(new ExpField('phrase', b), new ExpVar('$in')),
-            new ExpEQ(new ExpField('no', a), this.context.expVal(this.istatement.inVals[0])),
-        ));
-        */
+        select.column(new ExpField('id', a), vId);
+        select.from(new EntityTable(EnumSysTable.atom, false, a));
+        if (unique === undefined) {
+            select.where(new ExpEQ(new ExpField('no', a), inExps[0]));
+        }
+        else {
+            let len = inExps.length;
+            let expKey = inExps[0];
+            for (let i = 1; i < len - 1; i++) {
+                expKey = new ExpFuncInUq('duo$id', [
+                    ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
+                    , expKey, inExps[i]
+                ], true);
+            }
+            select.join(JoinType.join, new EntityTable(EnumSysTable.atomUnique, false, b))
+                .on(new ExpEQ(new ExpField('atom', b), new ExpField('id', a)));
+            select.where(new ExpAnd(
+                new ExpEQ(new ExpField('i', b), expKey),
+                new ExpEQ(new ExpField('x', b), inExps[len - 1]),
+            ));
+        }
+        let ifIdNull = factory.createIf();
+        sqls.push(ifIdNull);
+        ifIdNull.cmp = new ExpIsNull(varId);
+        let setId = factory.createSet();
+        ifIdNull.then(setId);
+        setId.equ(vId, new ExpFuncInUq('atom$id', [ExpNum.num0, ExpNum.num0, ExpNum.num1, new ExpNum(atom.id)], true));
+        let updateNoEx = factory.createUpdate();
+        ifIdNull.then(updateNoEx);
+        updateNoEx.cols = [
+            { col: 'no', val: new ExpFuncInUq('$no', [ExpNum.num0, new ExpStr('atom'), ExpNull.null], true) },
+        ];
+        if (ex !== undefined) {
+            updateNoEx.cols.push({
+                col: 'ex', val: this.context.expVal(ex)
+            });
+        }
+        updateNoEx.table = new EntityTable(EnumSysTable.atom, false);
+        updateNoEx.where = new ExpEQ(new ExpField('id'), varId);
+
+        for (let [bud, val] of sets) {
+            let statements: Statement[];
+            let valExp = this.context.expVal(val);
+            switch (bud.dataType) {
+                default:
+                    statements = this.buildSetValueBud(varId, bud, valExp);
+                    break;
+                case BudDataType.radio:
+                    statements = this.buildSetRadioBud(varId, bud, valExp);
+                    break;
+                case BudDataType.check:
+                    statements = this.buildSetCheckBud(varId, bud, valExp);
+                    break;
+            }
+            sqls.push(...statements);
+        }
+
+        let sqlCall = factory.createExecSql();
+        sqls.push(sqlCall);
+        sqlCall.no = no;
+        sqlCall.sql = new ExpFunc(factory.func_concat,
+            new ExpStr('CALL `$site`.`'),
+            new ExpNum(this.context.site),
+            new ExpStr('.'),
+            new ExpNum(atom.id),
+            new ExpStr('u`(?)'),
+        );
+        sqlCall.parameters = [varId];
+    }
+
+    private buildSetValueBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
+        const { factory } = this.context;
+        let insertDup = factory.createInsertOnDuplicate();
+        let statements: Statement[] = [insertDup];
+        let tbl: EnumSysTable;
+        switch (bud.dataType) {
+            default: tbl = EnumSysTable.ixBudInt; break;
+            case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+            case BudDataType.str:
+            case BudDataType.char: tbl = EnumSysTable.ixBudStr; break;
+        }
+        insertDup.keys = [
+            { col: 'i', val: varId },
+            { col: 'x', val: new ExpNum(bud.id) },
+        ];
+        insertDup.cols = [
+            { col: 'value', val }
+        ];
+        insertDup.table = new EntityTable(tbl, false);
+        return statements;
+    }
+
+    private buildSetRadioBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
+        const { factory } = this.context;
+        let statements: Statement[] = [];
+        return statements;
+    }
+    private buildSetCheckBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
+        const { factory } = this.context;
+        let statements: Statement[] = [];
+        return statements;
     }
 }
 
