@@ -6,7 +6,7 @@ import {
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
     , BizPhraseType, BizSheet
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
-    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut, BizIOSite, BizIOApp, Uq
+    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut, BizIOSite, BizIOApp, Uq, CompareExpression, IDUnique, BizBud
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -413,16 +413,40 @@ export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizState
 }
 */
 abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> extends PBizStatementSub<A, T> {
-    protected entityName: string;
-    protected entity: BizEntity;
+    protected readonly entityCase: { entityName: string; condition: CompareExpression; }[] = [];
+    // protected entity: BizEntity;
     protected toVar: string;
     protected inVals: ValueExpression[] = [];
     protected override _parse(): void {
-        this.entityName = this.ts.passVar();
+        this.parseIDEntity();
         this.ts.passKey('in');
         this.ts.passToken(Token.EQU);
         this.parseUnique();
         this.parseTo();
+    }
+
+    protected parseIDEntity() {
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (; ;) {
+                this.ts.passKey('when');
+                let condition = new CompareExpression();
+                this.context.parseElement(condition);
+                this.ts.passKey('then');
+                let entityName = this.ts.passVar();
+                this.entityCase.push({ condition, entityName });
+                if (this.ts.isKeyword('else') === true) {
+                    this.ts.readToken();
+                    entityName = this.ts.passVar();
+                    this.entityCase.push({ entityName, condition: undefined });
+                    break;
+                }
+            }
+            this.ts.passToken(Token.RPARENTHESE);
+        }
+        else {
+            this.entityCase.push({ entityName: this.ts.passVar(), condition: undefined });
+        }
     }
 
     protected parseUnique() {
@@ -461,11 +485,6 @@ abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> ex
         if (super.scan(space) === false) {
             ok = false;
         }
-        this.entity = space.getBizEntity(this.entityName);
-        if (this.entity === undefined) {
-            ok = false;
-            this.log(`${this.entityName} is not defined`);
-        }
         this.element.toVar = space.varPointer(this.toVar, false) as VarPointer;
         if (this.element.toVar === undefined) {
             ok = false;
@@ -485,7 +504,7 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
     private unique: string;
     private sets: { [bud: string]: ValueExpression } = {};
     protected override _parse(): void {
-        this.entityName = this.ts.passVar();
+        this.parseIDEntity();
         let key = this.ts.passKey();
         switch (key) {
             case 'no': break;
@@ -533,14 +552,27 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
             ok = false;
             return ok;
         }
-        if (this.entity.bizPhraseType !== BizPhraseType.atom) {
-            ok = false;
-            this.log(`${this.entityName} is not ATOM`);
+
+        for (let { entityName, condition } of this.entityCase) {
+            if (condition !== undefined) {
+                if (condition.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            let entity = space.getBizEntity(entityName);
+            if (entity === undefined) {
+                ok = false;
+                this.log(`${entityName} is not defined`);
+            }
+            else if (entity.bizPhraseType !== BizPhraseType.atom) {
+                ok = false;
+                this.log(`${entityName} is not ATOM`);
+            }
+            else {
+                this.element.atomCase.push({ bizID: entity as BizAtom, condition });
+            }
         }
-        else {
-            this.element.atom = this.entity as BizAtom;
-        }
-        const { atom, sets, ex } = this.element;
+        const { atomCase, sets, ex } = this.element;
         let { length } = this.inVals;
         if (this.unique === undefined) {
             if (length !== 1) {
@@ -549,18 +581,32 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
             }
         }
         else {
-            let unique = this.element.atom.getUnique(this.unique);
-            if (unique === undefined) {
-                ok = false;
-                this.log(`ATOM ${this.entityName} has no UNIQUE ${this.unique}`);
+            let unique: IDUnique;
+            for (let { bizID } of atomCase) {
+                let unq = bizID.getUnique(this.unique);
+                if (unq === undefined) {
+                    ok = false;
+                    this.log(`ATOM ${bizID.getJName()} has no UNIQUE ${this.unique}`);
+                }
+                else if (unique === undefined) {
+                    unique = unq;
+                }
+                else if (unq !== unique) {
+                    ok = false;
+                    this.log(`${this.unique} is different across ATOMS`);
+                }
             }
-            else {
-                this.element.unique = unique;
-            }
+            this.element.unique = unique;
         }
         if (ex !== undefined) {
             if (ex.pelement.scan(space) === false) {
                 ok = false;
+            }
+        }
+        function getBud(budName: string): BizBud {
+            for (let { bizID } of atomCase) {
+                let bud = bizID.getBud(budName);
+                if (bud !== undefined) return bud;
             }
         }
         for (let i in this.sets) {
@@ -568,10 +614,10 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
             if (val.pelement.scan(space) === false) {
                 ok = false;
             }
-            let bud = atom.props.get(i);
+            let bud = getBud(i);
             if (bud === undefined) {
                 ok = false;
-                this.log(`ATOM ${this.entityName} has no PROP ${i}`);
+                this.log(`ATOM has no PROP ${i}`);
             }
             sets.set(bud, val);
         }
@@ -583,25 +629,30 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
         const { unique } = this.element;
         if (unique.keys.length + 1 !== this.inVals.length) {
             ok = false;
-            this.log(`ATOM ${this.entityName} UNIQUE ${this.unique} keys count mismatch`);
+            this.log(`ATOM UNIQUE ${this.unique} keys count mismatch`);
         }
         return ok;
     }
 }
 
 export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> extends PBizStatementID<A, T> {
+    private entityName: string;
+    protected parseIDEntity() {
+        this.entityName = this.ts.passVar();
+    }
     override scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) {
             ok = false;
             return ok;
         }
-        if (this.entity.bizPhraseType !== BizPhraseType.spec) {
+        let entity = space.getBizEntity(this.entityName);
+        if (entity.bizPhraseType !== BizPhraseType.spec) {
             ok = false;
             this.log(`${this.entityName} is not SPEC`);
         }
         else {
-            this.element.spec = this.entity as BizSpec;
+            this.element.spec = entity as BizSpec;
             let length = this.element.spec.keys.length + 1;
             if (length !== this.inVals.length) {
                 ok = false;

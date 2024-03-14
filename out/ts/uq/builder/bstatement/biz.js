@@ -374,10 +374,41 @@ class BBizStatementAtom extends BBizStatementID {
         let memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'Biz Atom';
-        const { unique, inVals, atom, no, toVar, ex, sets } = this.istatement;
+        const { unique, inVals, atomCase, no, toVar, ex, sets } = this.istatement;
         let inExps = inVals.map(v => this.context.expVal(v));
         let declare = factory.createDeclare();
         sqls.push(declare);
+        const atomPhrase = 'atomPhrase_' + no;
+        declare.var(atomPhrase, new il_1.BigInt());
+        const varAtomPhrase = new sql_1.ExpVar(atomPhrase);
+        const { bizID: bizID0, condition: condition0 } = atomCase[0];
+        let setAtomPhrase0 = factory.createSet();
+        setAtomPhrase0.equ(atomPhrase, new sql_1.ExpNum(bizID0.id));
+        let len = atomCase.length;
+        if (len === 1) {
+            sqls.push(setAtomPhrase0);
+        }
+        else {
+            let ifCase = factory.createIf();
+            sqls.push(ifCase);
+            ifCase.cmp = this.context.expCmp(condition0);
+            ifCase.then(setAtomPhrase0);
+            for (let i = 1; i < len; i++) {
+                let { bizID, condition } = atomCase[i];
+                let statements = new sql_1.Statements();
+                let setAtomPhrase = factory.createSet();
+                statements.statements.push(setAtomPhrase);
+                setAtomPhrase.equ(atomPhrase, new sql_1.ExpNum(bizID.id));
+                if (condition !== undefined) {
+                    ifCase.elseIf(this.context.expCmp(condition), statements);
+                }
+                else {
+                    ifCase.else(...statements.statements);
+                }
+            }
+        }
+        let vBase = 'bizatomBase_' + no;
+        let varBase = new sql_1.ExpVar(vBase);
         let vId;
         if (toVar === undefined) {
             vId = 'bizatom_' + no;
@@ -385,11 +416,14 @@ class BBizStatementAtom extends BBizStatementID {
         else {
             vId = toVar.varName(undefined);
         }
+        declare.var(vId, new il_1.BigInt());
+        declare.var(vBase, new il_1.BigInt());
         let varId = new sql_1.ExpVar(vId);
         let select = factory.createSelect();
         sqls.push(select);
         select.toVar = true;
         select.column(new sql_1.ExpField('id', a), vId);
+        select.column(new sql_1.ExpField('base', a), vBase);
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, a));
         if (unique === undefined) {
             select.where(new sql_1.ExpEQ(new sql_1.ExpField('no', a), inExps[0]));
@@ -412,7 +446,7 @@ class BBizStatementAtom extends BBizStatementID {
         ifIdNull.cmp = new sql_1.ExpIsNull(varId);
         let setId = factory.createSet();
         ifIdNull.then(setId);
-        setId.equ(vId, new sql_1.ExpFuncInUq('atom$id', [sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, new sql_1.ExpNum(atom.id)], true));
+        setId.equ(vId, new sql_1.ExpFuncInUq('atom$id', [sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, varAtomPhrase], true));
         let updateNoEx = factory.createUpdate();
         ifIdNull.then(updateNoEx);
         updateNoEx.cols = [
@@ -425,6 +459,14 @@ class BBizStatementAtom extends BBizStatementID {
         }
         updateNoEx.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
         updateNoEx.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
+        let ifBaseChange = factory.createIf();
+        ifIdNull.else(ifBaseChange);
+        ifBaseChange.cmp = new sql_1.ExpNE(varAtomPhrase, varBase);
+        let updateBase = factory.createUpdate();
+        ifBaseChange.then(updateBase);
+        updateBase.cols = [{ col: 'base', val: varAtomPhrase }];
+        updateBase.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
+        updateBase.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
         for (let [bud, val] of sets) {
             let statements;
             let valExp = this.context.expVal(val);
@@ -444,7 +486,7 @@ class BBizStatementAtom extends BBizStatementID {
         let sqlCall = factory.createExecSql();
         sqls.push(sqlCall);
         sqlCall.no = no;
-        sqlCall.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `$site`.`'), new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('.'), new sql_1.ExpNum(atom.id), new sql_1.ExpStr('u`(?)'));
+        sqlCall.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `$site`.`'), new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('.'), varAtomPhrase, new sql_1.ExpStr('u`(?)'));
         sqlCall.parameters = [varId];
     }
     buildSetValueBud(varId, bud, val) {

@@ -411,14 +411,38 @@ export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizState
 class PBizStatementID extends PBizStatementSub {
     constructor() {
         super(...arguments);
+        this.entityCase = [];
         this.inVals = [];
     }
     _parse() {
-        this.entityName = this.ts.passVar();
+        this.parseIDEntity();
         this.ts.passKey('in');
         this.ts.passToken(tokens_1.Token.EQU);
         this.parseUnique();
         this.parseTo();
+    }
+    parseIDEntity() {
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (;;) {
+                this.ts.passKey('when');
+                let condition = new il_1.CompareExpression();
+                this.context.parseElement(condition);
+                this.ts.passKey('then');
+                let entityName = this.ts.passVar();
+                this.entityCase.push({ condition, entityName });
+                if (this.ts.isKeyword('else') === true) {
+                    this.ts.readToken();
+                    entityName = this.ts.passVar();
+                    this.entityCase.push({ entityName, condition: undefined });
+                    break;
+                }
+            }
+            this.ts.passToken(tokens_1.Token.RPARENTHESE);
+        }
+        else {
+            this.entityCase.push({ entityName: this.ts.passVar(), condition: undefined });
+        }
     }
     parseUnique() {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
@@ -454,11 +478,6 @@ class PBizStatementID extends PBizStatementSub {
         if (super.scan(space) === false) {
             ok = false;
         }
-        this.entity = space.getBizEntity(this.entityName);
-        if (this.entity === undefined) {
-            ok = false;
-            this.log(`${this.entityName} is not defined`);
-        }
         this.element.toVar = space.varPointer(this.toVar, false);
         if (this.element.toVar === undefined) {
             ok = false;
@@ -479,7 +498,7 @@ class PBizStatementAtom extends PBizStatementID {
         this.sets = {};
     }
     _parse() {
-        this.entityName = this.ts.passVar();
+        this.parseIDEntity();
         let key = this.ts.passKey();
         switch (key) {
             case 'no': break;
@@ -528,14 +547,26 @@ class PBizStatementAtom extends PBizStatementID {
             ok = false;
             return ok;
         }
-        if (this.entity.bizPhraseType !== il_1.BizPhraseType.atom) {
-            ok = false;
-            this.log(`${this.entityName} is not ATOM`);
+        for (let { entityName, condition } of this.entityCase) {
+            if (condition !== undefined) {
+                if (condition.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            let entity = space.getBizEntity(entityName);
+            if (entity === undefined) {
+                ok = false;
+                this.log(`${entityName} is not defined`);
+            }
+            else if (entity.bizPhraseType !== il_1.BizPhraseType.atom) {
+                ok = false;
+                this.log(`${entityName} is not ATOM`);
+            }
+            else {
+                this.element.atomCase.push({ bizID: entity, condition });
+            }
         }
-        else {
-            this.element.atom = this.entity;
-        }
-        const { atom, sets, ex } = this.element;
+        const { atomCase, sets, ex } = this.element;
         let { length } = this.inVals;
         if (this.unique === undefined) {
             if (length !== 1) {
@@ -544,18 +575,33 @@ class PBizStatementAtom extends PBizStatementID {
             }
         }
         else {
-            let unique = this.element.atom.getUnique(this.unique);
-            if (unique === undefined) {
-                ok = false;
-                this.log(`ATOM ${this.entityName} has no UNIQUE ${this.unique}`);
+            let unique;
+            for (let { bizID } of atomCase) {
+                let unq = bizID.getUnique(this.unique);
+                if (unq === undefined) {
+                    ok = false;
+                    this.log(`ATOM ${bizID.getJName()} has no UNIQUE ${this.unique}`);
+                }
+                else if (unique === undefined) {
+                    unique = unq;
+                }
+                else if (unq !== unique) {
+                    ok = false;
+                    this.log(`${this.unique} is different across ATOMS`);
+                }
             }
-            else {
-                this.element.unique = unique;
-            }
+            this.element.unique = unique;
         }
         if (ex !== undefined) {
             if (ex.pelement.scan(space) === false) {
                 ok = false;
+            }
+        }
+        function getBud(budName) {
+            for (let { bizID } of atomCase) {
+                let bud = bizID.getBud(budName);
+                if (bud !== undefined)
+                    return bud;
             }
         }
         for (let i in this.sets) {
@@ -563,10 +609,10 @@ class PBizStatementAtom extends PBizStatementID {
             if (val.pelement.scan(space) === false) {
                 ok = false;
             }
-            let bud = atom.props.get(i);
+            let bud = getBud(i);
             if (bud === undefined) {
                 ok = false;
-                this.log(`ATOM ${this.entityName} has no PROP ${i}`);
+                this.log(`ATOM has no PROP ${i}`);
             }
             sets.set(bud, val);
         }
@@ -577,25 +623,29 @@ class PBizStatementAtom extends PBizStatementID {
         const { unique } = this.element;
         if (unique.keys.length + 1 !== this.inVals.length) {
             ok = false;
-            this.log(`ATOM ${this.entityName} UNIQUE ${this.unique} keys count mismatch`);
+            this.log(`ATOM UNIQUE ${this.unique} keys count mismatch`);
         }
         return ok;
     }
 }
 exports.PBizStatementAtom = PBizStatementAtom;
 class PBizStatementSpec extends PBizStatementID {
+    parseIDEntity() {
+        this.entityName = this.ts.passVar();
+    }
     scan(space) {
         let ok = true;
         if (super.scan(space) === false) {
             ok = false;
             return ok;
         }
-        if (this.entity.bizPhraseType !== il_1.BizPhraseType.spec) {
+        let entity = space.getBizEntity(this.entityName);
+        if (entity.bizPhraseType !== il_1.BizPhraseType.spec) {
             ok = false;
             this.log(`${this.entityName} is not SPEC`);
         }
         else {
-            this.element.spec = this.entity;
+            this.element.spec = entity;
             let length = this.element.spec.keys.length + 1;
             if (length !== this.inVals.length) {
                 ok = false;

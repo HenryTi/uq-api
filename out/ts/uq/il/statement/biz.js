@@ -79,6 +79,7 @@ exports.BizStatementID = BizStatementID;
 class BizStatementAtom extends BizStatementID {
     constructor() {
         super(...arguments);
+        this.atomCase = [];
         this.sets = new Map();
     }
     parser(context) {

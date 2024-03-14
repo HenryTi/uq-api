@@ -6,9 +6,9 @@ import * as parser from '../../parser';
 import { IElement } from '../IElement';
 import {
     BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique
+    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique, BizID
 } from '../Biz';
-import { ValueExpression } from '../Exp';
+import { CompareExpression, ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
 import { SetEqu } from '../tool';
 import { VarPointer } from '../pointer';
@@ -99,7 +99,7 @@ export abstract class BizStatementID<T extends BizAct = BizAct> extends BizState
 }
 
 export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<T> {
-    atom: BizAtom;
+    readonly atomCase: { bizID: BizAtom; condition: CompareExpression; }[] = [];
     unique: IDUnique;   // if unique===undefined，no as unique, inVals are parameters of unique
     ex: ValueExpression;
     readonly sets: Map<BizBud, ValueExpression> = new Map();
