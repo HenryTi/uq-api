@@ -2,7 +2,7 @@ import {
     EnumSysTable, BigInt, BizStatementPend
     , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet, intField
-    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud
+    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie
 } from "../../il";
 import { $site } from "../consts";
 import { sysTable } from "../dbContext";
@@ -607,6 +607,26 @@ export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
             wheres.push(new ExpEQ(new ExpField('value', t), val));
         }
         select.where(new ExpAnd(...wheres));
+    }
+}
+
+export class BBizStatementTie extends BStatement<BizStatementTie> {
+    override body(sqls: Sqls): void {
+        const { tie, i, x } = this.istatement;
+        const { factory } = this.context;
+        let insert = factory.createInsert();
+        sqls.push(insert);
+        let iVal = new ExpFuncInUq('bud$id', [
+            ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNull.null
+            , new ExpNum(tie.id)
+            , this.context.expVal(i),
+        ], true);
+        insert.cols = [
+            { col: 'i', val: iVal },
+            { col: 'x', val: this.context.expVal(x) },
+        ]
+        insert.table = new EntityTable(EnumSysTable.ixBud, false);
+        insert.ignore = true;
     }
 }
 

@@ -6,7 +6,7 @@ import {
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
     , BizPhraseType, BizSheet
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
-    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut, BizIOSite, BizIOApp, Uq, CompareExpression, IDUnique, BizBud
+    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut, BizIOSite, BizIOApp, Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie
 } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
@@ -68,6 +68,9 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
         return {
             pend: BizStatementBinPend,
             out: BizStatementOut,
+            atom: BizStatementAtom,
+            spec: BizStatementSpec,
+            tie: BizStatementTie,
         };
     }
 }
@@ -77,6 +80,7 @@ export class PBizStatementIn extends PBizStatement<BizInAct, BizStatementIn> {
         return {
             atom: BizStatementAtom,
             spec: BizStatementSpec,
+            tie: BizStatementTie,
         };
     }
 }
@@ -658,6 +662,43 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
                 ok = false;
                 this.log(`IN ${this.inVals.length} variables, must have ${length} variables`);
             }
+        }
+        return ok;
+    }
+}
+
+export class PBizStatementTie<A extends BizAct> extends PBizStatementSub<A, BizStatementTie<A>> {
+    private tieName: string;
+    protected _parse(): void {
+        this.tieName = this.ts.passVar();
+        this.ts.passKey('i');
+        this.ts.passToken(Token.EQU);
+        let ival = new ValueExpression();
+        this.context.parseElement(ival);
+        this.ts.passKey('x');
+        this.ts.passToken(Token.EQU);
+        let xval = new ValueExpression();
+        this.context.parseElement(xval);
+        this.element.i = ival;
+        this.element.x = xval;
+    }
+    override scan(space: Space) {
+        let ok = true;
+        let tie = space.getBizEntity<BizTie>(this.tieName);
+        if (tie === undefined || tie.bizPhraseType !== BizPhraseType.tie) {
+            ok = false;
+            this.log(`${this.tieName} is not TIE`);
+        }
+        else {
+            this.element.tie = tie;
+        }
+
+        const { i, x } = this.element;
+        if (i.pelement.scan(space) === false) {
+            ok = false;
+        }
+        if (x.pelement.scan(space) === false) {
+            ok = false;
         }
         return ok;
     }

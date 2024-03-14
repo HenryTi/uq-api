@@ -1,12 +1,12 @@
 import {
     BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext
-    , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut
+    , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut, BBizStatementTie
 } from '../../builder';
 import * as parser from '../../parser';
 import { IElement } from '../IElement';
 import {
     BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique, BizID
+    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique, BizID, BizTie
 } from '../Biz';
 import { CompareExpression, ValueExpression } from '../Exp';
 import { Statement } from "./Statement";
@@ -115,6 +115,16 @@ export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<
         return new parser.PBizStatementSpec(this, context);
     }
     db(db: DbContext): BStatement { return new BBizStatementSpec(db, this); }
+}
+
+export class BizStatementTie<T extends BizAct = BizAct> extends BizStatementSub<T> {
+    tie: BizTie;
+    i: ValueExpression;
+    x: ValueExpression;
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return new parser.PBizStatementTie(this, context);
+    }
+    db(db: DbContext): BStatement { return new BBizStatementTie(db, this); }
 }
 
 export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<T> {

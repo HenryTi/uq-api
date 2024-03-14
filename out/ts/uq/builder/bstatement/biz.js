@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizStatementOut = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
+exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
 const il_1 = require("../../il");
 const consts_1 = require("../consts");
 const dbContext_1 = require("../dbContext");
@@ -571,6 +571,26 @@ class BBizStatementSpec extends BBizStatementID {
     }
 }
 exports.BBizStatementSpec = BBizStatementSpec;
+class BBizStatementTie extends bstatement_1.BStatement {
+    body(sqls) {
+        const { tie, i, x } = this.istatement;
+        const { factory } = this.context;
+        let insert = factory.createInsert();
+        sqls.push(insert);
+        let iVal = new sql_1.ExpFuncInUq('bud$id', [
+            sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
+            new sql_1.ExpNum(tie.id),
+            this.context.expVal(i),
+        ], true);
+        insert.cols = [
+            { col: 'i', val: iVal },
+            { col: 'x', val: this.context.expVal(x) },
+        ];
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false);
+        insert.ignore = true;
+    }
+}
+exports.BBizStatementTie = BBizStatementTie;
 class BBizStatementOut extends bstatement_1.BStatement {
     body(sqls) {
         const { factory } = this.context;

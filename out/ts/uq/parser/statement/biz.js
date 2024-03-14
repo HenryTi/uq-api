@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementOut = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
 const element_1 = require("../element");
@@ -55,6 +55,9 @@ class PBizStatementBin extends PBizStatement {
         return {
             pend: il_1.BizStatementBinPend,
             out: il_1.BizStatementOut,
+            atom: il_1.BizStatementAtom,
+            spec: il_1.BizStatementSpec,
+            tie: il_1.BizStatementTie,
         };
     }
 }
@@ -64,6 +67,7 @@ class PBizStatementIn extends PBizStatement {
         return {
             atom: il_1.BizStatementAtom,
             spec: il_1.BizStatementSpec,
+            tie: il_1.BizStatementTie,
         };
     }
 }
@@ -656,6 +660,41 @@ class PBizStatementSpec extends PBizStatementID {
     }
 }
 exports.PBizStatementSpec = PBizStatementSpec;
+class PBizStatementTie extends PBizStatementSub {
+    _parse() {
+        this.tieName = this.ts.passVar();
+        this.ts.passKey('i');
+        this.ts.passToken(tokens_1.Token.EQU);
+        let ival = new il_1.ValueExpression();
+        this.context.parseElement(ival);
+        this.ts.passKey('x');
+        this.ts.passToken(tokens_1.Token.EQU);
+        let xval = new il_1.ValueExpression();
+        this.context.parseElement(xval);
+        this.element.i = ival;
+        this.element.x = xval;
+    }
+    scan(space) {
+        let ok = true;
+        let tie = space.getBizEntity(this.tieName);
+        if (tie === undefined || tie.bizPhraseType !== il_1.BizPhraseType.tie) {
+            ok = false;
+            this.log(`${this.tieName} is not TIE`);
+        }
+        else {
+            this.element.tie = tie;
+        }
+        const { i, x } = this.element;
+        if (i.pelement.scan(space) === false) {
+            ok = false;
+        }
+        if (x.pelement.scan(space) === false) {
+            ok = false;
+        }
+        return ok;
+    }
+}
+exports.PBizStatementTie = PBizStatementTie;
 class PBizStatementOut extends PBizStatementSub {
     // private ioSite: string;
     // private ioApp: string;

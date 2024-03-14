@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizStatementOut = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementTitle = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
+exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementTitle = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
 const builder_1 = require("../../builder");
 const parser = require("../../parser");
 const Statement_1 = require("./Statement");
@@ -95,6 +95,13 @@ class BizStatementSpec extends BizStatementID {
     db(db) { return new builder_1.BBizStatementSpec(db, this); }
 }
 exports.BizStatementSpec = BizStatementSpec;
+class BizStatementTie extends BizStatementSub {
+    parser(context) {
+        return new parser.PBizStatementTie(this, context);
+    }
+    db(db) { return new builder_1.BBizStatementTie(db, this); }
+}
+exports.BizStatementTie = BizStatementTie;
 class BizStatementOut extends BizStatementSub {
     constructor() {
         super(...arguments);
