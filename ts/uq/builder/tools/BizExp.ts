@@ -1,9 +1,9 @@
 import {
-    BizExp, BizExpParamType, BizField, BizFieldOperand, BizOptions, BizPhraseType, BudDataType, CheckAction, OptionsItem
+    BizExp, BizExpParamType, BizField, BizPhraseType, BudDataType, OptionsItem
 } from "../../il";
-import { ExpVal, ExpInterval } from "./exp";
+import { ExpVal, ExpInterval } from "../sql/exp";
 import { DbContext } from "../dbContext";
-import { SqlBuilder } from "./sqlBuilder";
+import { SqlBuilder } from "../sql/sqlBuilder";
 import { BBudSelect } from "./BBudSelect";
 import { BBizField } from "../Biz";
 

@@ -4,6 +4,7 @@ import { Sqls } from "../bstatement";
 import { $site } from "../consts";
 import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, ExpVar, Procedure, Select } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
+import { buildSelectBinBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
 const sheetId = 'sheet1';   // 实际写表时，会加上bin div.level=1
@@ -126,6 +127,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new ExpVar(bin));
 
+        /*
         function buildSelectBudValue(bud: BizBud, tbl: EnumSysTable): Select {
             let selectBud = factory.createSelect();
             selectBud.toVar = true;
@@ -186,6 +188,7 @@ export class BBizBin extends BBizEntity<BizBin> {
             statements.push(selectBud);
             declare.var(name, declareType);
         }
+        */
 
         for (; ; pDiv = pDiv.parent) {
             const { level } = pDiv;
@@ -200,7 +203,8 @@ export class BBizBin extends BBizEntity<BizBin> {
                     selectDiv.column(new ExpField(name, a), name);
                 }
                 else {
-                    buildBud(bud);
+                    // buildBud(bud);
+                    statements.push(...buildSelectBinBud(this.context, bud, varBin))
                 }
             }
             selectDiv.from(new EntityTable(EnumSysTable.bizBin, false, a));

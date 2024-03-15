@@ -1,34 +1,18 @@
-import {
-    BizExp, BizExpParamType, BizField, BizFieldOperand, BizOptions, BizPhraseType, BudDataType, CheckAction, OptionsItem
-} from "../../il";
-import { ExpVal, ExpInterval } from "./exp";
-import { DbContext } from "../dbContext";
-import { SqlBuilder } from "./sqlBuilder";
-import { BBudSelect } from "./BBudSelect";
-import { BBizField } from "../Biz";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BBizCheckBud = exports.BBizFieldOperand = exports.BBizExp = void 0;
+const il_1 = require("../../il");
+const exp_1 = require("../sql/exp");
+const BBudSelect_1 = require("./BBudSelect");
 let bizEpxTblNo = 0;
-
-export class BBizExp {
-    readonly ta: string;
-    readonly tb: string;
-    readonly tt: string;
-
-    db: string;
-    bizExp: BizExp;
-    param: ExpVal;
-    param2: ExpVal;
-    inVal: ExpVal;
-    expSelect: ExpVal;
-
+class BBizExp {
     constructor() {
         ++bizEpxTblNo;
         this.ta = '$a' + bizEpxTblNo;
         this.tb = '$b' + bizEpxTblNo;
         this.tt = '$t' + bizEpxTblNo;
     }
-
-    to(sb: SqlBuilder): void {
+    to(sb) {
         sb.l();
         if (this.expSelect !== undefined) {
             sb.exp(this.expSelect);
@@ -37,34 +21,45 @@ export class BBizExp {
             sb.append('SELECT ');
             const { bizPhraseType } = this.bizExp.bizEntity;
             switch (bizPhraseType) {
-                default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
+                default:
+                    debugger;
+                    throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
                 // case BizPhraseType.atom: this.atom(sb); break;
                 // case BizPhraseType.spec: this.spec(sb); break;
-                case BizPhraseType.bin: this.bin(sb); break;
-                case BizPhraseType.title: this.title(sb); break;
-                case BizPhraseType.tie: this.tie(sb); break;
-                case BizPhraseType.duo: this.duo(sb); break;
+                case il_1.BizPhraseType.bin:
+                    this.bin(sb);
+                    break;
+                case il_1.BizPhraseType.title:
+                    this.title(sb);
+                    break;
+                case il_1.BizPhraseType.tie:
+                    this.tie(sb);
+                    break;
+                case il_1.BizPhraseType.duo:
+                    this.duo(sb);
+                    break;
             }
         }
         sb.r();
     }
-    convertFrom(context: DbContext, bizExp: BizExp) {
+    convertFrom(context, bizExp) {
         this.db = context.dbName;
         this.bizExp = bizExp;
-        if (bizExp === undefined) return;
+        if (bizExp === undefined)
+            return;
         const { param, param2 } = bizExp.param;
         this.param = context.expVal(param);
         this.param2 = context.expVal(param2);
         const { in: inVar } = bizExp;
         if (inVar !== undefined) {
             const { val: inVal, spanPeiod } = inVar;
-            this.inVal = new ExpInterval(spanPeiod, context.expVal(inVal));
+            this.inVal = new exp_1.ExpInterval(spanPeiod, context.expVal(inVal));
         }
         const { bizPhraseType } = this.bizExp.bizEntity;
         switch (bizPhraseType) {
-            case BizPhraseType.atom:
-            case BizPhraseType.spec:
-                let bBudSelect = new BBudSelect(context, this);
+            case il_1.BizPhraseType.atom:
+            case il_1.BizPhraseType.spec:
+                let bBudSelect = new BBudSelect_1.BBudSelect(context, this);
                 this.expSelect = bBudSelect.build();
                 break;
         }
@@ -89,16 +84,15 @@ export class BBizExp {
     private spec(sb: SqlBuilder) {
     }
     */
-    private bin(sb: SqlBuilder) {
+    bin(sb) {
         const { bizEntity, prop } = this.bizExp;
         const { ta, tb } = this;
-        sb.append(`${ta}.${prop ?? 'id'}
+        sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'}
         FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
             WHERE ${ta}.id=`)
             .exp(this.param);
     }
-
-    private tie(sb: SqlBuilder) {
+    tie(sb) {
         const { bizEntity } = this.bizExp;
         const { ta, tb } = this;
         sb.append(`${ta}.x
@@ -106,8 +100,7 @@ export class BBizExp {
             WHERE ${tb}.ext=`)
             .exp(this.param);
     }
-
-    private duo(sb: SqlBuilder) {
+    duo(sb) {
         const { bizEntity, prop } = this.bizExp;
         const { ta } = this;
         if (this.param2 !== undefined) {
@@ -118,34 +111,33 @@ export class BBizExp {
                 .exp(this.param);
         }
     }
-
-    private title(sb: SqlBuilder) {
+    title(sb) {
         const { prop, in: inVar, param: { paramType } } = this.bizExp;
         if (inVar === undefined || prop === 'value') {
-            let titleValue: TitleValueBase;
+            let titleValue;
             switch (paramType) {
-                case BizExpParamType.scalar:
+                case il_1.BizExpParamType.scalar:
                     titleValue = new TitleValue(sb, this);
                     break;
-                case BizExpParamType.spec:
+                case il_1.BizExpParamType.spec:
                     titleValue = new TitleSpecSum(sb, this);
                     break;
-                case BizExpParamType.ix:
+                case il_1.BizExpParamType.ix:
                     titleValue = new TitleIxSum(sb, this);
                     break;
             }
             titleValue.sql();
         }
         else {
-            let titleHistory: TitleHistoryBase;
+            let titleHistory;
             switch (paramType) {
-                case BizExpParamType.scalar:
+                case il_1.BizExpParamType.scalar:
                     titleHistory = new TitleHistory(sb, this);
                     break;
-                case BizExpParamType.spec:
+                case il_1.BizExpParamType.spec:
                     titleHistory = new TitleSpecHistory(sb, this);
                     break;
-                case BizExpParamType.ix:
+                case il_1.BizExpParamType.ix:
                     titleHistory = new TitleIxHistory(sb, this);
                     break;
             }
@@ -153,31 +145,30 @@ export class BBizExp {
         }
     }
 }
-
-abstract class TitleExpBase {
-    protected readonly sb: SqlBuilder;
-    protected readonly bBizExp: BBizExp;
-    constructor(sb: SqlBuilder, bBizExp: BBizExp) {
+exports.BBizExp = BBizExp;
+class TitleExpBase {
+    constructor(sb, bBizExp) {
         this.sb = sb;
         this.bBizExp = bBizExp;
     }
-    abstract sql(): void;
 }
-
-abstract class TitleValueBase extends TitleExpBase {
-    protected ixBudTbl() {
+class TitleValueBase extends TitleExpBase {
+    ixBudTbl() {
         const { budEntitySub: bud } = this.bBizExp.bizExp;
-        let ixBudTbl: string;
+        let ixBudTbl;
         switch (bud.dataType) {
-            default: ixBudTbl = 'ixbudint'; break;
-            case BudDataType.dec: ixBudTbl = 'ixbuddec'; break;
+            default:
+                ixBudTbl = 'ixbudint';
+                break;
+            case il_1.BudDataType.dec:
+                ixBudTbl = 'ixbuddec';
+                break;
         }
         return ixBudTbl;
     }
 }
-
 class TitleValue extends TitleValueBase {
-    override sql() {
+    sql() {
         const { bizExp, ta, db, param } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
         let tblBudValue = this.ixBudTbl();
@@ -186,10 +177,8 @@ class TitleValue extends TitleValueBase {
         this.sb.append(` AND ${ta}.x=${bud.id}`);
     }
 }
-
-abstract class TitleSum extends TitleValueBase {
-    abstract from(): void;
-    override sql(): void {
+class TitleSum extends TitleValueBase {
+    sql() {
         const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
         const { budEntitySub: bud, prop, in: ilInVar } = bizExp;
         const { sb } = this;
@@ -199,9 +188,8 @@ abstract class TitleSum extends TitleValueBase {
         sb.append(` AND ${ta}.x=${bud.id}`);
     }
 }
-
 class TitleSpecSum extends TitleSum {
-    override from() {
+    from() {
         const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
         //this.titleValueSum(sb, 'spec', 'id', 'base');
         let tblBudValue = this.ixBudTbl();
@@ -209,12 +197,10 @@ class TitleSpecSum extends TitleSum {
         FROM ${db}.spec as ${tt}
         JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.id
     WHERE ${tt}.base=`);
-
     }
 }
-
 class TitleIxSum extends TitleSum {
-    override from() {
+    from() {
         const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
         // this.titleValueSum(sb, 'ixbud', 'x', 'i');
         let tblBudValue = this.ixBudTbl();
@@ -222,12 +208,10 @@ class TitleIxSum extends TitleSum {
         FROM ${db}.ixbud as ${tt}
         JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.x
     WHERE ${tt}.i=`);
-
     }
 }
-
-abstract class TitleHistoryBase extends TitleExpBase {
-    override sql() {
+class TitleHistoryBase extends TitleExpBase {
+    sql() {
         const { bizExp, ta, db, inVal } = this.bBizExp;
         const { budEntitySub: bud, prop, in: ilInVar } = bizExp;
         const { varTimeSpan: timeSpan, op, statementNo } = ilInVar;
@@ -242,20 +226,16 @@ abstract class TitleHistoryBase extends TitleExpBase {
             this.sb.append(op).exp(inVal);
         }
     }
-    abstract from(): void;
 }
-
 class TitleHistory extends TitleHistoryBase {
     from() {
         const { bizExp, ta, db, param } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
         this.sb.append(`
-WHERE ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, `).exp(param)
-            ;
+WHERE ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, `).exp(param);
         this.sb.append(`,${bud.id}) AND `);
     }
 }
-
 class TitleSpecHistory extends TitleHistoryBase {
     from() {
         const { ta, tt, db, bizExp, param } = this.bBizExp;
@@ -264,7 +244,6 @@ class TitleSpecHistory extends TitleHistoryBase {
             .append(` AND ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, ${tt}.id, ${bud.id}) WHERE `);
     }
 }
-
 class TitleIxHistory extends TitleHistoryBase {
     from() {
         const { ta, tt, db, bizExp, param } = this.bBizExp;
@@ -273,32 +252,25 @@ class TitleIxHistory extends TitleHistoryBase {
             .append(` AND ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, ${tt}.x, ${bud.id}) WHERE `);
     }
 }
-
-export class BBizFieldOperand extends ExpVal {
-    private readonly bBizField: any; // BBizField;
-    constructor(bBizField: any) { // BBizField) {
+class BBizFieldOperand extends exp_1.ExpVal {
+    constructor(bBizField) {
         super();
         this.bBizField = bBizField;
     }
-
-    to(sb: SqlBuilder): void {
+    to(sb) {
         this.bBizField.to(sb);
     }
 }
-
-export class BBizCheckBud extends ExpVal {
-    private readonly bExp1: BBizExp;
-    private readonly bExp2: BBizExp;
-    private readonly bizField: BBizField<BizField>;
-    private readonly items: OptionsItem[];
-    constructor(bExp1: BBizExp, bExp2: BBizExp, bizField: BBizField<BizField>, items: OptionsItem[]) {
+exports.BBizFieldOperand = BBizFieldOperand;
+class BBizCheckBud extends exp_1.ExpVal {
+    constructor(bExp1, bExp2, bizField, items) {
         super();
         this.bExp1 = bExp1;
         this.bExp2 = bExp2;
         this.bizField = bizField;
         this.items = items;
     }
-    to(sb: SqlBuilder): void {
+    to(sb) {
         let t = '$check';
         sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM ');
         if (this.bExp1 !== undefined) {
@@ -311,7 +283,6 @@ export class BBizCheckBud extends ExpVal {
         }
         sb.append(' AS ').append(t)
             .append(' WHERE ').append(t).dot().alias('id IN (');
-
         if (this.items !== undefined) {
             sb.append(this.items.map(v => v.id).join(','));
         }
@@ -328,13 +299,13 @@ export class BBizCheckBud extends ExpVal {
         }
         */
     }
-
-    private buildValExp(sb: SqlBuilder) {
+    buildValExp(sb) {
         // sb.append('JSON_TABLE(');
         this.bizField.to(sb);
         // sb.append(`,'$[*]' COLUMNS(id INT PATH '$')`);
     }
 }
+exports.BBizCheckBud = BBizCheckBud;
 /*
 mysql：
 SELECT EXISTS(
@@ -354,3 +325,4 @@ bzscript 源码
     CHECK %field = OPTIONS.a
     -- CHECK %field in (OPTIONS.a, OPTIONS.b) 未实现
 */
+//# sourceMappingURL=BizExp.js.map

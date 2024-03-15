@@ -9,7 +9,7 @@ const exps_1 = require("./exps");
 const ExpUMinute_1 = require("./ExpUMinute");
 const ExpSearch_1 = require("./ExpSearch");
 const ExpBizOperand_1 = require("./ExpBizOperand");
-const BizExp_1 = require("../BizExp");
+const tools_1 = require("../../tools");
 const ExpRole_1 = require("./ExpRole");
 const ExpBizEntityBud_1 = require("./ExpBizEntityBud");
 function convertExp(context, exp) {
@@ -139,7 +139,7 @@ class Stack {
         this.arr.push(new exps_1.ExpSelect(sel));
     }
     bizExp(exp) {
-        let bExp = new BizExp_1.BBizExp();
+        let bExp = new tools_1.BBizExp();
         bExp.convertFrom(this.context, exp);
         this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp));
     }
@@ -147,12 +147,12 @@ class Stack {
         const { bizExp1, bizExp2, bizField, items } = checkBud;
         let bExp1;
         if (bizExp1 !== undefined) {
-            bExp1 = new BizExp_1.BBizExp();
+            bExp1 = new tools_1.BBizExp();
             bExp1.convertFrom(this.context, bizExp1);
         }
         let bExp2;
         if (bizExp2 !== undefined) {
-            bExp2 = new BizExp_1.BBizExp();
+            bExp2 = new tools_1.BBizExp();
             bExp2.convertFrom(this.context, bizExp2);
         }
         // let ve = this.context.expVal(valExp);
@@ -160,12 +160,12 @@ class Stack {
             let bBizField = bizField.field.db(this.context);
             bBizField.noArrayAgg = true;
             // let bBizFieldOperand = new BBizFieldOperand(bBizField);
-            this.arr.push(new BizExp_1.BBizCheckBud(bExp1, bExp2, bBizField, items));
+            this.arr.push(new tools_1.BBizCheckBud(bExp1, bExp2, bBizField, items));
         }
     }
     bizFieldOperand(bizFieldOperand) {
         let bBizField = bizFieldOperand.field.db(this.context);
-        let bBizFieldOperand = new BizExp_1.BBizFieldOperand(bBizField);
+        let bBizFieldOperand = new tools_1.BBizFieldOperand(bBizField);
         this.arr.push(bBizFieldOperand);
     }
     func(func, n, isUqFunc) {

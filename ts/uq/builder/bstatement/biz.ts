@@ -11,6 +11,7 @@ import {
     , ExpGT, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, Statements, VarTable
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
+import { buildSetAtomBud, buildSetSheetBud } from "../tools";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
@@ -330,7 +331,6 @@ export class BBizStatementSheet extends BStatement<BizStatementSheet> {
             cols.push({ col: i, val: this.context.expVal(fields[i]) });
         }
         insert.table = new EntityTable(EnumSysTable.bizBin, false);
-        // insert.where = new ExpEQ(new ExpField('id'), varId);
 
         let ret: Statement[] = [insert];
         for (let i in buds) {
@@ -340,7 +340,8 @@ export class BBizStatementSheet extends BStatement<BizStatementSheet> {
             ret.push(memo);
             memo.text = bud.getJName();
             let expVal = this.context.expVal(val);
-
+            ret.push(...buildSetSheetBud(this.context, bud, varId, expVal));
+            /*
             let insert = factory.createInsert();
             insert.ignore = true;
             const createIxBudValue = (table: EnumSysTable, valValue: ExpVal) => {
@@ -376,13 +377,14 @@ export class BBizStatementSheet extends BStatement<BizStatementSheet> {
                     insert = createIxBud(EnumSysTable.ixBud, expVal);
                     break;
                 case BudDataType.date:
-                    insert = createIxBudValue(EnumSysTable.ixBudInt, new ExpNum(10000) /* expVal*/);
+                    insert = createIxBudValue(EnumSysTable.ixBudInt, expVal);
                     break;
                 case BudDataType.dec:
                     insert = createIxBudValue(EnumSysTable.ixBudDec, expVal);
                     break;
             }
             ret.push(insert);
+            */
         }
         return ret;
     }
@@ -501,8 +503,10 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         updateBase.where = new ExpEQ(new ExpField('id'), varId);
 
         for (let [bud, val] of sets) {
-            let statements: Statement[];
+            // let statements: Statement[];
             let valExp = this.context.expVal(val);
+            let statements = buildSetAtomBud(this.context, bud, varId, valExp);
+            /*
             switch (bud.dataType) {
                 default:
                     statements = this.buildSetValueBud(varId, bud, valExp);
@@ -514,6 +518,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
                     statements = this.buildSetCheckBud(varId, bud, valExp);
                     break;
             }
+            */
             sqls.push(...statements);
         }
 
@@ -529,39 +534,40 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         );
         sqlCall.parameters = [varId];
     }
-
-    private buildSetValueBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
-        const { factory } = this.context;
-        let insertDup = factory.createInsertOnDuplicate();
-        let statements: Statement[] = [insertDup];
-        let tbl: EnumSysTable;
-        switch (bud.dataType) {
-            default: tbl = EnumSysTable.ixBudInt; break;
-            case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
-            case BudDataType.str:
-            case BudDataType.char: tbl = EnumSysTable.ixBudStr; break;
+    /*
+        private buildSetValueBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
+            const { factory } = this.context;
+            let insertDup = factory.createInsertOnDuplicate();
+            let statements: Statement[] = [insertDup];
+            let tbl: EnumSysTable;
+            switch (bud.dataType) {
+                default: tbl = EnumSysTable.ixBudInt; break;
+                case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+                case BudDataType.str:
+                case BudDataType.char: tbl = EnumSysTable.ixBudStr; break;
+            }
+            insertDup.keys = [
+                { col: 'i', val: varId },
+                { col: 'x', val: new ExpNum(bud.id) },
+            ];
+            insertDup.cols = [
+                { col: 'value', val }
+            ];
+            insertDup.table = new EntityTable(tbl, false);
+            return statements;
         }
-        insertDup.keys = [
-            { col: 'i', val: varId },
-            { col: 'x', val: new ExpNum(bud.id) },
-        ];
-        insertDup.cols = [
-            { col: 'value', val }
-        ];
-        insertDup.table = new EntityTable(tbl, false);
-        return statements;
-    }
-
-    private buildSetRadioBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
-        const { factory } = this.context;
-        let statements: Statement[] = [];
-        return statements;
-    }
-    private buildSetCheckBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
-        const { factory } = this.context;
-        let statements: Statement[] = [];
-        return statements;
-    }
+    
+        private buildSetRadioBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
+            const { factory } = this.context;
+            let statements: Statement[] = [];
+            return statements;
+        }
+        private buildSetCheckBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
+            const { factory } = this.context;
+            let statements: Statement[] = [];
+            return statements;
+        }
+    */
 }
 
 export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {

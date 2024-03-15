@@ -3,11 +3,11 @@ import {
 } from "../../il";
 import {
     ExpAnd, ExpEQ, ExpField, ExpNum, ExpVal, ExpSelect
-} from "./exp";
+} from "../sql/exp";
 import { DbContext } from "../dbContext";
-import { EntityTable } from "./statementWithFrom";
+import { EntityTable } from "../sql/statementWithFrom";
 import { BBizExp } from "./BizExp";
-import { Select } from "./select";
+import { Select } from "../sql/select";
 
 export class BBudSelect {
     protected readonly context: DbContext;

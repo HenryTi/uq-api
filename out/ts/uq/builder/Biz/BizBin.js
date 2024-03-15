@@ -7,6 +7,7 @@ const bstatement_1 = require("../bstatement");
 const consts_2 = require("../consts");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const tools_1 = require("../tools");
 const BizEntity_1 = require("./BizEntity");
 const sheetId = 'sheet1'; // 实际写表时，会加上bin div.level=1
 const si = 'si';
@@ -116,54 +117,60 @@ class BBizBin extends BizEntity_1.BBizEntity {
         let setBinThis = factory.createSet();
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new sql_1.ExpVar(bin));
-        function buildSelectBudValue(bud, tbl) {
+        /*
+        function buildSelectBudValue(bud: BizBud, tbl: EnumSysTable): Select {
             let selectBud = factory.createSelect();
             selectBud.toVar = true;
             selectBud.col('value', bud.name, a);
-            selectBud.from(new statementWithFrom_1.EntityTable(tbl, false, a));
-            selectBud.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varBin), new sql_1.ExpEQ(new sql_1.ExpField('x', a), new sql_1.ExpNum(bud.id))));
+            selectBud.from(new EntityTable(tbl, false, a));
+            selectBud.where(new ExpAnd(
+                new ExpEQ(new ExpField('i', a), varBin),
+                new ExpEQ(new ExpField('x', a), new ExpNum(bud.id)),
+            ));
             return selectBud;
         }
-        function buildSelectBudIx(bud, isRadio) {
+
+        function buildSelectBudIx(bud: BizBud, isRadio: boolean): Select {
             let selectBud = factory.createSelect();
             selectBud.toVar = true;
-            let exp = isRadio === true ?
-                new sql_1.ExpField('x', a)
-                : new sql_1.ExpFunc('JSON_ARRAYAGG', new sql_1.ExpField('x', a));
+            let exp: ExpVal = isRadio === true ?
+                new ExpField('x', a)
+                : new ExpFunc('JSON_ARRAYAGG', new ExpField('x', a));
             selectBud.column(exp, bud.name);
-            selectBud.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a));
-            selectBud.where(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varBin));
+            selectBud.from(new EntityTable(EnumSysTable.ixBud, false, a));
+            selectBud.where(new ExpEQ(new ExpField('i', a), varBin));
             return selectBud;
         }
-        function buildBud(bud) {
+
+        function buildBud(bud: BizBud) {
             const { name, dataType } = bud;
-            let declareType;
-            let selectBud;
+            let declareType: DataType;
+            let selectBud: Select;
             switch (dataType) {
-                default: throw new Error('unknown type ' + il_1.EnumDataType[dataType]);
-                case il_1.BudDataType.none:
+                default: throw new Error('unknown type ' + EnumDataType[dataType]);
+                case BudDataType.none:
                     return;
-                case il_1.BudDataType.ID:
-                case il_1.BudDataType.atom:
-                case il_1.BudDataType.date:
-                case il_1.BudDataType.int:
-                    selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudInt);
+                case BudDataType.ID:
+                case BudDataType.atom:
+                case BudDataType.date:
+                case BudDataType.int:
+                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
                     declareType = bigint;
                     break;
-                case il_1.BudDataType.str:
-                case il_1.BudDataType.char:
-                    selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudStr);
+                case BudDataType.str:
+                case BudDataType.char:
+                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudStr);
                     declareType = str;
                     break;
-                case il_1.BudDataType.dec:
-                    selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudDec);
+                case BudDataType.dec:
+                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudDec);
                     declareType = decValue;
                     break;
-                case il_1.BudDataType.radio:
+                case BudDataType.radio:
                     selectBud = buildSelectBudIx(bud, true);
                     declareType = bigint;
                     break;
-                case il_1.BudDataType.check:
+                case BudDataType.check:
                     selectBud = buildSelectBudIx(bud, false);
                     declareType = json;
                     break;
@@ -171,6 +178,7 @@ class BBizBin extends BizEntity_1.BBizEntity {
             statements.push(selectBud);
             declare.var(name, declareType);
         }
+        */
         for (;; pDiv = pDiv.parent) {
             const { level } = pDiv;
             const selectDiv = factory.createSelect();
@@ -184,7 +192,8 @@ class BBizBin extends BizEntity_1.BBizEntity {
                     selectDiv.column(new sql_1.ExpField(name, a), name);
                 }
                 else {
-                    buildBud(bud);
+                    // buildBud(bud);
+                    statements.push(...(0, tools_1.buildSelectBinBud)(this.context, bud, varBin));
                 }
             }
             selectDiv.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a));

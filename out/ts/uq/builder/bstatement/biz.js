@@ -6,6 +6,7 @@ const consts_1 = require("../consts");
 const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const tools_1 = require("../tools");
 const bstatement_1 = require("./bstatement");
 class BBizStatement extends bstatement_1.BStatement {
     head(sqls) {
@@ -301,7 +302,6 @@ class BBizStatementSheet extends bstatement_1.BStatement {
             cols.push({ col: i, val: this.context.expVal(fields[i]) });
         }
         insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false);
-        // insert.where = new ExpEQ(new ExpField('id'), varId);
         let ret = [insert];
         for (let i in buds) {
             let val = buds[i];
@@ -310,54 +310,51 @@ class BBizStatementSheet extends bstatement_1.BStatement {
             ret.push(memo);
             memo.text = bud.getJName();
             let expVal = this.context.expVal(val);
+            ret.push(...(0, tools_1.buildSetSheetBud)(this.context, bud, varId, expVal));
+            /*
             let insert = factory.createInsert();
             insert.ignore = true;
-            const createIxBudValue = (table, valValue) => {
-                insert.table = new statementWithFrom_1.EntityTable(table, false);
+            const createIxBudValue = (table: EnumSysTable, valValue: ExpVal) => {
+                insert.table = new EntityTable(table, false);
                 insert.cols = [
                     { col: 'i', val: varId },
-                    { col: 'x', val: new sql_1.ExpNum(bud.id) },
+                    { col: 'x', val: new ExpNum(bud.id) },
                     { col: 'value', val: valValue },
-                ];
+                ]
                 return insert;
-            };
-            const createIxBud = (table, valValue) => {
-                insert.table = new statementWithFrom_1.EntityTable(table, false);
+            }
+            const createIxBud = (table: EnumSysTable, valValue: ExpVal) => {
+                insert.table = new EntityTable(table, false);
                 insert.cols = [
                     { col: 'i', val: varId },
                     { col: 'x', val: valValue },
-                ];
+                ]
                 return insert;
-            };
+            }
             switch (bud.dataType) {
-                default:
-                    debugger;
+                default: debugger; break;
+                case BudDataType.check: debugger; break;
+                case BudDataType.datetime: debugger; break;
+                case BudDataType.int: // break;
+                case BudDataType.atom:
+                    insert = createIxBudValue(EnumSysTable.ixBudInt, expVal);
                     break;
-                case il_1.BudDataType.check:
-                    debugger;
+                case BudDataType.char:
+                case BudDataType.str:
+                    insert = createIxBudValue(EnumSysTable.ixBudStr, expVal);
                     break;
-                case il_1.BudDataType.datetime:
-                    debugger;
+                case BudDataType.radio:
+                    insert = createIxBud(EnumSysTable.ixBud, expVal);
                     break;
-                case il_1.BudDataType.int: // break;
-                case il_1.BudDataType.atom:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
+                case BudDataType.date:
+                    insert = createIxBudValue(EnumSysTable.ixBudInt, expVal);
                     break;
-                case il_1.BudDataType.char:
-                case il_1.BudDataType.str:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudStr, expVal);
-                    break;
-                case il_1.BudDataType.radio:
-                    insert = createIxBud(il_1.EnumSysTable.ixBud, expVal);
-                    break;
-                case il_1.BudDataType.date:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudInt, new sql_1.ExpNum(10000) /* expVal*/);
-                    break;
-                case il_1.BudDataType.dec:
-                    insert = createIxBudValue(il_1.EnumSysTable.ixBudDec, expVal);
+                case BudDataType.dec:
+                    insert = createIxBudValue(EnumSysTable.ixBudDec, expVal);
                     break;
             }
             ret.push(insert);
+            */
         }
         return ret;
     }
@@ -468,19 +465,22 @@ class BBizStatementAtom extends BBizStatementID {
         updateBase.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
         updateBase.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
         for (let [bud, val] of sets) {
-            let statements;
+            // let statements: Statement[];
             let valExp = this.context.expVal(val);
+            let statements = (0, tools_1.buildSetAtomBud)(this.context, bud, varId, valExp);
+            /*
             switch (bud.dataType) {
                 default:
                     statements = this.buildSetValueBud(varId, bud, valExp);
                     break;
-                case il_1.BudDataType.radio:
+                case BudDataType.radio:
                     statements = this.buildSetRadioBud(varId, bud, valExp);
                     break;
-                case il_1.BudDataType.check:
+                case BudDataType.check:
                     statements = this.buildSetCheckBud(varId, bud, valExp);
                     break;
             }
+            */
             sqls.push(...statements);
         }
         let sqlCall = factory.createExecSql();
@@ -488,43 +488,6 @@ class BBizStatementAtom extends BBizStatementID {
         sqlCall.no = no;
         sqlCall.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `$site`.`'), new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('.'), varAtomPhrase, new sql_1.ExpStr('u`(?)'));
         sqlCall.parameters = [varId];
-    }
-    buildSetValueBud(varId, bud, val) {
-        const { factory } = this.context;
-        let insertDup = factory.createInsertOnDuplicate();
-        let statements = [insertDup];
-        let tbl;
-        switch (bud.dataType) {
-            default:
-                tbl = il_1.EnumSysTable.ixBudInt;
-                break;
-            case il_1.BudDataType.dec:
-                tbl = il_1.EnumSysTable.ixBudDec;
-                break;
-            case il_1.BudDataType.str:
-            case il_1.BudDataType.char:
-                tbl = il_1.EnumSysTable.ixBudStr;
-                break;
-        }
-        insertDup.keys = [
-            { col: 'i', val: varId },
-            { col: 'x', val: new sql_1.ExpNum(bud.id) },
-        ];
-        insertDup.cols = [
-            { col: 'value', val }
-        ];
-        insertDup.table = new statementWithFrom_1.EntityTable(tbl, false);
-        return statements;
-    }
-    buildSetRadioBud(varId, bud, val) {
-        const { factory } = this.context;
-        let statements = [];
-        return statements;
-    }
-    buildSetCheckBud(varId, bud, val) {
-        const { factory } = this.context;
-        let statements = [];
-        return statements;
     }
 }
 exports.BBizStatementAtom = BBizStatementAtom;

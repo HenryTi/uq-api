@@ -26,7 +26,7 @@ import {
     BBizCheckBud,
     BBizExp, BBizFieldOperand
     //    , BBizFieldOperand 
-} from '../BizExp';
+} from '../../tools';
 import { ExpRole } from './ExpRole';
 import { ExpBizEntityBud } from './ExpBizEntityBud';
 
