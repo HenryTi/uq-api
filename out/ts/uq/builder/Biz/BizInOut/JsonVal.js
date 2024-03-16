@@ -118,7 +118,7 @@ class JsonVal {
         const { unique, id } = ioAppID;
         const { site } = context;
         if (unique === undefined) {
-            return new sql_1.ExpFuncDb('$site', `${site}.${transFuncName}`, new sql_1.ExpFuncInUq('duo$id', [
+            return new sql_1.ExpFuncDb('$site', `${site}.${transFuncName}`, new sql_1.ExpFuncInUq('bud$id', [
                 sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNum.num_1 /*no signal when null keys */,
                 new sql_1.ExpVar(JsonVal.siteAtomApp), new sql_1.ExpNum(ioAppID.id),
             ], true), val);
@@ -141,7 +141,7 @@ class JsonVal {
         let valKey = this.buildValFromKey(keys[0]);
         for (let i = 1; i < len; i++) {
             let valKeyi = this.buildValFromKey(keys[i]);
-            valKey = new sql_1.ExpFuncInUq('duo$id', [
+            valKey = new sql_1.ExpFuncInUq('bud$id', [
                 sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNum.num_1 /*no signal when null keys */,
                 valKey, valKeyi,
             ], true);

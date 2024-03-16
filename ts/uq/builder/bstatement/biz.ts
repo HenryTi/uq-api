@@ -460,9 +460,13 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         }
         else {
             let len = inExps.length;
-            let expKey = inExps[0];
+            let expKey = new ExpFuncInUq('bud$id', [
+                ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
+                , new ExpNum(unique.id), inExps[0]
+            ], true);
+
             for (let i = 1; i < len - 1; i++) {
-                expKey = new ExpFuncInUq('duo$id', [
+                expKey = new ExpFuncInUq('bud$id', [
                     ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
                     , expKey, inExps[i]
                 ], true);

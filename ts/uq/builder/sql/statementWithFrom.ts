@@ -2,6 +2,7 @@ import { Entity, JoinType, JsonTableColumn, VarPointer } from "../../il";
 import { SqlBuilder } from './sqlBuilder';
 import { ExpCmp, ExpVal } from "./exp";
 import { SqlSysTable, SqlTable, StatementBase } from './statement';
+import { consts } from "../../../core";
 
 export abstract class WithFromBuilder {
     protected _from: From;
@@ -153,7 +154,12 @@ export class FromJsonTable extends Table {
             const { field, path } = col;
             sb.fld(field.name);
             sb.space();
-            field.dataType.sql(sb);
+            const { dataType } = field;
+            dataType.sql(sb);
+            let canCollate = dataType.canCollate();
+            if (canCollate === true) {
+                sb.append(' COLLATE ' + consts.collation);
+            }
             sb.space().append('PATH ').string(path);
         }
         sb.r().r().append(' AS ').append(this._alias);

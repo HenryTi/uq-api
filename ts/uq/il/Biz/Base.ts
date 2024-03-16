@@ -11,7 +11,12 @@ import { BizBud } from "./Bud";
 
 export abstract class BizBase extends IElement {
     readonly biz: Biz;
-    id: number;                         // phrase id
+    private _id: number;
+    get id(): number { return this._id; }
+    set id(value: number) {
+        if (typeof value !== 'number') debugger;
+        this._id = value;
+    } // number;                         // phrase id
     name: string;
     jName: string;
     ver: number;

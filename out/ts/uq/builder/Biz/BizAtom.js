@@ -35,19 +35,22 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 const procBudUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
                 this.buildBudUniqueProc(procBudUnqiue, uniqueArr);
             }
+        }
+        let uniquesAll = this.bizEntity.getUniques();
+        if (uniquesAll.length > 0) {
             const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
-            this.buildUniqueProc(procUnqiue);
+            this.buildUniqueProc(procUnqiue, uniquesAll);
         }
     }
-    buildUniqueProc(proc) {
+    buildUniqueProc(proc, uniquesAll) {
         const { parameters, statements } = proc;
         const { factory } = this.context;
         const cId = '$id';
         parameters.push((0, il_1.bigIntField)(cId));
         const declare = factory.createDeclare();
         statements.push(declare);
-        const { uniques } = this.bizEntity;
-        for (let unique of uniques) {
+        // const { uniques } = this.bizEntity;
+        for (let unique of uniquesAll) {
             const { id: unqiueId, name } = unique;
             if (name === 'no') {
                 statements.push(...this.buildUniqueNO(unique));
@@ -61,10 +64,14 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             selectExists.col('i', a, a);
             selectExists.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false, a));
             selectExists.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), new sql_1.ExpVar(vI)), new sql_1.ExpEQ(new sql_1.ExpField('x', a), new sql_1.ExpVar(vNo)), new sql_1.ExpNE(new sql_1.ExpField('atom', a), new sql_1.ExpVar(cId))));
+            const dupTable = 'duptable';
+            let ifDupTableExists = factory.createIf();
+            ifNotDup.else(ifDupTableExists);
+            ifDupTableExists.cmp = new sql_1.ExpTableExists(new sql_1.ExpStr(this.context.dbName), new sql_1.ExpStr('_' + dupTable));
             let insertDup = factory.createInsert();
-            ifNotDup.else(insertDup);
+            ifDupTableExists.then(insertDup);
             insertDup.ignore = true;
-            insertDup.table = new sql_1.SqlVarTable('duptable');
+            insertDup.table = new sql_1.SqlVarTable(dupTable);
             insertDup.cols = [
                 { col: 'unique', val: new sql_1.ExpNum(unqiueId) },
                 { col: 'i', val: new sql_1.ExpVar(vI) },
@@ -133,7 +140,7 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             for (let i = 1; i < len; i++) {
                 let setKeyi = factory.createSet();
                 keyStatements.push(setKeyi);
-                setKeyi.equ(vKey, new sql_1.ExpFuncInUq('duo$id', [
+                setKeyi.equ(vKey, new sql_1.ExpFuncInUq('bud$id', [
                     sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNull.null,
                     new sql_1.ExpVar(vKey), new sql_1.ExpVar(vKey + i),
                 ], true));

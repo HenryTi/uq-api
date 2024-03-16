@@ -55,6 +55,7 @@ export abstract class DataType extends IElement {
     setSField(field: any) { }
     max(): any { }
     min(): any { }
+    canCollate(): boolean { return false }
     isDefaultEqu(cur: any, pre: any): boolean {
         if (this.canHaveDefault === false) return true;
         if (cur === undefined) {
@@ -95,6 +96,7 @@ export abstract class NumType extends DataType {
 export abstract class StringType extends DataType {
     binary: boolean;
     get isString(): boolean { return true; }
+    canCollate(): boolean { return true }
 }
 
 abstract class IdBase extends DataType {
@@ -387,6 +389,7 @@ export class Bin extends StringType {
     get defaultValue(): any { return ''; }
     parser(context: parser.PContext) { return new parser.PBin(this, context); }
     sql(dtb: DataTypeBuilder) { dtb.bin(this); }
+    canCollate(): boolean { return false }
     compare(dt: DataType): boolean {
         let c = dt as Bin;
         return this.size === c.size;

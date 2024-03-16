@@ -3,6 +3,7 @@ import { Db } from '../Db';
 import { MyDbBase } from './MyDbBase';
 import { DbLogger, SpanLog } from '../dbLogger';
 import { MyDbs } from './MyDbs';
+import { consts } from '../../consts';
 
 export abstract class MyDb extends MyDbBase implements Db {
     readonly name: string;
@@ -94,7 +95,8 @@ export abstract class MyDb extends MyDbBase implements Db {
         await this.sql(insertUqDb);
     }
     async createDatabase(): Promise<void> {
-        let sql = 'CREATE DATABASE IF NOT EXISTS `' + this.name + '` default CHARACTER SET utf8 ';
+        const { charset, collation } = consts;
+        let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\` default CHARACTER SET ${charset} COLLATE ${collation}`;
         await this.sql(sql);
     }
     async existsDatabase(): Promise<boolean> {

@@ -140,7 +140,7 @@ export abstract class JsonVal {
         if (unique === undefined) {
             return new ExpFuncDb('$site',
                 `${site}.${transFuncName}`,
-                new ExpFuncInUq('duo$id',
+                new ExpFuncInUq('bud$id',
                     [
                         ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNum.num_1/*no signal when null keys */,
                         new ExpVar(JsonVal.siteAtomApp), new ExpNum(ioAppID.id),
@@ -172,7 +172,7 @@ export abstract class JsonVal {
         let valKey = this.buildValFromKey(keys[0]);
         for (let i = 1; i < len; i++) {
             let valKeyi = this.buildValFromKey(keys[i]);
-            valKey = new ExpFuncInUq('duo$id',
+            valKey = new ExpFuncInUq('bud$id',
                 [
                     ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNum.num_1/*no signal when null keys */,
                     valKey, valKeyi,

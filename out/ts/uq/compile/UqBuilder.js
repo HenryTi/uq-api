@@ -78,7 +78,7 @@ class UqBuilder {
         entity.forEachGroup(group => {
             if (group.buds.length === 0)
                 return;
-            group.id = budIds[i++];
+            group.id = budIds[i++].id;
             const { phrase, ui } = group;
             if (ui) {
                 const { caption } = ui;

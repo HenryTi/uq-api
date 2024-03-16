@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VarTableWithDb = exports.VarTableWithSchema = exports.VarTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalTable = exports.FromJsonTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
 const statement_1 = require("./statement");
+const core_1 = require("../../../core");
 class WithFromBuilder {
     where(exp) {
         this._where = this.createWhere();
@@ -125,7 +126,12 @@ class FromJsonTable extends Table {
             const { field, path } = col;
             sb.fld(field.name);
             sb.space();
-            field.dataType.sql(sb);
+            const { dataType } = field;
+            dataType.sql(sb);
+            let canCollate = dataType.canCollate();
+            if (canCollate === true) {
+                sb.append(' COLLATE ' + core_1.consts.collation);
+            }
             sb.space().append('PATH ').string(path);
         }
         sb.r().r().append(' AS ').append(this._alias);

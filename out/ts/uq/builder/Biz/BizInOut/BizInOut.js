@@ -384,7 +384,6 @@ class IOProcOut extends IOProc {
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
         selectEndPoint.col('id', IOProc.endPoint);
-        // selectEndPoint.from(new EntityTable(EnumSysTable.IOEndPoint, false));
         selectEndPoint.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false));
         selectEndPoint.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(IOProc.siteAtomApp)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpVar(IOProc.ioAppIO))));
         const ifEndPoint = this.factory.createIf();

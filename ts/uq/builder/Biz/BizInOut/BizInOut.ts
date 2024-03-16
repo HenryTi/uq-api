@@ -481,7 +481,6 @@ class IOProcOut extends IOProc<IOAppOut> {
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
         selectEndPoint.col('id', IOProc.endPoint);
-        // selectEndPoint.from(new EntityTable(EnumSysTable.IOEndPoint, false));
         selectEndPoint.from(new EntityTable(EnumSysTable.duo, false));
         selectEndPoint.where(new ExpAnd(
             new ExpEQ(new ExpField('i'), new ExpVar(IOProc.siteAtomApp)),

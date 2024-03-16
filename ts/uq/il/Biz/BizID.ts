@@ -44,6 +44,12 @@ export abstract class BizIDExtendable extends BizID {
         if (u !== undefined) return u;
         return this.extends?.getUnique(name);
     }
+    getUniques(): IDUnique[] {
+        let us = [...(this.uniques ?? [])];
+        if (this.extends === undefined) return us;
+        us.push(...this.extends.getUniques());
+        return us;
+    }
     forEachBud(callback: (bud: BizBud) => void): void {
         super.forEachBud(callback);
         if (this.uniques !== undefined) {

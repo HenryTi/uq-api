@@ -43,6 +43,14 @@ class BizIDExtendable extends BizID {
             return u;
         return (_b = this.extends) === null || _b === void 0 ? void 0 : _b.getUnique(name);
     }
+    getUniques() {
+        var _a;
+        let us = [...((_a = this.uniques) !== null && _a !== void 0 ? _a : [])];
+        if (this.extends === undefined)
+            return us;
+        us.push(...this.extends.getUniques());
+        return us;
+    }
     forEachBud(callback) {
         super.forEachBud(callback);
         if (this.uniques !== undefined) {

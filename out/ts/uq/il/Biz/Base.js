@@ -5,6 +5,12 @@ const IElement_1 = require("../IElement");
 const BizPhraseType_1 = require("./BizPhraseType");
 const parser_1 = require("../../parser");
 class BizBase extends IElement_1.IElement {
+    get id() { return this._id; }
+    set id(value) {
+        if (typeof value !== 'number')
+            debugger;
+        this._id = value;
+    } // number;                         // phrase id
     constructor(biz) {
         super();
         this.ui = {};

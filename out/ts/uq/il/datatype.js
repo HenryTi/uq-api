@@ -27,6 +27,7 @@ class DataType extends IElement_1.IElement {
     setSField(field) { }
     max() { }
     min() { }
+    canCollate() { return false; }
     isDefaultEqu(cur, pre) {
         if (this.canHaveDefault === false)
             return true;
@@ -68,6 +69,7 @@ class NumType extends DataType {
 exports.NumType = NumType;
 class StringType extends DataType {
     get isString() { return true; }
+    canCollate() { return true; }
 }
 exports.StringType = StringType;
 class IdBase extends DataType {
@@ -393,6 +395,7 @@ class Bin extends StringType {
     get defaultValue() { return ''; }
     parser(context) { return new parser.PBin(this, context); }
     sql(dtb) { dtb.bin(this); }
+    canCollate() { return false; }
     compare(dt) {
         let c = dt;
         return this.size === c.size;

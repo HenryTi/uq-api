@@ -4,7 +4,7 @@ import {
 } from "../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
-    , ExpOr, ExpSelect, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement
+    , ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement
 } from "../sql";
 import { LockType } from "../sql/select";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -36,13 +36,16 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 const procBudUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
                 this.buildBudUniqueProc(procBudUnqiue, uniqueArr);
             }
+        }
 
+        let uniquesAll = this.bizEntity.getUniques();
+        if (uniquesAll.length > 0) {
             const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
-            this.buildUniqueProc(procUnqiue);
+            this.buildUniqueProc(procUnqiue, uniquesAll);
         }
     }
 
-    private buildUniqueProc(proc: Procedure) {
+    private buildUniqueProc(proc: Procedure, uniquesAll: IDUnique[]) {
         const { parameters, statements } = proc;
         const { factory } = this.context;
         const cId = '$id';
@@ -51,8 +54,8 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         );
         const declare = factory.createDeclare();
         statements.push(declare);
-        const { uniques } = this.bizEntity;
-        for (let unique of uniques) {
+        // const { uniques } = this.bizEntity;
+        for (let unique of uniquesAll) {
             const { id: unqiueId, name } = unique;
             if (name === 'no') {
                 statements.push(...this.buildUniqueNO(unique))
@@ -70,10 +73,14 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 new ExpEQ(new ExpField('x', a), new ExpVar(vNo)),
                 new ExpNE(new ExpField('atom', a), new ExpVar(cId)),
             ));
+            const dupTable = 'duptable';
+            let ifDupTableExists = factory.createIf();
+            ifNotDup.else(ifDupTableExists);
+            ifDupTableExists.cmp = new ExpTableExists(new ExpStr(this.context.dbName), new ExpStr('_' + dupTable));
             let insertDup = factory.createInsert();
-            ifNotDup.else(insertDup);
+            ifDupTableExists.then(insertDup);
             insertDup.ignore = true;
-            insertDup.table = new SqlVarTable('duptable');
+            insertDup.table = new SqlVarTable(dupTable);
             insertDup.cols = [
                 { col: 'unique', val: new ExpNum(unqiueId) },
                 { col: 'i', val: new ExpVar(vI) },
@@ -153,7 +160,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             for (let i = 1; i < len; i++) {
                 let setKeyi = factory.createSet();
                 keyStatements.push(setKeyi);
-                setKeyi.equ(vKey, new ExpFuncInUq('duo$id',
+                setKeyi.equ(vKey, new ExpFuncInUq('bud$id',
                     [
                         ExpNum.num0, ExpNum.num0, ExpNum.num1, ExpNull.null,
                         new ExpVar(vKey), new ExpVar(vKey + i),

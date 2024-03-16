@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyDb = void 0;
 const MyDbBase_1 = require("./MyDbBase");
 const dbLogger_1 = require("../dbLogger");
+const consts_1 = require("../../consts");
 class MyDb extends MyDbBase_1.MyDbBase {
     constructor(myDbs, dbName) {
         super(myDbs, dbName);
@@ -88,7 +89,8 @@ class MyDb extends MyDbBase_1.MyDbBase {
         await this.sql(insertUqDb);
     }
     async createDatabase() {
-        let sql = 'CREATE DATABASE IF NOT EXISTS `' + this.name + '` default CHARACTER SET utf8 ';
+        const { charset, collation } = consts_1.consts;
+        let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\` default CHARACTER SET ${charset} COLLATE ${collation}`;
         await this.sql(sql);
     }
     async existsDatabase() {

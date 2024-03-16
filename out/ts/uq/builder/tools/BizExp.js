@@ -263,8 +263,9 @@ class BBizFieldOperand extends exp_1.ExpVal {
 }
 exports.BBizFieldOperand = BBizFieldOperand;
 class BBizCheckBud extends exp_1.ExpVal {
-    constructor(bExp1, bExp2, bizField, items) {
+    constructor(expOptionId, bExp1, bExp2, bizField, items) {
         super();
+        this.expOptionId = expOptionId;
         this.bExp1 = bExp1;
         this.bExp2 = bExp2;
         this.bizField = bizField;
@@ -272,32 +273,35 @@ class BBizCheckBud extends exp_1.ExpVal {
     }
     to(sb) {
         let t = '$check';
-        sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM ');
-        if (this.bExp1 !== undefined) {
-            sb.l();
-            this.bExp1.to(sb);
-            sb.r();
+        if (this.expOptionId !== undefined) {
+            sb.exp(this.expOptionId);
+            this.buildIn(sb);
         }
         else {
-            this.buildValExp(sb);
+            sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM ');
+            if (this.bExp1 !== undefined) {
+                sb.l();
+                this.bExp1.to(sb);
+                sb.r();
+            }
+            else {
+                this.buildValExp(sb);
+            }
+            sb.append(' AS ').append(t)
+                .append(' WHERE ').append(t).dot().alias('id ');
+            this.buildIn(sb);
+            sb.r();
         }
-        sb.append(' AS ').append(t)
-            .append(' WHERE ').append(t).dot().alias('id IN (');
+    }
+    buildIn(sb) {
+        sb.append(' IN (');
         if (this.items !== undefined) {
             sb.append(this.items.map(v => v.id).join(','));
         }
         else {
             this.bExp2.to(sb);
         }
-        sb.r().r();
-        /*
-        if (this.bExp1 !== undefined) {
-            this.buildBizExp(sb);
-        }
-        else {
-            this.buildValExp(sb);
-        }
-        */
+        sb.r();
     }
     buildValExp(sb) {
         // sb.append('JSON_TABLE(');

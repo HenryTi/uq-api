@@ -73,6 +73,7 @@ export enum CheckAction {
     in,
 }
 export class BizCheckBudOperand extends Atom {
+    optionIdVal: ValueExpression;
     bizExp1: BizExp;
     bizExp2: BizExp;
     bizOptions: BizOptions;
