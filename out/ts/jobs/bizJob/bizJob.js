@@ -23,10 +23,7 @@ class BizJob {
         this.queued = true;
     }
     async start() {
-        {
-            console.error('BizJob not started');
-            return;
-        }
+        // { console.error('BizJob not started'); return; }
         this.runLoop(this.runIn);
         this.runLoop(this.runOut);
     }
