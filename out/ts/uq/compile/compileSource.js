@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.compileDownload = exports.compileBiz = exports.compileSource = void 0;
+exports.compileDownload = exports.compileBizThoroughly = exports.compileBiz = exports.compileSource = void 0;
 const Compiler_1 = require("./Compiler");
 async function compileSource(runner, unit, user, code) {
     const compiler = new Compiler_1.Compiler(runner, unit, user);
@@ -29,6 +29,19 @@ async function compileBiz(runner, unit, user) {
     }
 }
 exports.compileBiz = compileBiz;
+async function compileBizThoroughly(runner, unit, user) {
+    const compiler = new Compiler_1.CompilerThoroughly(runner, unit, user);
+    try {
+        await compiler.loadBizObjects();
+        compiler.parseBiz();
+        compiler.scan();
+        return await compiler.buildDbResult();
+    }
+    catch (err) {
+        return compiler.throwError(err);
+    }
+}
+exports.compileBizThoroughly = compileBizThoroughly;
 async function compileDownload(runner, unit, user, fileName) {
     const compiler = new Compiler_1.Compiler(runner, unit, user);
     try {

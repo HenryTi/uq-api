@@ -1,9 +1,10 @@
 import * as jsonpack from 'jsonpack';
 import sysBizCode from "../biz-sys";
-import { EntityRunner } from "../../core";
+import { EntityRunner, getDbs } from "../../core";
 import { UqBuilder } from "./UqBuilder";
 import { UqParser } from './UqParser';
 import { Biz, BizEntity, BizPhraseType } from '../il';
+import { compileBizThoroughly } from './compileSource';
 
 const groups: { [name: string]: BizPhraseType[] } = {
     info: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign, BizPhraseType.duo],
@@ -27,7 +28,7 @@ export class Compiler {
     private objs: any[];
     private uqParser: UqParser;
     private readonly uqBuilder: UqBuilder;
-    private readonly biz: Biz;
+    protected readonly biz: Biz;
     readonly newest: BizEntity[] = [];
 
     constructor(runner: EntityRunner, site: number, user: number) {
@@ -40,7 +41,7 @@ export class Compiler {
     }
 
     async loadBizObjects() {
-        let [objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+        const [objs, props] = await this.getBizObjects();
         this.objs = objs;
         for (let obj of objs) {
             const { id, phrase, caption } = obj;
@@ -197,9 +198,13 @@ export class Compiler {
 
     }
 
+    protected setNewest() {
+    }
+
     async buildDb() {
         const { uq } = this.uqParser;
         this.setEntitysId(uq.biz.bizArr);
+        this.setNewest();
         await this.uqBuilder.build(this.res, this.log);
     }
 
@@ -249,5 +254,39 @@ export class Compiler {
     readonly log = (msg: string) => {
         this.msgs.push(msg);
         return true;
+    }
+
+    protected async getBizObjects() {
+        let [[site], objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+        const { uqApiVersion, compilingTick } = site as { uqApiVersion: number; compilingTick: number; };
+        const { uq_api_version } = getDbs();
+        let now = Date.now() / 1000;
+        if (compilingTick > 0 && now - compilingTick < 60) {
+            return [[], []];
+        }
+        let parts = uq_api_version.split('.');
+        let newVersion = Number(parts[0]) * 10000 + Number(parts[1]);
+        if (compilingTick < 0 || (Number.isNaN(newVersion) === false && uqApiVersion > 0 && newVersion > uqApiVersion)) {
+            await this.runner.call('$setSiteCompiling', [0, 0, this.site, uqApiVersion, now]);
+            await this.recompileAll();
+            await this.runner.call('$setSiteCompiling', [0, 0, this.site, newVersion, 0]);
+        }
+        return [objs, props];
+    }
+
+    async recompileAll() {
+        await compileBizThoroughly(this.runner, this.site, this.user);
+    }
+}
+
+export class CompilerThoroughly extends Compiler {
+    async getBizObjects() {
+        let [[site], objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+        return [objs, props];
+    }
+
+    protected setNewest() {
+        this.newest.splice(0);
+        this.newest.push(...this.biz.bizArr);
     }
 }

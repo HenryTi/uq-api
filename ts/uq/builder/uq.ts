@@ -1,11 +1,7 @@
 import * as _ from 'lodash';
-// import { UqBuildApi } from '../../core';
-// import { CompileOptions } from '../../compile';
-import { Uq, UqVersion, Tuid } from '../il';
+import { Uq, Tuid } from '../il';
 import { DbContext } from './dbContext';
 import { Sys } from './sys';
-import { Modified } from './modified';
-import { EntityRunner } from '../../core';
 
 export class BUq {
     private context: DbContext;

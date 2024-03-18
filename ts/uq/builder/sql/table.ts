@@ -1,9 +1,7 @@
 import { CompileOptions, DbContext, ObjSchema } from '../dbContext';
 import * as il from '../../il';
 import { SqlBuilder } from './sqlBuilder';
-import { DataType, Index, IdDataType, StringType, FieldsValues, Field, DataTypeDef } from '../../il';
-// import { UqBuildApi } from '../../../core';
-// import { CompileOptions } from '../../../compile';
+import { DataType, Index, IdDataType, StringType, Field, DataTypeDef } from '../../il';
 import { ExpVal } from './exp';
 import { EntityRunner } from '../../../core';
 import { getErrorString } from '../../../tool';

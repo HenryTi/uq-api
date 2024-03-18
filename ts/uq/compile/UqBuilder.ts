@@ -102,34 +102,6 @@ export class UqBuilder {
         let schemaText = JSON.stringify(schema);
         await this.runner.unitUserTableFromProc('SaveBizSchema', this.site, this.user, id, schemaText);
     }
-    /*
-    private async saveBizEntityBuds(entity: BizEntity) {
-        let promises: Promise<any>[] = [];
-        entity.forEachBud(bud => {
-            promises.push(this.saveBud(entity, bud));
-        })
-        await Promise.all(promises);
-    };
-
-    private async saveBud(entity: BizEntity, bud: BizBud) {
-        const { objNames, res } = this.compiler;
-        const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
-        const typeNum = bud.typeNum;
-        let objId: number;
-        if (objName !== undefined) {
-            const obj = objNames[objName];
-            if (obj !== undefined) {
-                objId = obj.id;
-            }
-        }
-        let [{ id: budId }] = await this.runner.unitUserCall('SaveBizBud'
-            , this.site, this.user, entity.id, bud.id, phrase, caption
-            , typeNum, memo, dataTypeNum, objId, flag
-        );
-        bud.id = budId;
-        res[phrase] = caption;
-    }
-    */
     async build(res: any, log: (msg: string) => boolean) {
         const { newest } = this.compiler;
         await Promise.all(newest.map(entity => {
@@ -165,11 +137,18 @@ export class UqBuilder {
         }
         const { newest } = this.compiler;
         for (let bizEntity of newest) {
-            let builder = bizEntity.db(context);
-            if (builder === undefined) continue;
-            await builder.buildProcedures();
-            await this.mayBuildSheet(context, bizEntity, newest);
-            await builder.buildDirectSqls();
+            console.log(bizEntity.name, bizEntity);
+            try {
+                let builder = bizEntity.db(context);
+                if (builder === undefined) continue;
+                await builder.buildProcedures();
+                await this.mayBuildSheet(context, bizEntity, newest);
+                await builder.buildDirectSqls();
+            }
+            catch (e) {
+                console.error(e);
+                debugger;
+            }
         }
 
         await context.coreObjs.updateDb(this.runner, compileOptions);

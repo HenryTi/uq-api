@@ -19,7 +19,7 @@ function buildSelectBinBud(context, bud, varBin) {
     switch (dataType) {
         default: throw new Error('unknown type ' + il_1.EnumDataType[dataType]);
         case il_1.BudDataType.none:
-            return;
+            return [];
         case il_1.BudDataType.ID:
         case il_1.BudDataType.atom:
         case il_1.BudDataType.date:

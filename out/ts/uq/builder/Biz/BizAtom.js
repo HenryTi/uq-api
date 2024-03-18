@@ -146,12 +146,6 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 ], true));
             }
             noNullCmp = new sql_1.ExpAnd(...noNullCmpAnds);
-            /*
-            valKey = new ExpFuncInUq('bud$id', [
-                ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
-                varUniquePhrase, new ExpVar(vKey)
-            ], true);
-            */
             valKey = new sql_1.ExpVar(vKey);
         }
         else {

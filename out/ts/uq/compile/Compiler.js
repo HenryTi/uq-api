@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Compiler = void 0;
+exports.CompilerThoroughly = exports.Compiler = void 0;
 const jsonpack = require("jsonpack");
 const biz_sys_1 = require("../biz-sys");
+const core_1 = require("../../core");
 const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
 const il_1 = require("../il");
+const compileSource_1 = require("./compileSource");
 const groups = {
     info: [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.title, il_1.BizPhraseType.assign, il_1.BizPhraseType.duo],
     sheet: [il_1.BizPhraseType.sheet, il_1.BizPhraseType.bin, il_1.BizPhraseType.pend],
@@ -35,7 +37,7 @@ class Compiler {
         this.biz = this.uqParser.uq.biz;
     }
     async loadBizObjects() {
-        let [objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+        const [objs, props] = await this.getBizObjects();
         this.objs = objs;
         for (let obj of objs) {
             const { id, phrase, caption } = obj;
@@ -189,9 +191,12 @@ class Compiler {
             this.uqParser.parse(part, 'sys', true);
         }
     }
+    setNewest() {
+    }
     async buildDb() {
         const { uq } = this.uqParser;
         this.setEntitysId(uq.biz.bizArr);
+        this.setNewest();
         await this.uqBuilder.build(this.res, this.log);
     }
     throwError(err) {
@@ -239,6 +244,37 @@ class Compiler {
         await this.buildDb();
         return this.okResult();
     }
+    async getBizObjects() {
+        let [[site], objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+        const { uqApiVersion, compilingTick } = site;
+        const { uq_api_version } = (0, core_1.getDbs)();
+        let now = Date.now() / 1000;
+        if (compilingTick > 0 && now - compilingTick < 60) {
+            return [[], []];
+        }
+        let parts = uq_api_version.split('.');
+        let newVersion = Number(parts[0]) * 10000 + Number(parts[1]);
+        if (compilingTick < 0 || (Number.isNaN(newVersion) === false && uqApiVersion > 0 && newVersion > uqApiVersion)) {
+            await this.runner.call('$setSiteCompiling', [0, 0, this.site, uqApiVersion, now]);
+            await this.recompileAll();
+            await this.runner.call('$setSiteCompiling', [0, 0, this.site, newVersion, 0]);
+        }
+        return [objs, props];
+    }
+    async recompileAll() {
+        await (0, compileSource_1.compileBizThoroughly)(this.runner, this.site, this.user);
+    }
 }
 exports.Compiler = Compiler;
+class CompilerThoroughly extends Compiler {
+    async getBizObjects() {
+        let [[site], objs, props] = await this.runner.unitUserTablesFromProc('GetBizObjects', this.site, this.user, 'zh', 'cn');
+        return [objs, props];
+    }
+    setNewest() {
+        this.newest.splice(0);
+        this.newest.push(...this.biz.bizArr);
+    }
+}
+exports.CompilerThoroughly = CompilerThoroughly;
 //# sourceMappingURL=Compiler.js.map

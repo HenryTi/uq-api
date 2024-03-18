@@ -17,7 +17,6 @@ export interface Dbs {
     get uq_api_version(): string;
 }
 
-
 let dbs: Dbs;
 
 export function getDbs(): Dbs {

@@ -170,12 +170,6 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             }
 
             noNullCmp = new ExpAnd(...noNullCmpAnds);
-            /*
-            valKey = new ExpFuncInUq('bud$id', [
-                ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
-                varUniquePhrase, new ExpVar(vKey)
-            ], true);
-            */
             valKey = new ExpVar(vKey);
         }
         else {
