@@ -154,10 +154,10 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 noNullCmpAnds.push(new ExpIsNotNull(new ExpVar(vKeyI)));
             }
 
-            let setKey0 = factory.createSet();
-            keyStatements.push(setKey0);
-            setKey0.equ(vKey, new ExpVar(vKey + 0));
-            for (let i = 1; i < len; i++) {
+            let setKey = factory.createSet();
+            keyStatements.push(setKey);
+            setKey.equ(vKey, varUniquePhrase);
+            for (let i = 0; i < len; i++) {
                 let setKeyi = factory.createSet();
                 keyStatements.push(setKeyi);
                 setKeyi.equ(vKey, new ExpFuncInUq('bud$id',
@@ -170,10 +170,13 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             }
 
             noNullCmp = new ExpAnd(...noNullCmpAnds);
+            /*
             valKey = new ExpFuncInUq('bud$id', [
                 ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
                 varUniquePhrase, new ExpVar(vKey)
             ], true);
+            */
+            valKey = new ExpVar(vKey);
         }
         else {
             noNullCmp = new ExpIsNotNull(new ExpVar(vNo));

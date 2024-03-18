@@ -134,10 +134,10 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 }
                 noNullCmpAnds.push(new sql_1.ExpIsNotNull(new sql_1.ExpVar(vKeyI)));
             }
-            let setKey0 = factory.createSet();
-            keyStatements.push(setKey0);
-            setKey0.equ(vKey, new sql_1.ExpVar(vKey + 0));
-            for (let i = 1; i < len; i++) {
+            let setKey = factory.createSet();
+            keyStatements.push(setKey);
+            setKey.equ(vKey, varUniquePhrase);
+            for (let i = 0; i < len; i++) {
                 let setKeyi = factory.createSet();
                 keyStatements.push(setKeyi);
                 setKeyi.equ(vKey, new sql_1.ExpFuncInUq('bud$id', [
@@ -146,10 +146,13 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 ], true));
             }
             noNullCmp = new sql_1.ExpAnd(...noNullCmpAnds);
-            valKey = new sql_1.ExpFuncInUq('bud$id', [
-                sql_1.ExpNull.null, sql_1.ExpNull.null, sql_1.ExpNum.num1, sql_1.ExpNull.null,
-                varUniquePhrase, new sql_1.ExpVar(vKey)
+            /*
+            valKey = new ExpFuncInUq('bud$id', [
+                ExpNull.null, ExpNull.null, ExpNum.num1, ExpNull.null,
+                varUniquePhrase, new ExpVar(vKey)
             ], true);
+            */
+            valKey = new sql_1.ExpVar(vKey);
         }
         else {
             noNullCmp = new sql_1.ExpIsNotNull(new sql_1.ExpVar(vNo));
