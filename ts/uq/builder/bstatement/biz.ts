@@ -449,6 +449,9 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         declare.var(vId, new BigInt());
         declare.var(vBase, new BigInt());
         let varId = new ExpVar(vId);
+        let setVarIdNull = factory.createSet();
+        sqls.push(setVarIdNull);
+        setVarIdNull.equ(vId, ExpNull.null);
         let select = factory.createSelect();
         sqls.push(select);
         select.toVar = true;
