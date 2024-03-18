@@ -4,7 +4,8 @@ exports.buildSetAtomBud = void 0;
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
-function buildSetAtomBud(context, bud, idVal, expVal) {
+const a = 'a', b = 'b';
+function buildSetAtomBud(context, bud, idVal, expVal, noOfState) {
     const { factory } = context;
     let statements;
     switch (bud.dataType) {
@@ -47,6 +48,26 @@ function buildSetAtomBud(context, bud, idVal, expVal) {
     }
     function buildSetRadioBud(varId, bud, val) {
         let statements = [];
+        let del = factory.createDelete();
+        statements.push(del);
+        del.tables = [a];
+        del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('x', a)));
+        del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varId), new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(bud.id))));
+        let insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false);
+        insert.cols = [
+            { col: 'i', val: varId },
+            {
+                col: 'x', val: new sql_1.ExpFuncInUq('bud$id', [
+                    sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, sql_1.ExpNum.num_1,
+                    new sql_1.ExpNum(bud.id), val
+                ], true)
+            },
+        ];
         return statements;
     }
     function buildSetCheckBud(varId, bud, val) {

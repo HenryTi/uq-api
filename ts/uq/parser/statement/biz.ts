@@ -607,6 +607,10 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
                 ok = false;
             }
         }
+        else {
+            ok = false;
+            this.log('EX must set value');
+        }
         function getBud(budName: string): BizBud {
             for (let { bizID } of atomCase) {
                 let bud = bizID.getBud(budName);

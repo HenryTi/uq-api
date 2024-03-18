@@ -601,6 +601,10 @@ class PBizStatementAtom extends PBizStatementID {
                 ok = false;
             }
         }
+        else {
+            ok = false;
+            this.log('EX must set value');
+        }
         function getBud(budName) {
             for (let { bizID } of atomCase) {
                 let bud = bizID.getBud(budName);

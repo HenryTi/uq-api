@@ -28,6 +28,7 @@ abstract class BBizInOut<T extends BizInOut> extends BBizEntity<T> {
 }
 
 export class BBizIn extends BBizInOut<BizIn> {
+    // BizIn 的数据，ID和Date都已经转换成了bigint
     static queueId = '$queueId';
     static inSite = '$inSite';
     override async buildProcedures(): Promise<void> {

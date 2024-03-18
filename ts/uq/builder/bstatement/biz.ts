@@ -484,18 +484,13 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         let setId = factory.createSet();
         ifIdNull.then(setId);
         setId.equ(vId, new ExpFuncInUq('atom$id', [ExpNum.num0, ExpNum.num0, ExpNum.num1, varAtomPhrase], true));
-        let updateNoEx = factory.createUpdate();
-        ifIdNull.then(updateNoEx);
-        updateNoEx.cols = [
+        let updateNo = factory.createUpdate();
+        ifIdNull.then(updateNo);
+        updateNo.cols = [
             { col: 'no', val: new ExpFuncInUq('$no', [ExpNum.num0, new ExpStr('atom'), ExpNull.null], true) },
         ];
-        if (ex !== undefined) {
-            updateNoEx.cols.push({
-                col: 'ex', val: this.context.expVal(ex)
-            });
-        }
-        updateNoEx.table = new EntityTable(EnumSysTable.atom, false);
-        updateNoEx.where = new ExpEQ(new ExpField('id'), varId);
+        updateNo.table = new EntityTable(EnumSysTable.atom, false);
+        updateNo.where = new ExpEQ(new ExpField('id'), varId);
 
         let ifBaseChange = factory.createIf();
         ifIdNull.else(ifBaseChange);
@@ -506,23 +501,17 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         updateBase.table = new EntityTable(EnumSysTable.atom, false);
         updateBase.where = new ExpEQ(new ExpField('id'), varId);
 
+        let updateEx = factory.createUpdate();
+        sqls.push(updateEx);
+        updateEx.cols = [{
+            col: 'ex', val: this.context.expVal(ex)
+        }];
+        updateEx.table = new EntityTable(EnumSysTable.atom, false);
+        updateEx.where = new ExpEQ(new ExpField('id'), varId);
+
         for (let [bud, val] of sets) {
-            // let statements: Statement[];
             let valExp = this.context.expVal(val);
-            let statements = buildSetAtomBud(this.context, bud, varId, valExp);
-            /*
-            switch (bud.dataType) {
-                default:
-                    statements = this.buildSetValueBud(varId, bud, valExp);
-                    break;
-                case BudDataType.radio:
-                    statements = this.buildSetRadioBud(varId, bud, valExp);
-                    break;
-                case BudDataType.check:
-                    statements = this.buildSetCheckBud(varId, bud, valExp);
-                    break;
-            }
-            */
+            let statements = buildSetAtomBud(this.context, bud, varId, valExp, no);
             sqls.push(...statements);
         }
 
@@ -538,40 +527,6 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         );
         sqlCall.parameters = [varId];
     }
-    /*
-        private buildSetValueBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
-            const { factory } = this.context;
-            let insertDup = factory.createInsertOnDuplicate();
-            let statements: Statement[] = [insertDup];
-            let tbl: EnumSysTable;
-            switch (bud.dataType) {
-                default: tbl = EnumSysTable.ixBudInt; break;
-                case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
-                case BudDataType.str:
-                case BudDataType.char: tbl = EnumSysTable.ixBudStr; break;
-            }
-            insertDup.keys = [
-                { col: 'i', val: varId },
-                { col: 'x', val: new ExpNum(bud.id) },
-            ];
-            insertDup.cols = [
-                { col: 'value', val }
-            ];
-            insertDup.table = new EntityTable(tbl, false);
-            return statements;
-        }
-    
-        private buildSetRadioBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
-            const { factory } = this.context;
-            let statements: Statement[] = [];
-            return statements;
-        }
-        private buildSetCheckBud(varId: ExpVal, bud: BizBud, val: ExpVal): Statement[] {
-            const { factory } = this.context;
-            let statements: Statement[] = [];
-            return statements;
-        }
-    */
 }
 
 export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {

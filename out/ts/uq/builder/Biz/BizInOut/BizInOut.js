@@ -129,6 +129,7 @@ class BBizIn extends BBizInOut {
     }
 }
 exports.BBizIn = BBizIn;
+// BizIn 的数据，ID和Date都已经转换成了bigint
 BBizIn.queueId = '$queueId';
 BBizIn.inSite = '$inSite';
 class BBizOut extends BBizInOut {

@@ -447,18 +447,13 @@ class BBizStatementAtom extends BBizStatementID {
         let setId = factory.createSet();
         ifIdNull.then(setId);
         setId.equ(vId, new sql_1.ExpFuncInUq('atom$id', [sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num1, varAtomPhrase], true));
-        let updateNoEx = factory.createUpdate();
-        ifIdNull.then(updateNoEx);
-        updateNoEx.cols = [
+        let updateNo = factory.createUpdate();
+        ifIdNull.then(updateNo);
+        updateNo.cols = [
             { col: 'no', val: new sql_1.ExpFuncInUq('$no', [sql_1.ExpNum.num0, new sql_1.ExpStr('atom'), sql_1.ExpNull.null], true) },
         ];
-        if (ex !== undefined) {
-            updateNoEx.cols.push({
-                col: 'ex', val: this.context.expVal(ex)
-            });
-        }
-        updateNoEx.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
-        updateNoEx.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
+        updateNo.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
+        updateNo.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
         let ifBaseChange = factory.createIf();
         ifIdNull.else(ifBaseChange);
         ifBaseChange.cmp = new sql_1.ExpNE(varAtomPhrase, varBase);
@@ -467,23 +462,16 @@ class BBizStatementAtom extends BBizStatementID {
         updateBase.cols = [{ col: 'base', val: varAtomPhrase }];
         updateBase.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
         updateBase.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
+        let updateEx = factory.createUpdate();
+        sqls.push(updateEx);
+        updateEx.cols = [{
+                col: 'ex', val: this.context.expVal(ex)
+            }];
+        updateEx.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
+        updateEx.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
         for (let [bud, val] of sets) {
-            // let statements: Statement[];
             let valExp = this.context.expVal(val);
-            let statements = (0, tools_1.buildSetAtomBud)(this.context, bud, varId, valExp);
-            /*
-            switch (bud.dataType) {
-                default:
-                    statements = this.buildSetValueBud(varId, bud, valExp);
-                    break;
-                case BudDataType.radio:
-                    statements = this.buildSetRadioBud(varId, bud, valExp);
-                    break;
-                case BudDataType.check:
-                    statements = this.buildSetCheckBud(varId, bud, valExp);
-                    break;
-            }
-            */
+            let statements = (0, tools_1.buildSetAtomBud)(this.context, bud, varId, valExp, no);
             sqls.push(...statements);
         }
         let sqlCall = factory.createExecSql();
