@@ -46,9 +46,16 @@ class BBizIn extends BBizInOut {
                 let set = factory.createSet();
                 statements.push(set);
                 let expVal = new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`));
-                if (dataType === il_1.BudDataType.date) {
-                    expVal = new sql_1.ExpFuncCustom(factory.func_dateadd, new sql_1.ExpDatePart('day'), expVal, new sql_1.ExpStr('1970-01-01'));
+                /*
+                应该不需要，日期已经转换了bigint
+                if (dataType === BudDataType.date) {
+                    expVal = new ExpFuncCustom(factory.func_dateadd,
+                        new ExpDatePart('day'),
+                        expVal,
+                        new ExpStr('1970-01-01')
+                    );
                 }
+                */
                 set.equ(name, expVal);
             }
             else {
@@ -101,7 +108,8 @@ class BBizIn extends BBizInOut {
             case il_1.BudDataType.int: return (0, il_1.bigIntField)(name);
             case il_1.BudDataType.char: return (0, il_1.charField)(name, 200);
             case il_1.BudDataType.dec: return (0, il_1.decField)(name, 18, 6);
-            case il_1.BudDataType.date: return (0, il_1.dateField)(name);
+            // case BudDataType.date: return dateField(name);
+            case il_1.BudDataType.date: return (0, il_1.bigIntField)(name);
         }
     }
     buildDone(statements) {

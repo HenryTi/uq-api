@@ -66,6 +66,8 @@ export class BBizIn extends BBizInOut<BizIn> {
                 let set = factory.createSet();
                 statements.push(set);
                 let expVal: ExpVal = new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`));
+                /*
+                应该不需要，日期已经转换了bigint
                 if (dataType === BudDataType.date) {
                     expVal = new ExpFuncCustom(factory.func_dateadd,
                         new ExpDatePart('day'),
@@ -73,6 +75,7 @@ export class BBizIn extends BBizInOut<BizIn> {
                         new ExpStr('1970-01-01')
                     );
                 }
+                */
                 set.equ(name, expVal);
             }
             else {
@@ -126,7 +129,8 @@ export class BBizIn extends BBizInOut<BizIn> {
             case BudDataType.int: return bigIntField(name);
             case BudDataType.char: return charField(name, 200);
             case BudDataType.dec: return decField(name, 18, 6);
-            case BudDataType.date: return dateField(name);
+            // case BudDataType.date: return dateField(name);
+            case BudDataType.date: return bigIntField(name);
         }
     }
 
