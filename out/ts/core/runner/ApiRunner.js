@@ -55,11 +55,11 @@ class ApiRunner extends Runner_1.Runner {
             let strData = JSON.stringify(data);
             let strMd5 = stamp + strData + inPassword;
             let hash = md5(strMd5);
-            console.log(strMd5, hash, token);
             if (token.toLowerCase() !== hash) {
                 throw new Error('MD5 token error');
             }
-            let ret = await this.dbUq.call('SaveIOInQueue', [0, 0, endPoint, strData, uiq]);
+            let strDataLowercase = JSON.stringify((0, tool_1.jsonNamesLowercase)(data));
+            let ret = await this.dbUq.call('SaveIOInQueue', [0, 0, endPoint, strDataLowercase, uiq]);
             return {
                 ok: true,
                 res: {

@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { from62 } from "../../tool";
+import { from62, jsonNamesLowercase } from "../../tool";
 import { getDbs } from "../db";
 import { Runner } from "./Runner";
 import { push } from "./PushOut";
@@ -59,12 +59,11 @@ export class ApiRunner extends Runner {
             let strData = JSON.stringify(data);
             let strMd5 = stamp + strData + inPassword;
             let hash = md5(strMd5);
-            console.log(strMd5, hash, token);
             if ((token as string).toLowerCase() !== hash) {
                 throw new Error('MD5 token error');
             }
-
-            let ret = await this.dbUq.call('SaveIOInQueue', [0, 0, endPoint, strData, uiq]);
+            let strDataLowercase = JSON.stringify(jsonNamesLowercase(data));
+            let ret = await this.dbUq.call('SaveIOInQueue', [0, 0, endPoint, strDataLowercase, uiq]);
             return {
                 ok: true,
                 res: {
