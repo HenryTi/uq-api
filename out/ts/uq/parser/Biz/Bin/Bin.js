@@ -15,10 +15,10 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parsePick = () => {
             let name = this.ts.passVar();
-            let ui = this.parseUI();
-            let pick = new il_1.BinPick(this.element, name, ui);
-            this.context.parseElement(pick);
-            this.element.setPick(pick);
+            this.parsePickProp(name);
+        };
+        this.parsePend = () => {
+            this.parsePickProp('pend');
         };
         this.parseInput = () => {
             let name = this.ts.passVar();
@@ -141,6 +141,7 @@ class PBizBin extends Base_1.PBizEntity {
         this.keyColl = {
             main: this.parseMain,
             pick: this.parsePick,
+            pend: this.parsePend,
             input: this.parseInput,
             div: this.parseDiv,
             prop: this.parseBinProp,
@@ -152,6 +153,12 @@ class PBizBin extends Base_1.PBizEntity {
             act: this.parseAct,
         };
         this.div = element.div;
+    }
+    parsePickProp(name) {
+        let ui = this.parseUI();
+        let pick = new il_1.BinPick(this.element, name, ui);
+        this.context.parseElement(pick);
+        this.element.setPick(pick);
     }
     parseKeyID(keyID) {
         if (this.ts.token === tokens_1.Token.DOT) {

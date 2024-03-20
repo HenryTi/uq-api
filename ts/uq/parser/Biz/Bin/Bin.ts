@@ -30,6 +30,14 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parsePick = () => {
         let name = this.ts.passVar();
+        this.parsePickProp(name);
+    }
+
+    private parsePend = () => {
+        this.parsePickProp('pend');
+    }
+
+    private parsePickProp(name: string) {
         let ui = this.parseUI();
         let pick = new BinPick(this.element, name, ui);
         this.context.parseElement(pick);
@@ -109,17 +117,6 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     private parseValue = () => {
-        /*
-        if (this.element.value !== undefined) {
-            this.ts.error('Duplicate VALUE');
-        }
-        let ui = this.parseUI();
-        let bud = new BinValue(this.element.biz, binValue, ui);
-        this.context.parseElement(bud);
-        if (this.ts.prevToken !== Token.RBRACE) {
-            this.ts.passToken(Token.SEMICOLON);
-        }
-        */
         let bud = this.parseValueBud(this.element.value, binValue, 'binValue');
         this.element.value = bud as BinValue;
         this.div.buds.push(bud);
@@ -194,6 +191,7 @@ export class PBizBin extends PBizEntity<BizBin> {
     readonly keyColl = {
         main: this.parseMain,
         pick: this.parsePick,
+        pend: this.parsePend,
         input: this.parseInput,
         div: this.parseDiv,
         prop: this.parseBinProp,
