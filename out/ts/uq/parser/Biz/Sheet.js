@@ -8,6 +8,10 @@ class PBizSheet extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.details = [];
+        this.parseIO = () => {
+            this.element.io = true;
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
+        };
         this.parseMain = () => {
             if (this.main !== undefined) {
                 this.ts.error(`main can only be defined once in Biz Sheet`);
@@ -29,6 +33,7 @@ class PBizSheet extends Base_1.PBizEntity {
             this.element.bizSearch = bizSearch;
         };
         this.keyColl = {
+            io: this.parseIO,
             prop: this.parseProp,
             i: this.parseMain,
             main: this.parseMain,

@@ -62,17 +62,6 @@ class PBizBin extends Base_1.PBizEntity {
             this.element.x = budKeyID;
         };
         this.parseValue = () => {
-            /*
-            if (this.element.value !== undefined) {
-                this.ts.error('Duplicate VALUE');
-            }
-            let ui = this.parseUI();
-            let bud = new BinValue(this.element.biz, binValue, ui);
-            this.context.parseElement(bud);
-            if (this.ts.prevToken !== Token.RBRACE) {
-                this.ts.passToken(Token.SEMICOLON);
-            }
-            */
             let bud = this.parseValueBud(this.element.value, consts_1.binValue, 'binValue');
             this.element.value = bud;
             this.div.buds.push(bud);

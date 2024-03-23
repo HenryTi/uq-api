@@ -18,6 +18,7 @@ export class BizSheet extends BizEntity {
     readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;
     readonly details: { bin: BizBin; caption: string; }[] = [];
+    io: boolean;
     bizSearch: BizSearch;
 
     parser(context: PContext): PElement<IElement> {
@@ -46,6 +47,7 @@ export class BizSheet extends BizEntity {
         }
         ret = {
             ...ret,
+            io: this.io,
             main: this.main.name,
             details: this.details.map(v => {
                 const { bin, caption } = v;

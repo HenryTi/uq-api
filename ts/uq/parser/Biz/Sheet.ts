@@ -9,6 +9,11 @@ export class PBizSheet extends PBizEntity<BizSheet> {
     private main: string;
     private details: { name: string, caption: string }[] = [];
 
+    private parseIO = () => {
+        this.element.io = true;
+        this.ts.passToken(Token.SEMICOLON);
+    };
+
     private parseMain = () => {
         if (this.main !== undefined) {
             this.ts.error(`main can only be defined once in Biz Sheet`);
@@ -34,6 +39,7 @@ export class PBizSheet extends PBizEntity<BizSheet> {
     }
 
     readonly keyColl = {
+        io: this.parseIO,
         prop: this.parseProp,
         i: this.parseMain,
         main: this.parseMain,
