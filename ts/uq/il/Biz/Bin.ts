@@ -158,7 +158,6 @@ export class BinDiv {
     readonly buds: BizBud[] = [];
     readonly ui: Partial<UI>;
     readonly inputs: BinInput[] = [];
-    readonly isPivot: boolean = false;
 
     div: BinDiv;
     level: number;
@@ -189,10 +188,6 @@ export class BinDiv {
     }
 }
 
-export class Pivot extends BinDiv {
-    readonly isPivot: boolean = true;
-}
-
 export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'pend', ...binFieldArr];
     readonly bizPhraseType = BizPhraseType.bin;
@@ -211,7 +206,7 @@ export class BizBin extends BizEntity {
     value: BinValue;
     price: BizBudDec;
     amount: BizBudDec;
-    pivot: Pivot;
+    pivot: BinDiv;
 
     constructor(biz: Biz) {
         super(biz);
@@ -261,6 +256,8 @@ export class BizBin extends BizEntity {
             }
         }
         let price = this.price?.buildSchema(res);
+        let pivot: boolean;
+        if (this.pivot !== undefined) pivot = true;
         this.schema = {
             ...ret,
             main: this.main?.id,
@@ -273,6 +270,7 @@ export class BizBin extends BizEntity {
             amount: this.amount?.buildSchema(res),
             price,
             div: this.div.buildSchema(res),
+            pivot,
         }
         return this.schema;
     }

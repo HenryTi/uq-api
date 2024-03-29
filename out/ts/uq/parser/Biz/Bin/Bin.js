@@ -82,7 +82,7 @@ class PBizBin extends Base_1.PBizEntity {
                 value: this.parseValue,
                 amount: this.parseAmount,
             };
-            this.parseDivOrPivot(il_1.Pivot, keyParse);
+            this.parseDivOrPivot(keyParse);
             this.element.pivot = this.div;
         };
         this.parseDiv = () => {
@@ -97,7 +97,7 @@ class PBizBin extends Base_1.PBizEntity {
                 price: this.parsePrice,
                 amount: this.parseAmount,
             };
-            this.parseDivOrPivot(il_1.BinDiv, keyParse);
+            this.parseDivOrPivot(keyParse);
         };
         this.parseBinProp = () => {
             let { group, budArr } = this.parseProp();
@@ -167,15 +167,15 @@ class PBizBin extends Base_1.PBizEntity {
         }
         return bizBud;
     }
-    parseDivOrPivot(BinDivOrPivot, keyParse) {
+    parseDivOrPivot(keyParse) {
         if (this.div.div !== undefined) {
             this.ts.error(`duplicate DIV`);
         }
-        if (this.div.isPivot === true) {
+        if (this.div === this.element.pivot) {
             this.ts.error('can not define PIVOT or DIV in PIVOT');
         }
         let ui = this.parseUI();
-        this.div = new BinDivOrPivot(this.div, ui);
+        this.div = new il_1.BinDiv(this.div, ui);
         this.ts.passToken(tokens_1.Token.LBRACE);
         for (;;) {
             if (this.ts.token === tokens_1.Token.RBRACE) {

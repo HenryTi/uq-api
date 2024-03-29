@@ -5,7 +5,7 @@ import {
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
     , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
     , BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatementBin
-    , BizOut, UseOut, BinValue, UI, Pivot
+    , BizOut, UseOut, BinValue, UI
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
@@ -144,7 +144,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             value: this.parseValue,
             amount: this.parseAmount,
         }
-        this.parseDivOrPivot(Pivot, keyParse);
+        this.parseDivOrPivot(keyParse);
         this.element.pivot = this.div;
     }
 
@@ -160,21 +160,18 @@ export class PBizBin extends PBizEntity<BizBin> {
             price: this.parsePrice,
             amount: this.parseAmount,
         }
-        this.parseDivOrPivot(BinDiv, keyParse);
+        this.parseDivOrPivot(keyParse);
     }
 
-    private parseDivOrPivot(
-        BinDivOrPivot: new (parent: BinDiv, ui: Partial<UI>) => BinDiv,
-        keyParse: { [key: string]: () => void }
-    ) {
+    private parseDivOrPivot(keyParse: { [key: string]: () => void }) {
         if (this.div.div !== undefined) {
             this.ts.error(`duplicate DIV`);
         }
-        if (this.div.isPivot === true) {
+        if (this.div === this.element.pivot) {
             this.ts.error('can not define PIVOT or DIV in PIVOT');
         }
         let ui = this.parseUI();
-        this.div = new BinDivOrPivot(this.div, ui);
+        this.div = new BinDiv(this.div, ui);
         this.ts.passToken(Token.LBRACE);
         for (; ;) {
             if (this.ts.token === Token.RBRACE) {
