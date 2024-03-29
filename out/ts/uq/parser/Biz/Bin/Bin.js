@@ -76,13 +76,20 @@ class PBizBin extends Base_1.PBizEntity {
             this.element.amount = bud;
             this.div.buds.push(bud);
         };
+        this.parsePivot = () => {
+            const keyParse = {
+                prop: this.parseBinProp,
+                value: this.parseValue,
+                amount: this.parseAmount,
+            };
+            this.parseDivOrPivot(il_1.Pivot, keyParse);
+            this.element.pivot = this.div;
+        };
         this.parseDiv = () => {
-            if (this.div.div !== undefined) {
-                this.ts.error(`duplicate DIV`);
-            }
             const keyParse = {
                 input: this.parseInput,
                 div: this.parseDiv,
+                pivot: this.parsePivot,
                 prop: this.parseBinProp,
                 i: this.parseI,
                 x: this.parseX,
@@ -90,25 +97,7 @@ class PBizBin extends Base_1.PBizEntity {
                 price: this.parsePrice,
                 amount: this.parseAmount,
             };
-            let ui = this.parseUI();
-            this.div = new il_1.BinDiv(this.div, ui);
-            this.ts.passToken(tokens_1.Token.LBRACE);
-            for (;;) {
-                if (this.ts.token === tokens_1.Token.RBRACE) {
-                    this.ts.readToken();
-                    this.div = this.div.parent;
-                    break;
-                }
-                if (this.ts.token !== tokens_1.Token.VAR) {
-                    this.ts.expectToken(tokens_1.Token.VAR);
-                }
-                let parse = keyParse[this.ts.lowerVar];
-                if (parse === undefined) {
-                    this.ts.error(`Unknown ${this.ts._var}`);
-                }
-                this.ts.readToken();
-                parse();
-            }
+            this.parseDivOrPivot(il_1.BinDiv, keyParse);
         };
         this.parseBinProp = () => {
             let { group, budArr } = this.parseProp();
@@ -133,6 +122,7 @@ class PBizBin extends Base_1.PBizEntity {
             pend: this.parsePend,
             input: this.parseInput,
             div: this.parseDiv,
+            pivot: this.parsePivot,
             prop: this.parseBinProp,
             i: this.parseI,
             x: this.parseX,
@@ -142,6 +132,8 @@ class PBizBin extends Base_1.PBizEntity {
             act: this.parseAct,
         };
         this.div = element.div;
+        if (this.div === undefined)
+            debugger;
     }
     parsePickProp(name) {
         let ui = this.parseUI();
@@ -174,6 +166,35 @@ class PBizBin extends Base_1.PBizEntity {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
         return bizBud;
+    }
+    parseDivOrPivot(BinDivOrPivot, keyParse) {
+        if (this.div.div !== undefined) {
+            this.ts.error(`duplicate DIV`);
+        }
+        if (this.div.isPivot === true) {
+            this.ts.error('can not define PIVOT or DIV in PIVOT');
+        }
+        let ui = this.parseUI();
+        this.div = new BinDivOrPivot(this.div, ui);
+        this.ts.passToken(tokens_1.Token.LBRACE);
+        for (;;) {
+            if (this.ts.token === tokens_1.Token.RBRACE) {
+                this.ts.readToken();
+                this.div = this.div.parent;
+                if (this.div === undefined)
+                    this.div = this.element.div;
+                break;
+            }
+            if (this.ts.token !== tokens_1.Token.VAR) {
+                this.ts.expectToken(tokens_1.Token.VAR);
+            }
+            let parse = keyParse[this.ts.lowerVar];
+            if (parse === undefined) {
+                this.ts.error(`Unknown ${this.ts._var}`);
+            }
+            this.ts.readToken();
+            parse();
+        }
     }
     scan0(space) {
         let ok = true;

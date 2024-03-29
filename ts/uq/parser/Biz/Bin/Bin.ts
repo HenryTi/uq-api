@@ -1,16 +1,18 @@
 import { binAmount, binFieldArr, binPrice, binValue } from "../../../consts";
 import {
-    BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements //, BizBinActStatement
+    BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
-    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput, BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatement, BizStatementBin, BizOut, BizIOSite, BizIOApp, UseOut, IOAppOut, BinValue
+    , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
+    , BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatementBin
+    , BizOut, UseOut, BinValue, UI, Pivot
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
-import { PBizAct, PBizActStatements, PBizBase, PBizEntity } from "../Base";
+import { PBizAct, PBizActStatements, PBizEntity } from "../Base";
 import { BizEntitySpace } from "../Biz";
-import { PBizBud, PBizBudDec, PBizBudValue } from "../Bud";
+import { PBizBudValue } from "../Bud";
 
 export class PBizBin extends PBizEntity<BizBin> {
     private main: string;
@@ -18,9 +20,11 @@ export class PBizBin extends PBizEntity<BizBin> {
     private div: BinDiv;
     private iBase: BizBudIDBase;
     private xBase: BizBudIDBase;
+
     constructor(element: BizBin, context: PContext) {
         super(element, context);
         this.div = element.div;
+        if (this.div === undefined) debugger;
     }
 
     private parseMain = () => {
@@ -134,13 +138,21 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.div.buds.push(bud);
     }
 
-    private parseDiv = () => {
-        if (this.div.div !== undefined) {
-            this.ts.error(`duplicate DIV`);
+    private parsePivot = () => {
+        const keyParse: { [key: string]: () => void } = {
+            prop: this.parseBinProp,
+            value: this.parseValue,
+            amount: this.parseAmount,
         }
+        this.parseDivOrPivot(Pivot, keyParse);
+        this.element.pivot = this.div;
+    }
+
+    private parseDiv = () => {
         const keyParse: { [key: string]: () => void } = {
             input: this.parseInput,
             div: this.parseDiv,
+            pivot: this.parsePivot,
             prop: this.parseBinProp,
             i: this.parseI,
             x: this.parseX,
@@ -148,13 +160,27 @@ export class PBizBin extends PBizEntity<BizBin> {
             price: this.parsePrice,
             amount: this.parseAmount,
         }
+        this.parseDivOrPivot(BinDiv, keyParse);
+    }
+
+    private parseDivOrPivot(
+        BinDivOrPivot: new (parent: BinDiv, ui: Partial<UI>) => BinDiv,
+        keyParse: { [key: string]: () => void }
+    ) {
+        if (this.div.div !== undefined) {
+            this.ts.error(`duplicate DIV`);
+        }
+        if (this.div.isPivot === true) {
+            this.ts.error('can not define PIVOT or DIV in PIVOT');
+        }
         let ui = this.parseUI();
-        this.div = new BinDiv(this.div, ui);
+        this.div = new BinDivOrPivot(this.div, ui);
         this.ts.passToken(Token.LBRACE);
         for (; ;) {
             if (this.ts.token === Token.RBRACE) {
                 this.ts.readToken();
                 this.div = this.div.parent;
+                if (this.div === undefined) this.div = this.element.div;
                 break;
             }
             if (this.ts.token !== Token.VAR) {
@@ -194,6 +220,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         pend: this.parsePend,
         input: this.parseInput,
         div: this.parseDiv,
+        pivot: this.parsePivot,
         prop: this.parseBinProp,
         i: this.parseI,
         x: this.parseX,

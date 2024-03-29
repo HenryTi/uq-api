@@ -33,6 +33,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";
     BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";
     BizPhraseType[BizPhraseType["optionsitem"] = 1031] = "optionsitem";
+    BizPhraseType[BizPhraseType["binDiv"] = 2001] = "binDiv";
     BizPhraseType[BizPhraseType["console"] = 6001] = "console";
 })(BizPhraseType || (exports.BizPhraseType = BizPhraseType = {}));
 ;

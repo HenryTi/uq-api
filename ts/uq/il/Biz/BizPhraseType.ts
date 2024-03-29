@@ -34,6 +34,8 @@ export enum BizPhraseType {
     prop = 1011,
     optionsitem = 1031,
 
+    binDiv = 2001,
+
     console = 6001,
 };
 

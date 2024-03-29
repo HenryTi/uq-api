@@ -1,6 +1,6 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
-import { PBinInputAtom, PBinInputSpec, PBinPick, PBinValue, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
+import { PBinInputAtom, PBinInputSpec, PBinPick, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
@@ -15,7 +15,7 @@ import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { ValueExpression } from "../Exp";
 import { binFieldArr } from "../../consts";
-import { BizIOApp, BizIOSite, BizOut, UseOut } from "./InOut";
+import { UseOut } from "./InOut";
 
 export interface PickParam {
     name: string;
@@ -154,13 +154,15 @@ export class BinInputAtom extends BinInput {
 // column: maybe I, Value, Amount, Price, I.base, I.base.base, Prop
 export class BinDiv {
     readonly parent: BinDiv;
+    readonly fields = [];
+    readonly buds: BizBud[] = [];
     readonly ui: Partial<UI>;
     readonly inputs: BinInput[] = [];
-    readonly buds: BizBud[] = [];
+    readonly isPivot: boolean = false;
+
     div: BinDiv;
     level: number;
     constructor(parent: BinDiv, ui: Partial<UI>) {
-        this.parent = parent;
         this.ui = ui;
         if (parent !== undefined) {
             parent.div = this;
@@ -187,13 +189,17 @@ export class BinDiv {
     }
 }
 
+export class Pivot extends BinDiv {
+    readonly isPivot: boolean = true;
+}
+
 export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'pend', ...binFieldArr];
     readonly bizPhraseType = BizPhraseType.bin;
     readonly pickColl: { [name: string]: BinPick } = {};
     readonly inputColl: { [name: string]: BinInput } = {};
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了
-    readonly div: BinDiv = new BinDiv(undefined, undefined);    // 输入和显示的层级结构
+    readonly div: BinDiv;    // 输入和显示的层级结构
     readonly outs: { [name: string]: UseOut } = {};
     main: BizBin;           // 只有指定main的bin，才能引用%sheet.prop
     pickArr: BinPick[];
@@ -205,6 +211,12 @@ export class BizBin extends BizEntity {
     value: BinValue;
     price: BizBudDec;
     amount: BizBudDec;
+    pivot: Pivot;
+
+    constructor(biz: Biz) {
+        super(biz);
+        this.div = new BinDiv(undefined, undefined);    // 输入和显示的层级结构
+    }
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBin(this, context);

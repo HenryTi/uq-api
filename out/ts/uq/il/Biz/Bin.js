@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
+exports.BizBinAct = exports.BizBin = exports.Pivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
@@ -127,9 +127,10 @@ exports.BinInputAtom = BinInputAtom;
 // column: maybe I, Value, Amount, Price, I.base, I.base.base, Prop
 class BinDiv {
     constructor(parent, ui) {
-        this.inputs = [];
+        this.fields = [];
         this.buds = [];
-        this.parent = parent;
+        this.inputs = [];
+        this.isPivot = false;
         this.ui = ui;
         if (parent !== undefined) {
             parent.div = this;
@@ -157,16 +158,23 @@ class BinDiv {
     }
 }
 exports.BinDiv = BinDiv;
-class BizBin extends Entity_1.BizEntity {
+class Pivot extends BinDiv {
     constructor() {
         super(...arguments);
+        this.isPivot = true;
+    }
+}
+exports.Pivot = Pivot;
+class BizBin extends Entity_1.BizEntity {
+    constructor(biz) {
+        super(biz);
         this.fields = ['id', 'pend', ...consts_1.binFieldArr];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
         this.pickColl = {};
         this.inputColl = {};
         this.sheetArr = []; // 被多少sheet引用了
-        this.div = new BinDiv(undefined, undefined); // 输入和显示的层级结构
         this.outs = {};
+        this.div = new BinDiv(undefined, undefined); // 输入和显示的层级结构
     }
     parser(context) {
         return new parser_1.PBizBin(this, context);
