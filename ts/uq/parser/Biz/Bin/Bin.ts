@@ -5,7 +5,7 @@ import {
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
     , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
     , BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatementBin
-    , BizOut, UseOut, BinValue, UI
+    , BizOut, UseOut, BinValue, UI, BinPivot, BizBudRadio, OptionsItem
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
@@ -140,11 +140,13 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parsePivot = () => {
         const keyParse: { [key: string]: () => void } = {
+            key: this.parsePivotKey,
             prop: this.parseBinProp,
             value: this.parseValue,
             amount: this.parseAmount,
+            format: this.parsePivotFormat,
         }
-        this.parseDivOrPivot(keyParse);
+        this.parseDivOrPivot(keyParse, BinPivot);
         this.element.pivot = this.div;
     }
 
@@ -160,10 +162,10 @@ export class PBizBin extends PBizEntity<BizBin> {
             price: this.parsePrice,
             amount: this.parseAmount,
         }
-        this.parseDivOrPivot(keyParse);
+        this.parseDivOrPivot(keyParse, BinDiv);
     }
 
-    private parseDivOrPivot(keyParse: { [key: string]: () => void }) {
+    private parseDivOrPivot(keyParse: { [key: string]: () => void }, BinDivNew: new (binDiv: BinDiv, ui: Partial<UI>) => BinDiv) {
         if (this.div.div !== undefined) {
             this.ts.error(`duplicate DIV`);
         }
@@ -171,7 +173,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             this.ts.error('can not define PIVOT or DIV in PIVOT');
         }
         let ui = this.parseUI();
-        this.div = new BinDiv(this.div, ui);
+        this.div = new BinDivNew(this.div, ui);
         this.ts.passToken(Token.LBRACE);
         for (; ;) {
             if (this.ts.token === Token.RBRACE) {
@@ -198,6 +200,62 @@ export class PBizBin extends PBizEntity<BizBin> {
             this.ts.error(`Bin prop group should not have name`);
         }
         this.div.buds.push(...budArr);
+    }
+
+    private parsePivotKey = () => {
+        let { group, budArr } = this.parseProp();
+        if (group !== undefined || budArr.length > 1) {
+            this.ts.error(`Pivot only one KEY`);
+        }
+        let key = budArr[0] as BizBudValue;
+        let { ui } = key;
+        if (ui === undefined) {
+            ui = { required: true };
+        }
+        else {
+            ui.required = true;
+        }
+        key.required = true;
+        this.div.buds.push(key);
+        this.div.key = key;
+    }
+
+    private parsePivotFormat = () => {
+        let format = this.div.format = [];
+        for (; ;) {
+            if (this.ts.token !== Token.VAR) {
+                this.ts.expectToken(Token.VAR);
+            }
+            let bud = this.ts.lowerVar;
+            this.ts.readToken();
+            let withLabel: boolean;
+            if (this.ts.token === Token.BITWISEAND) {
+                withLabel = true;
+                this.ts.readToken();
+            }
+            else {
+                withLabel = false;
+            }
+            let exclude: string;
+            if (this.ts.token === Token.Exclamation) {
+                this.ts.readToken();
+                if (this.ts.token !== Token.VAR as any) {
+                    this.ts.expectToken(Token.VAR);
+                }
+                exclude = this.ts.lowerVar;
+                this.ts.readToken();
+            }
+            format.push([bud, withLabel, exclude]);
+            if (this.ts.token === Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            if (this.ts.token === Token.SEMICOLON) {
+                this.ts.readToken();
+                break;
+            }
+            this.ts.expectToken(Token.SEMICOLON, Token.COMMA);
+        }
     }
 
     private parseAct = () => {
@@ -370,6 +428,31 @@ export class PBizBin extends PBizEntity<BizBin> {
         let ok = true;
         if (super.scan2(uq) === false) {
             ok = false;
+        }
+        let { div } = this.element;
+        for (; div !== undefined; div = div.div) {
+            let { format } = div;
+            if (format === undefined) continue;
+            let nf: any[] = [];
+            for (let [budName, withLabel, exclude] of format) {
+                let bud = this.element.getBud(budName);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`FORMAT ${bud} not exists`);
+                    continue;
+                }
+                let itemExclude: OptionsItem;
+                if (bud.dataType === BudDataType.radio && exclude !== undefined) {
+                    let { options } = bud as BizBudRadio;
+                    itemExclude = options.items.find(v => v.name === exclude || v.itemValue === exclude);
+                    if (itemExclude === undefined) {
+                        ok = false;
+                        this.log(`FORMAT !${exclude} not exists`);
+                    }
+                }
+                nf.push([bud, withLabel, itemExclude]);
+            }
+            div.format = nf;
         }
         return ok;
     }

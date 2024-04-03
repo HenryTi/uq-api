@@ -161,6 +161,9 @@ export class BinDiv {
 
     div: BinDiv;
     level: number;
+    key: BizBudValue;        // only used in Pivot
+    format: any;
+
     constructor(parent: BinDiv, ui: Partial<UI>) {
         this.ui = ui;
         if (parent !== undefined) {
@@ -188,6 +191,19 @@ export class BinDiv {
     }
 }
 
+export class BinPivot extends BinDiv {
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        ret.key = this.key.id;
+        if (this.format !== undefined) {
+            ret.format = this.format.map(([bud, withLabel, exclude]) => {
+                return [bud.id, withLabel === true ? 1 : 0, exclude?.id]
+            });
+        }
+        return ret;
+    }
+}
+
 export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'pend', ...binFieldArr];
     readonly bizPhraseType = BizPhraseType.bin;
@@ -206,7 +222,7 @@ export class BizBin extends BizEntity {
     value: BinValue;
     price: BizBudDec;
     amount: BizBudDec;
-    pivot: BinDiv;
+    pivot: BinPivot;
 
     constructor(biz: Biz) {
         super(biz);

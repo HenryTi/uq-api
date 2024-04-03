@@ -78,11 +78,13 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parsePivot = () => {
             const keyParse = {
+                key: this.parsePivotKey,
                 prop: this.parseBinProp,
                 value: this.parseValue,
                 amount: this.parseAmount,
+                format: this.parsePivotFormat,
             };
-            this.parseDivOrPivot(keyParse);
+            this.parseDivOrPivot(keyParse, il_1.BinPivot);
             this.element.pivot = this.div;
         };
         this.parseDiv = () => {
@@ -97,7 +99,7 @@ class PBizBin extends Base_1.PBizEntity {
                 price: this.parsePrice,
                 amount: this.parseAmount,
             };
-            this.parseDivOrPivot(keyParse);
+            this.parseDivOrPivot(keyParse, il_1.BinDiv);
         };
         this.parseBinProp = () => {
             let { group, budArr } = this.parseProp();
@@ -105,6 +107,60 @@ class PBizBin extends Base_1.PBizEntity {
                 this.ts.error(`Bin prop group should not have name`);
             }
             this.div.buds.push(...budArr);
+        };
+        this.parsePivotKey = () => {
+            let { group, budArr } = this.parseProp();
+            if (group !== undefined || budArr.length > 1) {
+                this.ts.error(`Pivot only one KEY`);
+            }
+            let key = budArr[0];
+            let { ui } = key;
+            if (ui === undefined) {
+                ui = { required: true };
+            }
+            else {
+                ui.required = true;
+            }
+            key.required = true;
+            this.div.buds.push(key);
+            this.div.key = key;
+        };
+        this.parsePivotFormat = () => {
+            let format = this.div.format = [];
+            for (;;) {
+                if (this.ts.token !== tokens_1.Token.VAR) {
+                    this.ts.expectToken(tokens_1.Token.VAR);
+                }
+                let bud = this.ts.lowerVar;
+                this.ts.readToken();
+                let withLabel;
+                if (this.ts.token === tokens_1.Token.BITWISEAND) {
+                    withLabel = true;
+                    this.ts.readToken();
+                }
+                else {
+                    withLabel = false;
+                }
+                let exclude;
+                if (this.ts.token === tokens_1.Token.Exclamation) {
+                    this.ts.readToken();
+                    if (this.ts.token !== tokens_1.Token.VAR) {
+                        this.ts.expectToken(tokens_1.Token.VAR);
+                    }
+                    exclude = this.ts.lowerVar;
+                    this.ts.readToken();
+                }
+                format.push([bud, withLabel, exclude]);
+                if (this.ts.token === tokens_1.Token.COMMA) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (this.ts.token === tokens_1.Token.SEMICOLON) {
+                    this.ts.readToken();
+                    break;
+                }
+                this.ts.expectToken(tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA);
+            }
         };
         this.parseAct = () => {
             const { act } = this.element;
@@ -167,7 +223,7 @@ class PBizBin extends Base_1.PBizEntity {
         }
         return bizBud;
     }
-    parseDivOrPivot(keyParse) {
+    parseDivOrPivot(keyParse, BinDivNew) {
         if (this.div.div !== undefined) {
             this.ts.error(`duplicate DIV`);
         }
@@ -175,7 +231,7 @@ class PBizBin extends Base_1.PBizEntity {
             this.ts.error('can not define PIVOT or DIV in PIVOT');
         }
         let ui = this.parseUI();
-        this.div = new il_1.BinDiv(this.div, ui);
+        this.div = new BinDivNew(this.div, ui);
         this.ts.passToken(tokens_1.Token.LBRACE);
         for (;;) {
             if (this.ts.token === tokens_1.Token.RBRACE) {
@@ -334,6 +390,32 @@ class PBizBin extends Base_1.PBizEntity {
         let ok = true;
         if (super.scan2(uq) === false) {
             ok = false;
+        }
+        let { div } = this.element;
+        for (; div !== undefined; div = div.div) {
+            let { format } = div;
+            if (format === undefined)
+                continue;
+            let nf = [];
+            for (let [budName, withLabel, exclude] of format) {
+                let bud = this.element.getBud(budName);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`FORMAT ${bud} not exists`);
+                    continue;
+                }
+                let itemExclude;
+                if (bud.dataType === il_1.BudDataType.radio && exclude !== undefined) {
+                    let { options } = bud;
+                    itemExclude = options.items.find(v => v.name === exclude || v.itemValue === exclude);
+                    if (itemExclude === undefined) {
+                        ok = false;
+                        this.log(`FORMAT !${exclude} not exists`);
+                    }
+                }
+                nf.push([bud, withLabel, itemExclude]);
+            }
+            div.format = nf;
         }
         return ok;
     }

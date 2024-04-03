@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
+exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
@@ -157,6 +157,19 @@ class BinDiv {
     }
 }
 exports.BinDiv = BinDiv;
+class BinPivot extends BinDiv {
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.key = this.key.id;
+        if (this.format !== undefined) {
+            ret.format = this.format.map(([bud, withLabel, exclude]) => {
+                return [bud.id, withLabel === true ? 1 : 0, exclude === null || exclude === void 0 ? void 0 : exclude.id];
+            });
+        }
+        return ret;
+    }
+}
+exports.BinPivot = BinPivot;
 class BizBin extends Entity_1.BizEntity {
     constructor(biz) {
         super(biz);
