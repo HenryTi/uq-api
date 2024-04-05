@@ -20,7 +20,7 @@ class OptionsItem extends Bud_1.BizBudValue {
         return;
     }
     get dataType() {
-        return;
+        return BizPhraseType_1.BudDataType.optionItem;
     }
     get canIndex() {
         return false;

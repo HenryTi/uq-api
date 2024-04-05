@@ -23,7 +23,7 @@ export class OptionsItem extends BizBudValue {
         return;
     }
     get dataType(): BudDataType {
-        return;
+        return BudDataType.optionItem;
     }
     get canIndex(): boolean {
         return false;

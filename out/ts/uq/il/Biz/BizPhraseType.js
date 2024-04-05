@@ -51,6 +51,7 @@ var BudDataType;
     BudDataType[BudDataType["str"] = 32] = "str";
     BudDataType[BudDataType["date"] = 41] = "date";
     BudDataType[BudDataType["datetime"] = 42] = "datetime";
+    BudDataType[BudDataType["optionItem"] = 81] = "optionItem";
     BudDataType[BudDataType["arr"] = 99] = "arr";
 })(BudDataType || (exports.BudDataType = BudDataType = {}));
 ;
