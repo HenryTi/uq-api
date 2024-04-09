@@ -169,19 +169,21 @@ class BizEntity extends Base_1.BizBase {
         return undefined;
     }
     allShowBuds() {
-        let has = this.showBuds !== undefined;
-        let ret = Object.assign({}, this.showBuds);
-        let n = 0;
+        let ret = [];
+        if (this.showBuds !== undefined)
+            ret.push(...this.showBuds);
+        // let n = 0;
         this.forEachBud(v => {
             let shows = v.getFieldShows();
             if (shows === undefined)
                 return;
-            has = true;
-            for (let show of shows)
-                ret[v.name + '.' + n++] = show;
+            ret.push(...shows);
+            //for (let show of shows) ret[v.name + '.' + n++] = show;
         });
-        if (has === true)
-            return ret;
+        // if (has === true) return ret;
+        if (ret.length === 0)
+            return;
+        return ret;
     }
 }
 exports.BizEntity = BizEntity;

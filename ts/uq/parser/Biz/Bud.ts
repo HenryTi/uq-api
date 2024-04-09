@@ -149,20 +149,20 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
             return false;
         }
 
-        let show = this.getFieldShow(bizEntity as BizBin, ...this.fieldString);
-        if (show === undefined) {
+        let fieldShowItems: FieldShowItem[] = this.getFieldShow(bizEntity as BizBin, ...this.fieldString);
+        if (fieldShowItems === undefined) {
             ok = false;
         }
         else {
             let bizBin = bizEntity as BizBin;
             let { showBuds } = bizBin;
             if (showBuds === undefined) {
-                showBuds = bizBin.showBuds = {};
+                showBuds = bizBin.showBuds = [];
             }
-            showBuds[this.element.name] = {
+            showBuds.push({
                 owner: undefined,
-                items: show,
-            }
+                items: fieldShowItems,
+            });
             this.element.ui.show = true;
         }
         return ok;

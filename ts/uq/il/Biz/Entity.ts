@@ -4,7 +4,7 @@ import { Field } from "../field";
 import { BizBase, IxField } from "./Base";
 import { Biz } from "./Biz";
 import { BudDataType } from "./BizPhraseType";
-import { BizBud, BizBudValue, BudGroup, FieldShow } from "./Bud";
+import { BizBud, BizBudValue, BudGroup, FieldShow, FieldShowItem } from "./Bud";
 import { BizRole } from "./Role";
 
 export enum BudIndex {
@@ -29,7 +29,8 @@ export abstract class BizEntity extends BizBase {
     readonly permissions: { [role: string]: Permission } = {};
     source: string = undefined;
     protected abstract get fields(): string[];
-    showBuds: { [bud: string]: FieldShow };
+    //showBuds: { [bud: string]: FieldShow };
+    showBuds: FieldShow[];
     schema: any;
 
     constructor(biz: Biz) {
@@ -184,15 +185,17 @@ export abstract class BizEntity extends BizBase {
     }
 
     allShowBuds() {
-        let has = this.showBuds !== undefined;
-        let ret: { [bud: string]: FieldShow } = { ...this.showBuds };
-        let n = 0;
+        let ret: FieldShow[] = [];
+        if (this.showBuds !== undefined) ret.push(...this.showBuds);
+        // let n = 0;
         this.forEachBud(v => {
             let shows = v.getFieldShows();
             if (shows === undefined) return;
-            has = true;
-            for (let show of shows) ret[v.name + '.' + n++] = show;
+            ret.push(...shows);
+            //for (let show of shows) ret[v.name + '.' + n++] = show;
         });
-        if (has === true) return ret;
+        // if (has === true) return ret;
+        if (ret.length === 0) return;
+        return ret;
     }
 }

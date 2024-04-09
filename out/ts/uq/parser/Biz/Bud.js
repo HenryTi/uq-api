@@ -139,20 +139,20 @@ class PBizBudValue extends PBizBud {
             this.log(`${this.element.name}'s show value can not be one bud`);
             return false;
         }
-        let show = this.getFieldShow(bizEntity, ...this.fieldString);
-        if (show === undefined) {
+        let fieldShowItems = this.getFieldShow(bizEntity, ...this.fieldString);
+        if (fieldShowItems === undefined) {
             ok = false;
         }
         else {
             let bizBin = bizEntity;
             let { showBuds } = bizBin;
             if (showBuds === undefined) {
-                showBuds = bizBin.showBuds = {};
+                showBuds = bizBin.showBuds = [];
             }
-            showBuds[this.element.name] = {
+            showBuds.push({
                 owner: undefined,
-                items: show,
-            };
+                items: fieldShowItems,
+            });
             this.element.ui.show = true;
         }
         return ok;

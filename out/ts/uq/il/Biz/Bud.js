@@ -297,6 +297,12 @@ class BizBudID extends BizBudValue {
         }
         if (hasParams === true)
             ret.params = params;
+        if (this.fieldShows !== undefined) {
+            ret.fieldShows = this.fieldShows.map(v => {
+                const { owner, items } = v;
+                return [owner.id, items.map(i => ([i.bizEntity.id, i.bizBud.id]))];
+            });
+        }
         return ret;
     }
     get objName() { var _a; return (_a = this.ID) === null || _a === void 0 ? void 0 : _a.phrase; }

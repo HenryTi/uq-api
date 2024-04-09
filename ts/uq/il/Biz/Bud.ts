@@ -305,6 +305,12 @@ export class BizBudID extends BizBudValue {
             hasParams = true;
         }
         if (hasParams === true) ret.params = params;
+        if (this.fieldShows !== undefined) {
+            ret.fieldShows = this.fieldShows.map(v => {
+                const { owner, items } = v;
+                return [owner.id, items.map(i => ([i.bizEntity.id, i.bizBud.id]))]
+            });
+        }
         return ret;
     }
     get objName(): string { return this.ID?.phrase; }

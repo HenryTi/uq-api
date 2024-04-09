@@ -60,17 +60,18 @@ class BBizEntity {
     buildGetShowBuds(showBuds, tempTable, tempField) {
         let statements = [];
         let { factory } = this.context;
-        for (let i in showBuds) {
-            let fieldShow = showBuds[i];
+        for (let fieldShow of showBuds) {
+            // let fieldShow = showBuds[i];
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);
+            insert.ignore = true;
             insert.table = new statementWithFrom_1.VarTableWithSchema('props');
             insert.cols = [
-                { col: 'id', val: undefined },
                 { col: 'phrase', val: undefined },
                 { col: 'value', val: undefined },
-                { col: 'owner', val: undefined },
+                { col: 'id', val: undefined },
+                // { col: 'owner', val: undefined },
             ];
             insert.select = select;
         }
@@ -80,7 +81,6 @@ class BBizEntity {
         const { owner, items } = fieldShow;
         const { factory } = this.context;
         const select = factory.createSelect();
-        select.column(new sql_1.ExpField(tempfield, a), 'id');
         select.from(new statementWithFrom_1.VarTableWithSchema(tempTable, a));
         let lastT = 't0', lastField;
         let len = items.length - 1;
@@ -146,14 +146,18 @@ class BBizEntity {
             select.column(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, new sql_1.ExpField('ext', c)));
             select.where(new sql_1.ExpEQ(new sql_1.ExpField('base', c), new sql_1.ExpNum(bizBud.id)));
         }
-        let expOwner;
+        /*
+        let expOwner: ExpVal;
         if (owner === undefined) {
-            expOwner = sql_1.ExpNum.num0;
+            expOwner = ExpNum.num0;
         }
         else {
-            expOwner = new sql_1.ExpNum(owner.id);
+            expOwner = new ExpNum(owner.id);
         }
-        select.column(expOwner, 'owner');
+        //select.column(expOwner, 'owner');
+        select.column(expOwner, 'id');
+        */
+        select.column(new sql_1.ExpField('i', t), 'id');
         return select;
     }
 }

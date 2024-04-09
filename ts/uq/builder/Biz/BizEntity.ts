@@ -1,6 +1,6 @@
 import {
     BizBudValue, BizEntity, BudValueSetType, DataType, Expression
-    , JoinType, EnumSysTable, BudDataType, FieldShow, BudValueSet, ValueExpression
+    , JoinType, EnumSysTable, BudDataType, FieldShow, BudValueSet, ValueExpression, FieldShowItem, Field
 } from "../../il";
 import { DbContext } from "../dbContext";
 import {
@@ -68,20 +68,21 @@ export class BBizEntity<B extends BizEntity = any> {
         return sql;
     }
 
-    protected buildGetShowBuds(showBuds: { [bud: string]: FieldShow }, tempTable: string, tempField: string): Statement[] {
+    protected buildGetShowBuds(showBuds: FieldShow[], tempTable: string, tempField: string): Statement[] {
         let statements: Statement[] = [];
         let { factory } = this.context;
-        for (let i in showBuds) {
-            let fieldShow = showBuds[i];
+        for (let fieldShow of showBuds) {
+            // let fieldShow = showBuds[i];
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);
+            insert.ignore = true;
             insert.table = new VarTableWithSchema('props');
             insert.cols = [
-                { col: 'id', val: undefined },
                 { col: 'phrase', val: undefined },
                 { col: 'value', val: undefined },
-                { col: 'owner', val: undefined },
+                { col: 'id', val: undefined },
+                // { col: 'owner', val: undefined },
             ];
             insert.select = select;
         }
@@ -92,7 +93,6 @@ export class BBizEntity<B extends BizEntity = any> {
         const { owner, items } = fieldShow;
         const { factory } = this.context;
         const select = factory.createSelect();
-        select.column(new ExpField(tempfield, a), 'id');
         select.from(new VarTableWithSchema(tempTable, a));
         let lastT: string = 't0', lastField: string;
         let len = items.length - 1;
@@ -168,6 +168,7 @@ export class BBizEntity<B extends BizEntity = any> {
             select.column(new ExpFunc('JSON_ARRAY', ExpNum.num0, new ExpField('ext', c)));
             select.where(new ExpEQ(new ExpField('base', c), new ExpNum(bizBud.id)))
         }
+        /*
         let expOwner: ExpVal;
         if (owner === undefined) {
             expOwner = ExpNum.num0;
@@ -175,7 +176,10 @@ export class BBizEntity<B extends BizEntity = any> {
         else {
             expOwner = new ExpNum(owner.id);
         }
-        select.column(expOwner, 'owner');
+        //select.column(expOwner, 'owner');
+        select.column(expOwner, 'id');
+        */
+        select.column(new ExpField('i', t), 'id');
         return select;
     }
 }
