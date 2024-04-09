@@ -29,6 +29,7 @@ export class BinPick extends BizBud {
     params: PickParam[];
     pick: PickBase;
     single: boolean;
+    hiddenBuds: BizBud[];
     constructor(bin: BizBin, name: string, ui: Partial<UI>) {
         super(bin.biz, name, ui);
         this.bin = bin;
@@ -42,6 +43,7 @@ export interface PickBase {
     fromSchema(): string[];
     hasParam(param: string): boolean;
     hasReturn(prop: string): boolean;
+    getBud(name: string): BizBud;
 }
 export class PickQuery implements PickBase {
     readonly bizEntityTable = undefined;
@@ -57,6 +59,7 @@ export class PickQuery implements PickBase {
         if (prop === undefined || prop === 'id') return true;
         return this.query.hasReturn(prop);
     }
+    getBud(name: string): BizBud { return; }
 }
 export class PickAtom implements PickBase {
     readonly bizEntityTable = EnumSysTable.atom;
@@ -73,6 +76,7 @@ export class PickAtom implements PickBase {
         // 不支持atom的其它字段属性。只能用查询
         return ['id', 'no', 'ex'].includes(prop);
     }
+    getBud(name: string): BizBud { return; }
 }
 export class PickSpec implements PickBase {
     readonly bizEntityTable = EnumSysTable.spec;
@@ -90,10 +94,12 @@ export class PickSpec implements PickBase {
         if (bud !== undefined) return true;
         return false;
     }
+    getBud(name: string): BizBud { return; }
 }
 export class PickPend implements PickBase {
     readonly bizEntityTable = EnumSysTable.pend;
     from: BizPend;
+    hide: BizBud[];
     constructor(from: BizPend) {
         this.from = from;
     }
@@ -106,6 +112,7 @@ export class PickPend implements PickBase {
         if (prop === undefined || prop === 'id') return true;
         return this.from.hasField(prop);
     }
+    getBud(name: string): BizBud { return this.from.getBud(name); }
 }
 
 export abstract class BinInput extends BizBud {
@@ -254,11 +261,16 @@ export class BizBin extends BizEntity {
         let picks: any[] = [];
         if (this.pickArr !== undefined) {
             for (let value of this.pickArr) {
-                const { name, ui, pick, params, single } = value;
+                const { name, ui, pick, params, single, hiddenBuds } = value;
+                let from: any;
+                if (pick !== undefined) {
+                    from = pick.fromSchema();
+                }
                 picks.push({
                     name,
                     ui,
-                    from: pick?.fromSchema(),
+                    from,
+                    hidden: hiddenBuds?.map(v => v.id),
                     params,
                     single,
                 });

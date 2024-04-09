@@ -52,6 +52,29 @@ class PBinPick extends element_1.PElement {
                         prop,
                     });
                 }
+                else if (this.ts.isKeyword('hide') === true) {
+                    this.hides = [];
+                    this.ts.readToken();
+                    if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+                        this.ts.readToken();
+                        for (;;) {
+                            this.hides.push(this.ts.passVar());
+                            if (this.ts.token === tokens_1.Token.COMMA) {
+                                this.ts.readToken();
+                                continue;
+                            }
+                            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                                this.ts.readToken();
+                                break;
+                            }
+                            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
+                        }
+                    }
+                    else if (this.ts.token === tokens_1.Token.VAR) {
+                        this.hides.push(this.ts.lowerVar);
+                        this.ts.readToken();
+                    }
+                }
                 else {
                     this.ts.expect('param');
                 }
@@ -117,47 +140,59 @@ class PBinPick extends element_1.PElement {
         if (retOk === false) {
             this.log(...logs);
             ok = false;
+            return ok;
         }
-        else {
-            let { params, bin, pick: pickBase } = this.element;
-            if (params !== undefined) {
-                for (let p of params) {
-                    const { name, bud, prop } = p;
-                    if (pickBase.hasParam(name) === false) {
-                        this.log(`PARAM ${name} is not defined`);
-                        ok = false;
-                    }
-                    if (bud === '%sheet') {
-                        const sheetProps = consts_1.binFieldArr;
-                        if (prop === undefined || sheetProps.includes(prop) === true) {
-                        }
-                        else {
-                            let { main } = bin;
-                            if (main === undefined) {
-                                this.log(`%sheet. can be one of ${sheetProps.join(',')}`);
-                                ok = false;
-                            }
-                            else if (main.props.has(prop) === false) {
-                                this.log(`${prop} is not a prop of ${main.getJName()}`);
-                                ok = false;
-                            }
-                        }
+        let { params, bin, pick: pickBase } = this.element;
+        if (params !== undefined) {
+            for (let p of params) {
+                const { name, bud, prop } = p;
+                if (pickBase.hasParam(name) === false) {
+                    this.log(`PARAM ${name} is not defined`);
+                    ok = false;
+                }
+                if (bud === '%sheet') {
+                    const sheetProps = consts_1.binFieldArr;
+                    if (prop === undefined || sheetProps.includes(prop) === true) {
                     }
                     else {
-                        let pick = bin.pickColl[bud];
-                        if (pick === undefined) {
-                            this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
+                        let { main } = bin;
+                        if (main === undefined) {
+                            this.log(`%sheet. can be one of ${sheetProps.join(',')}`);
                             ok = false;
                         }
-                        else {
-                            let { pick: pickBase } = pick;
-                            if (pickBase !== undefined && pickBase.hasReturn(prop) === false) {
-                                this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
-                                ok = false;
-                            }
+                        else if (main.props.has(prop) === false) {
+                            this.log(`${prop} is not a prop of ${main.getJName()}`);
+                            ok = false;
                         }
                     }
                 }
+                else {
+                    let pick = bin.pickColl[bud];
+                    if (pick === undefined) {
+                        this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${bud} is not defined`);
+                        ok = false;
+                    }
+                    else {
+                        let { pick: pickBase } = pick;
+                        if (pickBase !== undefined && pickBase.hasReturn(prop) === false) {
+                            this.log(`PARAM ${name} = ${bud}${prop === undefined ? '' : '.' + prop} ${prop} is not defined`);
+                            ok = false;
+                        }
+                    }
+                }
+            }
+        }
+        if (this.hides !== undefined) {
+            this.element.hiddenBuds = [];
+            const { hiddenBuds } = this.element;
+            const { pick } = this.element;
+            for (let h of this.hides) {
+                let bud = pick.getBud(h);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${h} not exists`);
+                }
+                hiddenBuds.push(bud);
             }
         }
         return ok;

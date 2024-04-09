@@ -34,6 +34,7 @@ class PickQuery {
             return true;
         return this.query.hasReturn(prop);
     }
+    getBud(name) { return; }
 }
 exports.PickQuery = PickQuery;
 class PickAtom {
@@ -51,6 +52,7 @@ class PickAtom {
         // 不支持atom的其它字段属性。只能用查询
         return ['id', 'no', 'ex'].includes(prop);
     }
+    getBud(name) { return; }
 }
 exports.PickAtom = PickAtom;
 class PickSpec {
@@ -70,6 +72,7 @@ class PickSpec {
             return true;
         return false;
     }
+    getBud(name) { return; }
 }
 exports.PickSpec = PickSpec;
 class PickPend {
@@ -87,6 +90,7 @@ class PickPend {
             return true;
         return this.from.hasField(prop);
     }
+    getBud(name) { return this.from.getBud(name); }
 }
 exports.PickPend = PickPend;
 class BinInput extends Bud_1.BizBud {
@@ -204,11 +208,16 @@ class BizBin extends Entity_1.BizEntity {
         let picks = [];
         if (this.pickArr !== undefined) {
             for (let value of this.pickArr) {
-                const { name, ui, pick, params, single } = value;
+                const { name, ui, pick, params, single, hiddenBuds } = value;
+                let from;
+                if (pick !== undefined) {
+                    from = pick.fromSchema();
+                }
                 picks.push({
                     name,
                     ui,
-                    from: pick === null || pick === void 0 ? void 0 : pick.fromSchema(),
+                    from,
+                    hidden: hiddenBuds === null || hiddenBuds === void 0 ? void 0 : hiddenBuds.map(v => v.id),
                     params,
                     single,
                 });
