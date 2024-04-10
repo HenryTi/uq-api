@@ -69,6 +69,10 @@ class PBizPend extends Base_1.PBizEntity {
                 ok = false;
             }
         }
+        else {
+            this.log(`I must be defined`);
+            ok = false;
+        }
         if (x !== undefined) {
             if (this.scanBud(space, x) === false) {
                 ok = false;
