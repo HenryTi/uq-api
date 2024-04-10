@@ -5,7 +5,7 @@ import { UI } from "../UI";
 import { IxField } from "./Base";
 import { Biz } from "./Biz";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
-import { BizBud, BizBudValue } from "./Bud";
+import { BizBud, BizBudValue, FieldShow } from "./Bud";
 import { BizEntity } from "./Entity";
 
 // 任何可以独立存在，可被引用ID
@@ -13,6 +13,14 @@ import { BizEntity } from "./Entity";
 // 按照这个原则，BizBin应该也是BizID。当前不处理。以后可以处理
 // BizBin是一次操作行为记录，跟普通的BizID区别明显。作为ID仅用于引用。
 export abstract class BizID extends BizEntity {
+    titleBuds: BizBud[];
+    primeBuds: BizBud[];
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        if (this.titleBuds !== undefined) ret[':&'] = this.titleBuds.map(v => v.id);
+        if (this.primeBuds !== undefined) ret[':'] = this.primeBuds.map(v => v.id);
+        return ret;
+    }
 }
 
 export abstract class BizIDExtendable extends BizID {

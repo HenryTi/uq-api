@@ -240,7 +240,7 @@ export abstract class PElement<E extends IElement = IElement> extends PElementBa
         }
         else {
             let val = new ValueExpression();
-            val.parser(this.context).parse();
+            this.context.parseElement(val);
             vals = [val];
         }
         return vals;

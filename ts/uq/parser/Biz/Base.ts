@@ -321,7 +321,13 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             if (this.ts.token === Token.RBRACE) break;
             let parse = keyColl[this.ts.lowerVar];
             if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
+                if (this.ts.token == Token.COLON) {
+                    parse = keyColl[':'];
+                    if (parse === undefined) this.ts.expect(...keys);
+                }
+                else {
+                    this.ts.expect(...keys);
+                }
             }
             this.ts.readToken();
             parse();
@@ -434,7 +440,6 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             this.ts.readToken();
         }
         this.context.parseElement(bud);
-        // this.parseBudEqu(bud);
         this.ts.passToken(Token.SEMICOLON);
         return bud;
     }

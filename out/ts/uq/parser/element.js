@@ -222,7 +222,7 @@ class PElement extends PElementBase {
         }
         else {
             let val = new il_1.ValueExpression();
-            val.parser(this.context).parse();
+            this.context.parseElement(val);
             vals = [val];
         }
         return vals;

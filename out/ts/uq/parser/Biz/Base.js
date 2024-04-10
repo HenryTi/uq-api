@@ -366,7 +366,14 @@ class PBizEntity extends PBizBase {
                 break;
             let parse = keyColl[this.ts.lowerVar];
             if (this.ts.varBrace === true || parse === undefined) {
-                this.ts.expect(...keys);
+                if (this.ts.token == tokens_1.Token.COLON) {
+                    parse = keyColl[':'];
+                    if (parse === undefined)
+                        this.ts.expect(...keys);
+                }
+                else {
+                    this.ts.expect(...keys);
+                }
             }
             this.ts.readToken();
             parse();
@@ -414,7 +421,6 @@ class PBizEntity extends PBizBase {
             this.ts.readToken();
         }
         this.context.parseElement(bud);
-        // this.parseBudEqu(bud);
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bud;
     }

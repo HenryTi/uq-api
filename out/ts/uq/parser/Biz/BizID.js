@@ -6,6 +6,86 @@ const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 class PBizID extends Base_1.PBizEntity {
+    constructor() {
+        super(...arguments);
+        this.parseColonBuds = () => {
+            if (this.ts.token === tokens_1.Token.BITWISEAND) {
+                this.ts.readToken();
+                this.parseTitleBuds();
+            }
+            else {
+                this.parsePrimeBuds();
+            }
+        };
+    }
+    parseBudNameArr() {
+        let arr = [];
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        for (;;) {
+            arr.push(this.ts.passVar());
+            if (this.ts.token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
+            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
+        }
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        return arr;
+    }
+    parseTitleBuds() {
+        this.titleBuds = this.parseBudNameArr();
+    }
+    parsePrimeBuds() {
+        this.primeBuds = this.parseBudNameArr();
+    }
+    scanBudNameArr(nameArr) {
+        if (nameArr === undefined)
+            return undefined;
+        let buds = [];
+        for (let t of this.titleBuds) {
+            let bud = this.element.getBud(t);
+            if (bud === undefined) {
+                this.log(`${t} not exists`);
+                return null;
+            }
+            buds.push(bud);
+        }
+        return buds;
+    }
+    scanTitleBuds() {
+        let ok = true;
+        let ret = this.scanBudNameArr(this.titleBuds);
+        if (ret === null) {
+            ok = false;
+        }
+        else {
+            this.element.titleBuds = ret;
+        }
+        return ok;
+    }
+    scanPrimeBuds() {
+        let ok = true;
+        let ret = this.scanBudNameArr(this.primeBuds);
+        if (ret === null) {
+            ok = false;
+        }
+        else {
+            this.element.primeBuds = ret;
+        }
+        return ok;
+    }
+    scan2(uq) {
+        let ok = super.scan2(uq);
+        if (this.scanTitleBuds() === false)
+            ok = false;
+        if (this.scanPrimeBuds() === false)
+            ok = false;
+        return ok;
+    }
 }
 exports.PBizID = PBizID;
 class PBizIDExtendable extends PBizID {
@@ -186,6 +266,7 @@ class PBizAtom extends PBizIDExtendable {
             this.uniques[name] = unique;
         };
         this.keyColl = {
+            ':': this.parseColonBuds,
             prop: this.parseProp,
             ex: this.parseEx,
             permit: this.parsePermit,
@@ -403,6 +484,7 @@ class PBizSpec extends PBizIDWithBase {
             base: this.parseBase,
             prop: this.parseProp,
             key: this.parseKey,
+            ':': this.parseColonBuds,
         };
     }
     scan(space) {
