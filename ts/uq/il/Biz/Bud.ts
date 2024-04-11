@@ -20,6 +20,8 @@ export enum BudValueSetType {
     show = 3,           // 只显示，不保存
 }
 
+export type FieldShowItem = BizBud;
+/*
 export abstract class FieldShowItem<T extends BizEntity = BizEntity> {
     readonly bizEntity: T;
     readonly bizBud: BizBud;
@@ -53,11 +55,9 @@ class SpecAtomFieldShowItem extends FieldShowItem<BizSpec> {
 }
 class AtomFieldShowItem extends FieldShowItem<BizAtom> {
 }
+*/
 
-export interface FieldShow {
-    owner: BizBud;
-    items: FieldShowItem[];
-}
+export type FieldShow = FieldShowItem[];
 
 export interface BudValue {
     exp: ValueExpression;
@@ -90,14 +90,16 @@ export class BudGroup extends BizBase {
 }
 
 export abstract class BizBud extends BizBase {
+    readonly entity: BizEntity;
     get bizPhraseType() { return BizPhraseType.bud; }
     abstract get dataType(): BudDataType;
     value: BudValueSet;
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
-    getFieldShows(): FieldShow[] { return undefined }
-    constructor(biz: Biz, name: string, ui: Partial<UI>) {
-        super(biz);
+    getFieldShows(): FieldShow[][] { return undefined }
+    constructor(entity: BizEntity, name: string, ui: Partial<UI>) {
+        super(entity?.biz);
+        this.entity = entity;
         this.name = name;
         Object.assign(this.ui, ui);
     }
@@ -109,6 +111,9 @@ export abstract class BizBud extends BizBase {
             dataType: this.dataType,
             value: this.value?.str,
         }
+    }
+    override get theEntity(): BizEntity {
+        return this.entity;
     }
 }
 
@@ -290,7 +295,38 @@ export class BizBudID extends BizBudValue {
     readonly canIndex = true;
     ID: BizID;
     fieldShows: FieldShow[];
-    getFieldShows(): FieldShow[] { return this.fieldShows; }
+    getFieldShows(): FieldShow[][] {
+        let ret = [];
+        if (this.fieldShows !== undefined) ret.push(this.fieldShows);
+        const has = (bud: BizBud) => {
+            let { id } = bud;
+            for (let arr of ret) {
+                for (let fs of arr) {
+                    if (fs.length !== 2) return false;
+                    if (fs[0].id === this.id && fs[1].id === id) return true;
+                }
+            }
+            return false;
+        }
+        const push = (buds: BizBud[]) => {
+            if (buds === undefined) return;
+            let retBuds: FieldShow[] = [];
+            for (let bud of buds) {
+                if (has(bud) === true) {
+                    continue;
+                }
+                retBuds.push([this, bud]);
+            }
+            ret.push(retBuds);
+        }
+        if (this.ID !== undefined) {
+            // 有些 ID 字段，没有申明类型
+            let { titleBuds, primeBuds } = this.ID;
+            push(titleBuds);
+            push(primeBuds);
+        }
+        return ret;
+    }
     readonly params: { [param: string]: BudValueSet; } = {};        // 仅仅针对Spec，可能有多级的base
     parser(context: PContext): PElement<IElement> {
         return new PBizBudID(this, context);
@@ -307,8 +343,7 @@ export class BizBudID extends BizBudValue {
         if (hasParams === true) ret.params = params;
         if (this.fieldShows !== undefined) {
             ret.fieldShows = this.fieldShows.map(v => {
-                const { owner, items } = v;
-                return [owner.id, items.map(i => ([i.bizEntity.id, i.bizBud.id]))]
+                return v.map(i => i.id);
             });
         }
         return ret;
@@ -377,7 +412,7 @@ export class BizBudCheck extends BizBudOptions {
     }
 }
 
-export const budClassesIn: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
+export const budClassesIn: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {
     int: BizBudInt,
     dec: BizBudDec,
     char: BizBudChar,
@@ -385,7 +420,7 @@ export const budClassesIn: { [key: string]: new (biz: Biz, name: string, ui: Par
     id: BizBudIDIO,
     $arr: BizBudArr,
 }
-export const budClasses: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
+export const budClasses: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {
     ...budClassesIn,
     none: BizBudNone,
     atom: BizBudID,
@@ -396,7 +431,7 @@ export const budClasses: { [key: string]: new (biz: Biz, name: string, ui: Parti
 }
 export const budClassKeys = Object.keys(budClasses);
 export const budClassKeysIn = Object.keys(budClassesIn);
-export const budClassesOut: { [key: string]: new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue } = {
+export const budClassesOut: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {
     ...budClassesIn,
 }
 export const budClassKeysOut = Object.keys(budClassesOut);

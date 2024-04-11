@@ -1,8 +1,7 @@
 import {
-    BizBudNone
-    , BizTie, CompareExpression
+    BizTie, CompareExpression
     , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
-    , BizField, BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, FromInPendFieldSpace
+    , BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, FromInPendFieldSpace, BizBudNone
 } from "../../il";
 import { BizPhraseType } from "../../il";
 import { Space } from "../space";
@@ -210,7 +209,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 }
                 else {
                     // Query bud
-                    let bud = new BizBudNone(biz, name, ui);
+                    let bud = new BizBudNone(undefined, name, ui);
                     let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
                     if (field !== undefined) {
                         debugger;

@@ -202,7 +202,7 @@ class PFromStatement extends statement_1.PStatement {
                 }
                 else {
                     // Query bud
-                    let bud = new il_1.BizBudNone(biz, name, ui);
+                    let bud = new il_1.BizBudNone(undefined, name, ui);
                     let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
                     if (field !== undefined) {
                         debugger;

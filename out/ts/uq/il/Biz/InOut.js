@@ -162,7 +162,7 @@ class IOPeers extends IElement_1.IElement {
 exports.IOPeers = IOPeers;
 class IOAppIO extends Bud_1.BizBud {
     constructor(ioApp) {
-        super(ioApp.biz, undefined, {});
+        super(ioApp, undefined, {});
         this.dataType = BizPhraseType_1.BudDataType.none;
         this.ioApp = ioApp;
     }

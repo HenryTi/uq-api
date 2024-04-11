@@ -72,7 +72,6 @@ export class BBizEntity<B extends BizEntity = any> {
         let statements: Statement[] = [];
         let { factory } = this.context;
         for (let fieldShow of showBuds) {
-            // let fieldShow = showBuds[i];
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);
@@ -90,13 +89,14 @@ export class BBizEntity<B extends BizEntity = any> {
     }
 
     private buildSelect(fieldShow: FieldShow, tempTable: string, tempfield: string) {
-        const { owner, items } = fieldShow;
+        // const { items } = fieldShow;
         const { factory } = this.context;
         const select = factory.createSelect();
         select.from(new VarTableWithSchema(tempTable, a));
         let lastT: string = 't0', lastField: string;
-        let len = items.length - 1;
-        let { bizEntity: lastEntity, bizBud: lastBud } = items[0];
+        let len = fieldShow.length - 1;
+        //let { bizEntity: lastEntity, bizBud: lastBud } = fieldShow[0];
+        let lastBud = fieldShow[0];
         let { name: lastBudName } = lastBud;
         if (lastBudName === 'i' || lastBudName === 'x') {
             select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, lastT))
@@ -115,8 +115,8 @@ export class BBizEntity<B extends BizEntity = any> {
         }
 
         for (let i = 1; i < len; i++) {
-            let { bizEntity, bizBud } = items[i];
-            lastEntity = bizEntity;
+            let bizBud = fieldShow[i];
+            // lastEntity = bizEntity;
             lastBud = bizBud;
             const t = 't' + i;
             select.join(JoinType.join, new EntityTable(EnumSysTable.ixBudInt, false, t))
@@ -128,7 +128,7 @@ export class BBizEntity<B extends BizEntity = any> {
             lastField = 'value';
         }
         let t = 't' + len;
-        let { bizEntity, bizBud } = items[len];
+        let bizBud = fieldShow[len];
         let tblIxBud: EnumSysTable;
         switch (bizBud.dataType) {
             default:

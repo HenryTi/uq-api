@@ -168,7 +168,7 @@ export abstract class IOAppIO extends BizBud {
     peers: IOPeers;
     bizIO: BizInOut;
     constructor(ioApp: BizIOApp) {
-        super(ioApp.biz, undefined, {});
+        super(ioApp, undefined, {});
         this.ioApp = ioApp;
     }
 }

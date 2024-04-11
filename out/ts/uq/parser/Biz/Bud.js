@@ -79,7 +79,8 @@ class PBizBudValue extends PBizBud {
                     break;
             }
         }
-        show.push(il_1.FieldShowItem.createEntityFieldShow(entity, bizBud0));
+        //show.push(FieldShowItem.createEntityFieldShow(entity, bizBud0));
+        show.push(bizBud0);
         let p = bizBud0;
         for (let i = 1; i < len; i++) {
             let { dataType } = p;
@@ -106,11 +107,13 @@ class PBizBudValue extends PBizBud {
                                 this.log(`${atom.getJName()} has not ${prop}`);
                                 return undefined;
                             }
-                            show.push(il_1.FieldShowItem.createAtomFieldShow(atom, bizBud));
+                            //show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
+                            show.push(bizBud);
                             break;
                         case il_1.BizPhraseType.spec:
                             if (bizBud !== undefined) {
-                                show.push(il_1.FieldShowItem.createSpecFieldShow(atom, bizBud));
+                                //show.push(FieldShowItem.createSpecFieldShow(atom as BizSpec, bizBud));
+                                show.push(bizBud);
                                 break;
                             }
                             const { base } = atom;
@@ -120,7 +123,8 @@ class PBizBudValue extends PBizBud {
                                 this.log(`${base.getJName()} has not ${prop}`);
                                 return undefined;
                             }
-                            show.push(il_1.FieldShowItem.createSpecAtomFieldShow(atom, bizBud));
+                            // show.push(FieldShowItem.createSpecAtomFieldShow(atom as BizSpec, bizBud));
+                            show.push(bizBud);
                             break;
                     }
                     break;
@@ -149,10 +153,7 @@ class PBizBudValue extends PBizBud {
             if (showBuds === undefined) {
                 showBuds = bizBin.showBuds = [];
             }
-            showBuds.push({
-                owner: undefined,
-                items: fieldShowItems,
-            });
+            showBuds.push(fieldShowItems);
             this.element.ui.show = true;
         }
         return ok;
@@ -283,7 +284,7 @@ class PBinValue extends PBizBudDec {
                 }
                 let name = this.ts.passVar();
                 let ui = this.parseUI();
-                let bizBudDec = new il_1.BizBudDec(this.element.biz, name, ui);
+                let bizBudDec = new il_1.BizBudDec(this.element.entity, name, ui);
                 bizBudDec.parser(this.context).parse();
                 this.element.values.push(bizBudDec);
                 this.ts.passToken(tokens_1.Token.SEMICOLON);
@@ -425,10 +426,7 @@ class PBizBudID extends PBizBudValue {
                     ok = false;
                 }
                 else {
-                    this.element.fieldShows.push({
-                        owner: this.element,
-                        items: show,
-                    });
+                    this.element.fieldShows.push(show);
                 }
             }
         }

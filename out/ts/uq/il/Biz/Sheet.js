@@ -64,10 +64,10 @@ class BizPend extends Entity_1.BizEntity {
         this.bizBins = [];
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
-            this.predefinedBuds[n] = new Bud_1.BizBudID(this.biz, n, undefined);
+            this.predefinedBuds[n] = new Bud_1.BizBudID(this, n, undefined);
         }
         for (let n of BizPend.predefinedValue) {
-            this.predefinedBuds[n] = new Bud_1.BizBudDec(this.biz, n, undefined);
+            this.predefinedBuds[n] = new Bud_1.BizBudDec(this, n, undefined);
         }
     }
     parser(context) {

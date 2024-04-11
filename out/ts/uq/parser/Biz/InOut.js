@@ -156,7 +156,7 @@ class PBizIOApp extends Base_1.PBizEntity {
         this.parseID = () => {
             let name = this.ts.passVar();
             let ui = this.parseUI();
-            const id = new il_1.IOAppID(this.element.biz, name, ui);
+            const id = new il_1.IOAppID(this.element, name, ui);
             this.context.parseElement(id);
             this.element.IDs.push(id);
         };

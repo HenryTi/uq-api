@@ -49,7 +49,7 @@ export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
     private scanBudNameArr(nameArr: string[]): BizBud[] {
         if (nameArr === undefined) return undefined;
         let buds: BizBud[] = [];
-        for (let t of this.titleBuds) {
+        for (let t of nameArr) {
             let bud = this.element.getBud(t);
             if (bud === undefined) {
                 this.log(`${t} not exists`);
@@ -66,7 +66,7 @@ export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
         if (ret === null) {
             ok = false;
         }
-        else {
+        else if (ret !== undefined) {
             this.element.titleBuds = ret;
         }
         return ok;
@@ -78,7 +78,7 @@ export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
         if (ret === null) {
             ok = false;
         }
-        else {
+        else if (ret !== undefined) {
             this.element.primeBuds = ret;
         }
         return ok;
@@ -273,7 +273,7 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
     private uniques: { [name: string]: IDUnique };
     private parseUnique = () => {
         if (this.uniques === undefined) this.uniques = {};
-        let unique = new IDUnique(this.element.biz, this.element, undefined, undefined);
+        let unique = new IDUnique(this.element, undefined, undefined);
         this.context.parseElement(unique);
         const { name } = unique;
         if (this.uniques[name] !== undefined) {

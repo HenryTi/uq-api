@@ -145,14 +145,6 @@ class PBizBase extends element_1.PElement {
         this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => il_1.BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
-    parseSubItem() {
-        this.ts.assertToken(tokens_1.Token.VAR);
-        let name = this.ts.lowerVar;
-        this.ts.readToken();
-        let ui = this.parseUI();
-        let bizBud = this.parseBud(name, ui);
-        return bizBud;
-    }
     isValidPropName(prop) {
         if (invalidPropNames[prop] === true) {
             this.ts.error(`${names.join(',')} can not be used as Prop name`);
@@ -166,69 +158,8 @@ class PBizBase extends element_1.PElement {
     getBudClassKeys() {
         return il_1.budClassKeys;
     }
-    parseBud(name, ui, budType) {
-        let key;
-        const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
-        const { token } = this.ts;
-        if (tokens.includes(token) === true) {
-            key = budType !== null && budType !== void 0 ? budType : 'none';
-        }
-        else if (token === tokens_1.Token.LPARENTHESE) {
-            key = '$arr';
-        }
-        else if (token === tokens_1.Token.VAR) {
-            key = this.ts.lowerVar;
-            if (this.ts.varBrace === true) {
-                this.ts.expect(...this.getBudClassKeys());
-            }
-            if (key === 'int') {
-                this.ts.readToken();
-                if (this.ts.isKeyword('of') === true) {
-                    key = 'intof';
-                    this.ts.readToken();
-                }
-            }
-            else {
-                this.ts.readToken();
-                if (budType !== undefined)
-                    key = budType;
-            }
-        }
-        else {
-            key = budType;
-        }
-        //else {
-        // this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
-        //}
-        let Bud = this.getBudClass(key); // keyColl[key];
-        if (Bud === undefined) {
-            this.ts.expect(...this.getBudClassKeys());
-        }
-        let bizBud = new Bud(this.element.biz, name, ui);
-        bizBud.parser(this.context).parse();
-        if (this.ts.isKeyword('required') === true) {
-            bizBud.required = true;
-            bizBud.ui.required = true;
-            this.ts.readToken();
-        }
-        const options = {};
-        for (;;) {
-            if (this.ts.isKeyword(undefined) === false)
-                break;
-            let { lowerVar: option } = this.ts;
-            if (options[option] === true) {
-                this.ts.error(`${option} can define once`);
-            }
-            let parse = this.parseOptions[option];
-            if (parse === undefined)
-                break;
-            parse(bizBud);
-            options[option] = true;
-        }
-        if (bizBud.setType === undefined) {
-            bizBud.setType = il_1.SetType.assign;
-        }
-        return bizBud;
+    bizEntityScan2(bizEntity) {
+        return true;
     }
     parsePropArr() {
         let budArr = [];
@@ -267,8 +198,74 @@ class PBizBase extends element_1.PElement {
             map.set(name, p);
         }
     }
-    bizEntityScan2(bizEntity) {
-        return true;
+    parseSubItem() {
+        this.ts.assertToken(tokens_1.Token.VAR);
+        let name = this.ts.lowerVar;
+        this.ts.readToken();
+        let ui = this.parseUI();
+        let bizBud = this.parseBud(name, ui);
+        return bizBud;
+    }
+    parseBud(name, ui, budType) {
+        let key;
+        const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
+        const { token } = this.ts;
+        if (tokens.includes(token) === true) {
+            key = budType !== null && budType !== void 0 ? budType : 'none';
+        }
+        else if (token === tokens_1.Token.LPARENTHESE) {
+            key = '$arr';
+        }
+        else if (token === tokens_1.Token.VAR) {
+            key = this.ts.lowerVar;
+            if (this.ts.varBrace === true) {
+                this.ts.expect(...this.getBudClassKeys());
+            }
+            if (key === 'int') {
+                this.ts.readToken();
+                if (this.ts.isKeyword('of') === true) {
+                    key = 'intof';
+                    this.ts.readToken();
+                }
+            }
+            else {
+                this.ts.readToken();
+                if (budType !== undefined)
+                    key = budType;
+            }
+        }
+        else {
+            key = budType;
+        }
+        let Bud = this.getBudClass(key); // keyColl[key];
+        if (Bud === undefined) {
+            this.ts.expect(...this.getBudClassKeys());
+        }
+        let bizBud = new Bud(this.element.theEntity, name, ui);
+        bizBud.parser(this.context).parse();
+        if (this.ts.isKeyword('required') === true) {
+            bizBud.required = true;
+            bizBud.ui.required = true;
+            this.ts.readToken();
+        }
+        const options = {};
+        for (;;) {
+            if (this.ts.isKeyword(undefined) === false)
+                break;
+            let { lowerVar: option } = this.ts;
+            if (options[option] === true) {
+                this.ts.error(`${option} can define once`);
+            }
+            let parse = this.parseOptions[option];
+            if (parse === undefined)
+                break;
+            parse(bizBud);
+            options[option] = true;
+        }
+        if (bizBud.setType === undefined) {
+            bizBud.setType = il_1.SetType.assign;
+        }
+        return bizBud;
     }
 }
 exports.PBizBase = PBizBase;
@@ -416,7 +413,7 @@ class PBizEntity extends PBizBase {
     }
     parseBudAtom(itemName) {
         let ui = this.parseUI();
-        let bud = new il_1.BizBudID(this.element.biz, itemName, ui);
+        let bud = new il_1.BizBudID(this.element, itemName, ui);
         if (this.ts.isKeyword('pick') === true) {
             this.ts.readToken();
         }

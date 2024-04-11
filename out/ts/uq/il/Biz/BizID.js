@@ -13,10 +13,12 @@ const Entity_1 = require("./Entity");
 class BizID extends Entity_1.BizEntity {
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        if (this.titleBuds !== undefined)
+        if (this.titleBuds !== undefined) {
             ret[':&'] = this.titleBuds.map(v => v.id);
-        if (this.primeBuds !== undefined)
+        }
+        if (this.primeBuds !== undefined) {
             ret[':'] = this.primeBuds.map(v => v.id);
+        }
         return ret;
     }
 }
@@ -70,8 +72,8 @@ class BizIDExtendable extends BizID {
 }
 exports.BizIDExtendable = BizIDExtendable;
 class IDUnique extends Bud_1.BizBud {
-    constructor(biz, bizAtom, name, ui) {
-        super(biz, name, ui);
+    constructor(bizAtom, name, ui) {
+        super(bizAtom, name, ui);
         this.dataType = BizPhraseType_1.BudDataType.none;
         this.bizAtom = bizAtom;
     }

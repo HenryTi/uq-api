@@ -11,7 +11,7 @@ const BizPhraseType_1 = require("./BizPhraseType");
 const consts_1 = require("../../consts");
 class BinPick extends Bud_1.BizBud {
     constructor(bin, name, ui) {
-        super(bin.biz, name, ui);
+        super(bin, name, ui);
         this.dataType = BizPhraseType_1.BudDataType.none;
         this.bin = bin;
     }
@@ -95,7 +95,7 @@ class PickPend {
 exports.PickPend = PickPend;
 class BinInput extends Bud_1.BizBud {
     constructor(bin, name, ui) {
-        super(bin.biz, name, ui);
+        super(bin, name, ui);
         this.dataType = BizPhraseType_1.BudDataType.none;
         this.bin = bin;
     }

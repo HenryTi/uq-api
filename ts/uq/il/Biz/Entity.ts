@@ -29,7 +29,6 @@ export abstract class BizEntity extends BizBase {
     readonly permissions: { [role: string]: Permission } = {};
     source: string = undefined;
     protected abstract get fields(): string[];
-    //showBuds: { [bud: string]: FieldShow };
     showBuds: FieldShow[];
     schema: any;
 
@@ -37,6 +36,10 @@ export abstract class BizEntity extends BizBase {
         super(biz);
         this.group0 = new BudGroup(biz, '-');
         this.group1 = new BudGroup(biz, '+');
+    }
+
+    get theEntity(): BizEntity {
+        return this;
     }
 
     buildSchema(res: { [phrase: string]: string }) {
@@ -186,15 +189,16 @@ export abstract class BizEntity extends BizBase {
 
     allShowBuds() {
         let ret: FieldShow[] = [];
-        if (this.showBuds !== undefined) ret.push(...this.showBuds);
-        // let n = 0;
+        function pushRet(arr: FieldShow[]) {
+            if (arr === undefined) return;
+            ret.push(...arr);
+        }
+        if (this.showBuds !== undefined) pushRet(this.showBuds);
         this.forEachBud(v => {
             let shows = v.getFieldShows();
             if (shows === undefined) return;
-            ret.push(...shows);
-            //for (let show of shows) ret[v.name + '.' + n++] = show;
+            for (let s of shows) pushRet(s);
         });
-        // if (has === true) return ret;
         if (ret.length === 0) return;
         return ret;
     }

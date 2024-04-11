@@ -7,16 +7,11 @@ import { BizOptions } from "./Options";
 import { PBizSearch, PContext, PElement } from "../../parser";
 import { ActionStatement, TableVar } from "../statement";
 import { BizEntity } from "./Entity";
-import { BizBud } from "./Bud";
+import { BizBud, BizBudValue } from "./Bud";
 
 export abstract class BizBase extends IElement {
     readonly biz: Biz;
-    private _id: number;
-    get id(): number { return this._id; }
-    set id(value: number) {
-        if (typeof value !== 'number') debugger;
-        this._id = value;
-    } // number;                         // phrase id
+    id: number;
     name: string;
     jName: string;
     ver: number;
@@ -32,6 +27,10 @@ export abstract class BizBase extends IElement {
 
     abstract get bizPhraseType(): BizPhraseType;
     get type(): string { return BizPhraseType[this.bizPhraseType]; }
+    get theEntity(): BizEntity {
+        debugger;
+        return undefined;
+    }
 
     setJName(jName: string) {
         if (jName === undefined) return;
@@ -92,6 +91,9 @@ export abstract class BizBase extends IElement {
     getBizBase1(bizName: string): BizBase {
         return;
         // if (this.name === bizName) return this;
+    }
+    protected getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+        return;
     }
 }
 

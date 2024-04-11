@@ -83,10 +83,10 @@ export class BizPend extends BizEntity {
         super(biz);
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
-            this.predefinedBuds[n] = new BizBudID(this.biz, n, undefined);
+            this.predefinedBuds[n] = new BizBudID(this, n, undefined);
         }
         for (let n of BizPend.predefinedValue) {
-            this.predefinedBuds[n] = new BizBudDec(this.biz, n, undefined);
+            this.predefinedBuds[n] = new BizBudDec(this, n, undefined);
         }
     }
 

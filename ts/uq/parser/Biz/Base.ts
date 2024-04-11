@@ -1,12 +1,7 @@
 import {
-    BizBase, BizBudValue, BizBudChar, BizBudCheck, BizBudDate
-    , BizBudDec, BizBudInt, BizBudRadio, BizEntity
-    , BizBudNone, BizBudID, Uq, IX, BudIndex, BizBudIntOf
-    , BizIDExtendable, BizPhraseType, Permission, SetType, Biz, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
-    , Statements, Statement, //, BizInActStatement, BizBinActStatement
-    budClasses,
-    budClassKeys,
-    BudDataType
+    BizBase, BizBudValue, BizEntity, BizBudID, Uq, BudIndex
+    , BizIDExtendable, BizPhraseType, Permission, SetType, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
+    , Statements, Statement, budClasses, budClassKeys, BudDataType
 } from "../../il";
 import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
@@ -124,15 +119,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return undefined;
     }
 
-    protected parseSubItem(): BizBudValue {
-        this.ts.assertToken(Token.VAR);
-        let name = this.ts.lowerVar;
-        this.ts.readToken();
-        let ui = this.parseUI();
-        let bizBud = this.parseBud(name, ui);
-        return bizBud;
-    }
-
     protected isValidPropName(prop: string): boolean {
         if (invalidPropNames[prop] === true) {
             this.ts.error(`${names.join(',')} can not be used as Prop name`);
@@ -141,109 +127,17 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return true;
     }
 
-    protected getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+    protected getBudClass(budClass: string): new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue {
         return budClasses[budClass];
     }
     protected getBudClassKeys() {
         return budClassKeys;
     }
 
-    protected parseBud(name: string, ui: Partial<UI>, budType?: string): BizBudValue {
-        let key: string;
-        const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
-        const { token } = this.ts;
-        if (tokens.includes(token) === true) {
-            key = budType ?? 'none';
-        }
-        else if (token === Token.LPARENTHESE) {
-            key = '$arr';
-        }
-        else if (token === Token.VAR) {
-            key = this.ts.lowerVar;
-            if (this.ts.varBrace === true) {
-                this.ts.expect(...this.getBudClassKeys());
-            }
-            if (key === 'int') {
-                this.ts.readToken()
-                if (this.ts.isKeyword('of') === true) {
-                    key = 'intof';
-                    this.ts.readToken();
-                }
-            }
-            else {
-                this.ts.readToken();
-                if (budType !== undefined) key = budType;
-            }
-        }
-        else {
-            key = budType;
-        }
-        //else {
-        // this.ts.expectToken(Token.VAR, Token.LPARENTHESE);
-        //}
-        let Bud = this.getBudClass(key); // keyColl[key];
-        if (Bud === undefined) {
-            this.ts.expect(...this.getBudClassKeys());
-        }
-        let bizBud = new Bud(this.element.biz, name, ui);
-        bizBud.parser(this.context).parse();
-        if (this.ts.isKeyword('required') === true) {
-            bizBud.required = true;
-            bizBud.ui.required = true;
-            this.ts.readToken();
-        }
-        const options: { [option: string]: boolean } = {};
-        for (; ;) {
-            if (this.ts.isKeyword(undefined) === false) break;
-            let { lowerVar: option } = this.ts;
-            if (options[option] === true) {
-                this.ts.error(`${option} can define once`);
-            }
-            let parse = this.parseOptions[option];
-            if (parse === undefined) break;
-            parse(bizBud);
-            options[option] = true;
-        }
-        if (bizBud.setType === undefined) {
-            bizBud.setType = SetType.assign;
-        }
-        return bizBud;
-    }
+    abstract scan(space: BizEntitySpace): boolean;
 
-    protected parseOptions: { [option: string]: (bizBud: BizBudValue) => void } = {
-        history: (bizBud: BizBudValue) => {
-            bizBud.hasHistory = true;
-            this.ts.readToken();
-        },
-        index: (bizBud: BizBudValue) => {
-            bizBud.flag |= BudIndex.index;
-            this.ts.readToken();
-        },
-        format: (bizBud: BizBudValue) => {
-            this.ts.readToken();
-            this.ts.mayPassToken(Token.EQU);
-            let format = this.ts.passString();
-            bizBud.ui.format = format;
-        },
-        set: (bizBud: BizBudValue) => {
-            this.ts.readToken();
-            this.ts.mayPassToken(Token.EQU);
-            let setTypeText = this.ts.passKey();
-            let setType: SetType;
-            switch (setTypeText) {
-                default: this.ts.expect('assign', 'cumulate', 'balance'); break;
-                case 'assign':
-                case '赋值':
-                    setType = SetType.assign; break;
-                case 'cumulate':
-                case '累加':
-                    setType = SetType.cumulate; break;
-                case 'balance':
-                case '结余':
-                    setType = SetType.balance; break;
-            }
-            bizBud.setType = setType;
-        }
+    bizEntityScan2(bizEntity: BizEntity): boolean {
+        return true;
     }
 
     protected parsePropArr(): BizBudValue[] {
@@ -285,10 +179,108 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         }
     }
 
-    abstract scan(space: BizEntitySpace): boolean;
+    protected parseOptions: { [option: string]: (bizBud: BizBudValue) => void } = {
+        history: (bizBud: BizBudValue) => {
+            bizBud.hasHistory = true;
+            this.ts.readToken();
+        },
+        index: (bizBud: BizBudValue) => {
+            bizBud.flag |= BudIndex.index;
+            this.ts.readToken();
+        },
+        format: (bizBud: BizBudValue) => {
+            this.ts.readToken();
+            this.ts.mayPassToken(Token.EQU);
+            let format = this.ts.passString();
+            bizBud.ui.format = format;
+        },
+        set: (bizBud: BizBudValue) => {
+            this.ts.readToken();
+            this.ts.mayPassToken(Token.EQU);
+            let setTypeText = this.ts.passKey();
+            let setType: SetType;
+            switch (setTypeText) {
+                default: this.ts.expect('assign', 'cumulate', 'balance'); break;
+                case 'assign':
+                case '赋值':
+                    setType = SetType.assign; break;
+                case 'cumulate':
+                case '累加':
+                    setType = SetType.cumulate; break;
+                case 'balance':
+                case '结余':
+                    setType = SetType.balance; break;
+            }
+            bizBud.setType = setType;
+        }
+    }
 
-    bizEntityScan2(bizEntity: BizEntity): boolean {
-        return true;
+    protected parseSubItem(): BizBudValue {
+        this.ts.assertToken(Token.VAR);
+        let name = this.ts.lowerVar;
+        this.ts.readToken();
+        let ui = this.parseUI();
+        let bizBud = this.parseBud(name, ui);
+        return bizBud;
+    }
+
+    protected parseBud(name: string, ui: Partial<UI>, budType?: string): BizBudValue {
+        let key: string;
+        const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
+        const { token } = this.ts;
+        if (tokens.includes(token) === true) {
+            key = budType ?? 'none';
+        }
+        else if (token === Token.LPARENTHESE) {
+            key = '$arr';
+        }
+        else if (token === Token.VAR) {
+            key = this.ts.lowerVar;
+            if (this.ts.varBrace === true) {
+                this.ts.expect(...this.getBudClassKeys());
+            }
+            if (key === 'int') {
+                this.ts.readToken()
+                if (this.ts.isKeyword('of') === true) {
+                    key = 'intof';
+                    this.ts.readToken();
+                }
+            }
+            else {
+                this.ts.readToken();
+                if (budType !== undefined) key = budType;
+            }
+        }
+        else {
+            key = budType;
+        }
+        let Bud = this.getBudClass(key); // keyColl[key];
+        if (Bud === undefined) {
+            this.ts.expect(...this.getBudClassKeys());
+        }
+        let bizBud = new Bud(this.element.theEntity, name, ui);
+        bizBud.parser(this.context).parse();
+        if (this.ts.isKeyword('required') === true) {
+            bizBud.required = true;
+            bizBud.ui.required = true;
+            this.ts.readToken();
+        }
+        const options: { [option: string]: boolean } = {};
+        for (; ;) {
+            if (this.ts.isKeyword(undefined) === false) break;
+            let { lowerVar: option } = this.ts;
+            if (options[option] === true) {
+                this.ts.error(`${option} can define once`);
+            }
+            let parse = this.parseOptions[option];
+            if (parse === undefined) break;
+            parse(bizBud);
+            options[option] = true;
+        }
+        if (bizBud.setType === undefined) {
+            bizBud.setType = SetType.assign;
+        }
+        return bizBud;
     }
 }
 
@@ -435,7 +427,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
 
     protected parseBudAtom(itemName: string) {
         let ui = this.parseUI();
-        let bud = new BizBudID(this.element.biz, itemName, ui);
+        let bud = new BizBudID(this.element, itemName, ui);
         if (this.ts.isKeyword('pick') === true) {
             this.ts.readToken();
         }

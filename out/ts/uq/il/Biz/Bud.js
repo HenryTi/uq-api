@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.FieldShowItem = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -11,38 +11,6 @@ var BudValueSetType;
     BudValueSetType[BudValueSetType["init"] = 2] = "init";
     BudValueSetType[BudValueSetType["show"] = 3] = "show";
 })(BudValueSetType || (exports.BudValueSetType = BudValueSetType = {}));
-class FieldShowItem {
-    constructor(bizEntity, bizBud) {
-        this.bizEntity = bizEntity;
-        this.bizBud = bizBud;
-    }
-    static createEntityFieldShow(entity, bizBud) {
-        return new EntityFieldShowItem(entity, bizBud);
-    }
-    static createBinFieldShow(bizBin, bizBud) {
-        return new BinFieldShowItem(bizBin, bizBud);
-    }
-    static createSpecFieldShow(bizSpec, bizBud) {
-        return new SpecFieldShowItem(bizSpec, bizBud);
-    }
-    static createSpecAtomFieldShow(bizSpec, bizBud) {
-        return new SpecAtomFieldShowItem(bizSpec, bizBud);
-    }
-    static createAtomFieldShow(bizAtom, bizBud) {
-        return new AtomFieldShowItem(bizAtom, bizBud);
-    }
-}
-exports.FieldShowItem = FieldShowItem;
-class EntityFieldShowItem extends FieldShowItem {
-}
-class BinFieldShowItem extends FieldShowItem {
-}
-class SpecFieldShowItem extends FieldShowItem {
-}
-class SpecAtomFieldShowItem extends FieldShowItem {
-}
-class AtomFieldShowItem extends FieldShowItem {
-}
 class BudGroup extends Base_1.BizBase {
     constructor(biz, name) {
         super(biz);
@@ -68,9 +36,10 @@ class BizBud extends Base_1.BizBase {
     get bizPhraseType() { return BizPhraseType_1.BizPhraseType.bud; }
     get objName() { return undefined; }
     getFieldShows() { return undefined; }
-    constructor(biz, name, ui) {
-        super(biz);
+    constructor(entity, name, ui) {
+        super(entity === null || entity === void 0 ? void 0 : entity.biz);
         this.flag = Entity_1.BudIndex.none;
+        this.entity = entity;
         this.name = name;
         Object.assign(this.ui, ui);
     }
@@ -79,6 +48,9 @@ class BizBud extends Base_1.BizBase {
         var _a;
         let ret = super.buildSchema(res);
         return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str });
+    }
+    get theEntity() {
+        return this.entity;
     }
 }
 exports.BizBud = BizBud;
@@ -281,7 +253,42 @@ class BizBudID extends BizBudValue {
         this.canIndex = true;
         this.params = {}; // 仅仅针对Spec，可能有多级的base
     }
-    getFieldShows() { return this.fieldShows; }
+    getFieldShows() {
+        let ret = [];
+        if (this.fieldShows !== undefined)
+            ret.push(this.fieldShows);
+        const has = (bud) => {
+            let { id } = bud;
+            for (let arr of ret) {
+                for (let fs of arr) {
+                    if (fs.length !== 2)
+                        return false;
+                    if (fs[0].id === this.id && fs[1].id === id)
+                        return true;
+                }
+            }
+            return false;
+        };
+        const push = (buds) => {
+            if (buds === undefined)
+                return;
+            let retBuds = [];
+            for (let bud of buds) {
+                if (has(bud) === true) {
+                    continue;
+                }
+                retBuds.push([this, bud]);
+            }
+            ret.push(retBuds);
+        };
+        if (this.ID !== undefined) {
+            // 有些 ID 字段，没有申明类型
+            let { titleBuds, primeBuds } = this.ID;
+            push(titleBuds);
+            push(primeBuds);
+        }
+        return ret;
+    }
     parser(context) {
         return new parser_1.PBizBudID(this, context);
     }
@@ -299,8 +306,7 @@ class BizBudID extends BizBudValue {
             ret.params = params;
         if (this.fieldShows !== undefined) {
             ret.fieldShows = this.fieldShows.map(v => {
-                const { owner, items } = v;
-                return [owner.id, items.map(i => ([i.bizEntity.id, i.bizBud.id]))];
+                return v.map(i => i.id);
             });
         }
         return ret;

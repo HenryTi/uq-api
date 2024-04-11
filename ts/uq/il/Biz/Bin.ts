@@ -31,7 +31,7 @@ export class BinPick extends BizBud {
     single: boolean;
     hiddenBuds: BizBud[];
     constructor(bin: BizBin, name: string, ui: Partial<UI>) {
-        super(bin.biz, name, ui);
+        super(bin, name, ui);
         this.bin = bin;
     }
     parser(context: PContext): PElement<IElement> {
@@ -119,7 +119,7 @@ export abstract class BinInput extends BizBud {
     readonly dataType: BudDataType = BudDataType.none;
     readonly bin: BizBin;
     constructor(bin: BizBin, name: string, ui: Partial<UI>) {
-        super(bin.biz, name, ui);
+        super(bin, name, ui);
         this.bin = bin;
     }
 }

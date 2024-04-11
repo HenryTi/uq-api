@@ -5,18 +5,16 @@ const IElement_1 = require("../IElement");
 const BizPhraseType_1 = require("./BizPhraseType");
 const parser_1 = require("../../parser");
 class BizBase extends IElement_1.IElement {
-    get id() { return this._id; }
-    set id(value) {
-        if (typeof value !== 'number')
-            debugger;
-        this._id = value;
-    } // number;                         // phrase id
     constructor(biz) {
         super();
         this.ui = {};
         this.biz = biz;
     }
     get type() { return BizPhraseType_1.BizPhraseType[this.bizPhraseType]; }
+    get theEntity() {
+        debugger;
+        return undefined;
+    }
     setJName(jName) {
         if (jName === undefined)
             return;
@@ -76,6 +74,9 @@ class BizBase extends IElement_1.IElement {
     getBizBase1(bizName) {
         return;
         // if (this.name === bizName) return this;
+    }
+    getBudClass(budClass) {
+        return;
     }
 }
 exports.BizBase = BizBase;

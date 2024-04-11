@@ -46,7 +46,7 @@ class PBizID extends Base_1.PBizEntity {
         if (nameArr === undefined)
             return undefined;
         let buds = [];
-        for (let t of this.titleBuds) {
+        for (let t of nameArr) {
             let bud = this.element.getBud(t);
             if (bud === undefined) {
                 this.log(`${t} not exists`);
@@ -62,7 +62,7 @@ class PBizID extends Base_1.PBizEntity {
         if (ret === null) {
             ok = false;
         }
-        else {
+        else if (ret !== undefined) {
             this.element.titleBuds = ret;
         }
         return ok;
@@ -73,7 +73,7 @@ class PBizID extends Base_1.PBizEntity {
         if (ret === null) {
             ok = false;
         }
-        else {
+        else if (ret !== undefined) {
             this.element.primeBuds = ret;
         }
         return ok;
@@ -257,7 +257,7 @@ class PBizAtom extends PBizIDExtendable {
         this.parseUnique = () => {
             if (this.uniques === undefined)
                 this.uniques = {};
-            let unique = new il_1.IDUnique(this.element.biz, this.element, undefined, undefined);
+            let unique = new il_1.IDUnique(this.element, undefined, undefined);
             this.context.parseElement(unique);
             const { name } = unique;
             if (this.uniques[name] !== undefined) {

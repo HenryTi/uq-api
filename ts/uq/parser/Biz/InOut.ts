@@ -60,7 +60,7 @@ abstract class PBizInOut<T extends BizInOut> extends PBizEntity<T> {
 }
 
 export class PBizIn extends PBizInOut<BizIn> {
-    protected override getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+    protected override getBudClass(budClass: string): new (bizEntity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue {
         return budClassesIn[budClass];
     }
     protected override getBudClassKeys() {
@@ -88,7 +88,7 @@ export class PBizIn extends PBizInOut<BizIn> {
 }
 
 export class PBizOut extends PBizInOut<BizOut> {
-    protected override getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+    protected override getBudClass(budClass: string): new (bizEntity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue {
         return budClassesOut[budClass];
     }
     protected override getBudClassKeys() {
@@ -172,7 +172,7 @@ export class PBizIOApp extends PBizEntity<BizIOApp> {
     private parseID = () => {
         let name = this.ts.passVar();
         let ui = this.parseUI();
-        const id = new IOAppID(this.element.biz, name, ui);
+        const id = new IOAppID(this.element, name, ui);
         this.context.parseElement(id);
         this.element.IDs.push(id);
     }

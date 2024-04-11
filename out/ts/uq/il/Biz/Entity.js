@@ -21,6 +21,9 @@ class BizEntity extends Base_1.BizBase {
         this.group0 = new Bud_1.BudGroup(biz, '-');
         this.group1 = new Bud_1.BudGroup(biz, '+');
     }
+    get theEntity() {
+        return this;
+    }
     buildSchema(res) {
         let ret = super.buildSchema(res);
         if (this.props.size > 0) {
@@ -170,17 +173,20 @@ class BizEntity extends Base_1.BizBase {
     }
     allShowBuds() {
         let ret = [];
+        function pushRet(arr) {
+            if (arr === undefined)
+                return;
+            ret.push(...arr);
+        }
         if (this.showBuds !== undefined)
-            ret.push(...this.showBuds);
-        // let n = 0;
+            pushRet(this.showBuds);
         this.forEachBud(v => {
             let shows = v.getFieldShows();
             if (shows === undefined)
                 return;
-            ret.push(...shows);
-            //for (let show of shows) ret[v.name + '.' + n++] = show;
+            for (let s of shows)
+                pushRet(s);
         });
-        // if (has === true) return ret;
         if (ret.length === 0)
             return;
         return ret;

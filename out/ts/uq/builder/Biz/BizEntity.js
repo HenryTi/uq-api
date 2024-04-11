@@ -61,7 +61,6 @@ class BBizEntity {
         let statements = [];
         let { factory } = this.context;
         for (let fieldShow of showBuds) {
-            // let fieldShow = showBuds[i];
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);
@@ -78,13 +77,14 @@ class BBizEntity {
         return statements;
     }
     buildSelect(fieldShow, tempTable, tempfield) {
-        const { owner, items } = fieldShow;
+        // const { items } = fieldShow;
         const { factory } = this.context;
         const select = factory.createSelect();
         select.from(new statementWithFrom_1.VarTableWithSchema(tempTable, a));
         let lastT = 't0', lastField;
-        let len = items.length - 1;
-        let { bizEntity: lastEntity, bizBud: lastBud } = items[0];
+        let len = fieldShow.length - 1;
+        //let { bizEntity: lastEntity, bizBud: lastBud } = fieldShow[0];
+        let lastBud = fieldShow[0];
         let { name: lastBudName } = lastBud;
         if (lastBudName === 'i' || lastBudName === 'x') {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, lastT))
@@ -99,8 +99,8 @@ class BBizEntity {
             lastField = 'value';
         }
         for (let i = 1; i < len; i++) {
-            let { bizEntity, bizBud } = items[i];
-            lastEntity = bizEntity;
+            let bizBud = fieldShow[i];
+            // lastEntity = bizEntity;
             lastBud = bizBud;
             const t = 't' + i;
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false, t))
@@ -109,7 +109,7 @@ class BBizEntity {
             lastField = 'value';
         }
         let t = 't' + len;
-        let { bizEntity, bizBud } = items[len];
+        let bizBud = fieldShow[len];
         let tblIxBud;
         switch (bizBud.dataType) {
             default:

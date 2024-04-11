@@ -89,7 +89,8 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                     break;
             }
         }
-        show.push(FieldShowItem.createEntityFieldShow(entity, bizBud0));
+        //show.push(FieldShowItem.createEntityFieldShow(entity, bizBud0));
+        show.push(bizBud0);
         let p = bizBud0;
         for (let i = 1; i < len; i++) {
             let { dataType } = p;
@@ -116,11 +117,13 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                                 this.log(`${atom.getJName()} has not ${prop}`);
                                 return undefined;
                             }
-                            show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
+                            //show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
+                            show.push(bizBud);
                             break;
                         case BizPhraseType.spec:
                             if (bizBud !== undefined) {
-                                show.push(FieldShowItem.createSpecFieldShow(atom as BizSpec, bizBud));
+                                //show.push(FieldShowItem.createSpecFieldShow(atom as BizSpec, bizBud));
+                                show.push(bizBud);
                                 break;
                             }
                             const { base } = atom as BizSpec;
@@ -130,7 +133,8 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                                 this.log(`${base.getJName()} has not ${prop}`);
                                 return undefined;
                             }
-                            show.push(FieldShowItem.createSpecAtomFieldShow(atom as BizSpec, bizBud));
+                            // show.push(FieldShowItem.createSpecAtomFieldShow(atom as BizSpec, bizBud));
+                            show.push(bizBud);
                             break;
                     }
                     break;
@@ -159,10 +163,7 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
             if (showBuds === undefined) {
                 showBuds = bizBin.showBuds = [];
             }
-            showBuds.push({
-                owner: undefined,
-                items: fieldShowItems,
-            });
+            showBuds.push(fieldShowItems);
             this.element.ui.show = true;
         }
         return ok;
@@ -178,7 +179,7 @@ export class PBizBudArr extends PBizBudValue<BizBudArr> {
         let { props } = this.element;
         this.parsePropMap(props, propArr);
     }
-    protected override getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
+    protected override getBudClass(budClass: string): new (bizEntity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue {
         return budClassesOut[budClass];
     }
     protected override getBudClassKeys() {
@@ -295,7 +296,7 @@ export class PBinValue extends PBizBudDec<BinValue> {
                 }
                 let name = this.ts.passVar();
                 let ui = this.parseUI();
-                let bizBudDec = new BizBudDec(this.element.biz, name, ui);
+                let bizBudDec = new BizBudDec(this.element.entity, name, ui);
                 bizBudDec.parser(this.context).parse();
                 this.element.values.push(bizBudDec);
                 this.ts.passToken(Token.SEMICOLON);
@@ -441,10 +442,7 @@ export class PBizBudID extends PBizBudValue<BizBudID> {
                     ok = false;
                 }
                 else {
-                    this.element.fieldShows.push({
-                        owner: this.element,
-                        items: show,
-                    });
+                    this.element.fieldShows.push(show);
                 }
             }
         }

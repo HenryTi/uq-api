@@ -17,8 +17,12 @@ export abstract class BizID extends BizEntity {
     primeBuds: BizBud[];
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        if (this.titleBuds !== undefined) ret[':&'] = this.titleBuds.map(v => v.id);
-        if (this.primeBuds !== undefined) ret[':'] = this.primeBuds.map(v => v.id);
+        if (this.titleBuds !== undefined) {
+            ret[':&'] = this.titleBuds.map(v => v.id);
+        }
+        if (this.primeBuds !== undefined) {
+            ret[':'] = this.primeBuds.map(v => v.id);
+        }
         return ret;
     }
 }
@@ -75,8 +79,8 @@ export class IDUnique extends BizBud {
     no: BizBud;
     IDOwner: BizIDExtendable;
 
-    constructor(biz: Biz, bizAtom: BizIDExtendable, name: string, ui: Partial<UI>) {
-        super(biz, name, ui);
+    constructor(bizAtom: BizIDExtendable, name: string, ui: Partial<UI>) {
+        super(bizAtom, name, ui);
         this.bizAtom = bizAtom;
     }
 
