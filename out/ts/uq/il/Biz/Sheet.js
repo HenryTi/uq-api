@@ -33,12 +33,6 @@ class BizSheet extends Entity_1.BizEntity {
                         debugger;
                     search[id] = bud.id;
                 }
-                /*
-                search[entity.id] = buds.map(v => {
-                    if (v === undefined) debugger;
-                    return v.id;
-                });
-                */
             }
         }
         ret = Object.assign(Object.assign({}, ret), { io: this.io, main: this.main.name, details: this.details.map(v => {

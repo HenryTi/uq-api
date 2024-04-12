@@ -37,12 +37,6 @@ export class BizSheet extends BizEntity {
                     if (bud === undefined) debugger;
                     search[id] = bud.id;
                 }
-                /*
-                search[entity.id] = buds.map(v => {
-                    if (v === undefined) debugger;
-                    return v.id;
-                });
-                */
             }
         }
         ret = {
