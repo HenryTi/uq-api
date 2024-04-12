@@ -47,7 +47,9 @@ class BizBud extends Base_1.BizBase {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { dataType: this.dataType, value: (_a = this.value) === null || _a === void 0 ? void 0 : _a.str });
+        ret.dataType = this.dataType;
+        ret.value = (_a = this.value) === null || _a === void 0 ? void 0 : _a.str;
+        return ret;
     }
     get theEntity() {
         return this.entity;
@@ -65,7 +67,9 @@ class BizBudValue extends BizBud {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { history: this.hasHistory === true ? true : undefined, setType: (_a = this.setType) !== null && _a !== void 0 ? _a : SetType.assign });
+        ret.history = this.hasHistory === true ? true : undefined;
+        ret.setType = (_a = this.setType) !== null && _a !== void 0 ? _a : SetType.assign;
+        return ret;
     }
     buildPhrases(phrases, prefix) {
         if (this.name === 'item')

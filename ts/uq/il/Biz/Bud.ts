@@ -106,11 +106,9 @@ export abstract class BizBud extends BizBase {
     buildBudValue(expStringify: (value: ValueExpression) => string) { }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            dataType: this.dataType,
-            value: this.value?.str,
-        }
+        ret.dataType = this.dataType;
+        ret.value = this.value?.str;
+        return ret;
     }
     override get theEntity(): BizEntity {
         return this.entity;
@@ -131,11 +129,9 @@ export abstract class BizBudValue extends BizBud {
     get optionsItemType(): OptionsItemValueType { return; }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return {
-            ...ret,
-            history: this.hasHistory === true ? true : undefined,
-            setType: this.setType ?? SetType.assign,
-        }
+        ret.history = this.hasHistory === true ? true : undefined;
+        ret.setType = this.setType ?? SetType.assign;
+        return ret;
     }
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         if (this.name === 'item') debugger;

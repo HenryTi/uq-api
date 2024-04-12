@@ -40,17 +40,23 @@ export abstract class BizBase extends IElement {
     getJName(): string { return this.jName ?? this.name }
 
     buildSchema(res: { [phrase: string]: string }): any {
+        let ui: Partial<UI>;
+        let caption = res[this.phrase] ?? this.ui?.caption;
+        if (caption !== undefined) {
+            if (this.ui === undefined) ui = { caption };
+            else ui = {
+                ...this.ui,
+                caption,
+            }
+        }
         return {
             id: this.id,
             name: this.name,
             jName: this.jName,
             type: this.type,
             phrase: this.phrase,
-            ui: {
-                ...this.ui,
-                caption: res[this.phrase] ?? this.ui?.caption,
-            }
-        }
+            ui,
+        };
     };
     getBud(name: string): BizBud {
         return undefined;
