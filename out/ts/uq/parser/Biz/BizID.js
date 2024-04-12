@@ -78,12 +78,16 @@ class PBizID extends Base_1.PBizEntity {
         }
         return ok;
     }
-    scan2(uq) {
-        let ok = super.scan2(uq);
+    scan(space) {
+        let ok = super.scan(space);
         if (this.scanTitleBuds() === false)
             ok = false;
         if (this.scanPrimeBuds() === false)
             ok = false;
+        return ok;
+    }
+    scan2(uq) {
+        let ok = super.scan2(uq);
         return ok;
     }
 }

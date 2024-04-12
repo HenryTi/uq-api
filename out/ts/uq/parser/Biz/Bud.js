@@ -380,18 +380,32 @@ class PBizBudID extends PBizBudValue {
             }
             if (this.ts.token === tokens_1.Token.COLON) {
                 this.ts.readToken();
-                let fieldShow = [];
-                for (;;) {
-                    fieldShow.push(this.ts.passVar());
-                    if (this.ts.token === tokens_1.Token.SEMICOLON) {
+                switch (this.ts.token) {
+                    case tokens_1.Token.BITWISEAND:
+                        this.includeTitleBuds = true;
                         this.ts.readToken();
+                        this.ts.passToken(tokens_1.Token.SEMICOLON);
                         break;
-                    }
-                    if (this.ts.token === tokens_1.Token.DOT) {
+                    case tokens_1.Token.ADD:
+                        this.includePrimeBuds = true;
                         this.ts.readToken();
-                    }
+                        this.ts.passToken(tokens_1.Token.SEMICOLON);
+                        break;
+                    default:
+                        let fieldShow = [];
+                        for (;;) {
+                            fieldShow.push(this.ts.passVar());
+                            if (this.ts.token === tokens_1.Token.SEMICOLON) {
+                                this.ts.readToken();
+                                break;
+                            }
+                            if (this.ts.token === tokens_1.Token.DOT) {
+                                this.ts.readToken();
+                            }
+                        }
+                        this.fieldShows.push(fieldShow);
+                        break;
                 }
-                this.fieldShows.push(fieldShow);
             }
             else {
                 this.ts.expectToken(tokens_1.Token.COLON);
@@ -418,15 +432,29 @@ class PBizBudID extends PBizBudValue {
         return ok;
     }
     bizEntityScan2(bizEntity) {
+        var _a, _b;
         let ok = super.bizEntityScan2(bizEntity);
         if (this.fieldShows !== undefined) {
+            const { fieldShows } = this.element;
+            const includeBuds = (bizBuds) => {
+                if (bizBuds === undefined)
+                    return;
+                for (let bud of bizBuds)
+                    fieldShows.push([this.element, bud]);
+            };
+            if (this.includeTitleBuds === true) {
+                includeBuds((_a = this.element.ID) === null || _a === void 0 ? void 0 : _a.titleBuds);
+            }
+            if (this.includePrimeBuds === true) {
+                includeBuds((_b = this.element.ID) === null || _b === void 0 ? void 0 : _b.primeBuds);
+            }
             for (let fieldShow of this.fieldShows) {
                 let show = this.getFieldShow(bizEntity, this.element.name, ...fieldShow);
                 if (show === undefined) {
                     ok = false;
                 }
                 else {
-                    this.element.fieldShows.push(show);
+                    fieldShows.push(show);
                 }
             }
         }

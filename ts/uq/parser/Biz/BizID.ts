@@ -84,10 +84,15 @@ export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
         return ok;
     }
 
-    override scan2(uq: Uq): boolean {
-        let ok = super.scan2(uq);
+    override scan(space: Space): boolean {
+        let ok = super.scan(space);
         if (this.scanTitleBuds() === false) ok = false;
         if (this.scanPrimeBuds() === false) ok = false;
+        return ok;
+    }
+
+    override scan2(uq: Uq): boolean {
+        let ok = super.scan2(uq);
         return ok;
     }
 }

@@ -4,7 +4,7 @@ import {
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
     , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
-    , BizBudIDBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue
+    , BizBudIDBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue, BizID
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -354,6 +354,8 @@ export class PBizBudIDBase extends PBizBud<BizBudIDBase> {
 export class PBizBudID extends PBizBudValue<BizBudID> {
     private atomName: string;
     private fieldShows: string[][];
+    private includeTitleBuds: boolean;
+    private includePrimeBuds: boolean;
     protected _parse(): void {
         this.atomName = this.ts.mayPassVar();
         if (this.ts.token === Token.LPARENTHESE) {
@@ -394,18 +396,32 @@ export class PBizBudID extends PBizBudValue<BizBudID> {
             }
             if (this.ts.token === Token.COLON as any) {
                 this.ts.readToken();
-                let fieldShow: string[] = [];
-                for (; ;) {
-                    fieldShow.push(this.ts.passVar());
-                    if (this.ts.token === Token.SEMICOLON as any) {
+                switch (this.ts.token as any) {
+                    case Token.BITWISEAND:
+                        this.includeTitleBuds = true;
                         this.ts.readToken();
+                        this.ts.passToken(Token.SEMICOLON);
                         break;
-                    }
-                    if (this.ts.token === Token.DOT as any) {
+                    case Token.ADD:
+                        this.includePrimeBuds = true;
                         this.ts.readToken();
-                    }
+                        this.ts.passToken(Token.SEMICOLON);
+                        break;
+                    default:
+                        let fieldShow: string[] = [];
+                        for (; ;) {
+                            fieldShow.push(this.ts.passVar());
+                            if (this.ts.token === Token.SEMICOLON as any) {
+                                this.ts.readToken();
+                                break;
+                            }
+                            if (this.ts.token === Token.DOT as any) {
+                                this.ts.readToken();
+                            }
+                        }
+                        this.fieldShows.push(fieldShow);
+                        break;
                 }
-                this.fieldShows.push(fieldShow);
             }
             else {
                 this.ts.expectToken(Token.COLON);
@@ -436,13 +452,24 @@ export class PBizBudID extends PBizBudValue<BizBudID> {
     bizEntityScan2(bizEntity: BizEntity): boolean {
         let ok = super.bizEntityScan2(bizEntity);
         if (this.fieldShows !== undefined) {
+            const { fieldShows } = this.element;
+            const includeBuds = (bizBuds: BizBud[]) => {
+                if (bizBuds === undefined) return;
+                for (let bud of bizBuds) fieldShows.push([this.element, bud]);
+            }
+            if (this.includeTitleBuds === true) {
+                includeBuds(this.element.ID?.titleBuds);
+            }
+            if (this.includePrimeBuds === true) {
+                includeBuds(this.element.ID?.primeBuds);
+            }
             for (let fieldShow of this.fieldShows) {
                 let show = this.getFieldShow(bizEntity as BizBin, this.element.name, ...fieldShow);
                 if (show === undefined) {
                     ok = false;
                 }
                 else {
-                    this.element.fieldShows.push(show);
+                    fieldShows.push(show);
                 }
             }
         }
