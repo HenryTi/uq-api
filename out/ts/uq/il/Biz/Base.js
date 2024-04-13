@@ -33,6 +33,9 @@ class BizBase extends IElement_1.IElement {
             else
                 ui = Object.assign(Object.assign({}, this.ui), { caption });
         }
+        else {
+            ui = this.ui;
+        }
         return {
             id: this.id,
             name: this.name,

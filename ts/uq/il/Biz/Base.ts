@@ -49,6 +49,9 @@ export abstract class BizBase extends IElement {
                 caption,
             }
         }
+        else {
+            ui = this.ui;
+        }
         return {
             id: this.id,
             name: this.name,
