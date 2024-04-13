@@ -25,6 +25,7 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
         case BudDataType.atom:
         case BudDataType.date:
         case BudDataType.int:
+        case BudDataType.radio:
             selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
             declareType = bigint;
             break;
@@ -37,10 +38,12 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
             selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudDec);
             declareType = decValue;
             break;
+        /*
         case BudDataType.radio:
             selectBud = buildSelectBudIx(bud, true);
             declareType = bigint;
             break;
+        */
         case BudDataType.check:
             selectBud = buildSelectBudIx(bud, false);
             declareType = json;

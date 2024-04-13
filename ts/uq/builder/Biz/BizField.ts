@@ -30,7 +30,7 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
             case BudDataType.dec:
                 this.buildSelectValue(sb, EnumSysTable.ixBudDec);
                 return;
-            case BudDataType.radio:
+            // case BudDataType.radio: radio 按int处理
             case BudDataType.check:
                 this.buildSelectMulti(sb);
                 return;

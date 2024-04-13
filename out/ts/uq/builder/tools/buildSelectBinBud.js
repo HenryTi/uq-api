@@ -24,6 +24,7 @@ function buildSelectBinBud(context, bud, varBin) {
         case il_1.BudDataType.atom:
         case il_1.BudDataType.date:
         case il_1.BudDataType.int:
+        case il_1.BudDataType.radio:
             selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudInt);
             declareType = bigint;
             break;
@@ -36,10 +37,12 @@ function buildSelectBinBud(context, bud, varBin) {
             selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudDec);
             declareType = decValue;
             break;
-        case il_1.BudDataType.radio:
+        /*
+        case BudDataType.radio:
             selectBud = buildSelectBudIx(bud, true);
             declareType = bigint;
             break;
+        */
         case il_1.BudDataType.check:
             selectBud = buildSelectBudIx(bud, false);
             declareType = json;

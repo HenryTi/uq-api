@@ -23,7 +23,7 @@ class BBizFieldBud extends BBizField {
             case il_1.BudDataType.dec:
                 this.buildSelectValue(sb, il_1.EnumSysTable.ixBudDec);
                 return;
-            case il_1.BudDataType.radio:
+            // case BudDataType.radio: radio 按int处理
             case il_1.BudDataType.check:
                 this.buildSelectMulti(sb);
                 return;

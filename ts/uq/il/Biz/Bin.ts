@@ -175,6 +175,7 @@ export class BinDiv {
         this.ui = ui;
         if (parent !== undefined) {
             parent.div = this;
+            this.parent = parent;
         }
         this.level = this.parent === undefined ? 1 : this.parent.level + 1;
     }
