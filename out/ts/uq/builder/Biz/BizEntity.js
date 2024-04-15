@@ -70,26 +70,33 @@ class BBizEntity {
                 { col: 'phrase', val: undefined },
                 { col: 'value', val: undefined },
                 { col: 'id', val: undefined },
-                // { col: 'owner', val: undefined },
             ];
             insert.select = select;
         }
         return statements;
     }
     buildSelect(fieldShow, tempTable, tempfield) {
-        // const { items } = fieldShow;
         const { factory } = this.context;
         const select = factory.createSelect();
         select.from(new statementWithFrom_1.VarTableWithSchema(tempTable, a));
         let lastT = 't0', lastField;
         let len = fieldShow.length - 1;
-        //let { bizEntity: lastEntity, bizBud: lastBud } = fieldShow[0];
         let lastBud = fieldShow[0];
         let { name: lastBudName } = lastBud;
         if (lastBudName === 'i' || lastBudName === 'x') {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, lastT))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', lastT), new sql_1.ExpField(tempfield, a)));
             lastField = lastBudName;
+        }
+        else if (lastBudName[0] === '.') {
+            let budName = lastBudName[1];
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField(tempfield, a)))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, c))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField(budName, b)))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, lastT))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', lastT), new sql_1.ExpField('base', c)));
+            lastField = 'base';
         }
         else {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
@@ -98,21 +105,22 @@ class BBizEntity {
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', lastT), new sql_1.ExpField('id', b)), new sql_1.ExpEQ(new sql_1.ExpField('x', lastT), new sql_1.ExpNum(lastBud.id))));
             lastField = 'value';
         }
+        let t;
         for (let i = 1; i < len; i++) {
             let bizBud = fieldShow[i];
-            // lastEntity = bizEntity;
             lastBud = bizBud;
-            const t = 't' + i;
+            t = 't' + i;
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false, t))
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField(lastField, lastT)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(bizBud.id))));
             lastT = t;
             lastField = 'value';
         }
-        let t = 't' + len;
+        t = 't' + len;
         let bizBud = fieldShow[len];
         let tblIxBud;
         switch (bizBud.dataType) {
             default:
+            case il_1.BudDataType.radio:
                 tblIxBud = il_1.EnumSysTable.ixBudInt;
                 selectValue();
                 break;
@@ -125,7 +133,7 @@ class BBizEntity {
                 tblIxBud = il_1.EnumSysTable.ixBudStr;
                 selectValue();
                 break;
-            case il_1.BudDataType.radio:
+            // case BudDataType.radio:
             case il_1.BudDataType.check:
                 tblIxBud = il_1.EnumSysTable.ixBud;
                 selectCheck();
@@ -138,25 +146,15 @@ class BBizEntity {
             select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('value', t)));
         }
         function selectCheck() {
+            const k = 'k';
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxBud, false, t))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField(lastField, lastT)))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, c))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('x', t)));
-            select.column(new sql_1.ExpField('base', c), 'phrase');
-            select.column(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, new sql_1.ExpField('ext', c)));
-            select.where(new sql_1.ExpEQ(new sql_1.ExpField('base', c), new sql_1.ExpNum(bizBud.id)));
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, k))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', k), new sql_1.ExpField('x', t)));
+            select.column(new sql_1.ExpField('base', k), 'phrase');
+            select.column(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, new sql_1.ExpField('ext', k)));
+            select.where(new sql_1.ExpEQ(new sql_1.ExpField('base', k), new sql_1.ExpNum(bizBud.id)));
         }
-        /*
-        let expOwner: ExpVal;
-        if (owner === undefined) {
-            expOwner = ExpNum.num0;
-        }
-        else {
-            expOwner = new ExpNum(owner.id);
-        }
-        //select.column(expOwner, 'owner');
-        select.column(expOwner, 'id');
-        */
         select.column(new sql_1.ExpField('i', t), 'id');
         return select;
     }

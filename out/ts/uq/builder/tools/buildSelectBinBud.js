@@ -4,7 +4,7 @@ exports.buildSelectBinBud = void 0;
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
-const a = 'a';
+const a = 'a', b = 'b';
 function buildSelectBinBud(context, bud, varBin) {
     const { factory } = context;
     const bigint = new il_1.BigInt();
@@ -20,8 +20,16 @@ function buildSelectBinBud(context, bud, varBin) {
         default: throw new Error('unknown type ' + il_1.EnumDataType[dataType]);
         case il_1.BudDataType.none:
             return [];
-        case il_1.BudDataType.ID:
         case il_1.BudDataType.atom:
+            if (bud.isIxBase === true) {
+                selectBud = buildSelectBudIxBase(bud);
+            }
+            else {
+                selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudInt);
+            }
+            declareType = bigint;
+            break;
+        case il_1.BudDataType.ID:
         case il_1.BudDataType.date:
         case il_1.BudDataType.int:
         case il_1.BudDataType.radio:
@@ -68,6 +76,17 @@ function buildSelectBinBud(context, bud, varBin) {
         selectBud.column(exp, bud.name);
         selectBud.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a));
         selectBud.where(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varBin));
+        return selectBud;
+    }
+    function buildSelectBudIxBase(bud) {
+        const { name: budName } = bud;
+        let selectBud = factory.createSelect();
+        selectBud.toVar = true;
+        selectBud.column(new sql_1.ExpField('base', b), budName);
+        selectBud.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField(budName, a)));
+        selectBud.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), varBin));
         return selectBud;
     }
 }

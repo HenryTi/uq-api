@@ -220,6 +220,7 @@ export class BizBin extends BizEntity {
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了
     readonly div: BinDiv;    // 输入和显示的层级结构
     readonly outs: { [name: string]: UseOut } = {};
+    readonly predefinedBuds: BizBud[] = [];
     main: BizBin;           // 只有指定main的bin，才能引用%sheet.prop
     pickArr: BinPick[];
     inputArr: BinInput[];
@@ -328,56 +329,18 @@ export class BizBin extends BizEntity {
         if (this.inputArr !== undefined) {
             for (let input of this.inputArr) callback(input);
         }
-        if (this.i !== undefined) callback(this.i);
-        if (this.x !== undefined) callback(this.x);
-        if (this.value !== undefined) callback(this.value);
-        if (this.price !== undefined) callback(this.price);
-        if (this.amount !== undefined) callback(this.amount);
+        this.predefinedBuds.forEach(v => callback(v));
     }
     override getBud(name: string) {
         let bud = super.getBud(name);
         if (bud !== undefined) return bud;
-        if (this.i !== undefined) {
-            if (this.i.name === 'i') return this.i;
-        }
-        if (this.x !== undefined) {
-            if (this.x.name === 'x') return this.x;
-        }
-        if (this.value !== undefined) {
-            if (this.value.name === name) return this.value;
-        }
-        if (this.price !== undefined) {
-            if (this.price.name === name) return this.price;
-        }
-        if (this.amount !== undefined) {
-            if (this.amount.name === name) return this.amount;
+        for (let bud of this.predefinedBuds) {
+            if (bud.name === name) return bud;
         }
         return undefined;
     }
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizBin(dbContext, this);
-    }
-    getBinBudEntity(bud: string): BizEntity {
-        let bizEntity: BizEntity;
-        if (bud === 'i') {
-            if (this.i === undefined) return;
-            bizEntity = this.i.ID;
-        }
-        else if (bud === 'x') {
-            if (this.x === undefined) return;
-            bizEntity = this.x.ID;
-        }
-        else {
-            let b = this.getBud(bud);
-            if (b === undefined) return;
-            switch (b.dataType) {
-                default: return;
-                case BudDataType.atom: break;
-            }
-            let { ID: atom } = b as BizBudID;
-            bizEntity = atom;
-        }
-        return bizEntity;
     }
     getDivFromBud(bud: BizBud): BinDiv {
         for (let p = this.div; p !== undefined; p = p.div) {

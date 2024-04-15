@@ -184,6 +184,7 @@ class BizBin extends Entity_1.BizEntity {
         this.inputColl = {};
         this.sheetArr = []; // 被多少sheet引用了
         this.outs = {};
+        this.predefinedBuds = [];
         this.div = new BinDiv(undefined, undefined); // 输入和显示的层级结构
     }
     parser(context) {
@@ -261,70 +262,20 @@ class BizBin extends Entity_1.BizEntity {
             for (let input of this.inputArr)
                 callback(input);
         }
-        if (this.i !== undefined)
-            callback(this.i);
-        if (this.x !== undefined)
-            callback(this.x);
-        if (this.value !== undefined)
-            callback(this.value);
-        if (this.price !== undefined)
-            callback(this.price);
-        if (this.amount !== undefined)
-            callback(this.amount);
+        this.predefinedBuds.forEach(v => callback(v));
     }
     getBud(name) {
         let bud = super.getBud(name);
         if (bud !== undefined)
             return bud;
-        if (this.i !== undefined) {
-            if (this.i.name === 'i')
-                return this.i;
-        }
-        if (this.x !== undefined) {
-            if (this.x.name === 'x')
-                return this.x;
-        }
-        if (this.value !== undefined) {
-            if (this.value.name === name)
-                return this.value;
-        }
-        if (this.price !== undefined) {
-            if (this.price.name === name)
-                return this.price;
-        }
-        if (this.amount !== undefined) {
-            if (this.amount.name === name)
-                return this.amount;
+        for (let bud of this.predefinedBuds) {
+            if (bud.name === name)
+                return bud;
         }
         return undefined;
     }
     db(dbContext) {
         return new builder_1.BBizBin(dbContext, this);
-    }
-    getBinBudEntity(bud) {
-        let bizEntity;
-        if (bud === 'i') {
-            if (this.i === undefined)
-                return;
-            bizEntity = this.i.ID;
-        }
-        else if (bud === 'x') {
-            if (this.x === undefined)
-                return;
-            bizEntity = this.x.ID;
-        }
-        else {
-            let b = this.getBud(bud);
-            if (b === undefined)
-                return;
-            switch (b.dataType) {
-                default: return;
-                case BizPhraseType_1.BudDataType.atom: break;
-            }
-            let { ID: atom } = b;
-            bizEntity = atom;
-        }
-        return bizEntity;
     }
     getDivFromBud(bud) {
         for (let p = this.div; p !== undefined; p = p.div) {

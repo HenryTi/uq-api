@@ -1,9 +1,9 @@
-import { BigInt, BizBud, BudDataType, Char, DataType, Dec, EnumDataType, EnumSysTable, JsonDataType } from "../../il";
+import { BigInt, BizBud, BizBudIDBase, BizBudIXBase, BudDataType, Char, DataType, Dec, EnumDataType, EnumSysTable, JoinType, JsonDataType } from "../../il";
 import { DbContext } from "../dbContext";
 import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, Select, Statement } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 
-const a = 'a';
+const a = 'a', b = 'b';
 
 export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVal) {
     const { factory } = context;
@@ -21,8 +21,16 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
         default: throw new Error('unknown type ' + EnumDataType[dataType]);
         case BudDataType.none:
             return [];
-        case BudDataType.ID:
         case BudDataType.atom:
+            if ((bud as BizBudIDBase).isIxBase === true) {
+                selectBud = buildSelectBudIxBase(bud as BizBudIXBase);
+            }
+            else {
+                selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
+            }
+            declareType = bigint;
+            break;
+        case BudDataType.ID:
         case BudDataType.date:
         case BudDataType.int:
         case BudDataType.radio:
@@ -74,6 +82,18 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
         selectBud.column(exp, bud.name);
         selectBud.from(new EntityTable(EnumSysTable.ixBud, false, a));
         selectBud.where(new ExpEQ(new ExpField('i', a), varBin));
+        return selectBud;
+    }
+
+    function buildSelectBudIxBase(bud: BizBudIXBase): Select {
+        const { name: budName } = bud;
+        let selectBud = factory.createSelect();
+        selectBud.toVar = true;
+        selectBud.column(new ExpField('base', b), budName);
+        selectBud.from(new EntityTable(EnumSysTable.bizBin, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField(budName, a)));
+        selectBud.where(new ExpEQ(new ExpField('id', a), varBin));
         return selectBud;
     }
 }

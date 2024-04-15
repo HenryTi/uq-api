@@ -66,29 +66,33 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.div.inputs.push(input);
     }
 
-    private parseKeyID(keyID: 'i' | 'x') {
-        if (this.ts.token === Token.DOT) {
-            this.ts.readToken();
-            this.ts.passKey('base');
-            let bud = new BizBudIXBase(this.element, '.' + keyID, undefined);
-            this.context.parseElement(bud);
-            this.div.buds.push(bud);
-            this.ts.passToken(Token.SEMICOLON);
-            return bud;
-        }
-        else {
-            let bud = this.parseBudAtom(keyID);
-            this.div.buds.push(bud);
-            return bud;
-        }
+    private parseIXID(IX: 'i' | 'x') {
+        let bud = this.parseBudAtom(IX);
+        this.div.buds.push(bud);
+        return bud;
+    }
+
+    private parseIXIDBase(IX: '.i' | '.x') {
+        this.ts.readToken();
+        this.ts.passKey('base');
+        let bud = new BizBudIXBase(this.element, IX, undefined);
+        this.context.parseElement(bud);
+        this.div.buds.push(bud);
+        this.ts.passToken(Token.SEMICOLON);
+        return bud;
     }
 
     private parseI = () => {
-        let budKeyID = this.parseKeyID('i');
-        if (budKeyID.isIxBase === true) {
+        if (this.ts.token === Token.DOT) {
+            let budKeyID = this.parseIXIDBase('.i');
+            if (this.element.iBase !== undefined) {
+                this.ts.error(`I.BASE can only be defined once in Biz Bin`);
+            }
             this.element.iBase = budKeyID;
             return;
         }
+
+        let budKeyID = this.parseIXID('i');
         if (this.element.i !== undefined) {
             this.ts.error(`I can only be defined once in Biz Bin`);
         }
@@ -96,11 +100,15 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     private parseX = () => {
-        let budKeyID = this.parseKeyID('x');
-        if (budKeyID.isIxBase === true) {
-            this.element.iBase = budKeyID;
+        if (this.ts.token === Token.DOT) {
+            let budKeyID = this.parseIXIDBase('.x');
+            if (this.element.xBase !== undefined) {
+                this.ts.error(`X.BASE can only be defined once in Biz Bin`);
+            }
+            this.element.xBase = budKeyID;
             return;
         }
+        let budKeyID = this.parseIXID('i');
         if (this.element.x !== undefined) {
             this.ts.error(`X can only be defined once in Biz Bin`);
         }
@@ -332,12 +340,16 @@ export class PBizBin extends PBizEntity<BizBin> {
                 this.element.main = m as BizBin;
             }
         }
-        const { iBase, xBase } = this.element;
+        const { predefinedBuds, iBase, xBase } = this.element;
         if (iBase !== undefined) {
             if (this.element.i === undefined) {
                 this.log('i.base need I declare');
                 ok = false;
             }
+            if (this.scanBud(binSpace, iBase) === false) {
+                ok = false;
+            }
+            predefinedBuds.push(iBase);
         }
 
         if (xBase !== undefined) {
@@ -345,6 +357,10 @@ export class PBizBin extends PBizEntity<BizBin> {
                 this.log('x.base need X declare');
                 ok = false;
             }
+            if (this.scanBud(binSpace, xBase) === false) {
+                ok = false;
+            }
+            predefinedBuds.push(xBase);
         }
 
         const { pickArr, inputArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
@@ -379,11 +395,13 @@ export class PBizBin extends PBizEntity<BizBin> {
             if (this.scanBud(binSpace, i) === false) {
                 ok = false;
             }
+            predefinedBuds.push(i);
         }
         if (x !== undefined) {
             if (this.scanBud(binSpace, x) === false) {
                 ok = false;
             }
+            predefinedBuds.push(x);
         }
 
         const scanBudValue = (bud: BizBudDec) => {
@@ -406,6 +424,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             scanValue(value);
             scanValue(min);
             scanValue(max);
+            predefinedBuds.push(bud);
         }
 
         scanBudValue(budValue);
@@ -459,7 +478,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     bizEntityScan2(bizEntity: BizEntity): boolean {
         let ok = super.bizEntityScan2(bizEntity);
-        let { i, x } = this.element;
+        let { i, x, iBase, xBase } = this.element;
         function check2(bizBud: BizBudValue) {
             if (bizBud === undefined) return;
             let { pelement } = bizBud;
@@ -468,7 +487,9 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
         }
         check2(i);
+        check2(iBase);
         check2(x);
+        check2(xBase);
         return ok;
     }
 }

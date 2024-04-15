@@ -40,22 +40,30 @@ class PBizBin extends Base_1.PBizEntity {
             this.div.inputs.push(input);
         };
         this.parseI = () => {
-            let budKeyID = this.parseKeyID('i');
-            if (budKeyID.isIxBase === true) {
+            if (this.ts.token === tokens_1.Token.DOT) {
+                let budKeyID = this.parseIXIDBase('.i');
+                if (this.element.iBase !== undefined) {
+                    this.ts.error(`I.BASE can only be defined once in Biz Bin`);
+                }
                 this.element.iBase = budKeyID;
                 return;
             }
+            let budKeyID = this.parseIXID('i');
             if (this.element.i !== undefined) {
                 this.ts.error(`I can only be defined once in Biz Bin`);
             }
             this.element.i = budKeyID;
         };
         this.parseX = () => {
-            let budKeyID = this.parseKeyID('x');
-            if (budKeyID.isIxBase === true) {
-                this.element.iBase = budKeyID;
+            if (this.ts.token === tokens_1.Token.DOT) {
+                let budKeyID = this.parseIXIDBase('.x');
+                if (this.element.xBase !== undefined) {
+                    this.ts.error(`X.BASE can only be defined once in Biz Bin`);
+                }
+                this.element.xBase = budKeyID;
                 return;
             }
+            let budKeyID = this.parseIXID('i');
             if (this.element.x !== undefined) {
                 this.ts.error(`X can only be defined once in Biz Bin`);
             }
@@ -197,21 +205,19 @@ class PBizBin extends Base_1.PBizEntity {
         this.context.parseElement(pick);
         this.element.setPick(pick);
     }
-    parseKeyID(keyID) {
-        if (this.ts.token === tokens_1.Token.DOT) {
-            this.ts.readToken();
-            this.ts.passKey('base');
-            let bud = new il_1.BizBudIXBase(this.element, '.' + keyID, undefined);
-            this.context.parseElement(bud);
-            this.div.buds.push(bud);
-            this.ts.passToken(tokens_1.Token.SEMICOLON);
-            return bud;
-        }
-        else {
-            let bud = this.parseBudAtom(keyID);
-            this.div.buds.push(bud);
-            return bud;
-        }
+    parseIXID(IX) {
+        let bud = this.parseBudAtom(IX);
+        this.div.buds.push(bud);
+        return bud;
+    }
+    parseIXIDBase(IX) {
+        this.ts.readToken();
+        this.ts.passKey('base');
+        let bud = new il_1.BizBudIXBase(this.element, IX, undefined);
+        this.context.parseElement(bud);
+        this.div.buds.push(bud);
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        return bud;
     }
     parseValueBud(bud, budName, defaultType = 'dec') {
         if (bud !== undefined) {
@@ -300,18 +306,26 @@ class PBizBin extends Base_1.PBizEntity {
                 this.element.main = m;
             }
         }
-        const { iBase, xBase } = this.element;
+        const { predefinedBuds, iBase, xBase } = this.element;
         if (iBase !== undefined) {
             if (this.element.i === undefined) {
                 this.log('i.base need I declare');
                 ok = false;
             }
+            if (this.scanBud(binSpace, iBase) === false) {
+                ok = false;
+            }
+            predefinedBuds.push(iBase);
         }
         if (xBase !== undefined) {
             if (this.element.x === undefined) {
                 this.log('x.base need X declare');
                 ok = false;
             }
+            if (this.scanBud(binSpace, xBase) === false) {
+                ok = false;
+            }
+            predefinedBuds.push(xBase);
         }
         const { pickArr, inputArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (pickArr !== undefined) {
@@ -345,11 +359,13 @@ class PBizBin extends Base_1.PBizEntity {
             if (this.scanBud(binSpace, i) === false) {
                 ok = false;
             }
+            predefinedBuds.push(i);
         }
         if (x !== undefined) {
             if (this.scanBud(binSpace, x) === false) {
                 ok = false;
             }
+            predefinedBuds.push(x);
         }
         const scanBudValue = (bud) => {
             if (bud === undefined)
@@ -373,6 +389,7 @@ class PBizBin extends Base_1.PBizEntity {
             scanValue(value);
             scanValue(min);
             scanValue(max);
+            predefinedBuds.push(bud);
         };
         scanBudValue(budValue);
         scanBudValue(budAmount);
@@ -423,7 +440,7 @@ class PBizBin extends Base_1.PBizEntity {
     }
     bizEntityScan2(bizEntity) {
         let ok = super.bizEntityScan2(bizEntity);
-        let { i, x } = this.element;
+        let { i, x, iBase, xBase } = this.element;
         function check2(bizBud) {
             if (bizBud === undefined)
                 return;
@@ -434,7 +451,9 @@ class PBizBin extends Base_1.PBizEntity {
             }
         }
         check2(i);
+        check2(iBase);
         check2(x);
+        check2(xBase);
         return ok;
     }
 }

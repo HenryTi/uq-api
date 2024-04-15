@@ -1,11 +1,15 @@
 import { binAmount, binFieldArr, binPrice, binValue } from "../../consts";
-import { BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable, BizBudValue, BizBud, Char, DataType, BudDataType, JsonDataType, EnumDataType } from "../../il";
+import {
+    BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable,
+    Char, JsonDataType, BizBudIXBase, Statement
+} from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
-import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, ExpVar, Procedure, Select } from "../sql";
-import { EntityTable } from "../sql/statementWithFrom";
+import { ExpEQ, ExpField, ExpFunc, ExpNum, ExpVar, Procedure, Statement as SqlStatement } from "../sql";
+import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { buildSelectBinBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
+
 
 const sheetId = 'sheet1';   // 实际写表时，会加上bin div.level=1
 const si = 'si';
@@ -15,7 +19,9 @@ const samount = 'samount';
 const sprice = 'sprice';
 const pendFrom = 'pend';
 const i = 'i';
+const iBase = '.i';
 const x = 'x';
+const xBase = '.x';
 const value = binValue;
 const amount = binAmount;
 const price = binPrice;
@@ -76,7 +82,9 @@ export class BBizBin extends BBizEntity<BizBin> {
         declare.var(sprice, decValue);
         declare.var(pendFrom, bigint);
         declare.var(i, bigint);
+        declare.var(iBase, bigint);
         declare.var(x, bigint);
+        declare.var(xBase, bigint);
         declare.var(value, decValue);
         declare.var(amount, decValue);
         declare.var(price, decValue);
@@ -127,69 +135,6 @@ export class BBizBin extends BBizEntity<BizBin> {
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new ExpVar(bin));
 
-        /*
-        function buildSelectBudValue(bud: BizBud, tbl: EnumSysTable): Select {
-            let selectBud = factory.createSelect();
-            selectBud.toVar = true;
-            selectBud.col('value', bud.name, a);
-            selectBud.from(new EntityTable(tbl, false, a));
-            selectBud.where(new ExpAnd(
-                new ExpEQ(new ExpField('i', a), varBin),
-                new ExpEQ(new ExpField('x', a), new ExpNum(bud.id)),
-            ));
-            return selectBud;
-        }
-
-        function buildSelectBudIx(bud: BizBud, isRadio: boolean): Select {
-            let selectBud = factory.createSelect();
-            selectBud.toVar = true;
-            let exp: ExpVal = isRadio === true ?
-                new ExpField('x', a)
-                : new ExpFunc('JSON_ARRAYAGG', new ExpField('x', a));
-            selectBud.column(exp, bud.name);
-            selectBud.from(new EntityTable(EnumSysTable.ixBud, false, a));
-            selectBud.where(new ExpEQ(new ExpField('i', a), varBin));
-            return selectBud;
-        }
-
-        function buildBud(bud: BizBud) {
-            const { name, dataType } = bud;
-            let declareType: DataType;
-            let selectBud: Select;
-            switch (dataType) {
-                default: throw new Error('unknown type ' + EnumDataType[dataType]);
-                case BudDataType.none:
-                    return;
-                case BudDataType.ID:
-                case BudDataType.atom:
-                case BudDataType.date:
-                case BudDataType.int:
-                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
-                    declareType = bigint;
-                    break;
-                case BudDataType.str:
-                case BudDataType.char:
-                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudStr);
-                    declareType = str;
-                    break;
-                case BudDataType.dec:
-                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudDec);
-                    declareType = decValue;
-                    break;
-                case BudDataType.radio:
-                    selectBud = buildSelectBudIx(bud, true);
-                    declareType = bigint;
-                    break;
-                case BudDataType.check:
-                    selectBud = buildSelectBudIx(bud, false);
-                    declareType = json;
-                    break;
-            }
-            statements.push(selectBud);
-            declare.var(name, declareType);
-        }
-        */
-
         for (; ; pDiv = pDiv.parent) {
             const { level } = pDiv;
             const selectDiv = factory.createSelect();
@@ -203,7 +148,6 @@ export class BBizBin extends BBizEntity<BizBin> {
                     selectDiv.column(new ExpField(name, a), name);
                 }
                 else {
-                    // buildBud(bud);
                     statements.push(...buildSelectBinBud(this.context, bud, varBin))
                 }
             }
@@ -220,13 +164,17 @@ export class BBizBin extends BBizEntity<BizBin> {
     }
 
     private buildGetProc(proc: Procedure) {
+        let { statements } = proc;
+        const { iBase, xBase } = this.bizEntity;
+        this.buildGetIXBase(statements, iBase);
+        this.buildGetIXBase(statements, xBase);
+
         let showBuds = this.bizEntity.allShowBuds();
         if (showBuds === undefined) {
             proc.dropOnly = true;
             return;
         }
 
-        let { statements, parameters } = proc;
         let { factory, site } = this.context;
 
         const declare = factory.createDeclare();
@@ -243,5 +191,34 @@ export class BBizBin extends BBizEntity<BizBin> {
             memo.text = this.bizEntity.name + ' show buds';
             statements.push(...this.buildGetShowBuds(showBuds, tempBinTable, 'id'));
         }
+    }
+
+    private buildGetIXBase(statements: SqlStatement[], bud: BizBudIXBase) {
+        if (bud === undefined) return;
+        let { factory } = this.context;
+        let select = factory.createSelect();
+        const { name } = bud;
+        let budName = name[1];
+        select.column(new ExpNum(bud.id), 'phrase');
+        select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));
+        select.column(new ExpField('id', a), 'id');
+        select.from(new VarTableWithSchema('bin', a));
+        select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField(budName, b)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, d))
+            .on(new ExpEQ(new ExpField('id', d), new ExpField('base', c)));
+
+        let insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new VarTableWithSchema('props');
+        insert.cols = [
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+            { col: 'id', val: undefined },
+        ];
+        insert.select = select;
     }
 }

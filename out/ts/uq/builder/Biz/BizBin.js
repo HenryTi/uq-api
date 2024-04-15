@@ -17,7 +17,9 @@ const samount = 'samount';
 const sprice = 'sprice';
 const pendFrom = 'pend';
 const i = 'i';
+const iBase = '.i';
 const x = 'x';
+const xBase = '.x';
 const value = consts_1.binValue;
 const amount = consts_1.binAmount;
 const price = consts_1.binPrice;
@@ -71,7 +73,9 @@ class BBizBin extends BizEntity_1.BBizEntity {
         declare.var(sprice, decValue);
         declare.var(pendFrom, bigint);
         declare.var(i, bigint);
+        declare.var(iBase, bigint);
         declare.var(x, bigint);
+        declare.var(xBase, bigint);
         declare.var(value, decValue);
         declare.var(amount, decValue);
         declare.var(price, decValue);
@@ -117,68 +121,6 @@ class BBizBin extends BizEntity_1.BBizEntity {
         let setBinThis = factory.createSet();
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new sql_1.ExpVar(bin));
-        /*
-        function buildSelectBudValue(bud: BizBud, tbl: EnumSysTable): Select {
-            let selectBud = factory.createSelect();
-            selectBud.toVar = true;
-            selectBud.col('value', bud.name, a);
-            selectBud.from(new EntityTable(tbl, false, a));
-            selectBud.where(new ExpAnd(
-                new ExpEQ(new ExpField('i', a), varBin),
-                new ExpEQ(new ExpField('x', a), new ExpNum(bud.id)),
-            ));
-            return selectBud;
-        }
-
-        function buildSelectBudIx(bud: BizBud, isRadio: boolean): Select {
-            let selectBud = factory.createSelect();
-            selectBud.toVar = true;
-            let exp: ExpVal = isRadio === true ?
-                new ExpField('x', a)
-                : new ExpFunc('JSON_ARRAYAGG', new ExpField('x', a));
-            selectBud.column(exp, bud.name);
-            selectBud.from(new EntityTable(EnumSysTable.ixBud, false, a));
-            selectBud.where(new ExpEQ(new ExpField('i', a), varBin));
-            return selectBud;
-        }
-
-        function buildBud(bud: BizBud) {
-            const { name, dataType } = bud;
-            let declareType: DataType;
-            let selectBud: Select;
-            switch (dataType) {
-                default: throw new Error('unknown type ' + EnumDataType[dataType]);
-                case BudDataType.none:
-                    return;
-                case BudDataType.ID:
-                case BudDataType.atom:
-                case BudDataType.date:
-                case BudDataType.int:
-                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
-                    declareType = bigint;
-                    break;
-                case BudDataType.str:
-                case BudDataType.char:
-                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudStr);
-                    declareType = str;
-                    break;
-                case BudDataType.dec:
-                    selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudDec);
-                    declareType = decValue;
-                    break;
-                case BudDataType.radio:
-                    selectBud = buildSelectBudIx(bud, true);
-                    declareType = bigint;
-                    break;
-                case BudDataType.check:
-                    selectBud = buildSelectBudIx(bud, false);
-                    declareType = json;
-                    break;
-            }
-            statements.push(selectBud);
-            declare.var(name, declareType);
-        }
-        */
         for (;; pDiv = pDiv.parent) {
             const { level } = pDiv;
             const selectDiv = factory.createSelect();
@@ -192,7 +134,6 @@ class BBizBin extends BizEntity_1.BBizEntity {
                     selectDiv.column(new sql_1.ExpField(name, a), name);
                 }
                 else {
-                    // buildBud(bud);
                     statements.push(...(0, tools_1.buildSelectBinBud)(this.context, bud, varBin));
                 }
             }
@@ -208,12 +149,15 @@ class BBizBin extends BizEntity_1.BBizEntity {
         sqls.foot(actStatements);
     }
     buildGetProc(proc) {
+        let { statements } = proc;
+        const { iBase, xBase } = this.bizEntity;
+        this.buildGetIXBase(statements, iBase);
+        this.buildGetIXBase(statements, xBase);
         let showBuds = this.bizEntity.allShowBuds();
         if (showBuds === undefined) {
             proc.dropOnly = true;
             return;
         }
-        let { statements, parameters } = proc;
         let { factory, site } = this.context;
         const declare = factory.createDeclare();
         statements.push(declare);
@@ -227,6 +171,34 @@ class BBizBin extends BizEntity_1.BBizEntity {
             memo.text = this.bizEntity.name + ' show buds';
             statements.push(...this.buildGetShowBuds(showBuds, tempBinTable, 'id'));
         }
+    }
+    buildGetIXBase(statements, bud) {
+        if (bud === undefined)
+            return;
+        let { factory } = this.context;
+        let select = factory.createSelect();
+        const { name } = bud;
+        let budName = name[1];
+        select.column(new sql_1.ExpNum(bud.id), 'phrase');
+        select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('base', d)));
+        select.column(new sql_1.ExpField('id', a), 'id');
+        select.from(new statementWithFrom_1.VarTableWithSchema('bin', a));
+        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, c))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField(budName, b)))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, d))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', c)));
+        let insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTableWithSchema('props');
+        insert.cols = [
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+            { col: 'id', val: undefined },
+        ];
+        insert.select = select;
     }
 }
 exports.BBizBin = BBizBin;
