@@ -5,9 +5,9 @@ import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
 import { BizAtom, BizSpec } from "./BizID";
-import { BizAct, BizBase } from "./Base";
+import { BizAct } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue } from "./Bud";
+import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue, BizBudIXBase } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend, BizSheet } from "./Sheet";
@@ -227,6 +227,8 @@ export class BizBin extends BizEntity {
     act: BizBinAct;
     i: BizBudID;
     x: BizBudID;
+    iBase: BizBudIXBase;
+    xBase: BizBudIXBase;
     value: BinValue;
     price: BizBudDec;
     amount: BizBudDec;
@@ -294,7 +296,9 @@ export class BizBin extends BizEntity {
             inputs: inputs.length === 0 ? undefined : inputs,
             pend: this.pend?.id,
             i: this.i?.buildSchema(res),
+            iBase: this.iBase?.buildSchema(res),
             x: this.x?.buildSchema(res),
+            xBase: this.xBase?.buildSchema(res),
             value: this.value?.buildSchema(res),
             amount: this.amount?.buildSchema(res),
             price,

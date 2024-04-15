@@ -4,7 +4,7 @@ import {
     , Uq, Entity, Table, Pointer, VarPointer, BudDataType
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
     , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
-    , BinInputSpec, BinInputAtom, BinDiv, BizBudIDBase, BizPhraseType, BizStatementBin
+    , BinInputSpec, BinInputAtom, BinDiv, BizBudIXBase, BizPhraseType, BizStatementBin
     , BizOut, UseOut, BinValue, UI, BinPivot, BizBudRadio, OptionsItem
 } from "../../../il";
 import { PContext } from "../../pContext";
@@ -18,8 +18,6 @@ export class PBizBin extends PBizEntity<BizBin> {
     private main: string;
     private pickPendPos: number;
     private div: BinDiv;
-    private iBase: BizBudIDBase;
-    private xBase: BizBudIDBase;
 
     constructor(element: BizBin, context: PContext) {
         super(element, context);
@@ -72,7 +70,8 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (this.ts.token === Token.DOT) {
             this.ts.readToken();
             this.ts.passKey('base');
-            let bud = new BizBudIDBase(this.element, '.' + keyID, undefined);
+            let bud = new BizBudIXBase(this.element, '.' + keyID, undefined);
+            this.context.parseElement(bud);
             this.div.buds.push(bud);
             this.ts.passToken(Token.SEMICOLON);
             return bud;
@@ -87,7 +86,7 @@ export class PBizBin extends PBizEntity<BizBin> {
     private parseI = () => {
         let budKeyID = this.parseKeyID('i');
         if (budKeyID.dataType === BudDataType.none) {
-            this.iBase = budKeyID;
+            this.element.iBase = budKeyID;
             return;
         }
         if (this.element.i !== undefined) {
@@ -99,7 +98,7 @@ export class PBizBin extends PBizEntity<BizBin> {
     private parseX = () => {
         let budKeyID = this.parseKeyID('x');
         if (budKeyID.dataType === BudDataType.none) {
-            this.xBase = budKeyID;
+            this.element.iBase = budKeyID;
             return;
         }
         if (this.element.x !== undefined) {
@@ -333,14 +332,15 @@ export class PBizBin extends PBizEntity<BizBin> {
                 this.element.main = m as BizBin;
             }
         }
-        if (this.iBase !== undefined) {
+        const { iBase, xBase } = this.element;
+        if (iBase !== undefined) {
             if (this.element.i === undefined) {
                 this.log('i.base need I declare');
                 ok = false;
             }
         }
 
-        if (this.xBase !== undefined) {
+        if (xBase !== undefined) {
             if (this.element.x === undefined) {
                 this.log('x.base need X declare');
                 ok = false;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -240,20 +240,9 @@ class BizBudDate extends BizBudValueWithRange {
     }
 }
 exports.BizBudDate = BizBudDate;
-class BizBudIDBase extends BizBud {
+class BizBudIDBase extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.none;
-    }
-    parser(context) {
-        return new parser_1.PBizBudIDBase(this, context);
-    }
-}
-exports.BizBudIDBase = BizBudIDBase;
-class BizBudID extends BizBudValue {
-    constructor() {
-        super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = true;
         this.params = {}; // 仅仅针对Spec，可能有多级的base
     }
@@ -293,9 +282,6 @@ class BizBudID extends BizBudValue {
         }
         return ret;
     }
-    parser(context) {
-        return new parser_1.PBizBudID(this, context);
-    }
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
@@ -325,7 +311,28 @@ class BizBudID extends BizBudValue {
         }
     }
 }
+exports.BizBudIDBase = BizBudIDBase;
+class BizBudID extends BizBudIDBase {
+    constructor() {
+        super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.atom;
+    }
+    parser(context) {
+        return new parser_1.PBizBudID(this, context);
+    }
+}
 exports.BizBudID = BizBudID;
+// Base here is I.base or X.base
+class BizBudIXBase extends BizBudIDBase {
+    constructor() {
+        super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.none;
+    }
+    parser(context) {
+        return new parser_1.PBizBudIXBase(this, context);
+    }
+}
+exports.BizBudIXBase = BizBudIXBase;
 // ID的属性定义，ID表示需要转换
 // 后面仅仅可以Atom
 class BizBudIDIO extends BizBudValue {

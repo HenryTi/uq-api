@@ -42,7 +42,7 @@ class PBizBin extends Base_1.PBizEntity {
         this.parseI = () => {
             let budKeyID = this.parseKeyID('i');
             if (budKeyID.dataType === il_1.BudDataType.none) {
-                this.iBase = budKeyID;
+                this.element.iBase = budKeyID;
                 return;
             }
             if (this.element.i !== undefined) {
@@ -53,7 +53,7 @@ class PBizBin extends Base_1.PBizEntity {
         this.parseX = () => {
             let budKeyID = this.parseKeyID('x');
             if (budKeyID.dataType === il_1.BudDataType.none) {
-                this.xBase = budKeyID;
+                this.element.iBase = budKeyID;
                 return;
             }
             if (this.element.x !== undefined) {
@@ -201,7 +201,8 @@ class PBizBin extends Base_1.PBizEntity {
         if (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
             this.ts.passKey('base');
-            let bud = new il_1.BizBudIDBase(this.element, '.' + keyID, undefined);
+            let bud = new il_1.BizBudIXBase(this.element, '.' + keyID, undefined);
+            this.context.parseElement(bud);
             this.div.buds.push(bud);
             this.ts.passToken(tokens_1.Token.SEMICOLON);
             return bud;
@@ -299,13 +300,14 @@ class PBizBin extends Base_1.PBizEntity {
                 this.element.main = m;
             }
         }
-        if (this.iBase !== undefined) {
+        const { iBase, xBase } = this.element;
+        if (iBase !== undefined) {
             if (this.element.i === undefined) {
                 this.log('i.base need I declare');
                 ok = false;
             }
         }
-        if (this.xBase !== undefined) {
+        if (xBase !== undefined) {
             if (this.element.x === undefined) {
                 this.log('x.base need X declare');
                 ok = false;

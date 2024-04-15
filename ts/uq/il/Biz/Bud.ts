@@ -1,7 +1,7 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIDBase, PBizBudIDIO, PBizBudArr, PBinValue
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -279,15 +279,7 @@ export class BizBudDate extends BizBudValueWithRange {
     }
 }
 
-export class BizBudIDBase extends BizBud {
-    readonly dataType = BudDataType.none;
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudIDBase(this, context);
-    }
-}
-
-export class BizBudID extends BizBudValue {
-    readonly dataType = BudDataType.atom;
+export abstract class BizBudIDBase extends BizBudValue {
     readonly canIndex = true;
     ID: BizID;
     fieldShows: FieldShow[];
@@ -324,9 +316,6 @@ export class BizBudID extends BizBudValue {
         return ret;
     }
     readonly params: { [param: string]: BudValueSet; } = {};        // 仅仅针对Spec，可能有多级的base
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudID(this, context);
-    }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         ret.atom = this.ID?.name;
@@ -352,6 +341,21 @@ export class BizBudID extends BizBudValue {
             let { exp } = param;
             param.str = expStringify(exp);
         }
+    }
+}
+
+export class BizBudID extends BizBudIDBase {
+    readonly dataType = BudDataType.atom;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudID(this, context);
+    }
+}
+
+// Base here is I.base or X.base
+export class BizBudIXBase extends BizBudIDBase {
+    readonly dataType = BudDataType.none;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudIXBase(this, context);
     }
 }
 

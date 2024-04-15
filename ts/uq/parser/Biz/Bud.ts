@@ -4,7 +4,8 @@ import {
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
     , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
-    , BizBudIDBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue, BizID
+    , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue, BizID,
+    BizBudIDBase
 } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -344,47 +345,12 @@ export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
     }
 }
 
-export class PBizBudIDBase extends PBizBud<BizBudIDBase> {
-    scan(space: BizEntitySpace<BizEntity>): boolean {
-        let ok = true;
-        return ok;
-    }
-}
-
-export class PBizBudID extends PBizBudValue<BizBudID> {
-    private atomName: string;
+abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
     private fieldShows: string[][];
     private includeTitleBuds: boolean;
     private includePrimeBuds: boolean;
-    protected _parse(): void {
-        this.atomName = this.ts.mayPassVar();
-        if (this.ts.token === Token.LPARENTHESE) {
-            this.ts.readToken();
-            this.ts.passKey('base');
-            this.ts.passToken(Token.EQU);
-            let setType = BudValueSetType.equ;
-            let exp = new ValueExpression();
-            this.context.parseElement(exp);
-            let budValue: BudValueSet = {
-                exp,
-                setType,
-            }
-            this.element.params['base'] = budValue;
-            this.ts.mayPassToken(Token.COMMA);
-            this.ts.passToken(Token.RPARENTHESE);
-        }
-        if (this.ts.isKeyword('required') === true) {
-            this.element.required = true;
-            this.element.ui.required = true;
-            this.ts.readToken();
-        }
-        if (this.ts.token === Token.LBRACE) {
-            this.parseFieldShow();
-        }
-        this.parseBudEqu();
-    }
 
-    private parseFieldShow() {
+    protected parseFieldShow() {
         if (this.ts.token !== Token.LBRACE) return;
         this.fieldShows = [];
         this.element.fieldShows = [];
@@ -429,26 +395,6 @@ export class PBizBudID extends PBizBudValue<BizBudID> {
         }
     }
 
-    scan(space: BizEntitySpace): boolean {
-        let ok = super.scan(space);
-        const { params } = this.element;
-        if (this.atomName !== undefined) {
-            let atom = super.scanAtomID(space, this.atomName);
-            if (atom === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.ID = atom;
-            }
-        }
-        for (let i in params) {
-            if (params[i].exp.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        return ok;
-    }
-
     bizEntityScan2(bizEntity: BizEntity): boolean {
         let ok = super.bizEntityScan2(bizEntity);
         if (this.fieldShows !== undefined) {
@@ -471,6 +417,65 @@ export class PBizBudID extends PBizBudValue<BizBudID> {
                 else {
                     fieldShows.push(show);
                 }
+            }
+        }
+        return ok;
+    }
+}
+
+export class PBizBudIXBase extends PBizBudIDBase<BizBudIXBase> {
+    protected _parse(): void {
+        this.parseFieldShow();
+    }
+    scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = true;
+        return ok;
+    }
+}
+
+export class PBizBudID extends PBizBudIDBase<BizBudID> {
+    private atomName: string;
+    protected _parse(): void {
+        this.atomName = this.ts.mayPassVar();
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            this.ts.passKey('base');
+            this.ts.passToken(Token.EQU);
+            let setType = BudValueSetType.equ;
+            let exp = new ValueExpression();
+            this.context.parseElement(exp);
+            let budValue: BudValueSet = {
+                exp,
+                setType,
+            }
+            this.element.params['base'] = budValue;
+            this.ts.mayPassToken(Token.COMMA);
+            this.ts.passToken(Token.RPARENTHESE);
+        }
+        if (this.ts.isKeyword('required') === true) {
+            this.element.required = true;
+            this.element.ui.required = true;
+            this.ts.readToken();
+        }
+        this.parseFieldShow();
+        this.parseBudEqu();
+    }
+
+    scan(space: BizEntitySpace): boolean {
+        let ok = super.scan(space);
+        const { params } = this.element;
+        if (this.atomName !== undefined) {
+            let atom = super.scanAtomID(space, this.atomName);
+            if (atom === undefined) {
+                ok = false;
+            }
+            else {
+                this.element.ID = atom;
+            }
+        }
+        for (let i in params) {
+            if (params[i].exp.pelement.scan(space) === false) {
+                ok = false;
             }
         }
         return ok;
