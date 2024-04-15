@@ -346,6 +346,7 @@ export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
 }
 
 abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
+    protected atomName: string;
     private fieldShows: string[][];
     private includeTitleBuds: boolean;
     private includePrimeBuds: boolean;
@@ -421,20 +422,30 @@ abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
         }
         return ok;
     }
-}
 
-export class PBizBudIXBase extends PBizBudIDBase<BizBudIXBase> {
-    protected _parse(): void {
-        this.parseFieldShow();
-    }
-    scan(space: BizEntitySpace<BizEntity>): boolean {
-        let ok = true;
+    override scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = super.scan(space);
+        if (this.atomName !== undefined) {
+            let atom = super.scanAtomID(space, this.atomName);
+            if (atom === undefined) {
+                ok = false;
+            }
+            else {
+                this.element.ID = atom;
+            }
+        }
         return ok;
     }
 }
 
+export class PBizBudIXBase extends PBizBudIDBase<BizBudIXBase> {
+    protected _parse(): void {
+        this.atomName = this.ts.mayPassVar();
+        this.parseFieldShow();
+    }
+}
+
 export class PBizBudID extends PBizBudIDBase<BizBudID> {
-    private atomName: string;
     protected _parse(): void {
         this.atomName = this.ts.mayPassVar();
         if (this.ts.token === Token.LPARENTHESE) {
@@ -464,15 +475,6 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
     scan(space: BizEntitySpace): boolean {
         let ok = super.scan(space);
         const { params } = this.element;
-        if (this.atomName !== undefined) {
-            let atom = super.scanAtomID(space, this.atomName);
-            if (atom === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.ID = atom;
-            }
-        }
         for (let i in params) {
             if (params[i].exp.pelement.scan(space) === false) {
                 ok = false;

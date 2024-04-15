@@ -85,7 +85,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parseI = () => {
         let budKeyID = this.parseKeyID('i');
-        if (budKeyID.dataType === BudDataType.none) {
+        if (budKeyID.isIxBase === true) {
             this.element.iBase = budKeyID;
             return;
         }
@@ -97,7 +97,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parseX = () => {
         let budKeyID = this.parseKeyID('x');
-        if (budKeyID.dataType === BudDataType.none) {
+        if (budKeyID.isIxBase === true) {
             this.element.iBase = budKeyID;
             return;
         }

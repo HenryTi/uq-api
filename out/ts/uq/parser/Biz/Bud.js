@@ -407,14 +407,24 @@ class PBizBudIDBase extends PBizBudValue {
         }
         return ok;
     }
+    scan(space) {
+        let ok = super.scan(space);
+        if (this.atomName !== undefined) {
+            let atom = super.scanAtomID(space, this.atomName);
+            if (atom === undefined) {
+                ok = false;
+            }
+            else {
+                this.element.ID = atom;
+            }
+        }
+        return ok;
+    }
 }
 class PBizBudIXBase extends PBizBudIDBase {
     _parse() {
+        this.atomName = this.ts.mayPassVar();
         this.parseFieldShow();
-    }
-    scan(space) {
-        let ok = true;
-        return ok;
     }
 }
 exports.PBizBudIXBase = PBizBudIXBase;
@@ -447,15 +457,6 @@ class PBizBudID extends PBizBudIDBase {
     scan(space) {
         let ok = super.scan(space);
         const { params } = this.element;
-        if (this.atomName !== undefined) {
-            let atom = super.scanAtomID(space, this.atomName);
-            if (atom === undefined) {
-                ok = false;
-            }
-            else {
-                this.element.ID = atom;
-            }
-        }
         for (let i in params) {
             if (params[i].exp.pelement.scan(space) === false) {
                 ok = false;

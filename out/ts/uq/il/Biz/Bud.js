@@ -243,6 +243,7 @@ exports.BizBudDate = BizBudDate;
 class BizBudIDBase extends BizBudValue {
     constructor() {
         super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = true;
         this.params = {}; // 仅仅针对Spec，可能有多级的base
     }
@@ -315,7 +316,7 @@ exports.BizBudIDBase = BizBudIDBase;
 class BizBudID extends BizBudIDBase {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.atom;
+        this.isIxBase = false;
     }
     parser(context) {
         return new parser_1.PBizBudID(this, context);
@@ -326,7 +327,7 @@ exports.BizBudID = BizBudID;
 class BizBudIXBase extends BizBudIDBase {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.isIxBase = true;
     }
     parser(context) {
         return new parser_1.PBizBudIXBase(this, context);

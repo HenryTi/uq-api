@@ -280,9 +280,11 @@ export class BizBudDate extends BizBudValueWithRange {
 }
 
 export abstract class BizBudIDBase extends BizBudValue {
+    readonly dataType = BudDataType.atom;
     readonly canIndex = true;
     ID: BizID;
     fieldShows: FieldShow[];
+    abstract get isIxBase(): boolean;
     getFieldShows(): FieldShow[][] {
         let ret = [];
         if (this.fieldShows !== undefined) ret.push(this.fieldShows);
@@ -345,7 +347,7 @@ export abstract class BizBudIDBase extends BizBudValue {
 }
 
 export class BizBudID extends BizBudIDBase {
-    readonly dataType = BudDataType.atom;
+    readonly isIxBase = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudID(this, context);
     }
@@ -353,7 +355,7 @@ export class BizBudID extends BizBudIDBase {
 
 // Base here is I.base or X.base
 export class BizBudIXBase extends BizBudIDBase {
-    readonly dataType = BudDataType.none;
+    readonly isIxBase = true;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIXBase(this, context);
     }
