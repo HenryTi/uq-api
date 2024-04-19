@@ -72,7 +72,7 @@ export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
         return ok;
     }
 
-    private scanPrimeBuds() {
+    protected scanPrimeBuds() {
         let ok = true;
         let ret = this.scanBudNameArr(this.primeBuds);
         if (ret === null) {
@@ -500,6 +500,17 @@ export class PBizSpec extends PBizIDWithBase<BizSpec> {
         key: this.parseKey,
         ':': this.parseColonBuds,
     };
+
+    protected override scanPrimeBuds(): boolean {
+        let ret = super.scanPrimeBuds();
+        let { primeBuds, keys, props } = this.element;
+        if (primeBuds === undefined) {
+            this.element.primeBuds = primeBuds = [];
+        }
+        primeBuds.push(...keys);
+        for (let [, value] of props) primeBuds.push(value);
+        return ret;
+    }
 
     scan(space: Space): boolean {
         let ok = true;
