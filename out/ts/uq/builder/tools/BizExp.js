@@ -64,26 +64,6 @@ class BBizExp {
                 break;
         }
     }
-    /*
-    private atom(sb: SqlBuilder) {
-        const { bizEntity, prop, budProp } = this.bizExp;
-        // let bud = bizEntity.props.get(prop);
-        if (budProp === undefined) {
-            sb.append(prop);
-            sb.append(' FROM ').dbName().append('.`atom` WHERE id=');
-            sb.exp(this.param);
-            sb.append(' AND base=');
-            sb.append(bizEntity.id);
-        }
-        else {
-            // let partBuilder = new PartBuilderSelectBud(budProp, bizEntity, this.param);
-            //sb.part(partBuilder);
-        }
-    }
-
-    private spec(sb: SqlBuilder) {
-    }
-    */
     bin(sb) {
         const { bizEntity, prop } = this.bizExp;
         const { ta, tb } = this;

@@ -180,7 +180,8 @@ class BBizBin extends BizEntity_1.BBizEntity {
         const { name } = bud;
         let budName = name[1];
         select.column(new sql_1.ExpNum(bud.id), 'phrase');
-        select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('base', d)));
+        //select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));
+        select.column(new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('base', d), new sql_1.ExpDatePart('JSON')));
         select.column(new sql_1.ExpField('id', a), 'id');
         select.from(new statementWithFrom_1.VarTableWithSchema('bin', a));
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))

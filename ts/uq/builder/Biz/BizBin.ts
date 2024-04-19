@@ -5,7 +5,7 @@ import {
 } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
-import { ExpEQ, ExpField, ExpFunc, ExpNum, ExpVar, Procedure, Statement as SqlStatement } from "../sql";
+import { ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVar, Procedure, Statement as SqlStatement } from "../sql";
 import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { buildSelectBinBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
@@ -200,7 +200,8 @@ export class BBizBin extends BBizEntity<BizBin> {
         const { name } = bud;
         let budName = name[1];
         select.column(new ExpNum(bud.id), 'phrase');
-        select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));
+        //select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));
+        select.column(new ExpFuncCustom(factory.func_cast, new ExpField('base', d), new ExpDatePart('JSON')));
         select.column(new ExpField('id', a), 'id');
         select.from(new VarTableWithSchema('bin', a));
         select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))

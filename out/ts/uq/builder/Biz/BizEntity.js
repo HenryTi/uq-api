@@ -118,6 +118,8 @@ class BBizEntity {
         t = 't' + len;
         let bizBud = fieldShow[len];
         let tblIxBud;
+        let expFieldValue = new sql_1.ExpField('value', t);
+        let colValue = new sql_1.ExpFuncCustom(factory.func_cast, expFieldValue, new sql_1.ExpDatePart('JSON'));
         switch (bizBud.dataType) {
             default:
             case il_1.BudDataType.radio:
@@ -131,6 +133,7 @@ class BBizEntity {
             case il_1.BudDataType.str:
             case il_1.BudDataType.char:
                 tblIxBud = il_1.EnumSysTable.ixBudStr;
+                colValue = new sql_1.ExpFunc('JSON_QUOTE', expFieldValue);
                 selectValue();
                 break;
             // case BudDataType.radio:
@@ -143,7 +146,8 @@ class BBizEntity {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxBud, false, t))
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField(lastField, lastT)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(bizBud.id))));
             select.column(new sql_1.ExpNum(bizBud.id), 'phrase');
-            select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('value', t)));
+            //select.column(new ExpFunc('JSON_ARRAY', new ExpField('value', t)));
+            select.column(colValue);
         }
         function selectCheck() {
             const k = 'k';

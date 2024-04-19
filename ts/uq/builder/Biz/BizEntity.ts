@@ -4,7 +4,7 @@ import {
 } from "../../il";
 import { DbContext } from "../dbContext";
 import {
-    ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, Statement
+    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal, Statement
 } from "../sql";
 import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 
@@ -137,6 +137,8 @@ export class BBizEntity<B extends BizEntity = any> {
         t = 't' + len;
         let bizBud = fieldShow[len];
         let tblIxBud: EnumSysTable;
+        let expFieldValue = new ExpField('value', t);
+        let colValue: ExpVal = new ExpFuncCustom(factory.func_cast, expFieldValue, new ExpDatePart('JSON'));
         switch (bizBud.dataType) {
             default:
             case BudDataType.radio:
@@ -150,6 +152,7 @@ export class BBizEntity<B extends BizEntity = any> {
             case BudDataType.str:
             case BudDataType.char:
                 tblIxBud = EnumSysTable.ixBudStr;
+                colValue = new ExpFunc('JSON_QUOTE', expFieldValue);
                 selectValue();
                 break;
             // case BudDataType.radio:
@@ -165,7 +168,8 @@ export class BBizEntity<B extends BizEntity = any> {
                     new ExpEQ(new ExpField('x', t), new ExpNum(bizBud.id)),
                 ));
             select.column(new ExpNum(bizBud.id), 'phrase');
-            select.column(new ExpFunc('JSON_ARRAY', new ExpField('value', t)));
+            //select.column(new ExpFunc('JSON_ARRAY', new ExpField('value', t)));
+            select.column(colValue);
         }
         function selectCheck() {
             const k = 'k';

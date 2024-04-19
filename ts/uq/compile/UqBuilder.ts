@@ -26,15 +26,20 @@ export class UqBuilder {
 
     private async saveBizObject(entity: BizEntity) {
         const { objIds, objNames, res } = this.compiler;
-        const { type, phrase, ui: { caption }, source } = entity;
+        const { phrase, ui: { caption }, source } = entity;
         const memo = undefined;
         if (phrase === undefined) debugger;
         if (source === undefined) debugger;
         let budParams = [];
         let buds: BizBud[] = [];
         entity.forEachBud(bud => {
+            let { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
+            if (dataTypeNum === 0) {
+                // Bin：Pick 和 Prop 可能重名
+                // pick.dataType=0 input.dataType=0
+                return;
+            }
             buds.push(bud);
-            const { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
             const typeNum = bud.typeNum;
             let objId: number;
             if (objName !== undefined) {
@@ -79,7 +84,15 @@ export class UqBuilder {
         let i = 0;
         for (; i < buds.length; i++) {
             let bud = buds[i];
-            let { id: budId, phrase, ui } = budIds[i];
+            let budIdValue = budIds[i];
+            if (budIdValue === undefined) {
+                // 对应上面的
+                // Bin：Pick 和 Prop 可能重名
+                // pick.dataType=0 input.dataType=0
+                // 至于pick和input的名字怎么翻译，以后再考虑
+                continue;
+            }
+            let { id: budId, phrase, ui } = budIdValue; // budIds[i];
             bud.id = budId;
             if (ui) {
                 const { caption } = ui;
