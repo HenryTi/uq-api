@@ -108,7 +108,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             this.element.xBase = budKeyID;
             return;
         }
-        let budKeyID = this.parseIXID('i');
+        let budKeyID = this.parseIXID('x');
         if (this.element.x !== undefined) {
             this.ts.error(`X can only be defined once in Biz Bin`);
         }
