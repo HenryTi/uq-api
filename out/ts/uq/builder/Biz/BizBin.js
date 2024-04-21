@@ -176,8 +176,11 @@ class BBizBin extends BizEntity_1.BBizEntity {
         if (bud === undefined)
             return;
         let { factory } = this.context;
-        let select = factory.createSelect();
         const { name } = bud;
+        let memo = factory.createMemo();
+        statements.push(memo);
+        memo.text = name;
+        let select = factory.createSelect();
         let budName = name[1];
         select.column(new sql_1.ExpNum(bud.id), 'phrase');
         //select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));

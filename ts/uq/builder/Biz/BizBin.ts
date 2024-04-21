@@ -196,8 +196,11 @@ export class BBizBin extends BBizEntity<BizBin> {
     private buildGetIXBase(statements: SqlStatement[], bud: BizBudIXBase) {
         if (bud === undefined) return;
         let { factory } = this.context;
-        let select = factory.createSelect();
         const { name } = bud;
+        let memo = factory.createMemo();
+        statements.push(memo);
+        memo.text = name;
+        let select = factory.createSelect();
         let budName = name[1];
         select.column(new ExpNum(bud.id), 'phrase');
         //select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));

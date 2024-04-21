@@ -72,6 +72,9 @@ export class BBizEntity<B extends BizEntity = any> {
         let statements: Statement[] = [];
         let { factory } = this.context;
         for (let fieldShow of showBuds) {
+            let memo = factory.createMemo();
+            statements.push(memo);
+            memo.text = fieldShow.map(v => v.ui?.caption ?? v.name).join('.');
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);

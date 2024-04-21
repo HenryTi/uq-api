@@ -61,6 +61,9 @@ class BBizEntity {
         let statements = [];
         let { factory } = this.context;
         for (let fieldShow of showBuds) {
+            let memo = factory.createMemo();
+            statements.push(memo);
+            memo.text = fieldShow.map(v => { var _a, _b; return (_b = (_a = v.ui) === null || _a === void 0 ? void 0 : _a.caption) !== null && _b !== void 0 ? _b : v.name; }).join('.');
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);
