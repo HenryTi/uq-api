@@ -359,7 +359,10 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             for (; ;) {
                 let bud = this.parseSubItem();
                 this.ts.passToken(Token.SEMICOLON);
-                const { name: budName } = bud;
+                const { name: budName, dataType } = bud;
+                if (dataType === BudDataType.none) {
+                    this.ts.error(`${budName} must define type`);
+                }
                 const { props } = this.element;
                 if (props.has(budName) === true) {
                     this.ts.error(`duplicate ${budName}`)
@@ -379,7 +382,10 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 this.ts.expectToken(Token.LBRACE);
             }
             let bizBud = this.parseBud(name, ui);
-            const { name: budName } = bizBud;
+            const { name: budName, dataType } = bizBud;
+            if (dataType === BudDataType.none) {
+                this.ts.error(`${budName} must define type`);
+            }
             const { buds } = this.element.group0;
             if (buds.findIndex(v => v.name === budName) >= 0) {
                 this.ts.error(`duplicate ${budName}`);
@@ -518,7 +524,13 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
 
     protected scanBud(space: Space, bud: BizBud): boolean {
         let ok = true;
-        let { pelement, name, value } = bud;
+        let { pelement, name, value, dataType } = bud;
+        /*
+        if (dataType === BudDataType.none) {
+            this.log(`Prop name ${name} must define type`);
+            ok = false;
+        }
+        */
         if (this.element.budGroups.has(name) === true) {
             this.log(`Prop name ${name} duplicates with Group name`);
             ok = false;

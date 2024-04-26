@@ -313,7 +313,10 @@ class PBizEntity extends PBizBase {
                 for (;;) {
                     let bud = this.parseSubItem();
                     this.ts.passToken(tokens_1.Token.SEMICOLON);
-                    const { name: budName } = bud;
+                    const { name: budName, dataType } = bud;
+                    if (dataType === il_1.BudDataType.none) {
+                        this.ts.error(`${budName} must define type`);
+                    }
                     const { props } = this.element;
                     if (props.has(budName) === true) {
                         this.ts.error(`duplicate ${budName}`);
@@ -333,7 +336,10 @@ class PBizEntity extends PBizBase {
                     this.ts.expectToken(tokens_1.Token.LBRACE);
                 }
                 let bizBud = this.parseBud(name, ui);
-                const { name: budName } = bizBud;
+                const { name: budName, dataType } = bizBud;
+                if (dataType === il_1.BudDataType.none) {
+                    this.ts.error(`${budName} must define type`);
+                }
                 const { buds } = this.element.group0;
                 if (buds.findIndex(v => v.name === budName) >= 0) {
                     this.ts.error(`duplicate ${budName}`);
@@ -498,7 +504,13 @@ class PBizEntity extends PBizBase {
     }
     scanBud(space, bud) {
         let ok = true;
-        let { pelement, name, value } = bud;
+        let { pelement, name, value, dataType } = bud;
+        /*
+        if (dataType === BudDataType.none) {
+            this.log(`Prop name ${name} must define type`);
+            ok = false;
+        }
+        */
         if (this.element.budGroups.has(name) === true) {
             this.log(`Prop name ${name} duplicates with Group name`);
             ok = false;

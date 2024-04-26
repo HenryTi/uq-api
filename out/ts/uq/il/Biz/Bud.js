@@ -126,6 +126,7 @@ class BizBudPickable extends BizBudValue {
     }
 }
 exports.BizBudPickable = BizBudPickable;
+// 有值，但无法确定
 class BizBudNone extends BizBudValue {
     constructor() {
         super(...arguments);

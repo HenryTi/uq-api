@@ -181,6 +181,7 @@ export class BizBudPickable extends BizBudValue {
     }
 }
 
+// 有值，但无法确定
 export class BizBudNone extends BizBudValue {
     readonly dataType = BudDataType.none;
     readonly canIndex = false;
