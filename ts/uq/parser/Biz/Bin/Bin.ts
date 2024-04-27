@@ -5,7 +5,8 @@ import {
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
     , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
     , BinInputSpec, BinInputAtom, BinDiv, BizBudIXBase, BizPhraseType, BizStatementBin
-    , BizOut, UseOut, BinValue, UI, BinPivot, BizBudRadio, OptionsItem
+    , BizOut, UseOut, BinValue, UI, BinPivot, BizBudRadio, OptionsItem,
+    BudValueSetType
 } from "../../../il";
 import { PContext } from "../../pContext";
 import { Space } from "../../space";
@@ -13,6 +14,10 @@ import { Token } from "../../tokens";
 import { PBizAct, PBizActStatements, PBizEntity } from "../Base";
 import { BizEntitySpace } from "../Biz";
 import { PBizBudValue } from "../Bud";
+
+enum EnumIX {
+    i, x
+}
 
 export class PBizBin extends PBizEntity<BizBin> {
     private main: string;
@@ -66,17 +71,22 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.div.inputs.push(input);
     }
 
-    private parseIXID(IX: 'i' | 'x') {
-        let bud = this.parseBudAtom(IX);
+    private parseIXID(IX: EnumIX) {
+        let bud = this.parseBudAtom(EnumIX[IX]);
         this.div.buds.push(bud);
         return bud;
     }
 
-    private parseIXIDBase(IX: '.i' | '.x') {
+    private parseIXIDBase(IX: EnumIX) {
         this.ts.readToken();
         this.ts.passKey('base');
-        let bud = new BizBudIXBase(this.element, IX, undefined);
+        let nameIX = EnumIX[IX];
+        let bud = new BizBudIXBase(this.element, '.' + nameIX, undefined);
         this.context.parseElement(bud);
+        const { value } = bud;
+        if (value?.setType !== BudValueSetType.equ) {
+            this.ts.error(`${nameIX}.BASE must set value`);
+        }
         this.div.buds.push(bud);
         this.ts.passToken(Token.SEMICOLON);
         return bud;
@@ -84,7 +94,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parseI = () => {
         if (this.ts.token === Token.DOT) {
-            let budKeyID = this.parseIXIDBase('.i');
+            let budKeyID = this.parseIXIDBase(EnumIX.i);
             if (this.element.iBase !== undefined) {
                 this.ts.error(`I.BASE can only be defined once in Biz Bin`);
             }
@@ -92,7 +102,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             return;
         }
 
-        let budKeyID = this.parseIXID('i');
+        let budKeyID = this.parseIXID(EnumIX.i);
         if (this.element.i !== undefined) {
             this.ts.error(`I can only be defined once in Biz Bin`);
         }
@@ -101,14 +111,14 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     private parseX = () => {
         if (this.ts.token === Token.DOT) {
-            let budKeyID = this.parseIXIDBase('.x');
+            let budKeyID = this.parseIXIDBase(EnumIX.x);
             if (this.element.xBase !== undefined) {
                 this.ts.error(`X.BASE can only be defined once in Biz Bin`);
             }
             this.element.xBase = budKeyID;
             return;
         }
-        let budKeyID = this.parseIXID('x');
+        let budKeyID = this.parseIXID(EnumIX.x);
         if (this.element.x !== undefined) {
             this.ts.error(`X can only be defined once in Biz Bin`);
         }

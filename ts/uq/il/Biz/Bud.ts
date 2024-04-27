@@ -11,7 +11,6 @@ import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
 import { UI } from "../UI";
-import { BizBin } from "./Bin";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 
 export enum BudValueSetType {

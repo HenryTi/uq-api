@@ -6,6 +6,11 @@ const il_1 = require("../../../il");
 const tokens_1 = require("../../tokens");
 const Base_1 = require("../Base");
 const Biz_1 = require("../Biz");
+var EnumIX;
+(function (EnumIX) {
+    EnumIX[EnumIX["i"] = 0] = "i";
+    EnumIX[EnumIX["x"] = 1] = "x";
+})(EnumIX || (EnumIX = {}));
 class PBizBin extends Base_1.PBizEntity {
     constructor(element, context) {
         super(element, context);
@@ -41,14 +46,14 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parseI = () => {
             if (this.ts.token === tokens_1.Token.DOT) {
-                let budKeyID = this.parseIXIDBase('.i');
+                let budKeyID = this.parseIXIDBase(EnumIX.i);
                 if (this.element.iBase !== undefined) {
                     this.ts.error(`I.BASE can only be defined once in Biz Bin`);
                 }
                 this.element.iBase = budKeyID;
                 return;
             }
-            let budKeyID = this.parseIXID('i');
+            let budKeyID = this.parseIXID(EnumIX.i);
             if (this.element.i !== undefined) {
                 this.ts.error(`I can only be defined once in Biz Bin`);
             }
@@ -56,14 +61,14 @@ class PBizBin extends Base_1.PBizEntity {
         };
         this.parseX = () => {
             if (this.ts.token === tokens_1.Token.DOT) {
-                let budKeyID = this.parseIXIDBase('.x');
+                let budKeyID = this.parseIXIDBase(EnumIX.x);
                 if (this.element.xBase !== undefined) {
                     this.ts.error(`X.BASE can only be defined once in Biz Bin`);
                 }
                 this.element.xBase = budKeyID;
                 return;
             }
-            let budKeyID = this.parseIXID('x');
+            let budKeyID = this.parseIXID(EnumIX.x);
             if (this.element.x !== undefined) {
                 this.ts.error(`X can only be defined once in Biz Bin`);
             }
@@ -206,15 +211,20 @@ class PBizBin extends Base_1.PBizEntity {
         this.element.setPick(pick);
     }
     parseIXID(IX) {
-        let bud = this.parseBudAtom(IX);
+        let bud = this.parseBudAtom(EnumIX[IX]);
         this.div.buds.push(bud);
         return bud;
     }
     parseIXIDBase(IX) {
         this.ts.readToken();
         this.ts.passKey('base');
-        let bud = new il_1.BizBudIXBase(this.element, IX, undefined);
+        let nameIX = EnumIX[IX];
+        let bud = new il_1.BizBudIXBase(this.element, '.' + nameIX, undefined);
         this.context.parseElement(bud);
+        const { value } = bud;
+        if ((value === null || value === void 0 ? void 0 : value.setType) !== il_1.BudValueSetType.equ) {
+            this.ts.error(`${nameIX}.BASE must set value`);
+        }
         this.div.buds.push(bud);
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return bud;
