@@ -92,6 +92,12 @@ class PBizPend extends Base_1.PBizEntity {
             if (pendQuery.pelement.scan(space) === false) {
                 ok = false;
             }
+            for (let param of pendQuery.params) {
+                if (this.element.getBud(param.name) !== undefined) {
+                    this.log(`${param.name} duplicate`);
+                    ok = false;
+                }
+            }
         }
         return ok;
     }

@@ -131,13 +131,16 @@ class BizPend extends Entity_1.BizEntity {
             callback(this.x);
         if (this.pendQuery === undefined)
             return;
-        const { from } = this.pendQuery;
+        const { params, from } = this.pendQuery;
         const { cols } = from;
         for (let col of cols) {
             let bud = (_a = col.field) === null || _a === void 0 ? void 0 : _a.getBud();
             if (bud === undefined)
                 continue;
             callback(bud);
+        }
+        for (let param of params) {
+            callback(param);
         }
     }
     hasField(fieldName) {

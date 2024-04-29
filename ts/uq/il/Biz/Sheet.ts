@@ -149,12 +149,15 @@ export class BizPend extends BizEntity {
         if (this.i !== undefined) callback(this.i);
         if (this.x !== undefined) callback(this.x);
         if (this.pendQuery === undefined) return;
-        const { from } = this.pendQuery;
+        const { params, from } = this.pendQuery;
         const { cols } = from;
         for (let col of cols) {
             let bud = col.field?.getBud();
             if (bud === undefined) continue;
             callback(bud);
+        }
+        for (let param of params) {
+            callback(param);
         }
     }
     hasField(fieldName: string): boolean {

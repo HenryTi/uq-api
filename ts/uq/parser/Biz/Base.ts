@@ -552,7 +552,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
-    private scanBuds(space: Space, buds: Map<string, BizBud>) {
+    protected scanBuds(space: Space, buds: Map<string, BizBud>) {
         let ok = true;
         for (let [, value] of buds) {
             if (this.scanBud(space, value) === false) ok = false;
