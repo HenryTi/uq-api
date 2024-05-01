@@ -44,11 +44,11 @@ export class BBizPend extends BBizEntity<BizPend> {
 
         for (let param of params) {
             const bud = param;
-            const { name } = bud;
+            const { id, name } = bud;
             declare.var(name, new Char(200));
             let set = factory.createSet();
             statements.push(set);
-            set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)));
+            set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${id}"`)));
         }
 
         let sqls = new Sqls(this.context, statements);

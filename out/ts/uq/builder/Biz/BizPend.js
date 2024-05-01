@@ -33,11 +33,11 @@ class BBizPend extends BizEntity_1.BBizEntity {
         setSite.equ(consts_1.$site, new sql_1.ExpNum(site));
         for (let param of params) {
             const bud = param;
-            const { name } = bud;
+            const { id, name } = bud;
             declare.var(name, new il_1.Char(200));
             let set = factory.createSet();
             statements.push(set);
-            set.equ(name, new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`)));
+            set.equ(name, new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${id}"`)));
         }
         let sqls = new bstatement_1.Sqls(this.context, statements);
         let { statements: queryStatements } = statement;
