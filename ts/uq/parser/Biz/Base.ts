@@ -1,7 +1,9 @@
 import {
     BizBase, BizBudValue, BizEntity, BizBudID, Uq, BudIndex
     , BizIDExtendable, BizPhraseType, Permission, SetType, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
-    , Statements, Statement, budClasses, budClassKeys, BudDataType
+    , Statements, Statement, budClasses, budClassKeys, BudDataType,
+    BizUser,
+    budClassesUser
 } from "../../il";
 import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
@@ -293,6 +295,54 @@ const invalidPropNames: { [key: string]: boolean } = (function () {
     return ret;
 })();
 
+export class PBizUser extends PBizBase<BizUser> {
+    protected override _parse(): void {
+        this.ts.passToken(Token.LBRACE);
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE) {
+                this.ts.readToken();
+                this.ts.mayPassToken(Token.SEMICOLON);
+                break;
+            }
+            let bud = this.parseUserBud();
+            this.element.defaults.push(bud);
+            if (this.ts.token === Token.SEMICOLON) {
+                this.ts.readToken();
+                if (this.ts.token !== Token.RBRACE as any) continue;
+            }
+            else {
+                this.ts.expectToken(Token.SEMICOLON);
+            }
+        }
+    }
+
+    private parseUserBud() {
+        let name = this.ts.passVar();
+        let ui = this.parseUI();
+        let type = this.ts.passVar();
+        let Bud = budClassesUser[type];
+        if (Bud === undefined) {
+            this.ts.expect(...Object.keys(budClassesUser));
+        }
+        if (ui.caption === undefined) {
+            ui.caption = name;
+        }
+        let bizBud = new Bud(this.element.theEntity, ':user.' + name, ui);
+        this.context.parseElement(bizBud);
+        return bizBud;
+    }
+
+    override scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = true;
+        for (let def of this.element.defaults) {
+            if (def.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+}
+
 export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     protected saveSource() {
         const { type } = this.element;
@@ -431,6 +481,11 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         this.element.permissions[role] = permission;
     }
 
+    protected parseBizUser = () => {
+        let user = this.element.user = new BizUser(this.element, ':user', undefined);
+        this.context.parseElement(user);
+    }
+
     protected parseBudAtom(itemName: string) {
         let ui = this.parseUI();
         let bud = new BizBudID(this.element, itemName, ui);
@@ -522,6 +577,15 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
+    protected scanUser(space: Space) {
+        let ok = true;
+        const { user } = this.element;
+        if (user !== undefined) {
+            if (user.pelement.scan(space) === false) ok = false;
+        }
+        return ok;
+    }
+
     protected scanBud(space: Space, bud: BizBud): boolean {
         let ok = true;
         let { pelement, name, value, dataType } = bud;
@@ -597,6 +661,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         const { props } = this.element;
         if (this.scanBuds(space, props) === false) ok = false;
         if (this.scanPermission(space) === false) ok = false;
+        if (this.scanUser(space) === false) ok = false;
         return ok;
     }
 

@@ -293,6 +293,7 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
         ex: this.parseEx,
         permit: this.parsePermit,
         unique: this.parseUnique,
+        user: this.parseBizUser,
     };
 
     override scan0(space: Space): boolean {

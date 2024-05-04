@@ -46,6 +46,9 @@ class BizEntity extends Base_1.BizBase {
             groups.push(this.group0.buildSchema(res));
             ret.groups = groups;
         }
+        if (this.user !== undefined) {
+            ret.user = this.user.defaults.map(v => v.buildSchema(res));
+        }
         this.schema = ret;
         return ret;
     }
@@ -159,6 +162,12 @@ class BizEntity extends Base_1.BizBase {
         return bud;
     }
     forEachBud(callback) {
+        if (this.user !== undefined) {
+            callback(this.user);
+            for (let ub of this.user.defaults) {
+                callback(ub);
+            }
+        }
         for (let [, bud] of this.props)
             callback(bud);
     }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -72,8 +72,6 @@ class BizBudValue extends BizBud {
         return ret;
     }
     buildPhrases(phrases, prefix) {
-        if (this.name === 'item')
-            debugger;
         super.buildPhrases(phrases, prefix);
     }
     buildBudValue(expStringify) {
@@ -110,6 +108,25 @@ class BizBudArr extends BizBudValue {
     }
 }
 exports.BizBudArr = BizBudArr;
+class BizUser extends BizBud {
+    constructor() {
+        super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.user;
+        this.defaults = [];
+    }
+    parser(context) {
+        return new parser_1.PBizUser(this, context);
+    }
+    buildPhrases(phrases, prefix) {
+        super.buildPhrases(phrases, prefix);
+        /*
+        for (let def of this.defaults) {
+            def.buildPhrases(phrases, this.phrase);
+        }
+        */
+    }
+}
+exports.BizUser = BizUser;
 class BizBudPickable extends BizBudValue {
     constructor() {
         super(...arguments);
@@ -407,6 +424,14 @@ exports.budClassesIn = {
     $arr: BizBudArr,
 };
 exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudNone, atom: BizBudID, intof: BizBudIntOf, radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });
+exports.budClassesUser = {
+    int: BizBudInt,
+    dec: BizBudDec,
+    char: BizBudChar,
+    date: BizBudDate,
+    atom: BizBudID,
+    radio: BizBudRadio,
+};
 exports.budClassKeys = Object.keys(exports.budClasses);
 exports.budClassKeysIn = Object.keys(exports.budClassesIn);
 exports.budClassesOut = Object.assign({}, exports.budClassesIn);

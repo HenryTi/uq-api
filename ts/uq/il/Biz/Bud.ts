@@ -1,7 +1,8 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue
+    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue,
+    PBizUser
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -133,7 +134,6 @@ export abstract class BizBudValue extends BizBud {
         return ret;
     }
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
-        if (this.name === 'item') debugger;
         super.buildPhrases(phrases, prefix);
     }
     buildBudValue(expStringify: (value: ValueExpression) => string) {
@@ -163,6 +163,22 @@ export class BizBudArr extends BizBudValue {
             Object.assign(ret, { props });
         }
         return ret;
+    }
+}
+
+export class BizUser extends BizBud {
+    readonly dataType = BudDataType.user;
+    readonly defaults: BizBudValue[] = [];
+    override parser(context: PContext): PElement<IElement> {
+        return new PBizUser(this, context);
+    }
+    override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
+        super.buildPhrases(phrases, prefix);
+        /*
+        for (let def of this.defaults) {
+            def.buildPhrases(phrases, this.phrase);
+        }
+        */
     }
 }
 
@@ -430,6 +446,14 @@ export const budClasses: { [key: string]: new (entity: BizEntity, name: string, 
     radio: BizBudRadio,
     check: BizBudCheck,
     binValue: BinValue
+}
+export const budClassesUser: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {
+    int: BizBudInt,
+    dec: BizBudDec,
+    char: BizBudChar,
+    date: BizBudDate,
+    atom: BizBudID,
+    radio: BizBudRadio,
 }
 export const budClassKeys = Object.keys(budClasses);
 export const budClassKeysIn = Object.keys(budClassesIn);

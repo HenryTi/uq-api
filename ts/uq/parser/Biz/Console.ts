@@ -39,6 +39,15 @@ export class PBizConsole extends PBizEntity<BizConsole> {
                 this.ts.mayPassToken(Token.SEMICOLON);
                 break;
             }
+            if (this.ts.token === Token.COLON) {
+                if (this.element.user !== undefined) {
+                    this.ts.error(': duplicate');
+                }
+                this.ts.readToken();
+                this.ts.passKey('user');
+                this.parseBizUser();
+                continue;
+            }
             let name = this.ts.passVar();
             let ui = this.parseUI();
             if (this.ts.token === Token.LBRACE) {
@@ -70,6 +79,9 @@ export class PBizConsole extends PBizEntity<BizConsole> {
 
     scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
         if (this.scanFolder(space, this.element.folder) === false) {
             ok = false;
         }

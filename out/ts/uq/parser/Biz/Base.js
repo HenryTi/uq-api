@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizActStatements = exports.PBizAct = exports.PBizSearch = exports.PBizEntity = exports.PBizBase = void 0;
+exports.PBizActStatements = exports.PBizAct = exports.PBizSearch = exports.PBizEntity = exports.PBizUser = exports.PBizBase = void 0;
 const il_1 = require("../../il");
 const statement_1 = require("../statement");
 const consts_1 = require("../../consts");
@@ -277,6 +277,53 @@ const invalidPropNames = (function () {
     }
     return ret;
 })();
+class PBizUser extends PBizBase {
+    _parse() {
+        this.ts.passToken(tokens_1.Token.LBRACE);
+        for (;;) {
+            if (this.ts.token === tokens_1.Token.RBRACE) {
+                this.ts.readToken();
+                this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+                break;
+            }
+            let bud = this.parseUserBud();
+            this.element.defaults.push(bud);
+            if (this.ts.token === tokens_1.Token.SEMICOLON) {
+                this.ts.readToken();
+                if (this.ts.token !== tokens_1.Token.RBRACE)
+                    continue;
+            }
+            else {
+                this.ts.expectToken(tokens_1.Token.SEMICOLON);
+            }
+        }
+    }
+    parseUserBud() {
+        let name = this.ts.passVar();
+        let ui = this.parseUI();
+        let type = this.ts.passVar();
+        let Bud = il_1.budClassesUser[type];
+        if (Bud === undefined) {
+            this.ts.expect(...Object.keys(il_1.budClassesUser));
+        }
+        if (ui.caption === undefined) {
+            ui.caption = name;
+        }
+        let bizBud = new Bud(this.element.theEntity, ':user.' + name, ui);
+        this.context.parseElement(bizBud);
+        return bizBud;
+    }
+    scan(space) {
+        let ok = true;
+        for (let def of this.element.defaults) {
+            if (def.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+}
+exports.PBizUser = PBizUser;
 class PBizEntity extends PBizBase {
     constructor() {
         super(...arguments);
@@ -350,6 +397,10 @@ class PBizEntity extends PBizBase {
                 budArr.push(bizBud);
             }
             return { group: budGroup, budArr };
+        };
+        this.parseBizUser = () => {
+            let user = this.element.user = new il_1.BizUser(this.element, ':user', undefined);
+            this.context.parseElement(user);
         };
     }
     saveSource() {
@@ -502,6 +553,15 @@ class PBizEntity extends PBizBase {
         }
         return ok;
     }
+    scanUser(space) {
+        let ok = true;
+        const { user } = this.element;
+        if (user !== undefined) {
+            if (user.pelement.scan(space) === false)
+                ok = false;
+        }
+        return ok;
+    }
     scanBud(space, bud) {
         let ok = true;
         let { pelement, name, value, dataType } = bud;
@@ -576,6 +636,8 @@ class PBizEntity extends PBizBase {
         if (this.scanBuds(space, props) === false)
             ok = false;
         if (this.scanPermission(space) === false)
+            ok = false;
+        if (this.scanUser(space) === false)
             ok = false;
         return ok;
     }

@@ -275,6 +275,7 @@ class PBizAtom extends PBizIDExtendable {
             ex: this.parseEx,
             permit: this.parsePermit,
             unique: this.parseUnique,
+            user: this.parseBizUser,
         };
     }
     parseParam() {

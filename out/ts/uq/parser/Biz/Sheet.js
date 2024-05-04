@@ -41,6 +41,7 @@ class PBizSheet extends Base_1.PBizEntity {
             detail: this.parseDetail,
             permit: this.parsePermit,
             search: this.parseSheetSearch,
+            user: this.parseBizUser,
         };
     }
     scan0(space) {

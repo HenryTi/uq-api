@@ -4,7 +4,7 @@ import { Field } from "../field";
 import { BizBase, IxField } from "./Base";
 import { Biz } from "./Biz";
 import { BudDataType } from "./BizPhraseType";
-import { BizBud, BizBudValue, BudGroup, FieldShow, FieldShowItem } from "./Bud";
+import { BizBud, BizBudValue, BizUser, BudGroup, FieldShow } from "./Bud";
 import { BizRole } from "./Role";
 
 export enum BudIndex {
@@ -27,6 +27,7 @@ export abstract class BizEntity extends BizBase {
     readonly group1: BudGroup;      // 显示时必须的属性
     readonly budGroups: Map<string, BudGroup> = new Map();
     readonly permissions: { [role: string]: Permission } = {};
+    user: BizUser;
     source: string = undefined;
     protected abstract get fields(): string[];
     showBuds: FieldShow[];
@@ -62,6 +63,9 @@ export abstract class BizEntity extends BizBase {
         if (hasGroup === true as any) {
             groups.push(this.group0.buildSchema(res));
             ret.groups = groups;
+        }
+        if (this.user !== undefined) {
+            ret.user = this.user.defaults.map(v => v.buildSchema(res));
         }
         this.schema = ret;
         return ret;
@@ -173,6 +177,12 @@ export abstract class BizEntity extends BizBase {
     }
 
     forEachBud(callback: (bud: BizBud) => void) {
+        if (this.user !== undefined) {
+            callback(this.user);
+            for (let ub of this.user.defaults) {
+                callback(ub);
+            }
+        }
         for (let [, bud] of this.props) callback(bud);
     }
 

@@ -40,6 +40,15 @@ class PBizConsole extends Base_1.PBizEntity {
                 this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
                 break;
             }
+            if (this.ts.token === tokens_1.Token.COLON) {
+                if (this.element.user !== undefined) {
+                    this.ts.error(': duplicate');
+                }
+                this.ts.readToken();
+                this.ts.passKey('user');
+                this.parseBizUser();
+                continue;
+            }
             let name = this.ts.passVar();
             let ui = this.parseUI();
             if (this.ts.token === tokens_1.Token.LBRACE) {
@@ -69,6 +78,9 @@ class PBizConsole extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
+        }
         if (this.scanFolder(space, this.element.folder) === false) {
             ok = false;
         }
