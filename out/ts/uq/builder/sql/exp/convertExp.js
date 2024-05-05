@@ -29,8 +29,10 @@ class Stack {
         this.context = context;
     }
     getExp() {
-        if (this.arr.length === 0)
+        if (this.arr.length === 0) {
             debugger;
+            return;
+        }
         let ret = this.arr.pop();
         return ret;
     }
@@ -164,7 +166,12 @@ class Stack {
         this.arr.push(new tools_1.BBizCheckBud(expOptionId, bExp1, bExp2, bBizField, items));
     }
     bizFieldOperand(bizFieldOperand) {
-        let bBizField = bizFieldOperand.field.db(this.context);
+        let { field } = bizFieldOperand;
+        if (field === undefined) {
+            // %user.x
+            return;
+        }
+        let bBizField = field.db(this.context);
         let bBizFieldOperand = new tools_1.BBizFieldOperand(bBizField);
         this.arr.push(bBizFieldOperand);
     }

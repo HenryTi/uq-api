@@ -1,4 +1,4 @@
-import { BizFieldOperand, Uq } from '../../il';
+import { BizFieldOperand, BizFieldUser, Uq } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -27,6 +27,10 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
                 this.log(`Unknown field ${this.fieldName.join('.')}`);
                 ok = false;
             }
+        }
+        else if (this.fieldName[0] === 'user') {
+            // 暂时任何字段都允许
+            this.element.field = new BizFieldUser(bizFieldSpace, this.fieldName[1])
         }
         else {
             this.log(`Unknown field ${this.fieldName.join('.')}`);

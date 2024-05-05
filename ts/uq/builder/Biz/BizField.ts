@@ -119,3 +119,9 @@ export class BBizFieldBinBud extends BBizFieldBud {
         sb.append('_').append(tableAlias + div.level);
     }
 }
+
+export class BBizFieldUser extends BBizField<BizField> {
+    override to(sb: SqlBuilder): void {
+        sb.append('user').dot().append(this.bizField.tableAlias);
+    }
+}

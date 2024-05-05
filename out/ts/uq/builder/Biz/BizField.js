@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
+exports.BBizFieldUser = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
 class BBizField {
     constructor(dbContext, bizField) {
@@ -101,4 +101,10 @@ class BBizFieldBinBud extends BBizFieldBud {
     }
 }
 exports.BBizFieldBinBud = BBizFieldBinBud;
+class BBizFieldUser extends BBizField {
+    to(sb) {
+        sb.append('user').dot().append(this.bizField.tableAlias);
+    }
+}
+exports.BBizFieldUser = BBizFieldUser;
 //# sourceMappingURL=BizField.js.map

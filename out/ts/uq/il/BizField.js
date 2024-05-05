@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromFieldSpace = exports.BizFieldSpace = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldBud = exports.BizField = void 0;
+exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromFieldSpace = exports.BizFieldSpace = exports.BizFieldUser = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldBud = exports.BizField = void 0;
 const builder_1 = require("../builder");
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
 const consts_1 = require("../consts");
@@ -80,6 +80,18 @@ class BizFieldVar extends BizFieldField {
     }
 }
 exports.BizFieldVar = BizFieldVar;
+class BizFieldUser extends BizField {
+    buildSchema() {
+        return `%user.${this.tableAlias}`;
+    }
+    buildColArr() {
+        return [new builder_1.ExpStr(`%user.${this.tableAlias}`)];
+    }
+    db(dbContext) {
+        return this.space.createBFieldUser(dbContext, this);
+    }
+}
+exports.BizFieldUser = BizFieldUser;
 // col = field | bud;
 var ColType;
 (function (ColType) {
@@ -179,6 +191,9 @@ class BizFieldSpace {
     }
     createBJson(dbContext, bizField) {
         return new builder_1.BBizFieldJsonProp(dbContext, bizField);
+    }
+    createBFieldUser(dbContext, bizField) {
+        return new builder_1.BBizFieldUser(dbContext, bizField);
     }
 }
 exports.BizFieldSpace = BizFieldSpace;
@@ -299,6 +314,6 @@ BizBinActFieldSpace.fields = {
             alias: 's',
             colType: ColType.var,
         },
-    ]
+    ],
 };
 //# sourceMappingURL=BizField.js.map

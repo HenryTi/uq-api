@@ -48,7 +48,10 @@ class Stack implements IlStack {
         this.context = context;
     }
     getExp(): Exp {
-        if (this.arr.length === 0) debugger;
+        if (this.arr.length === 0) {
+            debugger;
+            return;
+        }
         let ret = this.arr.pop();
         return ret;
     }
@@ -180,7 +183,12 @@ class Stack implements IlStack {
         this.arr.push(new BBizCheckBud(expOptionId, bExp1, bExp2, bBizField, items));
     }
     bizFieldOperand(bizFieldOperand: BizFieldOperand) {
-        let bBizField = bizFieldOperand.field.db(this.context);
+        let { field } = bizFieldOperand;
+        if (field === undefined) {
+            // %user.x
+            return;
+        }
+        let bBizField = field.db(this.context);
         let bBizFieldOperand = new BBizFieldOperand(bBizField);
         this.arr.push(bBizFieldOperand);
     }

@@ -3,7 +3,8 @@ import {
     , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar, BBizFieldBinBud,// , BBizFieldSheetBud
     ExpVal,
     ExpStr,
-    ExpNum
+    ExpNum,
+    BBizFieldUser
 } from "../builder";
 import { BinDiv, BizBin } from "./Biz";
 import { BizPhraseType } from "./Biz/BizPhraseType";
@@ -95,6 +96,18 @@ export class BizFieldJsonProp extends BizFieldBud {
 export class BizFieldVar extends BizFieldField {
     override db(dbContext: DbContext): BBizField {
         return this.space.createBVar(dbContext, this);
+    }
+}
+
+export class BizFieldUser extends BizField {
+    buildSchema() {
+        return `%user.${this.tableAlias}`;
+    }
+    buildColArr(): ExpVal[] {
+        return [new ExpStr(`%user.${this.tableAlias}`)];
+    }
+    override db(dbContext: DbContext): BBizField {
+        return this.space.createBFieldUser(dbContext, this);
     }
 }
 
@@ -212,6 +225,9 @@ export abstract class BizFieldSpace {
     createBJson(dbContext: DbContext, bizField: BizFieldJsonProp): BBizField {
         return new BBizFieldJsonProp(dbContext, bizField);
     }
+    createBFieldUser(dbContext: DbContext, bizField: BizFieldUser): BBizField {
+        return new BBizFieldUser(dbContext, bizField);
+    }
 }
 
 export abstract class FromFieldSpace extends BizFieldSpace {
@@ -321,7 +337,7 @@ export class BizBinActFieldSpace extends BizFieldSpace {
                 alias: 's',
                 colType: ColType.var,
             },
-        ]
+        ],
     };
     private readonly bizBin: BizBin
     protected readonly fields: TableCols = BizBinActFieldSpace.fields;
