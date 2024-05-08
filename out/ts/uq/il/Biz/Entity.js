@@ -200,6 +200,13 @@ class BizEntity extends Base_1.BizBase {
             return;
         return ret;
     }
+    checkUserDefault(prop) {
+        if (this.user === undefined)
+            return false;
+        const { defaults } = this.user;
+        prop = ':user.' + prop;
+        return (defaults.findIndex(v => v.name === prop) >= 0);
+    }
 }
 exports.BizEntity = BizEntity;
 //# sourceMappingURL=Entity.js.map

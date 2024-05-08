@@ -212,4 +212,11 @@ export abstract class BizEntity extends BizBase {
         if (ret.length === 0) return;
         return ret;
     }
+
+    checkUserDefault(prop: string) {
+        if (this.user === undefined) return false;
+        const { defaults } = this.user;
+        prop = ':user.' + prop;
+        return (defaults.findIndex(v => v.name === prop) >= 0);
+    }
 }

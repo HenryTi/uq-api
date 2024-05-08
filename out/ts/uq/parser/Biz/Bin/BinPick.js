@@ -166,6 +166,14 @@ class PBinPick extends element_1.PElement {
                         }
                     }
                 }
+                else if (bud === '%user') {
+                    // ok = true;
+                    let sheet = this.element.bin.sheetArr[0];
+                    if (sheet.checkUserDefault(prop) === false) {
+                        this.log(`Sheet ${sheet.getJName()} has not user default ${prop}`);
+                        ok = false;
+                    }
+                }
                 else {
                     let pick = bin.pickColl[bud];
                     if (pick === undefined) {
