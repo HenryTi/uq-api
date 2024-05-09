@@ -17,7 +17,7 @@ import { PContext } from '../pContext';
 export abstract class PStatement<T extends Statement = Statement> extends PElement<T> {
 }
 
-export abstract class PStatements extends PStatement<Statements> {
+export abstract class PStatements<T extends Statements = Statements> extends PStatement<T> {
     protected _parse() {
         if (this.ts.token === Token.LBRACE) {
             this.ts.readToken();

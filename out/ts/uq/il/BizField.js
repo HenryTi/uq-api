@@ -281,6 +281,9 @@ class BizBinActFieldSpace extends BizFieldSpace {
         this.fields = BizBinActFieldSpace.fields;
         this.bizBin = bizBin;
     }
+    get speceEntity() {
+        return this.bizBin;
+    }
     init() {
         this.initBuds('$', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
         this.initBuds('bin', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);

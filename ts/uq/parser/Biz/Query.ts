@@ -159,7 +159,7 @@ export class PBizQueryValueStatements extends PStatements {
     }
 }
 
-export class PBizQueryTableStatements extends PStatements {
+export class PBizQueryTableStatements extends PStatements<BizQueryTableStatements> {
     protected statementFromKey(parent: Statement, key: string): Statement {
         switch (key) {
             default: return super.statementFromKey(parent, key);

@@ -358,6 +358,15 @@ export class BizBin extends BizEntity {
         }
         return undefined;
     }
+
+    checkUserDefault(prop: string) {
+        for (let sheet of this.sheetArr) {
+            if (sheet.checkUserDefault(prop) === true) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 export class BizBinAct extends BizAct {
@@ -368,6 +377,8 @@ export class BizBinAct extends BizAct {
         super(biz);
         this.bizBin = bizBin;
     }
+
+    get spaceEntity(): BizEntity { return this.bizBin; }
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBinAct(this, context);

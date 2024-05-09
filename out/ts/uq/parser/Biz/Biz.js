@@ -148,6 +148,7 @@ class BizEntitySpace extends space_1.Space {
     _getUse(name) {
         return this.useColl[name];
     }
+    _getBizEntitySpace() { return this; }
     _addUse(name, statementNo, obj) {
         let v = this.useColl[name];
         if (v !== undefined)

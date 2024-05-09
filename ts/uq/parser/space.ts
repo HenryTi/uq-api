@@ -1,8 +1,9 @@
 import {
     Field, Table, Arr, Entity, GroupType
     , Pointer, Return, Bus, Uq, TableVar, Enum, LocalTableBase
-    , Const, ActionBase, Role, DataType, BizBase, BizEntity, FromStatement, BizFieldSpace, BizOut, BizIOApp, BizIOSite, UseOut, IOAppOut
+    , Const, ActionBase, Role, DataType, BizBase, BizEntity, BizFieldSpace, BizOut, UseOut
 } from '../il';
+import { BizEntitySpace } from './Biz/Biz';
 
 export abstract class Space {
     readonly uq: Uq;
@@ -28,6 +29,7 @@ export abstract class Space {
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
     protected _getBizEntity(name: string): BizEntity { return undefined; }
     protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
+    protected _getBizEntitySpace(): BizEntitySpace { return undefined; }
     protected _regUseBizOut(out: BizOut, to: boolean): UseOut { return undefined; }
     protected _getUse(name: string): { statementNo: number; obj: any; } { return undefined; }
     protected _addUse(name: string, statementNo: number, obj: any): boolean { return undefined; }
@@ -135,6 +137,11 @@ export abstract class Space {
         let ret = this._getBizFieldSpace();
         if (ret !== undefined) return ret;
         if (this.outer !== undefined) return this.outer.getBizFieldSpace();
+    }
+    getBizEntitySpace() {
+        let ret = this._getBizEntitySpace();
+        if (ret !== undefined) return ret;
+        if (this.outer !== undefined) return this.outer.getBizEntitySpace();
     }
     regUseBizOut(out: BizOut, to: boolean): UseOut {
         let ret = this._regUseBizOut(out, to);

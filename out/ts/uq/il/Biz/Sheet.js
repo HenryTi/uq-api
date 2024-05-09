@@ -47,6 +47,8 @@ class BizSheet extends Entity_1.BizEntity {
     db(dbContext) {
         return new builder_1.BBizSheet(dbContext, this);
     }
+    checkUserProp(prop) {
+    }
 }
 exports.BizSheet = BizSheet;
 class BizPend extends Entity_1.BizEntity {

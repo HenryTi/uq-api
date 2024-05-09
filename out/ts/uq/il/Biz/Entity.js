@@ -200,12 +200,22 @@ class BizEntity extends Base_1.BizBase {
             return;
         return ret;
     }
-    checkUserDefault(prop) {
+    internalCheckUserDefault(prop) {
         if (this.user === undefined)
             return false;
         const { defaults } = this.user;
         prop = ':user.' + prop;
         return (defaults.findIndex(v => v.name === prop) >= 0);
+    }
+    checkUserDefault(prop) {
+        let ret = this.internalCheckUserDefault(prop);
+        if (ret === true)
+            return true;
+        let bizConsole = this.biz.bizEntities.get('$console');
+        if (bizConsole !== this) {
+            return bizConsole.internalCheckUserDefault(prop);
+        }
+        return ret;
     }
 }
 exports.BizEntity = BizEntity;

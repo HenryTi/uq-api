@@ -293,6 +293,14 @@ class BizBin extends Entity_1.BizEntity {
         }
         return undefined;
     }
+    checkUserDefault(prop) {
+        for (let sheet of this.sheetArr) {
+            if (sheet.checkUserDefault(prop) === true) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 exports.BizBin = BizBin;
 class BizBinAct extends Base_1.BizAct {
@@ -300,6 +308,7 @@ class BizBinAct extends Base_1.BizAct {
         super(biz);
         this.bizBin = bizBin;
     }
+    get spaceEntity() { return this.bizBin; }
     parser(context) {
         return new parser_1.PBizBinAct(this, context);
     }

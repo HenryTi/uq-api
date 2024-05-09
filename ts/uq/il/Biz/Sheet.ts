@@ -58,6 +58,10 @@ export class BizSheet extends BizEntity {
     db(dbContext: DbContext): BBizSheet {
         return new BBizSheet(dbContext, this);
     }
+
+    checkUserProp(prop: string) {
+
+    }
 }
 
 export class BizPend extends BizEntity {

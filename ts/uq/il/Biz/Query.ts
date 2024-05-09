@@ -4,7 +4,7 @@ import { PContext, PElement } from "../../parser";
 import { PBizQueryTable, PBizQueryTableStatements, PBizQueryValue, PBizQueryValueStatements } from "../../parser";
 import { Builder } from "../builder";
 import { IElement } from "../IElement";
-import { FromStatement, Statements } from "../statement";
+import { FromStatement, Statement, Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";

@@ -346,6 +346,10 @@ export class BizBinActFieldSpace extends BizFieldSpace {
         this.bizBin = bizBin;
     }
 
+    get speceEntity(): BizEntity {
+        return this.bizBin;
+    }
+
     protected override init(): void {
         this.initBuds('$', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);
         this.initBuds('bin', this.bizBin, this.bizBin.props.values(), 'bin', ColType.bud);

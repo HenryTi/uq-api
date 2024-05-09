@@ -213,10 +213,20 @@ export abstract class BizEntity extends BizBase {
         return ret;
     }
 
-    checkUserDefault(prop: string) {
+    protected internalCheckUserDefault(prop: string) {
         if (this.user === undefined) return false;
         const { defaults } = this.user;
         prop = ':user.' + prop;
         return (defaults.findIndex(v => v.name === prop) >= 0);
+    }
+
+    checkUserDefault(prop: string) {
+        let ret = this.internalCheckUserDefault(prop);
+        if (ret === true) return true;
+        let bizConsole = this.biz.bizEntities.get('$console');
+        if (bizConsole !== this) {
+            return bizConsole.internalCheckUserDefault(prop);
+        }
+        return ret;
     }
 }

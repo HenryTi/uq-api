@@ -158,7 +158,7 @@ export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     protected override _getUse(name: string): { statementNo: number; obj: any; } {
         return this.useColl[name];
     }
-
+    protected _getBizEntitySpace(): BizEntitySpace { return this; }
     protected override _addUse(name: string, statementNo: number, obj: any): boolean {
         let v = this.useColl[name];
         if (v !== undefined) return false;

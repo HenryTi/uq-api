@@ -27,6 +27,7 @@ export interface BanColumn {
 
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
+    readonly spaceEntity: BizEntity;
     bizEntityArr: BizEntity[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
