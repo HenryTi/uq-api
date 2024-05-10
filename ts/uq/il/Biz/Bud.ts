@@ -6,7 +6,7 @@ import {
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
-import { BizAtom, BizID, BizSpec } from "./BizID";
+import { BizID } from "./BizID";
 import { BizOptions, OptionsItemValueType } from "./Options";
 import { BizEntity, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
@@ -21,41 +21,6 @@ export enum BudValueSetType {
 }
 
 export type FieldShowItem = BizBud;
-/*
-export abstract class FieldShowItem<T extends BizEntity = BizEntity> {
-    readonly bizEntity: T;
-    readonly bizBud: BizBud;
-    constructor(bizEntity: T, bizBud: BizBud) {
-        this.bizEntity = bizEntity;
-        this.bizBud = bizBud;
-    }
-    static createEntityFieldShow(entity: BizEntity, bizBud: BizBud) {
-        return new EntityFieldShowItem(entity, bizBud);
-    }
-    static createBinFieldShow(bizBin: BizBin, bizBud: BizBud) {
-        return new BinFieldShowItem(bizBin, bizBud);
-    }
-    static createSpecFieldShow(bizSpec: BizSpec, bizBud: BizBud) {
-        return new SpecFieldShowItem(bizSpec, bizBud);
-    }
-    static createSpecAtomFieldShow(bizSpec: BizSpec, bizBud: BizBud) {
-        return new SpecAtomFieldShowItem(bizSpec, bizBud);
-    }
-    static createAtomFieldShow(bizAtom: BizAtom, bizBud: BizBud) {
-        return new AtomFieldShowItem(bizAtom, bizBud);
-    }
-}
-class EntityFieldShowItem extends FieldShowItem<BizEntity> {
-}
-class BinFieldShowItem extends FieldShowItem<BizBin> {
-}
-class SpecFieldShowItem extends FieldShowItem<BizSpec> {
-}
-class SpecAtomFieldShowItem extends FieldShowItem<BizSpec> {
-}
-class AtomFieldShowItem extends FieldShowItem<BizAtom> {
-}
-*/
 
 export type FieldShow = FieldShowItem[];
 
@@ -400,7 +365,7 @@ export abstract class BizBudOptions extends BizBudValue {
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return {
-            ...ret, options: this.options?.phrase
+            ...ret, options: this.options?.id
         };
     }
     get objName(): string { return this.options?.phrase; }

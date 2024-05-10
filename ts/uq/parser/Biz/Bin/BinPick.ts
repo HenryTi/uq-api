@@ -1,13 +1,18 @@
 import { binFieldArr } from "../../../consts";
 import {
     BizPhraseType, BizPend, BinPick, PickBase, PickAtom
-    , BizAtom, PickSpec, BizSpec, PickPend, PickQuery, BizQueryTable
+    , BizAtom, PickSpec, BizSpec, PickPend, PickQuery, BizQueryTable,
+    BudValueSetType,
+    ValueExpression,
+    PickParam,
+    BizEntity
 } from "../../../il";
-import { PElement } from "../../element";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
+import { BizEntitySpace } from "../Biz";
+import { PBizBud, PBizBudValue } from "../Bud";
 
-export class PBinPick extends PElement<BinPick> {
+export class PBinPick extends PBizBud<BinPick> {
     private from: string[] = [];
     private hides: string[];
     protected _parse(): void {
@@ -27,6 +32,18 @@ export class PBinPick extends PElement<BinPick> {
                 if (this.ts.isKeyword('param') === true) {
                     this.ts.readToken();
                     let name = this.ts.passVar();
+                    let ui = this.parseUI();
+                    let pickParam = new PickParam(this.element.bin, name, ui);
+                    this.context.parseElement(pickParam);
+                    /*
+                    let setType = this.parseBudEqu();
+                    if (setType === BudValueSetType.show) {
+                        this.ts.error(': is not valid here');
+                    }
+                    this.ts.readToken();
+                    let exp = new ValueExpression();
+                    this.context.parseElement(exp);
+                    /*
                     this.ts.passToken(Token.EQU);
                     let bud: string;
                     if (this.ts.token === Token.MOD as any) {
@@ -41,15 +58,23 @@ export class PBinPick extends PElement<BinPick> {
                         this.ts.readToken();
                         prop = this.ts.passVar();
                     }
+                    */
                     let { params } = this.element;
                     if (params === undefined) {
                         params = this.element.params = [];
                     }
-                    params.push({
-                        name,
-                        bud,
-                        prop,
-                    });
+                    params.push(pickParam
+                        /*{
+                            name,
+                            valueSet: {
+                                setType,
+                                exp,
+                            }
+                            // bud,
+                            // prop,
+                        }
+                        */
+                    );
                 }
                 else if (this.ts.isKeyword('hide') === true) {
                     this.hides = [];
@@ -146,9 +171,16 @@ export class PBinPick extends PElement<BinPick> {
         let { params, bin, pick: pickBase } = this.element;
         if (params !== undefined) {
             for (let p of params) {
-                const { name, bud, prop } = p;
+                const { name/*, bud, prop*/ } = p;
                 if (pickBase.hasParam(name) === false) {
                     this.log(`PARAM ${name} is not defined`);
+                    ok = false;
+                }
+                if (p.pelement.scan(space) === false) {
+                    ok = false;
+                }
+                /*
+                if (exp.pelement.scan(space) === false) {
                     ok = false;
                 }
                 if (bud === '%sheet') {
@@ -168,7 +200,6 @@ export class PBinPick extends PElement<BinPick> {
                     }
                 }
                 else if (bud === '%user') {
-                    // ok = true;
                     let sheet = this.element.bin.sheetArr[0];
                     if (sheet.checkUserDefault(prop) === false) {
                         this.log(`Sheet ${sheet.getJName()} has not user default ${prop}`);
@@ -189,6 +220,7 @@ export class PBinPick extends PElement<BinPick> {
                         }
                     }
                 }
+                */
             }
         }
         if (this.hides !== undefined) {
@@ -203,6 +235,47 @@ export class PBinPick extends PElement<BinPick> {
                 }
                 hiddenBuds.push(bud);
             }
+        }
+        return ok;
+    }
+}
+
+export class PPickParam extends PBizBudValue<PickParam> {
+    protected override _parse(): void {
+        let setType = this.parseBudEqu();
+        if (setType === BudValueSetType.show) {
+            this.ts.error(': is not valid here');
+        }
+        if (setType === undefined) return;
+        this.ts.readToken();
+        let exp = new ValueExpression();
+        this.context.parseElement(exp);
+        this.element.value = {
+            setType,
+            exp,
+        };
+        /*
+        this.ts.passToken(Token.EQU);
+        let bud: string;
+        if (this.ts.token === Token.MOD as any) {
+            this.ts.readToken();
+            bud = '%' + this.ts.passVar();
+        }
+        else {
+            bud = this.ts.passVar();
+        }
+        let prop: string;
+        if (this.ts.token === Token.DOT as any) {
+            this.ts.readToken();
+            prop = this.ts.passVar();
+        }
+        */
+    }
+
+    override scan(space: BizEntitySpace<BizEntity>): boolean {
+        let ok = true;
+        if (super.scan(space) === false) {
+            ok = false;
         }
         return ok;
     }

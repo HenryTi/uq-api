@@ -100,8 +100,9 @@ export class PBizPend extends PBizEntity<BizPend> {
                 ok = false;
             }
             for (let param of pendQuery.params) {
-                if (this.element.getBud(param.name) !== undefined) {
-                    this.log(`${param.name} duplicate`);
+                const { name } = param;
+                if (this.element.getBud(name) !== undefined) {
+                    this.log(`${name} duplicate`);
                     ok = false;
                 }
             }

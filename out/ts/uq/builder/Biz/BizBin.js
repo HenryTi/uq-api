@@ -35,10 +35,15 @@ const binFieldsSet = new Set(consts_1.binFieldArr);
 class BBizBin extends BizEntity_1.BBizEntity {
     async buildBudsValue() {
         super.buildBudsValue();
-        const { inputArr } = this.bizEntity;
+        const { inputArr, pickArr } = this.bizEntity;
         if (inputArr !== undefined) {
             for (let input of inputArr) {
                 input.buildBudValue(this.expStringify);
+            }
+        }
+        if (pickArr !== undefined) {
+            for (let pick of pickArr) {
+                pick.buildBudValue(this.expStringify);
             }
         }
     }

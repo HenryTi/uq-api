@@ -9,21 +9,10 @@ class PBizBud extends Base_1.PBizBase {
 exports.PBizBud = PBizBud;
 class PBizBudValue extends PBizBud {
     _parse() {
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
-    parseBudEqu() {
-        let setType;
-        switch (this.ts.token) {
-            case tokens_1.Token.EQU:
-                setType = il_1.BudValueSetType.equ;
-                break;
-            case tokens_1.Token.COLONEQU:
-                setType = il_1.BudValueSetType.init;
-                break;
-            case tokens_1.Token.COLON:
-                setType = il_1.BudValueSetType.show;
-                break;
-        }
+    parseBudEquValue() {
+        let setType = this.parseBudEqu();
         if (setType === il_1.BudValueSetType.show) {
             this.ts.readToken();
             let varString = [];
@@ -188,8 +177,8 @@ class PBizBudArr extends PBizBudValue {
 }
 exports.PBizBudArr = PBizBudArr;
 class PBizBudValueWithRange extends PBizBudValue {
-    parseBudEqu() {
-        super.parseBudEqu();
+    parseBudEquValue() {
+        super.parseBudEquValue();
         for (;;) {
             const { token } = this.ts;
             if (token === tokens_1.Token.GE) {
@@ -269,7 +258,7 @@ class PBizBudDec extends PBizBudValueWithRange {
             }
             this.element.ui.fraction = n;
         }
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
 }
 exports.PBizBudDec = PBizBudDec;
@@ -425,7 +414,7 @@ class PBizBudIXBase extends PBizBudIDBase {
     _parse() {
         this.atomName = this.ts.mayPassVar();
         this.parseFieldShow();
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
 }
 exports.PBizBudIXBase = PBizBudIXBase;
@@ -453,7 +442,7 @@ class PBizBudID extends PBizBudIDBase {
             this.ts.readToken();
         }
         this.parseFieldShow();
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
     scan(space) {
         let ok = super.scan(space);
@@ -480,7 +469,7 @@ class PBizBudPickable extends PBizBudValue {
             }
         }
         else {
-            this.parseBudEqu();
+            this.parseBudEquValue();
         }
         this.ts.expect('Atom', 'Pick', '=', ':=', ':');
     }
@@ -510,7 +499,7 @@ class PBizBudRadioOrCheck extends PBizBudValue {
         }
         this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
     scan(space) {
         let ok = true;

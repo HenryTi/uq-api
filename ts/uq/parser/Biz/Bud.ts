@@ -3,7 +3,7 @@ import {
     , BizBudDec, BizBudInt, BizOptions
     , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizAtom, BizSpec, BudValueSet, BizBudValueWithRange
+    , BudDataType, FieldShowItem, BizSpec, BudValueSet, BizBudValueWithRange
     , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue, BizID,
     BizBudIDBase
 } from "../../il";
@@ -18,22 +18,11 @@ export abstract class PBizBud<P extends BizBud> extends PBizBase<P> {
 export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
     private fieldString: string[];
     protected _parse(): void {
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
 
-    protected parseBudEqu() {
-        let setType: BudValueSetType;
-        switch (this.ts.token) {
-            case Token.EQU:
-                setType = BudValueSetType.equ;
-                break;
-            case Token.COLONEQU:
-                setType = BudValueSetType.init;
-                break;
-            case Token.COLON:
-                setType = BudValueSetType.show;
-                break;
-        }
+    protected parseBudEquValue() {
+        let setType = this.parseBudEqu();
         if (setType === BudValueSetType.show) {
             this.ts.readToken();
             let varString: string[] = [];
@@ -199,8 +188,8 @@ export class PBizBudArr extends PBizBudValue<BizBudArr> {
 }
 
 class PBizBudValueWithRange<T extends BizBudValueWithRange> extends PBizBudValue<T> {
-    protected override parseBudEqu(): void {
-        super.parseBudEqu();
+    protected override parseBudEquValue(): void {
+        super.parseBudEquValue();
         for (; ;) {
             const { token } = this.ts;
             if (token === Token.GE) {
@@ -282,7 +271,7 @@ export class PBizBudDec<T extends BizBudDec = BizBudDec> extends PBizBudValueWit
             }
             this.element.ui.fraction = n;
         }
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
 }
 
@@ -442,7 +431,7 @@ export class PBizBudIXBase extends PBizBudIDBase<BizBudIXBase> {
     protected _parse(): void {
         this.atomName = this.ts.mayPassVar();
         this.parseFieldShow();
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
 }
 
@@ -470,7 +459,7 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
             this.ts.readToken();
         }
         this.parseFieldShow();
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
 
     scan(space: BizEntitySpace): boolean {
@@ -500,7 +489,7 @@ export class PBizBudPickable extends PBizBudValue<BizBudPickable> {
             }
         }
         else {
-            this.parseBudEqu();
+            this.parseBudEquValue();
         }
         this.ts.expect('Atom', 'Pick', '=', ':=', ':');
     }
@@ -533,7 +522,7 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBud
         }
         this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
-        this.parseBudEqu();
+        this.parseBudEquValue();
     }
     scan(space: Space): boolean {
         let ok = true;

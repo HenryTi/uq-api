@@ -61,8 +61,8 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
     scan(space: Space): boolean {
         let ok = true;
         space = new BizQuerySpace(space, this.element);
-        const { from, props, params } = this.element;
-        if (this.element.statement.pelement.scan(space) === false) {
+        const { from, props, params, statement } = this.element;
+        if (statement.pelement.scan(space) === false) {
             ok = false;
             return ok;
         }
@@ -99,7 +99,12 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
             }
         }
         for (let param of params) {
-            props.set(param.name, param);
+            const { name, value } = param;
+            if (value !== undefined) {
+                this.log(`${name} should not have default`);
+                ok = false;
+            }
+            props.set(name, param);
         }
         if (this.scanBuds(space, props) === false) ok = false;
         return ok;

@@ -117,6 +117,21 @@ class PBizBase extends element_1.PElement {
     }
     parseDefault() {
     }
+    parseBudEqu() {
+        let setType;
+        switch (this.ts.token) {
+            case tokens_1.Token.EQU:
+                setType = il_1.BudValueSetType.equ;
+                break;
+            case tokens_1.Token.COLONEQU:
+                setType = il_1.BudValueSetType.init;
+                break;
+            case tokens_1.Token.COLON:
+                setType = il_1.BudValueSetType.show;
+                break;
+        }
+        return setType;
+    }
     scanAtomID(space, atomName) {
         let Atom = space.uq.biz.bizEntities.get(atomName);
         const types = [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.bud];

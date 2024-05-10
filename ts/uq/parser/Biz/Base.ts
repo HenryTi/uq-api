@@ -3,7 +3,8 @@ import {
     , BizIDExtendable, BizPhraseType, Permission, SetType, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
     , Statements, Statement, budClasses, budClassKeys, BudDataType,
     BizUser,
-    budClassesUser
+    budClassesUser,
+    BudValueSetType
 } from "../../il";
 import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
@@ -89,6 +90,22 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     }
 
     protected parseDefault(): void {
+    }
+
+    protected parseBudEqu() {
+        let setType: BudValueSetType;
+        switch (this.ts.token) {
+            case Token.EQU:
+                setType = BudValueSetType.equ;
+                break;
+            case Token.COLONEQU:
+                setType = BudValueSetType.init;
+                break;
+            case Token.COLON:
+                setType = BudValueSetType.show;
+                break;
+        }
+        return setType;
     }
 
     scanAtomID(space: Space, atomName: string): BizIDExtendable {

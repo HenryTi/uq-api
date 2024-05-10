@@ -1,13 +1,13 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
-import { PBinInputAtom, PBinInputSpec, PBinPick, PBizBin, PBizBinAct, PContext, PElement } from "../../parser";
+import { PBinInputAtom, PBinInputSpec, PBinPick, PBizBin, PBizBinAct, PContext, PElement, PPickParam } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
 import { BizAtom, BizSpec } from "./BizID";
 import { BizAct } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue, BizBudIXBase } from "./Bud";
+import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue, BizBudIXBase, BudValueSet } from "./Bud";
 import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizPend, BizSheet } from "./Sheet";
@@ -17,16 +17,25 @@ import { ValueExpression } from "../Exp";
 import { binFieldArr } from "../../consts";
 import { UseOut } from "./InOut";
 
-export interface PickParam {
-    name: string;
-    bud: string;
-    prop: string;       // prop of bud
+export class PickParam extends BizBudValue {
+    readonly canIndex = false;
+    readonly dataType = BudDataType.none;
+    override parser(context: PContext): PElement<IElement> {
+        return new PPickParam(this, context);
+    }
+    // name: string;
+    // bud: string;
+    // prop: string;       // prop of bud
+    // valueSet: BudValueSet;
+    override buildSchema(res: { [phrase: string]: string; }) {
+        return super.buildSchema(res);
+    }
 }
 
 export class BinPick extends BizBud {
     readonly bin: BizBin;
     readonly dataType = BudDataType.none;
-    params: PickParam[];
+    params: BizBudValue[];
     pick: PickBase;
     single: boolean;
     hiddenBuds: BizBud[];
@@ -36,6 +45,12 @@ export class BinPick extends BizBud {
     }
     parser(context: PContext): PElement<IElement> {
         return new PBinPick(this, context);
+    }
+    override buildBudValue(expStringify: (value: ValueExpression) => string) {
+        if (this.params === undefined) return;
+        for (let param of this.params) {
+            param.buildBudValue(expStringify);
+        }
     }
 }
 export interface PickBase {
@@ -281,7 +296,7 @@ export class BizBin extends BizEntity {
                     ui,
                     from,
                     hidden: hiddenBuds?.map(v => v.id),
-                    params,
+                    params: params?.map(v => v.buildSchema(res)),
                     single,
                 });
             }

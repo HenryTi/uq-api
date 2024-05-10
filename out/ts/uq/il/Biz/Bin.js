@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = void 0;
+exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
@@ -9,6 +9,24 @@ const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 const BizPhraseType_1 = require("./BizPhraseType");
 const consts_1 = require("../../consts");
+class PickParam extends Bud_1.BizBudValue {
+    constructor() {
+        super(...arguments);
+        this.canIndex = false;
+        this.dataType = BizPhraseType_1.BudDataType.none;
+    }
+    parser(context) {
+        return new parser_1.PPickParam(this, context);
+    }
+    // name: string;
+    // bud: string;
+    // prop: string;       // prop of bud
+    // valueSet: BudValueSet;
+    buildSchema(res) {
+        return super.buildSchema(res);
+    }
+}
+exports.PickParam = PickParam;
 class BinPick extends Bud_1.BizBud {
     constructor(bin, name, ui) {
         super(bin, name, ui);
@@ -17,6 +35,13 @@ class BinPick extends Bud_1.BizBud {
     }
     parser(context) {
         return new parser_1.PBinPick(this, context);
+    }
+    buildBudValue(expStringify) {
+        if (this.params === undefined)
+            return;
+        for (let param of this.params) {
+            param.buildBudValue(expStringify);
+        }
     }
 }
 exports.BinPick = BinPick;
@@ -225,7 +250,7 @@ class BizBin extends Entity_1.BizEntity {
                     ui,
                     from,
                     hidden: hiddenBuds === null || hiddenBuds === void 0 ? void 0 : hiddenBuds.map(v => v.id),
-                    params,
+                    params: params === null || params === void 0 ? void 0 : params.map(v => v.buildSchema(res)),
                     single,
                 });
             }
