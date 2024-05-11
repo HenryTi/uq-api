@@ -12,15 +12,28 @@ const ExpBizOperand_1 = require("./ExpBizOperand");
 const tools_1 = require("../../tools");
 const ExpRole_1 = require("./ExpRole");
 const ExpBizEntityBud_1 = require("./ExpBizEntityBud");
-function convertExp(context, exp) {
+function convertExpInternal(stack, exp) {
     if (!exp)
         return;
+    // let stack = new Stack(context);
+    for (let atom of exp.atoms) {
+        atom.to(stack);
+    }
+    let ret = stack.getExp();
+    return ret;
+}
+function convertExp(context, exp) {
+    let stack = new Stack(context);
+    return convertExpInternal(stack, exp);
+    /*
+    if (!exp) return;
     let stack = new Stack(context);
     for (let atom of exp.atoms) {
         atom.to(stack);
     }
     let ret = stack.getExp();
     return ret;
+    */
 }
 exports.convertExp = convertExp;
 class Stack {
@@ -145,7 +158,7 @@ class Stack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp));
     }
-    bizCheckBud(checkBud /* exp1: BizExp, exp2: BizExp, item: OptionsItem*/) {
+    bizCheckBud(checkBud) {
         const { optionIdVal, bizExp1, bizExp2, bizField, items } = checkBud;
         let bExp1;
         if (bizExp1 !== undefined) {

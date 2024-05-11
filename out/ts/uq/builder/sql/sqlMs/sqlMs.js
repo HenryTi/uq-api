@@ -144,6 +144,10 @@ class MsProcedure extends procedure_1.Procedure {
 }
 exports.MsProcedure = MsProcedure;
 class MsSqlBuilder extends sqlBuilder_1.SqlBuilder {
+    constructor() {
+        super(...arguments);
+        this.forClient = false;
+    }
     var$unit() { return this; }
     var$user() { return this; }
     func(func, isUqFunc) { }

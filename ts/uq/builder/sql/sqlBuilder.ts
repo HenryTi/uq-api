@@ -23,6 +23,7 @@ export abstract class SqlBuilder implements il.DataTypeBuilder {
     readonly twProfix: string;
     protected isBuildingTable: boolean = false;    // 正在编译状态，生成table的行值, $unit=0, $user=0
     setIsBuildingTable() { this.isBuildingTable = true; }
+    abstract get forClient(): boolean;
 
     var$unit(): SqlBuilder {
         if (this.isBuildingTable === false) this.var('$unit');
@@ -189,4 +190,5 @@ export abstract class SqlBuilder implements il.DataTypeBuilder {
 }
 
 export class ClientBuilder extends SqlBuilder {
+    readonly forClient = true;
 }

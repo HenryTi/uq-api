@@ -3,6 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MySqlBuilder = void 0;
 const sqlBuilder_1 = require("../sqlBuilder");
 class MySqlBuilder extends sqlBuilder_1.SqlBuilder {
+    constructor() {
+        super(...arguments);
+        this.forClient = false;
+    }
     entityTableName(name) { this.append(this.twProfix).append(name); return this; } // entity table
     entityTable(name) { this.append('`').entityTableName(name).append('`'); return this; } // entity table
     var(p) { this.append('`_').append(p).append('`'); return this; } // proc var

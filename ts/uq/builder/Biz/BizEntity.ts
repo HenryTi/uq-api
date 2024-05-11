@@ -4,7 +4,8 @@ import {
 } from "../../il";
 import { DbContext } from "../dbContext";
 import {
-    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal, Statement
+    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal, Statement,
+    convertExp
 } from "../sql";
 import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 
@@ -44,6 +45,14 @@ export class BBizEntity<B extends BizEntity = any> {
         let sb = this.context.createClientBuilder();
         exp.to(sb);
         const { sql } = sb;
+        /*
+        if (sql === '委托方') {
+            debugger;
+            const exp = this.context.convertExp(value);
+            let sb = this.context.createClientBuilder();
+            exp.to(sb);
+        }
+        */
         return sql;
     }
 

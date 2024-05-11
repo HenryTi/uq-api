@@ -147,6 +147,7 @@ export class MsProcedure extends Procedure {
 }
 
 export class MsSqlBuilder extends SqlBuilder {
+    readonly forClient = false;
     var$unit(): SqlBuilder { return this; }
     var$user(): SqlBuilder { return this; }
     func(func: string, isUqFunc: boolean): void { }

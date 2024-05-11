@@ -5,11 +5,8 @@ import {
     , Stack as IlStack, ValueExpression, OpQueueAction
     , VarOperand, Expression, IDNewType, BizBase
     , Select as IlSelect,
-    // BizSelectInline,
     BizExp,
     BizFieldOperand,
-    OptionsItem,
-    BizOptions,
     BizEntity,
     BizBud,
     BizCheckBudOperand
@@ -18,22 +15,29 @@ import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
 import { ExpNO } from './ExpNO';
 import { Exp } from './Exp';
-import { ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight, ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpDotVar, ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp, ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE, ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase, ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar } from './exps';
+import {
+    ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight
+    , ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpDotVar
+    , ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFuncInUq
+    , ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp
+    , ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE
+    , ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase
+    , ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar
+} from './exps';
 import { ExpUMinute } from './ExpUMinute';
 import { ExpSearch } from './ExpSearch';
 import { BizExpOperand } from './ExpBizOperand';
 import {
     BBizCheckBud,
     BBizExp, BBizFieldOperand
-    //    , BBizFieldOperand 
 } from '../../tools';
 import { ExpRole } from './ExpRole';
 import { ExpBizEntityBud } from './ExpBizEntityBud';
 import { BBizField } from '../../Biz';
 
-export function convertExp(context: DbContext, exp: Expression): Exp {
+function convertExpInternal(stack: Stack, exp: Expression) {
     if (!exp) return;
-    let stack = new Stack(context);
+    // let stack = new Stack(context);
     for (let atom of exp.atoms) {
         atom.to(stack);
     }
@@ -41,9 +45,23 @@ export function convertExp(context: DbContext, exp: Expression): Exp {
     return ret;
 }
 
+export function convertExp(context: DbContext, exp: Expression): Exp {
+    let stack = new Stack(context);
+    return convertExpInternal(stack, exp);
+    /*
+    if (!exp) return;
+    let stack = new Stack(context);
+    for (let atom of exp.atoms) {
+        atom.to(stack);
+    }
+    let ret = stack.getExp();
+    return ret;
+    */
+}
+
 class Stack implements IlStack {
-    private context: DbContext;
-    private arr: Exp[] = [];
+    protected readonly context: DbContext;
+    protected readonly arr: Exp[] = [];
     constructor(context: DbContext) {
         this.context = context;
     }
@@ -162,7 +180,7 @@ class Stack implements IlStack {
         bExp.convertFrom(this.context, exp);
         this.arr.push(new BizExpOperand(bExp));
     }
-    bizCheckBud(checkBud: BizCheckBudOperand/* exp1: BizExp, exp2: BizExp, item: OptionsItem*/) {
+    bizCheckBud(checkBud: BizCheckBudOperand) {
         const { optionIdVal, bizExp1, bizExp2, bizField, items } = checkBud;
         let bExp1: BBizExp;
         if (bizExp1 !== undefined) {

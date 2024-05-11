@@ -2,6 +2,7 @@ import { Text } from '../../../il';
 import { SqlBuilder } from "../sqlBuilder";
 
 export class MySqlBuilder extends SqlBuilder {
+    readonly forClient = false;
     entityTableName(name: string): SqlBuilder { this.append(this.twProfix).append(name); return this; }   // entity table
     entityTable(name: string): SqlBuilder { this.append('`').entityTableName(name).append('`'); return this; }   // entity table
     var(p: string): SqlBuilder { this.append('`_').append(p).append('`'); return this; }   // proc var

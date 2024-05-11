@@ -256,8 +256,8 @@ class TitleIxHistory extends TitleHistoryBase {
 }
 
 export class BBizFieldOperand extends ExpVal {
-    private readonly bBizField: any; // BBizField;
-    constructor(bBizField: any) { // BBizField) {
+    private readonly bBizField: any;
+    constructor(bBizField: any) {
         super();
         this.bBizField = bBizField;
     }

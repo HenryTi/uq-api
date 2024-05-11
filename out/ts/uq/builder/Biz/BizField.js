@@ -11,7 +11,11 @@ class BBizField {
 exports.BBizField = BBizField;
 class BBizFieldBud extends BBizField {
     to(sb) {
-        let { bud } = this.bizField;
+        let { bud, tableAlias } = this.bizField;
+        if (sb.forClient === true) {
+            sb.append('%').append(tableAlias).dot().append(bud.name);
+            return;
+        }
         switch (bud.dataType) {
             default:
                 this.buildSelectValue(sb, il_1.EnumSysTable.ixBudInt);
@@ -88,6 +92,14 @@ exports.BBizFieldJsonProp = BBizFieldJsonProp;
 class BBizFieldBinVar extends BBizFieldField {
     to(sb) {
         let { name, tableAlias } = this.bizField;
+        if (sb.forClient === true) {
+            if (tableAlias === 's') {
+                sb.append('%sheet').dot().append(name);
+                return;
+            }
+            sb.append(`_${tableAlias}${name}`);
+            return;
+        }
         sb.append(`_${tableAlias}${name}`);
     }
 }
@@ -95,15 +107,13 @@ exports.BBizFieldBinVar = BBizFieldBinVar;
 class BBizFieldBinBud extends BBizFieldBud {
     toIValue(sb) {
         let { tableAlias, div } = this.bizField;
-        if (div === undefined)
-            debugger;
         sb.append('_').append(tableAlias + div.level);
     }
 }
 exports.BBizFieldBinBud = BBizFieldBinBud;
 class BBizFieldUser extends BBizField {
     to(sb) {
-        sb.append('user').dot().append(this.bizField.tableAlias);
+        sb.append('%user').dot().append(this.bizField.tableAlias);
     }
 }
 exports.BBizFieldUser = BBizFieldUser;

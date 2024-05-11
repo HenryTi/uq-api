@@ -196,6 +196,10 @@ class SqlBuilder {
 }
 exports.SqlBuilder = SqlBuilder;
 class ClientBuilder extends SqlBuilder {
+    constructor() {
+        super(...arguments);
+        this.forClient = true;
+    }
 }
 exports.ClientBuilder = ClientBuilder;
 //# sourceMappingURL=sqlBuilder.js.map

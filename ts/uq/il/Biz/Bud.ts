@@ -364,9 +364,8 @@ export abstract class BizBudOptions extends BizBudValue {
     options: BizOptions;
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return {
-            ...ret, options: this.options?.id
-        };
+        ret.options = this.options?.id;
+        return ret;
     }
     get objName(): string { return this.options?.phrase; }
 }
