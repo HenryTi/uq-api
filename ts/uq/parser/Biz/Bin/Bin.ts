@@ -85,7 +85,8 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.context.parseElement(bud);
         const { value } = bud;
         if (value?.setType !== BudValueSetType.equ) {
-            this.ts.error(`${nameIX}.BASE must set value`);
+            // 如果本来pend.id就是批次，也就不需要=
+            // this.ts.error(`${nameIX}.BASE must set value`);
         }
         this.div.buds.push(bud);
         this.ts.passToken(Token.SEMICOLON);
@@ -458,7 +459,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (super.scan2(uq) === false) {
             ok = false;
         }
-        let { div } = this.element;
+        let { div, i, x, iBase, xBase } = this.element;
         for (; div !== undefined; div = div.div) {
             let { format } = div;
             if (format === undefined) continue;
@@ -482,6 +483,22 @@ export class PBizBin extends PBizEntity<BizBin> {
                 nf.push([bud, withLabel, itemExclude]);
             }
             div.format = nf;
+        }
+        if (i !== undefined) {
+            if (i.ID.bizPhraseType === BizPhraseType.spec) {
+                if (iBase === undefined) {
+                    ok = false;
+                    this.log('I Spec need I.base');
+                }
+            }
+        }
+        if (x !== undefined) {
+            if (x.ID.bizPhraseType === BizPhraseType.spec) {
+                if (xBase === undefined) {
+                    ok = false;
+                    this.log('X Spec need X.base');
+                }
+            }
         }
         return ok;
     }

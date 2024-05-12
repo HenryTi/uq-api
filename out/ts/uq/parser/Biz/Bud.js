@@ -414,7 +414,7 @@ class PBizBudIXBase extends PBizBudIDBase {
     _parse() {
         this.atomName = this.ts.mayPassVar();
         this.parseFieldShow();
-        this.parseBudEquValue();
+        // this.parseBudEquValue();
     }
 }
 exports.PBizBudIXBase = PBizBudIXBase;

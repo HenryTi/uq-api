@@ -527,12 +527,6 @@ class PBizEntity extends PBizBase {
     }
     parseXField(ixField) {
         this.parseIxField(ixField);
-        /*
-        if (this.ts.isKeyword('index') === true) {
-            this.ts.readToken();
-            ixField.isIndex = true;
-        }
-        */
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
     parseAtoms() {
@@ -580,12 +574,6 @@ class PBizEntity extends PBizBase {
     scanBud(space, bud) {
         let ok = true;
         let { pelement, name, value, dataType } = bud;
-        /*
-        if (dataType === BudDataType.none) {
-            this.log(`Prop name ${name} must define type`);
-            ok = false;
-        }
-        */
         if (this.element.budGroups.has(name) === true) {
             this.log(`Prop name ${name} duplicates with Group name`);
             ok = false;

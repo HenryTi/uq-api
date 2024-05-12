@@ -8,7 +8,7 @@ abstract class PBinInput<T extends BinInput> extends PBizBud<T> {
 
 export class PBinInputSpec extends PBinInput<BinInputSpec> {
     private spec: string;
-    private equBud: string;
+    // private equBud: string;
 
     protected override _parse(): void {
         this.spec = this.ts.passVar();
@@ -23,7 +23,10 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
         else {
         */
         this.ts.passToken(Token.EQU);
+        let val = this.element.baseValue = new ValueExpression();
+        this.context.parseElement(val);
         // this.ts.passKey('on');
+        /*
         let v = this.ts.passVar();
         if (this.ts.token === Token.DOT) {
             this.ts.readToken();
@@ -37,6 +40,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
         else {
             this.equBud = v;
         }
+        */
         // }
         this.ts.passToken(Token.SEMICOLON);
     }
@@ -50,6 +54,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
         }
         else {
             this.element.spec = ret as BizSpec;
+            /*
             if (this.equBud !== undefined) {
                 let bud = this.element.bin.getBud(this.equBud);
                 if (bud === undefined) {
@@ -61,11 +66,12 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
                 }
             }
             else {
-                let { baseValue } = this.element;
-                if (baseValue.pelement.scan(space) === false) {
-                    ok = false;
-                }
+            */
+            let { baseValue } = this.element;
+            if (baseValue.pelement.scan(space) === false) {
+                ok = false;
             }
+            // }
         }
         return ok;
     }

@@ -7,6 +7,7 @@ const Bud_1 = require("../Bud");
 class PBinInput extends Bud_1.PBizBud {
 }
 class PBinInputSpec extends PBinInput {
+    // private equBud: string;
     _parse() {
         this.spec = this.ts.passVar();
         this.ts.passKey('base');
@@ -20,26 +21,24 @@ class PBinInputSpec extends PBinInput {
         else {
         */
         this.ts.passToken(tokens_1.Token.EQU);
+        let val = this.element.baseValue = new il_1.ValueExpression();
+        this.context.parseElement(val);
         // this.ts.passKey('on');
+        /*
         let v = this.ts.passVar();
-        if (this.ts.token === tokens_1.Token.DOT) {
+        if (this.ts.token === Token.DOT) {
             this.ts.readToken();
             this.ts.passKey('base');
             switch (v) {
-                default:
-                    this.ts.expect('I or X');
-                    break;
-                case 'i':
-                    this.equBud = '.i';
-                    break;
-                case 'x':
-                    this.equBud = '.x';
-                    break;
+                default: this.ts.expect('I or X'); break;
+                case 'i': this.equBud = '.i'; break;
+                case 'x': this.equBud = '.x'; break;
             }
         }
         else {
             this.equBud = v;
         }
+        */
         // }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
@@ -52,6 +51,7 @@ class PBinInputSpec extends PBinInput {
         }
         else {
             this.element.spec = ret;
+            /*
             if (this.equBud !== undefined) {
                 let bud = this.element.bin.getBud(this.equBud);
                 if (bud === undefined) {
@@ -63,11 +63,12 @@ class PBinInputSpec extends PBinInput {
                 }
             }
             else {
-                let { baseValue } = this.element;
-                if (baseValue.pelement.scan(space) === false) {
-                    ok = false;
-                }
+            */
+            let { baseValue } = this.element;
+            if (baseValue.pelement.scan(space) === false) {
+                ok = false;
             }
+            // }
         }
         return ok;
     }
