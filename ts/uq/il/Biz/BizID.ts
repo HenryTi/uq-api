@@ -73,7 +73,7 @@ export abstract class BizIDExtendable extends BizID {
 }
 
 export class IDUnique extends BizBud {
-    readonly dataType = BudDataType.none;
+    readonly dataType = BudDataType.unique;
     readonly bizAtom: BizIDExtendable;
     keys: BizBud[];
     no: BizBud;

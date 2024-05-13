@@ -1,13 +1,14 @@
 import {
     BigInt, Char
-    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, BizPhraseType, BudDataType, JoinType
+    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, BizPhraseType, BudDataType, JoinType,
+    idField
 } from "../../il";
 import {
-    ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
-    , ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement
+    ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncCustom, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
+    , ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlSysTable, SqlVarTable, Statement,
 } from "../sql";
 import { LockType } from "../sql/select";
-import { EntityTable } from "../sql/statementWithFrom";
+import { EntityTable, Table, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 const cId = '$id';
@@ -16,6 +17,9 @@ export class BBizAtom extends BBizEntity<BizAtom> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures
         const { id, uniques } = this.bizEntity;
+        const procTitlePrime = this.createProcedure(`${this.context.site}.${id}tp`);
+        this.buildProcTitlePrime(procTitlePrime);
+
         if (uniques !== undefined) {
             const budUniques: Map<BizBud, IDUnique[]> = new Map();
             for (let uq of uniques) {
@@ -238,5 +242,66 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         ];
         statements.push(insert);
         return statements;
+    }
+
+    private getTitlePrimeBuds() {
+        let ret: BizBud[] = [];
+        for (let p = this.bizEntity; p !== undefined; p = p.extends as BizAtom) {
+            let { titleBuds, primeBuds } = p;
+            if (titleBuds !== undefined) ret.push(...titleBuds);
+            if (primeBuds !== undefined) ret.push(...primeBuds);
+        }
+        return ret;
+    }
+
+    private buildProcTitlePrime(procTitlePrime: Procedure) {
+        let buds = this.getTitlePrimeBuds();
+        let { statements, parameters } = procTitlePrime;
+        parameters.push(idField('atomId', 'big'));
+        let { factory } = this.context;
+        for (let bud of buds) {
+            let select = this.buildBudSelect(bud);
+            let insert = factory.createInsert();
+            statements.push(insert);
+            insert.ignore = true;
+            insert.table = new VarTableWithSchema('props');
+            insert.cols = [
+                { col: 'phrase', val: undefined },
+                { col: 'value', val: undefined },
+                { col: 'id', val: undefined },
+            ];
+            insert.select = select;
+        }
+    }
+
+    private buildBudSelect(bud: BizBud) {
+        const { factory } = this.context;
+        const { id, dataType } = bud;
+        const a = 'a';
+        let tbl: string;
+        let colValue: ExpVal = new ExpFuncCustom(factory.func_cast, new ExpField('value', a), new ExpDatePart('JSON'));
+        switch (dataType) {
+            default: tbl = EnumSysTable.ixBudInt; break;
+            case BudDataType.str:
+            case BudDataType.char:
+                tbl = EnumSysTable.ixBudStr;
+                colValue = new ExpFuncCustom(
+                    factory.func_cast,
+                    new ExpFunc(factory.func_concat, new ExpStr('"'), new ExpField('value', a), new ExpStr('"')),
+                    new ExpDatePart('JSON')
+                );
+                break;
+            case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+        }
+        let select = factory.createSelect();
+        select.from(new EntityTable(tbl, false, a));
+        select.column(new ExpNum(id), 'phrase');
+        select.column(colValue, 'value');
+        select.column(new ExpVar('atomId'), 'id');
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('i', a), new ExpVar('atomId')),
+            new ExpEQ(new ExpField('x', a), new ExpNum(id)),
+        ));
+        return select;
     }
 }

@@ -12,6 +12,8 @@ class BBizAtom extends BizEntity_1.BBizEntity {
     async buildProcedures() {
         super.buildProcedures;
         const { id, uniques } = this.bizEntity;
+        const procTitlePrime = this.createProcedure(`${this.context.site}.${id}tp`);
+        this.buildProcTitlePrime(procTitlePrime);
         if (uniques !== undefined) {
             const budUniques = new Map();
             for (let uq of uniques) {
@@ -201,6 +203,63 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         ];
         statements.push(insert);
         return statements;
+    }
+    getTitlePrimeBuds() {
+        let ret = [];
+        for (let p = this.bizEntity; p !== undefined; p = p.extends) {
+            let { titleBuds, primeBuds } = p;
+            if (titleBuds !== undefined)
+                ret.push(...titleBuds);
+            if (primeBuds !== undefined)
+                ret.push(...primeBuds);
+        }
+        return ret;
+    }
+    buildProcTitlePrime(procTitlePrime) {
+        let buds = this.getTitlePrimeBuds();
+        let { statements, parameters } = procTitlePrime;
+        parameters.push((0, il_1.idField)('atomId', 'big'));
+        let { factory } = this.context;
+        for (let bud of buds) {
+            let select = this.buildBudSelect(bud);
+            let insert = factory.createInsert();
+            statements.push(insert);
+            insert.ignore = true;
+            insert.table = new statementWithFrom_1.VarTableWithSchema('props');
+            insert.cols = [
+                { col: 'phrase', val: undefined },
+                { col: 'value', val: undefined },
+                { col: 'id', val: undefined },
+            ];
+            insert.select = select;
+        }
+    }
+    buildBudSelect(bud) {
+        const { factory } = this.context;
+        const { id, dataType } = bud;
+        const a = 'a';
+        let tbl;
+        let colValue = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', a), new sql_1.ExpDatePart('JSON'));
+        switch (dataType) {
+            default:
+                tbl = il_1.EnumSysTable.ixBudInt;
+                break;
+            case il_1.BudDataType.str:
+            case il_1.BudDataType.char:
+                tbl = il_1.EnumSysTable.ixBudStr;
+                colValue = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('"'), new sql_1.ExpField('value', a), new sql_1.ExpStr('"')), new sql_1.ExpDatePart('JSON'));
+                break;
+            case il_1.BudDataType.dec:
+                tbl = il_1.EnumSysTable.ixBudDec;
+                break;
+        }
+        let select = factory.createSelect();
+        select.from(new statementWithFrom_1.EntityTable(tbl, false, a));
+        select.column(new sql_1.ExpNum(id), 'phrase');
+        select.column(colValue, 'value');
+        select.column(new sql_1.ExpVar('atomId'), 'id');
+        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), new sql_1.ExpVar('atomId')), new sql_1.ExpEQ(new sql_1.ExpField('x', a), new sql_1.ExpNum(id))));
+        return select;
     }
 }
 exports.BBizAtom = BBizAtom;

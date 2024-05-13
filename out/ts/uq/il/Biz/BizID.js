@@ -74,7 +74,7 @@ exports.BizIDExtendable = BizIDExtendable;
 class IDUnique extends Bud_1.BizBud {
     constructor(bizAtom, name, ui) {
         super(bizAtom, name, ui);
-        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.dataType = BizPhraseType_1.BudDataType.unique;
         this.bizAtom = bizAtom;
     }
     parser(context) {
