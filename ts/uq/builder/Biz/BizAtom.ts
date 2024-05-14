@@ -285,11 +285,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             case BudDataType.str:
             case BudDataType.char:
                 tbl = EnumSysTable.ixBudStr;
-                colValue = new ExpFuncCustom(
-                    factory.func_cast,
-                    new ExpFunc(factory.func_concat, new ExpStr('"'), new ExpField('value', a), new ExpStr('"')),
-                    new ExpDatePart('JSON')
-                );
+                colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', a));
                 break;
             case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
         }
