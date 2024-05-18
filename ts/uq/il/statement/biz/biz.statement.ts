@@ -1,18 +1,18 @@
 import {
     BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext
     , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut, BBizStatementTie
-} from '../../builder';
-import * as parser from '../../parser';
-import { IElement } from '../IElement';
+} from '../../../builder';
+import * as parser from '../../../parser';
+import { IElement } from '../../IElement';
 import {
     BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
     , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique, BizID, BizTie
-} from '../Biz';
-import { CompareExpression, ValueExpression } from '../Exp';
-import { Statement } from "./Statement";
-import { SetEqu } from '../tool';
-import { VarPointer } from '../pointer';
-import { UseSheet } from './use';
+} from '../../Biz';
+import { CompareExpression, ValueExpression } from '../../Exp';
+import { Statement } from "../Statement";
+import { SetEqu } from '../../tool';
+import { VarPointer } from '../../pointer';
+import { UseSheet } from '../use';
 
 export abstract class BizStatement<T extends BizAct> extends Statement {
     get type(): string { return 'bizstatement'; }

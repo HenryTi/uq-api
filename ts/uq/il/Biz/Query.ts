@@ -6,7 +6,7 @@ import { Builder } from "../builder";
 import { IElement } from "../IElement";
 import { FromStatement, Statement, Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizBudValue } from "./Bud";
+import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 export abstract class BizQuery extends BizEntity {

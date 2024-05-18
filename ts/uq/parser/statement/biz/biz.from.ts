@@ -1,27 +1,80 @@
 import {
     BizTie, CompareExpression
     , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
-    , BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, FromInPendFieldSpace, BizBudNone
-} from "../../il";
-import { BizPhraseType } from "../../il";
-import { Space } from "../space";
-import { Token } from "../tokens";
-import { PStatement } from "./statement";
+    , BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, FromInPendFieldSpace, BizBudAny,
+    FromEntity
+} from "../../../il";
+import { BizPhraseType } from "../../../il";
+import { Space } from "../../space";
+import { Token } from "../../tokens";
+import { PStatement } from "../statement";
+
+interface PFromEntity {
+    tbls: string[];
+    ofIXs: string[];
+    ofOn: ValueExpression;
+    alias: string;
+    subs: PFromEntity[];
+    isGroupBy: boolean;
+}
 
 export class PFromStatement<T extends FromStatement = FromStatement> extends PStatement<T> {
-    private readonly tbls: string[] = [];
-    private readonly ofIXs: string[] = [];
+    protected pFromEntity: PFromEntity = {
+        tbls: [],
+        ofIXs: [],
+    } as PFromEntity;
+
     protected _parse(): void {
-        this.parseTbls();
-        this.parseTblsOf();
+        this.parseFromEntity(this.pFromEntity);
         this.parseColumn();
         this.parseWhere();
         this.ts.passToken(Token.SEMICOLON);
     }
 
-    private parseTbls() {
+    private parseFromEntity(pFromEntity: PFromEntity) {
+        this.parseTbls(pFromEntity);
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            pFromEntity.subs = [];
+            for (; ;) {
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                const sub: PFromEntity = {
+                    tbls: [],
+                    ofIXs: [],
+                } as PFromEntity;
+                this.parseFromEntity(sub);
+                pFromEntity.subs.push(sub);
+                if (this.ts.token === Token.COMMA as any) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
+            }
+        }
+        if (this.ts.isKeyword('as') === true) {
+            this.ts.readToken();
+            pFromEntity.alias = this.ts.passVar();
+        }
+        if (this.ts.isKeyword('group') === true) {
+            this.ts.readToken();
+            if (this.ts.isKeyword('by') === true) {
+                this.ts.readToken();
+            }
+            pFromEntity.isGroupBy = true;
+        }
+        this.parseTblsOf(pFromEntity);
+    }
+
+    private parseTbls(pFromEntity: PFromEntity) {
         for (; ;) {
-            this.tbls.push(this.ts.passVar());
+            pFromEntity.tbls.push(this.ts.passVar());
             if (this.ts.token === Token.BITWISEOR) {
                 this.ts.readToken();
             }
@@ -31,16 +84,16 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         }
     }
 
-    protected parseTblsOf() {
+    protected parseTblsOf(pFromEntity: PFromEntity) {
         while (this.ts.isKeyword('of') === true) {
             this.ts.readToken();
-            this.ofIXs.push(this.ts.passVar());
+            pFromEntity.ofIXs.push(this.ts.passVar());
         }
-        if (this.ofIXs.length > 0) {
+        if (pFromEntity.ofIXs.length > 0) {
             this.ts.passKey('on');
             let ofOn = new ValueExpression();
             this.context.parseElement(ofOn);
-            this.element.ofOn = ofOn;
+            pFromEntity.ofOn = ofOn;
         }
     }
 
@@ -130,7 +183,12 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
     override scan(space: Space): boolean {
         let ok = true;
         space = this.createFromSpace(space);
-        if (this.scanEntityArr(space) === false) {
+        let aliasSet = new Set<string>();
+        if (this.scanFromEntity(space, this.element.fromEntity, this.pFromEntity, aliasSet) === false) {
+            ok = false;
+            return ok;
+        }
+        if (this.scanCols(space) === false) {
             ok = false;
             return ok;
         }
@@ -149,28 +207,62 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         return ok;
     }
 
-    protected setEntityArr(space: Space) {
-        const { biz } = space.uq;
-        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(this.tbls);
-        this.element.bizEntityArr = entityArr;
-        this.element.bizPhraseType = bizPhraseType;
-        this.element.bizEntityTable = bizEntityTable;
-        if (retOk === false) this.log(...logs);
-        return retOk;
+    private scanCols(space: Space) {
+        let ok = true;
+        const { cols } = this.element;
+        let bizFieldSpace = space.getBizFieldSpace();
+        for (let col of cols) {
+            const { name, ui, val } = col;
+            if (val.pelement.scan(space) === false) {
+                ok = false;
+            }
+            if (ui === null) {
+                let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
+                if (field !== undefined) {
+                    col.field = field;
+                }
+                else {
+                    debugger;
+                    bizFieldSpace.getBizField([name]);
+                    // 'no', 'ex' 不能出现这样的情况
+                    col.field = undefined;
+                }
+            }
+            else {
+                // Query bud
+                let bud = new BizBudAny(undefined, name, ui);
+                let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
+                if (field !== undefined) {
+                    debugger;
+                    // field.bud = bud;
+                }
+                else {
+                    field = new BizFieldBud(undefined, undefined, undefined, bud);
+                }
+                col.field = field;
+            }
+        }
+        return ok;
     }
 
-    protected scanEntityArr(space: Space) {
+    protected scanFromEntity(space: Space, fromEntity: FromEntity, pFromEntity: PFromEntity, aliasSet: Set<string>) {
         let ok = true;
-        const { biz } = space.uq;
-        let bizFieldSpace = space.getBizFieldSpace();
-        let retOk = this.setEntityArr(space);
+        let retOk = this.setEntityArr(space, pFromEntity);
         if (retOk === false) {
             return false;
         }
-        let { bizEntityArr: entityArr } = this.element;
+        const { bizEntityArr: entityArr, ofIXs, ofOn } = fromEntity;
+        const { subs: pSubs, alias } = pFromEntity;
+        if (aliasSet.has(alias) === true) {
+            ok = false;
+            this.log(`FROM as alias ${alias} duplicate`);
+        }
+        else {
+            fromEntity.alias = alias;
+            aliasSet.add(alias);
+        }
         if (entityArr.length > 0) {
-            const { ofIXs, ofOn, cols } = this.element;
-            for (let _of of this.ofIXs) {
+            for (let _of of pFromEntity.ofIXs) {
                 let entity = space.getBizEntity(_of);
                 if (entity === undefined) {
                     ok = false;
@@ -189,46 +281,41 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     ok = false;
                 }
             }
-
-            for (let col of cols) {
-                const { name, ui, val } = col;
-                if (val.pelement.scan(space) === false) {
+        }
+        if (pSubs !== undefined) {
+            for (let pSub of pSubs) {
+                let subFromEntity: FromEntity = {
+                } as FromEntity;
+                if (this.scanFromEntity(space, subFromEntity, pSub, aliasSet) === false) {
                     ok = false;
                 }
-                if (ui === null) {
-                    let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
-                    if (field !== undefined) {
-                        col.field = field;
-                    }
-                    else {
-                        debugger;
-                        bizFieldSpace.getBizField([name]);
-                        // 'no', 'ex' 不能出现这样的情况
-                        col.field = undefined;
-                    }
-                }
                 else {
-                    // Query bud
-                    let bud = new BizBudNone(undefined, name, ui);
-                    let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
-                    if (field !== undefined) {
-                        debugger;
-                        // field.bud = bud;
+                    let { subs } = fromEntity;
+                    if (subs === undefined) {
+                        fromEntity.subs = subs = [];
                     }
-                    else {
-                        field = new BizFieldBud(undefined, undefined, undefined, bud);
-                    }
-                    col.field = field;
+                    subs.push(subFromEntity);
                 }
             }
         }
         return ok;
     }
+
+    protected setEntityArr(space: Space, pFromEntity: PFromEntity) {
+        const { biz } = space.uq;
+        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(pFromEntity.tbls);
+        const { fromEntity } = this.element;
+        fromEntity.bizEntityArr = entityArr;
+        fromEntity.bizPhraseType = bizPhraseType;
+        fromEntity.bizEntityTable = bizEntityTable;
+        if (retOk === false) this.log(...logs);
+        return retOk;
+    }
 }
 
 export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
     protected _parse(): void {
-        this.parseTblsOf();
+        this.parseTblsOf(this.pFromEntity);
         this.parseColumn();
         this.parseWhere();
         this.ts.passToken(Token.SEMICOLON);
@@ -243,9 +330,10 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
     }
 
     protected setEntityArr(space: Space) {
-        this.element.bizEntityArr = [space.getBizEntity(undefined)];
-        this.element.bizPhraseType = BizPhraseType.pend;
-        this.element.bizEntityTable = EnumSysTable.pend;
+        const { fromEntity } = this.element;
+        fromEntity.bizEntityArr = [space.getBizEntity(undefined)];
+        fromEntity.bizPhraseType = BizPhraseType.pend;
+        fromEntity.bizEntityTable = EnumSysTable.pend;
         return true;
     }
 }

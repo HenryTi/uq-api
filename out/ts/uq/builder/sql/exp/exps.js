@@ -113,7 +113,8 @@ exports.ExpStr = ExpStr;
 ExpStr.empty = new ExpStr('');
 class ExpNum extends ExpVal {
     to(sb) { sb.append(this.num.toString()); }
-    constructor(num) { super(); this.num = num; }
+    constructor(num) { super(); this.num = num; if (num === undefined)
+        debugger; }
 }
 exports.ExpNum = ExpNum;
 class ExpStar extends ExpVal {

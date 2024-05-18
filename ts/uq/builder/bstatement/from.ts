@@ -1,5 +1,5 @@
 import { binAmount, binPrice, binValue } from "../../consts";
-import { FromStatement, EnumSysTable, ValueExpression, CompareExpression, JoinType, FromStatementInPend } from "../../il";
+import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromStatementInPend } from "../../il";
 import { KeyOfMapFieldTable, MapFieldTable } from "../Biz";
 import {
     Exp, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull
@@ -44,7 +44,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
     }
 
     protected buildFromMain(cmpStart: ExpCmp): StatementBase {
-        const { ban, cols } = this.istatement;
+        const { ban } = this.istatement;
         let select = this.buildSelect(cmpStart);
         select.column(new ExpField('id', t1), 'id');
         if (ban === undefined) {
@@ -71,7 +71,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
 
     protected buildSelect(cmpStart: ExpCmp) {
         const { factory } = this.context;
-        const { asc, where, bizEntityTable, bizEntityArr, ofIXs, ofOn } = this.istatement;
+        const { asc, where, fromEntity: { bizEntityTable, bizEntityArr, ofIXs, ofOn } } = this.istatement;
         const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
 

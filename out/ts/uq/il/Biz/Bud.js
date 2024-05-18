@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudNone = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudIntOf = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -144,21 +144,21 @@ class BizBudPickable extends BizBudValue {
 }
 exports.BizBudPickable = BizBudPickable;
 // 有值，但无法确定
-class BizBudNone extends BizBudValue {
+class BizBudAny extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.dataType = BizPhraseType_1.BudDataType.any;
         this.canIndex = false;
     }
     parser(context) {
-        return new parser_1.PBizBudNone(this, context);
+        return new parser_1.PBizBudAny(this, context);
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
         return ret;
     }
 }
-exports.BizBudNone = BizBudNone;
+exports.BizBudAny = BizBudAny;
 class BizBudValueWithRange extends BizBudValue {
     buildSchema(res) {
         let ret = super.buildSchema(res);
@@ -424,7 +424,7 @@ exports.budClassesIn = {
     id: BizBudIDIO,
     $arr: BizBudArr,
 };
-exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudNone, atom: BizBudID, intof: BizBudIntOf, radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });
+exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudAny, atom: BizBudID, intof: BizBudIntOf, radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });
 exports.budClassesUser = {
     int: BizBudInt,
     dec: BizBudDec,

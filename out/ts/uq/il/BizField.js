@@ -21,9 +21,6 @@ class BizFieldBud extends BizField {
     constructor(space, tableAlias, entity, bud) {
         super(space, tableAlias);
         this.entity = entity;
-        if ((entity === null || entity === void 0 ? void 0 : entity.bizPhraseType) === BizPhraseType_1.BizPhraseType.sheet) {
-            debugger;
-        }
         this.bud = bud;
     }
     getBud() {
@@ -49,7 +46,6 @@ class BizFieldBud extends BizField {
             this.div = entityBin.getDivFromBud(this.bud);
             if (this.div === undefined)
                 debugger;
-            // console.log('BizFieldBud', this.bud.name, this.entity.name, this.entity.bizPhraseType);
         }
     }
 }

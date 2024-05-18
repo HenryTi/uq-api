@@ -1,7 +1,7 @@
 import {
     BizBud, BizBudID, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudNone, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
+    , BizBudAny, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
     , BudDataType, FieldShowItem, BizSpec, BudValueSet, BizBudValueWithRange
     , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue, BizID,
@@ -160,7 +160,7 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
     }
 }
 
-export class PBizBudNone extends PBizBudValue<BizBudNone> {
+export class PBizBudAny extends PBizBudValue<BizBudAny> {
 }
 
 export class PBizBudArr extends PBizBudValue<BizBudArr> {

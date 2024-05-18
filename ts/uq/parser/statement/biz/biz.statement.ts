@@ -1,19 +1,19 @@
-import { Space } from '../space';
+import { Space } from '../../space';
 import {
     BizStatementPend, BizStatementSub
     , BizStatementTitle, BizPend, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
-    , BizPhraseType, BizSheet
+    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet, BizPhraseType
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
-    , BizEntity, BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut, BizIOSite, BizIOApp, Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie
-} from '../../il';
-import { PStatement } from './statement';
-import { PContext } from '../pContext';
-import { PElement } from '../element';
-import { Token } from '../tokens';
-import { BudDataType } from '../../il';
-import { binFieldArr } from '../../consts';
+    , BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut
+    , Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie
+} from '../../../il';
+import { PStatement } from '../statement';
+import { PContext } from '../../pContext';
+import { PElement } from '../../element';
+import { Token } from '../../tokens';
+import { BudDataType } from '../../../il';
+import { binFieldArr } from '../../../consts';
 
 export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>> extends PStatement {
     bizStatement: T;
@@ -368,57 +368,9 @@ export class PBizStatementSheet extends PBizStatementSub<BizAct, BizStatementShe
         return ok;
     }
 }
-/*
-export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizStatementDetail> {
-    private sheet: string;
-    private detail: string;
-    protected _parse(): void {
-        this.detail = this.ts.passVar();
-        this.ts.passKey('of');
-        this.sheet = this.ts.passVar();
-        this.ts.passToken(Token.EQU);
-        this.element.idVal = new ValueExpression();
-        let { idVal } = this.element;
-        this.context.parseElement(idVal);
-        this.parseSet();
-    }
 
-    override scan(space: Space): boolean {
-        let ok = true;
-        let sheet = space.getBizEntity<BizSheet>(this.sheet);
-        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
-            ok = false;
-            this.log(`${this.sheet} is not a SHEET`);
-        }
-        else {
-            this.element.sheet = sheet;
-            let getDetail = (): BizBin => {
-                let bin = space.getBizEntity<BizBin>(this.detail);
-                if (bin === undefined) return;
-                for (let detail of sheet.details) {
-                    if (detail.bin === bin) return bin;
-                }
-                return undefined;
-            }
-            this.element.bin = getDetail();
-            let { bin } = this.element;
-            if (bin === undefined) {
-                ok = false;
-                this.log(`${this.detail} is not a detail of SHEET ${this.sheet}`);
-            }
-        }
-        if (this.scanSets(space) === false) ok = false;
-        let { idVal } = this.element;
-        if (idVal.pelement.scan(space) === false) {
-            ok = false;
-        }
-        return ok;
-    }
-}
-*/
 abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> extends PBizStatementSub<A, T> {
     protected readonly entityCase: { entityName: string; condition: CompareExpression; }[] = [];
-    // protected entity: BizEntity;
     protected toVar: string;
     protected inVals: ValueExpression[] = [];
     protected override _parse(): void {
@@ -710,8 +662,6 @@ export class PBizStatementTie<A extends BizAct> extends PBizStatementSub<A, BizS
 
 export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> extends PBizStatementSub<A, T> {
     private outName: string;
-    // private ioSite: string;
-    // private ioApp: string;
     protected override _parse(): void {
         this.outName = this.ts.passVar();
         if (this.ts.isKeyword('to') === true) {

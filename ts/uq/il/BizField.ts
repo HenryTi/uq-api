@@ -38,9 +38,6 @@ export class BizFieldBud extends BizField {
     constructor(space: BizFieldSpace, tableAlias: string, entity: BizEntity, bud: BizBud) {
         super(space, tableAlias);
         this.entity = entity;
-        if (entity?.bizPhraseType === BizPhraseType.sheet) {
-            debugger;
-        }
         this.bud = bud;
     }
     override getBud(): BizBud {
@@ -67,7 +64,6 @@ export class BizFieldBud extends BizField {
             let entityBin = this.entity as BizBin;
             this.div = entityBin.getDivFromBud(this.bud);
             if (this.div === undefined) debugger;
-            // console.log('BizFieldBud', this.bud.name, this.entity.name, this.entity.bizPhraseType);
         }
     }
 }
@@ -253,7 +249,7 @@ export class FromInQueryFieldSpace extends FromFieldSpace {
     }
 
     protected override init(): void {
-        const { bizPhraseType, bizEntityArr } = this.from;
+        const { fromEntity: { bizPhraseType, bizEntityArr } } = this.from;
         let bizBuds: BizBud[] = [];
         for (let entity of bizEntityArr) {
             for (let [, p] of entity.props) {

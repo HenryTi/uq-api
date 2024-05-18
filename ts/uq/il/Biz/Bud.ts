@@ -1,7 +1,7 @@
 import {
     PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudNone, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue,
+    , PBizBudIntOf, PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue,
     PBizUser
 } from "../../parser";
 import { IElement } from "../IElement";
@@ -162,11 +162,11 @@ export class BizBudPickable extends BizBudValue {
 }
 
 // 有值，但无法确定
-export class BizBudNone extends BizBudValue {
-    readonly dataType = BudDataType.none;
+export class BizBudAny extends BizBudValue {
+    readonly dataType = BudDataType.any;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
-        return new PBizBudNone(this, context);
+        return new PBizBudAny(this, context);
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -404,7 +404,7 @@ export const budClassesIn: { [key: string]: new (entity: BizEntity, name: string
 }
 export const budClasses: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {
     ...budClassesIn,
-    none: BizBudNone,
+    none: BizBudAny,
     atom: BizBudID,
     intof: BizBudIntOf,
     radio: BizBudRadio,

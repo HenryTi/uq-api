@@ -247,7 +247,7 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             case il_1.BudDataType.str:
             case il_1.BudDataType.char:
                 tbl = il_1.EnumSysTable.ixBudStr;
-                colValue = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('"'), new sql_1.ExpField('value', a), new sql_1.ExpStr('"')), new sql_1.ExpDatePart('JSON'));
+                colValue = new sql_1.ExpFunc('JSON_QUOTE', new sql_1.ExpField('value', a));
                 break;
             case il_1.BudDataType.dec:
                 tbl = il_1.EnumSysTable.ixBudDec;

@@ -106,14 +106,14 @@ export class ExpAt extends ExpVal {
 }
 export class ExpStr extends ExpVal {
     static empty = new ExpStr('');
-    value: string;
+    private readonly value: string;
     to(sb: SqlBuilder) { sb.append('\'').append(this.value).append('\''); }
     constructor(value: string) { super(); this.value = value; }
 }
 export class ExpNum extends ExpVal {
-    num: number;
+    private readonly num: number;
     to(sb: SqlBuilder) { sb.append(this.num.toString()); }
-    constructor(num: number) { super(); this.num = num; }
+    constructor(num: number) { super(); this.num = num; if (num === undefined) debugger; }
 }
 export class ExpStar extends ExpVal {
     to(sb: SqlBuilder) {

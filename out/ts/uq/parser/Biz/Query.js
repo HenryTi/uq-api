@@ -102,6 +102,12 @@ class PBizQueryTable extends PBizQuery {
             if (value !== undefined) {
                 this.log(`${name} should not have default`);
                 ok = false;
+                continue;
+            }
+            if (props.has(name) === true) {
+                this.log(`Param ${name} duplicate`);
+                ok = false;
+                continue;
             }
             props.set(name, param);
         }

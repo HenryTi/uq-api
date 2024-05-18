@@ -364,54 +364,6 @@ class PBizStatementSheet extends PBizStatementSub {
     }
 }
 exports.PBizStatementSheet = PBizStatementSheet;
-/*
-export class PBizStatementDetail extends PBizStatementSheetBase<BizAct, BizStatementDetail> {
-    private sheet: string;
-    private detail: string;
-    protected _parse(): void {
-        this.detail = this.ts.passVar();
-        this.ts.passKey('of');
-        this.sheet = this.ts.passVar();
-        this.ts.passToken(Token.EQU);
-        this.element.idVal = new ValueExpression();
-        let { idVal } = this.element;
-        this.context.parseElement(idVal);
-        this.parseSet();
-    }
-
-    override scan(space: Space): boolean {
-        let ok = true;
-        let sheet = space.getBizEntity<BizSheet>(this.sheet);
-        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
-            ok = false;
-            this.log(`${this.sheet} is not a SHEET`);
-        }
-        else {
-            this.element.sheet = sheet;
-            let getDetail = (): BizBin => {
-                let bin = space.getBizEntity<BizBin>(this.detail);
-                if (bin === undefined) return;
-                for (let detail of sheet.details) {
-                    if (detail.bin === bin) return bin;
-                }
-                return undefined;
-            }
-            this.element.bin = getDetail();
-            let { bin } = this.element;
-            if (bin === undefined) {
-                ok = false;
-                this.log(`${this.detail} is not a detail of SHEET ${this.sheet}`);
-            }
-        }
-        if (this.scanSets(space) === false) ok = false;
-        let { idVal } = this.element;
-        if (idVal.pelement.scan(space) === false) {
-            ok = false;
-        }
-        return ok;
-    }
-}
-*/
 class PBizStatementID extends PBizStatementSub {
     constructor() {
         super(...arguments);
@@ -700,8 +652,6 @@ class PBizStatementTie extends PBizStatementSub {
 }
 exports.PBizStatementTie = PBizStatementTie;
 class PBizStatementOut extends PBizStatementSub {
-    // private ioSite: string;
-    // private ioApp: string;
     _parse() {
         this.outName = this.ts.passVar();
         if (this.ts.isKeyword('to') === true) {

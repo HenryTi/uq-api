@@ -38,7 +38,7 @@ class BFromStatement extends bstatement_1.BStatement {
         sqls.push(fromMain);
     }
     buildFromMain(cmpStart) {
-        const { ban, cols } = this.istatement;
+        const { ban } = this.istatement;
         let select = this.buildSelect(cmpStart);
         select.column(new sql_1.ExpField('id', t1), 'id');
         if (ban === undefined) {

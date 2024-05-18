@@ -19,9 +19,9 @@ __exportStar(require("./set"), exports);
 __exportStar(require("./with"), exports);
 __exportStar(require("./value"), exports);
 __exportStar(require("./for"), exports);
-__exportStar(require("./biz"), exports);
 __exportStar(require("./def"), exports);
 __exportStar(require("./use"), exports);
 __exportStar(require("./put"), exports);
-__exportStar(require("./from"), exports);
+__exportStar(require("./biz.statement"), exports);
+__exportStar(require("./biz.from"), exports);
 //# sourceMappingURL=index.js.map

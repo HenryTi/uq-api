@@ -1,7 +1,6 @@
 export { PVarStatement } from './var';
 export { PSetStatement } from './set';
 export { PWithStatement } from './with';
-export * from './biz';
 export { PValueStatement } from './value';
 export { PSettingStatement } from './setting';
 export { PIf, PBreakStatement, PContinueStatement, PReturnStatement } from './if';
@@ -31,6 +30,5 @@ export { PExecSqlStatement } from './execSql';
 export { PRoleStatement, PAssertRoleStatement } from './role';
 export * from './use';
 export * from './put';
-export * from './from';
-
+export * from './biz';
 export * from './statement';
