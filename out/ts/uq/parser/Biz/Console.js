@@ -95,7 +95,7 @@ class PBizConsole extends Base_1.PBizEntity {
         }
         for (let file of folder.files) {
             let { name } = file;
-            let [entity] = space.getBizEntityArr(name);
+            let { bizEntityArr: [entity] } = space.getBizEntityArr(name);
             if (entity === undefined) {
                 this.log(`${name} is not defined`);
                 ok = false;

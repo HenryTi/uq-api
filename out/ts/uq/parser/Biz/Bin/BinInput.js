@@ -45,7 +45,7 @@ class PBinInputSpec extends PBinInput {
     }
     scan(space) {
         let ok = true;
-        let [ret] = space.getBizEntityArr(this.spec);
+        let { bizEntityArr: [ret] } = space.getBizEntityArr(this.spec);
         if (ret?.bizPhraseType !== BizPhraseType_1.BizPhraseType.spec) {
             this.log(`${this.spec} is not SPEC`);
             ok = false;
@@ -82,7 +82,7 @@ class PBinInputAtom extends PBinInput {
     }
     scan(space) {
         let ok = true;
-        let [ret] = space.getBizEntityArr(this.atom);
+        let { bizEntityArr: [ret] } = space.getBizEntityArr(this.atom);
         if (ret?.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
             this.log(`${this.atom} is not ATOM`);
             ok = false;

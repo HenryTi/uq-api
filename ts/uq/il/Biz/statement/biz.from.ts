@@ -1,6 +1,6 @@
 import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../../parser";
 import {
-    BizEntity, BizTie,
+    BizEntity, BizFromEntity, BizTie,
 } from "..";
 import { EnumSysTable } from "../../EnumSysTable";
 import { Builder } from "../../builder";
@@ -25,11 +25,11 @@ export interface BanColumn {
     val: CompareExpression;
 }
 
-export class FromEntity {
-    bizEntityArr: BizEntity[] = [];
+export class FromEntity<E extends BizEntity = BizEntity> implements BizFromEntity<E> {
+    bizEntityArr: E[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
-    subs: FromEntity[];
+    subs: FromEntity<E>[];
     ofIXs: BizTie[] = [];
     ofOn: ValueExpression;
     alias: string;
@@ -55,12 +55,12 @@ export class FromStatement extends Statement {
         return new PFromStatement(this, context);
     }
 
-    getBizEntityFromAlias(alias: string): BizEntity[] {
+    getBizEntityFromAlias(alias: string): FromEntity {
         return this.getBizEntityArrFromAlias(alias, this.fromEntity);
     }
 
     private getBizEntityArrFromAlias(alias: string, fromEntity: FromEntity) {
-        if (alias === fromEntity.alias) return fromEntity.bizEntityArr;
+        if (alias === fromEntity.alias) return fromEntity;
         const { subs } = fromEntity;
         if (subs === undefined) return undefined;
         for (let sub of subs) {

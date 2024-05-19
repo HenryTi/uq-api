@@ -28,7 +28,7 @@ class FromStatement extends statement_1.Statement {
     }
     getBizEntityArrFromAlias(alias, fromEntity) {
         if (alias === fromEntity.alias)
-            return fromEntity.bizEntityArr;
+            return fromEntity;
         const { subs } = fromEntity;
         if (subs === undefined)
             return undefined;

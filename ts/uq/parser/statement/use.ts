@@ -1,4 +1,5 @@
 import {
+    BizFromEntity,
     BizSheet,
     SpanPeriod, UseBase, UseMonthZone, UseSetting, UseSheet, UseStatement
     , UseTimeSpan, UseTimeZone, UseYearZone, ValueExpression
@@ -144,7 +145,7 @@ export class PUseSheet extends PUseBase<UseSheet> {
     }
     scan(space: Space): boolean {
         let ok = true;
-        let [s] = space.getBizEntityArr<BizSheet>(this.sheet);
+        let { bizEntityArr: [s] } = space.getBizEntityArr(this.sheet) as BizFromEntity<BizSheet>;
         this.element.sheet = s;
         let { sheet, statement, varName } = this.element;
         if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {

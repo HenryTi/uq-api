@@ -105,8 +105,9 @@ export class PVarOperand extends PElement<VarOperand> {
 
                 let _obj = space.getBizEntityArr(var0);
                 if (_obj !== undefined) {
+                    let { bizEntityArr } = _obj;
                     let bud: BizBud, be: BizEntity, fieldName: string;
-                    for (let bizEntity of _obj) {
+                    for (let bizEntity of bizEntityArr) {
                         be = bizEntity;
                         bud = bizEntity.getBud(var1);
                         if (bud !== undefined) {
@@ -125,7 +126,7 @@ export class PVarOperand extends PElement<VarOperand> {
                         pointer = new BizEntityFieldPointer(be, fieldName);
                     }
                     else {
-                        this.log(`Biz entity ${_obj.map(v => v.jName).join(',')} has not ${var1}`);
+                        this.log(`Biz entity ${bizEntityArr.map(v => v.jName).join(',')} has not ${var1}`);
                         return false;
                     }
                 }

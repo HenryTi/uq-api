@@ -1,7 +1,8 @@
 import {
     Field, Table, Arr, Entity, GroupType
     , Pointer, Return, Bus, Uq, TableVar, Enum, LocalTableBase
-    , Const, ActionBase, Role, DataType, BizBase, BizEntity, BizFieldSpace, BizOut, UseOut
+    , Const, ActionBase, Role, DataType, BizBase, BizEntity, BizFieldSpace, BizOut, UseOut,
+    BizFromEntity
 } from '../il';
 import { BizEntitySpace } from './Biz/Biz';
 
@@ -27,7 +28,7 @@ export abstract class Space {
     protected _setTransactionOff(): boolean { return false; }
     protected _getActionBase(): ActionBase { return undefined; }
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
-    protected _getBizEntity(name: string): BizEntity[] { return undefined; }
+    protected _getBizEntity(name: string): BizFromEntity<BizEntity> { return undefined; }
     protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
     protected _getBizEntitySpace(): BizEntitySpace { return undefined; }
     protected _regUseBizOut(out: BizOut, to: boolean): UseOut { return undefined; }
@@ -128,9 +129,9 @@ export abstract class Space {
             return this.outer.getEntityTable(name);
     }
     // every BizEntity must have the same BizPhraseType
-    getBizEntityArr<T extends BizEntity = BizEntity>(name: string): T[] {
+    getBizEntityArr(name: string): BizFromEntity<BizEntity> {
         let bizEntity = this._getBizEntity(name);
-        if (bizEntity !== undefined) return bizEntity as T[];
+        if (bizEntity !== undefined) return bizEntity;
         if (this.outer !== undefined)
             return this.outer.getBizEntityArr(name);
     }

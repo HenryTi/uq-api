@@ -555,7 +555,7 @@ class PBizEntity extends PBizBase {
         for (let i in permissions) {
             if (i === '*')
                 continue;
-            let [entity] = space.getBizEntityArr(i);
+            let { bizEntityArr: [entity] } = space.getBizEntityArr(i);
             if (entity === undefined || entity.type !== 'role') {
                 this.log(`${i} is not a ROLE`);
                 ok = false;
@@ -616,7 +616,7 @@ class PBizEntity extends PBizBase {
         }
         const ids = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.spec, BizPhraseType_1.BizPhraseType.duo, BizPhraseType_1.BizPhraseType.options];
         for (let name of atomNames) {
-            let [bizEntity] = space.getBizEntityArr(name);
+            let { bizEntityArr: [bizEntity] } = space.getBizEntityArr(name);
             if (bizEntity === undefined) {
                 this.log(`${name} is not defined`);
                 ok = false;

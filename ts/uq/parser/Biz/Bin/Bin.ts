@@ -6,7 +6,8 @@ import {
     , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
     , BinInputSpec, BinInputAtom, BinDiv, BizBudIXBase, BizStatementBin
     , BizOut, UseOut, BinValue, UI, BinPivot, BizBudRadio, OptionsItem,
-    BudValueSetType
+    BudValueSetType,
+    BizFromEntity
 } from "../../../il";
 import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
 import { PContext } from "../../pContext";
@@ -339,7 +340,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         let binSpace = new BizBinSpace(space, this.element);
 
         if (this.main !== undefined) {
-            let [m] = binSpace.getBizEntityArr(this.main);
+            let { bizEntityArr: [m] } = binSpace.getBizEntityArr(this.main);
             if (m === undefined || m.bizPhraseType !== BizPhraseType.bin) {
                 this.log(`${this.main} is not BIN`);
                 ok = false;
@@ -571,13 +572,15 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
         return [new DotVarPointer(), undefined];
     }
 
-    protected override _getBizEntity(name: string): BizEntity[] {
+    protected override _getBizEntity(name: string): BizFromEntity {
         switch (name) {
             default:
                 return super._getBizEntity(name);
             case 'pend':
                 const { pend } = this.bizEntity;
-                return [pend];
+                return {
+                    bizEntityArr: [pend],
+                };
         }
     }
 
@@ -606,7 +609,7 @@ class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
         return undefined;
     }
 
-    protected override _getBizEntity(name: string): BizEntity[] {
+    protected override _getBizEntity(name: string) {
         switch (name) {
             default:
                 return super._getBizEntity(name);

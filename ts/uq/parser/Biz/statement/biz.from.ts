@@ -265,7 +265,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         }
         if (bizEntityArr.length > 0) {
             for (let _of of pFromEntity.ofIXs) {
-                let [entity] = space.getBizEntityArr(_of);
+                let { bizEntityArr: [entity] } = space.getBizEntityArr(_of);
                 if (entity === undefined) {
                     ok = false;
                     this.log(`${_of} is not defined`);

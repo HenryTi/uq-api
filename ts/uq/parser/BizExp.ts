@@ -80,7 +80,7 @@ export class PBizExp extends PElement<BizExp> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let [be] = space.getBizEntityArr(this.bizEntity);
+        let { bizEntityArr: [be] } = space.getBizEntityArr(this.bizEntity);
         this.element.bizEntity = be;
         const { bizEntity, in: varIn, param } = this.element;
         if (param.pelement.scan(space) === false) {
@@ -345,7 +345,7 @@ export class PBizExpParam extends PElement<BizExpParam> {
         if (this.ties !== undefined) {
             let ixs: BizTie[] = [];
             for (let tie of this.ties) {
-                let [t] = space.getBizEntityArr(tie);
+                let { bizEntityArr: [t] } = space.getBizEntityArr(tie);
                 if (t === undefined || t.bizPhraseType !== BizPhraseType.tie) {
                     this.log(`${tie} is not a TIE`);
                     ok = false;
@@ -448,7 +448,7 @@ export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
             if (bizField.pelement.scan(space) === false) ok = false;
         }
         if (this.options !== undefined) {
-            let [options] = space.getBizEntityArr(this.options);
+            let { bizEntityArr: [options] } = space.getBizEntityArr(this.options);
             if (options.bizPhraseType !== BizPhraseType.options) {
                 this.log(`${this.options} is not OPTIONS`);
                 ok = false;

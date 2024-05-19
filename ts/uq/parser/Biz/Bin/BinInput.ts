@@ -48,7 +48,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
 
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
-        let [ret] = space.getBizEntityArr(this.spec);
+        let { bizEntityArr: [ret] } = space.getBizEntityArr(this.spec);
         if (ret?.bizPhraseType !== BizPhraseType.spec) {
             this.log(`${this.spec} is not SPEC`);
             ok = false;
@@ -87,7 +87,7 @@ export class PBinInputAtom extends PBinInput<BinInputAtom> {
 
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
-        let [ret] = space.getBizEntityArr(this.atom);
+        let { bizEntityArr: [ret] } = space.getBizEntityArr(this.atom);
         if (ret?.bizPhraseType !== BizPhraseType.atom) {
             this.log(`${this.atom} is not ATOM`);
             ok = false;

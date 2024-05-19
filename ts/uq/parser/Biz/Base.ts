@@ -579,7 +579,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let { permissions } = this.element;
         for (let i in permissions) {
             if (i === '*') continue;
-            let [entity] = space.getBizEntityArr(i);
+            let { bizEntityArr: [entity] } = space.getBizEntityArr(i);
             if (entity === undefined || entity.type !== 'role') {
                 this.log(`${i} is not a ROLE`);
                 ok = false;
@@ -642,7 +642,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.duo, BizPhraseType.options];
         for (let name of atomNames) {
-            let [bizEntity] = space.getBizEntityArr(name);
+            let { bizEntityArr: [bizEntity] } = space.getBizEntityArr(name);
             if (bizEntity === undefined) {
                 this.log(`${name} is not defined`);
                 ok = false;

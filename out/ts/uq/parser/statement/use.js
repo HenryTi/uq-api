@@ -148,7 +148,7 @@ class PUseSheet extends PUseBase {
     }
     scan(space) {
         let ok = true;
-        let [s] = space.getBizEntityArr(this.sheet);
+        let { bizEntityArr: [s] } = space.getBizEntityArr(this.sheet);
         this.element.sheet = s;
         let { sheet, statement, varName } = this.element;
         if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType_1.BizPhraseType.sheet) {

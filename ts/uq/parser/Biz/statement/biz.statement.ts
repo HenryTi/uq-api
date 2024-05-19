@@ -6,7 +6,8 @@ import {
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
     , BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut
-    , Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie
+    , Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie,
+    BizFromEntity
 } from '../../../il';
 import { PStatement } from '../../statement/statement';
 import { PContext } from '../../pContext';
@@ -151,7 +152,7 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
 
     scan0(space: Space): boolean {
         let ok = true;
-        let [bizBin] = space.getBizEntityArr(undefined) as BizBin[];
+        let { bizEntityArr: [bizBin] } = space.getBizEntityArr(undefined) as BizFromEntity<BizBin>;
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
             if (pend !== undefined) {
@@ -516,7 +517,7 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
                     ok = false;
                 }
             }
-            let [entity] = space.getBizEntityArr(entityName);
+            let { bizEntityArr: [entity] } = space.getBizEntityArr(entityName);
             if (entity === undefined) {
                 ok = false;
                 this.log(`${entityName} is not defined`);
@@ -607,7 +608,7 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
             ok = false;
             return ok;
         }
-        let [entity] = space.getBizEntityArr(this.entityName);
+        let { bizEntityArr: [entity] } = space.getBizEntityArr(this.entityName);
         if (entity.bizPhraseType !== BizPhraseType.spec) {
             ok = false;
             this.log(`${this.entityName} is not SPEC`);
@@ -641,7 +642,7 @@ export class PBizStatementTie<A extends BizAct> extends PBizStatementSub<A, BizS
     }
     override scan(space: Space) {
         let ok = true;
-        let [tie] = space.getBizEntityArr<BizTie>(this.tieName);
+        let { bizEntityArr: [tie] } = space.getBizEntityArr(this.tieName) as BizFromEntity<BizTie>;
         if (tie === undefined || tie.bizPhraseType !== BizPhraseType.tie) {
             ok = false;
             this.log(`${this.tieName} is not TIE`);
@@ -715,7 +716,7 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
     override scan(space: Space): boolean {
         let ok = true;
         let { tos, detail, sets } = this.element;
-        let [bizOut] = space.getBizEntityArr<BizOut>(this.outName);
+        let { bizEntityArr: [bizOut] } = space.getBizEntityArr(this.outName) as BizFromEntity<BizOut>;
         if (bizOut === undefined || bizOut.bizPhraseType !== BizPhraseType.out) {
             ok = false;
             this.log(`${this.outName} is not OUT`);

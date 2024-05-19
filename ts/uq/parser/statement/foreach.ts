@@ -129,7 +129,7 @@ export class PForEach extends PStatement<ForEach> {
     }
 
     private createBizInArrSpace(space: Space): Space {
-        let [bizEntity] = space.getBizEntityArr(undefined);
+        let { bizEntityArr: [bizEntity] } = space.getBizEntityArr(undefined);
         if (bizEntity === undefined) return;
         if (bizEntity.bizPhraseType !== BizPhraseType.in) return;
         let bizIn = bizEntity as BizIn;

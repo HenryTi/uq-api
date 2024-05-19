@@ -55,7 +55,7 @@ class PBizAssign extends Base_1.PBizEntity {
             ok = false;
         }
         for (let a of this.atom) {
-            let [bizAtom] = space.getBizEntityArr(a);
+            let { bizEntityArr: [bizAtom] } = space.getBizEntityArr(a);
             if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
                 this.log(`${this.atom} is not an ATOM`);
                 ok = false;
@@ -69,7 +69,7 @@ class PBizAssign extends Base_1.PBizEntity {
             ok = false;
         }
         for (let [t0, t1] of this.titles) {
-            let [bizTitle] = space.getBizEntityArr(t0);
+            let { bizEntityArr: [bizTitle] } = space.getBizEntityArr(t0);
             if (bizTitle === undefined || bizTitle.bizPhraseType !== BizPhraseType_1.BizPhraseType.title) {
                 this.log(`${t0} is not a TITLE`);
                 ok = false;

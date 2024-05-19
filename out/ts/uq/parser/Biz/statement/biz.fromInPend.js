@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PFromStatementInPend = void 0;
 const il_1 = require("../../../il");
-const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const tokens_1 = require("../../tokens");
 const biz_from_1 = require("./biz.from");
 class PFromStatementInPend extends biz_from_1.PFromStatement {
@@ -20,9 +19,15 @@ class PFromStatementInPend extends biz_from_1.PFromStatement {
     }
     setEntityArr(space) {
         const { fromEntity } = this.element;
+        let fe = space.getBizEntityArr(undefined);
+        if (fe.bizEntityArr.length > 0)
+            debugger;
+        Object.assign(fromEntity, fe);
+        /*
         fromEntity.bizEntityArr = space.getBizEntityArr(undefined);
-        fromEntity.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
-        fromEntity.bizEntityTable = il_1.EnumSysTable.pend;
+        fromEntity.bizPhraseType = BizPhraseType.pend;
+        fromEntity.bizEntityTable = EnumSysTable.pend;
+        */
         return true;
     }
 }

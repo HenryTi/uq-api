@@ -2,7 +2,8 @@ import {
     Biz, BizAtom, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
     , BizSheet, BizOptions, BizSpec
-    , BizReport, BizQueryTable, BizAssign, BizConsole, BizDuo, BizIn, BizOut, BizIOApp, BizIOSite
+    , BizReport, BizQueryTable, BizAssign, BizConsole, BizDuo, BizIn, BizOut, BizIOApp, BizIOSite,
+    BizFromEntity
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -153,8 +154,10 @@ export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
-    protected override _getBizEntity(name: string): BizEntity[] {
-        if (name === undefined) return [this.bizEntity];
+    protected override _getBizEntity(name: string) {
+        if (name === undefined) return {
+            bizEntityArr: [this.bizEntity]
+        } as BizFromEntity<T>;
         return super._getBizEntity(name);
     }
     protected override _getUse(name: string): { statementNo: number; obj: any; } {

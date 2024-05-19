@@ -143,7 +143,9 @@ class BizEntitySpace extends space_1.Space {
     }
     _getBizEntity(name) {
         if (name === undefined)
-            return [this.bizEntity];
+            return {
+                bizEntityArr: [this.bizEntity]
+            };
         return super._getBizEntity(name);
     }
     _getUse(name) {

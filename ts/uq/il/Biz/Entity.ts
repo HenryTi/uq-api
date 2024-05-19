@@ -230,3 +230,7 @@ export abstract class BizEntity extends BizBase {
         return ret;
     }
 }
+
+export interface BizFromEntity<E extends BizEntity = BizEntity> {
+    bizEntityArr: E[];
+}

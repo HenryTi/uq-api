@@ -1,5 +1,4 @@
-import { EnumSysTable, FromStatementInPend, FromInPendFieldSpace } from "../../../il";
-import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
+import { FromInPendFieldSpace, FromStatementInPend } from "../../../il";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { FromSpace, PFromStatement } from "./biz.from";
@@ -22,9 +21,14 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
 
     protected setEntityArr(space: Space) {
         const { fromEntity } = this.element;
+        let fe = space.getBizEntityArr(undefined);
+        if (fe.bizEntityArr.length > 0) debugger;
+        Object.assign(fromEntity, fe);
+        /*
         fromEntity.bizEntityArr = space.getBizEntityArr(undefined);
         fromEntity.bizPhraseType = BizPhraseType.pend;
         fromEntity.bizEntityTable = EnumSysTable.pend;
+        */
         return true;
     }
 }

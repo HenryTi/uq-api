@@ -5,7 +5,8 @@ import {
     , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BizBudArr, BizIOApp
     , IOAppID, IOAppIn, IOAppOut, BizAtom, IOAppIO
     , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq, BizIOSite, IOConnectType
-    , IOAppOptions, IOPeerOptions, BizOptions, IOPeers
+    , IOAppOptions, IOPeerOptions, BizOptions, IOPeers,
+    BizFromEntity
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { PElement } from "../element";
@@ -141,7 +142,7 @@ class BizInActSpace extends BizEntitySpace<BizIn> {
         return undefined;
     }
 
-    protected override _getBizEntity(name: string): BizEntity[] {
+    protected override _getBizEntity(name: string): BizFromEntity {
         switch (name) {
             default:
                 return super._getBizEntity(name);
@@ -265,7 +266,7 @@ export class PIOAppID extends PBizBase<IOAppID> {
         let ok = true;
         const { atoms } = this.element;
         for (let atomName of this.atomNames) {
-            const [bizAtom] = space.getBizEntityArr<BizAtom>(atomName);
+            const { bizEntityArr: [bizAtom] } = space.getBizEntityArr(atomName) as BizFromEntity<BizAtom>;
             if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType.atom) {
                 ok = false;
                 this.log(`${atomName} is not an ATOM`);
@@ -423,7 +424,7 @@ export class PIOPeerOptions extends PElement<IOPeerOptions> {
     override scan(space: Space): boolean {
         let ok = true;
         if (this.ioOptions !== undefined) {
-            let [options] = space.getBizEntityArr<BizOptions>(this.ioOptions);
+            let { bizEntityArr: [options] } = space.getBizEntityArr(this.ioOptions) as BizFromEntity<BizOptions>;
             this.element.options = options;
             if (options === undefined) {
                 ok = false;
@@ -603,7 +604,7 @@ abstract class PIOAppIO<T extends IOAppIO> extends PBizBase<T> {
     override scan0(space: Space): boolean {
         let ok = true;
         const { name } = this.element;
-        let [bizEntity] = space.getBizEntityArr<BizInOut>(name);
+        let { bizEntityArr: [bizEntity] } = space.getBizEntityArr(name) as BizFromEntity<BizInOut>;
         let bizPhraseType = this.entityBizPhraseType;
         if (bizEntity === undefined || bizEntity.bizPhraseType !== bizPhraseType) {
             ok = false;
@@ -719,7 +720,7 @@ export class PBizIOSite extends PBizEntity<BizIOSite> {
             this.log(`IOSite must define TIE atom`);
         }
         else {
-            let [atom] = space.getBizEntityArr<BizAtom>(this.tie);
+            let { bizEntityArr: [atom] } = space.getBizEntityArr(this.tie) as BizFromEntity<BizAtom>;
             if (atom === undefined || atom.bizPhraseType !== BizPhraseType.atom) {
                 ok = false;
                 this.log(`IOSite TIE ${this.tie} must be ATOM`);
@@ -730,7 +731,7 @@ export class PBizIOSite extends PBizEntity<BizIOSite> {
         }
         const { ioApps } = this.element;
         for (let app of this.apps) {
-            let [ioApp] = space.getBizEntityArr<BizIOApp>(app);
+            let { bizEntityArr: [ioApp] } = space.getBizEntityArr(app) as BizFromEntity<BizIOApp>;
             if (ioApp === undefined || ioApp.bizPhraseType !== BizPhraseType.ioApp) {
                 ok = false;
                 this.log(`${app} is not IOApp`);
