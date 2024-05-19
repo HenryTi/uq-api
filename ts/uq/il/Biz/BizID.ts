@@ -3,9 +3,8 @@ import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement, PIDUn
 import { IElement } from "../IElement";
 import { UI } from "../UI";
 import { IxField } from "./Base";
-import { Biz } from "./Biz";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
-import { BizBud, BizBudValue, FieldShow } from "./Bud";
+import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 
 // 任何可以独立存在，可被引用ID

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntityPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
+exports.BizEntityFieldPointer = exports.BizEntityPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
 var GroupType;
 (function (GroupType) {
     GroupType[GroupType["Single"] = 1] = "Single";
@@ -108,25 +108,20 @@ class BizEntityPointer extends Pointer {
         this.bud = bud;
     }
     to(stack, v) {
-        // stack.var(this.entity.name); //, this.bud.name);
-        stack.varOfBizEntity(this.entity, this.bud); //, this.bud.name);
+        stack.varOfBizEntity(this.entity, this.bud);
     }
 }
 exports.BizEntityPointer = BizEntityPointer;
-/*
-export class BizFieldPointer extends Pointer {
-    readonly groupType: GroupType = GroupType.Single;
-    readonly entity: BizEntity;
-    readonly bud: BizBud;
-    constructor(entity: BizEntity, bud: BizBud) {
+class BizEntityFieldPointer extends Pointer {
+    constructor(entity, fieldName) {
         super();
+        this.groupType = GroupType.Single;
         this.entity = entity;
-        this.bud = bud;
+        this.fieldName = fieldName;
     }
-
-    override to(stack: Stack, v: VarOperand): void {
-        stack.var(this.entity.name); //, this.bud.name);
+    to(stack, v) {
+        stack.var(this.entity.name);
     }
 }
-*/
+exports.BizEntityFieldPointer = BizEntityFieldPointer;
 //# sourceMappingURL=pointer.js.map

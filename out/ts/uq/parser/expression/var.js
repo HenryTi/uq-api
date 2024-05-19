@@ -104,20 +104,29 @@ class PVarOperand extends element_1.PElement {
                 }
                 let _obj = space.getBizEntityArr(var0);
                 if (_obj !== undefined) {
-                    let bud, be;
+                    let bud, be, fieldName;
                     for (let bizEntity of _obj) {
+                        be = bizEntity;
                         bud = bizEntity.getBud(var1);
                         if (bud !== undefined) {
-                            be = bizEntity;
+                            break;
+                        }
+                        if (bizEntity.hasField(var1) === true) {
+                            fieldName = var1;
                             break;
                         }
                     }
                     // let v = _obj.getBud(var1);
-                    if (bud === undefined) {
+                    if (bud !== undefined) {
+                        pointer = new il_1.BizEntityPointer(be, bud);
+                    }
+                    else if (fieldName !== undefined) {
+                        pointer = new il_1.BizEntityFieldPointer(be, fieldName);
+                    }
+                    else {
                         this.log(`Biz entity ${_obj.map(v => v.jName).join(',')} has not ${var1}`);
                         return false;
                     }
-                    pointer = new il_1.BizEntityPointer(be, bud);
                 }
                 else {
                     // t.a 那么t一定是from的table，不可能是entity

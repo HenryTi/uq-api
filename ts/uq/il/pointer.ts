@@ -102,23 +102,21 @@ export class BizEntityPointer extends Pointer {
         this.bud = bud;
     }
     override to(stack: Stack, v: VarOperand): void {
-        // stack.var(this.entity.name); //, this.bud.name);
-        stack.varOfBizEntity(this.entity, this.bud); //, this.bud.name);
+        stack.varOfBizEntity(this.entity, this.bud);
     }
 }
-/*
-export class BizFieldPointer extends Pointer {
+
+export class BizEntityFieldPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
     readonly entity: BizEntity;
-    readonly bud: BizBud;
-    constructor(entity: BizEntity, bud: BizBud) {
+    readonly fieldName: string;
+    constructor(entity: BizEntity, fieldName: string) {
         super();
         this.entity = entity;
-        this.bud = bud;
+        this.fieldName = fieldName;
     }
 
     override to(stack: Stack, v: VarOperand): void {
-        stack.var(this.entity.name); //, this.bud.name);
+        stack.var(this.entity.name);
     }
 }
-*/

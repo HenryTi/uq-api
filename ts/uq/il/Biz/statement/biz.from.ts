@@ -61,7 +61,9 @@ export class FromStatement extends Statement {
 
     private getBizEntityArrFromAlias(alias: string, fromEntity: FromEntity) {
         if (alias === fromEntity.alias) return fromEntity.bizEntityArr;
-        for (let sub of fromEntity.subs) {
+        const { subs } = fromEntity;
+        if (subs === undefined) return undefined;
+        for (let sub of subs) {
             let ret = this.getBizEntityArrFromAlias(alias, sub);
             if (ret !== undefined) return ret;
         }
