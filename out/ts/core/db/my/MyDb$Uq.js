@@ -64,14 +64,13 @@ class MyDb$Uq extends MyDb_1.MyDb {
         return rows.length > 0;
     }
     async isNewVesion() {
-        var _a;
         try {
             let ret = await this.sql(`select value from $uq.setting where name='$uq_version'`);
-            if (((_a = ret[0]) === null || _a === void 0 ? void 0 : _a.value) === dbUqVersion)
+            if (ret[0]?.value === dbUqVersion)
                 return false;
             return true;
         }
-        catch (_b) {
+        catch {
             return false;
         }
     }
@@ -79,7 +78,7 @@ class MyDb$Uq extends MyDb_1.MyDb {
         try {
             await this.sql(`insert into $uq.setting (name, value) values ('$uq_version', '${dbUqVersion}');`);
         }
-        catch (_a) {
+        catch {
         }
     }
     async create$UqDb() {

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBinInputAtom = exports.PBinInputSpec = void 0;
 const il_1 = require("../../../il");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const tokens_1 = require("../../tokens");
 const Bud_1 = require("../Bud");
 class PBinInput extends Bud_1.PBizBud {
@@ -44,8 +45,8 @@ class PBinInputSpec extends PBinInput {
     }
     scan(space) {
         let ok = true;
-        let ret = space.getBizEntity(this.spec);
-        if ((ret === null || ret === void 0 ? void 0 : ret.bizPhraseType) !== il_1.BizPhraseType.spec) {
+        let [ret] = space.getBizEntityArr(this.spec);
+        if (ret?.bizPhraseType !== BizPhraseType_1.BizPhraseType.spec) {
             this.log(`${this.spec} is not SPEC`);
             ok = false;
         }
@@ -81,8 +82,8 @@ class PBinInputAtom extends PBinInput {
     }
     scan(space) {
         let ok = true;
-        let ret = space.getBizEntity(this.atom);
-        if ((ret === null || ret === void 0 ? void 0 : ret.bizPhraseType) !== il_1.BizPhraseType.atom) {
+        let [ret] = space.getBizEntityArr(this.atom);
+        if (ret?.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
             this.log(`${this.atom} is not ATOM`);
             ok = false;
         }

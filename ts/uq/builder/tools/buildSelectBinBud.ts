@@ -1,4 +1,8 @@
-import { BigInt, BizBud, BizBudIDBase, BizBudIXBase, BudDataType, Char, DataType, Dec, EnumDataType, EnumSysTable, JoinType, JsonDataType } from "../../il";
+import {
+    BigInt, BizBud, BizBudIDBase, BizBudIXBase, Char, DataType
+    , Dec, EnumDataType, EnumSysTable, JoinType, JsonDataType
+} from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
 import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, Select, Statement } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";

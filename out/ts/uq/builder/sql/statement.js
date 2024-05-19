@@ -54,12 +54,11 @@ class If extends StatementBase {
         });
     }
     get thenStatements() { return this._then.statements; }
-    get elseStatements() { var _a; return (_a = this._else) === null || _a === void 0 ? void 0 : _a.statements; }
+    get elseStatements() { return this._else?.statements; }
     declare(vars, puts) {
-        var _a, _b;
         this._then.declare(vars, puts);
-        (_a = this._elseIfs) === null || _a === void 0 ? void 0 : _a.forEach(v => v.statements.declare(vars, puts));
-        (_b = this._else) === null || _b === void 0 ? void 0 : _b.declare(vars, puts);
+        this._elseIfs?.forEach(v => v.statements.declare(vars, puts));
+        this._else?.declare(vars, puts);
     }
     to(sb, tab) {
         this.start(sb, tab);

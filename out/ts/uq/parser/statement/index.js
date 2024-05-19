@@ -21,7 +21,6 @@ var set_1 = require("./set");
 Object.defineProperty(exports, "PSetStatement", { enumerable: true, get: function () { return set_1.PSetStatement; } });
 var with_1 = require("./with");
 Object.defineProperty(exports, "PWithStatement", { enumerable: true, get: function () { return with_1.PWithStatement; } });
-__exportStar(require("./biz"), exports);
 var value_1 = require("./value");
 Object.defineProperty(exports, "PValueStatement", { enumerable: true, get: function () { return value_1.PValueStatement; } });
 var setting_1 = require("./setting");
@@ -82,6 +81,6 @@ Object.defineProperty(exports, "PRoleStatement", { enumerable: true, get: functi
 Object.defineProperty(exports, "PAssertRoleStatement", { enumerable: true, get: function () { return role_1.PAssertRoleStatement; } });
 __exportStar(require("./use"), exports);
 __exportStar(require("./put"), exports);
-__exportStar(require("./from"), exports);
+__exportStar(require("../Biz/statement/biz"), exports);
 __exportStar(require("./statement"), exports);
 //# sourceMappingURL=index.js.map

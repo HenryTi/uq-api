@@ -1,4 +1,5 @@
-import { BizBud, BudDataType, EnumSysTable } from "../../il";
+import { BizBud, EnumSysTable } from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
 import { ExpNum, ExpVal, Statement } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -7,7 +8,6 @@ export function buildSetSheetBud(context: DbContext, bud: BizBud, idVal: ExpVal,
     const { factory } = context;
     function createIxBudValue(table: EnumSysTable, valValue: ExpVal) {
         let insert = factory.createInsertOnDuplicate();
-        // insert.ignore = true;
         insert.table = new EntityTable(table, false);
         insert.cols = [
             { col: 'value', val: valValue },

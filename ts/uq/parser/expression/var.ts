@@ -1,4 +1,5 @@
-import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityPointer } from '../../il';
+import _ = require('lodash');
+import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityPointer, BizBud, BizEntity } from '../../il';
 import { VarOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -102,14 +103,22 @@ export class PVarOperand extends PElement<VarOperand> {
                     pointer = new ConstPointer(v);
                 }
 
-                let _obj = space.getBizEntity(var0);
+                let _obj = space.getBizEntityArr(var0);
                 if (_obj !== undefined) {
-                    let v = _obj.getBud(var1);
-                    if (v === undefined) {
-                        this.log(`Biz entity ${_obj.jName} has not ${var1}`);
+                    let bud: BizBud, be: BizEntity;
+                    for (let bizEntity of _obj) {
+                        bud = bizEntity.getBud(var1);
+                        if (bud !== undefined) {
+                            be = bizEntity;
+                            break;
+                        }
+                    }
+                    // let v = _obj.getBud(var1);
+                    if (bud === undefined) {
+                        this.log(`Biz entity ${_obj.map(v => v.jName).join(',')} has not ${var1}`);
                         return false;
                     }
-                    pointer = new BizEntityPointer(_obj, v);
+                    pointer = new BizEntityPointer(be, bud);
                 }
                 else {
                     // t.a 那么t一定是from的table，不可能是entity

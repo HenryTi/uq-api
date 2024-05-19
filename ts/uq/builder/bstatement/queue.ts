@@ -10,8 +10,7 @@ import { EntityTable } from "../sql/statementWithFrom";
 import { LockType } from "../sql/select";
 import { sysTable } from "../dbContext";
 
-export class BQueueStatement extends BStatement {
-    protected istatement: QueueStatement;
+export class BQueueStatement extends BStatement<QueueStatement> {
     body(sqls: Sqls) {
         const { factory, hasUnit } = this.context;
         const { no, entityId, queue, value, ix } = this.istatement;

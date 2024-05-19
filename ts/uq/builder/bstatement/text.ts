@@ -1,15 +1,14 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 import { TextStatement, intField } from "../../il";
-import { convertExp, ExpVal, ExpNum, ExpFunc, ExpVar, ExpAdd, ExpGT, ExpField, ExpEQ, ExpLT, ExpStr, ExpSub, If } from "../sql";
+import { ExpVal, ExpFunc, ExpVar, ExpAdd, ExpGT, ExpLT, ExpStr, ExpSub, If } from "../sql";
 import { VarTable } from "../sql/statementWithFrom";
 
-export class BTextStatement extends BStatement {
-    protected istatement: TextStatement;
+export class BTextStatement extends BStatement<TextStatement> {
 
     body(sqls: Sqls) {
-        let {textVar, tableVar, sep, ln} = this.istatement;
-        let {name, fields} = tableVar;
+        let { textVar, tableVar, sep, ln } = this.istatement;
+        let { name, fields } = tableVar;
         let factory = this.context.factory;
         let dec = factory.createDeclare();
         sqls.push(dec);
@@ -34,10 +33,10 @@ export class BTextStatement extends BStatement {
         loop.cmp = new ExpGT(new ExpVar(vLen), ExpVal.num0);
 
         let len = fields.length;
-        for (let i=0; i<len; i++) {
-            let delimiter:string;
+        for (let i = 0; i < len; i++) {
+            let delimiter: string;
             let iff: If = undefined;
-            if (i === len-1) {
+            if (i === len - 1) {
                 delimiter = ln || '\\n';
                 iff = factory.createIf();
                 iff.cmp = new ExpLT(new ExpVar(vc), ExpVal.num1);
@@ -50,19 +49,19 @@ export class BTextStatement extends BStatement {
             }
             let setC = factory.createSet();
             loop.statements.add(setC);
-            setC.equ(vc, 
+            setC.equ(vc,
                 new ExpFunc(factory.func_charindex, new ExpStr(delimiter), new ExpVar(textVar), new ExpVar(vp)));
             if (iff !== undefined) loop.statements.add(iff);
             let setF = factory.createSet();
             loop.statements.add(setF);
             let field = fields[i];
-			setF.equ(name + '##' + field.name,
-				new ExpFunc(
-					'NULLIF',
-					new ExpFunc(factory.func_substr, new ExpVar(textVar), new ExpVar(vp), new ExpSub(new ExpVar(vc), new ExpVar(vp))),
-					new ExpStr('')
-				)
-			);
+            setF.equ(name + '##' + field.name,
+                new ExpFunc(
+                    'NULLIF',
+                    new ExpFunc(factory.func_substr, new ExpVar(textVar), new ExpVar(vp), new ExpSub(new ExpVar(vc), new ExpVar(vp))),
+                    new ExpStr('')
+                )
+            );
             let setPAhead = factory.createSet();
             loop.statements.add(setPAhead);
             setPAhead.equ(vp, new ExpAdd(new ExpVar(vc), ExpVal.num1));

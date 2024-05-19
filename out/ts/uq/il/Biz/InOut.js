@@ -85,9 +85,8 @@ class IOAppOptions extends Bud_1.BizBud {
         return new parser_1.PIOAppOptions(this, context);
     }
     buildSchema(res) {
-        var _a;
         let ret = super.buildSchema(res);
-        ret.options = (_a = this.options) === null || _a === void 0 ? void 0 : _a.id;
+        ret.options = this.options?.id;
         return ret;
     }
 }

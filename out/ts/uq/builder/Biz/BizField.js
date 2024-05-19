@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizFieldUser = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class BBizField {
     constructor(dbContext, bizField) {
         this.dbContext = dbContext;
@@ -20,15 +21,15 @@ class BBizFieldBud extends BBizField {
             default:
                 this.buildSelectValue(sb, il_1.EnumSysTable.ixBudInt);
                 return;
-            case il_1.BudDataType.str:
-            case il_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
                 this.buildSelectValue(sb, il_1.EnumSysTable.ixBudStr);
                 return;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 this.buildSelectValue(sb, il_1.EnumSysTable.ixBudDec);
                 return;
             // case BudDataType.radio: radio 按int处理
-            case il_1.BudDataType.check:
+            case BizPhraseType_1.BudDataType.check:
                 this.buildSelectMulti(sb);
                 return;
         }

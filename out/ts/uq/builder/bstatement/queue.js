@@ -73,10 +73,9 @@ class BQueueStatement extends bstatement_1.BStatement {
         }
     }
     buildDone(sqls, queueEntityId) {
-        var _a;
         const { factory, hasUnit } = this.context;
         const { queue, ix, no, value } = this.istatement;
-        const onceOnly = (_a = (queue === null || queue === void 0 ? void 0 : queue.onceOnly)) !== null && _a !== void 0 ? _a : false;
+        const onceOnly = (queue?.onceOnly) ?? false;
         const queueIx = '$queue_ix_' + no;
         const queueValue = '$queue_value_' + no;
         const queueCount = '$queue_count_' + no;

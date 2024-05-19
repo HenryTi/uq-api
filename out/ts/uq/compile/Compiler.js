@@ -6,16 +6,16 @@ const biz_sys_1 = require("../biz-sys");
 const core_1 = require("../../core");
 const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
-const il_1 = require("../il");
 const compileSource_1 = require("./compileSource");
+const BizPhraseType_1 = require("../il/Biz/BizPhraseType");
 const groups = {
-    info: [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.title, il_1.BizPhraseType.assign, il_1.BizPhraseType.duo],
-    sheet: [il_1.BizPhraseType.sheet, il_1.BizPhraseType.bin, il_1.BizPhraseType.pend],
-    query: [il_1.BizPhraseType.query],
-    relate: [il_1.BizPhraseType.pick, il_1.BizPhraseType.options, il_1.BizPhraseType.tie, il_1.BizPhraseType.tree],
-    report: [il_1.BizPhraseType.report],
-    permit: [il_1.BizPhraseType.permit], // BizPhraseType.role, 
-    console: [il_1.BizPhraseType.console],
+    info: [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.spec, BizPhraseType_1.BizPhraseType.title, BizPhraseType_1.BizPhraseType.assign, BizPhraseType_1.BizPhraseType.duo],
+    sheet: [BizPhraseType_1.BizPhraseType.sheet, BizPhraseType_1.BizPhraseType.bin, BizPhraseType_1.BizPhraseType.pend],
+    query: [BizPhraseType_1.BizPhraseType.query],
+    relate: [BizPhraseType_1.BizPhraseType.pick, BizPhraseType_1.BizPhraseType.options, BizPhraseType_1.BizPhraseType.tie, BizPhraseType_1.BizPhraseType.tree],
+    report: [BizPhraseType_1.BizPhraseType.report],
+    permit: [BizPhraseType_1.BizPhraseType.permit], // BizPhraseType.role, 
+    console: [BizPhraseType_1.BizPhraseType.console],
 };
 class Compiler {
     constructor(runner, site, user) {

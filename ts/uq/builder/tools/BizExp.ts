@@ -1,11 +1,12 @@
 import {
-    BizExp, BizExpParamType, BizField, BizPhraseType, BudDataType, OptionsItem
+    BizExp, BizExpParamType, BizField, OptionsItem
 } from "../../il";
 import { ExpVal, ExpInterval } from "../sql/exp";
 import { DbContext } from "../dbContext";
 import { SqlBuilder } from "../sql/sqlBuilder";
 import { BBudSelect } from "./BBudSelect";
 import { BBizField } from "../Biz";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 
 let bizEpxTblNo = 0;
 

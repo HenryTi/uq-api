@@ -76,6 +76,7 @@ exports.FaceSchema = FaceSchema;
 class FaceAcceptSchema extends FaceSchema {
     constructor() {
         super(...arguments);
+        // protected readonly schema: FieldSchema[];
         this.type = 'accept';
     }
     build(errorLogs) {
@@ -89,6 +90,7 @@ exports.FaceAcceptSchema = FaceAcceptSchema;
 class FaceQuerySchema extends FaceSchema {
     constructor() {
         super(...arguments);
+        // protected readonly schema: { param: FieldSchema[], returns: string };
         this.type = 'query';
     }
     build(errorLogs) {

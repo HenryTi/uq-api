@@ -2,9 +2,7 @@ import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 import { TableStatement } from "../../il";
 
-export class BTableStatement extends BStatement {
-    protected istatement: TableStatement;
-
+export class BTableStatement extends BStatement<TableStatement> {
     body(sqls: Sqls) {
         let { noDrop, table } = this.istatement;
         let { name, fields, keys } = table;

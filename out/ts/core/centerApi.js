@@ -15,7 +15,7 @@ class CenterApi extends fetch_1.Fetch {
     }
     async busSchema(owner, bus, version) {
         let ret = await this.get('open/bus', { owner, bus, version });
-        return ret === null || ret === void 0 ? void 0 : ret.schema;
+        return ret?.schema;
     }
     async serviceBus(serviceUID, serviceBuses) {
         await this.post('open/save-service-bus', {

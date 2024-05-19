@@ -44,11 +44,11 @@ class SqlIX extends MySqlBuilder_1.MySqlBuilder {
             let { start } = page;
             if (order === 'asc') {
                 cmp = '>';
-                start = start !== null && start !== void 0 ? start : 0;
+                start = start ?? 0;
             }
             else {
                 cmp = '<';
-                start = start !== null && start !== void 0 ? start : '0x7fffffffffffffff';
+                start = start ?? '0x7fffffffffffffff';
             }
             where += ` AND t${itemTable}.xi${cmp}${start}`;
         }

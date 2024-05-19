@@ -23,7 +23,7 @@ class SqlIDinIX extends MySqlBuilder_1.MySqlBuilder {
             where += ` AND t0.id>${start}`;
             limit = `limit ${size}`;
         }
-        cols += `,case when exists(select id from \`${this.twProfix}${IX.name}\` where ix=${ix !== null && ix !== void 0 ? ix : '@user'} and id=t0.id) then 1 else 0 end as $in`;
+        cols += `,case when exists(select id from \`${this.twProfix}${IX.name}\` where ix=${ix ?? '@user'} and id=t0.id) then 1 else 0 end as $in`;
         this.sql = `SELECT ${cols} FROM ${tables} WHERE ${where} ${limit}`;
     }
 }

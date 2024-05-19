@@ -1,7 +1,8 @@
 import {
-    BizPend, Statement, BizBudValue
-    , BizEntity, PendQuery, BizQueryTableStatements, BizQueryTableInPendStatements, FromStatementInPend
+    Statement, BizBudValue
+    , BizEntity, BizQueryTableStatements, FromStatementInPend
 } from "../../il";
+import { BizPend, BizQueryTableInPendStatements, PendQuery } from "../../il/Biz/Pend";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

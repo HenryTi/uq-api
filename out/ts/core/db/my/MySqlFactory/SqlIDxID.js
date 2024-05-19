@@ -13,7 +13,7 @@ class SqlIDxID extends MySqlBuilder_1.MySqlBuilder {
     }
     build() {
         let { ID, IX, ID2, page } = this.param;
-        page = page !== null && page !== void 0 ? page : { start: 0, size: 100 };
+        page = page ?? { start: 0, size: 100 };
         let { cols, tables } = this.buildIDX([ID]);
         let where = '';
         let limit = '';

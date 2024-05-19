@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizReport = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
@@ -67,11 +68,11 @@ class BBizReport extends BizEntity_1.BBizEntity {
         let mainTbl;
         let wheres = [new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar('pageStart'))];
         switch (from.bizPhraseType) {
-            case il_1.BizPhraseType.atom:
+            case BizPhraseType_1.BizPhraseType.atom:
                 wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('base', a), varPhrase));
                 mainTbl = a;
                 break;
-            case il_1.BizPhraseType.duo:
+            case BizPhraseType_1.BizPhraseType.duo:
                 mainTbl = b;
                 selectPage.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpField('id', a)));
@@ -112,7 +113,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
                 default:
                     tbl = il_1.EnumSysTable.ixBudInt;
                     break;
-                case il_1.BudDataType.dec:
+                case BizPhraseType_1.BudDataType.dec:
                     tbl = il_1.EnumSysTable.ixBudDec;
                     break;
             }

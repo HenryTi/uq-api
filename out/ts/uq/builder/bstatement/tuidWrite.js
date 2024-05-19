@@ -80,7 +80,7 @@ class BTuidWrite extends bstatement_1.BStatement {
         };
         let createInsert = () => {
             let ret = [];
-            let selectVId = this.context.buildSelectVID(tuid.name, vTuidId, div === null || div === void 0 ? void 0 : div.name);
+            let selectVId = this.context.buildSelectVID(tuid.name, vTuidId, div?.name);
             ret.push(selectVId);
             let insert = factory.createInsert();
             ret.push(insert);

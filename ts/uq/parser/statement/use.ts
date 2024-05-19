@@ -1,9 +1,9 @@
 import {
-    BizPhraseType,
     BizSheet,
     SpanPeriod, UseBase, UseMonthZone, UseSetting, UseSheet, UseStatement
     , UseTimeSpan, UseTimeZone, UseYearZone, ValueExpression
 } from "../../il";
+import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { PElement } from "../element";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -144,7 +144,8 @@ export class PUseSheet extends PUseBase<UseSheet> {
     }
     scan(space: Space): boolean {
         let ok = true;
-        this.element.sheet = space.getBizEntity<BizSheet>(this.sheet);
+        let [s] = space.getBizEntityArr<BizSheet>(this.sheet);
+        this.element.sheet = s;
         let { sheet, statement, varName } = this.element;
         if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType.sheet) {
             ok = false;

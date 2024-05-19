@@ -234,12 +234,11 @@ class HistoryBase extends EntityWithTable {
     getTableAlias() { return; }
     getTableName() { return this.name; }
     fieldPointer(name) {
-        var _a, _b;
         if (this.date.name === name ||
             this.fields.find(f => f.name === name) !== undefined ||
             this.sheet !== undefined && (this.sheet.name == name || this.sheetType.name == name) ||
-            ((_a = this.user) === null || _a === void 0 ? void 0 : _a.name) === name ||
-            ((_b = this.row) === null || _b === void 0 ? void 0 : _b.name) == name)
+            this.user?.name === name ||
+            this.row?.name == name)
             return new pointer_1.FieldPointer();
         return;
     }

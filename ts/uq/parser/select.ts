@@ -12,10 +12,10 @@ import {
 import { ExpressionSpace } from './expression';
 import { PContext } from './pContext';
 
-export abstract class PWithFrom extends PElement {
-    protected select: WithFrom;
+export abstract class PWithFrom<S extends WithFrom> extends PElement {
+    protected select: S;
     protected selectKeys: string[];
-    constructor(select: WithFrom, context: PContext) {
+    constructor(select: S, context: PContext) {
         super(select, context);
         this.select = select;
     }
@@ -268,8 +268,7 @@ export abstract class PWithFrom extends PElement {
     }
 }
 
-export class PDelete extends PWithFrom {
-    protected select: Delete;
+export class PDelete extends PWithFrom<Delete> {
     protected selectKeys = ['delete', 'from', 'where'];
     protected _parse() {
         let tbls: string[] = [];
@@ -357,9 +356,7 @@ export class PDelete extends PWithFrom {
     }
 }
 
-export class PSelect extends PWithFrom {
-    protected select: Select;
-
+export class PSelect extends PWithFrom<Select> {
     protected selectKeys = ['select', 'from', 'where', 'group', 'having', 'order', 'union', 'limit'];
     protected _parse() {
         if (this.ts.isKeyword('distinct') === true) {
@@ -746,11 +743,11 @@ export class PSelect extends PWithFrom {
     }
 }
 
-export class WithFromSpace extends Space {
+export abstract class WithFromSpace<S extends WithFrom> extends Space {
     private _groupType: GroupType = GroupType.Both;
-    select: WithFrom;
+    select: S;
     cteTable: CTETable;
-    constructor(outer: Space, select: WithFrom) {
+    constructor(outer: Space, select: S) {
         super(outer);
         this.select = select;
         let { cte } = select;
@@ -789,12 +786,10 @@ export class WithFromSpace extends Space {
     }
 }
 
-export class DeleteSpace extends WithFromSpace {
-    select: Delete;
+export class DeleteSpace extends WithFromSpace<Delete> {
 }
 
-export class SelectSpace extends WithFromSpace {
-    select: Select;
+export class SelectSpace extends WithFromSpace<Select> {
     protected _varPointer(name: string, isField: boolean): Pointer {
         let ft = this.select.from;
         if (ft === undefined) return;

@@ -15,7 +15,7 @@ class BizTree extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return Object.assign({}, ret);
+        return { ...ret, };
     }
 }
 exports.BizTree = BizTree;

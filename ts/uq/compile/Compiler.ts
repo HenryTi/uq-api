@@ -3,8 +3,9 @@ import sysBizCode from "../biz-sys";
 import { EntityRunner, getDbs } from "../../core";
 import { UqBuilder } from "./UqBuilder";
 import { UqParser } from './UqParser';
-import { Biz, BizEntity, BizPhraseType } from '../il';
+import { Biz, BizEntity } from '../il';
 import { compileBizThoroughly } from './compileSource';
+import { BizPhraseType } from '../il/Biz/BizPhraseType';
 
 const groups: { [name: string]: BizPhraseType[] } = {
     info: [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.title, BizPhraseType.assign, BizPhraseType.duo],

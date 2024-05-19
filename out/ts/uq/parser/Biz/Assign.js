@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizAssign = void 0;
-const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizAssign extends Base_1.PBizEntity {
@@ -55,8 +55,8 @@ class PBizAssign extends Base_1.PBizEntity {
             ok = false;
         }
         for (let a of this.atom) {
-            let bizAtom = space.getBizEntity(a);
-            if (bizAtom === undefined || bizAtom.bizPhraseType !== il_1.BizPhraseType.atom) {
+            let [bizAtom] = space.getBizEntityArr(a);
+            if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
                 this.log(`${this.atom} is not an ATOM`);
                 ok = false;
             }
@@ -69,8 +69,8 @@ class PBizAssign extends Base_1.PBizEntity {
             ok = false;
         }
         for (let [t0, t1] of this.titles) {
-            let bizTitle = space.getBizEntity(t0);
-            if (bizTitle === undefined || bizTitle.bizPhraseType !== il_1.BizPhraseType.title) {
+            let [bizTitle] = space.getBizEntityArr(t0);
+            if (bizTitle === undefined || bizTitle.bizPhraseType !== BizPhraseType_1.BizPhraseType.title) {
                 this.log(`${t0} is not a TITLE`);
                 ok = false;
             }

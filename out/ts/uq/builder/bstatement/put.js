@@ -7,7 +7,7 @@ class BPutStatement extends bstatement_1.BStatement {
     body(sqls) {
         const { factory } = this.context;
         let { putName, val } = this.istatement;
-        putName = putName !== null && putName !== void 0 ? putName : '$';
+        putName = putName ?? '$';
         const varName = '$ret$' + putName;
         const declare = factory.createDeclare();
         sqls.push(declare);

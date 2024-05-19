@@ -49,11 +49,10 @@ class BIfStatement extends bstatement_1.BStatement {
 exports.BIfStatement = BIfStatement;
 class BBreakStatement extends bstatement_1.BStatement {
     body(sqls) {
-        var _a;
         let factory = this.context.factory;
         let b = factory.createBreak();
         let { loop } = this.istatement;
-        if ((_a = loop === null || loop === void 0 ? void 0 : loop.list) === null || _a === void 0 ? void 0 : _a.queue) {
+        if (loop?.list?.queue) {
             b.forQueueNo = String(loop.no);
         }
         else {
@@ -65,11 +64,10 @@ class BBreakStatement extends bstatement_1.BStatement {
 exports.BBreakStatement = BBreakStatement;
 class BContinueStatement extends bstatement_1.BStatement {
     body(sqls) {
-        var _a;
         let factory = this.context.factory;
         let b = factory.createContinue();
         let { loop } = this.istatement;
-        if ((_a = loop === null || loop === void 0 ? void 0 : loop.list) === null || _a === void 0 ? void 0 : _a.queue) {
+        if (loop?.list?.queue) {
             b.forQueueNo = String(loop.no);
         }
         else {

@@ -5,7 +5,6 @@ const tool_1 = require("../../../tool");
 const Db_1 = require("../Db");
 const MyDb_1 = require("./MyDb");
 const consts_1 = require("../../consts");
-// import { sqlsVersion } from './sqlsVersion';
 const sysProcColl = {
     $entitys: true,
     $entity: true,

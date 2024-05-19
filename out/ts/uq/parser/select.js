@@ -225,7 +225,7 @@ class PWithFrom extends element_1.PElement {
                     }
                     if (tv === undefined) {
                         let queue = space.getEntity(ftName);
-                        if ((queue === null || queue === void 0 ? void 0 : queue.type) === 'queue') {
+                        if (queue?.type === 'queue') {
                             ft.entity = queue;
                         }
                         else {

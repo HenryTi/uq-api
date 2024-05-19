@@ -226,7 +226,7 @@ class MySelect extends select_1.Select {
         }
     }
     buildOrderBy(sb, tab, orderBy) {
-        orderBy = orderBy !== null && orderBy !== void 0 ? orderBy : this._order;
+        orderBy = orderBy ?? this._order;
         if (orderBy !== undefined) {
             lnAuto(sb, tab);
             sb.append('ORDER BY ').sepStart();

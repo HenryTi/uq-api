@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JsonValInArr = exports.JsonValInMain = exports.JsonVal = void 0;
 const il_1 = require("../../../il");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const sql_1 = require("../../sql");
 const select_1 = require("../../sql/select");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
@@ -21,12 +22,12 @@ class JsonVal {
         }
         if (peer !== undefined) {
             const { to, name: pName } = peer;
-            peerName = to !== null && to !== void 0 ? to : pName;
+            peerName = to ?? pName;
         }
         else {
             peerName = name;
         }
-        if (dataType === il_1.BudDataType.arr) {
+        if (dataType === BizPhraseType_1.BudDataType.arr) {
             val = this.buildArr(bud, peer);
         }
         else {
@@ -47,10 +48,10 @@ class JsonVal {
                         val = expVal;
                     }
                     break;
-                case il_1.BudDataType.ID:
+                case BizPhraseType_1.BudDataType.ID:
                     val = this.transID(peer, expVal);
                     break;
-                case il_1.BudDataType.date:
+                case BizPhraseType_1.BudDataType.date:
                     val = new sql_1.ExpFunc('DATEDIFF', expVal, new sql_1.ExpStr('1970-01-01'));
                     break;
             }
@@ -70,19 +71,19 @@ class JsonVal {
                 default:
                     debugger;
                     break;
-                case il_1.BudDataType.int:
+                case BizPhraseType_1.BudDataType.int:
                     field = (0, il_1.bigIntField)(name);
                     break;
-                case il_1.BudDataType.dec:
+                case BizPhraseType_1.BudDataType.dec:
                     field = (0, il_1.decField)(name, 24, 6);
                     break;
-                case il_1.BudDataType.arr:
+                case BizPhraseType_1.BudDataType.arr:
                     field = (0, il_1.jsonField)(name);
                     break;
-                case il_1.BudDataType.ID:
-                case il_1.BudDataType.date:
-                case il_1.BudDataType.char:
-                case il_1.BudDataType.str:
+                case BizPhraseType_1.BudDataType.ID:
+                case BizPhraseType_1.BudDataType.date:
+                case BizPhraseType_1.BudDataType.char:
+                case BizPhraseType_1.BudDataType.str:
                     field = (0, il_1.charField)(name, 400);
                     break;
             }
@@ -187,19 +188,19 @@ class JsonValInMain extends JsonVal {
             default:
                 debugger;
                 throw new Error('unknown data type ' + bud.dataType);
-            case il_1.BudDataType.ID:
-            case il_1.BudDataType.char:
-            case il_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.ID:
+            case BizPhraseType_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.str:
                 suffix = undefined;
                 break;
-            case il_1.BudDataType.date:
+            case BizPhraseType_1.BudDataType.date:
                 // return this.buildDateVal(bud);
                 suffix = undefined;
                 break;
-            case il_1.BudDataType.int:
+            case BizPhraseType_1.BudDataType.int:
                 suffix = 'RETURNING SIGNED';
                 break;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 suffix = 'RETURNING DECIMAL';
                 break;
         }

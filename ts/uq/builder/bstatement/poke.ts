@@ -4,8 +4,7 @@ import { EnumSysTable, PokeStatement } from "../../il";
 import { convertExp, ExpNum, ExpVal } from "../sql";
 import { sysTable } from "../dbContext";
 
-export class BPokeStatement extends BStatement {
-    protected istatement: PokeStatement;
+export class BPokeStatement extends BStatement<PokeStatement> {
     body(sqls: Sqls) {
         let { user } = this.istatement;
         let { factory } = this.context;

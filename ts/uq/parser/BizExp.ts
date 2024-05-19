@@ -2,13 +2,12 @@ import { binFieldArr } from "../consts";
 import {
     ValueExpression, BizExp, BizAtom
     , BizSpec, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
-    , BizCheckBudOperand, BudDataType, BizBudCheck, BizOptions
+    , BizCheckBudOperand, BizBudCheck, BizOptions
     , BizExpOperand,
     Uq,
-    CheckAction,
     BizFieldOperand,
 } from "../il";
-import { BizPhraseType } from "../il";
+import { BizPhraseType, BudDataType } from "../il/Biz/BizPhraseType";
 import { PElement } from "./element";
 import { Space } from "./space";
 import { Token } from "./tokens";
@@ -81,7 +80,8 @@ export class PBizExp extends PElement<BizExp> {
 
     scan(space: Space): boolean {
         let ok = true;
-        this.element.bizEntity = space.getBizEntity(this.bizEntity);
+        let [be] = space.getBizEntityArr(this.bizEntity);
+        this.element.bizEntity = be;
         const { bizEntity, in: varIn, param } = this.element;
         if (param.pelement.scan(space) === false) {
             ok = false;
@@ -345,7 +345,7 @@ export class PBizExpParam extends PElement<BizExpParam> {
         if (this.ties !== undefined) {
             let ixs: BizTie[] = [];
             for (let tie of this.ties) {
-                let t = space.getBizEntity(tie);
+                let [t] = space.getBizEntityArr(tie);
                 if (t === undefined || t.bizPhraseType !== BizPhraseType.tie) {
                     this.log(`${tie} is not a TIE`);
                     ok = false;
@@ -448,7 +448,7 @@ export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
             if (bizField.pelement.scan(space) === false) ok = false;
         }
         if (this.options !== undefined) {
-            let options = space.getBizEntity(this.options);
+            let [options] = space.getBizEntityArr(this.options);
             if (options.bizPhraseType !== BizPhraseType.options) {
                 this.log(`${this.options} is not OPTIONS`);
                 ok = false;

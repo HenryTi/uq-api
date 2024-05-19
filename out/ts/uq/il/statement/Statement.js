@@ -222,6 +222,12 @@ class TableVar {
 }
 exports.TableVar = TableVar;
 class CTETable extends TableVar {
+    /*
+    readonly fields: Field[];
+    readonly name: string;
+    readonly jName: string;
+    readonly needTable: boolean;
+    */
     constructor(cte) {
         super();
         this.cte = cte;

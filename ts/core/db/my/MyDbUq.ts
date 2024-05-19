@@ -2,8 +2,6 @@ import { env } from "../../../tool";
 import { DbUq, ProcType } from "../Db";
 import { MyDb } from "./MyDb";
 import { consts } from '../../consts';
-import { MyDbs } from "./MyDbs";
-// import { sqlsVersion } from './sqlsVersion';
 
 const sysProcColl = {
     $entitys: true,

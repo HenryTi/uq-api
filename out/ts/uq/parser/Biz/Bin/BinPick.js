@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PPickParam = exports.PBinPick = void 0;
 const il_1 = require("../../../il");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const tokens_1 = require("../../tokens");
 const Bud_1 = require("../Bud");
 class PBinPick extends Bud_1.PBizBud {
@@ -130,17 +131,17 @@ class PBinPick extends Bud_1.PBizBud {
                     this.log(`Can only pick from ATOM, SPEC, Pend, or Query`);
                     ok = false;
                     break;
-                case il_1.BizPhraseType.atom:
+                case BizPhraseType_1.BizPhraseType.atom:
                     pickBase = new il_1.PickAtom(entityArr);
                     multipleEntity = true;
                     break;
-                case il_1.BizPhraseType.spec:
+                case BizPhraseType_1.BizPhraseType.spec:
                     pickBase = new il_1.PickSpec(bizEntity0);
                     break;
-                case il_1.BizPhraseType.pend:
+                case BizPhraseType_1.BizPhraseType.pend:
                     pickBase = new il_1.PickPend(bizEntity0);
                     break;
-                case il_1.BizPhraseType.query:
+                case BizPhraseType_1.BizPhraseType.query:
                     pickBase = new il_1.PickQuery(bizEntity0);
                     break;
             }

@@ -1,9 +1,9 @@
 import {
-    BigInt, BizReport, BudDataType, JoinType, ReportTitle
+    BigInt, BizReport, JoinType, ReportTitle
     , SetType, bigIntField, dateField, intField, jsonField
     , EnumSysTable,
-    BizPhraseType
 } from "../../il";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import {
     ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
     , ExpGE, ExpGT, ExpIsNull, ExpLT, ExpNum, ExpSelect, ExpStr, ExpVal

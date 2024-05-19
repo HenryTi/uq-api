@@ -9,8 +9,7 @@ import {
 import { LockType } from "../sql/select";
 import { sysTable } from "../dbContext";
 
-export class BRoleStatement extends BStatement {
-    protected istatement: RoleStatement;
+export class BRoleStatement extends BStatement<RoleStatement> {
     body(sqls: Sqls) {
         let { action, valAdmin, valOwner } = this.istatement;
         if (action === 'assert') {

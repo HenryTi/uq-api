@@ -1,6 +1,7 @@
 import { EntityRunner } from "../../core";
 import { CompileOptions, DbContext } from "../builder";
-import { Biz, BizBin, BizBud, BizEntity, BizPhraseType, BudGroup } from "../il";
+import { Biz, BizBin, BizBud, BizEntity } from "../il";
+import { BizPhraseType } from "../il/Biz/BizPhraseType";
 import { Compiler } from "./Compiler";
 import { UqParser } from "./UqParser";
 

@@ -29,11 +29,10 @@ class BizIDExtendable extends BizID {
         super.buildPhrases(phrases, prefix);
     }
     buildSchema(res) {
-        var _a, _b;
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
-            extends: (_a = this.extends) === null || _a === void 0 ? void 0 : _a.id,
-            uniques: (_b = this.uniques) === null || _b === void 0 ? void 0 : _b.map(v => v.name),
+            extends: this.extends?.id,
+            uniques: this.uniques?.map(v => v.name),
         });
     }
     getBud(name) {
@@ -47,15 +46,13 @@ class BizIDExtendable extends BizID {
         }
     }
     getUnique(name) {
-        var _a, _b;
-        let u = (_a = this.uniques) === null || _a === void 0 ? void 0 : _a.find(v => v.name === name);
+        let u = this.uniques?.find(v => v.name === name);
         if (u !== undefined)
             return u;
-        return (_b = this.extends) === null || _b === void 0 ? void 0 : _b.getUnique(name);
+        return this.extends?.getUnique(name);
     }
     getUniques() {
-        var _a;
-        let us = [...((_a = this.uniques) !== null && _a !== void 0 ? _a : [])];
+        let us = [...(this.uniques ?? [])];
         if (this.extends === undefined)
             return us;
         us.push(...this.extends.getUniques());
@@ -95,11 +92,10 @@ class BizAtom extends BizIDExtendable {
         return new builder_1.BBizAtom(dbContext, this);
     }
     buildSchema(res) {
-        var _a;
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             uuid: this.uuid,
-            ex: (_a = this.ex) === null || _a === void 0 ? void 0 : _a.buildSchema(res),
+            ex: this.ex?.buildSchema(res),
         });
     }
 }

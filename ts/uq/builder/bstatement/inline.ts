@@ -2,8 +2,7 @@ import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 import { InlineStatement } from "../../il";
 
-export class BInlineStatement extends BStatement {
-    protected istatement: InlineStatement;
+export class BInlineStatement extends BStatement<InlineStatement> {
     body(sqls: Sqls) {
         let factory = this.context.factory;
         let inline = factory.createInline();

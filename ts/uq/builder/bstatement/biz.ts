@@ -1,9 +1,10 @@
 import {
     EnumSysTable, BigInt, BizStatementPend
-    , BizStatementTitle, BudDataType, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
-    , BizStatement, BizStatementSheet, intField
+    , BizStatementTitle, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
+    , BizStatement, BizStatementSheet
     , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie
 } from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { $site } from "../consts";
 import { sysTable } from "../dbContext";
 import {

@@ -3,8 +3,7 @@ import { Sqls } from "./sqls";
 import { While } from '../../il';
 import { ExpCmp, convertExp } from '../sql';
 
-export class BWhileStatement extends BStatement {
-    protected istatement: While;
+export class BWhileStatement extends BStatement<While> {
     head(sqls: Sqls) {
         sqls.head(this.istatement.statements.statements);
     }

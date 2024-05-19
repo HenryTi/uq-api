@@ -4,8 +4,7 @@ import { EnumSysTable, charField, JoinType, smallIntField, StateToStatement } fr
 import { Statement, ExpCmp, ExpEQ, ExpAnd, ExpField, ExpVar, ExpStr, SqlSysTable, ExpSelect, ExpVal, ExpAdd, ExpNum, If, ExpIsNotNull } from "../sql";
 import { DbContext, sysTable } from "../dbContext";
 
-export class BStateTo extends BStatement {
-    protected istatement: StateToStatement;
+export class BStateTo extends BStatement<StateToStatement> {
     body(sqls: Sqls) {
         let buildStateTo = new BuildStateTo(sqls, this.context, this.istatement.no, new ExpVar('$id'), this.istatement.to);
         buildStateTo.build();

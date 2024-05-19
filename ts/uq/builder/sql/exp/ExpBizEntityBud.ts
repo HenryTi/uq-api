@@ -1,4 +1,5 @@
-import { BizBud, BizEntity, BizPhraseType } from "../../../il";
+import { BizBud, BizEntity } from "../../../il";
+import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { SqlBuilder } from "../sqlBuilder";
 import { ExpVal } from "./exps";
 

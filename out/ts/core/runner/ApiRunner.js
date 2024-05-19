@@ -24,8 +24,13 @@ class ApiRunner extends Runner_1.Runner {
         return 'yes, it is ApiRunner';
     }
     async getIOOut(batchNumber) {
-        let result = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
-        return result;
+        try {
+            let result = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
+            return result;
+        }
+        catch (err) {
+            console.error(err);
+        }
     }
     async doneIOOut(id, doneType, doneResult) {
         await this.dbUq.call('ProcessIOOutDone', [0, 0, id, doneType, JSON.stringify(doneResult)]);
@@ -44,7 +49,7 @@ class ApiRunner extends Runner_1.Runner {
         console.log(inBody);
         const { data, stamp, appKey, appkey, token, uiq, act } = inBody;
         try {
-            let siteAtomApp = siteAtomAppFromAppKey(appKey !== null && appKey !== void 0 ? appKey : appkey);
+            let siteAtomApp = siteAtomAppFromAppKey(appKey ?? appkey);
             let retAppPassword = await this.dbUq.call('IOGetAppIn', [
                 0, 0, siteAtomApp, act
             ]);

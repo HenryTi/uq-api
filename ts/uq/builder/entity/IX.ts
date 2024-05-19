@@ -11,10 +11,8 @@ export class BIX extends BEntity<IX> {
     private params: Field[];
     private cols: ColVal[];
     private andCmps: ExpCmp[];
-    protected entity: IX;
     constructor(context: DbContext, entity: IX) {
         super(context, entity);
-        this.entity = entity;
         this.init();
     }
 

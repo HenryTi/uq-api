@@ -1,11 +1,11 @@
 import {
-    BizBudValue, BizEntity, BudValueSetType, DataType, Expression
-    , JoinType, EnumSysTable, BudDataType, FieldShow, BudValueSet, ValueExpression, FieldShowItem, Field
+    BizBudValue, BizEntity, DataType, Expression
+    , JoinType, EnumSysTable, FieldShow, ValueExpression
 } from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
 import {
     ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal, Statement,
-    convertExp
 } from "../sql";
 import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 

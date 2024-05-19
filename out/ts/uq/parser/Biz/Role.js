@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizRole = void 0;
-const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizRole extends Base_1.PBizEntity {
@@ -29,7 +29,7 @@ class PBizRole extends Base_1.PBizEntity {
         let { bizEntities: bizes } = space.uq.biz;
         for (let name of this.roleNames) {
             let bizBase = bizes.get(name);
-            if (bizBase === undefined || bizBase.bizPhraseType !== il_1.BizPhraseType.permit) {
+            if (bizBase === undefined || bizBase.bizPhraseType !== BizPhraseType_1.BizPhraseType.permit) {
                 this.log(`'${name}' is not a PERMIT`);
                 ok = false;
             }

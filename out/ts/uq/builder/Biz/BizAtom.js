@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizAtom = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
@@ -121,7 +122,7 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 statements.push(selectKey);
                 selectKey.toVar = true;
                 switch (key.dataType) {
-                    case il_1.BudDataType.radio:
+                    case BizPhraseType_1.BudDataType.radio:
                         selectKey.column(new sql_1.ExpField('ext', b), vKeyI);
                         selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a))
                             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
@@ -244,12 +245,12 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             default:
                 tbl = il_1.EnumSysTable.ixBudInt;
                 break;
-            case il_1.BudDataType.str:
-            case il_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
                 tbl = il_1.EnumSysTable.ixBudStr;
                 colValue = new sql_1.ExpFunc('JSON_QUOTE', new sql_1.ExpField('value', a));
                 break;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 tbl = il_1.EnumSysTable.ixBudDec;
                 break;
         }

@@ -21,7 +21,6 @@ export interface MapActions {
 
 export class Map extends BookBase implements Busable {
     get type(): string { return 'map'; }
-    isOpen: boolean;
     from: ImportFrom;
     orderField: Field;
     get defaultAccessibility(): EntityAccessibility { return EntityAccessibility.visible }

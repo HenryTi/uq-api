@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizEntity = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const a = 'a';
@@ -71,7 +72,7 @@ class BBizEntity {
         for (let fieldShow of showBuds) {
             let memo = factory.createMemo();
             statements.push(memo);
-            memo.text = fieldShow.map(v => { var _a, _b; return (_b = (_a = v.ui) === null || _a === void 0 ? void 0 : _a.caption) !== null && _b !== void 0 ? _b : v.name; }).join('.');
+            memo.text = fieldShow.map(v => v.ui?.caption ?? v.name).join('.');
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);
@@ -133,22 +134,22 @@ class BBizEntity {
         let colValue = new sql_1.ExpFuncCustom(factory.func_cast, expFieldValue, new sql_1.ExpDatePart('JSON'));
         switch (bizBud.dataType) {
             default:
-            case il_1.BudDataType.radio:
+            case BizPhraseType_1.BudDataType.radio:
                 tblIxBud = il_1.EnumSysTable.ixBudInt;
                 selectValue();
                 break;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 tblIxBud = il_1.EnumSysTable.ixBudDec;
                 selectValue();
                 break;
-            case il_1.BudDataType.str:
-            case il_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
                 tblIxBud = il_1.EnumSysTable.ixBudStr;
                 colValue = new sql_1.ExpFunc('JSON_QUOTE', expFieldValue);
                 selectValue();
                 break;
             // case BudDataType.radio:
-            case il_1.BudDataType.check:
+            case BizPhraseType_1.BudDataType.check:
                 tblIxBud = il_1.EnumSysTable.ixBud;
                 selectCheck();
                 break;

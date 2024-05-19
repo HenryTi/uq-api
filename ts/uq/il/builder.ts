@@ -1,7 +1,7 @@
 import * as stat from './statement';
 import * as ent from './entity';
 import { BEntity, BStatement, BID, BIDX, BIX, BForList, BBiz } from '../builder';
-import { Biz, BizAct, BizBinAct } from './Biz';
+import { Biz, BizAct, BizBinAct, BizStatement, FromStatement, FromStatementInPend } from './Biz';
 
 export interface Builder {
     arr(v: ent.Arr): BEntity<ent.Arr>;
@@ -40,7 +40,7 @@ export interface Builder {
     withIXSet(v: stat.WithStatement): BStatement;
     withTruncate(v: stat.WithStatement): BStatement;
 
-    bizActStatement(v: stat.BizStatement<any>): BStatement;
+    bizActStatement(v: BizStatement<any>): BStatement;
     // bizInActStatement(v: stat.BizInActStatement): BStatement;
     // bizBinActSubPend(v: stat.BizBinPendStatement): BStatement;
     // bizActSubTitle(v: stat.BizTitleStatement): BStatement;
@@ -49,8 +49,8 @@ export interface Builder {
     value(v: stat.ValueStatement): BStatement;
     setStatement(v: stat.SetStatement): BStatement;
     putStatement(v: stat.PutStatement): BStatement;
-    fromStatement(v: stat.FromStatement): BStatement;
-    fromStatementInPend(v: stat.FromStatementInPend): BStatement;
+    fromStatement(v: FromStatement): BStatement;
+    fromStatementInPend(v: FromStatementInPend): BStatement;
     settingStatement(v: stat.SettingStatement): BStatement;
     whileStatement(v: stat.While): BStatement;
     ifStatement(v: stat.If): BStatement;

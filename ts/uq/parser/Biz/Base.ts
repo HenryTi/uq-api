@@ -1,10 +1,9 @@
 import {
     BizBase, BizBudValue, BizEntity, BizBudID, Uq, BudIndex
-    , BizIDExtendable, BizPhraseType, Permission, SetType, BudGroup, IxField, BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
-    , Statements, Statement, budClasses, budClassKeys, BudDataType,
-    BizUser,
-    budClassesUser,
-    BudValueSetType
+    , BizIDExtendable, Permission, SetType, BudGroup, IxField
+    , BizOptions, BizSearch, BizSheet, BizBin, BizBud, BizAct
+    , Statements, Statement, budClasses, budClassKeys
+    , BizUser, budClassesUser, BudValueSetType
 } from "../../il";
 import { PStatements } from "../statement";
 import { UI } from "../../il/UI";
@@ -15,6 +14,7 @@ import { Token } from "../tokens";
 import { BizEntitySpace } from "./Biz";
 import { PBizBudValue } from "./Bud";
 import { PContext } from "../pContext";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 
 export abstract class PBizBase<B extends BizBase> extends PElement<B> {
     protected _parse(): void {
@@ -579,7 +579,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let { permissions } = this.element;
         for (let i in permissions) {
             if (i === '*') continue;
-            let entity = space.getBizEntity(i);
+            let [entity] = space.getBizEntityArr(i);
             if (entity === undefined || entity.type !== 'role') {
                 this.log(`${i} is not a ROLE`);
                 ok = false;
@@ -642,7 +642,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.duo, BizPhraseType.options];
         for (let name of atomNames) {
-            let bizEntity = space.getBizEntity(name);
+            let [bizEntity] = space.getBizEntityArr(name);
             if (bizEntity === undefined) {
                 this.log(`${name} is not defined`);
                 ok = false;

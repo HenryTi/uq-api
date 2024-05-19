@@ -153,7 +153,7 @@ class BizEntity extends Base_1.BizBase {
         const { caption, atoms } = tieField;
         let ret = {
             caption,
-            atoms: atoms === null || atoms === void 0 ? void 0 : atoms.map(v => v.id),
+            atoms: atoms?.map(v => v.id),
         };
         return ret;
     }

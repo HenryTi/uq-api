@@ -4,8 +4,7 @@ import { BookWrite, Int, Map, Field } from "../../il";
 import { ExpVar, ExpFunc, ExpField, ExpEQ, convertExp, ExpVal, ExpAnd, SqlEntityTable, ColVal, ExpCmp, ExpStr, SqlVarTable } from "../sql";
 import { unitFieldName } from "../sql/sqlBuilder";
 
-export class BBookWrite extends BStatement {
-    protected istatement: BookWrite;
+export class BBookWrite extends BStatement<BookWrite> {
     body(sqls: Sqls) {
         if (this.istatement.book.type === 'map') {
             this.buildMapWrite(sqls);

@@ -1,12 +1,14 @@
 import {
     Biz, BizAtom, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
-    , BizPend, BizSheet, BizOptions, BizSpec
-    , BizReport, BizQueryTable, BizAssign, BizPhraseType, BizConsole, BizDuo, BizIn, BizOut, BizIOApp, BizIOSite
+    , BizSheet, BizOptions, BizSpec
+    , BizReport, BizQueryTable, BizAssign, BizConsole, BizDuo, BizIn, BizOut, BizIOApp, BizIOSite
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
 import { PEntity } from "../entity/entity";
+import { BizPend } from "../../il/Biz/Pend";
+import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 
 export class PBiz extends PEntity<Biz> {
     private readonly pRoots: {
@@ -151,8 +153,8 @@ export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
-    protected override _getBizEntity(name: string): BizEntity {
-        if (name === undefined) return this.bizEntity;
+    protected override _getBizEntity(name: string): BizEntity[] {
+        if (name === undefined) return [this.bizEntity];
         return super._getBizEntity(name);
     }
     protected override _getUse(name: string): { statementNo: number; obj: any; } {

@@ -1,4 +1,8 @@
-import { BizAtom, /*BizAtomBud, */BizIDExtendable, BizIDAny, BizIDWithBase, BizSpec, BizDuo, Uq, BizID, BudDataType, BizBud, IDUnique, BizEntity } from "../../il";
+import {
+    BizAtom, BizIDExtendable, BizIDAny, BizIDWithBase, BizSpec
+    , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity
+} from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

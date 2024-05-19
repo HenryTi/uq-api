@@ -23,8 +23,13 @@ export class ApiRunner extends Runner {
     }
 
     async getIOOut(batchNumber: number) {
-        let result = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
-        return result;
+        try {
+            let result = await this.dbUq.call('ProcessIOOut', [0, 0, batchNumber]);
+            return result;
+        }
+        catch (err) {
+            console.error(err);
+        }
     }
 
     async doneIOOut(id: number, doneType: EnumQueueDoneType, doneResult: any) {

@@ -1,12 +1,13 @@
-import { binFieldArr } from "../../../consts";
 import {
-    BizPhraseType, BizPend, BinPick, PickBase, PickAtom
+    BinPick, PickBase, PickAtom
     , BizAtom, PickSpec, BizSpec, PickPend, PickQuery, BizQueryTable,
     BudValueSetType,
     ValueExpression,
     PickParam,
     BizEntity
 } from "../../../il";
+import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
+import { BizPend } from "../../../il/Biz/Pend";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { BizEntitySpace } from "../Biz";

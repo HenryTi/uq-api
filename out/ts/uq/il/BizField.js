@@ -29,7 +29,7 @@ class BizFieldBud extends BizField {
     db(dbContext) {
         return this.space.createBBud(dbContext, this);
     }
-    buildSchema() { var _a; return [(_a = this.entity) === null || _a === void 0 ? void 0 : _a.id, this.bud.id]; }
+    buildSchema() { return [this.entity?.id, this.bud.id]; }
     buildColArr() {
         let ret = [];
         const { entity, bud } = this;
@@ -96,6 +96,8 @@ var ColType;
     ColType[ColType["var"] = 2] = "var";
 })(ColType || (ColType = {}));
 const atomFieldArr = ['id', 'no', 'ex'];
+const specFieldArr = ['id'];
+const duoFieldArr = ['id'];
 class BizFieldSpace {
     constructor() {
         this.buds = {};
@@ -203,7 +205,7 @@ class FromInQueryFieldSpace extends FromFieldSpace {
         this.from = from;
     }
     init() {
-        const { bizPhraseType, bizEntityArr } = this.from;
+        const { fromEntity: { bizPhraseType, bizEntityArr } } = this.from;
         let bizBuds = [];
         for (let entity of bizEntityArr) {
             for (let [, p] of entity.props) {
@@ -217,6 +219,11 @@ class FromInQueryFieldSpace extends FromFieldSpace {
                 break;
             case BizPhraseType_1.BizPhraseType.spec:
                 this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
+                Object.assign(this.fields, FromInQueryFieldSpace.specCols);
+                break;
+            case BizPhraseType_1.BizPhraseType.duo:
+                this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
+                Object.assign(this.fields, FromInQueryFieldSpace.duoCols);
                 break;
         }
     }
@@ -226,6 +233,26 @@ FromInQueryFieldSpace.atomCols = {
     $: [
         {
             names: atomFieldArr,
+            entity: undefined,
+            buds: undefined,
+            alias: 't1',
+        },
+    ]
+};
+FromInQueryFieldSpace.specCols = {
+    $: [
+        {
+            names: specFieldArr,
+            entity: undefined,
+            buds: undefined,
+            alias: 't1',
+        },
+    ]
+};
+FromInQueryFieldSpace.duoCols = {
+    $: [
+        {
+            names: duoFieldArr,
             entity: undefined,
             buds: undefined,
             alias: 't1',

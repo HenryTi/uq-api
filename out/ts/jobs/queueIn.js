@@ -91,7 +91,7 @@ class QueueIn {
                         await this.runner.bus(bus, faceName, unit, to, id, busData, version, stamp);
                     }
                     catch (err) {
-                        let errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err === null || err === void 0 ? void 0 : err.message}\nstack:${err.stack}`;
+                        let errText = `bus:${bus}, faceName:${faceName}, faceVersion: ${face.version}, version:${version}, err: ${err?.message}\nstack:${err.stack}`;
                         await this.runner.logError(unit, 'face convert error', errText);
                         throw err;
                     }
@@ -119,7 +119,6 @@ class QueueIn {
         }
     }
     errorText(err) {
-        var _a;
         let errType = typeof err;
         switch (errType) {
             default: return errType + ': ' + err;
@@ -129,7 +128,7 @@ class QueueIn {
         }
         if (err === null)
             return 'null';
-        let ret = (_a = err.message) !== null && _a !== void 0 ? _a : '';
+        let ret = err.message ?? '';
         ret += ' ';
         for (let i in err) {
             ret += i + ':' + err[i];

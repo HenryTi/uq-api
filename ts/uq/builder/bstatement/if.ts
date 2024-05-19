@@ -1,10 +1,9 @@
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
-import { If, BreakStatement, ReturnStatement, ForEach } from '../../il';
+import { If, BreakStatement, ReturnStatement, ForEach, ContinueStatement } from '../../il';
 import { Statements as SqlStatements, ExpCmp, convertExp, ExpVal } from '../sql';
 
-export class BIfStatement extends BStatement {
-    protected istatement: If;
+export class BIfStatement extends BStatement<If> {
     head(sqls: Sqls) {
         let { then: ifThen, else: ifElse, elseIfs } = this.istatement;
         sqls.head(ifThen.statements);
@@ -45,8 +44,7 @@ export class BIfStatement extends BStatement {
     }
 }
 
-export class BBreakStatement extends BStatement {
-    protected istatement: BreakStatement;
+export class BBreakStatement extends BStatement<BreakStatement> {
     body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createBreak();
@@ -61,8 +59,7 @@ export class BBreakStatement extends BStatement {
     }
 }
 
-export class BContinueStatement extends BStatement {
-    protected istatement: BreakStatement;
+export class BContinueStatement extends BStatement<ContinueStatement> {
     body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createContinue();
@@ -77,8 +74,7 @@ export class BContinueStatement extends BStatement {
     }
 }
 
-export class BReturnStatement extends BStatement {
-    protected istatement: ReturnStatement;
+export class BReturnStatement extends BStatement<ReturnStatement> {
     body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createReturn();

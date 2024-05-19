@@ -113,7 +113,6 @@ export class Search {
 export abstract class Table extends SqlTable {
     // protected abstract get name(): string;
     protected _alias: string;
-    hasUnit: boolean;
     constructor(alias: string) {
         super();
         this._alias = alias;

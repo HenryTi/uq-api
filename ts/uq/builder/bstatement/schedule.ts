@@ -9,8 +9,7 @@ import {
 import { EntityTable } from "../sql/statementWithFrom";
 import { sysTable } from "../dbContext";
 
-export class BScheduleStatement extends BStatement {
-    protected istatement: ScheduleStatement;
+export class BScheduleStatement extends BStatement<ScheduleStatement> {
     body(sqls: Sqls) {
         let { act, params, delay, on, repeat, interval, no } = this.istatement;
         let { factory, hasUnit } = this.context;

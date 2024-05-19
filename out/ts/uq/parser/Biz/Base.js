@@ -6,6 +6,7 @@ const statement_1 = require("../statement");
 const consts_1 = require("../../consts");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class PBizBase extends element_1.PElement {
     constructor() {
         super(...arguments);
@@ -134,7 +135,7 @@ class PBizBase extends element_1.PElement {
     }
     scanAtomID(space, atomName) {
         let Atom = space.uq.biz.bizEntities.get(atomName);
-        const types = [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.bud];
+        const types = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.spec, BizPhraseType_1.BizPhraseType.bud];
         if (Atom === undefined || types.indexOf(Atom.bizPhraseType) < 0) {
             this.log(`${atomName} is not an Atom ID`);
             return undefined;
@@ -157,7 +158,7 @@ class PBizBase extends element_1.PElement {
                 return bizEntity;
             }
         }
-        this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => il_1.BizPhraseType[v]).join(', ')}`);
+        this.log(`${entityName} is not a Biz ${bizPhraseType.map(v => BizPhraseType_1.BizPhraseType[v]).join(', ')}`);
         return undefined;
     }
     isValidPropName(prop) {
@@ -182,7 +183,7 @@ class PBizBase extends element_1.PElement {
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
         for (;;) {
             let bud = this.parseSubItem();
-            if (bud.dataType === il_1.BudDataType.arr) {
+            if (bud.dataType === BizPhraseType_1.BudDataType.arr) {
                 arrArr.push(bud);
             }
             else {
@@ -226,7 +227,7 @@ class PBizBase extends element_1.PElement {
         const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
-            key = budType !== null && budType !== void 0 ? budType : 'none';
+            key = budType ?? 'none';
         }
         else if (token === tokens_1.Token.LPARENTHESE) {
             key = '$arr';
@@ -376,7 +377,7 @@ class PBizEntity extends PBizBase {
                     let bud = this.parseSubItem();
                     this.ts.passToken(tokens_1.Token.SEMICOLON);
                     const { name: budName, dataType } = bud;
-                    if (dataType === il_1.BudDataType.none) {
+                    if (dataType === BizPhraseType_1.BudDataType.none) {
                         this.ts.error(`${budName} must define type`);
                     }
                     const { props } = this.element;
@@ -399,7 +400,7 @@ class PBizEntity extends PBizBase {
                 }
                 let bizBud = this.parseBud(name, ui);
                 const { name: budName, dataType } = bizBud;
-                if (dataType === il_1.BudDataType.none) {
+                if (dataType === BizPhraseType_1.BudDataType.none) {
                     this.ts.error(`${budName} must define type`);
                 }
                 const { buds } = this.element.group0;
@@ -554,7 +555,7 @@ class PBizEntity extends PBizBase {
         for (let i in permissions) {
             if (i === '*')
                 continue;
-            let entity = space.getBizEntity(i);
+            let [entity] = space.getBizEntityArr(i);
             if (entity === undefined || entity.type !== 'role') {
                 this.log(`${i} is not a ROLE`);
                 ok = false;
@@ -613,9 +614,9 @@ class PBizEntity extends PBizBase {
             }
             return ok;
         }
-        const ids = [il_1.BizPhraseType.atom, il_1.BizPhraseType.spec, il_1.BizPhraseType.duo, il_1.BizPhraseType.options];
+        const ids = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.spec, BizPhraseType_1.BizPhraseType.duo, BizPhraseType_1.BizPhraseType.options];
         for (let name of atomNames) {
-            let bizEntity = space.getBizEntity(name);
+            let [bizEntity] = space.getBizEntityArr(name);
             if (bizEntity === undefined) {
                 this.log(`${name} is not defined`);
                 ok = false;
@@ -732,7 +733,7 @@ class PBizSearch extends element_1.PElement {
     scan(space) {
         let ok = true;
         let bizSheet = this.element.bizEntity;
-        if (bizSheet.bizPhraseType !== il_1.BizPhraseType.sheet) {
+        if (bizSheet.bizPhraseType !== BizPhraseType_1.BizPhraseType.sheet) {
             debugger;
             ok = false;
             return ok;

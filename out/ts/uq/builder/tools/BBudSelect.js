@@ -4,6 +4,7 @@ exports.BBudSelect = void 0;
 const il_1 = require("../../il");
 const exp_1 = require("../sql/exp");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class BBudSelect {
     constructor(context, bBizExp) {
         this.context = context;
@@ -23,15 +24,15 @@ class BBudSelect {
             default:
                 this.selectValue(select, il_1.EnumSysTable.ixBudInt, bud);
                 break;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 this.selectValue(select, il_1.EnumSysTable.ixBudDec, bud);
                 break;
-            case il_1.BudDataType.str:
-            case il_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
                 this.selectValue(select, il_1.EnumSysTable.ixBudStr, bud);
                 break;
-            case il_1.BudDataType.radio:
-            case il_1.BudDataType.check:
+            case BizPhraseType_1.BudDataType.radio:
+            case BizPhraseType_1.BudDataType.check:
                 this.selectCheck(select, il_1.EnumSysTable.ixBud, bud);
                 break;
         }
@@ -63,10 +64,10 @@ class BBudSelect {
             default:
                 debugger;
                 throw new Error('select field must be ATOM or SPEC');
-            case il_1.BizPhraseType.atom:
+            case BizPhraseType_1.BizPhraseType.atom:
                 tbl = il_1.EnumSysTable.atom;
                 break;
-            case il_1.BizPhraseType.spec:
+            case BizPhraseType_1.BizPhraseType.spec:
                 tbl = il_1.EnumSysTable.spec;
                 break;
         }

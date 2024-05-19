@@ -25,9 +25,8 @@ class PExpression extends element_1.PElement {
         let ok = true;
         let groupType;
         let atoms = this.expression.atoms;
-        for (let i in atoms) {
-            let v = atoms[i];
-            let { pelement } = v;
+        for (let atom of atoms) {
+            let { pelement } = atom;
             if (pelement === undefined) {
                 if (groupType === undefined)
                     groupType = il_1.GroupType.Both;

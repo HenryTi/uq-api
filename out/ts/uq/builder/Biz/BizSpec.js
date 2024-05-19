@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizSpec = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
@@ -48,14 +49,14 @@ class BBizSpec extends BizEntity_1.BBizEntity {
                 let dt;
                 switch (dataType) {
                     default:
-                    case il_1.BudDataType.date:
+                    case BizPhraseType_1.BudDataType.date:
                         dt = new il_1.BigInt();
                         break;
-                    case il_1.BudDataType.str:
-                    case il_1.BudDataType.char:
+                    case BizPhraseType_1.BudDataType.str:
+                    case BizPhraseType_1.BudDataType.char:
                         dt = new il_1.Char(200);
                         break;
-                    case il_1.BudDataType.dec:
+                    case BizPhraseType_1.BudDataType.dec:
                         dt = new il_1.Dec(18, 6);
                         break;
                 }
@@ -95,14 +96,14 @@ class BBizSpec extends BizEntity_1.BBizEntity {
                 default:
                     tbl = il_1.EnumSysTable.ixBudInt;
                     break;
-                case il_1.BudDataType.date:
+                case BizPhraseType_1.BudDataType.date:
                     tbl = il_1.EnumSysTable.ixBudInt;
                     break;
-                case il_1.BudDataType.str:
-                case il_1.BudDataType.char:
+                case BizPhraseType_1.BudDataType.str:
+                case BizPhraseType_1.BudDataType.char:
                     tbl = il_1.EnumSysTable.ixBudStr;
                     break;
-                case il_1.BudDataType.dec:
+                case BizPhraseType_1.BudDataType.dec:
                     tbl = il_1.EnumSysTable.ixBudDec;
                     break;
             }
@@ -177,11 +178,11 @@ class BBizSpec extends BizEntity_1.BBizEntity {
                 default:
                     tbl = 'ixbudint';
                     break;
-                case il_1.BudDataType.char:
-                case il_1.BudDataType.str:
+                case BizPhraseType_1.BudDataType.char:
+                case BizPhraseType_1.BudDataType.str:
                     tbl = 'ixbudstr';
                     break;
-                case il_1.BudDataType.dec:
+                case BizPhraseType_1.BudDataType.dec:
                     tbl = 'ixbuddec';
                     break;
             }

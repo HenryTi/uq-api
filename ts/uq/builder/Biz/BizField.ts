@@ -1,7 +1,7 @@
 import {
-    BizField, BizFieldBud, BizFieldField,
-    BudDataType, EnumSysTable
+    BizField, BizFieldBud, BizFieldField, EnumSysTable
 } from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
 import { SqlBuilder } from "../sql";
 

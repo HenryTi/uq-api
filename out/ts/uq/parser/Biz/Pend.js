@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizQueryTableInPendStatements = exports.PPendQuery = exports.PBizPend = void 0;
 const il_1 = require("../../il");
+const Pend_1 = require("../../il/Biz/Pend");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 const Query_1 = require("./Query");
@@ -9,7 +10,7 @@ class PBizPend extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.parseQuery = () => {
-            this.element.pendQuery = new il_1.PendQuery(this.element);
+            this.element.pendQuery = new Pend_1.PendQuery(this.element);
             let { pendQuery } = this.element;
             this.context.parseElement(pendQuery);
         };
@@ -35,8 +36,8 @@ class PBizPend extends Base_1.PBizEntity {
             const setRet = (n) => {
                 ret[n] = () => this.parsePredefined(n);
             };
-            il_1.BizPend.predefinedId.forEach(setRet);
-            il_1.BizPend.predefinedValue.forEach(setRet);
+            Pend_1.BizPend.predefinedId.forEach(setRet);
+            Pend_1.BizPend.predefinedValue.forEach(setRet);
             return ret;
         })();
     }
@@ -47,7 +48,7 @@ class PBizPend extends Base_1.PBizEntity {
         if (bud === undefined)
             debugger;
         // 有caption值，才会显示
-        bud.ui = { caption: caption !== null && caption !== void 0 ? caption : name };
+        bud.ui = { caption: caption ?? name };
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
     parseContent() {
@@ -59,7 +60,7 @@ class PBizPend extends Base_1.PBizEntity {
             ok = false;
         }
         let { props, pendQuery, i, x } = this.element;
-        const predefines = [...il_1.BizPend.predefinedId, ...il_1.BizPend.predefinedValue];
+        const predefines = [...Pend_1.BizPend.predefinedId, ...Pend_1.BizPend.predefinedValue];
         if (i !== undefined) {
             if (this.scanBud(space, i) === false) {
                 ok = false;
@@ -124,7 +125,7 @@ class PPendQuery extends Query_1.PBizQueryTable {
     parseHeader() {
     }
     createStatements() {
-        return new il_1.BizQueryTableInPendStatements(this.element);
+        return new Pend_1.BizQueryTableInPendStatements(this.element);
     }
 }
 exports.PPendQuery = PPendQuery;

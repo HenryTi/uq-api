@@ -13,8 +13,7 @@ import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
-export abstract class BWithStatement extends BStatement {
-    protected istatement: WithStatement;
+export abstract class BWithStatement extends BStatement<WithStatement> {
     abstract get entity(): Entity;
     protected buildWheresBase(): ExpCmp[] {
         let { where } = this.istatement;

@@ -424,10 +424,10 @@ export class Returns extends IElement {
     }
 }
 
-export class QueryBase extends ActionBase {
+export class QueryBase<Q extends QueryBaseStatement> extends ActionBase {
     get type(): string { return 'query'; }
     returns: Returns;
-    statement: QueryBaseStatement;
+    statement: Q;
 
     parser(context: parser.PContext) { return new parser.PQuery(this, context); }
     db(db: Builder): object { return db.query(this); }
@@ -471,10 +471,9 @@ export class BusAccept extends ActionHasInBus implements Busable {
         this.statements.push(accept.statement);
     }
 }
-export class BusQuery extends QueryBase implements Busable {
+export class BusQuery extends QueryBase<BusQueryStatement> implements Busable {
     buses: BusFace[] = [];
     hasParams: boolean = false;
-    statement: BusQueryStatement;
     useBusFace(bus: Bus, face: string, arr: string, local: boolean) {
         useBusFace(this.buses, bus, face, arr, false);
     }
@@ -588,7 +587,7 @@ export function useBusFace(buses: BusFace[], bus: Bus, face: string, arr: string
     }
 }
 
-export class Query extends QueryBase {
+export class Query extends QueryBase<QueryBaseStatement> {
     get type(): string { return 'query'; }
     get defaultAccessibility(): EntityAccessibility { return EntityAccessibility.visible }
 }

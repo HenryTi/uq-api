@@ -202,7 +202,7 @@ class QueueOut {
                     face,
                     body,
                     0,
-                    stamp !== null && stamp !== void 0 ? stamp : Date.now() / 1000
+                    stamp ?? Date.now() / 1000
                 ]);
             }
             else {
@@ -267,14 +267,13 @@ class QueueOut {
         await this.runner.busAcceptFromQuery(busEntityName, face, unit, data);
     }
     buildDataFromBusQueryReturn(fields, results) {
-        var _a;
         let ret = '';
         let len = fields.length;
         for (let result of results) {
             ret += result[fields[0].name];
             for (let i = 1; i < len; i++) {
                 let field = fields[i];
-                ret += '\t' + ((_a = result[field.name]) !== null && _a !== void 0 ? _a : '');
+                ret += '\t' + (result[field.name] ?? '');
             }
             ret += '\n';
         }
@@ -378,7 +377,7 @@ class QueueOut {
         if (part !== undefined)
             data.push(part);
         let { fields, arrs } = faceSchema;
-        let ret = busHeadCommand !== null && busHeadCommand !== void 0 ? busHeadCommand : '';
+        let ret = busHeadCommand ?? '';
         for (let item of data) {
             ret += item['$'] + '\n';
             if (arrs === undefined)

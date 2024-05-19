@@ -22,16 +22,18 @@ class BizBase extends IElement_1.IElement {
             return;
         this.jName = jName;
     }
-    getJName() { var _a; return (_a = this.jName) !== null && _a !== void 0 ? _a : this.name; }
+    getJName() { return this.jName ?? this.name; }
     buildSchema(res) {
-        var _a, _b;
         let ui;
-        let caption = (_a = res[this.phrase]) !== null && _a !== void 0 ? _a : (_b = this.ui) === null || _b === void 0 ? void 0 : _b.caption;
+        let caption = res[this.phrase] ?? this.ui?.caption;
         if (caption !== undefined) {
             if (this.ui === undefined)
                 ui = { caption };
             else
-                ui = Object.assign(Object.assign({}, this.ui), { caption });
+                ui = {
+                    ...this.ui,
+                    caption,
+                };
         }
         else {
             ui = this.ui;
@@ -54,13 +56,11 @@ class BizBase extends IElement_1.IElement {
         this.phrase = `${prefix}.${this.name}`;
     }
     buildPhrases(phrases, prefix) {
-        var _a;
         this.buildPhrase(prefix);
-        phrases.push([this.phrase, (_a = this.ui.caption) !== null && _a !== void 0 ? _a : '', this.extendsPhrase, this.typeNum]);
+        phrases.push([this.phrase, this.ui.caption ?? '', this.extendsPhrase, this.typeNum]);
     }
     get typeNum() {
-        var _a;
-        let n = (_a = BizPhraseType_1.BizPhraseType[this.type]) !== null && _a !== void 0 ? _a : 0;
+        let n = BizPhraseType_1.BizPhraseType[this.type] ?? 0;
         return String(n);
     }
     getBizBase(bizName) {

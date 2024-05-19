@@ -3,8 +3,7 @@ import { ProcParamType, ProcStatement } from "../../il";
 import { Sqls } from "./sqls";
 import { convertExp, ExpVal, ExpVar } from "../sql";
 
-export class BProcStatement extends BStatement {
-    protected istatement: ProcStatement;
+export class BProcStatement extends BStatement<ProcStatement> {
     body(sqls: Sqls) {
         let { proc, params } = this.istatement;
         let len = params.length;

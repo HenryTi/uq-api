@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UqBuilder = void 0;
 const builder_1 = require("../builder");
-const il_1 = require("../il");
+const BizPhraseType_1 = require("../il/Biz/BizPhraseType");
 const sqlType = 'mysql';
 class UqBuilder {
     constructor(compiler, uqParser) {
@@ -158,7 +158,7 @@ class UqBuilder {
     // Bin 里面变化了，则相关的 Sheet 也要重新生成存储过程
     // 因为Out的影响
     async mayBuildSheet(context, entity, newest) {
-        if (entity.bizPhraseType !== il_1.BizPhraseType.bin)
+        if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.bin)
             return;
         const { sheetArr } = entity;
         for (let sheet of sheetArr) {

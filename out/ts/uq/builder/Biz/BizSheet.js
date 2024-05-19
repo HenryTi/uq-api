@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizSheet = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
@@ -195,7 +196,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let params = [];
         for (let [, bud] of out.out.props) {
             const { dataType, name } = bud;
-            if (dataType !== il_1.BudDataType.arr)
+            if (dataType !== BizPhraseType_1.BudDataType.arr)
                 continue;
             params.push(new sql_1.ExpStr(name), new sql_1.ExpFunc('JSON_ARRAY'));
         }

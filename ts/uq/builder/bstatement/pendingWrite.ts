@@ -4,8 +4,7 @@ import { Sqls } from "./sqls";
 import { PendingWrite, BigInt } from "../../il";
 import { EntityTable } from '../sql/statementWithFrom';
 
-export class BPendingWrite extends BStatement {
-    protected istatement: PendingWrite;
+export class BPendingWrite extends BStatement<PendingWrite> {
     body(sqls: Sqls) {
         let syncStats: Statement[] = [];
         let { pending, alias: pendingAlias, act, idVar, set, no, idPointer, idExp, doneIf, doneAction } = this.istatement;

@@ -18,8 +18,6 @@ import { BEntity } from "./entity";
 const $stamp = '$stamp';
 
 export class BID extends BEntity<ID> {
-    protected entity: ID;
-
     buildTables() {
         if (this.entity.onlyForSyntax === true) return;
         this.buildMainTable();

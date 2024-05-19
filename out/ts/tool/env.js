@@ -9,7 +9,6 @@ var SqlType;
 })(SqlType || (exports.SqlType = SqlType = {}));
 class Env {
     constructor() {
-        var _a, _b;
         this.server_id = 'server-id';
         this.isDevelopment = false;
         this.isDevdo = false;
@@ -35,11 +34,11 @@ class Env {
             // show error message
             this.connection = null;
         }
-        this.serverId = Number((_a = this.connection[this.server_id]) !== null && _a !== void 0 ? _a : 0);
+        this.serverId = Number(this.connection[this.server_id] ?? 0);
         delete this.connection[this.server_id]; // MySql connection 不允许多余的属性出现
         this.port = config.get('port');
         this.localPort = config.get('local-port');
-        this.uniqueUnitInConfig = (_b = config.get('unique-unit')) !== null && _b !== void 0 ? _b : 0;
+        this.uniqueUnitInConfig = config.get('unique-unit') ?? 0;
         this.uploadPath = config.get("uploadPath");
         const resPath = 'res-path';
         if (config.has(resPath) === true) {
@@ -54,12 +53,11 @@ class Env {
         }
     }
     loadConnection() {
-        var _a, _b;
         let conn;
         if (this.isDevelopment === true) {
-            let uqApi = (_a = this.configDebugging) === null || _a === void 0 ? void 0 : _a['uq-api'];
+            let uqApi = this.configDebugging?.['uq-api'];
             if (uqApi) {
-                conn = (_b = this.configServers) === null || _b === void 0 ? void 0 : _b[uqApi];
+                conn = this.configServers?.[uqApi];
             }
         }
         if (!conn) {
@@ -75,14 +73,13 @@ class Env {
         return conn;
     }
     loadUnitxConnection(dev) {
-        var _a, _b;
         let conn;
         if (this.isDevelopment === true) {
-            let unitx = (_a = this.configDebugging) === null || _a === void 0 ? void 0 : _a['unitx'];
+            let unitx = this.configDebugging?.['unitx'];
             if (unitx) {
                 let debugConfigName = unitx[dev]; // this.getDebugConfigName(unitx);
                 if (debugConfigName) {
-                    conn = (_b = this.configServers) === null || _b === void 0 ? void 0 : _b[debugConfigName];
+                    conn = this.configServers?.[debugConfigName];
                 }
             }
         }

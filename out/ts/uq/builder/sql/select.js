@@ -10,7 +10,7 @@ function convertExpInSelect(context, exp) {
 function convertSelect(context, sel) {
     let { owner, toVar, columns, from, joins, where, intoEntityTable, intoQueue, intoTable, orderBy, switchOrderBy, groupBy, having, limit, lock, ignore, unions, cte } = sel;
     let sqlSelect = context.factory.createSelect();
-    sqlSelect.unions = unions === null || unions === void 0 ? void 0 : unions.map(v => convertSelect(context, v));
+    sqlSelect.unions = unions?.map(v => convertSelect(context, v));
     sqlSelect.owner = owner;
     sqlSelect.distinct = sel.distinct;
     if (intoTable !== undefined) {

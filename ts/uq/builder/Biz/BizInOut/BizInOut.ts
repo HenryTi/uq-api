@@ -1,9 +1,10 @@
 import {
-    BigInt, BizBud, BizBudArr, BizIOApp, BizIn, BizInOut, BizOut, BudDataType, Char, EnumSysTable, Field
+    BigInt, BizBud, BizBudArr, BizIOApp, BizIn, BizInOut, BizOut, Char, EnumSysTable, Field
     , IOAppID, IOAppIO, IOAppIn, IOAppOut, JoinType
     , JsonTableColumn, ProcParamType, bigIntField, charField, dateField
     , decField, intField, jsonField, tinyIntField
 } from "../../../il";
+import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
 import { $site } from "../../consts";
 import { DbContext } from "../../dbContext";

@@ -4,10 +4,11 @@ import { PContext, PElement } from "../../parser";
 import { PBizQueryTable, PBizQueryTableStatements, PBizQueryValue, PBizQueryValueStatements } from "../../parser";
 import { Builder } from "../builder";
 import { IElement } from "../IElement";
-import { FromStatement, Statement, Statements } from "../statement";
+import { Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
+import { FromStatement } from "./statement";
 
 export abstract class BizQuery extends BizEntity {
     readonly bizPhraseType = BizPhraseType.query;

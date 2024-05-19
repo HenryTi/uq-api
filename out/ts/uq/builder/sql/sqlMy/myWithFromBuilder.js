@@ -21,7 +21,6 @@ class MyWithFromBuilder extends statementWithFrom_1.WithFromBuilder {
         }
     }
     buildWhereTo(sb, tab) {
-        var _a;
         if (this._from === undefined && this._where === undefined)
             return;
         if (tab > 0)
@@ -29,7 +28,7 @@ class MyWithFromBuilder extends statementWithFrom_1.WithFromBuilder {
         else
             sb.nAuto();
         sb.append('WHERE 1=1');
-        (_a = this._from) === null || _a === void 0 ? void 0 : _a.addWhereUnit(sb);
+        this._from?.addWhereUnit(sb);
         if (this._from !== undefined) {
             let { tbl, joins } = this._from;
             //tbl.addJoinOn(sb);

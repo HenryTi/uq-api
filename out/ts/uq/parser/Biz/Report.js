@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizReport = void 0;
 const il_1 = require("../../il");
-const il_2 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizReport extends Base_1.PBizEntity {
@@ -88,8 +88,8 @@ class PBizReport extends Base_1.PBizEntity {
         else {
             for (let t of this.titles) {
                 let { title: [t0, t1], caption } = t;
-                let entity = space.getBizEntity(t0);
-                if (entity === undefined || entity.bizPhraseType !== il_2.BizPhraseType.title) {
+                let [entity] = space.getBizEntityArr(t0);
+                if (entity === undefined || entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.title) {
                     ok = false;
                     this.log(`${t0} is not a title`);
                 }
@@ -115,7 +115,7 @@ class PBizReport extends Base_1.PBizEntity {
             this.log('FROM must be defined');
         }
         else {
-            let entity = space.getBizEntity(this.from);
+            let [entity] = space.getBizEntityArr(this.from);
             if (entity === undefined) {
                 ok = false;
                 this.log(`${this.from} is not a ATOM`);
@@ -127,14 +127,14 @@ class PBizReport extends Base_1.PBizEntity {
                         ok = false;
                         this.log(`FROM ${this.from} must be ATOM`);
                         break;
-                    case il_2.BizPhraseType.atom:
-                    case il_2.BizPhraseType.duo:
+                    case BizPhraseType_1.BizPhraseType.atom:
+                    case BizPhraseType_1.BizPhraseType.duo:
                         break;
                 }
                 this.element.from = entity;
                 for (let join of this.joins) {
                     let { type, entity } = join;
-                    let en = space.getBizEntity(entity);
+                    let [en] = space.getBizEntityArr(entity);
                     if (en === undefined) {
                         ok = false;
                         this.log(`${entity} is unknown`);

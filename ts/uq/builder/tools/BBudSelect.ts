@@ -1,5 +1,5 @@
 import {
-    BizBud, BizPhraseType, JoinType, EnumSysTable, BudDataType
+    BizBud, JoinType, EnumSysTable
 } from "../../il";
 import {
     ExpAnd, ExpEQ, ExpField, ExpNum, ExpVal, ExpSelect
@@ -8,6 +8,7 @@ import { DbContext } from "../dbContext";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizExp } from "./BizExp";
 import { Select } from "../sql/select";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 
 export class BBudSelect {
     protected readonly context: DbContext;

@@ -4,6 +4,8 @@ exports.BizEntitySpace = exports.PBiz = void 0;
 const il_1 = require("../../il");
 const space_1 = require("../space");
 const entity_1 = require("../entity/entity");
+const Pend_1 = require("../../il/Biz/Pend");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class PBiz extends entity_1.PEntity {
     constructor(entity, context) {
         super(entity, context);
@@ -19,7 +21,7 @@ class PBiz extends entity_1.PEntity {
             permit: il_1.BizRole,
             sheet: il_1.BizSheet,
             bin: il_1.BizBin,
-            pend: il_1.BizPend,
+            pend: Pend_1.BizPend,
             query: il_1.BizQueryTable,
             tree: il_1.BizTree,
             tie: il_1.BizTie,
@@ -32,8 +34,7 @@ class PBiz extends entity_1.PEntity {
         };
     }
     parse() {
-        var _a;
-        let source = (_a = this.entity.source) !== null && _a !== void 0 ? _a : '';
+        let source = this.entity.source ?? '';
         super.parse();
         source += this.entity.source;
         this.entity.source = source;
@@ -84,10 +85,10 @@ class PBiz extends entity_1.PEntity {
         for (let [, p] of this.entity.bizEntities) {
             const { bizPhraseType } = p;
             switch (bizPhraseType) {
-                case il_1.BizPhraseType.sheet:
+                case BizPhraseType_1.BizPhraseType.sheet:
                     const sheet = p;
                     const { main, details } = sheet;
-                    main === null || main === void 0 ? void 0 : main.sheetArr.push(sheet);
+                    main?.sheetArr.push(sheet);
                     for (let detail of details) {
                         detail.bin.sheetArr.push(sheet);
                     }
@@ -142,7 +143,7 @@ class BizEntitySpace extends space_1.Space {
     }
     _getBizEntity(name) {
         if (name === undefined)
-            return this.bizEntity;
+            return [this.bizEntity];
         return super._getBizEntity(name);
     }
     _getUse(name) {

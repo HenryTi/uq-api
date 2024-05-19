@@ -4,9 +4,7 @@ import { Column, TinyInt, VarStatement } from "../../il";
 import { convertExp, ExpIsNull, ExpNull, ExpNum, ExpVal, ExpVar } from "../sql";
 import { LockType, convertSelect } from "../sql/select";
 
-export class BVarStatement extends BStatement {
-    protected istatement: VarStatement;
-
+export class BVarStatement extends BStatement<VarStatement> {
     body(sqls: Sqls) {
         let { vars, select } = this.istatement;
         let { factory } = this.context;

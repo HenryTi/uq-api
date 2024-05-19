@@ -1,8 +1,9 @@
 import {
     BigInt, Char
-    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, BizPhraseType, BudDataType, JoinType,
+    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, JoinType,
     idField
 } from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
     ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncCustom, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
     , ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlSysTable, SqlVarTable, Statement,

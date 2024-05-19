@@ -91,7 +91,7 @@ class TableUpdater {
         this.table = table;
         // 原来的 ID IX 只有 const 才能有初始值。现在都可以定义初值。
         // const 有 $valid 字段，为了在生成存储过程的时候区别，在这里取值
-        this.field$valid = table.fields.find(v => (v === null || v === void 0 ? void 0 : v.name) === '$valid');
+        this.field$valid = table.fields.find(v => v?.name === '$valid');
     }
     async updateDb(options) {
         let tblName = this.table.name;

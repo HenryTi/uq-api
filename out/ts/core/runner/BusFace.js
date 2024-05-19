@@ -174,7 +174,7 @@ class BusFaceAccept extends BusFace {
         for (let f of fields) {
             let { name } = f;
             let v = c[name];
-            ret += sep + (v !== null && v !== void 0 ? v : '');
+            ret += sep + (v ?? '');
             sep = '\t';
         }
         return ret;

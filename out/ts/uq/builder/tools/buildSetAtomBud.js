@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildSetAtomBud = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const a = 'a', b = 'b';
@@ -12,10 +13,10 @@ function buildSetAtomBud(context, bud, idVal, expVal, noOfState) {
         default:
             statements = buildSetValueBud(idVal, bud, expVal);
             break;
-        case il_1.BudDataType.radio:
+        case BizPhraseType_1.BudDataType.radio:
             statements = buildSetRadioBud(idVal, bud, expVal);
             break;
-        case il_1.BudDataType.check:
+        case BizPhraseType_1.BudDataType.check:
             statements = buildSetCheckBud(idVal, bud, expVal);
             break;
     }
@@ -28,11 +29,11 @@ function buildSetAtomBud(context, bud, idVal, expVal, noOfState) {
             default:
                 tbl = il_1.EnumSysTable.ixBudInt;
                 break;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 tbl = il_1.EnumSysTable.ixBudDec;
                 break;
-            case il_1.BudDataType.str:
-            case il_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
                 tbl = il_1.EnumSysTable.ixBudStr;
                 break;
         }

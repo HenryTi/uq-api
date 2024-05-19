@@ -6,4 +6,3 @@ export * from './for';
 export * from './def';
 export * from './use';
 export * from './put';
-export * from './biz';

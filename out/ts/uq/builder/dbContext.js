@@ -179,7 +179,7 @@ class DbContext {
         this.userParam = userField;
         this.varUser = new sql_1.ExpVar(sqlBuilder_1.userParamName);
     }
-    get objDbName() { var _a; return (_a = this.ownerDbName) !== null && _a !== void 0 ? _a : this.dbName; }
+    get objDbName() { return this.ownerDbName ?? this.dbName; }
     createTable(tblName) {
         return this.factory.createTable(this.objDbName, tblName);
     }

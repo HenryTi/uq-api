@@ -253,10 +253,12 @@ export class TableVar implements LocalTable {
 
 export class CTETable extends TableVar {
     private readonly cte: CTE;
+    /*
     readonly fields: Field[];
     readonly name: string;
     readonly jName: string;
     readonly needTable: boolean;
+    */
     constructor(cte: CTE) {
         super();
         this.cte = cte;

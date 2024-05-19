@@ -149,7 +149,7 @@ export class Biz extends Entity {
             bizPhraseType = bpt;
             switch (bizPhraseType) {
                 default:
-                    logs.push(`FROM can only be one of ATOM, SPEC, BIN, SHEET, PEND`);
+                    logs.push(`FROM can only be one of ATOM, SPEC, DUO, BIN, SHEET, PEND`);
                     ok = false;
                     break;
                 case BizPhraseType.query: break;
@@ -157,6 +157,8 @@ export class Biz extends Entity {
                     bizEntityTable = EnumSysTable.atom; break;
                 case BizPhraseType.spec:
                     bizEntityTable = EnumSysTable.spec; break;
+                case BizPhraseType.duo:
+                    bizEntityTable = EnumSysTable.duo; break;
                 case BizPhraseType.bin:
                     bizEntityTable = EnumSysTable.bizBin; break;
                 case BizPhraseType.sheet:

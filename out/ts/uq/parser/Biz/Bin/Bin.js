@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizBinActStatements = exports.PBizBinAct = exports.binPreDefined = exports.PBizBin = void 0;
 const consts_1 = require("../../../consts");
 const il_1 = require("../../../il");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const tokens_1 = require("../../tokens");
 const Base_1 = require("../Base");
 const Biz_1 = require("../Biz");
@@ -222,7 +223,7 @@ class PBizBin extends Base_1.PBizEntity {
         let bud = new il_1.BizBudIXBase(this.element, '.' + nameIX, undefined);
         this.context.parseElement(bud);
         const { value } = bud;
-        if ((value === null || value === void 0 ? void 0 : value.setType) !== il_1.BudValueSetType.equ) {
+        if (value?.setType !== il_1.BudValueSetType.equ) {
             // 如果本来pend.id就是批次，也就不需要=
             // this.ts.error(`${nameIX}.BASE must set value`);
         }
@@ -304,8 +305,8 @@ class PBizBin extends Base_1.PBizEntity {
         let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
         if (this.main !== undefined) {
-            let m = binSpace.getBizEntity(this.main);
-            if (m === undefined || m.bizPhraseType !== il_1.BizPhraseType.bin) {
+            let [m] = binSpace.getBizEntityArr(this.main);
+            if (m === undefined || m.bizPhraseType !== BizPhraseType_1.BizPhraseType.bin) {
                 this.log(`${this.main} is not BIN`);
                 ok = false;
             }
@@ -352,7 +353,7 @@ class PBizBin extends Base_1.PBizEntity {
                         ok = false;
                     }
                     const { pick: pickBase } = pick;
-                    if ((pickBase === null || pickBase === void 0 ? void 0 : pickBase.bizEntityTable) === il_1.EnumSysTable.pend) {
+                    if (pickBase?.bizEntityTable === il_1.EnumSysTable.pend) {
                         this.log(`Only last PICK can be from PEND`);
                         ok = false;
                     }
@@ -382,7 +383,7 @@ class PBizBin extends Base_1.PBizEntity {
             if (bud === undefined)
                 return;
             const { dataType } = bud;
-            if (dataType !== il_1.BudDataType.dec && dataType !== il_1.BudDataType.none) {
+            if (dataType !== BizPhraseType_1.BudDataType.dec && dataType !== BizPhraseType_1.BudDataType.none) {
                 this.log(`${bud.getJName()} can only be DEC`);
                 ok = false;
             }
@@ -435,7 +436,7 @@ class PBizBin extends Base_1.PBizEntity {
                     continue;
                 }
                 let itemExclude;
-                if (bud.dataType === il_1.BudDataType.radio && exclude !== undefined) {
+                if (bud.dataType === BizPhraseType_1.BudDataType.radio && exclude !== undefined) {
                     let { options } = bud;
                     itemExclude = options.items.find(v => v.name === exclude || v.itemValue === exclude);
                     if (itemExclude === undefined) {
@@ -448,7 +449,7 @@ class PBizBin extends Base_1.PBizEntity {
             div.format = nf;
         }
         if (i !== undefined) {
-            if (i.ID.bizPhraseType === il_1.BizPhraseType.spec) {
+            if (i.ID.bizPhraseType === BizPhraseType_1.BizPhraseType.spec) {
                 if (iBase === undefined) {
                     ok = false;
                     this.log('I Spec need I.base');
@@ -456,7 +457,7 @@ class PBizBin extends Base_1.PBizEntity {
             }
         }
         if (x !== undefined) {
-            if (x.ID.bizPhraseType === il_1.BizPhraseType.spec) {
+            if (x.ID.bizPhraseType === BizPhraseType_1.BizPhraseType.spec) {
                 if (xBase === undefined) {
                     ok = false;
                     this.log('X Spec need X.base');
@@ -542,7 +543,7 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
                 return super._getBizEntity(name);
             case 'pend':
                 const { pend } = this.bizEntity;
-                return pend;
+                return [pend];
         }
     }
     getBizFieldSpace() {

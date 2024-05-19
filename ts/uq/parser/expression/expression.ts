@@ -29,9 +29,8 @@ export abstract class PExpression extends PElement {
         let ok = true;
         let groupType: GroupType;
         let atoms = this.expression.atoms;
-        for (let i in atoms) {
-            let v = atoms[i];
-            let { pelement } = v;
+        for (let atom of atoms) {
+            let { pelement } = atom;
             if (pelement === undefined) {
                 if (groupType === undefined) groupType = GroupType.Both;
                 continue;

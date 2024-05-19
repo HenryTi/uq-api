@@ -1,14 +1,15 @@
 import {
     BigInt, BizBin, BizSheet, JoinType
-    , bigIntField, decField, idField, EnumSysTable, Char, BizOut, ProcParamType, BudDataType, BizIOApp, BizIOSite, UseOut
+    , bigIntField, decField, idField, EnumSysTable, Char, ProcParamType, UseOut
 } from "../../il";
+import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { $site } from "../consts";
 import {
-    ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpGT, ExpIsNotNull, ExpIsNull, ExpNull, ExpNum
-    , ExpRoutineExists, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement
+    ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNotNull, ExpIsNull, ExpNum
+    , ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, Statement
 } from "../sql";
 import { userParamName } from "../sql/sqlBuilder";
-import { EntityTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
+import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 const sheetId = 'sheet';

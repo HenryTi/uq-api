@@ -8,8 +8,7 @@ import {
 import { settingQueueSeed } from "../consts";
 
 // send email or sms
-export class BSendMsgStatement extends BStatement {
-    protected istatement: SendMsgStatement;
+export class BSendMsgStatement extends BStatement<SendMsgStatement> {
     body(sqls: Sqls) {
         let { factory, hasUnit } = this.context;
         let { templet, isUser, method, to, cc, bcc, with: withSend, importing } = this.istatement;
@@ -80,8 +79,7 @@ export class BSendMsgStatement extends BStatement {
 }
 
 const vSendApp = '$send_app';
-export class BSendAppStatement extends BStatement {
-    protected istatement: SendAppStatement;
+export class BSendAppStatement extends BStatement<SendAppStatement> {
     singleKey = vSendApp;
     singleHead(sqls: Sqls): void {
         let { factory } = this.context;

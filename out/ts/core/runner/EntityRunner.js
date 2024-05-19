@@ -29,8 +29,7 @@ class EntityRunner extends Runner_1.Runner {
         this.isCompiling = false;
         this.devBuildSys = false;
         this.getTableSchema = (lowerName) => {
-            var _a;
-            return (_a = this.schemas[lowerName]) === null || _a === void 0 ? void 0 : _a.call;
+            return this.schemas[lowerName]?.call;
         };
         this.parametersBusCache = {};
         this.actionConvertSchemas = {};
@@ -723,7 +722,6 @@ class EntityRunner extends Runner_1.Runner {
         }
     }
     async initInternal() {
-        var _a;
         this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
         let eventsText = await this.dbUq.removeAllScheduleEvents();
         this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
@@ -756,7 +754,7 @@ class EntityRunner extends Runner_1.Runner {
         this.devBuildSys = setting['dev-build-sys'] !== null;
         let ixUserArr = [];
         let uu = setting['uniqueunit'];
-        this.uniqueUnit = uu !== null && uu !== void 0 ? uu : tool_1.env.uniqueUnitInConfig;
+        this.uniqueUnit = uu ?? tool_1.env.uniqueUnitInConfig;
         if (tool_1.env.isDevelopment)
             tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
         this.schemas = {};
@@ -794,7 +792,7 @@ class EntityRunner extends Runner_1.Runner {
             switch (type) {
                 case '$role':
                     this.role = schemaObj;
-                    this.roleNames = schemaObj === null || schemaObj === void 0 ? void 0 : schemaObj.names;
+                    this.roleNames = schemaObj?.names;
                     break;
                 case 'access':
                     this.accessSchemaArr.push(schemaObj);
@@ -850,7 +848,7 @@ class EntityRunner extends Runner_1.Runner {
                 case 'sheet':
                     this.hasSheet = true;
                     this.sheetRuns[name] = {
-                        onsave: ((_a = runObj === null || runObj === void 0 ? void 0 : runObj.run['$']) === null || _a === void 0 ? void 0 : _a['$onsave']) !== undefined,
+                        onsave: runObj?.run['$']?.['$onsave'] !== undefined,
                         verify: schemaObj.verify,
                     };
                     break;
@@ -958,7 +956,7 @@ class EntityRunner extends Runner_1.Runner {
                     faceColl[faceUrl] = urlColl[url] = new BusFace_1.BusFaceQuery(this, url, bus, faceName, busVersion);
                 }
             }
-            busOutCount += (outCount !== null && outCount !== void 0 ? outCount : 0);
+            busOutCount += (outCount ?? 0);
         }
         let faceText;
         if (faces.length > 0)

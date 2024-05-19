@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildSelectBinBud = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const a = 'a', b = 'b';
@@ -18,9 +19,9 @@ function buildSelectBinBud(context, bud, varBin) {
     let selectBud;
     switch (dataType) {
         default: throw new Error('unknown type ' + il_1.EnumDataType[dataType]);
-        case il_1.BudDataType.none:
+        case BizPhraseType_1.BudDataType.none:
             return [];
-        case il_1.BudDataType.atom:
+        case BizPhraseType_1.BudDataType.atom:
             if (bud.isIxBase === true) {
                 selectBud = buildSelectBudIxBase(bud);
             }
@@ -29,19 +30,19 @@ function buildSelectBinBud(context, bud, varBin) {
             }
             declareType = bigint;
             break;
-        case il_1.BudDataType.ID:
-        case il_1.BudDataType.date:
-        case il_1.BudDataType.int:
-        case il_1.BudDataType.radio:
+        case BizPhraseType_1.BudDataType.ID:
+        case BizPhraseType_1.BudDataType.date:
+        case BizPhraseType_1.BudDataType.int:
+        case BizPhraseType_1.BudDataType.radio:
             selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudInt);
             declareType = bigint;
             break;
-        case il_1.BudDataType.str:
-        case il_1.BudDataType.char:
+        case BizPhraseType_1.BudDataType.str:
+        case BizPhraseType_1.BudDataType.char:
             selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudStr);
             declareType = str;
             break;
-        case il_1.BudDataType.dec:
+        case BizPhraseType_1.BudDataType.dec:
             selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudDec);
             declareType = decValue;
             break;
@@ -51,7 +52,7 @@ function buildSelectBinBud(context, bud, varBin) {
             declareType = bigint;
             break;
         */
-        case il_1.BudDataType.check:
+        case BizPhraseType_1.BudDataType.check:
             selectBud = buildSelectBudIx(bud, false);
             declareType = json;
             break;

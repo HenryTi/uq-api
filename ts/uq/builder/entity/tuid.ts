@@ -48,7 +48,6 @@ export class BTuid extends BEntityBusable<Tuid> {
         }
     }
 
-    protected entity: Tuid;
     protected hasUnit: boolean;
     protected eqUnit: ExpCmp;
 

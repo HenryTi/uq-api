@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizSheet = void 0;
-const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizSheet extends Base_1.PBizEntity {
@@ -50,7 +50,7 @@ class PBizSheet extends Base_1.PBizEntity {
             this.log(`Biz Sheet must define main`);
             ok = false;
         }
-        let main = this.getBizEntity(space, this.main, il_1.BizPhraseType.bin);
+        let main = this.getBizEntity(space, this.main, BizPhraseType_1.BizPhraseType.bin);
         if (main === undefined) {
             this.log(`MAIN ${this.main} is not defined`);
             ok = false;
@@ -59,7 +59,7 @@ class PBizSheet extends Base_1.PBizEntity {
             this.element.main = main;
         }
         for (let { name, caption } of this.details) {
-            let bin = this.getBizEntity(space, name, il_1.BizPhraseType.bin);
+            let bin = this.getBizEntity(space, name, BizPhraseType_1.BizPhraseType.bin);
             if (bin === undefined) {
                 ok = false;
                 continue;

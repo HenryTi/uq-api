@@ -5,6 +5,7 @@ const space_1 = require("../space");
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
 const statement_1 = require("./statement");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const wordsAfterOf = ['select', 'queue'];
 class PForEach extends statement_1.PStatement {
     _parse() {
@@ -118,10 +119,10 @@ class PForEach extends statement_1.PStatement {
         }
     }
     createBizInArrSpace(space) {
-        let bizEntity = space.getBizEntity(undefined);
+        let [bizEntity] = space.getBizEntityArr(undefined);
         if (bizEntity === undefined)
             return;
-        if (bizEntity.bizPhraseType !== il_1.BizPhraseType.in)
+        if (bizEntity.bizPhraseType !== BizPhraseType_1.BizPhraseType.in)
             return;
         let bizIn = bizEntity;
         let bizInArr = bizIn.props.get(this.arrName); // .arrs[this.arrName];
@@ -131,10 +132,9 @@ class PForEach extends statement_1.PStatement {
         return new ForBizInOutArrSpace(space, bizInArr);
     }
     scan(space) {
-        var _a;
         let ok = true;
         let theSpace;
-        this.element.isInProc = ((_a = space.getActionBase()) === null || _a === void 0 ? void 0 : _a.type) === 'proc';
+        this.element.isInProc = space.getActionBase()?.type === 'proc';
         if (this.arrName !== undefined) {
             let arr = space.getArr(this.arrName);
             if (arr !== undefined) {

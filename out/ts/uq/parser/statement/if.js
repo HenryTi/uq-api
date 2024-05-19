@@ -61,7 +61,7 @@ class PIf extends statement_1.PStatement {
             if (ifElse.pelement.scan(space) === false)
                 ok = false;
         }
-        elseIfs === null || elseIfs === void 0 ? void 0 : elseIfs.forEach(elseIf => {
+        elseIfs?.forEach(elseIf => {
             let { condition, statements } = elseIf;
             if (condition.pelement.scan(space) === false)
                 ok = false;

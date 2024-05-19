@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizIOApp = exports.BBizOut = exports.BBizIn = void 0;
 const il_1 = require("../../../il");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const bstatement_1 = require("../../bstatement");
 const consts_1 = require("../../consts");
 const sql_1 = require("../../sql");
@@ -41,7 +42,7 @@ class BBizIn extends BBizInOut {
         setSite.equ(consts_1.$site, new sql_1.ExpNum(this.context.site));
         for (let [name, bud] of props) {
             const { dataType } = bud;
-            if (dataType !== il_1.BudDataType.arr) {
+            if (dataType !== BizPhraseType_1.BudDataType.arr) {
                 vars.push(this.fieldFromBud(bud));
                 let set = factory.createSet();
                 statements.push(set);
@@ -104,12 +105,12 @@ class BBizIn extends BBizInOut {
             default:
                 debugger;
                 return;
-            case il_1.BudDataType.ID:
-            case il_1.BudDataType.int: return (0, il_1.bigIntField)(name);
-            case il_1.BudDataType.char: return (0, il_1.charField)(name, 200);
-            case il_1.BudDataType.dec: return (0, il_1.decField)(name, 18, 6);
+            case BizPhraseType_1.BudDataType.ID:
+            case BizPhraseType_1.BudDataType.int: return (0, il_1.bigIntField)(name);
+            case BizPhraseType_1.BudDataType.char: return (0, il_1.charField)(name, 200);
+            case BizPhraseType_1.BudDataType.dec: return (0, il_1.decField)(name, 18, 6);
             // case BudDataType.date: return dateField(name);
-            case il_1.BudDataType.date: return (0, il_1.bigIntField)(name);
+            case BizPhraseType_1.BudDataType.date: return (0, il_1.bigIntField)(name);
         }
     }
     buildDone(statements) {

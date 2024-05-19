@@ -6,9 +6,7 @@ import { EntityTable } from '../sql/statementWithFrom';
 import { LockType } from '../sql/select';
 import { sysTable } from '../dbContext';
 
-export class BProc extends BAct {
-    protected entity: il.Proc;
-
+export class BProc extends BAct<il.Proc> {
     buildProcedures() {
         let { factory } = this.context;
         let { name, fields, buses, statement, logError, isScheduled } = this.entity;

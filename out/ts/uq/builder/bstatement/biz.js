@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const consts_1 = require("../consts");
 const dbContext_1 = require("../dbContext");
 const sql_1 = require("../sql");
@@ -159,10 +160,10 @@ class BBizStatementTitle extends bstatement_1.BStatement {
                 table = il_1.EnumSysTable.ixBudInt;
                 buildIxBudIndex();
                 break;
-            case il_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.char:
                 table = il_1.EnumSysTable.ixBudStr;
                 break;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 table = il_1.EnumSysTable.ixBudDec;
                 break;
         }
@@ -507,15 +508,15 @@ class BBizStatementSpec extends BBizStatementID {
                 default:
                     tbl = il_1.EnumSysTable.ixBudInt;
                     break;
-                case il_1.BudDataType.date:
+                case BizPhraseType_1.BudDataType.date:
                     tbl = il_1.EnumSysTable.ixBudInt;
                     val = new sql_1.ExpFunc('DATEDIFF', val, new sql_1.ExpStr('1970-01-01'));
                     break;
-                case il_1.BudDataType.str:
-                case il_1.BudDataType.char:
+                case BizPhraseType_1.BudDataType.str:
+                case BizPhraseType_1.BudDataType.char:
                     tbl = il_1.EnumSysTable.ixBudStr;
                     break;
-                case il_1.BudDataType.dec:
+                case BizPhraseType_1.BudDataType.dec:
                     tbl = il_1.EnumSysTable.ixBudDec;
                     break;
             }

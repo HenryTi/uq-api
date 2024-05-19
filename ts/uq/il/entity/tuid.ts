@@ -14,7 +14,6 @@ export class Tuid extends IdBase implements Busable {
     owner: Tuid;            // only arr has owner
     global: boolean = false;		// no unit for the Tuid
     sync: boolean = false;       	// 不会自增，内容从其它uq里面拉取过来
-    isOpen: boolean;
     from: ImportFrom;				// 仅仅引用外部Tuid
     other: string;              	// import uq里面的Tuid名，同名则undefined
     //id: Field;

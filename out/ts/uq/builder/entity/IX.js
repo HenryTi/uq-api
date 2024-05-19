@@ -8,7 +8,6 @@ const entity_1 = require("./entity");
 class BIX extends entity_1.BEntity {
     constructor(context, entity) {
         super(context, entity);
-        this.entity = entity;
         this.init();
     }
     init() {

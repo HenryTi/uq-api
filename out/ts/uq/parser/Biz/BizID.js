@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizSpec = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizID = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
@@ -202,7 +203,7 @@ class PIDUnique extends Bud_1.PBizBud {
         }
         else {
             if (types.includes(bud.dataType) === false) {
-                this.log(`${budName} must be ${types.map(v => il_1.BudDataType[v].toUpperCase()).join(', ')}`);
+                this.log(`${budName} must be ${types.map(v => BizPhraseType_1.BudDataType[v].toUpperCase()).join(', ')}`);
                 return undefined;
             }
         }
@@ -219,7 +220,7 @@ class PIDUnique extends Bud_1.PBizBud {
             this.log(`Duplicate ${name}`);
             ok = false;
         }
-        let noBud = this.getBud(this.no, [il_1.BudDataType.char]);
+        let noBud = this.getBud(this.no, [BizPhraseType_1.BudDataType.char]);
         if (noBud === undefined) {
             ok = false;
         }
@@ -228,7 +229,7 @@ class PIDUnique extends Bud_1.PBizBud {
         }
         let keyBuds = [];
         for (let key of this.keys) {
-            let keyBud = this.getBud(key, [il_1.BudDataType.ID, il_1.BudDataType.int, il_1.BudDataType.atom, il_1.BudDataType.radio]);
+            let keyBud = this.getBud(key, [BizPhraseType_1.BudDataType.ID, BizPhraseType_1.BudDataType.int, BizPhraseType_1.BudDataType.atom, BizPhraseType_1.BudDataType.radio]);
             if (keyBud === undefined) {
                 ok = false;
             }

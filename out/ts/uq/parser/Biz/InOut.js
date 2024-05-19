@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizIOSite = exports.PIOAppOut = exports.PIOAppIn = exports.PIOPeers = exports.PIOPeerArr = exports.PIOPeerOptions = exports.PIOPeerID = exports.PIOPeerScalar = exports.PIOAppOptions = exports.PIOAppID = exports.PBizIOApp = exports.inPreDefined = exports.PBizInActStatements = exports.PBizInAct = exports.PBizOut = exports.PBizIn = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -41,7 +42,7 @@ class PBizInOut extends Base_1.PBizEntity {
             else {
                 nameColl[name] = true;
             }
-            if (dataType === il_1.BudDataType.arr) {
+            if (dataType === BizPhraseType_1.BudDataType.arr) {
                 if (this.checkBudDuplicate(nameColl, bud.props) === false) {
                     ok = false;
                 }
@@ -203,7 +204,7 @@ class PBizIOApp extends Base_1.PBizEntity {
         }
         let ioApp = this.element;
         for (let entity of space.uq.biz.bizArr) {
-            if (entity.bizPhraseType !== il_1.BizPhraseType.ioSite)
+            if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.ioSite)
                 continue;
             let { ioApps } = entity;
             if (ioApps.find(v => v === ioApp) !== undefined) {
@@ -247,8 +248,8 @@ class PIOAppID extends Base_1.PBizBase {
         let ok = true;
         const { atoms } = this.element;
         for (let atomName of this.atomNames) {
-            const bizAtom = space.getBizEntity(atomName);
-            if (bizAtom === undefined || bizAtom.bizPhraseType !== il_1.BizPhraseType.atom) {
+            const [bizAtom] = space.getBizEntityArr(atomName);
+            if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
                 ok = false;
                 this.log(`${atomName} is not an ATOM`);
             }
@@ -401,7 +402,8 @@ class PIOPeerOptions extends element_1.PElement {
     scan(space) {
         let ok = true;
         if (this.ioOptions !== undefined) {
-            let options = this.element.options = space.getBizEntity(this.ioOptions);
+            let [options] = space.getBizEntityArr(this.ioOptions);
+            this.element.options = options;
             if (options === undefined) {
                 ok = false;
                 this.log(`${this.ioOptions} is not OPTIONS`);
@@ -430,7 +432,7 @@ class PIOPeerArr extends element_1.PElement {
             this.log(`${bizIO.getJName()}.${name} not exists`);
             ok = false;
         }
-        else if (bizBud.dataType !== il_1.BudDataType.arr) {
+        else if (bizBud.dataType !== BizPhraseType_1.BudDataType.arr) {
             this.log(`${bizIO.getJName()}.${name} is not Array`);
             ok = false;
         }
@@ -519,13 +521,13 @@ class PIOPeers extends element_1.PElement {
             }
             else {
                 if (peer.peerType === il_1.PeerType.peerId) {
-                    if (bud.dataType !== il_1.BudDataType.ID) {
+                    if (bud.dataType !== BizPhraseType_1.BudDataType.ID) {
                         // ok = false;
                         log = `${name} should be ID`;
                     }
                 }
                 else {
-                    if (bud.dataType === il_1.BudDataType.ID) {
+                    if (bud.dataType === BizPhraseType_1.BudDataType.ID) {
                         ok = false;
                         log = `${name} should be ID`;
                     }
@@ -535,7 +537,7 @@ class PIOPeers extends element_1.PElement {
                 this.log(log);
         }
         for (let [, bud] of bizIOBuds) {
-            if (bud.dataType === il_1.BudDataType.ID) {
+            if (bud.dataType === BizPhraseType_1.BudDataType.ID) {
                 let peer = peers[bud.name];
                 if (peer === undefined) {
                     ok = false;
@@ -573,11 +575,11 @@ class PIOAppIO extends Base_1.PBizBase {
     scan0(space) {
         let ok = true;
         const { name } = this.element;
-        let bizEntity = space.getBizEntity(name);
+        let [bizEntity] = space.getBizEntityArr(name);
         let bizPhraseType = this.entityBizPhraseType;
         if (bizEntity === undefined || bizEntity.bizPhraseType !== bizPhraseType) {
             ok = false;
-            this.log(`${name} is not ${il_1.BizPhraseType[bizPhraseType].toUpperCase()}`);
+            this.log(`${name} is not ${BizPhraseType_1.BizPhraseType[bizPhraseType].toUpperCase()}`);
         }
         else {
             this.element.bizIO = bizEntity;
@@ -607,13 +609,13 @@ class PIOAppIO extends Base_1.PBizBase {
 }
 class PIOAppIn extends PIOAppIO {
     get entityBizPhraseType() {
-        return il_1.BizPhraseType.in;
+        return BizPhraseType_1.BizPhraseType.in;
     }
 }
 exports.PIOAppIn = PIOAppIn;
 class PIOAppOut extends PIOAppIO {
     get entityBizPhraseType() {
-        return il_1.BizPhraseType.out;
+        return BizPhraseType_1.BizPhraseType.out;
     }
     parseTo() {
         if (this.ts.token === tokens_1.Token.COLON) {
@@ -683,8 +685,8 @@ class PBizIOSite extends Base_1.PBizEntity {
             this.log(`IOSite must define TIE atom`);
         }
         else {
-            let atom = space.getBizEntity(this.tie);
-            if (atom === undefined || atom.bizPhraseType !== il_1.BizPhraseType.atom) {
+            let [atom] = space.getBizEntityArr(this.tie);
+            if (atom === undefined || atom.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
                 ok = false;
                 this.log(`IOSite TIE ${this.tie} must be ATOM`);
             }
@@ -694,8 +696,8 @@ class PBizIOSite extends Base_1.PBizEntity {
         }
         const { ioApps } = this.element;
         for (let app of this.apps) {
-            let ioApp = space.getBizEntity(app);
-            if (ioApp === undefined || ioApp.bizPhraseType !== il_1.BizPhraseType.ioApp) {
+            let [ioApp] = space.getBizEntityArr(app);
+            if (ioApp === undefined || ioApp.bizPhraseType !== BizPhraseType_1.BizPhraseType.ioApp) {
                 ok = false;
                 this.log(`${app} is not IOApp`);
             }

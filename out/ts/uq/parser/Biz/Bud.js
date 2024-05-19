@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIXBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudAny = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizBud extends Base_1.PBizBase {
@@ -63,8 +64,8 @@ class PBizBudValue extends PBizBud {
                 default:
                     this.log('show field can only be in Bin or Pend');
                     return undefined;
-                case il_1.BizPhraseType.bin:
-                case il_1.BizPhraseType.pend:
+                case BizPhraseType_1.BizPhraseType.bin:
+                case BizPhraseType_1.BizPhraseType.pend:
                     break;
             }
         }
@@ -79,7 +80,7 @@ class PBizBudValue extends PBizBud {
                 default:
                     this.log(`${p.name} is neither ATOM nor SPEC`);
                     return undefined;
-                case il_1.BudDataType.atom:
+                case BizPhraseType_1.BudDataType.atom:
                     let { ID: atom } = p;
                     if (atom === undefined) {
                         this.log(`${p.name} does not define ATOM or SPEC`);
@@ -91,7 +92,7 @@ class PBizBudValue extends PBizBud {
                         default:
                             this.log(`${p.name} is neither ATOM nor SPEC`);
                             return undefined;
-                        case il_1.BizPhraseType.atom:
+                        case BizPhraseType_1.BizPhraseType.atom:
                             if (bizBud === undefined) {
                                 this.log(`${atom.getJName()} has not ${prop}`);
                                 return undefined;
@@ -99,7 +100,7 @@ class PBizBudValue extends PBizBud {
                             //show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
                             show.push(bizBud);
                             break;
-                        case il_1.BizPhraseType.spec:
+                        case BizPhraseType_1.BizPhraseType.spec:
                             if (bizBud !== undefined) {
                                 //show.push(FieldShowItem.createSpecFieldShow(atom as BizSpec, bizBud));
                                 show.push(bizBud);
@@ -368,7 +369,6 @@ class PBizBudIDBase extends PBizBudValue {
         }
     }
     bizEntityScan2(bizEntity) {
-        var _a, _b;
         let ok = super.bizEntityScan2(bizEntity);
         if (this.fieldShows !== undefined) {
             const { fieldShows } = this.element;
@@ -379,10 +379,10 @@ class PBizBudIDBase extends PBizBudValue {
                     fieldShows.push([this.element, bud]);
             };
             if (this.includeTitleBuds === true) {
-                includeBuds((_a = this.element.ID) === null || _a === void 0 ? void 0 : _a.titleBuds);
+                includeBuds(this.element.ID?.titleBuds);
             }
             if (this.includePrimeBuds === true) {
-                includeBuds((_b = this.element.ID) === null || _b === void 0 ? void 0 : _b.primeBuds);
+                includeBuds(this.element.ID?.primeBuds);
             }
             for (let fieldShow of this.fieldShows) {
                 let show = this.getFieldShow(bizEntity, this.element.name, ...fieldShow);
@@ -479,7 +479,7 @@ class PBizBudPickable extends PBizBudValue {
             let pick = this.getBizEntity(space, this.pick);
             if (pick !== undefined) {
                 let { bizPhraseType } = pick;
-                if (bizPhraseType === il_1.BizPhraseType.pick || bizPhraseType === il_1.BizPhraseType.atom) {
+                if (bizPhraseType === BizPhraseType_1.BizPhraseType.pick || bizPhraseType === BizPhraseType_1.BizPhraseType.atom) {
                     this.element.pick = pick.name;
                     return ok;
                 }

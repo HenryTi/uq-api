@@ -5,7 +5,7 @@ import { Sqls } from '../bstatement';
 import { ExpVar } from '../sql';
 import { textField } from '../../il';
 
-export class BAct extends BEntityBusable<il.Act> {
+export class BAct<E extends il.Act = il.Act> extends BEntityBusable<E> {
     buildProcedures() {
         let { procedures } = this.context.appObjs;
         this.buildInBusProcedures(this.entity);

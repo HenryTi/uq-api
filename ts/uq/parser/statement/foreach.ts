@@ -3,9 +3,10 @@ import { Token } from '../tokens';
 import {
     ForEach, Select, Arr, Table, Entity,
     Pointer, VarPointer, Var, createDataType, ForSelect, ForArr, ForQueue
-    , Queue, ValueExpression, BigInt, BizPhraseType, BizIn, ForBizInOutArr, BizBudArr
+    , Queue, ValueExpression, BigInt, BizIn, ForBizInOutArr, BizBudArr
 } from '../../il';
 import { PStatement } from './statement';
+import { BizPhraseType } from '../../il/Biz/BizPhraseType';
 
 const wordsAfterOf = ['select', 'queue'];
 
@@ -128,7 +129,7 @@ export class PForEach extends PStatement<ForEach> {
     }
 
     private createBizInArrSpace(space: Space): Space {
-        let bizEntity = space.getBizEntity(undefined);
+        let [bizEntity] = space.getBizEntityArr(undefined);
         if (bizEntity === undefined) return;
         if (bizEntity.bizPhraseType !== BizPhraseType.in) return;
         let bizIn = bizEntity as BizIn;

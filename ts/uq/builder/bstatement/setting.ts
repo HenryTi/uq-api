@@ -7,9 +7,7 @@ import { EntityTable } from "../sql/statementWithFrom";
 import { ExpEQ, ExpCmp, ExpAnd, ExpField, ExpVar, ExpStr, convertExp, ExpVal, ExpNum } from "../sql";
 import { sysTable } from "../dbContext";
 
-export class BSettingStatement extends BStatement {
-    protected istatement: SettingStatement;
-
+export class BSettingStatement extends BStatement<SettingStatement> {
     body(sqls: Sqls) {
         let { addUnit } = this.istatement;
         if (addUnit === true) {

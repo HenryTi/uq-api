@@ -63,7 +63,7 @@ class BFromStatement extends bstatement_1.BStatement {
     }
     buildSelect(cmpStart) {
         const { factory } = this.context;
-        const { asc, where, bizEntityTable, bizEntityArr, ofIXs, ofOn } = this.istatement;
+        const { asc, where, fromEntity: { bizEntityTable, bizEntityArr, ofIXs, ofOn } } = this.istatement;
         const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
         select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t1));

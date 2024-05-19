@@ -1,8 +1,9 @@
 import {
-    BizBud, BizBudArr, BudDataType, EnumSysTable, Field, IOPeer
+    BizBud, BizBudArr, EnumSysTable, Field, IOPeer
     , IOPeerArr, IOPeerID, IOPeerOptions, IOPeers, JoinType
     , JsonTableColumn, PeerIDKey, PeerType, bigIntField, charField, decField, jsonField
 } from "../../../il";
+import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { DbContext } from "../../dbContext";
 import {
     ExpAnd, ExpCmp, ExpComplex, ExpEQ, ExpField, ExpFunc

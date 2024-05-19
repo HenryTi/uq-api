@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildSetSheetBud = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 function buildSetSheetBud(context, bud, idVal, expVal) {
     const { factory } = context;
     function createIxBudValue(table, valValue) {
         let insert = factory.createInsertOnDuplicate();
-        // insert.ignore = true;
         insert.table = new statementWithFrom_1.EntityTable(table, false);
         insert.cols = [
             { col: 'value', val: valValue },
@@ -36,28 +36,28 @@ function buildSetSheetBud(context, bud, idVal, expVal) {
         default:
             debugger;
             return;
-        case il_1.BudDataType.check:
+        case BizPhraseType_1.BudDataType.check:
             debugger;
             break;
-        case il_1.BudDataType.datetime:
+        case BizPhraseType_1.BudDataType.datetime:
             debugger;
             break;
-        case il_1.BudDataType.int: // break;
-        case il_1.BudDataType.atom:
+        case BizPhraseType_1.BudDataType.int: // break;
+        case BizPhraseType_1.BudDataType.atom:
             statement = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
             break;
-        case il_1.BudDataType.char:
-        case il_1.BudDataType.str:
+        case BizPhraseType_1.BudDataType.char:
+        case BizPhraseType_1.BudDataType.str:
             statement = createIxBudValue(il_1.EnumSysTable.ixBudStr, expVal);
             break;
-        case il_1.BudDataType.radio:
+        case BizPhraseType_1.BudDataType.radio:
             statement = createIxBud(il_1.EnumSysTable.ixBud, expVal);
             break;
-        case il_1.BudDataType.date:
+        case BizPhraseType_1.BudDataType.date:
             // insert = createIxBudValue(EnumSysTable.ixBudInt, new ExpNum(10000) /* expVal*/);
             statement = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
             break;
-        case il_1.BudDataType.dec:
+        case BizPhraseType_1.BudDataType.dec:
             statement = createIxBudValue(il_1.EnumSysTable.ixBudDec, expVal);
             break;
     }

@@ -1,6 +1,7 @@
 import {
-    BigInt, bigIntField, Char, BizPend, jsonField
+    BigInt, bigIntField, Char, jsonField
 } from "../../il";
+import { BizPend } from "../../il/Biz/Pend";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
 import { ExpFunc, ExpNum, ExpStr, ExpVar, Procedure } from "../sql";

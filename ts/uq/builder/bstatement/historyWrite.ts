@@ -8,8 +8,7 @@ import { DateTime, HistoryWrite } from "../../il";
 import { LockType } from "../sql/select";
 import { EntityTable } from '../sql/statementWithFrom';
 
-export class BHistoryWrite extends BStatement {
-    protected istatement: HistoryWrite;
+export class BHistoryWrite extends BStatement<HistoryWrite> {
     head(sqls: Sqls): void { }
 
     body(sqls: Sqls) {

@@ -174,7 +174,6 @@ class BinDiv {
         this.level = this.parent === undefined ? 1 : this.parent.level + 1;
     }
     buildSchema(res) {
-        var _a;
         let inputs = [];
         if (this.inputs !== undefined) {
             for (let input of this.inputs) {
@@ -187,7 +186,7 @@ class BinDiv {
         let ret = {
             ui: this.ui,
             buds: this.buds.map(v => v.name),
-            div: (_a = this.div) === null || _a === void 0 ? void 0 : _a.buildSchema(res),
+            div: this.div?.buildSchema(res),
             inputs,
         };
         return ret;
@@ -200,7 +199,7 @@ class BinPivot extends BinDiv {
         ret.key = this.key.id;
         if (this.format !== undefined) {
             ret.format = this.format.map(([bud, withLabel, exclude]) => {
-                return [bud.id, withLabel === true ? 1 : 0, exclude === null || exclude === void 0 ? void 0 : exclude.id];
+                return [bud.id, withLabel === true ? 1 : 0, exclude?.id];
             });
         }
         return ret;
@@ -237,7 +236,6 @@ class BizBin extends Entity_1.BizEntity {
         this.inputColl[input.name] = input;
     }
     buildSchema(res) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         let ret = super.buildSchema(res);
         let picks = [];
         if (this.pickArr !== undefined) {
@@ -251,8 +249,8 @@ class BizBin extends Entity_1.BizEntity {
                     name,
                     ui,
                     from,
-                    hidden: hiddenBuds === null || hiddenBuds === void 0 ? void 0 : hiddenBuds.map(v => v.id),
-                    params: params === null || params === void 0 ? void 0 : params.map(v => v.buildSchema(res)),
+                    hidden: hiddenBuds?.map(v => v.id),
+                    params: params?.map(v => v.buildSchema(res)),
                     single,
                 });
             }
@@ -265,11 +263,26 @@ class BizBin extends Entity_1.BizEntity {
                 inputs.push(schema);
             }
         }
-        let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
+        let price = this.price?.buildSchema(res);
         let pivot;
         if (this.pivot !== undefined)
             pivot = true;
-        this.schema = Object.assign(Object.assign({}, ret), { main: (_b = this.main) === null || _b === void 0 ? void 0 : _b.id, picks: picks.length === 0 ? undefined : picks, inputs: inputs.length === 0 ? undefined : inputs, pend: (_c = this.pend) === null || _c === void 0 ? void 0 : _c.id, i: (_d = this.i) === null || _d === void 0 ? void 0 : _d.buildSchema(res), iBase: (_e = this.iBase) === null || _e === void 0 ? void 0 : _e.buildSchema(res), x: (_f = this.x) === null || _f === void 0 ? void 0 : _f.buildSchema(res), xBase: (_g = this.xBase) === null || _g === void 0 ? void 0 : _g.buildSchema(res), value: (_h = this.value) === null || _h === void 0 ? void 0 : _h.buildSchema(res), amount: (_j = this.amount) === null || _j === void 0 ? void 0 : _j.buildSchema(res), price, div: this.div.buildSchema(res), pivot });
+        this.schema = {
+            ...ret,
+            main: this.main?.id,
+            picks: picks.length === 0 ? undefined : picks,
+            inputs: inputs.length === 0 ? undefined : inputs,
+            pend: this.pend?.id,
+            i: this.i?.buildSchema(res),
+            iBase: this.iBase?.buildSchema(res),
+            x: this.x?.buildSchema(res),
+            xBase: this.xBase?.buildSchema(res),
+            value: this.value?.buildSchema(res),
+            amount: this.amount?.buildSchema(res),
+            price,
+            div: this.div.buildSchema(res),
+            pivot,
+        };
         return this.schema;
     }
     getSheetProps() {
@@ -341,7 +354,10 @@ class BizBinAct extends Base_1.BizAct {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return Object.assign(Object.assign({}, ret), { bin: this.bizBin.name });
+        return {
+            ...ret,
+            bin: this.bizBin.name,
+        };
     }
 }
 exports.BizBinAct = BizBinAct;

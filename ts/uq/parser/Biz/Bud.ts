@@ -1,12 +1,13 @@
 import {
     BizBud, BizBudID, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudAny, BizBudRadio, BizBudIntOf, BizBudPickable, BizPhraseType
+    , BizBudAny, BizBudRadio, BizBudIntOf, BizBudPickable
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , BudDataType, FieldShowItem, BizSpec, BudValueSet, BizBudValueWithRange
+    , FieldShowItem, BizSpec, BudValueSet, BizBudValueWithRange
     , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue, BizID,
     BizBudIDBase
 } from "../../il";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizBase } from "./Base";

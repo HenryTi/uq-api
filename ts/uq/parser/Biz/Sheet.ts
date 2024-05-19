@@ -1,6 +1,7 @@
 import {
-    BizBin, BizSheet, BizPhraseType, Uq, UseOut
+    BizBin, BizSheet, Uq, UseOut
 } from "../../il";
+import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

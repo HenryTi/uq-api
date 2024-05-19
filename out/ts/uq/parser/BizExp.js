@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizCheckBudOperand = exports.PBizExpParam = exports.PBizExp = exports.PBizExpOperand = void 0;
 const consts_1 = require("../consts");
 const il_1 = require("../il");
-const il_2 = require("../il");
+const BizPhraseType_1 = require("../il/Biz/BizPhraseType");
 const element_1 = require("./element");
 const tokens_1 = require("./tokens");
 class PBizExpOperand extends element_1.PElement {
@@ -74,7 +74,8 @@ class PBizExp extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        this.element.bizEntity = space.getBizEntity(this.bizEntity);
+        let [be] = space.getBizEntityArr(this.bizEntity);
+        this.element.bizEntity = be;
         const { bizEntity, in: varIn, param } = this.element;
         if (param.pelement.scan(space) === false) {
             ok = false;
@@ -90,22 +91,22 @@ class PBizExp extends element_1.PElement {
                     ok = false;
                     this.log(`${bizEntity.getJName()} must be either Atom, Spec, Bin or Title`);
                     break;
-                case il_2.BizPhraseType.atom:
+                case BizPhraseType_1.BizPhraseType.atom:
                     ret = this.scanAtom(space);
                     break;
-                case il_2.BizPhraseType.spec:
+                case BizPhraseType_1.BizPhraseType.spec:
                     ret = this.scanSpec(space);
                     break;
-                case il_2.BizPhraseType.bin:
+                case BizPhraseType_1.BizPhraseType.bin:
                     ret = this.scanBin(space);
                     break;
-                case il_2.BizPhraseType.title:
+                case BizPhraseType_1.BizPhraseType.title:
                     ret = this.scanTitle(space);
                     break;
-                case il_2.BizPhraseType.tie:
+                case BizPhraseType_1.BizPhraseType.tie:
                     ret = this.scanTie(space);
                     break;
-                case il_2.BizPhraseType.duo:
+                case BizPhraseType_1.BizPhraseType.duo:
                     ret = this.scanDuo(space);
                     break;
             }
@@ -344,8 +345,8 @@ class PBizExpParam extends element_1.PElement {
         if (this.ties !== undefined) {
             let ixs = [];
             for (let tie of this.ties) {
-                let t = space.getBizEntity(tie);
-                if (t === undefined || t.bizPhraseType !== il_2.BizPhraseType.tie) {
+                let [t] = space.getBizEntityArr(tie);
+                if (t === undefined || t.bizPhraseType !== BizPhraseType_1.BizPhraseType.tie) {
                     this.log(`${tie} is not a TIE`);
                     ok = false;
                 }
@@ -448,8 +449,8 @@ class PBizCheckBudOperand extends element_1.PElement {
                 ok = false;
         }
         if (this.options !== undefined) {
-            let options = space.getBizEntity(this.options);
-            if (options.bizPhraseType !== il_2.BizPhraseType.options) {
+            let [options] = space.getBizEntityArr(this.options);
+            if (options.bizPhraseType !== BizPhraseType_1.BizPhraseType.options) {
                 this.log(`${this.options} is not OPTIONS`);
                 ok = false;
             }
@@ -511,8 +512,8 @@ class PBizCheckBudOperand extends element_1.PElement {
             default:
                 notCheck();
                 return;
-            case il_1.BudDataType.check:
-            case il_1.BudDataType.radio:
+            case BizPhraseType_1.BudDataType.check:
+            case BizPhraseType_1.BudDataType.radio:
                 break;
         }
         return budProp.options;

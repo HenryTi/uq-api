@@ -3,9 +3,7 @@ import { ExpFunc, ExpNum, ExpVar } from '../sql';
 import { Sqls } from '../bstatement';
 import { BAct } from './act';
 
-export class BSysProc extends BAct {
-    protected entity: il.SysProc;
-
+export class BSysProc extends BAct<il.SysProc> {
     buildProcedures() {
         let factory = this.context.factory;
         let proc = this.context.createProcedure(this.entity.name);

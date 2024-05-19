@@ -1,10 +1,10 @@
 import {
-    BigInt, BudDataType, DateTime, JsonDataType, ProcParamType, SpanPeriod, UseBase, UseMonthZone
+    BigInt, DateTime, ProcParamType, SpanPeriod, UseBase, UseMonthZone
     , UseSetting, UseSheet, UseStatement, UseTimeSpan, UseTimeZone, UseYearZone, bigIntField
 } from "../../il";
 import { $site } from "../consts";
 import { DbContext } from "../dbContext";
-import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar } from "../sql";
+import { ExpAdd, ExpDatePart, ExpFunc, ExpFuncCustom, ExpInterval, ExpMod, ExpNum, ExpSub, ExpVal, ExpVar } from "../sql";
 import { BStatementBase } from "./bstatement";
 import { Sqls } from "./sqls";
 

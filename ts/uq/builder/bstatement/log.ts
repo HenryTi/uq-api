@@ -3,8 +3,7 @@ import { Sqls } from "./sqls";
 import { LogStatement } from "../../il";
 import { convertExp, ExpStr, ExpVal, ExpVar } from "../sql";
 
-export class BLogStatement extends BStatement {
-    protected istatement: LogStatement;
+export class BLogStatement extends BStatement<LogStatement> {
     body(sqls: Sqls) {
         let { unit, uq, subject, content, isError } = this.istatement;
         let { factory, unitFieldName } = this.context;

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PUseSheet = exports.PUseTimeSpan = exports.PUseYearZone = exports.PUseMonthZone = exports.PUseTimeZone = exports.PUseSetting = exports.PUseBase = exports.PUseStatement = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 const statement_1 = require("./statement");
@@ -147,9 +148,10 @@ class PUseSheet extends PUseBase {
     }
     scan(space) {
         let ok = true;
-        this.element.sheet = space.getBizEntity(this.sheet);
+        let [s] = space.getBizEntityArr(this.sheet);
+        this.element.sheet = s;
         let { sheet, statement, varName } = this.element;
-        if (sheet === undefined || sheet.bizPhraseType !== il_1.BizPhraseType.sheet) {
+        if (sheet === undefined || sheet.bizPhraseType !== BizPhraseType_1.BizPhraseType.sheet) {
             ok = false;
             this.log(`${this.sheet} is not SHEET`);
         }

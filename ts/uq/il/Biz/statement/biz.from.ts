@@ -1,16 +1,17 @@
 import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../../parser";
 import {
-    BizEntity, BizTie, PendQuery
-} from "../../Biz";
+    BizEntity, BizTie,
+} from "..";
 import { EnumSysTable } from "../../EnumSysTable";
 import { Builder } from "../../builder";
 import { IElement } from "../../IElement";
 import { CompareExpression, ValueExpression } from "../../Exp";
-import { Statement } from "../Statement";
 import { UI } from "../../UI";
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
-import { BizPhraseType } from "../../Biz/BizPhraseType";
+import { BizPhraseType } from "../BizPhraseType";
+import { Statement } from "../../statement";
 import { BizField } from "../../BizField";
+import { PendQuery } from "../../Biz/Pend";
 
 export interface FromColumn {
     name: string;
@@ -37,13 +38,6 @@ export class FromEntity {
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     readonly fromEntity: FromEntity;
-    /*
-    bizEntityArr: BizEntity[] = [];
-    bizPhraseType: BizPhraseType;
-    bizEntityTable: EnumSysTable;
-    ofIXs: BizTie[] = [];
-    ofOn: ValueExpression;
-    */
     asc: 'asc' | 'desc';
     ban: BanColumn;
     cols: FromColumn[] = [];
@@ -59,6 +53,19 @@ export class FromStatement extends Statement {
     }
     parser(context: PContext): PElement<IElement> {
         return new PFromStatement(this, context);
+    }
+
+    getBizEntityFromAlias(alias: string): BizEntity[] {
+        return this.getBizEntityArrFromAlias(alias, this.fromEntity);
+    }
+
+    private getBizEntityArrFromAlias(alias: string, fromEntity: FromEntity) {
+        if (alias === fromEntity.alias) return fromEntity.bizEntityArr;
+        for (let sub of fromEntity.subs) {
+            let ret = this.getBizEntityArrFromAlias(alias, sub);
+            if (ret !== undefined) return ret;
+        }
+        return undefined;
     }
 }
 

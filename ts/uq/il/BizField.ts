@@ -6,12 +6,11 @@ import {
     ExpNum,
     BBizFieldUser
 } from "../builder";
-import { BinDiv, BizBin } from "./Biz";
+import { BinDiv, BizBin, FromStatement, FromStatementInPend } from "./Biz";
 import { BizPhraseType } from "./Biz/BizPhraseType";
 import { BizBud, BizBudValue } from "./Biz/Bud";
 import { BizEntity } from "./Biz/Entity";
 import { binFieldArr } from "../consts";
-import { FromStatement, FromStatementInPend } from "./statement";
 
 // in FROM statement, columns use BizField
 // and in Where, BizField is used.
@@ -126,6 +125,8 @@ type TableCols = {
 
 
 const atomFieldArr = ['id', 'no', 'ex'];
+const specFieldArr = ['id'];
+const duoFieldArr = ['id'];
 
 export abstract class BizFieldSpace {
     private inited: boolean;
@@ -240,6 +241,26 @@ export class FromInQueryFieldSpace extends FromFieldSpace {
             },
         ]
     };
+    private static specCols: TableCols = {
+        $: [
+            {
+                names: specFieldArr,
+                entity: undefined,
+                buds: undefined,
+                alias: 't1',
+            },
+        ]
+    };
+    private static duoCols: TableCols = {
+        $: [
+            {
+                names: duoFieldArr,
+                entity: undefined,
+                buds: undefined,
+                alias: 't1',
+            },
+        ]
+    };
     private readonly from: FromStatement;
     protected readonly fields: TableCols = {};
 
@@ -263,6 +284,11 @@ export class FromInQueryFieldSpace extends FromFieldSpace {
                 break;
             case BizPhraseType.spec:
                 this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
+                Object.assign(this.fields, FromInQueryFieldSpace.specCols);
+                break;
+            case BizPhraseType.duo:
+                this.initBuds('$', bizEntityArr[0], bizBuds, 't1');
+                Object.assign(this.fields, FromInQueryFieldSpace.duoCols);
                 break;
         }
     }

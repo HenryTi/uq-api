@@ -29,20 +29,18 @@ class ExpRole extends Exp_1.Exp {
         sb.exists(select);
         sb.r();
         function buildAdminOwner(select, adminOrOwner) {
-            var _a;
             select.col('user');
             select.from(tblUserSite);
-            select.where(new exps_1.ExpAnd(new exps_1.ExpEQ(new exps_1.ExpField('unit'), (_a = this.valUnit) !== null && _a !== void 0 ? _a : exps_1.ExpNum.num0), new exps_1.ExpEQ(new exps_1.ExpField('user'), new exps_1.ExpVar('$user')), new exps_1.ExpEQ(new exps_1.ExpBitAnd(new exps_1.ExpField('admin'), adminOrOwner), adminOrOwner)));
+            select.where(new exps_1.ExpAnd(new exps_1.ExpEQ(new exps_1.ExpField('unit'), this.valUnit ?? exps_1.ExpNum.num0), new exps_1.ExpEQ(new exps_1.ExpField('user'), new exps_1.ExpVar('$user')), new exps_1.ExpEQ(new exps_1.ExpBitAnd(new exps_1.ExpField('admin'), adminOrOwner), adminOrOwner)));
         }
         function buildRole(select) {
-            var _a;
             let a = 'a';
             let b = 'b';
             select.col('user', a);
             select.from(tblUserSite);
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('$ixrole', false, b))
                 .on(new exps_1.ExpEQ(new exps_1.ExpField('id', a), new exps_1.ExpField('i', b)));
-            select.where(new exps_1.ExpAnd(new exps_1.ExpEQ(new exps_1.ExpField('site', a), (_a = this.valUnit) !== null && _a !== void 0 ? _a : exps_1.ExpNum.num0), new exps_1.ExpEQ(new exps_1.ExpField('user', a), new exps_1.ExpVar('$user')), new exps_1.ExpEQ(new exps_1.ExpField('x', b), new exps_1.ExpFuncInUq('$textid', [new exps_1.ExpStr(this.role)], true))));
+            select.where(new exps_1.ExpAnd(new exps_1.ExpEQ(new exps_1.ExpField('site', a), this.valUnit ?? exps_1.ExpNum.num0), new exps_1.ExpEQ(new exps_1.ExpField('user', a), new exps_1.ExpVar('$user')), new exps_1.ExpEQ(new exps_1.ExpField('x', b), new exps_1.ExpFuncInUq('$textid', [new exps_1.ExpStr(this.role)], true))));
         }
     }
 }

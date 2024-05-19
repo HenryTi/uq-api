@@ -1,4 +1,5 @@
-import { BizAssign, BizAtom, BizPhraseType } from "../../il";
+import { BizAssign, BizAtom } from "../../il";
+import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -55,7 +56,7 @@ export class PBizAssign extends PBizEntity<BizAssign> {
             ok = false;
         }
         for (let a of this.atom) {
-            let bizAtom = space.getBizEntity(a);
+            let [bizAtom] = space.getBizEntityArr(a);
             if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType.atom) {
                 this.log(`${this.atom} is not an ATOM`);
                 ok = false;
@@ -69,7 +70,7 @@ export class PBizAssign extends PBizEntity<BizAssign> {
             ok = false;
         }
         for (let [t0, t1] of this.titles) {
-            let bizTitle = space.getBizEntity(t0);
+            let [bizTitle] = space.getBizEntityArr(t0);
             if (bizTitle === undefined || bizTitle.bizPhraseType !== BizPhraseType.title) {
                 this.log(`${t0} is not a TITLE`);
                 ok = false;

@@ -1,5 +1,5 @@
-import { /*BizPermit, BizPermitItem, */BizRole, Uq } from "../../il";
-import { BizPhraseType } from "../../il";
+import { BizRole } from "../../il";
+import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";

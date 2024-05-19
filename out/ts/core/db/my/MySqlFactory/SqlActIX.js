@@ -61,7 +61,7 @@ class SqlActIX extends MySqlBuilder_1.MySqlBuilder {
         let sql = '';
         for (let IXi of IXs) {
             let { IX, ix } = IXi;
-            ixValue.ix = ix !== null && ix !== void 0 ? ix : { value: '@user' };
+            ixValue.ix = ix ?? { value: '@user' };
             sql += this.buildSaveIX(IX, ixValue);
         }
         return sql;

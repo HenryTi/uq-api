@@ -10,8 +10,8 @@ export interface FieldSchema {
     fields?: string;
 }
 
-export abstract class FaceSchema {
-    protected readonly schema: any;
+export abstract class FaceSchema<S = any> {
+    protected readonly schema: S;
     protected readonly busSchema: ShareSchema;
     readonly name: string;
     readonly jName: string;          // original name
@@ -95,8 +95,8 @@ export abstract class FaceSchema {
 export type FacePrimitivType = 'string' | 'id' | 'number';
 export type FaceDataType = FacePrimitivType | 'array';
 //export type FaceQueryParam = FacePrimitivType | BusField[];
-export class FaceAcceptSchema extends FaceSchema {
-    protected readonly schema: FieldSchema[];
+export class FaceAcceptSchema extends FaceSchema<FieldSchema[]> {
+    // protected readonly schema: FieldSchema[];
     type: 'accept' = 'accept';
     busFields: BusField[];
     build(errorLogs: string[]): void {
@@ -107,8 +107,8 @@ export class FaceAcceptSchema extends FaceSchema {
     }
 }
 
-export class FaceQuerySchema extends FaceSchema {
-    protected readonly schema: { param: FieldSchema[], returns: string };
+export class FaceQuerySchema extends FaceSchema<{ param: FieldSchema[], returns: string }> {
+    // protected readonly schema: { param: FieldSchema[], returns: string };
     type: 'query' = 'query';
     param: BusField[];
     returns: BusField[];

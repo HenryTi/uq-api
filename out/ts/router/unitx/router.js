@@ -54,7 +54,7 @@ function buildUnitxRouter(rb) {
             if (unit === undefined || faces === undefined) {
                 throw new Error('unknown parameters');
             }
-            let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer !== null && defer !== void 0 ? defer : 0, faces);
+            let ret = await runner.unitUserTablesFromProc('GetBusMessages', unit, undefined, msgStart, defer ?? 0, faces);
             return ret;
         }
         catch (err) {
@@ -67,7 +67,7 @@ function buildUnitxRouter(rb) {
         let { unit, face, queue, defer } = body;
         if (queue === undefined)
             queue = (0, core_1.busQueueSeed)();
-        let ret = await runner.unitUserCall('BusMessageFromQueue', unit, undefined, face, defer !== null && defer !== void 0 ? defer : 0, queue);
+        let ret = await runner.unitUserCall('BusMessageFromQueue', unit, undefined, face, defer ?? 0, queue);
         if (ret.length === 0)
             return;
         return ret[0];
@@ -75,7 +75,7 @@ function buildUnitxRouter(rb) {
     let pathJointWriteBus = '/joint-write-bus';
     rb.post(router, pathJointWriteBus, async function (runner, body) {
         let { unit, face, defer, to, from, fromQueueId, version, body: message, stamp } = body;
-        let ret = await (0, processBusMessage_1.writeDataToBus)(runner, face, unit, to, from, fromQueueId, version, message, defer !== null && defer !== void 0 ? defer : 0, stamp);
+        let ret = await (0, processBusMessage_1.writeDataToBus)(runner, face, unit, to, from, fromQueueId, version, message, defer ?? 0, stamp);
         if (ret < 0) {
             tool_1.logger.error('writeDataToBus message duplicated!', body, -ret);
         }

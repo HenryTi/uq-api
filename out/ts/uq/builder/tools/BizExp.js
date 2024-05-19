@@ -4,6 +4,7 @@ exports.BBizCheckBud = exports.BBizFieldOperand = exports.BBizExp = void 0;
 const il_1 = require("../../il");
 const exp_1 = require("../sql/exp");
 const BBudSelect_1 = require("./BBudSelect");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 let bizEpxTblNo = 0;
 class BBizExp {
     constructor() {
@@ -26,16 +27,16 @@ class BBizExp {
                     throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
                 // case BizPhraseType.atom: this.atom(sb); break;
                 // case BizPhraseType.spec: this.spec(sb); break;
-                case il_1.BizPhraseType.bin:
+                case BizPhraseType_1.BizPhraseType.bin:
                     this.bin(sb);
                     break;
-                case il_1.BizPhraseType.title:
+                case BizPhraseType_1.BizPhraseType.title:
                     this.title(sb);
                     break;
-                case il_1.BizPhraseType.tie:
+                case BizPhraseType_1.BizPhraseType.tie:
                     this.tie(sb);
                     break;
-                case il_1.BizPhraseType.duo:
+                case BizPhraseType_1.BizPhraseType.duo:
                     this.duo(sb);
                     break;
             }
@@ -57,8 +58,8 @@ class BBizExp {
         }
         const { bizPhraseType } = this.bizExp.bizEntity;
         switch (bizPhraseType) {
-            case il_1.BizPhraseType.atom:
-            case il_1.BizPhraseType.spec:
+            case BizPhraseType_1.BizPhraseType.atom:
+            case BizPhraseType_1.BizPhraseType.spec:
                 let bBudSelect = new BBudSelect_1.BBudSelect(context, this);
                 this.expSelect = bBudSelect.build();
                 break;
@@ -67,7 +68,7 @@ class BBizExp {
     bin(sb) {
         const { bizEntity, prop } = this.bizExp;
         const { ta, tb } = this;
-        sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'}
+        sb.append(`${ta}.${prop ?? 'id'}
         FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
             WHERE ${ta}.id=`)
             .exp(this.param);
@@ -140,7 +141,7 @@ class TitleValueBase extends TitleExpBase {
             default:
                 ixBudTbl = 'ixbudint';
                 break;
-            case il_1.BudDataType.dec:
+            case BizPhraseType_1.BudDataType.dec:
                 ixBudTbl = 'ixbuddec';
                 break;
         }

@@ -4,8 +4,7 @@ import { EnumSysTable, BusStatement, BusAction, ValueExpression, FaceDataType } 
 import { ExpVar, ExpVal, ExpFunc, ExpStr, convertExp, SqlSysTable, ExpNum, ExpFuncCustom } from "../sql";
 import { settingQueueSeed } from '../consts';
 
-export class BBusStatement extends BStatement {
-    protected istatement: BusStatement;
+export class BBusStatement extends BStatement<BusStatement> {
     body(sqls: Sqls) {
         let text: string;
         let memo = this.context.factory.createMemo();

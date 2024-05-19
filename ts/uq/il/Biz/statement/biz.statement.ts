@@ -5,14 +5,14 @@ import {
 import * as parser from '../../../parser';
 import { IElement } from '../../IElement';
 import {
-    BizBudValue, BizBinAct, BizEntity, BizPend, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique, BizID, BizTie
-} from '../../Biz';
+    BizBudValue, BizBinAct, BizEntity, BizBud, BizAct
+    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique, BizTie
+} from '..';
 import { CompareExpression, ValueExpression } from '../../Exp';
-import { Statement } from "../Statement";
 import { SetEqu } from '../../tool';
 import { VarPointer } from '../../pointer';
-import { UseSheet } from '../use';
+import { BizPend } from '../Pend';
+import { Statement, UseSheet } from '../../statement';
 
 export abstract class BizStatement<T extends BizAct> extends Statement {
     get type(): string { return 'bizstatement'; }
