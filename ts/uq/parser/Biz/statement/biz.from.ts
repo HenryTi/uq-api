@@ -1,7 +1,7 @@
 import {
-    BizTie, CompareExpression
-    , Entity, EnumSysTable, FromStatement, FromStatementInPend, Pointer, Table, ValueExpression
-    , BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, FromInPendFieldSpace, BizBudAny,
+    BizTie, CompareExpression,
+    Entity, FromStatement, Pointer, Table, ValueExpression,
+    BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, BizBudAny,
     FromEntity
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";

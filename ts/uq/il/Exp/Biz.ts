@@ -83,6 +83,6 @@ export class BizCheckBudOperand extends Atom {
     get type(): string { return 'bizcheckbudoperand'; }
     parser(context: PContext) { return new PBizCheckBudOperand(this, context); }
     to(stack: Stack): void {
-        stack.bizCheckBud(this/* BizCheckBudOperand this.bizExp1, this.bizExp2, this.item*/);
+        stack.bizCheckBud(this);
     }
 }
