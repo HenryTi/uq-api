@@ -847,7 +847,7 @@ export abstract class PBizAct<T extends BizAct> extends PBizBase<T> {
 
     protected abstract createBizActSpace(space: Space): Space;
 
-    scan(space: Space): boolean {
+    override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
         //  will be removed
         let actSpace = this.createBizActSpace(space);

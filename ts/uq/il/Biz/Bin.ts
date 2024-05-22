@@ -244,7 +244,7 @@ export class BizBin extends BizEntity {
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了
     readonly div: BinDiv;    // 输入和显示的层级结构
     readonly outs: { [name: string]: UseOut } = {};
-    readonly predefinedBuds: BizBud[] = [];
+    readonly predefinedBuds: { [name: string]: BizBud } = {};
     main: BizBin;           // 只有指定main的bin，才能引用%sheet.prop
     pickArr: BinPick[];
     inputArr: BinInput[];
@@ -282,6 +282,14 @@ export class BizBin extends BizEntity {
         }
         this.inputArr.push(input);
         this.inputColl[input.name] = input;
+    }
+
+    buildPredefinedBuds() {
+        [this.i, this.iBase, this.x, this.xBase, this.price, this.amount, this.value].forEach(v => {
+            if (v === undefined) return;
+            this.predefinedBuds[v.name] = v;
+            // this.predefinedBuds[v.id] = v;
+        })
     }
 
     buildSchema(res: { [phrase: string]: string }) {
@@ -333,16 +341,13 @@ export class BizBin extends BizEntity {
         return this.schema;
     }
 
-    getSheetProps() {
-        let budArr: BizBud[] = [];
+    getSheetBud(name: string): BizBud {
         for (let sheet of this.sheetArr) {
             let { main } = sheet;
             if (main === undefined) continue;
-            for (let [, bud] of main.props) {
-                budArr.push(bud);
-            }
+            let bud = main.getBud(name);
+            if (bud !== undefined) return bud;
         }
-        return budArr;
     }
 
     override forEachBud(callback: (bud: BizBud) => void) {
@@ -353,15 +358,16 @@ export class BizBin extends BizEntity {
         if (this.inputArr !== undefined) {
             for (let input of this.inputArr) callback(input);
         }
-        this.predefinedBuds.forEach(v => callback(v));
+        for (let i in this.predefinedBuds) {
+            callback(this.predefinedBuds[i]);
+        }
+        // this.predefinedBuds.forEach(v => callback(v));
     }
     override getBud(name: string) {
         let bud = super.getBud(name);
         if (bud !== undefined) return bud;
-        for (let bud of this.predefinedBuds) {
-            if (bud.name === name) return bud;
-        }
-        return undefined;
+        bud = this.predefinedBuds[name];
+        return bud;
     }
     db(dbContext: DbContext): BBizEntity<any> {
         return new BBizBin(dbContext, this);

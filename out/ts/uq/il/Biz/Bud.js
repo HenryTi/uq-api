@@ -43,6 +43,12 @@ class BizBud extends Base_1.BizBase {
         this.name = name;
         Object.assign(this.ui, ui);
     }
+    setEntity(entity) {
+        if (entity === undefined)
+            debugger;
+        this.biz = entity.biz;
+        this.entity = entity;
+    }
     buildBudValue(expStringify) { }
     buildSchema(res) {
         let ret = super.buildSchema(res);

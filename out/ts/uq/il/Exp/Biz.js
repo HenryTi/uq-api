@@ -58,7 +58,7 @@ class BizCheckBudOperand extends Op_1.Atom {
     get type() { return 'bizcheckbudoperand'; }
     parser(context) { return new parser_1.PBizCheckBudOperand(this, context); }
     to(stack) {
-        stack.bizCheckBud(this /* BizCheckBudOperand this.bizExp1, this.bizExp2, this.item*/);
+        stack.bizCheckBud(this);
     }
 }
 exports.BizCheckBudOperand = BizCheckBudOperand;

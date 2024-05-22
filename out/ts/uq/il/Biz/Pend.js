@@ -29,21 +29,19 @@ class BizPend extends Entity_1.BizEntity {
     db(dbContext) {
         return new builder_1.BBizPend(dbContext, this);
     }
-    getBinProps() {
-        let budArr = [];
+    getBinBud(name) {
         for (let bizBin of this.bizBins) {
-            for (let [, p] of bizBin.props) {
-                budArr.push(p);
-            }
+            let bud = bizBin.getBud(name);
+            if (bud !== undefined)
+                return bud;
         }
-        return budArr;
     }
-    getSheetProps() {
-        let budArr = [];
+    getSheetBud(name) {
         for (let bizBin of this.bizBins) {
-            budArr.push(...bizBin.getSheetProps());
+            let bud = bizBin.getSheetBud(name);
+            if (bud !== undefined)
+                return bud;
         }
-        return budArr;
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
@@ -57,7 +55,7 @@ class BizPend extends Entity_1.BizEntity {
             let { params, from } = this.pendQuery;
             ret.params = params.map(v => v.buildSchema(res));
             ret.cols = from.cols.map(v => {
-                const bud = v.field.getBud();
+                const bud = v.bud; // field.getBud();
                 return bud?.buildSchema(res);
             });
         }
@@ -92,7 +90,7 @@ class BizPend extends Entity_1.BizEntity {
         const { params, from } = this.pendQuery;
         const { cols } = from;
         for (let col of cols) {
-            let bud = col.field?.getBud();
+            let bud = col.bud; // field?.getBud();
             if (bud === undefined)
                 continue;
             callback(bud);

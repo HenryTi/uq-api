@@ -140,7 +140,7 @@ export abstract class Space {
         if (ret !== undefined) return ret;
         if (this.outer !== undefined) return this.outer.getBizFieldSpace();
     }
-    getBizEntitySpace() {
+    getBizEntitySpace(): BizEntitySpace {
         let ret = this._getBizEntitySpace();
         if (ret !== undefined) return ret;
         if (this.outer !== undefined) return this.outer.getBizEntitySpace();

@@ -1,5 +1,5 @@
 import _ = require('lodash');
-import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityPointer, BizBud, BizEntity, BizEntityFieldPointer } from '../../il';
+import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityBudPointer, BizBud, BizEntity, BizEntityFieldPointer } from '../../il';
 import { VarOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -120,10 +120,10 @@ export class PVarOperand extends PElement<VarOperand> {
                     }
                     // let v = _obj.getBud(var1);
                     if (bud !== undefined) {
-                        pointer = new BizEntityPointer(be, bud);
+                        pointer = new BizEntityBudPointer(_obj, bud);
                     }
                     else if (fieldName !== undefined) {
-                        pointer = new BizEntityFieldPointer(be, fieldName);
+                        pointer = new BizEntityFieldPointer(_obj, fieldName);
                     }
                     else {
                         this.log(`Biz entity ${bizEntityArr.map(v => v.jName).join(',')} has not ${var1}`);

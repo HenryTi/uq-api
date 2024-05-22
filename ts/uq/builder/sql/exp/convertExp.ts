@@ -9,7 +9,8 @@ import {
     BizFieldOperand,
     BizEntity,
     BizBud,
-    BizCheckBudOperand
+    BizCheckBudOperand,
+    BizFromEntity
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
@@ -228,8 +229,8 @@ class Stack implements IlStack {
     }
 
     var(name: string) { this.arr.push(new ExpVar(name)) }
-    varOfBizEntity(bizEntity: BizEntity, bud: BizBud): void {
-        this.arr.push(new ExpBizEntityBud(bizEntity, bud));
+    varOfBizEntity(bizFromEntity: BizFromEntity, bud: BizBud): void {
+        this.arr.push(new ExpBizEntityBud(bizFromEntity, bud));
     }
     dotVar(varNames: string[]) { this.arr.push(new ExpDotVar(varNames)) }
     field(name: string, tbl?: string) { this.arr.push(new ExpField(name, tbl)); }

@@ -167,9 +167,9 @@ export class ExpDotVar extends ExpVal {
     private varNames: string[];       // proc定义的变量名
     private collate: string;
     to(sb: SqlBuilder) {
-        sb.var(this.varNames[0]);
+        sb.fld(this.varNames[0]);
         let len = this.varNames.length;
-        for (let i = 1; i < len; i++) sb.dot().var(this.varNames[i]);
+        for (let i = 1; i < len; i++) sb.dot().fld(this.varNames[i]);
         sb.collate(this.collate);
     }
     constructor(varNames: string[], collate?: string) {

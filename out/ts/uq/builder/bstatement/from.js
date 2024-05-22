@@ -7,7 +7,7 @@ const Biz_1 = require("../Biz");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
-const t1 = 't1';
+// const t1 = 't1';
 const pageStart = '$pageStart';
 class BFromStatement extends bstatement_1.BStatement {
     body(sqls) {
@@ -17,7 +17,8 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { asc } = this.istatement;
+        const { fromEntity, asc } = this.istatement;
+        let { alias: t1 } = fromEntity;
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
         ifStateNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pageStart));
@@ -38,7 +39,7 @@ class BFromStatement extends bstatement_1.BStatement {
         sqls.push(fromMain);
     }
     buildFromMain(cmpStart) {
-        const { ban } = this.istatement;
+        const { ban, fromEntity: { alias: t1 } } = this.istatement;
         let select = this.buildSelect(cmpStart);
         select.column(new sql_1.ExpField('id', t1), 'id');
         if (ban === undefined) {
@@ -52,18 +53,20 @@ class BFromStatement extends bstatement_1.BStatement {
     }
     buildSelectCols(select, alias) {
         const { cols } = this.istatement;
-        const arr = [];
+        /*
+        const arr: ExpVal[] = [];
         for (let col of cols) {
             const { name, val, field } = col;
-            let colArr = field.buildColArr();
-            colArr.push(this.context.expVal(val));
-            arr.push(new sql_1.ExpFunc('JSON_ARRAY', ...colArr));
+            let colArr: Exp[] = field.buildColArr();
+            colArr.push(this.context.expVal(val as ValueExpression));
+            arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
         }
-        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), alias);
+        select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
+        */
     }
     buildSelect(cmpStart) {
         const { factory } = this.context;
-        const { asc, where, fromEntity: { bizEntityTable, bizEntityArr, ofIXs, ofOn } } = this.istatement;
+        const { asc, where, fromEntity: { bizEntityTable, bizEntityArr, ofIXs, ofOn, alias: t1 } } = this.istatement;
         const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
         select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t1));

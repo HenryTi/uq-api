@@ -165,10 +165,10 @@ class ExpVar extends ExpVal {
 exports.ExpVar = ExpVar;
 class ExpDotVar extends ExpVal {
     to(sb) {
-        sb.var(this.varNames[0]);
+        sb.fld(this.varNames[0]);
         let len = this.varNames.length;
         for (let i = 1; i < len; i++)
-            sb.dot().var(this.varNames[i]);
+            sb.dot().fld(this.varNames[i]);
         sb.collate(this.collate);
     }
     constructor(varNames, collate) {

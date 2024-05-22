@@ -21,6 +21,9 @@ class PBizFieldOperand extends element_1.PElement {
         let ok = true;
         let bizFieldSpace = space.getBizFieldSpace();
         let field = bizFieldSpace.getBizField(this.fieldName);
+        if (field === null) {
+            return false;
+        }
         const [f0, f1] = this.fieldName;
         if (field !== undefined) {
             this.element.field = field;

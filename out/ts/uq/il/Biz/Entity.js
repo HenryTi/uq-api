@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntity = exports.BudIndex = void 0;
+exports.BizFromEntity = exports.BizEntity = exports.BudIndex = void 0;
 const datatype_1 = require("../datatype");
 const field_1 = require("../field");
 const Base_1 = require("./Base");
@@ -219,4 +219,11 @@ class BizEntity extends Base_1.BizBase {
     }
 }
 exports.BizEntity = BizEntity;
+class BizFromEntity {
+    constructor() {
+        this.bizEntityArr = [];
+        this.ofIXs = [];
+    }
+}
+exports.BizFromEntity = BizFromEntity;
 //# sourceMappingURL=Entity.js.map

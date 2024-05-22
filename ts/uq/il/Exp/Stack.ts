@@ -1,4 +1,4 @@
-import { BizBase, BizBud, BizEntity, BizOptions, OptionsItem } from "../Biz";
+import { BizBase, BizBud, BizEntity, BizFromEntity, BizOptions, OptionsItem } from "../Biz";
 import { DataType } from "../datatype";
 import { Entity, ID, Queue } from "../entity";
 import { Select } from "../select";
@@ -53,7 +53,7 @@ export interface Stack {
     jsonProp(): void;
 
     var(name: string): void;
-    varOfBizEntity(bizEntity: BizEntity, bud: BizBud): void;
+    varOfBizEntity(bizFromEntity: BizFromEntity, bud: BizBud): void;
     dotVar(varNames: string[]): void;
     field(name: string, tbl?: string): void;
     expr(exp: ValueExpression): void;

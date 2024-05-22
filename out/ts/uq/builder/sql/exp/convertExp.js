@@ -207,8 +207,8 @@ class Stack {
         this.arr.push(new exps_1.ExpFuncInUq(func, params, true));
     }
     var(name) { this.arr.push(new exps_1.ExpVar(name)); }
-    varOfBizEntity(bizEntity, bud) {
-        this.arr.push(new ExpBizEntityBud_1.ExpBizEntityBud(bizEntity, bud));
+    varOfBizEntity(bizFromEntity, bud) {
+        this.arr.push(new ExpBizEntityBud_1.ExpBizEntityBud(bizFromEntity, bud));
     }
     dotVar(varNames) { this.arr.push(new exps_1.ExpDotVar(varNames)); }
     field(name, tbl) { this.arr.push(new exps_1.ExpField(name, tbl)); }

@@ -130,7 +130,7 @@ class PFromStatement extends statement_1.PStatement {
                     }
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, ui: null, val, field: undefined, });
+                    this.element.cols.push({ name: lowerVar, ui: null, val, bud: undefined, });
                 }
                 else {
                     let name = this.ts.passVar();
@@ -138,7 +138,7 @@ class PFromStatement extends statement_1.PStatement {
                     this.ts.passToken(tokens_1.Token.EQU);
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name, ui, val, field: undefined, });
+                    this.element.cols.push({ name, ui, val, bud: undefined, });
                     if (coll[name] === true) {
                         this.ts.error(`duplicate column name ${name}`);
                     }
@@ -166,7 +166,8 @@ class PFromStatement extends statement_1.PStatement {
         let ok = true;
         space = this.createFromSpace(space);
         let aliasSet = new Set();
-        if (this.scanFromEntity(space, this.element.fromEntity, this.pFromEntity, aliasSet) === false) {
+        let nAlias = { t: 1 };
+        if (this.scanFromEntity(space, this.element.fromEntity, this.pFromEntity, aliasSet, nAlias) === false) {
             ok = false;
             return ok;
         }
@@ -199,34 +200,45 @@ class PFromStatement extends statement_1.PStatement {
                 ok = false;
             }
             if (ui === null) {
-                let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
+                let field = bizFieldSpace.getBizField([name]);
                 if (field !== undefined) {
-                    col.field = field;
+                    col.bud = field.getBud();
+                    if (col.bud === undefined) {
+                        //debugger;
+                        field = bizFieldSpace.getBizField([name]);
+                    }
                 }
                 else {
                     debugger;
                     bizFieldSpace.getBizField([name]);
                     // 'no', 'ex' 不能出现这样的情况
-                    col.field = undefined;
+                    col.bud = undefined;
                 }
             }
             else {
                 // Query bud
-                let bud = new il_1.BizBudAny(undefined, name, ui);
+                let bizEntitySpace = space.getBizEntitySpace();
+                if (bizEntitySpace === undefined)
+                    debugger;
+                let bud = new il_1.BizBudAny(bizEntitySpace.bizEntity, name, ui);
+                /*
                 let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
                 if (field !== undefined) {
                     debugger;
                     // field.bud = bud;
                 }
                 else {
-                    field = new il_1.BizFieldBud(undefined, undefined, undefined, bud);
+                    field = new BizFieldBud(undefined, undefined, bud);
                 }
                 col.field = field;
+                */
+                col.bud = bud;
             }
+            // if (col.bud === undefined) debugger;
         }
         return ok;
     }
-    scanFromEntity(space, fromEntity, pFromEntity, aliasSet) {
+    scanFromEntity(space, fromEntity, pFromEntity, aliasSet, nAlias) {
         let ok = true;
         let retOk = this.setEntityArr(space, fromEntity, pFromEntity);
         if (retOk === false) {
@@ -243,6 +255,9 @@ class PFromStatement extends statement_1.PStatement {
                 fromEntity.alias = alias;
                 aliasSet.add(alias);
             }
+        }
+        else {
+            fromEntity.alias = '$t' + (nAlias.t++);
         }
         if (bizEntityArr.length > 0) {
             for (let _of of pFromEntity.ofIXs) {
@@ -269,7 +284,7 @@ class PFromStatement extends statement_1.PStatement {
             const { length } = pSubs;
             for (let pSub of pSubs) {
                 let subFromEntity = {};
-                if (this.scanFromEntity(space, subFromEntity, pSub, aliasSet) === false) {
+                if (this.scanFromEntity(space, subFromEntity, pSub, aliasSet, nAlias) === false) {
                     ok = false;
                 }
                 else {

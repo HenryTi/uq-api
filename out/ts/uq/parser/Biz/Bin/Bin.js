@@ -273,7 +273,8 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan0(space) {
         let ok = true;
-        const { pickArr, inputArr, act } = this.element;
+        const { pickArr, act } = this.element;
+        this.element.buildPredefinedBuds();
         if (pickArr !== undefined) {
             for (let pick of pickArr) {
                 if (pick.pelement.scan0(space) === false) {
@@ -318,7 +319,7 @@ class PBizBin extends Base_1.PBizEntity {
                 this.element.main = m;
             }
         }
-        const { predefinedBuds, iBase, xBase } = this.element;
+        const { iBase, xBase } = this.element;
         if (iBase !== undefined) {
             if (this.element.i === undefined) {
                 this.log('i.base need I declare');
@@ -327,7 +328,6 @@ class PBizBin extends Base_1.PBizEntity {
             if (this.scanBud(binSpace, iBase) === false) {
                 ok = false;
             }
-            predefinedBuds.push(iBase);
         }
         if (xBase !== undefined) {
             if (this.element.x === undefined) {
@@ -337,7 +337,6 @@ class PBizBin extends Base_1.PBizEntity {
             if (this.scanBud(binSpace, xBase) === false) {
                 ok = false;
             }
-            predefinedBuds.push(xBase);
         }
         const { pickArr, inputArr, i, x, value: budValue, amount: budAmount, price: budPrice } = this.element;
         if (pickArr !== undefined) {
@@ -371,13 +370,11 @@ class PBizBin extends Base_1.PBizEntity {
             if (this.scanBud(binSpace, i) === false) {
                 ok = false;
             }
-            predefinedBuds.push(i);
         }
         if (x !== undefined) {
             if (this.scanBud(binSpace, x) === false) {
                 ok = false;
             }
-            predefinedBuds.push(x);
         }
         const scanBudValue = (bud) => {
             if (bud === undefined)
@@ -401,7 +398,6 @@ class PBizBin extends Base_1.PBizEntity {
             scanValue(value);
             scanValue(min);
             scanValue(max);
-            predefinedBuds.push(bud);
         };
         scanBudValue(budValue);
         scanBudValue(budAmount);
@@ -545,6 +541,12 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
                 const { pend } = this.bizEntity;
                 return {
                     bizEntityArr: [pend],
+                    bizPhraseType: BizPhraseType_1.BizPhraseType.pend,
+                    bizEntityTable: il_1.EnumSysTable.pend,
+                    subs: undefined,
+                    ofIXs: undefined,
+                    ofOn: undefined,
+                    alias: undefined,
                 };
         }
     }

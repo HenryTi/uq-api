@@ -9,7 +9,7 @@ import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
-const t1 = 't1';
+// const t1 = 't1';
 const pageStart = '$pageStart';
 
 export class BFromStatement<T extends FromStatement> extends BStatement<T> {
@@ -21,7 +21,8 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         sqls.push(memo);
         memo.text = 'FROM';
 
-        const { asc } = this.istatement;
+        const { fromEntity, asc } = this.istatement;
+        let { alias: t1 } = fromEntity;
 
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
@@ -44,7 +45,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
     }
 
     protected buildFromMain(cmpStart: ExpCmp): StatementBase {
-        const { ban } = this.istatement;
+        const { ban, fromEntity: { alias: t1 } } = this.istatement;
         let select = this.buildSelect(cmpStart);
         select.column(new ExpField('id', t1), 'id');
         if (ban === undefined) {
@@ -59,6 +60,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
 
     protected buildSelectCols(select: Select, alias: string) {
         const { cols } = this.istatement;
+        /*
         const arr: ExpVal[] = [];
         for (let col of cols) {
             const { name, val, field } = col;
@@ -67,11 +69,12 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
             arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
         }
         select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
+        */
     }
 
     protected buildSelect(cmpStart: ExpCmp) {
         const { factory } = this.context;
-        const { asc, where, fromEntity: { bizEntityTable, bizEntityArr, ofIXs, ofOn } } = this.istatement;
+        const { asc, where, fromEntity: { bizEntityTable, bizEntityArr, ofIXs, ofOn, alias: t1 } } = this.istatement;
         const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
 

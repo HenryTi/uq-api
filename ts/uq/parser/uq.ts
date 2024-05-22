@@ -6,7 +6,8 @@ import {
     Entity, Uq, Tuid, Import, Book, History, Map, Query, Act, Table, Bus
     , Templet, SysProc, Pending, Pointer, Role, Enum, Proc
     , IX, ID, IDX, Const, ConstPointer, UqVersion, Function, Queue
-    , UqStatement, DataTypeDefine, DataType, BusAcceptStatement, BizBase, BizEntity
+    , UqStatement, DataTypeDefine, DataType, BusAcceptStatement, BizBase, BizEntity,
+    BizFromEntity
 } from '../il';
 
 export class PUq extends PElement {
@@ -500,7 +501,7 @@ class UqSpace extends Space {
         let bizEntity = this.uq.biz.bizEntities.get(name);
         return {
             bizEntityArr: [bizEntity],
-        };
+        } as BizFromEntity;
     }
     getRole(): Role {
         return this.uq.role;

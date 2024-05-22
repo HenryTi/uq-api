@@ -1,11 +1,14 @@
 import { BBizEntity, DbContext } from "../../builder";
+import { EnumSysTable } from "../EnumSysTable";
+import { ValueExpression } from "../Exp";
 import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
 import { Field } from "../field";
 import { BizBase, IxField } from "./Base";
 import { Biz } from "./Biz";
-import { BudDataType } from "./BizPhraseType";
+import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue, BizUser, BudGroup, FieldShow } from "./Bud";
 import { BizRole } from "./Role";
+import { BizTie } from "./Tie";
 
 export enum BudIndex {
     none = 0x0000,
@@ -231,6 +234,12 @@ export abstract class BizEntity extends BizBase {
     }
 }
 
-export interface BizFromEntity<E extends BizEntity = BizEntity> {
-    bizEntityArr: E[];
+export class BizFromEntity<E extends BizEntity = BizEntity> {
+    bizEntityArr: E[] = [];
+    bizPhraseType: BizPhraseType;
+    bizEntityTable: EnumSysTable;
+    subs: BizFromEntity<E>[];
+    ofIXs: BizTie[] = [];
+    ofOn: ValueExpression;
+    alias: string;
 }

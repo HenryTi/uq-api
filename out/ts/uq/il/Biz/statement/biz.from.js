@@ -2,12 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FromStatementInPend = exports.FromStatement = exports.FromEntity = void 0;
 const parser_1 = require("../../../parser");
+const Entity_1 = require("../Entity");
+// 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
 const statement_1 = require("../../statement");
-class FromEntity {
-    constructor() {
-        this.bizEntityArr = [];
-        this.ofIXs = [];
-    }
+class FromEntity extends Entity_1.BizFromEntity {
 }
 exports.FromEntity = FromEntity;
 class FromStatement extends statement_1.Statement {

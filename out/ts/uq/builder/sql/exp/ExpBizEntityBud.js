@@ -4,13 +4,13 @@ exports.ExpBizEntityBud = void 0;
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const exps_1 = require("./exps");
 class ExpBizEntityBud extends exps_1.ExpVal {
-    constructor(bizEntity, bud) {
+    constructor(bizFromEntity, bud) {
         super();
-        this.bizEntity = bizEntity;
+        this.bizFromEntity = bizFromEntity;
         this.bud = bud;
     }
     to(sb) {
-        switch (this.bizEntity.bizPhraseType) {
+        switch (this.bizFromEntity.bizPhraseType) {
             case BizPhraseType_1.BizPhraseType.options:
                 sb.append(this.bud.id);
                 break;

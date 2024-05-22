@@ -1,7 +1,7 @@
 import {
     BizTie, CompareExpression,
     Entity, FromStatement, Pointer, Table, ValueExpression,
-    BizFieldBud, BizFieldSpace, FromInQueryFieldSpace, BizBudAny,
+    BizFieldSpace, FromInQueryFieldSpace, BizBudAny,
     FromEntity
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
@@ -145,7 +145,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     }
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, ui: null, val, field: undefined, });
+                    this.element.cols.push({ name: lowerVar, ui: null, val, bud: undefined, });
                 }
                 else {
                     let name = this.ts.passVar();
@@ -153,7 +153,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     this.ts.passToken(Token.EQU);
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    this.element.cols.push({ name, ui, val, field: undefined, });
+                    this.element.cols.push({ name, ui, val, bud: undefined, });
                     if (coll[name] === true) {
                         this.ts.error(`duplicate column name ${name}`);
                     }
@@ -184,7 +184,8 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         let ok = true;
         space = this.createFromSpace(space);
         let aliasSet = new Set<string>();
-        if (this.scanFromEntity(space, this.element.fromEntity, this.pFromEntity, aliasSet) === false) {
+        let nAlias: NAlias = { t: 1 };
+        if (this.scanFromEntity(space, this.element.fromEntity, this.pFromEntity, aliasSet, nAlias) === false) {
             ok = false;
             return ok;
         }
@@ -217,35 +218,45 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 ok = false;
             }
             if (ui === null) {
-                let field = bizFieldSpace.getBizField([name]); // this.element.getBizField(name);
+                let field = bizFieldSpace.getBizField([name]);
                 if (field !== undefined) {
-                    col.field = field;
+                    col.bud = field.getBud();
+                    if (col.bud === undefined) {
+                        //debugger;
+                        field = bizFieldSpace.getBizField([name]);
+                    }
                 }
                 else {
                     debugger;
                     bizFieldSpace.getBizField([name]);
                     // 'no', 'ex' 不能出现这样的情况
-                    col.field = undefined;
+                    col.bud = undefined;
                 }
             }
             else {
                 // Query bud
-                let bud = new BizBudAny(undefined, name, ui);
+                let bizEntitySpace = space.getBizEntitySpace();
+                if (bizEntitySpace === undefined) debugger;
+                let bud = new BizBudAny(bizEntitySpace.bizEntity, name, ui);
+                /*
                 let field = bizFieldSpace.getBizField([name]); // new BizFieldBud(bizFieldSpace, bud);
                 if (field !== undefined) {
                     debugger;
                     // field.bud = bud;
                 }
                 else {
-                    field = new BizFieldBud(undefined, undefined, undefined, bud);
+                    field = new BizFieldBud(undefined, undefined, bud);
                 }
                 col.field = field;
+                */
+                col.bud = bud;
             }
+            // if (col.bud === undefined) debugger;
         }
         return ok;
     }
 
-    protected scanFromEntity(space: Space, fromEntity: FromEntity, pFromEntity: PFromEntity, aliasSet: Set<string>) {
+    protected scanFromEntity(space: Space, fromEntity: FromEntity, pFromEntity: PFromEntity, aliasSet: Set<string>, nAlias: NAlias) {
         let ok = true;
         let retOk = this.setEntityArr(space, fromEntity, pFromEntity);
         if (retOk === false) {
@@ -262,6 +273,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 fromEntity.alias = alias;
                 aliasSet.add(alias);
             }
+        }
+        else {
+            fromEntity.alias = '$t' + (nAlias.t++);
         }
         if (bizEntityArr.length > 0) {
             for (let _of of pFromEntity.ofIXs) {
@@ -289,7 +303,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
             for (let pSub of pSubs) {
                 let subFromEntity: FromEntity = {
                 } as FromEntity;
-                if (this.scanFromEntity(space, subFromEntity, pSub, aliasSet) === false) {
+                if (this.scanFromEntity(space, subFromEntity, pSub, aliasSet, nAlias) === false) {
                     ok = false;
                 }
                 else {
@@ -333,6 +347,10 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         if (retOk === false) this.log(...logs);
         return retOk;
     }
+}
+
+interface NAlias {
+    t: number;
 }
 
 export class FromSpace extends Space {

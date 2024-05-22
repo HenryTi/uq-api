@@ -1,23 +1,22 @@
 import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../../parser";
-import {
-    BizEntity, BizFromEntity, BizTie,
-} from "..";
-import { EnumSysTable } from "../../EnumSysTable";
+import { BizBud } from "../Bud";
+import { BizEntity, BizFromEntity } from "../Entity";
+// import { EnumSysTable } from "../../EnumSysTable";
 import { Builder } from "../../builder";
 import { IElement } from "../../IElement";
 import { CompareExpression, ValueExpression } from "../../Exp";
 import { UI } from "../../UI";
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
-import { BizPhraseType } from "../BizPhraseType";
 import { Statement } from "../../statement";
-import { BizField } from "../../BizField";
+// import { BizField } from "../../BizField";
 import { PendQuery } from "../../Biz/Pend";
 
 export interface FromColumn {
     name: string;
     ui?: Partial<UI>;
     val: ValueExpression;
-    field: BizField;
+    // field: BizField;
+    bud: BizBud;
 }
 
 export interface BanColumn {
@@ -25,14 +24,7 @@ export interface BanColumn {
     val: CompareExpression;
 }
 
-export class FromEntity<E extends BizEntity = BizEntity> implements BizFromEntity<E> {
-    bizEntityArr: E[] = [];
-    bizPhraseType: BizPhraseType;
-    bizEntityTable: EnumSysTable;
-    subs: FromEntity<E>[];
-    ofIXs: BizTie[] = [];
-    ofOn: ValueExpression;
-    alias: string;
+export class FromEntity<E extends BizEntity = BizEntity> extends BizFromEntity<E> {
 }
 
 export class FromStatement extends Statement {

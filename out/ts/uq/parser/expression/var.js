@@ -119,10 +119,10 @@ class PVarOperand extends element_1.PElement {
                     }
                     // let v = _obj.getBud(var1);
                     if (bud !== undefined) {
-                        pointer = new il_1.BizEntityPointer(be, bud);
+                        pointer = new il_1.BizEntityBudPointer(_obj, bud);
                     }
                     else if (fieldName !== undefined) {
-                        pointer = new il_1.BizEntityFieldPointer(be, fieldName);
+                        pointer = new il_1.BizEntityFieldPointer(_obj, fieldName);
                     }
                     else {
                         this.log(`Biz entity ${bizEntityArr.map(v => v.jName).join(',')} has not ${var1}`);

@@ -82,7 +82,8 @@ class PBiz extends entity_1.PEntity {
     }
     scan(space) {
         let ok = true;
-        for (let [, p] of this.entity.bizEntities) {
+        const { bizEntities } = this.entity;
+        for (let [, p] of bizEntities) {
             const { bizPhraseType } = p;
             switch (bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.sheet:
@@ -95,7 +96,7 @@ class PBiz extends entity_1.PEntity {
                     break;
             }
         }
-        for (let [, p] of this.entity.bizEntities) {
+        for (let [, p] of bizEntities) {
             let { pelement } = p;
             if (pelement === undefined)
                 continue;

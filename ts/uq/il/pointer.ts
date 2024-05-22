@@ -1,4 +1,4 @@
-import { BizBud, BizEntity } from './Biz';
+import { BizBud, BizEntity, BizFromEntity } from './Biz';
 import { ValueExpression, VarOperand } from './Exp';
 import { Stack } from './Exp/Stack';
 
@@ -92,31 +92,35 @@ export class ConstPointer extends Pointer {
     }
 }
 
-export class BizEntityPointer extends Pointer {
+export class BizEntityBudPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Both;
-    readonly entity: BizEntity;
+    readonly bizFromEntity: BizFromEntity;
+    // readonly entity: BizEntity;
     readonly bud: BizBud;
-    constructor(entity: BizEntity, bud: BizBud) {
+    constructor(bizFromEntity: BizFromEntity, bud: BizBud) {
         super();
-        this.entity = entity;
+        this.bizFromEntity = bizFromEntity;
+        // this.entity = entity;
         this.bud = bud;
     }
     override to(stack: Stack, v: VarOperand): void {
-        stack.varOfBizEntity(this.entity, this.bud);
+        stack.varOfBizEntity(this.bizFromEntity, this.bud);
     }
 }
 
 export class BizEntityFieldPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
-    readonly entity: BizEntity;
+    readonly bizFromEntity: BizFromEntity;
+    // readonly entity: BizEntity;
     readonly fieldName: string;
-    constructor(entity: BizEntity, fieldName: string) {
+    constructor(bizFromEntity: BizFromEntity, fieldName: string) {
         super();
-        this.entity = entity;
+        this.bizFromEntity = bizFromEntity;
+        // this.entity = entity;
         this.fieldName = fieldName;
     }
 
     override to(stack: Stack, v: VarOperand): void {
-        stack.var(this.entity.name);
+        stack.dotVar([this.bizFromEntity.alias, this.fieldName]);
     }
 }

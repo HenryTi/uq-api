@@ -65,9 +65,14 @@ export class BizQueryTable extends BizQuery {
             ret.ban = ban.caption ?? true;
         }
         ret.params = this.params.map(v => v.buildSchema(res));
-        ret.cols = cols.map(v => {
-            const { field } = v;
-            return field.buildSchema();
+        let budCols = cols.filter(v => v.bud !== undefined);
+        ret.cols = budCols.map(v => {
+            // const { field } = v;
+            // return field.buildSchema();
+            const { bud } = v;
+            const { entity } = bud;
+            return [entity.id, bud.id];
+            // return bud.buildSchema(res);
         });
         return ret;
     }

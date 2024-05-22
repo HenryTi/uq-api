@@ -215,7 +215,7 @@ class BizBin extends Entity_1.BizEntity {
         this.inputColl = {};
         this.sheetArr = []; // 被多少sheet引用了
         this.outs = {};
-        this.predefinedBuds = [];
+        this.predefinedBuds = {};
         this.div = new BinDiv(undefined, undefined); // 输入和显示的层级结构
     }
     parser(context) {
@@ -234,6 +234,14 @@ class BizBin extends Entity_1.BizEntity {
         }
         this.inputArr.push(input);
         this.inputColl[input.name] = input;
+    }
+    buildPredefinedBuds() {
+        [this.i, this.iBase, this.x, this.xBase, this.price, this.amount, this.value].forEach(v => {
+            if (v === undefined)
+                return;
+            this.predefinedBuds[v.name] = v;
+            // this.predefinedBuds[v.id] = v;
+        });
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
@@ -285,17 +293,15 @@ class BizBin extends Entity_1.BizEntity {
         };
         return this.schema;
     }
-    getSheetProps() {
-        let budArr = [];
+    getSheetBud(name) {
         for (let sheet of this.sheetArr) {
             let { main } = sheet;
             if (main === undefined)
                 continue;
-            for (let [, bud] of main.props) {
-                budArr.push(bud);
-            }
+            let bud = main.getBud(name);
+            if (bud !== undefined)
+                return bud;
         }
-        return budArr;
     }
     forEachBud(callback) {
         super.forEachBud(callback);
@@ -307,17 +313,17 @@ class BizBin extends Entity_1.BizEntity {
             for (let input of this.inputArr)
                 callback(input);
         }
-        this.predefinedBuds.forEach(v => callback(v));
+        for (let i in this.predefinedBuds) {
+            callback(this.predefinedBuds[i]);
+        }
+        // this.predefinedBuds.forEach(v => callback(v));
     }
     getBud(name) {
         let bud = super.getBud(name);
         if (bud !== undefined)
             return bud;
-        for (let bud of this.predefinedBuds) {
-            if (bud.name === name)
-                return bud;
-        }
-        return undefined;
+        bud = this.predefinedBuds[name];
+        return bud;
     }
     db(dbContext) {
         return new builder_1.BBizBin(dbContext, this);
