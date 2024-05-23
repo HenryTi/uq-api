@@ -1,14 +1,12 @@
 import { PContext, PElement, PFromStatement, PFromStatementInPend } from "../../../parser";
 import { BizBud } from "../Bud";
 import { BizEntity, BizFromEntity } from "../Entity";
-// import { EnumSysTable } from "../../EnumSysTable";
 import { Builder } from "../../builder";
 import { IElement } from "../../IElement";
 import { CompareExpression, ValueExpression } from "../../Exp";
 import { UI } from "../../UI";
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
 import { Statement } from "../../statement";
-// import { BizField } from "../../BizField";
 import { PendQuery } from "../../Biz/Pend";
 
 export interface FromColumn {
@@ -34,6 +32,7 @@ export class FromStatement extends Statement {
     ban: BanColumn;
     cols: FromColumn[] = [];
     where: CompareExpression;
+    idFromEntity: FromEntity;
 
     constructor(parent: Statement) {
         super(parent);
@@ -60,6 +59,17 @@ export class FromStatement extends Statement {
             if (ret !== undefined) return ret;
         }
         return undefined;
+    }
+
+    setIdFromEntity(idAlias: string): boolean {
+        if (idAlias === undefined) {
+            this.idFromEntity = this.fromEntity;
+            return true;
+        }
+        else {
+            this.idFromEntity = this.getBizEntityFromAlias(idAlias);
+            return this.idFromEntity !== undefined;
+        }
     }
 }
 

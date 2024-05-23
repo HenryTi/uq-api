@@ -19,6 +19,7 @@ interface PFromEntity {
 }
 
 export class PFromStatement<T extends FromStatement = FromStatement> extends PStatement<T> {
+    private idAlias: string;
     protected pFromEntity: PFromEntity = {
         tbls: [],
         ofIXs: [],
@@ -113,6 +114,10 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 else {
                     this.ts.expect('ASC', 'DESC');
                 }
+                if (this.ts.isKeyword('of') === true) {
+                    this.ts.readToken();
+                    this.idAlias = this.ts.passVar();
+                }
                 coll['id'] = true;
                 this.ts.readToken();
                 if (this.ts.token !== Token.RPARENTHESE) {
@@ -204,6 +209,10 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
             if (ban.val.pelement.scan(space) === false) {
                 ok = false;
             }
+        }
+        if (this.element.setIdFromEntity(this.idAlias) === false) {
+            this.log(`${this.idAlias} is not defined`);
+            ok = false;
         }
         return ok;
     }

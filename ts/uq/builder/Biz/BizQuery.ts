@@ -1,6 +1,7 @@
-import { BigInt, BizQuery, BizQueryTable, Char, bigIntField, jsonField } from "../../il";
+import { BigInt, BizAtom, BizBud, BizEntity, BizQueryTable, BizSpec, Char, FromEntity, bigIntField, jsonField } from "../../il";
+import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Sqls } from "../bstatement";
-import { ExpFunc, ExpNum, ExpStr, ExpVar, Procedure } from "../sql";
+import { ExpFunc, ExpNum, ExpStr, ExpVar, Procedure, Statement } from "../sql";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizQuery extends BBizEntity<BizQueryTable> {
@@ -12,7 +13,7 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
     }
 
     private buildQueryProc(proc: Procedure) {
-        const { params, statement } = this.bizEntity;
+        const { params, statement, from } = this.bizEntity;
         const site = '$site';
         const json = '$json';
         const varJson = new ExpVar(json);
@@ -47,5 +48,46 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
+
+        this.buildFrom(statements, from.fromEntity);
+    }
+
+    private buildFrom(statements: Statement[], fromEntity: FromEntity) {
+        let { subs, bizPhraseType, bizEntityArr } = fromEntity;
+        switch (bizPhraseType) {
+            default: break;
+            case BizPhraseType.atom: this.buildAtom(statements, bizEntityArr as BizAtom[]); break;
+            case BizPhraseType.spec: this.buildSpec(statements, bizEntityArr as BizSpec[]); break;
+        }
+        if (subs !== undefined) {
+            for (let sub of subs) {
+                this.buildFrom(statements, sub);
+            }
+        }
+    }
+
+    private buildAtom(statements: Statement[], entityArr: BizAtom[]) {
+        const { factory } = this.context;
+        let insertAtom = factory.createInsert();
+        statements.push(insertAtom);
+
+        let entity = entityArr[0];
+        const { titleBuds, primeBuds } = entity;
+        for (let bud of titleBuds) this.buildInsertBud(statements, entity, bud);
+        for (let bud of primeBuds) this.buildInsertBud(statements, entity, bud);
+    }
+
+    private buildSpec(statements: Statement[], entityArr: BizSpec[]) {
+        for (let spec of entityArr) {
+            for (let [, bud] of spec.props) {
+                this.buildInsertBud(statements, spec, bud);
+            }
+        }
+    }
+
+    private buildInsertBud(statements: Statement[], entity: BizEntity, bud: BizBud) {
+        const { factory } = this.context;
+        let insertBud = factory.createInsert();
+        statements.push(insertBud);
     }
 }
