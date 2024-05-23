@@ -200,6 +200,7 @@ class ClientBuilder extends SqlBuilder {
         super(...arguments);
         this.forClient = true;
     }
+    fld(f) { this.append(f); return this; }
 }
 exports.ClientBuilder = ClientBuilder;
 //# sourceMappingURL=sqlBuilder.js.map

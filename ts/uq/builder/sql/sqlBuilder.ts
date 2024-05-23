@@ -191,4 +191,6 @@ export abstract class SqlBuilder implements il.DataTypeBuilder {
 
 export class ClientBuilder extends SqlBuilder {
     readonly forClient = true;
+
+    fld(f: string): SqlBuilder { this.append(f); return this; }
 }

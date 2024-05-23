@@ -14,20 +14,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBiz = void 0;
-var Biz_1 = require("./Biz");
-Object.defineProperty(exports, "BBiz", { enumerable: true, get: function () { return Biz_1.BBiz; } });
-__exportStar(require("./BizEntity"), exports);
-__exportStar(require("./BizAtom"), exports);
-__exportStar(require("./BizSpec"), exports);
-__exportStar(require("./BizSheet"), exports);
-__exportStar(require("./BizBin"), exports);
-__exportStar(require("./BizPend"), exports);
-__exportStar(require("./BizReport"), exports);
-__exportStar(require("./BizQuery"), exports);
-__exportStar(require("./BizAssign"), exports);
-__exportStar(require("./BizTie"), exports);
-__exportStar(require("./BizField"), exports);
-__exportStar(require("./BizInOut"), exports);
-__exportStar(require("./statement"), exports);
+__exportStar(require("./biz"), exports);
+__exportStar(require("./from"), exports);
 //# sourceMappingURL=index.js.map

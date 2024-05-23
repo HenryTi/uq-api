@@ -11,3 +11,4 @@ export * from './BizAssign';
 export * from './BizTie';
 export * from './BizField';
 export * from './BizInOut';
+export * from "./statement";

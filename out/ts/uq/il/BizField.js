@@ -13,6 +13,7 @@ class BizField {
     getBud() {
         return undefined;
     }
+    // abstract buildColArr(): ExpVal[];
     scanBinDiv() { }
 }
 exports.BizField = BizField;
@@ -33,16 +34,18 @@ class BizFieldBud extends BizField {
         return ret;
     }
     buildSchema() { var _a; return [(_a = this.bud.entity) === null || _a === void 0 ? void 0 : _a.id, this.bud.id]; }
-    buildColArr() {
-        let ret = [];
+    /*
+    override buildColArr(): ExpVal[] {
+        let ret: ExpVal[] = [];
         const { bud } = this;
         const { entity } = bud;
         if (entity !== undefined) {
-            ret.push(new builder_1.ExpNum(entity.id));
+            ret.push(new ExpNum(entity.id));
         }
-        ret.push(new builder_1.ExpNum(bud.id));
+        ret.push(new ExpNum(bud.id));
         return ret;
     }
+    */
     scanBinDiv() {
         const { entity } = this.bud;
         const { bizPhraseType } = entity;
@@ -65,9 +68,6 @@ class BizFieldField extends BizField {
         // return this.space.createBField(dbContext, this);
     }
     buildSchema() { return []; }
-    buildColArr() {
-        return [new builder_1.ExpStr(this.name)];
-    }
 }
 exports.BizFieldField = BizFieldField;
 class BizFieldJsonProp extends BizFieldBud {
@@ -88,9 +88,11 @@ class BizFieldUser extends BizField {
     buildSchema() {
         return `%user.${this.tableAlias}`;
     }
-    buildColArr() {
-        return [new builder_1.ExpStr(`%user.${this.tableAlias}`)];
+    /*
+    override buildColArr(): ExpVal[] {
+        return [new ExpStr(`%user.${this.tableAlias}`)];
     }
+    */
     db(dbContext) {
         return new builder_1.BBizFieldUser(dbContext, this);
         // return this.space.createBFieldUser(dbContext, this);

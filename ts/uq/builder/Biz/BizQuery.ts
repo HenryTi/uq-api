@@ -1,9 +1,14 @@
-import { BigInt, BizAtom, BizBud, BizEntity, BizQueryTable, BizSpec, Char, FromEntity, bigIntField, jsonField } from "../../il";
-import { BizPhraseType } from "../../il/Biz/BizPhraseType";
+import {
+    BigInt, BizAtom, BizBud, BizID, BizQueryTable, BizSpec, Char
+    , EnumSysTable, FromEntity, JoinType, bigIntField, jsonField
+} from "../../il";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Sqls } from "../bstatement";
-import { ExpFunc, ExpNum, ExpStr, ExpVar, Procedure, Statement } from "../sql";
+import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpStr, ExpVar, Procedure, Statement } from "../sql";
+import { EntityTable, VarTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
+const a = 'a', b = 'b';
 export class BBizQuery extends BBizEntity<BizQueryTable> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
@@ -49,45 +54,156 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
 
-        this.buildFrom(statements, from.fromEntity);
+        this.buildFromEntity(statements, from.idFromEntity);
     }
 
-    private buildFrom(statements: Statement[], fromEntity: FromEntity) {
-        let { subs, bizPhraseType, bizEntityArr } = fromEntity;
+    private buildFromEntity(statements: Statement[], fromEntity: FromEntity) {
+        let { bizPhraseType, bizEntityArr } = fromEntity;
         switch (bizPhraseType) {
             default: break;
-            case BizPhraseType.atom: this.buildAtom(statements, bizEntityArr as BizAtom[]); break;
-            case BizPhraseType.spec: this.buildSpec(statements, bizEntityArr as BizSpec[]); break;
-        }
-        if (subs !== undefined) {
-            for (let sub of subs) {
-                this.buildFrom(statements, sub);
-            }
+            case BizPhraseType.atom: this.buildFromAtom(statements, bizEntityArr as BizAtom[]); break;
+            case BizPhraseType.spec: this.buildFromSpec(statements, bizEntityArr as BizSpec[]); break;
         }
     }
 
-    private buildAtom(statements: Statement[], entityArr: BizAtom[]) {
+    private buildInsertAtom() {
         const { factory } = this.context;
         let insertAtom = factory.createInsert();
-        statements.push(insertAtom);
-
-        let entity = entityArr[0];
-        const { titleBuds, primeBuds } = entity;
-        for (let bud of titleBuds) this.buildInsertBud(statements, entity, bud);
-        for (let bud of primeBuds) this.buildInsertBud(statements, entity, bud);
+        insertAtom.ignore = true;
+        insertAtom.table = new VarTable('atoms');
+        insertAtom.cols = [
+            { col: 'id', val: undefined },
+            { col: 'base', val: undefined },
+            { col: 'no', val: undefined },
+            { col: 'ex', val: undefined },
+        ];
+        let select = factory.createSelect();
+        insertAtom.select = select;
+        select.distinct = true;
+        select.column(new ExpField('id', b));
+        select.column(new ExpField('base', b));
+        select.column(new ExpField('no', b));
+        select.column(new ExpField('ex', b));
+        return insertAtom;
     }
 
-    private buildSpec(statements: Statement[], entityArr: BizSpec[]) {
+    private buildInsertAtomDirect() {
+        let insert = this.buildInsertAtom();
+        const { select } = insert;
+        select.from(new VarTable('ret', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
+            .on(new ExpEQ(new ExpField('id', a), new ExpField('id', b)));
+        return insert;
+    }
+
+    private buildInsertAtomOfSpec() {
+        let insert = this.buildInsertAtom();
+        const { select } = insert;
+        select.from(new VarTable('specs', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
+            .on(new ExpEQ(new ExpField('base', a), new ExpField('id', b)));
+        return insert;
+    }
+
+    private buildFromAtom(statements: Statement[], entityArr: BizAtom[]) {
+        let insertAtom = this.buildInsertAtomDirect()
+        statements.push(insertAtom);
+        let entity = entityArr[0];
+        this.buildInsertAtomBuds(statements, entity);
+    }
+
+    private buildFromSpec(statements: Statement[], entityArr: BizSpec[]) {
+        const { factory } = this.context;
+        let insertSpec = factory.createInsert();
+        statements.push(insertSpec);
+        insertSpec.ignore = true;
+        insertSpec.table = new VarTable('specs');
+        insertSpec.cols = [
+            { col: 'spec', val: undefined },
+            { col: 'atom', val: undefined },
+        ];
+        let select = factory.createSelect();
+        insertSpec.select = select;
+        select.distinct = true;
+        select.from(new VarTable('ret', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, b))
+            .on(new ExpEQ(new ExpField('id', a), new ExpField('id', b)));
+        select.column(new ExpField('id', b), 'spec');
+        select.column(new ExpField('base', b), 'atom');
+
         for (let spec of entityArr) {
+            const mapBuds: Map<EnumSysTable, BizBud[]> = new Map();
+            const buds: BizBud[] = [];
             for (let [, bud] of spec.props) {
-                this.buildInsertBud(statements, spec, bud);
+                buds.push(bud);
             }
+            this.buildMapBuds(mapBuds, buds);
+            this.buildInsertBuds(statements, 'specs', mapBuds);
+        }
+        let insertAtomOfSpec = this.buildInsertAtomOfSpec();
+        statements.push(insertAtomOfSpec);
+
+        // 暂时只生成第一个spec的atom的所有字段
+        let [spec] = entityArr;
+        this.buildInsertAtomBuds(statements, spec.base);
+    }
+
+    private buildInsertAtomBuds(statements: Statement[], atom: BizID) {
+        const { titleBuds, primeBuds } = atom;
+        const mapBuds: Map<EnumSysTable, BizBud[]> = new Map();
+        this.buildMapBuds(mapBuds, titleBuds);
+        this.buildMapBuds(mapBuds, primeBuds);
+        this.buildInsertBuds(statements, 'atoms', mapBuds);
+    }
+
+    private buildMapBuds(mapBuds: Map<EnumSysTable, BizBud[]>, buds: BizBud[]) {
+        if (buds === undefined) return;
+        for (let bud of buds) {
+            let ixBudTbl: EnumSysTable = EnumSysTable.ixBudInt;
+            switch (bud.dataType) {
+                default: ixBudTbl = EnumSysTable.ixBudInt; break;
+                case BudDataType.dec:
+                    ixBudTbl = EnumSysTable.ixBudDec; break;
+                case BudDataType.str:
+                case BudDataType.char:
+                    ixBudTbl = EnumSysTable.ixBudStr; break;
+            }
+            let arr = mapBuds.get(ixBudTbl);
+            if (arr === undefined) {
+                arr = [];
+                mapBuds.set(ixBudTbl, arr);
+            }
+            arr.push(bud);
         }
     }
 
-    private buildInsertBud(statements: Statement[], entity: BizEntity, bud: BizBud) {
+    private buildInsertBuds(statements: Statement[], mainTbl: string, mapBuds: Map<EnumSysTable, BizBud[]>) {
+        for (let [tbl, arr] of mapBuds) {
+            this.buildInsertBud(statements, mainTbl, tbl, arr);
+        }
+    }
+
+    private buildInsertBud(statements: Statement[], mainTbl: string, tbl: EnumSysTable, buds: BizBud[]) {
         const { factory } = this.context;
         let insertBud = factory.createInsert();
         statements.push(insertBud);
+        insertBud.ignore = true;
+        insertBud.table = new VarTable('props');
+        insertBud.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        let select = factory.createSelect();
+        insertBud.select = select;
+        select.from(new VarTable(mainTbl, a))
+            .join(JoinType.join, new EntityTable(tbl, false, b))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('id', a), new ExpField('i', b)),
+                new ExpIn(new ExpField('x', b), ...buds.map(v => new ExpNum(v.id))),
+            ));
+        select.column(new ExpField('id', a), 'id');
+        select.column(new ExpField('x', b), 'phrase');
+        select.column(new ExpField('value', b), 'value');
     }
 }

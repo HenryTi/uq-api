@@ -271,8 +271,8 @@ class DbContext {
     ;
     setStatement(v) { return new stat.BSetStatement(this, v); }
     putStatement(v) { return new stat.BPutStatement(this, v); }
-    fromStatement(v) { return new stat.BFromStatement(this, v); }
-    fromStatementInPend(v) { return new stat.BFromStatementInPend(this, v); }
+    fromStatement(v) { return new Biz_1.BFromStatement(this, v); }
+    fromStatementInPend(v) { return new Biz_1.BFromStatementInPend(this, v); }
     withIDDelOnId(v) { return new stat.BWithIDDelOnId(this, v); }
     withIDDelOnKeys(v) { return new stat.BWithIDDelOnKeys(this, v); }
     withIDXDel(v) { return new stat.BWithIDXDel(this, v); }

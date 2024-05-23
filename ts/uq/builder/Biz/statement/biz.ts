@@ -3,18 +3,18 @@ import {
     , BizStatementTitle, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet
     , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie
-} from "../../il";
-import { BudDataType } from "../../il/Biz/BizPhraseType";
-import { $site } from "../consts";
-import { sysTable } from "../dbContext";
+} from "../../../il";
+import { BudDataType } from "../../../il/Biz/BizPhraseType";
+import { $site } from "../../consts";
+import { sysTable } from "../../dbContext";
 import {
     ColVal, ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
     , ExpGT, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, Statements, VarTable
-} from "../sql";
-import { EntityTable } from "../sql/statementWithFrom";
-import { buildSetAtomBud, buildSetSheetBud } from "../tools";
-import { BStatement } from "./bstatement";
-import { Sqls } from "./sqls";
+} from "../../sql";
+import { EntityTable } from "../../sql/statementWithFrom";
+import { buildSetAtomBud, buildSetSheetBud } from "../../tools";
+import { BStatement } from "../../bstatement/bstatement";
+import { Sqls } from "../../bstatement/sqls";
 
 export class BBizStatement extends BStatement<BizStatement<BizAct>> {
     head(sqls: Sqls) {

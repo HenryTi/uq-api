@@ -1,13 +1,13 @@
-import { binAmount, binPrice, binValue } from "../../consts";
-import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromStatementInPend } from "../../il";
-import { KeyOfMapFieldTable, MapFieldTable } from "../Biz";
+import { binAmount, binPrice, binValue } from "../../../consts";
+import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromStatementInPend } from "../../../il";
+import { KeyOfMapFieldTable, MapFieldTable } from "..";
 import {
     Exp, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpIsNull
     , ExpLT, ExpNum, ExpStr, ExpVal, ExpVar, Select, StatementBase
-} from "../sql";
-import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
-import { BStatement } from "./bstatement";
-import { Sqls } from "./sqls";
+} from "../../sql";
+import { EntityTable, VarTableWithSchema } from "../../sql/statementWithFrom";
+import { BStatement } from "../../bstatement/bstatement";
+import { Sqls } from "../../bstatement/sqls";
 
 // const t1 = 't1';
 const pageStart = '$pageStart';
@@ -60,16 +60,17 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
 
     protected buildSelectCols(select: Select, alias: string) {
         const { cols } = this.istatement;
-        /*
         const arr: ExpVal[] = [];
         for (let col of cols) {
-            const { name, val, field } = col;
+            const { val, bud } = col;
+            /*
             let colArr: Exp[] = field.buildColArr();
             colArr.push(this.context.expVal(val as ValueExpression));
             arr.push(new ExpFunc('JSON_ARRAY', ...colArr));
+            */
+            arr.push(new ExpFunc('JSON_ARRAY', new ExpNum(bud.id), this.context.expVal(val as ValueExpression)));
         }
         select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
-        */
     }
 
     protected buildSelect(cmpStart: ExpCmp) {

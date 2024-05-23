@@ -20,7 +20,7 @@ __exportStar(require("./table"), exports);
 __exportStar(require("./text"), exports);
 __exportStar(require("./set"), exports);
 __exportStar(require("./with"), exports);
-__exportStar(require("./biz"), exports);
+__exportStar(require("../Biz/statement/biz"), exports);
 __exportStar(require("./value"), exports);
 __exportStar(require("./setting"), exports);
 __exportStar(require("./if"), exports);
@@ -50,5 +50,4 @@ __exportStar(require("./execSql"), exports);
 __exportStar(require("./role"), exports);
 __exportStar(require("./use"), exports);
 __exportStar(require("./put"), exports);
-__exportStar(require("./from"), exports);
 //# sourceMappingURL=index.js.map

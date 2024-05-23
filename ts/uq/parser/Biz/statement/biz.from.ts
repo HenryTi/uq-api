@@ -114,12 +114,12 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 else {
                     this.ts.expect('ASC', 'DESC');
                 }
+                this.ts.readToken();
                 if (this.ts.isKeyword('of') === true) {
                     this.ts.readToken();
                     this.idAlias = this.ts.passVar();
                 }
                 coll['id'] = true;
-                this.ts.readToken();
                 if (this.ts.token !== Token.RPARENTHESE) {
                     this.ts.passToken(Token.COMMA);
                     const ban = 'ban';
