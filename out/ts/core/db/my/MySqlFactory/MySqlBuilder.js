@@ -515,10 +515,10 @@ class MySqlBuilder extends SqlBuilder_1.SqlBuilder {
                     sql += v;
                     break;
                 case 'ix':
-                    where += ' and ix=' + (ov ?? v);
+                    where += ' and ix=' + (ov !== null && ov !== void 0 ? ov : v);
                     break;
                 case 'id':
-                    where += ' and id=' + (ov ?? v);
+                    where += ' and id=' + (ov !== null && ov !== void 0 ? ov : v);
                     break;
             }
         }

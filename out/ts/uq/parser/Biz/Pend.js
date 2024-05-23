@@ -48,7 +48,7 @@ class PBizPend extends Base_1.PBizEntity {
         if (bud === undefined)
             debugger;
         // 有caption值，才会显示
-        bud.ui = { caption: caption ?? name };
+        bud.ui = { caption: caption !== null && caption !== void 0 ? caption : name };
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
     parseContent() {

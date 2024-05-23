@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizIOApp = exports.BBizOut = exports.BBizIn = void 0;
 const il_1 = require("../../../il");
@@ -16,11 +25,16 @@ const a = 'a', b = 'b', c = 'c';
 class BBizInOut extends BizEntity_1.BBizEntity {
 }
 class BBizIn extends BBizInOut {
-    async buildProcedures() {
-        super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
-        this.buildSubmitProc(procSubmit);
+    buildProcedures() {
+        const _super = Object.create(null, {
+            buildProcedures: { get: () => super.buildProcedures }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildProcedures.call(this);
+            const { id } = this.bizEntity;
+            const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+            this.buildSubmitProc(procSubmit);
+        });
     }
     buildSubmitProc(proc) {
         const vJson = '$json';
@@ -134,11 +148,16 @@ exports.BBizIn = BBizIn;
 BBizIn.queueId = '$queueId';
 BBizIn.inSite = '$inSite';
 class BBizOut extends BBizInOut {
-    async buildProcedures() {
-        super.buildProcedures();
-        const { id } = this.bizEntity;
-        const proc = this.createProcedure(`${this.context.site}.${id}`);
-        this.buildProc(proc);
+    buildProcedures() {
+        const _super = Object.create(null, {
+            buildProcedures: { get: () => super.buildProcedures }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildProcedures.call(this);
+            const { id } = this.bizEntity;
+            const proc = this.createProcedure(`${this.context.site}.${id}`);
+            this.buildProc(proc);
+        });
     }
     buildProc(proc) {
         const json = '$json', out = '$out', endPoint = '$endPoint', siteAtomApp = '$siteAtomApp', queueId = '$queueId';
@@ -181,37 +200,42 @@ class BBizOut extends BBizInOut {
 }
 exports.BBizOut = BBizOut;
 class BBizIOApp extends BizEntity_1.BBizEntity {
-    async buildProcedures() {
-        super.buildProcedures();
-        const { factory } = this.context;
-        const funcAtomToNo = this.createFunction(`${this.context.site}.${toNO}`, new il_1.Char(100));
-        (new FuncTo_1.FuncAtomToNo(factory, funcAtomToNo)).build();
-        const funcNoToAtom = this.createFunction(`${this.context.site}.${fromNO}`, new il_1.BigInt());
-        (new FuncTo_1.FuncNoToAtom(factory, funcNoToAtom)).build();
-        const objConnect = {};
-        const { id, connect, ins, outs, IDs } = this.bizEntity;
-        objConnect.type = connect.type;
-        for (let ioAppID of IDs) {
-            this.buildUniqueFunc(ioAppID);
-        }
-        for (let ioAppIn of ins) {
-            const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
-            let ioProc = new IOProcIn(this.context, ioAppIn, proc);
-            ioProc.buildProc();
-        }
-        let objOuts = {};
-        for (let ioAppOut of outs) {
-            const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
-            let ioProc = new IOProcOut(this.context, ioAppOut, proc);
-            ioProc.buildProc();
-            objOuts[ioAppOut.name] = ioAppOut.to;
-        }
-        objConnect.outs = objOuts;
-        this.context.sqls.push(`
+    buildProcedures() {
+        const _super = Object.create(null, {
+            buildProcedures: { get: () => super.buildProcedures }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildProcedures.call(this);
+            const { factory } = this.context;
+            const funcAtomToNo = this.createFunction(`${this.context.site}.${toNO}`, new il_1.Char(100));
+            (new FuncTo_1.FuncAtomToNo(factory, funcAtomToNo)).build();
+            const funcNoToAtom = this.createFunction(`${this.context.site}.${fromNO}`, new il_1.BigInt());
+            (new FuncTo_1.FuncNoToAtom(factory, funcNoToAtom)).build();
+            const objConnect = {};
+            const { id, connect, ins, outs, IDs } = this.bizEntity;
+            objConnect.type = connect.type;
+            for (let ioAppID of IDs) {
+                this.buildUniqueFunc(ioAppID);
+            }
+            for (let ioAppIn of ins) {
+                const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
+                let ioProc = new IOProcIn(this.context, ioAppIn, proc);
+                ioProc.buildProc();
+            }
+            let objOuts = {};
+            for (let ioAppOut of outs) {
+                const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
+                let ioProc = new IOProcOut(this.context, ioAppOut, proc);
+                ioProc.buildProc();
+                objOuts[ioAppOut.name] = ioAppOut.to;
+            }
+            objConnect.outs = objOuts;
+            this.context.sqls.push(`
             INSERT INTO \`${this.context.dbName}\`.ioapp (id, connect) 
                 VALUES (${id}, '${JSON.stringify(objConnect)}')
                 ON DUPLICATE KEY UPDATE connect=VALUES(connect);
         `);
+        });
     }
     buildUniqueFunc(ioAppID) {
         const { unique } = ioAppID;

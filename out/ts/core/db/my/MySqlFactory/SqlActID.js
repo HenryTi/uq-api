@@ -8,8 +8,8 @@ class SqlActID extends MySqlBuilder_1.MySqlBuilder {
         let ret = Object.assign({}, p);
         ret.ID = this.getTableSchema(ID, ['id']);
         ret.value = this.buildValueTableSchema(value);
-        ret.IX = IX?.map(v => this.getTableSchema(v, ['ix']));
-        ret.ix = ix?.map(v => this.buildValueTableSchema(v));
+        ret.IX = IX === null || IX === void 0 ? void 0 : IX.map(v => this.getTableSchema(v, ['ix']));
+        ret.ix = ix === null || ix === void 0 ? void 0 : ix.map(v => this.buildValueTableSchema(v));
         return ret;
     }
     build() {

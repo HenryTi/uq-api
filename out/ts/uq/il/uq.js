@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Uq = exports.UqVersion = void 0;
 const il = require(".");
@@ -264,31 +273,35 @@ class Uq extends IElement_1.IElement {
         });
         callback(this.biz);
     }
-    async eachEntityAsync(callback) {
-        if (this.role)
-            await callback(this.role);
-        let arr = [
-            this.queues,
-            this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
-            this.funcs, this.books, this.maps, this.histories, this.pendings,
-            this.acts, this.sysprocs, this.procs, this.queries,
-            this.buses, this.templets, this.consts
-        ];
-        for (let item of arr) {
-            for (let i in item)
-                await callback(item[i]);
-        }
-        await callback(this.biz);
+    eachEntityAsync(callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.role)
+                yield callback(this.role);
+            let arr = [
+                this.queues,
+                this.imports, this.enums, this.tuids, this.IDs, this.IXs, this.IDXs,
+                this.funcs, this.books, this.maps, this.histories, this.pendings,
+                this.acts, this.sysprocs, this.procs, this.queries,
+                this.buses, this.templets, this.consts
+            ];
+            for (let item of arr) {
+                for (let i in item)
+                    yield callback(item[i]);
+            }
+            yield callback(this.biz);
+        });
     }
-    async eachOpenType(callback) {
-        let arr = [
-            this.tuids, this.IDs,
-            this.acts, this.queries, this.IXs,
-        ];
-        for (let item of arr) {
-            for (let i in item)
-                await callback(item[i]);
-        }
+    eachOpenType(callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let arr = [
+                this.tuids, this.IDs,
+                this.acts, this.queries, this.IXs,
+            ];
+            for (let item of arr) {
+                for (let i in item)
+                    yield callback(item[i]);
+            }
+        });
     }
     getServiceBus() {
         let buses = {};
@@ -409,35 +422,37 @@ class Uq extends IElement_1.IElement {
     getQueue(name) {
         return this.queues[name];
     }
-    async loadBusSchemas(log) {
-        let ok = true;
-        let buses = this.buses;
-        let shareSchemas = {};
-        let schemaPromises = [];
-        let busArr = [];
-        for (let i in buses) {
-            let bus = buses[i];
-            let { busOwner, busName } = bus;
-            let share = busOwner + '/' + busName;
-            let shareSchema = shareSchemas[share];
-            if (shareSchema === undefined) {
-                shareSchemas[share] = shareSchema = new busSchema_1.ShareSchema();
-                busArr.push(bus);
-                schemaPromises.push(shareSchema.loadSchema(busOwner, busName));
-            }
-            bus.shareSchema = shareSchema;
-        }
-        let rets = await Promise.all(schemaPromises);
-        for (let i = 0; i < rets.length; i++) {
-            let ret = rets[i];
-            if (ret !== undefined) {
-                let bus = busArr[i];
+    loadBusSchemas(log) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ok = true;
+            let buses = this.buses;
+            let shareSchemas = {};
+            let schemaPromises = [];
+            let busArr = [];
+            for (let i in buses) {
+                let bus = buses[i];
                 let { busOwner, busName } = bus;
-                log(`bus ${busOwner}/${busName} error: ${ret}`);
-                ok = false;
+                let share = busOwner + '/' + busName;
+                let shareSchema = shareSchemas[share];
+                if (shareSchema === undefined) {
+                    shareSchemas[share] = shareSchema = new busSchema_1.ShareSchema();
+                    busArr.push(bus);
+                    schemaPromises.push(shareSchema.loadSchema(busOwner, busName));
+                }
+                bus.shareSchema = shareSchema;
             }
-        }
-        return ok;
+            let rets = yield Promise.all(schemaPromises);
+            for (let i = 0; i < rets.length; i++) {
+                let ret = rets[i];
+                if (ret !== undefined) {
+                    let bus = busArr[i];
+                    let { busOwner, busName } = bus;
+                    log(`bus ${busOwner}/${busName} error: ${ret}`);
+                    ok = false;
+                }
+            }
+            return ok;
+        });
     }
 }
 exports.Uq = Uq;

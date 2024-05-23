@@ -1,69 +1,84 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mysql_1 = require("mysql");
 const tool_1 = require("../tool");
 //process.env.NODE_ENV = 'development';
 //process.env.NODE_ENV = 'devdo';
-(async function () {
-    let node_env;
-    let db;
-    process.argv.forEach(v => {
-        let parts = v.split('=');
-        if (parts.length === 2) {
-            let v = parts[1].trim().toLowerCase();
-            switch (parts[0].trim().toLowerCase()) {
-                case 'node_env':
-                    node_env = v;
-                    break;
-                case 'db':
-                    db = v;
-                    break;
+(function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        let node_env;
+        let db;
+        process.argv.forEach(v => {
+            let parts = v.split('=');
+            if (parts.length === 2) {
+                let v = parts[1].trim().toLowerCase();
+                switch (parts[0].trim().toLowerCase()) {
+                    case 'node_env':
+                        node_env = v;
+                        break;
+                    case 'db':
+                        db = v;
+                        break;
+                }
             }
+        });
+        if (node_env)
+            process.env.NODE_ENV = node_env;
+        tool_1.logger.debug('node_env=' + node_env + ', ' + 'db = ' + db);
+        const config = require('config');
+        tool_1.logger.debug('NODE_ENV ' + process.env.NODE_ENV);
+        if (!process.env.NODE_ENV) {
+            tool_1.logger.error('node out/cli/charset-collate-routines node_env=???');
+            process.exit(0);
         }
-    });
-    if (node_env)
-        process.env.NODE_ENV = node_env;
-    tool_1.logger.debug('node_env=' + node_env + ', ' + 'db = ' + db);
-    const config = require('config');
-    tool_1.logger.debug('NODE_ENV ' + process.env.NODE_ENV);
-    if (!process.env.NODE_ENV) {
-        tool_1.logger.error('node out/cli/charset-collate-routines node_env=???');
-        process.exit(0);
-    }
-    const const_connection = 'connection';
-    const config_connection = config.get(const_connection);
-    tool_1.logger.debug(config_connection);
-    const pool = (0, mysql_1.createPool)(config_connection);
-    async function runSql(sql) {
-        return new Promise((resolve, reject) => {
-            let handler = (err, results) => {
-                if (err) {
-                    reject(err);
+        const const_connection = 'connection';
+        const config_connection = config.get(const_connection);
+        tool_1.logger.debug(config_connection);
+        const pool = (0, mysql_1.createPool)(config_connection);
+        function runSql(sql) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return new Promise((resolve, reject) => {
+                    let handler = (err, results) => {
+                        if (err) {
+                            reject(err);
+                            return;
+                        }
+                        resolve(results);
+                    };
+                    pool.query(sql, handler);
+                });
+            });
+        }
+        function charsetCollateRoutine(dbName, routineName, type, sql) {
+            return __awaiter(this, void 0, void 0, function* () {
+                tool_1.logger.debug('ROUTINE: ' + routineName);
+                let sqlDrop = `DROP ${type} IF EXISTS \`${dbName}\`.\`${routineName}\`;`;
+                yield runSql(sqlDrop);
+                yield runSql(sql);
+                // logger.debug('-');
+            });
+        }
+        function charsetCollateDb(dbName, charset, collate) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let sqlDbFileNames = `select SCHEMA_NAME from information_schema.SCHEMATA where SCHEMA_NAME=LOWER('${dbName}')`;
+                let dbFileNames = yield runSql(sqlDbFileNames);
+                if (dbFileNames.length === 0) {
+                    tool_1.logger.debug(`Database ${dbName} not exists`);
                     return;
                 }
-                resolve(results);
-            };
-            pool.query(sql, handler);
-        });
-    }
-    async function charsetCollateRoutine(dbName, routineName, type, sql) {
-        tool_1.logger.debug('ROUTINE: ' + routineName);
-        let sqlDrop = `DROP ${type} IF EXISTS \`${dbName}\`.\`${routineName}\`;`;
-        await runSql(sqlDrop);
-        await runSql(sql);
-        // logger.debug('-');
-    }
-    async function charsetCollateDb(dbName, charset, collate) {
-        let sqlDbFileNames = `select SCHEMA_NAME from information_schema.SCHEMATA where SCHEMA_NAME=LOWER('${dbName}')`;
-        let dbFileNames = await runSql(sqlDbFileNames);
-        if (dbFileNames.length === 0) {
-            tool_1.logger.debug(`Database ${dbName} not exists`);
-            return;
-        }
-        dbName = dbFileNames[0]['SCHEMA_NAME'];
-        tool_1.logger.debug('=== charsetCollateDb: ' + dbName + ' ' + charset + ' ' + collate);
-        await runSql(`use \`${dbName}\`;`);
-        let sqlRoutines = `
+                dbName = dbFileNames[0]['SCHEMA_NAME'];
+                tool_1.logger.debug('=== charsetCollateDb: ' + dbName + ' ' + charset + ' ' + collate);
+                yield runSql(`use \`${dbName}\`;`);
+                let sqlRoutines = `
 		SELECT \`name\`, \`type\`, sql_stmt 
 		FROM (
 		  select p.db, p.name, p.type, 3 as intord, p.character_set_client,
@@ -111,61 +126,67 @@ const tool_1 = require("../tool");
 		-- and character_set_client = 'utf8'
 		order by db, name, type, intord;
 `;
-        let routines = await runSql(sqlRoutines);
-        for (let routineRow of routines) {
-            let { name, type, sql_stmt } = routineRow;
-            await charsetCollateRoutine(dbName, name, type, sql_stmt);
+                let routines = yield runSql(sqlRoutines);
+                for (let routineRow of routines) {
+                    let { name, type, sql_stmt } = routineRow;
+                    yield charsetCollateRoutine(dbName, name, type, sql_stmt);
+                }
+                tool_1.logger.debug('-');
+                tool_1.logger.debug('-');
+            });
         }
-        tool_1.logger.debug('-');
-        tool_1.logger.debug('-');
-    }
-    async function charsetCollateAllUqs(charset, collate, dbIdStart) {
-        if (!dbIdStart)
-            dbIdStart = 0;
-        let sqlDbs = `select name from \`$uq\`.uq where id>${dbIdStart} order by id asc`;
-        let dbs = await runSql(sqlDbs);
-        for (let dbRow of dbs) {
-            let { name: dbName } = dbRow;
-            await charsetCollateDb(dbName, charset, collate);
+        function charsetCollateAllUqs(charset, collate, dbIdStart) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (!dbIdStart)
+                    dbIdStart = 0;
+                let sqlDbs = `select name from \`$uq\`.uq where id>${dbIdStart} order by id asc`;
+                let dbs = yield runSql(sqlDbs);
+                for (let dbRow of dbs) {
+                    let { name: dbName } = dbRow;
+                    yield charsetCollateDb(dbName, charset, collate);
+                }
+            });
         }
-    }
-    async function dbServerParams() {
-        let ret = {};
-        let results = await runSql(`SHOW VARIABLES LIKE '%char%';SHOW VARIABLES LIKE '%collat%';select database();`);
-        setParams(ret, results[0]);
-        setParams(ret, results[1]);
-        return ret;
-    }
-    function setParams(params, tbl) {
-        for (let row of tbl) {
-            let name = row['Variable_name'];
-            let value = row['Value'];
-            params[name] = value;
+        function dbServerParams() {
+            return __awaiter(this, void 0, void 0, function* () {
+                let ret = {};
+                let results = yield runSql(`SHOW VARIABLES LIKE '%char%';SHOW VARIABLES LIKE '%collat%';select database();`);
+                setParams(ret, results[0]);
+                setParams(ret, results[1]);
+                return ret;
+            });
         }
-    }
-    try {
-        let params = await dbServerParams();
-        tool_1.logger.debug(params);
-        tool_1.logger.debug('');
-        tool_1.logger.debug('========================================');
-        let charset = params['character_set_connection']; //'utf8mb4';
-        let collate = params['collation_connection']; //'utf8mb4_general_ci';
-        if (db) {
-            await charsetCollateDb(db, charset, collate);
-        }
-        else {
-            let dbIdStart = 0; // 有些数据库升级的时候，出错的。从出错地方重新开始。
-            if (!dbIdStart) {
-                await charsetCollateDb('$res', charset, collate);
-                await charsetCollateDb('$uq', charset, collate);
+        function setParams(params, tbl) {
+            for (let row of tbl) {
+                let name = row['Variable_name'];
+                let value = row['Value'];
+                params[name] = value;
             }
-            await charsetCollateAllUqs(charset, collate, dbIdStart);
         }
-        tool_1.logger.debug('=== Job done!');
-    }
-    catch (err) {
-        tool_1.logger.error(err);
-    }
-    process.exit(0);
+        try {
+            let params = yield dbServerParams();
+            tool_1.logger.debug(params);
+            tool_1.logger.debug('');
+            tool_1.logger.debug('========================================');
+            let charset = params['character_set_connection']; //'utf8mb4';
+            let collate = params['collation_connection']; //'utf8mb4_general_ci';
+            if (db) {
+                yield charsetCollateDb(db, charset, collate);
+            }
+            else {
+                let dbIdStart = 0; // 有些数据库升级的时候，出错的。从出错地方重新开始。
+                if (!dbIdStart) {
+                    yield charsetCollateDb('$res', charset, collate);
+                    yield charsetCollateDb('$uq', charset, collate);
+                }
+                yield charsetCollateAllUqs(charset, collate, dbIdStart);
+            }
+            tool_1.logger.debug('=== Job done!');
+        }
+        catch (err) {
+            tool_1.logger.error(err);
+        }
+        process.exit(0);
+    });
 })();
 //# sourceMappingURL=charset-collate-routines.js.map

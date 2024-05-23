@@ -1017,19 +1017,22 @@ class ActionBaseSpace extends space_1.Space {
         this.actionBase = actionBase;
     }
     _getEntityTable(name) {
-        let arr = this.actionBase?.arrs.find(v => v.name === name);
+        var _a;
+        let arr = (_a = this.actionBase) === null || _a === void 0 ? void 0 : _a.arrs.find(v => v.name === name);
         //if (arr !== undefined && arr.isBus !== true) return arr;
         return arr;
     }
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
+        var _a;
         if (dollarVars.indexOf(name) >= 0)
             return new il_1.VarPointer();
-        return this.actionBase?.fields.find(f => f.name === name) !== undefined ?
+        return ((_a = this.actionBase) === null || _a === void 0 ? void 0 : _a.fields.find(f => f.name === name)) !== undefined ?
             new il_1.VarPointer() : undefined;
     }
     _getArr(name) {
-        return this.actionBase?.arrs.find(v => v.name === name);
+        var _a;
+        return (_a = this.actionBase) === null || _a === void 0 ? void 0 : _a.arrs.find(v => v.name === name);
     }
     _setTransactionOff() {
         this.actionBase.transactionOff = true;
@@ -1048,7 +1051,8 @@ class ActionBaseSpace extends space_1.Space {
         return this.actionBase.addTableVar(tableVar);
     }
     getTableVar(name) {
-        return this.actionBase?.getTableVar(name);
+        var _a;
+        return (_a = this.actionBase) === null || _a === void 0 ? void 0 : _a.getTableVar(name);
     }
 }
 exports.ActionBaseSpace = ActionBaseSpace;

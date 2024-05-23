@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildBuildRouter = void 0;
 const tool_1 = require("../../tool");
@@ -7,20 +16,22 @@ const buildDbNameFromReq_1 = require("../buildDbNameFromReq");
 function buildBuildRouter(router, rb) {
     let net = (0, core_1.getNet)();
     let dbs = (0, core_1.getDbs)();
-    async function createBuildRunner(req) {
-        // let uqName: string = req.params.db;
-        // if (req.baseUrl.indexOf('/test/') >= 0) uqName += consts.$test;
-        let dbName = (0, buildDbNameFromReq_1.buildDbNameFromReq)(req);
-        let db = await dbs.getDbUq(dbName /*uqName*/);
-        return new core_1.BuildRunner(db);
+    function createBuildRunner(req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // let uqName: string = req.params.db;
+            // if (req.baseUrl.indexOf('/test/') >= 0) uqName += consts.$test;
+            let dbName = (0, buildDbNameFromReq_1.buildDbNameFromReq)(req);
+            let db = yield dbs.getDbUq(dbName /*uqName*/);
+            return new core_1.BuildRunner(db);
+        });
     }
-    router.post('/start', async (req, res) => {
+    router.post('/start', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
-            await net.runnerSetCompiling(runner.dbUq);
+            let runner = yield createBuildRunner(req);
+            yield net.runnerSetCompiling(runner.dbUq);
             let { enc } = req.body;
             (0, core_1.setUqBuildSecret)(enc);
-            let exists = await runner.buildDatabase();
+            let exists = yield runner.buildDatabase();
             res.json({
                 ok: true,
                 res: {
@@ -35,11 +46,11 @@ function buildBuildRouter(router, rb) {
                 error: err,
             });
         }
-    });
-    router.post('/build-database', async (req, res) => {
+    }));
+    router.post('/build-database', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
-            let exists = await runner.buildDatabase();
+            let runner = yield createBuildRunner(req);
+            let exists = yield runner.buildDatabase();
             res.json({
                 ok: true,
                 res: {
@@ -50,13 +61,13 @@ function buildBuildRouter(router, rb) {
         catch (err) {
             res.json({ error: err });
         }
-    });
-    router.post('/finish', async (req, res) => {
+    }));
+    router.post('/finish', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
+            let runner = yield createBuildRunner(req);
             let { body } = req;
             let { uqId: paramUqId, uqVersion } = body;
-            await runner.finishBuildDb(req.user, paramUqId, uqVersion);
+            yield runner.finishBuildDb(req.user, paramUqId, uqVersion);
             res.json({
                 ok: true,
             });
@@ -66,19 +77,19 @@ function buildBuildRouter(router, rb) {
                 error: err,
             });
         }
-    });
-    router.post('/sql', async (req, res) => {
+    }));
+    router.post('/sql', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
+            let runner = yield createBuildRunner(req);
             let { sql, params } = req.body;
             let result;
             if (Array.isArray(sql) === true) {
                 for (let s of sql) {
-                    result = await runner.sql(s, params);
+                    result = yield runner.sql(s, params);
                 }
             }
             else {
-                result = await runner.sql(sql, params);
+                result = yield runner.sql(sql, params);
             }
             res.json({
                 ok: true,
@@ -89,12 +100,12 @@ function buildBuildRouter(router, rb) {
             debugger;
             res.json({ error: err });
         }
-    });
-    router.post('/proc-sql', async (req, res) => {
+    }));
+    router.post('/proc-sql', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
+            let runner = yield createBuildRunner(req);
             let { name, proc } = req.body;
-            let result = await runner.procSql(name, proc);
+            let result = yield runner.procSql(name, proc);
             res.json({
                 ok: true,
                 res: result
@@ -104,15 +115,15 @@ function buildBuildRouter(router, rb) {
             debugger;
             res.json({ error: err });
         }
-    });
-    router.post('/proc-core-sql', async (req, res) => {
+    }));
+    router.post('/proc-core-sql', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
+            let runner = yield createBuildRunner(req);
             let { name, proc, isFunc } = req.body;
             // let index = sqlsVersion.unsupportProcs.findIndex(v => v === name);
             let result;
             if (runner.dbUq.isUnsupportProc(name) === false) {
-                result = await runner.procCoreSql(name, proc, isFunc);
+                result = yield runner.procCoreSql(name, proc, isFunc);
             }
             else {
                 // debugger;
@@ -126,11 +137,11 @@ function buildBuildRouter(router, rb) {
             debugger;
             res.json({ error: err });
         }
-    });
-    router.post('/create-database', async (req, res) => {
+    }));
+    router.post('/create-database', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
-            let result = await runner.createDatabase();
+            let runner = yield createBuildRunner(req);
+            let result = yield runner.createDatabase();
             res.json({
                 ok: true,
                 res: result
@@ -139,17 +150,17 @@ function buildBuildRouter(router, rb) {
         catch (err) {
             res.json({ error: err });
         }
-    });
+    }));
     /*
     rb.post(router, '/create-database',
     async (runner:EntityRunner, body:any): Promise<void> => {
         await runner.createDatabase();
     });
     */
-    router.post('/exists-database', async (req, res) => {
+    router.post('/exists-database', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
-            let result = await runner.existsDatabase();
+            let runner = yield createBuildRunner(req);
+            let result = yield runner.existsDatabase();
             res.json({
                 ok: true,
                 res: result
@@ -158,7 +169,7 @@ function buildBuildRouter(router, rb) {
         catch (err) {
             res.json({ error: err });
         }
-    });
+    }));
     /*
     rb.post(router, '/exists-databse',
     async (runner:EntityRunner): Promise<boolean> => {
@@ -167,9 +178,9 @@ function buildBuildRouter(router, rb) {
     */
     //rb.post(router, '/set-setting',
     //async (runner:EntityRunner, body: {[name:string]: any}): Promise<void> => {
-    router.post('/set-setting', async (req, res) => {
+    router.post('/set-setting', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
+            let runner = yield createBuildRunner(req);
             let promises = [];
             let { body } = req;
             let service;
@@ -182,12 +193,12 @@ function buildBuildRouter(router, rb) {
                     service = v;
                 promises.push(runner.setSetting(0, i, v));
             }
-            await Promise.all(promises);
+            yield Promise.all(promises);
             // 取units，还有id的start和end
-            let units = await core_1.centerApi.serviceUnit(service);
-            await runner.setUnitAdmin(units);
+            let units = yield core_1.centerApi.serviceUnit(service);
+            yield runner.setUnitAdmin(units);
             // sectionCount 从已经保存的当前id，和id-section-end 来计算
-            await runner.refreshIDSection(service);
+            yield runner.refreshIDSection(service);
             res.json({
                 ok: true,
             });
@@ -195,13 +206,13 @@ function buildBuildRouter(router, rb) {
         catch (err) {
             res.json({ error: err });
         }
-    });
+    }));
     //rb.get(router, '/setting',
     //async (runner:EntityRunner, body: {name:string}):Promise<string> => {
-    router.get('/setting', async (req, res) => {
+    router.get('/setting', (req, res) => __awaiter(this, void 0, void 0, function* () {
         try {
-            let runner = await createBuildRunner(req);
-            let ret = await runner.getSetting(0, req.query['name']);
+            let runner = yield createBuildRunner(req);
+            let ret = yield runner.getSetting(0, req.query['name']);
             res.json({
                 ok: true,
                 res: ret
@@ -210,42 +221,42 @@ function buildBuildRouter(router, rb) {
         catch (err) {
             res.json({ error: err });
         }
-    });
-    rb.get(router, '/entitys', async (runner, body) => {
-        return await runner.loadSchemas(Number(body.hasSource));
-    });
-    rb.post(router, '/entity', async (runner, body) => {
+    }));
+    rb.get(router, '/entitys', (runner, body) => __awaiter(this, void 0, void 0, function* () {
+        return yield runner.loadSchemas(Number(body.hasSource));
+    }));
+    rb.post(router, '/entity', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { id, name, type, schema, run, source, from, open } = body;
-        let ret = await runner.saveSchema(0, 0, id, name, type, schema, run, source, from, open, body['private']);
+        let ret = yield runner.saveSchema(0, 0, id, name, type, schema, run, source, from, open, body['private']);
         return ret;
-    });
-    rb.get(router, '/const-strs', async (runner, body) => {
-        let ret = await runner.loadConstStrs();
+    }));
+    rb.get(router, '/const-strs', (runner, body) => __awaiter(this, void 0, void 0, function* () {
+        let ret = yield runner.loadConstStrs();
         return ret;
-    });
+    }));
     // to be removed in the future
     // const # is removed when use get
-    rb.get(router, '/const-str', async (runner, body) => {
-        return await runner.saveConstStr(body.type);
-    });
-    rb.post(router, '/const-str', async (runner, body) => {
-        return await runner.saveConstStr(body.type);
-    });
-    rb.post(router, '/phrases', async (runner, body) => {
+    rb.get(router, '/const-str', (runner, body) => __awaiter(this, void 0, void 0, function* () {
+        return yield runner.saveConstStr(body.type);
+    }));
+    rb.post(router, '/const-str', (runner, body) => __awaiter(this, void 0, void 0, function* () {
+        return yield runner.saveConstStr(body.type);
+    }));
+    rb.post(router, '/phrases', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { phrases, roles } = body;
-        return await runner.savePhrases(phrases, roles);
-    });
-    rb.post(router, '/text-id', async (runner, body) => {
-        return await runner.saveTextId(body.text);
-    });
-    rb.get(router, '/entity-version', async (runner, body) => {
+        return yield runner.savePhrases(phrases, roles);
+    }));
+    rb.post(router, '/text-id', (runner, body) => __awaiter(this, void 0, void 0, function* () {
+        return yield runner.saveTextId(body.text);
+    }));
+    rb.get(router, '/entity-version', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { name, version } = body;
-        return await runner.loadSchemaVersion(name, version);
-    });
-    rb.post(router, '/entity-validate', async (runner, body) => {
+        return yield runner.loadSchemaVersion(name, version);
+    }));
+    rb.post(router, '/entity-validate', (runner, body) => __awaiter(this, void 0, void 0, function* () {
         let { entities, valid } = body;
-        return await runner.setEntityValid(entities, valid);
-    });
+        return yield runner.setEntityValid(entities, valid);
+    }));
 }
 exports.buildBuildRouter = buildBuildRouter;
 ;

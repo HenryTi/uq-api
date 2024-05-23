@@ -4,7 +4,7 @@ exports.Space = void 0;
 const il_1 = require("../il");
 class Space {
     constructor(outer) {
-        this.uq = outer?.uq;
+        this.uq = outer === null || outer === void 0 ? void 0 : outer.uq;
         this.outer = outer;
     }
     _getEnum(name) { return; }
@@ -173,10 +173,11 @@ class Space {
         return uv;
     }
     addUse(name, statementNo, obj) {
+        var _a;
         let ret = this._addUse(name, statementNo, obj);
         if (ret !== undefined)
             return ret;
-        return this.outer?.addUse(name, statementNo, obj);
+        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.addUse(name, statementNo, obj);
     }
     getTableByAlias(alias) {
         let table = this._getTableByAlias(alias);
@@ -209,10 +210,11 @@ class Space {
         return ret;
     }
     getTableVar(name) {
+        var _a;
         let ret = this._getTableVar(name);
         if (ret !== undefined)
             return ret;
-        return this.outer?.getTableVar(name);
+        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getTableVar(name);
     }
     getReturn(name) {
         if (this.outer !== undefined)
@@ -220,10 +222,11 @@ class Space {
         return;
     }
     getLocalTable(name) {
+        var _a;
         let ret = this.getTableVar(name);
         if (ret !== undefined)
             return ret;
-        ret = this.outer?.getLocalTable(name);
+        ret = (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getLocalTable(name);
         if (ret !== undefined)
             return ret;
         return this.getReturn(name);
@@ -239,16 +242,18 @@ class Space {
         return this.outer.setTransactionOff();
     }
     getActionBase() {
+        var _a;
         let ret = this._getActionBase();
         if (ret !== undefined)
             return ret;
-        return this.outer?.getActionBase();
+        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getActionBase();
     }
     getBizBase(bizName) {
+        var _a;
         let ret = this._getBizBase(bizName);
         if (ret !== undefined)
             return ret;
-        return this.outer?.getBizBase(bizName);
+        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getBizBase(bizName);
     }
 }
 exports.Space = Space;

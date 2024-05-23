@@ -10,14 +10,15 @@ class MyDb$Unitx extends MyDbUq_1.MyDbUq {
         super(myDbs, isTesting === true ? $unitx + $test : $unitx);
     }
     initConfig(dbName) {
+        var _a, _b;
         super.initConfig(dbName);
         let conn;
         if (tool_1.env.isDevelopment === true) {
-            let unitx = tool_1.env.configDebugging?.['unitx'];
+            let unitx = (_a = tool_1.env.configDebugging) === null || _a === void 0 ? void 0 : _a['unitx'];
             if (unitx) {
                 let debugConfigName = this.getDebugConfigName(unitx);
                 if (debugConfigName) {
-                    conn = tool_1.env.configServers?.[debugConfigName];
+                    conn = (_b = tool_1.env.configServers) === null || _b === void 0 ? void 0 : _b[debugConfigName];
                 }
             }
         }

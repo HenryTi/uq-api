@@ -176,8 +176,8 @@ class ActSchemaBuilder extends SchemaBuilder {
     build(schema) {
         super.build(schema);
         let { proxy, auth, fields, inBuses, paramConvert, isOpen } = this.entity;
-        schema.proxy = proxy?.name;
-        schema.auth = auth?.name;
+        schema.proxy = proxy === null || proxy === void 0 ? void 0 : proxy.name;
+        schema.auth = auth === null || auth === void 0 ? void 0 : auth.name;
         // schema.role = role;
         if (isOpen === true)
             schema.isOpen = true;
@@ -257,8 +257,8 @@ class QuerySchemaBuilder extends SchemaBuilder {
     build(schema) {
         super.build(schema);
         let { proxy, auth, fields, arrs, returns } = this.entity;
-        schema.proxy = proxy?.name;
-        schema.auth = auth?.name;
+        schema.proxy = proxy === null || proxy === void 0 ? void 0 : proxy.name;
+        schema.auth = auth === null || auth === void 0 ? void 0 : auth.name;
         let { page } = returns;
         // schema.role = role;
         if (page) {

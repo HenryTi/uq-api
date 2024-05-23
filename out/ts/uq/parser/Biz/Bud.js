@@ -369,6 +369,7 @@ class PBizBudIDBase extends PBizBudValue {
         }
     }
     bizEntityScan2(bizEntity) {
+        var _a, _b;
         let ok = super.bizEntityScan2(bizEntity);
         if (this.fieldShows !== undefined) {
             const { fieldShows } = this.element;
@@ -379,10 +380,10 @@ class PBizBudIDBase extends PBizBudValue {
                     fieldShows.push([this.element, bud]);
             };
             if (this.includeTitleBuds === true) {
-                includeBuds(this.element.ID?.titleBuds);
+                includeBuds((_a = this.element.ID) === null || _a === void 0 ? void 0 : _a.titleBuds);
             }
             if (this.includePrimeBuds === true) {
-                includeBuds(this.element.ID?.primeBuds);
+                includeBuds((_b = this.element.ID) === null || _b === void 0 ? void 0 : _b.primeBuds);
             }
             for (let fieldShow of this.fieldShows) {
                 let show = this.getFieldShow(bizEntity, this.element.name, ...fieldShow);

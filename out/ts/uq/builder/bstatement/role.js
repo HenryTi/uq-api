@@ -69,7 +69,7 @@ class BRoleStatement extends bstatement_1.BStatement {
         select.from((0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite));
         let wheres = [
             new sql_1.ExpEQ(new sql_1.ExpField('site'), this.context.convertExp(valSite)),
-            new sql_1.ExpEQ(new sql_1.ExpField('user'), expUser ?? new sql_1.ExpVar('$user')),
+            new sql_1.ExpEQ(new sql_1.ExpField('user'), expUser !== null && expUser !== void 0 ? expUser : new sql_1.ExpVar('$user')),
         ];
         if (adminOrOwner) {
             let num = new sql_1.ExpNum(adminOrOwner);
@@ -89,7 +89,7 @@ class BRoleStatement extends bstatement_1.BStatement {
         insert.ignore = true;
         insert.table = (0, dbContext_1.sysTable)(il_1.EnumSysTable.userSite);
         insert.cols = [
-            { col: 'id', val: expId ?? this.newIdNu() },
+            { col: 'id', val: expId !== null && expId !== void 0 ? expId : this.newIdNu() },
             { col: 'site', val: this.context.convertExp(valUnit) },
             { col: 'user', val: expUser },
             { col: 'admin', val: new sql_1.ExpNum(admin) },

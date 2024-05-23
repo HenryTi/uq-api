@@ -132,9 +132,10 @@ class PForEach extends statement_1.PStatement {
         return new ForBizInOutArrSpace(space, bizInArr);
     }
     scan(space) {
+        var _a;
         let ok = true;
         let theSpace;
-        this.element.isInProc = space.getActionBase()?.type === 'proc';
+        this.element.isInProc = ((_a = space.getActionBase()) === null || _a === void 0 ? void 0 : _a.type) === 'proc';
         if (this.arrName !== undefined) {
             let arr = space.getArr(this.arrName);
             if (arr !== undefined) {

@@ -57,7 +57,7 @@ class PSelectStatement extends statement_1.PStatement {
         let { columns } = select;
         let len = columns.length;
         let p = 0;
-        let sharpFields = ret?.sharpFields;
+        let sharpFields = ret === null || ret === void 0 ? void 0 : ret.sharpFields;
         if (sharpFields === undefined)
             sharpFields = [];
         for (let i = 0; i < len; i++) {
@@ -99,7 +99,7 @@ class PSelectStatement extends statement_1.PStatement {
         let ok = true;
         let { select, into, ignore } = this.selectStatement;
         let entity = space.getEntity(into);
-        if (entity?.type === 'queue') {
+        if ((entity === null || entity === void 0 ? void 0 : entity.type) === 'queue') {
             select.intoQueue = entity;
             let { columns } = select;
             if (columns.length !== 1) {

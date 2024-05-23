@@ -22,7 +22,7 @@ class JsonVal {
         }
         if (peer !== undefined) {
             const { to, name: pName } = peer;
-            peerName = to ?? pName;
+            peerName = to !== null && to !== void 0 ? to : pName;
         }
         else {
             peerName = name;

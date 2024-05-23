@@ -402,12 +402,13 @@ class PWithStatement extends statement_1.PStatement {
         }
     }
     scanID(id, space) {
+        var _a;
         let isOk = true;
         let withID = new il_1.WithID();
         withID.ID = id;
         let { keys } = id;
         this.with.with = withID;
-        let type = this.with.act?.type;
+        let type = (_a = this.with.act) === null || _a === void 0 ? void 0 : _a.type;
         if (type !== 'truncate') {
             if (this.idVal === undefined && this.keyVals === undefined && this.idTo === undefined) {
                 isOk = false;
@@ -508,6 +509,7 @@ class PWithStatement extends statement_1.PStatement {
         };
     }
     scanIDX(idx, space) {
+        var _a;
         let isOk = true;
         let withIDX = new il_1.WithIDX();
         withIDX.IDX = idx;
@@ -515,7 +517,7 @@ class PWithStatement extends statement_1.PStatement {
         if (this.verifyNotID(idx) === false) {
             isOk = false;
         }
-        if (this.with.act?.type !== 'truncate') {
+        if (((_a = this.with.act) === null || _a === void 0 ? void 0 : _a.type) !== 'truncate') {
             if (this.idVal === undefined) {
                 isOk = false;
                 this.log('IDX need id=');
@@ -555,11 +557,12 @@ class PWithStatement extends statement_1.PStatement {
         return ok;
     }
     scanIX(IX, space) {
+        var _a;
         let isOk = true;
         let withIX = new il_1.WithIX();
         withIX.IX = IX;
         this.with.with = withIX;
-        let type = this.with.act?.type;
+        let type = (_a = this.with.act) === null || _a === void 0 ? void 0 : _a.type;
         if (this.verifyNotID(IX) === false) {
             isOk = false;
         }

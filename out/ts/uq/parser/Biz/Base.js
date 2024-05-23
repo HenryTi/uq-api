@@ -227,7 +227,7 @@ class PBizBase extends element_1.PElement {
         const tokens = [tokens_1.Token.EQU, tokens_1.Token.COLONEQU, tokens_1.Token.COLON, tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
-            key = budType ?? 'none';
+            key = budType !== null && budType !== void 0 ? budType : 'none';
         }
         else if (token === tokens_1.Token.LPARENTHESE) {
             key = '$arr';

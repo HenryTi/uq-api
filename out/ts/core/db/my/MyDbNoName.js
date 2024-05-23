@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyDbNoName = exports.sqlsVersion = void 0;
 const tool_1 = require("../../../tool");
@@ -35,40 +44,48 @@ class MyDbNoName extends MyDbBase_1.MyDbBase {
         super(myDbs, undefined);
     }
     initConfig(dbName) { return tool_1.env.connection; }
-    async checkSqlVersion() {
-        let versionResults = await this.sql('use information_schema; select version() as v', []);
-        let versionRows = versionResults[1];
-        let ver = versionRows[0]['v'];
-        let version = Number.parseFloat(ver);
-        if (version >= 8.0) {
-            exports.sqlsVersion = sqls_8;
-        }
-        else {
-            exports.sqlsVersion = sqls_5;
-        }
-        exports.sqlsVersion.version = version;
-        return exports.sqlsVersion;
+    checkSqlVersion() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let versionResults = yield this.sql('use information_schema; select version() as v', []);
+            let versionRows = versionResults[1];
+            let ver = versionRows[0]['v'];
+            let version = Number.parseFloat(ver);
+            if (version >= 8.0) {
+                exports.sqlsVersion = sqls_8;
+            }
+            else {
+                exports.sqlsVersion = sqls_5;
+            }
+            exports.sqlsVersion.version = version;
+            return exports.sqlsVersion;
+        });
     }
-    async savedUqApiVersion() {
-        try {
-            let ret = await this.sql(`select value from $uq.setting where name='uqapi_version'`);
-            if (ret.length === 0)
-                return;
-            return ret[0].value;
-        }
-        catch {
-            return undefined;
-        }
+    savedUqApiVersion() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let ret = yield this.sql(`select value from $uq.setting where name='uqapi_version'`);
+                if (ret.length === 0)
+                    return;
+                return ret[0].value;
+            }
+            catch (_a) {
+                return undefined;
+            }
+        });
     }
-    async versions() {
-        return await Promise.all([
-            this.checkSqlVersion(),
-            this.savedUqApiVersion(),
-        ]);
+    versions() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield Promise.all([
+                this.checkSqlVersion(),
+                this.savedUqApiVersion(),
+            ]);
+        });
     }
-    async saveUqVersion() {
-        let version = this.myDbs.uq_api_version;
-        await this.sql(`insert into $uq.setting (name, value) values ('uqapi_version', ?) on duplicate key update value=?;`, [version, version]);
+    saveUqVersion() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let version = this.myDbs.uq_api_version;
+            yield this.sql(`insert into $uq.setting (name, value) values ('uqapi_version', ?) on duplicate key update value=?;`, [version, version]);
+        });
     }
 }
 exports.MyDbNoName = MyDbNoName;

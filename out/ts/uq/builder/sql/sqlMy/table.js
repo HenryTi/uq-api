@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TableUpdater = exports.MyTable = void 0;
 const table_1 = require("../table");
@@ -112,56 +121,60 @@ function appendDefault(sb, def) {
     }
 }
 class TableUpdater extends table_1.TableUpdater {
-    async createTable() {
-        let sb = this.createSqlBuilder();
-        this.table.update(sb);
-        let sql = sb.sql;
-        await this.runner.sql(sql, undefined);
+    createTable() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sb = this.createSqlBuilder();
+            this.table.update(sb);
+            let sql = sb.sql;
+            yield this.runner.sql(sql, undefined);
+        });
     }
     getDbTableName() {
         return this.context.twProfix + this.table.name;
     }
-    async loadExistTable() {
-        let { dbName } = this.context;
-        let unitName = '$unit';
-        let tblName = this.table.name;
-        let dbTableName = this.getDbTableName();
-        let rows = await this.runner.sql(sqlGetColumns, [dbName, dbTableName]);
-        if (rows.length === 0)
-            return;
-        let dbTable = this.context.createTable(tblName);
-        let tableHasUnit = false;
-        dbTable.fields = [];
-        for (let row of rows) {
-            let f = this.fieldFromRow(row);
-            if (f.name !== unitName) {
-                dbTable.fields.push(f);
+    loadExistTable() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { dbName } = this.context;
+            let unitName = '$unit';
+            let tblName = this.table.name;
+            let dbTableName = this.getDbTableName();
+            let rows = yield this.runner.sql(sqlGetColumns, [dbName, dbTableName]);
+            if (rows.length === 0)
+                return;
+            let dbTable = this.context.createTable(tblName);
+            let tableHasUnit = false;
+            dbTable.fields = [];
+            for (let row of rows) {
+                let f = this.fieldFromRow(row);
+                if (f.name !== unitName) {
+                    dbTable.fields.push(f);
+                }
+                else {
+                    tableHasUnit = true;
+                }
             }
-            else {
-                tableHasUnit = true;
+            dbTable.hasUnit = tableHasUnit;
+            rows = yield this.runner.sql(sqlGetIndexes, [dbName, dbTableName]);
+            let index;
+            for (let row of rows) {
+                let { name, iName, notUni } = row;
+                name = name.toLowerCase();
+                iName = iName.toLowerCase();
+                if (index === undefined) {
+                    index = new il.Index(iName, notUni === 0);
+                }
+                else if (iName !== index.name) {
+                    this.saveIndex(dbTable, index);
+                    index = new il.Index(iName, notUni === 0);
+                }
+                if (name !== unitName) {
+                    let f = dbTable.fields.find(v => v.name === name);
+                    index.fields.push(f);
+                }
             }
-        }
-        dbTable.hasUnit = tableHasUnit;
-        rows = await this.runner.sql(sqlGetIndexes, [dbName, dbTableName]);
-        let index;
-        for (let row of rows) {
-            let { name, iName, notUni } = row;
-            name = name.toLowerCase();
-            iName = iName.toLowerCase();
-            if (index === undefined) {
-                index = new il.Index(iName, notUni === 0);
-            }
-            else if (iName !== index.name) {
-                this.saveIndex(dbTable, index);
-                index = new il.Index(iName, notUni === 0);
-            }
-            if (name !== unitName) {
-                let f = dbTable.fields.find(v => v.name === name);
-                index.fields.push(f);
-            }
-        }
-        this.saveIndex(dbTable, index);
-        return dbTable;
+            this.saveIndex(dbTable, index);
+            return dbTable;
+        });
     }
     buildAddColumnSql(field) {
         return this.buildColumnSql(field, 'ADD');
@@ -231,13 +244,17 @@ class TableUpdater extends table_1.TableUpdater {
         sb.append(' BINARY;');
         return sb.sql;
     }
-    async addColumn(field) {
-        let sql = this.buildAddColumnSql(field);
-        await this.runner.sql(sql, []);
+    addColumn(field) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = this.buildAddColumnSql(field);
+            yield this.runner.sql(sql, []);
+        });
     }
-    async alterToBinary(field) {
-        let sql = this.buildAlterToBinarySql(field);
-        await this.runner.sql(sql, []);
+    alterToBinary(field) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = this.buildAlterToBinarySql(field);
+            yield this.runner.sql(sql, []);
+        });
     }
     saveIndex(dbTable, index) {
         if (index.name === 'primary')
@@ -245,17 +262,19 @@ class TableUpdater extends table_1.TableUpdater {
         else
             dbTable.indexes.push(index);
     }
-    async rebuildIfNoData() {
-        let dbTableName = this.getDbTableName();
-        let sql = sqlTableHasRows(this.runner.dbName, dbTableName);
-        let ret = await this.runner.sql(sql, []);
-        if (ret.length === 0)
-            return false;
-        if (ret[0].c > 0)
-            return false;
-        await this.runner.sql(`DROP TABLE IF EXISTS \`${this.runner.dbName}\`.\`${dbTableName}\`;`, []);
-        await this.createTable();
-        return true;
+    rebuildIfNoData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let dbTableName = this.getDbTableName();
+            let sql = sqlTableHasRows(this.runner.dbName, dbTableName);
+            let ret = yield this.runner.sql(sql, []);
+            if (ret.length === 0)
+                return false;
+            if (ret[0].c > 0)
+                return false;
+            yield this.runner.sql(`DROP TABLE IF EXISTS \`${this.runner.dbName}\`.\`${dbTableName}\`;`, []);
+            yield this.createTable();
+            return true;
+        });
     }
     fieldFromRow(row) {
         let field = new il.Field();
@@ -343,22 +362,32 @@ class TableUpdater extends table_1.TableUpdater {
         }
         return field;
     }
-    async dropColumn(field) {
-        await this.runSql(this.buildDropColumnSql(field));
+    dropColumn(field) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.runSql(this.buildDropColumnSql(field));
+        });
     }
-    async dropIndex(ind) {
-        await this.runSql(this.buildDropIndexSql(ind));
+    dropIndex(ind) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.runSql(this.buildDropIndexSql(ind));
+        });
     }
-    async createIdIndex() {
-        await this.runSql(this.buildCreateIdIndex());
+    createIdIndex() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.runSql(this.buildCreateIdIndex());
+        });
     }
-    async createIndex(ind) {
-        if (ind.fields.length === 0)
-            return;
-        await this.runSql(this.buildCreateIndex(ind));
+    createIndex(ind) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (ind.fields.length === 0)
+                return;
+            yield this.runSql(this.buildCreateIndex(ind));
+        });
     }
-    async runSql(sql) {
-        await this.runner.sql(sql, []);
+    runSql(sql) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.runner.sql(sql, []);
+        });
     }
     buildDropColumnSql(field) {
         let { dbName, twProfix } = this.context;
@@ -392,66 +421,70 @@ class TableUpdater extends table_1.TableUpdater {
         sb.r();
         return sb.sql;
     }
-    async alterField(field) {
-        let sql = this.buildColumnSql(field, 'MODIFY');
-        await this.runner.sql(sql, []);
+    alterField(field) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = this.buildColumnSql(field, 'MODIFY');
+            yield this.runner.sql(sql, []);
+        });
     }
-    async buildRows() {
-        let { fieldsValuesList } = this.table;
-        if (fieldsValuesList === undefined)
+    buildRows() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { fieldsValuesList } = this.table;
+            if (fieldsValuesList === undefined)
+                return;
+            let { id, idKeys } = this.table;
+            let sql;
+            if (id && idKeys && idKeys.length > 0) {
+                sql = this.buildUpdateValidColumSql();
+                if (sql !== undefined) {
+                    yield this.runner.sql(sql, []);
+                }
+                for (let fieldsValues of fieldsValuesList) {
+                    let { fields, fieldsInit, values } = fieldsValues;
+                    for (let row of values) {
+                        sql = this.buildSelectKeySql(fields, row);
+                        let selected = yield this.runner.sql(sql, []);
+                        if (selected.length > 0) {
+                            sql = this.buildUpdateRowKeySql(fields, fieldsInit, row);
+                        }
+                        else {
+                            sql = this.buildInsertRowSql(fields, row);
+                        }
+                        yield this.runner.sql(sql, []);
+                    }
+                }
+            }
+            else if (id) {
+                sql = this.buildUpdateValidColumSql();
+                if (sql !== undefined) {
+                    yield this.runner.sql(sql, []);
+                }
+                for (let fieldsValues of fieldsValuesList) {
+                    let { fields, fieldsInit, values } = fieldsValues;
+                    for (let row of values) {
+                        sql = this.buildSelectIdSql(fields, row);
+                        let selected = yield this.runner.sql(sql, []);
+                        if (selected.length > 0) {
+                            sql = this.buildUpdateRowIdSql(fields, fieldsInit, row);
+                            yield this.runner.sql(sql, []);
+                        }
+                        else {
+                            sql = this.buildInsertRowSql(fields, row);
+                            yield this.runner.sql(sql, []);
+                        }
+                    }
+                }
+            }
+            else {
+                sql = this.buildRemoveAllRowsSql();
+                yield this.runner.sql(sql, []);
+                for (let fieldsValues of fieldsValuesList) {
+                    let sql = this.buildAddRowsSql(fieldsValues);
+                    yield this.runner.sql(sql, []);
+                }
+            }
             return;
-        let { id, idKeys } = this.table;
-        let sql;
-        if (id && idKeys && idKeys.length > 0) {
-            sql = this.buildUpdateValidColumSql();
-            if (sql !== undefined) {
-                await this.runner.sql(sql, []);
-            }
-            for (let fieldsValues of fieldsValuesList) {
-                let { fields, fieldsInit, values } = fieldsValues;
-                for (let row of values) {
-                    sql = this.buildSelectKeySql(fields, row);
-                    let selected = await this.runner.sql(sql, []);
-                    if (selected.length > 0) {
-                        sql = this.buildUpdateRowKeySql(fields, fieldsInit, row);
-                    }
-                    else {
-                        sql = this.buildInsertRowSql(fields, row);
-                    }
-                    await this.runner.sql(sql, []);
-                }
-            }
-        }
-        else if (id) {
-            sql = this.buildUpdateValidColumSql();
-            if (sql !== undefined) {
-                await this.runner.sql(sql, []);
-            }
-            for (let fieldsValues of fieldsValuesList) {
-                let { fields, fieldsInit, values } = fieldsValues;
-                for (let row of values) {
-                    sql = this.buildSelectIdSql(fields, row);
-                    let selected = await this.runner.sql(sql, []);
-                    if (selected.length > 0) {
-                        sql = this.buildUpdateRowIdSql(fields, fieldsInit, row);
-                        await this.runner.sql(sql, []);
-                    }
-                    else {
-                        sql = this.buildInsertRowSql(fields, row);
-                        await this.runner.sql(sql, []);
-                    }
-                }
-            }
-        }
-        else {
-            sql = this.buildRemoveAllRowsSql();
-            await this.runner.sql(sql, []);
-            for (let fieldsValues of fieldsValuesList) {
-                let sql = this.buildAddRowsSql(fieldsValues);
-                await this.runner.sql(sql, []);
-            }
-        }
-        return;
+        });
     }
     createSqlBuilder() {
         let sb = this.context.createSqlBuilder();

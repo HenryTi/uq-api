@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.centerApi = exports.urlSetCenterHost = void 0;
 const config = require("config");
@@ -13,63 +22,95 @@ class CenterApi extends fetch_1.Fetch {
     constructor() {
         super(centerUrl);
     }
-    async busSchema(owner, bus, version) {
-        let ret = await this.get('open/bus', { owner, bus, version });
-        return ret?.schema;
-    }
-    async serviceBus(serviceUID, serviceBuses) {
-        await this.post('open/save-service-bus', {
-            service: serviceUID,
-            bus: serviceBuses,
+    busSchema(owner, bus, version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.get('open/bus', { owner, bus, version });
+            return ret === null || ret === void 0 ? void 0 : ret.schema;
         });
     }
-    async unitUnitx(unit) {
-        let items = await this.get('open/unit-unitx', { unit });
-        let ret = {};
-        for (let item of items) {
-            let { type } = item;
-            ret[type] = item;
-        }
-        return ret;
+    serviceBus(serviceUID, serviceBuses) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.post('open/save-service-bus', {
+                service: serviceUID,
+                bus: serviceBuses,
+            });
+        });
     }
-    async uqUrl(unit, uq) {
-        return await this.get('open/uq-url', { unit: unit, uq: uq });
+    unitUnitx(unit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let items = yield this.get('open/unit-unitx', { unit });
+            let ret = {};
+            for (let item of items) {
+                let { type } = item;
+                ret[type] = item;
+            }
+            return ret;
+        });
     }
-    async serviceUnit(service) {
-        return await this.get('open/service-unit', { service });
+    uqUrl(unit, uq) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('open/uq-url', { unit: unit, uq: uq });
+        });
     }
-    async IDSectionApply(service, type, sectionMax, sectionCount) {
-        return await this.get('open/id-section-apply', { service, type, sectionMax, sectionCount });
+    serviceUnit(service) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('open/service-unit', { service });
+        });
     }
-    async urlFromUq(unit, uqFullName) {
-        return await this.post('open/url-from-uq', { unit: unit, uq: uqFullName });
+    IDSectionApply(service, type, sectionMax, sectionCount) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('open/id-section-apply', { service, type, sectionMax, sectionCount });
+        });
     }
-    async unitFaceUrl(unit, busOwner, busName, face) {
-        return await this.post('open/unit-face-url', { unit: unit, busOwner: busOwner, busName: busName, face: face });
+    urlFromUq(unit, uqFullName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.post('open/url-from-uq', { unit: unit, uq: uqFullName });
+        });
     }
-    async uqDb(name) {
-        return await this.get('open/uqdb', { name: name });
+    unitFaceUrl(unit, busOwner, busName, face) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.post('open/unit-face-url', { unit: unit, busOwner: busOwner, busName: busName, face: face });
+        });
     }
-    async pushTo(msg) {
-        return await this.post('push', msg);
+    uqDb(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('open/uqdb', { name: name });
+        });
     }
-    async userIdFromName(user) {
-        return await this.get('open/user-id-from-name', { user: user });
+    pushTo(msg) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.post('push', msg);
+        });
     }
-    async userFromId(id) {
-        return await this.get('user/user-name-nick-icon-from-id', { userId: id });
+    userIdFromName(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('open/user-id-from-name', { user: user });
+        });
     }
-    async send(param) {
-        return await this.post('send', param);
+    userFromId(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('user/user-name-nick-icon-from-id', { userId: id });
+        });
     }
-    async queueOut(start, page) {
-        return await this.get('open/queue-out', { start: start, page: page });
+    send(param) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.post('send', param);
+        });
     }
-    async appRoles(unit, app, user) {
-        return await this.post('open/app-roles', { unit, app, user });
+    queueOut(start, page) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.get('open/queue-out', { start: start, page: page });
+        });
     }
-    async userxBusFace(user, busOwner, busName, face) {
-        return await this.post('open/userx-bus-face', { user, busOwner, busName, face });
+    appRoles(unit, app, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.post('open/app-roles', { unit, app, user });
+        });
+    }
+    userxBusFace(user, busOwner, busName, face) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.post('open/userx-bus-face', { user, busOwner, busName, face });
+        });
     }
 }
 ;

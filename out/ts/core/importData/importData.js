@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ImportData = void 0;
 const fs = require("fs");
@@ -15,39 +24,41 @@ class ImportData {
     }
     // entity: 'product';
     // entity: 'product-pack'
-    static async exec(runner, unit, db, source, entity, filePath) {
-        let importData;
-        let parts = entity.split('.');
-        entity = parts[0];
-        let div = parts[1];
-        let schema = runner.getSchema(entity);
-        let logger = console;
-        if (schema === undefined) {
-            logger.error('unknown entity %s', entity);
-            return;
-        }
-        let { type } = schema;
-        switch (type) {
-            case 'tuid':
-                if (div === undefined)
-                    importData = new ImportTuid;
-                else
-                    importData = new ImportTuidDiv;
-                break;
-            case 'map':
-                importData = new ImportMap;
-                break;
-        }
-        importData.logger = logger;
-        importData.runner = runner;
-        importData.unit = unit;
-        importData.db = db;
-        importData.source = source;
-        importData.entity = entity;
-        importData.div = div;
-        importData.schema = schema.call;
-        importData.filePath = filePath;
-        await importData.importData();
+    static exec(runner, unit, db, source, entity, filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let importData;
+            let parts = entity.split('.');
+            entity = parts[0];
+            let div = parts[1];
+            let schema = runner.getSchema(entity);
+            let logger = console;
+            if (schema === undefined) {
+                logger.error('unknown entity %s', entity);
+                return;
+            }
+            let { type } = schema;
+            switch (type) {
+                case 'tuid':
+                    if (div === undefined)
+                        importData = new ImportTuid;
+                    else
+                        importData = new ImportTuidDiv;
+                    break;
+                case 'map':
+                    importData = new ImportMap;
+                    break;
+            }
+            importData.logger = logger;
+            importData.runner = runner;
+            importData.unit = unit;
+            importData.db = db;
+            importData.source = source;
+            importData.entity = entity;
+            importData.div = div;
+            importData.schema = schema.call;
+            importData.filePath = filePath;
+            yield importData.importData();
+        });
     }
     readLine() {
         let ret = [];
@@ -177,57 +188,65 @@ class ImportData {
         }
         return true;
     }
-    async importData() {
-        this.bufferPrev = '';
-        this.buffer = await readFileAsync(this.filePath, 'utf8');
-        this.p = 0;
-        // build header
-        for (;;) {
-            let line = this.readLine();
-            if (line === undefined)
+    importData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.bufferPrev = '';
+            this.buffer = yield readFileAsync(this.filePath, 'utf8');
+            this.p = 0;
+            // build header
+            for (;;) {
+                let line = this.readLine();
+                if (line === undefined)
+                    break;
+                if (line.length === 0)
+                    continue;
+                if (this.buildHeader(line) === false)
+                    return;
                 break;
-            if (line.length === 0)
-                continue;
-            if (this.buildHeader(line) === false)
-                return;
-            break;
-        }
-        for (;;) {
-            let line = this.readLine();
-            if (line === undefined)
-                break;
-            if (line.length === 0)
-                continue;
-            let values = await this.mapValues(line);
-            await this.saveItem(values);
-        }
+            }
+            for (;;) {
+                let line = this.readLine();
+                if (line === undefined)
+                    break;
+                if (line.length === 0)
+                    continue;
+                let values = yield this.mapValues(line);
+                yield this.saveItem(values);
+            }
+        });
     }
     checkHeader(header) { return undefined; }
     ;
-    async mapValues(line) {
-        let values = [];
-        let len = line.length;
-        for (let i = 0; i < len; i++) {
-            let field = this.fields[i];
-            let v;
-            if (field !== undefined) {
-                v = field.getValue(line);
-                if (v === null) {
-                    v = await field.getId(this.unit, line);
+    mapValues(line) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let values = [];
+            let len = line.length;
+            for (let i = 0; i < len; i++) {
+                let field = this.fields[i];
+                let v;
+                if (field !== undefined) {
+                    v = field.getValue(line);
+                    if (v === null) {
+                        v = yield field.getId(this.unit, line);
+                    }
                 }
+                values.push(v);
             }
-            values.push(v);
-        }
-        return values;
+            return values;
+        });
     }
-    async saveItem(values) {
-        this.logger.debug('to be saved: ', values);
+    saveItem(values) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.logger.debug('to be saved: ', values);
+        });
     }
 }
 exports.ImportData = ImportData;
 class ImportTuid extends ImportData {
-    async saveItem(values) {
-        await this.runner.tuidSave(this.entity, this.unit, undefined, values);
+    saveItem(values) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.runner.tuidSave(this.entity, this.unit, undefined, values);
+        });
     }
 }
 class ImportTuidDiv extends ImportTuid {
@@ -240,24 +259,28 @@ class ImportTuidDiv extends ImportTuid {
     ;
 }
 class ImportMap extends ImportData {
-    async saveItem(values) {
-        await this.runner.mapSave(this.entity, this.unit, undefined, values);
-        tool_1.logger.debug('import map ', values);
+    saveItem(values) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.runner.mapSave(this.entity, this.unit, undefined, values);
+            tool_1.logger.debug('import map ', values);
+        });
     }
 }
-async function readFileAsync(filename, code) {
-    return new Promise(function (resolve, reject) {
-        try {
-            fs.readFile(filename, code, function (err, buffer) {
-                if (err)
-                    reject(err);
-                else
-                    resolve(buffer);
-            });
-        }
-        catch (err) {
-            reject(err);
-        }
+function readFileAsync(filename, code) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise(function (resolve, reject) {
+            try {
+                fs.readFile(filename, code, function (err, buffer) {
+                    if (err)
+                        reject(err);
+                    else
+                        resolve(buffer);
+                });
+            }
+            catch (err) {
+                reject(err);
+            }
+        });
     });
 }
 ;

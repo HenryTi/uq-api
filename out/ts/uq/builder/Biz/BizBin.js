@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizBin = void 0;
 const consts_1 = require("../../consts");
@@ -33,27 +42,37 @@ const bin = 'bin';
 const tempBinTable = 'bin';
 const binFieldsSet = new Set(consts_1.binFieldArr);
 class BBizBin extends BizEntity_1.BBizEntity {
-    async buildBudsValue() {
-        super.buildBudsValue();
-        const { inputArr, pickArr } = this.bizEntity;
-        if (inputArr !== undefined) {
-            for (let input of inputArr) {
-                input.buildBudValue(this.expStringify);
+    buildBudsValue() {
+        const _super = Object.create(null, {
+            buildBudsValue: { get: () => super.buildBudsValue }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildBudsValue.call(this);
+            const { inputArr, pickArr } = this.bizEntity;
+            if (inputArr !== undefined) {
+                for (let input of inputArr) {
+                    input.buildBudValue(this.expStringify);
+                }
             }
-        }
-        if (pickArr !== undefined) {
-            for (let pick of pickArr) {
-                pick.buildBudValue(this.expStringify);
+            if (pickArr !== undefined) {
+                for (let pick of pickArr) {
+                    pick.buildBudValue(this.expStringify);
+                }
             }
-        }
+        });
     }
-    async buildProcedures() {
-        super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
-        this.buildSubmitProc(procSubmit);
-        const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
-        this.buildGetProc(procGet);
+    buildProcedures() {
+        const _super = Object.create(null, {
+            buildProcedures: { get: () => super.buildProcedures }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildProcedures.call(this);
+            const { id } = this.bizEntity;
+            const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+            this.buildSubmitProc(procSubmit);
+            const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
+            this.buildGetProc(procGet);
+        });
     }
     buildSubmitProc(proc) {
         const { parameters, statements } = proc;

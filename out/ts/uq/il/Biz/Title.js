@@ -15,7 +15,7 @@ class BizTitle extends Entity_1.BizEntity {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return { ...ret, };
+        return Object.assign({}, ret);
     }
 }
 exports.BizTitle = BizTitle;

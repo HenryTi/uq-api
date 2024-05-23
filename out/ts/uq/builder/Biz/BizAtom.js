@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizAtom = void 0;
 const il_1 = require("../../il");
@@ -10,40 +19,45 @@ const BizEntity_1 = require("./BizEntity");
 const cId = '$id';
 const a = 'a', b = 'b';
 class BBizAtom extends BizEntity_1.BBizEntity {
-    async buildProcedures() {
-        super.buildProcedures;
-        const { id, uniques } = this.bizEntity;
-        const procTitlePrime = this.createProcedure(`${this.context.site}.${id}tp`);
-        this.buildProcTitlePrime(procTitlePrime);
-        if (uniques !== undefined) {
-            const budUniques = new Map();
-            for (let uq of uniques) {
-                const { keys, no } = uq;
-                if (uq.name === 'no')
-                    continue;
-                function addBudUniques(bud) {
-                    let bu = budUniques.get(bud);
-                    if (bu === undefined) {
-                        bu = [uq];
-                        budUniques.set(bud, bu);
+    buildProcedures() {
+        const _super = Object.create(null, {
+            buildProcedures: { get: () => super.buildProcedures }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildProcedures;
+            const { id, uniques } = this.bizEntity;
+            const procTitlePrime = this.createProcedure(`${this.context.site}.${id}tp`);
+            this.buildProcTitlePrime(procTitlePrime);
+            if (uniques !== undefined) {
+                const budUniques = new Map();
+                for (let uq of uniques) {
+                    const { keys, no } = uq;
+                    if (uq.name === 'no')
+                        continue;
+                    function addBudUniques(bud) {
+                        let bu = budUniques.get(bud);
+                        if (bu === undefined) {
+                            bu = [uq];
+                            budUniques.set(bud, bu);
+                        }
+                        else
+                            bu.push(uq);
                     }
-                    else
-                        bu.push(uq);
+                    for (let key of keys)
+                        addBudUniques(key);
+                    addBudUniques(no);
                 }
-                for (let key of keys)
-                    addBudUniques(key);
-                addBudUniques(no);
+                for (let [bud, uniqueArr] of budUniques) {
+                    const procBudUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
+                    this.buildBudUniqueProc(procBudUnqiue, uniqueArr);
+                }
             }
-            for (let [bud, uniqueArr] of budUniques) {
-                const procBudUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
-                this.buildBudUniqueProc(procBudUnqiue, uniqueArr);
+            let uniquesAll = this.bizEntity.getUniques();
+            if (uniquesAll.length > 0) {
+                const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
+                this.buildUniqueProc(procUnqiue, uniquesAll);
             }
-        }
-        let uniquesAll = this.bizEntity.getUniques();
-        if (uniquesAll.length > 0) {
-            const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
-            this.buildUniqueProc(procUnqiue, uniquesAll);
-        }
+        });
     }
     buildUniqueProc(proc, uniquesAll) {
         const { parameters, statements } = proc;

@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EntityRunner = void 0;
 const jsonpack = require("jsonpack");
@@ -29,7 +38,8 @@ class EntityRunner extends Runner_1.Runner {
         this.isCompiling = false;
         this.devBuildSys = false;
         this.getTableSchema = (lowerName) => {
-            return this.schemas[lowerName]?.call;
+            var _a;
+            return (_a = this.schemas[lowerName]) === null || _a === void 0 ? void 0 : _a.call;
         };
         this.parametersBusCache = {};
         this.actionConvertSchemas = {};
@@ -64,148 +74,190 @@ class EntityRunner extends Runner_1.Runner {
         });
         this.db$Uq = (0, db_2.getDbs)().db$Uq;
     }
-    async reset() {
-        this.isCompiling = false;
-        this.dbUq.reset();
-        this.schemas = undefined;
-        await this.init();
+    reset() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.isCompiling = false;
+            this.dbUq.reset();
+            this.schemas = undefined;
+            yield this.init();
+        });
     }
     /**
      * 设置runner的compileTick，但是这个compileTick好像没看到有什么用
      * @param compileTick
      * @returns
      */
-    async setCompileTick(compileTick) {
-        if (compileTick === undefined)
-            return;
-        if (this.compileTick === compileTick)
-            return;
-        this.compileTick = compileTick;
-        await this.reset();
+    setCompileTick(compileTick) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (compileTick === undefined)
+                return;
+            if (this.compileTick === compileTick)
+                return;
+            this.compileTick = compileTick;
+            yield this.reset();
+        });
     }
-    async IDSql(unit, user, sqlBuilder) {
-        sqlBuilder.build();
-        let { sql, proc, procParameters } = sqlBuilder;
-        let ret;
-        if (proc !== undefined) {
-            ret = await this.call(proc, procParameters);
-        }
-        else if (sql !== undefined) {
-            ret = await this.call('$exec_sql_trans', [unit, user, sql]);
-        }
-        else {
-            throw new Error('error on build sql');
-        }
-        return ret;
+    IDSql(unit, user, sqlBuilder) {
+        return __awaiter(this, void 0, void 0, function* () {
+            sqlBuilder.build();
+            let { sql, proc, procParameters } = sqlBuilder;
+            let ret;
+            if (proc !== undefined) {
+                ret = yield this.call(proc, procParameters);
+            }
+            else if (sql !== undefined) {
+                ret = yield this.call('$exec_sql_trans', [unit, user, sql]);
+            }
+            else {
+                throw new Error('error on build sql');
+            }
+            return ret;
+        });
     }
-    async ActIDProp(unit, user, ID, id, propName, value) {
-        return await this.call(`${ID}$prop`, [unit, user, id, propName, value]);
+    ActIDProp(unit, user, ID, id, propName, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.call(`${ID}$prop`, [unit, user, id, propName, value]);
+        });
     }
     getEntityNameList() {
         return Object.keys(this.schemas).join(', ');
         //return JSON.stringify(this.schemas);
     }
-    async getRoles(unit, app, user, inRoles) {
-        let [rolesBin, rolesVersion] = inRoles.split('.');
-        let unitRVs = this.roleVersions[unit];
-        if (unitRVs === undefined) {
-            this.roleVersions[unit] = unitRVs = {};
-        }
-        let rv = unitRVs[app];
-        if (rv !== undefined) {
-            let { version: rvVersion, tick } = rv;
-            let now = Date.now();
-            if (Number(rolesVersion) === rvVersion && now - tick < 60 * 1000)
+    getRoles(unit, app, user, inRoles) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let [rolesBin, rolesVersion] = inRoles.split('.');
+            let unitRVs = this.roleVersions[unit];
+            if (unitRVs === undefined) {
+                this.roleVersions[unit] = unitRVs = {};
+            }
+            let rv = unitRVs[app];
+            if (rv !== undefined) {
+                let { version: rvVersion, tick } = rv;
+                let now = Date.now();
+                if (Number(rolesVersion) === rvVersion && now - tick < 60 * 1000)
+                    return;
+            }
+            // 去中心服务器取user对应的roles，version
+            let ret = yield centerApi_1.centerApi.appRoles(unit, app, user);
+            if (ret === undefined)
                 return;
-        }
-        // 去中心服务器取user对应的roles，version
-        let ret = await centerApi_1.centerApi.appRoles(unit, app, user);
-        if (ret === undefined)
-            return;
-        let { roles, version } = ret;
-        unitRVs[app] = { version, tick: Date.now() };
-        if (version === Number(rolesVersion) && roles === Number(rolesBin))
-            return;
-        return ret;
+            let { roles, version } = ret;
+            unitRVs[app] = { version, tick: Date.now() };
+            if (version === Number(rolesVersion) && roles === Number(rolesBin))
+                return;
+            return ret;
+        });
     }
-    async getAdmins(unit, user) {
-        let tbl = await this.tableFromProc('$get_admins', [unit, user]);
-        if (tbl.length === 0)
-            return;
-        return tbl;
+    getAdmins(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let tbl = yield this.tableFromProc('$get_admins', [unit, user]);
+            if (tbl.length === 0)
+                return;
+            return tbl;
+        });
     }
-    async setMeAdmin(unit, user) {
-        await this.call('$set_me_admin', [unit, user]);
+    setMeAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_me_admin', [unit, user]);
+        });
     }
-    async setAdmin(unit, $user, user, role, assigned) {
-        await this.call('$set_admin', [unit, $user, user, role, assigned]);
+    setAdmin(unit, $user, user, role, assigned) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_admin', [unit, $user, user, role, assigned]);
+        });
     }
-    async isAdmin(unit, user) {
-        let ret = await this.tableFromProc('$is_admin', [unit, user]);
-        return ret.length > 0;
+    isAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.tableFromProc('$is_admin', [unit, user]);
+            return ret.length > 0;
+        });
     }
-    async getMyRoles(unit, user) {
-        if (!this.roleNames)
-            return;
-        let tbl = await this.tableFromProc('$get_my_roles', [unit, user]);
-        if (tbl.length === 0)
-            return;
-        let { roles, admin } = tbl[0];
-        if (admin > 0) {
-            return '$|' + this.roleNames;
-        }
-        return roles;
-        /*
-        switch (admin) {
-            default: return roles;
-            case 1: return '$|' + this.roleNames;
-            case 2: return '$' + roles;
-        }
-        */
+    getMyRoles(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.roleNames)
+                return;
+            let tbl = yield this.tableFromProc('$get_my_roles', [unit, user]);
+            if (tbl.length === 0)
+                return;
+            let { roles, admin } = tbl[0];
+            if (admin > 0) {
+                return '$|' + this.roleNames;
+            }
+            return roles;
+            /*
+            switch (admin) {
+                default: return roles;
+                case 1: return '$|' + this.roleNames;
+                case 2: return '$' + roles;
+            }
+            */
+        });
     }
-    async getAllRoleUsers(unit, user) {
-        // row 0 返回 ixOfUsers
-        let tbl = await this.tableFromProc('$get_all_role_users', [unit, user]);
-        tbl.unshift({ user: 0, roles: this.ixOfUsers });
-        return tbl;
+    getAllRoleUsers(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // row 0 返回 ixOfUsers
+            let tbl = yield this.tableFromProc('$get_all_role_users', [unit, user]);
+            tbl.unshift({ user: 0, roles: this.ixOfUsers });
+            return tbl;
+        });
     }
-    async setUserRoles(unit, user, theUser, roles) {
-        await this.call('$set_user_roles', [unit, user, theUser, roles]);
+    setUserRoles(unit, user, theUser, roles) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_user_roles', [unit, user, theUser, roles]);
+        });
     }
-    async deleteUserRoles(unit, user, theUser) {
-        await this.call('$delete_user_roles', [unit, user, theUser]);
+    deleteUserRoles(unit, user, theUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$delete_user_roles', [unit, user, theUser]);
+        });
     }
-    async roleGetAdmins(unit, user) {
-        let tbl = await this.tableFromProc('$get_admins', [unit, user]);
-        if (tbl.length === 0)
-            return;
-        return tbl;
+    roleGetAdmins(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let tbl = yield this.tableFromProc('$get_admins', [unit, user]);
+            if (tbl.length === 0)
+                return;
+            return tbl;
+        });
     }
-    async roleSetMeAdmin(unit, user) {
-        await this.call('$set_me_admin', [unit, user]);
+    roleSetMeAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_me_admin', [unit, user]);
+        });
     }
-    async roleSetAdmin(unit, $user, user, role, assigned) {
-        await this.call('$set_admin', [unit, $user, user, role, assigned]);
+    roleSetAdmin(unit, $user, user, role, assigned) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_admin', [unit, $user, user, role, assigned]);
+        });
     }
-    async roleIsAdmin(unit, user) {
-        let ret = await this.tableFromProc('$is_admin', [unit, user]);
-        return ret.length > 0;
+    roleIsAdmin(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.tableFromProc('$is_admin', [unit, user]);
+            return ret.length > 0;
+        });
     }
-    async roleGetMy(unit, user) {
-        let ret = await this.tablesFromProc('$role_my_roles', [unit, user]);
-        return ret;
+    roleGetMy(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.tablesFromProc('$role_my_roles', [unit, user]);
+            return ret;
+        });
     }
-    async roleGetAllUsers(unit, user) {
-        // row 0 返回 ixOfUsers
-        let tbl = await this.tableFromProc('$get_all_role_users', [unit, user]);
-        tbl.unshift({ user: 0, roles: this.ixOfUsers });
-        return tbl;
+    roleGetAllUsers(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // row 0 返回 ixOfUsers
+            let tbl = yield this.tableFromProc('$get_all_role_users', [unit, user]);
+            tbl.unshift({ user: 0, roles: this.ixOfUsers });
+            return tbl;
+        });
     }
-    async roleSetUser(unit, user, theUser, roles) {
-        await this.call('$set_user_roles', [unit, user, theUser, roles]);
+    roleSetUser(unit, user, theUser, roles) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$set_user_roles', [unit, user, theUser, roles]);
+        });
     }
-    async roleDeleteUser(unit, user, theUser) {
-        await this.call('$delete_user_roles', [unit, user, theUser]);
+    roleDeleteUser(unit, user, theUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.call('$delete_user_roles', [unit, user, theUser]);
+        });
     }
     checkUqVersion(uqVersion) {
         //if (this.uqVersion === undefined) return;
@@ -215,134 +267,170 @@ class EntityRunner extends Runner_1.Runner {
     setModifyMax(unit, modifyMax) {
         this.modifyMaxes[unit] = modifyMax;
     }
-    async getModifyMax(unit) {
-        let ret = this.modifyMaxes[unit];
-        if (ret !== undefined) {
-            if (ret === null)
-                return;
-            return ret;
-        }
-        try {
-            let maxes = await this.tableFromProc('$modify_queue_max', [unit]);
-            if (maxes.length === 0) {
-                ret = null;
+    getModifyMax(unit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = this.modifyMaxes[unit];
+            if (ret !== undefined) {
+                if (ret === null)
+                    return;
+                return ret;
+            }
+            try {
+                let maxes = yield this.tableFromProc('$modify_queue_max', [unit]);
+                if (maxes.length === 0) {
+                    ret = null;
+                }
+                else {
+                    ret = maxes[0].max;
+                }
+                this.modifyMaxes[unit] = ret;
+                return ret;
+            }
+            catch (err) {
+                tool_1.logger.error(err);
+                this.modifyMaxes[unit] = null;
+            }
+        });
+    }
+    log(unit, subject, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // await this.$uqDb.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
+            yield this.db$Uq.proc('log', [unit, this.dbName, subject, content]);
+        });
+    }
+    logError(unit, subject, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
+            yield this.db$Uq.proc('log_error', [unit, this.dbName, subject, content]);
+        });
+    }
+    confirmProc(proc) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.dbUq.confirmProc(proc);
+        });
+    }
+    call(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbUq.call(proc, params);
+        });
+    }
+    sql(sql, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (Array.isArray(sql) === true) {
+                let rets = [];
+                for (let s of sql) {
+                    let ret = yield this.dbUq.sql(s, params);
+                    rets.push(ret);
+                }
+                return rets;
             }
             else {
-                ret = maxes[0].max;
+                return yield this.dbUq.sql(sql, params);
             }
-            this.modifyMaxes[unit] = ret;
+        });
+    }
+    buildTuidAutoId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.dbUq.buildTuidAutoId();
+        });
+    }
+    tableFromProc(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbUq.tableFromProc(proc, params);
+        });
+    }
+    tablesFromProc(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.dbUq.tablesFromProc(proc, params);
+            let len = ret.length;
+            if (len === 0)
+                return ret;
+            let pl = ret[len - 1];
+            if (Array.isArray(pl) === false)
+                ret.pop();
             return ret;
-        }
-        catch (err) {
-            tool_1.logger.error(err);
-            this.modifyMaxes[unit] = null;
-        }
+        });
     }
-    async log(unit, subject, content) {
-        // await this.$uqDb.uqLog(unit, this.net.getUqFullName(this.uq), subject, content);
-        await this.db$Uq.proc('log', [unit, this.dbName, subject, content]);
+    unitCall(proc, unit, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            p.push(unit);
+            if (params !== undefined)
+                p.push(...params);
+            return yield this.dbUq.call(proc, p);
+        });
     }
-    async logError(unit, subject, content) {
-        //await this.$uqDb.uqLogError(unit, this.net.getUqFullName(this.uq), subject, content);
-        await this.db$Uq.proc('log_error', [unit, this.dbName, subject, content]);
+    unitUserCall(proc, unit, user, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            //if (this.hasUnit === true) 
+            p.push(unit);
+            p.push(user);
+            if (params !== undefined)
+                p.push(...params);
+            return yield this.dbUq.call(proc, p);
+        });
     }
-    async confirmProc(proc) {
-        await this.dbUq.confirmProc(proc);
+    unitUserCallEx(proc, unit, user, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            p.push(unit);
+            p.push(user);
+            if (params !== undefined)
+                p.push(...params);
+            return yield this.dbUq.callEx(proc, p);
+        });
     }
-    async call(proc, params) {
-        return await this.dbUq.call(proc, params);
-    }
-    async sql(sql, params) {
-        if (Array.isArray(sql) === true) {
-            let rets = [];
-            for (let s of sql) {
-                let ret = await this.dbUq.sql(s, params);
-                rets.push(ret);
-            }
-            return rets;
-        }
-        else {
-            return await this.dbUq.sql(sql, params);
-        }
-    }
-    async buildTuidAutoId() {
-        await this.dbUq.buildTuidAutoId();
-    }
-    async tableFromProc(proc, params) {
-        return await this.dbUq.tableFromProc(proc, params);
-    }
-    async tablesFromProc(proc, params) {
-        let ret = await this.dbUq.tablesFromProc(proc, params);
-        let len = ret.length;
-        if (len === 0)
+    unitTableFromProc(proc, unit, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            p.push(unit);
+            if (params !== undefined)
+                p.push(...params);
+            let ret = yield this.dbUq.tableFromProc(proc, p);
             return ret;
-        let pl = ret[len - 1];
-        if (Array.isArray(pl) === false)
-            ret.pop();
-        return ret;
+        });
     }
-    async unitCall(proc, unit, ...params) {
-        let p = [];
-        p.push(unit);
-        if (params !== undefined)
-            p.push(...params);
-        return await this.dbUq.call(proc, p);
+    unitUserTableFromProc(proc, unit, user, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            p.push(unit);
+            p.push(user);
+            if (params !== undefined)
+                p.push(...params);
+            let ret = yield this.dbUq.tableFromProc(proc, p);
+            return ret;
+        });
     }
-    async unitUserCall(proc, unit, user, ...params) {
-        let p = [];
-        //if (this.hasUnit === true) 
-        p.push(unit);
-        p.push(user);
-        if (params !== undefined)
-            p.push(...params);
-        return await this.dbUq.call(proc, p);
+    unitTablesFromProc(proc, unit, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            p.push(unit);
+            if (params !== undefined)
+                p.push(...params);
+            let ret = yield this.dbUq.tablesFromProc(proc, p);
+            return ret;
+        });
     }
-    async unitUserCallEx(proc, unit, user, ...params) {
-        let p = [];
-        p.push(unit);
-        p.push(user);
-        if (params !== undefined)
-            p.push(...params);
-        return await this.dbUq.callEx(proc, p);
+    unitUserTablesFromProc(proc, unit, user, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let p = [];
+            p.push(unit);
+            p.push(user);
+            if (params !== undefined)
+                p.push(...params);
+            let ret = yield this.dbUq.tablesFromProc(proc, p);
+            return ret;
+        });
     }
-    async unitTableFromProc(proc, unit, ...params) {
-        let p = [];
-        p.push(unit);
-        if (params !== undefined)
-            p.push(...params);
-        let ret = await this.dbUq.tableFromProc(proc, p);
-        return ret;
+    buildProc(proc) {
+        return __awaiter(this, void 0, void 0, function* () {
+        });
     }
-    async unitUserTableFromProc(proc, unit, user, ...params) {
-        let p = [];
-        p.push(unit);
-        p.push(user);
-        if (params !== undefined)
-            p.push(...params);
-        let ret = await this.dbUq.tableFromProc(proc, p);
-        return ret;
-    }
-    async unitTablesFromProc(proc, unit, ...params) {
-        let p = [];
-        p.push(unit);
-        if (params !== undefined)
-            p.push(...params);
-        let ret = await this.dbUq.tablesFromProc(proc, p);
-        return ret;
-    }
-    async unitUserTablesFromProc(proc, unit, user, ...params) {
-        let p = [];
-        p.push(unit);
-        p.push(user);
-        if (params !== undefined)
-            p.push(...params);
-        let ret = await this.dbUq.tablesFromProc(proc, p);
-        return ret;
-    }
-    async buildProc(proc) {
-    }
-    async buildUqStoreProcedureIfNotExists(...procs) {
-        await this.dbUq.buildUqStoreProcedureIfNotExists(...procs);
+    buildUqStoreProcedureIfNotExists(...procs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.dbUq.buildUqStoreProcedureIfNotExists(...procs);
+        });
     }
     /*
     async createProc(proc: string) {
@@ -354,49 +442,69 @@ class EntityRunner extends Runner_1.Runner {
      * @param hasSource 表示是否读取entity的源代码
      * @returns array[0]对应的是entity表的记录；array[1]对应的是setting表的记录
      */
-    async loadSchemas(hasSource) {
-        return await this.dbUq.tablesFromProc('$entitys', [hasSource]);
+    loadSchemas(hasSource) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbUq.tablesFromProc('$entitys', [hasSource]);
+        });
     }
-    async saveSchema(unit, user, id, name, type, schema, run, source, from, open, isPrivate) {
-        return await this.unitUserCall('$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
+    saveSchema(unit, user, id, name, type, schema, run, source, from, open, isPrivate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall('$entity', unit, user, id, name, type, schema, run, source, from, open, isPrivate);
+        });
     }
-    async loadConstStrs() {
-        return await this.dbUq.call('$const_strs', []);
+    loadConstStrs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbUq.call('$const_strs', []);
+        });
     }
-    async saveConstStr(type) {
-        let ret = await this.dbUq.call('$const_str', [type]);
-        return ret.map(v => v.id + '\t' + v.name);
+    saveConstStr(type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.dbUq.call('$const_str', [type]);
+            return ret.map(v => v.id + '\t' + v.name);
+        });
     }
-    async savePhrases(phrases, rolesJson) {
-        if (this.dbUq.sqlVersionNumber < 8)
-            return [];
-        let ret = await this.dbUq.call('$save_phrases', [phrases]);
-        let retStr = ret.map(v => v.id + '\t' + v.name);
-        if (rolesJson !== undefined) {
-            let ixPhrasesRole = [];
-            let roles = JSON.parse(rolesJson);
-            for (let { role, permits } of roles) {
-                ixPhrasesRole.push(...permits.map(v => `${role}\t${v}`));
+    savePhrases(phrases, rolesJson) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.dbUq.sqlVersionNumber < 8)
+                return [];
+            let ret = yield this.dbUq.call('$save_phrases', [phrases]);
+            let retStr = ret.map(v => v.id + '\t' + v.name);
+            if (rolesJson !== undefined) {
+                let ixPhrasesRole = [];
+                let roles = JSON.parse(rolesJson);
+                for (let { role, permits } of roles) {
+                    ixPhrasesRole.push(...permits.map(v => `${role}\t${v}`));
+                }
+                yield this.dbUq.call('$save_ixphrases_role', [ixPhrasesRole.join('\n')]);
             }
-            await this.dbUq.call('$save_ixphrases_role', [ixPhrasesRole.join('\n')]);
-        }
-        return retStr;
+            return retStr;
+        });
     }
-    async saveTextId(text) {
-        return await this.dbUq.saveTextId(text);
+    saveTextId(text) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbUq.saveTextId(text);
+        });
     }
-    async loadSchemaVersion(name, version) {
-        return await this.dbUq.call('$entity_version', [name, version]);
+    loadSchemaVersion(name, version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbUq.call('$entity_version', [name, version]);
+        });
     }
-    async setEntityValid(entities, valid) {
-        let ret = await this.dbUq.call('$entity_validate', [entities, valid]);
-        return ret;
+    setEntityValid(entities, valid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.dbUq.call('$entity_validate', [entities, valid]);
+            return ret;
+        });
     }
-    async saveFace(bus, busOwner, busName, faceName) {
-        await this.dbUq.call('$save_face', [bus, busOwner, busName, faceName]);
+    saveFace(bus, busOwner, busName, faceName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.dbUq.call('$save_face', [bus, busOwner, busName, faceName]);
+        });
     }
-    async execQueueAct() {
-        return await this.dbUq.execQueueAct();
+    execQueueAct() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.dbUq.execQueueAct();
+        });
     }
     /*
     async tagType(names: string) {
@@ -440,71 +548,107 @@ class EntityRunner extends Runner_1.Runner {
         if (m.type === 'map')
             return m;
     }
-    async entityNo(entity, unit, year, month, date) {
-        return await this.call('$entity_no', [unit, entity, `${year}-${month}-${date}`]);
+    entityNo(entity, unit, year, month, date) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.call('$entity_no', [unit, entity, `${year}-${month}-${date}`]);
+        });
     }
-    async tuidGet(tuid, unit, user, id) {
-        return await this.unitUserCallEx(tuid, unit, user, id);
+    tuidGet(tuid, unit, user, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCallEx(tuid, unit, user, id);
+        });
     }
-    async tuidArrGet(tuid, arr, unit, user, owner, id) {
-        return await this.unitUserCall(tuid + '_' + arr + '$id', unit, user, owner, id);
+    tuidArrGet(tuid, arr, unit, user, owner, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(tuid + '_' + arr + '$id', unit, user, owner, id);
+        });
     }
-    async tuidGetAll(tuid, unit, user) {
-        return await this.unitUserCall(tuid + '$all', unit, user);
+    tuidGetAll(tuid, unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(tuid + '$all', unit, user);
+        });
     }
-    async tuidVid(tuid, unit, uniqueValue) {
-        let proc = `${tuid}$vid`;
-        return await this.unitCall(proc, unit, uniqueValue);
+    tuidVid(tuid, unit, uniqueValue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc = `${tuid}$vid`;
+            return yield this.unitCall(proc, unit, uniqueValue);
+        });
     }
-    async tuidArrVid(tuid, arr, unit, uniqueValue) {
-        let proc = `${tuid}_${arr}$vid`;
-        return await this.unitCall(proc, unit, uniqueValue);
+    tuidArrVid(tuid, arr, unit, uniqueValue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc = `${tuid}_${arr}$vid`;
+            return yield this.unitCall(proc, unit, uniqueValue);
+        });
     }
-    async tuidGetArrAll(tuid, arr, unit, user, owner) {
-        return await this.unitUserCall(tuid + '_' + arr + '$all', unit, user, owner);
+    tuidGetArrAll(tuid, arr, unit, user, owner) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(tuid + '_' + arr + '$all', unit, user, owner);
+        });
     }
-    async tuidIds(tuid, arr, unit, user, ids) {
-        let proc = tuid;
-        if (arr !== '$')
-            proc += '_' + arr;
-        proc += '$ids';
-        let ret = await this.unitUserCall(proc, unit, user, ids);
-        return ret;
+    tuidIds(tuid, arr, unit, user, ids) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc = tuid;
+            if (arr !== '$')
+                proc += '_' + arr;
+            proc += '$ids';
+            let ret = yield this.unitUserCall(proc, unit, user, ids);
+            return ret;
+        });
     }
-    async tuidMain(tuid, unit, user, id) {
-        return await this.unitUserCall(tuid + '$main', unit, user, id);
+    tuidMain(tuid, unit, user, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(tuid + '$main', unit, user, id);
+        });
     }
-    async tuidSave(tuid, unit, user, params) {
-        return await this.unitUserCall(tuid + '$save', unit, user, ...params);
+    tuidSave(tuid, unit, user, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(tuid + '$save', unit, user, ...params);
+        });
     }
-    async tuidSetStamp(tuid, unit, params) {
-        return await this.unitCall(tuid + '$stamp', unit, ...params);
+    tuidSetStamp(tuid, unit, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitCall(tuid + '$stamp', unit, ...params);
+        });
     }
-    async tuidArrSave(tuid, arr, unit, user, params) {
-        return await this.unitUserCall(tuid + '_' + arr + '$save', unit, user, ...params);
+    tuidArrSave(tuid, arr, unit, user, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(tuid + '_' + arr + '$save', unit, user, ...params);
+        });
     }
-    async tuidArrPos(tuid, arr, unit, user, params) {
-        return await this.unitUserCall(tuid + '_' + arr + '$pos', unit, user, ...params);
+    tuidArrPos(tuid, arr, unit, user, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(tuid + '_' + arr + '$pos', unit, user, ...params);
+        });
     }
-    async tuidSeach(tuid, unit, user, arr, key, pageStart, pageSize) {
-        let proc = tuid + '$search';
-        return await this.unitUserTablesFromProc(proc, unit, user, key || '', pageStart, pageSize);
+    tuidSeach(tuid, unit, user, arr, key, pageStart, pageSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc = tuid + '$search';
+            return yield this.unitUserTablesFromProc(proc, unit, user, key || '', pageStart, pageSize);
+        });
     }
-    async saveProp(tuid, unit, user, id, prop, value) {
-        let proc = tuid + '$prop';
-        await this.unitUserCall(proc, unit, user, id, prop, value);
+    saveProp(tuid, unit, user, id, prop, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc = tuid + '$prop';
+            yield this.unitUserCall(proc, unit, user, id, prop, value);
+        });
     }
-    async tuidArrSeach(tuid, unit, user, arr, ownerId, key, pageStart, pageSize) {
-        let proc = `${tuid}_${arr}$search`;
-        return await this.unitUserTablesFromProc(proc, unit, user, ownerId, key || '', pageStart, pageSize);
+    tuidArrSeach(tuid, unit, user, arr, ownerId, key, pageStart, pageSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc = `${tuid}_${arr}$search`;
+            return yield this.unitUserTablesFromProc(proc, unit, user, ownerId, key || '', pageStart, pageSize);
+        });
     }
-    async mapSave(map, unit, user, params) {
-        return await this.unitUserCall(map + '$save', unit, user, ...params);
+    mapSave(map, unit, user, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall(map + '$save', unit, user, ...params);
+        });
     }
-    async importVId(unit, user, source, tuid, arr, no) {
-        let proc = `$import_vid`;
-        let ret = await this.unitUserTableFromProc(proc, unit, user, source, tuid, arr, no);
-        return ret[0].vid;
+    importVId(unit, user, source, tuid, arr, no) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc = `$import_vid`;
+            let ret = yield this.unitUserTableFromProc(proc, unit, user, source, tuid, arr, no);
+            return ret[0].vid;
+        });
     }
     getSheetVerifyParametersBus(sheetName) {
         let name = sheetName + '$verify';
@@ -525,41 +669,49 @@ class EntityRunner extends Runner_1.Runner {
         }
         return true;
     }
-    async sheetVerify(sheet, unit, user, data) {
-        let sheetRun = this.sheetRuns[sheet];
-        if (sheetRun === undefined)
-            return;
-        let { verify } = sheetRun;
-        if (verify === undefined)
-            return;
-        let { returns } = verify;
-        if (returns === undefined)
-            return;
-        let { length } = returns;
-        if (length === 0)
-            return;
-        //let actionName = sheet + '$verify';
-        let inBusAction = this.getSheetVerifyParametersBus(sheet);
-        let inBusResult = await inBusAction.busQueryAll(unit, user, data);
-        let inBusActionData = data + inBusResult;
-        let ret = await this.unitUserCall(sheet + '$verify', unit, user, inBusActionData);
-        if (length === 1) {
-            if (this.isVerifyItemOk(ret) === true)
+    sheetVerify(sheet, unit, user, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sheetRun = this.sheetRuns[sheet];
+            if (sheetRun === undefined)
                 return;
-        }
-        if (this.isVerifyArrOk(ret) === true)
-            return;
-        let failed = (0, packReturn_1.packReturns)(returns, ret);
-        return failed;
+            let { verify } = sheetRun;
+            if (verify === undefined)
+                return;
+            let { returns } = verify;
+            if (returns === undefined)
+                return;
+            let { length } = returns;
+            if (length === 0)
+                return;
+            //let actionName = sheet + '$verify';
+            let inBusAction = this.getSheetVerifyParametersBus(sheet);
+            let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
+            let inBusActionData = data + inBusResult;
+            let ret = yield this.unitUserCall(sheet + '$verify', unit, user, inBusActionData);
+            if (length === 1) {
+                if (this.isVerifyItemOk(ret) === true)
+                    return;
+            }
+            if (this.isVerifyArrOk(ret) === true)
+                return;
+            let failed = (0, packReturn_1.packReturns)(returns, ret);
+            return failed;
+        });
     }
-    async sheetSave(sheet, unit, user, app, discription, data) {
-        return await this.unitUserCall('$sheet_save', unit, user, sheet, app, discription, data);
+    sheetSave(sheet, unit, user, app, discription, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.unitUserCall('$sheet_save', unit, user, sheet, app, discription, data);
+        });
     }
-    async sheetTo(unit, user, sheetId, toArr) {
-        await this.unitUserCall('$sheet_to', unit, user, sheetId, toArr.join(','));
+    sheetTo(unit, user, sheetId, toArr) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.unitUserCall('$sheet_to', unit, user, sheetId, toArr.join(','));
+        });
     }
-    async sheetProcessing(sheetId) {
-        await this.dbUq.call('$sheet_processing', [sheetId]);
+    sheetProcessing(sheetId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.dbUq.call('$sheet_processing', [sheetId]);
+        });
     }
     getSheetActionParametersBus(sheetName, stateName, actionName) {
         let name = `${sheetName}_${stateName}_${actionName}`;
@@ -572,50 +724,68 @@ class EntityRunner extends Runner_1.Runner {
         }
         return inBusAction;
     }
-    async sheetAct(sheet, state, action, unit, user, id, flow) {
-        let inBusActionName = sheet + '_' + (state === '$' ? action : state + '_' + action);
-        let inBusAction = this.getSheetActionParametersBus(sheet, state, action);
-        if (inBusAction === undefined)
-            return [`state ${state} is not sheet ${sheet} state`];
-        let inBusActionData = await inBusAction.busQueryAll(unit, user, id);
-        //await this.log(unit, 'sheetAct', 'before ' + inBusActionName);
-        let ret = inBusActionData === '' ?
-            await this.unitUserCallEx(inBusActionName, unit, user, id, flow, action)
-            : await this.unitUserCallEx(inBusActionName, unit, user, id, flow, action, inBusActionData);
-        //await this.log(unit, 'sheetAct', 'after ' + inBusActionName);
-        return ret;
+    sheetAct(sheet, state, action, unit, user, id, flow) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let inBusActionName = sheet + '_' + (state === '$' ? action : state + '_' + action);
+            let inBusAction = this.getSheetActionParametersBus(sheet, state, action);
+            if (inBusAction === undefined)
+                return [`state ${state} is not sheet ${sheet} state`];
+            let inBusActionData = yield inBusAction.busQueryAll(unit, user, id);
+            //await this.log(unit, 'sheetAct', 'before ' + inBusActionName);
+            let ret = inBusActionData === '' ?
+                yield this.unitUserCallEx(inBusActionName, unit, user, id, flow, action)
+                : yield this.unitUserCallEx(inBusActionName, unit, user, id, flow, action, inBusActionData);
+            //await this.log(unit, 'sheetAct', 'after ' + inBusActionName);
+            return ret;
+        });
     }
-    async sheetStates(sheet, state, unit, user, pageStart, pageSize) {
-        let sql = '$sheet_state';
-        return await this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
+    sheetStates(sheet, state, unit, user, pageStart, pageSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$sheet_state';
+            return yield this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
+        });
     }
-    async sheetStateCount(sheet, unit, user) {
-        let sql = '$sheet_state_count';
-        return await this.unitUserCall(sql, unit, user, sheet);
+    sheetStateCount(sheet, unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$sheet_state_count';
+            return yield this.unitUserCall(sql, unit, user, sheet);
+        });
     }
-    async userSheets(sheet, state, unit, user, sheetUser, pageStart, pageSize) {
-        let sql = '$sheet_state_user';
-        return await this.unitUserCall(sql, unit, user, sheet, state, sheetUser, pageStart, pageSize);
+    userSheets(sheet, state, unit, user, sheetUser, pageStart, pageSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$sheet_state_user';
+            return yield this.unitUserCall(sql, unit, user, sheet, state, sheetUser, pageStart, pageSize);
+        });
     }
-    async mySheets(sheet, state, unit, user, pageStart, pageSize) {
-        let sql = '$sheet_state_my';
-        return await this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
+    mySheets(sheet, state, unit, user, pageStart, pageSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$sheet_state_my';
+            return yield this.unitUserCall(sql, unit, user, sheet, state, pageStart, pageSize);
+        });
     }
-    async getSheet(sheet, unit, user, id) {
-        let sql = '$sheet_id';
-        return await this.unitUserCall(sql, unit, user, sheet, id);
+    getSheet(sheet, unit, user, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$sheet_id';
+            return yield this.unitUserCall(sql, unit, user, sheet, id);
+        });
     }
-    async sheetScan(sheet, unit, user, id) {
-        let sql = '$sheet_scan';
-        return await this.unitUserCall(sql, unit, user, sheet, id);
+    sheetScan(sheet, unit, user, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$sheet_scan';
+            return yield this.unitUserCall(sql, unit, user, sheet, id);
+        });
     }
-    async sheetArchives(sheet, unit, user, pageStart, pageSize) {
-        let sql = '$archives';
-        return await this.unitUserCall(sql, unit, user, sheet, pageStart, pageSize);
+    sheetArchives(sheet, unit, user, pageStart, pageSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$archives';
+            return yield this.unitUserCall(sql, unit, user, sheet, pageStart, pageSize);
+        });
     }
-    async sheetArchive(unit, user, sheet, id) {
-        let sql = '$archive_id';
-        return await this.unitUserCall(sql, unit, user, sheet, id);
+    sheetArchive(unit, user, sheet, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = '$archive_id';
+            return yield this.unitUserCall(sql, unit, user, sheet, id);
+        });
     }
     getActionParametersBus(actionName) {
         let inBusAction = this.parametersBusCache[actionName];
@@ -627,37 +797,49 @@ class EntityRunner extends Runner_1.Runner {
         }
         return inBusAction;
     }
-    async action(actionName, unit, user, data) {
-        let inBusAction = this.getActionParametersBus(actionName);
-        let inBusResult = await inBusAction.busQueryAll(unit, user, data);
-        let actionData = data + inBusResult;
-        let result = await this.unitUserCallEx(actionName, unit, user, actionData);
-        return result;
+    action(actionName, unit, user, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let inBusAction = this.getActionParametersBus(actionName);
+            let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
+            let actionData = data + inBusResult;
+            let result = yield this.unitUserCallEx(actionName, unit, user, actionData);
+            return result;
+        });
     }
-    async actionProxy(actionName, unit, user, proxyUser, data) {
-        let inBusAction = this.getActionParametersBus(actionName);
-        let inBusResult = await inBusAction.busQueryAll(unit, user, data);
-        let actionData = data + inBusResult;
-        let result = await this.unitUserCallEx(actionName, unit, user, proxyUser, actionData);
-        return result;
+    actionProxy(actionName, unit, user, proxyUser, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let inBusAction = this.getActionParametersBus(actionName);
+            let inBusResult = yield inBusAction.busQueryAll(unit, user, data);
+            let actionData = data + inBusResult;
+            let result = yield this.unitUserCallEx(actionName, unit, user, proxyUser, actionData);
+            return result;
+        });
     }
-    async actionFromObj(actionName, unit, user, obj) {
-        let inBusAction = this.getActionParametersBus(actionName);
-        let actionData = await inBusAction.buildDataFromObj(unit, user, obj);
-        let result = await this.unitUserCallEx(actionName, unit, user, actionData);
-        return result;
+    actionFromObj(actionName, unit, user, obj) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let inBusAction = this.getActionParametersBus(actionName);
+            let actionData = yield inBusAction.buildDataFromObj(unit, user, obj);
+            let result = yield this.unitUserCallEx(actionName, unit, user, actionData);
+            return result;
+        });
     }
-    async actionDirect(actionName, unit, user, ...params) {
-        let result = await this.unitUserCallEx(actionName, unit, user, ...params);
-        return result;
+    actionDirect(actionName, unit, user, ...params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let result = yield this.unitUserCallEx(actionName, unit, user, ...params);
+            return result;
+        });
     }
-    async query(query, unit, user, params) {
-        let ret = await this.unitUserCall(query, unit, user, ...params);
-        return ret;
+    query(query, unit, user, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.unitUserCall(query, unit, user, ...params);
+            return ret;
+        });
     }
-    async queryProxy(query, unit, user, proxyUser, params) {
-        let ret = await this.unitUserCall(query, unit, user, proxyUser, ...params);
-        return ret;
+    queryProxy(query, unit, user, proxyUser, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.unitUserCall(query, unit, user, proxyUser, ...params);
+            return ret;
+        });
     }
     // msgId: bus message id
     // body: bus message body
@@ -672,31 +854,39 @@ class EntityRunner extends Runner_1.Runner {
         }
         return inBusAction;
     }
-    async bus(bus, face, unit, to, msgId, body, version, stamp) {
-        let inBusAction = this.getAcceptParametersBus(bus, face);
-        let inBusResult = await inBusAction.busQueryAll(unit, to, body);
-        let data = body + inBusResult;
-        const proc = `${bus}_${face}`;
-        await this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
+    bus(bus, face, unit, to, msgId, body, version, stamp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let inBusAction = this.getAcceptParametersBus(bus, face);
+            let inBusResult = yield inBusAction.busQueryAll(unit, to, body);
+            let data = body + inBusResult;
+            const proc = `${bus}_${face}`;
+            yield this.unitUserCall(proc, unit, to, msgId, data, version, stamp);
+        });
     }
-    async busAcceptFromQuery(bus, face, unit, body) {
-        await this.unitUserCall(`${bus}_${face}`, unit, 0, 0, body, undefined);
+    busAcceptFromQuery(bus, face, unit, body) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.unitUserCall(`${bus}_${face}`, unit, 0, 0, body, undefined);
+        });
     }
-    async checkPull(unit, entity, entityType, modifies) {
-        let proc;
-        switch (entityType) {
-            default: throw 'error entityType';
-            case 'tuid':
-                proc = `${entity}$pull_check`;
-                break;
-            case 'map':
-                proc = '$map_pull_check';
-                break;
-        }
-        return await this.unitTableFromProc(proc, unit, entity, modifies);
+    checkPull(unit, entity, entityType, modifies) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let proc;
+            switch (entityType) {
+                default: throw 'error entityType';
+                case 'tuid':
+                    proc = `${entity}$pull_check`;
+                    break;
+                case 'map':
+                    proc = '$map_pull_check';
+                    break;
+            }
+            return yield this.unitTableFromProc(proc, unit, entity, modifies);
+        });
     }
-    async importData(unit, user, source, entity, filePath) {
-        await importData_1.ImportData.exec(this, unit, this.dbUq, source, entity, filePath);
+    importData(unit, user, source, entity, filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield importData_1.ImportData.exec(this, unit, this.dbUq, source, entity, filePath);
+        });
     }
     equDb(dbContainer) {
         return this.dbUq === dbContainer;
@@ -706,270 +896,275 @@ class EntityRunner extends Runner_1.Runner {
             await this.net.resetRunnerAfterCompile(this);
         }
     */
-    async init() {
-        if (this.schemas !== undefined)
-            return;
-        try {
-            await this.initInternal();
-            if (this.hasStatements === true) {
-                await this.runUqStatements();
+    init() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.schemas !== undefined)
+                return;
+            try {
+                yield this.initInternal();
+                if (this.hasStatements === true) {
+                    yield this.runUqStatements();
+                }
             }
-        }
-        catch (err) {
-            this.schemas = undefined;
-            tool_1.logger.error(err.message);
-            debugger;
-        }
+            catch (err) {
+                this.schemas = undefined;
+                tool_1.logger.error(err.message);
+                debugger;
+            }
+        });
     }
-    async initInternal() {
-        this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
-        let eventsText = await this.dbUq.removeAllScheduleEvents();
-        this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
-        let rows = await this.loadSchemas(0);
-        let schemaTable = rows[0];
-        let settingTable = rows[1];
-        let setting = {};
-        for (let row of settingTable) {
-            let { name, value } = row;
-            name = name.toLowerCase();
-            if (value === null) {
-                setting[name] = null;
-            }
-            else {
-                let n = Number(value);
-                setting[name] = isNaN(n) === true ? value : n;
-            }
-        }
-        this.uqOwner = setting['uqowner'];
-        this.uq = setting['uq'];
-        this.author = setting['author'];
-        this.uqId = setting['uqid'];
-        this.version = setting['version']; // source verion in uq code
-        this.uqVersion = setting['uqversion']; // compile changed
-        if (this.uqVersion === undefined)
-            this.uqVersion = 1;
-        this.hasUnit = !(setting['hasunit'] === 0);
-        this.hasStatements = setting['hasstatements'] === 1;
-        this.service = setting['service'];
-        this.devBuildSys = setting['dev-build-sys'] !== null;
-        let ixUserArr = [];
-        let uu = setting['uniqueunit'];
-        this.uniqueUnit = uu ?? tool_1.env.uniqueUnitInConfig;
-        if (tool_1.env.isDevelopment)
-            tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
-        this.schemas = {};
-        this.accessSchemaArr = [];
-        this.ids = {};
-        this.tuids = {};
-        this.busArr = [];
-        this.entityColl = {};
-        this.froms = {};
-        this.sheetRuns = {};
-        for (let row of schemaTable) {
-            let { name, id, version, schema, run, from } = row;
-            if (!schema)
-                continue;
-            let tuidFroms;
-            let schemaObj;
-            if (schema[0] === '{') {
-                schemaObj = JSON.parse(schema);
-            }
-            else {
-                schemaObj = jsonpack.unpack(schema);
-            }
-            let sName = schemaObj.name;
-            let runObj = JSON.parse(run);
-            schemaObj.typeId = id;
-            schemaObj.busVersion = schemaObj.version;
-            schemaObj.version = version;
-            let { type, sync } = schemaObj;
-            this.schemas[name] = {
-                type: type,
-                from: from,
-                call: schemaObj,
-                run: runObj,
-            };
-            switch (type) {
-                case '$role':
-                    this.role = schemaObj;
-                    this.roleNames = schemaObj?.names;
-                    break;
-                case 'access':
-                    this.accessSchemaArr.push(schemaObj);
-                    break;
-                case 'bus':
-                    this.busArr.push(schemaObj);
-                    break;
-                case 'biz.spec':
-                    if (schemaObj.private !== true) {
-                        this.ids[name] = schemaObj;
-                    }
-                    break;
-                case 'id':
-                    if (schemaObj.private !== true) {
-                        this.ids[name] = schemaObj;
-                    }
-                    break;
-                case 'tuid':
-                    this.tuids[name] = schemaObj;
-                    if (from) {
-                        if (!(sync === false))
-                            this.hasPullEntities = true;
-                        tuidFroms = this.froms[from];
-                        if (tuidFroms === undefined)
-                            tuidFroms = this.froms[from] = {};
-                        let tuidFrom = tuidFroms[name];
-                        if (tuidFrom === undefined)
-                            tuidFrom = tuidFroms[name] = {};
-                        tuidFrom.tuidObj = schemaObj;
-                    }
-                    this.buildTuidMainFields(schemaObj);
-                    break;
-                case 'map':
-                    if (from) {
-                        this.hasPullEntities = true;
-                        tuidFroms = this.froms[from];
-                        if (tuidFroms === undefined)
-                            tuidFroms = this.froms[from] = {};
-                        let { keys } = schemaObj;
-                        let key0 = keys[0];
-                        let tuidName = key0.tuid;
-                        if (tuidName === undefined)
-                            break;
-                        let tuidFrom = tuidFroms[tuidName];
-                        if (tuidFrom === undefined)
-                            tuidFrom = tuidFroms[tuidName] = {};
-                        let mapObjs = tuidFrom.mapObjs;
-                        if (mapObjs === undefined)
-                            mapObjs = tuidFrom.mapObjs = {};
-                        mapObjs[name] = schemaObj;
-                    }
-                    break;
-                case 'sheet':
-                    this.hasSheet = true;
-                    this.sheetRuns[name] = {
-                        onsave: runObj?.run['$']?.['$onsave'] !== undefined,
-                        verify: schemaObj.verify,
-                    };
-                    break;
-                case 'ix':
-                    // 下面这句，以后可以去掉。schema.idIsUser会改成ixIsUser
-                    if (schemaObj.idIsUser === true) {
-                        ixUserArr.push(schemaObj);
-                    }
-                    ;
-                    if (schemaObj.ixIsUser === true) {
-                        ixUserArr.push(schemaObj);
-                    }
-                    break;
-            }
-            if (row['private'] === 0 || type === 'id') {
-                this.entityColl[id] = {
-                    name: sName,
-                    access: type !== 'sheet' ?
-                        type + '|' + id :
-                        {
-                            $: type,
-                            id: id,
-                            ops: schemaObj.states && schemaObj.states.map(v => v.name)
-                        }
-                };
-            }
-        }
-        this.ixOfUsers = ixUserArr.map(v => v.name).join('|');
-        for (let i in this.froms) {
-            let from = this.froms[i];
-            for (let t in from) {
-                let syncTuid = from[t];
-                let { tuidObj, mapObjs } = syncTuid;
-                if (tuidObj !== undefined) {
-                    syncTuid.tuid = tuidObj.name.toLowerCase();
+    initInternal() {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
+            let eventsText = yield this.dbUq.removeAllScheduleEvents();
+            this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
+            let rows = yield this.loadSchemas(0);
+            let schemaTable = rows[0];
+            let settingTable = rows[1];
+            let setting = {};
+            for (let row of settingTable) {
+                let { name, value } = row;
+                name = name.toLowerCase();
+                if (value === null) {
+                    setting[name] = null;
                 }
-                if (mapObjs !== undefined) {
-                    let s = [];
-                    for (let m in mapObjs)
-                        s.push(m.toLowerCase());
-                    syncTuid.maps = s;
+                else {
+                    let n = Number(value);
+                    setting[name] = isNaN(n) === true ? value : n;
                 }
             }
-        }
-        for (let i in this.schemas) {
-            let schema = this.schemas[i].call;
-            let { type, name } = schema;
-            switch (type) {
-                case 'map':
-                    this.mapBorn(schema);
-                    break;
-            }
-        }
-        for (let i in this.schemas) {
-            let schema = this.schemas[i];
-            let { call } = schema;
-            if (call === undefined)
-                continue;
-            let circular = false;
-            let tuidsArr = [call];
-            let text = JSON.stringify(call, (key, value) => {
-                if (key === 'tuids') {
-                    let ret = [];
-                    for (let v of value) {
-                        if (tuidsArr.findIndex(a => a === v) >= 0) {
-                            circular = true;
-                        }
-                        else {
-                            tuidsArr.push(v);
-                            ret.push(v);
-                        }
-                    }
-                    return ret.length > 0 ? ret : undefined;
-                }
-                else if (key !== '' && value === call) {
-                    circular = true;
-                    return undefined;
-                }
-                else
-                    return value;
-            });
-            if (circular) {
-                let newCall = JSON.parse(text);
-                schema.call = newCall;
-            }
-        }
-        let faces = [];
-        let busOutCount = 0;
-        let urlColl = {};
-        let faceColl = {};
-        for (let busSchema of this.busArr) {
-            let { name: bus, busOwner, busName, schema, outCount, busVersion } = busSchema;
-            for (let i in schema) {
-                let { accept, query } = schema[i];
-                let faceName = i.toLowerCase();
-                let url = `${busOwner.toLowerCase()}/${busName.toLowerCase()}/${faceName}`;
-                if (urlColl[url])
+            this.uqOwner = setting['uqowner'];
+            this.uq = setting['uq'];
+            this.author = setting['author'];
+            this.uqId = setting['uqid'];
+            this.version = setting['version']; // source verion in uq code
+            this.uqVersion = setting['uqversion']; // compile changed
+            if (this.uqVersion === undefined)
+                this.uqVersion = 1;
+            this.hasUnit = !(setting['hasunit'] === 0);
+            this.hasStatements = setting['hasstatements'] === 1;
+            this.service = setting['service'];
+            this.devBuildSys = setting['dev-build-sys'] !== null;
+            let ixUserArr = [];
+            let uu = setting['uniqueunit'];
+            this.uniqueUnit = uu !== null && uu !== void 0 ? uu : tool_1.env.uniqueUnitInConfig;
+            if (tool_1.env.isDevelopment)
+                tool_1.logger.debug('init schemas: ', this.uq, this.author, this.version);
+            this.schemas = {};
+            this.accessSchemaArr = [];
+            this.ids = {};
+            this.tuids = {};
+            this.busArr = [];
+            this.entityColl = {};
+            this.froms = {};
+            this.sheetRuns = {};
+            for (let row of schemaTable) {
+                let { name, id, version, schema, run, from } = row;
+                if (!schema)
                     continue;
-                let faceUrl = `${bus.toLowerCase()}/${faceName}`;
-                if (accept !== undefined) {
-                    faces.push(url);
-                    faceColl[faceUrl] = urlColl[url] = new BusFace_1.BusFaceAccept(this, url, bus, faceName, busVersion, accept);
+                let tuidFroms;
+                let schemaObj;
+                if (schema[0] === '{') {
+                    schemaObj = JSON.parse(schema);
                 }
-                else if (query === true) {
-                    faceColl[faceUrl] = urlColl[url] = new BusFace_1.BusFaceQuery(this, url, bus, faceName, busVersion);
+                else {
+                    schemaObj = jsonpack.unpack(schema);
+                }
+                let sName = schemaObj.name;
+                let runObj = JSON.parse(run);
+                schemaObj.typeId = id;
+                schemaObj.busVersion = schemaObj.version;
+                schemaObj.version = version;
+                let { type, sync } = schemaObj;
+                this.schemas[name] = {
+                    type: type,
+                    from: from,
+                    call: schemaObj,
+                    run: runObj,
+                };
+                switch (type) {
+                    case '$role':
+                        this.role = schemaObj;
+                        this.roleNames = schemaObj === null || schemaObj === void 0 ? void 0 : schemaObj.names;
+                        break;
+                    case 'access':
+                        this.accessSchemaArr.push(schemaObj);
+                        break;
+                    case 'bus':
+                        this.busArr.push(schemaObj);
+                        break;
+                    case 'biz.spec':
+                        if (schemaObj.private !== true) {
+                            this.ids[name] = schemaObj;
+                        }
+                        break;
+                    case 'id':
+                        if (schemaObj.private !== true) {
+                            this.ids[name] = schemaObj;
+                        }
+                        break;
+                    case 'tuid':
+                        this.tuids[name] = schemaObj;
+                        if (from) {
+                            if (!(sync === false))
+                                this.hasPullEntities = true;
+                            tuidFroms = this.froms[from];
+                            if (tuidFroms === undefined)
+                                tuidFroms = this.froms[from] = {};
+                            let tuidFrom = tuidFroms[name];
+                            if (tuidFrom === undefined)
+                                tuidFrom = tuidFroms[name] = {};
+                            tuidFrom.tuidObj = schemaObj;
+                        }
+                        this.buildTuidMainFields(schemaObj);
+                        break;
+                    case 'map':
+                        if (from) {
+                            this.hasPullEntities = true;
+                            tuidFroms = this.froms[from];
+                            if (tuidFroms === undefined)
+                                tuidFroms = this.froms[from] = {};
+                            let { keys } = schemaObj;
+                            let key0 = keys[0];
+                            let tuidName = key0.tuid;
+                            if (tuidName === undefined)
+                                break;
+                            let tuidFrom = tuidFroms[tuidName];
+                            if (tuidFrom === undefined)
+                                tuidFrom = tuidFroms[tuidName] = {};
+                            let mapObjs = tuidFrom.mapObjs;
+                            if (mapObjs === undefined)
+                                mapObjs = tuidFrom.mapObjs = {};
+                            mapObjs[name] = schemaObj;
+                        }
+                        break;
+                    case 'sheet':
+                        this.hasSheet = true;
+                        this.sheetRuns[name] = {
+                            onsave: ((_a = runObj === null || runObj === void 0 ? void 0 : runObj.run['$']) === null || _a === void 0 ? void 0 : _a['$onsave']) !== undefined,
+                            verify: schemaObj.verify,
+                        };
+                        break;
+                    case 'ix':
+                        // 下面这句，以后可以去掉。schema.idIsUser会改成ixIsUser
+                        if (schemaObj.idIsUser === true) {
+                            ixUserArr.push(schemaObj);
+                        }
+                        ;
+                        if (schemaObj.ixIsUser === true) {
+                            ixUserArr.push(schemaObj);
+                        }
+                        break;
+                }
+                if (row['private'] === 0 || type === 'id') {
+                    this.entityColl[id] = {
+                        name: sName,
+                        access: type !== 'sheet' ?
+                            type + '|' + id :
+                            {
+                                $: type,
+                                id: id,
+                                ops: schemaObj.states && schemaObj.states.map(v => v.name)
+                            }
+                    };
                 }
             }
-            busOutCount += (outCount ?? 0);
-        }
-        let faceText;
-        if (faces.length > 0)
-            faceText = '\n' + faces.join('\n') + '\n';
-        this.buses = {
-            faces: faceText,
-            outCount: busOutCount,
-            urlColl,
-            faceColl,
-            error: undefined,
-        };
-        this.buildTuid$User();
-        this.buildAccesses();
+            this.ixOfUsers = ixUserArr.map(v => v.name).join('|');
+            for (let i in this.froms) {
+                let from = this.froms[i];
+                for (let t in from) {
+                    let syncTuid = from[t];
+                    let { tuidObj, mapObjs } = syncTuid;
+                    if (tuidObj !== undefined) {
+                        syncTuid.tuid = tuidObj.name.toLowerCase();
+                    }
+                    if (mapObjs !== undefined) {
+                        let s = [];
+                        for (let m in mapObjs)
+                            s.push(m.toLowerCase());
+                        syncTuid.maps = s;
+                    }
+                }
+            }
+            for (let i in this.schemas) {
+                let schema = this.schemas[i].call;
+                let { type, name } = schema;
+                switch (type) {
+                    case 'map':
+                        this.mapBorn(schema);
+                        break;
+                }
+            }
+            for (let i in this.schemas) {
+                let schema = this.schemas[i];
+                let { call } = schema;
+                if (call === undefined)
+                    continue;
+                let circular = false;
+                let tuidsArr = [call];
+                let text = JSON.stringify(call, (key, value) => {
+                    if (key === 'tuids') {
+                        let ret = [];
+                        for (let v of value) {
+                            if (tuidsArr.findIndex(a => a === v) >= 0) {
+                                circular = true;
+                            }
+                            else {
+                                tuidsArr.push(v);
+                                ret.push(v);
+                            }
+                        }
+                        return ret.length > 0 ? ret : undefined;
+                    }
+                    else if (key !== '' && value === call) {
+                        circular = true;
+                        return undefined;
+                    }
+                    else
+                        return value;
+                });
+                if (circular) {
+                    let newCall = JSON.parse(text);
+                    schema.call = newCall;
+                }
+            }
+            let faces = [];
+            let busOutCount = 0;
+            let urlColl = {};
+            let faceColl = {};
+            for (let busSchema of this.busArr) {
+                let { name: bus, busOwner, busName, schema, outCount, busVersion } = busSchema;
+                for (let i in schema) {
+                    let { accept, query } = schema[i];
+                    let faceName = i.toLowerCase();
+                    let url = `${busOwner.toLowerCase()}/${busName.toLowerCase()}/${faceName}`;
+                    if (urlColl[url])
+                        continue;
+                    let faceUrl = `${bus.toLowerCase()}/${faceName}`;
+                    if (accept !== undefined) {
+                        faces.push(url);
+                        faceColl[faceUrl] = urlColl[url] = new BusFace_1.BusFaceAccept(this, url, bus, faceName, busVersion, accept);
+                    }
+                    else if (query === true) {
+                        faceColl[faceUrl] = urlColl[url] = new BusFace_1.BusFaceQuery(this, url, bus, faceName, busVersion);
+                    }
+                }
+                busOutCount += (outCount !== null && outCount !== void 0 ? outCount : 0);
+            }
+            let faceText;
+            if (faces.length > 0)
+                faceText = '\n' + faces.join('\n') + '\n';
+            this.buses = {
+                faces: faceText,
+                outCount: busOutCount,
+                urlColl,
+                faceColl,
+                error: undefined,
+            };
+            this.buildTuid$User();
+            this.buildAccesses();
+        });
     }
     buildTuid$User() {
         let $user = this.tuids['$user'];
@@ -1057,86 +1252,98 @@ class EntityRunner extends Runner_1.Runner {
         if (tool_1.env.isDevelopment)
             tool_1.logger.debug('access: ', this.access);
     }
-    async getUserAccess(unit, user) {
-        let result = await this.dbUq.tablesFromProc('$get_access', [unit]);
-        let ret = [...result[0].map(v => v.entity), ...result[1].map(v => v.entity)];
-        return ret;
+    getUserAccess(unit, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let result = yield this.dbUq.tablesFromProc('$get_access', [unit]);
+            let ret = [...result[0].map(v => v.entity), ...result[1].map(v => v.entity)];
+            return ret;
+        });
     }
-    async getUser(user) {
-        let ret = await this.dbUq.tableFromProc('$getuser', [0, 0, user]);
-        if (ret.length === 0)
-            return undefined;
-        return ret[0];
+    getUser(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.dbUq.tableFromProc('$getuser', [0, 0, user]);
+            if (ret.length === 0)
+                return undefined;
+            return ret[0];
+        });
     }
-    async saveUser(id, name, nick, icon) {
-        let params = [id, name, nick, icon].join('\t') + '\n';
-        let ret = await this.dbUq.tableFromProc('$setuser', [0, 0, params]);
-        if (ret.length === 0)
-            return undefined;
-        return ret[0];
+    saveUser(id, name, nick, icon) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let params = [id, name, nick, icon].join('\t') + '\n';
+            let ret = yield this.dbUq.tableFromProc('$setuser', [0, 0, params]);
+            if (ret.length === 0)
+                return undefined;
+            return ret[0];
+        });
     }
-    async getAccesses(unit, user, acc) {
-        await this.init();
-        let access = {};
-        function merge(src) {
-            for (let i in src) {
-                let v = src[i];
-                if (typeof v === 'string') {
-                    access[i] = v;
-                    continue;
+    getAccesses(unit, user, acc) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.init();
+            let access = {};
+            function merge(src) {
+                for (let i in src) {
+                    let v = src[i];
+                    if (typeof v === 'string') {
+                        access[i] = v;
+                        continue;
+                    }
+                    let dst = access[i];
+                    if (dst === undefined) {
+                        access[i] = v;
+                        continue;
+                    }
+                    dst.ops = [...dst.ops, ...v.ops];
                 }
-                let dst = access[i];
-                if (dst === undefined) {
-                    access[i] = v;
-                    continue;
+            }
+            if (acc === undefined) {
+                for (let a in this.access) {
+                    merge(this.access[a]);
                 }
-                dst.ops = [...dst.ops, ...v.ops];
             }
-        }
-        if (acc === undefined) {
-            for (let a in this.access) {
-                merge(this.access[a]);
+            else {
+                for (let a of acc)
+                    merge(this.access[a]);
             }
-        }
-        else {
-            for (let a of acc)
-                merge(this.access[a]);
-        }
-        let accessEntities = await this.getUserAccess(unit, user);
-        let entityAccess = {};
-        for (let entityId of accessEntities) {
-            let entity = this.entityColl[entityId];
-            if (entity === undefined)
-                continue;
-            let { name, access } = entity;
-            entityAccess[name] = access;
-        }
-        return {
-            version: this.uqVersion,
-            access: entityAccess,
-            ids: this.ids,
-            tuids: this.tuids,
-            role: this.role,
-        };
+            let accessEntities = yield this.getUserAccess(unit, user);
+            let entityAccess = {};
+            for (let entityId of accessEntities) {
+                let entity = this.entityColl[entityId];
+                if (entity === undefined)
+                    continue;
+                let { name, access } = entity;
+                entityAccess[name] = access;
+            }
+            return {
+                version: this.uqVersion,
+                access: entityAccess,
+                ids: this.ids,
+                tuids: this.tuids,
+                role: this.role,
+            };
+        });
     }
-    async getEntities(unit) {
-        await this.init();
-        let entityAccess = {};
-        for (let entityId in this.entityColl) {
-            let entity = this.entityColl[entityId];
-            let { name, access } = entity;
-            entityAccess[name] = access;
-        }
-        return {
-            version: this.uqVersion,
-            access: entityAccess,
-            ids: this.ids,
-            tuids: this.tuids,
-            role: this.role,
-        };
+    getEntities(unit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.init();
+            let entityAccess = {};
+            for (let entityId in this.entityColl) {
+                let entity = this.entityColl[entityId];
+                let { name, access } = entity;
+                entityAccess[name] = access;
+            }
+            return {
+                version: this.uqVersion,
+                access: entityAccess,
+                ids: this.ids,
+                tuids: this.tuids,
+                role: this.role,
+            };
+        });
     }
-    async getAllSchemas() {
-        return this.schemas;
+    getAllSchemas() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.schemas;
+        });
     }
     getSchema(name) {
         return this.schemas[name.toLowerCase()];
@@ -1147,27 +1354,33 @@ class EntityRunner extends Runner_1.Runner {
     setActionConvertSchema(name, value) {
         this.actionConvertSchemas[name] = value;
     }
-    async runUqStatements() {
-        await this.procCall('$uq', []);
+    runUqStatements() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.procCall('$uq', []);
+        });
     }
-    async procSql(procName, procSql) {
-        try {
-            return await this.dbUq.uqProc(procName, procSql, db_1.ProcType.proc);
-        }
-        catch (err) {
-            debugger;
-            throw err;
-        }
+    procSql(procName, procSql) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.dbUq.uqProc(procName, procSql, db_1.ProcType.proc);
+            }
+            catch (err) {
+                debugger;
+                throw err;
+            }
+        });
     }
-    async procCoreSql(procName, procSql, isFunc) {
-        try {
-            let procType = isFunc === true ? db_1.ProcType.func : db_1.ProcType.core;
-            await this.dbUq.uqProc(procName, procSql, procType);
-        }
-        catch (err) {
-            debugger;
-            throw err;
-        }
+    procCoreSql(procName, procSql, isFunc) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let procType = isFunc === true ? db_1.ProcType.func : db_1.ProcType.core;
+                yield this.dbUq.uqProc(procName, procSql, procType);
+            }
+            catch (err) {
+                debugger;
+                throw err;
+            }
+        });
     }
 }
 exports.EntityRunner = EntityRunner;

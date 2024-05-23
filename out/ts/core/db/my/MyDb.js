@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyDb = void 0;
 const MyDbBase_1 = require("./MyDbBase");
@@ -34,16 +43,20 @@ class MyDb extends MyDbBase_1.MyDbBase {
         sql += ')';
         return sql;
     }
-    async proc(proc, params) {
-        let sql = this.buildCallProc(proc) + this.buildCallProcParameters(params);
-        let ret = await this.sql(sql, params);
-        return ret;
+    proc(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = this.buildCallProc(proc) + this.buildCallProcParameters(params);
+            let ret = yield this.sql(sql, params);
+            return ret;
+        });
     }
-    async procWithLog(proc, params) {
-        let c = this.buildCallProc(proc);
-        let sql = c + this.buildCallProcParameters(params);
-        let spanLog = this.openSpaceLog(c, params);
-        return await this.sql(sql, params, spanLog);
+    procWithLog(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let c = this.buildCallProc(proc);
+            let sql = c + this.buildCallProcParameters(params);
+            let spanLog = this.openSpaceLog(c, params);
+            return yield this.sql(sql, params, spanLog);
+        });
     }
     openSpaceLog(callProc, params) {
         let log = callProc;
@@ -67,36 +80,44 @@ class MyDb extends MyDbBase_1.MyDbBase {
         return spanLog;
     }
     // return exists
-    async buildDatabase() {
-        let exists = this.sqlExists(this.name);
-        let retExists = await this.sql(exists);
-        let ret = retExists.length > 0;
-        if (ret === false) {
-            try {
-                let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\``;
-                await this.sql(sql);
+    buildDatabase() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let exists = this.sqlExists(this.name);
+            let retExists = yield this.sql(exists);
+            let ret = retExists.length > 0;
+            if (ret === false) {
+                try {
+                    let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\``;
+                    yield this.sql(sql);
+                }
+                catch (err) {
+                    console.error(err);
+                }
             }
-            catch (err) {
-                console.error(err);
-            }
-        }
-        // let retTry = await this.sql('select 1');
-        await this.insertInto$Uq(this.name);
-        return ret;
+            // let retTry = await this.sql('select 1');
+            yield this.insertInto$Uq(this.name);
+            return ret;
+        });
     }
-    async insertInto$Uq(db) {
-        let insertUqDb = `insert into $uq.uq (\`name\`) values ('${db}') on duplicate key update create_time=current_timestamp();`;
-        await this.sql(insertUqDb);
+    insertInto$Uq(db) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let insertUqDb = `insert into $uq.uq (\`name\`) values ('${db}') on duplicate key update create_time=current_timestamp();`;
+            yield this.sql(insertUqDb);
+        });
     }
-    async createDatabase() {
-        const { charset, collation } = consts_1.consts;
-        let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\` default CHARACTER SET ${charset} COLLATE ${collation}`;
-        await this.sql(sql);
+    createDatabase() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { charset, collation } = consts_1.consts;
+            let sql = `CREATE DATABASE IF NOT EXISTS \`${this.name}\` default CHARACTER SET ${charset} COLLATE ${collation}`;
+            yield this.sql(sql);
+        });
     }
-    async existsDatabase() {
-        let sql = this.sqlExists(this.name);
-        let rows = await this.sql(sql);
-        return rows.length > 0;
+    existsDatabase() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = this.sqlExists(this.name);
+            let rows = yield this.sql(sql);
+            return rows.length > 0;
+        });
     }
 }
 exports.MyDb = MyDb;

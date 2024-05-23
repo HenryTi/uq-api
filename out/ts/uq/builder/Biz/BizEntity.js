@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizEntity = void 0;
 const il_1 = require("../../il");
@@ -30,21 +39,29 @@ class BBizEntity {
         this.context = context;
         this.bizEntity = bizEntity;
     }
-    async buildTables() {
-    }
-    async buildProcedures() {
-        this.bizEntity.forEachBud((bud) => {
-            const { value } = bud;
-            if (value === undefined)
-                return;
+    buildTables() {
+        return __awaiter(this, void 0, void 0, function* () {
         });
     }
-    async buildDirectSqls() { }
-    async buildBudsValue() {
-        this.bizEntity.forEachBud((bud) => {
-            if (!bud)
-                return;
-            bud.buildBudValue(this.expStringify);
+    buildProcedures() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.bizEntity.forEachBud((bud) => {
+                const { value } = bud;
+                if (value === undefined)
+                    return;
+            });
+        });
+    }
+    buildDirectSqls() {
+        return __awaiter(this, void 0, void 0, function* () { });
+    }
+    buildBudsValue() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.bizEntity.forEachBud((bud) => {
+                if (!bud)
+                    return;
+                bud.buildBudValue(this.expStringify);
+            });
         });
     }
     createProcedure(procName) {
@@ -72,7 +89,7 @@ class BBizEntity {
         for (let fieldShow of showBuds) {
             let memo = factory.createMemo();
             statements.push(memo);
-            memo.text = fieldShow.map(v => v.ui?.caption ?? v.name).join('.');
+            memo.text = fieldShow.map(v => { var _a, _b; return (_b = (_a = v.ui) === null || _a === void 0 ? void 0 : _a.caption) !== null && _b !== void 0 ? _b : v.name; }).join('.');
             let select = this.buildSelect(fieldShow, tempTable, tempField);
             let insert = factory.createInsert();
             statements.push(insert);

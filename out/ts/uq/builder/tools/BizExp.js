@@ -68,7 +68,7 @@ class BBizExp {
     bin(sb) {
         const { bizEntity, prop } = this.bizExp;
         const { ta, tb } = this;
-        sb.append(`${ta}.${prop ?? 'id'}
+        sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'}
         FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
             WHERE ${ta}.id=`)
             .exp(this.param);

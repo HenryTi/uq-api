@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pageQueryProcess = exports.queryProcess = exports.buildQueryRouter = void 0;
 const core_1 = require("../core");
@@ -7,7 +16,7 @@ function buildQueryRouter(router, rb) {
     rb.entityPost(router, 'query', '-page/:name', exports.pageQueryProcess);
 }
 exports.buildQueryRouter = buildQueryRouter;
-const queryProcess = async (unit, user, name, db, urlParams, runner, body, schema) => {
+const queryProcess = (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let params = [];
         let fields = schema.fields;
@@ -17,12 +26,12 @@ const queryProcess = async (unit, user, name, db, urlParams, runner, body, schem
         }
         let result;
         let { proxy, auth } = schema;
-        await runner.buildUqStoreProcedureIfNotExists(proxy, auth);
+        yield runner.buildUqStoreProcedureIfNotExists(proxy, auth);
         if (proxy !== undefined) {
-            result = await runner.queryProxy(name, unit, user, body.$$user, params);
+            result = yield runner.queryProxy(name, unit, user, body.$$user, params);
         }
         else {
-            result = await runner.query(name, unit, user, params);
+            result = yield runner.query(name, unit, user, params);
         }
         let data = (0, core_1.packReturn)(schema, result);
         return data;
@@ -32,9 +41,9 @@ const queryProcess = async (unit, user, name, db, urlParams, runner, body, schem
         console.error(err);
         throw err;
     }
-};
+});
 exports.queryProcess = queryProcess;
-const pageQueryProcess = async (unit, user, name, db, urlParams, runner, body, schema) => {
+const pageQueryProcess = (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(void 0, void 0, void 0, function* () {
     let pageStart = body['$pageStart'];
     if (pageStart !== undefined) {
         let page = schema.returns.find(v => v.name === '$page');
@@ -59,18 +68,18 @@ const pageQueryProcess = async (unit, user, name, db, urlParams, runner, body, s
     }
     let result;
     let { proxy, auth } = schema;
-    await runner.buildUqStoreProcedureIfNotExists(proxy, auth);
+    yield runner.buildUqStoreProcedureIfNotExists(proxy, auth);
     if (proxy !== undefined) {
-        result = await runner.queryProxy(name, unit, user, body.$$user, params);
+        result = yield runner.queryProxy(name, unit, user, body.$$user, params);
     }
     else {
-        result = await runner.query(name, unit, user, params);
+        result = yield runner.query(name, unit, user, params);
     }
     let data = (0, core_1.packReturn)(schema, result);
     return data;
     //let result = await runner.query(name, proxy!==undefined, unit, user, params);
     //let data = packReturn(schema, result);
     //return data;
-};
+});
 exports.pageQueryProcess = pageQueryProcess;
 //# sourceMappingURL=query.js.map

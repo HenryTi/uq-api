@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SheetActionParametersBus = exports.SheetVerifyParametersBus = exports.AcceptParametersBus = exports.ActionParametersBus = exports.ParametersBus = void 0;
 const tool_1 = require("../tool");
@@ -39,61 +48,67 @@ class ParametersBus {
             };
         });
     }
-    async busQueryAll(unit, user, data) {
-        if (this.paramBuses === undefined)
-            return '';
-        let retBusQuery = [];
-        for (let inBus of this.paramBuses) {
-            let ret = await this.busQuery(inBus, unit, user, data);
-            retBusQuery.push(ret);
-        }
-        let ret = retBusQuery.join('\n\n') + '\n\n';
-        return ret;
-    }
-    async buildDataFromObj(unit, user, obj) {
-        let data = (0, packParam_1.packParam)(this.schema, obj);
-        let ret = await this.busQueryAll(unit, user, data);
-        return data + ret;
-    }
-    async busQuery(inBus, unit, user, data) {
-        let { bus, face, busOwner, busName, param, returns } = inBus;
-        //let {busOwner, busName} = bus;
-        let openApi = await this.runner.net.openApiUnitFace(this.runner, unit, busOwner, busName, face);
-        if (openApi === undefined) {
-            throw 'error await this.runner.net.openApiUnitFace nothing returned';
-        }
-        let params = [];
-        let proc = this.getQueryProc(bus.name, face);
-        let retParam = await this.runner.tablesFromProc(proc, [unit, user, data]);
-        let retParamMain = retParam[0][0];
-        if (param !== undefined) {
-            let retIndex = 1;
-            for (let qp of param) {
-                let { name, type, fields } = qp;
-                let value;
-                if (type === 'array') {
-                    value = this.buildTextFromRet(fields, retParam[retIndex++]);
-                }
-                else {
-                    value = retParamMain[name] || retParamMain[name.toLowerCase()];
-                }
-                params.push(value);
+    busQueryAll(unit, user, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.paramBuses === undefined)
+                return '';
+            let retBusQuery = [];
+            for (let inBus of this.paramBuses) {
+                let ret = yield this.busQuery(inBus, unit, user, data);
+                retBusQuery.push(ret);
             }
-        }
-        let ret = await openApi.busQuery(unit, busOwner, busName, face, params);
-        let results = [];
-        let { fields, arrs } = returns;
-        let retMain = ret[0];
-        let text = this.buildTextFromRet(fields, retMain);
-        results.push(text);
-        if (arrs !== undefined) {
-            let len = arrs.length;
-            for (let i = 0; i < len; i++) {
-                let text = this.buildTextFromRet(arrs[i].fields, ret[i + 1]);
-                results.push(text);
+            let ret = retBusQuery.join('\n\n') + '\n\n';
+            return ret;
+        });
+    }
+    buildDataFromObj(unit, user, obj) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let data = (0, packParam_1.packParam)(this.schema, obj);
+            let ret = yield this.busQueryAll(unit, user, data);
+            return data + ret;
+        });
+    }
+    busQuery(inBus, unit, user, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let { bus, face, busOwner, busName, param, returns } = inBus;
+            //let {busOwner, busName} = bus;
+            let openApi = yield this.runner.net.openApiUnitFace(this.runner, unit, busOwner, busName, face);
+            if (openApi === undefined) {
+                throw 'error await this.runner.net.openApiUnitFace nothing returned';
             }
-        }
-        return results.join('\n\n');
+            let params = [];
+            let proc = this.getQueryProc(bus.name, face);
+            let retParam = yield this.runner.tablesFromProc(proc, [unit, user, data]);
+            let retParamMain = retParam[0][0];
+            if (param !== undefined) {
+                let retIndex = 1;
+                for (let qp of param) {
+                    let { name, type, fields } = qp;
+                    let value;
+                    if (type === 'array') {
+                        value = this.buildTextFromRet(fields, retParam[retIndex++]);
+                    }
+                    else {
+                        value = retParamMain[name] || retParamMain[name.toLowerCase()];
+                    }
+                    params.push(value);
+                }
+            }
+            let ret = yield openApi.busQuery(unit, busOwner, busName, face, params);
+            let results = [];
+            let { fields, arrs } = returns;
+            let retMain = ret[0];
+            let text = this.buildTextFromRet(fields, retMain);
+            results.push(text);
+            if (arrs !== undefined) {
+                let len = arrs.length;
+                for (let i = 0; i < len; i++) {
+                    let text = this.buildTextFromRet(arrs[i].fields, ret[i + 1]);
+                    results.push(text);
+                }
+            }
+            return results.join('\n\n');
+        });
     }
     buildTextFromRet(fields, values) {
         let ret = [];

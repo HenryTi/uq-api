@@ -32,7 +32,7 @@ class BizFieldBud extends BizField {
         ret.noArrayAgg = this.space.bBudNoArrayAgg;
         return ret;
     }
-    buildSchema() { return [this.bud.entity?.id, this.bud.id]; }
+    buildSchema() { var _a; return [(_a = this.bud.entity) === null || _a === void 0 ? void 0 : _a.id, this.bud.id]; }
     buildColArr() {
         let ret = [];
         const { bud } = this;

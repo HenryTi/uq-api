@@ -223,7 +223,7 @@ class PBizBin extends Base_1.PBizEntity {
         let bud = new il_1.BizBudIXBase(this.element, '.' + nameIX, undefined);
         this.context.parseElement(bud);
         const { value } = bud;
-        if (value?.setType !== il_1.BudValueSetType.equ) {
+        if ((value === null || value === void 0 ? void 0 : value.setType) !== il_1.BudValueSetType.equ) {
             // 如果本来pend.id就是批次，也就不需要=
             // this.ts.error(`${nameIX}.BASE must set value`);
         }
@@ -352,7 +352,7 @@ class PBizBin extends Base_1.PBizEntity {
                         ok = false;
                     }
                     const { pick: pickBase } = pick;
-                    if (pickBase?.bizEntityTable === il_1.EnumSysTable.pend) {
+                    if ((pickBase === null || pickBase === void 0 ? void 0 : pickBase.bizEntityTable) === il_1.EnumSysTable.pend) {
                         this.log(`Only last PICK can be from PEND`);
                         ok = false;
                     }

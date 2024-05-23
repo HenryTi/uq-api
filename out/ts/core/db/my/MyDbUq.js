@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyDbUq = void 0;
 const tool_1 = require("../../../tool");
@@ -32,12 +41,14 @@ class MyDbUq extends MyDb_1.MyDb {
         this.resetProcColl();
         return tool_1.env.connection;
     }
-    async initLoad() {
-        if (this.twProfix !== undefined)
-            return;
-        const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
-        let ret = await this.sql(tv$entityExists, [this.name]);
-        this.twProfix = ret.length > 0 ? oldTwProfix : '';
+    initLoad() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.twProfix !== undefined)
+                return;
+            const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
+            let ret = yield this.sql(tv$entityExists, [this.name]);
+            this.twProfix = ret.length > 0 ? oldTwProfix : '';
+        });
     }
     resetProcColl() {
         this.procColl = Object.assign({}, sysProcColl);
@@ -49,12 +60,18 @@ class MyDbUq extends MyDb_1.MyDb {
     buildCallProc(proc) {
         return `call \`${this.name}\`.\`${this.twProfix}${proc}\``;
     }
-    async createDatabase() {
-        await super.createDatabase();
-        this.twProfix = '';
+    createDatabase() {
+        const _super = Object.create(null, {
+            createDatabase: { get: () => super.createDatabase }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            yield _super.createDatabase.call(this);
+            this.twProfix = '';
+        });
     }
-    async createProcObjs() {
-        const createProcTable = `
+    createProcObjs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const createProcTable = `
     CREATE TABLE IF NOT EXISTS \`${this.name}\`.\`${this.twProfix}$proc\` (
         \`name\` VARCHAR(200) NOT NULL,
         \`proc\` TEXT NULL, 
@@ -62,8 +79,8 @@ class MyDbUq extends MyDb_1.MyDb {
         update_time timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (\`name\`));
     `;
-        await this.sql(createProcTable, undefined);
-        const getProc = `
+            yield this.sql(createProcTable, undefined);
+            const getProc = `
     DROP PROCEDURE IF EXISTS \`${this.name}\`.${this.twProfix}$proc_get;
     CREATE PROCEDURE \`${this.name}\`.${this.twProfix}$proc_get(
         IN _schema VARCHAR(200),
@@ -76,8 +93,8 @@ class MyDbUq extends MyDb_1.MyDb {
         WHERE 1=1 AND name=_name FOR UPDATE;
     END
     `;
-        await this.sql(getProc, undefined);
-        const saveProc = `
+            yield this.sql(getProc, undefined);
+            const saveProc = `
     DROP PROCEDURE IF EXISTS \`${this.name}\`.${this.twProfix}$proc_save;
     CREATE PROCEDURE \`${this.name}\`.${this.twProfix}$proc_save(
         _schema VARCHAR(200),
@@ -108,237 +125,278 @@ class MyDbUq extends MyDb_1.MyDb {
         WHERE 1=1 AND ROUTINE_SCHEMA=_schema AND ROUTINE_NAME=_name))) THEN 1 ELSE 0 END AS changed;
     END
     `;
-        await this.sql(saveProc, undefined);
-        return;
-    }
-    async uqProc(procName, procSql, procType) {
-        let ret = await this.saveProc(procName, procSql);
-        let t0 = ret[0];
-        let changed = t0[0]['changed'];
-        let isOk = changed === 0;
-        this.procColl[procName.toLowerCase()] = isOk;
-        if (procType === Db_1.ProcType.proc)
+            yield this.sql(saveProc, undefined);
             return;
-        let isFunc = (procType === Db_1.ProcType.func);
-        await this.buildUqProc(procName, procSql, isFunc);
+        });
     }
-    async runSqlDropProc(procName, isFunc) {
-        let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
-        let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${this.twProfix}${procName}\``;
-        await this.sql(sql);
+    uqProc(procName, procSql, procType) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ret = yield this.saveProc(procName, procSql);
+            let t0 = ret[0];
+            let changed = t0[0]['changed'];
+            let isOk = changed === 0;
+            this.procColl[procName.toLowerCase()] = isOk;
+            if (procType === Db_1.ProcType.proc)
+                return;
+            let isFunc = (procType === Db_1.ProcType.func);
+            yield this.buildUqProc(procName, procSql, isFunc);
+        });
     }
-    async saveProc(procName, procSql) {
-        return await this.proc('$proc_save', [this.name, this.twProfix + procName, procSql]);
+    runSqlDropProc(procName, isFunc) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let type = isFunc === true ? 'FUNCTION' : 'PROCEDURE';
+            let sql = `DROP ${type} IF EXISTS  \`${this.name}\`.\`${this.twProfix}${procName}\``;
+            yield this.sql(sql);
+        });
     }
-    async clearProcChangeFlag(procName) {
-        await this.proc('$proc_save', [this.name, this.twProfix + procName, undefined]);
+    saveProc(procName, procSql) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.proc('$proc_save', [this.name, this.twProfix + procName, procSql]);
+        });
     }
-    async buildUqProc(procName, procSql, isFunc = false) {
-        try {
-            await this.runSqlDropProc(procName, isFunc);
-            await this.sql(procSql, undefined);
-            // clear changed flag
-            await this.clearProcChangeFlag(procName);
-        }
-        catch (err) {
-            console.error(err, procName, procSql);
-        }
+    clearProcChangeFlag(procName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.proc('$proc_save', [this.name, this.twProfix + procName, undefined]);
+        });
     }
-    async uqProcGet(proc) {
-        let results = await super.proc('$proc_get', [this.name, this.twProfix + proc]);
-        let ret = results[0];
-        if (ret.length === 0) {
-            debugger;
-            throw new Error(`proc not defined: ${this.name}.${proc}`);
-        }
-        /*
-        if (ret.length === 0) {
-            results = await super.proc('$proc_get', [this.name, oldTwProfix + proc]);
-            if (results[0].length === 0) {
+    buildUqProc(procName, procSql, isFunc = false) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.runSqlDropProc(procName, isFunc);
+                yield this.sql(procSql, undefined);
+                // clear changed flag
+                yield this.clearProcChangeFlag(procName);
+            }
+            catch (err) {
+                console.error(err, procName, procSql);
+            }
+        });
+    }
+    uqProcGet(proc) {
+        const _super = Object.create(null, {
+            proc: { get: () => super.proc }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            let results = yield _super.proc.call(this, '$proc_get', [this.name, this.twProfix + proc]);
+            let ret = results[0];
+            if (ret.length === 0) {
                 debugger;
                 throw new Error(`proc not defined: ${this.name}.${proc}`);
             }
-            ret = results[0];
-        }
-        */
-        return ret[0];
-        // let r0 = ret[0];
-        // return r0;
-        // let procSql = r0['proc'];
-        // return procSql;
-    }
-    async buildUqStoreProcedureIfNotExists(...procNames) {
-        if (procNames === undefined)
-            return;
-        for (let procName of procNames) {
-            if (procName === undefined)
-                continue;
-            if (this.isExistsProc(procName) === false) {
-                await this.createProc(procName);
+            /*
+            if (ret.length === 0) {
+                results = await super.proc('$proc_get', [this.name, oldTwProfix + proc]);
+                if (results[0].length === 0) {
+                    debugger;
+                    throw new Error(`proc not defined: ${this.name}.${proc}`);
+                }
+                ret = results[0];
             }
-        }
+            */
+            return ret[0];
+            // let r0 = ret[0];
+            // return r0;
+            // let procSql = r0['proc'];
+            // return procSql;
+        });
     }
-    async buildUqStoreProcedure(procName) {
-        /*
-        let results = await this.callProcBase(this.dbName, '$proc_get', [this.dbName, proc]);
-        let ret = results[0];
-        if (ret.length === 0) {
-            results = await this.callProcBase(this.dbName, '$proc_get', [this.dbName, oldTwProfix + proc]);
-            if (results[0].length === 0) {
-                debugger;
-                throw new Error(`proc not defined: ${this.dbName}.${proc}`);
+    buildUqStoreProcedureIfNotExists(...procNames) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (procNames === undefined)
+                return;
+            for (let procName of procNames) {
+                if (procName === undefined)
+                    continue;
+                if (this.isExistsProc(procName) === false) {
+                    yield this.createProc(procName);
+                }
             }
-        }
-        let r0 = ret[0];
-        let procSql = r0['proc'];
-        */
-        const { proc: procSql } = await this.uqProcGet(procName);
-        // const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${procName}\`;`;
-        // await this.sql(drop, undefined);
-        await this.runSqlDropProc(procName, false);
-        await this.sql(procSql, undefined);
-        await this.proc('$proc_save', [this.name, procName, undefined]);
+        });
     }
-    async existsDatabase() {
-        return await super.existsDatabase();
-    }
-    async buildDatabase() {
-        this.resetProcColl();
-        return await super.buildDatabase();
-    }
-    async confirmProc(proc) {
-        let procLower = proc.toLowerCase();
-        let p = this.procColl[procLower];
-        if (p !== true) {
-            const { proc: procSql, changed } = await this.uqProcGet(proc);
-            if (changed === 1) {
-                await this.buildUqProc(proc, procSql);
+    buildUqStoreProcedure(procName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /*
+            let results = await this.callProcBase(this.dbName, '$proc_get', [this.dbName, proc]);
+            let ret = results[0];
+            if (ret.length === 0) {
+                results = await this.callProcBase(this.dbName, '$proc_get', [this.dbName, oldTwProfix + proc]);
+                if (results[0].length === 0) {
+                    debugger;
+                    throw new Error(`proc not defined: ${this.dbName}.${proc}`);
+                }
             }
-            this.procColl[procLower] = true;
-        }
+            let r0 = ret[0];
+            let procSql = r0['proc'];
+            */
+            const { proc: procSql } = yield this.uqProcGet(procName);
+            // const drop = `DROP PROCEDURE IF EXISTS \`${this.name}\`.\`${procName}\`;`;
+            // await this.sql(drop, undefined);
+            yield this.runSqlDropProc(procName, false);
+            yield this.sql(procSql, undefined);
+            yield this.proc('$proc_save', [this.name, procName, undefined]);
+        });
+    }
+    existsDatabase() {
+        const _super = Object.create(null, {
+            existsDatabase: { get: () => super.existsDatabase }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield _super.existsDatabase.call(this);
+        });
+    }
+    buildDatabase() {
+        const _super = Object.create(null, {
+            buildDatabase: { get: () => super.buildDatabase }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            this.resetProcColl();
+            return yield _super.buildDatabase.call(this);
+        });
+    }
+    confirmProc(proc) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let procLower = proc.toLowerCase();
+            let p = this.procColl[procLower];
+            if (p !== true) {
+                const { proc: procSql, changed } = yield this.uqProcGet(proc);
+                if (changed === 1) {
+                    yield this.buildUqProc(proc, procSql);
+                }
+                this.procColl[procLower] = true;
+            }
+        });
     }
     // proc no twProfix
-    async execUqProc(proc, params) {
-        let needBuildProc;
-        let dbFirstChar = this.name[0];
-        if (dbFirstChar === '$') {
-            if (this.name.startsWith(consts_1.consts.$unitx) === true) {
-                needBuildProc = true;
+    execUqProc(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let needBuildProc;
+            let dbFirstChar = this.name[0];
+            if (dbFirstChar === '$') {
+                if (this.name.startsWith(consts_1.consts.$unitx) === true) {
+                    needBuildProc = true;
+                }
+                else {
+                    needBuildProc = false;
+                }
             }
             else {
-                needBuildProc = false;
+                needBuildProc = true;
             }
-        }
-        else {
-            needBuildProc = true;
-        }
-        if (needBuildProc === true) {
-            try {
-                await this.confirmProc(proc);
+            if (needBuildProc === true) {
+                try {
+                    yield this.confirmProc(proc);
+                }
+                catch (err) {
+                    console.error('execUqProc', proc, err);
+                    throw err;
+                }
             }
-            catch (err) {
-                console.error('execUqProc', proc, err);
-                throw err;
-            }
-        }
-        return await this.procWithLog(proc, params);
+            return yield this.procWithLog(proc, params);
+        });
     }
     isExistsProc(proc) {
         return this.procColl[proc.toLowerCase()] === true;
     }
-    async createProc(proc) {
-        let procLower = proc.toLowerCase();
-        let p = this.procColl[procLower];
-        if (p !== true) {
-            const { proc: procSql, changed } = await this.uqProcGet(proc);
-            /*
-            let results = await this.callProcBase('$proc_get', [this.dbName, proc]);
-            let ret = results[0];
-            if (ret.length === 0) {
-                //debugger;
-                console.error(`proc not defined: ${this.dbName}.${proc}`);
-                this.procColl[procLower] = false;
-                throw new Error(`proc not defined: ${this.dbName}.${proc}`);
-            }
-            else {
-                let r0 = ret[0];
-                let changed = r0['changed'];
-            */
-            if (changed === 1) {
-                // await this.sqlDropProc(db, proc);
-                // let sql = r0['proc'];
-                await this.buildUqProc(proc, procSql);
-            }
-            this.procColl[procLower] = true;
-            // }
-        }
-    }
-    async execQueueAct() {
-        if (this.execQueueActError === true)
-            return -1;
-        let sql;
-        // try {
-        let db = this.name;
-        let ret = await this.call('$exec_queue_act', []);
-        if (ret) {
-            // let db = runner.getDb();
-            for (let row of ret) {
-                let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
-                if (this.events.has(entityName) === false) {
-                    this.events.add(entityName);
+    createProc(proc) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let procLower = proc.toLowerCase();
+            let p = this.procColl[procLower];
+            if (p !== true) {
+                const { proc: procSql, changed } = yield this.uqProcGet(proc);
+                /*
+                let results = await this.callProcBase('$proc_get', [this.dbName, proc]);
+                let ret = results[0];
+                if (ret.length === 0) {
+                    //debugger;
+                    console.error(`proc not defined: ${this.dbName}.${proc}`);
+                    this.procColl[procLower] = false;
+                    throw new Error(`proc not defined: ${this.dbName}.${proc}`);
                 }
-                sql = `
+                else {
+                    let r0 = ret[0];
+                    let changed = r0['changed'];
+                */
+                if (changed === 1) {
+                    // await this.sqlDropProc(db, proc);
+                    // let sql = r0['proc'];
+                    yield this.buildUqProc(proc, procSql);
+                }
+                this.procColl[procLower] = true;
+                // }
+            }
+        });
+    }
+    execQueueAct() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.execQueueActError === true)
+                return -1;
+            let sql;
+            // try {
+            let db = this.name;
+            let ret = yield this.call('$exec_queue_act', []);
+            if (ret) {
+                // let db = runner.getDb();
+                for (let row of ret) {
+                    let { entity, entityName, exec_time, unit, param, repeat, interval } = row;
+                    if (this.events.has(entityName) === false) {
+                        this.events.add(entityName);
+                    }
+                    sql = `
     USE \`${db}\`;
     DROP EVENT IF EXISTS \`${this.twProfix}${entityName}\`;
     CREATE EVENT IF NOT EXISTS \`${this.twProfix}${entityName}\`
         ON SCHEDULE AT CURRENT_TIMESTAMP ON COMPLETION PRESERVE DO CALL \`${this.twProfix}${entityName}\`(${unit}, 0);
     `;
-                await this.sql(sql);
-                if (repeat === 1) {
-                    sql = `use \`${db}\`; DELETE a FROM ${this.twProfix}$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
-                }
-                else {
-                    sql = `use \`${db}\`; UPDATE ${this.twProfix}$queue_act AS a 
+                    yield this.sql(sql);
+                    if (repeat === 1) {
+                        sql = `use \`${db}\`; DELETE a FROM ${this.twProfix}$queue_act AS a WHERE a.unit=${unit} AND a.entity=${entity};`;
+                    }
+                    else {
+                        sql = `use \`${db}\`; UPDATE ${this.twProfix}$queue_act AS a 
                             SET a.exec_time=date_add(GREATEST(a.exec_time, CURRENT_TIMESTAMP()), interval a.interval minute)
                                 , a.repeat=a.repeat-1
                             WHERE a.unit=${unit} AND a.entity=${entity};
                         `;
+                    }
+                    yield this.sql(sql);
                 }
-                await this.sql(sql);
             }
-        }
-        return 0;
+            return 0;
+        });
     }
     get sqlsVersion() {
         return this.myDbs.sqlsVersion;
     }
-    async removeAllScheduleEvents() {
-        let db = this.name; // .getDb();
-        let events;
-        try {
-            const sqls = this.myDbs.sqlsVersion;
-            events = await this.sql(sqls.eventExists, [db]);
-            if ((!events) || events.length === 0)
+    removeAllScheduleEvents() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let db = this.name; // .getDb();
+            let events;
+            try {
+                const sqls = this.myDbs.sqlsVersion;
+                events = yield this.sql(sqls.eventExists, [db]);
+                if ((!events) || events.length === 0)
+                    return;
+            }
+            catch (err) {
+                debugger;
                 return;
-        }
-        catch (err) {
-            debugger;
-            return;
-        }
-        let eventsText = '';
-        for (let ev of events) {
-            let { db, name } = ev;
-            if (this.events.has(name) === false)
-                continue;
-            eventsText += ` ${db}.${name}`;
-            let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
-            await this.sql(sql, []);
-        }
-        await this.sql(`TRUNCATE TABLE \`${db}\`.${this.twProfix}$queue_act;`, []);
-        return eventsText;
+            }
+            let eventsText = '';
+            for (let ev of events) {
+                let { db, name } = ev;
+                if (this.events.has(name) === false)
+                    continue;
+                eventsText += ` ${db}.${name}`;
+                let sql = `DROP EVENT IF EXISTS \`${db}\`.\`${name}\`;`;
+                yield this.sql(sql, []);
+            }
+            yield this.sql(`TRUNCATE TABLE \`${db}\`.${this.twProfix}$queue_act;`, []);
+            return eventsText;
+        });
     }
-    async buildTuidAutoId() {
-        let sql = `UPDATE \`${this.name}\`.${this.twProfix}$entity a 
+    buildTuidAutoId() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = `UPDATE \`${this.name}\`.${this.twProfix}$entity a 
 			SET a.tuidVid=(
 				select b.AUTO_INCREMENT 
 					from information_schema.tables b
@@ -347,41 +405,52 @@ class MyDbUq extends MyDb_1.MyDb {
 				)
 			WHERE a.tuidVid IS NULL;
         `;
-        await this.sql(sql);
+            yield this.sql(sql);
+        });
     }
-    async tableFromProc(proc, params) {
-        let res = await this.execUqProc(proc, params);
-        if (Array.isArray(res) === false)
-            return [];
-        switch (res.length) {
-            case 0: return [];
-            default: return res[0];
-        }
+    tableFromProc(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let res = yield this.execUqProc(proc, params);
+            if (Array.isArray(res) === false)
+                return [];
+            switch (res.length) {
+                case 0: return [];
+                default: return res[0];
+            }
+        });
     }
-    async tablesFromProc(proc, params) {
-        return await this.execUqProc(proc, params);
+    tablesFromProc(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.execUqProc(proc, params);
+        });
     }
-    async call(proc, params) {
-        let result = await this.execUqProc(proc, params);
-        if (Array.isArray(result) === false)
-            return [];
-        result.pop();
-        if (result.length === 1)
-            return result[0];
-        return result;
+    call(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let result = yield this.execUqProc(proc, params);
+            if (Array.isArray(result) === false)
+                return [];
+            result.pop();
+            if (result.length === 1)
+                return result[0];
+            return result;
+        });
     }
-    async callEx(proc, params) {
-        //return await this.execProc(db, proc, params);
-        let result = await this.execUqProc(proc, params);
-        if (Array.isArray(result) === false)
-            return [];
-        result.pop();
-        return result;
+    callEx(proc, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //return await this.execProc(db, proc, params);
+            let result = yield this.execUqProc(proc, params);
+            if (Array.isArray(result) === false)
+                return [];
+            result.pop();
+            return result;
+        });
     }
-    async saveTextId(text) {
-        let sql = `select \`${this.name}\`.${this.twProfix}$textid(?) as a`;
-        let ret = await this.sql(sql, [text]);
-        return ret[0]['a'];
+    saveTextId(text) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sql = `select \`${this.name}\`.${this.twProfix}$textid(?) as a`;
+            let ret = yield this.sql(sql, [text]);
+            return ret[0]['a'];
+        });
     }
     isUnsupportProc(proc) {
         return this.myDbs.sqlsVersion.unsupportProcs.findIndex(v => v === proc) >= 0;

@@ -1,10 +1,19 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildAccessRouter = void 0;
 const tool_1 = require("../tool");
 const accessType = 'access';
 function buildAccessRouter(router, rb) {
-    rb.entityGet(router, accessType, '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    rb.entityGet(router, accessType, '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         try {
             let { acc } = body;
             let accs = undefined;
@@ -14,55 +23,55 @@ function buildAccessRouter(router, rb) {
                     accs = undefined;
             }
             tool_1.logger.debug('getAccesses: ' + runner.dbName);
-            let access = await runner.getAccesses(unit, user, accs);
+            let access = yield runner.getAccesses(unit, user, accs);
             return access;
         }
         catch (err) {
             tool_1.logger.error('/access&name=', name, '&db=', db, err);
             debugger;
         }
-    });
-    rb.entityGet(router, 'entities', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
-        let entities = await runner.getEntities(unit);
+    }));
+    rb.entityGet(router, 'entities', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        let entities = yield runner.getEntities(unit);
         return entities;
-    });
-    rb.entityGet(router, 'all-schemas', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
-        let entities = await runner.getAllSchemas();
+    }));
+    rb.entityGet(router, 'all-schemas', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        let entities = yield runner.getAllSchemas();
         return entities;
-    });
-    rb.entityGet(router, 'get-admins', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
-        let roles = await runner.getAdmins(unit, user);
+    }));
+    rb.entityGet(router, 'get-admins', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        let roles = yield runner.getAdmins(unit, user);
         return roles;
-    });
-    rb.entityGet(router, 'set-me-admin', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
-        await runner.setMeAdmin(unit, user);
-    });
-    rb.entityPost(router, 'set-admin', '', async (unit, $user, _name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityGet(router, 'set-me-admin', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        yield runner.setMeAdmin(unit, user);
+    }));
+    rb.entityPost(router, 'set-admin', '', (unit, $user, _name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let { user, role, assigned } = body;
-        await runner.setAdmin(unit, $user, user, role, assigned);
-    });
-    rb.entityGet(router, 'is-admin', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
-        return await runner.isAdmin(unit, user);
-    });
-    rb.entityGet(router, 'get-roles', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
-        let roles = await runner.getMyRoles(unit, user);
+        yield runner.setAdmin(unit, $user, user, role, assigned);
+    }));
+    rb.entityGet(router, 'is-admin', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        return yield runner.isAdmin(unit, user);
+    }));
+    rb.entityGet(router, 'get-roles', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
+        let roles = yield runner.getMyRoles(unit, user);
         return roles;
-    });
-    rb.entityGet(router, 'get-all-role-users', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityGet(router, 'get-all-role-users', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         // row 0 返回 ixOfUsers
-        let roles = await runner.getAllRoleUsers(unit, user);
+        let roles = yield runner.getAllRoleUsers(unit, user);
         return roles;
-    });
-    rb.entityGet(router, 'delete-user-roles', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityGet(router, 'delete-user-roles', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let { theUser } = body;
-        await runner.deleteUserRoles(unit, user, theUser);
+        yield runner.deleteUserRoles(unit, user, theUser);
         return;
-    });
-    rb.entityPost(router, 'set-user-roles', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'set-user-roles', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let { theUser, roles } = body;
-        await runner.setUserRoles(unit, user, theUser, roles);
+        yield runner.setUserRoles(unit, user, theUser, roles);
         return;
-    });
+    }));
 }
 exports.buildAccessRouter = buildAccessRouter;
 //# sourceMappingURL=access.js.map

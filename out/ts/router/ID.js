@@ -1,103 +1,114 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buildIDRouter = void 0;
 const sqlResultProfix = 'sql-';
 function buildIDRouter(router, rb) {
-    rb.entityPost(router, 'acts', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    rb.entityPost(router, 'acts', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.Acts(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'acts', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'acts', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.Acts(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'act-ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'act-ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.ActIX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'act-ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'act-ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.ActIX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'act-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'act-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.ActID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'act-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'act-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.ActID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'act-id-prop', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'act-id-prop', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let { ID, id, name: propName, value } = body;
-        let result = await runner.ActIDProp(unit, user, ID, id, propName, value);
+        let result = yield runner.ActIDProp(unit, user, ID, id, propName, value);
         return result;
-    });
-    rb.entityPost(router, 'act-ix-sort', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'act-ix-sort', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.ActIXSort(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'act-ix-sort', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'act-ix-sort', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.ActIXSort(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'act-detail', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'act-detail', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.ActDetail(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'act-detail', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'act-detail', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.ActDetail(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'query-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'query-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.QueryID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'query-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'query-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.QueryID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    async function loadIDTypes(runner, unit, user, id) {
-        let IDTypes;
-        let idTypes;
-        let sqlBuilder = runner.sqlFactory.idTypes(id);
-        let retIdTypes = await runner.IDSql(unit, user, sqlBuilder);
-        // let retIdTypes = await this.dbCaller.idTypes(unit, user, id);
-        let coll = {};
-        for (let r of retIdTypes) {
-            let { id, $type } = r;
-            coll[id] = $type;
-        }
-        if (Array.isArray(id) === false) {
-            IDTypes = coll[id];
-            idTypes = [IDTypes];
-        }
-        else {
-            IDTypes = idTypes = [];
-            for (let v of id) {
-                idTypes.push(coll[v]);
+    }));
+    function loadIDTypes(runner, unit, user, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let IDTypes;
+            let idTypes;
+            let sqlBuilder = runner.sqlFactory.idTypes(id);
+            let retIdTypes = yield runner.IDSql(unit, user, sqlBuilder);
+            // let retIdTypes = await this.dbCaller.idTypes(unit, user, id);
+            let coll = {};
+            for (let r of retIdTypes) {
+                let { id, $type } = r;
+                coll[id] = $type;
             }
-        }
-        return IDTypes;
+            if (Array.isArray(id) === false) {
+                IDTypes = coll[id];
+                idTypes = [IDTypes];
+            }
+            else {
+                IDTypes = idTypes = [];
+                for (let v of id) {
+                    idTypes.push(coll[v]);
+                }
+            }
+            return IDTypes;
+        });
     }
-    rb.entityPost(router, 'id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    rb.entityPost(router, 'id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let { IDX } = body;
         if (IDX === undefined) {
             let { id } = body;
@@ -105,7 +116,7 @@ function buildIDRouter(router, rb) {
                 console.error(`no IDX, no id`);
                 return undefined;
             }
-            IDX = await loadIDTypes(runner, unit, user, id);
+            IDX = yield loadIDTypes(runner, unit, user, id);
             if (IDX === undefined) {
                 console.error(`no id type found for id=${id}`);
                 return undefined;
@@ -125,210 +136,214 @@ function buildIDRouter(router, rb) {
         }
         let { stars } = call;
         let sqlBuilder = runner.sqlFactory.ID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         let idColl = {};
         if (stars !== undefined) {
             let obj = result[0];
             idColl[obj.id] = true;
-            await loadStars(obj, stars);
+            yield loadStars(obj, stars);
         }
         return result;
-        async function loadStars(obj, stars) {
-            if (obj === undefined)
-                return;
-            if (stars === undefined)
-                return;
-            let promises = [];
-            for (let star of stars) {
-                promises.push(loadId(obj[star]));
-            }
-            if (promises.length > 0) {
-                await Promise.all(promises);
-            }
+        function loadStars(obj, stars) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (obj === undefined)
+                    return;
+                if (stars === undefined)
+                    return;
+                let promises = [];
+                for (let star of stars) {
+                    promises.push(loadId(obj[star]));
+                }
+                if (promises.length > 0) {
+                    yield Promise.all(promises);
+                }
+            });
         }
-        async function loadId(id) {
-            if (!id)
-                return;
-            if (idColl[id] === true)
-                return;
-            let IDType = await loadIDTypes(runner, unit, user, id);
-            if (IDType === undefined)
-                return;
-            let sqlBuilder = runner.sqlFactory.ID({ IDX: IDType, id });
-            let resultFromId = await runner.IDSql(unit, user, sqlBuilder);
-            if (resultFromId !== undefined) {
-                result.push(...resultFromId);
-                let { call: { stars } } = runner.schemas[IDType];
-                let obj = resultFromId[0];
-                await loadStars(obj, stars);
-            }
-            idColl[id] = true;
+        function loadId(id) {
+            return __awaiter(this, void 0, void 0, function* () {
+                if (!id)
+                    return;
+                if (idColl[id] === true)
+                    return;
+                let IDType = yield loadIDTypes(runner, unit, user, id);
+                if (IDType === undefined)
+                    return;
+                let sqlBuilder = runner.sqlFactory.ID({ IDX: IDType, id });
+                let resultFromId = yield runner.IDSql(unit, user, sqlBuilder);
+                if (resultFromId !== undefined) {
+                    result.push(...resultFromId);
+                    let { call: { stars } } = runner.schemas[IDType];
+                    let obj = resultFromId[0];
+                    yield loadStars(obj, stars);
+                }
+                idColl[id] = true;
+            });
         }
-    });
-    rb.entityPost(router, sqlResultProfix + 'id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let { IDX } = body;
         if (IDX === undefined) {
-            body.IDX = await loadIDTypes(runner, unit, user, body.id);
+            body.IDX = yield loadIDTypes(runner, unit, user, body.id);
         }
         let sqlBuilder = runner.sqlFactory.ID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-tv', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-tv', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDTv(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-tv', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-tv', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDTv(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'key-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'key-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.KeyID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'key-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'key-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.KeyID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'ix-values', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'ix-values', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IXValues(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'ix-values', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'ix-values', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IXValues(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'ixr', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'ixr', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IXr(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'ixr', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'ixr', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IXr(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'key-ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'key-ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.KeyIX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'key-ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'key-ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.KeyIX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-log', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-log', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDLog(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-log', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-log', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDLog(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-sum', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-sum', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDSum(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-sum', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-sum', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDSum(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-no', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-no', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDNO(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-joins', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-joins', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let { id } = body;
-        let IDType = await loadIDTypes(runner, 0, 0, id);
-        let results = await runner.dbUq.tablesFromProc(`${IDType}$joins`, [id]);
+        let IDType = yield loadIDTypes(runner, 0, 0, id);
+        let results = yield runner.dbUq.tablesFromProc(`${IDType}$joins`, [id]);
         let main = results[0];
         let main0 = main[0];
         if (main0 !== undefined) {
             main0.ID = IDType;
         }
         return results;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-no', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-no', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDNO(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-detail-get', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-detail-get', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDDetailGet(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-detail-get', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-detail-get', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDDetailGet(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-in-ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-in-ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDinIX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-in-ix', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-in-ix', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDinIX(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-x-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-x-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDxID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-x-id', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-x-id', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDxID(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, 'id-tree', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, 'id-tree', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         let sqlBuilder = runner.sqlFactory.IDTree(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
-    rb.entityPost(router, sqlResultProfix + 'id-tree', '', async (unit, user, name, db, urlParams, runner, body, schema) => {
+    }));
+    rb.entityPost(router, sqlResultProfix + 'id-tree', '', (unit, user, name, db, urlParams, runner, body, schema) => __awaiter(this, void 0, void 0, function* () {
         body.$sql = true;
         let sqlBuilder = runner.sqlFactory.IDTree(body);
-        let result = await runner.IDSql(unit, user, sqlBuilder);
+        let result = yield runner.IDSql(unit, user, sqlBuilder);
         return result;
-    });
+    }));
 }
 exports.buildIDRouter = buildIDRouter;
 //# sourceMappingURL=ID.js.map

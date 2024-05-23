@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BusFaceQuery = exports.BusFaceAccept = exports.BusFace = exports.allBuses = void 0;
 const centerApi_1 = require("../centerApi");
@@ -16,32 +25,36 @@ class BusFace {
         this.faceName = faceName;
         this.version = version;
     }
-    async convert(busBody, version) {
-        return busBody;
+    convert(busBody, version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return busBody;
+        });
     }
-    async getFaceSchema(version) {
-        let bus;
-        let busAllVersions = exports.allBuses[this.busUrl];
-        if (busAllVersions) {
-            bus = busAllVersions[version];
-        }
-        else {
-            busAllVersions = {};
-            exports.allBuses[this.busUrl] = busAllVersions;
-        }
-        if (bus === undefined) {
-            let schemaText = await centerApi_1.centerApi.busSchema(this.busOwner, this.busName, version);
-            if (!schemaText) {
-                bus = null;
+    getFaceSchema(version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let bus;
+            let busAllVersions = exports.allBuses[this.busUrl];
+            if (busAllVersions) {
+                bus = busAllVersions[version];
             }
             else {
-                bus = this.buildBus(schemaText);
+                busAllVersions = {};
+                exports.allBuses[this.busUrl] = busAllVersions;
             }
-            busAllVersions[version] = bus;
-        }
-        if (bus === null)
-            return null;
-        return bus[this.faceName];
+            if (bus === undefined) {
+                let schemaText = yield centerApi_1.centerApi.busSchema(this.busOwner, this.busName, version);
+                if (!schemaText) {
+                    bus = null;
+                }
+                else {
+                    bus = this.buildBus(schemaText);
+                }
+                busAllVersions[version] = bus;
+            }
+            if (bus === null)
+                return null;
+            return bus[this.faceName];
+        });
     }
     buildBus(schemaText) {
         let bus = {};
@@ -87,18 +100,20 @@ class BusFaceAccept extends BusFace {
         super(entityRunner, url, bus, faceName, version);
         this.accept = accept;
     }
-    async convert(busBody, version) {
-        let face = await this.getFaceSchema(version);
-        if (face === null) {
-            throw new Error(this.busNotExists(version));
-        }
-        let body = this.parseBusBody(busBody, face);
-        let faceThisVersion = await this.getFaceSchema(this.version);
-        if (faceThisVersion === null) {
-            throw new Error(this.busNotExists(this.version));
-        }
-        let busText = this.buildBusBody(body, faceThisVersion);
-        return busText;
+    convert(busBody, version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let face = yield this.getFaceSchema(version);
+            if (face === null) {
+                throw new Error(this.busNotExists(version));
+            }
+            let body = this.parseBusBody(busBody, face);
+            let faceThisVersion = yield this.getFaceSchema(this.version);
+            if (faceThisVersion === null) {
+                throw new Error(this.busNotExists(this.version));
+            }
+            let busText = this.buildBusBody(body, faceThisVersion);
+            return busText;
+        });
     }
     busNotExists(version) {
         return `bus ${this.busOwner}.${this.busName}.${this.faceName} version ${version} not exists`;
@@ -174,7 +189,7 @@ class BusFaceAccept extends BusFace {
         for (let f of fields) {
             let { name } = f;
             let v = c[name];
-            ret += sep + (v ?? '');
+            ret += sep + (v !== null && v !== void 0 ? v : '');
             sep = '\t';
         }
         return ret;

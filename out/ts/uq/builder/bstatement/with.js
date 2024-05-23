@@ -30,11 +30,12 @@ class BWithStatement extends bstatement_1.BStatement {
         return alias;
     }
     createDel() {
+        var _a;
         let { name } = this.entity;
         let { factory } = this.context;
         let hasUnit = false;
         let del = factory.createDelete();
-        let alias = this.alias ?? 'a';
+        let alias = (_a = this.alias) !== null && _a !== void 0 ? _a : 'a';
         del.tables = [alias];
         del.from(new statementWithFrom_1.EntityTable(name, hasUnit, alias));
         del.where(new sql_1.ExpAnd(...this.buildWheres(alias)));
@@ -169,7 +170,7 @@ class BWithIDOnId extends BWithStatement {
     buildWheres(alias) {
         let ret = super.buildWheresBase();
         let { idVal } = this.istatement.with;
-        alias = alias ?? this.alias;
+        alias = alias !== null && alias !== void 0 ? alias : this.alias;
         ret.push(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), (0, sql_1.convertExp)(this.context, idVal)));
         return ret;
     }
@@ -181,7 +182,7 @@ class BWithIDOnKeys extends BWithStatement {
         let ret = super.buildWheresBase();
         let { keys } = this.entity;
         let { keyVals } = this.istatement.with;
-        alias = alias ?? this.alias;
+        alias = alias !== null && alias !== void 0 ? alias : this.alias;
         let len = keys.length;
         for (let i = 0; i < len; i++) {
             let key = keys[i];
@@ -196,7 +197,7 @@ class BWithIDX extends BWithStatement {
     get entity() { return this.istatement.with.IDX; }
     buildWheres(alias) {
         let { idVal } = this.istatement.with;
-        alias = alias ?? this.alias;
+        alias = alias !== null && alias !== void 0 ? alias : this.alias;
         let ret = this.buildWheresBase();
         if (idVal) {
             ret.push(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), (0, sql_1.convertExp)(this.context, idVal)));
@@ -214,7 +215,7 @@ class BWithIX extends BWithStatement {
         let { i, x } = this.entity;
         let { ixxVal, iVal, xVal } = this.istatement.with;
         // delete 语句的时候，需要这个
-        alias = alias ?? this.alias;
+        alias = alias !== null && alias !== void 0 ? alias : this.alias;
         let ret = this.buildWheresBase();
         if (ixxVal) {
             ret.push(new sql_1.ExpEQ(new sql_1.ExpField('ixx', alias), (0, sql_1.convertExp)(this.context, ixxVal)));
@@ -319,7 +320,7 @@ class BWithIDSetOnKeys extends BWithIDOnKeys {
     }
     buildWheres(alias) {
         let ret = super.buildWheresBase();
-        alias = alias ?? this.alias;
+        alias = alias !== null && alias !== void 0 ? alias : this.alias;
         ret.push(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpAtVar(`id_$${this.istatement.no}`)));
         return ret;
     }

@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Field = void 0;
 const __1 = require("..");
@@ -101,8 +110,10 @@ class Field {
         return field;
     }
     getValue(row) { return null; }
-    async getId(unit, row) {
-        return undefined;
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return undefined;
+        });
     }
 }
 exports.Field = Field;
@@ -119,45 +130,61 @@ class StringField extends Field {
     }
 }
 class UserField extends Field {
-    async getId(unit, row) {
-        return await __1.centerApi.userIdFromName(row[this.colIndex]);
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield __1.centerApi.userIdFromName(row[this.colIndex]);
+        });
     }
 }
 class BaseTuidField extends Field {
 }
 class IdField extends BaseTuidField {
-    async getId(unit, row) {
-        return await this.runner.importVId(unit, undefined, this.source, this.tuid, this.div, row[this.colIndex]);
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.runner.importVId(unit, undefined, this.source, this.tuid, this.div, row[this.colIndex]);
+        });
     }
 }
 class OwnerField extends BaseTuidField {
-    async getId(unit, row) {
-        return undefined;
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return undefined;
+        });
     }
 }
 class TuidField extends BaseTuidField {
-    async getId(unit, row) {
-        return await this.runner.importVId(unit, undefined, this.source, this.tuid, undefined, row[this.colIndex]);
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.runner.importVId(unit, undefined, this.source, this.tuid, undefined, row[this.colIndex]);
+        });
     }
 }
 class TuidDivField extends BaseTuidField {
-    async getId(unit, row) {
-        return undefined;
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return undefined;
+        });
     }
 }
 class ImportField extends BaseTuidField {
-    async getId(unit, row) {
-        return undefined;
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return undefined;
+        });
     }
 }
 class TuidImportField extends ImportField {
-    async getId(unit, row) {
-        return undefined;
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return undefined;
+        });
     }
 }
 class TuidDivImportField extends ImportField {
-    async getId(unit, row) {
-        return undefined;
+    getId(unit, row) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return undefined;
+        });
     }
 }
 //# sourceMappingURL=field.js.map

@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DbContext = exports.sysTable = exports.DbObjs = exports.createFactory = exports.max_promises_uq_api = void 0;
 const il = require("../il");
@@ -28,125 +37,135 @@ class DbObjs {
         this.sqls = [];
         this.context = context;
     }
-    async updateDb(runner, options) {
-        for (let t of this.tables)
-            t.buildIdIndex();
-        if (await this.updateTables(runner, options) === false) {
-            return false;
-        }
-        if (await this.updateProcs(runner, options) === false) {
-            return false;
-        }
-        let step = 100;
-        for (let i = 0;; i += step) {
-            let sqls = this.sqls.slice(i, step);
-            if (sqls.length === 0)
-                break;
-            await runner.sql(sqls, []);
-        }
-        return true;
-    }
-    async afterPromises(objSchemas, promises) {
-        let log = this.context.log;
-        let all = await Promise.all(promises);
-        for (let i = 0; i < all.length; i++) {
-            let ret = all[i];
-            log(`///++++++${objSchemas[i].name}------///`);
-            if (ret !== undefined) {
-                log(ret);
-                console.error(ret);
-                debugger;
+    updateDb(runner, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let t of this.tables)
+                t.buildIdIndex();
+            if ((yield this.updateTables(runner, options)) === false) {
                 return false;
             }
-        }
-        //promises = [];
-        //tables = [];
-        return true;
+            if ((yield this.updateProcs(runner, options)) === false) {
+                return false;
+            }
+            let step = 100;
+            for (let i = 0;; i += step) {
+                let sqls = this.sqls.slice(i, step);
+                if (sqls.length === 0)
+                    break;
+                yield runner.sql(sqls, []);
+            }
+            return true;
+        });
     }
-    async updateTables(runner, options) {
-        let ok = true;
-        let log = this.context.log;
-        let promises = [];
-        let tables = [];
-        for (let t of this.tables) {
-            let sb = this.context.createSqlBuilder();
-            t.update(sb);
-            log('///++++++' + t.name); // 压缩界面显示
-            log(sb.sql);
-            log('------///'); // 结束压缩
-            if (promises.length >= exports.max_promises_uq_api) {
-                if (await this.afterPromises(tables, promises) === false)
+    afterPromises(objSchemas, promises) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let log = this.context.log;
+            let all = yield Promise.all(promises);
+            for (let i = 0; i < all.length; i++) {
+                let ret = all[i];
+                log(`///++++++${objSchemas[i].name}------///`);
+                if (ret !== undefined) {
+                    log(ret);
+                    console.error(ret);
+                    debugger;
                     return false;
-                promises = [];
-                tables = [];
+                }
             }
-            promises.push(t.updateDb(this.context, runner, options));
-            tables.push(t);
-            log();
-        }
-        if (await this.afterPromises(tables, promises) === false)
-            return false;
-        return ok;
+            //promises = [];
+            //tables = [];
+            return true;
+        });
     }
-    async updateTablesRows(runner, options) {
-        let ok = true;
-        let log = this.context.log;
-        let promises = [];
-        let tables = [];
-        for (let t of this.tables) {
-            if (t.fieldsValuesList === undefined)
-                continue;
-            let sb = this.context.createSqlBuilder();
-            t.update(sb);
-            log('///++++++' + t.name); // 压缩界面显示
-            log(sb.sql);
-            log('------///'); // 结束压缩
-            if (promises.length >= exports.max_promises_uq_api) {
-                if (await this.afterPromises(tables, promises) === false)
-                    return false;
-                promises = [];
-                tables = [];
+    updateTables(runner, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ok = true;
+            let log = this.context.log;
+            let promises = [];
+            let tables = [];
+            for (let t of this.tables) {
+                let sb = this.context.createSqlBuilder();
+                t.update(sb);
+                log('///++++++' + t.name); // 压缩界面显示
+                log(sb.sql);
+                log('------///'); // 结束压缩
+                if (promises.length >= exports.max_promises_uq_api) {
+                    if ((yield this.afterPromises(tables, promises)) === false)
+                        return false;
+                    promises = [];
+                    tables = [];
+                }
+                promises.push(t.updateDb(this.context, runner, options));
+                tables.push(t);
+                log();
             }
-            promises.push(t.updateRows(this.context, runner, options));
-            tables.push(t);
-            log();
-        }
-        if (await this.afterPromises(tables, promises) === false)
-            return false;
-        return ok;
+            if ((yield this.afterPromises(tables, promises)) === false)
+                return false;
+            return ok;
+        });
     }
-    async updateProcs(runner, options) {
-        let log = this.context.log;
-        let len = this.procedures.length;
-        let promises = [];
-        let procs = [];
-        for (let i = 0; i < len; i++) {
-            let p = this.procedures[i];
-            let sbDrop = this.context.createSqlBuilder();
-            p.drop(sbDrop);
-            let sb = this.context.createSqlBuilder();
-            p.to(sb);
-            log('///++++++' + p.name); // 压缩界面显示
-            log(sb.sql);
-            log('------///'); // 结束压缩
-            if (promises.length >= exports.max_promises_uq_api) {
-                if (await this.afterPromises(procs, promises) === false)
-                    return false;
-                promises = [];
-                procs = [];
+    updateTablesRows(runner, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ok = true;
+            let log = this.context.log;
+            let promises = [];
+            let tables = [];
+            for (let t of this.tables) {
+                if (t.fieldsValuesList === undefined)
+                    continue;
+                let sb = this.context.createSqlBuilder();
+                t.update(sb);
+                log('///++++++' + t.name); // 压缩界面显示
+                log(sb.sql);
+                log('------///'); // 结束压缩
+                if (promises.length >= exports.max_promises_uq_api) {
+                    if ((yield this.afterPromises(tables, promises)) === false)
+                        return false;
+                    promises = [];
+                    tables = [];
+                }
+                promises.push(t.updateRows(this.context, runner, options));
+                tables.push(t);
+                log();
             }
-            if (p.isCore === true) {
-                promises.push(p.coreUpdateDb(runner, options));
+            if ((yield this.afterPromises(tables, promises)) === false)
+                return false;
+            return ok;
+        });
+    }
+    updateProcs(runner, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let log = this.context.log;
+            let len = this.procedures.length;
+            let promises = [];
+            let procs = [];
+            for (let i = 0; i < len; i++) {
+                let p = this.procedures[i];
+                let sbDrop = this.context.createSqlBuilder();
+                p.drop(sbDrop);
+                let sb = this.context.createSqlBuilder();
+                p.to(sb);
+                log('///++++++' + p.name); // 压缩界面显示
+                log(sb.sql);
+                log('------///'); // 结束压缩
+                if (promises.length >= exports.max_promises_uq_api) {
+                    if ((yield this.afterPromises(procs, promises)) === false)
+                        return false;
+                    promises = [];
+                    procs = [];
+                }
+                if (p.isCore === true) {
+                    promises.push(p.coreUpdateDb(runner, options));
+                }
+                else {
+                    promises.push(p.updateDb(runner, options));
+                }
+                procs.push(p);
+                log();
             }
-            else {
-                promises.push(p.updateDb(runner, options));
-            }
-            procs.push(p);
-            log();
-        }
-        if (await this.afterPromises(procs, promises) === false)
-            return false;
-        return true;
+            if ((yield this.afterPromises(procs, promises)) === false)
+                return false;
+            return true;
+        });
     }
 }
 exports.DbObjs = DbObjs;
@@ -179,7 +198,7 @@ class DbContext {
         this.userParam = userField;
         this.varUser = new sql_1.ExpVar(sqlBuilder_1.userParamName);
     }
-    get objDbName() { return this.ownerDbName ?? this.dbName; }
+    get objDbName() { var _a; return (_a = this.ownerDbName) !== null && _a !== void 0 ? _a : this.dbName; }
     createTable(tblName) {
         return this.factory.createTable(this.objDbName, tblName);
     }

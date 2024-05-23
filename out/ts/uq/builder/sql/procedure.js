@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProcedureUpdater = exports.Procedure = void 0;
 class Procedure {
@@ -90,15 +99,19 @@ class Procedure {
             this.param(sb, p);
         }
     }
-    async updateDb(runner, options) {
-        this.checkTrans();
-        let updater = this.createUpdater(runner);
-        return await updater.update(options);
+    updateDb(runner, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.checkTrans();
+            let updater = this.createUpdater(runner);
+            return yield updater.update(options);
+        });
     }
-    async coreUpdateDb(runner, options) {
-        this.checkTrans();
-        let updater = this.createUpdater(runner);
-        return await updater.updateCore(options);
+    coreUpdateDb(runner, options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.checkTrans();
+            let updater = this.createUpdater(runner);
+            return yield updater.updateCore(options);
+        });
     }
     declare(sb, tab, vars) {
         //if (vars.length === 0) return;
@@ -133,26 +146,30 @@ class ProcedureUpdater {
         this.uqBuildApi = uqBuildApi;
         this.proc = proc;
     }
-    async update(options) {
-        try {
-            if (this.proc.isCore === true)
-                await this.updateCoreProc(options);
-            else
-                await this.updateProc(options);
-            return;
-        }
-        catch (err) {
-            return err;
-        }
+    update(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (this.proc.isCore === true)
+                    yield this.updateCoreProc(options);
+                else
+                    yield this.updateProc(options);
+                return;
+            }
+            catch (err) {
+                return err;
+            }
+        });
     }
-    async updateCore(options) {
-        try {
-            await this.updateCoreProc(options);
-            return;
-        }
-        catch (err) {
-            return err;
-        }
+    updateCore(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.updateCoreProc(options);
+                return;
+            }
+            catch (err) {
+                return err;
+            }
+        });
     }
 }
 exports.ProcedureUpdater = ProcedureUpdater;

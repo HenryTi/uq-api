@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyDb$Site = void 0;
 const tool_1 = require("../../../tool");
@@ -9,15 +18,21 @@ class MyDb$Site extends MyDb_1.MyDb {
         super(myDbs, consts_1.consts.$site);
     }
     initConfig(dbName) { return tool_1.env.connection; }
-    async createDatabase() {
-        await Promise.all([
-            super.createDatabase(),
-            this.buildProcSaveAtom(),
-        ]);
+    createDatabase() {
+        const _super = Object.create(null, {
+            createDatabase: { get: () => super.createDatabase }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            yield Promise.all([
+                _super.createDatabase.call(this),
+                this.buildProcSaveAtom(),
+            ]);
+        });
     }
-    async buildProcSaveAtom() {
-        const { $site } = consts_1.consts;
-        const sql = `
+    buildProcSaveAtom() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { $site } = consts_1.consts;
+            const sql = `
         DROP PROCEDURE IF EXISTS ${$site}.saveAtom;
         CREATE PROCEDURE ${$site}.saveAtom(db VARCHAR(200), site BIGINT, atomPhrase VARCHAR(200), base BIGINT, keys0 VARCHAR(500), ex VARCHAR(200))
 BEGIN
@@ -39,7 +54,8 @@ BEGIN
     DEALLOCATE PREPARE stmt;
 END;
 `;
-        this.sql(sql, undefined);
+            this.sql(sql, undefined);
+        });
     }
 }
 exports.MyDb$Site = MyDb$Site;

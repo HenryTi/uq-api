@@ -56,7 +56,7 @@ class BizPend extends Entity_1.BizEntity {
             ret.params = params.map(v => v.buildSchema(res));
             ret.cols = from.cols.map(v => {
                 const bud = v.bud; // field.getBud();
-                return bud?.buildSchema(res);
+                return bud === null || bud === void 0 ? void 0 : bud.buildSchema(res);
             });
         }
         if (this.i !== undefined)

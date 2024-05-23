@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.QueueOut = void 0;
 const tool_1 = require("../tool");
@@ -22,42 +31,46 @@ class QueueOut {
      * 其中经常使用的是bus消息，然后发送bus
      * @returns
      */
-    async run() {
-        let retCount = 0;
-        try {
-            retCount += await this.internalRun();
-        }
-        catch (err) {
-            await this.runner.logError(0, 'jobs queueOut loop', (0, tool_2.getErrorString)(err));
-            if (tool_2.env.isDevelopment === true)
-                tool_1.logger.error(err);
-            return -1;
-        }
-        return retCount;
+    run() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
+            try {
+                retCount += yield this.internalRun();
+            }
+            catch (err) {
+                yield this.runner.logError(0, 'jobs queueOut loop', (0, tool_2.getErrorString)(err));
+                if (tool_2.env.isDevelopment === true)
+                    tool_1.logger.error(err);
+                return -1;
+            }
+            return retCount;
+        });
     }
-    async internalRun() {
-        let retCount = 0;
-        for (let defer = 0; defer < consts_1.constDeferMax; defer++) {
-            if (this.runner.isCompiling === true)
-                break;
-            this.messagePointer = 0;
-            let count = consts_1.constQueueSizeArr[defer];
-            for (let i = 0; i < count;) {
+    internalRun() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let retCount = 0;
+            for (let defer = 0; defer < consts_1.constDeferMax; defer++) {
                 if (this.runner.isCompiling === true)
                     break;
-                let ret = await this.runner.call('$message_queue_get', [this.messagePointer, defer, 10]);
-                if (ret.length === 0)
-                    break;
-                for (let row of ret) {
+                this.messagePointer = 0;
+                let count = consts_1.constQueueSizeArr[defer];
+                for (let i = 0; i < count;) {
                     if (this.runner.isCompiling === true)
                         break;
-                    await this.processOneRow(row, defer);
-                    ret++;
-                    i++;
+                    let ret = yield this.runner.call('$message_queue_get', [this.messagePointer, defer, 10]);
+                    if (ret.length === 0)
+                        break;
+                    for (let row of ret) {
+                        if (this.runner.isCompiling === true)
+                            break;
+                        yield this.processOneRow(row, defer);
+                        ret++;
+                        i++;
+                    }
                 }
             }
-        }
-        return retCount;
+            return retCount;
+        });
     }
     /**
      *
@@ -65,66 +78,68 @@ class QueueOut {
      * @param defer
      * @returns
      */
-    async processOneRow(row, defer) {
-        // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
-        let { $unit, id, to, action, subject, content, tries, update_time, now, stamp } = row;
-        tool_1.logger.debug('queueOut 1: ', action, subject, content, update_time);
-        this.messagePointer = id;
-        if (!$unit)
-            $unit = this.runner.uniqueUnit;
-        if (tries > 0) {
-            // 上次尝试之后十分钟内不尝试，按次数，时间递增
-            if (now - update_time < tries * 10 * 60)
-                return;
-        }
-        let finish;
-        if (!content) {
-            // 如果没有内容，直接进入failed
-            finish = consts_1.Finish.bad;
-        }
-        else {
-            try {
-                switch (action) {
-                    default:
-                        this.processItem($unit, id, action, subject, content, update_time);
-                        break;
-                    case 'app':
-                        await this.app($unit, id, content);
-                        finish = consts_1.Finish.done;
-                        break;
-                    case 'email':
-                        await this.email($unit, id, content);
-                        finish = consts_1.Finish.done;
-                        break;
-                    case 'bus':
-                        await this.bus($unit, id, defer, to, subject, content, stamp);
-                        finish = consts_1.Finish.done;
-                        break;
-                    case 'bus-query':
-                        await this.busQuery($unit, subject, content);
-                        finish = consts_1.Finish.done;
-                        break;
-                    case 'sheet':
-                        await this.sheet(content);
-                        await this.runner.log($unit, 'sheet-action', content);
-                        finish = consts_1.Finish.done;
-                        break;
+    processOneRow(row, defer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // 以后修正，表中没有$unit，这时候应该runner里面包含$unit的值。在$unit表中，应该有唯一的unit值
+            let { $unit, id, to, action, subject, content, tries, update_time, now, stamp } = row;
+            tool_1.logger.debug('queueOut 1: ', action, subject, content, update_time);
+            this.messagePointer = id;
+            if (!$unit)
+                $unit = this.runner.uniqueUnit;
+            if (tries > 0) {
+                // 上次尝试之后十分钟内不尝试，按次数，时间递增
+                if (now - update_time < tries * 10 * 60)
+                    return;
+            }
+            let finish;
+            if (!content) {
+                // 如果没有内容，直接进入failed
+                finish = consts_1.Finish.bad;
+            }
+            else {
+                try {
+                    switch (action) {
+                        default:
+                            this.processItem($unit, id, action, subject, content, update_time);
+                            break;
+                        case 'app':
+                            yield this.app($unit, id, content);
+                            finish = consts_1.Finish.done;
+                            break;
+                        case 'email':
+                            yield this.email($unit, id, content);
+                            finish = consts_1.Finish.done;
+                            break;
+                        case 'bus':
+                            yield this.bus($unit, id, defer, to, subject, content, stamp);
+                            finish = consts_1.Finish.done;
+                            break;
+                        case 'bus-query':
+                            yield this.busQuery($unit, subject, content);
+                            finish = consts_1.Finish.done;
+                            break;
+                        case 'sheet':
+                            yield this.sheet(content);
+                            yield this.runner.log($unit, 'sheet-action', content);
+                            finish = consts_1.Finish.done;
+                            break;
+                    }
+                }
+                catch (err) {
+                    if (tries < 5) {
+                        finish = consts_1.Finish.retry; // retry
+                    }
+                    else {
+                        finish = consts_1.Finish.bad; // fail
+                    }
+                    let errSubject = `error on ${action}:  ${subject}`;
+                    let error = (0, tool_2.getErrorString)(err);
+                    yield this.runner.logError($unit, errSubject, error);
                 }
             }
-            catch (err) {
-                if (tries < 5) {
-                    finish = consts_1.Finish.retry; // retry
-                }
-                else {
-                    finish = consts_1.Finish.bad; // fail
-                }
-                let errSubject = `error on ${action}:  ${subject}`;
-                let error = (0, tool_2.getErrorString)(err);
-                await this.runner.logError($unit, errSubject, error);
-            }
-        }
-        if (finish !== undefined)
-            await this.runner.unitCall(procMessageQueueSet, $unit, id, defer, finish);
+            if (finish !== undefined)
+                yield this.runner.unitCall(procMessageQueueSet, $unit, id, defer, finish);
+        });
     }
     processItem(unit, id, action, subject, content, update_time) {
         let json = {};
@@ -144,145 +159,158 @@ class QueueOut {
         }
         return json;
     }
-    async app(unit, id, content) {
-        await core_1.centerApi.send({
-            type: 'app',
-            unit: unit,
-            body: content,
+    app(unit, id, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield core_1.centerApi.send({
+                type: 'app',
+                unit: unit,
+                body: content,
+            });
         });
     }
-    async email(unit, id, content) {
-        let values = this.jsonValues(content);
-        let { $isUser, $to, $cc, $bcc, $templet } = values;
-        if (!$to)
-            return;
-        let schema = this.runner.getSchema($templet);
-        if (schema === undefined) {
-            debugger;
-            throw 'something wrong';
-        }
-        let { subjectSections, sections } = schema.call;
-        let mailSubject = this.stringFromSections(subjectSections, values);
-        let mailBody = this.stringFromSections(sections, values);
-        await core_1.centerApi.send({
-            isUser: $isUser === '1',
-            type: 'email',
-            subject: mailSubject,
-            body: mailBody,
-            to: $to,
-            cc: $cc,
-            bcc: $bcc
+    email(unit, id, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let values = this.jsonValues(content);
+            let { $isUser, $to, $cc, $bcc, $templet } = values;
+            if (!$to)
+                return;
+            let schema = this.runner.getSchema($templet);
+            if (schema === undefined) {
+                debugger;
+                throw 'something wrong';
+            }
+            let { subjectSections, sections } = schema.call;
+            let mailSubject = this.stringFromSections(subjectSections, values);
+            let mailBody = this.stringFromSections(sections, values);
+            yield core_1.centerApi.send({
+                isUser: $isUser === '1',
+                type: 'email',
+                subject: mailSubject,
+                body: mailBody,
+                to: $to,
+                cc: $cc,
+                bcc: $bcc
+            });
         });
     }
     // bus参数，调用的时候，就是project
-    async bus(unit, id, defer, to, bus, content, stamp) {
-        if (!unit && !to)
-            return;
-        let parts = bus.split('/');
-        let busEntityName = parts[0];
-        let face = parts[1];
-        let schema = this.runner.getSchema(busEntityName);
-        if (schema === undefined) {
-            let err = `schema ${busEntityName} not exists`;
-            tool_1.logger.error(err);
-            debugger;
-            throw err;
-        }
-        let { schema: busSchema, busOwner, busName } = schema.call;
-        let { uqOwner, uq } = this.runner;
-        let { body, version, local } = this.toBusMessage(busSchema, face, content);
-        // send Local bus-face，自己发送，自己处理。
-        // 也可以对外发送，然后自己接收回来处理。
-        async function sendToUnitxAndLocal(runner, unitx, unitOrPerson) {
-            if (local === true) {
-                defer = -1;
-                await runner.call('$queue_in_add', [
-                    unitOrPerson, to, defer, id,
-                    busEntityName,
-                    face,
-                    body,
-                    0,
-                    stamp ?? Date.now() / 1000
-                ]);
+    bus(unit, id, defer, to, bus, content, stamp) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!unit && !to)
+                return;
+            let parts = bus.split('/');
+            let busEntityName = parts[0];
+            let face = parts[1];
+            let schema = this.runner.getSchema(busEntityName);
+            if (schema === undefined) {
+                let err = `schema ${busEntityName} not exists`;
+                tool_1.logger.error(err);
+                debugger;
+                throw err;
+            }
+            let { schema: busSchema, busOwner, busName } = schema.call;
+            let { uqOwner, uq } = this.runner;
+            let { body, version, local } = this.toBusMessage(busSchema, face, content);
+            // send Local bus-face，自己发送，自己处理。
+            // 也可以对外发送，然后自己接收回来处理。
+            function sendToUnitxAndLocal(runner, unitx, unitOrPerson) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    if (local === true) {
+                        defer = -1;
+                        yield runner.call('$queue_in_add', [
+                            unitOrPerson, to, defer, id,
+                            busEntityName,
+                            face,
+                            body,
+                            0,
+                            stamp !== null && stamp !== void 0 ? stamp : Date.now() / 1000
+                        ]);
+                    }
+                    else {
+                        let message = {
+                            unit: unitOrPerson,
+                            type: 'bus',
+                            queueId: id,
+                            defer,
+                            to,
+                            from: uqOwner + '/' + uq, // from uq
+                            busOwner,
+                            bus: busName,
+                            face,
+                            version,
+                            body,
+                            stamp,
+                        };
+                        yield unitx.sendToUnitx(unitOrPerson, message);
+                    }
+                });
+            }
+            if (to > 0) {
+                let unitXArr = yield (0, core_2.getUserX)(this.runner, to, bus, busOwner, busName, face);
+                if (!unitXArr || unitXArr.length === 0)
+                    return;
+                let promises = unitXArr.map((v) => __awaiter(this, void 0, void 0, function* () {
+                    yield sendToUnitxAndLocal(this.runner, this.unitx, v);
+                }));
+                yield Promise.all(promises);
             }
             else {
-                let message = {
-                    unit: unitOrPerson,
-                    type: 'bus',
-                    queueId: id,
-                    defer,
-                    to,
-                    from: uqOwner + '/' + uq, // from uq
-                    busOwner,
-                    bus: busName,
-                    face,
-                    version,
-                    body,
-                    stamp,
-                };
-                await unitx.sendToUnitx(unitOrPerson, message);
+                yield sendToUnitxAndLocal(this.runner, this.unitx, unit);
             }
-        }
-        if (to > 0) {
-            let unitXArr = await (0, core_2.getUserX)(this.runner, to, bus, busOwner, busName, face);
-            if (!unitXArr || unitXArr.length === 0)
-                return;
-            let promises = unitXArr.map(async (v) => {
-                await sendToUnitxAndLocal(this.runner, this.unitx, v);
-            });
-            await Promise.all(promises);
-        }
-        else {
-            await sendToUnitxAndLocal(this.runner, this.unitx, unit);
-        }
+        });
     }
     // bus参数，调用的时候，就是project
-    async busQuery(unit, bus, content) {
-        if (!unit)
-            return;
-        let parts = bus.split('/');
-        let busEntityName = parts[0];
-        let face = parts[1];
-        let schema = this.runner.getSchema(busEntityName);
-        if (schema === undefined) {
-            let err = `schema ${busEntityName} not exists`;
-            tool_1.logger.error(err);
-            debugger;
-            throw err;
-        }
-        let { schema: busSchema, busOwner, busName } = schema.call;
-        let faceSchema = busSchema[face];
-        let { returns } = faceSchema;
-        //let {uqOwner, uq} = this.runner;
-        //let {body, version, local} = this.toBusMessage(busSchema, face, content);
-        //let {bus, face, busOwner, busName, param, returns} = inBus;
-        //let {busOwner, busName} = bus;
-        let openApi = await this.runner.net.openApiUnitFace(this.runner, unit, busOwner, busName, face);
-        if (openApi === undefined) {
-            throw 'error await this.runner.net.openApiUnitFace nothing returned';
-        }
-        let params = content; // content in message queue is params;
-        let ret = await openApi.busQuery(unit, busOwner, busName, face, [params]);
-        let data = this.buildDataFromBusQueryReturn(returns.fields, ret[0]);
-        await this.runner.busAcceptFromQuery(busEntityName, face, unit, data);
+    busQuery(unit, bus, content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!unit)
+                return;
+            let parts = bus.split('/');
+            let busEntityName = parts[0];
+            let face = parts[1];
+            let schema = this.runner.getSchema(busEntityName);
+            if (schema === undefined) {
+                let err = `schema ${busEntityName} not exists`;
+                tool_1.logger.error(err);
+                debugger;
+                throw err;
+            }
+            let { schema: busSchema, busOwner, busName } = schema.call;
+            let faceSchema = busSchema[face];
+            let { returns } = faceSchema;
+            //let {uqOwner, uq} = this.runner;
+            //let {body, version, local} = this.toBusMessage(busSchema, face, content);
+            //let {bus, face, busOwner, busName, param, returns} = inBus;
+            //let {busOwner, busName} = bus;
+            let openApi = yield this.runner.net.openApiUnitFace(this.runner, unit, busOwner, busName, face);
+            if (openApi === undefined) {
+                throw 'error await this.runner.net.openApiUnitFace nothing returned';
+            }
+            let params = content; // content in message queue is params;
+            let ret = yield openApi.busQuery(unit, busOwner, busName, face, [params]);
+            let data = this.buildDataFromBusQueryReturn(returns.fields, ret[0]);
+            yield this.runner.busAcceptFromQuery(busEntityName, face, unit, data);
+        });
     }
     buildDataFromBusQueryReturn(fields, results) {
+        var _a;
         let ret = '';
         let len = fields.length;
         for (let result of results) {
             ret += result[fields[0].name];
             for (let i = 1; i < len; i++) {
                 let field = fields[i];
-                ret += '\t' + (result[field.name] ?? '');
+                ret += '\t' + ((_a = result[field.name]) !== null && _a !== void 0 ? _a : '');
             }
             ret += '\n';
         }
         return ret + '\n';
     }
-    async sheet(content) {
-        let sheetQueueData = JSON.parse(content);
-        let { id, sheet, state, action, unit, user, flow } = sheetQueueData;
-        let result = await this.runner.sheetAct(sheet, state, action, unit, user, id, flow);
+    sheet(content) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sheetQueueData = JSON.parse(content);
+            let { id, sheet, state, action, unit, user, flow } = sheetQueueData;
+            let result = yield this.runner.sheetAct(sheet, state, action, unit, user, id, flow);
+        });
     }
     stringFromSections(sections, values) {
         if (sections === undefined)
@@ -377,7 +405,7 @@ class QueueOut {
         if (part !== undefined)
             data.push(part);
         let { fields, arrs } = faceSchema;
-        let ret = busHeadCommand ?? '';
+        let ret = busHeadCommand !== null && busHeadCommand !== void 0 ? busHeadCommand : '';
         for (let item of data) {
             ret += item['$'] + '\n';
             if (arrs === undefined)

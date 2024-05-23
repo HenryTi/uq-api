@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProcedureUpdater = exports.MyProcedure = void 0;
 const procedure_1 = require("../procedure");
@@ -114,23 +123,27 @@ class ProcedureUpdater extends procedure_1.ProcedureUpdater {
         let sql = sb.sql;
         return sql;
     }
-    async updateProc() {
-        let sqlDrop = this.buildDropSql();
-        await this.uqBuildApi.sql(sqlDrop, undefined);
-        if (this.proc.dropOnly === true)
-            return;
-        let sql = this.buildProcSql();
-        let procName = this.getUploadProcName();
-        await this.uqBuildApi.procSql(procName, sql);
+    updateProc() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sqlDrop = this.buildDropSql();
+            yield this.uqBuildApi.sql(sqlDrop, undefined);
+            if (this.proc.dropOnly === true)
+                return;
+            let sql = this.buildProcSql();
+            let procName = this.getUploadProcName();
+            yield this.uqBuildApi.procSql(procName, sql);
+        });
     }
-    async updateCoreProc() {
-        let sqlDrop = this.buildDropSql();
-        await this.uqBuildApi.sql(sqlDrop, undefined);
-        if (this.proc.dropOnly === true)
-            return;
-        let sql = this.buildProcSql();
-        let procName = this.getUploadProcName();
-        await this.uqBuildApi.procCoreSql(procName, sql, this.proc.returnDataType !== undefined);
+    updateCoreProc() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sqlDrop = this.buildDropSql();
+            yield this.uqBuildApi.sql(sqlDrop, undefined);
+            if (this.proc.dropOnly === true)
+                return;
+            let sql = this.buildProcSql();
+            let procName = this.getUploadProcName();
+            yield this.uqBuildApi.procCoreSql(procName, sql, this.proc.returnDataType !== undefined);
+        });
     }
     getUploadProcName() {
         let { isOldUqApi, twProfix } = this.uqBuildApi;

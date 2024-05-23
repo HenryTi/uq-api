@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShareSchema = exports.FaceQuerySchema = exports.FaceAcceptSchema = exports.FaceSchema = void 0;
 const _ = require("lodash");
@@ -138,50 +147,52 @@ class ShareSchema {
     constructor() {
         this.faceSchemas = {};
     }
-    async loadSchema(fromOwner, fromName) {
-        /*
-        try {
-            let errorLogs:string[] = [];
-            let busSchema = await centerApi.busSchema(fromOwner, fromName);
-            if (busSchema === undefined) {
-                return 'not defined';
-            }
-            let {schema:schemaText, version} = busSchema;
-            this.version = version;
-            let schemas = JSON.parse(schemaText);
-            this.schema = schemas;
-            for (let i in schemas) {
-                let name = i.toLowerCase();
-                let schema = schemas[i];
-                let faceSchema:FaceSchema;
-                if (Array.isArray(schema) === true) {
-                    faceSchema = new FaceAcceptSchema(this, name, i, schema);
+    loadSchema(fromOwner, fromName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            /*
+            try {
+                let errorLogs:string[] = [];
+                let busSchema = await centerApi.busSchema(fromOwner, fromName);
+                if (busSchema === undefined) {
+                    return 'not defined';
                 }
-                else {
-                    faceSchema = new FaceQuerySchema(this, name, i, schema);
+                let {schema:schemaText, version} = busSchema;
+                this.version = version;
+                let schemas = JSON.parse(schemaText);
+                this.schema = schemas;
+                for (let i in schemas) {
+                    let name = i.toLowerCase();
+                    let schema = schemas[i];
+                    let faceSchema:FaceSchema;
+                    if (Array.isArray(schema) === true) {
+                        faceSchema = new FaceAcceptSchema(this, name, i, schema);
+                    }
+                    else {
+                        faceSchema = new FaceQuerySchema(this, name, i, schema);
+                    }
+                    this.faceSchemas[name] = faceSchema;
                 }
-                this.faceSchemas[name] = faceSchema;
-            }
-
-            for (let i in this.faceSchemas) {
-                this.faceSchemas[i].build(errorLogs);
-            }
-            if (errorLogs.length === 0) {
+    
                 for (let i in this.faceSchemas) {
-                    let fs = this.faceSchemas[i];
-                    fs.setArrField(errorLogs);
+                    this.faceSchemas[i].build(errorLogs);
                 }
+                if (errorLogs.length === 0) {
+                    for (let i in this.faceSchemas) {
+                        let fs = this.faceSchemas[i];
+                        fs.setArrField(errorLogs);
+                    }
+                }
+                if (errorLogs.length === 0) return;
+                return errorLogs.join('\n');
             }
-            if (errorLogs.length === 0) return;
-            return errorLogs.join('\n');
-        }
-        catch (err) {
-            console.error(err);
-            debugger;
-            return err;
-        }
-        */
-        return;
+            catch (err) {
+                console.error(err);
+                debugger;
+                return err;
+            }
+            */
+            return;
+        });
     }
 }
 exports.ShareSchema = ShareSchema;

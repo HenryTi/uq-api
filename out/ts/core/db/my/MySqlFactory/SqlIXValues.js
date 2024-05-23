@@ -15,8 +15,8 @@ class SqlIXValues extends MySqlBuilder_1.MySqlBuilder {
         let tStart, tSize;
         if (page) {
             let { start, size } = page;
-            tStart = start ?? null;
-            tSize = size ?? null;
+            tStart = start !== null && start !== void 0 ? start : null;
+            tSize = size !== null && size !== void 0 ? size : null;
         }
         if (!order)
             order = 'asc';

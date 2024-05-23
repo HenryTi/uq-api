@@ -32,19 +32,13 @@ class BizSheet extends Entity_1.BizEntity {
                 }
             }
         }
-        ret = {
-            ...ret,
-            io: this.io,
-            main: this.main.name,
-            details: this.details.map(v => {
+        ret = Object.assign(Object.assign({}, ret), { io: this.io, main: this.main.name, details: this.details.map(v => {
                 const { bin, caption } = v;
                 return {
                     bin: bin.name,
                     caption, // 此处暂时不做res翻译
                 };
-            }),
-            search,
-        };
+            }), search });
         return ret;
     }
     db(dbContext) {

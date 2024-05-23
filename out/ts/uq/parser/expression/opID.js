@@ -173,6 +173,7 @@ class POpID extends element_1.PElement {
         }
     }
     scan(space) {
+        var _a;
         let ok = true;
         let { phrases } = this.element;
         if (phrases !== undefined) {
@@ -272,7 +273,7 @@ class POpID extends element_1.PElement {
             || isMinute === true) {
             if (this.minuteIdStamp || this.keys) {
                 // vals.push(this.minuteIdStamp ?? ValueExpression.const(undefined));
-                this.element.stamp = this.minuteIdStamp ?? il_1.ValueExpression.const(undefined);
+                this.element.stamp = (_a = this.minuteIdStamp) !== null && _a !== void 0 ? _a : il_1.ValueExpression.const(undefined);
             }
             else {
                 if (ID.keys.length + 1 === vals.length) {

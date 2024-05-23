@@ -194,10 +194,11 @@ class PReturns extends entity_1.PEntityBase {
         }
     }
     scan(outer) {
+        var _a;
         let ok = true;
         let { type } = this.owner;
         let { page, returns } = this.returns;
-        if (page?.orderSwitch?.length > 0) {
+        if (((_a = page === null || page === void 0 ? void 0 : page.orderSwitch) === null || _a === void 0 ? void 0 : _a.length) > 0) {
             page.fields.unshift((0, il_1.intField)('$order'));
         }
         for (let r of returns) {

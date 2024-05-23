@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizSpec = void 0;
 const il_1 = require("../../il");
@@ -7,13 +16,18 @@ const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 class BBizSpec extends BizEntity_1.BBizEntity {
-    async buildProcedures() {
-        super.buildProcedures;
-        const { id } = this.bizEntity;
-        const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
-        this.buildSaveProc(procSave);
-        const funcGet = this.createFunction(`${this.context.site}.${id}`, new il_1.JsonDataType());
-        this.buildGetFunc(funcGet);
+    buildProcedures() {
+        const _super = Object.create(null, {
+            buildProcedures: { get: () => super.buildProcedures }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildProcedures;
+            const { id } = this.bizEntity;
+            const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
+            this.buildSaveProc(procSave);
+            const funcGet = this.createFunction(`${this.context.site}.${id}`, new il_1.JsonDataType());
+            this.buildGetFunc(funcGet);
+        });
     }
     buildSaveProc(proc) {
         const { base, keys, props: propsMap } = this.bizEntity;

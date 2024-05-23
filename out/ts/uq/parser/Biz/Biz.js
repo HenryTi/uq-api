@@ -34,7 +34,8 @@ class PBiz extends entity_1.PEntity {
         };
     }
     parse() {
-        let source = this.entity.source ?? '';
+        var _a;
+        let source = (_a = this.entity.source) !== null && _a !== void 0 ? _a : '';
         super.parse();
         source += this.entity.source;
         this.entity.source = source;
@@ -89,7 +90,7 @@ class PBiz extends entity_1.PEntity {
                 case BizPhraseType_1.BizPhraseType.sheet:
                     const sheet = p;
                     const { main, details } = sheet;
-                    main?.sheetArr.push(sheet);
+                    main === null || main === void 0 ? void 0 : main.sheetArr.push(sheet);
                     for (let detail of details) {
                         detail.bin.sheetArr.push(sheet);
                     }

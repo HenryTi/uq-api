@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MyDbs = void 0;
 const MyDb_Res_1 = require("./MyDb$Res");
@@ -21,27 +30,31 @@ class MyDbs {
         this.dbUqs = {};
         this.dbUqs[dbBizName] = this.dbBiz;
     }
-    async getDbUq(dbName) {
-        let dbUq = this.dbUqs[dbName];
-        if (dbUq === undefined) {
-            dbUq = new MyDbUq_1.MyDbUq(this, dbName);
-            this.dbUqs[dbName] = dbUq;
-            await dbUq.initLoad();
-        }
-        return dbUq;
+    getDbUq(dbName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let dbUq = this.dbUqs[dbName];
+            if (dbUq === undefined) {
+                dbUq = new MyDbUq_1.MyDbUq(this, dbName);
+                this.dbUqs[dbName] = dbUq;
+                yield dbUq.initLoad();
+            }
+            return dbUq;
+        });
     }
-    async start() {
-        const [sqlsVersion, savedUqApiVersion] = await this.dbNoName.versions();
-        this.sqlsVersion = sqlsVersion;
-        if (savedUqApiVersion !== this.uq_api_version) {
-            await Promise.all([
-                this.db$Uq.createDatabase(),
-                this.db$Res.createDatabase(),
-                this.db$Site.createDatabase(),
-            ]);
-            await this.dbNoName.saveUqVersion();
-        }
-        await this.dbBiz.initLoad();
+    start() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const [sqlsVersion, savedUqApiVersion] = yield this.dbNoName.versions();
+            this.sqlsVersion = sqlsVersion;
+            if (savedUqApiVersion !== this.uq_api_version) {
+                yield Promise.all([
+                    this.db$Uq.createDatabase(),
+                    this.db$Res.createDatabase(),
+                    this.db$Site.createDatabase(),
+                ]);
+                yield this.dbNoName.saveUqVersion();
+            }
+            yield this.dbBiz.initLoad();
+        });
     }
 }
 exports.MyDbs = MyDbs;
