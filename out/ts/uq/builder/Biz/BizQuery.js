@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizQuery = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const bstatement_1 = require("../bstatement");
 const sql_1 = require("../sql");
 const BizEntity_1 = require("./BizEntity");
@@ -13,7 +14,7 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         this.buildQueryProc(procQuery);
     }
     buildQueryProc(proc) {
-        const { params, statement } = this.bizEntity;
+        const { params, statement, from } = this.bizEntity;
         const site = '$site';
         const json = '$json';
         const varJson = new sql_1.ExpVar(json);
@@ -39,6 +40,47 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
+        this.buildFrom(statements, from.fromEntity);
+    }
+    buildFrom(statements, fromEntity) {
+        let { subs, bizPhraseType, bizEntityArr } = fromEntity;
+        switch (bizPhraseType) {
+            default: break;
+            case BizPhraseType_1.BizPhraseType.atom:
+                this.buildAtom(statements, bizEntityArr);
+                break;
+            case BizPhraseType_1.BizPhraseType.spec:
+                this.buildSpec(statements, bizEntityArr);
+                break;
+        }
+        if (subs !== undefined) {
+            for (let sub of subs) {
+                this.buildFrom(statements, sub);
+            }
+        }
+    }
+    buildAtom(statements, entityArr) {
+        const { factory } = this.context;
+        let insertAtom = factory.createInsert();
+        statements.push(insertAtom);
+        let entity = entityArr[0];
+        const { titleBuds, primeBuds } = entity;
+        for (let bud of titleBuds)
+            this.buildInsertBud(statements, entity, bud);
+        for (let bud of primeBuds)
+            this.buildInsertBud(statements, entity, bud);
+    }
+    buildSpec(statements, entityArr) {
+        for (let spec of entityArr) {
+            for (let [, bud] of spec.props) {
+                this.buildInsertBud(statements, spec, bud);
+            }
+        }
+    }
+    buildInsertBud(statements, entity, bud) {
+        const { factory } = this.context;
+        let insertBud = factory.createInsert();
+        statements.push(insertBud);
     }
 }
 exports.BBizQuery = BBizQuery;

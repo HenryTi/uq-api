@@ -37,6 +37,16 @@ class FromStatement extends statement_1.Statement {
         }
         return undefined;
     }
+    setIdFromEntity(idAlias) {
+        if (idAlias === undefined) {
+            this.idFromEntity = this.fromEntity;
+            return true;
+        }
+        else {
+            this.idFromEntity = this.getBizEntityFromAlias(idAlias);
+            return this.idFromEntity !== undefined;
+        }
+    }
 }
 exports.FromStatement = FromStatement;
 class FromStatementInPend extends FromStatement {

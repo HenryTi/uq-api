@@ -99,6 +99,10 @@ class PFromStatement extends statement_1.PStatement {
                 else {
                     this.ts.expect('ASC', 'DESC');
                 }
+                if (this.ts.isKeyword('of') === true) {
+                    this.ts.readToken();
+                    this.idAlias = this.ts.passVar();
+                }
                 coll['id'] = true;
                 this.ts.readToken();
                 if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
@@ -187,6 +191,10 @@ class PFromStatement extends statement_1.PStatement {
             if (ban.val.pelement.scan(space) === false) {
                 ok = false;
             }
+        }
+        if (this.element.setIdFromEntity(this.idAlias) === false) {
+            this.log(`${this.idAlias} is not defined`);
+            ok = false;
         }
         return ok;
     }
