@@ -238,7 +238,7 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
     bizEntityArr: E[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
-    subs: BizFromEntity<E>[];
+    subs: { field: string; fromEntity: BizFromEntity; }[];
     ofIXs: BizTie[] = [];
     ofOn: ValueExpression;
     alias: string;

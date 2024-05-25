@@ -290,7 +290,32 @@ class PFromStatement extends statement_1.PStatement {
         }
         if (pSubs !== undefined) {
             const { length } = pSubs;
-            for (let pSub of pSubs) {
+            let fields;
+            switch (bizPhraseType) {
+                default:
+                    if (length > 0) {
+                        ok = false;
+                        this.log('only DUO and SPEC support sub join');
+                    }
+                    fields = [];
+                    break;
+                case BizPhraseType_1.BizPhraseType.duo:
+                    if (length !== 0 && length !== 2) {
+                        ok = false;
+                        this.log('DUO must have 2 sub join');
+                    }
+                    fields = ['i', 'x'];
+                    break;
+                case BizPhraseType_1.BizPhraseType.spec:
+                    if (length !== 0 && length !== 1) {
+                        ok = false;
+                        this.log('SPEC must have 1 sub join');
+                    }
+                    fields = ['base'];
+                    break;
+            }
+            for (let i = 0; i < length; i++) {
+                let pSub = pSubs[i];
                 let subFromEntity = {};
                 if (this.scanFromEntity(space, subFromEntity, pSub, aliasSet, nAlias) === false) {
                     ok = false;
@@ -300,28 +325,11 @@ class PFromStatement extends statement_1.PStatement {
                     if (subs === undefined) {
                         fromEntity.subs = subs = [];
                     }
-                    subs.push(subFromEntity);
+                    subs.push({
+                        field: fields[i],
+                        fromEntity: subFromEntity
+                    });
                 }
-            }
-            switch (bizPhraseType) {
-                default:
-                    if (length > 0) {
-                        ok = false;
-                        this.log('only DUO and SPEC support sub join');
-                    }
-                    break;
-                case BizPhraseType_1.BizPhraseType.duo:
-                    if (length !== 0 && length !== 2) {
-                        ok = false;
-                        this.log('DUO must have 2 sub join');
-                    }
-                    break;
-                case BizPhraseType_1.BizPhraseType.spec:
-                    if (length !== 0 && length !== 1) {
-                        ok = false;
-                        this.log('SPEC must have 1 sub join');
-                    }
-                    break;
             }
         }
         return ok;

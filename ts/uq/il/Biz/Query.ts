@@ -8,7 +8,7 @@ import { Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
-import { FromStatement } from "./statement";
+import { FromEntity, FromStatement } from "./statement";
 
 export abstract class BizQuery extends BizEntity {
     readonly bizPhraseType = BizPhraseType.query;
@@ -59,7 +59,7 @@ export class BizQueryTable extends BizQuery {
     }
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        const { asc, ban, cols } = this.from;
+        const { asc, ban, cols, idFromEntity, fromEntity } = this.from;
         ret.asc = asc;
         if (ban !== undefined) {
             ret.ban = ban.caption ?? true;
@@ -74,6 +74,23 @@ export class BizQueryTable extends BizQuery {
             return [entity.id, bud.id];
             // return bud.buildSchema(res);
         });
+        ret.idFrom = idFromEntity === fromEntity ? undefined : idFromEntity.alias;
+        ret.from = this.buildFromSchema(fromEntity);
+        return ret;
+    }
+
+    private buildFromSchema(from: FromEntity) {
+        const { bizEntityArr, bizPhraseType, subs, alias } = from;
+        let subsSchema: any;
+        if (subs !== undefined && subs.length > 0) {
+            subsSchema = subs.map(v => this.buildFromSchema(v.fromEntity));
+        }
+        let ret = {
+            arr: bizEntityArr.map(v => v.id),
+            bizPhraseType,
+            alias,
+            subs: subsSchema,
+        };
         return ret;
     }
 }

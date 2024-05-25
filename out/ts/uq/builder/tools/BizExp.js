@@ -85,7 +85,7 @@ class BBizExp {
         const { bizEntity, prop } = this.bizExp;
         const { ta } = this;
         if (this.param2 !== undefined) {
-            sb.append(`${this.db}.duo$id(_$site,_$user,1,null,`).exp(this.param).comma().exp(this.param2).r();
+            sb.append(`${this.db}.duo$id(_$site,_$user,0,null,`).exp(this.param).comma().exp(this.param2).r();
         }
         else {
             sb.append(`${ta}.${prop} FROM ${this.db}.duo as ${ta} WHERE ${ta}.id=`)

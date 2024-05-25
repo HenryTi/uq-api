@@ -33,6 +33,7 @@ export class FromStatement extends Statement {
     cols: FromColumn[] = [];
     where: CompareExpression;
     idFromEntity: FromEntity;
+    intoTbl: string;
 
     constructor(parent: Statement) {
         super(parent);
@@ -55,7 +56,7 @@ export class FromStatement extends Statement {
         const { subs } = fromEntity;
         if (subs === undefined) return undefined;
         for (let sub of subs) {
-            let ret = this.getBizEntityArrFromAlias(alias, sub);
+            let ret = this.getBizEntityArrFromAlias(alias, sub.fromEntity);
             if (ret !== undefined) return ret;
         }
         return undefined;

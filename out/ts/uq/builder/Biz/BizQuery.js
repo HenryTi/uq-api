@@ -146,8 +146,15 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         this.buildInsertAtomBuds(statements, spec.base);
     }
     buildInsertAtomBuds(statements, atom) {
+        const { factory } = this.context;
         const { titleBuds, primeBuds } = atom;
         const mapBuds = new Map();
+        const valField = new sql_1.ExpField('value', 'b');
+        const valNumExp = new sql_1.ExpFuncCustom(factory.func_cast, valField, new sql_1.ExpDatePart('json'));
+        const valStrExp = new sql_1.ExpFunc('JSON_QUOTE', valField);
+        mapBuds.set(il_1.EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
+        mapBuds.set(il_1.EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
+        mapBuds.set(il_1.EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
         this.buildMapBuds(mapBuds, titleBuds);
         this.buildMapBuds(mapBuds, primeBuds);
         this.buildInsertBuds(statements, 'atoms', mapBuds);
@@ -169,20 +176,16 @@ class BBizQuery extends BizEntity_1.BBizEntity {
                     ixBudTbl = il_1.EnumSysTable.ixBudStr;
                     break;
             }
-            let arr = mapBuds.get(ixBudTbl);
-            if (arr === undefined) {
-                arr = [];
-                mapBuds.set(ixBudTbl, arr);
-            }
-            arr.push(bud);
+            let tbl = mapBuds.get(ixBudTbl);
+            tbl.buds.push(bud);
         }
     }
     buildInsertBuds(statements, mainTbl, mapBuds) {
-        for (let [tbl, arr] of mapBuds) {
-            this.buildInsertBud(statements, mainTbl, tbl, arr);
+        for (let [tbl, { buds, value }] of mapBuds) {
+            this.buildInsertBud(statements, mainTbl, tbl, buds, value);
         }
     }
-    buildInsertBud(statements, mainTbl, tbl, buds) {
+    buildInsertBud(statements, mainTbl, tbl, buds, expVal) {
         const { factory } = this.context;
         let insertBud = factory.createInsert();
         statements.push(insertBud);
@@ -200,7 +203,7 @@ class BBizQuery extends BizEntity_1.BBizEntity {
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('i', b)), new sql_1.ExpIn(new sql_1.ExpField('x', b), ...buds.map(v => new sql_1.ExpNum(v.id)))));
         select.column(new sql_1.ExpField('id', a), 'id');
         select.column(new sql_1.ExpField('x', b), 'phrase');
-        select.column(new sql_1.ExpField('value', b), 'value');
+        select.column(expVal, 'value');
     }
 }
 exports.BBizQuery = BBizQuery;

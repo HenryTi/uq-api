@@ -31,7 +31,7 @@ class FromStatement extends statement_1.Statement {
         if (subs === undefined)
             return undefined;
         for (let sub of subs) {
-            let ret = this.getBizEntityArrFromAlias(alias, sub);
+            let ret = this.getBizEntityArrFromAlias(alias, sub.fromEntity);
             if (ret !== undefined)
                 return ret;
         }

@@ -97,6 +97,7 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
                     }
                 }
             }
+            from.intoTbl = 'ret';
         }
         for (let param of params) {
             const { name, value } = param;

@@ -4,11 +4,14 @@ import {
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Sqls } from "../bstatement";
-import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpStr, ExpVar, Procedure, Statement } from "../sql";
+import { ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpIn, ExpNum, ExpStr, ExpVal, ExpVar, Procedure, Statement } from "../sql";
 import { EntityTable, VarTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 const a = 'a', b = 'b';
+
+type BudsValue = { buds: BizBud[]; value: ExpVal; };
+
 export class BBizQuery extends BBizEntity<BizQueryTable> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
@@ -132,7 +135,7 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
         select.column(new ExpField('base', b), 'atom');
 
         for (let spec of entityArr) {
-            const mapBuds: Map<EnumSysTable, BizBud[]> = new Map();
+            const mapBuds: Map<EnumSysTable, BudsValue> = new Map();
             const buds: BizBud[] = [];
             for (let [, bud] of spec.props) {
                 buds.push(bud);
@@ -149,14 +152,21 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
     }
 
     private buildInsertAtomBuds(statements: Statement[], atom: BizID) {
+        const { factory } = this.context;
         const { titleBuds, primeBuds } = atom;
-        const mapBuds: Map<EnumSysTable, BizBud[]> = new Map();
+        const mapBuds: Map<EnumSysTable, { buds: BizBud[]; value: ExpVal; }> = new Map();
+        const valField = new ExpField('value', 'b');
+        const valNumExp = new ExpFuncCustom(factory.func_cast, valField, new ExpDatePart('json'));
+        const valStrExp = new ExpFunc('JSON_QUOTE', valField);
+        mapBuds.set(EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
+        mapBuds.set(EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
+        mapBuds.set(EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
         this.buildMapBuds(mapBuds, titleBuds);
         this.buildMapBuds(mapBuds, primeBuds);
         this.buildInsertBuds(statements, 'atoms', mapBuds);
     }
 
-    private buildMapBuds(mapBuds: Map<EnumSysTable, BizBud[]>, buds: BizBud[]) {
+    private buildMapBuds(mapBuds: Map<EnumSysTable, BudsValue>, buds: BizBud[]) {
         if (buds === undefined) return;
         for (let bud of buds) {
             let ixBudTbl: EnumSysTable = EnumSysTable.ixBudInt;
@@ -168,22 +178,18 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
                 case BudDataType.char:
                     ixBudTbl = EnumSysTable.ixBudStr; break;
             }
-            let arr = mapBuds.get(ixBudTbl);
-            if (arr === undefined) {
-                arr = [];
-                mapBuds.set(ixBudTbl, arr);
-            }
-            arr.push(bud);
+            let tbl = mapBuds.get(ixBudTbl);
+            tbl.buds.push(bud);
         }
     }
 
-    private buildInsertBuds(statements: Statement[], mainTbl: string, mapBuds: Map<EnumSysTable, BizBud[]>) {
-        for (let [tbl, arr] of mapBuds) {
-            this.buildInsertBud(statements, mainTbl, tbl, arr);
+    private buildInsertBuds(statements: Statement[], mainTbl: string, mapBuds: Map<EnumSysTable, BudsValue>) {
+        for (let [tbl, { buds, value }] of mapBuds) {
+            this.buildInsertBud(statements, mainTbl, tbl, buds, value);
         }
     }
 
-    private buildInsertBud(statements: Statement[], mainTbl: string, tbl: EnumSysTable, buds: BizBud[]) {
+    private buildInsertBud(statements: Statement[], mainTbl: string, tbl: EnumSysTable, buds: BizBud[], expVal: ExpVal) {
         const { factory } = this.context;
         let insertBud = factory.createInsert();
         statements.push(insertBud);
@@ -204,6 +210,6 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
             ));
         select.column(new ExpField('id', a), 'id');
         select.column(new ExpField('x', b), 'phrase');
-        select.column(new ExpField('value', b), 'value');
+        select.column(expVal, 'value');
     }
 }
