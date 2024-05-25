@@ -225,4 +225,6 @@ export abstract class Space {
         if (ret !== undefined) return ret;
         return this.outer?.getBizBase(bizName);
     }
+
+    get isReadonly(): boolean { return false; }    // true: is in Biz From Statement
 }

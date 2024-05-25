@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizFieldUser = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
-const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class BBizField {
     constructor(dbContext, bizField) {
         this.dbContext = dbContext;
@@ -17,22 +16,30 @@ class BBizFieldBud extends BBizField {
             sb.append('%').append(tableAlias).dot().append(bud.name);
             return;
         }
+        let budName = bud.name;
+        if (tableAlias === 'sheet')
+            budName = 's' + budName;
+        sb.var(budName);
+        /*
+        let tbl: EnumSysTable;
         switch (bud.dataType) {
             default:
-                this.buildSelectValue(sb, il_1.EnumSysTable.ixBudInt);
-                return;
-            case BizPhraseType_1.BudDataType.str:
-            case BizPhraseType_1.BudDataType.char:
-                this.buildSelectValue(sb, il_1.EnumSysTable.ixBudStr);
-                return;
-            case BizPhraseType_1.BudDataType.dec:
-                this.buildSelectValue(sb, il_1.EnumSysTable.ixBudDec);
-                return;
+                tbl = EnumSysTable.ixBudInt;
+                break;
+            case BudDataType.str:
+            case BudDataType.char:
+                tbl = EnumSysTable.ixBudStr;
+                break;
+            case BudDataType.dec:
+                tbl = EnumSysTable.ixBudDec;
+                break;
             // case BudDataType.radio: radio 按int处理
-            case BizPhraseType_1.BudDataType.check:
+            case BudDataType.check:
                 this.buildSelectMulti(sb);
                 return;
         }
+        this.buildSelectValue(sb, tbl);
+        */
     }
     buildSelectValue(sb, tbl) {
         let { bud } = this.bizField;

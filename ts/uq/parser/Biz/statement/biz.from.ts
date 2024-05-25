@@ -400,5 +400,7 @@ export class FromSpace extends Space {
     protected override _getBizEntity(name: string) {
         return this.from.getBizEntityFromAlias(name);
     }
+
+    get isReadonly(): boolean { return true; }    // true: is in Biz From Statement
 }
 

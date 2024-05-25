@@ -76,6 +76,7 @@ class PBizExp extends element_1.PElement {
         let ok = true;
         let { bizEntityArr: [be] } = space.getBizEntityArr(this.bizEntity);
         this.element.bizEntity = be;
+        this.element.isReadonly = space.isReadonly;
         const { bizEntity, in: varIn, param } = this.element;
         if (param.pelement.scan(space) === false) {
             ok = false;

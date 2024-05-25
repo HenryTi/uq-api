@@ -255,6 +255,7 @@ class Space {
             return ret;
         return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getBizBase(bizName);
     }
+    get isReadonly() { return false; } // true: is in Biz From Statement
 }
 exports.Space = Space;
 //# sourceMappingURL=space.js.map

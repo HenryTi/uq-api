@@ -370,6 +370,7 @@ class FromSpace extends space_1.Space {
     _getBizEntity(name) {
         return this.from.getBizEntityFromAlias(name);
     }
+    get isReadonly() { return true; } // true: is in Biz From Statement
 }
 exports.FromSpace = FromSpace;
 //# sourceMappingURL=biz.from.js.map

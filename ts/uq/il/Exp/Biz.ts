@@ -44,6 +44,7 @@ export class BizExp extends IElement {
     budProp: BizBud;
     in: BizExpIn;
     type = 'BizExp';
+    isReadonly: boolean = false;
     parser(context: PContext): PElement<IElement> {
         return new PBizExp(this, context);
     }

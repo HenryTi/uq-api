@@ -82,10 +82,11 @@ class BBizExp {
             .exp(this.param);
     }
     duo(sb) {
-        const { bizEntity, prop } = this.bizExp;
+        const { isReadonly, prop } = this.bizExp;
         const { ta } = this;
         if (this.param2 !== undefined) {
-            sb.append(`${this.db}.duo$id(_$site,_$user,0,null,`).exp(this.param).comma().exp(this.param2).r();
+            let w = isReadonly === true ? 0 : 1;
+            sb.append(`${this.db}.duo$id(_$site,_$user,${w},null,`).exp(this.param).comma().exp(this.param2).r();
         }
         else {
             sb.append(`${ta}.${prop} FROM ${this.db}.duo as ${ta} WHERE ${ta}.id=`)

@@ -26,6 +26,7 @@ class BizExp extends IElement_1.IElement {
     constructor() {
         super(...arguments);
         this.type = 'BizExp';
+        this.isReadonly = false;
     }
     parser(context) {
         return new parser_1.PBizExp(this, context);

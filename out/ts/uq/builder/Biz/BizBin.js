@@ -86,8 +86,6 @@ class BBizBin extends BizEntity_1.BBizEntity {
         statements.push(declare);
         const bigint = new il_1.BigInt();
         const decValue = new il_1.Dec(18, 6);
-        const str = new il_1.Char(200);
-        const json = new il_1.JsonDataType();
         declare.var(consts_2.$site, bigint);
         declare.var(sheetId, bigint);
         declare.var(si, bigint);

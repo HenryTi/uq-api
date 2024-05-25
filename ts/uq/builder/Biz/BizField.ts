@@ -23,22 +23,29 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
             sb.append('%').append(tableAlias).dot().append(bud.name);
             return;
         }
+        let budName = bud.name;
+        if (tableAlias === 'sheet') budName = 's' + budName;
+        sb.var(budName);
+        /*
+        let tbl: EnumSysTable;
         switch (bud.dataType) {
             default:
-                this.buildSelectValue(sb, EnumSysTable.ixBudInt);
-                return;
+                tbl = EnumSysTable.ixBudInt;
+                break;
             case BudDataType.str:
             case BudDataType.char:
-                this.buildSelectValue(sb, EnumSysTable.ixBudStr);
-                return;
+                tbl = EnumSysTable.ixBudStr;
+                break;
             case BudDataType.dec:
-                this.buildSelectValue(sb, EnumSysTable.ixBudDec);
-                return;
+                tbl = EnumSysTable.ixBudDec;
+                break;
             // case BudDataType.radio: radio 按int处理
             case BudDataType.check:
                 this.buildSelectMulti(sb);
                 return;
         }
+        this.buildSelectValue(sb, tbl);
+        */
     }
     private buildSelectValue(sb: SqlBuilder, tbl: EnumSysTable) {
         let { bud } = this.bizField;

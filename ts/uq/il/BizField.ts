@@ -1,7 +1,8 @@
 import {
     BBizField, DbContext
     , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar
-    , ExpVal, ExpStr, ExpNum, BBizFieldUser
+    , ExpVal, ExpStr, ExpNum, BBizFieldUser,
+    BBizFieldBinBud
 } from "../builder";
 import { BinDiv, BizBin, FromStatement, FromStatementInPend } from "./Biz";
 import { BizPhraseType } from "./Biz/BizPhraseType";
@@ -41,11 +42,14 @@ export class BizFieldBud extends BizField {
         return this.bud;
     }
     override db(dbContext: DbContext): BBizField {
-        let ret = new BBizFieldBud(dbContext, this);
+        let ret = this.createBBizFieldBud(dbContext);
         ret.noArrayAgg = this.space.bBudNoArrayAgg;
         return ret;
     }
     buildSchema() { return [this.bud.entity?.id, this.bud.id]; }
+    protected createBBizFieldBud(dbContext: DbContext) {
+        return new BBizFieldBud(dbContext, this);
+    }
 
     /*
     override buildColArr(): ExpVal[] {
@@ -68,6 +72,12 @@ export class BizFieldBud extends BizField {
             this.div = entityBin.getDivFromBud(this.bud);
             if (this.div === undefined) debugger;
         }
+    }
+}
+
+export class BizFieldBinBud extends BizFieldBud {
+    protected override createBBizFieldBud(dbContext: DbContext): BBizFieldBud {
+        return new BBizFieldBinBud(dbContext, this);
     }
 }
 
@@ -324,8 +334,8 @@ export abstract class FromEntityFieldSpace<F extends FromStatement> extends BizF
             }
             let bud = bizEntity.props.get(n1);
             if (bud !== undefined) {
-                // return this.buildBizFieldFromBud(alias, bud);
-                return new BizFieldBud(this, alias, bud);
+                return this.buildBizFieldFromBud(alias, bud);
+                // return new BizFieldBud(this, alias, bud);
             }
         }
         return new BizFieldVar(this, alias, n1);
@@ -338,11 +348,10 @@ export abstract class FromEntityFieldSpace<F extends FromStatement> extends BizF
         }
         */
     }
-    /*
+
     protected buildBizFieldFromBud(alias: string, bud: BizBud) {
         return new BizFieldBud(this, alias, bud);
     }
-    */
 }
 
 export class FromInQueryFieldSpace extends FromEntityFieldSpace<FromStatement> {
@@ -467,7 +476,8 @@ export class FromInPendFieldSpace extends FromEntityFieldSpace<FromStatementInPe
                 break;
         }
         if (bud === undefined) debugger;
-        return new BizFieldBud(this, alias, bud);
+        // return new BizFieldBud(this, alias, bud);
+        return this.buildBizFieldFromBud(alias, bud);
     }
 }
 
@@ -548,8 +558,14 @@ export class BizBinActFieldSpace extends BizFieldSpace {
                 break;
         }
         if (bud === undefined) debugger;
-        return new BizFieldBud(this, alias, bud);
+        // return new BizFieldBud(this, alias, bud);
+        return this.buildBizFieldFromBud(alias, bud);
     }
+
+    protected buildBizFieldFromBud(alias: string, bud: BizBud) {
+        return new BizFieldBinBud(this, alias, bud);
+    }
+
     /*
     private buildBizFieldOld(tableCols: TableCols, n0: string, n1: string): BizField {
         let colsList = tableCols[n0];
