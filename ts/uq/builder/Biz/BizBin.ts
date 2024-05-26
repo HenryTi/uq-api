@@ -12,11 +12,11 @@ import { BBizEntity } from "./BizEntity";
 
 
 const sheetId = 'sheet1';   // 实际写表时，会加上bin div.level=1
-const si = 'si';
-const sx = 'sx';
-const svalue = 'svalue';
-const samount = 'samount';
-const sprice = 'sprice';
+const si = '$si';
+const sx = '$sx';
+const svalue = '$svalue';
+const samount = '$samount';
+const sprice = '$sprice';
 const pendFrom = 'pend';
 const i = 'i';
 const iBase = '.i';
@@ -62,7 +62,7 @@ export class BBizBin extends BBizEntity<BizBin> {
     private buildSubmitProc(proc: Procedure) {
         const { parameters, statements } = proc;
         const { factory, userParam, site } = this.context;
-        const { act, div } = this.bizEntity;
+        const { act, div, main } = this.bizEntity;
 
         parameters.push(
             userParam,
@@ -137,6 +137,17 @@ export class BBizBin extends BBizEntity<BizBin> {
         let setBinThis = factory.createSet();
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new ExpVar(bin));
+
+        {
+            // build main bud field
+            let varSheetId = new ExpVar(sheetId);
+            for (let [, bud] of main.props) {
+                let { name } = bud;
+                if (binFieldsSet.has(name) === true) continue;
+                let varName = '$s' + name;
+                statements.push(...buildSelectBinBud(this.context, bud, varSheetId, varName))
+            }
+        }
 
         for (; ; pDiv = pDiv.parent) {
             const { level } = pDiv;

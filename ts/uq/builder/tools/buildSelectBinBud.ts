@@ -9,7 +9,7 @@ import { EntityTable } from "../sql/statementWithFrom";
 
 const a = 'a', b = 'b';
 
-export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVal) {
+export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVal, varName?: string) {
     const { factory } = context;
     const bigint = new BigInt();
     const decValue = new Dec(18, 6);
@@ -19,6 +19,7 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
     let statements: Statement[] = [declare];
 
     const { name, dataType } = bud;
+    if (varName === undefined) varName = name;
     let declareType: DataType;
     let selectBud: Select;
     switch (dataType) {
@@ -62,13 +63,13 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
             break;
     }
     statements.push(selectBud);
-    declare.var(name, declareType);
+    declare.var(varName, declareType);
     return statements;
 
     function buildSelectBudValue(bud: BizBud, tbl: EnumSysTable): Select {
         let selectBud = factory.createSelect();
         selectBud.toVar = true;
-        selectBud.col('value', bud.name, a);
+        selectBud.col('value', varName, a);
         selectBud.from(new EntityTable(tbl, false, a));
         selectBud.where(new ExpAnd(
             new ExpEQ(new ExpField('i', a), varBin),
@@ -78,12 +79,13 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
     }
 
     function buildSelectBudIx(bud: BizBud, isRadio: boolean): Select {
+        const { name: budName } = bud;
         let selectBud = factory.createSelect();
         selectBud.toVar = true;
         let exp: ExpVal = isRadio === true ?
             new ExpField('x', a)
             : new ExpFunc('JSON_ARRAYAGG', new ExpField('x', a));
-        selectBud.column(exp, bud.name);
+        selectBud.column(exp, budName);
         selectBud.from(new EntityTable(EnumSysTable.ixBud, false, a));
         selectBud.where(new ExpEQ(new ExpField('i', a), varBin));
         return selectBud;

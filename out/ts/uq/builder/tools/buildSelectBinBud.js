@@ -6,7 +6,7 @@ const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const a = 'a', b = 'b';
-function buildSelectBinBud(context, bud, varBin) {
+function buildSelectBinBud(context, bud, varBin, varName) {
     const { factory } = context;
     const bigint = new il_1.BigInt();
     const decValue = new il_1.Dec(18, 6);
@@ -15,6 +15,8 @@ function buildSelectBinBud(context, bud, varBin) {
     let declare = factory.createDeclare();
     let statements = [declare];
     const { name, dataType } = bud;
+    if (varName === undefined)
+        varName = name;
     let declareType;
     let selectBud;
     switch (dataType) {
@@ -58,23 +60,24 @@ function buildSelectBinBud(context, bud, varBin) {
             break;
     }
     statements.push(selectBud);
-    declare.var(name, declareType);
+    declare.var(varName, declareType);
     return statements;
     function buildSelectBudValue(bud, tbl) {
         let selectBud = factory.createSelect();
         selectBud.toVar = true;
-        selectBud.col('value', bud.name, a);
+        selectBud.col('value', varName, a);
         selectBud.from(new statementWithFrom_1.EntityTable(tbl, false, a));
         selectBud.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varBin), new sql_1.ExpEQ(new sql_1.ExpField('x', a), new sql_1.ExpNum(bud.id))));
         return selectBud;
     }
     function buildSelectBudIx(bud, isRadio) {
+        const { name: budName } = bud;
         let selectBud = factory.createSelect();
         selectBud.toVar = true;
         let exp = isRadio === true ?
             new sql_1.ExpField('x', a)
             : new sql_1.ExpFunc('JSON_ARRAYAGG', new sql_1.ExpField('x', a));
-        selectBud.column(exp, bud.name);
+        selectBud.column(exp, budName);
         selectBud.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a));
         selectBud.where(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varBin));
         return selectBud;

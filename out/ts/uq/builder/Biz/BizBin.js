@@ -19,11 +19,11 @@ const statementWithFrom_1 = require("../sql/statementWithFrom");
 const tools_1 = require("../tools");
 const BizEntity_1 = require("./BizEntity");
 const sheetId = 'sheet1'; // 实际写表时，会加上bin div.level=1
-const si = 'si';
-const sx = 'sx';
-const svalue = 'svalue';
-const samount = 'samount';
-const sprice = 'sprice';
+const si = '$si';
+const sx = '$sx';
+const svalue = '$svalue';
+const samount = '$samount';
+const sprice = '$sprice';
 const pendFrom = 'pend';
 const i = 'i';
 const iBase = '.i';
@@ -77,7 +77,7 @@ class BBizBin extends BizEntity_1.BBizEntity {
     buildSubmitProc(proc) {
         const { parameters, statements } = proc;
         const { factory, userParam, site } = this.context;
-        const { act, div } = this.bizEntity;
+        const { act, div, main } = this.bizEntity;
         parameters.push(userParam, (0, il_1.bigIntField)(bin));
         if (act === undefined) {
             return;
@@ -143,6 +143,17 @@ class BBizBin extends BizEntity_1.BBizEntity {
         let setBinThis = factory.createSet();
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new sql_1.ExpVar(bin));
+        {
+            // build main bud field
+            let varSheetId = new sql_1.ExpVar(sheetId);
+            for (let [, bud] of main.props) {
+                let { name } = bud;
+                if (binFieldsSet.has(name) === true)
+                    continue;
+                let varName = '$s' + name;
+                statements.push(...(0, tools_1.buildSelectBinBud)(this.context, bud, varSheetId, varName));
+            }
+        }
         for (;; pDiv = pDiv.parent) {
             const { level } = pDiv;
             const selectDiv = factory.createSelect();

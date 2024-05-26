@@ -18,7 +18,7 @@ class BBizFieldBud extends BBizField {
         }
         let budName = bud.name;
         if (tableAlias === 'sheet')
-            budName = 's' + budName;
+            budName = '$s' + budName;
         sb.var(budName);
         /*
         let tbl: EnumSysTable;
