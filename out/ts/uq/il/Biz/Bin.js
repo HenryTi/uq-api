@@ -18,10 +18,6 @@ class PickParam extends Bud_1.BizBudValue {
     parser(context) {
         return new parser_1.PPickParam(this, context);
     }
-    // name: string;
-    // bud: string;
-    // prop: string;       // prop of bud
-    // valueSet: BudValueSet;
     buildSchema(res) {
         return super.buildSchema(res);
     }
@@ -137,14 +133,7 @@ class BinInputSpec extends BinInput {
     buildSchema(res) {
         let ret = super.buildSchema(res);
         ret.spec = this.spec.id;
-        /*
-        if (this.baseBud !== undefined) {
-            ret.base = this.baseBud.id;
-        }
-        else {
-        */
         ret.base = this.baseValueStr;
-        // }
         return ret;
     }
 }
@@ -303,7 +292,6 @@ class BizBin extends Entity_1.BizEntity {
         for (let i in this.predefinedBuds) {
             callback(this.predefinedBuds[i]);
         }
-        // this.predefinedBuds.forEach(v => callback(v));
     }
     getBud(name) {
         let bud = super.getBud(name);

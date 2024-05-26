@@ -66,7 +66,7 @@ export class BizInAct extends BizAct {
 }
 
 export class IOAppID extends BizBud {
-    readonly dataType = BudDataType.none;
+    readonly dataType = BudDataType.any;
     readonly atoms: BizAtom[] = [];
     unique: IDUnique;
     override parser(context: PContext): PElement<IElement> {
@@ -80,7 +80,7 @@ export class IOAppID extends BizBud {
 }
 
 export class IOAppOptions extends BizBud {
-    readonly dataType = BudDataType.none;
+    readonly dataType = BudDataType.any;
     options: BizOptions;
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppOptions(this, context);
@@ -163,7 +163,7 @@ export class IOPeers extends IElement {
 }
 
 export abstract class IOAppIO extends BizBud {
-    readonly dataType = BudDataType.none;
+    readonly dataType = BudDataType.any;
     readonly ioApp: BizIOApp;
     peers: IOPeers;
     bizIO: BizInOut;
@@ -222,6 +222,13 @@ export class BizIOApp extends BizEntity {
     override buildPhrases(phrases: [string, string, string, string][], prefix: string) {
         super.buildPhrases(phrases, prefix);
     }
+
+    forEachBud(callback: (bud: BizBud) => void): void {
+        super.forEachBud(callback);
+        for (let ID of this.IDs) callback(ID);
+        for (let ioIn of this.ins) callback(ioIn);
+        for (let ioOut of this.outs) callback(ioOut);
+    }
 }
 
 export class BizIOSite extends BizEntity {
@@ -241,24 +248,13 @@ export class BizIOSite extends BizEntity {
 }
 
 export class UseOut {
-    /*
-    readonly ioSite: BizIOSite;
-    readonly ioApp: BizIOApp;
-    readonly ioAppOut: IOAppOut;
-    */
     readonly out: BizOut;
     to: boolean;
-    constructor(/*ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, */out: BizOut, to: boolean) {
-        /*
-        this.ioSite = ioSite;
-        this.ioApp = ioApp;
-        this.ioAppOut = ioAppOut;
-        */
+    constructor(out: BizOut, to: boolean) {
         this.out = out;
         this.to = to;
     }
     get varName(): string {
-        //return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
         return `${this.out.id}`;
     }
 }

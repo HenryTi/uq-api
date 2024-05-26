@@ -24,10 +24,6 @@ export class PickParam extends BizBudValue {
     override parser(context: PContext): PElement<IElement> {
         return new PPickParam(this, context);
     }
-    // name: string;
-    // bud: string;
-    // prop: string;       // prop of bud
-    // valueSet: BudValueSet;
     override buildSchema(res: { [phrase: string]: string; }) {
         return super.buildSchema(res);
     }
@@ -158,14 +154,7 @@ export class BinInputSpec extends BinInput {
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
         ret.spec = this.spec.id;
-        /*
-        if (this.baseBud !== undefined) {
-            ret.base = this.baseBud.id;
-        }
-        else {
-        */
         ret.base = this.baseValueStr;
-        // }
         return ret;
     }
 }
@@ -361,7 +350,6 @@ export class BizBin extends BizEntity {
         for (let i in this.predefinedBuds) {
             callback(this.predefinedBuds[i]);
         }
-        // this.predefinedBuds.forEach(v => callback(v));
     }
     override getBud(name: string) {
         let bud = super.getBud(name);

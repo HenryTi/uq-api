@@ -75,23 +75,23 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
 }
 
 export type TypeMapFieldTable = {
-    pend: 't1',
+    pend: '$t1',
     bin: 'b',
     sheet: 'f',
     sheetBin: 'e',
     s: 'e',
-    atom: 't1',
-    baseAtom: 't1',
+    // atom: 't1',
+    // baseAtom: 't1',
 }
 
 export const MapFieldTable: TypeMapFieldTable = {
-    pend: 't1',
+    pend: '$t1',
     bin: 'b',
     sheet: 'f',
     sheetBin: 'e',
     s: 'e',
-    atom: 't1',
-    baseAtom: 't1',
+    // atom: 't1',
+    // baseAtom: 't1',
 }
 
 export type KeyOfMapFieldTable = keyof TypeMapFieldTable;

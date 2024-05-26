@@ -1,4 +1,5 @@
-import { FromInPendFieldSpace, FromStatementInPend } from "../../../il";
+import { BizEntity, BizFromEntity, EnumSysTable, FromInPendFieldSpace, FromStatementInPend } from "../../../il";
+import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { FromSpace, PFromStatement } from "./biz.from";
@@ -16,14 +17,31 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
     }
 
     override scan(space: Space): boolean {
-        return super.scan(space);
+        let ret = super.scan(space);
+        /*
+        let { pendQuery: { bizPend }, fromEntity } = this.element;
+        if (fromEntity.bizEntityArr.length > 0) {
+            debugger;
+        }
+        fromEntity.bizEntityArr.push(bizPend);
+        fromEntity.bizPhraseType = BizPhraseType.pend;
+        fromEntity.bizEntityTable = EnumSysTable.pend;
+        fromEntity.alias = 't1';
+        */
+        return ret;
     }
 
     protected setEntityArr(space: Space) {
-        const { fromEntity } = this.element;
+        const { pendQuery: { bizPend }, fromEntity } = this.element;
+        fromEntity.bizEntityArr.push(bizPend);
+        fromEntity.bizPhraseType = BizPhraseType.pend;
+        fromEntity.bizEntityTable = EnumSysTable.pend;
+        // fromEntity.alias = 't1';
+        /*
         let fe = space.getBizEntityArr(undefined);
         if (fe.bizEntityArr.length > 0) debugger;
         Object.assign(fromEntity, fe);
+        */
         /*
         fromEntity.bizEntityArr = space.getBizEntityArr(undefined);
         fromEntity.bizPhraseType = BizPhraseType.pend;

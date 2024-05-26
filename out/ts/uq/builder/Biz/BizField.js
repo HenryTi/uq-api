@@ -69,13 +69,13 @@ class BBizFieldBud extends BBizField {
 }
 exports.BBizFieldBud = BBizFieldBud;
 exports.MapFieldTable = {
-    pend: 't1',
+    pend: '$t1',
     bin: 'b',
     sheet: 'f',
     sheetBin: 'e',
     s: 'e',
-    atom: 't1',
-    baseAtom: 't1',
+    // atom: 't1',
+    // baseAtom: 't1',
 };
 class BBizFieldField extends BBizField {
     to(sb) {

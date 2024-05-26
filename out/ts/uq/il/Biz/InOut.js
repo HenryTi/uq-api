@@ -63,7 +63,7 @@ exports.BizInAct = BizInAct;
 class IOAppID extends Bud_1.BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.dataType = BizPhraseType_1.BudDataType.any;
         this.atoms = [];
     }
     parser(context) {
@@ -79,7 +79,7 @@ exports.IOAppID = IOAppID;
 class IOAppOptions extends Bud_1.BizBud {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.dataType = BizPhraseType_1.BudDataType.any;
     }
     parser(context) {
         return new parser_1.PIOAppOptions(this, context);
@@ -163,7 +163,7 @@ exports.IOPeers = IOPeers;
 class IOAppIO extends Bud_1.BizBud {
     constructor(ioApp) {
         super(ioApp, undefined, {});
-        this.dataType = BizPhraseType_1.BudDataType.none;
+        this.dataType = BizPhraseType_1.BudDataType.any;
         this.ioApp = ioApp;
     }
 }
@@ -213,6 +213,15 @@ class BizIOApp extends Entity_1.BizEntity {
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
     }
+    forEachBud(callback) {
+        super.forEachBud(callback);
+        for (let ID of this.IDs)
+            callback(ID);
+        for (let ioIn of this.ins)
+            callback(ioIn);
+        for (let ioOut of this.outs)
+            callback(ioOut);
+    }
 }
 exports.BizIOApp = BizIOApp;
 class BizIOSite extends Entity_1.BizEntity {
@@ -234,17 +243,11 @@ class BizIOSite extends Entity_1.BizEntity {
 }
 exports.BizIOSite = BizIOSite;
 class UseOut {
-    constructor(/*ioSite: BizIOSite, ioApp: BizIOApp, ioAppOut: IOAppOut, */ out, to) {
-        /*
-        this.ioSite = ioSite;
-        this.ioApp = ioApp;
-        this.ioAppOut = ioAppOut;
-        */
+    constructor(out, to) {
         this.out = out;
         this.to = to;
     }
     get varName() {
-        //return `${this.ioSite.id}$${this.ioApp.id}$${this.ioAppOut.id}`;
         return `${this.out.id}`;
     }
 }

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PFromStatementInPend = void 0;
 const il_1 = require("../../../il");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const tokens_1 = require("../../tokens");
 const biz_from_1 = require("./biz.from");
 class PFromStatementInPend extends biz_from_1.PFromStatement {
@@ -15,14 +16,30 @@ class PFromStatementInPend extends biz_from_1.PFromStatement {
         return new FromInPendSpace(space, this.element);
     }
     scan(space) {
-        return super.scan(space);
+        let ret = super.scan(space);
+        /*
+        let { pendQuery: { bizPend }, fromEntity } = this.element;
+        if (fromEntity.bizEntityArr.length > 0) {
+            debugger;
+        }
+        fromEntity.bizEntityArr.push(bizPend);
+        fromEntity.bizPhraseType = BizPhraseType.pend;
+        fromEntity.bizEntityTable = EnumSysTable.pend;
+        fromEntity.alias = 't1';
+        */
+        return ret;
     }
     setEntityArr(space) {
-        const { fromEntity } = this.element;
+        const { pendQuery: { bizPend }, fromEntity } = this.element;
+        fromEntity.bizEntityArr.push(bizPend);
+        fromEntity.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
+        fromEntity.bizEntityTable = il_1.EnumSysTable.pend;
+        // fromEntity.alias = 't1';
+        /*
         let fe = space.getBizEntityArr(undefined);
-        if (fe.bizEntityArr.length > 0)
-            debugger;
+        if (fe.bizEntityArr.length > 0) debugger;
         Object.assign(fromEntity, fe);
+        */
         /*
         fromEntity.bizEntityArr = space.getBizEntityArr(undefined);
         fromEntity.bizPhraseType = BizPhraseType.pend;
