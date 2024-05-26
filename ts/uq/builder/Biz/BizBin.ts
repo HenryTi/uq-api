@@ -138,7 +138,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new ExpVar(bin));
 
-        {
+        if (main !== undefined) {
             // build main bud field
             let varSheetId = new ExpVar(sheetId);
             for (let [, bud] of main.props) {

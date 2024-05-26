@@ -185,6 +185,7 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
 
     private buildInsertBuds(statements: Statement[], mainTbl: string, mapBuds: Map<EnumSysTable, BudsValue>) {
         for (let [tbl, { buds, value }] of mapBuds) {
+            if (buds.length === 0) continue;
             this.buildInsertBud(statements, mainTbl, tbl, buds, value);
         }
     }

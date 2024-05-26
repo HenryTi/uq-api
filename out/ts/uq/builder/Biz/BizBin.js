@@ -143,7 +143,7 @@ class BBizBin extends BizEntity_1.BBizEntity {
         let setBinThis = factory.createSet();
         statements.push(setBinThis);
         setBinThis.equ(bin + pDiv.level, new sql_1.ExpVar(bin));
-        {
+        if (main !== undefined) {
             // build main bud field
             let varSheetId = new sql_1.ExpVar(sheetId);
             for (let [, bud] of main.props) {

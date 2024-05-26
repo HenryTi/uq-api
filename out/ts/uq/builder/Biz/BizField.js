@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizFieldUser = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class BBizField {
     constructor(dbContext, bizField) {
         this.dbContext = dbContext;
@@ -16,30 +17,24 @@ class BBizFieldBud extends BBizField {
             sb.append('%').append(tableAlias).dot().append(bud.name);
             return;
         }
-        let budName = bud.name;
-        if (tableAlias === 'sheet')
-            budName = '$s' + budName;
-        sb.var(budName);
-        /*
-        let tbl: EnumSysTable;
+        let tbl;
         switch (bud.dataType) {
             default:
-                tbl = EnumSysTable.ixBudInt;
+                tbl = il_1.EnumSysTable.ixBudInt;
                 break;
-            case BudDataType.str:
-            case BudDataType.char:
-                tbl = EnumSysTable.ixBudStr;
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
+                tbl = il_1.EnumSysTable.ixBudStr;
                 break;
-            case BudDataType.dec:
-                tbl = EnumSysTable.ixBudDec;
+            case BizPhraseType_1.BudDataType.dec:
+                tbl = il_1.EnumSysTable.ixBudDec;
                 break;
             // case BudDataType.radio: radio 按int处理
-            case BudDataType.check:
+            case BizPhraseType_1.BudDataType.check:
                 this.buildSelectMulti(sb);
                 return;
         }
         this.buildSelectValue(sb, tbl);
-        */
     }
     buildSelectValue(sb, tbl) {
         let { bud } = this.bizField;
@@ -113,9 +108,16 @@ class BBizFieldBinVar extends BBizFieldField {
 }
 exports.BBizFieldBinVar = BBizFieldBinVar;
 class BBizFieldBinBud extends BBizFieldBud {
-    toIValue(sb) {
-        let { tableAlias, div } = this.bizField;
-        sb.append('_').append(tableAlias + div.level);
+    to(sb) {
+        let { bud, tableAlias } = this.bizField;
+        if (sb.forClient === true) {
+            sb.append('%').append(tableAlias).dot().append(bud.name);
+            return;
+        }
+        let budName = bud.name;
+        if (tableAlias === 'sheet')
+            budName = '$s' + budName;
+        sb.var(budName);
     }
 }
 exports.BBizFieldBinBud = BBizFieldBinBud;

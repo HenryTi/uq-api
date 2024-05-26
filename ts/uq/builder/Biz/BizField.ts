@@ -23,10 +23,6 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
             sb.append('%').append(tableAlias).dot().append(bud.name);
             return;
         }
-        let budName = bud.name;
-        if (tableAlias === 'sheet') budName = '$s' + budName;
-        sb.var(budName);
-        /*
         let tbl: EnumSysTable;
         switch (bud.dataType) {
             default:
@@ -45,7 +41,6 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
                 return;
         }
         this.buildSelectValue(sb, tbl);
-        */
     }
     private buildSelectValue(sb: SqlBuilder, tbl: EnumSysTable) {
         let { bud } = this.bizField;
@@ -132,10 +127,22 @@ export class BBizFieldBinVar extends BBizFieldField {
 }
 
 export class BBizFieldBinBud extends BBizFieldBud {
+    override to(sb: SqlBuilder): void {
+        let { bud, tableAlias } = this.bizField;
+        if (sb.forClient === true) {
+            sb.append('%').append(tableAlias).dot().append(bud.name);
+            return;
+        }
+        let budName = bud.name;
+        if (tableAlias === 'sheet') budName = '$s' + budName;
+        sb.var(budName);
+    }
+    /*
     toIValue(sb: SqlBuilder): void {
         let { tableAlias, div } = this.bizField;
         sb.append('_').append(tableAlias + div.level);
     }
+    */
 }
 
 export class BBizFieldUser extends BBizField<BizField> {

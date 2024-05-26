@@ -182,6 +182,8 @@ class BBizQuery extends BizEntity_1.BBizEntity {
     }
     buildInsertBuds(statements, mainTbl, mapBuds) {
         for (let [tbl, { buds, value }] of mapBuds) {
+            if (buds.length === 0)
+                continue;
             this.buildInsertBud(statements, mainTbl, tbl, buds, value);
         }
     }
