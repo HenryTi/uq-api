@@ -386,9 +386,8 @@ abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<
         this.ts.passToken(Token.SEMICOLON);
     }
 
-    scan(space: Space): boolean {
+    override scan0(space: Space): boolean {
         let ok = true;
-        if (super.scan(space) === false) ok = false;
         if (this.baseName === null) {
             this.element.base = BizIDAny.current as any;
         }
@@ -411,6 +410,12 @@ abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<
         if (this.assertSingleBase() === false) {
             ok = false;
         }
+        return ok;
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) ok = false;
         return ok;
     }
 

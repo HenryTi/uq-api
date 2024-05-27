@@ -373,10 +373,8 @@ class PBizIDWithBase extends PBizIDExtendable {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
     }
-    scan(space) {
+    scan0(space) {
         let ok = true;
-        if (super.scan(space) === false)
-            ok = false;
         if (this.baseName === null) {
             this.element.base = il_1.BizIDAny.current;
         }
@@ -399,6 +397,12 @@ class PBizIDWithBase extends PBizIDExtendable {
         if (this.assertSingleBase() === false) {
             ok = false;
         }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        if (super.scan(space) === false)
+            ok = false;
         return ok;
     }
     scan2(uq) {
