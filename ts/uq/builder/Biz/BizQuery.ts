@@ -56,10 +56,9 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
-
-        this.buildFromEntity(statements, from.idFromEntity);
+        // this.buildFromEntity(statements, from.idFromEntity);
     }
-
+    /*
     private buildFromEntity(statements: Statement[], fromEntity: FromEntity) {
         let { bizPhraseType, bizEntityArr } = fromEntity;
         switch (bizPhraseType) {
@@ -213,4 +212,5 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
         select.column(new ExpField('x', b), 'phrase');
         select.column(expVal, 'value');
     }
+    */
 }

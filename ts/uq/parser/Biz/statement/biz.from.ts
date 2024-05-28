@@ -135,6 +135,20 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                             this.ts.passToken(Token.COMMA);
                         }
                     }
+
+                    const value = 'value';
+                    if (this.ts.isKeyword(value) === true) {
+                        this.ts.readToken();
+                        let caption = this.ts.mayPassString();
+                        this.ts.passToken(Token.EQU);
+                        let val = new ValueExpression();
+                        this.context.parseElement(val);
+                        coll[value] === true;
+                        this.element.value = { name: value, ui: { caption }, val, bud: undefined };
+                        if (this.ts.token !== Token.RPARENTHESE as any) {
+                            this.ts.passToken(Token.COMMA);
+                        }
+                    }
                 }
             }
 
@@ -198,7 +212,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
             ok = false;
             return ok;
         }
-        const { where, asc, ban } = this.element;
+        const { where, asc, ban, value } = this.element;
         if (where !== undefined) {
             if (where.pelement.scan(space) === false) {
                 ok = false;
@@ -207,6 +221,11 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         if (asc === undefined) this.element.asc = 'asc';
         if (ban !== undefined) {
             if (ban.val.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (value !== undefined) {
+            if (value.val.pelement.scan(space) === false) {
                 ok = false;
             }
         }

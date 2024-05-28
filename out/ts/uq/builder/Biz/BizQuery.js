@@ -11,10 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizQuery = void 0;
 const il_1 = require("../../il");
-const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const bstatement_1 = require("../bstatement");
 const sql_1 = require("../sql");
-const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 const a = 'a', b = 'b';
 class BBizQuery extends BizEntity_1.BBizEntity {
@@ -56,156 +54,7 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
-        this.buildFromEntity(statements, from.idFromEntity);
-    }
-    buildFromEntity(statements, fromEntity) {
-        let { bizPhraseType, bizEntityArr } = fromEntity;
-        switch (bizPhraseType) {
-            default: break;
-            case BizPhraseType_1.BizPhraseType.atom:
-                this.buildFromAtom(statements, bizEntityArr);
-                break;
-            case BizPhraseType_1.BizPhraseType.spec:
-                this.buildFromSpec(statements, bizEntityArr);
-                break;
-        }
-    }
-    buildInsertAtom() {
-        const { factory } = this.context;
-        let insertAtom = factory.createInsert();
-        insertAtom.ignore = true;
-        insertAtom.table = new statementWithFrom_1.VarTable('atoms');
-        insertAtom.cols = [
-            { col: 'id', val: undefined },
-            { col: 'base', val: undefined },
-            { col: 'no', val: undefined },
-            { col: 'ex', val: undefined },
-        ];
-        let select = factory.createSelect();
-        insertAtom.select = select;
-        select.distinct = true;
-        select.column(new sql_1.ExpField('id', b));
-        select.column(new sql_1.ExpField('base', b));
-        select.column(new sql_1.ExpField('no', b));
-        select.column(new sql_1.ExpField('ex', b));
-        return insertAtom;
-    }
-    buildInsertAtomDirect() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new statementWithFrom_1.VarTable('ret', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
-        return insert;
-    }
-    buildInsertAtomOfSpec() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new statementWithFrom_1.VarTable('specs', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpField('id', b)));
-        return insert;
-    }
-    buildFromAtom(statements, entityArr) {
-        let insertAtom = this.buildInsertAtomDirect();
-        statements.push(insertAtom);
-        let entity = entityArr[0];
-        this.buildInsertAtomBuds(statements, entity);
-    }
-    buildFromSpec(statements, entityArr) {
-        const { factory } = this.context;
-        let insertSpec = factory.createInsert();
-        statements.push(insertSpec);
-        insertSpec.ignore = true;
-        insertSpec.table = new statementWithFrom_1.VarTable('specs');
-        insertSpec.cols = [
-            { col: 'spec', val: undefined },
-            { col: 'atom', val: undefined },
-        ];
-        let select = factory.createSelect();
-        insertSpec.select = select;
-        select.distinct = true;
-        select.from(new statementWithFrom_1.VarTable('ret', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
-        select.column(new sql_1.ExpField('id', b), 'spec');
-        select.column(new sql_1.ExpField('base', b), 'atom');
-        for (let spec of entityArr) {
-            const mapBuds = new Map();
-            const buds = [];
-            for (let [, bud] of spec.props) {
-                buds.push(bud);
-            }
-            this.buildMapBuds(mapBuds, buds);
-            this.buildInsertBuds(statements, 'specs', mapBuds);
-        }
-        let insertAtomOfSpec = this.buildInsertAtomOfSpec();
-        statements.push(insertAtomOfSpec);
-        // 暂时只生成第一个spec的atom的所有字段
-        let [spec] = entityArr;
-        this.buildInsertAtomBuds(statements, spec.base);
-    }
-    buildInsertAtomBuds(statements, atom) {
-        const { factory } = this.context;
-        const { titleBuds, primeBuds } = atom;
-        const mapBuds = new Map();
-        const valField = new sql_1.ExpField('value', 'b');
-        const valNumExp = new sql_1.ExpFuncCustom(factory.func_cast, valField, new sql_1.ExpDatePart('json'));
-        const valStrExp = new sql_1.ExpFunc('JSON_QUOTE', valField);
-        mapBuds.set(il_1.EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
-        mapBuds.set(il_1.EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
-        mapBuds.set(il_1.EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
-        this.buildMapBuds(mapBuds, titleBuds);
-        this.buildMapBuds(mapBuds, primeBuds);
-        this.buildInsertBuds(statements, 'atoms', mapBuds);
-    }
-    buildMapBuds(mapBuds, buds) {
-        if (buds === undefined)
-            return;
-        for (let bud of buds) {
-            let ixBudTbl = il_1.EnumSysTable.ixBudInt;
-            switch (bud.dataType) {
-                default:
-                    ixBudTbl = il_1.EnumSysTable.ixBudInt;
-                    break;
-                case BizPhraseType_1.BudDataType.dec:
-                    ixBudTbl = il_1.EnumSysTable.ixBudDec;
-                    break;
-                case BizPhraseType_1.BudDataType.str:
-                case BizPhraseType_1.BudDataType.char:
-                    ixBudTbl = il_1.EnumSysTable.ixBudStr;
-                    break;
-            }
-            let tbl = mapBuds.get(ixBudTbl);
-            tbl.buds.push(bud);
-        }
-    }
-    buildInsertBuds(statements, mainTbl, mapBuds) {
-        for (let [tbl, { buds, value }] of mapBuds) {
-            if (buds.length === 0)
-                continue;
-            this.buildInsertBud(statements, mainTbl, tbl, buds, value);
-        }
-    }
-    buildInsertBud(statements, mainTbl, tbl, buds, expVal) {
-        const { factory } = this.context;
-        let insertBud = factory.createInsert();
-        statements.push(insertBud);
-        insertBud.ignore = true;
-        insertBud.table = new statementWithFrom_1.VarTable('props');
-        insertBud.cols = [
-            { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
-            { col: 'value', val: undefined },
-        ];
-        let select = factory.createSelect();
-        insertBud.select = select;
-        select.from(new statementWithFrom_1.VarTable(mainTbl, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, b))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('i', b)), new sql_1.ExpIn(new sql_1.ExpField('x', b), ...buds.map(v => new sql_1.ExpNum(v.id)))));
-        select.column(new sql_1.ExpField('id', a), 'id');
-        select.column(new sql_1.ExpField('x', b), 'phrase');
-        select.column(expVal, 'value');
+        // this.buildFromEntity(statements, from.idFromEntity);
     }
 }
 exports.BBizQuery = BBizQuery;

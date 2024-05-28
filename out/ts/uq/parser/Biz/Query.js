@@ -96,7 +96,12 @@ class PBizQueryTable extends PBizQuery {
                     }
                 }
             }
-            from.intoTbl = 'ret';
+            from.intoTables = {
+                ret: 'ret',
+                atoms: 'atoms',
+                specs: 'specs',
+                props: 'props',
+            };
         }
         for (let param of params) {
             const { name, value } = param;

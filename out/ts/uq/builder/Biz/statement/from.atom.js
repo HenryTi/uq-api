@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BFromStatementInPend = exports.BFromStatement = void 0;
-const consts_1 = require("../../../consts");
+exports.BFromStatement = void 0;
 const il_1 = require("../../../il");
-const __1 = require("..");
 const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const bstatement_1 = require("../../bstatement/bstatement");
@@ -38,13 +36,13 @@ class BFromStatement extends bstatement_1.BStatement {
         }
         setPageState.equ(pageStart, expStart);
         let stat = this.buildFromMain(cmpPage);
-        sqls.push(stat);
+        sqls.push(...stat);
         this.buildFromEntity(sqls);
     }
     buildFromMain(cmpPage) {
         const { factory } = this.context;
         const { intoTables } = this.istatement;
-        let select = this.buildFromSelect(cmpPage);
+        let select = this.buildFromSelectAtom(cmpPage);
         if (intoTables !== undefined) {
             let insert = factory.createInsert();
             insert.select = select;
@@ -53,25 +51,42 @@ class BFromStatement extends bstatement_1.BStatement {
                 { col: 'id', val: undefined },
                 { col: 'ban', val: undefined },
                 { col: 'json', val: undefined },
+                { col: 'value', val: undefined },
             ];
-            return insert;
+            return [insert];
         }
         else {
-            return select;
+            return [select];
         }
     }
-    buildFromSelect(cmpPage) {
-        const { ban, idFromEntity } = this.istatement;
+    buildFromSelectAtom(cmpPage) {
+        const { idFromEntity } = this.istatement;
         let select = this.buildSelect(cmpPage);
         select.column(new sql_1.ExpField('id', idFromEntity.alias), 'id');
+        this.buildSelectBan(select);
+        this.buildSelectCols(select, 'json');
+        this.buildSelectVallue(select);
+        return select;
+    }
+    buildSelectBan(select) {
+        const { ban } = this.istatement;
+        const cBan = 'ban';
         if (ban === undefined) {
-            select.column(sql_1.ExpNum.num0, 'ban');
+            select.column(sql_1.ExpNum.num0, cBan);
         }
         else {
-            select.column(this.context.expCmp(ban.val), 'ban');
+            select.column(this.context.expCmp(ban.val), cBan);
         }
-        this.buildSelectCols(select, 'json');
-        return select;
+    }
+    buildSelectVallue(select) {
+        const { value } = this.istatement;
+        const cValue = 'value';
+        if (value === undefined) {
+            select.column(sql_1.ExpNull.null, cValue);
+        }
+        else {
+            select.column(this.context.expVal(value.val), cValue);
+        }
     }
     buildSelectCols(select, alias) {
         const { cols } = this.istatement;
@@ -144,18 +159,16 @@ class BFromStatement extends bstatement_1.BStatement {
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
     }
-    buildFromEntity(sqls) {
+    /*
+    private buildFromEntity(sqls: Sqls) {
         let { bizPhraseType, bizEntityArr } = this.istatement.idFromEntity;
         switch (bizPhraseType) {
             default: break;
-            case BizPhraseType_1.BizPhraseType.atom:
-                this.buildFromAtom(sqls, bizEntityArr);
-                break;
-            case BizPhraseType_1.BizPhraseType.spec:
-                this.buildFromSpec(sqls, bizEntityArr);
-                break;
+            case BizPhraseType.atom: this.buildFromAtom(sqls, bizEntityArr as BizAtom[]); break;
+            case BizPhraseType.spec: this.buildFromSpec(sqls, bizEntityArr as BizSpec[]); break;
         }
     }
+    */
     buildInsertAtom() {
         const { factory } = this.context;
         let insertAtom = factory.createInsert();
@@ -184,56 +197,22 @@ class BFromStatement extends bstatement_1.BStatement {
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
         return insert;
     }
-    buildInsertAtomOfSpec() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new statementWithFrom_1.VarTable('specs', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpField('id', b)));
-        return insert;
-    }
-    buildFromAtom(sqls, entityArr) {
+    buildFromEntity(sqls) {
+        let { bizEntityArr } = this.istatement.idFromEntity;
+        let entityArr = bizEntityArr;
         let insertAtom = this.buildInsertAtomDirect();
         sqls.push(insertAtom);
         let entity = entityArr[0];
         this.buildInsertAtomBuds(sqls, entity);
     }
-    buildFromSpec(sqls, entityArr) {
-        const { factory } = this.context;
-        let insertSpec = factory.createInsert();
-        sqls.push(insertSpec);
-        insertSpec.ignore = true;
-        insertSpec.table = new statementWithFrom_1.VarTable('specs');
-        insertSpec.cols = [
-            { col: 'spec', val: undefined },
-            { col: 'atom', val: undefined },
-        ];
-        let select = factory.createSelect();
-        insertSpec.select = select;
-        select.distinct = true;
-        select.from(new statementWithFrom_1.VarTable('ret', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
-        select.column(new sql_1.ExpField('id', b), 'spec');
-        select.column(new sql_1.ExpField('base', b), 'atom');
-        for (let spec of entityArr) {
-            const mapBuds = new Map();
-            const buds = [];
-            for (let [, bud] of spec.props) {
-                buds.push(bud);
-            }
-            this.buildMapBuds(mapBuds, buds);
-            this.buildInsertBuds(sqls, 'specs', mapBuds);
-        }
-        let insertAtomOfSpec = this.buildInsertAtomOfSpec();
-        sqls.push(insertAtomOfSpec);
-        // 暂时只生成第一个spec的atom的所有字段
-        let [spec] = entityArr;
-        this.buildInsertAtomBuds(sqls, spec.base);
-    }
     buildInsertAtomBuds(sqls, atom) {
+        let titlePrimeBuds = atom.getTitlePrimeBuds();
+        let mapBuds = this.createMapBuds();
+        this.buildMapBuds(mapBuds, titlePrimeBuds);
+        this.buildInsertBuds(sqls, 'atoms', mapBuds);
+    }
+    createMapBuds() {
         const { factory } = this.context;
-        const { titleBuds, primeBuds } = atom;
         const mapBuds = new Map();
         const valField = new sql_1.ExpField('value', 'b');
         const valNumExp = new sql_1.ExpFuncCustom(factory.func_cast, valField, new sql_1.ExpDatePart('json'));
@@ -241,9 +220,7 @@ class BFromStatement extends bstatement_1.BStatement {
         mapBuds.set(il_1.EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
         mapBuds.set(il_1.EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
         mapBuds.set(il_1.EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
-        this.buildMapBuds(mapBuds, titleBuds);
-        this.buildMapBuds(mapBuds, primeBuds);
-        this.buildInsertBuds(sqls, 'atoms', mapBuds);
+        return mapBuds;
     }
     buildMapBuds(mapBuds, buds) {
         if (buds === undefined)
@@ -295,58 +272,4 @@ class BFromStatement extends bstatement_1.BStatement {
     }
 }
 exports.BFromStatement = BFromStatement;
-class BFromStatementInPend extends BFromStatement {
-    buildFromMain(cmpStart) {
-        const { factory } = this.context;
-        let select = super.buildSelect(cmpStart);
-        let tblA = 'pend';
-        let tblB = 'bin';
-        let tblSheet = 'sheet';
-        let tblSheetBin = 'sheetBin';
-        const a = __1.MapFieldTable[tblA], b = __1.MapFieldTable[tblB], b1 = 'b1', c = 'c', d = 'd';
-        const sheet = __1.MapFieldTable[tblSheet];
-        const sheetBin = __1.MapFieldTable[tblSheetBin];
-        select.column(new sql_1.ExpField('id', a), 'pend');
-        select.column(new sql_1.ExpField('id', sheetBin), 'sheet');
-        select.column(new sql_1.ExpField('bin', a), 'id');
-        select.column(new sql_1.ExpField('i', b), 'i');
-        select.column(new sql_1.ExpField('x', b), 'x');
-        select.column(new sql_1.ExpField(consts_1.binValue, b), consts_1.binValue);
-        select.column(new sql_1.ExpField(consts_1.binPrice, b), consts_1.binPrice);
-        select.column(new sql_1.ExpField(consts_1.binAmount, b), consts_1.binAmount);
-        select.column(new sql_1.ExpField('value', a), 'pendvalue');
-        select.column(new sql_1.ExpField('mid', a), 'mid');
-        this.buildSelectCols(select, 'cols');
-        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, b1))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b1), new sql_1.ExpField('id', b)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, d))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', b1)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('base', d)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, sheet))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
-        let insert = factory.createInsert();
-        insert.table = new statementWithFrom_1.VarTableWithSchema('$page');
-        insert.cols = [
-            { col: 'pend', val: undefined },
-            { col: 'sheet', val: undefined },
-            { col: 'id', val: undefined },
-            { col: 'i', val: undefined },
-            { col: 'x', val: undefined },
-            { col: consts_1.binValue, val: undefined },
-            { col: consts_1.binPrice, val: undefined },
-            { col: consts_1.binAmount, val: undefined },
-            { col: 'pendvalue', val: undefined },
-            { col: 'mid', val: undefined },
-            { col: 'cols', val: undefined },
-        ];
-        insert.select = select;
-        return insert;
-    }
-}
-exports.BFromStatementInPend = BFromStatementInPend;
-//# sourceMappingURL=from.js.map
+//# sourceMappingURL=from.atom.js.map

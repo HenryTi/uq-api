@@ -219,19 +219,8 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         statements.push(insert);
         return statements;
     }
-    getTitlePrimeBuds() {
-        let ret = [];
-        for (let p = this.bizEntity; p !== undefined; p = p.extends) {
-            let { titleBuds, primeBuds } = p;
-            if (titleBuds !== undefined)
-                ret.push(...titleBuds);
-            if (primeBuds !== undefined)
-                ret.push(...primeBuds);
-        }
-        return ret;
-    }
     buildProcTitlePrime(procTitlePrime) {
-        let buds = this.getTitlePrimeBuds();
+        let buds = this.bizEntity.getTitlePrimeBuds();
         let { statements, parameters } = procTitlePrime;
         parameters.push((0, il_1.idField)('atomId', 'big'));
         let { factory } = this.context;

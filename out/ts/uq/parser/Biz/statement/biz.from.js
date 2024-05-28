@@ -120,6 +120,19 @@ class PFromStatement extends statement_1.PStatement {
                             this.ts.passToken(tokens_1.Token.COMMA);
                         }
                     }
+                    const value = 'value';
+                    if (this.ts.isKeyword(value) === true) {
+                        this.ts.readToken();
+                        let caption = this.ts.mayPassString();
+                        this.ts.passToken(tokens_1.Token.EQU);
+                        let val = new il_1.ValueExpression();
+                        this.context.parseElement(val);
+                        coll[value] === true;
+                        this.element.value = { name: value, ui: { caption }, val, bud: undefined };
+                        if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+                            this.ts.passToken(tokens_1.Token.COMMA);
+                        }
+                    }
                 }
             }
             for (;;) {
@@ -179,7 +192,7 @@ class PFromStatement extends statement_1.PStatement {
             ok = false;
             return ok;
         }
-        const { where, asc, ban } = this.element;
+        const { where, asc, ban, value } = this.element;
         if (where !== undefined) {
             if (where.pelement.scan(space) === false) {
                 ok = false;
@@ -189,6 +202,11 @@ class PFromStatement extends statement_1.PStatement {
             this.element.asc = 'asc';
         if (ban !== undefined) {
             if (ban.val.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (value !== undefined) {
+            if (value.val.pelement.scan(space) === false) {
                 ok = false;
             }
         }

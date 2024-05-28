@@ -24,7 +24,17 @@ export abstract class BizID extends BizEntity {
         }
         return ret;
     }
+
+    getTitlePrimeBuds() {
+        let ret: BizBud[] = [];
+        let { titleBuds, primeBuds } = this;
+        if (titleBuds !== undefined) ret.push(...titleBuds);
+        if (primeBuds !== undefined) ret.push(...primeBuds);
+        return ret;
+    }
 }
+
+
 
 export abstract class BizIDExtendable extends BizID {
     extends: BizIDExtendable;
@@ -68,6 +78,16 @@ export abstract class BizIDExtendable extends BizID {
                 callback(unique);
             }
         }
+    }
+
+    override getTitlePrimeBuds() {
+        let ret: BizBud[] = [];
+        for (let p: BizIDExtendable = this; p !== undefined; p = p.extends) {
+            let { titleBuds, primeBuds } = p;
+            if (titleBuds !== undefined) ret.push(...titleBuds);
+            if (primeBuds !== undefined) ret.push(...primeBuds);
+        }
+        return ret;
     }
 }
 

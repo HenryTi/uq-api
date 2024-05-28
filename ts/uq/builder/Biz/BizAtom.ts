@@ -245,18 +245,8 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         return statements;
     }
 
-    private getTitlePrimeBuds() {
-        let ret: BizBud[] = [];
-        for (let p = this.bizEntity; p !== undefined; p = p.extends as BizAtom) {
-            let { titleBuds, primeBuds } = p;
-            if (titleBuds !== undefined) ret.push(...titleBuds);
-            if (primeBuds !== undefined) ret.push(...primeBuds);
-        }
-        return ret;
-    }
-
     private buildProcTitlePrime(procTitlePrime: Procedure) {
-        let buds = this.getTitlePrimeBuds();
+        let buds = this.bizEntity.getTitlePrimeBuds();
         let { statements, parameters } = procTitlePrime;
         parameters.push(idField('atomId', 'big'));
         let { factory } = this.context;

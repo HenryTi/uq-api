@@ -21,6 +21,15 @@ class BizID extends Entity_1.BizEntity {
         }
         return ret;
     }
+    getTitlePrimeBuds() {
+        let ret = [];
+        let { titleBuds, primeBuds } = this;
+        if (titleBuds !== undefined)
+            ret.push(...titleBuds);
+        if (primeBuds !== undefined)
+            ret.push(...primeBuds);
+        return ret;
+    }
 }
 exports.BizID = BizID;
 class BizIDExtendable extends BizID {
@@ -68,6 +77,17 @@ class BizIDExtendable extends BizID {
                 callback(unique);
             }
         }
+    }
+    getTitlePrimeBuds() {
+        let ret = [];
+        for (let p = this; p !== undefined; p = p.extends) {
+            let { titleBuds, primeBuds } = p;
+            if (titleBuds !== undefined)
+                ret.push(...titleBuds);
+            if (primeBuds !== undefined)
+                ret.push(...primeBuds);
+        }
+        return ret;
     }
 }
 exports.BizIDExtendable = BizIDExtendable;

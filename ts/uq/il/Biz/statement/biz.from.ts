@@ -25,15 +25,24 @@ export interface BanColumn {
 export class FromEntity<E extends BizEntity = BizEntity> extends BizFromEntity<E> {
 }
 
+
+interface IntoTables {
+    ret: string;
+    atoms: string;
+    specs: string;
+    props: string;
+}
+
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     readonly fromEntity: FromEntity;
     asc: 'asc' | 'desc';
     ban: BanColumn;
+    value: FromColumn;
     cols: FromColumn[] = [];
     where: CompareExpression;
     idFromEntity: FromEntity;
-    intoTbl: string;
+    intoTables: IntoTables;
 
     constructor(parent: Statement) {
         super(parent);
