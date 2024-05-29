@@ -2,7 +2,9 @@ import {
     BizTie, CompareExpression,
     Entity, FromStatement, Pointer, Table, ValueExpression,
     BizFieldSpace, FromInQueryFieldSpace, BizBudAny,
-    FromEntity
+    FromEntity,
+    UI,
+    EnumAsc
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
@@ -18,8 +20,16 @@ interface PFromEntity {
     isGroupBy: boolean;
 }
 
+interface PIdColumn {
+    ui: Partial<UI>;
+    asc: EnumAsc;
+    alias: string;
+}
+
 export class PFromStatement<T extends FromStatement = FromStatement> extends PStatement<T> {
-    private idAlias: string;
+    // private idAlias: string;
+    private readonly ids: PIdColumn[] = [];
+    private readonly collColumns: { [name: string]: boolean } = {};
     protected pFromEntity: PFromEntity = {
         tbls: [],
         ofIXs: [],
@@ -100,58 +110,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
 
     protected parseColumn() {
         if (this.ts.isKeyword('column') === true) {
-            const coll: { [name: string]: boolean } = {};
             this.ts.readToken();
             this.ts.passToken(Token.LPARENTHESE);
-            if (this.ts.isKeyword('id') === true) {
-                this.ts.readToken();
-                if (this.ts.isKeyword('asc') === true) {
-                    this.element.asc = 'asc';
-                }
-                else if (this.ts.isKeyword('desc') === true) {
-                    this.element.asc = 'desc';
-                }
-                else {
-                    this.ts.expect('ASC', 'DESC');
-                }
-                this.ts.readToken();
-                if (this.ts.isKeyword('of') === true) {
-                    this.ts.readToken();
-                    this.idAlias = this.ts.passVar();
-                }
-                coll['id'] = true;
-                if (this.ts.token !== Token.RPARENTHESE) {
-                    this.ts.passToken(Token.COMMA);
-                    const ban = 'ban';
-                    if (this.ts.isKeyword(ban) === true) {
-                        this.ts.readToken();
-                        let caption = this.ts.mayPassString();
-                        this.ts.passToken(Token.EQU);
-                        let val = new CompareExpression();
-                        this.context.parseElement(val);
-                        coll[ban] = true;
-                        this.element.ban = { caption, val };
-                        if (this.ts.token !== Token.RPARENTHESE as any) {
-                            this.ts.passToken(Token.COMMA);
-                        }
-                    }
-
-                    const value = 'value';
-                    if (this.ts.isKeyword(value) === true) {
-                        this.ts.readToken();
-                        let caption = this.ts.mayPassString();
-                        this.ts.passToken(Token.EQU);
-                        let val = new ValueExpression();
-                        this.context.parseElement(val);
-                        coll[value] === true;
-                        this.element.value = { name: value, ui: { caption }, val, bud: undefined };
-                        if (this.ts.token !== Token.RPARENTHESE as any) {
-                            this.ts.passToken(Token.COMMA);
-                        }
-                    }
-                }
-            }
-
+            this.parseIdColumns();
             for (; ;) {
                 if (this.ts.token === Token.RPARENTHESE as any) {
                     this.ts.readToken();
@@ -173,7 +134,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     let val = new ValueExpression();
                     this.context.parseElement(val);
                     this.element.cols.push({ name, ui, val, bud: undefined, });
-                    if (coll[name] === true) {
+                    if (this.collColumns[name] === true) {
                         this.ts.error(`duplicate column name ${name}`);
                     }
                 }
@@ -184,6 +145,80 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 this.ts.passToken(Token.COMMA);
             }
         }
+    }
+
+    private parseIdColumns() {
+        if (this.ts.isKeyword('id') !== true) return;
+        this.ts.readToken();
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (; ;) {
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                this.parseIdColumn();
+                if (this.ts.token === Token.COMMA as any) {
+                    this.ts.readToken();
+                    continue;
+                }
+                this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
+            }
+        }
+        else {
+            this.parseIdColumn();
+        }
+        this.collColumns['id'] = true;
+        if (this.ts.token !== Token.RPARENTHESE) {
+            this.ts.passToken(Token.COMMA);
+            const ban = 'ban';
+            if (this.ts.isKeyword(ban) === true) {
+                this.ts.readToken();
+                let caption = this.ts.mayPassString();
+                this.ts.passToken(Token.EQU);
+                let val = new CompareExpression();
+                this.context.parseElement(val);
+                this.collColumns[ban] = true;
+                this.element.ban = { caption, val };
+                if (this.ts.token !== Token.RPARENTHESE as any) {
+                    this.ts.passToken(Token.COMMA);
+                }
+            }
+
+            const value = 'value';
+            if (this.ts.isKeyword(value) === true) {
+                this.ts.readToken();
+                let caption = this.ts.mayPassString();
+                this.ts.passToken(Token.EQU);
+                let val = new ValueExpression();
+                this.context.parseElement(val);
+                this.collColumns[value] === true;
+                this.element.value = { name: value, ui: { caption }, val, bud: undefined };
+                if (this.ts.token !== Token.RPARENTHESE as any) {
+                    this.ts.passToken(Token.COMMA);
+                }
+            }
+        }
+    }
+
+    private parseIdColumn() {
+        let ui = this.parseUI();
+        let asc: EnumAsc;
+        if (this.ts.isKeyword('asc') === true) {
+            asc = EnumAsc.asc;
+            this.ts.readToken();
+        }
+        else if (this.ts.isKeyword('desc') === true) {
+            asc = EnumAsc.desc;
+            this.ts.readToken();
+        }
+        if (asc === undefined) asc = EnumAsc.asc;
+        let alias: string;
+        if (this.ts.isKeyword('of') === true) {
+            this.ts.readToken();
+            alias = this.ts.passVar();
+        }
+        this.ids.push({ ui, asc, alias });
     }
 
     protected parseWhere() {
@@ -212,13 +247,13 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
             ok = false;
             return ok;
         }
-        const { where, asc, ban, value } = this.element;
+        const { where, ban, value } = this.element;
         if (where !== undefined) {
             if (where.pelement.scan(space) === false) {
                 ok = false;
             }
         }
-        if (asc === undefined) this.element.asc = 'asc';
+        // if (asc === undefined) this.element.asc = 'asc';
         if (ban !== undefined) {
             if (ban.val.pelement.scan(space) === false) {
                 ok = false;
@@ -229,9 +264,26 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 ok = false;
             }
         }
-        if (this.element.setIdFromEntity(this.idAlias) === false) {
-            this.log(`${this.idAlias} is not defined`);
+        if (this.ids.length === 0) {
             ok = false;
+            this.log(`no ID defined`);
+        }
+        else {
+            for (let idc of this.ids) {
+                const { asc, alias, ui } = idc;
+                let fromEntity = this.element.getIdFromEntity(alias);
+                if (fromEntity === undefined) {
+                    this.log(`${alias} not defined`);
+                    ok = false;
+                }
+                else {
+                    this.element.ids.push({
+                        ui,
+                        asc,
+                        fromEntity,
+                    });
+                }
+            }
         }
         return ok;
     }

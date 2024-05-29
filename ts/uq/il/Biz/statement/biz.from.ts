@@ -33,15 +33,23 @@ interface IntoTables {
     props: string;
 }
 
+export enum EnumAsc { asc = 1, desc = 0 }
+interface IdColumn {
+    asc: EnumAsc;
+    ui?: Partial<UI>;
+    fromEntity: FromEntity;
+}
+
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     readonly fromEntity: FromEntity;
-    asc: 'asc' | 'desc';
+    readonly ids: IdColumn[] = [];
+    // asc: 'asc' | 'desc';
     ban: BanColumn;
     value: FromColumn;
     cols: FromColumn[] = [];
     where: CompareExpression;
-    idFromEntity: FromEntity;
+    // idFromEntity: FromEntity;
     intoTables: IntoTables;
 
     constructor(parent: Statement) {
@@ -71,15 +79,11 @@ export class FromStatement extends Statement {
         return undefined;
     }
 
-    setIdFromEntity(idAlias: string): boolean {
+    getIdFromEntity(idAlias: string): FromEntity {
         if (idAlias === undefined) {
-            this.idFromEntity = this.fromEntity;
-            return true;
+            return this.fromEntity;
         }
-        else {
-            this.idFromEntity = this.getBizEntityFromAlias(idAlias);
-            return this.idFromEntity !== undefined;
-        }
+        return this.getBizEntityFromAlias(idAlias);
     }
 }
 

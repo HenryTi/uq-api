@@ -309,7 +309,8 @@ export class DbContext implements il.Builder {
     setStatement(v: il.SetStatement) { return new stat.BSetStatement(this, v) }
     putStatement(v: il.PutStatement) { return new stat.BPutStatement(this, v) }
     fromStatement(v: il.FromStatement) {
-        if (v.idFromEntity.bizPhraseType === BizPhraseType.spec) {
+        //if (v.idFromEntity.bizPhraseType === BizPhraseType.spec) {
+        if (v.ids.length > 1) {
             return new BFromSpecStatement(this, v);
         }
         return new BFromStatement(this, v)

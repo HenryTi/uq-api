@@ -1,12 +1,14 @@
-import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizSpec, BizID } from "../../../il";
+import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizSpec, BizID, EnumAsc, bigIntField } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNull,
-    ExpLT, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Select
+    ExpLT, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Select,
+    Statement
 } from "../../sql";
 import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
+import { DbContext } from "../../dbContext";
 
 const a = 'a', b = 'b';
 export type BudsValue = { buds: BizBud[]; value: ExpVal; };
@@ -14,6 +16,15 @@ export type BudsValue = { buds: BizBud[]; value: ExpVal; };
 const pageStart = '$pageStart';
 
 export class BFromStatement<T extends FromStatement> extends BStatement<T> {
+    private readonly asc: EnumAsc;
+    private readonly idFromEntity: FromEntity;
+    constructor(context: DbContext, istatement: T) {
+        super(context, istatement);
+        const { ids: [{ asc, fromEntity }] } = istatement;
+        this.asc = asc;
+        this.idFromEntity = fromEntity;
+    }
+
     body(sqls: Sqls) {
         const { factory } = this.context;
         const declare = factory.createDeclare();
@@ -22,7 +33,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         sqls.push(memo);
         memo.text = 'FROM';
 
-        const { fromEntity, asc } = this.istatement;
+        const { fromEntity } = this.istatement;
         let { alias: t1 } = fromEntity;
 
         const ifStateNull = factory.createIf();
@@ -32,7 +43,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
         ifStateNull.then(setPageState);
         let expStart: ExpVal, cmpPage: ExpCmp;
         let varStart = new ExpVar(pageStart);
-        if (asc === 'asc') {
+        if (this.asc === EnumAsc.asc) {
             expStart = new ExpNum(0);
             cmpPage = new ExpGT(new ExpField('id', t1), varStart);
         }
@@ -44,35 +55,28 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
 
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
-
         this.buildFromEntity(sqls);
     }
 
-    protected buildFromMain(cmpPage: ExpCmp) {
+    protected buildFromMain(cmpPage: ExpCmp): Statement[] {
         const { factory } = this.context;
         const { intoTables } = this.istatement;
         let select = this.buildFromSelectAtom(cmpPage);
-        if (intoTables !== undefined) {
-            let insert = factory.createInsert();
-            insert.select = select;
-            insert.table = new VarTable(intoTables.ret);
-            insert.cols = [
-                { col: 'id', val: undefined },
-                { col: 'ban', val: undefined },
-                { col: 'json', val: undefined },
-                { col: 'value', val: undefined },
-            ];
-            return [insert];
-        }
-        else {
-            return [select];
-        }
+        let insert = factory.createInsert();
+        insert.select = select;
+        insert.table = new VarTable(intoTables.ret);
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'ban', val: undefined },
+            { col: 'json', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        return [insert];
     }
 
     private buildFromSelectAtom(cmpPage: ExpCmp): Select {
-        const { idFromEntity } = this.istatement;
         let select = this.buildSelect(cmpPage);
-        select.column(new ExpField('id', idFromEntity.alias), 'id');
+        select.column(new ExpField('id', this.idFromEntity.alias), 'id');
         this.buildSelectBan(select);
         this.buildSelectCols(select, 'json');
         this.buildSelectVallue(select);
@@ -162,7 +166,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
 
     protected buildSelect(cmpPage: ExpCmp) {
         const { factory } = this.context;
-        const { asc, where, fromEntity } = this.istatement;
+        const { where, fromEntity } = this.istatement;
         const { bizEntityTable, alias: t0 } = fromEntity;
         // const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
@@ -173,21 +177,10 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
             this.context.expCmp(where),
         ];
         select.where(new ExpAnd(...wheres));
-        select.order(new ExpField('id', t0), asc);
+        select.order(new ExpField('id', t0), this.asc === EnumAsc.asc ? 'asc' : 'desc');
         select.limit(new ExpVar('$pageSize'));
         return select;
     }
-
-    /*
-    private buildFromEntity(sqls: Sqls) {
-        let { bizPhraseType, bizEntityArr } = this.istatement.idFromEntity;
-        switch (bizPhraseType) {
-            default: break;
-            case BizPhraseType.atom: this.buildFromAtom(sqls, bizEntityArr as BizAtom[]); break;
-            case BizPhraseType.spec: this.buildFromSpec(sqls, bizEntityArr as BizSpec[]); break;
-        }
-    }
-    */
 
     protected buildInsertAtom() {
         const { factory } = this.context;
@@ -220,7 +213,7 @@ export class BFromStatement<T extends FromStatement> extends BStatement<T> {
     }
 
     protected buildFromEntity(sqls: Sqls) {
-        let { bizEntityArr } = this.istatement.idFromEntity;
+        let { bizEntityArr } = this.idFromEntity;
         let entityArr: BizAtom[] = bizEntityArr as BizAtom[];
         let insertAtom = this.buildInsertAtomDirect()
         sqls.push(insertAtom);

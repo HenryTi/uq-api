@@ -1,59 +1,67 @@
-import { BizBud, BizSpec, EnumSysTable, FromStatement, JoinType } from "../../../il";
+import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromStatement, JoinType, bigIntField } from "../../../il";
 import { Sqls } from "../../bstatement";
-import { ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal, ExpVar, Select } from "../../sql";
+import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpNum, ExpVar, Select, Statement } from "../../sql";
 import { EntityTable, VarTable } from "../../sql/statementWithFrom";
-import { BFromStatement, BudsValue } from "./from.atom";
+import { BFromStatement } from "./from.atom";
 
 const a = 'a', b = 'b';
+const pageSpec = '$pageSpec';
 export class BFromSpecStatement extends BFromStatement<FromStatement> {
-    protected override buildFromMain(cmpPage: ExpCmp) {
+    protected override buildFromMain(cmpPage: ExpCmp): Statement[] {
         const { factory } = this.context;
-        const { intoTables } = this.istatement;
+        const { intoTables, ids } = this.istatement;
+        let tblPageSpec = this.buildTablePageSpec();
         let selectPage = this.buildFromSelectPage(cmpPage);
-        if (intoTables !== undefined) {
-            let insertPage = factory.createInsert();
-            insertPage.select = selectPage;
-            insertPage.table = new VarTable(intoTables.ret);
-            insertPage.cols = [
-                { col: 'id', val: undefined },
-                { col: 'ban', val: undefined },
-                // { col: 'json', val: undefined },
-            ];
-            let insertSpec = this.buildInsertSpec();
-            return [insertPage, insertSpec];
-        }
-        else {
-            return [selectPage];
-        }
+        let insertPage = factory.createInsert();
+        insertPage.select = selectPage;
+        insertPage.table = new VarTable(intoTables.ret);
+        insertPage.cols = ids.map((v, index) => ({
+            col: 'id' + index,
+            val: undefined,
+        }));
+        let insertSpec = this.buildInsertSpec();
+        return [tblPageSpec, insertPage, insertSpec];
+    }
+
+    private buildTablePageSpec() {
+        const { factory } = this.context;
+        let tblPageSpec = factory.createVarTable();
+        tblPageSpec.name = pageSpec;
+        const { ids } = this.istatement;
+        tblPageSpec.keys = ids.map((v, index) => bigIntField('id' + index));
+        return tblPageSpec;
     }
 
     private buildFromSelectPage(cmpPage: ExpCmp): Select {
-        let select = this.buildSelect(cmpPage);
-        return select;
-    }
-
-    protected buildSelect(cmpPage: ExpCmp) {
         const { factory } = this.context;
-        const { asc, where, fromEntity, idFromEntity } = this.istatement;
+        const { ids, where, fromEntity } = this.istatement;
         const { bizEntityTable, alias: t0 } = fromEntity;
         const select = factory.createSelect();
         const specBase = '$specBase';
         const specBud = '$specBud';
-        select.column(new ExpField('id', specBase), 'id');
-        select.column(ExpNum.num0, 'ban');
+        ids.forEach((v, index) => {
+            let expField = new ExpField('id', v.fromEntity.alias);
+            select.column(expField, 'id' + index);
+            select.group(expField);
+            select.order(expField, v.asc === EnumAsc.asc ? 'asc' : 'desc');
+        });
+        // select.column(new ExpField('id', specBase), 'id');
+        // select.column(ExpNum.num0, 'ban');
         select.from(new EntityTable(bizEntityTable, false, t0));
         this.buildSelectFrom(select, fromEntity);
+        /*
         select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, specBud))
             .on(new ExpEQ(new ExpField('id', specBud), new ExpField('base', idFromEntity.alias)))
             .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, specBase))
             .on(new ExpEQ(new ExpField('id', specBase), new ExpField('base', specBud)));
+        */
         let wheres: ExpCmp[] = [
             cmpPage,
             this.context.expCmp(where),
         ];
         select.where(new ExpAnd(...wheres));
-        select.group(new ExpField('id', specBase));
-        select.order(new ExpField('id', specBase), asc);
+        // select.group(new ExpField('id', specBase));
+        // select.order(new ExpField('id', specBase), asc);
         select.limit(new ExpVar('$pageSize'));
         return select;
     }
