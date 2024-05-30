@@ -29,6 +29,13 @@ class PFromStatementInPend extends biz_from_1.PFromStatement {
         */
         return ret;
     }
+    scanIDsWithCheck0() {
+        let ok = true;
+        if (this.scanIDs() === false) {
+            ok = false;
+        }
+        return ok;
+    }
     setEntityArr(space) {
         const { pendQuery: { bizPend }, fromEntity } = this.element;
         fromEntity.bizEntityArr.push(bizPend);

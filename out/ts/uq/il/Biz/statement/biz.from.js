@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FromStatementInPend = exports.FromStatement = exports.FromEntity = void 0;
+exports.FromStatementInPend = exports.FromStatement = exports.EnumAsc = exports.FromEntity = void 0;
 const parser_1 = require("../../../parser");
 const Entity_1 = require("../Entity");
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
@@ -8,10 +8,16 @@ const statement_1 = require("../../statement");
 class FromEntity extends Entity_1.BizFromEntity {
 }
 exports.FromEntity = FromEntity;
+var EnumAsc;
+(function (EnumAsc) {
+    EnumAsc[EnumAsc["asc"] = 1] = "asc";
+    EnumAsc[EnumAsc["desc"] = 0] = "desc";
+})(EnumAsc || (exports.EnumAsc = EnumAsc = {}));
 class FromStatement extends statement_1.Statement {
     get type() { return 'from'; }
     constructor(parent) {
         super(parent);
+        this.ids = [];
         this.cols = [];
         this.fromEntity = new FromEntity();
     }
@@ -37,15 +43,11 @@ class FromStatement extends statement_1.Statement {
         }
         return undefined;
     }
-    setIdFromEntity(idAlias) {
+    getIdFromEntity(idAlias) {
         if (idAlias === undefined) {
-            this.idFromEntity = this.fromEntity;
-            return true;
+            return this.fromEntity;
         }
-        else {
-            this.idFromEntity = this.getBizEntityFromAlias(idAlias);
-            return this.idFromEntity !== undefined;
-        }
+        return this.getBizEntityFromAlias(idAlias);
     }
 }
 exports.FromStatement = FromStatement;

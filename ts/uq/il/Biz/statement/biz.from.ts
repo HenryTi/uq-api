@@ -42,7 +42,7 @@ interface IdColumn {
 
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
-    readonly fromEntity: FromEntity;
+    fromEntity: FromEntity;
     readonly ids: IdColumn[] = [];
     // asc: 'asc' | 'desc';
     ban: BanColumn;
@@ -52,10 +52,12 @@ export class FromStatement extends Statement {
     // idFromEntity: FromEntity;
     intoTables: IntoTables;
 
+    /*
     constructor(parent: Statement) {
         super(parent);
         this.fromEntity = new FromEntity();
     }
+    */
 
     db(db: Builder): object {
         return db.fromStatement(this);

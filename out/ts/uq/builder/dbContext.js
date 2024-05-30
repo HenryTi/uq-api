@@ -21,7 +21,6 @@ const il_1 = require("../il");
 const statementWithFrom_1 = require("./sql/statementWithFrom");
 const select_1 = require("./sql/select");
 const Biz_1 = require("./Biz");
-const BizPhraseType_1 = require("../il/Biz/BizPhraseType");
 exports.max_promises_uq_api = 10;
 function createFactory(dbContext, sqlType) {
     switch (sqlType) {
@@ -273,7 +272,8 @@ class DbContext {
     setStatement(v) { return new stat.BSetStatement(this, v); }
     putStatement(v) { return new stat.BPutStatement(this, v); }
     fromStatement(v) {
-        if (v.idFromEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.spec) {
+        //if (v.idFromEntity.bizPhraseType === BizPhraseType.spec) {
+        if (v.ids.length > 1) {
             return new Biz_1.BFromSpecStatement(this, v);
         }
         return new Biz_1.BFromStatement(this, v);

@@ -10,6 +10,12 @@ const a = 'a', b = 'b';
 // const t1 = 't1';
 const pageStart = '$pageStart';
 class BFromStatement extends bstatement_1.BStatement {
+    constructor(context, istatement) {
+        super(context, istatement);
+        const { ids: [{ asc, fromEntity }] } = istatement;
+        this.asc = asc;
+        this.idFromEntity = fromEntity;
+    }
     body(sqls) {
         const { factory } = this.context;
         const declare = factory.createDeclare();
@@ -17,7 +23,7 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { fromEntity, asc } = this.istatement;
+        const { fromEntity } = this.istatement;
         let { alias: t1 } = fromEntity;
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
@@ -26,7 +32,7 @@ class BFromStatement extends bstatement_1.BStatement {
         ifStateNull.then(setPageState);
         let expStart, cmpPage;
         let varStart = new sql_1.ExpVar(pageStart);
-        if (asc === 'asc') {
+        if (this.asc === il_1.EnumAsc.asc) {
             expStart = new sql_1.ExpNum(0);
             cmpPage = new sql_1.ExpGT(new sql_1.ExpField('id', t1), varStart);
         }
@@ -43,26 +49,20 @@ class BFromStatement extends bstatement_1.BStatement {
         const { factory } = this.context;
         const { intoTables } = this.istatement;
         let select = this.buildFromSelectAtom(cmpPage);
-        if (intoTables !== undefined) {
-            let insert = factory.createInsert();
-            insert.select = select;
-            insert.table = new statementWithFrom_1.VarTable(intoTables.ret);
-            insert.cols = [
-                { col: 'id', val: undefined },
-                { col: 'ban', val: undefined },
-                { col: 'json', val: undefined },
-                { col: 'value', val: undefined },
-            ];
-            return [insert];
-        }
-        else {
-            return [select];
-        }
+        let insert = factory.createInsert();
+        insert.select = select;
+        insert.table = new statementWithFrom_1.VarTable(intoTables.ret);
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'ban', val: undefined },
+            { col: 'json', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        return [insert];
     }
     buildFromSelectAtom(cmpPage) {
-        const { idFromEntity } = this.istatement;
         let select = this.buildSelect(cmpPage);
-        select.column(new sql_1.ExpField('id', idFromEntity.alias), 'id');
+        select.column(new sql_1.ExpField('id', this.idFromEntity.alias), 'id');
         this.buildSelectBan(select);
         this.buildSelectCols(select, 'json');
         this.buildSelectVallue(select);
@@ -144,7 +144,7 @@ class BFromStatement extends bstatement_1.BStatement {
     }
     buildSelect(cmpPage) {
         const { factory } = this.context;
-        const { asc, where, fromEntity } = this.istatement;
+        const { where, fromEntity } = this.istatement;
         const { bizEntityTable, alias: t0 } = fromEntity;
         // const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
@@ -155,20 +155,10 @@ class BFromStatement extends bstatement_1.BStatement {
             this.context.expCmp(where),
         ];
         select.where(new sql_1.ExpAnd(...wheres));
-        select.order(new sql_1.ExpField('id', t0), asc);
+        select.order(new sql_1.ExpField('id', t0), this.asc === il_1.EnumAsc.asc ? 'asc' : 'desc');
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
     }
-    /*
-    private buildFromEntity(sqls: Sqls) {
-        let { bizPhraseType, bizEntityArr } = this.istatement.idFromEntity;
-        switch (bizPhraseType) {
-            default: break;
-            case BizPhraseType.atom: this.buildFromAtom(sqls, bizEntityArr as BizAtom[]); break;
-            case BizPhraseType.spec: this.buildFromSpec(sqls, bizEntityArr as BizSpec[]); break;
-        }
-    }
-    */
     buildInsertAtom() {
         const { factory } = this.context;
         let insertAtom = factory.createInsert();
@@ -198,7 +188,7 @@ class BFromStatement extends bstatement_1.BStatement {
         return insert;
     }
     buildFromEntity(sqls) {
-        let { bizEntityArr } = this.istatement.idFromEntity;
+        let { bizEntityArr } = this.idFromEntity;
         let entityArr = bizEntityArr;
         let insertAtom = this.buildInsertAtomDirect();
         sqls.push(insertAtom);

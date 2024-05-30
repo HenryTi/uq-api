@@ -67,24 +67,27 @@ export class BFromSpecStatement extends BFromStatement<FromStatement> {
     }
 
     protected override buildFromEntity(sqls: Sqls) {
-        let { bizEntityArr } = this.istatement.idFromEntity;
-        let entityArr: BizSpec[] = bizEntityArr as BizSpec[];
+        let { ids } = this.istatement;
+        for (let idc of ids) {
+            const { fromEntity: { bizEntityArr } } = idc;
+            let entityArr: BizSpec[] = bizEntityArr as BizSpec[];
 
-        let insertAtomOfSpec = this.buildInsertAtomOfSpec();
-        sqls.push(insertAtomOfSpec);
+            let insertAtomOfSpec = this.buildInsertAtomOfSpec();
+            sqls.push(insertAtomOfSpec);
 
-        // 暂时只生成第一个spec的atom的所有字段
-        let [spec] = entityArr;
-        this.buildInsertAtomBuds(sqls, spec.base);
+            // 暂时只生成第一个spec的atom的所有字段
+            let [spec] = entityArr;
+            this.buildInsertAtomBuds(sqls, spec.base);
 
-        for (let spec of entityArr) {
-            const buds: BizBud[] = [...spec.keys];
-            for (let [, bud] of spec.props) {
-                buds.push(bud);
+            for (let spec of entityArr) {
+                const buds: BizBud[] = [...spec.keys];
+                for (let [, bud] of spec.props) {
+                    buds.push(bud);
+                }
+                let mapBuds = this.createMapBuds();
+                this.buildMapBuds(mapBuds, buds);
+                this.buildInsertBuds(sqls, 'specs', mapBuds);
             }
-            let mapBuds = this.createMapBuds();
-            this.buildMapBuds(mapBuds, buds);
-            this.buildInsertBuds(sqls, 'specs', mapBuds);
         }
     }
 
@@ -99,9 +102,13 @@ export class BFromSpecStatement extends BFromStatement<FromStatement> {
     }
 
     private buildInsertSpec() {
+        const { factory } = this.context;
+        let memo = factory.createMemo();
+        memo.text = 'insert spec';
+        return memo;
+        /*
         const { fromEntity, intoTables, idFromEntity, where } = this.istatement;
         const { bizEntityTable, alias: t0 } = fromEntity;
-        const { factory } = this.context;
         let insertSpec = factory.createInsert();
         insertSpec.ignore = true;
         insertSpec.table = new VarTable('specs');
@@ -130,5 +137,6 @@ export class BFromSpecStatement extends BFromStatement<FromStatement> {
         this.buildSelectCols(select, 'json');
         this.buildSelectVallue(select);
         return insertSpec;
+        */
     }
 }

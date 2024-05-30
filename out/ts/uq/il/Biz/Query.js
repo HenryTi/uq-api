@@ -62,8 +62,12 @@ class BizQueryTable extends BizQuery {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        const { asc, ban, cols, idFromEntity, fromEntity } = this.from;
-        ret.asc = asc;
+        const { ban, cols, fromEntity, ids /*, asc, idFromEntity*/ } = this.from;
+        ret.ids = ids.map(v => ({
+            ui: v.ui,
+            alias: v.fromEntity.alias,
+            asc: v.asc,
+        }));
         if (ban !== undefined) {
             ret.ban = (_a = ban.caption) !== null && _a !== void 0 ? _a : true;
         }
@@ -77,7 +81,7 @@ class BizQueryTable extends BizQuery {
             return [entity.id, bud.id];
             // return bud.buildSchema(res);
         });
-        ret.idFrom = idFromEntity === fromEntity ? undefined : idFromEntity.alias;
+        // ret.idFrom = idFromEntity === fromEntity ? undefined : idFromEntity.alias;
         ret.from = this.buildFromSchema(fromEntity);
         return ret;
     }

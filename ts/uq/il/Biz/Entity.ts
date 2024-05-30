@@ -234,11 +234,16 @@ export abstract class BizEntity extends BizBase {
     }
 }
 
+export interface BizFromEntitySub {
+    field: string;
+    fromEntity: BizFromEntity;
+}
+
 export class BizFromEntity<E extends BizEntity = BizEntity> {
     bizEntityArr: E[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
-    subs: { field: string; fromEntity: BizFromEntity; }[];
+    subs: BizFromEntitySub[];
     ofIXs: BizTie[] = [];
     ofOn: ValueExpression;
     alias: string;

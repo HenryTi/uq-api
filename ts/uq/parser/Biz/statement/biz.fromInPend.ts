@@ -31,6 +31,14 @@ export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
         return ret;
     }
 
+    protected scanIDsWithCheck0() {
+        let ok = true;
+        if (this.scanIDs() === false) {
+            ok = false;
+        }
+        return ok;
+    }
+
     protected setEntityArr(space: Space) {
         const { pendQuery: { bizPend }, fromEntity } = this.element;
         fromEntity.bizEntityArr.push(bizPend);

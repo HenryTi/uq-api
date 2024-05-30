@@ -4,7 +4,8 @@ import {
     BizFieldSpace, FromInQueryFieldSpace, BizBudAny,
     FromEntity,
     UI,
-    EnumAsc
+    EnumAsc,
+    BizFromEntitySub
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
@@ -17,7 +18,6 @@ interface PFromEntity {
     ofOn: ValueExpression;
     alias: string;
     subs: PFromEntity[];
-    isGroupBy: boolean;
 }
 
 interface PIdColumn {
@@ -73,17 +73,13 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
             this.ts.readToken();
             pFromEntity.alias = this.ts.passVar();
         }
-        if (this.ts.isKeyword('group') === true) {
-            this.ts.readToken();
-            if (this.ts.isKeyword('by') === true) {
-                this.ts.readToken();
-            }
-            pFromEntity.isGroupBy = true;
-        }
         this.parseTblsOf(pFromEntity);
     }
 
     private parseTbls(pFromEntity: PFromEntity) {
+        if (this.ts.isKeyword('as') === true) {
+            return;
+        }
         for (; ;) {
             pFromEntity.tbls.push(this.ts.passVar());
             if (this.ts.token === Token.BITWISEOR) {
@@ -237,12 +233,32 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
     override scan(space: Space): boolean {
         let ok = true;
         space = this.createFromSpace(space);
-        let aliasSet = new Set<string>();
-        let nAlias: NAlias = { t: 1 };
-        if (this.scanFromEntity(space, this.element.fromEntity, this.pFromEntity, aliasSet, nAlias) === false) {
+        /*
+        // let aliasSet = new Set<string>();
+        let nAlias: NAlias = {
+            sets: new Set<string>(),
+            t: 1,
+        };
+        const { fromEntity } = this.element;
+        let retOk = this.setEntityArr(space, fromEntity, this.pFromEntity);
+        if (retOk === false) {
+            return false;
+        }
+        */
+        let scanner = new FromEntityScaner(space);
+        let fromEntity = scanner.scan(this.pFromEntity);
+        if (fromEntity === undefined) {
+            ok = false;
+        }
+        else {
+            this.element.fromEntity = fromEntity;
+        }
+        /*
+        if (this.scanFromEntity(space, nAlias, this.element.fromEntity, this.pFromEntity) === false) {
             ok = false;
             return ok;
         }
+        */
         if (this.scanCols(space) === false) {
             ok = false;
             return ok;
@@ -264,25 +280,39 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 ok = false;
             }
         }
-        if (this.ids.length === 0) {
+        if (this.scanIDsWithCheck0() === false) {
             ok = false;
-            this.log(`no ID defined`);
         }
-        else {
-            for (let idc of this.ids) {
-                const { asc, alias, ui } = idc;
-                let fromEntity = this.element.getIdFromEntity(alias);
-                if (fromEntity === undefined) {
-                    this.log(`${alias} not defined`);
-                    ok = false;
-                }
-                else {
-                    this.element.ids.push({
-                        ui,
-                        asc,
-                        fromEntity,
-                    });
-                }
+        return ok;
+    }
+
+    protected scanIDsWithCheck0() {
+        let ok = true;
+        if (this.ids.length === 0) {
+            this.log(`no ID defined`);
+            return false;
+        }
+        if (this.scanIDs() === false) {
+            ok = false;
+        }
+        return ok;
+    }
+
+    protected scanIDs() {
+        let ok = true;
+        for (let idc of this.ids) {
+            const { asc, alias, ui } = idc;
+            let fromEntity = this.element.getIdFromEntity(alias);
+            if (fromEntity === undefined) {
+                this.log(`${alias} not defined`);
+                ok = false;
+            }
+            else {
+                this.element.ids.push({
+                    ui,
+                    asc,
+                    fromEntity,
+                });
             }
         }
         return ok;
@@ -336,22 +366,19 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         return ok;
     }
 
-    protected scanFromEntity(space: Space, fromEntity: FromEntity, pFromEntity: PFromEntity, aliasSet: Set<string>, nAlias: NAlias) {
+    protected scanFromEntity(space: Space, nAlias: NAlias, fromEntity: FromEntity, pFromEntity: PFromEntity) {
         let ok = true;
-        let retOk = this.setEntityArr(space, fromEntity, pFromEntity);
-        if (retOk === false) {
-            return false;
-        }
+        const { sets } = nAlias;
         const { bizEntityArr, bizPhraseType, ofIXs, ofOn } = fromEntity;
         const { subs: pSubs, alias } = pFromEntity;
         if (alias !== undefined) {
-            if (aliasSet.has(alias) === true) {
+            if (sets.has(alias) === true) {
                 ok = false;
                 this.log(`FROM as alias ${alias} duplicate`);
             }
             else {
                 fromEntity.alias = alias;
-                aliasSet.add(alias);
+                sets.add(alias);
             }
         }
         else {
@@ -380,35 +407,45 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         }
         if (pSubs !== undefined) {
             const { length } = pSubs;
-            let fields: string[];
+            let subs: BizFromEntitySub[];
+            // let fields: string[];
             switch (bizPhraseType) {
                 default:
                     if (length > 0) {
                         ok = false;
                         this.log('only DUO and SPEC support sub join');
                     }
-                    fields = [];
+                    // fields = [];
                     break;
                 case BizPhraseType.duo:
                     if (length !== 0 && length !== 2) {
                         ok = false;
                         this.log('DUO must have 2 sub join');
                     }
-                    fields = ['i', 'x'];
+                    subs = this.scanDuoSubs(space, nAlias, fromEntity, pSubs[0], pSubs[1]);
+                    // fields = ['i', 'x'];
                     break;
                 case BizPhraseType.spec:
                     if (length !== 0 && length !== 1) {
                         ok = false;
                         this.log('SPEC must have 1 sub join');
                     }
-                    fields = ['base'];
+                    subs = this.scanSpecSubs(space, nAlias, fromEntity, pSubs[0]);
+                    // fields = ['base'];
                     break;
             }
+            if (subs === undefined) {
+                ok = false;
+            }
+            else {
+                fromEntity.subs = subs;
+            }
+            /*
             for (let i = 0; i < length; i++) {
                 let pSub = pSubs[i];
                 let subFromEntity: FromEntity = {
                 } as FromEntity;
-                if (this.scanFromEntity(space, subFromEntity, pSub, aliasSet, nAlias) === false) {
+                if (this.scanFromEntity(space, fromEntity, subFromEntity, pSub, aliasSet, nAlias) === false) {
                     ok = false;
                 }
                 else {
@@ -422,13 +459,83 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                     });
                 }
             }
+            */
         }
         return ok;
     }
 
+    private scanDuoSubs(space: Space, nAlias: NAlias, fromEntity: FromEntity, bi: PFromEntity, bx: PFromEntity): BizFromEntitySub[] {
+        let subI = this.scanDuoSub(space, nAlias, fromEntity, bi, 'i');
+        if (subI === undefined) return;
+        let subX = this.scanDuoSub(space, nAlias, fromEntity, bx, 'x');
+        if (subX === undefined) return;
+        return [subI, subX];
+    }
+
+    private scanDuoSub(space: Space, nAlias: NAlias, fromEntity: FromEntity, b: PFromEntity, field: string): BizFromEntitySub {
+        let subFromEntity: FromEntity = {
+        } as FromEntity;
+        let retOk = this.setEntityArrDuo(space, fromEntity, subFromEntity, b);
+        if (retOk === false) {
+            return;
+        }
+        if (this.scanFromEntity(space, nAlias, subFromEntity, b) === false) {
+            return;
+        }
+        return {
+            field,
+            fromEntity: subFromEntity
+        };
+    }
+
+    private scanSpecSubs(space: Space, nAlias: NAlias, fromEntity: FromEntity, base: PFromEntity): BizFromEntitySub[] {
+        let sub = this.scanSpecSub(space, nAlias, fromEntity, base);
+        if (sub === undefined) return;
+        return [sub];
+    }
+
+    private scanSpecSub(space: Space, nAlias: NAlias, fromEntity: FromEntity, b: PFromEntity): BizFromEntitySub {
+        let subFromEntity: FromEntity = {
+        } as FromEntity;
+        let retOk = this.setEntityArrSpec(space, fromEntity, subFromEntity, b);
+        if (retOk === false) {
+            return;
+        }
+        if (this.scanFromEntity(space, nAlias, subFromEntity, b) === false) {
+            return;
+        }
+        return {
+            field: 'base',
+            fromEntity: subFromEntity
+        };
+    }
+
     protected setEntityArr(space: Space, fromEntity: FromEntity, pFromEntity: PFromEntity) {
         const { biz } = space.uq;
-        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(pFromEntity.tbls);
+        const { tbls } = pFromEntity;
+        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(tbls);
+        fromEntity.bizEntityArr = entityArr;
+        fromEntity.bizPhraseType = bizPhraseType;
+        fromEntity.bizEntityTable = bizEntityTable;
+        if (retOk === false) this.log(...logs);
+        return retOk;
+    }
+
+    protected setEntityArrDuo(space: Space, parentFromEntity: FromEntity, fromEntity: FromEntity, pFromEntity: PFromEntity) {
+        const { biz } = space.uq;
+        const { tbls } = pFromEntity;
+        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(tbls);
+        fromEntity.bizEntityArr = entityArr;
+        fromEntity.bizPhraseType = bizPhraseType;
+        fromEntity.bizEntityTable = bizEntityTable;
+        if (retOk === false) this.log(...logs);
+        return retOk;
+    }
+
+    protected setEntityArrSpec(space: Space, parentFromEntity: FromEntity, fromEntity: FromEntity, pFromEntity: PFromEntity) {
+        const { biz } = space.uq;
+        const { tbls } = pFromEntity;
+        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(tbls);
         fromEntity.bizEntityArr = entityArr;
         fromEntity.bizPhraseType = bizPhraseType;
         fromEntity.bizEntityTable = bizEntityTable;
@@ -437,7 +544,174 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
     }
 }
 
+class FromEntityScaner {
+    readonly space: Space;
+    readonly sets: Set<string>;
+    readonly msgs: string[] = [];
+    tAlias: number;
+
+    constructor(space: Space) {
+        this.space = space;
+        this.sets = new Set();
+        this.tAlias = 1;
+    }
+
+    log(...msg: string[]) {
+        this.msgs.push(...msg);
+    }
+
+    createFromEntity(pFromEntity: PFromEntity): FromEntity {
+        const { biz } = this.space.uq;
+        const { tbls } = pFromEntity;
+        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(tbls);
+        const fromEntity = new FromEntity();
+        fromEntity.bizEntityArr = entityArr;
+        fromEntity.bizPhraseType = bizPhraseType;
+        fromEntity.bizEntityTable = bizEntityTable;
+        if (retOk === false) {
+            this.log(...logs);
+            return undefined;
+        }
+        return fromEntity;
+    }
+
+    scan(pFromEntity: PFromEntity): FromEntity {
+        let fromEntity = this.createFromEntity(pFromEntity);
+        let ok = true;
+        const { ofIXs, ofOn } = fromEntity;
+        const { subs: pSubs, alias } = pFromEntity;
+        if (alias !== undefined) {
+            if (this.sets.has(alias) === true) {
+                ok = false;
+                this.log(`FROM as alias ${alias} duplicate`);
+            }
+            else {
+                fromEntity.alias = alias;
+                this.sets.add(alias);
+            }
+        }
+        else {
+            fromEntity.alias = '$t' + (this.tAlias++);
+        }
+
+        const { bizEntityArr } = fromEntity;
+        if (bizEntityArr.length > 0) {
+            for (let _of of pFromEntity.ofIXs) {
+                let { bizEntityArr: [entity] } = this.space.getBizEntityArr(_of);
+                if (entity === undefined) {
+                    ok = false;
+                    this.log(`${_of} is not defined`);
+                }
+                else if (entity.bizPhraseType !== BizPhraseType.tie) {
+                    ok = false;
+                    this.log(`${_of} is not a TIE`);
+                }
+                else {
+                    ofIXs.push(entity as BizTie);
+                }
+            }
+            if (ofOn !== undefined) {
+                if (ofOn.pelement.scan(this.space) === false) {
+                    ok = false;
+                }
+            }
+        }
+        if (pSubs !== undefined) {
+            const { length } = pSubs;
+            let subs: BizFromEntitySub[];
+            // let fields: string[];
+            switch (fromEntity.bizPhraseType) {
+                default:
+                    if (length > 0) {
+                        ok = false;
+                        this.log('only DUO and SPEC support sub join');
+                    }
+                    // fields = [];
+                    break;
+                case BizPhraseType.duo:
+                    if (length !== 0 && length !== 2) {
+                        ok = false;
+                        this.log('DUO must have 2 sub join');
+                    }
+                    let duo = new FromEntityScanDuo(this, fromEntity, pSubs[0], pSubs[1]);
+                    // subs = this.scanDuoSubs(this.space, this.nAlias, this.fromEntity, pSubs[0], pSubs[1]);
+                    subs = duo.createSubs();
+                    // fields = ['i', 'x'];
+                    break;
+                case BizPhraseType.spec:
+                    if (length !== 0 && length !== 1) {
+                        ok = false;
+                        this.log('SPEC must have 1 sub join');
+                    }
+                    let spec = new FromEntityScanSpec(this, fromEntity, pSubs[0]);
+                    subs = spec.createSubs();
+                    // fields = ['base'];
+                    break;
+            }
+            if (subs === undefined) {
+                ok = false;
+            }
+            else {
+                fromEntity.subs = subs;
+            }
+        }
+        return ok === true ? fromEntity : undefined;
+    }
+}
+
+abstract class FEScanBase {
+    protected readonly scaner: FromEntityScaner;
+    readonly fromEntity: FromEntity;
+    constructor(scaner: FromEntityScaner, fromEntity: FromEntity) {
+        this.scaner = scaner;
+        this.fromEntity = fromEntity;
+    }
+
+    abstract createSubs(): BizFromEntitySub[];
+
+    protected scanSub(b: PFromEntity, field: string): BizFromEntitySub {
+        let subFromEntity = this.scaner.createFromEntity(b);
+        if (subFromEntity === undefined) return undefined;
+        return {
+            field,
+            fromEntity: subFromEntity
+        };
+    }
+}
+
+class FromEntityScanDuo extends FEScanBase {
+    private readonly pSub0: PFromEntity;
+    private readonly pSub1: PFromEntity;
+    constructor(scaner: FromEntityScaner, fromEntity: FromEntity, pSub0: PFromEntity, pSub1: PFromEntity) {
+        super(scaner, fromEntity);
+        this.pSub0 = pSub0;
+        this.pSub1 = pSub1;
+    }
+
+    createSubs(): BizFromEntitySub[] {
+        let subI = this.scanSub(this.pSub0, 'i');
+        if (subI === undefined) return;
+        let subX = this.scanSub(this.pSub1, 'x');
+        if (subX === undefined) return;
+        return [subI, subX];
+    }
+}
+
+class FromEntityScanSpec extends FEScanBase {
+    private readonly pSub: PFromEntity;
+    constructor(scaner: FromEntityScaner, fromEntity: FromEntity, pSub: PFromEntity) {
+        super(scaner, fromEntity);
+        this.pSub = pSub;
+    }
+    createSubs(): BizFromEntitySub[] {
+        let sub = this.scanSub(this.pSub, 'base');
+        if (sub === undefined) return;
+        return [sub];
+    }
+}
+
 interface NAlias {
+    sets: Set<string>;
     t: number;
 }
 

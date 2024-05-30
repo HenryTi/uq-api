@@ -9,6 +9,9 @@ const statement_1 = require("../../statement/statement");
 class PFromStatement extends statement_1.PStatement {
     constructor() {
         super(...arguments);
+        // private idAlias: string;
+        this.ids = [];
+        this.collColumns = {};
         this.pFromEntity = {
             tbls: [],
             ofIXs: [],
@@ -51,16 +54,12 @@ class PFromStatement extends statement_1.PStatement {
             this.ts.readToken();
             pFromEntity.alias = this.ts.passVar();
         }
-        if (this.ts.isKeyword('group') === true) {
-            this.ts.readToken();
-            if (this.ts.isKeyword('by') === true) {
-                this.ts.readToken();
-            }
-            pFromEntity.isGroupBy = true;
-        }
         this.parseTblsOf(pFromEntity);
     }
     parseTbls(pFromEntity) {
+        if (this.ts.isKeyword('as') === true) {
+            return;
+        }
         for (;;) {
             pFromEntity.tbls.push(this.ts.passVar());
             if (this.ts.token === tokens_1.Token.BITWISEOR) {
@@ -85,56 +84,9 @@ class PFromStatement extends statement_1.PStatement {
     }
     parseColumn() {
         if (this.ts.isKeyword('column') === true) {
-            const coll = {};
             this.ts.readToken();
             this.ts.passToken(tokens_1.Token.LPARENTHESE);
-            if (this.ts.isKeyword('id') === true) {
-                this.ts.readToken();
-                if (this.ts.isKeyword('asc') === true) {
-                    this.element.asc = 'asc';
-                }
-                else if (this.ts.isKeyword('desc') === true) {
-                    this.element.asc = 'desc';
-                }
-                else {
-                    this.ts.expect('ASC', 'DESC');
-                }
-                this.ts.readToken();
-                if (this.ts.isKeyword('of') === true) {
-                    this.ts.readToken();
-                    this.idAlias = this.ts.passVar();
-                }
-                coll['id'] = true;
-                if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
-                    this.ts.passToken(tokens_1.Token.COMMA);
-                    const ban = 'ban';
-                    if (this.ts.isKeyword(ban) === true) {
-                        this.ts.readToken();
-                        let caption = this.ts.mayPassString();
-                        this.ts.passToken(tokens_1.Token.EQU);
-                        let val = new il_1.CompareExpression();
-                        this.context.parseElement(val);
-                        coll[ban] = true;
-                        this.element.ban = { caption, val };
-                        if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
-                            this.ts.passToken(tokens_1.Token.COMMA);
-                        }
-                    }
-                    const value = 'value';
-                    if (this.ts.isKeyword(value) === true) {
-                        this.ts.readToken();
-                        let caption = this.ts.mayPassString();
-                        this.ts.passToken(tokens_1.Token.EQU);
-                        let val = new il_1.ValueExpression();
-                        this.context.parseElement(val);
-                        coll[value] === true;
-                        this.element.value = { name: value, ui: { caption }, val, bud: undefined };
-                        if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
-                            this.ts.passToken(tokens_1.Token.COMMA);
-                        }
-                    }
-                }
-            }
+            this.parseIdColumns();
             for (;;) {
                 if (this.ts.token === tokens_1.Token.RPARENTHESE) {
                     this.ts.readToken();
@@ -156,7 +108,7 @@ class PFromStatement extends statement_1.PStatement {
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
                     this.element.cols.push({ name, ui, val, bud: undefined, });
-                    if (coll[name] === true) {
+                    if (this.collColumns[name] === true) {
                         this.ts.error(`duplicate column name ${name}`);
                     }
                 }
@@ -167,6 +119,79 @@ class PFromStatement extends statement_1.PStatement {
                 this.ts.passToken(tokens_1.Token.COMMA);
             }
         }
+    }
+    parseIdColumns() {
+        if (this.ts.isKeyword('id') !== true)
+            return;
+        this.ts.readToken();
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                    this.ts.readToken();
+                    break;
+                }
+                this.parseIdColumn();
+                if (this.ts.token === tokens_1.Token.COMMA) {
+                    this.ts.readToken();
+                    continue;
+                }
+                this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
+            }
+        }
+        else {
+            this.parseIdColumn();
+        }
+        this.collColumns['id'] = true;
+        if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+            this.ts.passToken(tokens_1.Token.COMMA);
+            const ban = 'ban';
+            if (this.ts.isKeyword(ban) === true) {
+                this.ts.readToken();
+                let caption = this.ts.mayPassString();
+                this.ts.passToken(tokens_1.Token.EQU);
+                let val = new il_1.CompareExpression();
+                this.context.parseElement(val);
+                this.collColumns[ban] = true;
+                this.element.ban = { caption, val };
+                if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+                    this.ts.passToken(tokens_1.Token.COMMA);
+                }
+            }
+            const value = 'value';
+            if (this.ts.isKeyword(value) === true) {
+                this.ts.readToken();
+                let caption = this.ts.mayPassString();
+                this.ts.passToken(tokens_1.Token.EQU);
+                let val = new il_1.ValueExpression();
+                this.context.parseElement(val);
+                this.collColumns[value] === true;
+                this.element.value = { name: value, ui: { caption }, val, bud: undefined };
+                if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+                    this.ts.passToken(tokens_1.Token.COMMA);
+                }
+            }
+        }
+    }
+    parseIdColumn() {
+        let ui = this.parseUI();
+        let asc;
+        if (this.ts.isKeyword('asc') === true) {
+            asc = il_1.EnumAsc.asc;
+            this.ts.readToken();
+        }
+        else if (this.ts.isKeyword('desc') === true) {
+            asc = il_1.EnumAsc.desc;
+            this.ts.readToken();
+        }
+        if (asc === undefined)
+            asc = il_1.EnumAsc.asc;
+        let alias;
+        if (this.ts.isKeyword('of') === true) {
+            this.ts.readToken();
+            alias = this.ts.passVar();
+        }
+        this.ids.push({ ui, asc, alias });
     }
     parseWhere() {
         if (this.ts.isKeyword('where') === true) {
@@ -192,14 +217,13 @@ class PFromStatement extends statement_1.PStatement {
             ok = false;
             return ok;
         }
-        const { where, asc, ban, value } = this.element;
+        const { where, ban, value } = this.element;
         if (where !== undefined) {
             if (where.pelement.scan(space) === false) {
                 ok = false;
             }
         }
-        if (asc === undefined)
-            this.element.asc = 'asc';
+        // if (asc === undefined) this.element.asc = 'asc';
         if (ban !== undefined) {
             if (ban.val.pelement.scan(space) === false) {
                 ok = false;
@@ -210,9 +234,38 @@ class PFromStatement extends statement_1.PStatement {
                 ok = false;
             }
         }
-        if (this.element.setIdFromEntity(this.idAlias) === false) {
-            this.log(`${this.idAlias} is not defined`);
+        if (this.scanIDsWithCheck0() === false) {
             ok = false;
+        }
+        return ok;
+    }
+    scanIDsWithCheck0() {
+        let ok = true;
+        if (this.ids.length === 0) {
+            this.log(`no ID defined`);
+            return false;
+        }
+        if (this.scanIDs() === false) {
+            ok = false;
+        }
+        return ok;
+    }
+    scanIDs() {
+        let ok = true;
+        for (let idc of this.ids) {
+            const { asc, alias, ui } = idc;
+            let fromEntity = this.element.getIdFromEntity(alias);
+            if (fromEntity === undefined) {
+                this.log(`${alias} not defined`);
+                ok = false;
+            }
+            else {
+                this.element.ids.push({
+                    ui,
+                    asc,
+                    fromEntity,
+                });
+            }
         }
         return ok;
     }
