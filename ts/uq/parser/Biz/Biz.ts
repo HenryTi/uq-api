@@ -155,11 +155,11 @@ export class BizEntitySpace<T extends BizEntity = BizEntity> extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
-    protected override _getBizEntity(name: string) {
+    protected override _getBizFromEntityFromAlias(name: string) {
         if (name === undefined) return {
             bizEntityArr: [this.bizEntity]
         } as BizFromEntity<T>;
-        return super._getBizEntity(name);
+        return super._getBizFromEntityFromAlias(name);
     }
     protected override _getUse(name: string): { statementNo: number; obj: any; } {
         return this.useColl[name];

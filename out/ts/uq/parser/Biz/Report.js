@@ -88,7 +88,7 @@ class PBizReport extends Base_1.PBizEntity {
         else {
             for (let t of this.titles) {
                 let { title: [t0, t1], caption } = t;
-                let { bizEntityArr: [entity] } = space.getBizEntityArr(t0);
+                let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromAlias(t0);
                 if (entity === undefined || entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.title) {
                     ok = false;
                     this.log(`${t0} is not a title`);
@@ -115,7 +115,7 @@ class PBizReport extends Base_1.PBizEntity {
             this.log('FROM must be defined');
         }
         else {
-            let { bizEntityArr: [entity] } = space.getBizEntityArr(this.from);
+            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromAlias(this.from);
             if (entity === undefined) {
                 ok = false;
                 this.log(`${this.from} is not a ATOM`);
@@ -134,7 +134,7 @@ class PBizReport extends Base_1.PBizEntity {
                 this.element.from = entity;
                 for (let join of this.joins) {
                     let { type, entity } = join;
-                    let { bizEntityArr: [en] } = space.getBizEntityArr(entity);
+                    let { bizEntityArr: [en] } = space.getBizFromEntityArrFromAlias(entity);
                     if (en === undefined) {
                         ok = false;
                         this.log(`${entity} is unknown`);

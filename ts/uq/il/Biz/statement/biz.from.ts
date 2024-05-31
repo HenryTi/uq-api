@@ -66,16 +66,16 @@ export class FromStatement extends Statement {
         return new PFromStatement(this, context);
     }
 
-    getBizEntityFromAlias(alias: string): FromEntity {
-        return this.getBizEntityArrFromAlias(alias, this.fromEntity);
+    getBizFromEntityFromAlias(alias: string): FromEntity {
+        return this.getBizFromEntityArrFromAlias(alias, this.fromEntity);
     }
 
-    private getBizEntityArrFromAlias(alias: string, fromEntity: FromEntity) {
+    private getBizFromEntityArrFromAlias(alias: string, fromEntity: FromEntity) {
         if (alias === fromEntity.alias) return fromEntity;
         const { subs } = fromEntity;
         if (subs === undefined) return undefined;
         for (let sub of subs) {
-            let ret = this.getBizEntityArrFromAlias(alias, sub.fromEntity);
+            let ret = this.getBizFromEntityArrFromAlias(alias, sub.fromEntity);
             if (ret !== undefined) return ret;
         }
         return undefined;
@@ -85,7 +85,7 @@ export class FromStatement extends Statement {
         if (idAlias === undefined) {
             return this.fromEntity;
         }
-        return this.getBizEntityFromAlias(idAlias);
+        return this.getBizFromEntityFromAlias(idAlias);
     }
 }
 

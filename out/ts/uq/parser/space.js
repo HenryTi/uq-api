@@ -20,7 +20,7 @@ class Space {
     _setTransactionOff() { return false; }
     _getActionBase() { return undefined; }
     _getBizBase(bizName) { return undefined; }
-    _getBizEntity(name) { return undefined; }
+    _getBizFromEntityFromAlias(name) { return undefined; }
     _getBizFieldSpace() { return undefined; }
     _getBizEntitySpace() { return undefined; }
     _regUseBizOut(out, to) { return undefined; }
@@ -136,12 +136,12 @@ class Space {
             return this.outer.getEntityTable(name);
     }
     // every BizEntity must have the same BizPhraseType
-    getBizEntityArr(name) {
-        let bizEntity = this._getBizEntity(name);
+    getBizFromEntityArrFromAlias(name) {
+        let bizEntity = this._getBizFromEntityFromAlias(name);
         if (bizEntity !== undefined)
             return bizEntity;
         if (this.outer !== undefined)
-            return this.outer.getBizEntityArr(name);
+            return this.outer.getBizFromEntityArrFromAlias(name);
     }
     getBizFieldSpace() {
         let ret = this._getBizFieldSpace();

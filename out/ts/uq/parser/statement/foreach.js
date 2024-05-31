@@ -119,7 +119,7 @@ class PForEach extends statement_1.PStatement {
         }
     }
     createBizInArrSpace(space) {
-        let { bizEntityArr: [bizEntity] } = space.getBizEntityArr(undefined);
+        let { bizEntityArr: [bizEntity] } = space.getBizFromEntityArrFromAlias(undefined);
         if (bizEntity === undefined)
             return;
         if (bizEntity.bizPhraseType !== BizPhraseType_1.BizPhraseType.in)

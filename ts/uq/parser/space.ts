@@ -28,7 +28,7 @@ export abstract class Space {
     protected _setTransactionOff(): boolean { return false; }
     protected _getActionBase(): ActionBase { return undefined; }
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
-    protected _getBizEntity(name: string): BizFromEntity<BizEntity> { return undefined; }
+    protected _getBizFromEntityFromAlias(name: string): BizFromEntity<BizEntity> { return undefined; }
     protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
     protected _getBizEntitySpace(): BizEntitySpace { return undefined; }
     protected _regUseBizOut(out: BizOut, to: boolean): UseOut { return undefined; }
@@ -129,11 +129,11 @@ export abstract class Space {
             return this.outer.getEntityTable(name);
     }
     // every BizEntity must have the same BizPhraseType
-    getBizEntityArr(name: string): BizFromEntity<BizEntity> {
-        let bizEntity = this._getBizEntity(name);
+    getBizFromEntityArrFromAlias(name: string): BizFromEntity<BizEntity> {
+        let bizEntity = this._getBizFromEntityFromAlias(name);
         if (bizEntity !== undefined) return bizEntity;
         if (this.outer !== undefined)
-            return this.outer.getBizEntityArr(name);
+            return this.outer.getBizFromEntityArrFromAlias(name);
     }
     getBizFieldSpace(): BizFieldSpace {
         let ret = this._getBizFieldSpace();

@@ -232,6 +232,27 @@ export abstract class BizEntity extends BizBase {
         }
         return ret;
     }
+
+    getEnumSysTable(): EnumSysTable {
+        let bizEntityTable: EnumSysTable;
+        switch (this.bizPhraseType) {
+            default: break;
+            case BizPhraseType.query: break;
+            case BizPhraseType.atom:
+                bizEntityTable = EnumSysTable.atom; break;
+            case BizPhraseType.spec:
+                bizEntityTable = EnumSysTable.spec; break;
+            case BizPhraseType.duo:
+                bizEntityTable = EnumSysTable.duo; break;
+            case BizPhraseType.bin:
+                bizEntityTable = EnumSysTable.bizBin; break;
+            case BizPhraseType.sheet:
+                bizEntityTable = EnumSysTable.sheet; break;
+            case BizPhraseType.pend:
+                bizEntityTable = EnumSysTable.pend; break;
+        }
+        return bizEntityTable;
+    }
 }
 
 export interface BizFromEntitySub {

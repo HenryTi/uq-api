@@ -285,7 +285,7 @@ class FromEntityFieldSpace extends BizFieldSpace {
     }
     // protected abstract init(): void;
     buildBizFieldFromDuo(n0, n1) {
-        let bizEntityFrom = this.from.getBizEntityFromAlias(n0);
+        let bizEntityFrom = this.from.getBizFromEntityFromAlias(n0);
         if (bizEntityFrom === undefined)
             return undefined;
         const { alias, bizEntityArr } = bizEntityFrom;

@@ -325,7 +325,7 @@ export abstract class FromEntityFieldSpace<F extends FromStatement> extends BizF
     // protected abstract init(): void;
 
     protected override buildBizFieldFromDuo(n0: string, n1: string): BizField {
-        let bizEntityFrom = this.from.getBizEntityFromAlias(n0);
+        let bizEntityFrom = this.from.getBizFromEntityFromAlias(n0);
         if (bizEntityFrom === undefined) return undefined;
         const { alias, bizEntityArr } = bizEntityFrom;
         for (let bizEntity of bizEntityArr) {

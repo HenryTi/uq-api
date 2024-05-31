@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizFromEntity = exports.BizEntity = exports.BudIndex = void 0;
+const EnumSysTable_1 = require("../EnumSysTable");
 const datatype_1 = require("../datatype");
 const field_1 = require("../field");
 const Base_1 = require("./Base");
@@ -216,6 +217,32 @@ class BizEntity extends Base_1.BizBase {
             return bizConsole.internalCheckUserDefault(prop);
         }
         return ret;
+    }
+    getEnumSysTable() {
+        let bizEntityTable;
+        switch (this.bizPhraseType) {
+            default: break;
+            case BizPhraseType_1.BizPhraseType.query: break;
+            case BizPhraseType_1.BizPhraseType.atom:
+                bizEntityTable = EnumSysTable_1.EnumSysTable.atom;
+                break;
+            case BizPhraseType_1.BizPhraseType.spec:
+                bizEntityTable = EnumSysTable_1.EnumSysTable.spec;
+                break;
+            case BizPhraseType_1.BizPhraseType.duo:
+                bizEntityTable = EnumSysTable_1.EnumSysTable.duo;
+                break;
+            case BizPhraseType_1.BizPhraseType.bin:
+                bizEntityTable = EnumSysTable_1.EnumSysTable.bizBin;
+                break;
+            case BizPhraseType_1.BizPhraseType.sheet:
+                bizEntityTable = EnumSysTable_1.EnumSysTable.sheet;
+                break;
+            case BizPhraseType_1.BizPhraseType.pend:
+                bizEntityTable = EnumSysTable_1.EnumSysTable.pend;
+                break;
+        }
+        return bizEntityTable;
     }
 }
 exports.BizEntity = BizEntity;

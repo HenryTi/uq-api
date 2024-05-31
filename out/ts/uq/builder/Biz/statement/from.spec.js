@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BFromSpecStatement = void 0;
 const il_1 = require("../../../il");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const from_atom_1 = require("./from.atom");
@@ -28,7 +29,9 @@ class BFromSpecStatement extends from_atom_1.BFromStatement {
         let tblPageSpec = factory.createVarTable();
         tblPageSpec.name = pageSpec;
         const { ids } = this.istatement;
-        tblPageSpec.keys = ids.map((v, index) => (0, il_1.bigIntField)('id' + index));
+        let fields = ids.map((v, index) => (0, il_1.bigIntField)('id' + index));
+        tblPageSpec.keys = fields;
+        tblPageSpec.fields = fields;
         return tblPageSpec;
     }
     buildFromSelectPage(cmpPage) {
@@ -68,13 +71,13 @@ class BFromSpecStatement extends from_atom_1.BFromStatement {
         let { ids } = this.istatement;
         for (let idc of ids) {
             const { fromEntity: { bizEntityArr } } = idc;
-            let entityArr = bizEntityArr;
             let insertAtomOfSpec = this.buildInsertAtomOfSpec();
             sqls.push(insertAtomOfSpec);
             // 暂时只生成第一个spec的atom的所有字段
-            let [spec] = entityArr;
-            this.buildInsertAtomBuds(sqls, spec.base);
-            for (let spec of entityArr) {
+            let [bizEntity] = bizEntityArr;
+            if (bizEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.spec) {
+                let spec = bizEntity;
+                this.buildInsertAtomBuds(sqls, spec.base);
                 const buds = [...spec.keys];
                 for (let [, bud] of spec.props) {
                     buds.push(bud);
@@ -83,6 +86,17 @@ class BFromSpecStatement extends from_atom_1.BFromStatement {
                 this.buildMapBuds(mapBuds, buds);
                 this.buildInsertBuds(sqls, 'specs', mapBuds);
             }
+            /*
+            for (let spec of bizEntityArr) {
+                const buds: BizBud[] = [...spec.keys];
+                for (let [, bud] of spec.props) {
+                    buds.push(bud);
+                }
+                let mapBuds = this.createMapBuds();
+                this.buildMapBuds(mapBuds, buds);
+                this.buildInsertBuds(sqls, 'specs', mapBuds);
+            }
+            */
         }
     }
     buildInsertAtomOfSpec() {

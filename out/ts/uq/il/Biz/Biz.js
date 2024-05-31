@@ -132,6 +132,7 @@ class Biz extends entity_1.Entity {
                 }
             }
             bizPhraseType = bpt;
+            // bizEntityTable = bizEntity.getEnumSysTable();
             switch (bizPhraseType) {
                 default:
                     logs.push(`FROM can only be one of ATOM, SPEC, DUO, BIN, SHEET, PEND`);

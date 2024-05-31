@@ -497,7 +497,7 @@ class UqSpace extends Space {
     protected _getConst(name: string): Const {
         return this.uq.consts[name];
     }
-    protected _getBizEntity(name: string) {
+    protected _getBizFromEntityFromAlias(name: string) {
         let bizEntity = this.uq.biz.bizEntities.get(name);
         return {
             bizEntityArr: [bizEntity],

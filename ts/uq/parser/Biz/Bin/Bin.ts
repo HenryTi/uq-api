@@ -343,7 +343,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         let binSpace = new BizBinSpace(space, this.element);
 
         if (this.main !== undefined) {
-            let { bizEntityArr: [m] } = binSpace.getBizEntityArr(this.main);
+            let { bizEntityArr: [m] } = binSpace.getBizFromEntityArrFromAlias(this.main);
             if (m === undefined || m.bizPhraseType !== BizPhraseType.bin) {
                 this.log(`${this.main} is not BIN`);
                 ok = false;
@@ -570,10 +570,10 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
         return [new DotVarPointer(), undefined];
     }
 
-    protected override _getBizEntity(name: string): BizFromEntity {
+    protected override _getBizFromEntityFromAlias(name: string): BizFromEntity {
         switch (name) {
             default:
-                return super._getBizEntity(name);
+                return super._getBizFromEntityFromAlias(name);
             case 'pend':
                 const { pend } = this.bizEntity;
                 return {
@@ -613,10 +613,10 @@ class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
         return undefined;
     }
 
-    protected override _getBizEntity(name: string) {
+    protected override _getBizFromEntityFromAlias(name: string) {
         switch (name) {
             default:
-                return super._getBizEntity(name);
+                return super._getBizFromEntityFromAlias(name);
             case 'pend':
                 return;
         }

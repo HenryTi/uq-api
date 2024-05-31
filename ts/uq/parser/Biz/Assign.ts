@@ -56,7 +56,7 @@ export class PBizAssign extends PBizEntity<BizAssign> {
             ok = false;
         }
         for (let a of this.atom) {
-            let { bizEntityArr: [bizAtom] } = space.getBizEntityArr(a);
+            let { bizEntityArr: [bizAtom] } = space.getBizFromEntityArrFromAlias(a);
             if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType.atom) {
                 this.log(`${this.atom} is not an ATOM`);
                 ok = false;
@@ -70,7 +70,7 @@ export class PBizAssign extends PBizEntity<BizAssign> {
             ok = false;
         }
         for (let [t0, t1] of this.titles) {
-            let { bizEntityArr: [bizTitle] } = space.getBizEntityArr(t0);
+            let { bizEntityArr: [bizTitle] } = space.getBizFromEntityArrFromAlias(t0);
             if (bizTitle === undefined || bizTitle.bizPhraseType !== BizPhraseType.title) {
                 this.log(`${t0} is not a TITLE`);
                 ok = false;

@@ -137,7 +137,7 @@ class PBizStatementPend extends PBizStatementSub {
     }
     scan0(space) {
         let ok = true;
-        let { bizEntityArr: [bizBin] } = space.getBizEntityArr(undefined);
+        let { bizEntityArr: [bizBin] } = space.getBizFromEntityArrFromAlias(undefined);
         if (this.pend !== undefined) {
             let pend = this.getPend(space, this.pend);
             if (pend !== undefined) {
@@ -509,7 +509,7 @@ class PBizStatementAtom extends PBizStatementID {
                     ok = false;
                 }
             }
-            let { bizEntityArr: [entity] } = space.getBizEntityArr(entityName);
+            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromAlias(entityName);
             if (entity === undefined) {
                 ok = false;
                 this.log(`${entityName} is not defined`);
@@ -599,7 +599,7 @@ class PBizStatementSpec extends PBizStatementID {
             ok = false;
             return ok;
         }
-        let { bizEntityArr: [entity] } = space.getBizEntityArr(this.entityName);
+        let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromAlias(this.entityName);
         if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.spec) {
             ok = false;
             this.log(`${this.entityName} is not SPEC`);
@@ -632,7 +632,7 @@ class PBizStatementTie extends PBizStatementSub {
     }
     scan(space) {
         let ok = true;
-        let { bizEntityArr: [tie] } = space.getBizEntityArr(this.tieName);
+        let { bizEntityArr: [tie] } = space.getBizFromEntityArrFromAlias(this.tieName);
         if (tie === undefined || tie.bizPhraseType !== BizPhraseType_1.BizPhraseType.tie) {
             ok = false;
             this.log(`${this.tieName} is not TIE`);
@@ -704,7 +704,7 @@ class PBizStatementOut extends PBizStatementSub {
     scan(space) {
         let ok = true;
         let { tos, detail, sets } = this.element;
-        let { bizEntityArr: [bizOut] } = space.getBizEntityArr(this.outName);
+        let { bizEntityArr: [bizOut] } = space.getBizFromEntityArrFromAlias(this.outName);
         if (bizOut === undefined || bizOut.bizPhraseType !== BizPhraseType_1.BizPhraseType.out) {
             ok = false;
             this.log(`${this.outName} is not OUT`);

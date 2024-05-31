@@ -14,30 +14,35 @@ var EnumAsc;
     EnumAsc[EnumAsc["desc"] = 0] = "desc";
 })(EnumAsc || (exports.EnumAsc = EnumAsc = {}));
 class FromStatement extends statement_1.Statement {
-    get type() { return 'from'; }
-    constructor(parent) {
-        super(parent);
+    constructor() {
+        super(...arguments);
         this.ids = [];
         this.cols = [];
+    }
+    get type() { return 'from'; }
+    /*
+    constructor(parent: Statement) {
+        super(parent);
         this.fromEntity = new FromEntity();
     }
+    */
     db(db) {
         return db.fromStatement(this);
     }
     parser(context) {
         return new parser_1.PFromStatement(this, context);
     }
-    getBizEntityFromAlias(alias) {
-        return this.getBizEntityArrFromAlias(alias, this.fromEntity);
+    getBizFromEntityFromAlias(alias) {
+        return this.getBizFromEntityArrFromAlias(alias, this.fromEntity);
     }
-    getBizEntityArrFromAlias(alias, fromEntity) {
+    getBizFromEntityArrFromAlias(alias, fromEntity) {
         if (alias === fromEntity.alias)
             return fromEntity;
         const { subs } = fromEntity;
         if (subs === undefined)
             return undefined;
         for (let sub of subs) {
-            let ret = this.getBizEntityArrFromAlias(alias, sub.fromEntity);
+            let ret = this.getBizFromEntityArrFromAlias(alias, sub.fromEntity);
             if (ret !== undefined)
                 return ret;
         }
@@ -47,7 +52,7 @@ class FromStatement extends statement_1.Statement {
         if (idAlias === undefined) {
             return this.fromEntity;
         }
-        return this.getBizEntityFromAlias(idAlias);
+        return this.getBizFromEntityFromAlias(idAlias);
     }
 }
 exports.FromStatement = FromStatement;

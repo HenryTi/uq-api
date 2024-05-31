@@ -102,7 +102,7 @@ class PVarOperand extends element_1.PElement {
                     }
                     pointer = new il_1.ConstPointer(v);
                 }
-                let _obj = space.getBizEntityArr(var0);
+                let _obj = space.getBizFromEntityArrFromAlias(var0);
                 if (_obj !== undefined) {
                     let { bizEntityArr } = _obj;
                     let bud, be, fieldName;

@@ -103,7 +103,7 @@ export class PVarOperand extends PElement<VarOperand> {
                     pointer = new ConstPointer(v);
                 }
 
-                let _obj = space.getBizEntityArr(var0);
+                let _obj = space.getBizFromEntityArrFromAlias(var0);
                 if (_obj !== undefined) {
                     let { bizEntityArr } = _obj;
                     let bud: BizBud, be: BizEntity, fieldName: string;

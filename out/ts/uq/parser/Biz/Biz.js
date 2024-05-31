@@ -143,12 +143,12 @@ class BizEntitySpace extends space_1.Space {
     _varPointer(name, isField) {
         return;
     }
-    _getBizEntity(name) {
+    _getBizFromEntityFromAlias(name) {
         if (name === undefined)
             return {
                 bizEntityArr: [this.bizEntity]
             };
-        return super._getBizEntity(name);
+        return super._getBizFromEntityFromAlias(name);
     }
     _getUse(name) {
         return this.useColl[name];

@@ -1,6 +1,7 @@
 import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromStatement, JoinType, bigIntField } from "../../../il";
+import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
-import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpNum, ExpVar, Select, Statement } from "../../sql";
+import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpVar, Select, Statement } from "../../sql";
 import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from.atom";
 
@@ -14,13 +15,14 @@ export class BFromSpecStatement extends BFromStatement<FromStatement> {
         let selectPage = this.buildFromSelectPage(cmpPage);
         let insertPage = factory.createInsert();
         insertPage.select = selectPage;
-        insertPage.table = new VarTable(intoTables.ret);
+        insertPage.table = new VarTable(pageSpec);
         insertPage.cols = ids.map((v, index) => ({
             col: 'id' + index,
             val: undefined,
         }));
+        let insertRet = this.buildInsertRet();
         let insertSpec = this.buildInsertSpec();
-        return [tblPageSpec, insertPage, insertSpec];
+        return [tblPageSpec, insertPage, insertRet, insertSpec];
     }
 
     private buildTablePageSpec() {
@@ -28,7 +30,9 @@ export class BFromSpecStatement extends BFromStatement<FromStatement> {
         let tblPageSpec = factory.createVarTable();
         tblPageSpec.name = pageSpec;
         const { ids } = this.istatement;
-        tblPageSpec.keys = ids.map((v, index) => bigIntField('id' + index));
+        let fields = ids.map((v, index) => bigIntField('id' + index));
+        tblPageSpec.keys = fields;
+        tblPageSpec.fields = fields;
         return tblPageSpec;
     }
 
@@ -66,20 +70,27 @@ export class BFromSpecStatement extends BFromStatement<FromStatement> {
         return select;
     }
 
+    private buildInsertRet() {
+        const { factory } = this.context;
+        const { intoTables } = this.istatement;
+        const insertRet = factory.createInsert();
+        insertRet.table = new VarTable(intoTables.ret);
+        return insertRet;
+    }
+
     protected override buildFromEntity(sqls: Sqls) {
         let { ids } = this.istatement;
         for (let idc of ids) {
             const { fromEntity: { bizEntityArr } } = idc;
-            let entityArr: BizSpec[] = bizEntityArr as BizSpec[];
-
             let insertAtomOfSpec = this.buildInsertAtomOfSpec();
             sqls.push(insertAtomOfSpec);
 
             // 暂时只生成第一个spec的atom的所有字段
-            let [spec] = entityArr;
-            this.buildInsertAtomBuds(sqls, spec.base);
+            let [bizEntity] = bizEntityArr;
+            if (bizEntity.bizPhraseType === BizPhraseType.spec) {
+                let spec = bizEntity as BizSpec;
+                this.buildInsertAtomBuds(sqls, spec.base);
 
-            for (let spec of entityArr) {
                 const buds: BizBud[] = [...spec.keys];
                 for (let [, bud] of spec.props) {
                     buds.push(bud);
@@ -88,6 +99,17 @@ export class BFromSpecStatement extends BFromStatement<FromStatement> {
                 this.buildMapBuds(mapBuds, buds);
                 this.buildInsertBuds(sqls, 'specs', mapBuds);
             }
+            /*
+            for (let spec of bizEntityArr) {
+                const buds: BizBud[] = [...spec.keys];
+                for (let [, bud] of spec.props) {
+                    buds.push(bud);
+                }
+                let mapBuds = this.createMapBuds();
+                this.buildMapBuds(mapBuds, buds);
+                this.buildInsertBuds(sqls, 'specs', mapBuds);
+            }
+            */
         }
     }
 
