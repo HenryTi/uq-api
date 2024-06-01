@@ -16,13 +16,14 @@ class BFromSpecStatement extends from_atom_1.BFromStatement {
         let selectPage = this.buildFromSelectPage(cmpPage);
         let insertPage = factory.createInsert();
         insertPage.select = selectPage;
-        insertPage.table = new statementWithFrom_1.VarTable(intoTables.ret);
+        insertPage.table = new statementWithFrom_1.VarTable(pageSpec);
         insertPage.cols = ids.map((v, index) => ({
             col: 'id' + index,
             val: undefined,
         }));
+        let insertRet = this.buildInsertRet();
         let insertSpec = this.buildInsertSpec();
-        return [tblPageSpec, insertPage, insertSpec];
+        return [tblPageSpec, insertPage, insertRet, insertSpec];
     }
     buildTablePageSpec() {
         const { factory } = this.context;
@@ -66,6 +67,13 @@ class BFromSpecStatement extends from_atom_1.BFromStatement {
         // select.order(new ExpField('id', specBase), asc);
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
+    }
+    buildInsertRet() {
+        const { factory } = this.context;
+        const { intoTables } = this.istatement;
+        const insertRet = factory.createInsert();
+        insertRet.table = new statementWithFrom_1.VarTable(intoTables.ret);
+        return insertRet;
     }
     buildFromEntity(sqls) {
         let { ids } = this.istatement;

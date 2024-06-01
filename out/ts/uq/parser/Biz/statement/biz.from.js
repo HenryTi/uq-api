@@ -367,6 +367,15 @@ class PFromStatement extends statement_1.PStatement {
             this.ts.readToken();
             alias = this.ts.passVar();
         }
+        if (this.ts.isKeyword('group') === true) {
+            if (this.element.groupByBase === true) {
+                this.ts.error('ID GROUP BY can only be the last');
+            }
+            this.ts.readToken();
+            this.ts.passKey('by');
+            this.ts.passKey('base');
+            this.element.groupByBase = true;
+        }
         this.ids.push({ ui, asc, alias });
     }
     parseWhere() {
@@ -448,6 +457,7 @@ class PFromStatement extends statement_1.PStatement {
     }
     scanIDs() {
         let ok = true;
+        let idcLast;
         for (let idc of this.ids) {
             const { asc, alias, ui } = idc;
             let fromEntity = this.element.getIdFromEntity(alias);
@@ -456,11 +466,19 @@ class PFromStatement extends statement_1.PStatement {
                 ok = false;
             }
             else {
-                this.element.ids.push({
+                idcLast = {
                     ui,
                     asc,
                     fromEntity,
-                });
+                };
+                this.element.ids.push(idcLast);
+            }
+        }
+        if (this.element.groupByBase === true) {
+            const { fromEntity } = idcLast;
+            if (idcLast.fromEntity.bizPhraseType !== BizPhraseType_1.BizPhraseType.spec) {
+                this.log(`FROM ${fromEntity.alias} must be SPEC`);
+                ok = false;
             }
         }
         return ok;

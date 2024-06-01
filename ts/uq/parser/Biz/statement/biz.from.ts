@@ -8,7 +8,8 @@ import {
     BizFromEntitySub,
     BizSpec,
     BizEntity,
-    BizDuo
+    BizDuo,
+    IdColumn
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
@@ -217,6 +218,15 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
             this.ts.readToken();
             alias = this.ts.passVar();
         }
+        if (this.ts.isKeyword('group') === true) {
+            if (this.element.groupByBase === true) {
+                this.ts.error('ID GROUP BY can only be the last');
+            }
+            this.ts.readToken();
+            this.ts.passKey('by');
+            this.ts.passKey('base');
+            this.element.groupByBase = true;
+        }
         this.ids.push({ ui, asc, alias });
     }
 
@@ -303,6 +313,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
 
     protected scanIDs() {
         let ok = true;
+        let idcLast: IdColumn;
         for (let idc of this.ids) {
             const { asc, alias, ui } = idc;
             let fromEntity = this.element.getIdFromEntity(alias);
@@ -311,11 +322,19 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 ok = false;
             }
             else {
-                this.element.ids.push({
+                idcLast = {
                     ui,
                     asc,
                     fromEntity,
-                });
+                };
+                this.element.ids.push(idcLast);
+            }
+        }
+        if (this.element.groupByBase === true) {
+            const { fromEntity } = idcLast;
+            if (idcLast.fromEntity.bizPhraseType !== BizPhraseType.spec) {
+                this.log(`FROM ${fromEntity.alias} must be SPEC`);
+                ok = false;
             }
         }
         return ok;

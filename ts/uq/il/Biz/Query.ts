@@ -59,7 +59,7 @@ export class BizQueryTable extends BizQuery {
     }
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        const { ban, cols, fromEntity, ids/*, asc, idFromEntity*/ } = this.from;
+        const { ban, cols, fromEntity, ids, groupByBase } = this.from;
         ret.ids = ids.map(v => ({
             ui: v.ui,
             alias: v.fromEntity.alias,
@@ -68,17 +68,16 @@ export class BizQueryTable extends BizQuery {
         if (ban !== undefined) {
             ret.ban = ban.caption ?? true;
         }
+        if (groupByBase === true) {
+            ret.groupByBase = true;
+        }
         ret.params = this.params.map(v => v.buildSchema(res));
         let budCols = cols.filter(v => v.bud !== undefined);
         ret.cols = budCols.map(v => {
-            // const { field } = v;
-            // return field.buildSchema();
             const { bud } = v;
             const { entity } = bud;
             return [entity.id, bud.id];
-            // return bud.buildSchema(res);
         });
-        // ret.idFrom = idFromEntity === fromEntity ? undefined : idFromEntity.alias;
         ret.from = this.buildFromSchema(fromEntity);
         return ret;
     }

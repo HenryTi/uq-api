@@ -34,7 +34,7 @@ interface IntoTables {
 }
 
 export enum EnumAsc { asc = 1, desc = 0 }
-interface IdColumn {
+export interface IdColumn {
     asc: EnumAsc;
     ui?: Partial<UI>;
     fromEntity: FromEntity;
@@ -44,20 +44,13 @@ export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     fromEntity: FromEntity;
     readonly ids: IdColumn[] = [];
-    // asc: 'asc' | 'desc';
+    groupByBase?: boolean;          // spec group by base atom
     ban: BanColumn;
     value: FromColumn;
     cols: FromColumn[] = [];
     where: CompareExpression;
     // idFromEntity: FromEntity;
     intoTables: IntoTables;
-
-    /*
-    constructor(parent: Statement) {
-        super(parent);
-        this.fromEntity = new FromEntity();
-    }
-    */
 
     db(db: Builder): object {
         return db.fromStatement(this);

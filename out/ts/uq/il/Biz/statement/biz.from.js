@@ -20,12 +20,6 @@ class FromStatement extends statement_1.Statement {
         this.cols = [];
     }
     get type() { return 'from'; }
-    /*
-    constructor(parent: Statement) {
-        super(parent);
-        this.fromEntity = new FromEntity();
-    }
-    */
     db(db) {
         return db.fromStatement(this);
     }
