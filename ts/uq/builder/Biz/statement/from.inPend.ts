@@ -1,11 +1,21 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
-import { EnumSysTable, JoinType, FromInPendStatement } from "../../../il";
+import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom } from "../../../il";
 import { BFromStatement } from "./from";
 import { ExpCmp, ExpEQ, ExpField } from "../../sql";
-import { EntityTable, VarTableWithSchema } from "../../sql/statementWithFrom";
+import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWithFrom";
 import { KeyOfMapFieldTable, MapFieldTable } from "../BizField";
+import { DbContext } from "../../dbContext";
+import { Sqls } from "../../bstatement";
 
+const a = 'a', b = 'b';
 export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
+    constructor(context: DbContext, istatement: FromInPendStatement) {
+        super(context, istatement);
+        // no ids in FromInPend
+        this.asc = EnumAsc.asc;
+        // this.idFromEntity = undefined;
+    }
+
     protected override buildFromMain(cmpStart: ExpCmp) {
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);
@@ -29,7 +39,8 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
 
         this.buildSelectCols(select, 'cols');
 
-        select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
+        select.from(new EntityTable(EnumSysTable.pend, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('bin', a)))
             .join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, c))
             .on(new ExpEQ(new ExpField('id', c), new ExpField('base', a)))
@@ -60,5 +71,23 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
         ];
         insert.select = select;
         return [insert];
+    }
+
+    protected buildFromEntity(sqls: Sqls) {
+        // let { bizEntityArr } = this.idFromEntity;
+        // let entityArr: BizAtom[] = bizEntityArr as BizAtom[];
+        let insertAtom = this.buildInsertAtomDirect()
+        sqls.push(insertAtom);
+        // let entity = entityArr[0];
+        // this.buildInsertAtomBuds(sqls, entity);
+    }
+
+    private buildInsertAtomDirect() {
+        let insert = this.buildInsertAtom();
+        const { select } = insert;
+        select.from(new VarTable('ret', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
+            .on(new ExpEQ(new ExpField('id', a), new ExpField('id', b)));
+        return insert;
     }
 }

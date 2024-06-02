@@ -10,12 +10,6 @@ const a = 'a', b = 'b';
 // const t1 = 't1';
 const pageStart = '$pageStart';
 class BFromStatement extends bstatement_1.BStatement {
-    constructor(context, istatement) {
-        super(context, istatement);
-        const { ids: [{ asc, fromEntity }] } = istatement;
-        this.asc = asc;
-        this.idFromEntity = fromEntity;
-    }
     body(sqls) {
         const { factory } = this.context;
         const declare = factory.createDeclare();
@@ -48,29 +42,6 @@ class BFromStatement extends bstatement_1.BStatement {
         const { fromEntity } = this.istatement;
         let { alias: t1 } = fromEntity;
         return new sql_1.ExpField('id', t1);
-    }
-    buildFromMain(cmpPage) {
-        const { factory } = this.context;
-        const { intoTables } = this.istatement;
-        let select = this.buildFromSelectAtom(cmpPage);
-        let insert = factory.createInsert();
-        insert.select = select;
-        insert.table = new statementWithFrom_1.VarTable(intoTables.ret);
-        insert.cols = [
-            { col: 'id', val: undefined },
-            { col: 'ban', val: undefined },
-            { col: 'json', val: undefined },
-            { col: 'value', val: undefined },
-        ];
-        return [insert];
-    }
-    buildFromSelectAtom(cmpPage) {
-        let select = this.buildSelect(cmpPage);
-        select.column(new sql_1.ExpField('id', this.idFromEntity.alias), 'id');
-        this.buildSelectBan(select);
-        this.buildSelectCols(select, 'json');
-        this.buildSelectVallue(select);
-        return select;
     }
     buildSelectBan(select) {
         const { ban } = this.istatement;
@@ -203,22 +174,14 @@ class BFromStatement extends bstatement_1.BStatement {
         select.column(new sql_1.ExpField('ex', b));
         return insertAtom;
     }
-    buildInsertAtomDirect() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new statementWithFrom_1.VarTable('ret', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
-        return insert;
-    }
-    buildFromEntity(sqls) {
+    /* {
         let { bizEntityArr } = this.idFromEntity;
-        let entityArr = bizEntityArr;
-        let insertAtom = this.buildInsertAtomDirect();
+        let entityArr: BizAtom[] = bizEntityArr as BizAtom[];
+        let insertAtom = this.buildInsertAtomDirect()
         sqls.push(insertAtom);
         let entity = entityArr[0];
         this.buildInsertAtomBuds(sqls, entity);
-    }
+    }*/
     buildInsertAtomBuds(sqls, atom) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
         let mapBuds = this.createMapBuds();

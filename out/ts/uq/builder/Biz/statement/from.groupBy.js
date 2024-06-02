@@ -12,6 +12,9 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     constructor(context, istatement) {
         super(context, istatement);
         this.setIds();
+        const [{ asc, fromEntity }] = this.istatement.ids;
+        this.asc = asc;
+        this.idFromEntity = fromEntity;
     }
     setIds() {
         this.idsAll = this.istatement.ids;

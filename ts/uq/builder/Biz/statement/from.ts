@@ -8,7 +8,6 @@ import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
-import { DbContext } from "../../dbContext";
 
 const a = 'a', b = 'b';
 export type BudsValue = { buds: BizBud[]; value: ExpVal; };
@@ -16,15 +15,7 @@ export type BudsValue = { buds: BizBud[]; value: ExpVal; };
 const pageStart = '$pageStart';
 
 export abstract class BFromStatement<T extends FromStatement> extends BStatement<T> {
-    private readonly asc: EnumAsc;
-    private readonly idFromEntity: FromEntity;
-
-    constructor(context: DbContext, istatement: T) {
-        super(context, istatement);
-        const { ids: [{ asc, fromEntity }] } = istatement;
-        this.asc = asc;
-        this.idFromEntity = fromEntity;
-    }
+    protected asc: EnumAsc;
 
     body(sqls: Sqls) {
         const { factory } = this.context;
@@ -63,7 +54,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         return new ExpField('id', t1);
     }
 
-    protected buildFromMain(cmpPage: ExpCmp): Statement[] {
+    protected abstract buildFromMain(cmpPage: ExpCmp): Statement[]; /* {
         const { factory } = this.context;
         const { intoTables } = this.istatement;
         let select = this.buildFromSelectAtom(cmpPage);
@@ -87,6 +78,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         this.buildSelectVallue(select);
         return select;
     }
+    */
 
     protected buildSelectBan(select: Select) {
         const { ban } = this.istatement;
@@ -230,23 +222,15 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         return insertAtom;
     }
 
-    private buildInsertAtomDirect() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new VarTable('ret', a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
-            .on(new ExpEQ(new ExpField('id', a), new ExpField('id', b)));
-        return insert;
-    }
-
-    protected buildFromEntity(sqls: Sqls) {
+    protected abstract buildFromEntity(sqls: Sqls): void;
+    /* {
         let { bizEntityArr } = this.idFromEntity;
         let entityArr: BizAtom[] = bizEntityArr as BizAtom[];
         let insertAtom = this.buildInsertAtomDirect()
         sqls.push(insertAtom);
         let entity = entityArr[0];
         this.buildInsertAtomBuds(sqls, entity);
-    }
+    }*/
 
     protected buildInsertAtomBuds(sqls: Sqls, atom: BizID) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();

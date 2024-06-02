@@ -1,4 +1,4 @@
-import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromStatement, IdColumn, JoinType, bigIntField, decField, jsonField, tinyIntField } from "../../../il";
+import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromEntity, FromStatement, IdColumn, JoinType, bigIntField, decField, jsonField, tinyIntField } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
 import { DbContext } from "../../dbContext";
@@ -9,11 +9,15 @@ import { BFromStatement } from "./from";
 const a = 'a', b = 'b';
 const pageGroupBy = '$pageGroupBy';
 export class BFromGroupByStatement extends BFromStatement<FromStatement> {
+    protected readonly idFromEntity: FromEntity;
     protected idsGroupBy: IdColumn[];
     protected idsAll: IdColumn[];
     constructor(context: DbContext, istatement: FromStatement) {
         super(context, istatement);
         this.setIds();
+        const [{ asc, fromEntity }] = this.istatement.ids;
+        this.asc = asc;
+        this.idFromEntity = fromEntity;
     }
 
     protected setIds() {

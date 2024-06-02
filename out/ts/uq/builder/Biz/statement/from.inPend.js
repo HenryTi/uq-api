@@ -7,7 +7,14 @@ const from_1 = require("./from");
 const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizField_1 = require("../BizField");
+const a = 'a', b = 'b';
 class BFromInPendStatement extends from_1.BFromStatement {
+    constructor(context, istatement) {
+        super(context, istatement);
+        // no ids in FromInPend
+        this.asc = il_1.EnumAsc.asc;
+        // this.idFromEntity = undefined;
+    }
     buildFromMain(cmpStart) {
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);
@@ -29,7 +36,8 @@ class BFromInPendStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField('value', a), 'pendvalue');
         select.column(new sql_1.ExpField('mid', a), 'mid');
         this.buildSelectCols(select, 'cols');
-        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a)))
@@ -58,6 +66,22 @@ class BFromInPendStatement extends from_1.BFromStatement {
         ];
         insert.select = select;
         return [insert];
+    }
+    buildFromEntity(sqls) {
+        // let { bizEntityArr } = this.idFromEntity;
+        // let entityArr: BizAtom[] = bizEntityArr as BizAtom[];
+        let insertAtom = this.buildInsertAtomDirect();
+        sqls.push(insertAtom);
+        // let entity = entityArr[0];
+        // this.buildInsertAtomBuds(sqls, entity);
+    }
+    buildInsertAtomDirect() {
+        let insert = this.buildInsertAtom();
+        const { select } = insert;
+        select.from(new statementWithFrom_1.VarTable('ret', a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
+        return insert;
     }
 }
 exports.BFromInPendStatement = BFromInPendStatement;
