@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BFromStatementInPend = exports.BFromStatement = void 0;
-const consts_1 = require("../../../consts");
+exports.BFromStatement = void 0;
 const il_1 = require("../../../il");
-const __1 = require("..");
 const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const bstatement_1 = require("../../bstatement/bstatement");
@@ -12,6 +10,12 @@ const a = 'a', b = 'b';
 // const t1 = 't1';
 const pageStart = '$pageStart';
 class BFromStatement extends bstatement_1.BStatement {
+    constructor(context, istatement) {
+        super(context, istatement);
+        const { ids: [{ asc, fromEntity }] } = istatement;
+        this.asc = asc;
+        this.idFromEntity = fromEntity;
+    }
     body(sqls) {
         const { factory } = this.context;
         const declare = factory.createDeclare();
@@ -19,59 +23,84 @@ class BFromStatement extends bstatement_1.BStatement {
         const memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM';
-        const { fromEntity, asc } = this.istatement;
-        let { alias: t1 } = fromEntity;
+        let varStart = new sql_1.ExpVar(pageStart);
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
-        ifStateNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pageStart));
+        ifStateNull.cmp = new sql_1.ExpIsNull(varStart);
         const setPageState = factory.createSet();
         ifStateNull.then(setPageState);
+        let expFieldPageId = this.buildExpFieldPageId();
         let expStart, cmpPage;
-        let varStart = new sql_1.ExpVar(pageStart);
-        if (asc === 'asc') {
+        if (this.asc === il_1.EnumAsc.asc) {
             expStart = new sql_1.ExpNum(0);
-            cmpPage = new sql_1.ExpGT(new sql_1.ExpField('id', t1), varStart);
+            cmpPage = new sql_1.ExpGT(expFieldPageId, varStart);
         }
         else {
             expStart = new sql_1.ExpStr('9223372036854775807');
-            cmpPage = new sql_1.ExpLT(new sql_1.ExpField('id', t1), varStart);
+            cmpPage = new sql_1.ExpLT(expFieldPageId, varStart);
         }
         setPageState.equ(pageStart, expStart);
         let stat = this.buildFromMain(cmpPage);
-        sqls.push(stat);
+        sqls.push(...stat);
         this.buildFromEntity(sqls);
+    }
+    buildExpFieldPageId() {
+        const { fromEntity } = this.istatement;
+        let { alias: t1 } = fromEntity;
+        return new sql_1.ExpField('id', t1);
     }
     buildFromMain(cmpPage) {
         const { factory } = this.context;
         const { intoTables } = this.istatement;
-        let select = this.buildFromSelect(cmpPage);
-        if (intoTables !== undefined) {
-            let insert = factory.createInsert();
-            insert.select = select;
-            insert.table = new statementWithFrom_1.VarTable(intoTables.ret);
-            insert.cols = [
-                { col: 'id', val: undefined },
-                { col: 'ban', val: undefined },
-                { col: 'json', val: undefined },
-            ];
-            return insert;
+        let select = this.buildFromSelectAtom(cmpPage);
+        let insert = factory.createInsert();
+        insert.select = select;
+        insert.table = new statementWithFrom_1.VarTable(intoTables.ret);
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'ban', val: undefined },
+            { col: 'json', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        return [insert];
+    }
+    buildFromSelectAtom(cmpPage) {
+        let select = this.buildSelect(cmpPage);
+        select.column(new sql_1.ExpField('id', this.idFromEntity.alias), 'id');
+        this.buildSelectBan(select);
+        this.buildSelectCols(select, 'json');
+        this.buildSelectVallue(select);
+        return select;
+    }
+    buildSelectBan(select) {
+        const { ban } = this.istatement;
+        const cBan = 'ban';
+        if (ban === undefined) {
+            select.column(sql_1.ExpNum.num0, cBan);
         }
         else {
-            return select;
+            select.column(this.context.expCmp(ban.val), cBan);
         }
     }
-    buildFromSelect(cmpPage) {
-        const { ban, idFromEntity } = this.istatement;
-        let select = this.buildSelect(cmpPage);
-        select.column(new sql_1.ExpField('id', idFromEntity.alias), 'id');
-        if (ban === undefined) {
-            select.column(sql_1.ExpNum.num0, 'ban');
+    buildSelectVallueBase(select, sum) {
+        const { factory } = this.context;
+        const { value } = this.istatement;
+        const cValue = 'value';
+        if (value === undefined) {
+            select.column(sql_1.ExpNull.null, cValue);
         }
         else {
-            select.column(this.context.expCmp(ban.val), 'ban');
+            let exp = this.context.expVal(value.val);
+            if (sum === true)
+                exp = new sql_1.ExpFunc(factory.func_sum, exp);
+            select.column(exp, cValue);
         }
-        this.buildSelectCols(select, 'json');
-        return select;
+    }
+    buildSelectVallue(select) {
+        this.buildSelectVallueBase(select, false);
+    }
+    buildSelectVallueSum(select) {
+        this.buildSelectVallueBase(select, true);
     }
     buildSelectCols(select, alias) {
         const { cols } = this.istatement;
@@ -118,18 +147,28 @@ class BFromStatement extends bstatement_1.BStatement {
         }
         if (subs !== undefined) {
             for (let sub of subs) {
-                const { field, fromEntity: subFromEntity } = sub;
+                const { field, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { bizEntityTable, alias: subAlias } = subFromEntity;
-                select
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(bizEntityTable, false, subAlias))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, alias)));
+                if (isSpecBase === true) {
+                    let budAlias = subAlias + '$bud';
+                    select
+                        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
+                        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField(field, alias)))
+                        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(bizEntityTable, false, subAlias))
+                        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('base', budAlias)));
+                }
+                else {
+                    select
+                        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(bizEntityTable, false, subAlias))
+                        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, alias)));
+                }
                 this.buildSelectFrom(select, subFromEntity);
             }
         }
     }
     buildSelect(cmpPage) {
         const { factory } = this.context;
-        const { asc, where, fromEntity } = this.istatement;
+        const { where, fromEntity } = this.istatement;
         const { bizEntityTable, alias: t0 } = fromEntity;
         // const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
@@ -140,21 +179,9 @@ class BFromStatement extends bstatement_1.BStatement {
             this.context.expCmp(where),
         ];
         select.where(new sql_1.ExpAnd(...wheres));
-        select.order(new sql_1.ExpField('id', t0), asc);
+        select.order(new sql_1.ExpField('id', t0), this.asc === il_1.EnumAsc.asc ? 'asc' : 'desc');
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
-    }
-    buildFromEntity(sqls) {
-        let { bizPhraseType, bizEntityArr } = this.istatement.idFromEntity;
-        switch (bizPhraseType) {
-            default: break;
-            case BizPhraseType_1.BizPhraseType.atom:
-                this.buildFromAtom(sqls, bizEntityArr);
-                break;
-            case BizPhraseType_1.BizPhraseType.spec:
-                this.buildFromSpec(sqls, bizEntityArr);
-                break;
-        }
     }
     buildInsertAtom() {
         const { factory } = this.context;
@@ -184,56 +211,22 @@ class BFromStatement extends bstatement_1.BStatement {
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
         return insert;
     }
-    buildInsertAtomOfSpec() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new statementWithFrom_1.VarTable('specs', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpField('id', b)));
-        return insert;
-    }
-    buildFromAtom(sqls, entityArr) {
+    buildFromEntity(sqls) {
+        let { bizEntityArr } = this.idFromEntity;
+        let entityArr = bizEntityArr;
         let insertAtom = this.buildInsertAtomDirect();
         sqls.push(insertAtom);
         let entity = entityArr[0];
         this.buildInsertAtomBuds(sqls, entity);
     }
-    buildFromSpec(sqls, entityArr) {
-        const { factory } = this.context;
-        let insertSpec = factory.createInsert();
-        sqls.push(insertSpec);
-        insertSpec.ignore = true;
-        insertSpec.table = new statementWithFrom_1.VarTable('specs');
-        insertSpec.cols = [
-            { col: 'spec', val: undefined },
-            { col: 'atom', val: undefined },
-        ];
-        let select = factory.createSelect();
-        insertSpec.select = select;
-        select.distinct = true;
-        select.from(new statementWithFrom_1.VarTable('ret', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
-        select.column(new sql_1.ExpField('id', b), 'spec');
-        select.column(new sql_1.ExpField('base', b), 'atom');
-        for (let spec of entityArr) {
-            const mapBuds = new Map();
-            const buds = [];
-            for (let [, bud] of spec.props) {
-                buds.push(bud);
-            }
-            this.buildMapBuds(mapBuds, buds);
-            this.buildInsertBuds(sqls, 'specs', mapBuds);
-        }
-        let insertAtomOfSpec = this.buildInsertAtomOfSpec();
-        sqls.push(insertAtomOfSpec);
-        // 暂时只生成第一个spec的atom的所有字段
-        let [spec] = entityArr;
-        this.buildInsertAtomBuds(sqls, spec.base);
-    }
     buildInsertAtomBuds(sqls, atom) {
+        let titlePrimeBuds = atom.getTitlePrimeBuds();
+        let mapBuds = this.createMapBuds();
+        this.buildMapBuds(mapBuds, titlePrimeBuds);
+        this.buildInsertBuds(sqls, 'atoms', mapBuds);
+    }
+    createMapBuds() {
         const { factory } = this.context;
-        const { titleBuds, primeBuds } = atom;
         const mapBuds = new Map();
         const valField = new sql_1.ExpField('value', 'b');
         const valNumExp = new sql_1.ExpFuncCustom(factory.func_cast, valField, new sql_1.ExpDatePart('json'));
@@ -241,9 +234,7 @@ class BFromStatement extends bstatement_1.BStatement {
         mapBuds.set(il_1.EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
         mapBuds.set(il_1.EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
         mapBuds.set(il_1.EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
-        this.buildMapBuds(mapBuds, titleBuds);
-        this.buildMapBuds(mapBuds, primeBuds);
-        this.buildInsertBuds(sqls, 'atoms', mapBuds);
+        return mapBuds;
     }
     buildMapBuds(mapBuds, buds) {
         if (buds === undefined)
@@ -295,58 +286,4 @@ class BFromStatement extends bstatement_1.BStatement {
     }
 }
 exports.BFromStatement = BFromStatement;
-class BFromStatementInPend extends BFromStatement {
-    buildFromMain(cmpStart) {
-        const { factory } = this.context;
-        let select = super.buildSelect(cmpStart);
-        let tblA = 'pend';
-        let tblB = 'bin';
-        let tblSheet = 'sheet';
-        let tblSheetBin = 'sheetBin';
-        const a = __1.MapFieldTable[tblA], b = __1.MapFieldTable[tblB], b1 = 'b1', c = 'c', d = 'd';
-        const sheet = __1.MapFieldTable[tblSheet];
-        const sheetBin = __1.MapFieldTable[tblSheetBin];
-        select.column(new sql_1.ExpField('id', a), 'pend');
-        select.column(new sql_1.ExpField('id', sheetBin), 'sheet');
-        select.column(new sql_1.ExpField('bin', a), 'id');
-        select.column(new sql_1.ExpField('i', b), 'i');
-        select.column(new sql_1.ExpField('x', b), 'x');
-        select.column(new sql_1.ExpField(consts_1.binValue, b), consts_1.binValue);
-        select.column(new sql_1.ExpField(consts_1.binPrice, b), consts_1.binPrice);
-        select.column(new sql_1.ExpField(consts_1.binAmount, b), consts_1.binAmount);
-        select.column(new sql_1.ExpField('value', a), 'pendvalue');
-        select.column(new sql_1.ExpField('mid', a), 'mid');
-        this.buildSelectCols(select, 'cols');
-        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, b1))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b1), new sql_1.ExpField('id', b)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, d))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', b1)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('base', d)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, sheet))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
-        let insert = factory.createInsert();
-        insert.table = new statementWithFrom_1.VarTableWithSchema('$page');
-        insert.cols = [
-            { col: 'pend', val: undefined },
-            { col: 'sheet', val: undefined },
-            { col: 'id', val: undefined },
-            { col: 'i', val: undefined },
-            { col: 'x', val: undefined },
-            { col: consts_1.binValue, val: undefined },
-            { col: consts_1.binPrice, val: undefined },
-            { col: consts_1.binAmount, val: undefined },
-            { col: 'pendvalue', val: undefined },
-            { col: 'mid', val: undefined },
-            { col: 'cols', val: undefined },
-        ];
-        insert.select = select;
-        return insert;
-    }
-}
-exports.BFromStatementInPend = BFromStatementInPend;
 //# sourceMappingURL=from.js.map

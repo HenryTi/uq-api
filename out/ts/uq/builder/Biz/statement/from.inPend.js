@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BFromStatementInPend = void 0;
+exports.BFromInPendStatement = void 0;
 const consts_1 = require("../../../consts");
 const il_1 = require("../../../il");
-const from_atom_1 = require("./from.atom");
+const from_1 = require("./from");
 const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizField_1 = require("../BizField");
-class BFromStatementInPend extends from_atom_1.BFromStatement {
+class BFromInPendStatement extends from_1.BFromStatement {
     buildFromMain(cmpStart) {
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);
@@ -60,5 +60,5 @@ class BFromStatementInPend extends from_atom_1.BFromStatement {
         return [insert];
     }
 }
-exports.BFromStatementInPend = BFromStatementInPend;
+exports.BFromInPendStatement = BFromInPendStatement;
 //# sourceMappingURL=from.inPend.js.map

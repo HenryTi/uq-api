@@ -272,13 +272,12 @@ class DbContext {
     setStatement(v) { return new stat.BSetStatement(this, v); }
     putStatement(v) { return new stat.BPutStatement(this, v); }
     fromStatement(v) {
-        //if (v.idFromEntity.bizPhraseType === BizPhraseType.spec) {
-        if (v.ids.length > 1) {
-            return new Biz_1.BFromSpecStatement(this, v);
+        if (v.groupByBase === true) {
+            return new Biz_1.BFromGroupByBaseStatement(this, v);
         }
-        return new Biz_1.BFromStatement(this, v);
+        return new Biz_1.BFromGroupByStatement(this, v);
     }
-    fromStatementInPend(v) { return new Biz_1.BFromStatementInPend(this, v); }
+    fromStatementInPend(v) { return new Biz_1.BFromInPendStatement(this, v); }
     withIDDelOnId(v) { return new stat.BWithIDDelOnId(this, v); }
     withIDDelOnKeys(v) { return new stat.BWithIDDelOnKeys(this, v); }
     withIDXDel(v) { return new stat.BWithIDXDel(this, v); }

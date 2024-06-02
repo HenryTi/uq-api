@@ -668,7 +668,8 @@ class FEScanBase {
             return undefined;
         return {
             field,
-            fromEntity
+            fromEntity,
+            isSpecBase: undefined,
         };
     }
 }
@@ -707,6 +708,7 @@ class FromEntityScanSpec extends FEScanBase {
         let sub = this.scanSub(this.pSub, 'base', this.onSpecEmpty);
         if (sub === undefined)
             return;
+        sub.isSpecBase = true;
         return [sub];
     }
 }

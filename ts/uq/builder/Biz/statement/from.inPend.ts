@@ -1,11 +1,11 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
-import { EnumSysTable, JoinType, FromStatementInPend } from "../../../il";
-import { BFromStatement } from "./from.atom";
+import { EnumSysTable, JoinType, FromInPendStatement } from "../../../il";
+import { BFromStatement } from "./from";
 import { ExpCmp, ExpEQ, ExpField } from "../../sql";
 import { EntityTable, VarTableWithSchema } from "../../sql/statementWithFrom";
 import { KeyOfMapFieldTable, MapFieldTable } from "../BizField";
 
-export class BFromStatementInPend extends BFromStatement<FromStatementInPend> {
+export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
     protected override buildFromMain(cmpStart: ExpCmp) {
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);

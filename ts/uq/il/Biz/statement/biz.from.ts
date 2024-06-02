@@ -13,7 +13,6 @@ export interface FromColumn {
     name: string;
     ui?: Partial<UI>;
     val: ValueExpression;
-    // field: BizField;
     bud: BizBud;
 }
 
@@ -49,7 +48,6 @@ export class FromStatement extends Statement {
     value: FromColumn;
     cols: FromColumn[] = [];
     where: CompareExpression;
-    // idFromEntity: FromEntity;
     intoTables: IntoTables;
 
     db(db: Builder): object {
@@ -82,7 +80,7 @@ export class FromStatement extends Statement {
     }
 }
 
-export class FromStatementInPend extends FromStatement {
+export class FromInPendStatement extends FromStatement {
     readonly pendQuery: PendQuery;
     constructor(parent: Statement, pendQuery: PendQuery) {
         super(parent);

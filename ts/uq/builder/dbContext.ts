@@ -20,9 +20,8 @@ import {
 import { EntityTable, VarTable, GlobalTable } from './sql/statementWithFrom';
 import { Select, LockType } from './sql/select';
 import { Sqls } from './bstatement';
-import { BBiz, BFromSpecStatement, BFromStatement, BFromStatementInPend } from './Biz';
+import { BBiz, BFromGroupByBaseStatement, BFromGroupByStatement, BFromInPendStatement } from './Biz';
 import { EntityRunner } from '../../core';
-import { BizPhraseType } from '../il/Biz/BizPhraseType';
 
 export const max_promises_uq_api = 10;
 
@@ -308,14 +307,13 @@ export class DbContext implements il.Builder {
     textStatement(v: il.TextStatement) { return new stat.BTextStatement(this, v) };
     setStatement(v: il.SetStatement) { return new stat.BSetStatement(this, v) }
     putStatement(v: il.PutStatement) { return new stat.BPutStatement(this, v) }
-    fromStatement(v: il.FromStatement) {
-        //if (v.idFromEntity.bizPhraseType === BizPhraseType.spec) {
-        if (v.ids.length > 1) {
-            return new BFromSpecStatement(this, v);
+    fromStatement(v: il.FromStatement): stat.BStatement {
+        if (v.groupByBase === true) {
+            return new BFromGroupByBaseStatement(this, v);
         }
-        return new BFromStatement(this, v)
+        return new BFromGroupByStatement(this, v);
     }
-    fromStatementInPend(v: il.FromStatementInPend) { return new BFromStatementInPend(this, v) }
+    fromStatementInPend(v: il.FromInPendStatement) { return new BFromInPendStatement(this, v) }
     withIDDelOnId(v: il.WithStatement) { return new stat.BWithIDDelOnId(this, v) }
     withIDDelOnKeys(v: il.WithStatement) { return new stat.BWithIDDelOnKeys(this, v) }
     withIDXDel(v: il.WithStatement) { return new stat.BWithIDXDel(this, v) }

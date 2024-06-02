@@ -258,6 +258,7 @@ export abstract class BizEntity extends BizBase {
 export interface BizFromEntitySub {
     field: string;
     fromEntity: BizFromEntity;
+    isSpecBase: boolean;
 }
 
 export class BizFromEntity<E extends BizEntity = BizEntity> {

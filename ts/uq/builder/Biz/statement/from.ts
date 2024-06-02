@@ -1,4 +1,3 @@
-/*
 import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizSpec, BizID, EnumAsc, bigIntField } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNull,
@@ -16,9 +15,10 @@ export type BudsValue = { buds: BizBud[]; value: ExpVal; };
 // const t1 = 't1';
 const pageStart = '$pageStart';
 
-export class BFromStatementGroupBy<T extends FromStatement> extends BStatement<T> {
+export abstract class BFromStatement<T extends FromStatement> extends BStatement<T> {
     private readonly asc: EnumAsc;
     private readonly idFromEntity: FromEntity;
+
     constructor(context: DbContext, istatement: T) {
         super(context, istatement);
         const { ids: [{ asc, fromEntity }] } = istatement;
@@ -34,29 +34,33 @@ export class BFromStatementGroupBy<T extends FromStatement> extends BStatement<T
         sqls.push(memo);
         memo.text = 'FROM';
 
-        const { fromEntity } = this.istatement;
-        let { alias: t1 } = fromEntity;
-
+        let varStart = new ExpVar(pageStart);
         const ifStateNull = factory.createIf();
         sqls.push(ifStateNull);
-        ifStateNull.cmp = new ExpIsNull(new ExpVar(pageStart));
+        ifStateNull.cmp = new ExpIsNull(varStart);
         const setPageState = factory.createSet();
         ifStateNull.then(setPageState);
+        let expFieldPageId = this.buildExpFieldPageId();
         let expStart: ExpVal, cmpPage: ExpCmp;
-        let varStart = new ExpVar(pageStart);
         if (this.asc === EnumAsc.asc) {
             expStart = new ExpNum(0);
-            cmpPage = new ExpGT(new ExpField('id', t1), varStart);
+            cmpPage = new ExpGT(expFieldPageId, varStart);
         }
         else {
             expStart = new ExpStr('9223372036854775807');
-            cmpPage = new ExpLT(new ExpField('id', t1), varStart);
+            cmpPage = new ExpLT(expFieldPageId, varStart);
         }
         setPageState.equ(pageStart, expStart);
 
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
         this.buildFromEntity(sqls);
+    }
+
+    protected buildExpFieldPageId() {
+        const { fromEntity } = this.istatement;
+        let { alias: t1 } = fromEntity;
+        return new ExpField('id', t1);
     }
 
     protected buildFromMain(cmpPage: ExpCmp): Statement[] {
@@ -95,15 +99,26 @@ export class BFromStatementGroupBy<T extends FromStatement> extends BStatement<T
         }
     }
 
-    protected buildSelectVallue(select: Select) {
+    private buildSelectVallueBase(select: Select, sum: boolean) {
+        const { factory } = this.context;
         const { value } = this.istatement;
         const cValue = 'value';
         if (value === undefined) {
             select.column(ExpNull.null, cValue);
         }
         else {
-            select.column(this.context.expVal(value.val) as ExpVal, cValue);
+            let exp = this.context.expVal(value.val);
+            if (sum === true) exp = new ExpFunc(factory.func_sum, exp);
+            select.column(exp, cValue);
         }
+    }
+
+    protected buildSelectVallue(select: Select) {
+        this.buildSelectVallueBase(select, false);
+    }
+
+    protected buildSelectVallueSum(select: Select) {
+        this.buildSelectVallueBase(select, true);
     }
 
     protected buildSelectCols(select: Select, alias: string) {
@@ -155,11 +170,22 @@ export class BFromStatementGroupBy<T extends FromStatement> extends BStatement<T
         }
         if (subs !== undefined) {
             for (let sub of subs) {
-                const { field, fromEntity: subFromEntity } = sub;
+                const { field, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { bizEntityTable, alias: subAlias } = subFromEntity;
-                select
-                    .join(JoinType.join, new EntityTable(bizEntityTable, false, subAlias))
-                    .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, alias)));
+                if (isSpecBase === true) {
+                    let budAlias = subAlias + '$bud';
+                    select
+                        .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
+                        .on(new ExpEQ(new ExpField('id', budAlias), new ExpField(field, alias)))
+                        .join(JoinType.join, new EntityTable(bizEntityTable, false, subAlias))
+                        .on(new ExpEQ(new ExpField('id', subAlias), new ExpField('base', budAlias)));
+
+                }
+                else {
+                    select
+                        .join(JoinType.join, new EntityTable(bizEntityTable, false, subAlias))
+                        .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, alias)));
+                }
                 this.buildSelectFrom(select, subFromEntity);
             }
         }
@@ -289,4 +315,3 @@ export class BFromStatementGroupBy<T extends FromStatement> extends BStatement<T
         select.column(expVal, 'value');
     }
 }
-*/

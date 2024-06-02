@@ -4,7 +4,7 @@ import {
     , ExpVal, ExpStr, ExpNum, BBizFieldUser,
     BBizFieldBinBud
 } from "../builder";
-import { BinDiv, BizBin, FromStatement, FromStatementInPend } from "./Biz";
+import { BinDiv, BizBin, FromStatement, FromInPendStatement } from "./Biz";
 import { BizPhraseType } from "./Biz/BizPhraseType";
 import { BizBud } from "./Biz/Bud";
 import { BizEntity } from "./Biz/Entity";
@@ -414,7 +414,7 @@ export class FromInQueryFieldSpace extends FromEntityFieldSpace<FromStatement> {
     */
 }
 
-export class FromInPendFieldSpace extends FromEntityFieldSpace<FromStatementInPend> {
+export class FromInPendFieldSpace extends FromEntityFieldSpace<FromInPendStatement> {
     /*
     private static fields: TableCols = {
         $: [
