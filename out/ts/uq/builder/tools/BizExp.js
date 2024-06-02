@@ -66,12 +66,61 @@ class BBizExp {
         }
     }
     bin(sb) {
-        const { bizEntity, prop } = this.bizExp;
-        const { ta, tb } = this;
-        sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'}
-        FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
-            WHERE ${ta}.id=`)
-            .exp(this.param);
+        const { budProp } = this.bizExp;
+        if (budProp !== undefined)
+            this.binBud(sb);
+        else
+            this.binField(sb);
+    }
+    binField(sb) {
+        const { bizEntity, prop, isParent } = this.bizExp;
+        const { ta, tb, tt } = this;
+        let col = `${ta}.${prop !== null && prop !== void 0 ? prop : 'id'}`;
+        let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id}`;
+        let sql;
+        if (isParent === true) {
+            sql = `${col} 
+                FROM \`${this.db}\`.detail as ${tt}
+                    JOIN \`${this.db}\`.bin as ${ta} ON ${ta}.id=${tt}.base
+                    ${joinBud} 
+                WHERE ${tt}.id=`;
+        }
+        else {
+            sql = `${col} 
+                FROM \`${this.db}\`.detail as ${ta} ${joinBud} 
+                WHERE ${ta}.id=`;
+        }
+        sb.append(sql);
+        sb.exp(this.param);
+    }
+    binBud(sb) {
+        const { budProp, isParent } = this.bizExp;
+        const { ta, tt } = this;
+        let tbl;
+        switch (budProp.dataType) {
+            default:
+                tbl = il_1.EnumSysTable.ixBudInt;
+                break;
+            case BizPhraseType_1.BudDataType.char:
+            case BizPhraseType_1.BudDataType.str:
+                tbl = il_1.EnumSysTable.ixBudStr;
+                break;
+            case BizPhraseType_1.BudDataType.dec:
+                tbl = il_1.EnumSysTable.ixBudDec;
+                break;
+        }
+        sb.append(`${tt}.value FROM \`${this.db}\`.${tbl} as ${tt}
+            WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
+        if (isParent === true) {
+            sb.l();
+            sb.append(`SELECT ${ta}.base FROM \`${this.db}\`.detail as ${ta} WHERE `);
+            sb.append(ta).dot().append('id=');
+            sb.exp(this.param);
+            sb.r();
+        }
+        else {
+            sb.exp(this.param);
+        }
     }
     tie(sb) {
         const { bizEntity } = this.bizExp;

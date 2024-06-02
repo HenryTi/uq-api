@@ -342,50 +342,6 @@ export class BBizStatementSheet extends BStatement<BizStatementSheet> {
             memo.text = bud.getJName();
             let expVal = this.context.expVal(val);
             ret.push(...buildSetSheetBud(this.context, bud, varId, expVal));
-            /*
-            let insert = factory.createInsert();
-            insert.ignore = true;
-            const createIxBudValue = (table: EnumSysTable, valValue: ExpVal) => {
-                insert.table = new EntityTable(table, false);
-                insert.cols = [
-                    { col: 'i', val: varId },
-                    { col: 'x', val: new ExpNum(bud.id) },
-                    { col: 'value', val: valValue },
-                ]
-                return insert;
-            }
-            const createIxBud = (table: EnumSysTable, valValue: ExpVal) => {
-                insert.table = new EntityTable(table, false);
-                insert.cols = [
-                    { col: 'i', val: varId },
-                    { col: 'x', val: valValue },
-                ]
-                return insert;
-            }
-            switch (bud.dataType) {
-                default: debugger; break;
-                case BudDataType.check: debugger; break;
-                case BudDataType.datetime: debugger; break;
-                case BudDataType.int: // break;
-                case BudDataType.atom:
-                    insert = createIxBudValue(EnumSysTable.ixBudInt, expVal);
-                    break;
-                case BudDataType.char:
-                case BudDataType.str:
-                    insert = createIxBudValue(EnumSysTable.ixBudStr, expVal);
-                    break;
-                case BudDataType.radio:
-                    insert = createIxBud(EnumSysTable.ixBud, expVal);
-                    break;
-                case BudDataType.date:
-                    insert = createIxBudValue(EnumSysTable.ixBudInt, expVal);
-                    break;
-                case BudDataType.dec:
-                    insert = createIxBudValue(EnumSysTable.ixBudDec, expVal);
-                    break;
-            }
-            ret.push(insert);
-            */
         }
         return ret;
     }

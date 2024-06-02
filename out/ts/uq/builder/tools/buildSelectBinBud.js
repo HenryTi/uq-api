@@ -48,12 +48,6 @@ function buildSelectBinBud(context, bud, varBin, varName) {
             selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudDec);
             declareType = decValue;
             break;
-        /*
-        case BudDataType.radio:
-            selectBud = buildSelectBudIx(bud, true);
-            declareType = bigint;
-            break;
-        */
         case BizPhraseType_1.BudDataType.check:
             selectBud = buildSelectBudIx(bud, false);
             declareType = json;

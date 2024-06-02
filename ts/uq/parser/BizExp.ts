@@ -6,6 +6,7 @@ import {
     , BizExpOperand,
     Uq,
     BizFieldOperand,
+    BizBud,
 } from "../il";
 import { BizPhraseType, BudDataType } from "../il/Biz/BizPhraseType";
 import { PElement } from "./element";
@@ -47,12 +48,10 @@ export class PBizExp extends PElement<BizExp> {
         if (this.ts.token === Token.DOT) {
             this.ts.readToken();
             if (this.ts.token === Token.XOR as any) {
-                this.element.prop = 'base';
+                this.element.isParent = true;
                 this.ts.readToken();
             }
-            else {
-                this.element.prop = this.ts.passVar();
-            }
+            this.element.prop = this.ts.passVar();
         }
         if (this.ts.isKeyword('in') === true) {
             this.ts.readToken();
@@ -189,7 +188,7 @@ export class PBizExp extends PElement<BizExp> {
 
     private scanBin(space: Space): boolean {
         let ok = true;
-        const { bizEntity, prop } = this.element;
+        const { bizEntity, prop, isParent } = this.element;
         if (this.checkScalar() === false) ok = false;
         let bizBin = bizEntity as BizBin;
         if (this.bud !== undefined) {
@@ -201,9 +200,8 @@ export class PBizExp extends PElement<BizExp> {
         }
         else {
             const arr = binFieldArr;
-            // if (prop === '收货物流中心') debugger;
             if (arr.includes(prop) === false) {
-                let bud = bizBin.getBud(prop);
+                let bud: BizBud = isParent === true ? bizBin.getSheetBud(prop) : bizBin.getBud(prop);
                 if (bud === undefined) {
                     this.log(`${bizBin.getJName()} does not have prop ${prop}`);
                     ok = false;

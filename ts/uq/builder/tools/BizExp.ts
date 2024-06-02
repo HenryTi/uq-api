@@ -1,5 +1,5 @@
 import {
-    BizExp, BizExpParamType, BizField, OptionsItem
+    BizExp, BizExpParamType, BizField, EnumSysTable, OptionsItem
 } from "../../il";
 import { ExpVal, ExpInterval } from "../sql/exp";
 import { DbContext } from "../dbContext";
@@ -72,12 +72,55 @@ export class BBizExp {
     }
 
     private bin(sb: SqlBuilder) {
-        const { bizEntity, prop } = this.bizExp;
-        const { ta, tb } = this;
-        sb.append(`${ta}.${prop ?? 'id'}
-        FROM ${this.db}.bin as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id} 
-            WHERE ${ta}.id=`)
-            .exp(this.param);
+        const { budProp } = this.bizExp;
+        if (budProp !== undefined) this.binBud(sb);
+        else this.binField(sb);
+    }
+
+    private binField(sb: SqlBuilder) {
+        const { bizEntity, prop, isParent } = this.bizExp;
+        const { ta, tb, tt } = this;
+        let col = `${ta}.${prop ?? 'id'}`
+        let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id}`;
+        let sql: string;
+        if (isParent === true) {
+            sql = `${col} 
+                FROM \`${this.db}\`.detail as ${tt}
+                    JOIN \`${this.db}\`.bin as ${ta} ON ${ta}.id=${tt}.base
+                    ${joinBud} 
+                WHERE ${tt}.id=`;
+        }
+        else {
+            sql = `${col} 
+                FROM \`${this.db}\`.detail as ${ta} ${joinBud} 
+                WHERE ${ta}.id=`;
+        }
+        sb.append(sql);
+        sb.exp(this.param);
+    }
+
+    private binBud(sb: SqlBuilder) {
+        const { budProp, isParent } = this.bizExp;
+        const { ta, tt } = this;
+        let tbl: EnumSysTable;
+        switch (budProp.dataType) {
+            default: tbl = EnumSysTable.ixBudInt; break;
+            case BudDataType.char:
+            case BudDataType.str: tbl = EnumSysTable.ixBudStr; break;
+            case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+        }
+        sb.append(`${tt}.value FROM \`${this.db}\`.${tbl} as ${tt}
+            WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
+        if (isParent === true) {
+            sb.l();
+            sb.append(`SELECT ${ta}.base FROM \`${this.db}\`.detail as ${ta} WHERE `)
+            sb.append(ta).dot().append('id=');
+            sb.exp(this.param);
+            sb.r();
+        }
+        else {
+            sb.exp(this.param);
+        }
     }
 
     private tie(sb: SqlBuilder) {

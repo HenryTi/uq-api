@@ -224,7 +224,6 @@ export class JsonValInMain extends JsonVal {
                 suffix = undefined;
                 break;
             case BudDataType.date:
-                // return this.buildDateVal(bud);
                 suffix = undefined;
                 break;
             case BudDataType.int:

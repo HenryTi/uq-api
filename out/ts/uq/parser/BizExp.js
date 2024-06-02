@@ -38,12 +38,10 @@ class PBizExp extends element_1.PElement {
         if (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
             if (this.ts.token === tokens_1.Token.XOR) {
-                this.element.prop = 'base';
+                this.element.isParent = true;
                 this.ts.readToken();
             }
-            else {
-                this.element.prop = this.ts.passVar();
-            }
+            this.element.prop = this.ts.passVar();
         }
         if (this.ts.isKeyword('in') === true) {
             this.ts.readToken();
@@ -193,7 +191,7 @@ class PBizExp extends element_1.PElement {
     }
     scanBin(space) {
         let ok = true;
-        const { bizEntity, prop } = this.element;
+        const { bizEntity, prop, isParent } = this.element;
         if (this.checkScalar() === false)
             ok = false;
         let bizBin = bizEntity;
@@ -206,9 +204,8 @@ class PBizExp extends element_1.PElement {
         }
         else {
             const arr = consts_1.binFieldArr;
-            // if (prop === '收货物流中心') debugger;
             if (arr.includes(prop) === false) {
-                let bud = bizBin.getBud(prop);
+                let bud = isParent === true ? bizBin.getSheetBud(prop) : bizBin.getBud(prop);
                 if (bud === undefined) {
                     this.log(`${bizBin.getJName()} does not have prop ${prop}`);
                     ok = false;
