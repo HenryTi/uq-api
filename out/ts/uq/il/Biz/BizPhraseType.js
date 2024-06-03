@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BudDataType = exports.BizPhraseType = void 0;
+exports.budTypes = exports.BudDataType = exports.BizPhraseType = void 0;
+const EnumSysTable_1 = require("../EnumSysTable");
 var BizPhraseType;
 (function (BizPhraseType) {
     BizPhraseType[BizPhraseType["any"] = 0] = "any";
@@ -58,4 +59,24 @@ var BudDataType;
     BudDataType[BudDataType["arr"] = 99] = "arr";
 })(BudDataType || (exports.BudDataType = BudDataType = {}));
 ;
+const budTypeInt = {
+    sysTable: EnumSysTable_1.EnumSysTable.ixBudInt,
+};
+const budTypeStr = {
+    sysTable: EnumSysTable_1.EnumSysTable.ixBudStr,
+};
+const budTypeDec = {
+    sysTable: EnumSysTable_1.EnumSysTable.ixBudDec,
+};
+exports.budTypes = {
+    [BudDataType.int]: budTypeInt,
+    [BudDataType.str]: budTypeStr,
+    [BudDataType.char]: budTypeStr,
+    [BudDataType.dec]: budTypeDec,
+    [BudDataType.date]: budTypeInt,
+    [BudDataType.datetime]: budTypeInt,
+    [BudDataType.atom]: budTypeInt,
+    [BudDataType.ID]: budTypeInt,
+    [BudDataType.radio]: budTypeInt,
+};
 //# sourceMappingURL=BizPhraseType.js.map

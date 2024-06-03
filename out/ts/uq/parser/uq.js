@@ -495,6 +495,8 @@ class UqSpace extends space_1.Space {
     }
     _getBizFromEntityFromAlias(name) {
         let bizEntity = this.uq.biz.bizEntities.get(name);
+        if (bizEntity === undefined)
+            return undefined;
         return {
             bizEntityArr: [bizEntity],
         };

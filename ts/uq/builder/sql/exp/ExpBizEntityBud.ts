@@ -1,5 +1,5 @@
 import { BizBud, BizFromEntity } from "../../../il";
-import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
+import { BizPhraseType, budTypes } from "../../../il/Biz/BizPhraseType";
 import { SqlBuilder } from "../sqlBuilder";
 import { ExpVal } from "./exps";
 
@@ -14,9 +14,24 @@ export class ExpBizEntityBud extends ExpVal {
 
     to(sb: SqlBuilder) {
         switch (this.bizFromEntity.bizPhraseType) {
+            default:
+                this.buildSelectBud(sb);
+                break;
             case BizPhraseType.options:
                 sb.append(this.bud.id);
                 break;
         }
+    }
+
+    private buildSelectBud(sb: SqlBuilder) {
+        const { id, dataType } = this.bud;
+        let budType = budTypes[dataType];
+        if (budType === undefined) {
+            debugger;
+            throw new Error(`unknown bud type ${dataType}`);
+        }
+        sb.append('(SELECT value FROM ');
+        sb.dbName().dot().fld(budType.sysTable);
+        sb.append(` WHERE i=${this.bizFromEntity.alias}.id AND x=${id})`);
     }
 }

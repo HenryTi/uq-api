@@ -11,10 +11,24 @@ class ExpBizEntityBud extends exps_1.ExpVal {
     }
     to(sb) {
         switch (this.bizFromEntity.bizPhraseType) {
+            default:
+                this.buildSelectBud(sb);
+                break;
             case BizPhraseType_1.BizPhraseType.options:
                 sb.append(this.bud.id);
                 break;
         }
+    }
+    buildSelectBud(sb) {
+        const { id, dataType } = this.bud;
+        let budType = BizPhraseType_1.budTypes[dataType];
+        if (budType === undefined) {
+            debugger;
+            throw new Error(`unknown bud type ${dataType}`);
+        }
+        sb.append('(SELECT value FROM ');
+        sb.dbName().dot().fld(budType.sysTable);
+        sb.append(` WHERE i=${this.bizFromEntity.alias}.id AND x=${id})`);
     }
 }
 exports.ExpBizEntityBud = ExpBizEntityBud;

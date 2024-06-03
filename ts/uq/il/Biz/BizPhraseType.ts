@@ -1,3 +1,5 @@
+import { EnumSysTable } from "../EnumSysTable";
+
 export enum BizPhraseType {
     any = 0,
     atom = 11,
@@ -63,3 +65,27 @@ export enum BudDataType {
     arr = 99,
 };
 
+export interface BudType {
+    sysTable: EnumSysTable;
+}
+
+const budTypeInt: BudType = {
+    sysTable: EnumSysTable.ixBudInt,
+}
+const budTypeStr: BudType = {
+    sysTable: EnumSysTable.ixBudStr,
+}
+const budTypeDec: BudType = {
+    sysTable: EnumSysTable.ixBudDec,
+}
+export const budTypes: { [type in BudDataType]?: BudType } = {
+    [BudDataType.int]: budTypeInt,
+    [BudDataType.str]: budTypeStr,
+    [BudDataType.char]: budTypeStr,
+    [BudDataType.dec]: budTypeDec,
+    [BudDataType.date]: budTypeInt,
+    [BudDataType.datetime]: budTypeInt,
+    [BudDataType.atom]: budTypeInt,
+    [BudDataType.ID]: budTypeInt,
+    [BudDataType.radio]: budTypeInt,
+};
