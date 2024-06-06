@@ -10,6 +10,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["bud"] = 13] = "bud";
     BizPhraseType[BizPhraseType["budGroup"] = 14] = "budGroup";
     BizPhraseType[BizPhraseType["duo"] = 15] = "duo";
+    BizPhraseType[BizPhraseType["combo"] = 16] = "combo";
     BizPhraseType[BizPhraseType["card"] = 61] = "card";
     BizPhraseType[BizPhraseType["cardDetail"] = 63] = "cardDetail";
     BizPhraseType[BizPhraseType["cardState"] = 62] = "cardState";

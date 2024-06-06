@@ -7,6 +7,7 @@ export enum BizPhraseType {
     bud = 13,
     budGroup = 14,
     duo = 15,           // 二重奏
+    combo = 16,
 
     card = 61,
     cardDetail = 63,

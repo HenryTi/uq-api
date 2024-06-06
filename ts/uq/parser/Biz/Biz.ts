@@ -3,7 +3,8 @@ import {
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
     , BizSheet, BizOptions, BizSpec
     , BizReport, BizQueryTable, BizAssign, BizConsole, BizDuo, BizIn, BizOut, BizIOApp, BizIOSite,
-    BizFromEntity
+    BizFromEntity,
+    BizCombo
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -21,6 +22,7 @@ export class PBiz extends PEntity<Biz> {
             atom: BizAtom,
             spec: BizSpec,
             duo: BizDuo,
+            combo: BizCombo,
 
             title: BizTitle,
             options: BizOptions,

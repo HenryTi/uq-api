@@ -1,5 +1,5 @@
-import { BBizAtom, BBizSpec, DbContext } from "../../builder";
-import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement, PIDUnique } from "../../parser";
+import { BBizAtom, BBizCombo, BBizSpec, DbContext } from "../../builder";
+import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement, PIDUnique, PBizCombo } from "../../parser";
 import { IElement } from "../IElement";
 import { UI } from "../UI";
 import { IxField } from "./Base";
@@ -167,7 +167,7 @@ export abstract class BizIDWithBase extends BizIDExtendable {
 export class BizSpec extends BizIDWithBase {
     readonly bizPhraseType = BizPhraseType.spec;
     protected readonly fields = ['id'];
-    keys: BizBud[] = [];
+    readonly keys: BizBud[] = [];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizSpec(this, context);
@@ -178,9 +178,8 @@ export class BizSpec extends BizIDWithBase {
         let keys = this.keys.map(v => {
             return v.buildSchema(res);
         });
-        return Object.assign(ret, {
-            keys,
-        });
+        ret.keys = keys;
+        return ret;
     }
 
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
@@ -207,6 +206,52 @@ export class BizSpec extends BizIDWithBase {
 
     db(dbContext: DbContext): BBizSpec {
         return new BBizSpec(dbContext, this);
+    }
+}
+
+export class BizCombo extends BizID {
+    protected readonly fields = ['id'];
+    readonly bizPhraseType = BizPhraseType.combo;
+    readonly keys: BizBud[] = [];
+    readonly indexes: BizBud[][] = [];
+
+    parser(context: PContext): PElement<IElement> {
+        return new PBizCombo(this, context);
+    }
+
+    db(dbContext: DbContext): BBizCombo {
+        return new BBizCombo(dbContext, this);
+    }
+
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        let keys = this.keys.map(v => {
+            return v.buildSchema(res);
+        });
+        ret.keys = keys;
+        return ret;
+    }
+
+    buildPhrases(phrases: [string, string, string, string][], prefix: string) {
+        super.buildPhrases(phrases, prefix);
+        let phrase = this.phrase;
+        for (let key of this.keys) {
+            key.buildPhrases(phrases, phrase)
+        }
+    }
+
+    override forEachBud(callback: (bud: BizBud) => void) {
+        super.forEachBud(callback);
+        for (let key of this.keys) callback(key);
+    }
+
+    override getBud(name: string) {
+        let bud = super.getBud(name);
+        if (bud !== undefined) return bud;
+        for (let kBud of this.keys) {
+            if (kBud.name === name) return kBud;
+        }
+        return;
     }
 }
 

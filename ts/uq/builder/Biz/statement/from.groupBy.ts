@@ -56,11 +56,17 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         varTable.name = pageGroupBy;
         let keys = this.buildTablePageKeys();
         varTable.keys = keys;
+        const ban = tinyIntField('ban');
+        ban.nullable = true;
+        const json = jsonField('json');
+        json.nullable = true;
+        const value = decField('value', 18, 6);
+        value.nullable = true;
         varTable.fields = [
             ...keys,
-            tinyIntField('ban'),
-            jsonField('json'),
-            decField('value', 18, 6),
+            ban,
+            json,
+            value,
         ];
         return varTable;
     }
@@ -162,7 +168,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         let expBId = new ExpField('id', b);
         let expOn: ExpCmp;
         if (this.idsGroupBy.length === 1) {
-            expOn = new ExpEQ(expBId, new ExpField('id', a));
+            expOn = new ExpEQ(expBId, new ExpField('id0', a));
         }
         else {
             let arrExp: ExpVal[] = [expBId, ...this.idsGroupBy.map((v, index) => new ExpField('id' + index, a))];

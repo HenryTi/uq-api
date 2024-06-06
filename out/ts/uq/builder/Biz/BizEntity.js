@@ -64,6 +64,11 @@ class BBizEntity {
             });
         });
     }
+    createTable(tableName) {
+        const table = this.context.createTable(tableName);
+        this.context.coreObjs.tables.push(table);
+        return table;
+    }
     createProcedure(procName) {
         const proc = this.context.createProcedure(procName, true);
         this.context.coreObjs.procedures.push(proc);

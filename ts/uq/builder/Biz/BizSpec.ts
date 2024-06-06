@@ -11,8 +11,18 @@ import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizSpec extends BBizEntity<BizSpec> {
+    override async buildTables(): Promise<void> {
+        /*
+        const { id } = this.bizEntity;
+        let table = this.createTable(`${this.context.site}.${id}`);
+        let idField = bigIntField('id');
+        table.keys = [idField];
+        table.fields = [idField];
+        */
+    }
+
     override async buildProcedures(): Promise<void> {
-        super.buildProcedures
+        super.buildProcedures();
         const { id } = this.bizEntity;
         const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
         this.buildSaveProc(procSave);

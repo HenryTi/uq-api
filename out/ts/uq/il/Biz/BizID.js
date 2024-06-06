@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIDAny = exports.BizSpec = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizID = void 0;
+exports.BizIDAny = exports.BizCombo = exports.BizSpec = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizID = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -170,9 +170,8 @@ class BizSpec extends BizIDWithBase {
         let keys = this.keys.map(v => {
             return v.buildSchema(res);
         });
-        return Object.assign(ret, {
-            keys,
-        });
+        ret.keys = keys;
+        return ret;
     }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
@@ -201,6 +200,52 @@ class BizSpec extends BizIDWithBase {
     }
 }
 exports.BizSpec = BizSpec;
+class BizCombo extends BizID {
+    constructor() {
+        super(...arguments);
+        this.fields = ['id'];
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.combo;
+        this.keys = [];
+        this.indexes = [];
+    }
+    parser(context) {
+        return new parser_1.PBizCombo(this, context);
+    }
+    db(dbContext) {
+        return new builder_1.BBizCombo(dbContext, this);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        let keys = this.keys.map(v => {
+            return v.buildSchema(res);
+        });
+        ret.keys = keys;
+        return ret;
+    }
+    buildPhrases(phrases, prefix) {
+        super.buildPhrases(phrases, prefix);
+        let phrase = this.phrase;
+        for (let key of this.keys) {
+            key.buildPhrases(phrases, phrase);
+        }
+    }
+    forEachBud(callback) {
+        super.forEachBud(callback);
+        for (let key of this.keys)
+            callback(key);
+    }
+    getBud(name) {
+        let bud = super.getBud(name);
+        if (bud !== undefined)
+            return bud;
+        for (let kBud of this.keys) {
+            if (kBud.name === name)
+                return kBud;
+        }
+        return;
+    }
+}
+exports.BizCombo = BizCombo;
 class BizIDAny extends BizID {
     constructor() {
         super(...arguments);

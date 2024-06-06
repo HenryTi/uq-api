@@ -56,6 +56,12 @@ export class BBizEntity<B extends BizEntity = any> {
         return sql;
     }
 
+    protected createTable(tableName: string) {
+        const table = this.context.createTable(tableName);
+        this.context.coreObjs.tables.push(table);
+        return table;
+    }
+
     protected createProcedure(procName: string) {
         const proc = this.context.createProcedure(procName, true);
         this.context.coreObjs.procedures.push(proc);

@@ -1,6 +1,7 @@
 import {
     BizAtom, BizIDExtendable, BizIDAny, BizIDWithBase, BizSpec
-    , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity
+    , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity,
+    BizCombo
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -48,6 +49,37 @@ export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
         else {
             this.parsePrimeBuds();
         }
+    }
+
+    protected parseKeyBuds() {
+        let keys: BizBud[] = [];
+        const parseKey = () => {
+            this.ts.assertToken(Token.VAR);
+            let name = this.ts.lowerVar;
+            this.ts.readToken();
+            let ui = this.parseUI();
+            let bizBud = this.parseBud(name, ui);
+            const { name: budName } = bizBud;
+            if (keys.findIndex(v => v.name === budName) >= 0) {
+                this.ts.expect(`duplicate ${budName}`);
+            }
+            keys.push(bizBud);
+            this.ts.passToken(Token.SEMICOLON);
+        }
+        if (this.ts.token === Token.LBRACE) {
+            this.ts.readToken();
+            for (; ;) {
+                parseKey();
+                if (this.ts.token === Token.RBRACE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+        }
+        else {
+            parseKey();
+        }
+        return keys;
     }
 
     private scanBudNameArr(nameArr: string[]): BizBud[] {
@@ -474,33 +506,7 @@ abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<
 
 export class PBizSpec extends PBizIDWithBase<BizSpec> {
     private parseKey = () => {
-        const parseKey = () => {
-            this.ts.assertToken(Token.VAR);
-            let name = this.ts.lowerVar;
-            this.ts.readToken();
-            let ui = this.parseUI();
-            let bizBud = this.parseBud(name, ui);
-            const { name: budName } = bizBud;
-            let { keys } = this.element;
-            if (keys.findIndex(v => v.name === budName) >= 0) {
-                this.ts.expect(`duplicate ${budName}`);
-            }
-            keys.push(bizBud);
-            this.ts.passToken(Token.SEMICOLON);
-        }
-        if (this.ts.token === Token.LBRACE) {
-            this.ts.readToken();
-            for (; ;) {
-                parseKey();
-                if (this.ts.token === Token.RBRACE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-            }
-        }
-        else {
-            parseKey();
-        }
+        this.element.keys.push(...this.parseKeyBuds());
     }
 
     readonly keyColl = {
@@ -533,6 +539,74 @@ export class PBizSpec extends PBizIDWithBase<BizSpec> {
 
         for (let key of keys) {
             if (this.scanBud(space, key) === false) ok = false;
+        }
+        return ok;
+    }
+}
+
+export class PBizCombo extends PBizID<BizCombo> {
+    private readonly indexes: string[][] = [];
+
+    private parseKey = () => {
+        this.element.keys.push(...this.parseKeyBuds());
+    }
+
+    private parseIndex = () => {
+        let index: string[] = [];
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (; ;) {
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                index.push(this.ts.passVar());
+                if (this.ts.token === Token.COMMA as any) {
+                    this.ts.readToken();
+                    continue;
+                }
+                this.ts.expectToken(Token.COMMA);
+            }
+        }
+        else {
+            index.push(this.ts.passVar());
+        }
+        this.indexes.push(index);
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
+    protected readonly keyColl = {
+        prop: this.parseProp,
+        key: this.parseKey,
+        index: this.parseIndex,
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        if (super.scan(space) === false) ok = false;
+        const { keys } = this.element;
+        if (keys.length === 0) {
+            this.log('COMBO must define KEY');
+            ok = false;
+        }
+
+        for (let key of keys) {
+            if (this.scanBud(space, key) === false) ok = false;
+        }
+
+        for (let index of this.indexes) {
+            let indexBuds: BizBud[] = [];
+            for (let k of index) {
+                let kBud = keys.find(v => v.name === k);
+                if (kBud === undefined) {
+                    this.log(`${k} is not a key`);
+                    ok = false;
+                }
+                else {
+                    indexBuds.push(kBud);
+                }
+            }
+            this.element.indexes.push(indexBuds);
         }
         return ok;
     }

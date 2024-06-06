@@ -152,6 +152,18 @@ class UqBuilder {
             };
             const { newest } = this.compiler;
             for (let bizEntity of newest) {
+                try {
+                    let builder = bizEntity.db(context);
+                    if (builder === undefined)
+                        continue;
+                    yield builder.buildTables();
+                }
+                catch (e) {
+                    console.error(e);
+                    debugger;
+                }
+            }
+            for (let bizEntity of newest) {
                 console.log(bizEntity.name, bizEntity);
                 try {
                     let builder = bizEntity.db(context);

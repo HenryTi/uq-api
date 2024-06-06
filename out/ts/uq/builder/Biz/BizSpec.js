@@ -16,12 +16,23 @@ const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 class BBizSpec extends BizEntity_1.BBizEntity {
+    buildTables() {
+        return __awaiter(this, void 0, void 0, function* () {
+            /*
+            const { id } = this.bizEntity;
+            let table = this.createTable(`${this.context.site}.${id}`);
+            let idField = bigIntField('id');
+            table.keys = [idField];
+            table.fields = [idField];
+            */
+        });
+    }
     buildProcedures() {
         const _super = Object.create(null, {
             buildProcedures: { get: () => super.buildProcedures }
         });
         return __awaiter(this, void 0, void 0, function* () {
-            _super.buildProcedures;
+            _super.buildProcedures.call(this);
             const { id } = this.bizEntity;
             const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
             this.buildSaveProc(procSave);
