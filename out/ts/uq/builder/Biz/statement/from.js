@@ -88,7 +88,28 @@ class BFromStatement extends bstatement_1.BStatement {
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), alias);
     }
     buildSelectFrom(select, fromEntity) {
-        const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
+        const { bizEntityArr, bizPhraseType, ofIXs, ofOn, alias, subs } = fromEntity;
+        function eqOrIn(expField) {
+            if (bizEntityArr.length === 1) {
+                return new sql_1.ExpEQ(expField, new sql_1.ExpNum(bizEntityArr[0].id));
+            }
+            else {
+                return new sql_1.ExpIn(expField, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
+            }
+        }
+        switch (bizPhraseType) {
+            default:
+                debugger;
+                break;
+            case BizPhraseType_1.BizPhraseType.atom:
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, '$bzp'))
+                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', '$bzp'), new sql_1.ExpField('base', alias)), eqOrIn(new sql_1.ExpField('id', '$bzp'))));
+                break;
+            case BizPhraseType_1.BizPhraseType.spec:
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, '$bzp'))
+                    .on(eqOrIn(new sql_1.ExpField('ext', '$bzp')));
+                break;
+        }
         let expPrev = new sql_1.ExpField('id', alias);
         if (ofIXs !== undefined) {
             let len = ofIXs.length;

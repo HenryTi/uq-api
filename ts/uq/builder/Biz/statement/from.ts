@@ -7,7 +7,7 @@ import {
 import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
-import { BudDataType } from "../../../il/Biz/BizPhraseType";
+import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
 
 const a = 'a', b = 'b';
 export type BudsValue = { buds: BizBud[]; value: ExpVal; };
@@ -127,7 +127,32 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
     }
 
     protected buildSelectFrom(select: Select, fromEntity: FromEntity) {
-        const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
+        const { bizEntityArr, bizPhraseType, ofIXs, ofOn, alias, subs } = fromEntity;
+        function eqOrIn(expField: ExpField) {
+            if (bizEntityArr.length === 1) {
+                return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
+            }
+            else {
+                return new ExpIn(expField, ...bizEntityArr.map(v => new ExpNum(v.id)));
+            }
+        }
+        switch (bizPhraseType) {
+            default: debugger; break;
+            case BizPhraseType.atom:
+                select.join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, '$bzp'))
+                    .on(
+                        new ExpAnd(
+                            new ExpEQ(new ExpField('id', '$bzp'), new ExpField('base', alias)),
+                            eqOrIn(new ExpField('id', '$bzp'))
+                        )
+                    );
+                break;
+            case BizPhraseType.spec:
+                select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, '$bzp'))
+                    .on(eqOrIn(new ExpField('ext', '$bzp')))
+                break;
+        }
+
         let expPrev = new ExpField('id', alias);
         if (ofIXs !== undefined) {
             let len = ofIXs.length;
