@@ -18,15 +18,17 @@ export interface BizExpIn {
 }
 
 export enum BizExpParamType {
+    none,
     scalar,
-    dou,
+    duo,
+    multi,
     spec,
     ix,
 }
 export class BizExpParam extends IElement {
     type = 'BizExpParam';
-    param: ValueExpression;
-    param2: ValueExpression;
+    readonly params: ValueExpression[] = [];
+    // param2: ValueExpression;
     paramType: BizExpParamType;
     ixs: BizTie[];
 

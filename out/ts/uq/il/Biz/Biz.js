@@ -157,6 +157,9 @@ class Biz extends entity_1.Entity {
                 case BizPhraseType_1.BizPhraseType.pend:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.pend;
                     break;
+                case BizPhraseType_1.BizPhraseType.combo:
+                    bizEntityTable = undefined;
+                    break;
             }
         }
         return {

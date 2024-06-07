@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizFromEntity = exports.BizEntity = exports.BudIndex = void 0;
 const EnumSysTable_1 = require("../EnumSysTable");
-const datatype_1 = require("../datatype");
-const field_1 = require("../field");
 const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Bud_1 = require("./Bud");
@@ -124,32 +122,24 @@ class BizEntity extends Base_1.BizBase {
         ;
         return ret.getBizBase(bizName);
     }
-    buildField(bud) {
+    /*
+    protected buildField(bud: BizBudValue): Field {
         let { name, dataType } = bud;
-        let field = new field_1.Field();
+        let field = new Field();
         field.name = name;
-        let fieldDataType;
+        let fieldDataType: DataType;
         switch (dataType) {
-            default:
-                debugger;
-                throw new Error(`unknown BizBud ${dataType}`);
-            case BizPhraseType_1.BudDataType.int:
-            case BizPhraseType_1.BudDataType.ID:
-                fieldDataType = new datatype_1.BigInt();
-                break;
-            case BizPhraseType_1.BudDataType.date:
-                fieldDataType = new datatype_1.DDate();
-                break;
-            case BizPhraseType_1.BudDataType.dec:
-                fieldDataType = new datatype_1.Dec(20, 6);
-                break;
-            case BizPhraseType_1.BudDataType.char:
-                fieldDataType = new datatype_1.Char(50);
-                break;
+            default: debugger; throw new Error(`unknown BizBud ${dataType}`);
+            case BudDataType.int:
+            case BudDataType.ID: fieldDataType = new BigInt(); break;
+            case BudDataType.date: fieldDataType = new DDate(); break;
+            case BudDataType.dec: fieldDataType = new Dec(20, 6); break;
+            case BudDataType.char: fieldDataType = new Char(50); break;
         }
         field.dataType = fieldDataType;
         return field;
     }
+    */
     ixFieldSchema(tieField) {
         const { caption, atoms } = tieField;
         let ret = {

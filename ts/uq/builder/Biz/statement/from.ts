@@ -4,7 +4,7 @@ import {
     ExpLT, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Select,
     Statement
 } from "../../sql";
-import { EntityTable, VarTable } from "../../sql/statementWithFrom";
+import { EntityTable, GlobalTable, VarTable } from "../../sql/statementWithFrom";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
 import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
@@ -54,31 +54,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         return new ExpField('id', t1);
     }
 
-    protected abstract buildFromMain(cmpPage: ExpCmp): Statement[]; /* {
-        const { factory } = this.context;
-        const { intoTables } = this.istatement;
-        let select = this.buildFromSelectAtom(cmpPage);
-        let insert = factory.createInsert();
-        insert.select = select;
-        insert.table = new VarTable(intoTables.ret);
-        insert.cols = [
-            { col: 'id', val: undefined },
-            { col: 'ban', val: undefined },
-            { col: 'json', val: undefined },
-            { col: 'value', val: undefined },
-        ];
-        return [insert];
-    }
-
-    private buildFromSelectAtom(cmpPage: ExpCmp): Select {
-        let select = this.buildSelect(cmpPage);
-        select.column(new ExpField('id', this.idFromEntity.alias), 'id');
-        this.buildSelectBan(select);
-        this.buildSelectCols(select, 'json');
-        this.buildSelectVallue(select);
-        return select;
-    }
-    */
+    protected abstract buildFromMain(cmpPage: ExpCmp): Statement[];
 
     protected buildSelectBan(select: Select) {
         const { ban } = this.istatement;
@@ -136,20 +112,23 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
                 return new ExpIn(expField, ...bizEntityArr.map(v => new ExpNum(v.id)));
             }
         }
+        const $bzp = `${alias}$bzp`;
         switch (bizPhraseType) {
             default: debugger; break;
             case BizPhraseType.atom:
-                select.join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, '$bzp'))
+                select.join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, $bzp))
                     .on(
                         new ExpAnd(
-                            new ExpEQ(new ExpField('id', '$bzp'), new ExpField('base', alias)),
-                            eqOrIn(new ExpField('id', '$bzp'))
+                            new ExpEQ(new ExpField('id', $bzp), new ExpField('base', alias)),
+                            eqOrIn(new ExpField('id', $bzp))
                         )
                     );
                 break;
             case BizPhraseType.spec:
-                select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, '$bzp'))
-                    .on(eqOrIn(new ExpField('ext', '$bzp')))
+                select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, $bzp))
+                    .on(eqOrIn(new ExpField('ext', $bzp)))
+                break;
+            case BizPhraseType.combo:
                 break;
         }
 
@@ -188,23 +167,36 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         if (subs !== undefined) {
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
-                const { bizEntityTable, alias: subAlias } = subFromEntity;
+                const { alias: subAlias } = subFromEntity;
+                const entityTable = this.buildEntityTable(subFromEntity);
                 if (isSpecBase === true) {
                     let budAlias = subAlias + '$bud';
                     select
                         .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
                         .on(new ExpEQ(new ExpField('id', budAlias), new ExpField(field, alias)))
-                        .join(JoinType.join, new EntityTable(bizEntityTable, false, subAlias))
+                        .join(JoinType.join, entityTable)
                         .on(new ExpEQ(new ExpField('id', subAlias), new ExpField('base', budAlias)));
 
                 }
                 else {
                     select
-                        .join(JoinType.join, new EntityTable(bizEntityTable, false, subAlias))
+                        .join(JoinType.join, entityTable)
                         .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, alias)));
                 }
                 this.buildSelectFrom(select, subFromEntity);
             }
+        }
+    }
+
+    protected buildEntityTable(fromEntity: FromEntity) {
+        const { bizEntityArr, bizEntityTable, alias: t0 } = fromEntity;
+        if (bizEntityTable !== undefined) {
+            let ret = new EntityTable(bizEntityTable, false, t0);
+            return ret;
+        }
+        else {
+            let ret = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+            return ret;
         }
     }
 

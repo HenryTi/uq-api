@@ -53,7 +53,7 @@ export class BBudSelect {
         const t = this.bBizExp.tt, c = this.bBizExp.tb;
         select.from(new EntityTable(tblIxBud, false, t));
         select.where(new ExpAnd(
-            new ExpEQ(new ExpField('i', t), this.bBizExp.param),
+            new ExpEQ(new ExpField('i', t), this.bBizExp.params[0]),
             new ExpEQ(new ExpField('x', t), new ExpNum(bud.id)),
         ));
         select.column(new ExpField('value', t));
@@ -66,12 +66,12 @@ export class BBudSelect {
         select.column(new ExpField('ext', c), 'id');
         select.where(new ExpAnd(
             new ExpEQ(new ExpField('base', c), new ExpNum(bud.id)),
-            new ExpEQ(new ExpField('i', t), this.bBizExp.param)
+            new ExpEQ(new ExpField('i', t), this.bBizExp.params[0])
         ));
     }
 
     private buildSelectField(bud: string) {
-        const { bizExp, param } = this.bBizExp;
+        const { bizExp, params } = this.bBizExp;
         const { bizEntity } = bizExp;
         const { factory } = this.context;
         let select = factory.createSelect();
@@ -84,7 +84,7 @@ export class BBudSelect {
         }
         select.from(new EntityTable(tbl, false));
         select.where(new ExpAnd(
-            new ExpEQ(new ExpField('id'), param),
+            new ExpEQ(new ExpField('id'), params[0]),
             new ExpEQ(new ExpField('base'), new ExpNum(bizEntity.id)),
         ));
         return new ExpSelect(select);

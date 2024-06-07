@@ -42,7 +42,7 @@ class BBudSelect {
     selectValue(select, tblIxBud, bud) {
         const t = this.bBizExp.tt, c = this.bBizExp.tb;
         select.from(new statementWithFrom_1.EntityTable(tblIxBud, false, t));
-        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('i', t), this.bBizExp.param), new exp_1.ExpEQ(new exp_1.ExpField('x', t), new exp_1.ExpNum(bud.id))));
+        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('i', t), this.bBizExp.params[0]), new exp_1.ExpEQ(new exp_1.ExpField('x', t), new exp_1.ExpNum(bud.id))));
         select.column(new exp_1.ExpField('value', t));
     }
     selectCheck(select, tblIxBud, bud) {
@@ -51,10 +51,10 @@ class BBudSelect {
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, c))
             .on(new exp_1.ExpEQ(new exp_1.ExpField('id', c), new exp_1.ExpField('x', t)));
         select.column(new exp_1.ExpField('ext', c), 'id');
-        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('base', c), new exp_1.ExpNum(bud.id)), new exp_1.ExpEQ(new exp_1.ExpField('i', t), this.bBizExp.param)));
+        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('base', c), new exp_1.ExpNum(bud.id)), new exp_1.ExpEQ(new exp_1.ExpField('i', t), this.bBizExp.params[0])));
     }
     buildSelectField(bud) {
-        const { bizExp, param } = this.bBizExp;
+        const { bizExp, params } = this.bBizExp;
         const { bizEntity } = bizExp;
         const { factory } = this.context;
         let select = factory.createSelect();
@@ -72,7 +72,7 @@ class BBudSelect {
                 break;
         }
         select.from(new statementWithFrom_1.EntityTable(tbl, false));
-        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('id'), param), new exp_1.ExpEQ(new exp_1.ExpField('base'), new exp_1.ExpNum(bizEntity.id))));
+        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('id'), params[0]), new exp_1.ExpEQ(new exp_1.ExpField('base'), new exp_1.ExpNum(bizEntity.id))));
         return new exp_1.ExpSelect(select);
     }
 }

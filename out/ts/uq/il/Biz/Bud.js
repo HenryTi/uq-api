@@ -5,6 +5,8 @@ const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
 const BizPhraseType_1 = require("./BizPhraseType");
+const datatype_1 = require("../datatype");
+const field_1 = require("../field");
 var BudValueSetType;
 (function (BudValueSetType) {
     BudValueSetType[BudValueSetType["equ"] = 1] = "equ";
@@ -53,6 +55,14 @@ class BizBud extends Base_1.BizBase {
     }
     get theEntity() {
         return this.entity;
+    }
+    createDataType() { return new datatype_1.BigInt(); }
+    createField() {
+        let ret = new field_1.Field();
+        ret.name = this.name;
+        ret.dataType = this.createDataType();
+        ret.nullable = true;
+        return ret;
     }
 }
 exports.BizBud = BizBud;
@@ -106,6 +116,7 @@ class BizBudArr extends BizBudValue {
         }
         return ret;
     }
+    createDataType() { return new datatype_1.JsonDataType(); }
 }
 exports.BizBudArr = BizBudArr;
 class BizUser extends BizBud {
@@ -205,6 +216,7 @@ class BizBudDec extends BizBudValueWithRange {
     parser(context) {
         return new parser_1.PBizBudDec(this, context);
     }
+    createDataType() { return new datatype_1.Dec(18, 6); }
 }
 exports.BizBudDec = BizBudDec;
 class BinValue extends BizBudDec {
@@ -241,6 +253,7 @@ class BizBudChar extends BizBudValueWithRange {
         let ret = super.buildSchema(res);
         return ret;
     }
+    createDataType() { return new datatype_1.Char(200); }
 }
 exports.BizBudChar = BizBudChar;
 class BizBudDate extends BizBudValueWithRange {

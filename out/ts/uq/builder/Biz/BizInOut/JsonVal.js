@@ -87,6 +87,8 @@ class JsonVal {
                     field = (0, il_1.charField)(name, 400);
                     break;
             }
+            // json 的字段数据类型好像有所不同
+            // let field = bud.createField();
             let ret = {
                 field,
                 path: `$."${name}"`,

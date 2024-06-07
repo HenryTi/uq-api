@@ -99,12 +99,14 @@ class Table {
 exports.Table = Table;
 class TableUpdater {
     constructor(context, runner, table) {
+        var _a;
         this.context = context;
         this.runner = runner;
         this.table = table;
         // 原来的 ID IX 只有 const 才能有初始值。现在都可以定义初值。
         // const 有 $valid 字段，为了在生成存储过程的时候区别，在这里取值
         this.field$valid = table.fields.find(v => (v === null || v === void 0 ? void 0 : v.name) === '$valid');
+        this.dbName = (_a = table.dbName) !== null && _a !== void 0 ? _a : this.context.dbName;
     }
     updateDb(options) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -300,7 +302,6 @@ class TableUpdater {
                 return undefined;
             }
             catch (err) {
-                tool_1.getErrorString;
                 let msg = '表[' + tblName + ']update时出错: ' + (0, tool_1.getErrorString)(err);
                 // this.context.log(msg);
                 debugger;

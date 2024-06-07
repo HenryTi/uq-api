@@ -69,13 +69,13 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     buildFromSelectPage(cmpPage) {
         const { factory } = this.context;
         const { where, fromEntity } = this.istatement;
-        const { bizEntityTable, alias: t0 } = fromEntity;
         const select = factory.createSelect();
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
         this.buildSelectIds(select, 'json');
         this.buildSelectVallueSum(select);
-        select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t0));
+        let entityTable = this.buildEntityTable(fromEntity);
+        select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
         let wheres = [
             cmpPage,
@@ -187,7 +187,6 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let memo = factory.createMemo();
         memo.text = 'insert spec';
         const { fromEntity, intoTables, where } = this.istatement;
-        const { bizEntityTable, alias: t0 } = fromEntity;
         let insertSpec = factory.createInsert();
         insertSpec.ignore = true;
         insertSpec.table = new statementWithFrom_1.VarTable('specs');
@@ -201,7 +200,8 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let select = factory.createSelect();
         insertSpec.select = select;
         select.distinct = true;
-        select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t0));
+        const entityTable = this.buildEntityTable(fromEntity);
+        select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
         select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable(intoTables.ret, '$ret'))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', '$ret'), new sql_1.ExpField('id', this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity.alias)));

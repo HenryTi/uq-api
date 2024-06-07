@@ -110,6 +110,7 @@ export abstract class TableUpdater {
     protected runner: EntityRunner;
     protected table: Table;
     protected field$valid: Field;
+    protected dbName: string;
     constructor(context: DbContext, runner: EntityRunner, table: Table) {
         this.context = context;
         this.runner = runner;
@@ -117,6 +118,7 @@ export abstract class TableUpdater {
         // 原来的 ID IX 只有 const 才能有初始值。现在都可以定义初值。
         // const 有 $valid 字段，为了在生成存储过程的时候区别，在这里取值
         this.field$valid = table.fields.find(v => v?.name === '$valid');
+        this.dbName = table.dbName ?? this.context.dbName;
     }
 
     async updateDb(options: CompileOptions): Promise<string> {
@@ -315,7 +317,6 @@ export abstract class TableUpdater {
             return undefined;
         }
         catch (err) {
-            getErrorString
             let msg = '表[' + tblName + ']update时出错: ' + getErrorString(err);
             // this.context.log(msg);
             debugger;

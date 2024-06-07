@@ -97,17 +97,20 @@ class BFromStatement extends bstatement_1.BStatement {
                 return new sql_1.ExpIn(expField, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
             }
         }
+        const $bzp = `${alias}$bzp`;
         switch (bizPhraseType) {
             default:
                 debugger;
                 break;
             case BizPhraseType_1.BizPhraseType.atom:
-                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, '$bzp'))
-                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', '$bzp'), new sql_1.ExpField('base', alias)), eqOrIn(new sql_1.ExpField('id', '$bzp'))));
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, $bzp))
+                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', $bzp), new sql_1.ExpField('base', alias)), eqOrIn(new sql_1.ExpField('id', $bzp))));
                 break;
             case BizPhraseType_1.BizPhraseType.spec:
-                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, '$bzp'))
-                    .on(eqOrIn(new sql_1.ExpField('ext', '$bzp')));
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, $bzp))
+                    .on(eqOrIn(new sql_1.ExpField('ext', $bzp)));
+                break;
+            case BizPhraseType_1.BizPhraseType.combo:
                 break;
         }
         let expPrev = new sql_1.ExpField('id', alias);
@@ -140,22 +143,34 @@ class BFromStatement extends bstatement_1.BStatement {
         if (subs !== undefined) {
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
-                const { bizEntityTable, alias: subAlias } = subFromEntity;
+                const { alias: subAlias } = subFromEntity;
+                const entityTable = this.buildEntityTable(subFromEntity);
                 if (isSpecBase === true) {
                     let budAlias = subAlias + '$bud';
                     select
                         .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
                         .on(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField(field, alias)))
-                        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(bizEntityTable, false, subAlias))
+                        .join(il_1.JoinType.join, entityTable)
                         .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('base', budAlias)));
                 }
                 else {
                     select
-                        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(bizEntityTable, false, subAlias))
+                        .join(il_1.JoinType.join, entityTable)
                         .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, alias)));
                 }
                 this.buildSelectFrom(select, subFromEntity);
             }
+        }
+    }
+    buildEntityTable(fromEntity) {
+        const { bizEntityArr, bizEntityTable, alias: t0 } = fromEntity;
+        if (bizEntityTable !== undefined) {
+            let ret = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);
+            return ret;
+        }
+        else {
+            let ret = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+            return ret;
         }
     }
     buildSelect(cmpPage) {

@@ -166,6 +166,8 @@ export class Biz extends Entity {
                     bizEntityTable = EnumSysTable.sheet; break;
                 case BizPhraseType.pend:
                     bizEntityTable = EnumSysTable.pend; break;
+                case BizPhraseType.combo:
+                    bizEntityTable = undefined; break;
             }
         }
         return {

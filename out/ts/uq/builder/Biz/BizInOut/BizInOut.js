@@ -57,7 +57,7 @@ class BBizIn extends BBizInOut {
         for (let [name, bud] of props) {
             const { dataType } = bud;
             if (dataType !== BizPhraseType_1.BudDataType.arr) {
-                vars.push(this.fieldFromBud(bud));
+                vars.push(bud.createField());
                 let set = factory.createSet();
                 statements.push(set);
                 let expVal = new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`));
@@ -95,13 +95,14 @@ class BBizIn extends BBizInOut {
                 selectJsonArr.from(jsonTable);
                 selectJsonArr.lock = select_1.LockType.none;
                 for (let [name, bud] of arrProps) {
-                    let field = this.fieldFromBud(bud);
+                    let field = bud.createField(); // this.fieldFromBud(bud);
                     vars.push(field);
                     field.nullable = true;
                     fields.push(field);
                     cols.push({ col: name, val: new sql_1.ExpField(name, 'a') });
                     selectJsonArr.column(new sql_1.ExpField(name, 'a'));
-                    jsonColumns.push({ field: this.fieldFromBud(bud), path: `$."${name}"` });
+                    //jsonColumns.push({ field: this.fieldFromBud(bud), path: `$."${name}"` });
+                    jsonColumns.push({ field, path: `$."${name}"` });
                 }
             }
         }
@@ -113,20 +114,19 @@ class BBizIn extends BBizInOut {
         sqls.foot(actStatements);
         this.buildDone(statements);
     }
-    fieldFromBud(bud) {
+    /*
+    private fieldFromBud(bud: BizBud) {
         const { name } = bud;
         switch (bud.dataType) {
-            default:
-                debugger;
-                return;
-            case BizPhraseType_1.BudDataType.ID:
-            case BizPhraseType_1.BudDataType.int: return (0, il_1.bigIntField)(name);
-            case BizPhraseType_1.BudDataType.char: return (0, il_1.charField)(name, 200);
-            case BizPhraseType_1.BudDataType.dec: return (0, il_1.decField)(name, 18, 6);
-            // case BudDataType.date: return dateField(name);
-            case BizPhraseType_1.BudDataType.date: return (0, il_1.bigIntField)(name);
+            default: debugger; return;
+            case BudDataType.ID:
+            case BudDataType.int: return bigIntField(name);
+            case BudDataType.char: return charField(name, 200);
+            case BudDataType.dec: return decField(name, 18, 6);
+            case BudDataType.date: return bigIntField(name);
         }
     }
+    */
     buildDone(statements) {
         const { factory } = this.context;
         const updateQueue = factory.createUpdate();

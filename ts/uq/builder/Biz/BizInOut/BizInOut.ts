@@ -64,7 +64,7 @@ export class BBizIn extends BBizInOut<BizIn> {
         for (let [name, bud] of props) {
             const { dataType } = bud;
             if (dataType !== BudDataType.arr) {
-                vars.push(this.fieldFromBud(bud));
+                vars.push(bud.createField());
                 let set = factory.createSet();
                 statements.push(set);
                 let expVal: ExpVal = new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`));
@@ -102,13 +102,14 @@ export class BBizIn extends BBizInOut<BizIn> {
                 selectJsonArr.from(jsonTable);
                 selectJsonArr.lock = LockType.none;
                 for (let [name, bud] of arrProps) {
-                    let field = this.fieldFromBud(bud);
+                    let field = bud.createField(); // this.fieldFromBud(bud);
                     vars.push(field);
                     field.nullable = true;
                     fields.push(field);
                     cols.push({ col: name, val: new ExpField(name, 'a') });
                     selectJsonArr.column(new ExpField(name, 'a'));
-                    jsonColumns.push({ field: this.fieldFromBud(bud), path: `$."${name}"` });
+                    //jsonColumns.push({ field: this.fieldFromBud(bud), path: `$."${name}"` });
+                    jsonColumns.push({ field, path: `$."${name}"` });
                 }
             }
         }
@@ -123,6 +124,7 @@ export class BBizIn extends BBizInOut<BizIn> {
         this.buildDone(statements);
     }
 
+    /*
     private fieldFromBud(bud: BizBud) {
         const { name } = bud;
         switch (bud.dataType) {
@@ -131,11 +133,10 @@ export class BBizIn extends BBizInOut<BizIn> {
             case BudDataType.int: return bigIntField(name);
             case BudDataType.char: return charField(name, 200);
             case BudDataType.dec: return decField(name, 18, 6);
-            // case BudDataType.date: return dateField(name);
             case BudDataType.date: return bigIntField(name);
         }
     }
-
+    */
     private buildDone(statements: Statement[]) {
         const { factory } = this.context;
         const updateQueue = factory.createUpdate();

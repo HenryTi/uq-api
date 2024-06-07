@@ -147,7 +147,7 @@ export abstract class BizEntity extends BizBase {
         };
         return ret.getBizBase(bizName);
     }
-
+    /*
     protected buildField(bud: BizBudValue): Field {
         let { name, dataType } = bud;
         let field = new Field();
@@ -164,6 +164,7 @@ export abstract class BizEntity extends BizBase {
         field.dataType = fieldDataType;
         return field;
     }
+    */
 
     protected ixFieldSchema(tieField: IxField) {
         const { caption, atoms } = tieField;

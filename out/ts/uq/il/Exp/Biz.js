@@ -6,15 +6,18 @@ const IElement_1 = require("../IElement");
 const Op_1 = require("./Op");
 var BizExpParamType;
 (function (BizExpParamType) {
-    BizExpParamType[BizExpParamType["scalar"] = 0] = "scalar";
-    BizExpParamType[BizExpParamType["dou"] = 1] = "dou";
-    BizExpParamType[BizExpParamType["spec"] = 2] = "spec";
-    BizExpParamType[BizExpParamType["ix"] = 3] = "ix";
+    BizExpParamType[BizExpParamType["none"] = 0] = "none";
+    BizExpParamType[BizExpParamType["scalar"] = 1] = "scalar";
+    BizExpParamType[BizExpParamType["duo"] = 2] = "duo";
+    BizExpParamType[BizExpParamType["multi"] = 3] = "multi";
+    BizExpParamType[BizExpParamType["spec"] = 4] = "spec";
+    BizExpParamType[BizExpParamType["ix"] = 5] = "ix";
 })(BizExpParamType || (exports.BizExpParamType = BizExpParamType = {}));
 class BizExpParam extends IElement_1.IElement {
     constructor() {
         super(...arguments);
         this.type = 'BizExpParam';
+        this.params = [];
     }
     parser(context) {
         return new parser_1.PBizExpParam(this, context);

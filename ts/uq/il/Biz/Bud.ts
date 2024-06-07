@@ -13,6 +13,8 @@ import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
 import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
+import { BigInt, Char, DataType, Dec, JsonDataType } from "../datatype";
+import { Field } from "../field";
 
 export enum BudValueSetType {
     equ = 1,            // 设置不可修改. 这是默认
@@ -78,6 +80,14 @@ export abstract class BizBud extends BizBase {
     override get theEntity(): BizEntity {
         return this.entity;
     }
+    createDataType(): DataType { return new BigInt(); }
+    createField(): Field {
+        let ret = new Field();
+        ret.name = this.name;
+        ret.dataType = this.createDataType();
+        ret.nullable = true;
+        return ret;
+    }
 }
 
 export enum SetType {
@@ -129,6 +139,7 @@ export class BizBudArr extends BizBudValue {
         }
         return ret;
     }
+    createDataType(): DataType { return new JsonDataType(); }
 }
 
 export class BizUser extends BizBud {
@@ -216,6 +227,7 @@ export class BizBudDec extends BizBudValueWithRange {
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDec(this, context);
     }
+    createDataType(): DataType { return new Dec(18, 6); }
 }
 
 export class BinValue extends BizBudDec {
@@ -246,6 +258,7 @@ export class BizBudChar extends BizBudValueWithRange {
         let ret = super.buildSchema(res);
         return ret;
     }
+    createDataType(): DataType { return new Char(200); }
 }
 
 export class BizBudDate extends BizBudValueWithRange {

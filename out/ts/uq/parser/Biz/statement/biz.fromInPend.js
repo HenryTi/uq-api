@@ -41,17 +41,6 @@ class PFromStatementInPend extends biz_from_1.PFromStatement {
         fromEntity.bizEntityArr.push(bizPend);
         fromEntity.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
         fromEntity.bizEntityTable = il_1.EnumSysTable.pend;
-        // fromEntity.alias = 't1';
-        /*
-        let fe = space.getBizEntityArr(undefined);
-        if (fe.bizEntityArr.length > 0) debugger;
-        Object.assign(fromEntity, fe);
-        */
-        /*
-        fromEntity.bizEntityArr = space.getBizEntityArr(undefined);
-        fromEntity.bizPhraseType = BizPhraseType.pend;
-        fromEntity.bizEntityTable = EnumSysTable.pend;
-        */
         return true;
     }
 }

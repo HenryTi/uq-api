@@ -22,6 +22,7 @@ var EnumSysTable;
     EnumSysTable["spec"] = "spec";
     EnumSysTable["bud"] = "bud";
     EnumSysTable["duo"] = "duo";
+    EnumSysTable["combo"] = "combo";
     EnumSysTable["ixBud"] = "ixbud";
     EnumSysTable["ixBudDec"] = "ixbuddec";
     EnumSysTable["ixBudInt"] = "ixbudint";

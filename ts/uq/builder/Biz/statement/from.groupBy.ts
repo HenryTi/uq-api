@@ -78,13 +78,13 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     private buildFromSelectPage(cmpPage: ExpCmp): Select {
         const { factory } = this.context;
         const { where, fromEntity } = this.istatement;
-        const { bizEntityTable, alias: t0 } = fromEntity;
         const select = factory.createSelect();
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
         this.buildSelectIds(select, 'json');
         this.buildSelectVallueSum(select);
-        select.from(new EntityTable(bizEntityTable, false, t0));
+        let entityTable = this.buildEntityTable(fromEntity);
+        select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
         let wheres: ExpCmp[] = [
             cmpPage,
@@ -206,7 +206,6 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let memo = factory.createMemo();
         memo.text = 'insert spec';
         const { fromEntity, intoTables, where } = this.istatement;
-        const { bizEntityTable, alias: t0 } = fromEntity;
         let insertSpec = factory.createInsert();
         insertSpec.ignore = true;
         insertSpec.table = new VarTable('specs');
@@ -220,7 +219,8 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let select = factory.createSelect();
         insertSpec.select = select;
         select.distinct = true;
-        select.from(new EntityTable(bizEntityTable, false, t0));
+        const entityTable = this.buildEntityTable(fromEntity);
+        select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
         select.join(JoinType.join, new VarTable(intoTables.ret, '$ret'))
             .on(new ExpEQ(new ExpField('id', '$ret'), new ExpField('id', this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity.alias)));

@@ -39,6 +39,9 @@ class BBizExp {
                 case BizPhraseType_1.BizPhraseType.duo:
                     this.duo(sb);
                     break;
+                case BizPhraseType_1.BizPhraseType.combo:
+                    this.combo(sb);
+                    break;
             }
         }
         sb.r();
@@ -48,9 +51,9 @@ class BBizExp {
         this.bizExp = bizExp;
         if (bizExp === undefined)
             return;
-        const { param, param2 } = bizExp.param;
-        this.param = context.expVal(param);
-        this.param2 = context.expVal(param2);
+        const { params } = bizExp.param;
+        this.params = params.map(v => context.expVal(v));
+        // this.param2 = context.expVal(param2);
         const { in: inVar } = bizExp;
         if (inVar !== undefined) {
             const { val: inVal, spanPeiod } = inVar;
@@ -91,7 +94,7 @@ class BBizExp {
                 WHERE ${ta}.id=`;
         }
         sb.append(sql);
-        sb.exp(this.param);
+        sb.exp(this.params[0]);
     }
     binBud(sb) {
         const { budProp, isParent } = this.bizExp;
@@ -115,11 +118,11 @@ class BBizExp {
             sb.l();
             sb.append(`SELECT ${ta}.base FROM \`${this.db}\`.detail as ${ta} WHERE `);
             sb.append(ta).dot().append('id=');
-            sb.exp(this.param);
+            sb.exp(this.params[0]);
             sb.r();
         }
         else {
-            sb.exp(this.param);
+            sb.exp(this.params[0]);
         }
     }
     tie(sb) {
@@ -128,18 +131,38 @@ class BBizExp {
         sb.append(`${ta}.x
         FROM ${this.db}.ixbud as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.i AND ${tb}.base=${bizEntity.id} 
             WHERE ${tb}.ext=`)
-            .exp(this.param);
+            .exp(this.params[0]);
     }
     duo(sb) {
         const { isReadonly, prop } = this.bizExp;
         const { ta } = this;
-        if (this.param2 !== undefined) {
+        let param = this.params[0];
+        let param2 = this.params[1];
+        if (param2 !== undefined) {
             let w = isReadonly === true ? 0 : 1;
-            sb.append(`${this.db}.duo$id(_$site,_$user,${w},null,`).exp(this.param).comma().exp(this.param2).r();
+            sb.append(`${this.db}.duo$id(_$site,_$user,${w},null,`).exp(param).comma().exp(param2).r();
         }
         else {
             sb.append(`${ta}.${prop} FROM ${this.db}.duo as ${ta} WHERE ${ta}.id=`)
-                .exp(this.param);
+                .exp(param);
+        }
+    }
+    combo(sb) {
+        const { bizEntity, isReadonly, prop } = this.bizExp;
+        const { ta } = this;
+        let siteEntityId = `${sb.factory.dbContext.site}.${bizEntity.id}`;
+        if (prop !== undefined) {
+            sb.append(`${ta}.${prop} FROM ${siteEntityId} as ${ta} WHERE ${ta}.id=`)
+                .exp(this.params[0]);
+        }
+        else {
+            let w = isReadonly === true ? 0 : 1;
+            sb.fld(siteEntityId + '$id');
+            sb.append(`(_$site,_$user,${w},null`);
+            for (let p of this.params) {
+                sb.comma().exp(p);
+            }
+            sb.r();
         }
     }
     title(sb) {
@@ -200,7 +223,7 @@ class TitleValueBase extends TitleExpBase {
 }
 class TitleValue extends TitleValueBase {
     sql() {
-        const { bizExp, ta, db, param } = this.bBizExp;
+        const { bizExp, ta, db, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
         let tblBudValue = this.ixBudTbl();
         this.sb.append(`${ta}.value FROM ${db}.${tblBudValue} as ${ta} WHERE ${ta}.i=`);
@@ -210,7 +233,7 @@ class TitleValue extends TitleValueBase {
 }
 class TitleSum extends TitleValueBase {
     sql() {
-        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        const { bizExp, ta, tt, db, inVal, params: [param] } = this.bBizExp;
         const { budEntitySub: bud, prop, in: ilInVar } = bizExp;
         const { sb } = this;
         sb.append(`sum(${ta}.value) `);
@@ -221,7 +244,7 @@ class TitleSum extends TitleValueBase {
 }
 class TitleSpecSum extends TitleSum {
     from() {
-        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        const { ta, tt, db } = this.bBizExp;
         //this.titleValueSum(sb, 'spec', 'id', 'base');
         let tblBudValue = this.ixBudTbl();
         this.sb.append(`
@@ -232,7 +255,7 @@ class TitleSpecSum extends TitleSum {
 }
 class TitleIxSum extends TitleSum {
     from() {
-        const { bizExp, ta, tt, db, inVal, param } = this.bBizExp;
+        const { ta, tt, db } = this.bBizExp;
         // this.titleValueSum(sb, 'ixbud', 'x', 'i');
         let tblBudValue = this.ixBudTbl();
         this.sb.append(`
@@ -260,7 +283,7 @@ class TitleHistoryBase extends TitleExpBase {
 }
 class TitleHistory extends TitleHistoryBase {
     from() {
-        const { bizExp, ta, db, param } = this.bBizExp;
+        const { bizExp, ta, db, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
         this.sb.append(`
 WHERE ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, `).exp(param);
@@ -269,7 +292,7 @@ WHERE ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, `).exp(param);
 }
 class TitleSpecHistory extends TitleHistoryBase {
     from() {
-        const { ta, tt, db, bizExp, param } = this.bBizExp;
+        const { ta, tt, db, bizExp, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
         this.sb.append(`JOIN ${db}.spec as ${tt} ON ${tt}.base=`).exp(param)
             .append(` AND ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, ${tt}.id, ${bud.id}) WHERE `);
@@ -277,7 +300,7 @@ class TitleSpecHistory extends TitleHistoryBase {
 }
 class TitleIxHistory extends TitleHistoryBase {
     from() {
-        const { ta, tt, db, bizExp, param } = this.bBizExp;
+        const { ta, tt, db, bizExp, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
         this.sb.append(`JOIN ${db}.ixbud as ${tt} ON ${tt}.i=`).exp(param)
             .append(` AND ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, ${tt}.x, ${bud.id}) WHERE `);

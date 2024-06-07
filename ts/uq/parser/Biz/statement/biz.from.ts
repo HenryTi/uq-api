@@ -9,7 +9,8 @@ import {
     BizSpec,
     BizEntity,
     BizDuo,
-    IdColumn
+    IdColumn,
+    BizCombo
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
@@ -261,40 +262,35 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         let scanner = new FromEntityScaner(space);
         let fromEntity = scanner.createFromEntity(this.pFromEntity);
         if (scanner.scan(fromEntity, this.pFromEntity) === false) {
+            this.log(...scanner.msgs);
             ok = false;
         }
         else {
             this.element.fromEntity = fromEntity;
-        }
-        /*
-        if (this.scanFromEntity(space, nAlias, this.element.fromEntity, this.pFromEntity) === false) {
-            ok = false;
-            return ok;
-        }
-        */
-        if (this.scanCols(space) === false) {
-            ok = false;
-            return ok;
-        }
-        const { where, ban, value } = this.element;
-        if (where !== undefined) {
-            if (where.pelement.scan(space) === false) {
+            if (this.scanCols(space) === false) {
+                ok = false;
+                return ok;
+            }
+            const { where, ban, value } = this.element;
+            if (where !== undefined) {
+                if (where.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            // if (asc === undefined) this.element.asc = 'asc';
+            if (ban !== undefined) {
+                if (ban.val.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            if (value !== undefined) {
+                if (value.val.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+            if (this.scanIDsWithCheck0() === false) {
                 ok = false;
             }
-        }
-        // if (asc === undefined) this.element.asc = 'asc';
-        if (ban !== undefined) {
-            if (ban.val.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        if (value !== undefined) {
-            if (value.val.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        if (this.scanIDsWithCheck0() === false) {
-            ok = false;
         }
         return ok;
     }
@@ -601,6 +597,7 @@ class FromEntityScaner {
     }
 
     scan(fromEntity: FromEntity, pFromEntity: PFromEntity): boolean {
+        if (fromEntity === undefined) return false;
         let ok = true;
         const { ofIXs, ofOn } = fromEntity;
         const { subs: pSubs, alias } = pFromEntity;
@@ -649,9 +646,8 @@ class FromEntityScaner {
                 default:
                     if (length > 0) {
                         ok = false;
-                        this.log('only DUO and SPEC support sub join');
+                        this.log('only COMBO, SPEC and DUO support sub join');
                     }
-                    // fields = [];
                     break;
                 case BizPhraseType.duo:
                     if (length !== 0 && length !== 2) {
@@ -659,9 +655,7 @@ class FromEntityScaner {
                         this.log('DUO must have 2 sub join');
                     }
                     let duo = new FromEntityScanDuo(this, fromEntity, pSubs[0], pSubs[1]);
-                    // subs = this.scanDuoSubs(this.space, this.nAlias, this.fromEntity, pSubs[0], pSubs[1]);
                     subs = duo.createSubs();
-                    // fields = ['i', 'x'];
                     break;
                 case BizPhraseType.spec:
                     if (length !== 0 && length !== 1) {
@@ -670,7 +664,16 @@ class FromEntityScaner {
                     }
                     let spec = new FromEntityScanSpec(this, fromEntity, pSubs[0]);
                     subs = spec.createSubs();
-                    // fields = ['base'];
+                    break;
+                case BizPhraseType.combo:
+                    const combo = fromEntity.bizEntityArr[0] as BizCombo;
+                    const keysLength = combo.keys.length;
+                    if (length !== keysLength) {
+                        ok = false;
+                        this.log(`${combo.getJName()} must have ${keysLength} subs`);
+                    }
+                    let comboScan = new FromEntityScanCombo(this, fromEntity, pSubs);
+                    subs = comboScan.createSubs();
                     break;
             }
             if (subs === undefined) {
@@ -745,6 +748,28 @@ class FromEntityScanDuo extends FEScanBase {
     }
 }
 
+class FromEntityScanCombo extends FEScanBase {
+    private readonly pSubs: PFromEntity[];
+    constructor(scaner: FromEntityScaner, fromEntity: FromEntity, pSubs: PFromEntity[]) {
+        super(scaner, fromEntity);
+        this.pSubs = pSubs;
+    }
+
+    createSubs(): BizFromEntitySub[] {
+        const { bizEntityArr } = this.fromEntity;
+        const { keys } = bizEntityArr[0] as BizCombo;
+        let ret: BizFromEntitySub[] = [];
+        let len = this.pSubs.length;
+        for (let i = 0; i < len; i++) {
+            let pSub = this.pSubs[i];
+            let sub = this.scanSub(pSub, keys[i].name, undefined);
+            if (sub === undefined) return;
+            ret.push(sub);
+        }
+        return ret;
+    }
+}
+
 class FromEntityScanSpec extends FEScanBase {
     private readonly pSub: PFromEntity;
     constructor(scaner: FromEntityScaner, fromEntity: FromEntity, pSub: PFromEntity) {
@@ -764,12 +789,7 @@ class FromEntityScanSpec extends FEScanBase {
         return [sub];
     }
 }
-/*
-interface NAlias {
-    sets: Set<string>;
-    t: number;
-}
-*/
+
 export class FromSpace extends Space {
     protected readonly from: FromStatement;
     protected bizFieldSpace: BizFieldSpace;

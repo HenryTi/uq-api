@@ -134,8 +134,8 @@ class TableUpdater extends table_1.TableUpdater {
     }
     loadExistTable() {
         return __awaiter(this, void 0, void 0, function* () {
-            let { dbName } = this.context;
             let unitName = '$unit';
+            let dbName = this.dbName;
             let tblName = this.table.name;
             let dbTableName = this.getDbTableName();
             let rows = yield this.runner.sql(sqlGetColumns, [dbName, dbTableName]);
@@ -187,7 +187,7 @@ class TableUpdater extends table_1.TableUpdater {
         }
         let sb = this.createSqlBuilder();
         sb.append('ALTER TABLE ')
-            .fld(this.context.dbName).dot().entityTable(this.table.name)
+            .fld(this.dbName).dot().entityTable(this.table.name)
             .space()
             .append(action)
             .space();
@@ -214,7 +214,7 @@ class TableUpdater extends table_1.TableUpdater {
             let sql = sb.sql;
             sb = this.createSqlBuilder();
             sb.append('ALTER TABLE ')
-                .fld(this.context.dbName).dot().entityTable(this.table.name)
+                .fld(this.dbName).dot().entityTable(this.table.name)
                 .append('ALTER COLUMN ')
                 .fld(name);
             if (nullable === false) {
@@ -235,7 +235,7 @@ class TableUpdater extends table_1.TableUpdater {
     buildAlterToBinarySql(field) {
         let sb = this.createSqlBuilder();
         sb.append('ALTER TABLE ')
-            .fld(this.context.dbName).dot().entityTable(this.table.name)
+            .fld(this.dbName).dot().entityTable(this.table.name)
             .space()
             .append('MODIFY')
             .space();
@@ -405,7 +405,7 @@ class TableUpdater extends table_1.TableUpdater {
         let { name, fields, unique, global } = ind;
         let sb = this.createSqlBuilder();
         sb.append('ALTER TABLE ')
-            .fld(this.context.dbName).dot().entityTable(this.table.name);
+            .fld(this.dbName).dot().entityTable(this.table.name);
         sb.append(' ADD');
         if (unique === true) {
             sb.append(' UNIQUE');
@@ -494,11 +494,11 @@ class TableUpdater extends table_1.TableUpdater {
     buildRemoveAllRowsSql() {
         let sb = this.createSqlBuilder();
         sb.append('TRUNCATE table ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         sb.semicolon();
         sb.append('ALTER TABLE ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         sb.append(' AUTO_INCREMENT=1');
         sb.semicolon();
@@ -509,7 +509,7 @@ class TableUpdater extends table_1.TableUpdater {
             return;
         let sb = this.createSqlBuilder();
         sb.append('UPDATE ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         sb.append('SET $valid=-1 WHERE $valid=1');
         sb.semicolon();
@@ -519,7 +519,7 @@ class TableUpdater extends table_1.TableUpdater {
         let { fields, values } = fieldsValues;
         let sb = this.createSqlBuilder();
         sb.append('insert ignore into ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         sb.l();
         sb.sepStart();
@@ -553,7 +553,7 @@ class TableUpdater extends table_1.TableUpdater {
     buildSelectIdSql(fields, rowValues) {
         let sb = this.createSqlBuilder();
         sb.append('select id from ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         sb.append(' where 1=1');
         let len = fields.length;
@@ -571,7 +571,7 @@ class TableUpdater extends table_1.TableUpdater {
         let sb = this.createSqlBuilder();
         let { idKeys } = this.table;
         sb.append('select id from ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         sb.append(' where 1=1');
         let len = fields.length;
@@ -587,7 +587,7 @@ class TableUpdater extends table_1.TableUpdater {
     buildUpdateRowIdSql(fields, fieldsInit, rowValues) {
         let sb = this.createSqlBuilder();
         sb.append('update ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         let sbSet = this.createSqlBuilder();
         let first = true;
@@ -631,7 +631,7 @@ class TableUpdater extends table_1.TableUpdater {
         if (idKeys.length === fields.length)
             return;
         sb.append('update ')
-            .fld(this.context.dbName).dot()
+            .fld(this.dbName).dot()
             .entityTable(this.table.name);
         let sbSet = this.createSqlBuilder();
         let sbWhere = this.createSqlBuilder();

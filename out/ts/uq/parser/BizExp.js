@@ -108,6 +108,9 @@ class PBizExp extends element_1.PElement {
                 case BizPhraseType_1.BizPhraseType.duo:
                     ret = this.scanDuo(space);
                     break;
+                case BizPhraseType_1.BizPhraseType.combo:
+                    ret = this.scanCombo(space);
+                    break;
             }
             if (ret === false) {
                 ok = false;
@@ -259,7 +262,7 @@ class PBizExp extends element_1.PElement {
     scanDuo(space) {
         let ok = true;
         const { bizEntity, param: bizParam } = this.element;
-        const { param, param2 } = bizParam;
+        const { params: [param, param2] } = bizParam;
         let duo = bizEntity;
         if (param2 === undefined) {
             if (this.bud !== 'i' && this.bud !== 'x') {
@@ -275,6 +278,18 @@ class PBizExp extends element_1.PElement {
         }
         return ok;
     }
+    scanCombo(space) {
+        let ok = true;
+        const { bizEntity, param: bizParam } = this.element;
+        const { params } = bizParam;
+        let combo = bizEntity;
+        const { length } = combo.keys;
+        if (params.length !== length) {
+            this.log(`COMBO ${combo.getJName()}(...) should be ${length}`);
+            ok = false;
+        }
+        return ok;
+    }
 }
 exports.PBizExp = PBizExp;
 class PBizExpParam extends element_1.PElement {
@@ -284,17 +299,40 @@ class PBizExpParam extends element_1.PElement {
             this.parseArray();
         }
         else {
-            this.element.param = new il_1.ValueExpression();
-            const { param } = this.element;
-            this.context.parseElement(param);
-            if (this.ts.token === tokens_1.Token.COMMA) {
+            const { params } = this.element;
+            for (;;) {
+                let param = new il_1.ValueExpression();
+                params.push(param);
+                this.context.parseElement(param);
+                if (this.ts.token !== tokens_1.Token.COMMA)
+                    break;
                 this.ts.readToken();
-                this.element.paramType = il_1.BizExpParamType.dou;
-                this.element.param2 = new il_1.ValueExpression();
+            }
+            /*
+            if (this.ts.token === Token.COMMA) {
+                this.ts.readToken();
+                this.element.paramType = BizExpParamType.dou;
+                this.element.param2 = new ValueExpression();
                 const { param2 } = this.element;
                 this.context.parseElement(param2);
             }
-            this.element.paramType = il_1.BizExpParamType.scalar;
+            */
+            let paramType;
+            switch (params.length) {
+                case 0:
+                    paramType = il_1.BizExpParamType.none;
+                    break;
+                case 1:
+                    paramType = il_1.BizExpParamType.scalar;
+                    break;
+                case 2:
+                    paramType = il_1.BizExpParamType.duo;
+                    break;
+                case 3:
+                    paramType = il_1.BizExpParamType.multi;
+                    break;
+            }
+            this.element.paramType = paramType;
         }
     }
     parseArray() {
@@ -304,8 +342,9 @@ class PBizExpParam extends element_1.PElement {
             this.ts.passKey('on');
             this.ts.passToken(tokens_1.Token.XOR);
             this.ts.passToken(tokens_1.Token.EQU);
-            this.element.param = new il_1.ValueExpression();
-            this.context.parseElement(this.element.param);
+            const param = new il_1.ValueExpression();
+            this.element.params.push(param);
+            this.context.parseElement(param);
         }
         else if (this.ts.token === tokens_1.Token.VAR) {
             this.element.paramType = il_1.BizExpParamType.ix;
@@ -320,8 +359,9 @@ class PBizExpParam extends element_1.PElement {
             this.ts.passKey('on');
             this.ts.passKey('i');
             this.ts.passToken(tokens_1.Token.EQU);
-            this.element.param = new il_1.ValueExpression();
-            this.context.parseElement(this.element.param);
+            const param = new il_1.ValueExpression();
+            this.element.params.push(param);
+            this.context.parseElement(param);
         }
         else {
             this.ts.expect('SPEC or ties');
@@ -329,15 +369,12 @@ class PBizExpParam extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        const { param, param2 } = this.element;
-        if (param !== undefined) {
-            if (param.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        if (param2 !== undefined) {
-            if (param2.pelement.scan(space) === false) {
-                ok = false;
+        const { params } = this.element;
+        for (let param of params) {
+            if (param !== undefined) {
+                if (param.pelement.scan(space) === false) {
+                    ok = false;
+                }
             }
         }
         if (this.ties !== undefined) {
