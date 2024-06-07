@@ -210,14 +210,6 @@ class BFromStatement extends bstatement_1.BStatement {
         select.column(new sql_1.ExpField('ex', b));
         return insertAtom;
     }
-    /* {
-        let { bizEntityArr } = this.idFromEntity;
-        let entityArr: BizAtom[] = bizEntityArr as BizAtom[];
-        let insertAtom = this.buildInsertAtomDirect()
-        sqls.push(insertAtom);
-        let entity = entityArr[0];
-        this.buildInsertAtomBuds(sqls, entity);
-    }*/
     buildInsertAtomBuds(sqls, atom) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
         let mapBuds = this.createMapBuds();

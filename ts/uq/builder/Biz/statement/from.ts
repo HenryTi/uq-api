@@ -240,14 +240,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
     }
 
     protected abstract buildFromEntity(sqls: Sqls): void;
-    /* {
-        let { bizEntityArr } = this.idFromEntity;
-        let entityArr: BizAtom[] = bizEntityArr as BizAtom[];
-        let insertAtom = this.buildInsertAtomDirect()
-        sqls.push(insertAtom);
-        let entity = entityArr[0];
-        this.buildInsertAtomBuds(sqls, entity);
-    }*/
 
     protected buildInsertAtomBuds(sqls: Sqls, atom: BizID) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
