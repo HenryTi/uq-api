@@ -517,6 +517,10 @@ export class PBizSpec extends PBizIDWithBase<BizSpec> {
         ':': this.parseColonBuds,
     };
 
+    protected override _parse(): void {
+        super._parse();
+    }
+
     protected override scanPrimeBuds(): boolean {
         let ret = super.scanPrimeBuds();
         let { primeBuds, keys, props } = this.element;

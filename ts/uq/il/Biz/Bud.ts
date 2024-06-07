@@ -1,8 +1,8 @@
 import {
-    PBizBudID, PBizBudChar, PBizBudCheck, PBizBudDate
+    PBizBudID, PBizBudChar as PBizBudCharBase, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement, PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue,
-    PBizUser
+    , PBizBudIntOf, PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement
+    , PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue, PBizUser
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -252,13 +252,17 @@ export class BizBudChar extends BizBudValueWithRange {
     readonly dataType = BudDataType.char;
     readonly canIndex = false;
     parser(context: PContext): PElement<IElement> {
-        return new PBizBudChar(this, context);
+        return new PBizBudCharBase(this, context);
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return ret;
     }
     createDataType(): DataType { return new Char(200); }
+}
+
+export class BizBudNO extends BizBudChar {
+    createDataType(): DataType { return new Char(30); }
 }
 
 export class BizBudDate extends BizBudValueWithRange {
@@ -410,6 +414,7 @@ export class BizBudCheck extends BizBudOptions {
 export const budClassesIn: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {
     int: BizBudInt,
     dec: BizBudDec,
+    no: BizBudNO,
     char: BizBudChar,
     date: BizBudDate,
     id: BizBudIDIO,

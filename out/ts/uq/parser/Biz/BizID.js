@@ -501,6 +501,9 @@ class PBizSpec extends PBizIDWithBase {
             ':': this.parseColonBuds,
         };
     }
+    _parse() {
+        super._parse();
+    }
     scanPrimeBuds() {
         let ret = super.scanPrimeBuds();
         let { primeBuds, keys, props } = this.element;
