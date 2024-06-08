@@ -606,7 +606,6 @@ class FromEntityScaner {
         if (bizEntityArr.length > 0) {
             for (let _of of pFromEntity.ofIXs) {
                 let entity = this.space.getBizBase([_of]); // .getBizFromEntityArrFromAlias(_of);
-                // let { bizEntityArr: [entity] }
                 if (entity === undefined) {
                     ok = false;
                     this.log(`${_of} is not defined`);
@@ -628,7 +627,6 @@ class FromEntityScaner {
         if (pSubs !== undefined) {
             const { length } = pSubs;
             let subs: BizFromEntitySub[];
-            // let fields: string[];
             switch (fromEntity.bizPhraseType) {
                 default:
                     if (length > 0) {
@@ -653,7 +651,11 @@ class FromEntityScaner {
                     subs = spec.createSubs();
                     break;
                 case BizPhraseType.combo:
-                    const combo = fromEntity.bizEntityArr[0] as BizCombo;
+                    if (bizEntityArr.length !== 1) {
+                        ok = false;
+                        this.log(`only one COMBO here`);
+                    }
+                    const combo = bizEntityArr[0] as BizCombo;
                     const keysLength = combo.keys.length;
                     if (length !== keysLength) {
                         ok = false;
@@ -749,7 +751,6 @@ class FromEntityScanCombo extends FEScanBase {
         let len = this.pSubs.length;
         for (let i = 0; i < len; i++) {
             function onEmpty(): BizEntity {
-                // keys[i].dataType === BudDataType.atom
                 return undefined;
             }
             let pSub = this.pSubs[i];

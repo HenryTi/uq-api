@@ -103,36 +103,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
     }
 
     protected buildSelectFrom(select: Select, fromEntity: FromEntity) {
-        const { bizEntityArr, bizPhraseType, ofIXs, ofOn, alias, subs } = fromEntity;
-        /*
-        function eqOrIn(expField: ExpField) {
-            if (bizEntityArr.length === 1) {
-                return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
-            }
-            else {
-                return new ExpIn(expField, ...bizEntityArr.map(v => new ExpNum(v.id)));
-            }
-        }
-        const $bzp = `${alias}$bzp`;
-        switch (bizPhraseType) {
-            default: debugger; break;
-            case BizPhraseType.atom:
-                select.join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, $bzp))
-                    .on(
-                        new ExpAnd(
-                            new ExpEQ(new ExpField('id', $bzp), new ExpField('base', alias)),
-                            eqOrIn(new ExpField('id', $bzp))
-                        )
-                    );
-                break;
-            case BizPhraseType.spec:
-                select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, $bzp))
-                    .on(eqOrIn(new ExpField('ext', $bzp)))
-                break;
-            case BizPhraseType.combo:
-                break;
-        }
-        */
+        const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new ExpField('id', alias);
         if (ofIXs !== undefined) {
             let len = ofIXs.length;
@@ -173,13 +144,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
                 const entityTable = this.buildEntityTable(subFromEntity);
                 let budAlias = alias + '$bud';
                 let subBudAlias = subAlias + '$bud';
-                /*
-                if (isSpecBase === true) {
-                    select.join(JoinType.join, entityTable)
-                        .on(new ExpEQ(new ExpField('id', subAlias), new ExpField('base', subBudAlias)));
-                }
-                else {
-                */
                 let prevAlias = isSpecBase === true ? budAlias : alias;
                 switch (bizPhraseType) {
                     case BizPhraseType.atom:
@@ -201,7 +165,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
                             ));
                         break;
                 }
-                //}
                 this.buildSelectFrom(select, subFromEntity);
             }
         }
