@@ -2,7 +2,7 @@ import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromEntity, FromStatement, IdCo
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
 import { DbContext } from "../../dbContext";
-import { ColVal, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpStr, ExpVal, ExpVar, Select, Statement } from "../../sql";
+import { ColVal, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpSelect, ExpStr, ExpVal, ExpVar, Select, Statement } from "../../sql";
 import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
 
@@ -86,13 +86,36 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         let entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
+        const cmpEntityBase = this.buildRootEntityCompare(select);
         let wheres: ExpCmp[] = [
             cmpPage,
             this.context.expCmp(where),
         ];
+        if (cmpEntityBase !== undefined) wheres.unshift(cmpEntityBase);
         select.where(new ExpAnd(...wheres));
         select.limit(new ExpVar('$pageSize'));
         return select;
+    }
+
+    private buildRootEntityCompare(select: Select): ExpCmp {
+        const { fromEntity } = this.istatement;
+        const { bizEntityArr: [bizEntity], bizPhraseType, alias } = fromEntity;
+        const expBase = new ExpField('base', alias);
+        const expId = new ExpNum(bizEntity.id);
+        switch (bizPhraseType) {
+            default:
+                return;
+            case BizPhraseType.atom:
+                return new ExpEQ(expBase, expId);
+            case BizPhraseType.spec:
+                let budAlias = alias + '$bud';
+                select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
+                    .on(new ExpAnd(
+                        new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
+                        new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntity.id)),
+                    ));
+                return;
+        }
     }
 
     protected buildGroupByIds(select: Select) {

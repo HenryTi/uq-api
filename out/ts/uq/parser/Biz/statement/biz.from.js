@@ -9,7 +9,6 @@ const statement_1 = require("../../statement/statement");
 class PFromStatement extends statement_1.PStatement {
     constructor() {
         super(...arguments);
-        // private idAlias: string;
         this.ids = [];
         this.collColumns = {};
         this.pFromEntity = {
@@ -392,18 +391,6 @@ class PFromStatement extends statement_1.PStatement {
     scan(space) {
         let ok = true;
         space = this.createFromSpace(space);
-        /*
-        // let aliasSet = new Set<string>();
-        let nAlias: NAlias = {
-            sets: new Set<string>(),
-            t: 1,
-        };
-        const { fromEntity } = this.element;
-        let retOk = this.setEntityArr(space, fromEntity, this.pFromEntity);
-        if (retOk === false) {
-            return false;
-        }
-        */
         let scanner = new FromEntityScaner(space);
         let fromEntity = scanner.createFromEntity(this.pFromEntity);
         if (scanner.scan(fromEntity, this.pFromEntity) === false) {
@@ -709,8 +696,12 @@ class FromEntityScanCombo extends FEScanBase {
         let ret = [];
         let len = this.pSubs.length;
         for (let i = 0; i < len; i++) {
+            function onEmpty() {
+                // keys[i].dataType === BudDataType.atom
+                return undefined;
+            }
             let pSub = this.pSubs[i];
-            let sub = this.scanSub(pSub, keys[i].name, undefined);
+            let sub = this.scanSub(pSub, keys[i].name, onEmpty);
             if (sub === undefined)
                 return;
             ret.push(sub);

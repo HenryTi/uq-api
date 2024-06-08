@@ -104,6 +104,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
 
     protected buildSelectFrom(select: Select, fromEntity: FromEntity) {
         const { bizEntityArr, bizPhraseType, ofIXs, ofOn, alias, subs } = fromEntity;
+        /*
         function eqOrIn(expField: ExpField) {
             if (bizEntityArr.length === 1) {
                 return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
@@ -131,7 +132,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
             case BizPhraseType.combo:
                 break;
         }
-
+        */
         let expPrev = new ExpField('id', alias);
         if (ofIXs !== undefined) {
             let len = ofIXs.length;
@@ -167,22 +168,40 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         if (subs !== undefined) {
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
-                const { alias: subAlias } = subFromEntity;
+                const { alias: subAlias, bizPhraseType } = subFromEntity;
+                let { id } = subFromEntity.bizEntityArr[0];
                 const entityTable = this.buildEntityTable(subFromEntity);
+                let budAlias = alias + '$bud';
+                let subBudAlias = subAlias + '$bud';
+                /*
                 if (isSpecBase === true) {
-                    let budAlias = subAlias + '$bud';
-                    select
-                        .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
-                        .on(new ExpEQ(new ExpField('id', budAlias), new ExpField(field, alias)))
-                        .join(JoinType.join, entityTable)
-                        .on(new ExpEQ(new ExpField('id', subAlias), new ExpField('base', budAlias)));
-
+                    select.join(JoinType.join, entityTable)
+                        .on(new ExpEQ(new ExpField('id', subAlias), new ExpField('base', subBudAlias)));
                 }
                 else {
-                    select
-                        .join(JoinType.join, entityTable)
-                        .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, alias)));
+                */
+                let prevAlias = isSpecBase === true ? budAlias : alias;
+                switch (bizPhraseType) {
+                    case BizPhraseType.atom:
+                        select
+                            .join(JoinType.join, entityTable)
+                            .on(new ExpAnd(
+                                new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias)),
+                                new ExpEQ(new ExpField('base', subAlias), new ExpNum(id)),
+                            ));
+                        break;
+                    case BizPhraseType.spec:
+                        select
+                            .join(JoinType.join, entityTable)
+                            .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias)));
+                        select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, subBudAlias))
+                            .on(new ExpAnd(
+                                new ExpEQ(new ExpField('id', subBudAlias), new ExpField(field, alias)),
+                                new ExpEQ(new ExpField('ext', subBudAlias), new ExpNum(id)),
+                            ));
+                        break;
                 }
+                //}
                 this.buildSelectFrom(select, subFromEntity);
             }
         }
@@ -204,7 +223,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         const { factory } = this.context;
         const { where, fromEntity } = this.istatement;
         const { bizEntityTable, alias: t0 } = fromEntity;
-        // const bizEntity0 = bizEntityArr[0];
         const select = factory.createSelect();
         select.from(new EntityTable(bizEntityTable, false, t0));
         this.buildSelectFrom(select, fromEntity);

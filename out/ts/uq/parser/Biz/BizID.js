@@ -553,7 +553,6 @@ class PBizCombo extends PBizID {
                         this.ts.readToken();
                         continue;
                     }
-                    this.ts.expectToken(tokens_1.Token.COMMA);
                 }
             }
             else {

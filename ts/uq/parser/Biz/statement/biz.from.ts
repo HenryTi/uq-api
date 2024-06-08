@@ -12,7 +12,7 @@ import {
     IdColumn,
     BizCombo
 } from "../../../il";
-import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
+import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { PStatement } from "../../statement/statement";
@@ -32,7 +32,6 @@ interface PIdColumn {
 }
 
 export class PFromStatement<T extends FromStatement = FromStatement> extends PStatement<T> {
-    // private idAlias: string;
     private readonly ids: PIdColumn[] = [];
     private readonly collColumns: { [name: string]: boolean } = {};
     protected pFromEntity: PFromEntity = {
@@ -247,18 +246,6 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
     override scan(space: Space): boolean {
         let ok = true;
         space = this.createFromSpace(space);
-        /*
-        // let aliasSet = new Set<string>();
-        let nAlias: NAlias = {
-            sets: new Set<string>(),
-            t: 1,
-        };
-        const { fromEntity } = this.element;
-        let retOk = this.setEntityArr(space, fromEntity, this.pFromEntity);
-        if (retOk === false) {
-            return false;
-        }
-        */
         let scanner = new FromEntityScaner(space);
         let fromEntity = scanner.createFromEntity(this.pFromEntity);
         if (scanner.scan(fromEntity, this.pFromEntity) === false) {
@@ -761,8 +748,12 @@ class FromEntityScanCombo extends FEScanBase {
         let ret: BizFromEntitySub[] = [];
         let len = this.pSubs.length;
         for (let i = 0; i < len; i++) {
+            function onEmpty(): BizEntity {
+                // keys[i].dataType === BudDataType.atom
+                return undefined;
+            }
             let pSub = this.pSubs[i];
-            let sub = this.scanSub(pSub, keys[i].name, undefined);
+            let sub = this.scanSub(pSub, keys[i].name, onEmpty);
             if (sub === undefined) return;
             ret.push(sub);
         }

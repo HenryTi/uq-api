@@ -77,13 +77,33 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         let entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
+        const cmpEntityBase = this.buildRootEntityCompare(select);
         let wheres = [
             cmpPage,
             this.context.expCmp(where),
         ];
+        if (cmpEntityBase !== undefined)
+            wheres.unshift(cmpEntityBase);
         select.where(new sql_1.ExpAnd(...wheres));
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
+    }
+    buildRootEntityCompare(select) {
+        const { fromEntity } = this.istatement;
+        const { bizEntityArr: [bizEntity], bizPhraseType, alias } = fromEntity;
+        const expBase = new sql_1.ExpField('base', alias);
+        const expId = new sql_1.ExpNum(bizEntity.id);
+        switch (bizPhraseType) {
+            default:
+                return;
+            case BizPhraseType_1.BizPhraseType.atom:
+                return new sql_1.ExpEQ(expBase, expId);
+            case BizPhraseType_1.BizPhraseType.spec:
+                let budAlias = alias + '$bud';
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
+                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', budAlias), new sql_1.ExpNum(bizEntity.id))));
+                return;
+        }
     }
     buildGroupByIds(select) {
         let expField;

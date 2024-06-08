@@ -569,7 +569,6 @@ export class PBizCombo extends PBizID<BizCombo> {
                     this.ts.readToken();
                     continue;
                 }
-                this.ts.expectToken(Token.COMMA);
             }
         }
         else {
