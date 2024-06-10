@@ -6,6 +6,7 @@ import { BizEntity } from "./Entity";
 
 export class BizConsole extends BizEntity {
     readonly bizPhraseType = BizPhraseType.console;
+    readonly isID = false;
     readonly fields = [];
     readonly folder: Folder = {
         name: '$',

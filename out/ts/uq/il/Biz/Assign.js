@@ -9,6 +9,7 @@ class BizAssign extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.assign;
+        this.isID = false;
         this.fields = [];
         this.atom = [];
         this.title = []; // of BizTitle buds

@@ -12,6 +12,7 @@ import { BizEntity } from "./Entity";
 // 按照这个原则，BizBin应该也是BizID。当前不处理。以后可以处理
 // BizBin是一次操作行为记录，跟普通的BizID区别明显。作为ID仅用于引用。
 export abstract class BizID extends BizEntity {
+    readonly isID = true;
     titleBuds: BizBud[];
     primeBuds: BizBud[];
     buildSchema(res: { [phrase: string]: string }) {

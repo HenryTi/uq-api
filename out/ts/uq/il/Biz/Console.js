@@ -8,6 +8,7 @@ class BizConsole extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.console;
+        this.isID = false;
         this.fields = [];
         this.folder = {
             name: '$',

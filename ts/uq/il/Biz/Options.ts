@@ -32,6 +32,7 @@ export class OptionsItem extends BizBudValue {
 export class BizOptions extends BizEntity {
     readonly bizPhraseType = BizPhraseType.options;
     protected readonly fields = [];
+    readonly isID = false;
     readonly items: OptionsItem[] = [];
     parser(context: PContext): PElement<IElement> {
         return new PBizOptions(this, context);

@@ -16,6 +16,7 @@ export class BizPend extends BizEntity {
 
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
     readonly bizPhraseType = BizPhraseType.pend;
+    readonly isID = false;
     readonly predefinedBuds: { [name: string]: BizBudValue };
     readonly predefinedFields: string[] = [];
     pendQuery: PendQuery;
@@ -131,6 +132,7 @@ export class BizQueryTableInPendStatements extends Statements {
 }
 
 export class PendQuery extends BizQueryTable {
+    readonly isID = false;
     readonly bizPend: BizPend;
     constructor(bizPend: BizPend) {
         super(bizPend.biz);

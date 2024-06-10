@@ -7,6 +7,7 @@ import { BizEntity } from "./Entity";
 
 export class BizTie extends BizEntity {
     readonly bizPhraseType = BizPhraseType.tie;
+    readonly isID = false;
     protected fields = ['i', 'x'];
     readonly i = {} as IxField;
     readonly x = {} as IxField;

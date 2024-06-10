@@ -1,20 +1,16 @@
-import { BBizPend, BBizSheet, DbContext } from "../../builder";
-import { PBizPend, PBizQueryTableInPendStatements, PBizSheet, PContext, PElement, PPendQuery } from "../../parser";
-import { Builder } from "../builder";
+import { BBizSheet, DbContext } from "../../builder";
+import { PBizSheet, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
-import { Statements } from "../statement";
 import { BizSearch } from "./Base";
 import { BizBin } from "./Bin";
-import { Biz } from "./Biz";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizBudValue, BizBudID, BizBudDec, BizBud } from "./Bud";
 import { BizEntity } from "./Entity";
 import { UseOut } from "./InOut";
-import { BizQueryTable } from "./Query";
 
 export class BizSheet extends BizEntity {
     protected readonly fields = ['id', 'no'];
     readonly bizPhraseType = BizPhraseType.sheet;
+    readonly isID = false;
     readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;
     readonly details: { bin: BizBin; caption: string; }[] = [];

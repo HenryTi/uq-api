@@ -32,6 +32,7 @@ class BizOptions extends Entity_1.BizEntity {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.options;
         this.fields = [];
+        this.isID = false;
         this.items = [];
     }
     parser(context) {

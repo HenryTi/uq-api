@@ -9,6 +9,7 @@ class BizTie extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.tie;
+        this.isID = false;
         this.fields = ['i', 'x'];
         this.i = {};
         this.x = {};

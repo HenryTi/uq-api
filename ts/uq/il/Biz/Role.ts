@@ -5,6 +5,7 @@ import { BizEntity } from "./Entity";
 
 export class BizRole extends BizEntity {
     readonly bizPhraseType = BizPhraseType.permit; //.role;
+    readonly isID = false;
     protected readonly fields = [];
     readonly roles = new Map<string, BizRole>();
     get type(): string { return 'permit'; }

@@ -8,6 +8,7 @@ class BizTitle extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.title;
+        this.isID = false;
         this.fields = [];
     }
     parser(context) {

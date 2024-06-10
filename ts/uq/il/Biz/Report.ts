@@ -21,6 +21,7 @@ export interface ReportJoin {
 
 export class BizReport extends BizEntity {
     protected readonly fields = [];
+    readonly isID = false;
     readonly bizPhraseType = BizPhraseType.report;
     readonly titles: ReportTitle[] = [];
     from: BizAtom | BizDuo;

@@ -128,6 +128,7 @@ export class BizSearch extends IElement {
 
 export abstract class BizAct extends BizBase {
     readonly bizPhraseType = BizPhraseType.act;
+    readonly isID = false;
     readonly tableVars: { [name: string]: TableVar } = {};
 
     statement: ActionStatement;

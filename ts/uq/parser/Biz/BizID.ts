@@ -150,7 +150,7 @@ export abstract class PBizIDExtendable<T extends BizIDExtendable> extends PBizID
     scan0(space: Space): boolean {
         let ok = true;
         if (this.extendsName !== undefined) {
-            let atom = this.scanAtomID(space, this.extendsName);
+            let atom = this.scanID(space, this.extendsName);
             if (atom === undefined) {
                 ok = false;
             }
@@ -428,7 +428,7 @@ abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<
             ok = false;
         }
         else {
-            let base = this.scanAtomID(space, this.baseName);
+            let base = this.scanID(space, this.baseName);
             if (base === undefined) {
                 ok = false;
             }

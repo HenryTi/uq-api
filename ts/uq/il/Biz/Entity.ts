@@ -1,12 +1,10 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { EnumSysTable } from "../EnumSysTable";
 import { ValueExpression } from "../Exp";
-import { BigInt, Char, DDate, DataType, Dec } from "../datatype";
-import { Field } from "../field";
 import { BizBase, IxField } from "./Base";
 import { Biz } from "./Biz";
-import { BizPhraseType, BudDataType } from "./BizPhraseType";
-import { BizBud, BizBudValue, BizUser, BudGroup, FieldShow } from "./Bud";
+import { BizPhraseType } from "./BizPhraseType";
+import { BizBud, BizUser, BudGroup, FieldShow } from "./Bud";
 import { BizRole } from "./Role";
 import { BizTie } from "./Tie";
 
@@ -45,6 +43,8 @@ export abstract class BizEntity extends BizBase {
     get theEntity(): BizEntity {
         return this;
     }
+
+    abstract get isID(): boolean;
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -147,24 +147,6 @@ export abstract class BizEntity extends BizBase {
         };
         return ret.getBizBase(bizName);
     }
-    /*
-    protected buildField(bud: BizBudValue): Field {
-        let { name, dataType } = bud;
-        let field = new Field();
-        field.name = name;
-        let fieldDataType: DataType;
-        switch (dataType) {
-            default: debugger; throw new Error(`unknown BizBud ${dataType}`);
-            case BudDataType.int:
-            case BudDataType.ID: fieldDataType = new BigInt(); break;
-            case BudDataType.date: fieldDataType = new DDate(); break;
-            case BudDataType.dec: fieldDataType = new Dec(20, 6); break;
-            case BudDataType.char: fieldDataType = new Char(50); break;
-        }
-        field.dataType = fieldDataType;
-        return field;
-    }
-    */
 
     protected ixFieldSchema(tieField: IxField) {
         const { caption, atoms } = tieField;

@@ -108,7 +108,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         return setType;
     }
 
-    scanAtomID(space: Space, atomName: string): BizIDExtendable {
+    scanID(space: Space, atomName: string): BizIDExtendable {
         let Atom = space.uq.biz.bizEntities.get(atomName);
         const types = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.bud];
         if (Atom === undefined || types.indexOf(Atom.bizPhraseType) < 0) {
@@ -579,7 +579,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         let { permissions } = this.element;
         for (let i in permissions) {
             if (i === '*') continue;
-            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromAlias(i);
+            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(i);
             if (entity === undefined || entity.type !== 'role') {
                 this.log(`${i} is not a ROLE`);
                 ok = false;
@@ -642,7 +642,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
         const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.duo, BizPhraseType.options];
         for (let name of atomNames) {
-            let { bizEntityArr: [bizEntity] } = space.getBizFromEntityArrFromAlias(name);
+            let { bizEntityArr: [bizEntity] } = space.getBizFromEntityArrFromName(name);
             if (bizEntity === undefined) {
                 this.log(`${name} is not defined`);
                 ok = false;

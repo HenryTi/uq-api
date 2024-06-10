@@ -10,6 +10,7 @@ class BizSheet extends Entity_1.BizEntity {
         super(...arguments);
         this.fields = ['id', 'no'];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.sheet;
+        this.isID = false;
         this.outs = {};
         this.details = [];
     }

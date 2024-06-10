@@ -306,7 +306,7 @@ class PBizBin extends Base_1.PBizEntity {
         let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
         if (this.main !== undefined) {
-            let { bizEntityArr: [m] } = binSpace.getBizFromEntityArrFromAlias(this.main);
+            let { bizEntityArr: [m] } = binSpace.getBizFromEntityArrFromName(this.main);
             if (m === undefined || m.bizPhraseType !== BizPhraseType_1.BizPhraseType.bin) {
                 this.log(`${this.main} is not BIN`);
                 ok = false;

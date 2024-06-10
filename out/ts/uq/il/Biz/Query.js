@@ -17,6 +17,7 @@ class BizQueryValue extends BizQuery {
     constructor() {
         super(...arguments);
         this.fields = [];
+        this.isID = false;
     }
     get type() { return 'queryvalue'; }
     parser(context) {
@@ -42,6 +43,7 @@ class BizQueryTable extends BizQuery {
     constructor() {
         super(...arguments);
         this.fields = [];
+        this.isID = false;
         this.params = [];
     }
     get type() { return 'query'; }

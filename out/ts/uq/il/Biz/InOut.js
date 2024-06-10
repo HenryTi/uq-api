@@ -17,6 +17,7 @@ const Entity_1 = require("./Entity");
 class BizInOut extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
+        this.isID = false;
         this.fields = [];
     }
 }
@@ -189,6 +190,7 @@ class BizIOApp extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioApp;
+        this.isID = false;
         this.connect = { type: undefined, };
         this.fields = [];
         this.ioSites = [];
@@ -228,6 +230,7 @@ class BizIOSite extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioSite;
+        this.isID = false;
         this.fields = [];
         this.ioApps = [];
     }

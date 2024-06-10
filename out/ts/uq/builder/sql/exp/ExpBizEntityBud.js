@@ -14,6 +14,9 @@ class ExpBizEntityBud extends exps_1.ExpVal {
             default:
                 this.buildSelectBud(sb);
                 break;
+            case BizPhraseType_1.BizPhraseType.combo:
+                this.buildComboBud(sb);
+                break;
             case BizPhraseType_1.BizPhraseType.options:
                 sb.append(this.bud.id);
                 break;
@@ -29,6 +32,11 @@ class ExpBizEntityBud extends exps_1.ExpVal {
         sb.append('(SELECT value FROM ');
         sb.dbName().dot().fld(budType.sysTable);
         sb.append(` WHERE i=${this.bizFromEntity.alias}.id AND x=${id})`);
+    }
+    buildComboBud(sb) {
+        const { alias } = this.bizFromEntity;
+        const { name } = this.bud;
+        sb.name(alias).dot().name(name);
     }
 }
 exports.ExpBizEntityBud = ExpBizEntityBud;

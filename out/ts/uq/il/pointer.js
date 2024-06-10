@@ -105,7 +105,6 @@ class BizEntityBudPointer extends Pointer {
         super();
         this.groupType = GroupType.Both;
         this.bizFromEntity = bizFromEntity;
-        // this.entity = entity;
         this.bud = bud;
     }
     to(stack, v) {

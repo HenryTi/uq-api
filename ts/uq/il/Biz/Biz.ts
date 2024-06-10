@@ -11,6 +11,14 @@ import { EnumSysTable } from "../EnumSysTable";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizIOApp, BizOut, IOAppOut } from "./InOut";
 
+export type SameTypeEntityArrReturn = {
+    ok: boolean;
+    entityArr: BizEntity[];
+    logs: string[];
+    bizPhraseType: BizPhraseType;
+    bizEntityTable: EnumSysTable;
+}
+
 export class Biz extends Entity {
     readonly bizEntities: Map<string, BizEntity>;
     readonly bizArr: BizEntity[] = [];
@@ -113,13 +121,7 @@ export class Biz extends Entity {
         return ret;
     }
 
-    sameTypeEntityArr(entityNames: string[]): {
-        ok: boolean;
-        entityArr: BizEntity[];
-        logs: string[];
-        bizPhraseType: BizPhraseType;
-        bizEntityTable: EnumSysTable;
-    } {
+    sameTypeEntityArr(entityNames: string[]): SameTypeEntityArrReturn {
         let logs: string[] = [];
         let entityArr: BizEntity[] = [];
         let ok = true;

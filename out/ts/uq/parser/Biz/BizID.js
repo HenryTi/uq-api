@@ -137,7 +137,7 @@ class PBizIDExtendable extends PBizID {
     scan0(space) {
         let ok = true;
         if (this.extendsName !== undefined) {
-            let atom = this.scanAtomID(space, this.extendsName);
+            let atom = this.scanID(space, this.extendsName);
             if (atom === undefined) {
                 ok = false;
             }
@@ -413,7 +413,7 @@ class PBizIDWithBase extends PBizIDExtendable {
             ok = false;
         }
         else {
-            let base = this.scanAtomID(space, this.baseName);
+            let base = this.scanID(space, this.baseName);
             if (base === undefined) {
                 ok = false;
             }

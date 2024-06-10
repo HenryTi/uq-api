@@ -200,6 +200,10 @@ class PFromStatement extends statement_1.PStatement {
     }
     parseFromEntity(pFromEntity) {
         this.parseTbls(pFromEntity);
+        if (this.ts.token === tokens_1.Token.DOT) {
+            pFromEntity.isDot = true;
+            this.ts.readToken();
+        }
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             pFromEntity.subs = [];
@@ -392,7 +396,7 @@ class PFromStatement extends statement_1.PStatement {
         let ok = true;
         space = this.createFromSpace(space);
         let scanner = new FromEntityScaner(space);
-        let fromEntity = scanner.createFromEntity(this.pFromEntity);
+        let fromEntity = scanner.createFromEntity(this.pFromEntity, undefined);
         if (scanner.scan(fromEntity, this.pFromEntity) === false) {
             this.log(...scanner.msgs);
             ok = false;
@@ -525,13 +529,18 @@ class FromEntityScaner {
     log(...msg) {
         this.msgs.push(...msg);
     }
-    createFromEntity(pFromEntity) {
+    createFromEntity(pFromEntity, sameTypeEntityArr) {
         const fromEntity = new il_1.FromEntity();
         const { tbls } = pFromEntity;
         if (tbls.length === 0)
             return fromEntity;
         const { biz } = this.space.uq;
-        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = biz.sameTypeEntityArr(tbls);
+        let ret;
+        if (sameTypeEntityArr === undefined)
+            ret = biz.sameTypeEntityArr(tbls);
+        else
+            ret = sameTypeEntityArr(tbls);
+        const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = ret;
         if (entityArr.length === 0) {
             return;
         }
@@ -549,7 +558,7 @@ class FromEntityScaner {
             return false;
         let ok = true;
         const { ofIXs, ofOn } = fromEntity;
-        const { subs: pSubs, alias } = pFromEntity;
+        const { subs: pSubs, alias, isDot } = pFromEntity;
         if (alias !== undefined) {
             if (this.sets.has(alias) === true) {
                 ok = false;
@@ -566,7 +575,7 @@ class FromEntityScaner {
         const { bizEntityArr } = fromEntity;
         if (bizEntityArr.length > 0) {
             for (let _of of pFromEntity.ofIXs) {
-                let entity = this.space.getBizBase([_of]); // .getBizFromEntityArrFromAlias(_of);
+                let entity = this.space.getBizBase([_of]);
                 if (entity === undefined) {
                     ok = false;
                     this.log(`${_of} is not defined`);
@@ -600,6 +609,10 @@ class FromEntityScaner {
                         ok = false;
                         this.log('DUO must have 2 sub join');
                     }
+                    if (isDot === true) {
+                        this.log('DUO. is not allowed');
+                        ok = false;
+                    }
                     let duo = new FromEntityScanDuo(this, fromEntity, pSubs[0], pSubs[1]);
                     subs = duo.createSubs();
                     break;
@@ -607,6 +620,10 @@ class FromEntityScaner {
                     if (length !== 0 && length !== 1) {
                         ok = false;
                         this.log('SPEC must have 1 sub join');
+                    }
+                    if (isDot === true) {
+                        this.log('SPEC. is not allowed');
+                        ok = false;
                     }
                     let spec = new FromEntityScanSpec(this, fromEntity, pSubs[0]);
                     subs = spec.createSubs();
@@ -618,11 +635,11 @@ class FromEntityScaner {
                     }
                     const combo = bizEntityArr[0];
                     const keysLength = combo.keys.length;
-                    if (length !== keysLength) {
+                    if (length !== keysLength && isDot !== true) {
                         ok = false;
                         this.log(`${combo.getJName()} must have ${keysLength} subs`);
                     }
-                    let comboScan = new FromEntityScanCombo(this, fromEntity, pSubs);
+                    let comboScan = new FromEntityScanCombo(this, fromEntity, pSubs, isDot);
                     subs = comboScan.createSubs();
                     break;
             }
@@ -642,7 +659,7 @@ class FEScanBase {
         this.fromEntity = fromEntity;
     }
     createFromEntity(b) {
-        let fromEntity = this.scaner.createFromEntity(b);
+        let fromEntity = this.scaner.createFromEntity(b, undefined);
         return fromEntity;
     }
     scanSub(b, field, callbackOnEmpty) {
@@ -688,13 +705,54 @@ class FromEntityScanDuo extends FEScanBase {
     }
 }
 class FromEntityScanCombo extends FEScanBase {
-    constructor(scaner, fromEntity, pSubs) {
+    constructor(scaner, fromEntity, pSubs, isDot) {
         super(scaner, fromEntity);
+        this.sameTypeEntityArr = (entityNames) => {
+            const { keys } = this.combo;
+            const en = entityNames[0];
+            let key = keys.find(v => v.name === en);
+            if (key === undefined) {
+                let ret = {
+                    ok: false,
+                    entityArr: [],
+                    logs: [`${this.combo.name} has not key ${en} `],
+                    bizPhraseType: undefined,
+                    bizEntityTable: undefined,
+                };
+                return ret;
+            }
+            else {
+                const { ID } = key;
+                if (ID === undefined) {
+                    let ret = {
+                        ok: false,
+                        entityArr: [],
+                        logs: [`${this.combo.name} key ${en} is not ID`],
+                        bizPhraseType: undefined,
+                        bizEntityTable: undefined,
+                    };
+                    return ret;
+                }
+                else {
+                    let ret = {
+                        ok: true,
+                        entityArr: [ID],
+                        logs: [],
+                        bizPhraseType: ID.bizPhraseType,
+                        bizEntityTable: ID.getEnumSysTable(),
+                    };
+                    return ret;
+                }
+            }
+        };
         this.pSubs = pSubs;
+        const { bizEntityArr } = this.fromEntity;
+        this.combo = bizEntityArr[0];
+        if (isDot !== true)
+            this.sameTypeEntityArr = undefined;
     }
     createSubs() {
-        const { bizEntityArr } = this.fromEntity;
-        const { keys } = bizEntityArr[0];
+        const { keys } = this.combo;
         let ret = [];
         let len = this.pSubs.length;
         for (let i = 0; i < len; i++) {
@@ -708,6 +766,10 @@ class FromEntityScanCombo extends FEScanBase {
             ret.push(sub);
         }
         return ret;
+    }
+    createFromEntity(b) {
+        let fromEntity = this.scaner.createFromEntity(b, this.sameTypeEntityArr);
+        return fromEntity;
     }
 }
 class FromEntityScanSpec extends FEScanBase {

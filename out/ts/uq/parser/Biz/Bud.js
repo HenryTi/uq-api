@@ -399,13 +399,13 @@ class PBizBudIDBase extends PBizBudValue {
     }
     scan(space) {
         let ok = super.scan(space);
-        if (this.atomName !== undefined) {
-            let atom = super.scanAtomID(space, this.atomName);
-            if (atom === undefined) {
+        if (this.idName !== undefined) {
+            let ID = super.scanID(space, this.idName);
+            if (ID === undefined) {
                 ok = false;
             }
             else {
-                this.element.ID = atom;
+                this.element.ID = ID;
             }
         }
         return ok;
@@ -413,7 +413,7 @@ class PBizBudIDBase extends PBizBudValue {
 }
 class PBizBudIXBase extends PBizBudIDBase {
     _parse() {
-        this.atomName = this.ts.mayPassVar();
+        this.idName = this.ts.mayPassVar();
         this.parseFieldShow();
         // this.parseBudEquValue();
     }
@@ -421,7 +421,7 @@ class PBizBudIXBase extends PBizBudIDBase {
 exports.PBizBudIXBase = PBizBudIXBase;
 class PBizBudID extends PBizBudIDBase {
     _parse() {
-        this.atomName = this.ts.mayPassVar();
+        this.idName = this.ts.mayPassVar();
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             this.ts.passKey('base');

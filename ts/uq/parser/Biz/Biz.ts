@@ -86,11 +86,24 @@ export class PBiz extends PEntity<Biz> {
 
     scan0(space: Space): boolean {
         let ok = true;
+        function scan0(entity: BizEntity) {
+            let bizEntitySpace = new BizEntitySpace(space, entity);
+            if (entity.pelement.scan0(bizEntitySpace) === false) {
+                ok = false;
+            }
+        }
         for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === true) scan0(p);
+        }
+
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === false) scan0(p);
+            /*
             let bizEntitySpace = new BizEntitySpace(space, p);
             if (p.pelement.scan0(bizEntitySpace) === false) {
                 ok = false;
             }
+            */
         }
         return ok;
     }
@@ -98,6 +111,7 @@ export class PBiz extends PEntity<Biz> {
     scan(space: Space): boolean {
         let ok = true;
         const { bizEntities } = this.entity;
+
         for (let [, p] of bizEntities) {
             const { bizPhraseType } = p;
             switch (bizPhraseType) {
@@ -111,13 +125,28 @@ export class PBiz extends PEntity<Biz> {
                     break;
             }
         }
+
+        function scan(entity: BizEntity) {
+            let { pelement } = entity;
+            if (pelement === undefined) return;
+            let bizEntitySpace = new BizEntitySpace(space, entity);
+            if (pelement.scan(bizEntitySpace) === false) {
+                ok = false;
+            }
+        }
         for (let [, p] of bizEntities) {
+            if (p.isID === true) scan(p);
+        }
+        for (let [, p] of bizEntities) {
+            if (p.isID === false) scan(p);
+            /*
             let { pelement } = p;
             if (pelement === undefined) continue;
             let bizEntitySpace = new BizEntitySpace(space, p);
             if (pelement.scan(bizEntitySpace) === false) {
                 ok = false;
             }
+            */
         }
         this.entity.buildPhrases();
         return ok;
@@ -125,12 +154,18 @@ export class PBiz extends PEntity<Biz> {
 
     scan2(uq: Uq): boolean {
         let ok = true;
-        for (let [, p] of this.entity.bizEntities) {
-            let { pelement } = p;
-            if (pelement === undefined) continue;
+        function scan2(entity: BizEntity) {
+            let { pelement } = entity;
+            if (pelement === undefined) return;
             if (pelement.scan2(uq) === false) {
                 ok = false;
             }
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === true) scan2(p);
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === false) scan2(p);
         }
         return ok;
     }

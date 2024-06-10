@@ -201,6 +201,7 @@ class BizBin extends Entity_1.BizEntity {
         super(biz);
         this.fields = ['id', 'pend', ...consts_1.binFieldArr];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.bin;
+        this.isID = false;
         this.pickColl = {};
         this.inputColl = {};
         this.sheetArr = []; // 被多少sheet引用了

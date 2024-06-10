@@ -95,12 +95,10 @@ export class ConstPointer extends Pointer {
 export class BizEntityBudPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Both;
     readonly bizFromEntity: BizFromEntity;
-    // readonly entity: BizEntity;
     readonly bud: BizBud;
     constructor(bizFromEntity: BizFromEntity, bud: BizBud) {
         super();
         this.bizFromEntity = bizFromEntity;
-        // this.entity = entity;
         this.bud = bud;
     }
     override to(stack: Stack, v: VarOperand): void {

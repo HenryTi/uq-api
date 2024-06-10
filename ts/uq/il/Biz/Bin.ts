@@ -228,6 +228,7 @@ export class BinPivot extends BinDiv {
 export class BizBin extends BizEntity {
     protected readonly fields = ['id', 'pend', ...binFieldArr];
     readonly bizPhraseType = BizPhraseType.bin;
+    readonly isID = false;
     readonly pickColl: { [name: string]: BinPick } = {};
     readonly inputColl: { [name: string]: BinInput } = {};
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了

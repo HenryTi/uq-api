@@ -20,6 +20,7 @@ import { BizOptions } from "./Options";
 // ???
 
 export abstract class BizInOut extends BizEntity {
+    readonly isID = false;
     protected readonly fields = [];
 }
 
@@ -195,6 +196,7 @@ interface IOAppConnect {
 }
 export class BizIOApp extends BizEntity {
     readonly bizPhraseType = BizPhraseType.ioApp;
+    readonly isID = false;
     readonly connect: IOAppConnect = { type: undefined, };
     readonly fields = [];
     readonly ioSites: BizIOSite[] = [];
@@ -233,6 +235,7 @@ export class BizIOApp extends BizEntity {
 
 export class BizIOSite extends BizEntity {
     readonly bizPhraseType = BizPhraseType.ioSite;
+    readonly isID = false;
     readonly fields = [];
     tie: BizAtom;
     readonly ioApps: BizIOApp[] = [];

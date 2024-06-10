@@ -336,7 +336,7 @@ export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
 }
 
 abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
-    protected atomName: string;
+    protected idName: string;
     private fieldShows: string[][];
     private includeTitleBuds: boolean;
     private includePrimeBuds: boolean;
@@ -415,13 +415,13 @@ abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
 
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = super.scan(space);
-        if (this.atomName !== undefined) {
-            let atom = super.scanAtomID(space, this.atomName);
-            if (atom === undefined) {
+        if (this.idName !== undefined) {
+            let ID = super.scanID(space, this.idName);
+            if (ID === undefined) {
                 ok = false;
             }
             else {
-                this.element.ID = atom;
+                this.element.ID = ID;
             }
         }
         return ok;
@@ -430,7 +430,7 @@ abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
 
 export class PBizBudIXBase extends PBizBudIDBase<BizBudIXBase> {
     protected _parse(): void {
-        this.atomName = this.ts.mayPassVar();
+        this.idName = this.ts.mayPassVar();
         this.parseFieldShow();
         // this.parseBudEquValue();
     }
@@ -438,7 +438,7 @@ export class PBizBudIXBase extends PBizBudIDBase<BizBudIXBase> {
 
 export class PBizBudID extends PBizBudIDBase<BizBudID> {
     protected _parse(): void {
-        this.atomName = this.ts.mayPassVar();
+        this.idName = this.ts.mayPassVar();
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
             this.ts.passKey('base');

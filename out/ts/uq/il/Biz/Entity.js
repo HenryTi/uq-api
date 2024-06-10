@@ -122,24 +122,6 @@ class BizEntity extends Base_1.BizBase {
         ;
         return ret.getBizBase(bizName);
     }
-    /*
-    protected buildField(bud: BizBudValue): Field {
-        let { name, dataType } = bud;
-        let field = new Field();
-        field.name = name;
-        let fieldDataType: DataType;
-        switch (dataType) {
-            default: debugger; throw new Error(`unknown BizBud ${dataType}`);
-            case BudDataType.int:
-            case BudDataType.ID: fieldDataType = new BigInt(); break;
-            case BudDataType.date: fieldDataType = new DDate(); break;
-            case BudDataType.dec: fieldDataType = new Dec(20, 6); break;
-            case BudDataType.char: fieldDataType = new Char(50); break;
-        }
-        field.dataType = fieldDataType;
-        return field;
-    }
-    */
     ixFieldSchema(tieField) {
         const { caption, atoms } = tieField;
         let ret = {

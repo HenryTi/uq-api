@@ -107,6 +107,7 @@ class BizAct extends BizBase {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.act;
+        this.isID = false;
         this.tableVars = {};
     }
     addTableVar(tableVar) {

@@ -74,11 +74,25 @@ class PBiz extends entity_1.PEntity {
     }
     scan0(space) {
         let ok = true;
+        function scan0(entity) {
+            let bizEntitySpace = new BizEntitySpace(space, entity);
+            if (entity.pelement.scan0(bizEntitySpace) === false) {
+                ok = false;
+            }
+        }
         for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === true)
+                scan0(p);
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === false)
+                scan0(p);
+            /*
             let bizEntitySpace = new BizEntitySpace(space, p);
             if (p.pelement.scan0(bizEntitySpace) === false) {
                 ok = false;
             }
+            */
         }
         return ok;
     }
@@ -98,27 +112,51 @@ class PBiz extends entity_1.PEntity {
                     break;
             }
         }
-        for (let [, p] of bizEntities) {
-            let { pelement } = p;
+        function scan(entity) {
+            let { pelement } = entity;
             if (pelement === undefined)
-                continue;
+                return;
+            let bizEntitySpace = new BizEntitySpace(space, entity);
+            if (pelement.scan(bizEntitySpace) === false) {
+                ok = false;
+            }
+        }
+        for (let [, p] of bizEntities) {
+            if (p.isID === true)
+                scan(p);
+        }
+        for (let [, p] of bizEntities) {
+            if (p.isID === false)
+                scan(p);
+            /*
+            let { pelement } = p;
+            if (pelement === undefined) continue;
             let bizEntitySpace = new BizEntitySpace(space, p);
             if (pelement.scan(bizEntitySpace) === false) {
                 ok = false;
             }
+            */
         }
         this.entity.buildPhrases();
         return ok;
     }
     scan2(uq) {
         let ok = true;
-        for (let [, p] of this.entity.bizEntities) {
-            let { pelement } = p;
+        function scan2(entity) {
+            let { pelement } = entity;
             if (pelement === undefined)
-                continue;
+                return;
             if (pelement.scan2(uq) === false) {
                 ok = false;
             }
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === true)
+                scan2(p);
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isID === false)
+                scan2(p);
         }
         return ok;
     }

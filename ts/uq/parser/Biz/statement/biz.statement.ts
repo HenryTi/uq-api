@@ -517,7 +517,7 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
                     ok = false;
                 }
             }
-            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromAlias(entityName);
+            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(entityName);
             if (entity === undefined) {
                 ok = false;
                 this.log(`${entityName} is not defined`);
@@ -608,7 +608,7 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
             ok = false;
             return ok;
         }
-        let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromAlias(this.entityName);
+        let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(this.entityName);
         if (entity.bizPhraseType !== BizPhraseType.spec) {
             ok = false;
             this.log(`${this.entityName} is not SPEC`);
@@ -642,7 +642,7 @@ export class PBizStatementTie<A extends BizAct> extends PBizStatementSub<A, BizS
     }
     override scan(space: Space) {
         let ok = true;
-        let { bizEntityArr: [tie] } = space.getBizFromEntityArrFromAlias(this.tieName) as BizFromEntity<BizTie>;
+        let { bizEntityArr: [tie] } = space.getBizFromEntityArrFromName(this.tieName) as BizFromEntity<BizTie>;
         if (tie === undefined || tie.bizPhraseType !== BizPhraseType.tie) {
             ok = false;
             this.log(`${this.tieName} is not TIE`);
@@ -716,7 +716,7 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
     override scan(space: Space): boolean {
         let ok = true;
         let { tos, detail, sets } = this.element;
-        let { bizEntityArr: [bizOut] } = space.getBizFromEntityArrFromAlias(this.outName) as BizFromEntity<BizOut>;
+        let { bizEntityArr: [bizOut] } = space.getBizFromEntityArrFromName(this.outName) as BizFromEntity<BizOut>;
         if (bizOut === undefined || bizOut.bizPhraseType !== BizPhraseType.out) {
             ok = false;
             this.log(`${this.outName} is not OUT`);
