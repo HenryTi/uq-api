@@ -159,7 +159,7 @@ export abstract class BizIDWithBase extends BizIDExtendable {
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
-            base: this.base.name,
+            base: this.base.id,
             ix: this.isIxBase,
         });
     }
