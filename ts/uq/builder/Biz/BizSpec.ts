@@ -1,11 +1,13 @@
 import {
     BigInt, BizSpec, Char, DataType, Dec, JoinType
-    , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud
+    , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud,
+    tinyIntField
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
-    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNum
-    , ExpSelect, ExpStr, ExpVal, ExpVar, Procedure
+    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpIsNull, ExpNeg, ExpNum
+    , ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure,
+    Statement
 } from "../sql";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
@@ -40,10 +42,13 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         const { parameters, statements } = proc;
         const { factory, unitField, userParam } = this.context;
 
+        const cOrgId = '$id';
         const cBase = '$base';
         const cKeys = '$keys';
         const cProps = '$props';
-        const cId = '$id';
+        const cNewId = '$newId';
+        const cKeysSet = '$keysSet';
+        const cPropsSet = '$propsSet';
         const a = 'a';
         const site = '$site';
         const len = keys.length;
@@ -60,13 +65,19 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         parameters.push(
             bigIntField(site),
             userParam,
+            bigIntField(cOrgId),
             idField(cBase, 'big'),
             jsonField(cKeys),
             jsonField(cProps),
         );
 
         const declare = factory.createDeclare();
-        declare.var(cId, new BigInt());
+        declare.var(cNewId, new BigInt());
+        declare.vars(
+            bigIntField(cNewId),
+            tinyIntField(cKeysSet),
+            tinyIntField(cPropsSet),
+        );
         statements.push(declare);
 
         function declareBuds(buds: BizBud[]) {
@@ -114,7 +125,7 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         statements.push(select);
         select.toVar = true;
         select.limit(ExpNum.num1);
-        select.column(new ExpField('id', a), cId);
+        select.column(new ExpField('id', a), cNewId);
         select.from(new EntityTable('spec', false, a));
         const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
 
@@ -157,43 +168,74 @@ export class BBizSpec extends BBizEntity<BizSpec> {
         }
         select.where(new ExpAnd(...wheres));
 
-        const ifIdNull = factory.createIf();
-        statements.push(ifIdNull);
-        ifIdNull.cmp = new ExpIsNull(new ExpVar(cId));
-        const setId = factory.createSet();
-        ifIdNull.then(setId);
-        setId.equ(cId, new ExpFuncInUq(
-            'spec$id',
-            [varSite, new ExpVar(userParam.name), ExpNum.num1, varBase],
-            true
-        ));
-
-        selectJsonValue(varProps, props, prefixBud);
-
-        function setBud(bud: BizBud) {
+        function setBud(stats: Statement[], bud: BizBud) {
             const { name } = bud;
             const { varVal, tbl } = tblAndValFromBud(bud);
             const insert = factory.createInsertOnDuplicate();
-            statements.push(insert);
+            stats.push(insert);
             insert.table = new EntityTable(tbl, false);
             insert.keys.push(
-                { col: 'i', val: new ExpVar(cId) },
+                { col: 'i', val: new ExpVar(cNewId) },
                 {
                     col: 'x', val: new ExpVar(prefixPhrase + name),
                 },
             );
             insert.cols.push({ col: 'value', val: varVal });
         }
-        function setBuds(buds: BizBud[]) {
-            for (let bud of buds) setBud(bud);
+        function setBuds(stats: Statement[], buds: BizBud[]) {
+            for (let bud of buds) setBud(stats, bud);
         }
-        setBuds(keys);
-        setBuds(props);
+
+        const ifNewIdNull = factory.createIf();
+        statements.push(ifNewIdNull);
+        ifNewIdNull.cmp = new ExpIsNull(new ExpVar(cNewId));
+        const ifNewNullOrg = factory.createIf();
+        ifNewIdNull.then(ifNewNullOrg);
+        ifNewNullOrg.cmp = new ExpIsNotNull(new ExpVar(cOrgId));
+        const setNew0 = factory.createSet();
+        ifNewNullOrg.then(setNew0);
+        setNew0.equ(cNewId, ExpNum.num0);
+        const setId = factory.createSet();
+        ifNewNullOrg.else(setId);
+        setId.equ(cNewId, new ExpFuncInUq(
+            'spec$id',
+            [varSite, new ExpVar(userParam.name), ExpNum.num1, varBase],
+            true
+        ));
+        const setKeysSet = factory.createSet();
+        ifNewNullOrg.else(setKeysSet);
+        setKeysSet.equ(cKeysSet, ExpNum.num1);
+        const setPropsSet = factory.createSet();
+        ifNewNullOrg.else(setPropsSet);
+        setPropsSet.equ(cPropsSet, ExpNum.num1);
+
+        const ifNewOrg = factory.createIf();
+        ifNewIdNull.else(ifNewOrg);
+        ifNewOrg.cmp = new ExpOr(
+            new ExpIsNull(new ExpVar(cOrgId)),
+            new ExpEQ(new ExpVar(cOrgId), new ExpVar(cNewId)),
+        );
+        ifNewOrg.then(setPropsSet);
+        const setNewNeg = factory.createSet();
+        ifNewIdNull.else(setNewNeg);
+        setNewNeg.equ(cNewId, new ExpNeg(new ExpVar(cNewId)));
+
+        selectJsonValue(varProps, props, prefixBud);
+
+        const ifKeysSet = factory.createIf();
+        statements.push(ifKeysSet);
+        ifKeysSet.cmp = new ExpEQ(new ExpVar(cKeysSet), ExpNum.num1);
+        setBuds(ifKeysSet.thenStatements, keys);
+
+        const ifPropsSet = factory.createIf();
+        statements.push(ifPropsSet);
+        ifPropsSet.cmp = new ExpEQ(new ExpVar(cPropsSet), ExpNum.num1);
+        setBuds(ifPropsSet.thenStatements, props);
 
         const setExecSqlValue = factory.createSet();
         statements.push(setExecSqlValue);
         setExecSqlValue.isAtVar = true;
-        setExecSqlValue.equ('execSqlValue', new ExpVar(cId));
+        setExecSqlValue.equ('execSqlValue', new ExpVar(cNewId));
     }
 
     private buildGetFunc(func: Procedure) {
