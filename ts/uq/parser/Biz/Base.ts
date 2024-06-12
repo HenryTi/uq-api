@@ -248,7 +248,12 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         const tokens = [Token.EQU, Token.COLONEQU, Token.COLON, Token.SEMICOLON, Token.COMMA, Token.RPARENTHESE];
         const { token } = this.ts;
         if (tokens.includes(token) === true) {
-            key = budType ?? 'none';
+            if (name === 'no' || name === 'ex') {
+                key = 'char';
+            }
+            else {
+                key = budType ?? 'none';
+            }
         }
         else if (token === Token.LPARENTHESE) {
             key = '$arr';
@@ -273,7 +278,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         else {
             key = budType;
         }
-        let Bud = this.getBudClass(key); // keyColl[key];
+        let Bud = this.getBudClass(key);
         if (Bud === undefined) {
             this.ts.expect(...this.getBudClassKeys());
         }
