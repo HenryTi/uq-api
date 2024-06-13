@@ -46,6 +46,7 @@ export class BizFieldBud extends BizField {
     }
 
     override scanBinDiv(): void {
+        if (this.bud === undefined) return;
         const { entity } = this.bud;
         const { bizPhraseType } = entity;
         if (bizPhraseType === BizPhraseType.bin) {
@@ -239,7 +240,7 @@ export class BizBinActFieldSpace extends BizFieldSpace {
                 alias = 'sheet';
                 break;
         }
-        if (bud === undefined) debugger;
+        if (bud === undefined) return null;
         return this.buildBizFieldFromBud(alias, bud);
     }
 

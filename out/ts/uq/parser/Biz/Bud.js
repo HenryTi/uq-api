@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudIntOf = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIXBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudAny = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIXBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudAny = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
@@ -523,9 +523,10 @@ class PBizBudRadioOrCheck extends PBizBudValue {
         return ok;
     }
 }
-class PBizBudIntOf extends PBizBudRadioOrCheck {
+/*
+export class PBizBudIntOf extends PBizBudRadioOrCheck<BizBudIntOf> {
 }
-exports.PBizBudIntOf = PBizBudIntOf;
+*/
 class PBizBudRadio extends PBizBudRadioOrCheck {
 }
 exports.PBizBudRadio = PBizBudRadio;

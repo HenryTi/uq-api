@@ -36,6 +36,8 @@ class BizFieldBud extends BizField {
         return new builder_1.BBizFieldBud(dbContext, this);
     }
     scanBinDiv() {
+        if (this.bud === undefined)
+            return;
         const { entity } = this.bud;
         const { bizPhraseType } = entity;
         if (bizPhraseType === BizPhraseType_1.BizPhraseType.bin) {
@@ -223,7 +225,7 @@ class BizBinActFieldSpace extends BizFieldSpace {
                 break;
         }
         if (bud === undefined)
-            debugger;
+            return null;
         return this.buildBizFieldFromBud(alias, bud);
     }
     buildBizFieldFromBud(alias, bud) {

@@ -1,7 +1,7 @@
 import {
     PBizBudID, PBizBudChar as PBizBudCharBase, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
-    , PBizBudIntOf, PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement
+    , PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement
     , PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue, PBizUser
 } from "../../parser";
 import { IElement } from "../IElement";
@@ -150,11 +150,6 @@ export class BizUser extends BizBud {
     }
     override buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
         super.buildPhrases(phrases, prefix);
-        /*
-        for (let def of this.defaults) {
-            def.buildPhrases(phrases, this.phrase);
-        }
-        */
     }
 }
 
@@ -387,6 +382,7 @@ export abstract class BizBudOptions extends BizBudValue {
     get objName(): string { return this.options?.phrase; }
 }
 
+/*
 export class BizBudIntOf extends BizBudOptions {
     readonly dataType = BudDataType.intof;
     readonly canIndex = true;
@@ -394,6 +390,7 @@ export class BizBudIntOf extends BizBudOptions {
         return new PBizBudIntOf(this, context);
     }
 }
+*/
 
 export class BizBudRadio extends BizBudOptions {
     readonly dataType = BudDataType.radio;
@@ -425,7 +422,7 @@ export const budClasses: { [key: string]: new (entity: BizEntity, name: string, 
     none: BizBudAny,
     atom: BizBudID,
     id: BizBudID,
-    intof: BizBudIntOf,
+    // intof: BizBudIntOf,
     radio: BizBudRadio,
     check: BizBudCheck,
     binValue: BinValue

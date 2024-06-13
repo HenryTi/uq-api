@@ -1,11 +1,11 @@
 import {
     BizBud, BizBudID, BizBudChar, BizBudCheck, BizBudDate
     , BizBudDec, BizBudInt, BizOptions
-    , BizBudAny, BizBudRadio, BizBudIntOf, BizBudPickable
+    , BizBudAny, BizBudRadio, BizBudPickable
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
     , FieldShowItem, BizSpec, BudValueSet, BizBudValueWithRange
-    , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, Biz, UI, BinValue, BizID,
-    BizBudIDBase
+    , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, UI, BinValue
+    , BizBudIDBase
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -476,7 +476,6 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
 }
 
 export class PBizBudPickable extends PBizBudValue<BizBudPickable> {
-    // private atom: string;
     private pick: string;
     protected _parse(): void {
         if (this.ts.token === Token.VAR) {
@@ -513,7 +512,7 @@ export class PBizBudPickable extends PBizBudValue<BizBudPickable> {
     }
 }
 
-abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBudIntOf)> extends PBizBudValue<T> {
+abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extends PBizBudValue<T> {
     private optionsName: string;
 
     protected _parse(): void {
@@ -545,10 +544,10 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck | BizBud
         return ok;
     }
 }
-
+/*
 export class PBizBudIntOf extends PBizBudRadioOrCheck<BizBudIntOf> {
 }
-
+*/
 export class PBizBudRadio extends PBizBudRadioOrCheck<BizBudRadio> {
 }
 

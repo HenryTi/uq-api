@@ -48,7 +48,7 @@ export enum BudDataType {
     atom = 12,                  // atom id
     radio = 13,                 // single radio ids
     check = 14,                 // multiple checks
-    intof = 15,
+    // intof = 15,
     ID = 19,
 
     dec = 21,                   // dec(18.6)
