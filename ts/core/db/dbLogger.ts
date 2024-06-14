@@ -1,4 +1,3 @@
-import { Db$Uq } from "./Db";
 import { getDbs } from "./Dbs";
 
 export class SpanLog {

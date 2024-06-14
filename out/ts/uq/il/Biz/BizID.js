@@ -154,7 +154,7 @@ class BizIDWithBase extends BizIDExtendable {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             base: this.base.id,
-            ix: this.isIxBase,
+            preset: this.preset,
         });
     }
 }

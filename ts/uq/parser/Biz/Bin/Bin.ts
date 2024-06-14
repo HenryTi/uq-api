@@ -485,18 +485,25 @@ export class PBizBin extends PBizEntity<BizBin> {
             div.format = nf;
         }
         if (i !== undefined) {
-            if (i.ID.bizPhraseType === BizPhraseType.spec) {
-                if (iBase === undefined) {
-                    ok = false;
-                    this.log('I Spec need I.base');
+            const { ID } = i;
+            if (ID !== undefined) {
+                if (ID.bizPhraseType === BizPhraseType.spec) {
+                    if (iBase === undefined) {
+                        // 不一定需要I.Base
+                        // ok = false;
+                        // this.log('I Spec need I.base');
+                    }
                 }
             }
         }
         if (x !== undefined) {
-            if (x.ID.bizPhraseType === BizPhraseType.spec) {
-                if (xBase === undefined) {
-                    ok = false;
-                    this.log('X Spec need X.base');
+            const { ID } = x;
+            if (ID !== undefined) {
+                if (ID.bizPhraseType === BizPhraseType.spec) {
+                    if (xBase === undefined) {
+                        // ok = false;
+                        // this.log('X Spec need X.base');
+                    }
                 }
             }
         }

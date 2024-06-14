@@ -380,13 +380,9 @@ exports.PBizDuo = PBizDuo;
 class PBizIDWithBase extends PBizIDExtendable {
     constructor() {
         super(...arguments);
-        this.parseIxBase = () => {
-            if (this.ts.isKeyword('base') === false) {
-                this.ts.expect('base');
-            }
-            this.element.isIxBase = true;
-            this.ts.readToken();
-            this.parseBase();
+        this.parsePreset = () => {
+            this.element.preset = true;
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
         this.parseBase = () => {
             if (this.baseName !== undefined) {
@@ -494,7 +490,7 @@ class PBizSpec extends PBizIDWithBase {
             this.element.keys.push(...this.parseKeyBuds());
         };
         this.keyColl = {
-            ix: this.parseIxBase,
+            preset: this.parsePreset,
             base: this.parseBase,
             prop: this.parseProp,
             key: this.parseKey,

@@ -154,13 +154,13 @@ export class BizDuo extends BizID {
 
 export abstract class BizIDWithBase extends BizIDExtendable {
     base: BizIDWithBase;    // only base, not base atom, then bizAtomFlag
-    isIxBase: boolean;          // 如果true，不能临时录入，只能选择。
+    preset: boolean;          // 如果true，不能临时录入，只能选择。
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         return Object.assign(ret, {
             base: this.base.id,
-            ix: this.isIxBase,
+            preset: this.preset,
         });
     }
 }

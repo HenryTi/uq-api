@@ -320,7 +320,9 @@ export abstract class BizBudIDBase extends BizBudValue {
             params[i] = this.params[i].str;
             hasParams = true;
         }
-        if (hasParams === true) ret.params = params;
+        if (hasParams === true) {
+            ret.params = params;
+        }
         if (this.fieldShows !== undefined) {
             ret.fieldShows = this.fieldShows.map(v => {
                 return v.map(i => i.id);

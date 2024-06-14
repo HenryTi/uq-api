@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CompilerThoroughly = exports.Compiler = void 0;
 const jsonpack = require("jsonpack");
-const biz_sys_1 = require("../biz-sys");
 const core_1 = require("../../core");
 const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
@@ -185,7 +184,6 @@ class Compiler {
         return this.newest.find(v => v.name === phrase) !== undefined;
     }
     parseBiz() {
-        this.parseSysCode();
         this.newest.splice(0);
         this.newest.push(...this.biz.bizArr);
         for (let obj of this.objs) {
@@ -195,11 +193,6 @@ class Compiler {
             if (this.isNewest(phrase) === true)
                 continue;
             this.uqParser.parse(source, phrase);
-        }
-    }
-    parseSysCode() {
-        for (let part of biz_sys_1.default) {
-            this.uqParser.parse(part, 'sys', true);
         }
     }
     setNewest() {

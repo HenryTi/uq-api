@@ -395,13 +395,9 @@ export class PBizDuo extends PBizID<BizDuo> {
 
 abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<T> {
     protected baseName: string;
-    protected parseIxBase = () => {
-        if (this.ts.isKeyword('base') === false) {
-            this.ts.expect('base');
-        }
-        this.element.isIxBase = true;
-        this.ts.readToken();
-        this.parseBase();
+    protected parsePreset = () => {
+        this.element.preset = true;
+        this.ts.passToken(Token.SEMICOLON);
     }
     protected parseBase = () => {
         if (this.baseName !== undefined) {
@@ -510,7 +506,7 @@ export class PBizSpec extends PBizIDWithBase<BizSpec> {
     }
 
     readonly keyColl = {
-        ix: this.parseIxBase,
+        preset: this.parsePreset,
         base: this.parseBase,
         prop: this.parseProp,
         key: this.parseKey,
