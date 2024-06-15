@@ -203,12 +203,28 @@ export class PBizExp extends PElement<BizExp> {
         else {
             const arr = binFieldArr;
             if (arr.includes(prop) === false) {
-                let bud: BizBud = isParent === true ? bizBin.getSheetBud(prop) : bizBin.getBud(prop);
-                if (bud === undefined) {
-                    this.log(`${bizBin.getJName()} does not have prop ${prop}`);
-                    ok = false;
+                let bud: BizBud;
+                if (isParent === true) {
+                    bud = bizBin.getSheetBud(prop);
+                    if (bud === undefined) {
+                        let { main } = bizBin;
+                        if (main === undefined) {
+                            this.log(`${bizBin.getJName()} must define MAIN if %sheet props used`);
+                        }
+                        else {
+                            this.log(`${main.getJName()} does not have prop ${prop}`);
+                        }
+                        ok = false;
+                    }
                 }
                 else {
+                    bud = bizBin.getBud(prop);
+                    if (bud === undefined) {
+                        this.log(`${bizBin.getJName()} does not have prop ${prop}`);
+                        ok = false;
+                    }
+                }
+                if (bud !== undefined) {
                     this.element.budProp = bud;
                 }
             }

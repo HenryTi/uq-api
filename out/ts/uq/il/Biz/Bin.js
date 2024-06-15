@@ -271,14 +271,19 @@ class BizBin extends Entity_1.BizEntity {
         return this.schema;
     }
     getSheetBud(name) {
+        /*
         for (let sheet of this.sheetArr) {
             let { main } = sheet;
-            if (main === undefined)
-                continue;
+            if (main === undefined) continue;
             let bud = main.getBud(name);
-            if (bud !== undefined)
-                return bud;
+            if (bud !== undefined) return bud;
         }
+        */
+        if (this.main === undefined)
+            return;
+        let bud = this.main.getBud(name);
+        if (bud !== undefined)
+            return bud;
     }
     forEachBud(callback) {
         super.forEachBud(callback);

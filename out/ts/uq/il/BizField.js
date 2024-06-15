@@ -217,10 +217,12 @@ class BizBinActFieldSpace extends BizFieldSpace {
                 break;
             case 'sheet':
                 bud = this.bizBin.getSheetBud(n1);
+                /*
                 if (bud === undefined) {
                     debugger;
                     bud = this.bizBin.getSheetBud(n1);
                 }
+                */
                 alias = 'sheet';
                 break;
         }

@@ -233,10 +233,12 @@ export class BizBinActFieldSpace extends BizFieldSpace {
                 break;
             case 'sheet':
                 bud = this.bizBin.getSheetBud(n1);
+                /*
                 if (bud === undefined) {
                     debugger;
                     bud = this.bizBin.getSheetBud(n1);
                 }
+                */
                 alias = 'sheet';
                 break;
         }
@@ -247,5 +249,4 @@ export class BizBinActFieldSpace extends BizFieldSpace {
     protected buildBizFieldFromBud(alias: string, bud: BizBud) {
         return new BizFieldBinBud(this, alias, bud);
     }
-
 }

@@ -107,7 +107,20 @@ class PBiz extends entity_1.PEntity {
                     const { main, details } = sheet;
                     main === null || main === void 0 ? void 0 : main.sheetArr.push(sheet);
                     for (let detail of details) {
-                        detail.bin.sheetArr.push(sheet);
+                        const { bin } = detail;
+                        const { main: binMain } = bin;
+                        bin.sheetArr.push(sheet);
+                        if (binMain !== main && binMain !== undefined && main !== undefined) {
+                            /*
+                            if (binMain === undefined) {
+                                this.log(`BIN ${bin.name} must define MAIN when used as DETAIL`);
+                            }
+                            else if (main !== undefined) {
+                            */
+                            this.log(`BIN ${bin.name} MAIN ${binMain.name}, SHEET ${sheet.name} MAIN ${main.name}, must be the same`);
+                            // }
+                            ok = false;
+                        }
                     }
                     break;
             }

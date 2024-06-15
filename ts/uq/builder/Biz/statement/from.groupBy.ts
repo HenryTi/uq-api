@@ -99,20 +99,32 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
 
     private buildRootEntityCompare(select: Select): ExpCmp {
         const { fromEntity } = this.istatement;
-        const { bizEntityArr: [bizEntity], bizPhraseType, alias } = fromEntity;
+        const { bizEntityArr, bizPhraseType, alias } = fromEntity;
         const expBase = new ExpField('base', alias);
-        const expId = new ExpNum(bizEntity.id);
+        function eqOrIn(expField: ExpField) {
+            if (bizEntityArr.length === 1) {
+                return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
+            }
+            else {
+                return new ExpIn(
+                    expField,
+                    ...bizEntityArr.map(v => new ExpNum(v.id)),
+                )
+            }
+        }
+
         switch (bizPhraseType) {
             default:
                 return;
             case BizPhraseType.atom:
-                return new ExpEQ(expBase, expId);
+                return eqOrIn(expBase); // new ExpEQ(expBase, expId);
             case BizPhraseType.spec:
                 let budAlias = alias + '$bud';
                 select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
                     .on(new ExpAnd(
                         new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
-                        new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntity.id)),
+                        //new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntity.id)),
+                        eqOrIn(new ExpField('ext', budAlias)),
                     ));
                 return;
         }

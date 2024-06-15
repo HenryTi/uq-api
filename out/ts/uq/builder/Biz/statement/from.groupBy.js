@@ -90,18 +90,27 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     }
     buildRootEntityCompare(select) {
         const { fromEntity } = this.istatement;
-        const { bizEntityArr: [bizEntity], bizPhraseType, alias } = fromEntity;
+        const { bizEntityArr, bizPhraseType, alias } = fromEntity;
         const expBase = new sql_1.ExpField('base', alias);
-        const expId = new sql_1.ExpNum(bizEntity.id);
+        function eqOrIn(expField) {
+            if (bizEntityArr.length === 1) {
+                return new sql_1.ExpEQ(expField, new sql_1.ExpNum(bizEntityArr[0].id));
+            }
+            else {
+                return new sql_1.ExpIn(expField, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
+            }
+        }
         switch (bizPhraseType) {
             default:
                 return;
             case BizPhraseType_1.BizPhraseType.atom:
-                return new sql_1.ExpEQ(expBase, expId);
+                return eqOrIn(expBase); // new ExpEQ(expBase, expId);
             case BizPhraseType_1.BizPhraseType.spec:
                 let budAlias = alias + '$bud';
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
-                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', budAlias), new sql_1.ExpNum(bizEntity.id))));
+                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), 
+                //new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntity.id)),
+                eqOrIn(new sql_1.ExpField('ext', budAlias))));
                 return;
         }
     }
