@@ -141,7 +141,7 @@ export class BBizExp {
         let param2 = this.params[1];
         if (param2 !== undefined) {
             let w = isReadonly === true ? 0 : 1;
-            sb.append(`${this.db}.duo$id(_$site,_$user,${w},null,`).exp(param).comma().exp(param2).r();
+            sb.dbName().dot().name('duo$id').append(`(_$site,_$user,${w},null,`).exp(param).comma().exp(param2).r();
         }
         else {
             sb.append(`${ta}.${prop} FROM ${this.db}.duo as ${ta} WHERE ${ta}.id=`)
@@ -163,7 +163,7 @@ export class BBizExp {
         else {
             let w = isReadonly === true ? 0 : 1;
             sb.name($site).dot();
-            sb.fld(siteEntityId + '.id');
+            sb.fld(siteEntityId + '.ID');
             sb.append(`(_$site,_$user,${w},null`);
             for (let p of this.params) {
                 sb.comma().exp(p);
