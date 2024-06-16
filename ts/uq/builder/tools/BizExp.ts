@@ -7,6 +7,7 @@ import { SqlBuilder } from "../sql/sqlBuilder";
 import { BBudSelect } from "./BBudSelect";
 import { BBizField } from "../Biz";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
+import { $site } from "../consts";
 
 let bizEpxTblNo = 0;
 
@@ -151,13 +152,17 @@ export class BBizExp {
     private combo(sb: SqlBuilder) {
         const { bizEntity, isReadonly, prop } = this.bizExp;
         const { ta } = this;
-        let siteEntityId = `${sb.factory.dbContext.site}.${bizEntity.id}`;
+        const { site } = sb.factory.dbContext;
+        let siteEntityId = `${site}.${bizEntity.id}`;
         if (prop !== undefined) {
-            sb.append(`${ta}.${prop} FROM ${siteEntityId} as ${ta} WHERE ${ta}.id=`)
+            sb.append(`${ta}.${prop} FROM `)
+                .name(siteEntityId)
+                .append(` as ${ta} WHERE ${ta}.id=`)
                 .exp(this.params[0]);
         }
         else {
             let w = isReadonly === true ? 0 : 1;
+            sb.name($site).dot();
             sb.fld(siteEntityId + '.id');
             sb.append(`(_$site,_$user,${w},null`);
             for (let p of this.params) {

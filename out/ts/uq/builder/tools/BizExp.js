@@ -5,6 +5,7 @@ const il_1 = require("../../il");
 const exp_1 = require("../sql/exp");
 const BBudSelect_1 = require("./BBudSelect");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
+const consts_1 = require("../consts");
 let bizEpxTblNo = 0;
 class BBizExp {
     constructor() {
@@ -150,13 +151,17 @@ class BBizExp {
     combo(sb) {
         const { bizEntity, isReadonly, prop } = this.bizExp;
         const { ta } = this;
-        let siteEntityId = `${sb.factory.dbContext.site}.${bizEntity.id}`;
+        const { site } = sb.factory.dbContext;
+        let siteEntityId = `${site}.${bizEntity.id}`;
         if (prop !== undefined) {
-            sb.append(`${ta}.${prop} FROM ${siteEntityId} as ${ta} WHERE ${ta}.id=`)
+            sb.append(`${ta}.${prop} FROM `)
+                .name(siteEntityId)
+                .append(` as ${ta} WHERE ${ta}.id=`)
                 .exp(this.params[0]);
         }
         else {
             let w = isReadonly === true ? 0 : 1;
+            sb.name(consts_1.$site).dot();
             sb.fld(siteEntityId + '.id');
             sb.append(`(_$site,_$user,${w},null`);
             for (let p of this.params) {
