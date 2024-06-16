@@ -487,7 +487,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (i !== undefined) {
             const { ID } = i;
             if (ID !== undefined) {
-                if (ID.bizPhraseType === BizPhraseType.spec) {
+                if (ID.bizPhraseType === BizPhraseType.fork) {
                     if (iBase === undefined) {
                         // 不一定需要I.Base
                         // ok = false;
@@ -499,7 +499,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         if (x !== undefined) {
             const { ID } = x;
             if (ID !== undefined) {
-                if (ID.bizPhraseType === BizPhraseType.spec) {
+                if (ID.bizPhraseType === BizPhraseType.fork) {
                     if (xBase === undefined) {
                         // ok = false;
                         // this.log('X Spec need X.base');

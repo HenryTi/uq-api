@@ -80,7 +80,7 @@ export class BBudSelect {
         switch (bizEntity.bizPhraseType) {
             default: debugger; throw new Error('select field must be ATOM or SPEC');
             case BizPhraseType.atom: tbl = EnumSysTable.atom; break;
-            case BizPhraseType.spec: tbl = EnumSysTable.spec; break;
+            case BizPhraseType.fork: tbl = EnumSysTable.spec; break;
         }
         select.from(new EntityTable(tbl, false));
         select.where(new ExpAnd(

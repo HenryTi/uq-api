@@ -17,7 +17,7 @@ const UqParser_1 = require("./UqParser");
 const compileSource_1 = require("./compileSource");
 const BizPhraseType_1 = require("../il/Biz/BizPhraseType");
 const groups = {
-    info: [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.spec, BizPhraseType_1.BizPhraseType.title, BizPhraseType_1.BizPhraseType.assign, BizPhraseType_1.BizPhraseType.duo],
+    info: [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.fork, BizPhraseType_1.BizPhraseType.title, BizPhraseType_1.BizPhraseType.assign, BizPhraseType_1.BizPhraseType.duo],
     sheet: [BizPhraseType_1.BizPhraseType.sheet, BizPhraseType_1.BizPhraseType.bin, BizPhraseType_1.BizPhraseType.pend],
     query: [BizPhraseType_1.BizPhraseType.query],
     relate: [BizPhraseType_1.BizPhraseType.pick, BizPhraseType_1.BizPhraseType.options, BizPhraseType_1.BizPhraseType.tie, BizPhraseType_1.BizPhraseType.tree],

@@ -99,7 +99,7 @@ export class PBizExp extends PElement<BizExp> {
                     this.log(`${bizEntity.getJName()} must be either Atom, Spec, Bin or Title`);
                     break;
                 case BizPhraseType.atom: ret = this.scanAtom(space); break;
-                case BizPhraseType.spec: ret = this.scanSpec(space); break;
+                case BizPhraseType.fork: ret = this.scanSpec(space); break;
                 case BizPhraseType.bin: ret = this.scanBin(space); break;
                 case BizPhraseType.title: ret = this.scanTitle(space); break;
                 case BizPhraseType.tie: ret = this.scanTie(space); break;

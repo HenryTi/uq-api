@@ -67,7 +67,7 @@ class BBudSelect {
             case BizPhraseType_1.BizPhraseType.atom:
                 tbl = il_1.EnumSysTable.atom;
                 break;
-            case BizPhraseType_1.BizPhraseType.spec:
+            case BizPhraseType_1.BizPhraseType.fork:
                 tbl = il_1.EnumSysTable.spec;
                 break;
         }

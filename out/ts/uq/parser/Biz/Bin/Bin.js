@@ -447,7 +447,7 @@ class PBizBin extends Base_1.PBizEntity {
         if (i !== undefined) {
             const { ID } = i;
             if (ID !== undefined) {
-                if (ID.bizPhraseType === BizPhraseType_1.BizPhraseType.spec) {
+                if (ID.bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
                     if (iBase === undefined) {
                         // 不一定需要I.Base
                         // ok = false;
@@ -459,7 +459,7 @@ class PBizBin extends Base_1.PBizEntity {
         if (x !== undefined) {
             const { ID } = x;
             if (ID !== undefined) {
-                if (ID.bizPhraseType === BizPhraseType_1.BizPhraseType.spec) {
+                if (ID.bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
                     if (xBase === undefined) {
                         // ok = false;
                         // this.log('X Spec need X.base');

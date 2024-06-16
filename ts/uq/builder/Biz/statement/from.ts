@@ -154,7 +154,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
                                 new ExpEQ(new ExpField('base', subAlias), new ExpNum(id)),
                             ));
                         break;
-                    case BizPhraseType.spec:
+                    case BizPhraseType.fork:
                         select
                             .join(JoinType.join, entityTable)
                             .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias)));

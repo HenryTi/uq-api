@@ -162,7 +162,7 @@ exports.BizIDWithBase = BizIDWithBase;
 class BizSpec extends BizIDWithBase {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.spec;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.fork;
         this.fields = ['id'];
         this.keys = [];
     }

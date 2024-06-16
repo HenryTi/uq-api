@@ -158,7 +158,7 @@ export class Biz extends Entity {
                 case BizPhraseType.query: break;
                 case BizPhraseType.atom:
                     bizEntityTable = EnumSysTable.atom; break;
-                case BizPhraseType.spec:
+                case BizPhraseType.fork:
                     bizEntityTable = EnumSysTable.spec; break;
                 case BizPhraseType.duo:
                     bizEntityTable = EnumSysTable.duo; break;

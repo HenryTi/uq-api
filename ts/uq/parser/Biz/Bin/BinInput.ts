@@ -22,7 +22,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
     override scan(space: BizEntitySpace<BizEntity>): boolean {
         let ok = true;
         let { bizEntityArr: [ret] } = space.getBizFromEntityArrFromName(this.spec);
-        if (ret?.bizPhraseType !== BizPhraseType.spec) {
+        if (ret?.bizPhraseType !== BizPhraseType.fork) {
             this.log(`${this.spec} is not SPEC`);
             ok = false;
         }

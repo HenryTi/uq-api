@@ -609,7 +609,7 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
             return ok;
         }
         let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(this.entityName);
-        if (entity.bizPhraseType !== BizPhraseType.spec) {
+        if (entity.bizPhraseType !== BizPhraseType.fork) {
             ok = false;
             this.log(`${this.entityName} is not SPEC`);
         }

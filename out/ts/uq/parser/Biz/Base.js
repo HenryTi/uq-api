@@ -135,7 +135,7 @@ class PBizBase extends element_1.PElement {
     }
     scanID(space, atomName) {
         let Atom = space.uq.biz.bizEntities.get(atomName);
-        const types = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.spec, BizPhraseType_1.BizPhraseType.bud];
+        const types = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.fork, BizPhraseType_1.BizPhraseType.bud];
         if (Atom === undefined || types.indexOf(Atom.bizPhraseType) < 0) {
             this.log(`${atomName} is not an Atom ID`);
             return undefined;
@@ -621,7 +621,7 @@ class PBizEntity extends PBizBase {
             }
             return ok;
         }
-        const ids = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.spec, BizPhraseType_1.BizPhraseType.duo, BizPhraseType_1.BizPhraseType.options];
+        const ids = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.fork, BizPhraseType_1.BizPhraseType.duo, BizPhraseType_1.BizPhraseType.options];
         for (let name of atomNames) {
             let { bizEntityArr: [bizEntity] } = space.getBizFromEntityArrFromName(name);
             if (bizEntity === undefined) {

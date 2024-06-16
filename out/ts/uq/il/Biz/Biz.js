@@ -142,7 +142,7 @@ class Biz extends entity_1.Entity {
                 case BizPhraseType_1.BizPhraseType.atom:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.atom;
                     break;
-                case BizPhraseType_1.BizPhraseType.spec:
+                case BizPhraseType_1.BizPhraseType.fork:
                     bizEntityTable = EnumSysTable_1.EnumSysTable.spec;
                     break;
                 case BizPhraseType_1.BizPhraseType.duo:

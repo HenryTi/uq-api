@@ -141,7 +141,7 @@ export class PBinPick extends PBizBud<BinPick> {
                     pickBase = new PickAtom(entityArr as BizAtom[]);
                     multipleEntity = true;
                     break;
-                case BizPhraseType.spec:
+                case BizPhraseType.fork:
                     pickBase = new PickSpec(bizEntity0 as BizSpec);
                     break;
                 case BizPhraseType.pend:

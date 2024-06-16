@@ -3,7 +3,7 @@ import { EnumSysTable } from "../EnumSysTable";
 export enum BizPhraseType {
     any = 0,
     atom = 11,
-    spec = 12,
+    fork = 12,
     bud = 13,
     budGroup = 14,
     duo = 15,           // 二重奏

@@ -21,6 +21,7 @@ export class PBiz extends PEntity<Biz> {
         this.pRoots = {
             atom: BizAtom,
             spec: BizSpec,
+            fork: BizSpec,
             duo: BizDuo,
             combo: BizCombo,
 

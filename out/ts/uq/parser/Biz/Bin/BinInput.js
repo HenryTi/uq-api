@@ -19,7 +19,7 @@ class PBinInputSpec extends PBinInput {
     scan(space) {
         let ok = true;
         let { bizEntityArr: [ret] } = space.getBizFromEntityArrFromName(this.spec);
-        if ((ret === null || ret === void 0 ? void 0 : ret.bizPhraseType) !== BizPhraseType_1.BizPhraseType.spec) {
+        if ((ret === null || ret === void 0 ? void 0 : ret.bizPhraseType) !== BizPhraseType_1.BizPhraseType.fork) {
             this.log(`${this.spec} is not SPEC`);
             ok = false;
         }

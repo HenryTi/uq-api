@@ -600,7 +600,7 @@ class PBizStatementSpec extends PBizStatementID {
             return ok;
         }
         let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(this.entityName);
-        if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.spec) {
+        if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.fork) {
             ok = false;
             this.log(`${this.entityName} is not SPEC`);
         }

@@ -93,7 +93,7 @@ class PBizExp extends element_1.PElement {
                 case BizPhraseType_1.BizPhraseType.atom:
                     ret = this.scanAtom(space);
                     break;
-                case BizPhraseType_1.BizPhraseType.spec:
+                case BizPhraseType_1.BizPhraseType.fork:
                     ret = this.scanSpec(space);
                     break;
                 case BizPhraseType_1.BizPhraseType.bin:

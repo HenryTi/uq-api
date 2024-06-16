@@ -166,7 +166,7 @@ export abstract class BizIDWithBase extends BizIDExtendable {
 }
 
 export class BizSpec extends BizIDWithBase {
-    readonly bizPhraseType = BizPhraseType.spec;
+    readonly bizPhraseType = BizPhraseType.fork;
     protected readonly fields = ['id'];
     readonly keys: BizBud[] = [];
 

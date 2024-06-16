@@ -100,7 +100,7 @@ class PBizBudValue extends PBizBud {
                             //show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
                             show.push(bizBud);
                             break;
-                        case BizPhraseType_1.BizPhraseType.spec:
+                        case BizPhraseType_1.BizPhraseType.fork:
                             if (bizBud !== undefined) {
                                 //show.push(FieldShowItem.createSpecFieldShow(atom as BizSpec, bizBud));
                                 show.push(bizBud);

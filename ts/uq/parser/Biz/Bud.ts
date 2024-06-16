@@ -111,7 +111,7 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                             //show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
                             show.push(bizBud);
                             break;
-                        case BizPhraseType.spec:
+                        case BizPhraseType.fork:
                             if (bizBud !== undefined) {
                                 //show.push(FieldShowItem.createSpecFieldShow(atom as BizSpec, bizBud));
                                 show.push(bizBud);

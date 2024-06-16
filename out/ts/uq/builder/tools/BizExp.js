@@ -63,7 +63,7 @@ class BBizExp {
         const { bizPhraseType } = this.bizExp.bizEntity;
         switch (bizPhraseType) {
             case BizPhraseType_1.BizPhraseType.atom:
-            case BizPhraseType_1.BizPhraseType.spec:
+            case BizPhraseType_1.BizPhraseType.fork:
                 let bBudSelect = new BBudSelect_1.BBudSelect(context, this);
                 this.expSelect = bBudSelect.build();
                 break;

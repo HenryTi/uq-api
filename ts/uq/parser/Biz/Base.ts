@@ -110,7 +110,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
 
     scanID(space: Space, atomName: string): BizIDExtendable {
         let Atom = space.uq.biz.bizEntities.get(atomName);
-        const types = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.bud];
+        const types = [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.bud];
         if (Atom === undefined || types.indexOf(Atom.bizPhraseType) < 0) {
             this.log(`${atomName} is not an Atom ID`);
             return undefined;
@@ -647,7 +647,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             }
             return ok;
         }
-        const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.spec, BizPhraseType.duo, BizPhraseType.options];
+        const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.duo, BizPhraseType.options];
         for (let name of atomNames) {
             let { bizEntityArr: [bizEntity] } = space.getBizFromEntityArrFromName(name);
             if (bizEntity === undefined) {

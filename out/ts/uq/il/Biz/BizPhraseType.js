@@ -6,7 +6,7 @@ var BizPhraseType;
 (function (BizPhraseType) {
     BizPhraseType[BizPhraseType["any"] = 0] = "any";
     BizPhraseType[BizPhraseType["atom"] = 11] = "atom";
-    BizPhraseType[BizPhraseType["spec"] = 12] = "spec";
+    BizPhraseType[BizPhraseType["fork"] = 12] = "fork";
     BizPhraseType[BizPhraseType["bud"] = 13] = "bud";
     BizPhraseType[BizPhraseType["budGroup"] = 14] = "budGroup";
     BizPhraseType[BizPhraseType["duo"] = 15] = "duo";

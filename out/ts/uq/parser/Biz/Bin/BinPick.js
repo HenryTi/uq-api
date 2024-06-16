@@ -135,7 +135,7 @@ class PBinPick extends Bud_1.PBizBud {
                     pickBase = new il_1.PickAtom(entityArr);
                     multipleEntity = true;
                     break;
-                case BizPhraseType_1.BizPhraseType.spec:
+                case BizPhraseType_1.BizPhraseType.fork:
                     pickBase = new il_1.PickSpec(bizEntity0);
                     break;
                 case BizPhraseType_1.BizPhraseType.pend:

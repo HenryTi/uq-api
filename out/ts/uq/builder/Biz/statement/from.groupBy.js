@@ -105,7 +105,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
                 return;
             case BizPhraseType_1.BizPhraseType.atom:
                 return eqOrIn(expBase); // new ExpEQ(expBase, expId);
-            case BizPhraseType_1.BizPhraseType.spec:
+            case BizPhraseType_1.BizPhraseType.fork:
                 let budAlias = alias + '$bud';
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
                     .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), 
@@ -162,7 +162,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             const { fromEntity: { bizEntityArr } } = idc;
             // 暂时只生成第一个spec的atom的所有字段
             let [bizEntity] = bizEntityArr;
-            if (bizEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.spec) {
+            if (bizEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
                 let spec = bizEntity;
                 this.buildInsertAtomBuds(sqls, spec.base);
                 const buds = [...spec.keys];

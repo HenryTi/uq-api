@@ -462,7 +462,7 @@ class PFromStatement extends statement_1.PStatement {
         }
         if (this.element.groupByBase === true) {
             const { fromEntity } = idcLast;
-            if (idcLast.fromEntity.bizPhraseType !== BizPhraseType_1.BizPhraseType.spec) {
+            if (idcLast.fromEntity.bizPhraseType !== BizPhraseType_1.BizPhraseType.fork) {
                 this.log(`FROM ${fromEntity.alias} must be SPEC`);
                 ok = false;
             }
@@ -616,7 +616,7 @@ class FromEntityScaner {
                     }
                     scanBase = new FromEntityScanDuo(this, fromEntity, pSubs[0], pSubs[1]);
                     break;
-                case BizPhraseType_1.BizPhraseType.spec:
+                case BizPhraseType_1.BizPhraseType.fork:
                     if (length !== 0 && length !== 1) {
                         ok = false;
                         this.log('SPEC must have 1 sub join');

@@ -223,7 +223,7 @@ export abstract class BizEntity extends BizBase {
             case BizPhraseType.query: break;
             case BizPhraseType.atom:
                 bizEntityTable = EnumSysTable.atom; break;
-            case BizPhraseType.spec:
+            case BizPhraseType.fork:
                 bizEntityTable = EnumSysTable.spec; break;
             case BizPhraseType.duo:
                 bizEntityTable = EnumSysTable.duo; break;

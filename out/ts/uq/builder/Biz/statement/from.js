@@ -131,7 +131,7 @@ class BFromStatement extends bstatement_1.BStatement {
                             .join(il_1.JoinType.join, entityTable)
                             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, prevAlias)), new sql_1.ExpEQ(new sql_1.ExpField('base', subAlias), new sql_1.ExpNum(id))));
                         break;
-                    case BizPhraseType_1.BizPhraseType.spec:
+                    case BizPhraseType_1.BizPhraseType.fork:
                         select
                             .join(il_1.JoinType.join, entityTable)
                             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, prevAlias)));
