@@ -157,7 +157,7 @@ class BBizExp {
         }
         else {
             let w = isReadonly === true ? 0 : 1;
-            sb.fld(siteEntityId + '$id');
+            sb.fld(siteEntityId + '.id');
             sb.append(`(_$site,_$user,${w},null`);
             for (let p of this.params) {
                 sb.comma().exp(p);
