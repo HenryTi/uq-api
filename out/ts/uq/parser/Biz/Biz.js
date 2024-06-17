@@ -16,6 +16,7 @@ class PBiz extends entity_1.PEntity {
             duo: il_1.BizDuo,
             combo: il_1.BizCombo,
             title: il_1.BizTitle,
+            book: il_1.BizTitle,
             options: il_1.BizOptions,
             assign: il_1.BizAssign,
             // permit: BizPermit,   不再需要permit，直接简单用role
@@ -24,6 +25,7 @@ class PBiz extends entity_1.PEntity {
             sheet: il_1.BizSheet,
             bin: il_1.BizBin,
             pend: Pend_1.BizPend,
+            pass: Pend_1.BizPend,
             query: il_1.BizQueryTable,
             tree: il_1.BizTree,
             tie: il_1.BizTie,

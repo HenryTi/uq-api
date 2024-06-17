@@ -26,6 +26,7 @@ export class PBiz extends PEntity<Biz> {
             combo: BizCombo,
 
             title: BizTitle,
+            book: BizTitle,
             options: BizOptions,
             assign: BizAssign,
 
@@ -36,6 +37,7 @@ export class PBiz extends PEntity<Biz> {
             sheet: BizSheet,
             bin: BizBin,
             pend: BizPend,
+            pass: BizPend,
             query: BizQueryTable,
 
             tree: BizTree,
