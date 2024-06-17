@@ -21,8 +21,8 @@ class Fetch {
     }
     get url() { return this.baseUrl; }
     ;
-    get(url, params = undefined) {
-        return __awaiter(this, void 0, void 0, function* () {
+    get(url_1) {
+        return __awaiter(this, arguments, void 0, function* (url, params = undefined) {
             if (params) {
                 let keys = Object.keys(params);
                 if (keys.length > 0) {

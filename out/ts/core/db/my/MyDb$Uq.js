@@ -88,8 +88,8 @@ class MyDb$Uq extends MyDb_1.MyDb {
         });
     }
     isNewVesion() {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 let ret = yield this.sql(`select value from $uq.setting where name='$uq_version'`);
                 if (((_a = ret[0]) === null || _a === void 0 ? void 0 : _a.value) === dbUqVersion)

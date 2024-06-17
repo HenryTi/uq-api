@@ -164,8 +164,8 @@ class RouterBuilder {
 exports.RouterBuilder = RouterBuilder;
 class RouterWebBuilder extends RouterBuilder {
     entityHttpProcess(req, res, entityType, processer, isGet) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             try {
                 let userToken = req.user;
                 let { /*db, */ id: userId, unit, roles } = userToken;

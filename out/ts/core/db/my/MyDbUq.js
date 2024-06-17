@@ -159,8 +159,8 @@ class MyDbUq extends MyDb_1.MyDb {
             yield this.proc('$proc_save', [this.name, this.twProfix + procName, undefined]);
         });
     }
-    buildUqProc(procName, procSql, isFunc = false) {
-        return __awaiter(this, void 0, void 0, function* () {
+    buildUqProc(procName_1, procSql_1) {
+        return __awaiter(this, arguments, void 0, function* (procName, procSql, isFunc = false) {
             try {
                 yield this.runSqlDropProc(procName, isFunc);
                 yield this.sql(procSql, undefined);

@@ -14,7 +14,6 @@ const il_1 = require("../../il");
 const bstatement_1 = require("../bstatement");
 const sql_1 = require("../sql");
 const BizEntity_1 = require("./BizEntity");
-const a = 'a', b = 'b';
 class BBizQuery extends BizEntity_1.BBizEntity {
     buildProcedures() {
         const _super = Object.create(null, {

@@ -914,8 +914,8 @@ class EntityRunner extends Runner_1.Runner {
         });
     }
     initInternal() {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             this.log(0, 'SCHEDULE', 'uq-api start removeAllScheduleEvents');
             let eventsText = yield this.dbUq.removeAllScheduleEvents();
             this.log(0, 'SCHEDULE', 'uq-api done removeAllScheduleEvents' + eventsText);
