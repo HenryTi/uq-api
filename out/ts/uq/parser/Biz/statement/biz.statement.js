@@ -12,6 +12,7 @@ class PBizStatement extends statement_1.PStatement {
         super(bizStatement, context);
         this.bizSubs = {
             title: il_1.BizStatementTitle,
+            book: il_1.BizStatementTitle,
             sheet: il_1.BizStatementSheet,
         };
         this.bizStatement = bizStatement;
@@ -57,6 +58,7 @@ class PBizStatementBin extends PBizStatement {
             out: il_1.BizStatementOut,
             atom: il_1.BizStatementAtom,
             spec: il_1.BizStatementSpec,
+            fork: il_1.BizStatementSpec,
             tie: il_1.BizStatementTie,
         };
     }
@@ -67,6 +69,7 @@ class PBizStatementIn extends PBizStatement {
         return {
             atom: il_1.BizStatementAtom,
             spec: il_1.BizStatementSpec,
+            fork: il_1.BizStatementSpec,
             tie: il_1.BizStatementTie,
         };
     }

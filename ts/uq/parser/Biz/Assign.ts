@@ -44,6 +44,7 @@ export class PBizAssign extends PBizEntity<BizAssign> {
     readonly keyColl = {
         atom: this.parseAtom,
         title: this.parseTitle,
+        book: this.parseTitle,
     };
 
     scan(space: Space): boolean {

@@ -21,6 +21,7 @@ export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>>
     bizStatement: T;
     private readonly bizSubs: { [key: string]: new (bizStatement: T) => BizStatementSub<A> } = {
         title: BizStatementTitle,
+        book: BizStatementTitle,
         sheet: BizStatementSheet,
     }
     constructor(bizStatement: T, context: PContext) {
@@ -72,6 +73,7 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
             out: BizStatementOut,
             atom: BizStatementAtom,
             spec: BizStatementSpec,
+            fork: BizStatementSpec,
             tie: BizStatementTie,
         };
     }
@@ -82,6 +84,7 @@ export class PBizStatementIn extends PBizStatement<BizInAct, BizStatementIn> {
         return {
             atom: BizStatementAtom,
             spec: BizStatementSpec,
+            fork: BizStatementSpec,
             tie: BizStatementTie,
         };
     }

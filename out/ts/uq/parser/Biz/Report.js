@@ -68,6 +68,7 @@ class PBizReport extends Base_1.PBizEntity {
         };
         this.keyColl = {
             title: this.parseTitles,
+            book: this.parseTitles,
             from: this.parseFrom,
             permit: this.parsePermit,
         };

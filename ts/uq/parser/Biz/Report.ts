@@ -70,6 +70,7 @@ export class PBizReport extends PBizEntity<BizReport> {
 
     readonly keyColl = {
         title: this.parseTitles,
+        book: this.parseTitles,
         from: this.parseFrom,
         permit: this.parsePermit,
     };
