@@ -65,7 +65,7 @@ class PBizBudValue extends PBizBud {
                     this.log('show field can only be in Bin or Pend');
                     return undefined;
                 case BizPhraseType_1.BizPhraseType.bin:
-                case BizPhraseType_1.BizPhraseType.pass:
+                case BizPhraseType_1.BizPhraseType.pend:
                     break;
             }
         }

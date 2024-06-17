@@ -15,7 +15,7 @@ export class BizPend extends BizEntity {
     static predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
-    readonly bizPhraseType = BizPhraseType.pass;
+    readonly bizPhraseType = BizPhraseType.pend;
     readonly isID = false;
     readonly predefinedBuds: { [name: string]: BizBudValue };
     readonly predefinedFields: string[] = [];

@@ -17,7 +17,7 @@ export enum BizPhraseType {
 
     sheet = 101,
     bin = 102,
-    pass = 104,
+    pend = 104,
     act = 111,
     query = 151,
     pick = 161,

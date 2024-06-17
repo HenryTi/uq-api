@@ -76,7 +76,7 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                     this.log('show field can only be in Bin or Pend');
                     return undefined;
                 case BizPhraseType.bin:
-                case BizPhraseType.pass:
+                case BizPhraseType.pend:
                     break;
             }
         }

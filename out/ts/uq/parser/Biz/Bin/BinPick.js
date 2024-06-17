@@ -138,7 +138,7 @@ class PBinPick extends Bud_1.PBizBud {
                 case BizPhraseType_1.BizPhraseType.fork:
                     pickBase = new il_1.PickSpec(bizEntity0);
                     break;
-                case BizPhraseType_1.BizPhraseType.pass:
+                case BizPhraseType_1.BizPhraseType.pend:
                     pickBase = new il_1.PickPend(bizEntity0);
                     break;
                 case BizPhraseType_1.BizPhraseType.query:

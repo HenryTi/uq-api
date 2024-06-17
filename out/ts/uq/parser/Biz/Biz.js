@@ -25,7 +25,6 @@ class PBiz extends entity_1.PEntity {
             sheet: il_1.BizSheet,
             bin: il_1.BizBin,
             pend: Pend_1.BizPend,
-            pass: Pend_1.BizPend,
             query: il_1.BizQueryTable,
             tree: il_1.BizTree,
             tie: il_1.BizTie,

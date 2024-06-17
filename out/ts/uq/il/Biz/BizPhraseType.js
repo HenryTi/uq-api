@@ -18,7 +18,7 @@ var BizPhraseType;
     */
     BizPhraseType[BizPhraseType["sheet"] = 101] = "sheet";
     BizPhraseType[BizPhraseType["bin"] = 102] = "bin";
-    BizPhraseType[BizPhraseType["pass"] = 104] = "pass";
+    BizPhraseType[BizPhraseType["pend"] = 104] = "pend";
     BizPhraseType[BizPhraseType["act"] = 111] = "act";
     BizPhraseType[BizPhraseType["query"] = 151] = "query";
     BizPhraseType[BizPhraseType["pick"] = 161] = "pick";

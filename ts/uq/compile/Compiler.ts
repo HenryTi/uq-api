@@ -8,7 +8,7 @@ import { BizPhraseType } from '../il/Biz/BizPhraseType';
 
 const groups: { [name: string]: BizPhraseType[] } = {
     info: [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.book, BizPhraseType.assign, BizPhraseType.duo],
-    sheet: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pass],
+    sheet: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
     query: [BizPhraseType.query],
     relate: [BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
     report: [BizPhraseType.report],

@@ -231,7 +231,7 @@ export abstract class BizEntity extends BizBase {
                 bizEntityTable = EnumSysTable.bizBin; break;
             case BizPhraseType.sheet:
                 bizEntityTable = EnumSysTable.sheet; break;
-            case BizPhraseType.pass:
+            case BizPhraseType.pend:
                 bizEntityTable = EnumSysTable.pend; break;
         }
         return bizEntityTable;

@@ -37,7 +37,6 @@ export class PBiz extends PEntity<Biz> {
             sheet: BizSheet,
             bin: BizBin,
             pend: BizPend,
-            pass: BizPend,
             query: BizQueryTable,
 
             tree: BizTree,
