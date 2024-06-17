@@ -101,7 +101,7 @@ export class PBizExp extends PElement<BizExp> {
                 case BizPhraseType.atom: ret = this.scanAtom(space); break;
                 case BizPhraseType.fork: ret = this.scanSpec(space); break;
                 case BizPhraseType.bin: ret = this.scanBin(space); break;
-                case BizPhraseType.title: ret = this.scanTitle(space); break;
+                case BizPhraseType.book: ret = this.scanTitle(space); break;
                 case BizPhraseType.tie: ret = this.scanTie(space); break;
                 case BizPhraseType.duo: ret = this.scanDuo(space); break;
                 case BizPhraseType.combo: ret = this.scanCombo(space); break;

@@ -9,13 +9,15 @@ export enum BizPhraseType {
     duo = 15,           // 二重奏
     combo = 16,
 
+    /*
     card = 61,
     cardDetail = 63,
     cardState = 62,
+    */
 
     sheet = 101,
     bin = 102,
-    pend = 104,
+    pass = 104,
     act = 111,
     query = 151,
     pick = 161,
@@ -30,7 +32,7 @@ export enum BizPhraseType {
     out = 700,
     ioApp = 710,
     ioSite = 711,
-    title = 901,
+    book = 901,
     assign = 902,
 
     key = 1001,

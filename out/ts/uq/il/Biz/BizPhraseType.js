@@ -11,12 +11,14 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["budGroup"] = 14] = "budGroup";
     BizPhraseType[BizPhraseType["duo"] = 15] = "duo";
     BizPhraseType[BizPhraseType["combo"] = 16] = "combo";
-    BizPhraseType[BizPhraseType["card"] = 61] = "card";
-    BizPhraseType[BizPhraseType["cardDetail"] = 63] = "cardDetail";
-    BizPhraseType[BizPhraseType["cardState"] = 62] = "cardState";
+    /*
+    card = 61,
+    cardDetail = 63,
+    cardState = 62,
+    */
     BizPhraseType[BizPhraseType["sheet"] = 101] = "sheet";
     BizPhraseType[BizPhraseType["bin"] = 102] = "bin";
-    BizPhraseType[BizPhraseType["pend"] = 104] = "pend";
+    BizPhraseType[BizPhraseType["pass"] = 104] = "pass";
     BizPhraseType[BizPhraseType["act"] = 111] = "act";
     BizPhraseType[BizPhraseType["query"] = 151] = "query";
     BizPhraseType[BizPhraseType["pick"] = 161] = "pick";
@@ -30,7 +32,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["out"] = 700] = "out";
     BizPhraseType[BizPhraseType["ioApp"] = 710] = "ioApp";
     BizPhraseType[BizPhraseType["ioSite"] = 711] = "ioSite";
-    BizPhraseType[BizPhraseType["title"] = 901] = "title";
+    BizPhraseType[BizPhraseType["book"] = 901] = "book";
     BizPhraseType[BizPhraseType["assign"] = 902] = "assign";
     BizPhraseType[BizPhraseType["key"] = 1001] = "key";
     BizPhraseType[BizPhraseType["prop"] = 1011] = "prop";

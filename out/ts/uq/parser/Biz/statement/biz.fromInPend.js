@@ -39,7 +39,7 @@ class PFromStatementInPend extends biz_from_1.PFromStatement {
     setEntityArr(space) {
         const { pendQuery: { bizPend }, fromEntity } = this.element;
         fromEntity.bizEntityArr.push(bizPend);
-        fromEntity.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
+        fromEntity.bizPhraseType = BizPhraseType_1.BizPhraseType.pass;
         fromEntity.bizEntityTable = il_1.EnumSysTable.pend;
         return true;
     }

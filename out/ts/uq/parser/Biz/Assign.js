@@ -70,7 +70,7 @@ class PBizAssign extends Base_1.PBizEntity {
         }
         for (let [t0, t1] of this.titles) {
             let { bizEntityArr: [bizTitle] } = space.getBizFromEntityArrFromName(t0);
-            if (bizTitle === undefined || bizTitle.bizPhraseType !== BizPhraseType_1.BizPhraseType.title) {
+            if (bizTitle === undefined || bizTitle.bizPhraseType !== BizPhraseType_1.BizPhraseType.book) {
                 this.log(`${t0} is not a TITLE`);
                 ok = false;
             }

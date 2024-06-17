@@ -43,7 +43,7 @@ export class BBizExp {
                 // case BizPhraseType.atom: this.atom(sb); break;
                 // case BizPhraseType.spec: this.spec(sb); break;
                 case BizPhraseType.bin: this.bin(sb); break;
-                case BizPhraseType.title: this.title(sb); break;
+                case BizPhraseType.book: this.title(sb); break;
                 case BizPhraseType.tie: this.tie(sb); break;
                 case BizPhraseType.duo: this.duo(sb); break;
                 case BizPhraseType.combo: this.combo(sb); break;

@@ -99,7 +99,7 @@ class PBizExp extends element_1.PElement {
                 case BizPhraseType_1.BizPhraseType.bin:
                     ret = this.scanBin(space);
                     break;
-                case BizPhraseType_1.BizPhraseType.title:
+                case BizPhraseType_1.BizPhraseType.book:
                     ret = this.scanTitle(space);
                     break;
                 case BizPhraseType_1.BizPhraseType.tie:

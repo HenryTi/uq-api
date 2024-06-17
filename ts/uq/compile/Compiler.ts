@@ -7,8 +7,8 @@ import { compileBizThoroughly } from './compileSource';
 import { BizPhraseType } from '../il/Biz/BizPhraseType';
 
 const groups: { [name: string]: BizPhraseType[] } = {
-    info: [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.title, BizPhraseType.assign, BizPhraseType.duo],
-    sheet: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
+    info: [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.book, BizPhraseType.assign, BizPhraseType.duo],
+    sheet: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pass],
     query: [BizPhraseType.query],
     relate: [BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
     report: [BizPhraseType.report],

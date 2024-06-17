@@ -84,7 +84,7 @@ export class PBizReport extends PBizEntity<BizReport> {
             for (let t of this.titles) {
                 let { title: [t0, t1], caption } = t;
                 let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(t0);
-                if (entity === undefined || entity.bizPhraseType !== BizPhraseType.title) {
+                if (entity === undefined || entity.bizPhraseType !== BizPhraseType.book) {
                     ok = false;
                     this.log(`${t0} is not a title`);
                 }

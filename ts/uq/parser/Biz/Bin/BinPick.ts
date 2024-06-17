@@ -144,7 +144,7 @@ export class PBinPick extends PBizBud<BinPick> {
                 case BizPhraseType.fork:
                     pickBase = new PickSpec(bizEntity0 as BizSpec);
                     break;
-                case BizPhraseType.pend:
+                case BizPhraseType.pass:
                     pickBase = new PickPend(bizEntity0 as BizPend);
                     break;
                 case BizPhraseType.query:

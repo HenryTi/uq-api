@@ -7,7 +7,7 @@ const Entity_1 = require("./Entity");
 class BizTitle extends Entity_1.BizEntity {
     constructor() {
         super(...arguments);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.title;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.book;
         this.isID = false;
         this.fields = [];
     }

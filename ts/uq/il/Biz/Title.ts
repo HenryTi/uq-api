@@ -4,7 +4,7 @@ import { BizPhraseType } from "./BizPhraseType";
 import { BizEntity } from "./Entity";
 
 export class BizTitle extends BizEntity {
-    readonly bizPhraseType = BizPhraseType.title;
+    readonly bizPhraseType = BizPhraseType.book;
     readonly isID = false;
     protected readonly fields = [];
 

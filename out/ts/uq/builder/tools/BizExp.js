@@ -31,7 +31,7 @@ class BBizExp {
                 case BizPhraseType_1.BizPhraseType.bin:
                     this.bin(sb);
                     break;
-                case BizPhraseType_1.BizPhraseType.title:
+                case BizPhraseType_1.BizPhraseType.book:
                     this.title(sb);
                     break;
                 case BizPhraseType_1.BizPhraseType.tie:

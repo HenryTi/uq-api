@@ -548,7 +548,7 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
                 const { pend } = this.bizEntity;
                 return {
                     bizEntityArr: [pend],
-                    bizPhraseType: BizPhraseType_1.BizPhraseType.pend,
+                    bizPhraseType: BizPhraseType_1.BizPhraseType.pass,
                     bizEntityTable: il_1.EnumSysTable.pend,
                     subs: undefined,
                     ofIXs: undefined,
