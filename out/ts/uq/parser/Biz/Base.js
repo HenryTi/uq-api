@@ -383,6 +383,7 @@ class PBizEntity extends PBizBase {
                 for (;;) {
                     let bud = this.parseSubItem();
                     this.ts.passToken(tokens_1.Token.SEMICOLON);
+                    this.checkPropName(bud);
                     const { name: budName, dataType } = bud;
                     if (dataType === BizPhraseType_1.BudDataType.none) {
                         this.ts.error(`${budName} must define type`);
@@ -406,6 +407,7 @@ class PBizEntity extends PBizBase {
                     this.ts.expectToken(tokens_1.Token.LBRACE);
                 }
                 let bizBud = this.parseBud(name, ui);
+                this.checkPropName(bizBud);
                 const { name: budName, dataType } = bizBud;
                 if (dataType === BizPhraseType_1.BudDataType.none) {
                     this.ts.error(`${budName} must define type`);
@@ -455,6 +457,12 @@ class PBizEntity extends PBizBase {
             this.ts.readToken();
             parse();
         }
+    }
+    checkPropName(bud) {
+        const reservedNames = ['i', 'x', 'base', 'price', 'amount', 'value'];
+        if (reservedNames.findIndex(v => v === bud.name) < 0)
+            return;
+        this.ts.error(`${reservedNames.join(',').toUpperCase()} can not be used as PROP name`);
     }
     parsePermitOne(permissionLetters) {
         let role;

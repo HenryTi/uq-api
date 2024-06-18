@@ -400,6 +400,12 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         }
     }
 
+    private checkPropName(bud: BizBud) {
+        const reservedNames = ['i', 'x', 'base', 'price', 'amount', 'value'];
+        if (reservedNames.findIndex(v => v === bud.name) < 0) return;
+        this.ts.error(`${reservedNames.join(',').toUpperCase()} can not be used as PROP name`);
+    }
+
     protected parseProp = () => {
         let budGroup: BudGroup;
         let budArr: BizBud[] = [];
@@ -433,6 +439,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             for (; ;) {
                 let bud = this.parseSubItem();
                 this.ts.passToken(Token.SEMICOLON);
+                this.checkPropName(bud);
                 const { name: budName, dataType } = bud;
                 if (dataType === BudDataType.none) {
                     this.ts.error(`${budName} must define type`);
@@ -456,6 +463,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 this.ts.expectToken(Token.LBRACE);
             }
             let bizBud = this.parseBud(name, ui);
+            this.checkPropName(bizBud);
             const { name: budName, dataType } = bizBud;
             if (dataType === BudDataType.none) {
                 this.ts.error(`${budName} must define type`);
