@@ -1,6 +1,6 @@
 import { BigInt, BizCombo, EnumSysTable, Field, bigIntField, tinyIntField } from "../../il";
 import { $site } from "../consts";
-import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure } from "../sql";
+import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncDb, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure } from "../sql";
 import { EntityTable, GlobalTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
@@ -21,7 +21,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
     }
 
     private buildFuncId(funcId: Procedure) {
-        const { factory } = this.context;
+        const { factory, dbName } = this.context;
         const { parameters, statements } = funcId;
         const { id, keys } = this.bizEntity;
         parameters.push(
@@ -58,7 +58,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         selectEntity.col('id');
         selectEntity.from(new EntityTable(EnumSysTable.entity, false));
         selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr('duo')));
-        newId.equ(vId, new ExpFunc('$IDMU', new ExpSelect(selectEntity), ExpNull.null));
+        newId.equ(vId, new ExpFuncDb(dbName, '$IDMU', new ExpSelect(selectEntity), ExpNull.null));
 
         const insert = factory.createInsert();
         iff.then(insert);
@@ -67,14 +67,6 @@ export class BBizCombo extends BBizEntity<BizCombo> {
             { col: 'id', val: new ExpVar(vId) },
             ...keys.map(v => ({ col: v.name, val: new ExpVar(v.name) })),
         ];
-
-        /*
-        SET `_$id`=$IDMU((SELECT `id` 
-        FROM `jksoft_mini_jxc_trial`.`$entity`
-        WHERE 1=1 AND `name`='bin' FOR UPDATE), `_$stamp`);
-      INSERT INTO `jksoft_mini_jxc_trial`.`bin` (`id`, `base`) 
-        VALUES (`_$id`, `_base`);
-        */
 
         const ret = factory.createReturn();
         statements.push(ret);

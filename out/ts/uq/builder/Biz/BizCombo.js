@@ -34,7 +34,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         });
     }
     buildFuncId(funcId) {
-        const { factory } = this.context;
+        const { factory, dbName } = this.context;
         const { parameters, statements } = funcId;
         const { id, keys } = this.bizEntity;
         parameters.push((0, il_1.tinyIntField)('new'), ...keys.map(v => v.createField()));
@@ -61,7 +61,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         selectEntity.col('id');
         selectEntity.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.entity, false));
         selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('duo')));
-        newId.equ(vId, new sql_1.ExpFunc('$IDMU', new sql_1.ExpSelect(selectEntity), sql_1.ExpNull.null));
+        newId.equ(vId, new sql_1.ExpFuncDb(dbName, '$IDMU', new sql_1.ExpSelect(selectEntity), sql_1.ExpNull.null));
         const insert = factory.createInsert();
         iff.then(insert);
         insert.table = tbl;
@@ -69,13 +69,6 @@ class BBizCombo extends BizEntity_1.BBizEntity {
             { col: 'id', val: new sql_1.ExpVar(vId) },
             ...keys.map(v => ({ col: v.name, val: new sql_1.ExpVar(v.name) })),
         ];
-        /*
-        SET `_$id`=$IDMU((SELECT `id`
-        FROM `jksoft_mini_jxc_trial`.`$entity`
-        WHERE 1=1 AND `name`='bin' FOR UPDATE), `_$stamp`);
-      INSERT INTO `jksoft_mini_jxc_trial`.`bin` (`id`, `base`)
-        VALUES (`_$id`, `_base`);
-        */
         const ret = factory.createReturn();
         statements.push(ret);
         ret.returnVar = vId;
