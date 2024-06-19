@@ -24,6 +24,9 @@ class BBizCombo extends BizEntity_1.BBizEntity {
             let idField = (0, il_1.bigIntField)('id');
             table.keys = [idField];
             table.fields = [idField, ...keyFields];
+            let keyIndex = new il_1.Index('$key', true);
+            keyIndex.fields.push(...keyFields);
+            table.indexes.push(keyIndex);
         });
     }
     buildProcedures() {

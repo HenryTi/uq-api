@@ -1,4 +1,4 @@
-import { BigInt, BizCombo, EnumSysTable, Field, bigIntField, tinyIntField } from "../../il";
+import { BigInt, BizCombo, EnumSysTable, Field, Index, bigIntField, tinyIntField } from "../../il";
 import { $site } from "../consts";
 import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncDb, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure } from "../sql";
 import { EntityTable, GlobalTable } from "../sql/statementWithFrom";
@@ -12,6 +12,9 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         let idField = bigIntField('id');
         table.keys = [idField];
         table.fields = [idField, ...keyFields];
+        let keyIndex = new Index('$key', true);
+        keyIndex.fields.push(...keyFields);
+        table.indexes.push(keyIndex);
     }
 
     override async buildProcedures(): Promise<void> {
