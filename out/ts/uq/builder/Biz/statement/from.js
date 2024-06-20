@@ -136,7 +136,7 @@ class BFromStatement extends bstatement_1.BStatement {
                             .join(il_1.JoinType.join, entityTable)
                             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, prevAlias)));
                         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, subBudAlias))
-                            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', subBudAlias), new sql_1.ExpField(field, alias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', subBudAlias), new sql_1.ExpNum(id))));
+                            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', subBudAlias), new sql_1.ExpField('base', subAlias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', subBudAlias), new sql_1.ExpNum(id))));
                         break;
                 }
                 this.buildSelectFrom(select, subFromEntity);

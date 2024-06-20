@@ -38,7 +38,7 @@ class BFromInPendStatement extends from_1.BFromStatement {
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a)))
+            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(this.istatement.pendQuery.bizPend.id)), new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a))))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, b1))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b1), new sql_1.ExpField('id', b)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, d))

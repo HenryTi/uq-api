@@ -104,13 +104,11 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             default:
                 return;
             case BizPhraseType_1.BizPhraseType.atom:
-                return eqOrIn(expBase); // new ExpEQ(expBase, expId);
+                return eqOrIn(expBase);
             case BizPhraseType_1.BizPhraseType.fork:
                 let budAlias = alias + '$bud';
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
-                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), 
-                //new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntity.id)),
-                eqOrIn(new sql_1.ExpField('ext', budAlias))));
+                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), eqOrIn(new sql_1.ExpField('ext', budAlias))));
                 return;
         }
     }

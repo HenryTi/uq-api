@@ -296,7 +296,9 @@ class If extends Statement {
     parser(context) { return new parser.PIf(this, context); }
     eachChild(callback) {
         this.then.eachChild((child, cName) => callback(child, cName));
-        this.else.eachChild((child, cName) => callback(child, cName));
+        if (this.else !== undefined) {
+            this.else.eachChild((child, cName) => callback(child, cName));
+        }
     }
 }
 exports.If = If;

@@ -160,7 +160,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
                             .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias)));
                         select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, subBudAlias))
                             .on(new ExpAnd(
-                                new ExpEQ(new ExpField('id', subBudAlias), new ExpField(field, alias)),
+                                new ExpEQ(new ExpField('id', subBudAlias), new ExpField('base', subAlias)),
                                 new ExpEQ(new ExpField('ext', subBudAlias), new ExpNum(id)),
                             ));
                         break;

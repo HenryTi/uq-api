@@ -1,7 +1,7 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
 import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom, FromEntity } from "../../../il";
 import { BFromStatement } from "./from";
-import { ExpCmp, ExpEQ, ExpField, Select } from "../../sql";
+import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpNum, Select } from "../../sql";
 import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWithFrom";
 import { KeyOfMapFieldTable, MapFieldTable } from "../BizField";
 import { DbContext } from "../../dbContext";
@@ -41,7 +41,10 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
             .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('bin', a)))
             .join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, c))
-            .on(new ExpEQ(new ExpField('id', c), new ExpField('base', a)))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('base', a), new ExpNum(this.istatement.pendQuery.bizPend.id)),
+                new ExpEQ(new ExpField('id', c), new ExpField('base', a)),
+            ))
             .join(JoinType.left, new EntityTable(EnumSysTable.bizDetail, false, b1))
             .on(new ExpEQ(new ExpField('id', b1), new ExpField('id', b)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bud, false, d))

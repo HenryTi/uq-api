@@ -117,13 +117,12 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             default:
                 return;
             case BizPhraseType.atom:
-                return eqOrIn(expBase); // new ExpEQ(expBase, expId);
+                return eqOrIn(expBase);
             case BizPhraseType.fork:
                 let budAlias = alias + '$bud';
                 select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
                     .on(new ExpAnd(
                         new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
-                        //new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntity.id)),
                         eqOrIn(new ExpField('ext', budAlias)),
                     ));
                 return;

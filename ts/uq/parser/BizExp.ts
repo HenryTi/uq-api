@@ -441,7 +441,7 @@ export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
             this.items = [this.ts.passVar()];
         }
         else if (this.ts.isKeyword('in') === true) {
-            if (this.element.bizField === undefined) {
+            if (this.element.bizField === undefined && this.element.optionIdVal === undefined) {
                 this.ts.error('IN not expected');
             }
             this.items = [];
