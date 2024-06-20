@@ -2,7 +2,8 @@ import {
     PBizBudID, PBizBudChar as PBizBudCharBase, PBizBudCheck, PBizBudDate
     , PBizBudDec, PBizBudInt
     , PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement
-    , PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue, PBizUser
+    , PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue, PBizUser,
+    PBizBudBin
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -15,6 +16,7 @@ import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BigInt, Char, DataType, Dec, JsonDataType } from "../datatype";
 import { Field } from "../field";
+import { BizBin } from "./Bin";
 
 export enum BudValueSetType {
     equ = 1,            // 设置不可修改. 这是默认
@@ -361,17 +363,23 @@ export class BizBudIXBase extends BizBudIDBase {
 export class BizBudIDIO extends BizBudValue {
     readonly dataType = BudDataType.ID;
     readonly canIndex = false;
-    // entityAtom: BizAtom;
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIDIO(this, context);
     }
-    /*
+}
+
+export class BizBudBin extends BizBudValue {
+    readonly dataType = BudDataType.bin;
+    readonly canIndex = false;
+    bin: BizBin;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudBin(this, context);
+    }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        ret.atom = this.entityAtom?.id;
+        ret.bin = this.bin.id;
         return ret;
     }
-    */
 }
 
 export abstract class BizBudOptions extends BizBudValue {
@@ -384,15 +392,6 @@ export abstract class BizBudOptions extends BizBudValue {
     get objName(): string { return this.options?.phrase; }
 }
 
-/*
-export class BizBudIntOf extends BizBudOptions {
-    readonly dataType = BudDataType.intof;
-    readonly canIndex = true;
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudIntOf(this, context);
-    }
-}
-*/
 
 export class BizBudRadio extends BizBudOptions {
     readonly dataType = BudDataType.radio;
@@ -424,7 +423,6 @@ export const budClasses: { [key: string]: new (entity: BizEntity, name: string, 
     none: BizBudAny,
     atom: BizBudID,
     id: BizBudID,
-    // intof: BizBudIntOf,
     radio: BizBudRadio,
     check: BizBudCheck,
     binValue: BinValue

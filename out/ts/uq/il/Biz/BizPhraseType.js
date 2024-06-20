@@ -48,7 +48,7 @@ var BudDataType;
     BudDataType[BudDataType["atom"] = 12] = "atom";
     BudDataType[BudDataType["radio"] = 13] = "radio";
     BudDataType[BudDataType["check"] = 14] = "check";
-    // intof = 15,
+    BudDataType[BudDataType["bin"] = 15] = "bin";
     BudDataType[BudDataType["ID"] = 19] = "ID";
     BudDataType[BudDataType["dec"] = 21] = "dec";
     BudDataType[BudDataType["char"] = 31] = "char";

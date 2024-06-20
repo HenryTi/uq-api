@@ -451,6 +451,12 @@ abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<
         let ok = true;
         if (super.scan2(uq) === false) ok = false;
         this.copyBase();
+        for (let [, bud] of this.element.props) {
+            if (bud.dataType === BudDataType.bin) {
+                ok = false;
+                this.log(`no BIN can be used in ID prop`);
+            }
+        }
         return ok;
     }
 

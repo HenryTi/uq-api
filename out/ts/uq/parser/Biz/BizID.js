@@ -436,6 +436,12 @@ class PBizIDWithBase extends PBizIDExtendable {
         if (super.scan2(uq) === false)
             ok = false;
         this.copyBase();
+        for (let [, bud] of this.element.props) {
+            if (bud.dataType === BizPhraseType_1.BudDataType.bin) {
+                ok = false;
+                this.log(`no BIN can be used in ID prop`);
+            }
+        }
         return ok;
     }
     // extends 继承的base，拷贝给所有的子类

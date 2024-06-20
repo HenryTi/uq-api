@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -372,20 +372,28 @@ class BizBudIDIO extends BizBudValue {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.ID;
         this.canIndex = false;
-        /*
-        buildSchema(res: { [phrase: string]: string }) {
-            let ret = super.buildSchema(res);
-            ret.atom = this.entityAtom?.id;
-            return ret;
-        }
-        */
     }
-    // entityAtom: BizAtom;
     parser(context) {
         return new parser_1.PBizBudIDIO(this, context);
     }
 }
 exports.BizBudIDIO = BizBudIDIO;
+class BizBudBin extends BizBudValue {
+    constructor() {
+        super(...arguments);
+        this.dataType = BizPhraseType_1.BudDataType.bin;
+        this.canIndex = false;
+    }
+    parser(context) {
+        return new parser_1.PBizBudBin(this, context);
+    }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        ret.bin = this.bin.id;
+        return ret;
+    }
+}
+exports.BizBudBin = BizBudBin;
 class BizBudOptions extends BizBudValue {
     buildSchema(res) {
         var _a;
@@ -396,15 +404,6 @@ class BizBudOptions extends BizBudValue {
     get objName() { var _a; return (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase; }
 }
 exports.BizBudOptions = BizBudOptions;
-/*
-export class BizBudIntOf extends BizBudOptions {
-    readonly dataType = BudDataType.intof;
-    readonly canIndex = true;
-    parser(context: PContext): PElement<IElement> {
-        return new PBizBudIntOf(this, context);
-    }
-}
-*/
 class BizBudRadio extends BizBudOptions {
     constructor() {
         super(...arguments);
@@ -436,9 +435,7 @@ exports.budClassesIn = {
     id: BizBudIDIO,
     $arr: BizBudArr,
 };
-exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudAny, atom: BizBudID, id: BizBudID, 
-    // intof: BizBudIntOf,
-    radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });
+exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudAny, atom: BizBudID, id: BizBudID, radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });
 exports.budClassesUser = {
     int: BizBudInt,
     dec: BizBudDec,

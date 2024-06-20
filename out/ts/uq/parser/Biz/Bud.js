@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudPickable = exports.PBizBudID = exports.PBizBudIXBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudAny = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudPickable = exports.PBizBudBin = exports.PBizBudID = exports.PBizBudIXBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudAny = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
@@ -457,6 +457,25 @@ class PBizBudID extends PBizBudIDBase {
     }
 }
 exports.PBizBudID = PBizBudID;
+class PBizBudBin extends PBizBudValue {
+    _parse() {
+        this.binName = this.ts.mayPassVar();
+        this.parseBudEquValue();
+    }
+    scan(space) {
+        let ok = super.scan(space);
+        let bin = space.uq.biz.bizEntities.get(this.binName);
+        if (bin === undefined || bin.bizPhraseType !== BizPhraseType_1.BizPhraseType.bin) {
+            ok = false;
+            this.log(`${this.binName} is not a BIN`);
+        }
+        else {
+            this.element.bin = bin;
+        }
+        return ok;
+    }
+}
+exports.PBizBudBin = PBizBudBin;
 class PBizBudPickable extends PBizBudValue {
     _parse() {
         if (this.ts.token === tokens_1.Token.VAR) {

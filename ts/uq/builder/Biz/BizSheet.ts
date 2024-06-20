@@ -1,13 +1,15 @@
 import {
     BigInt, BizBin, BizSheet, JoinType
-    , bigIntField, decField, idField, EnumSysTable, Char, ProcParamType, UseOut
+    , bigIntField, decField, idField, EnumSysTable, Char, ProcParamType, UseOut,
+    BizBud
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { $site } from "../consts";
 import {
     ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIsNotNull, ExpIsNull, ExpNum
-    , ExpRoutineExists, ExpStr, ExpVal, ExpVar, Procedure, Statement
+    , ExpRoutineExists, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement
 } from "../sql";
+import { LockType } from "../sql/select";
 import { userParamName } from "../sql/sqlBuilder";
 import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
@@ -78,6 +80,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         let setBin = factory.createSet();
         statements.push(setBin);
         setBin.equ(binId, new ExpVar(cId));
+        // sheet main 界面编辑的时候，value，amount，price 保存到 ixBudDec 里面了。现在转到bin表上
+        this.saveMainVPA(statements);
         let mainStatements = this.buildBinOneRow(main);
         statements.push(...mainStatements);
 
@@ -97,6 +101,33 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             let out = outs[i];
             this.buildOut(statements, out);
         }
+    }
+
+    private saveMainVPA(statements: Statement[]) {
+        const { value, price, amount } = this.bizEntity.main;
+        const { factory } = this.context;
+        let update = factory.createUpdate();
+        const { cols } = update;
+        let varBinId = new ExpVar(binId);
+        function setVal(bud: BizBud) {
+            if (bud === undefined) return;
+            let select = factory.createSelect();
+            select.lock = LockType.none;
+            select.col('value');
+            select.from(new EntityTable(EnumSysTable.ixBudDec, false));
+            select.where(new ExpAnd(
+                new ExpEQ(new ExpField('i'), varBinId),
+                new ExpEQ(new ExpField('x'), new ExpNum(bud.id)),
+            ));
+            cols.push({ col: bud.name, val: new ExpSelect(select) })
+        }
+        setVal(value);
+        setVal(price);
+        setVal(amount);
+        if (cols.length === 0) return;
+        update.table = new EntityTable(EnumSysTable.bizBin, false);
+        update.where = new ExpEQ(new ExpField('id'), varBinId);
+        statements.push(update);
     }
 
     private buildBin(statements: Statement[], bin: BizBin, statementNo: number) {

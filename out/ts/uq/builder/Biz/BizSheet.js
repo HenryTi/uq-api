@@ -14,6 +14,7 @@ const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const consts_1 = require("../consts");
 const sql_1 = require("../sql");
+const select_1 = require("../sql/select");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
@@ -68,6 +69,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let setBin = factory.createSet();
         statements.push(setBin);
         setBin.equ(binId, new sql_1.ExpVar(cId));
+        // sheet main 界面编辑的时候，value，amount，price 保存到 ixBudDec 里面了。现在转到bin表上
+        this.saveMainVPA(statements);
         let mainStatements = this.buildBinOneRow(main);
         statements.push(...mainStatements);
         // details
@@ -81,6 +84,31 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             let out = outs[i];
             this.buildOut(statements, out);
         }
+    }
+    saveMainVPA(statements) {
+        const { value, price, amount } = this.bizEntity.main;
+        const { factory } = this.context;
+        let update = factory.createUpdate();
+        const { cols } = update;
+        let varBinId = new sql_1.ExpVar(binId);
+        function setVal(bud) {
+            if (bud === undefined)
+                return;
+            let select = factory.createSelect();
+            select.lock = select_1.LockType.none;
+            select.col('value');
+            select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudDec, false));
+            select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), varBinId), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(bud.id))));
+            cols.push({ col: bud.name, val: new sql_1.ExpSelect(select) });
+        }
+        setVal(value);
+        setVal(price);
+        setVal(amount);
+        if (cols.length === 0)
+            return;
+        update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false);
+        update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varBinId);
+        statements.push(update);
     }
     buildBin(statements, bin, statementNo) {
         const { id: entityId, name } = bin;

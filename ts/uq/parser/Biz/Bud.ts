@@ -5,7 +5,8 @@ import {
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
     , FieldShowItem, BizSpec, BudValueSet, BizBudValueWithRange
     , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, UI, BinValue
-    , BizBudIDBase
+    , BizBudIDBase,
+    BizBudBin
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -470,6 +471,27 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
             if (params[i].exp.pelement.scan(space) === false) {
                 ok = false;
             }
+        }
+        return ok;
+    }
+}
+
+export class PBizBudBin extends PBizBudValue<BizBudBin> {
+    private binName: string;
+    protected _parse(): void {
+        this.binName = this.ts.mayPassVar();
+        this.parseBudEquValue();
+    }
+
+    scan(space: BizEntitySpace): boolean {
+        let ok = super.scan(space);
+        let bin = space.uq.biz.bizEntities.get(this.binName);
+        if (bin === undefined || bin.bizPhraseType !== BizPhraseType.bin) {
+            ok = false;
+            this.log(`${this.binName} is not a BIN`);
+        }
+        else {
+            this.element.bin = bin as BizBin;
         }
         return ok;
     }
