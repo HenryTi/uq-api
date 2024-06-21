@@ -433,6 +433,7 @@ exports.budClassesIn = {
     char: BizBudChar,
     date: BizBudDate,
     id: BizBudIDIO,
+    bin: BizBudBin,
     $arr: BizBudArr,
 };
 exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudAny, atom: BizBudID, id: BizBudID, radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });

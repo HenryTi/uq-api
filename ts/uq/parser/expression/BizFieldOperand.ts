@@ -20,6 +20,7 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
         let field = bizFieldSpace.getBizField(this.fieldName);
         if (field === null) {
             this.log(`${this.fieldName} is not defined`);
+            bizFieldSpace.getBizField(this.fieldName);
             return false;
         }
         const [f0, f1] = this.fieldName;

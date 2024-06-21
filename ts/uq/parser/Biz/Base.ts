@@ -265,12 +265,6 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             }
             if (key === 'int') {
                 this.ts.readToken()
-                /*
-                if (this.ts.isKeyword('of') === true) {
-                    key = 'intof';
-                    this.ts.readToken();
-                }
-                */
             }
             else {
                 this.ts.readToken();

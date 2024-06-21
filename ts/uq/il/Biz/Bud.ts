@@ -416,6 +416,7 @@ export const budClassesIn: { [key: string]: new (entity: BizEntity, name: string
     char: BizBudChar,
     date: BizBudDate,
     id: BizBudIDIO,
+    bin: BizBudBin,
     $arr: BizBudArr,
 }
 export const budClasses: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {

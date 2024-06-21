@@ -244,12 +244,6 @@ class PBizBase extends element_1.PElement {
             }
             if (key === 'int') {
                 this.ts.readToken();
-                /*
-                if (this.ts.isKeyword('of') === true) {
-                    key = 'intof';
-                    this.ts.readToken();
-                }
-                */
             }
             else {
                 this.ts.readToken();

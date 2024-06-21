@@ -36,6 +36,7 @@ function buildSelectBinBud(context, bud, varBin, varName) {
         case BizPhraseType_1.BudDataType.date:
         case BizPhraseType_1.BudDataType.int:
         case BizPhraseType_1.BudDataType.radio:
+        case BizPhraseType_1.BudDataType.bin:
             selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudInt);
             declareType = bigint;
             break;

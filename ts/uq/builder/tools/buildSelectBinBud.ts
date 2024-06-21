@@ -39,6 +39,7 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
         case BudDataType.date:
         case BudDataType.int:
         case BudDataType.radio:
+        case BudDataType.bin:
             selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
             declareType = bigint;
             break;
