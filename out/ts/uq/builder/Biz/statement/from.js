@@ -73,7 +73,7 @@ class BFromStatement extends bstatement_1.BStatement {
     buildSelectVallueSum(select) {
         this.buildSelectVallueBase(select, true);
     }
-    buildSelectCols(select, alias) {
+    buildSelectCols( /*select: Select, alias: string*/) {
         const { cols } = this.istatement;
         const arr = [];
         for (let col of cols) {
@@ -85,7 +85,8 @@ class BFromStatement extends bstatement_1.BStatement {
                 expName = new sql_1.ExpStr(name);
             arr.push(new sql_1.ExpFunc('JSON_ARRAY', expName, this.context.expVal(val)));
         }
-        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), alias);
+        return arr;
+        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
     }
     buildSelectFrom(select, fromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;

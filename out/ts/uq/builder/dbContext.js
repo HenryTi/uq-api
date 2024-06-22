@@ -272,7 +272,7 @@ class DbContext {
     setStatement(v) { return new stat.BSetStatement(this, v); }
     putStatement(v) { return new stat.BPutStatement(this, v); }
     fromStatement(v) {
-        if (v.groupByBase === true) {
+        if (v.ids.length > 1 /*.groupByBase === true*/) {
             return new Biz_1.BFromGroupByBaseStatement(this, v);
         }
         return new Biz_1.BFromGroupByStatement(this, v);

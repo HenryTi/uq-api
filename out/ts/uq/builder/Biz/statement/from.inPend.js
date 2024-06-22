@@ -33,7 +33,8 @@ class BFromInPendStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField(consts_1.binAmount, b), consts_1.binAmount);
         select.column(new sql_1.ExpField('value', a), 'pendvalue');
         select.column(new sql_1.ExpField('mid', a), 'mid');
-        this.buildSelectCols(select, 'cols');
+        let arr = this.buildSelectCols();
+        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'cols');
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))

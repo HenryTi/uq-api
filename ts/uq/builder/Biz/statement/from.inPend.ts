@@ -1,7 +1,7 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
 import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom, FromEntity } from "../../../il";
 import { BFromStatement } from "./from";
-import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpNum, Select } from "../../sql";
+import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, Select } from "../../sql";
 import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWithFrom";
 import { KeyOfMapFieldTable, MapFieldTable } from "../BizField";
 import { DbContext } from "../../dbContext";
@@ -35,7 +35,8 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
         select.column(new ExpField('value', a), 'pendvalue');
         select.column(new ExpField('mid', a), 'mid');
 
-        this.buildSelectCols(select, 'cols');
+        let arr = this.buildSelectCols();
+        select.column(new ExpFunc('JSON_ARRAY', ...arr), 'cols');
 
         select.from(new EntityTable(EnumSysTable.pend, false, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))

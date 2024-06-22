@@ -1,4 +1,4 @@
-import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromEntity, FromStatement, IdColumn, JoinType, bigIntField, decField, jsonField, tinyIntField } from "../../../il";
+import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromEntity, FromStatement, IdColumn, JoinType, bigIntField, decField, intField, jsonField, tinyIntField } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
 import { DbContext } from "../../dbContext";
@@ -45,7 +45,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             val: undefined,
         }));
         ret.push({ col: 'ban', val: undefined });
-        ret.push({ col: 'json', val: undefined });
+        // ret.push({ col: 'json', val: undefined });
         ret.push({ col: 'value', val: undefined });
         return ret;
     }
@@ -54,34 +54,36 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         const { factory } = this.context;
         let varTable = factory.createVarTable();
         varTable.name = pageGroupBy;
-        let keys = this.buildTablePageKeys();
-        varTable.keys = keys;
         const ban = tinyIntField('ban');
         ban.nullable = true;
-        const json = jsonField('json');
-        json.nullable = true;
+        // const json = jsonField('json');
+        // json.nullable = true;
         const value = decField('value', 18, 6);
         value.nullable = true;
+        let idField = intField('$id');
+        idField.autoInc = true;
+        varTable.keys = [idField];
         varTable.fields = [
-            ...keys,
+            idField,
+            ...this.idsGroupBy.map((v, index) => bigIntField('id' + index)),
             ban,
-            json,
+            // json,
             value,
         ];
         return varTable;
     }
-
+    /*
     protected buildTablePageKeys() {
         return this.idsGroupBy.map((v, index) => bigIntField('id' + index));
     }
-
+    */
     private buildFromSelectPage(cmpPage: ExpCmp): Select {
         const { factory } = this.context;
         const { where, fromEntity } = this.istatement;
         const select = factory.createSelect();
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
-        this.buildSelectIds(select, 'json');
+        // this.buildSelectIds(select, 'json');
         this.buildSelectVallueSum(select);
         let entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
@@ -130,15 +132,13 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     }
 
     protected buildGroupByIds(select: Select) {
-        let expField: ExpField;
-        let idColumn: IdColumn;
         this.idsGroupBy.forEach((v, index) => {
-            idColumn = v;
-            expField = new ExpField('id', idColumn.fromEntity.alias);
+            let idColumn = v;
+            let expField = new ExpField('id', idColumn.fromEntity.alias);
             select.column(expField, 'id' + index);
             select.group(expField);
+            select.order(expField, this.buildAsc(idColumn));
         });
-        select.order(expField, this.buildAsc(idColumn));
     }
 
     private buildAsc(idColumn: IdColumn) {
@@ -146,9 +146,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     }
 
     protected buildSelectIds(select: Select, alias: string) {
-        const arr: ExpVal[] = [
-            new ExpFunc('JSON_ARRAY', new ExpStr('$ids'), ...this.idsGroupBy.map(v => new ExpField('id', v.fromEntity.alias))),
-        ];
+        const arr: ExpVal[] = this.idsGroupBy.map(v => new ExpField('id', v.fromEntity.alias));
         select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
     }
 
@@ -166,12 +164,12 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         let select = factory.createSelect();
         insertRet.select = select;
         select.from(new VarTable(pageGroupBy, a));
-        let expId = new ExpField('id' + (this.idsGroupBy.length - 1), a);
-        select.column(expId);
+        // let expId = new ExpField('id' + (this.idsGroupBy.length - 1), a);
+        select.column(new ExpField('$id', a), 'id');
         select.column(new ExpField('ban', a));
-        select.column(new ExpField('json', a));
+        select.column(new ExpFunc('JSON_ARRAY', ...this.idsGroupBy.map((v, index) => new ExpField('id' + index, a))), 'json');
         select.column(new ExpField('value', a));
-        select.order(expId, this.buildAsc(this.idsGroupBy[this.idsGroupBy.length - 1]));
+        select.order(new ExpField('$id', a), 'asc'); // this.buildAsc(this.idsGroupBy[this.idsGroupBy.length - 1]));
         return insertRet;
     }
 
@@ -223,11 +221,14 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
     protected setIds() {
         this.idsAll = this.istatement.ids;
         this.idsGroupBy = [...this.idsAll];
+        this.idsGroupBy.pop();
+        /*
         let idLast = this.idsGroupBy.pop();
         this.idsGroupBy.push({
             asc: idLast.asc,
             fromEntity: idLast.fromEntity.subs[0].fromEntity,
         });
+        */
     }
 
     protected buildExpFieldPageId() {
@@ -256,13 +257,18 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
-        select.join(JoinType.join, new VarTable(intoTables.ret, '$ret'))
-            .on(new ExpEQ(new ExpField('id', '$ret'), new ExpField('id', this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity.alias)));
+        //select.join(JoinType.join, new VarTable(intoTables.ret, '$ret'))
+        select.join(JoinType.join, new VarTable(pageGroupBy, '$ret'))
+            //    .on(new ExpEQ(new ExpField('id', '$ret'), new ExpField('id', this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity.alias)));
+            .on(new ExpAnd(
+                ...this.idsGroupBy.map((v, index) => new ExpEQ(new ExpField('id', v.fromEntity.alias), new ExpField('id' + index, '$ret')))
+            ));
         select.column(new ExpField('id', b), 'id');
-        select.column(new ExpField('id', '$ret'), 'atom');
+        select.column(new ExpField('$id', '$ret'), 'atom');
         select.where(this.context.expCmp(where));
         this.buildSelectBan(select);
-        this.buildSelectCols(select, 'json');
+        let arr = this.buildSelectCols();
+        select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');
         this.buildSelectVallue(select);
         return insertSpec;
     }

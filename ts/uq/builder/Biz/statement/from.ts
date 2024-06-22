@@ -89,7 +89,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
         this.buildSelectVallueBase(select, true);
     }
 
-    protected buildSelectCols(select: Select, alias: string) {
+    protected buildSelectCols(/*select: Select, alias: string*/) {
         const { cols } = this.istatement;
         const arr: ExpVal[] = [];
         for (let col of cols) {
@@ -99,7 +99,8 @@ export abstract class BFromStatement<T extends FromStatement> extends BStatement
             else expName = new ExpStr(name);
             arr.push(new ExpFunc('JSON_ARRAY', expName, this.context.expVal(val as ValueExpression)));
         }
-        select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
+        return arr;
+        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
     }
 
     protected buildSelectFrom(select: Select, fromEntity: FromEntity) {

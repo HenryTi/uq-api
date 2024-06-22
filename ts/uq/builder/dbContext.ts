@@ -308,7 +308,7 @@ export class DbContext implements il.Builder {
     setStatement(v: il.SetStatement) { return new stat.BSetStatement(this, v) }
     putStatement(v: il.PutStatement) { return new stat.BPutStatement(this, v) }
     fromStatement(v: il.FromStatement): stat.BStatement {
-        if (v.groupByBase === true) {
+        if (v.ids.length > 1/*.groupByBase === true*/) {
             return new BFromGroupByBaseStatement(this, v);
         }
         return new BFromGroupByStatement(this, v);
