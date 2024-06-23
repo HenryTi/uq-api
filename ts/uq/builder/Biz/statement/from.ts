@@ -1,4 +1,4 @@
-import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizSpec, BizID, EnumAsc, bigIntField } from "../../../il";
+import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizFork, BizID, EnumAsc, bigIntField } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNull,
     ExpLT, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Select,

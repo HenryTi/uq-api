@@ -1,4 +1,4 @@
-import { BinInput, BinInputAtom, BinInputSpec, BizAtom, BizSpec, BizEntity, ValueExpression } from "../../../il";
+import { BinInput, BinInputAtom, BinInputSpec, BizAtom, BizFork, BizEntity, ValueExpression } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Token } from "../../tokens";
 import { BizEntitySpace } from "../Biz";
@@ -27,7 +27,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
             ok = false;
         }
         else {
-            this.element.spec = ret as BizSpec;
+            this.element.spec = ret as BizFork;
             let { baseValue } = this.element;
             if (baseValue.pelement.scan(space) === false) {
                 ok = false;

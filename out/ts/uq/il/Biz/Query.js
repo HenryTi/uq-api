@@ -64,11 +64,15 @@ class BizQueryTable extends BizQuery {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        const { ban, cols, fromEntity, ids, groupByBase } = this.from;
+        const { ban, cols, fromEntity, ids, showIds, groupByBase } = this.from;
         ret.ids = ids.map(v => ({
             ui: v.ui,
             alias: v.fromEntity.alias,
             asc: v.asc,
+        }));
+        ret.showIds = showIds.map(v => ({
+            ui: v.ui,
+            alias: v.fromEntity.alias,
         }));
         if (ban !== undefined) {
             ret.ban = (_a = ban.caption) !== null && _a !== void 0 ? _a : true;

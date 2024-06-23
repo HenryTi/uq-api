@@ -1,5 +1,5 @@
 import {
-    BigInt, BizSpec, Char, DataType, Dec, JoinType
+    BigInt, BizFork, Char, DataType, Dec, JoinType
     , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud,
     tinyIntField
 } from "../../il";
@@ -12,7 +12,7 @@ import {
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
-export class BBizSpec extends BBizEntity<BizSpec> {
+export class BBizFork extends BBizEntity<BizFork> {
     override async buildTables(): Promise<void> {
         /*
         const { id } = this.bizEntity;

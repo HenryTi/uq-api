@@ -5,7 +5,7 @@ import {
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
-    , BizAtom, BizSpec, BizStatementOut, BizBudArr, BizOut
+    , BizAtom, BizFork, BizStatementOut, BizBudArr, BizOut
     , Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie,
     BizFromEntity
 } from '../../../il';
@@ -617,7 +617,7 @@ export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> 
             this.log(`${this.entityName} is not SPEC`);
         }
         else {
-            this.element.spec = entity as BizSpec;
+            this.element.spec = entity as BizFork;
             let length = this.element.spec.keys.length + 1;
             if (length !== this.inVals.length) {
                 ok = false;

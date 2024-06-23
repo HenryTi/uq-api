@@ -1,4 +1,4 @@
-import { BizBud, BizSpec, EnumAsc, EnumSysTable, FromEntity, FromStatement, IdColumn, JoinType, bigIntField, decField, intField, jsonField, tinyIntField } from "../../../il";
+import { BizBud, BizFork, EnumAsc, EnumSysTable, FromEntity, FromStatement, IdColumn, JoinType, bigIntField, decField, intField, jsonField, tinyIntField } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
 import { DbContext } from "../../dbContext";
@@ -6,7 +6,7 @@ import { ColVal, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpSel
 import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
 
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 const pageGroupBy = '$pageGroupBy';
 export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     protected readonly idFromEntity: FromEntity;
@@ -34,9 +34,10 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         insertPage.table = new VarTable(pageGroupBy);
         insertPage.cols = this.buildInsertPageCols();
         let insertRet = this.buildInsertRet();
-        let insertAtomOfSpec = this.buildInsertAtomOfSpec();
+        let insertIdsAtoms = this.buildInsertIdsAtoms();
+        let insertIdsSpecs = this.buildInsertIdsSpecs();
         let insertSpec = this.buildInsertSpec();
-        return [tblPageGroupBy, insertPage, insertRet, insertAtomOfSpec, insertSpec];
+        return [tblPageGroupBy, insertPage, insertRet, insertIdsAtoms, insertIdsSpecs, insertSpec];
     }
 
     protected buildInsertPageCols(): ColVal[] {
@@ -45,7 +46,6 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             val: undefined,
         }));
         ret.push({ col: 'ban', val: undefined });
-        // ret.push({ col: 'json', val: undefined });
         ret.push({ col: 'value', val: undefined });
         return ret;
     }
@@ -56,8 +56,6 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         varTable.name = pageGroupBy;
         const ban = tinyIntField('ban');
         ban.nullable = true;
-        // const json = jsonField('json');
-        // json.nullable = true;
         const value = decField('value', 18, 6);
         value.nullable = true;
         let idField = intField('$id');
@@ -67,23 +65,17 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             idField,
             ...this.idsGroupBy.map((v, index) => bigIntField('id' + index)),
             ban,
-            // json,
             value,
         ];
         return varTable;
     }
-    /*
-    protected buildTablePageKeys() {
-        return this.idsGroupBy.map((v, index) => bigIntField('id' + index));
-    }
-    */
+
     private buildFromSelectPage(cmpPage: ExpCmp): Select {
         const { factory } = this.context;
         const { where, fromEntity } = this.istatement;
         const select = factory.createSelect();
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
-        // this.buildSelectIds(select, 'json');
         this.buildSelectVallueSum(select);
         let entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
@@ -164,12 +156,11 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         let select = factory.createSelect();
         insertRet.select = select;
         select.from(new VarTable(pageGroupBy, a));
-        // let expId = new ExpField('id' + (this.idsGroupBy.length - 1), a);
         select.column(new ExpField('$id', a), 'id');
         select.column(new ExpField('ban', a));
         select.column(new ExpFunc('JSON_ARRAY', ...this.idsGroupBy.map((v, index) => new ExpField('id' + index, a))), 'json');
         select.column(new ExpField('value', a));
-        select.order(new ExpField('$id', a), 'asc'); // this.buildAsc(this.idsGroupBy[this.idsGroupBy.length - 1]));
+        select.order(new ExpField('$id', a), 'asc');
         return insertRet;
     }
 
@@ -180,7 +171,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             // 暂时只生成第一个spec的atom的所有字段
             let [bizEntity] = bizEntityArr;
             if (bizEntity.bizPhraseType === BizPhraseType.fork) {
-                let spec = bizEntity as BizSpec;
+                let spec = bizEntity as BizFork;
                 this.buildInsertAtomBuds(sqls, spec.base);
 
                 const buds: BizBud[] = [...spec.keys];
@@ -194,7 +185,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         }
     }
 
-    protected buildInsertAtomOfSpec() {
+    protected buildInsertIdsAtoms() {
         let insert = this.buildInsertAtom();
         const { select } = insert;
         let expBId = new ExpField('id', b);
@@ -212,6 +203,38 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         return insert;
     }
 
+    protected buildInsertIdsSpecs() {
+        const { factory } = this.context;
+        let insert = factory.createInsert();
+        insert.ignore = true;
+        insert.table = new VarTable('atoms');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'base', val: undefined },
+        ];
+        let select = factory.createSelect();
+        insert.select = select;
+        select.distinct = true;
+        select.column(new ExpField('id', b));
+        select.column(new ExpField('base', c));
+
+        let expBId = new ExpField('id', b);
+        let expOn: ExpCmp;
+        if (this.idsGroupBy.length === 1) {
+            expOn = new ExpEQ(expBId, new ExpField('id0', a));
+        }
+        else {
+            let arrExp: ExpVal[] = [expBId, ...this.idsGroupBy.map((v, index) => new ExpField('id' + index, a))];
+            expOn = new ExpIn(...arrExp);
+        }
+        select.from(new VarTable(pageGroupBy, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, b))
+            .on(expOn)
+            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, c))
+            .on(new ExpAnd(new ExpEQ(new ExpField('id', c), new ExpField('base', b))));
+        return insert;
+    }
+
     protected buildInsertSpec(): Statement {
         return undefined;
     }
@@ -222,13 +245,6 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.idsAll = this.istatement.ids;
         this.idsGroupBy = [...this.idsAll];
         this.idsGroupBy.pop();
-        /*
-        let idLast = this.idsGroupBy.pop();
-        this.idsGroupBy.push({
-            asc: idLast.asc,
-            fromEntity: idLast.fromEntity.subs[0].fromEntity,
-        });
-        */
     }
 
     protected buildExpFieldPageId() {
@@ -257,9 +273,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
-        //select.join(JoinType.join, new VarTable(intoTables.ret, '$ret'))
         select.join(JoinType.join, new VarTable(pageGroupBy, '$ret'))
-            //    .on(new ExpEQ(new ExpField('id', '$ret'), new ExpField('id', this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity.alias)));
             .on(new ExpAnd(
                 ...this.idsGroupBy.map((v, index) => new ExpEQ(new ExpField('id', v.fromEntity.alias), new ExpField('id' + index, '$ret')))
             ));

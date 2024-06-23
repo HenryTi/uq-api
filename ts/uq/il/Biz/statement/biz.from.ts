@@ -42,7 +42,8 @@ export interface IdColumn {
 export class FromStatement extends Statement {
     get type(): string { return 'from'; }
     fromEntity: FromEntity;
-    readonly ids: IdColumn[] = [];
+    ids: IdColumn[];
+    showIds: IdColumn[];
     groupByBase?: boolean;          // spec group by base atom
     ban: BanColumn;
     value: FromColumn;

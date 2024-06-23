@@ -6,7 +6,7 @@ import * as parser from '../../../parser';
 import { IElement } from '../../IElement';
 import {
     BizBudValue, BizBinAct, BizEntity, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizSpec, UseOut, IDUnique, BizTie
+    , BizInAct, BizBin, BizAtom, BizFork, UseOut, IDUnique, BizTie
 } from '..';
 import { CompareExpression, ValueExpression } from '../../Exp';
 import { SetEqu } from '../../tool';
@@ -110,7 +110,7 @@ export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<
 }
 
 export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<T> {
-    spec: BizSpec;
+    spec: BizFork;
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementSpec(this, context);
     }

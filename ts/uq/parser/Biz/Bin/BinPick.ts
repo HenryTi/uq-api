@@ -1,6 +1,6 @@
 import {
     BinPick, PickBase, PickAtom
-    , BizAtom, PickSpec, BizSpec, PickPend, PickQuery, BizQueryTable,
+    , BizAtom, PickSpec, BizFork, PickPend, PickQuery, BizQueryTable,
     BudValueSetType,
     ValueExpression,
     PickParam,
@@ -142,7 +142,7 @@ export class PBinPick extends PBizBud<BinPick> {
                     multipleEntity = true;
                     break;
                 case BizPhraseType.fork:
-                    pickBase = new PickSpec(bizEntity0 as BizSpec);
+                    pickBase = new PickSpec(bizEntity0 as BizFork);
                     break;
                 case BizPhraseType.pend:
                     pickBase = new PickPend(bizEntity0 as BizPend);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIDAny = exports.BizCombo = exports.BizSpec = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizID = void 0;
+exports.BizIDAny = exports.BizCombo = exports.BizFork = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizID = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -159,7 +159,7 @@ class BizIDWithBase extends BizIDExtendable {
     }
 }
 exports.BizIDWithBase = BizIDWithBase;
-class BizSpec extends BizIDWithBase {
+class BizFork extends BizIDWithBase {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.fork;
@@ -200,10 +200,10 @@ class BizSpec extends BizIDWithBase {
         return this.base.getBud(name);
     }
     db(dbContext) {
-        return new builder_1.BBizSpec(dbContext, this);
+        return new builder_1.BBizFork(dbContext, this);
     }
 }
-exports.BizSpec = BizSpec;
+exports.BizFork = BizFork;
 class BizCombo extends BizID {
     constructor() {
         super(...arguments);

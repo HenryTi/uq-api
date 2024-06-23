@@ -6,7 +6,7 @@ import {
     UI,
     EnumAsc,
     BizFromEntitySub,
-    BizSpec,
+    BizFork,
     BizEntity,
     BizDuo,
     IdColumn,
@@ -36,6 +36,7 @@ interface PIdColumn {
 
 export class PFromStatement<T extends FromStatement = FromStatement> extends PStatement<T> {
     private readonly ids: PIdColumn[] = [];
+    private readonly showIds: PIdColumn[] = [];
     private readonly collColumns: { [name: string]: boolean } = {};
     protected pFromEntity: PFromEntity = {
         tbls: [],
@@ -209,6 +210,14 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
     }
 
     private parseIdColumn() {
+        if (this.ts.token === Token.COLON) {
+            this.ts.readToken();
+            let ui = this.parseUI();
+            this.ts.passKey('of');
+            let alias = this.ts.passVar();
+            this.showIds.push({ ui, asc: EnumAsc.asc, alias });
+            return;
+        }
         let ui = this.parseUI();
         let asc: EnumAsc;
         if (this.ts.isKeyword('asc') === true) {
@@ -301,10 +310,10 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
         return ok;
     }
 
-    protected scanIDs() {
+    private convertIds(ids: PIdColumn[]) {
         let ok = true;
-        let idcLast: IdColumn;
-        for (let idc of this.ids) {
+        let ret: IdColumn[] = [];
+        for (let idc of ids) {
             const { asc, alias, ui } = idc;
             let fromEntity = this.element.getIdFromEntity(alias);
             if (fromEntity === undefined) {
@@ -312,14 +321,34 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 ok = false;
             }
             else {
-                idcLast = {
+                let idcLast: IdColumn = {
                     ui,
                     asc,
                     fromEntity,
                 };
-                this.element.ids.push(idcLast);
+                ret.push(idcLast);
             }
         }
+        if (ok === false) return;
+        return ret;
+    }
+    protected scanIDs() {
+        let ok = true;
+        let ret = this.convertIds(this.ids);
+        if (ret === undefined) {
+            ok = false;
+        }
+        else {
+            this.element.ids = ret;
+        }
+        ret = this.convertIds(this.showIds);
+        if (ret === undefined) {
+            ok = false;
+        }
+        else {
+            this.element.showIds = ret;
+        }
+        /*
         if (this.element.groupByBase === true) {
             const { fromEntity } = idcLast;
             if (idcLast.fromEntity.bizPhraseType !== BizPhraseType.fork) {
@@ -327,6 +356,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PSt
                 ok = false;
             }
         }
+        */
         return ok;
     }
 
@@ -661,7 +691,7 @@ class FromEntityScanSpec extends FEScanBase {
     }
 
     private onSpecEmpty = (): BizEntity => {
-        let baseEntity = (this.fromEntity.bizEntityArr[0] as BizSpec).base;
+        let baseEntity = (this.fromEntity.bizEntityArr[0] as BizFork).base;
         return baseEntity;
     }
 

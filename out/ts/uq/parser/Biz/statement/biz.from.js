@@ -10,6 +10,7 @@ class PFromStatement extends statement_1.PStatement {
     constructor() {
         super(...arguments);
         this.ids = [];
+        this.showIds = [];
         this.collColumns = {};
         this.pFromEntity = {
             tbls: [],
@@ -177,6 +178,14 @@ class PFromStatement extends statement_1.PStatement {
         }
     }
     parseIdColumn() {
+        if (this.ts.token === tokens_1.Token.COLON) {
+            this.ts.readToken();
+            let ui = this.parseUI();
+            this.ts.passKey('of');
+            let alias = this.ts.passVar();
+            this.showIds.push({ ui, asc: il_1.EnumAsc.asc, alias });
+            return;
+        }
         let ui = this.parseUI();
         let asc;
         if (this.ts.isKeyword('asc') === true) {
@@ -265,10 +274,10 @@ class PFromStatement extends statement_1.PStatement {
         }
         return ok;
     }
-    scanIDs() {
+    convertIds(ids) {
         let ok = true;
-        let idcLast;
-        for (let idc of this.ids) {
+        let ret = [];
+        for (let idc of ids) {
             const { asc, alias, ui } = idc;
             let fromEntity = this.element.getIdFromEntity(alias);
             if (fromEntity === undefined) {
@@ -276,21 +285,43 @@ class PFromStatement extends statement_1.PStatement {
                 ok = false;
             }
             else {
-                idcLast = {
+                let idcLast = {
                     ui,
                     asc,
                     fromEntity,
                 };
-                this.element.ids.push(idcLast);
+                ret.push(idcLast);
             }
         }
+        if (ok === false)
+            return;
+        return ret;
+    }
+    scanIDs() {
+        let ok = true;
+        let ret = this.convertIds(this.ids);
+        if (ret === undefined) {
+            ok = false;
+        }
+        else {
+            this.element.ids = ret;
+        }
+        ret = this.convertIds(this.showIds);
+        if (ret === undefined) {
+            ok = false;
+        }
+        else {
+            this.element.showIds = ret;
+        }
+        /*
         if (this.element.groupByBase === true) {
             const { fromEntity } = idcLast;
-            if (idcLast.fromEntity.bizPhraseType !== BizPhraseType_1.BizPhraseType.fork) {
+            if (idcLast.fromEntity.bizPhraseType !== BizPhraseType.fork) {
                 this.log(`FROM ${fromEntity.alias} must be SPEC`);
                 ok = false;
             }
         }
+        */
         return ok;
     }
     scanCols(space) {

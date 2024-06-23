@@ -1,4 +1,4 @@
-import { BBizAtom, BBizCombo, BBizSpec, DbContext } from "../../builder";
+import { BBizAtom, BBizCombo, BBizFork, DbContext } from "../../builder";
 import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement, PIDUnique, PBizCombo } from "../../parser";
 import { IElement } from "../IElement";
 import { UI } from "../UI";
@@ -165,7 +165,7 @@ export abstract class BizIDWithBase extends BizIDExtendable {
     }
 }
 
-export class BizSpec extends BizIDWithBase {
+export class BizFork extends BizIDWithBase {
     readonly bizPhraseType = BizPhraseType.fork;
     protected readonly fields = ['id'];
     readonly keys: BizBud[] = [];
@@ -205,8 +205,8 @@ export class BizSpec extends BizIDWithBase {
         return this.base.getBud(name);
     }
 
-    db(dbContext: DbContext): BBizSpec {
-        return new BBizSpec(dbContext, this);
+    db(dbContext: DbContext): BBizFork {
+        return new BBizFork(dbContext, this);
     }
 }
 

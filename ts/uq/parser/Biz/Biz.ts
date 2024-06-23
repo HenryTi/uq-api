@@ -1,7 +1,7 @@
 import {
     Biz, BizAtom, BizRole, BizEntity
     , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
-    , BizSheet, BizOptions, BizSpec
+    , BizSheet, BizOptions, BizFork
     , BizReport, BizQueryTable, BizAssign, BizConsole, BizDuo, BizIn, BizOut, BizIOApp, BizIOSite,
     BizFromEntity,
     BizCombo
@@ -20,8 +20,8 @@ export class PBiz extends PEntity<Biz> {
         super(entity, context);
         this.pRoots = {
             atom: BizAtom,
-            spec: BizSpec,
-            fork: BizSpec,
+            spec: BizFork,
+            fork: BizFork,
             duo: BizDuo,
             combo: BizCombo,
 

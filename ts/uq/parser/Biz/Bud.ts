@@ -3,7 +3,7 @@ import {
     , BizBudDec, BizBudInt, BizOptions
     , BizBudAny, BizBudRadio, BizBudPickable
     , BudValueSetType, ValueExpression, BizBudValue, BizEntity, BizBin
-    , FieldShowItem, BizSpec, BudValueSet, BizBudValueWithRange
+    , FieldShowItem, BizFork, BudValueSet, BizBudValueWithRange
     , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, UI, BinValue
     , BizBudIDBase,
     BizBudBin
@@ -118,7 +118,7 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
                                 show.push(bizBud);
                                 break;
                             }
-                            const { base } = atom as BizSpec;
+                            const { base } = atom as BizFork;
                             bizBud = base.getBud(prop);
                             p = bizBud;
                             if (bizBud === undefined) {

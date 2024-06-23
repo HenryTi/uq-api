@@ -1,5 +1,5 @@
 import {
-    BizAtom, BizIDExtendable, BizIDAny, BizIDWithBase, BizSpec
+    BizAtom, BizIDExtendable, BizIDAny, BizIDWithBase, BizFork
     , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity,
     BizCombo
 } from "../../il";
@@ -506,7 +506,7 @@ abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<
     }
 }
 
-export class PBizSpec extends PBizIDWithBase<BizSpec> {
+export class PBizSpec extends PBizIDWithBase<BizFork> {
     private parseKey = () => {
         this.element.keys.push(...this.parseKeyBuds());
     }
