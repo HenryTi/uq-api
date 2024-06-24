@@ -324,6 +324,14 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         ret.push(this.buildInsertIdsSpecs(tblDetail, this.showIds));
         return ret;
     }
+    buildSelectCols( /*select: Select, alias: string*/) {
+        let arr = super.buildSelectCols();
+        if (this.showIds.length > 0) {
+            arr.push(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, ...this.showIds.map((v, index) => new sql_1.ExpField('id', v.fromEntity.alias))));
+        }
+        return arr;
+        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
+    }
 }
 exports.BFromGroupByBaseStatement = BFromGroupByBaseStatement;
 //# sourceMappingURL=from.groupBy.js.map

@@ -360,4 +360,16 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         ret.push(this.buildInsertIdsSpecs(tblDetail, this.showIds));
         return ret;
     }
+
+    protected buildSelectCols(/*select: Select, alias: string*/) {
+        let arr = super.buildSelectCols();
+        if (this.showIds.length > 0) {
+            arr.push(new ExpFunc('JSON_ARRAY'
+                , ExpNum.num0,
+                ...this.showIds.map((v, index) => new ExpField('id', v.fromEntity.alias))
+            ));
+        }
+        return arr;
+        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
+    }
 }
