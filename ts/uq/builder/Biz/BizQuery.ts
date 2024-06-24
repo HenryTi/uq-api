@@ -14,7 +14,7 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
     }
 
     private buildQueryProc(proc: Procedure) {
-        const { params, statement, from } = this.bizEntity;
+        const { params, statement } = this.bizEntity;
         const site = '$site';
         const json = '$json';
         const varJson = new ExpVar(json);
@@ -49,6 +49,5 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
-        // this.buildFromEntity(statements, from.idFromEntity);
     }
 }

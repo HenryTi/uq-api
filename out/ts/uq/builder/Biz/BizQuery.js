@@ -27,7 +27,7 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         });
     }
     buildQueryProc(proc) {
-        const { params, statement, from } = this.bizEntity;
+        const { params, statement } = this.bizEntity;
         const site = '$site';
         const json = '$json';
         const varJson = new sql_1.ExpVar(json);
@@ -53,7 +53,6 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
-        // this.buildFromEntity(statements, from.idFromEntity);
     }
 }
 exports.BBizQuery = BBizQuery;

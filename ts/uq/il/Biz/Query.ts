@@ -6,7 +6,7 @@ import { Builder } from "../builder";
 import { IElement } from "../IElement";
 import { Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizBud, BizBudValue } from "./Bud";
+import { BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 import { FromEntity, FromStatement } from "./statement";
 

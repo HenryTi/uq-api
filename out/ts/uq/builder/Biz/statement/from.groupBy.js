@@ -8,6 +8,7 @@ const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const from_1 = require("./from");
 const a = 'a', b = 'b', c = 'c';
 const pageGroupBy = '$pageGroupBy';
+const tblDetail = '$detail';
 class BFromGroupByStatement extends from_1.BFromStatement {
     constructor(context, istatement) {
         super(context, istatement);
@@ -17,22 +18,24 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         this.idFromEntity = fromEntity;
     }
     setIds() {
-        this.idsAll = this.istatement.ids;
-        this.idsGroupBy = this.idsAll;
+        const { ids, showIds } = this.istatement;
+        this.idsGroupBy = ids;
+        this.showIds = showIds;
     }
     buildFromMain(cmpPage) {
         const { factory } = this.context;
         let tblPageGroupBy = this.buildTablePageGroupBy();
+        let tblDetail = this.buildTalbeDetail();
         let selectPage = this.buildFromSelectPage(cmpPage);
         let insertPage = factory.createInsert();
         insertPage.select = selectPage;
         insertPage.table = new statementWithFrom_1.VarTable(pageGroupBy);
         insertPage.cols = this.buildInsertPageCols();
         let insertRet = this.buildInsertRet();
-        let insertIdsAtoms = this.buildInsertIdsAtoms();
-        let insertIdsSpecs = this.buildInsertIdsSpecs();
+        let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
+        let insertIdsSpecs = this.buildInsertIdsSpecs(pageGroupBy, this.idsGroupBy);
         let insertSpec = this.buildInsertSpec();
-        return [tblPageGroupBy, insertPage, insertRet, insertIdsAtoms, insertIdsSpecs, insertSpec];
+        return [tblPageGroupBy, tblDetail, insertPage, insertRet, insertIdsAtoms, insertIdsSpecs, ...insertSpec];
     }
     buildInsertPageCols() {
         let ret = this.idsGroupBy.map((v, index) => ({
@@ -59,6 +62,31 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             ...this.idsGroupBy.map((v, index) => (0, il_1.bigIntField)('id' + index)),
             ban,
             value,
+        ];
+        return varTable;
+    }
+    buildTalbeDetail() {
+        if (this.showIds.length === 0)
+            return;
+        const { factory } = this.context;
+        let varTable = factory.createVarTable();
+        varTable.name = tblDetail;
+        let $idField = (0, il_1.intField)('$id');
+        $idField.autoInc = true;
+        let idField = (0, il_1.bigIntField)('id');
+        let atomField = (0, il_1.bigIntField)('atom');
+        let banField = (0, il_1.tinyIntField)('ban');
+        let jField = (0, il_1.jsonField)('json');
+        let valueField = (0, il_1.decField)('value', 18, 6);
+        varTable.keys = [$idField];
+        varTable.fields = [
+            $idField,
+            idField,
+            atomField,
+            banField,
+            jField,
+            valueField,
+            ...this.showIds.map((v, index) => (0, il_1.bigIntField)('id' + index))
         ];
         return varTable;
     }
@@ -163,7 +191,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             }
         }
     }
-    buildInsertIdsAtoms() {
+    buildInsertIdsAtoms(tbl, ids) {
         let insert = this.buildInsertAtom();
         const { select } = insert;
         let expBId = new sql_1.ExpField('id', b);
@@ -172,15 +200,15 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             expOn = new sql_1.ExpEQ(expBId, new sql_1.ExpField('id0', a));
         }
         else {
-            let arrExp = [expBId, ...this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, a))];
+            let arrExp = [expBId, ...ids.map((v, index) => new sql_1.ExpField('id' + index, a))];
             expOn = new sql_1.ExpIn(...arrExp);
         }
-        select.from(new statementWithFrom_1.VarTable(pageGroupBy, a))
+        select.from(new statementWithFrom_1.VarTable(tbl, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
             .on(expOn);
         return insert;
     }
-    buildInsertIdsSpecs() {
+    buildInsertIdsSpecs(tbl, ids) {
         const { factory } = this.context;
         let insert = factory.createInsert();
         insert.ignore = true;
@@ -200,10 +228,10 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             expOn = new sql_1.ExpEQ(expBId, new sql_1.ExpField('id0', a));
         }
         else {
-            let arrExp = [expBId, ...this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, a))];
+            let arrExp = [expBId, ...ids.map((v, index) => new sql_1.ExpField('id' + index, a))];
             expOn = new sql_1.ExpIn(...arrExp);
         }
-        select.from(new statementWithFrom_1.VarTable(pageGroupBy, a))
+        select.from(new statementWithFrom_1.VarTable(tbl, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, b))
             .on(expOn)
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, c))
@@ -211,15 +239,16 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         return insert;
     }
     buildInsertSpec() {
-        return undefined;
+        return [];
     }
 }
 exports.BFromGroupByStatement = BFromGroupByStatement;
 class BFromGroupByBaseStatement extends BFromGroupByStatement {
     setIds() {
-        this.idsAll = this.istatement.ids;
-        this.idsGroupBy = [...this.idsAll];
+        const { ids, showIds } = this.istatement;
+        this.idsGroupBy = [...ids];
         this.idsGroupBy.pop();
+        this.showIds = showIds;
     }
     buildExpFieldPageId() {
         let { alias: t1 } = this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity;
@@ -232,7 +261,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const { fromEntity, intoTables, where } = this.istatement;
         let insertSpec = factory.createInsert();
         insertSpec.ignore = true;
-        insertSpec.table = new statementWithFrom_1.VarTable('specs');
+        insertSpec.table = new statementWithFrom_1.VarTable(intoTables.specs);
         insertSpec.cols = [
             { col: 'id', val: undefined },
             { col: 'atom', val: undefined },
@@ -255,7 +284,45 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let arr = this.buildSelectCols();
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
         this.buildSelectVallue(select);
-        return insertSpec;
+        if (this.showIds.length === 0) {
+            insertSpec.table = new statementWithFrom_1.VarTable(intoTables.specs);
+            return [insertSpec];
+        }
+        else {
+            insertSpec.table = new statementWithFrom_1.VarTable(tblDetail);
+            insertSpec.cols.push(...this.showIds.map((v, index) => ({ col: 'id' + index, val: undefined })));
+            for (let id of this.showIds) {
+                select.column(new sql_1.ExpField('id', id.fromEntity.alias));
+            }
+            return [insertSpec, ...this.buildFromDetailToSpecs()];
+        }
+    }
+    buildFromDetailToSpecs() {
+        const { factory } = this.context;
+        const { intoTables } = this.istatement;
+        let ret = [];
+        let insertSpec = factory.createInsert();
+        ret.push(insertSpec);
+        insertSpec.ignore = true;
+        insertSpec.table = new statementWithFrom_1.VarTable(intoTables.specs);
+        insertSpec.cols = [
+            { col: 'id', val: undefined },
+            { col: 'atom', val: undefined },
+            { col: 'ban', val: undefined },
+            { col: 'json', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        let select = factory.createSelect();
+        insertSpec.select = select;
+        select.from(new statementWithFrom_1.VarTable(tblDetail, a));
+        select.column(new sql_1.ExpField('id', a));
+        select.column(new sql_1.ExpField('atom', a));
+        select.column(new sql_1.ExpField('ban', a));
+        select.column(new sql_1.ExpField('json', a));
+        select.column(new sql_1.ExpField('value', a));
+        ret.push(this.buildInsertIdsAtoms(tblDetail, this.showIds));
+        ret.push(this.buildInsertIdsSpecs(tblDetail, this.showIds));
+        return ret;
     }
 }
 exports.BFromGroupByBaseStatement = BFromGroupByBaseStatement;
