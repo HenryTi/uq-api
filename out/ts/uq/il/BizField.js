@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromEntityFieldSpace = exports.BizFieldSpace = exports.BizFieldUser = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldPendBin = exports.BizFieldBinBudSelect = exports.BizFieldBinBud = exports.BizFieldBud = exports.BizFieldTableAlias = exports.BizField = void 0;
+exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromEntityFieldSpace = exports.BizFieldSpace = exports.BizFieldUser = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldPendSheet = exports.BizFieldPendBin = exports.BizFieldBinBinBudSelect = exports.BizFieldPendBinBudSelect = exports.BizFieldPendBudSelect = exports.BizFieldBinBudSelect = exports.BizFieldBinBud = exports.BizFieldBud = exports.BizFieldTableAlias = exports.BizField = void 0;
 const builder_1 = require("../builder");
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
 // in FROM statement, columns use BizField
@@ -62,35 +62,70 @@ class BizFieldBinBud extends BizFieldBud {
 }
 exports.BizFieldBinBud = BizFieldBinBud;
 class BizFieldBinBudSelect extends BizField {
-    constructor(space, bizBin, bud) {
-        super(space);
+    constructor() {
+        super(...arguments);
         this.tableAlias = undefined;
-        this.bizBin = bizBin;
-        this.bud = bud;
-    }
-    db(dbContext) {
-        return new builder_1.BBizFieldBinBudSelect(dbContext, this);
     }
     buildSchema() {
         throw new Error("Method not implemented.");
     }
 }
 exports.BizFieldBinBudSelect = BizFieldBinBudSelect;
+class BizFieldPendBudSelect extends BizFieldBinBudSelect {
+    constructor(space, pend, bud) {
+        super(space);
+        this.pend = pend;
+        this.bud = bud;
+    }
+    db(dbContext) {
+        return new builder_1.BBizFieldPendBudSelect(dbContext, this);
+    }
+}
+exports.BizFieldPendBudSelect = BizFieldPendBudSelect;
+class BizFieldPendBinBudSelect extends BizFieldBinBudSelect {
+    constructor(space, pend, bud, budArr) {
+        super(space);
+        this.pend = pend;
+        this.bud = bud;
+        this.budArr = budArr;
+    }
+    db(dbContext) {
+        return new builder_1.BBizFieldPendBinBudSelect(dbContext, this);
+    }
+}
+exports.BizFieldPendBinBudSelect = BizFieldPendBinBudSelect;
+class BizFieldBinBinBudSelect extends BizFieldBinBudSelect {
+    constructor(space, bizBin, bud, budArr) {
+        super(space);
+        this.bizBin = bizBin;
+        this.bud = bud;
+        this.budArr = budArr;
+    }
+    db(dbContext) {
+        return new builder_1.BBizFieldBinBinBudSelect(dbContext, this);
+    }
+}
+exports.BizFieldBinBinBudSelect = BizFieldBinBinBudSelect;
 // %pend.bin
-class BizFieldPendBin extends BizFieldTableAlias {
+class BizFieldPendBin extends BizField {
     buildSchema() {
         throw new Error("Method not implemented.");
     }
-    /*
-    protected override createBBizFieldBud(dbContext: DbContext): BBizFieldBud {
-        return new BBizFieldPendBin(dbContext, this);
-    }
-    */
     db(dbContext) {
         return new builder_1.BBizFieldPendBin(dbContext, this);
     }
 }
 exports.BizFieldPendBin = BizFieldPendBin;
+// %pend.sheet
+class BizFieldPendSheet extends BizField {
+    buildSchema() {
+        throw new Error("Method not implemented.");
+    }
+    db(dbContext) {
+        return new builder_1.BBizFieldPendSheet(dbContext, this);
+    }
+}
+exports.BizFieldPendSheet = BizFieldPendSheet;
 class BizFieldField extends BizField {
     constructor(space, tableAlias, name) {
         super(space);
@@ -285,6 +320,7 @@ class BizBinActFieldSpace extends BizFieldSpace {
             return null;
         let bizBin;
         const { pend } = this.bizBin;
+        let bud;
         switch (n0) {
             case 'pend':
                 if (this.bizBin.pend === undefined)
@@ -296,52 +332,61 @@ class BizBinActFieldSpace extends BizFieldSpace {
                             let bud = pend.getBud(n1);
                             if (bud === undefined)
                                 return;
-                            return new BizFieldBinBudSelect(this, bizBin, bud);
+                            return new BizFieldPendBudSelect(this, pend, bud);
                         case 'bin':
+                            return new BizFieldPendBin(this);
                         case 'sheet':
-                            return new BizFieldPendBin(this, n1);
+                            return new BizFieldPendSheet(this);
                     }
                 }
-                switch (n1) {
-                    default:
-                        let bud = pend.getBud(n1);
-                        if (bud === undefined)
-                            return;
-                        if (bud.dataType !== BizPhraseType_1.BudDataType.bin)
-                            return undefined;
-                        bizBin = bud.bin;
-                        break;
-                    case 'bin':
-                        bizBin = pend.bizBins[0];
-                        break;
-                    case 'sheet':
-                        bizBin = (_b = (_a = pend.bizBins[0]) === null || _a === void 0 ? void 0 : _a.sheetArr[0]) === null || _b === void 0 ? void 0 : _b.main;
-                        break;
+                else {
+                    switch (n1) {
+                        default:
+                            bud = pend.getBud(n1);
+                            if (bud === undefined)
+                                return;
+                            if (bud.dataType !== BizPhraseType_1.BudDataType.bin)
+                                return undefined;
+                            bizBin = bud.bin;
+                            break;
+                        case 'bin':
+                            bizBin = pend.bizBins[0];
+                            break;
+                        case 'sheet':
+                            bizBin = (_b = (_a = pend.bizBins[0]) === null || _a === void 0 ? void 0 : _a.sheetArr[0]) === null || _b === void 0 ? void 0 : _b.main;
+                            break;
+                    }
+                    let budArr = this.buildBizFieldFromBin(bizBin, names, p);
+                    if (budArr === undefined) {
+                        return null;
+                    }
+                    return new BizFieldPendBinBudSelect(this, pend, bud, budArr);
                 }
-                break;
             default:
-                let bud = this.bizBin.getBud(n0);
+                bud = this.bizBin.getBud(n0);
                 if (bud === undefined)
                     return undefined;
                 if (bud.dataType !== BizPhraseType_1.BudDataType.bin)
                     return undefined;
                 bizBin = bud.bin;
-                break;
+                let budArr = this.buildBizFieldFromBin(bizBin, names, p);
+                if (budArr === undefined) {
+                    return null;
+                }
+                return new BizFieldBinBinBudSelect(this, this.bizBin, bud, budArr);
         }
-        return this.buildBizFieldFromBin(bizBin, names, p);
     }
     buildBizFieldFromBin(bizBin, names, pName) {
         if (bizBin === undefined)
-            return null;
+            return;
         const { length } = names;
-        if (pName >= length)
-            return null;
-        let bud;
+        let budArr = [];
         for (let i = pName; i < length; i++) {
             let name = names[i];
-            bud = bizBin.getBud(name);
+            let bud = bizBin.getBud(name);
             if (bud === undefined)
                 break;
+            budArr.push(bud);
             if (bud.dataType !== BizPhraseType_1.BudDataType.bin) {
                 if (i < length - 1)
                     return null;
@@ -349,9 +394,7 @@ class BizBinActFieldSpace extends BizFieldSpace {
             }
             bizBin = bud.bin;
         }
-        if (bud === undefined)
-            return null;
-        return new BizFieldBinBudSelect(this, bizBin, bud);
+        return budArr;
     }
 }
 exports.BizBinActFieldSpace = BizBinActFieldSpace;

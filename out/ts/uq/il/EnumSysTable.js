@@ -27,6 +27,7 @@ var EnumSysTable;
     EnumSysTable["ixBudDec"] = "ixbuddec";
     EnumSysTable["ixBudInt"] = "ixbudint";
     EnumSysTable["ixBudStr"] = "ixbudstr";
+    EnumSysTable["ixBudCheck"] = "ixbudcheck";
     EnumSysTable["bizBin"] = "bin";
     EnumSysTable["bizSheet"] = "sheet";
     EnumSysTable["bizDetail"] = "detail";

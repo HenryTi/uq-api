@@ -25,6 +25,7 @@ export enum EnumSysTable {
     ixBudDec = 'ixbuddec',
     ixBudInt = 'ixbudint',
     ixBudStr = 'ixbudstr',
+    ixBudCheck = 'ixbudcheck',
     bizBin = 'bin',
     bizSheet = 'sheet',
     bizDetail = 'detail',

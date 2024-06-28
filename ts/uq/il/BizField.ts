@@ -3,11 +3,16 @@ import {
     , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar
     , BBizFieldUser, BBizFieldBinBud,
     BBizFieldPendBin,
-    BBizFieldBinBudSelect
+    BBizFieldBinBudSelect,
+    BBizFieldPendBudSelect,
+    BBizFieldPendBinBudSelect,
+    BBizFieldBinBinBudSelect,
+    BBizFieldPendSheet
 } from "../builder";
 import { BinDiv, BizBin, FromStatement, FromInPendStatement } from "./Biz";
 import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
 import { BizBud, BizBudBin } from "./Biz/Bud";
+import { BizPend } from "./Biz/Pend";
 import { EnumDataType } from "./datatype";
 
 // in FROM statement, columns use BizField
@@ -73,36 +78,75 @@ export class BizFieldBinBud extends BizFieldBud {
     }
 }
 
-export class BizFieldBinBudSelect extends BizField {
-    readonly bizBin: BizBin;
-    readonly bud: BizBud;
+export abstract class BizFieldBinBudSelect extends BizField {
     readonly tableAlias = undefined;
-    constructor(space: BizFieldSpace, bizBin: BizBin, bud: BizBud) {
-        super(space);
-        this.bizBin = bizBin;
-        this.bud = bud;
-    }
-
-    db(dbContext: DbContext): BBizField<BizField> {
-        return new BBizFieldBinBudSelect(dbContext, this);
-    }
     buildSchema() {
         throw new Error("Method not implemented.");
     }
 }
 
+export class BizFieldPendBudSelect extends BizFieldBinBudSelect {
+    readonly pend: BizPend;
+    readonly bud: BizBud;
+    constructor(space: BizFieldSpace, pend: BizPend, bud: BizBud) {
+        super(space);
+        this.pend = pend;
+        this.bud = bud;
+    }
+    db(dbContext: DbContext): BBizField<BizField> {
+        return new BBizFieldPendBudSelect(dbContext, this);
+    }
+}
+
+export class BizFieldPendBinBudSelect extends BizFieldBinBudSelect {
+    readonly pend: BizPend;
+    readonly bud: BizBud;
+    readonly budArr: BizBud[];
+    constructor(space: BizFieldSpace, pend: BizPend, bud: BizBud, budArr: BizBud[]) {
+        super(space);
+        this.pend = pend;
+        this.bud = bud;
+        this.budArr = budArr;
+    }
+    db(dbContext: DbContext): BBizField<BizField> {
+        return new BBizFieldPendBinBudSelect(dbContext, this);
+    }
+}
+
+export class BizFieldBinBinBudSelect extends BizFieldBinBudSelect {
+    readonly bizBin: BizBin;
+    readonly bud: BizBud;
+    readonly budArr: BizBud[];
+    constructor(space: BizFieldSpace, bizBin: BizBin, bud: BizBud, budArr: BizBud[]) {
+        super(space);
+        this.bizBin = bizBin;
+        this.bud = bud;
+        this.budArr = budArr;
+    }
+
+    db(dbContext: DbContext): BBizField<BizField> {
+        return new BBizFieldBinBinBudSelect(dbContext, this);
+    }
+}
+
 // %pend.bin
-export class BizFieldPendBin extends BizFieldTableAlias {
+export class BizFieldPendBin extends BizField {
+    readonly tableAlias: string;
     buildSchema() {
         throw new Error("Method not implemented.");
     }
-    /*
-    protected override createBBizFieldBud(dbContext: DbContext): BBizFieldBud {
-        return new BBizFieldPendBin(dbContext, this);
-    }
-    */
     override db(dbContext: DbContext): BBizField<BizField> {
         return new BBizFieldPendBin(dbContext, this);
+    }
+}
+// %pend.sheet
+export class BizFieldPendSheet extends BizField {
+    readonly tableAlias: string;
+    buildSchema() {
+        throw new Error("Method not implemented.");
+    }
+    override db(dbContext: DbContext): BBizField<BizField> {
+        return new BBizFieldPendSheet(dbContext, this);
     }
 }
 
@@ -308,6 +352,7 @@ export class BizBinActFieldSpace extends BizFieldSpace {
         if (length < 2) return null;
         let bizBin: BizBin;
         const { pend } = this.bizBin;
+        let bud: BizBud;
         switch (n0) {
             case 'pend':
                 if (this.bizBin.pend === undefined) return undefined;
@@ -317,53 +362,62 @@ export class BizBinActFieldSpace extends BizFieldSpace {
                         default:
                             let bud = pend.getBud(n1);
                             if (bud === undefined) return;
-                            return new BizFieldBinBudSelect(this, bizBin, bud);
+                            return new BizFieldPendBudSelect(this, pend, bud);
                         case 'bin':
+                            return new BizFieldPendBin(this);
                         case 'sheet':
-                            return new BizFieldPendBin(this, n1);
+                            return new BizFieldPendSheet(this);
                     }
                 }
-                switch (n1) {
-                    default:
-                        let bud = pend.getBud(n1);
-                        if (bud === undefined) return;
-                        if (bud.dataType !== BudDataType.bin) return undefined;
-                        bizBin = (bud as BizBudBin).bin;
-                        break;
-                    case 'bin':
-                        bizBin = pend.bizBins[0];
-                        break;
-                    case 'sheet':
-                        bizBin = pend.bizBins[0]?.sheetArr[0]?.main;
-                        break;
+                else {
+                    switch (n1) {
+                        default:
+                            bud = pend.getBud(n1);
+                            if (bud === undefined) return;
+                            if (bud.dataType !== BudDataType.bin) return undefined;
+                            bizBin = (bud as BizBudBin).bin;
+                            break;
+                        case 'bin':
+                            bizBin = pend.bizBins[0];
+                            break;
+                        case 'sheet':
+                            bizBin = pend.bizBins[0]?.sheetArr[0]?.main;
+                            break;
+                    }
+                    let budArr = this.buildBizFieldFromBin(bizBin, names, p);
+                    if (budArr === undefined) {
+                        return null;
+                    }
+                    return new BizFieldPendBinBudSelect(this, pend, bud, budArr);
                 }
-                break;
             default:
-                let bud = this.bizBin.getBud(n0);
+                bud = this.bizBin.getBud(n0);
                 if (bud === undefined) return undefined;
                 if (bud.dataType !== BudDataType.bin) return undefined;
                 bizBin = (bud as BizBudBin).bin;
-                break;
+                let budArr = this.buildBizFieldFromBin(bizBin, names, p);
+                if (budArr === undefined) {
+                    return null;
+                }
+                return new BizFieldBinBinBudSelect(this, this.bizBin, bud, budArr);
         }
-        return this.buildBizFieldFromBin(bizBin, names, p);
     }
 
-    private buildBizFieldFromBin(bizBin: BizBin, names: string[], pName: number): BizField {
-        if (bizBin === undefined) return null;
+    private buildBizFieldFromBin(bizBin: BizBin, names: string[], pName: number): BizBud[] {
+        if (bizBin === undefined) return;
         const { length } = names;
-        if (pName >= length) return null;
-        let bud: BizBud;
+        let budArr: BizBud[] = [];
         for (let i = pName; i < length; i++) {
             let name = names[i];
-            bud = bizBin.getBud(name);
+            let bud = bizBin.getBud(name);
             if (bud === undefined) break;
+            budArr.push(bud);
             if (bud.dataType !== BudDataType.bin) {
                 if (i < length - 1) return null;
                 break;
             }
             bizBin = (bud as BizBudBin).bin;
         }
-        if (bud === undefined) return null;
-        return new BizFieldBinBudSelect(this, bizBin, bud);
+        return budArr;
     }
 }
