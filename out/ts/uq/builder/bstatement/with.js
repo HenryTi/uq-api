@@ -5,7 +5,6 @@ const il_1 = require("../../il");
 // import { EnumIdType } from "../../il";
 const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
-// import { LockType } from "../sql/select";
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const bstatement_1 = require("./bstatement");
 class BWithStatement extends bstatement_1.BStatement {

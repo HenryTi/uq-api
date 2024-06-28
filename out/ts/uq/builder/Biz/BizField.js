@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizFieldUser = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
+exports.BBizFieldUser = exports.BBizFieldPendBin = exports.BBizFieldBinBudSelect = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class BBizField {
@@ -121,6 +121,42 @@ class BBizFieldBinBud extends BBizFieldBud {
     }
 }
 exports.BBizFieldBinBud = BBizFieldBinBud;
+class BBizFieldBinBudSelect extends BBizField {
+    to(sb) {
+        let { bizBin, bud } = this.bizField;
+        sb.string(`${bizBin === null || bizBin === void 0 ? void 0 : bizBin.getJName()}.${bud.getJName()}`);
+    }
+    buildSelectBudValue(sb, bud) {
+        let tbl;
+        switch (bud.dataType) {
+            default:
+                tbl = il_1.EnumSysTable.ixBudInt;
+                break;
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
+                tbl = il_1.EnumSysTable.ixBudStr;
+                break;
+            case BizPhraseType_1.BudDataType.dec:
+                tbl = il_1.EnumSysTable.ixBudDec;
+                break;
+            // case BudDataType.radio: radio 按int处理
+            case BizPhraseType_1.BudDataType.check:
+                // this.buildSelectMulti(sb);
+                return;
+        }
+        //this.buildSelectValue(sb, tbl);
+    }
+}
+exports.BBizFieldBinBudSelect = BBizFieldBinBudSelect;
+class BBizFieldPendBin extends BBizField {
+    to(sb) {
+        // let { bud, tableAlias } = this.bizField;
+        // let budName = bud.name;
+        //if (tableAlias === 'sheet') budName = '$s' + budName;
+        sb.append('9009');
+    }
+}
+exports.BBizFieldPendBin = BBizFieldPendBin;
 class BBizFieldUser extends BBizField {
     to(sb) {
         sb.append('%user').dot().append(this.bizField.tableAlias);

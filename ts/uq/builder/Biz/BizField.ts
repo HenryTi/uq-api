@@ -1,5 +1,6 @@
 import {
-    BizField, BizFieldBud, BizFieldField, EnumSysTable
+    BizBud,
+    BizField, BizFieldBinBudSelect, BizFieldBud, BizFieldField, EnumSysTable
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
@@ -137,12 +138,42 @@ export class BBizFieldBinBud extends BBizFieldBud {
         if (tableAlias === 'sheet') budName = '$s' + budName;
         sb.var(budName);
     }
-    /*
-    toIValue(sb: SqlBuilder): void {
-        let { tableAlias, div } = this.bizField;
-        sb.append('_').append(tableAlias + div.level);
+}
+
+export class BBizFieldBinBudSelect extends BBizField<BizFieldBinBudSelect> {
+    override to(sb: SqlBuilder): void {
+        let { bizBin, bud } = this.bizField;
+        sb.string(`${bizBin?.getJName()}.${bud.getJName()}`);
     }
-    */
+    protected buildSelectBudValue(sb: SqlBuilder, bud: BizBud) {
+        let tbl: EnumSysTable;
+        switch (bud.dataType) {
+            default:
+                tbl = EnumSysTable.ixBudInt;
+                break;
+            case BudDataType.str:
+            case BudDataType.char:
+                tbl = EnumSysTable.ixBudStr;
+                break;
+            case BudDataType.dec:
+                tbl = EnumSysTable.ixBudDec;
+                break;
+            // case BudDataType.radio: radio 按int处理
+            case BudDataType.check:
+                // this.buildSelectMulti(sb);
+                return;
+        }
+        //this.buildSelectValue(sb, tbl);
+    }
+}
+
+export class BBizFieldPendBin extends BBizField {
+    override to(sb: SqlBuilder): void {
+        // let { bud, tableAlias } = this.bizField;
+        // let budName = bud.name;
+        //if (tableAlias === 'sheet') budName = '$s' + budName;
+        sb.append('9009');
+    }
 }
 
 export class BBizFieldUser extends BBizField<BizField> {

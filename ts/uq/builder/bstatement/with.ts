@@ -8,7 +8,6 @@ import {
 } from "../sql";
 import { DeleteStatement, TruncateStatement } from "../sql/deleteStatement";
 import { LockType } from "../sql/select";
-// import { LockType } from "../sql/select";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";

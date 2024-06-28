@@ -31,8 +31,8 @@ export class BBizStatement extends BStatement<BizStatement<BizAct>> {
     }
 }
 
-const pendFrom = 'pend';
-const binId = 'bin';
+const pendFrom = '$pend';
+const binId = '$bin';
 export abstract class BBizStatementPend<T extends BizAct> extends BStatement<BizStatementPend<T>> {
     // 可以发送sheet主表，也可以是Detail
     body(sqls: Sqls) {
@@ -82,14 +82,6 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 case SetEqu.sub: expValue = new ExpSub(expValueField, expValue); break;
             }
             cols.push({ col: 'value', val: expValue });
-            let del = factory.createDelete();
-            sqls.push(del);
-            del.tables = [a];
-            del.from(new EntityTable(EnumSysTable.pend, false, a));
-            del.where(new ExpAnd(
-                new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
-                new ExpEQ(new ExpField('value', a), ExpNum.num0),
-            ));
             sqls.push(...buildUpdatePoke());
         }
 
@@ -138,6 +130,20 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
 
             ifValue.then(...buildUpdatePoke());
         }
+    }
+
+    foot(sqls: Sqls): void {
+        const { factory } = this.context;
+        let { pend } = this.istatement;
+        if (pend !== undefined) return;
+        let del = factory.createDelete();
+        sqls.push(del);
+        del.tables = [a];
+        del.from(new EntityTable(EnumSysTable.pend, false, a));
+        del.where(new ExpAnd(
+            new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
+            new ExpEQ(new ExpField('value', a), ExpNum.num0),
+        ));
     }
 }
 

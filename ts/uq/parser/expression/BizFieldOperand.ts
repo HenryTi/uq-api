@@ -8,7 +8,7 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
     private fieldName: string[] = [];
     _parse() {
         this.fieldName.push(this.ts.passVar());
-        if (this.ts.token === Token.DOT) {
+        while (this.ts.token === Token.DOT) {
             this.ts.readToken();
             this.fieldName.push(this.ts.passVar());
         }
@@ -19,7 +19,7 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
         let bizFieldSpace = space.getBizFieldSpace();
         let field = bizFieldSpace.getBizField(this.fieldName);
         if (field === null) {
-            this.log(`${this.fieldName} is not defined`);
+            this.log(`%${this.fieldName.join('.')} is not defined`);
             bizFieldSpace.getBizField(this.fieldName);
             return false;
         }

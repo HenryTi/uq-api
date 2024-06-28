@@ -1,30 +1,40 @@
 import {
     BBizField, DbContext
     , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar
-    , BBizFieldUser, BBizFieldBinBud
+    , BBizFieldUser, BBizFieldBinBud,
+    BBizFieldPendBin,
+    BBizFieldBinBudSelect
 } from "../builder";
 import { BinDiv, BizBin, FromStatement, FromInPendStatement } from "./Biz";
-import { BizPhraseType } from "./Biz/BizPhraseType";
-import { BizBud } from "./Biz/Bud";
+import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
+import { BizBud, BizBudBin } from "./Biz/Bud";
+import { EnumDataType } from "./datatype";
 
 // in FROM statement, columns use BizField
 // and in Where, BizField is used.
 export abstract class BizField {
     readonly space: BizFieldSpace;
-    readonly tableAlias: string;
-    constructor(space: BizFieldSpace, tableAlias: string) {
+    constructor(space: BizFieldSpace) {
         this.space = space;
-        this.tableAlias = tableAlias;
     }
     getBud(): BizBud {
         return undefined;
     }
     abstract db(dbContext: DbContext): BBizField;
     abstract buildSchema(): any;
+    abstract get tableAlias(): string;
     scanBinDiv() { }
 }
 
-export class BizFieldBud extends BizField {
+export abstract class BizFieldTableAlias extends BizField {
+    readonly tableAlias: string;
+    constructor(space: BizFieldSpace, tableAlias: string) {
+        super(space);
+        this.tableAlias = tableAlias;
+    }
+}
+
+export class BizFieldBud extends BizFieldTableAlias {
     bud: BizBud
     div: BinDiv;
     constructor(space: BizFieldSpace, tableAlias: string, bud: BizBud) {
@@ -63,10 +73,45 @@ export class BizFieldBinBud extends BizFieldBud {
     }
 }
 
+export class BizFieldBinBudSelect extends BizField {
+    readonly bizBin: BizBin;
+    readonly bud: BizBud;
+    readonly tableAlias = undefined;
+    constructor(space: BizFieldSpace, bizBin: BizBin, bud: BizBud) {
+        super(space);
+        this.bizBin = bizBin;
+        this.bud = bud;
+    }
+
+    db(dbContext: DbContext): BBizField<BizField> {
+        return new BBizFieldBinBudSelect(dbContext, this);
+    }
+    buildSchema() {
+        throw new Error("Method not implemented.");
+    }
+}
+
+// %pend.bin
+export class BizFieldPendBin extends BizFieldTableAlias {
+    buildSchema() {
+        throw new Error("Method not implemented.");
+    }
+    /*
+    protected override createBBizFieldBud(dbContext: DbContext): BBizFieldBud {
+        return new BBizFieldPendBin(dbContext, this);
+    }
+    */
+    override db(dbContext: DbContext): BBizField<BizField> {
+        return new BBizFieldPendBin(dbContext, this);
+    }
+}
+
 export class BizFieldField extends BizField {
     readonly name: string;
+    readonly tableAlias: string;
     constructor(space: BizFieldSpace, tableAlias: string, name: string) {
-        super(space, tableAlias);
+        super(space);
+        this.tableAlias = tableAlias;
         this.name = name;
     }
     override db(dbContext: DbContext): BBizField {
@@ -87,7 +132,7 @@ export class BizFieldVar extends BizFieldField {
     }
 }
 
-export class BizFieldUser extends BizField {
+export class BizFieldUser extends BizFieldTableAlias {
     buildSchema() {
         return `%user.${this.tableAlias}`;
     }
@@ -106,12 +151,16 @@ export abstract class BizFieldSpace {
     get bBudNoArrayAgg(): boolean { return; }
 
     getBizField(names: string[]): BizField {
+        let ret: BizField;
         let n0 = names[0];
         switch (names.length) {
-            default: debugger; throw Error('error names');
-            case 1: return this.bizFieldFromSolo(n0);
-            case 2: return this.bizFieldFromDuo(n0, names[1]);
+            case 1: ret = this.bizFieldFromSolo(n0); break;
+            case 2: ret = this.bizFieldFromDuo(n0, names[1]); break;
         }
+        if (ret === undefined) {
+            ret = this.bizFieldFromMulti(names);
+        }
+        return ret;
     }
 
     private bizFieldFromSolo(name: string): BizField {
@@ -146,6 +195,10 @@ export abstract class BizFieldSpace {
             nameBizFields[n1] = bizField;
             return bizField;
         }
+    }
+
+    protected bizFieldFromMulti(names: string[]): BizField {
+        return null;
     }
 
     protected abstract buildBizFieldFromDuo(n0: string, n1: string): BizField;
@@ -208,6 +261,10 @@ export class FromInPendFieldSpace extends FromEntityFieldSpace<FromInPendStateme
         if (bud === undefined) debugger;
         return this.buildBizFieldFromBud(alias, bud);
     }
+
+    protected bizFieldFromMulti(names: string[]): BizField {
+        return null;
+    }
 }
 
 export class BizBinActFieldSpace extends BizFieldSpace {
@@ -233,12 +290,6 @@ export class BizBinActFieldSpace extends BizFieldSpace {
                 break;
             case 'sheet':
                 bud = this.bizBin.getSheetBud(n1);
-                /*
-                if (bud === undefined) {
-                    debugger;
-                    bud = this.bizBin.getSheetBud(n1);
-                }
-                */
                 alias = 'sheet';
                 break;
         }
@@ -246,7 +297,73 @@ export class BizBinActFieldSpace extends BizFieldSpace {
         return this.buildBizFieldFromBud(alias, bud);
     }
 
-    protected buildBizFieldFromBud(alias: string, bud: BizBud) {
+    private buildBizFieldFromBud(alias: string, bud: BizBud) {
         return new BizFieldBinBud(this, alias, bud);
+    }
+
+    protected bizFieldFromMulti(names: string[]): BizField {
+        let p = 0;
+        let n0 = names[p++];
+        const { length } = names;
+        if (length < 2) return null;
+        let bizBin: BizBin;
+        const { pend } = this.bizBin;
+        switch (n0) {
+            case 'pend':
+                if (this.bizBin.pend === undefined) return undefined;
+                let n1 = names[p++];
+                if (p === length) {
+                    switch (n1) {
+                        default:
+                            let bud = pend.getBud(n1);
+                            if (bud === undefined) return;
+                            return new BizFieldBinBudSelect(this, bizBin, bud);
+                        case 'bin':
+                        case 'sheet':
+                            return new BizFieldPendBin(this, n1);
+                    }
+                }
+                switch (n1) {
+                    default:
+                        let bud = pend.getBud(n1);
+                        if (bud === undefined) return;
+                        if (bud.dataType !== BudDataType.bin) return undefined;
+                        bizBin = (bud as BizBudBin).bin;
+                        break;
+                    case 'bin':
+                        bizBin = pend.bizBins[0];
+                        break;
+                    case 'sheet':
+                        bizBin = pend.bizBins[0]?.sheetArr[0]?.main;
+                        break;
+                }
+                break;
+            default:
+                let bud = this.bizBin.getBud(n0);
+                if (bud === undefined) return undefined;
+                if (bud.dataType !== BudDataType.bin) return undefined;
+                bizBin = (bud as BizBudBin).bin;
+                break;
+        }
+        return this.buildBizFieldFromBin(bizBin, names, p);
+    }
+
+    private buildBizFieldFromBin(bizBin: BizBin, names: string[], pName: number): BizField {
+        if (bizBin === undefined) return null;
+        const { length } = names;
+        if (pName >= length) return null;
+        let bud: BizBud;
+        for (let i = pName; i < length; i++) {
+            let name = names[i];
+            bud = bizBin.getBud(name);
+            if (bud === undefined) break;
+            if (bud.dataType !== BudDataType.bin) {
+                if (i < length - 1) return null;
+                break;
+            }
+            bizBin = (bud as BizBudBin).bin;
+        }
+        if (bud === undefined) return null;
+        return new BizFieldBinBudSelect(this, bizBin, bud);
     }
 }

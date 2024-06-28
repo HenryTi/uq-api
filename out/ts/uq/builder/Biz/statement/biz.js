@@ -24,8 +24,8 @@ class BBizStatement extends bstatement_1.BStatement {
     }
 }
 exports.BBizStatement = BBizStatement;
-const pendFrom = 'pend';
-const binId = 'bin';
+const pendFrom = '$pend';
+const binId = '$bin';
 class BBizStatementPend extends bstatement_1.BStatement {
     // 可以发送sheet主表，也可以是Detail
     body(sqls) {
@@ -72,11 +72,6 @@ class BBizStatementPend extends bstatement_1.BStatement {
                     break;
             }
             cols.push({ col: 'value', val: expValue });
-            let del = factory.createDelete();
-            sqls.push(del);
-            del.tables = [a];
-            del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
-            del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
             sqls.push(...buildUpdatePoke());
         }
         function buildWritePend() {
@@ -108,6 +103,17 @@ class BBizStatementPend extends bstatement_1.BStatement {
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));
             ifValue.then(...buildUpdatePoke());
         }
+    }
+    foot(sqls) {
+        const { factory } = this.context;
+        let { pend } = this.istatement;
+        if (pend !== undefined)
+            return;
+        let del = factory.createDelete();
+        sqls.push(del);
+        del.tables = [a];
+        del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
+        del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
     }
 }
 exports.BBizStatementPend = BBizStatementPend;

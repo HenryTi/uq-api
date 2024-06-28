@@ -13,7 +13,7 @@ class BizPend extends Entity_1.BizEntity {
         super(biz);
         this.fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
-        this.isID = false;
+        this.isID = true;
         this.predefinedFields = [];
         this.bizBins = [];
         this.predefinedBuds = {};

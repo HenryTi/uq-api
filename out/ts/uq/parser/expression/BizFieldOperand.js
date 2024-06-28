@@ -12,7 +12,7 @@ class PBizFieldOperand extends element_1.PElement {
     }
     _parse() {
         this.fieldName.push(this.ts.passVar());
-        if (this.ts.token === tokens_1.Token.DOT) {
+        while (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
             this.fieldName.push(this.ts.passVar());
         }
@@ -22,7 +22,7 @@ class PBizFieldOperand extends element_1.PElement {
         let bizFieldSpace = space.getBizFieldSpace();
         let field = bizFieldSpace.getBizField(this.fieldName);
         if (field === null) {
-            this.log(`${this.fieldName} is not defined`);
+            this.log(`%${this.fieldName.join('.')} is not defined`);
             bizFieldSpace.getBizField(this.fieldName);
             return false;
         }

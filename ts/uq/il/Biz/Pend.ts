@@ -16,7 +16,7 @@ export class BizPend extends BizEntity {
 
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
     readonly bizPhraseType = BizPhraseType.pend;
-    readonly isID = false;
+    readonly isID = true;
     readonly predefinedBuds: { [name: string]: BizBudValue };
     readonly predefinedFields: string[] = [];
     pendQuery: PendQuery;

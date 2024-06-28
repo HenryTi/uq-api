@@ -17,7 +17,7 @@ const sx = '$sx';
 const svalue = '$svalue';
 const samount = '$samount';
 const sprice = '$sprice';
-const pendFrom = 'pend';
+const pendFrom = '$pend';
 const i = 'i';
 const iBase = '.i';
 const x = 'x';
@@ -25,13 +25,13 @@ const xBase = '.x';
 const value = binValue;
 const amount = binAmount;
 const price = binPrice;
-const binId = 'bin';
-const origin = 'origin';
+const binId = '$bin';
+const origin = '$origin';
 const a = 'a';
 const b = 'b';
 const c = 'c';
 const d = 'd';
-const bin = 'bin';
+const bin = '$bin';
 const tempBinTable = 'bin';
 const binFieldsSet = new Set(binFieldArr);
 
@@ -103,7 +103,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         statements.push(setSite);
         setSite.equ($site, new ExpNum(site));
 
-        const varBin = new ExpVar('bin');
+        const varBin = new ExpVar(bin);
         const dt = 'dt';
         const select = factory.createSelect();
         statements.push(select);
