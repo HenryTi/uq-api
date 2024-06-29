@@ -525,13 +525,6 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
         let [pickName, pickProp] = names;
         let pick = this.bizEntity.pickColl[pickName];
         if (pick === undefined) {
-            /*
-            input only scalar
-            let input = this.bizEntity.inputColl[pickName];
-            if (input === undefined) {
-                return undefined;
-            }
-            */
             return;
         }
         const { pick: pickBase } = pick;

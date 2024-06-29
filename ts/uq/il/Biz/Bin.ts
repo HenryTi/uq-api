@@ -278,7 +278,6 @@ export class BizBin extends BizEntity {
         [this.i, this.iBase, this.x, this.xBase, this.price, this.amount, this.value].forEach(v => {
             if (v === undefined) return;
             this.predefinedBuds[v.name] = v;
-            // this.predefinedBuds[v.id] = v;
         })
     }
 

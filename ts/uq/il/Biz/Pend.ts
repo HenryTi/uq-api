@@ -11,8 +11,8 @@ import { BizEntity } from "./Entity";
 import { BizQueryTable } from "./Query";
 
 export class BizPend extends BizEntity {
-    static predefinedId = ['si', 'sx', 's'];
-    static predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
+    static predefinedId = ['si', 'sx', 's', 'sheet'];
+    static predefinedValue = ['bin', 'value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
     readonly bizPhraseType = BizPhraseType.pend;

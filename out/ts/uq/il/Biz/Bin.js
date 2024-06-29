@@ -231,7 +231,6 @@ class BizBin extends Entity_1.BizEntity {
             if (v === undefined)
                 return;
             this.predefinedBuds[v.name] = v;
-            // this.predefinedBuds[v.id] = v;
         });
     }
     buildSchema(res) {

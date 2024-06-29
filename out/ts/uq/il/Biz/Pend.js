@@ -114,8 +114,8 @@ class BizPend extends Entity_1.BizEntity {
     }
 }
 exports.BizPend = BizPend;
-BizPend.predefinedId = ['si', 'sx', 's'];
-BizPend.predefinedValue = ['value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
+BizPend.predefinedId = ['si', 'sx', 's', 'sheet'];
+BizPend.predefinedValue = ['bin', 'value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 class BizQueryTableInPendStatements extends statement_1.Statements {
     constructor(pendQuery) {
         super(undefined);
