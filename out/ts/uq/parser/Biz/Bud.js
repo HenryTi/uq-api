@@ -458,8 +458,27 @@ class PBizBudID extends PBizBudIDBase {
 }
 exports.PBizBudID = PBizBudID;
 class PBizBudBin extends PBizBudValue {
+    constructor() {
+        super(...arguments);
+        this.showBuds = [];
+    }
     _parse() {
         this.binName = this.ts.mayPassVar();
+        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (;;) {
+                this.showBuds.push(this.ts.passVar());
+                if (this.ts.token === tokens_1.Token.COMMA) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                    this.ts.readToken();
+                    break;
+                }
+                this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
+            }
+        }
         this.parseBudEquValue();
     }
     scan(space) {
@@ -470,7 +489,17 @@ class PBizBudBin extends PBizBudValue {
             this.log(`${this.binName} is not a BIN`);
         }
         else {
-            this.element.bin = bin;
+            let bizBin = this.element.bin = bin;
+            for (let showBudName of this.showBuds) {
+                let bud = bizBin.getBud(showBudName);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${bin.getJName()} does not has bud ${showBudName}`);
+                }
+                else {
+                    this.element.showBuds.push(bud);
+                }
+            }
         }
         return ok;
     }

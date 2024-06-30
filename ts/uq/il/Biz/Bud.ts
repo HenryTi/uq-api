@@ -372,6 +372,7 @@ export class BizBudBin extends BizBudValue {
     readonly dataType = BudDataType.bin;
     readonly canIndex = false;
     bin: BizBin;
+    readonly showBuds: BizBud[] = [];
     parser(context: PContext): PElement<IElement> {
         return new PBizBudBin(this, context);
     }

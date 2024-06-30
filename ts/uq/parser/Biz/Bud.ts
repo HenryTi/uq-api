@@ -478,8 +478,24 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
 
 export class PBizBudBin extends PBizBudValue<BizBudBin> {
     private binName: string;
+    private showBuds: string[] = [];
     protected _parse(): void {
         this.binName = this.ts.mayPassVar();
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            for (; ;) {
+                this.showBuds.push(this.ts.passVar());
+                if (this.ts.token === Token.COMMA as any) {
+                    this.ts.readToken();
+                    continue;
+                }
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
+            }
+        }
         this.parseBudEquValue();
     }
 
@@ -491,7 +507,17 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
             this.log(`${this.binName} is not a BIN`);
         }
         else {
-            this.element.bin = bin as BizBin;
+            let bizBin = this.element.bin = bin as BizBin;
+            for (let showBudName of this.showBuds) {
+                let bud = bizBin.getBud(showBudName);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${bin.getJName()} does not has bud ${showBudName}`);
+                }
+                else {
+                    this.element.showBuds.push(bud);
+                }
+            }
         }
         return ok;
     }

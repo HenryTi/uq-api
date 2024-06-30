@@ -383,6 +383,7 @@ class BizBudBin extends BizBudValue {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.bin;
         this.canIndex = false;
+        this.showBuds = [];
     }
     parser(context) {
         return new parser_1.PBizBudBin(this, context);
