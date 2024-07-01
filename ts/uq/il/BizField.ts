@@ -1,10 +1,8 @@
 import {
-    BBizField, DbContext
-    , BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar
-    , BBizFieldUser, BBizFieldBinBud,
-    BBizFieldPendBin,
-    BBizFieldBinBudSelect,
-    BBizFieldPendBudSelect,
+    BBizField, DbContext,
+    BBizFieldBud, BBizFieldField, BBizFieldJsonProp, BBizFieldBinVar,
+    BBizFieldUser, BBizFieldBinBud,
+    BBizFieldPendBin, BBizFieldPendBudSelect,
     BBizFieldPendBinBudSelect,
     BBizFieldBinBinBudSelect,
     BBizFieldPendSheet
@@ -13,7 +11,6 @@ import { BinDiv, BizBin, FromStatement, FromInPendStatement } from "./Biz";
 import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
 import { BizBud, BizBudBin } from "./Biz/Bud";
 import { BizPend } from "./Biz/Pend";
-import { EnumDataType } from "./datatype";
 
 // in FROM statement, columns use BizField
 // and in Where, BizField is used.

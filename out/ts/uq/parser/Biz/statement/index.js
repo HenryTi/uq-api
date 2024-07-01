@@ -17,4 +17,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./biz.from"), exports);
 __exportStar(require("./biz.fromInPend"), exports);
 __exportStar(require("./biz.statement"), exports);
+__exportStar(require("./biz.for"), exports);
 //# sourceMappingURL=index.js.map

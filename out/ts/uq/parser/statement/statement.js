@@ -37,7 +37,7 @@ class PStatements extends PStatement {
             case 'value': return new il_1.ValueStatement(parent);
             case 'if': return new il_1.If(parent);
             case 'while': return new il_1.While(parent);
-            case 'for':
+            case 'for': return new il_1.BizFor(parent);
             case 'foreach': return new il_1.ForEach(parent);
             case 'continue': return new il_1.ContinueStatement(parent);
             case 'break': return new il_1.BreakStatement(parent);

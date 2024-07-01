@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FromInPendStatement = exports.FromStatement = exports.EnumAsc = exports.FromEntity = void 0;
+exports.FromInPendStatement = exports.FromStatement = exports.BizSelectStatement = exports.EnumAsc = exports.FromEntity = void 0;
 const parser_1 = require("../../../parser");
 const Entity_1 = require("../Entity");
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
@@ -13,11 +13,14 @@ var EnumAsc;
     EnumAsc[EnumAsc["asc"] = 1] = "asc";
     EnumAsc[EnumAsc["desc"] = 0] = "desc";
 })(EnumAsc || (exports.EnumAsc = EnumAsc = {}));
-class FromStatement extends statement_1.Statement {
+class BizSelectStatement extends statement_1.Statement {
     constructor() {
         super(...arguments);
         this.cols = [];
     }
+}
+exports.BizSelectStatement = BizSelectStatement;
+class FromStatement extends BizSelectStatement {
     get type() { return 'from'; }
     db(db) {
         return db.fromStatement(this);

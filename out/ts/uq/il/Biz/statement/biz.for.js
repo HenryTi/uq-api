@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BizFor = void 0;
+const builder_1 = require("../../../builder");
+const parser_1 = require("../../../parser");
+const biz_from_1 = require("./biz.from");
+class BizFor extends biz_from_1.BizSelectStatement {
+    constructor() {
+        super(...arguments);
+        this.forCols = [];
+    }
+    db(db) {
+        return new builder_1.BBizFor(db, this);
+    }
+    parser(context) {
+        return new parser_1.PBizFor(this, context);
+    }
+}
+exports.BizFor = BizFor;
+//# sourceMappingURL=biz.for.js.map

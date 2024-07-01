@@ -39,16 +39,19 @@ export interface IdColumn {
     fromEntity: FromEntity;
 }
 
-export class FromStatement extends Statement {
-    get type(): string { return 'from'; }
+export abstract class BizSelectStatement extends Statement {
     fromEntity: FromEntity;
     ids: IdColumn[];
-    showIds: IdColumn[];
-    groupByBase?: boolean;          // spec group by base atom
-    ban: BanColumn;
     value: FromColumn;
     cols: FromColumn[] = [];
     where: CompareExpression;
+}
+
+export class FromStatement extends BizSelectStatement {
+    get type(): string { return 'from'; }
+    showIds: IdColumn[];
+    groupByBase?: boolean;          // spec group by base atom
+    ban: BanColumn;
     intoTables: IntoTables;
 
     db(db: Builder): object {

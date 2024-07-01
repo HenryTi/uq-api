@@ -47,7 +47,7 @@ class PFromStatementInPend extends biz_from_1.PFromStatement {
 exports.PFromStatementInPend = PFromStatementInPend;
 class FromInPendSpace extends biz_from_1.FromSpace {
     createBizFieldSpace(from) {
-        this.bizFieldSpace = new il_1.FromInPendFieldSpace(from);
+        return new il_1.FromInPendFieldSpace(from);
     }
 }
 //# sourceMappingURL=biz.fromInPend.js.map

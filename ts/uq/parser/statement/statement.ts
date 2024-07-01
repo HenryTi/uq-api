@@ -7,7 +7,8 @@ import {
     , BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement
     , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
     , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement
-    , SendStatement, UseStatement
+    , SendStatement, UseStatement,
+    BizFor
 } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -46,7 +47,7 @@ export abstract class PStatements<T extends Statements = Statements> extends PSt
             case 'value': return new ValueStatement(parent);
             case 'if': return new If(parent);
             case 'while': return new While(parent);
-            case 'for':
+            case 'for': return new BizFor(parent);
             case 'foreach': return new ForEach(parent);
             case 'continue': return new ContinueStatement(parent);
             case 'break': return new BreakStatement(parent);
