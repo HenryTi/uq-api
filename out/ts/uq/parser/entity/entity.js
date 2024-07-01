@@ -1010,7 +1010,6 @@ const dollarVars = [
     // '$date', '$id', '$state', '$row', '$sheet_date', '$sheet_no', '$sheet_discription'
 ];
 class ActionBaseSpace extends space_1.Space {
-    // private statementNo: number = 1;
     constructor(outer, actionBase) {
         super(outer);
         this.varNo = 1;
@@ -1019,7 +1018,6 @@ class ActionBaseSpace extends space_1.Space {
     _getEntityTable(name) {
         var _a;
         let arr = (_a = this.actionBase) === null || _a === void 0 ? void 0 : _a.arrs.find(v => v.name === name);
-        //if (arr !== undefined && arr.isBus !== true) return arr;
         return arr;
     }
     _getTableByAlias(alias) { return; }

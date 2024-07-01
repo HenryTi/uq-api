@@ -1,17 +1,18 @@
-import { Field, Int, intField, tinyIntField } from '../../../il';
-import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar } from '../../sql';
+import { EnumAsc, Field, Int, intField, tinyIntField } from '../../../il';
+import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar, VarTable, SqlVarTable } from '../../sql';
 import { VarTable as FromVarTable } from '../../sql/statementWithFrom';
 
 import { BizFor } from "../../../il";
-import { BStatement, Sqls } from "../../bstatement";
+import { Sqls } from "../../bstatement";
+import { BBizSelect } from './biz.select';
 
-export class BBizFor extends BStatement<BizFor> {
+export class BBizFor extends BBizSelect<BizFor> {
     body(sqls: Sqls): void {
         this.buildForSelect(sqls);
     }
 
     private buildForSelect(sqls: Sqls) {
-        const { statements } = this.istatement;
+        const { ids, values, vars, statements, fromEntity, where } = this.istatement;
         this.createDeclareVars(sqls);
 
         let { no } = this.istatement;
@@ -48,36 +49,48 @@ export class BBizFor extends BStatement<BizFor> {
 
         let fields = varTable.fields = [tblField, idField];
         varTable.keys = [tblField, idField];
-        let intoFields: Field[] = [];
-        /*
-        for (let v of this.forSelect.vars) {
+        for (let [n] of ids) {
+            let vr = vars[n];
             let f = new Field();
-            f.name = v.name;
-            f.dataType = v.dataType;
+            f.name = vr.name;
+            f.dataType = vr.dataType;
             f.nullable = true;
             fields.push(f);
-            intoFields.push(f);
         }
-        */
-        intoFields.push(tblField);
+        for (let [n] of values) {
+            let vr = vars[n];
+            let f = new Field();
+            f.name = vr.name;
+            f.dataType = vr.dataType;
+            f.nullable = true;
+            fields.push(f);
+        }
+
+        let insertFor = factory.createInsert();
+        sqls.push(insertFor);
+        insertFor.table = new SqlVarTable(varTable.name);
         let select = factory.createSelect();
-        sqls.push(select);
-        select.toVar = true;
-        select.col('a', 'a');
-        select.where(this.context.expCmp(this.istatement.where));
-        /*
-        let selState = convertSelect(this.context, select);
-        selState.column(new ExpVar(vtKey), '$tbl');
-        let vtName = varTable.name;
-        selState.into = {
-            name: vtName,
-            jName: vtName,
-            sName: vtName,
-            fields: intoFields,
-            needTable: true
-        };
-        sqls.push(selState);
-        */
+        insertFor.select = select;
+        for (let [n, idCol] of ids) {
+            select.column(new ExpField('id', idCol.fromEntity.alias), n);
+            insertFor.cols.push({ col: n, val: undefined });
+        }
+        for (let [n, val] of values) {
+            let expVal = new ExpFunc(factory.func_sum, this.context.expVal(val));
+            select.column(expVal, n);
+            insertFor.cols.push({ col: n, val: undefined });
+        }
+        let entityTable = this.buildEntityTable(fromEntity);
+        select.from(entityTable);
+        this.buildSelectFrom(select, fromEntity);
+        select.where(this.context.expCmp(where));
+        for (let [, idCol] of ids) {
+            select.group(new ExpField('id', idCol.fromEntity.alias));
+        }
+        for (let [, idCol] of ids) {
+            select.order(new ExpField('id', idCol.fromEntity.alias), idCol.asc === EnumAsc.asc ? 'asc' : 'desc');
+        }
+
         let row = '$row_' + no;
         let row_ok = '$row_ok_' + no;
         declare.vars(intField(row));
@@ -102,12 +115,16 @@ export class BBizFor extends BStatement<BizFor> {
         selInto.toVar = true;
         forS.push(selInto);
         selInto.column(ExpNum.num1, row_ok);
-        /*
-        for (let v of this.forSelect.vars) {
-            let n = v.name;
-            selInto.col(n, v.pointer.varName(n));
+        for (let [n,] of ids) {
+            let vr = vars[n];
+            let vn = vr.varName();
+            selInto.col(n, vn);
         }
-        */
+        for (let [n,] of values) {
+            let vr = vars[n];
+            let vn = vr.varName();
+            selInto.col(n, vn);
+        }
         let fromVarTable = new FromVarTable(varTable.name);
         selInto.from(fromVarTable);
         let expWhere = new ExpAnd(
@@ -130,9 +147,10 @@ export class BBizFor extends BStatement<BizFor> {
     protected createDeclareVars(sqls: Sqls) {
         let declare = this.context.factory.createDeclare();
         sqls.push(declare);
-        const { forCols } = this.istatement;
-        for (let forCol of forCols) {
-            declare.var(forCol.pointer.varName(forCol.name), forCol.dataType);
+        const { vars } = this.istatement;
+        for (let i in vars) {
+            let { name, pointer, dataType } = vars[i];
+            declare.var(pointer.varName(name), dataType);
         }
     }
 }

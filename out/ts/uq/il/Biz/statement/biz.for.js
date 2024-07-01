@@ -3,11 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizFor = void 0;
 const builder_1 = require("../../../builder");
 const parser_1 = require("../../../parser");
-const biz_from_1 = require("./biz.from");
-class BizFor extends biz_from_1.BizSelectStatement {
+const biz_select_1 = require("./biz.select");
+class BizFor extends biz_select_1.BizSelectStatement {
     constructor() {
         super(...arguments);
-        this.forCols = [];
+        // readonly forCols: Var[] = [];
+        this.vars = {};
+        this.ids = new Map();
+        this.values = new Map();
     }
     db(db) {
         return new builder_1.BBizFor(db, this);

@@ -564,6 +564,10 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
     }
 }
 class BizBinActSpace extends Biz_1.BizEntitySpace {
+    constructor() {
+        super(...arguments);
+        this.varNo = 1;
+    }
     _varPointer(name, isField) {
         if (exports.binPreDefined.indexOf(name) >= 0) {
             return new il_1.VarPointer(name);
@@ -572,6 +576,8 @@ class BizBinActSpace extends Biz_1.BizEntitySpace {
     _varsPointer(names) {
         return undefined;
     }
+    getVarNo() { return this.varNo; }
+    setVarNo(value) { this.varNo = value; }
     _getBizFromEntityFromAlias(name) {
         switch (name) {
             default:

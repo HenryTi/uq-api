@@ -603,6 +603,8 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
 }
 
 class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
+    private varNo: number = 1;
+
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (binPreDefined.indexOf(name) >= 0) {
             return new VarPointer(name);
@@ -612,6 +614,9 @@ class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
     protected _varsPointer(names: string[]): [Pointer, string] {
         return undefined;
     }
+
+    getVarNo() { return this.varNo; }
+    setVarNo(value: number) { this.varNo = value; }
 
     protected override _getBizFromEntityFromAlias(name: string) {
         switch (name) {

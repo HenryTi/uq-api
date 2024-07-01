@@ -163,7 +163,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                 ok = false;
                 return ok;
             }
-            const { ban } = this.element;
+            const { ban, value } = this.element;
             /*
             if (where !== undefined) {
                 if (where.pelement.scan(space) === false) {
@@ -177,13 +177,11 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                     ok = false;
                 }
             }
-            /*
             if (value !== undefined) {
                 if (value.val.pelement.scan(space) === false) {
                     ok = false;
                 }
             }
-            */
             if (this.scanIDsWithCheck0() === false) {
                 ok = false;
             }

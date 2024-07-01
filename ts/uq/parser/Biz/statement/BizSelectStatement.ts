@@ -132,14 +132,9 @@ export abstract class PBizSelectStatement<T extends BizSelectStatement> extends 
                 return ok;
             }
             */
-            const { where, value } = this.element;
+            const { where } = this.element;
             if (where !== undefined) {
                 if (where.pelement.scan(space) === false) {
-                    ok = false;
-                }
-            }
-            if (value !== undefined) {
-                if (value.val.pelement.scan(space) === false) {
                     ok = false;
                 }
             }

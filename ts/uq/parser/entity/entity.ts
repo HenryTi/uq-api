@@ -1036,14 +1036,12 @@ const dollarVars = [
 export class ActionBaseSpace extends Space {
     private actionBase: ActionBase;
     private varNo: number = 1;
-    // private statementNo: number = 1;
     constructor(outer: Space, actionBase: ActionBase) {
         super(outer);
         this.actionBase = actionBase;
     }
     protected _getEntityTable(name: string): Entity & Table {
         let arr = this.actionBase?.arrs.find(v => v.name === name);
-        //if (arr !== undefined && arr.isBus !== true) return arr;
         return arr;
     }
     protected _getTableByAlias(alias: string): Table { return; }
