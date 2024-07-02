@@ -11,6 +11,7 @@ export interface BizForIdCol {
     fromEntity: FromEntity;
 }
 export class BizFor extends BizSelectStatement {
+    get type(): string { return 'foreach'; }
     // readonly forCols: Var[] = [];
     readonly vars: { [name: string]: Var } = {};
     readonly ids: Map<string, BizForIdCol> = new Map();

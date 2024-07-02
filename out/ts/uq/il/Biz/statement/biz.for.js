@@ -12,6 +12,7 @@ class BizFor extends biz_select_1.BizSelectStatement {
         this.ids = new Map();
         this.values = new Map();
     }
+    get type() { return 'foreach'; }
     db(db) {
         return new builder_1.BBizFor(db, this);
     }
