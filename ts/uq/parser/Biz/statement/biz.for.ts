@@ -94,7 +94,7 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
                 this.log(`duplicate name ${n}`);
                 continue;
             }
-            if (val.pelement.scan(space) === false) {
+            if (val.pelement.scan(theSpace) === false) {
                 ok = false;
                 continue;
             }
