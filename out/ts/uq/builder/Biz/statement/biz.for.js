@@ -11,7 +11,7 @@ class BBizFor extends biz_select_1.BBizSelect {
         this.buildForSelect(sqls);
     }
     buildForSelect(sqls) {
-        const { ids, values, vars, statements, fromEntity, where } = this.istatement;
+        const { ids, values, vars, statements, fromEntity, where, isGroup, orderBys } = this.istatement;
         this.createDeclareVars(sqls);
         let { no } = this.istatement;
         let { factory } = this.context;
@@ -58,24 +58,38 @@ class BBizFor extends biz_select_1.BBizSelect {
         insertFor.table = new sql_1.SqlVarTable(varTable.name);
         let select = factory.createSelect();
         insertFor.select = select;
+        const collField = {};
         for (let [n, idCol] of ids) {
-            select.column(new sql_1.ExpField('id', idCol.fromEntity.alias), n);
-            insertFor.cols.push({ col: n, val: undefined });
-        }
-        for (let [n, val] of values) {
-            let expVal = new sql_1.ExpFunc(factory.func_sum, this.context.expVal(val));
+            let expVal = new sql_1.ExpField('id', idCol.fromEntity.alias);
             select.column(expVal, n);
             insertFor.cols.push({ col: n, val: undefined });
+            collField[n] = expVal;
+        }
+        for (let [n, val] of values) {
+            let expVal = this.context.expVal(val);
+            if (isGroup === true) {
+                expVal = new sql_1.ExpFunc(factory.func_sum, expVal);
+            }
+            select.column(expVal, n);
+            insertFor.cols.push({ col: n, val: undefined });
+            collField[n] = expVal;
         }
         let entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
         select.where(this.context.expCmp(where));
-        for (let [, idCol] of ids) {
-            select.group(new sql_1.ExpField('id', idCol.fromEntity.alias));
+        if (isGroup === true) {
+            for (let [, idCol] of ids) {
+                select.group(new sql_1.ExpField('id', idCol.fromEntity.alias));
+            }
         }
-        for (let [, idCol] of ids) {
-            select.order(new sql_1.ExpField('id', idCol.fromEntity.alias), idCol.asc === il_1.EnumAsc.asc ? 'asc' : 'desc');
+        if (orderBys.length > 0) {
+            for (let { fieldName, asc } of orderBys) {
+                let expVal = collField[fieldName];
+                if (expVal === undefined)
+                    debugger;
+                select.order(expVal, asc === il_1.EnumAsc.desc ? 'desc' : 'asc');
+            }
         }
         let row = '$row_' + no;
         let row_ok = '$row_ok_' + no;

@@ -256,34 +256,41 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
     scanCols(space) {
         let ok = true;
         const { cols } = this.element;
-        let bizFieldSpace = space.getBizFieldSpace();
+        // let bizFieldSpace = space.getBizFieldSpace();
         for (let col of cols) {
             const { name, ui, val } = col;
             if (val.pelement.scan(space) === false) {
                 ok = false;
             }
             if (ui === null) {
-                let field = bizFieldSpace.getBizField([name]);
+                // let field = bizFieldSpace.getBizField([name]);
+                let names = [name];
+                let field = space.getBizField(names);
                 if (field !== undefined) {
                     col.bud = field.getBud();
                     if (col.bud === undefined) {
                         //debugger;
-                        field = bizFieldSpace.getBizField([name]);
+                        // field = bizFieldSpace.getBizField([name]);
+                        field = space.getBizField(names);
                     }
                 }
                 else {
                     debugger;
-                    bizFieldSpace.getBizField([name]);
+                    // bizFieldSpace.getBizField([name]);
+                    space.getBizField(names);
                     // 'no', 'ex' 不能出现这样的情况
                     col.bud = undefined;
                 }
             }
             else {
                 // Query bud
-                let bizEntitySpace = space.getBizEntitySpace();
-                if (bizEntitySpace === undefined)
+                // let bizEntitySpace = space.getBizEntitySpace();
+                // if (bizEntitySpace === undefined) debugger;
+                // let bud = new BizBudAny(bizEntitySpace.bizEntity, name, ui);
+                let bizEntity = space.getBizEntity();
+                if (bizEntity === undefined)
                     debugger;
-                let bud = new il_1.BizBudAny(bizEntitySpace.bizEntity, name, ui);
+                let bud = new il_1.BizBudAny(bizEntity, name, ui);
                 col.bud = bud;
             }
         }

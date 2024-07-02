@@ -33,8 +33,9 @@ class BizFieldBud extends BizFieldTableAlias {
         return this.bud;
     }
     db(dbContext) {
+        var _a;
         let ret = this.createBBizFieldBud(dbContext);
-        ret.noArrayAgg = this.space.bBudNoArrayAgg;
+        ret.noArrayAgg = (_a = this.space) === null || _a === void 0 ? void 0 : _a.bBudNoArrayAgg;
         return ret;
     }
     buildSchema() { var _a; return [(_a = this.bud.entity) === null || _a === void 0 ? void 0 : _a.id, this.bud.id]; }
@@ -217,7 +218,7 @@ class BizFieldSpace {
         }
     }
     bizFieldFromMulti(names) {
-        return null;
+        return; // null;
     }
 }
 exports.BizFieldSpace = BizFieldSpace;

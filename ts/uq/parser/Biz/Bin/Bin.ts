@@ -7,7 +7,9 @@ import {
     , BinInputSpec, BinInputAtom, BinDiv, BizBudIXBase, BizStatementBin
     , BizOut, UseOut, BinValue, UI, BinPivot, BizBudRadio, OptionsItem,
     BudValueSetType,
-    BizFromEntity
+    BizFromEntity,
+    BizFieldSpace,
+    BizField
 } from "../../../il";
 import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
 import { PContext } from "../../pContext";
@@ -535,7 +537,14 @@ export const binPreDefined = [
     , ...binFieldArr
 ];
 class BizBinSpace extends BizEntitySpace<BizBin> {
+    protected readonly bizFieldSpace: BizFieldSpace;
     readonly bizOuts: { [name: string]: UseOut; } = {};
+
+    constructor(outer: Space, bizBin: BizBin) {
+        super(outer, bizBin);
+        this.bizFieldSpace = new BizBinActFieldSpace(bizBin);
+    }
+
     protected _getEntityTable(name: string): Entity & Table { return; }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
@@ -587,9 +596,14 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
                 };
         }
     }
-
+    /*
     override getBizFieldSpace() {
         return new BizBinActFieldSpace(this.bizEntity);
+    }
+    */
+
+    protected override _getBizField(names: string[]): BizField {
+        return this.bizFieldSpace.getBizField(names);
     }
 
     protected _regUseBizOut(out: BizOut, to: boolean): UseOut {
@@ -604,6 +618,12 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
 
 class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
     private varNo: number = 1;
+    private readonly bizFieldSpace: BizFieldSpace;
+
+    constructor(outer: Space, bizBin: BizBin) {
+        super(outer, bizBin);
+        this.bizFieldSpace = new BizBinActFieldSpace(this.bizEntity);
+    }
 
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (binPreDefined.indexOf(name) >= 0) {
@@ -627,8 +647,8 @@ class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
         }
     }
 
-    override getBizFieldSpace() {
-        return new BizBinActFieldSpace(this.bizEntity);
+    protected override _getBizField(names: string[]): BizField {
+        return this.bizFieldSpace.getBizField(names);
     }
 }
 

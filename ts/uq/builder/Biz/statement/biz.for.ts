@@ -12,7 +12,7 @@ export class BBizFor extends BBizSelect<BizFor> {
     }
 
     private buildForSelect(sqls: Sqls) {
-        const { ids, values, vars, statements, fromEntity, where } = this.istatement;
+        const { ids, values, vars, statements, fromEntity, where, isGroup, orderBys } = this.istatement;
         this.createDeclareVars(sqls);
 
         let { no } = this.istatement;
@@ -71,24 +71,38 @@ export class BBizFor extends BBizSelect<BizFor> {
         insertFor.table = new SqlVarTable(varTable.name);
         let select = factory.createSelect();
         insertFor.select = select;
+
+        const collField: { [name: string]: ExpVal } = {};
         for (let [n, idCol] of ids) {
-            select.column(new ExpField('id', idCol.fromEntity.alias), n);
-            insertFor.cols.push({ col: n, val: undefined });
-        }
-        for (let [n, val] of values) {
-            let expVal = new ExpFunc(factory.func_sum, this.context.expVal(val));
+            let expVal = new ExpField('id', idCol.fromEntity.alias);
             select.column(expVal, n);
             insertFor.cols.push({ col: n, val: undefined });
+            collField[n] = expVal;
+        }
+        for (let [n, val] of values) {
+            let expVal = this.context.expVal(val);
+            if (isGroup === true) {
+                expVal = new ExpFunc(factory.func_sum, expVal);
+            }
+            select.column(expVal, n);
+            insertFor.cols.push({ col: n, val: undefined });
+            collField[n] = expVal;
         }
         let entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
         select.where(this.context.expCmp(where));
-        for (let [, idCol] of ids) {
-            select.group(new ExpField('id', idCol.fromEntity.alias));
+        if (isGroup === true) {
+            for (let [, idCol] of ids) {
+                select.group(new ExpField('id', idCol.fromEntity.alias));
+            }
         }
-        for (let [, idCol] of ids) {
-            select.order(new ExpField('id', idCol.fromEntity.alias), idCol.asc === EnumAsc.asc ? 'asc' : 'desc');
+        if (orderBys.length > 0) {
+            for (let { fieldName, asc } of orderBys) {
+                let expVal = collField[fieldName];
+                if (expVal === undefined) debugger;
+                select.order(expVal, asc === EnumAsc.desc ? 'desc' : 'asc');
+            }
         }
 
         let row = '$row_' + no;

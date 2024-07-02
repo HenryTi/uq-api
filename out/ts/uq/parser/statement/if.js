@@ -14,10 +14,12 @@ class PIf extends statement_1.PStatement {
         let condition = this._if.condition = new il_1.CompareExpression();
         let parser = condition.parser(this.context);
         parser.parse();
-        let then = this._if.then = this.context.createStatements(this._if);
+        let then = this.context.createStatements(this._if);
+        this._if.then = then;
         then.level = this._if.level;
-        parser = then.parser(this.context);
-        parser.parse();
+        this.context.parseElement(then);
+        // parser = then.parser(this.context);
+        // parser.parse();
         while (this.ts.token === tokens_1.Token.SEMICOLON)
             this.ts.readToken();
         if (this.ts.varBrace === true)

@@ -5,7 +5,7 @@ import { BizSelectStatementSpace, PBizSelectStatement } from "./BizSelectStateme
 import { BizFieldSpace } from "../../../il/BizField";
 
 export class PBizFor extends PBizSelectStatement<BizFor> {
-    private readonly ids: Map<string, [string, EnumAsc]> = new Map();
+    private readonly ids: Map<string, string> = new Map();
     protected createFromSpace(space: Space): BizSelectStatementSpace<BizSelectStatement> {
         return new BizForSpace(space, this.element);
     }
@@ -13,6 +13,9 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
         let { values } = this.element;
         this.ts.passToken(Token.LPARENTHESE);
         this.ts.passKey('id');
+        if (this.ts.isKeyword('group') === true) {
+            this.element.isGroup = true;
+        }
         this.ts.passToken(Token.LPARENTHESE);
         for (; ;) {
             let v = this.ts.passVar();
@@ -21,26 +24,16 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
             if (this.ids.has(v) === true) {
                 this.ts.error(`duplicate name ${v}`);
             }
-            let asc: EnumAsc;
-            if (this.ts.token === Token.VAR) {
-                if (this.ts.varBrace === false) {
-                    switch (this.ts.lowerVar) {
-                        default: this.ts.expect('asc', 'desc'); break;
-                        case 'asc': asc = EnumAsc.asc; break;
-                        case 'desc': asc = EnumAsc.desc; break;
-                    }
-                    this.ts.readToken();
-                }
-            }
-            else {
-                asc = EnumAsc.asc;
-            }
-            this.ids.set(v, [t, asc]);
+            this.ids.set(v, t);
             if (this.ts.token !== Token.COMMA) {
                 this.ts.passToken(Token.RPARENTHESE);
                 break;
             }
             this.ts.readToken();
+            if (this.ts.token === Token.RPARENTHESE as any) {
+                this.ts.readToken();
+                break;
+            }
         }
 
         this.ts.passKey('value');
@@ -56,12 +49,17 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
                 break;
             }
             this.ts.readToken();
+            if (this.ts.token === Token.RPARENTHESE as any) {
+                this.ts.readToken();
+                break;
+            }
         }
         if (this.ts.isKeyword('from') === true) {
             this.ts.readToken();
             this.parseFromEntity(this.pFromEntity);
         }
         this.parseWhere();
+        this.parseOrder();
         this.ts.passToken(Token.RPARENTHESE);
         let statement = this.element.statements = this.context.createStatements(this.element);
         statement.level = this.element.level;
@@ -69,9 +67,31 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
         parser.parse();
     }
 
+    private parseOrder() {
+        if (this.ts.isKeyword('order') === false) return;
+        this.ts.readToken();
+        this.ts.passKey('by');
+        const { orderBys } = this.element;
+        for (; ;) {
+            let fieldName = this.ts.passVar();
+            let asc: EnumAsc = EnumAsc.asc;
+            if (this.ts.token === Token.VAR) {
+                if (this.ts.varBrace === false) {
+                    switch (this.ts.lowerVar) {
+                        case 'asc': asc = EnumAsc.asc; this.ts.readToken(); break;
+                        case 'desc': asc = EnumAsc.desc; this.ts.readToken(); break;
+                    }
+                }
+            }
+            orderBys.push({ fieldName, asc });
+            if (this.ts.token !== Token.COMMA) break;
+            this.ts.readToken();
+        }
+    }
+
     override scan(space: Space): boolean {
         let ok = super.scan(space);
-        const { ids, values, statements, vars } = this.element;
+        const { ids, values, statements, vars, orderBys } = this.element;
         let theSpace = new BizForSpace(space, this.element);
         for (let [n, [v, asc]] of this.ids) {
             let fromEntity = theSpace.getBizFromEntityArrFromAlias(v);
@@ -84,7 +104,6 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
             let idCol: BizForIdCol = {
                 name: n,
                 fromEntity,
-                asc,
             }
             ids.set(n, idCol);
         }
@@ -106,6 +125,12 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
             let no = theSpace.getVarNo();
             vp.no = no;
             theSpace.setVarNo(no + 1);
+        }
+        for (let { fieldName } of orderBys) {
+            if (ids.has(fieldName) === true) continue;
+            if (values.has(fieldName) === true) continue;
+            ok = false;
+            this.log(`${fieldName} is not defined`);
         }
         if (statements.pelement.scan(theSpace) === false) {
             ok = false;
@@ -134,6 +159,7 @@ export class BizForSpace extends BizSelectStatementSpace<BizFor> {
 
 export class BizForFieldSpace extends BizFieldSpace {
     protected buildBizFieldFromDuo(n0: string, n1: string): BizField {
-        throw new Error("Method not implemented.");
+        return;
+        // throw new Error("Method not implemented.");
     }
 }

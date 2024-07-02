@@ -7,15 +7,21 @@ import { BizSelectStatement, EnumAsc, FromEntity } from './biz.select';
 
 export interface BizForIdCol {
     name: string;
-    asc: EnumAsc;
     fromEntity: FromEntity;
 }
+
+export interface BizForOrderBy {
+    fieldName: string;
+    asc: EnumAsc;
+}
+
 export class BizFor extends BizSelectStatement {
     get type(): string { return 'foreach'; }
-    // readonly forCols: Var[] = [];
     readonly vars: { [name: string]: Var } = {};
     readonly ids: Map<string, BizForIdCol> = new Map();
     readonly values: Map<string, ValueExpression> = new Map();
+    isGroup: boolean;
+    readonly orderBys: BizForOrderBy[] = [];
     statements: Statements;
 
     db(db: DbContext): object {

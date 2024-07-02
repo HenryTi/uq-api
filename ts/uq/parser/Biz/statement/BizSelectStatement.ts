@@ -9,7 +9,8 @@ import {
     BizEntity,
     BizDuo, BizCombo,
     BizBudID,
-    BizSelectStatement
+    BizSelectStatement,
+    BizField
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
@@ -169,9 +170,12 @@ export abstract class BizSelectStatementSpace<T extends BizSelectStatement = Biz
     protected _varPointer(name: string, isField: boolean): Pointer {
         return;
     }
+    /*
     protected override _getBizFieldSpace(): BizFieldSpace {
         return this.bizFieldSpace;
     }
+    */
+    protected _getBizField(names: string[]): BizField { return this.bizFieldSpace.getBizField(names); }
 
     get isReadonly(): boolean { return true; }    // true: is in Biz From Statement
 }

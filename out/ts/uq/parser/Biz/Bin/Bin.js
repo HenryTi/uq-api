@@ -497,9 +497,10 @@ exports.binPreDefined = [
     ...consts_1.binFieldArr
 ];
 class BizBinSpace extends Biz_1.BizEntitySpace {
-    constructor() {
-        super(...arguments);
+    constructor(outer, bizBin) {
+        super(outer, bizBin);
         this.bizOuts = {};
+        this.bizFieldSpace = new il_1.BizBinActFieldSpace(bizBin);
     }
     _getEntityTable(name) { return; }
     _getTableByAlias(alias) { return; }
@@ -550,8 +551,13 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
                 };
         }
     }
-    getBizFieldSpace() {
-        return new il_1.BizBinActFieldSpace(this.bizEntity);
+    /*
+    override getBizFieldSpace() {
+        return new BizBinActFieldSpace(this.bizEntity);
+    }
+    */
+    _getBizField(names) {
+        return this.bizFieldSpace.getBizField(names);
     }
     _regUseBizOut(out, to) {
         let { name } = out;
@@ -564,9 +570,10 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
     }
 }
 class BizBinActSpace extends Biz_1.BizEntitySpace {
-    constructor() {
-        super(...arguments);
+    constructor(outer, bizBin) {
+        super(outer, bizBin);
         this.varNo = 1;
+        this.bizFieldSpace = new il_1.BizBinActFieldSpace(this.bizEntity);
     }
     _varPointer(name, isField) {
         if (exports.binPreDefined.indexOf(name) >= 0) {
@@ -586,8 +593,8 @@ class BizBinActSpace extends Biz_1.BizEntitySpace {
                 return;
         }
     }
-    getBizFieldSpace() {
-        return new il_1.BizBinActFieldSpace(this.bizEntity);
+    _getBizField(names) {
+        return this.bizFieldSpace.getBizField(names);
     }
 }
 class PBizBinAct extends Base_1.PBizAct {

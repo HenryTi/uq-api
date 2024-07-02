@@ -17,6 +17,9 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
         let { values } = this.element;
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
         this.ts.passKey('id');
+        if (this.ts.isKeyword('group') === true) {
+            this.element.isGroup = true;
+        }
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
         for (;;) {
             let v = this.ts.passVar();
@@ -25,32 +28,16 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
             if (this.ids.has(v) === true) {
                 this.ts.error(`duplicate name ${v}`);
             }
-            let asc;
-            if (this.ts.token === tokens_1.Token.VAR) {
-                if (this.ts.varBrace === false) {
-                    switch (this.ts.lowerVar) {
-                        default:
-                            this.ts.expect('asc', 'desc');
-                            break;
-                        case 'asc':
-                            asc = il_1.EnumAsc.asc;
-                            break;
-                        case 'desc':
-                            asc = il_1.EnumAsc.desc;
-                            break;
-                    }
-                    this.ts.readToken();
-                }
-            }
-            else {
-                asc = il_1.EnumAsc.asc;
-            }
-            this.ids.set(v, [t, asc]);
+            this.ids.set(v, t);
             if (this.ts.token !== tokens_1.Token.COMMA) {
                 this.ts.passToken(tokens_1.Token.RPARENTHESE);
                 break;
             }
             this.ts.readToken();
+            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
         }
         this.ts.passKey('value');
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
@@ -65,21 +52,55 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
                 break;
             }
             this.ts.readToken();
+            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
         }
         if (this.ts.isKeyword('from') === true) {
             this.ts.readToken();
             this.parseFromEntity(this.pFromEntity);
         }
         this.parseWhere();
+        this.parseOrder();
         this.ts.passToken(tokens_1.Token.RPARENTHESE);
         let statement = this.element.statements = this.context.createStatements(this.element);
         statement.level = this.element.level;
         let parser = statement.parser(this.context);
         parser.parse();
     }
+    parseOrder() {
+        if (this.ts.isKeyword('order') === false)
+            return;
+        this.ts.readToken();
+        this.ts.passKey('by');
+        const { orderBys } = this.element;
+        for (;;) {
+            let fieldName = this.ts.passVar();
+            let asc = il_1.EnumAsc.asc;
+            if (this.ts.token === tokens_1.Token.VAR) {
+                if (this.ts.varBrace === false) {
+                    switch (this.ts.lowerVar) {
+                        case 'asc':
+                            asc = il_1.EnumAsc.asc;
+                            this.ts.readToken();
+                            break;
+                        case 'desc':
+                            asc = il_1.EnumAsc.desc;
+                            this.ts.readToken();
+                            break;
+                    }
+                }
+            }
+            orderBys.push({ fieldName, asc });
+            if (this.ts.token !== tokens_1.Token.COMMA)
+                break;
+            this.ts.readToken();
+        }
+    }
     scan(space) {
         let ok = super.scan(space);
-        const { ids, values, statements, vars } = this.element;
+        const { ids, values, statements, vars, orderBys } = this.element;
         let theSpace = new BizForSpace(space, this.element);
         for (let [n, [v, asc]] of this.ids) {
             let fromEntity = theSpace.getBizFromEntityArrFromAlias(v);
@@ -92,7 +113,6 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
             let idCol = {
                 name: n,
                 fromEntity,
-                asc,
             };
             ids.set(n, idCol);
         }
@@ -114,6 +134,14 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
             let no = theSpace.getVarNo();
             vp.no = no;
             theSpace.setVarNo(no + 1);
+        }
+        for (let { fieldName } of orderBys) {
+            if (ids.has(fieldName) === true)
+                continue;
+            if (values.has(fieldName) === true)
+                continue;
+            ok = false;
+            this.log(`${fieldName} is not defined`);
         }
         if (statements.pelement.scan(theSpace) === false) {
             ok = false;
@@ -141,7 +169,8 @@ class BizForSpace extends BizSelectStatement_1.BizSelectStatementSpace {
 exports.BizForSpace = BizForSpace;
 class BizForFieldSpace extends BizField_1.BizFieldSpace {
     buildBizFieldFromDuo(n0, n1) {
-        throw new Error("Method not implemented.");
+        return;
+        // throw new Error("Method not implemented.");
     }
 }
 exports.BizForFieldSpace = BizForFieldSpace;

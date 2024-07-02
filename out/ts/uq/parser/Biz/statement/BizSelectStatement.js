@@ -133,9 +133,12 @@ class BizSelectStatementSpace extends space_1.Space {
     _varPointer(name, isField) {
         return;
     }
-    _getBizFieldSpace() {
+    /*
+    protected override _getBizFieldSpace(): BizFieldSpace {
         return this.bizFieldSpace;
     }
+    */
+    _getBizField(names) { return this.bizFieldSpace.getBizField(names); }
     get isReadonly() { return true; } // true: is in Biz From Statement
 }
 exports.BizSelectStatementSpace = BizSelectStatementSpace;

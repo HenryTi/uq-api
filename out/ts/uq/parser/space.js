@@ -22,8 +22,10 @@ class Space {
     _getBizBase(bizName) { return undefined; }
     _getBizFromEntityFromAlias(alias) { return undefined; }
     _getBizFromEntityFromName(name) { return undefined; }
-    _getBizFieldSpace() { return undefined; }
-    _getBizEntitySpace() { return undefined; }
+    // protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
+    // protected _getBizEntitySpace(): BizEntitySpace { return undefined; }
+    _getBizEntity() { return undefined; } // 当前space的主BizEntity
+    _getBizField(names) { return undefined; }
     _regUseBizOut(out, to) { return undefined; }
     _getUse(name) { return undefined; }
     _addUse(name, statementNo, obj) { return undefined; }
@@ -65,12 +67,7 @@ class Space {
         if (ret !== undefined)
             return ret;
     }
-    setStatementNo(value) {
-        /*
-        if (this.outer === undefined) return;
-        this.outer.setStatementNo(value);
-        */
-    }
+    setStatementNo(value) { }
     isOrderSwitch(orderSwitch) {
         let ret = this._isOrderSwitch(orderSwitch);
         if (ret === undefined) {
@@ -151,19 +148,34 @@ class Space {
         if (this.outer !== undefined)
             return this.outer.getBizFromEntityArrFromName(name);
     }
-    getBizFieldSpace() {
+    /*
+    getBizFieldSpace(): BizFieldSpace {
         let ret = this._getBizFieldSpace();
-        if (ret !== undefined)
-            return ret;
-        if (this.outer !== undefined)
-            return this.outer.getBizFieldSpace();
+        if (ret !== undefined) return ret;
+        if (this.outer !== undefined) return this.outer.getBizFieldSpace();
     }
-    getBizEntitySpace() {
+    */
+    /*
+    getBizEntitySpace(): BizEntitySpace {
         let ret = this._getBizEntitySpace();
+        if (ret !== undefined) return ret;
+        if (this.outer !== undefined) return this.outer.getBizEntitySpace();
+    }
+    */
+    // 当前space对应的主BizEntity
+    getBizEntity() {
+        let ret = this._getBizEntity();
         if (ret !== undefined)
             return ret;
         if (this.outer !== undefined)
-            return this.outer.getBizEntitySpace();
+            return this.outer.getBizEntity();
+    }
+    getBizField(names) {
+        let ret = this._getBizField(names);
+        if (ret !== undefined)
+            return ret;
+        if (this.outer !== undefined)
+            return this.outer.getBizField(names);
     }
     regUseBizOut(out, to) {
         let ret = this._regUseBizOut(out, to);

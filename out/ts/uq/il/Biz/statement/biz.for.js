@@ -7,10 +7,10 @@ const biz_select_1 = require("./biz.select");
 class BizFor extends biz_select_1.BizSelectStatement {
     constructor() {
         super(...arguments);
-        // readonly forCols: Var[] = [];
         this.vars = {};
         this.ids = new Map();
         this.values = new Map();
+        this.orderBys = [];
     }
     get type() { return 'foreach'; }
     db(db) {

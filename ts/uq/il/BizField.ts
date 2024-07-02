@@ -49,7 +49,7 @@ export class BizFieldBud extends BizFieldTableAlias {
     }
     override db(dbContext: DbContext): BBizField {
         let ret = this.createBBizFieldBud(dbContext);
-        ret.noArrayAgg = this.space.bBudNoArrayAgg;
+        ret.noArrayAgg = this.space?.bBudNoArrayAgg;
         return ret;
     }
     buildSchema() { return [this.bud.entity?.id, this.bud.id]; }
@@ -239,7 +239,7 @@ export abstract class BizFieldSpace {
     }
 
     protected bizFieldFromMulti(names: string[]): BizField {
-        return null;
+        return; // null;
     }
 
     protected abstract buildBizFieldFromDuo(n0: string, n1: string): BizField;
