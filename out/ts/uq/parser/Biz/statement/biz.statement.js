@@ -84,6 +84,7 @@ class PBizStatementPend extends PBizStatementSub {
             this.pend = this.ts.passVar();
             if (this.ts.token === tokens_1.Token.EQU) {
                 this.ts.readToken();
+                this.element.setEqu = il_1.SetEqu.equ;
                 this.element.val = this.context.parse(il_1.ValueExpression);
             }
             if (this.ts.isKeyword('set') === true) {
@@ -165,6 +166,10 @@ class PBizStatementPend extends PBizStatementSub {
                         if (bud === undefined) {
                             ok = false;
                             this.log(`There is no ${i.toUpperCase()} in Pend ${pend.jName}`);
+                        }
+                        else if (bud.name === 'value') {
+                            ok = false;
+                            this.log(`VALUE= is no allowed here`);
                         }
                         else {
                             let exp = this.sets[i];

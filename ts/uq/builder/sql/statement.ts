@@ -43,7 +43,9 @@ export abstract class If extends StatementBase {
     private _elseIfs: ElseIf[];
 
     protected abstract nop(sb: SqlBuilder, tab: number): void;
-    then(...stats: Statement[]) { this._then.add(...stats) }
+    then(...stats: Statement[]) {
+        this._then.add(...stats);
+    }
     else(...stat: Statement[]) {
         if (!stat) return;
         if (this._else === undefined) this._else = new Statements;

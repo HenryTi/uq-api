@@ -37,7 +37,9 @@ class If extends StatementBase {
         super(...arguments);
         this._then = new Statements();
     }
-    then(...stats) { this._then.add(...stats); }
+    then(...stats) {
+        this._then.add(...stats);
+    }
     else(...stat) {
         if (!stat)
             return;

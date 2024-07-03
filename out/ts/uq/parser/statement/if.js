@@ -24,8 +24,7 @@ class PIf extends statement_1.PStatement {
             this.ts.readToken();
         if (this.ts.varBrace === true)
             return;
-        let { lowerVar } = this.ts;
-        for (; lowerVar === 'elseif';) {
+        for (; this.ts.isKeyword('elseif') === true;) {
             let { elseIfs } = this._if;
             if (elseIfs === undefined) {
                 this._if.elseIfs = elseIfs = [];
@@ -40,9 +39,8 @@ class PIf extends statement_1.PStatement {
                 condition: condition,
                 statements: statements,
             });
-            lowerVar = this.ts.lowerVar;
         }
-        if (lowerVar === 'else') {
+        if (this.ts.isKeyword('else') === true) {
             this.ts.readToken();
             let elseif = this._if.else = this.context.createStatements(this._if);
             elseif.level = this._if.level;

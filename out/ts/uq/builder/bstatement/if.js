@@ -11,8 +11,9 @@ class BIfStatement extends bstatement_1.BStatement {
         if (elseIfs !== undefined) {
             elseIfs.forEach(elseIf => sqls.head(elseIf.statements.statements));
         }
-        if (ifElse)
+        if (ifElse !== undefined) {
             sqls.head(ifElse.statements);
+        }
     }
     foot(sqls) {
         let { then: ifThen, else: ifElse, elseIfs } = this.istatement;
@@ -20,8 +21,9 @@ class BIfStatement extends bstatement_1.BStatement {
         if (elseIfs !== undefined) {
             elseIfs.forEach(elseIf => sqls.foot(elseIf.statements.statements));
         }
-        if (ifElse)
+        if (ifElse !== undefined) {
             sqls.foot(ifElse.statements);
+        }
     }
     body(sqls) {
         let { factory } = this.context;
@@ -42,6 +44,7 @@ class BIfStatement extends bstatement_1.BStatement {
         if (ifElse !== undefined) {
             let elseSqls = new sqls_1.Sqls(sqls.context, _if.elseStatements);
             elseSqls.body(ifElse.statements);
+            _if.else(...elseSqls.statements);
         }
         sqls.push(_if);
     }

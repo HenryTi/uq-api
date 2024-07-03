@@ -103,6 +103,7 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
             this.pend = this.ts.passVar();
             if (this.ts.token === Token.EQU as any) {
                 this.ts.readToken();
+                this.element.setEqu = SetEqu.equ;
                 this.element.val = this.context.parse(ValueExpression);
             }
             if (this.ts.isKeyword('set') === true) {
@@ -181,6 +182,10 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
                         if (bud === undefined) {
                             ok = false;
                             this.log(`There is no ${i.toUpperCase()} in Pend ${pend.jName}`);
+                        }
+                        else if (bud.name === 'value') {
+                            ok = false;
+                            this.log(`VALUE= is no allowed here`);
                         }
                         else {
                             let exp = this.sets[i];

@@ -52,7 +52,7 @@ export abstract class BizStatementPend<T extends BizAct> extends BizStatementSub
     readonly sets: [BizBud, ValueExpression][] = [];
     pend: BizPend;
     setEqu: SetEqu;             // 仅用于 Pend -= val;
-    val: ValueExpression;       // 仅用于 Pend -= val;
+    val: ValueExpression;       // if val===undefined then _value
 }
 
 export class BizStatementBinPend extends BizStatementPend<BizBinAct> {
