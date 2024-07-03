@@ -1,5 +1,5 @@
 import { EnumAsc, Field, Int, intField, tinyIntField } from '../../../il';
-import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar, VarTable, SqlVarTable } from '../../sql';
+import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar, SqlVarTable } from '../../sql';
 import { VarTable as FromVarTable } from '../../sql/statementWithFrom';
 
 import { BizFor } from "../../../il";
@@ -68,15 +68,18 @@ export class BBizFor extends BBizSelect<BizFor> {
 
         let insertFor = factory.createInsert();
         sqls.push(insertFor);
+        const { cols: insertForCols } = insertFor;
         insertFor.table = new SqlVarTable(varTable.name);
         let select = factory.createSelect();
         insertFor.select = select;
 
         const collField: { [name: string]: ExpVal } = {};
+        insertForCols.push({ col: tblField.name, val: undefined });
+        select.column(new ExpVar(vtKey), tblField.name);
         for (let [n, idCol] of ids) {
             let expVal = new ExpField('id', idCol.fromEntity.alias);
             select.column(expVal, n);
-            insertFor.cols.push({ col: n, val: undefined });
+            insertForCols.push({ col: n, val: undefined });
             collField[n] = expVal;
         }
         for (let [n, val] of values) {
@@ -85,7 +88,7 @@ export class BBizFor extends BBizSelect<BizFor> {
                 expVal = new ExpFunc(factory.func_sum, expVal);
             }
             select.column(expVal, n);
-            insertFor.cols.push({ col: n, val: undefined });
+            insertForCols.push({ col: n, val: undefined });
             collField[n] = expVal;
         }
         let entityTable = this.buildEntityTable(fromEntity);

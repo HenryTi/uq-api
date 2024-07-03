@@ -1,4 +1,4 @@
-import { VarStatement, ValueExpression, createDataType, Var, VarPointer, Select, Entity, Pointer, Table, FromTable, OpEQ, CompareExpression, VarOperand, OpParenthese } from '../../il';
+import { VarStatement, ValueExpression, createDataType, Var, VarPointer, Select, Entity, Pointer, Table, FromTable, OpEQ, CompareExpression, VarOperand, OpParenthese, Dec, DataType } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { PContext } from '../pContext';
@@ -69,6 +69,12 @@ export class PVarStatement extends PStatement {
     scan(space: Space): boolean {
         let ok = true;
         let { vars, select } = this._var;
+        function setDecPricision(dataType: DataType) {
+            if (dataType.type !== 'dec') return;
+            let dec = dataType as Dec;
+            dec.precision = 18;
+            dec.scale = 6;
+        }
         if (select !== undefined) {
             vars.forEach(v => {
                 const { name, dataType } = v;
@@ -78,6 +84,7 @@ export class PVarStatement extends PStatement {
                         ok = false;
                     }
                 }
+                setDecPricision(dataType);
                 let p = space.varPointer(name, undefined);
                 if (p !== undefined) {
                     this.log('重复定义变量 ' + name);
@@ -89,7 +96,6 @@ export class PVarStatement extends PStatement {
                 space.setVarNo(no + 1);
                 let exp = v.exp;
                 if (exp === undefined) return;
-                // if (exp.pelement.scan(space) === false) ok = false;
             });
             let varSelectSpace = new VarSelectSpace(space, this._var);
             if (select.pelement.scan(varSelectSpace) === false) ok = false;
@@ -103,6 +109,7 @@ export class PVarStatement extends PStatement {
                         ok = false;
                     }
                 }
+                setDecPricision(dataType);
                 let p = space.varPointer(name, undefined);
                 if (p !== undefined) {
                     this.log('重复定义变量 ' + name);

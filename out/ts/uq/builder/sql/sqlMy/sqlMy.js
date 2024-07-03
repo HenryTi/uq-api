@@ -712,7 +712,7 @@ class ForTable extends stat.ForTable {
         // 不DROP TEMPORARY TABLE的原因：
         // 当存储过程反复调用的时候，会出现问题。
         // 最好的办法：如果在存储过程里面，不drop，如果在act或query里面，drop。
-        sb.tab(tab).append('CREATE TEMPORARY TABLE IF NOT EXISTS ').var(this.name).space().l();
+        sb.tab(tab).append('CREATE TEMPORARY TABLE IF NOT EXISTS ').dbName().dot().var(this.name).space().l();
         let first = true, autoId;
         for (let field of this.fields) {
             if (first === true)

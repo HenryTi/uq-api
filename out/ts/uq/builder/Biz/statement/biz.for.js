@@ -55,14 +55,17 @@ class BBizFor extends biz_select_1.BBizSelect {
         }
         let insertFor = factory.createInsert();
         sqls.push(insertFor);
+        const { cols: insertForCols } = insertFor;
         insertFor.table = new sql_1.SqlVarTable(varTable.name);
         let select = factory.createSelect();
         insertFor.select = select;
         const collField = {};
+        insertForCols.push({ col: tblField.name, val: undefined });
+        select.column(new sql_1.ExpVar(vtKey), tblField.name);
         for (let [n, idCol] of ids) {
             let expVal = new sql_1.ExpField('id', idCol.fromEntity.alias);
             select.column(expVal, n);
-            insertFor.cols.push({ col: n, val: undefined });
+            insertForCols.push({ col: n, val: undefined });
             collField[n] = expVal;
         }
         for (let [n, val] of values) {
@@ -71,7 +74,7 @@ class BBizFor extends biz_select_1.BBizSelect {
                 expVal = new sql_1.ExpFunc(factory.func_sum, expVal);
             }
             select.column(expVal, n);
-            insertFor.cols.push({ col: n, val: undefined });
+            insertForCols.push({ col: n, val: undefined });
             collField[n] = expVal;
         }
         let entityTable = this.buildEntityTable(fromEntity);

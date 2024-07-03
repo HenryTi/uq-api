@@ -195,10 +195,10 @@ exports.Of = Of;
 class Dec extends NumType {
     constructor(precision = 12, scale = 2) {
         super();
+        this.type = 'dec';
         this.precision = precision;
         this.scale = scale;
     }
-    get type() { return 'dec'; }
     get defaultValue() { return 0; }
     parser(context) { return new parser.PDec(this, context); }
     sql(dtb) { dtb.dec(this); }

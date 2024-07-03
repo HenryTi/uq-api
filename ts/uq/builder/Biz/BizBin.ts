@@ -26,7 +26,8 @@ const value = binValue;
 const amount = binAmount;
 const price = binPrice;
 const binId = '$bin';
-const origin = '$origin';
+const origin = 'origin';
+const $origin = '$' + origin;
 const a = 'a';
 const b = 'b';
 const c = 'c';
@@ -91,7 +92,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         declare.var(value, decValue);
         declare.var(amount, decValue);
         declare.var(price, decValue);
-        declare.var(origin, bigint);
+        declare.var($origin, bigint);
 
         let pDiv = div;
         for (; ; pDiv = pDiv.div) {
@@ -154,7 +155,7 @@ export class BBizBin extends BBizEntity<BizBin> {
             const selectDiv = factory.createSelect();
             statements.push(selectDiv);
             selectDiv.toVar = true;
-            selectDiv.column(new ExpField(origin, a), level === 1 ? origin : bin + (level - 1));
+            selectDiv.column(new ExpField(origin, a), level === 1 ? $origin : bin + (level - 1));
             const { buds } = pDiv;
             for (let bud of buds) {
                 let { name } = bud;

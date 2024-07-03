@@ -219,7 +219,7 @@ export class Dec extends NumType {
     constructor(precision: number = 12, scale: number = 2) {
         super(); this.precision = precision; this.scale = scale;
     }
-    get type(): string { return 'dec'; }
+    readonly type = 'dec';
     get defaultValue(): any { return 0; }
     precision: number;
     scale: number;

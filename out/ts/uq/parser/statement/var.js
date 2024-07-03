@@ -68,6 +68,13 @@ class PVarStatement extends statement_1.PStatement {
     scan(space) {
         let ok = true;
         let { vars, select } = this._var;
+        function setDecPricision(dataType) {
+            if (dataType.type !== 'dec')
+                return;
+            let dec = dataType;
+            dec.precision = 18;
+            dec.scale = 6;
+        }
         if (select !== undefined) {
             vars.forEach(v => {
                 const { name, dataType } = v;
@@ -77,6 +84,7 @@ class PVarStatement extends statement_1.PStatement {
                         ok = false;
                     }
                 }
+                setDecPricision(dataType);
                 let p = space.varPointer(name, undefined);
                 if (p !== undefined) {
                     this.log('重复定义变量 ' + name);
@@ -89,7 +97,6 @@ class PVarStatement extends statement_1.PStatement {
                 let exp = v.exp;
                 if (exp === undefined)
                     return;
-                // if (exp.pelement.scan(space) === false) ok = false;
             });
             let varSelectSpace = new VarSelectSpace(space, this._var);
             if (select.pelement.scan(varSelectSpace) === false)
@@ -104,6 +111,7 @@ class PVarStatement extends statement_1.PStatement {
                         ok = false;
                     }
                 }
+                setDecPricision(dataType);
                 let p = space.varPointer(name, undefined);
                 if (p !== undefined) {
                     this.log('重复定义变量 ' + name);
