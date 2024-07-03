@@ -29,7 +29,8 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
         select.column(new ExpField('bin', a), 'id');
         select.column(new ExpField('i', b), 'i');
         select.column(new ExpField('x', b), 'x');
-        select.column(new ExpField(binValue, b), binValue);
+        //select.column(new ExpField(binValue, b), binValue);
+        select.column(new ExpField('value', a), binValue);
         select.column(new ExpField(binPrice, b), binPrice);
         select.column(new ExpField(binAmount, b), binAmount);
         select.column(new ExpField('value', a), 'pendvalue');

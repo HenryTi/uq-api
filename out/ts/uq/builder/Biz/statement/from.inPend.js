@@ -28,7 +28,8 @@ class BFromInPendStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField('bin', a), 'id');
         select.column(new sql_1.ExpField('i', b), 'i');
         select.column(new sql_1.ExpField('x', b), 'x');
-        select.column(new sql_1.ExpField(consts_1.binValue, b), consts_1.binValue);
+        //select.column(new ExpField(binValue, b), binValue);
+        select.column(new sql_1.ExpField('value', a), consts_1.binValue);
         select.column(new sql_1.ExpField(consts_1.binPrice, b), consts_1.binPrice);
         select.column(new sql_1.ExpField(consts_1.binAmount, b), consts_1.binAmount);
         select.column(new sql_1.ExpField('value', a), 'pendvalue');
