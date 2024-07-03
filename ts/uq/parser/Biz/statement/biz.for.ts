@@ -15,6 +15,7 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
         this.ts.passKey('id');
         if (this.ts.isKeyword('group') === true) {
             this.element.isGroup = true;
+            this.ts.readToken();
         }
         this.ts.passToken(Token.LPARENTHESE);
         for (; ;) {
