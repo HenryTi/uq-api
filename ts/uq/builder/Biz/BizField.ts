@@ -175,7 +175,7 @@ export abstract class BBizFieldBinBudSelect<T extends BizFieldBinBudSelect> exte
             }
             sb.append(' JOIN ').dbName().dot().name(tbl)
                 .append(' AS t').append(th)
-                .append(` ON t${th}.i=t${t}.`).var('value').append(` AND t${th}.x=${bud.id}`);
+                .append(` ON t${th}.i=t${t}.`).fld('value').append(` AND t${th}.x=${bud.id}`);
         }
     }
 }
@@ -185,7 +185,7 @@ export class BBizFieldPendBudSelect extends BBizFieldBinBudSelect<BizFieldPendBu
         let { pend, bud } = this.bizField;
         let tbl = this.ixTableFromBud(bud);
         sb.l();
-        sb.append(`SELECT t0.`).var('value').append(` FROM `).dbName().dot().name(tbl)
+        sb.append(`SELECT t0.`).fld('value').append(` FROM `).dbName().dot().name(tbl)
             .append(' AS t0');
         sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
         sb.r();
@@ -197,7 +197,7 @@ export class BBizFieldPendBinBudSelect extends BBizFieldBinBudSelect<BizFieldPen
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).var('value').append(` FROM `).dbName().dot().name(EnumSysTable.ixBudInt)
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(EnumSysTable.ixBudInt)
             .append(' AS t0');
         this.buildBudArr(sb, budArr);
         sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
@@ -210,7 +210,7 @@ export class BBizFieldBinBinBudSelect extends BBizFieldBinBudSelect<BizFieldBinB
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).var('value').append(` FROM `).dbName().dot().name(EnumSysTable.ixBudInt)
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(EnumSysTable.ixBudInt)
             .append(' AS t0');
         this.buildBudArr(sb, budArr);
         sb.append(' WHERE t0.i=').var(bud.name).append(' AND t0.x=').append(bud.id);
@@ -228,7 +228,7 @@ export class BBizFieldPendBin extends BBizField {
 export class BBizFieldPendSheet extends BBizField {
     override to(sb: SqlBuilder): void {
         sb.l().append(`SELECT c.base FROM `).dbName().dot().name(EnumSysTable.pend)
-            .append(' AS a JOIN ').dbName().dot().name(EnumSysTable.bizBin)
+            .append(' AS a JOIN ').dbName().dot().name(EnumSysTable.bizDetail)
             .append(' AS b ON b.id=a.bin')
             .append(' JOIN ').dbName().dot().name(EnumSysTable.bud)
             .append(' AS c ON c.id=b.base')

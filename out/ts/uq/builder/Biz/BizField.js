@@ -155,7 +155,7 @@ class BBizFieldBinBudSelect extends BBizField {
             }
             sb.append(' JOIN ').dbName().dot().name(tbl)
                 .append(' AS t').append(th)
-                .append(` ON t${th}.i=t${t}.`).var('value').append(` AND t${th}.x=${bud.id}`);
+                .append(` ON t${th}.i=t${t}.`).fld('value').append(` AND t${th}.x=${bud.id}`);
         }
     }
 }
@@ -165,7 +165,7 @@ class BBizFieldPendBudSelect extends BBizFieldBinBudSelect {
         let { pend, bud } = this.bizField;
         let tbl = this.ixTableFromBud(bud);
         sb.l();
-        sb.append(`SELECT t0.`).var('value').append(` FROM `).dbName().dot().name(tbl)
+        sb.append(`SELECT t0.`).fld('value').append(` FROM `).dbName().dot().name(tbl)
             .append(' AS t0');
         sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
         sb.r();
@@ -177,7 +177,7 @@ class BBizFieldPendBinBudSelect extends BBizFieldBinBudSelect {
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).var('value').append(` FROM `).dbName().dot().name(il_1.EnumSysTable.ixBudInt)
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(il_1.EnumSysTable.ixBudInt)
             .append(' AS t0');
         this.buildBudArr(sb, budArr);
         sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
@@ -190,7 +190,7 @@ class BBizFieldBinBinBudSelect extends BBizFieldBinBudSelect {
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).var('value').append(` FROM `).dbName().dot().name(il_1.EnumSysTable.ixBudInt)
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(il_1.EnumSysTable.ixBudInt)
             .append(' AS t0');
         this.buildBudArr(sb, budArr);
         sb.append(' WHERE t0.i=').var(bud.name).append(' AND t0.x=').append(bud.id);
@@ -208,7 +208,7 @@ exports.BBizFieldPendBin = BBizFieldPendBin;
 class BBizFieldPendSheet extends BBizField {
     to(sb) {
         sb.l().append(`SELECT c.base FROM `).dbName().dot().name(il_1.EnumSysTable.pend)
-            .append(' AS a JOIN ').dbName().dot().name(il_1.EnumSysTable.bizBin)
+            .append(' AS a JOIN ').dbName().dot().name(il_1.EnumSysTable.bizDetail)
             .append(' AS b ON b.id=a.bin')
             .append(' JOIN ').dbName().dot().name(il_1.EnumSysTable.bud)
             .append(' AS c ON c.id=b.base')
