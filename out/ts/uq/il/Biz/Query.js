@@ -55,8 +55,13 @@ class BizQueryTable extends BizQuery {
         return index >= 0;
     }
     hasReturn(prop) {
-        let { cols } = this.from;
-        return (cols.findIndex(v => v.name === prop) >= 0);
+        let { cols, value } = this.from;
+        let ret = (cols.findIndex(v => v.name === prop) >= 0);
+        if (ret === true)
+            return ret;
+        if (prop === 'value' && value !== undefined)
+            return true;
+        return false;
     }
     db(dbContext) {
         return new BizQuery_1.BBizQuery(dbContext, this);
