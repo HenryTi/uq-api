@@ -37,15 +37,6 @@ class BBizStatementPend extends bstatement_1.BStatement {
         const a = 'a';
         let declare = factory.createDeclare();
         sqls.push(declare);
-        let { pend, no, val, setEqu, sets } = this.istatement;
-        let expValue = this.context.expVal(val);
-        if (pend === undefined) {
-            // const { pend } = this.istatement.bizStatement.bizDetailAct.bizDetail;
-            buildChangePendFrom();
-        }
-        else {
-            buildWritePend();
-        }
         function buildUpdatePoke() {
             let updatePoke = factory.createUpdate();
             updatePoke.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.userSite, false);
@@ -74,7 +65,7 @@ class BBizStatementPend extends bstatement_1.BStatement {
             cols.push({ col: 'value', val: expValue });
             sqls.push(...buildUpdatePoke());
         }
-        function buildWritePend() {
+        const buildWritePend = () => {
             let pendId = '$pendId_' + no;
             declare.var(pendId, new il_1.BigInt());
             if (val === undefined) {
@@ -82,10 +73,40 @@ class BBizStatementPend extends bstatement_1.BStatement {
             }
             let ifValue = factory.createIf();
             sqls.push(ifValue);
-            ifValue.cmp = new sql_1.ExpGT(expValue, sql_1.ExpNum.num0);
+            ifValue.cmp = new sql_1.ExpNE(expValue, sql_1.ExpNum.num0);
             let setPendId = factory.createSet();
-            ifValue.then(setPendId);
             setPendId.equ(pendId, new sql_1.ExpFuncInUq('pend$id', [varSite, varUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, new sql_1.ExpNum(pend.id)], true));
+            if (keys === undefined) {
+                ifValue.then(setPendId);
+            }
+            else {
+                let setPendIdNull = factory.createSet();
+                ifValue.then(setPendIdNull);
+                setPendIdNull.equ(pendId, sql_1.ExpNull.null);
+                let pendKeyTable = new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${pend.id}`);
+                let selectPendId = factory.createSelect();
+                ifValue.then(selectPendId);
+                selectPendId.toVar = true;
+                selectPendId.column(new sql_1.ExpField('id'), pendId);
+                selectPendId.from(pendKeyTable);
+                let wheres = [];
+                for (let [name, val] of this.istatement.keys) {
+                    wheres.push(new sql_1.ExpEQ(new sql_1.ExpField(name), this.context.expVal(val)));
+                }
+                selectPendId.where(new sql_1.ExpAnd(...wheres));
+                let ifKeyedId = factory.createIf();
+                ifValue.then(ifKeyedId);
+                ifKeyedId.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pendId));
+                ifKeyedId.then(setPendId);
+                let insertPendKey = factory.createInsert();
+                ifKeyedId.then(insertPendKey);
+                insertPendKey.table = pendKeyTable;
+                const { cols } = insertPendKey;
+                cols.push({ col: 'id', val: new sql_1.ExpVar(pendId) });
+                for (let [name, val] of this.istatement.keys) {
+                    cols.push({ col: name, val: this.context.expVal(val) });
+                }
+            }
             let update = factory.createUpdate();
             ifValue.then(update);
             let expMids = [];
@@ -97,11 +118,19 @@ class BBizStatementPend extends bstatement_1.BStatement {
             update.cols = [
                 { col: 'base', val: new sql_1.ExpNum(pend.id) },
                 { col: 'bin', val: new sql_1.ExpVar(binId) },
-                { col: 'value', val: expValue },
+                { col: 'value', val: expValue, setEqu },
                 { col: 'mid', val: new sql_1.ExpFunc('JSON_OBJECT', ...expMids) },
             ];
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));
             ifValue.then(...buildUpdatePoke());
+        };
+        let { pend, no, val, setEqu, sets, keys } = this.istatement;
+        let expValue = this.context.expVal(val);
+        if (pend === undefined) {
+            buildChangePendFrom();
+        }
+        else {
+            buildWritePend();
         }
     }
     foot(sqls) {

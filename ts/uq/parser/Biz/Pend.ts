@@ -10,6 +10,7 @@ import { PBizBudValue } from "./Bud";
 import { PBizQueryTable, PBizQueryTableStatements } from "./Query";
 
 export class PBizPend extends PBizEntity<BizPend> {
+    private keys: string[];
     private parsePredefined(name: string) {
         let caption = this.ts.mayPassString();
         this.element.predefinedFields.push(name);
@@ -28,16 +29,37 @@ export class PBizPend extends PBizEntity<BizPend> {
 
     private parseI = () => {
         if (this.element.i !== undefined) {
-            this.ts.error(`I can only be defined once in Biz Bin`);
+            this.ts.error(`I can only be defined once in Biz Pend`);
         }
         this.element.i = this.parseBudAtom('i');
     }
 
     private parseX = () => {
         if (this.element.x !== undefined) {
-            this.ts.error(`X can only be defined once in Biz Bin`);
+            this.ts.error(`X can only be defined once in Biz Pend`);
         }
         this.element.x = this.parseBudAtom('x');
+    }
+
+    private parseKeys = () => {
+        this.keys = [];
+        this.ts.passToken(Token.LPARENTHESE);
+        for (; ;) {
+            this.keys.push(this.ts.passVar());
+            if (this.ts.token === Token.COMMA as any) {
+                this.ts.readToken();
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                continue;
+            }
+            if (this.ts.token === Token.RPARENTHESE as any) {
+                this.ts.readToken();
+                break;
+            }
+        }
+        this.ts.passToken(Token.SEMICOLON);
     }
 
     readonly keyColl: { [key: string]: () => void } = (() => {
@@ -46,6 +68,7 @@ export class PBizPend extends PBizEntity<BizPend> {
             query: this.parseQuery,
             i: this.parseI,
             x: this.parseX,
+            key: this.parseKeys,
         };
         const setRet = (n: string) => {
             ret[n] = () => this.parsePredefined(n);
@@ -96,6 +119,26 @@ export class PBizPend extends PBizEntity<BizPend> {
                 ok = false;
             }
         }
+
+        if (this.keys !== undefined) {
+            this.element.keys = [];
+            const { keys } = this.element;
+            for (let key of this.keys) {
+                let bud = this.element.getDefinedBud(key);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${key} is not defined in PEND`);
+                }
+                else {
+                    keys.push(bud);
+                }
+            }
+            if (keys.length < 2) {
+                ok = false;
+                this.log(`PEND key items count must be at least 2`);
+            }
+        }
+
         if (pendQuery !== undefined) {
             if (pendQuery.pelement.scan(space) === false) {
                 ok = false;

@@ -23,6 +23,7 @@ export class BizPend extends BizEntity {
     readonly bizBins: BizBin[] = [];
     i: BizBudID;
     x: BizBudID;
+    keys: BizBud[];
 
     constructor(biz: Biz) {
         super(biz);
@@ -80,13 +81,18 @@ export class BizPend extends BizEntity {
     }
 
     override getBud(name: string): BizBud {
-        let bud = super.getBud(name);
+        let bud = this.getDefinedBud(name);
         if (bud === undefined) {
             bud = this.predefinedBuds[name];
-            if (bud === undefined) {
-                if (name === 'i') return this.i;
-                if (name === 'x') return this.x;
-            }
+        }
+        return bud;
+    }
+
+    getDefinedBud(name: string): BizBud {
+        let bud = super.getBud(name);
+        if (bud === undefined) {
+            if (name === 'i') return this.i;
+            if (name === 'x') return this.x;
         }
         return bud;
     }

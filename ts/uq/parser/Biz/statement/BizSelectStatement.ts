@@ -206,6 +206,7 @@ class FromEntityScaner {
         else ret = sameTypeEntityArr(tbls);
         const { entityArr, logs, ok: retOk, bizEntityTable, bizPhraseType } = ret;
         if (entityArr.length === 0) {
+            this.log(...logs);
             return;
         }
         fromEntity.bizEntityArr = entityArr;

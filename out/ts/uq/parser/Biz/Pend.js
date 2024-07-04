@@ -16,15 +16,35 @@ class PBizPend extends Base_1.PBizEntity {
         };
         this.parseI = () => {
             if (this.element.i !== undefined) {
-                this.ts.error(`I can only be defined once in Biz Bin`);
+                this.ts.error(`I can only be defined once in Biz Pend`);
             }
             this.element.i = this.parseBudAtom('i');
         };
         this.parseX = () => {
             if (this.element.x !== undefined) {
-                this.ts.error(`X can only be defined once in Biz Bin`);
+                this.ts.error(`X can only be defined once in Biz Pend`);
             }
             this.element.x = this.parseBudAtom('x');
+        };
+        this.parseKeys = () => {
+            this.keys = [];
+            this.ts.passToken(tokens_1.Token.LPARENTHESE);
+            for (;;) {
+                this.keys.push(this.ts.passVar());
+                if (this.ts.token === tokens_1.Token.COMMA) {
+                    this.ts.readToken();
+                    if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                        this.ts.readToken();
+                        break;
+                    }
+                    continue;
+                }
+                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                    this.ts.readToken();
+                    break;
+                }
+            }
+            this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
         this.keyColl = (() => {
             let ret = {
@@ -32,6 +52,7 @@ class PBizPend extends Base_1.PBizEntity {
                 query: this.parseQuery,
                 i: this.parseI,
                 x: this.parseX,
+                key: this.parseKeys,
             };
             const setRet = (n) => {
                 ret[n] = () => this.parsePredefined(n);
@@ -87,6 +108,24 @@ class PBizPend extends Base_1.PBizEntity {
             if (predefines.includes(bud.name) === true) {
                 this.log(`Pend Prop name can not be one of these: ${predefines.join(', ')}`);
                 ok = false;
+            }
+        }
+        if (this.keys !== undefined) {
+            this.element.keys = [];
+            const { keys } = this.element;
+            for (let key of this.keys) {
+                let bud = this.element.getDefinedBud(key);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${key} is not defined in PEND`);
+                }
+                else {
+                    keys.push(bud);
+                }
+            }
+            if (keys.length < 2) {
+                ok = false;
+                this.log(`PEND key items count must be at least 2`);
             }
         }
         if (pendQuery !== undefined) {

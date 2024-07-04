@@ -40,6 +40,8 @@ exports.functions = {
     date_format: 2,
     timediff: 2,
     abs: 1,
+    floor: 1,
+    ceil: 1,
 };
 exports.uqFunctions = {
     // tonwa internal function

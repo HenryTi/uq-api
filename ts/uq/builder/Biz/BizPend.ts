@@ -1,5 +1,5 @@
 import {
-    BigInt, bigIntField, Char, jsonField
+    BigInt, bigIntField, Char, Index, jsonField
 } from "../../il";
 import { BizPend } from "../../il/Biz/Pend";
 import { Sqls } from "../bstatement";
@@ -8,6 +8,19 @@ import { ExpFunc, ExpNum, ExpStr, ExpVar, Procedure } from "../sql";
 import { BBizEntity } from "./BizEntity";
 
 export class BBizPend extends BBizEntity<BizPend> {
+    override async buildTables(): Promise<void> {
+        const { id, keys } = this.bizEntity;
+        if (keys === undefined) return;
+        let table = this.createTable(`${this.context.site}.${id}`);
+        let keyFields = keys.map(v => v.createField());
+        let idField = bigIntField('id');
+        table.keys = [idField];
+        table.fields = [idField, ...keyFields];
+        let keyIndex = new Index('$key', true);
+        keyIndex.fields.push(...keyFields);
+        table.indexes.push(keyIndex);
+    }
+
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
         const { id } = this.bizEntity;

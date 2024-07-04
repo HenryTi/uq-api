@@ -68,15 +68,19 @@ class BizPend extends Entity_1.BizEntity {
         return ret;
     }
     getBud(name) {
-        let bud = super.getBud(name);
+        let bud = this.getDefinedBud(name);
         if (bud === undefined) {
             bud = this.predefinedBuds[name];
-            if (bud === undefined) {
-                if (name === 'i')
-                    return this.i;
-                if (name === 'x')
-                    return this.x;
-            }
+        }
+        return bud;
+    }
+    getDefinedBud(name) {
+        let bud = super.getBud(name);
+        if (bud === undefined) {
+            if (name === 'i')
+                return this.i;
+            if (name === 'x')
+                return this.x;
         }
         return bud;
     }

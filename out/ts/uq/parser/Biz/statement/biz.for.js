@@ -101,6 +101,8 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
     }
     scan(space) {
         let ok = super.scan(space);
+        if (ok === false)
+            return ok;
         const { ids, values, statements, vars, orderBys } = this.element;
         let theSpace = new BizForSpace(space, this.element);
         for (let [n, [v, asc]] of this.ids) {

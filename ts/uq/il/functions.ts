@@ -38,6 +38,8 @@ export const functions: { [name: string]: number | [number, number] } = {
     timediff: 2,
 
     abs: 1,
+    floor: 1,
+    ceil: 1,
 }
 
 export const uqFunctions: { [name: string]: number | [number, number] } = {

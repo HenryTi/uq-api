@@ -16,6 +16,21 @@ const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const BizEntity_1 = require("./BizEntity");
 class BBizPend extends BizEntity_1.BBizEntity {
+    buildTables() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { id, keys } = this.bizEntity;
+            if (keys === undefined)
+                return;
+            let table = this.createTable(`${this.context.site}.${id}`);
+            let keyFields = keys.map(v => v.createField());
+            let idField = (0, il_1.bigIntField)('id');
+            table.keys = [idField];
+            table.fields = [idField, ...keyFields];
+            let keyIndex = new il_1.Index('$key', true);
+            keyIndex.fields.push(...keyFields);
+            table.indexes.push(keyIndex);
+        });
+    }
     buildProcedures() {
         const _super = Object.create(null, {
             buildProcedures: { get: () => super.buildProcedures }

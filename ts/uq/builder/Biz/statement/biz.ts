@@ -11,7 +11,7 @@ import {
     ColVal, ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
     , ExpGT, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, Statements, VarTable
 } from "../../sql";
-import { EntityTable } from "../../sql/statementWithFrom";
+import { EntityTable, GlobalTable } from "../../sql/statementWithFrom";
 import { buildSetAtomBud, buildSetSheetBud } from "../../tools";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
@@ -45,15 +45,6 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
         const a = 'a';
         let declare = factory.createDeclare();
         sqls.push(declare);
-        let { pend, no, val, setEqu, sets } = this.istatement;
-        let expValue = this.context.expVal(val);
-        if (pend === undefined) {
-            // const { pend } = this.istatement.bizStatement.bizDetailAct.bizDetail;
-            buildChangePendFrom();
-        }
-        else {
-            buildWritePend();
-        }
 
         function buildUpdatePoke(): Statement[] {
             let updatePoke = factory.createUpdate();
@@ -85,7 +76,7 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             sqls.push(...buildUpdatePoke());
         }
 
-        function buildWritePend() {
+        const buildWritePend = () => {
             let pendId = '$pendId_' + no;
             declare.var(pendId, new BigInt());
 
@@ -94,10 +85,9 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             }
             let ifValue = factory.createIf();
             sqls.push(ifValue);
-            ifValue.cmp = new ExpGT(expValue, ExpNum.num0);
+            ifValue.cmp = new ExpNE(expValue, ExpNum.num0);
 
             let setPendId = factory.createSet();
-            ifValue.then(setPendId);
             setPendId.equ(pendId,
                 new ExpFuncInUq(
                     'pend$id',
@@ -105,6 +95,40 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                     true
                 )
             );
+
+            if (keys === undefined) {
+                ifValue.then(setPendId);
+            }
+            else {
+                let setPendIdNull = factory.createSet();
+                ifValue.then(setPendIdNull);
+                setPendIdNull.equ(pendId, ExpNull.null);
+
+                let pendKeyTable = new GlobalTable($site, `${this.context.site}.${pend.id}`);
+                let selectPendId = factory.createSelect();
+                ifValue.then(selectPendId);
+                selectPendId.toVar = true;
+                selectPendId.column(new ExpField('id'), pendId);
+                selectPendId.from(pendKeyTable);
+                let wheres: ExpCmp[] = [];
+                for (let [name, val] of this.istatement.keys) {
+                    wheres.push(new ExpEQ(new ExpField(name), this.context.expVal(val)));
+                }
+                selectPendId.where(new ExpAnd(...wheres));
+
+                let ifKeyedId = factory.createIf();
+                ifValue.then(ifKeyedId);
+                ifKeyedId.cmp = new ExpIsNull(new ExpVar(pendId));
+                ifKeyedId.then(setPendId);
+                let insertPendKey = factory.createInsert();
+                ifKeyedId.then(insertPendKey);
+                insertPendKey.table = pendKeyTable;
+                const { cols } = insertPendKey;
+                cols.push({ col: 'id', val: new ExpVar(pendId) });
+                for (let [name, val] of this.istatement.keys) {
+                    cols.push({ col: name, val: this.context.expVal(val) });
+                }
+            }
 
             let update = factory.createUpdate();
             ifValue.then(update);
@@ -121,7 +145,7 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             update.cols = [
                 { col: 'base', val: new ExpNum(pend.id) },
                 { col: 'bin', val: new ExpVar(binId) },
-                { col: 'value', val: expValue },
+                { col: 'value', val: expValue, setEqu },
                 { col: 'mid', val: new ExpFunc('JSON_OBJECT', ...expMids) },
             ];
             update.where = new ExpEQ(
@@ -129,6 +153,15 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             );
 
             ifValue.then(...buildUpdatePoke());
+        }
+
+        let { pend, no, val, setEqu, sets, keys } = this.istatement;
+        let expValue = this.context.expVal(val);
+        if (pend === undefined) {
+            buildChangePendFrom();
+        }
+        else {
+            buildWritePend();
         }
     }
 
