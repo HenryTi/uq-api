@@ -391,13 +391,21 @@ class BizBudBin extends BizBudValue {
         var _a;
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
-        ret.showBuds = (_a = this.showBuds) === null || _a === void 0 ? void 0 : _a.map(v => v.id);
+        ret.showBuds = (_a = this.showBuds) === null || _a === void 0 ? void 0 : _a.map(v => {
+            if (Array.isArray(v) === true)
+                return v.map(vi => vi === null || vi === void 0 ? void 0 : vi.id);
+            return v.id;
+        });
         return ret;
     }
     getFieldShows() {
         if (this.showBuds === undefined)
             return;
-        return [this.showBuds.map(v => ([this, v]))];
+        return [this.showBuds.map(v => {
+                if (Array.isArray(v) === true)
+                    return ([this, ...v]);
+                return ([this, v]);
+            })];
     }
 }
 exports.BizBudBin = BizBudBin;

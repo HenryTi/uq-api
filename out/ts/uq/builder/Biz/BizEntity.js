@@ -180,7 +180,6 @@ class BBizEntity {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxBud, false, t))
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField(lastField, lastT)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(bizBud.id))));
             select.column(new sql_1.ExpNum(bizBud.id), 'phrase');
-            //select.column(new ExpFunc('JSON_ARRAY', new ExpField('value', t)));
             select.column(colValue);
         }
         function selectCheck() {

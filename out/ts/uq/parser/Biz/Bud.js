@@ -69,7 +69,6 @@ class PBizBudValue extends PBizBud {
                     break;
             }
         }
-        //show.push(FieldShowItem.createEntityFieldShow(entity, bizBud0));
         show.push(bizBud0);
         let p = bizBud0;
         for (let i = 1; i < len; i++) {
@@ -97,7 +96,6 @@ class PBizBudValue extends PBizBud {
                                 this.log(`${atom.getJName()} has not ${prop}`);
                                 return undefined;
                             }
-                            //show.push(FieldShowItem.createAtomFieldShow(atom as BizAtom, bizBud));
                             show.push(bizBud);
                             break;
                         case BizPhraseType_1.BizPhraseType.fork:
@@ -467,7 +465,15 @@ class PBizBudBin extends PBizBudValue {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             for (;;) {
-                this.showBuds.push(this.ts.passVar());
+                let showBud;
+                if (this.ts.token === tokens_1.Token.XOR) {
+                    let bud = this.ts.passVar();
+                    showBud = [bud, undefined];
+                }
+                else {
+                    showBud = this.ts.passVar();
+                }
+                this.showBuds.push(showBud);
                 if (this.ts.token === tokens_1.Token.COMMA) {
                     this.ts.readToken();
                     continue;
@@ -494,13 +500,33 @@ class PBizBudBin extends PBizBudValue {
                 this.element.showBuds = [];
                 const { showBuds } = this.element;
                 for (let showBudName of this.showBuds) {
-                    let bud = bizBin.getBud(showBudName);
-                    if (bud === undefined) {
-                        ok = false;
-                        this.log(`${bin.getJName()} does not has bud ${showBudName}`);
+                    if (Array.isArray(showBudName) === true) {
+                        let arr = [];
+                        showBudName.map(v => {
+                            if (v === undefined) {
+                                arr.push(undefined);
+                                return;
+                            }
+                            let bud = bizBin.getBud(v);
+                            if (bud === undefined) {
+                                ok = false;
+                                this.log(`${bin.getJName()} does not has bud ${showBudName}`);
+                            }
+                            else {
+                                arr.push(bud);
+                            }
+                        });
+                        showBuds.push(arr);
                     }
                     else {
-                        showBuds.push(bud);
+                        let bud = bizBin.getBud(showBudName);
+                        if (bud === undefined) {
+                            ok = false;
+                            this.log(`${bin.getJName()} does not has bud ${showBudName}`);
+                        }
+                        else {
+                            showBuds.push(bud);
+                        }
                     }
                 }
             }

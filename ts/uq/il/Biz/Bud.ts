@@ -24,7 +24,7 @@ export enum BudValueSetType {
     show = 3,           // 只显示，不保存
 }
 
-export type FieldShowItem = BizBud;
+export type FieldShowItem = BizBud; // | (BizBud[]);
 
 export type FieldShow = FieldShowItem[];
 
@@ -372,19 +372,25 @@ export class BizBudBin extends BizBudValue {
     readonly dataType = BudDataType.bin;
     readonly canIndex = false;
     bin: BizBin;
-    showBuds: BizBud[];
+    showBuds: (BizBud | (BizBud[]))[];
     parser(context: PContext): PElement<IElement> {
         return new PBizBudBin(this, context);
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
-        ret.showBuds = this.showBuds?.map(v => v.id);
+        ret.showBuds = this.showBuds?.map(v => {
+            if (Array.isArray(v) === true) return v.map(vi => vi?.id);
+            return v.id;
+        });
         return ret;
     }
     getFieldShows(): FieldShow[][] {
         if (this.showBuds === undefined) return;
-        return [this.showBuds.map(v => ([this, v]))];
+        return [this.showBuds.map(v => {
+            if (Array.isArray(v) === true) return ([this, ...v]);
+            return ([this, v]);
+        })];
     }
 }
 

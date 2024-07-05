@@ -186,7 +186,6 @@ export class BBizEntity<B extends BizEntity = any> {
                     new ExpEQ(new ExpField('x', t), new ExpNum(bizBud.id)),
                 ));
             select.column(new ExpNum(bizBud.id), 'phrase');
-            //select.column(new ExpFunc('JSON_ARRAY', new ExpField('value', t)));
             select.column(colValue);
         }
         function selectCheck() {
