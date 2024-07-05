@@ -10,6 +10,14 @@ class BBizFor extends biz_select_1.BBizSelect {
     body(sqls) {
         this.buildForSelect(sqls);
     }
+    head(sqls) {
+        const { statements } = this.istatement;
+        sqls.head(statements.statements);
+    }
+    foot(sqls) {
+        const { statements } = this.istatement;
+        sqls.foot(statements.statements);
+    }
     buildForSelect(sqls) {
         const { ids, values, vars, statements, fromEntity, where, isGroup, orderBys } = this.istatement;
         this.createDeclareVars(sqls);

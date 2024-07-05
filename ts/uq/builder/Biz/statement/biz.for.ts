@@ -7,8 +7,18 @@ import { Sqls } from "../../bstatement";
 import { BBizSelect } from './biz.select';
 
 export class BBizFor extends BBizSelect<BizFor> {
-    body(sqls: Sqls): void {
+    override body(sqls: Sqls): void {
         this.buildForSelect(sqls);
+    }
+
+    override head(sqls: Sqls) {
+        const { statements } = this.istatement;
+        sqls.head(statements.statements);
+    }
+
+    override foot(sqls: Sqls) {
+        const { statements } = this.istatement;
+        sqls.foot(statements.statements);
     }
 
     private buildForSelect(sqls: Sqls) {
