@@ -490,14 +490,18 @@ class PBizBudBin extends PBizBudValue {
         }
         else {
             let bizBin = this.element.bin = bin;
-            for (let showBudName of this.showBuds) {
-                let bud = bizBin.getBud(showBudName);
-                if (bud === undefined) {
-                    ok = false;
-                    this.log(`${bin.getJName()} does not has bud ${showBudName}`);
-                }
-                else {
-                    this.element.showBuds.push(bud);
+            if (this.showBuds.length > 0) {
+                this.element.showBuds = [];
+                const { showBuds } = this.element;
+                for (let showBudName of this.showBuds) {
+                    let bud = bizBin.getBud(showBudName);
+                    if (bud === undefined) {
+                        ok = false;
+                        this.log(`${bin.getJName()} does not has bud ${showBudName}`);
+                    }
+                    else {
+                        showBuds.push(bud);
+                    }
                 }
             }
         }

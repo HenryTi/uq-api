@@ -37,6 +37,14 @@ class BBizSelect extends bstatement_1.BStatement {
             }
         }
         if (subs !== undefined) {
+            {
+                const { bizPhraseType } = fromEntity;
+                if (bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
+                    let budAlias = alias + '$bud';
+                    select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
+                        .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', budAlias), new sql_1.ExpNum(bizEntityArr[0].id))));
+                }
+            }
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { alias: subAlias, bizPhraseType } = subFromEntity;

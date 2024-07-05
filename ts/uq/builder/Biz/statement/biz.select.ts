@@ -43,6 +43,18 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
             }
         }
         if (subs !== undefined) {
+            {
+                const { bizPhraseType } = fromEntity;
+                if (bizPhraseType === BizPhraseType.fork) {
+                    let budAlias = alias + '$bud';
+                    select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
+                        .on(new ExpAnd(
+                            new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
+                            new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntityArr[0].id)),
+                        ));
+                }
+            }
+
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { alias: subAlias, bizPhraseType } = subFromEntity;

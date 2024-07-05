@@ -383,15 +383,21 @@ class BizBudBin extends BizBudValue {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.bin;
         this.canIndex = false;
-        this.showBuds = [];
     }
     parser(context) {
         return new parser_1.PBizBudBin(this, context);
     }
     buildSchema(res) {
+        var _a;
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
+        ret.showBuds = (_a = this.showBuds) === null || _a === void 0 ? void 0 : _a.map(v => v.id);
         return ret;
+    }
+    getFieldShows() {
+        if (this.showBuds === undefined)
+            return;
+        return [this.showBuds.map(v => ([this, v]))];
     }
 }
 exports.BizBudBin = BizBudBin;

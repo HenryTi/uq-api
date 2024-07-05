@@ -372,14 +372,19 @@ export class BizBudBin extends BizBudValue {
     readonly dataType = BudDataType.bin;
     readonly canIndex = false;
     bin: BizBin;
-    readonly showBuds: BizBud[] = [];
+    showBuds: BizBud[];
     parser(context: PContext): PElement<IElement> {
         return new PBizBudBin(this, context);
     }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
+        ret.showBuds = this.showBuds?.map(v => v.id);
         return ret;
+    }
+    getFieldShows(): FieldShow[][] {
+        if (this.showBuds === undefined) return;
+        return [this.showBuds.map(v => ([this, v]))];
     }
 }
 
@@ -392,7 +397,6 @@ export abstract class BizBudOptions extends BizBudValue {
     }
     get objName(): string { return this.options?.phrase; }
 }
-
 
 export class BizBudRadio extends BizBudOptions {
     readonly dataType = BudDataType.radio;
