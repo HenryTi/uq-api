@@ -9,6 +9,19 @@ import { BStatement } from "../../bstatement";
 
 export abstract class BBizSelect<T extends BizSelectStatement> extends BStatement<T> {
     protected buildSelectFrom(select: Select, fromEntity: FromEntity) {
+        const { bizPhraseType, alias, bizEntityArr } = fromEntity;
+        if (bizPhraseType === BizPhraseType.fork) {
+            let budAlias = alias + '$bud';
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
+                .on(new ExpAnd(
+                    new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
+                    new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntityArr[0].id)),
+                ));
+        }
+        this.buildSelectFromInternal(select, fromEntity);
+    }
+
+    private buildSelectFromInternal(select: Select, fromEntity: FromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new ExpField('id', alias);
         if (ofIXs !== undefined) {
@@ -43,18 +56,6 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
             }
         }
         if (subs !== undefined) {
-            {
-                const { bizPhraseType } = fromEntity;
-                if (bizPhraseType === BizPhraseType.fork) {
-                    let budAlias = alias + '$bud';
-                    select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
-                        .on(new ExpAnd(
-                            new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
-                            new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntityArr[0].id)),
-                        ));
-                }
-            }
-
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { alias: subAlias, bizPhraseType } = subFromEntity;
@@ -83,7 +84,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                             ));
                         break;
                 }
-                this.buildSelectFrom(select, subFromEntity);
+                this.buildSelectFromInternal(select, subFromEntity);
             }
         }
     }

@@ -8,6 +8,15 @@ const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const bstatement_1 = require("../../bstatement");
 class BBizSelect extends bstatement_1.BStatement {
     buildSelectFrom(select, fromEntity) {
+        const { bizPhraseType, alias, bizEntityArr } = fromEntity;
+        if (bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
+            let budAlias = alias + '$bud';
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
+                .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', budAlias), new sql_1.ExpNum(bizEntityArr[0].id))));
+        }
+        this.buildSelectFromInternal(select, fromEntity);
+    }
+    buildSelectFromInternal(select, fromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new sql_1.ExpField('id', alias);
         if (ofIXs !== undefined) {
@@ -37,14 +46,6 @@ class BBizSelect extends bstatement_1.BStatement {
             }
         }
         if (subs !== undefined) {
-            {
-                const { bizPhraseType } = fromEntity;
-                if (bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
-                    let budAlias = alias + '$bud';
-                    select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
-                        .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', budAlias), new sql_1.ExpNum(bizEntityArr[0].id))));
-                }
-            }
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { alias: subAlias, bizPhraseType } = subFromEntity;
@@ -67,7 +68,7 @@ class BBizSelect extends bstatement_1.BStatement {
                             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', subBudAlias), new sql_1.ExpField('base', subAlias)), new sql_1.ExpEQ(new sql_1.ExpField('ext', subBudAlias), new sql_1.ExpNum(id))));
                         break;
                 }
-                this.buildSelectFrom(select, subFromEntity);
+                this.buildSelectFromInternal(select, subFromEntity);
             }
         }
     }

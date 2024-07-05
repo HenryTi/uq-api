@@ -242,21 +242,11 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
         else {
             this.element.showIds = ret;
         }
-        /*
-        if (this.element.groupByBase === true) {
-            const { fromEntity } = idcLast;
-            if (idcLast.fromEntity.bizPhraseType !== BizPhraseType.fork) {
-                this.log(`FROM ${fromEntity.alias} must be SPEC`);
-                ok = false;
-            }
-        }
-        */
         return ok;
     }
     scanCols(space) {
         let ok = true;
         const { cols } = this.element;
-        // let bizFieldSpace = space.getBizFieldSpace();
         for (let col of cols) {
             const { name, ui, val } = col;
             if (val.pelement.scan(space) === false) {
