@@ -5,7 +5,6 @@ export * from './entity';
 export * from './element';
 export * from './field';
 export * from './select';
-export * from './BizExp';
 export { PContext, PSysContext } from './pContext';
 export { PUq } from './uq';
 export { Token, TokenStream } from './tokens';

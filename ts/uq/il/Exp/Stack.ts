@@ -2,7 +2,7 @@ import { BizBase, BizBud, BizEntity, BizFromEntity, BizOptions, OptionsItem } fr
 import { DataType } from "../datatype";
 import { Entity, ID, Queue } from "../entity";
 import { Select } from "../select";
-import { BizCheckBudOperand, BizExp, BizFieldOperand } from "./Biz";
+import { BizCheckBudOperand, BizExp, BizFieldOperand } from "../Biz/Biz.Exp";
 import { ValueExpression } from "./Expression";
 import { IDNewType, OpQueueAction, VarOperand } from "./Op";
 

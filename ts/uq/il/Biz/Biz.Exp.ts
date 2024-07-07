@@ -1,13 +1,16 @@
-import { PBizCheckBudOperand, PBizExp, PBizExpOperand, PBizExpParam, PBizFieldOperand, PContext, PElement } from "../../parser";
-import {
-    BizBud, BizEntity, BizOptions, BizTie, OptionsItem
-} from "../Biz";
+import { PBizFieldOperand, PContext, PElement } from "../../parser";
 import { BizField } from "../BizField";
 import { IElement } from "../IElement";
 import { SpanPeriod } from "../tool";
-import { ValueExpression } from "./Expression";
-import { Atom } from "./Op";
-import { Stack } from "./Stack";
+import { ValueExpression } from "../Exp/Expression";
+import { Atom } from "../Exp/Op";
+import { Stack } from "../Exp/Stack";
+import { BizTie } from "./Tie";
+import { BizEntity } from "./Entity";
+import { BizBud } from "./Bud";
+import { BizOptions, OptionsItem } from "./Options";
+import { PBizCheckBudOperand, PBizExp, PBizExpOperand, PBizExpParam } from "../../parser/Biz/Biz.Exp";
+import { BizCombo } from "./BizID";
 
 export interface BizExpIn {
     varTimeSpan: string;
@@ -28,7 +31,6 @@ export enum BizExpParamType {
 export class BizExpParam extends IElement {
     type = 'BizExpParam';
     readonly params: ValueExpression[] = [];
-    // param2: ValueExpression;
     paramType: BizExpParamType;
     ixs: BizTie[];
 
@@ -37,7 +39,8 @@ export class BizExpParam extends IElement {
     }
 }
 
-// (#Entity.Bud(id).^|Prop IN timeSpan +- delta)
+// 1. (#Entity.Bud(id).^|Prop IN timeSpan +- delta)     -- sigle value
+// 2. (#Book.Bud#ID(*,*,1))                             -- group by Sum
 export class BizExp extends IElement {
     bizEntity: BizEntity;
     budEntitySub: BizBud;
@@ -48,6 +51,11 @@ export class BizExp extends IElement {
     type = 'BizExp';
     isReadonly: boolean = false;
     isParent: boolean;
+
+    // only used in 2 group by sum
+    combo: BizCombo;
+    comboParams: ValueExpression[];
+
     parser(context: PContext): PElement<IElement> {
         return new PBizExp(this, context);
     }

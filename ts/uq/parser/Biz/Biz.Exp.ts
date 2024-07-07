@@ -1,4 +1,4 @@
-import { binFieldArr } from "../consts";
+import { binFieldArr } from "../../consts";
 import {
     ValueExpression, BizExp, BizAtom
     , BizFork, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
@@ -8,11 +8,11 @@ import {
     BizFieldOperand,
     BizBud,
     BizCombo,
-} from "../il";
-import { BizPhraseType, BudDataType } from "../il/Biz/BizPhraseType";
-import { PElement } from "./element";
-import { Space } from "./space";
-import { Token } from "./tokens";
+} from "../../il";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
+import { PElement } from "../element";
+import { Space } from "../space";
+import { Token } from "../tokens";
 
 export class PBizExpOperand extends PElement<BizExpOperand> {
     protected _parse(): void {
@@ -35,11 +35,41 @@ export class PBizExpOperand extends PElement<BizExpOperand> {
 export class PBizExp extends PElement<BizExp> {
     private bizEntity: string;
     private bud: string;
+    private combo: string;
     protected _parse(): void {
         this.bizEntity = this.ts.passVar();
         if (this.ts.token === Token.DOT) {
             this.ts.readToken();
             this.bud = this.ts.passVar();
+            if (this.ts.token === Token.SHARP as any) {
+                this.ts.readToken();
+                this.combo = this.ts.passVar();
+                this.ts.passToken(Token.LPARENTHESE);
+                this.element.comboParams = [];
+                let { comboParams } = this.element;
+                for (; ;) {
+                    if (this.ts.token === Token.MUL as any) {
+                        comboParams.push(undefined);
+                        this.ts.readToken();
+                    }
+                    else {
+                        let val = new ValueExpression();
+                        this.context.parseElement(val);
+                        comboParams.push(val);
+                    }
+                    if (this.ts.token === Token.COMMA as any) {
+                        this.ts.readToken();
+                        if (this.ts.token !== Token.RPARENTHESE as any) continue;
+                        this.ts.readToken();
+                        break;
+                    }
+                    if (this.ts.token === Token.RPARENTHESE as any) {
+                        this.ts.readToken();
+                        break;
+                    }
+                }
+                return;
+            }
         }
         this.ts.passToken(Token.LPARENTHESE);
         this.element.param = new BizExpParam(); // new ValueExpression();
@@ -84,8 +114,10 @@ export class PBizExp extends PElement<BizExp> {
         this.element.bizEntity = be;
         this.element.isReadonly = space.isReadonly;
         const { bizEntity, in: varIn, param } = this.element;
-        if (param.pelement.scan(space) === false) {
-            ok = false;
+        if (param !== undefined) {
+            if (param.pelement.scan(space) === false) {
+                ok = false;
+            }
         }
         if (bizEntity === undefined) {
             this.log(`${this.bizEntity} is not a Biz Entity`);
@@ -101,7 +133,7 @@ export class PBizExp extends PElement<BizExp> {
                 case BizPhraseType.atom: ret = this.scanAtom(space); break;
                 case BizPhraseType.fork: ret = this.scanSpec(space); break;
                 case BizPhraseType.bin: ret = this.scanBin(space); break;
-                case BizPhraseType.book: ret = this.scanTitle(space); break;
+                case BizPhraseType.book: ret = this.scanBook(space); break;
                 case BizPhraseType.tie: ret = this.scanTie(space); break;
                 case BizPhraseType.duo: ret = this.scanDuo(space); break;
                 case BizPhraseType.combo: ret = this.scanCombo(space); break;
@@ -232,7 +264,7 @@ export class PBizExp extends PElement<BizExp> {
         return ok;
     }
 
-    private scanTitle(space: Space): boolean {
+    private scanBook(space: Space): boolean {
         let ok = true;
         const { bizEntity, prop } = this.element;
         let title = bizEntity as BizTitle;
@@ -248,6 +280,31 @@ export class PBizExp extends PElement<BizExp> {
             }
             else {
                 this.element.budEntitySub = bud;
+                if (this.combo !== undefined) {
+                    let { bizEntityArr: [bizGroupByEntity] } = space.getBizFromEntityArrFromName(this.combo);
+                    if (bizGroupByEntity.bizPhraseType !== BizPhraseType.combo) {
+                        ok = false;
+                        this.log(`${this.combo} is not COMBO`);
+                    }
+                    else {
+                        this.element.combo = bizGroupByEntity as BizCombo;
+                        const { combo, comboParams } = this.element;
+                        const { length } = combo.keys;
+                        if (comboParams.length !== length) {
+                            ok = false;
+                            this.log(`COMBO ${combo.getJName()} ${length} params`);
+                        }
+                        else {
+                            for (let val of comboParams) {
+                                if (val === undefined) continue;
+                                if (val.pelement.scan(space) === false) {
+                                    ok = false;
+                                }
+                            }
+                        }
+                    }
+                    return ok;
+                }
             }
         }
         if (prop === undefined) {

@@ -26,13 +26,11 @@ class BBizExp {
                 default:
                     debugger;
                     throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                // case BizPhraseType.atom: this.atom(sb); break;
-                // case BizPhraseType.spec: this.spec(sb); break;
                 case BizPhraseType_1.BizPhraseType.bin:
                     this.bin(sb);
                     break;
                 case BizPhraseType_1.BizPhraseType.book:
-                    this.title(sb);
+                    this.book(sb);
                     break;
                 case BizPhraseType_1.BizPhraseType.tie:
                     this.tie(sb);
@@ -52,9 +50,11 @@ class BBizExp {
         this.bizExp = bizExp;
         if (bizExp === undefined)
             return;
-        const { params } = bizExp.param;
-        this.params = params.map(v => context.expVal(v));
-        // this.param2 = context.expVal(param2);
+        const { param } = bizExp;
+        if (param !== undefined) {
+            const { params } = param;
+            this.params = params.map(v => context.expVal(v));
+        }
         const { in: inVar } = bizExp;
         if (inVar !== undefined) {
             const { val: inVal, spanPeiod } = inVar;
@@ -170,8 +170,13 @@ class BBizExp {
             sb.r();
         }
     }
-    title(sb) {
-        const { prop, in: inVar, param: { paramType } } = this.bizExp;
+    book(sb) {
+        const { prop, in: inVar, param, combo } = this.bizExp;
+        if (combo !== undefined) {
+            this.bookCombo(sb);
+            return;
+        }
+        const { paramType } = param;
         if (inVar === undefined || prop === 'value') {
             let titleValue;
             switch (paramType) {
@@ -202,6 +207,9 @@ class BBizExp {
             }
             titleHistory.sql();
         }
+    }
+    bookCombo(sb) {
+        sb.append(0);
     }
 }
 exports.BBizExp = BBizExp;

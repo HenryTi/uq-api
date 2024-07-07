@@ -19,7 +19,6 @@ export class BBizExp {
     db: string;
     bizExp: BizExp;
     params: ExpVal[];
-    // param2: ExpVal;
     inVal: ExpVal;
     expSelect: ExpVal;
 
@@ -40,10 +39,8 @@ export class BBizExp {
             const { bizPhraseType } = this.bizExp.bizEntity;
             switch (bizPhraseType) {
                 default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                // case BizPhraseType.atom: this.atom(sb); break;
-                // case BizPhraseType.spec: this.spec(sb); break;
                 case BizPhraseType.bin: this.bin(sb); break;
-                case BizPhraseType.book: this.title(sb); break;
+                case BizPhraseType.book: this.book(sb); break;
                 case BizPhraseType.tie: this.tie(sb); break;
                 case BizPhraseType.duo: this.duo(sb); break;
                 case BizPhraseType.combo: this.combo(sb); break;
@@ -55,9 +52,11 @@ export class BBizExp {
         this.db = context.dbName;
         this.bizExp = bizExp;
         if (bizExp === undefined) return;
-        const { params } = bizExp.param;
-        this.params = params.map(v => context.expVal(v));
-        // this.param2 = context.expVal(param2);
+        const { param } = bizExp;
+        if (param !== undefined) {
+            const { params } = param;
+            this.params = params.map(v => context.expVal(v));
+        }
         const { in: inVar } = bizExp;
         if (inVar !== undefined) {
             const { val: inVal, spanPeiod } = inVar;
@@ -172,8 +171,13 @@ export class BBizExp {
         }
     }
 
-    private title(sb: SqlBuilder) {
-        const { prop, in: inVar, param: { paramType } } = this.bizExp;
+    private book(sb: SqlBuilder) {
+        const { prop, in: inVar, param, combo } = this.bizExp;
+        if (combo !== undefined) {
+            this.bookCombo(sb);
+            return;
+        }
+        const { paramType } = param;
         if (inVar === undefined || prop === 'value') {
             let titleValue: TitleValueBase;
             switch (paramType) {
@@ -204,6 +208,10 @@ export class BBizExp {
             }
             titleHistory.sql();
         }
+    }
+
+    private bookCombo(sb: SqlBuilder) {
+        sb.append(0);
     }
 }
 
