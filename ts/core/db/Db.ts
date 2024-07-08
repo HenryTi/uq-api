@@ -26,6 +26,7 @@ export enum ProcType {
 export interface DbUq extends Db {
     get twProfix(): string;
     get isTesting(): boolean;
+    get isExists(): boolean;
     initLoad(): Promise<void>;
     reset(): void;
 

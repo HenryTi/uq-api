@@ -7,6 +7,8 @@ import { MyDb$Uq } from "./MyDb$Uq";
 import { DbSqlsVersion, MyDbNoName } from "./MyDbNoName";
 import { MyDbUq } from "./MyDbUq";
 
+const dbBizName = 'jksoft_mini_jxc_trial';
+
 export class MyDbs implements Dbs {
     readonly db$Uq: Db$Uq;
     readonly db$Res: Db$Res;
@@ -28,7 +30,6 @@ export class MyDbs implements Dbs {
         this.db$UnitxProd = new MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName(this);
 
-        const dbBizName = 'jksoft_mini_jxc_trial';
         this.dbBiz = new MyDbUq(this, dbBizName);
         this.dbUqs = {};
         this.dbUqs[dbBizName] = this.dbBiz;

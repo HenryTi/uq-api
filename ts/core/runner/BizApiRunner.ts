@@ -12,7 +12,7 @@ enum EnumQueueDoneType {
     errorID = 31,
 };
 
-export class ApiRunner extends Runner {
+export class BizApiRunner extends Runner {
     constructor() {
         let dbs = getDbs();
         super(dbs.dbBiz);

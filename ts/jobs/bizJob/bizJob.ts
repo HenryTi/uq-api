@@ -1,14 +1,14 @@
-import { ApiRunner, Db$Uq, getDbs } from "../../core";
+import { BizApiRunner, Db$Uq, getDbs } from "../../core";
 
 class BizJob {
     private readonly waitGap = 5000;
     private readonly yieldGap = 10;
-    private readonly apiRunner: ApiRunner;
+    private readonly apiRunner: BizApiRunner;
     private readonly db$Uq: Db$Uq;
     private queued: boolean;    // 也许可以在sheet act，或者in act，set queued=true，trigger the loop
     constructor() {
         this.db$Uq = getDbs().db$Uq;
-        this.apiRunner = new ApiRunner();
+        this.apiRunner = new BizApiRunner();
         this.queued = true;
     }
 
@@ -18,6 +18,7 @@ class BizJob {
 
     async start() {
         // { console.error('BizJob not started'); return; }
+        if (this.apiRunner.dbUq.isExists !== true) return;
         this.runLoop(this.runIn);
         this.runLoop(this.runOut);
     }

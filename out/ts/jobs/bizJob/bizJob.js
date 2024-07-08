@@ -25,7 +25,7 @@ class BizJob {
             return yield this.apiRunner.processAtomUnique(20);
         });
         this.db$Uq = (0, core_1.getDbs)().db$Uq;
-        this.apiRunner = new core_1.ApiRunner();
+        this.apiRunner = new core_1.BizApiRunner();
         this.queued = true;
     }
     triggerQueue() {
@@ -34,6 +34,8 @@ class BizJob {
     start() {
         return __awaiter(this, void 0, void 0, function* () {
             // { console.error('BizJob not started'); return; }
+            if (this.apiRunner.dbUq.isExists !== true)
+                return;
             this.runLoop(this.runIn);
             this.runLoop(this.runOut);
         });

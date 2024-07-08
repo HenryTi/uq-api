@@ -22,6 +22,7 @@ const sysProcColl = {
 
 export class MyDbUq extends MyDb implements DbUq {
     private procColl: { [procName: string]: boolean };
+    isExists: boolean;
     isTesting: boolean;
     hasUnit: boolean;
     twProfix: string;
@@ -34,9 +35,12 @@ export class MyDbUq extends MyDb implements DbUq {
 
     async initLoad() {
         if (this.twProfix !== undefined) return;
-        const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
-        let ret = await this.sql(tv$entityExists, [this.name]);
-        this.twProfix = ret.length > 0 ? oldTwProfix : '';
+        this.isExists = await this.existsDatabase();
+        if (this.isExists === true) {
+            const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
+            let ret = await this.sql(tv$entityExists, [this.name]);
+            this.twProfix = ret.length > 0 ? oldTwProfix : '';
+        }
     }
 
     private resetProcColl() {

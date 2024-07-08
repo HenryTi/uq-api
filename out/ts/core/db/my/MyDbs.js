@@ -16,6 +16,7 @@ const MyDb_Unitx_1 = require("./MyDb$Unitx");
 const MyDb_Uq_1 = require("./MyDb$Uq");
 const MyDbNoName_1 = require("./MyDbNoName");
 const MyDbUq_1 = require("./MyDbUq");
+const dbBizName = 'jksoft_mini_jxc_trial';
 class MyDbs {
     constructor(uq_api_version) {
         this.uq_api_version = uq_api_version;
@@ -25,7 +26,6 @@ class MyDbs {
         this.db$UnitxTest = new MyDb_Unitx_1.MyDb$Unitx(this, true);
         this.db$UnitxProd = new MyDb_Unitx_1.MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName_1.MyDbNoName(this);
-        const dbBizName = 'jksoft_mini_jxc_trial';
         this.dbBiz = new MyDbUq_1.MyDbUq(this, dbBizName);
         this.dbUqs = {};
         this.dbUqs[dbBizName] = this.dbBiz;

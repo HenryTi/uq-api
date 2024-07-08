@@ -15,7 +15,7 @@ const core_1 = require("../../core");
 function buildApiRouter(rb) {
     let router = (0, express_1.Router)();
     router.get('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
-        let apiRunner = new core_1.ApiRunner();
+        let apiRunner = new core_1.BizApiRunner();
         let ret = yield apiRunner.hello();
         res.json({
             ok: true,
@@ -25,7 +25,7 @@ function buildApiRouter(rb) {
         });
     }));
     router.post('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
-        let apiRunner = new core_1.ApiRunner();
+        let apiRunner = new core_1.BizApiRunner();
         console.log(req.headers);
         let ret = yield apiRunner.saveIOInQueue(req.body);
         res.json(ret);

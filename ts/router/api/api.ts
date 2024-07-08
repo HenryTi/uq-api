@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { ApiRunner } from '../../core';
+import { BizApiRunner } from '../../core';
 import { RouterWebBuilder } from "../routerBuilder";
 
 export function buildApiRouter(rb: RouterWebBuilder) {
     let router: Router = Router();
     router.get('/', async (req: Request, res: Response) => {
-        let apiRunner = new ApiRunner();
+        let apiRunner = new BizApiRunner();
         let ret = await apiRunner.hello();
         res.json({
             ok: true,
@@ -16,7 +16,7 @@ export function buildApiRouter(rb: RouterWebBuilder) {
     });
 
     router.post('/', async (req: Request, res: Response) => {
-        let apiRunner = new ApiRunner();
+        let apiRunner = new BizApiRunner();
         console.log(req.headers);
         let ret = await apiRunner.saveIOInQueue(req.body);
         res.json(ret);

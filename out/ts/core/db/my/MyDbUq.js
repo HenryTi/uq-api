@@ -45,9 +45,12 @@ class MyDbUq extends MyDb_1.MyDb {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.twProfix !== undefined)
                 return;
-            const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
-            let ret = yield this.sql(tv$entityExists, [this.name]);
-            this.twProfix = ret.length > 0 ? oldTwProfix : '';
+            this.isExists = yield this.existsDatabase();
+            if (this.isExists === true) {
+                const { oldTwProfix, tv$entityExists } = this.myDbs.sqlsVersion;
+                let ret = yield this.sql(tv$entityExists, [this.name]);
+                this.twProfix = ret.length > 0 ? oldTwProfix : '';
+            }
         });
     }
     resetProcColl() {
