@@ -104,6 +104,7 @@ class CenterApi extends fetch_1.Fetch {
     }
     appRoles(unit, app, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('Center Api: ', this.baseUrl);
             return yield this.post('open/app-roles', { unit, app, user });
         });
     }

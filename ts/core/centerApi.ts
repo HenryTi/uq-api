@@ -94,6 +94,7 @@ class CenterApi extends Fetch {
     }
 
     async appRoles(unit: number, app: any, user: number): Promise<{ roles: number, version: number }> {
+        console.log('Center Api: ', this.baseUrl);
         return await this.post('open/app-roles', { unit, app, user });
     }
 
