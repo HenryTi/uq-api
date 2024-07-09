@@ -773,7 +773,7 @@ export class Return extends stat.Return {
             sb.append('RETURN ').var(this.returnVar);
         }
         else {
-            sb.append('LEAVE __body_exit');
+            sb.append('LEAVE __proc_exit');
         }
         sb.ln();
     }
