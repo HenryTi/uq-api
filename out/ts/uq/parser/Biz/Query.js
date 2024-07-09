@@ -93,6 +93,8 @@ class PBizQueryTable extends PBizQuery {
                             ok = false;
                         }
                         props.set(name, bud);
+                        if (name === 'value')
+                            this.element.value = bud;
                     }
                 }
             }

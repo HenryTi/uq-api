@@ -67,7 +67,7 @@ class BizQueryTable extends BizQuery {
         return new BizQuery_1.BBizQuery(dbContext, this);
     }
     buildSchema(res) {
-        var _a;
+        var _a, _b;
         let ret = super.buildSchema(res);
         const { ban, cols, fromEntity, ids, showIds, groupByBase } = this.from;
         ret.ids = ids.map(v => ({
@@ -93,6 +93,7 @@ class BizQueryTable extends BizQuery {
             return [entity.id, bud.id];
         });
         ret.from = this.buildFromSchema(fromEntity);
+        ret.value = (_b = this.value) === null || _b === void 0 ? void 0 : _b.id;
         return ret;
     }
     buildFromSchema(from) {

@@ -836,7 +836,7 @@ export abstract class PBizAct<T extends BizAct> extends PBizBase<T> {
         this.context.createStatements = statement.createStatements;
         let parser = statement.parser(this.context)
         parser.parse();
-        this.element.statement = statement;
+        this.element.statement = statement as any;
         this.ts.mayPassToken(Token.SEMICOLON);
     }
 

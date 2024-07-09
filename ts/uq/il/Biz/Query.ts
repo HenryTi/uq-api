@@ -6,7 +6,7 @@ import { Builder } from "../builder";
 import { IElement } from "../IElement";
 import { Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizBudValue } from "./Bud";
+import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity } from "./Entity";
 import { FromEntity, FromStatement } from "./statement";
 
@@ -44,6 +44,7 @@ export class BizQueryTable extends BizQuery {
     readonly isID = false;
     readonly params: BizBudValue[] = [];
     from: FromStatement;
+    value: BizBud;
     get type() { return 'query'; }
     parser(context: PContext): PElement<IElement> {
         return new PBizQueryTable(this, context);
@@ -88,6 +89,7 @@ export class BizQueryTable extends BizQuery {
             return [entity.id, bud.id];
         });
         ret.from = this.buildFromSchema(fromEntity);
+        ret.value = this.value?.id;
         return ret;
     }
 

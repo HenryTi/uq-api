@@ -94,6 +94,7 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
                             ok = false;
                         }
                         props.set(name, bud);
+                        if (name === 'value') this.element.value = bud;
                     }
                 }
             }
