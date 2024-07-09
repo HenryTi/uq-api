@@ -209,7 +209,21 @@ class BBizExp {
         }
     }
     bookCombo(sb) {
-        sb.append(0);
+        const { budEntitySub, combo, comboParams } = this.bizExp;
+        const { dbContext } = sb.factory;
+        sb.append('SUM(bcb.value) FROM ')
+            .name(consts_1.$site).dot().name(`${dbContext.site}.${combo.id}`).append(' AS bca JOIN ')
+            .dbName().name(il_1.EnumSysTable.ixBudDec)
+            .append(` AS bcb ON bcb.i=${budEntitySub.id} AND bcb.x=bca.id WHERE 1=1`);
+        const { length } = comboParams;
+        const { keys } = combo;
+        for (let i = 0; i < length; i++) {
+            let cp = comboParams[i];
+            if (cp === undefined)
+                continue;
+            let ck = keys[i];
+            sb.append(' AND bca.').name(ck.name).append('=').exp(dbContext.expVal(cp));
+        }
     }
 }
 exports.BBizExp = BBizExp;
