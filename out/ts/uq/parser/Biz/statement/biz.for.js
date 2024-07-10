@@ -120,6 +120,7 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
             ids.set(n, idCol);
         }
         for (let [n, val] of values) {
+            vars[n] = new il_1.Var(n, new il_1.Dec(18, 6));
             if (ids.has(n) === true) {
                 ok = false;
                 this.log(`duplicate name ${n}`);
@@ -129,7 +130,6 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
                 ok = false;
                 continue;
             }
-            vars[n] = new il_1.Var(n, new il_1.Dec(18, 6));
         }
         for (let i in vars) {
             let vr = vars[i];
