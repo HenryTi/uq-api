@@ -1,6 +1,6 @@
 import {
     EnumSysTable, BigInt, BizStatementPend
-    , BizStatementTitle, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
+    , BizStatementBook, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet
     , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie
 } from "../../../il";
@@ -190,7 +190,7 @@ const phraseId = '$phraseId_';
 const objId = '$objId_';
 const budId = '$budId_';
 const historyId = '$history_';
-export class BBizStatementTitle extends BStatement<BizStatementTitle> {
+export class BBizStatementBook extends BStatement<BizStatementBook> {
     head(sqls: Sqls): void {
         let { factory } = this.context;
         let { bud, no } = this.istatement;
@@ -208,7 +208,7 @@ export class BBizStatementTitle extends BStatement<BizStatementTitle> {
         let { factory, varUser, varSite } = this.context;
         const memo = factory.createMemo();
         sqls.push(memo);
-        memo.text = 'Biz Title ';
+        memo.text = 'Biz Book ';
         let { setEqu, entity, val, bud, no, of } = this.istatement;
         let { hasHistory, dataType, id, flag } = bud;
         let varPhraseId = phraseId + no;
@@ -255,16 +255,21 @@ export class BBizStatementTitle extends BStatement<BizStatementTitle> {
             ];
         }
 
-        let upsert = factory.createUpsert();
-        sqls.push(upsert);
-        upsert.table = sysTable(table);
-        upsert.keys = [
+        let insertOnDup = factory.createInsertOnDuplicate();
+        sqls.push(insertOnDup);
+        insertOnDup.table = sysTable(table);
+        insertOnDup.keys = [
             { col: 'i', val: expObjId },
             { col: 'x', val: expPhraseId },
         ];
         const valueCol = 'value';
-        upsert.cols = [
-            { col: valueCol, val: expValue, setEqu },
+
+        insertOnDup.cols = [
+            {
+                col: valueCol,
+                val: expValue,
+                setEqu
+            },
         ];
 
         if (hasHistory === true) {

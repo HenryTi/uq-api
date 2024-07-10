@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementTitle = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
+exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
 const builder_1 = require("../../../builder");
 const parser = require("../../../parser");
 const statement_1 = require("../../statement");
@@ -54,13 +54,13 @@ class BizStatementInPend extends BizStatementPend {
     db(db) { return new builder_1.BBizStatementInPend(db, this); /* db.bizInActSubPend(this); */ }
 }
 exports.BizStatementInPend = BizStatementInPend;
-class BizStatementTitle extends BizStatementSub {
+class BizStatementBook extends BizStatementSub {
     parser(context) {
-        return new parser.PBizStatementTitle(this, context);
+        return new parser.PBizStatementBook(this, context);
     }
-    db(db) { return new builder_1.BBizStatementTitle(db, this); }
+    db(db) { return new builder_1.BBizStatementBook(db, this); }
 }
-exports.BizStatementTitle = BizStatementTitle;
+exports.BizStatementBook = BizStatementBook;
 class BizStatementSheet extends BizStatementSub {
     constructor() {
         super(...arguments);

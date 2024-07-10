@@ -1,5 +1,5 @@
 import {
-    BBizStatementBinPend, BBizStatementTitle, BBizStatementInPend, BStatement, DbContext
+    BBizStatementBinPend, BBizStatementBook as BBizStatementBook, BBizStatementInPend, BStatement, DbContext
     , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut, BBizStatementTie
 } from '../../../builder';
 import * as parser from '../../../parser';
@@ -70,16 +70,16 @@ export class BizStatementInPend extends BizStatementPend<BizInAct> {
     db(db: DbContext): BStatement { return new BBizStatementInPend(db, this); /* db.bizInActSubPend(this); */ }
 }
 
-export class BizStatementTitle<T extends BizAct = BizAct> extends BizStatementSub<T> {
+export class BizStatementBook<T extends BizAct = BizAct> extends BizStatementSub<T> {
     entity: BizEntity;
     bud: BizBudValue;
     of: ValueExpression;
     setEqu: SetEqu;
     val: ValueExpression;
     parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizStatementTitle(this, context);
+        return new parser.PBizStatementBook(this, context);
     }
-    db(db: DbContext): BStatement { return new BBizStatementTitle(db, this); }
+    db(db: DbContext): BStatement { return new BBizStatementBook(db, this); }
 }
 
 export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSub<T> {

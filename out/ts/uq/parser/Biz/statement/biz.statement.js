@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementTitle = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../../il");
 const statement_1 = require("../../statement/statement");
 const element_1 = require("../../element");
@@ -11,8 +11,8 @@ class PBizStatement extends statement_1.PStatement {
     constructor(bizStatement, context) {
         super(bizStatement, context);
         this.bizSubs = {
-            title: il_1.BizStatementTitle,
-            book: il_1.BizStatementTitle,
+            title: il_1.BizStatementBook,
+            book: il_1.BizStatementBook,
             sheet: il_1.BizStatementSheet,
         };
         this.bizStatement = bizStatement;
@@ -286,7 +286,7 @@ exports.PBizStatementBinPend = PBizStatementBinPend;
 class PBizStatementInPend extends PBizStatementPend {
 }
 exports.PBizStatementInPend = PBizStatementInPend;
-class PBizStatementTitle extends PBizStatementSub {
+class PBizStatementBook extends PBizStatementSub {
     _parse() {
         this.buds = [];
         for (;;) {
@@ -357,7 +357,7 @@ class PBizStatementTitle extends PBizStatementSub {
         return ok;
     }
 }
-exports.PBizStatementTitle = PBizStatementTitle;
+exports.PBizStatementBook = PBizStatementBook;
 class PBizStatementSheet extends PBizStatementSub {
     constructor() {
         super(...arguments);

@@ -20,7 +20,11 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         return __awaiter(this, void 0, void 0, function* () {
             const { id, keys, indexes } = this.bizEntity;
             let table = this.createTable(`${this.context.site}.${id}`);
-            let keyFields = keys.map(v => (0, il_1.bigIntField)(v.name));
+            let keyFields = keys.map(v => {
+                let ret = (0, il_1.bigIntField)(v.name);
+                ret.nullable = false;
+                return ret;
+            });
             let idField = (0, il_1.bigIntField)('id');
             table.keys = [idField];
             table.fields = [idField, ...keyFields];

@@ -8,7 +8,11 @@ export class BBizCombo extends BBizEntity<BizCombo> {
     override async buildTables(): Promise<void> {
         const { id, keys, indexes } = this.bizEntity;
         let table = this.createTable(`${this.context.site}.${id}`);
-        let keyFields = keys.map(v => bigIntField(v.name));
+        let keyFields = keys.map(v => {
+            let ret = bigIntField(v.name);
+            ret.nullable = false;
+            return ret;
+        });
         let idField = bigIntField('id');
         table.keys = [idField];
         table.fields = [idField, ...keyFields];

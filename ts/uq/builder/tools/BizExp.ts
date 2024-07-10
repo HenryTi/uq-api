@@ -216,7 +216,7 @@ export class BBizExp {
         sb.append('SUM(bcb.value) FROM ')
             .name($site).dot().name(`${dbContext.site}.${combo.id}`).append(' AS bca JOIN ')
             .dbName().dot().name(EnumSysTable.ixBudDec)
-            .append(` AS bcb ON bcb.i=${budEntitySub.id} AND bcb.x=bca.id WHERE 1=1`);
+            .append(` AS bcb ON bcb.x=${budEntitySub.id} AND bcb.i=bca.id WHERE 1=1`);
         const { length } = comboParams;
         const { keys } = combo;
         for (let i = 0; i < length; i++) {

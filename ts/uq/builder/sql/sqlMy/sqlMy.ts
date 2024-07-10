@@ -538,13 +538,23 @@ class InsertOnDuplicate extends stat.InsertOnDuplicate {
         sb.nAuto().append('ON DUPLICATE KEY UPDATE ');
         sb.sepStart();
         for (let cv of this.cols) {
-            let { col, update } = cv;
+            let { col, update, setEqu } = cv;
             sb.sep().fld(col).append('=');
             if (update) {
                 sb.exp(update);
             }
             else {
-                sb.append('VALUES(').fld(col).r();
+                switch (setEqu) {
+                    case SetEqu.add:
+                        sb.append('IFNULL(').fld(col).append(',0)+IFNULL(').append('VALUES(').fld(col).r().append(',0)');
+                        break;
+                    case SetEqu.sub:
+                        sb.append('IFNULL(').fld(col).append(',0)-IFNULL(').append('VALUES(').fld(col).r().append(',0)');
+                        break;
+                    case SetEqu.equ:
+                        sb.append('VALUES(').fld(col).r();
+                        break;
+                }
             }
         }
         sb.sepEnd();

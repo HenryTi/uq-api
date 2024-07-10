@@ -1,7 +1,7 @@
 import { Space } from '../../space';
 import {
     BizStatementPend, BizStatementSub
-    , BizStatementTitle, ValueExpression
+    , BizStatementBook, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
@@ -20,8 +20,8 @@ import { BizPend } from '../../../il/Biz/Pend';
 export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>> extends PStatement {
     bizStatement: T;
     private readonly bizSubs: { [key: string]: new (bizStatement: T) => BizStatementSub<A> } = {
-        title: BizStatementTitle,
-        book: BizStatementTitle,
+        title: BizStatementBook,
+        book: BizStatementBook,
         sheet: BizStatementSheet,
     }
     constructor(bizStatement: T, context: PContext) {
@@ -297,7 +297,7 @@ export class PBizStatementBinPend extends PBizStatementPend<BizBinAct> {
 export class PBizStatementInPend extends PBizStatementPend<BizInAct> {
 }
 
-export class PBizStatementTitle extends PBizStatementSub<BizAct, BizStatementTitle> {
+export class PBizStatementBook extends PBizStatementSub<BizAct, BizStatementBook> {
     private buds: string[];
 
     protected _parse(): void {

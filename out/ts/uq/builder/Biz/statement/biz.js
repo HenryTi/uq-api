@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementTitle = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
+exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementBook = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
 const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const consts_1 = require("../../consts");
@@ -156,7 +156,7 @@ const phraseId = '$phraseId_';
 const objId = '$objId_';
 const budId = '$budId_';
 const historyId = '$history_';
-class BBizStatementTitle extends bstatement_1.BStatement {
+class BBizStatementBook extends bstatement_1.BStatement {
     head(sqls) {
         let { factory } = this.context;
         let { bud, no } = this.istatement;
@@ -174,7 +174,7 @@ class BBizStatementTitle extends bstatement_1.BStatement {
         let { factory, varUser, varSite } = this.context;
         const memo = factory.createMemo();
         sqls.push(memo);
-        memo.text = 'Biz Title ';
+        memo.text = 'Biz Book ';
         let { setEqu, entity, val, bud, no, of } = this.istatement;
         let { hasHistory, dataType, id, flag } = bud;
         let varPhraseId = phraseId + no;
@@ -216,16 +216,20 @@ class BBizStatementTitle extends bstatement_1.BStatement {
                 { col: 'x', val: expObjId },
             ];
         }
-        let upsert = factory.createUpsert();
-        sqls.push(upsert);
-        upsert.table = (0, dbContext_1.sysTable)(table);
-        upsert.keys = [
+        let insertOnDup = factory.createInsertOnDuplicate();
+        sqls.push(insertOnDup);
+        insertOnDup.table = (0, dbContext_1.sysTable)(table);
+        insertOnDup.keys = [
             { col: 'i', val: expObjId },
             { col: 'x', val: expPhraseId },
         ];
         const valueCol = 'value';
-        upsert.cols = [
-            { col: valueCol, val: expValue, setEqu },
+        insertOnDup.cols = [
+            {
+                col: valueCol,
+                val: expValue,
+                setEqu
+            },
         ];
         if (hasHistory === true) {
             let expRef = new sql_1.ExpVar(binId);
@@ -270,7 +274,7 @@ class BBizStatementTitle extends bstatement_1.BStatement {
         }
     }
 }
-exports.BBizStatementTitle = BBizStatementTitle;
+exports.BBizStatementBook = BBizStatementBook;
 class BBizStatementSheet extends bstatement_1.BStatement {
     body(sqls) {
         const { detail } = this.istatement;
