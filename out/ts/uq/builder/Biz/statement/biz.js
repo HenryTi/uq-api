@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementBook = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
+exports.BBizStatementError = exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementBook = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
 const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const consts_1 = require("../../consts");
@@ -557,12 +557,6 @@ class BBizStatementOut extends bstatement_1.BStatement {
             insert.cols = [
                 { col: 'to', val: this.context.expVal(to) }
             ];
-            /*
-            let setTo = factory.createSet();
-            sqls.push(setTo);
-            setTo.isAtVar = true;
-            setTo.equ(varName + '$TO', this.context.expVal(to));
-            */
         }
         let setV = factory.createSet();
         sqls.push(setV);
@@ -586,4 +580,26 @@ class BBizStatementOut extends bstatement_1.BStatement {
     }
 }
 exports.BBizStatementOut = BBizStatementOut;
+class BBizStatementError extends bstatement_1.BStatement {
+    body(sqls) {
+        const { factory } = this.context;
+        let memo = factory.createMemo();
+        sqls.push(memo);
+        let setError = factory.createSet();
+        sqls.push(setError);
+        setError.isAtVar = true;
+        const { pendOver, message } = this.istatement;
+        let msg;
+        if (pendOver !== undefined) {
+            msg = 'PEND';
+            setError.equ('checkPend', new sql_1.ExpFunc('JSON_ARRAY_APPEND', new sql_1.ExpAtVar('checkPend'), new sql_1.ExpStr('$'), new sql_1.ExpFunc('JSON_OBJECT', new sql_1.ExpStr('pend'), new sql_1.ExpVar('$pend'), new sql_1.ExpStr('overValue'), this.context.expVal(pendOver))));
+        }
+        else {
+            msg = 'BIN';
+            setError.equ('checkBin', new sql_1.ExpFunc('JSON_ARRAY_APPEND', new sql_1.ExpAtVar('checkBin'), new sql_1.ExpStr('$'), new sql_1.ExpFunc('JSON_OBJECT', new sql_1.ExpStr('bin'), new sql_1.ExpVar('$bin'), new sql_1.ExpStr('message'), this.context.expVal(message))));
+        }
+        memo.text = 'ERROR ' + msg;
+    }
+}
+exports.BBizStatementError = BBizStatementError;
 //# sourceMappingURL=biz.js.map

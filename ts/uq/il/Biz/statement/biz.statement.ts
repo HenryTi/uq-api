@@ -1,6 +1,7 @@
 import {
     BBizStatementBinPend, BBizStatementBook as BBizStatementBook, BBizStatementInPend, BStatement, DbContext
-    , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut, BBizStatementTie
+    , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut, BBizStatementTie,
+    BBizStatementError
 } from '../../../builder';
 import * as parser from '../../../parser';
 import { IElement } from '../../IElement';
@@ -129,11 +130,6 @@ export class BizStatementTie<T extends BizAct = BizAct> extends BizStatementSub<
 }
 
 export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<T> {
-    /*
-    ioSite: BizIOSite;
-    ioApp: BizIOApp;
-    bizOut: BizOut;
-    */
     useOut: UseOut;
     readonly tos: ValueExpression[] = [];
     detail: string;
@@ -143,3 +139,14 @@ export class BizStatementOut<T extends BizAct = BizAct> extends BizStatementSub<
     }
     db(db: DbContext): BStatement { return new BBizStatementOut(db, this); }
 }
+
+export class BizStatementError<T extends BizAct = BizAct> extends BizStatementSub<T> {
+    pendOver: ValueExpression;
+    message: ValueExpression;
+
+    parser(context: parser.PContext): parser.PElement<IElement> {
+        return new parser.PBizStatementError(this, context);
+    }
+    db(db: DbContext): BStatement { return new BBizStatementError(db, this); }
+}
+

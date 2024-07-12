@@ -7,7 +7,8 @@ import {
     , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
     , BizAtom, BizFork, BizStatementOut, BizBudArr, BizOut
     , Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie,
-    BizFromEntity
+    BizFromEntity,
+    BizStatementError
 } from '../../../il';
 import { PStatement } from '../../statement/statement';
 import { PContext } from '../../pContext';
@@ -75,6 +76,7 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
             spec: BizStatementSpec,
             fork: BizStatementSpec,
             tie: BizStatementTie,
+            error: BizStatementError,
         };
     }
 }
@@ -828,6 +830,43 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
                         ok = false;
                     }
                 }
+            }
+        }
+        return ok;
+    }
+}
+
+export class PBizStatementError<A extends BizAct, T extends BizStatementError<A>> extends PBizStatementSub<A, T> {
+    protected override _parse(): void {
+        let key = this.ts.passKey();
+        switch (key) {
+            default:
+                this.ts.expect('PEND', 'BIN');
+                break;
+            case 'pend':
+                let pendOver = new ValueExpression();
+                this.context.parseElement(pendOver);
+                this.element.pendOver = pendOver;
+                break;
+            case 'bin':
+                let message = new ValueExpression();
+                this.context.parseElement(message);
+                this.element.message = message;
+                break;
+        }
+    }
+
+    override scan(space: Space): boolean {
+        let ok = true;
+        const { pendOver, message } = this.element;
+        if (pendOver !== undefined) {
+            if (pendOver.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (message !== undefined) {
+            if (message.pelement.scan(space) === false) {
+                ok = false;
             }
         }
         return ok;

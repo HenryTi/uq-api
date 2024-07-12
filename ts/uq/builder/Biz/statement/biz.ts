@@ -2,7 +2,8 @@ import {
     EnumSysTable, BigInt, BizStatementPend
     , BizStatementBook, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet
-    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie
+    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie,
+    BizStatementError
 } from "../../../il";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { $site } from "../../consts";
@@ -613,12 +614,6 @@ export class BBizStatementOut extends BStatement<BizStatementOut> {
             insert.cols = [
                 { col: 'to', val: this.context.expVal(to) }
             ];
-            /*
-            let setTo = factory.createSet();
-            sqls.push(setTo);
-            setTo.isAtVar = true;
-            setTo.equ(varName + '$TO', this.context.expVal(to));
-            */
         }
 
         let setV = factory.createSet();
@@ -645,5 +640,43 @@ export class BBizStatementOut extends BStatement<BizStatementOut> {
             );
         }
         setV.equ(varName, vNew);
+    }
+}
+
+export class BBizStatementError extends BStatement<BizStatementError> {
+    override body(sqls: Sqls): void {
+        const { factory } = this.context;
+        let memo = factory.createMemo();
+        sqls.push(memo);
+        let setError = factory.createSet();
+        sqls.push(setError);
+        setError.isAtVar = true;
+        const { pendOver, message } = this.istatement;
+        let msg: string;
+        if (pendOver !== undefined) {
+            msg = 'PEND';
+            setError.equ('checkPend', new ExpFunc(
+                'JSON_ARRAY_APPEND',
+                new ExpAtVar('checkPend'),
+                new ExpStr('$'),
+                new ExpFunc('JSON_OBJECT'
+                    , new ExpStr('pend'), new ExpVar('$pend')
+                    , new ExpStr('overValue'), this.context.expVal(pendOver)
+                )
+            ));
+        }
+        else {
+            msg = 'BIN';
+            setError.equ('checkBin', new ExpFunc(
+                'JSON_ARRAY_APPEND',
+                new ExpAtVar('checkBin'),
+                new ExpStr('$'),
+                new ExpFunc('JSON_OBJECT'
+                    , new ExpStr('bin'), new ExpVar('$bin')
+                    , new ExpStr('message'), this.context.expVal(message)
+                )
+            ));
+        }
+        memo.text = 'ERROR ' + msg;
     }
 }

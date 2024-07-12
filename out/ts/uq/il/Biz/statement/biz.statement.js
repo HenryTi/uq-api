@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
+exports.BizStatementError = exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
 const builder_1 = require("../../../builder");
 const parser = require("../../../parser");
 const statement_1 = require("../../statement");
@@ -114,4 +114,11 @@ class BizStatementOut extends BizStatementSub {
     db(db) { return new builder_1.BBizStatementOut(db, this); }
 }
 exports.BizStatementOut = BizStatementOut;
+class BizStatementError extends BizStatementSub {
+    parser(context) {
+        return new parser.PBizStatementError(this, context);
+    }
+    db(db) { return new builder_1.BBizStatementError(db, this); }
+}
+exports.BizStatementError = BizStatementError;
 //# sourceMappingURL=biz.statement.js.map

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementError = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../../il");
 const statement_1 = require("../../statement/statement");
 const element_1 = require("../../element");
@@ -60,6 +60,7 @@ class PBizStatementBin extends PBizStatement {
             spec: il_1.BizStatementSpec,
             fork: il_1.BizStatementSpec,
             tie: il_1.BizStatementTie,
+            error: il_1.BizStatementError,
         };
     }
 }
@@ -825,4 +826,40 @@ class PBizStatementOut extends PBizStatementSub {
     }
 }
 exports.PBizStatementOut = PBizStatementOut;
+class PBizStatementError extends PBizStatementSub {
+    _parse() {
+        let key = this.ts.passKey();
+        switch (key) {
+            default:
+                this.ts.expect('PEND', 'BIN');
+                break;
+            case 'pend':
+                let pendOver = new il_1.ValueExpression();
+                this.context.parseElement(pendOver);
+                this.element.pendOver = pendOver;
+                break;
+            case 'bin':
+                let message = new il_1.ValueExpression();
+                this.context.parseElement(message);
+                this.element.message = message;
+                break;
+        }
+    }
+    scan(space) {
+        let ok = true;
+        const { pendOver, message } = this.element;
+        if (pendOver !== undefined) {
+            if (pendOver.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        if (message !== undefined) {
+            if (message.pelement.scan(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+}
+exports.PBizStatementError = PBizStatementError;
 //# sourceMappingURL=biz.statement.js.map
