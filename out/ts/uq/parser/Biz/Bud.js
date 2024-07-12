@@ -301,21 +301,10 @@ class PBizBudDate extends PBizBudValueWithRange {
 }
 exports.PBizBudDate = PBizBudDate;
 class PBizBudIDIO extends PBizBud {
-    // private atomName: string;
     _parse() {
-        // this.atomName = this.ts.mayPassVar();
     }
     scan(space) {
         let ok = true;
-        /*
-        if (this.atomName !== undefined) {
-            let entityAtom = this.element.entityAtom = space.getBizEntity<BizAtom>(this.atomName);
-            if (entityAtom !== undefined && entityAtom.bizPhraseType !== BizPhraseType.atom) {
-                ok = false;
-                this.log(`${this.atomName} is not ATOM. IO ID only support ATOM`);
-            }
-        }
-        */
         return ok;
     }
 }
@@ -413,7 +402,6 @@ class PBizBudIXBase extends PBizBudIDBase {
     _parse() {
         this.idName = this.ts.mayPassVar();
         this.parseFieldShow();
-        // this.parseBudEquValue();
     }
 }
 exports.PBizBudIXBase = PBizBudIXBase;
@@ -467,6 +455,7 @@ class PBizBudBin extends PBizBudValue {
             for (;;) {
                 let showBud;
                 if (this.ts.token === tokens_1.Token.XOR) {
+                    this.ts.readToken();
                     let bud = this.ts.passVar();
                     showBud = [bud, undefined];
                 }
