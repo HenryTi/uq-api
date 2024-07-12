@@ -1,4 +1,4 @@
-import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizFork, BizID, EnumAsc, bigIntField } from "../../../il";
+import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizFork, BizID, EnumAsc, bigIntField, BizIDWithShowBuds } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNull,
     ExpLT, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Select,
@@ -144,7 +144,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
 
     protected abstract buildFromEntity(sqls: Sqls): void;
 
-    protected buildInsertAtomBuds(sqls: Sqls, atom: BizID) {
+    protected buildInsertAtomBuds(sqls: Sqls, atom: BizIDWithShowBuds) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
         let mapBuds = this.createMapBuds();
         this.buildMapBuds(mapBuds, titlePrimeBuds);

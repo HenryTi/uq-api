@@ -7,16 +7,16 @@ import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBudValue, BizBudID, BizBudDec, BizBud } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizID, BizNotID } from "./Entity";
 import { BizQueryTable } from "./Query";
 
-export class BizPend extends BizEntity {
+export class BizPend extends BizID {
     static predefinedId = ['si', 'sx', 's', 'sheet'];
     static predefinedValue = ['bin', 'value', 'price', 'amount', 'svalue', 'sprice', 'samount',];
 
     protected readonly fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
     readonly bizPhraseType = BizPhraseType.pend;
-    readonly isID = true;
+    readonly main = undefined;
     readonly predefinedBuds: { [name: string]: BizBudValue };
     readonly predefinedFields: string[] = [];
     pendQuery: PendQuery;

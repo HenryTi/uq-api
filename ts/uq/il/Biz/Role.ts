@@ -1,11 +1,10 @@
 import { /*PBizPermit, PBizPermitItem, */PBizRole, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizEntity } from "./Entity";
+import { BizNotID } from "./Entity";
 
-export class BizRole extends BizEntity {
+export class BizRole extends BizNotID {
     readonly bizPhraseType = BizPhraseType.permit; //.role;
-    readonly isID = false;
     protected readonly fields = [];
     readonly roles = new Map<string, BizRole>();
     get type(): string { return 'permit'; }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizFromEntity = exports.BizEntity = exports.BudIndex = void 0;
+exports.BizFromEntity = exports.BizNotID = exports.BizID = exports.BizEntity = exports.BudIndex = void 0;
 const EnumSysTable_1 = require("../EnumSysTable");
 const Base_1 = require("./Base");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -218,6 +218,20 @@ class BizEntity extends Base_1.BizBase {
     }
 }
 exports.BizEntity = BizEntity;
+class BizID extends BizEntity {
+    constructor() {
+        super(...arguments);
+        this.isID = true;
+    }
+}
+exports.BizID = BizID;
+class BizNotID extends BizEntity {
+    constructor() {
+        super(...arguments);
+        this.isID = false;
+    }
+}
+exports.BizNotID = BizNotID;
 class BizFromEntity {
     constructor() {
         this.bizEntityArr = [];

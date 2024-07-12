@@ -3,11 +3,10 @@ import { PBizTie, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { IxField } from "./Base";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizEntity } from "./Entity";
+import { BizNotID } from "./Entity";
 
-export class BizTie extends BizEntity {
+export class BizTie extends BizNotID {
     readonly bizPhraseType = BizPhraseType.tie;
-    readonly isID = false;
     protected fields = ['i', 'x'];
     readonly i = {} as IxField;
     readonly x = {} as IxField;

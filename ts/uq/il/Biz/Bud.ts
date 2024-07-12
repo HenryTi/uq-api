@@ -7,9 +7,8 @@ import {
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
-import { BizID } from "./BizID";
 import { BizOptions, OptionsItemValueType } from "./Options";
-import { BizEntity, BudIndex } from "./Entity";
+import { BizEntity, BizID, BudIndex } from "./Entity";
 import { ValueExpression } from "../Exp";
 import { Biz } from "./Biz";
 import { UI } from "../UI";
@@ -17,6 +16,7 @@ import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BigInt, Char, DataType, Dec, JsonDataType } from "../datatype";
 import { Field } from "../field";
 import { BizBin } from "./Bin";
+import { BizIDWithShowBuds } from "./BizID";
 
 export enum BudValueSetType {
     equ = 1,            // 设置不可修改. 这是默认
@@ -66,6 +66,7 @@ export abstract class BizBud extends BizBase {
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     getFieldShows(): FieldShow[][] { return undefined }
+    get IDEntity(): BizID { return undefined; }
     constructor(entity: BizEntity, name: string, ui: Partial<UI>) {
         super(entity?.biz);
         this.entity = entity;
@@ -277,9 +278,10 @@ export class BizBudDate extends BizBudValueWithRange {
 export abstract class BizBudIDBase extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
-    ID: BizID;
+    ID: BizIDWithShowBuds;
     fieldShows: FieldShow[];
     abstract get isIxBase(): boolean;
+    get IDEntity(): BizID { return this.ID; }
     getFieldShows(): FieldShow[][] {
         let ret = [];
         if (this.fieldShows !== undefined) ret.push(this.fieldShows);
@@ -372,7 +374,8 @@ export class BizBudBin extends BizBudValue {
     readonly dataType = BudDataType.bin;
     readonly canIndex = false;
     bin: BizBin;
-    showBuds: (BizBud | (BizBud[]))[];
+    get IDEntity(): BizID { return this.bin; }
+    showBuds: BizBud[][];
     parser(context: PContext): PElement<IElement> {
         return new PBizBudBin(this, context);
     }
@@ -380,16 +383,14 @@ export class BizBudBin extends BizBudValue {
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
         ret.showBuds = this.showBuds?.map(v => {
-            if (Array.isArray(v) === true) return v.map(vi => vi?.id);
-            return v.id;
+            return v.map(vi => vi?.id);
         });
         return ret;
     }
     getFieldShows(): FieldShow[][] {
         if (this.showBuds === undefined) return;
         return [this.showBuds.map(v => {
-            if (Array.isArray(v) === true) return ([this, ...v]);
-            return ([this, v]);
+            return ([this, ...v]);
         })];
     }
 }

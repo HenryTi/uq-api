@@ -4,7 +4,7 @@ import { IElement } from "../IElement";
 import { BizAtom, BizDuo } from "./BizID";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizEntity, BizNotID } from "./Entity";
 import { BizTitle } from "./Title";
 
 export interface ReportTitle {
@@ -19,9 +19,8 @@ export interface ReportJoin {
     entity: BizEntity;
 }
 
-export class BizReport extends BizEntity {
+export class BizReport extends BizNotID {
     protected readonly fields = [];
-    readonly isID = false;
     readonly bizPhraseType = BizPhraseType.report;
     readonly titles: ReportTitle[] = [];
     from: BizAtom | BizDuo;

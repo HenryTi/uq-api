@@ -7,10 +7,10 @@ import { IElement } from "../IElement";
 import { Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizNotID } from "./Entity";
 import { FromEntity, FromStatement } from "./statement";
 
-export abstract class BizQuery extends BizEntity {
+export abstract class BizQuery extends BizNotID {
     readonly bizPhraseType = BizPhraseType.query;
     statement: Statements;
     abstract hasParam(name: string): boolean;
@@ -18,7 +18,6 @@ export abstract class BizQuery extends BizEntity {
 
 export class BizQueryValue extends BizQuery {
     protected readonly fields = [];
-    readonly isID = false;
     on: string[];
     get type() { return 'queryvalue'; }
     parser(context: PContext): PElement<IElement> {
@@ -41,7 +40,6 @@ export class BizQueryValueStatements extends Statements {
 
 export class BizQueryTable extends BizQuery {
     protected readonly fields = [];
-    readonly isID = false;
     readonly params: BizBudValue[] = [];
     from: FromStatement;
     value: BizBud;

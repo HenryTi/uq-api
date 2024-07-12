@@ -2,11 +2,10 @@ import { PBizConsole as PBizConsole, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { UI } from "../UI";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizEntity } from "./Entity";
+import { BizEntity, BizNotID } from "./Entity";
 
-export class BizConsole extends BizEntity {
+export class BizConsole extends BizNotID {
     readonly bizPhraseType = BizPhraseType.console;
-    readonly isID = false;
     readonly fields = [];
     readonly folder: Folder = {
         name: '$',

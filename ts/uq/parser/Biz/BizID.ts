@@ -1,7 +1,8 @@
 import {
     BizAtom, BizIDExtendable, BizIDAny, BizIDWithBase, BizFork
     , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity,
-    BizCombo
+    BizCombo,
+    BizIDWithShowBuds
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -10,7 +11,7 @@ import { PBizEntity } from "./Base";
 import { BizEntitySpace } from "./Biz";
 import { PBizBud } from "./Bud";
 
-export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
+export abstract class PBizIDWithShowBuds<T extends BizIDWithShowBuds> extends PBizEntity<T> {
     private titleBuds: string[];
     private primeBuds: string[];
 
@@ -133,7 +134,7 @@ export abstract class PBizID<T extends BizID> extends PBizEntity<T> {
     }
 }
 
-export abstract class PBizIDExtendable<T extends BizIDExtendable> extends PBizID<T> {
+export abstract class PBizIDExtendable<T extends BizIDExtendable> extends PBizIDWithShowBuds<T> {
     private extendsName: string;
 
     protected parseParam(): void {
@@ -365,7 +366,7 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
     }
 }
 
-export class PBizDuo extends PBizID<BizDuo> {
+export class PBizDuo extends PBizIDWithShowBuds<BizDuo> {
     private parseI = () => {
         this.parseIField(this.element.i);
     }
@@ -550,7 +551,7 @@ export class PBizSpec extends PBizIDWithBase<BizFork> {
     }
 }
 
-export class PBizCombo extends PBizID<BizCombo> {
+export class PBizCombo extends PBizIDWithShowBuds<BizCombo> {
     private readonly indexes: string[][] = [];
 
     private parseKey = () => {

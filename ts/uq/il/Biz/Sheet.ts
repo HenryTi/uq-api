@@ -4,13 +4,12 @@ import { IElement } from "../IElement";
 import { BizSearch } from "./Base";
 import { BizBin } from "./Bin";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizEntity } from "./Entity";
+import { BizNotID } from "./Entity";
 import { UseOut } from "./InOut";
 
-export class BizSheet extends BizEntity {
+export class BizSheet extends BizNotID {
     protected readonly fields = ['id', 'no'];
     readonly bizPhraseType = BizPhraseType.sheet;
-    readonly isID = false;
     readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;
     readonly details: { bin: BizBin; caption: string; }[] = [];

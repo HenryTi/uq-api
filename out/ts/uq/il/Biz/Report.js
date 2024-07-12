@@ -11,11 +11,10 @@ var ReportJoinType;
     ReportJoinType[ReportJoinType["to"] = 2] = "to";
 })(ReportJoinType || (exports.ReportJoinType = ReportJoinType = {}));
 ;
-class BizReport extends Entity_1.BizEntity {
+class BizReport extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.fields = [];
-        this.isID = false;
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.report;
         this.titles = [];
         this.joins = [];

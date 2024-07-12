@@ -643,6 +643,16 @@ class PBizEntity extends PBizBase {
         ixField.atoms = atoms;
         return ok;
     }
+    scan0(space) {
+        let ok = super.scan0(space);
+        const { props } = this.element;
+        for (let [, bud] of props) {
+            if (bud.pelement.scan0(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
     scan(space) {
         let ok = true;
         const { props } = this.element;

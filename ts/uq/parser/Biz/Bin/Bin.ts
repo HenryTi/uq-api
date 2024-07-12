@@ -310,7 +310,7 @@ export class PBizBin extends PBizEntity<BizBin> {
 
 
     scan0(space: Space): boolean {
-        let ok = true;
+        let ok = super.scan0(space);
         const { pickArr, act } = this.element;
         this.element.buildPredefinedBuds();
         if (pickArr !== undefined) {
@@ -337,13 +337,7 @@ export class PBizBin extends PBizEntity<BizBin> {
                 ok = false;
             }
         }
-        return ok;
-    }
-
-    scan(space: Space): boolean {
-        let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
-
         if (this.main !== undefined) {
             let { bizEntityArr: [m] } = binSpace.getBizFromEntityArrFromName(this.main);
             if (m === undefined || m.bizPhraseType !== BizPhraseType.bin) {
@@ -358,6 +352,13 @@ export class PBizBin extends PBizEntity<BizBin> {
                 this.element.main = m as BizBin;
             }
         }
+        return ok;
+    }
+
+    scan(space: Space): boolean {
+        let ok = true;
+        let binSpace = new BizBinSpace(space, this.element);
+
         const { iBase, xBase } = this.element;
         if (iBase !== undefined) {
             if (this.element.i === undefined) {

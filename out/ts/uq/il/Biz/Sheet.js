@@ -5,12 +5,11 @@ const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizSheet extends Entity_1.BizEntity {
+class BizSheet extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.fields = ['id', 'no'];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.sheet;
-        this.isID = false;
         this.outs = {};
         this.details = [];
     }

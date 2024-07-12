@@ -238,6 +238,15 @@ export abstract class BizEntity extends BizBase {
     }
 }
 
+export abstract class BizID extends BizEntity {
+    readonly isID = true;
+    abstract get main(): BizID;
+}
+
+export abstract class BizNotID extends BizEntity {
+    readonly isID = false;
+}
+
 export interface BizFromEntitySub {
     field: string;
     fromEntity: BizFromEntity;

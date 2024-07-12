@@ -89,12 +89,6 @@ class PBiz extends entity_1.PEntity {
         for (let [, p] of this.entity.bizEntities) {
             if (p.isID === false)
                 scan0(p);
-            /*
-            let bizEntitySpace = new BizEntitySpace(space, p);
-            if (p.pelement.scan0(bizEntitySpace) === false) {
-                ok = false;
-            }
-            */
         }
         return ok;
     }

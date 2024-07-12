@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizCombo = exports.PBizSpec = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizID = void 0;
+exports.PBizCombo = exports.PBizSpec = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizIDWithShowBuds = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
-class PBizID extends Base_1.PBizEntity {
+class PBizIDWithShowBuds extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.parseColonBuds = () => {
@@ -122,8 +122,8 @@ class PBizID extends Base_1.PBizEntity {
         return ok;
     }
 }
-exports.PBizID = PBizID;
-class PBizIDExtendable extends PBizID {
+exports.PBizIDWithShowBuds = PBizIDWithShowBuds;
+class PBizIDExtendable extends PBizIDWithShowBuds {
     parseParam() {
         if (this.ts.isKeyword('extends') === true) {
             this.ts.readToken();
@@ -349,7 +349,7 @@ class PBizAtom extends PBizIDExtendable {
     }
 }
 exports.PBizAtom = PBizAtom;
-class PBizDuo extends PBizID {
+class PBizDuo extends PBizIDWithShowBuds {
     constructor() {
         super(...arguments);
         this.parseI = () => {
@@ -534,7 +534,7 @@ class PBizSpec extends PBizIDWithBase {
     }
 }
 exports.PBizSpec = PBizSpec;
-class PBizCombo extends PBizID {
+class PBizCombo extends PBizIDWithShowBuds {
     constructor() {
         super(...arguments);
         this.indexes = [];

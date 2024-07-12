@@ -272,7 +272,7 @@ class PBizBin extends Base_1.PBizEntity {
         }
     }
     scan0(space) {
-        let ok = true;
+        let ok = super.scan0(space);
         const { pickArr, act } = this.element;
         this.element.buildPredefinedBuds();
         if (pickArr !== undefined) {
@@ -300,10 +300,6 @@ class PBizBin extends Base_1.PBizEntity {
                 ok = false;
             }
         }
-        return ok;
-    }
-    scan(space) {
-        let ok = true;
         let binSpace = new BizBinSpace(space, this.element);
         if (this.main !== undefined) {
             let { bizEntityArr: [m] } = binSpace.getBizFromEntityArrFromName(this.main);
@@ -319,6 +315,11 @@ class PBizBin extends Base_1.PBizEntity {
                 this.element.main = m;
             }
         }
+        return ok;
+    }
+    scan(space) {
+        let ok = true;
+        let binSpace = new BizBinSpace(space, this.element);
         const { iBase, xBase } = this.element;
         if (iBase !== undefined) {
             if (this.element.i === undefined) {

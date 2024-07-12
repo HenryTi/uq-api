@@ -5,11 +5,10 @@ const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizTie extends Entity_1.BizEntity {
+class BizTie extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.tie;
-        this.isID = false;
         this.fields = ['i', 'x'];
         this.i = {};
         this.x = {};

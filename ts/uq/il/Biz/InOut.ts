@@ -9,7 +9,7 @@ import { Biz } from "./Biz";
 import { IDUnique, BizAtom } from "./BizID";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizEntity, BizNotID } from "./Entity";
 import { BizOptions } from "./Options";
 
 // ???
@@ -19,8 +19,7 @@ import { BizOptions } from "./Options";
 // 以后再解决。可能的办法是，这份数据有ID，然后在同一个App服务器去重复。
 // ???
 
-export abstract class BizInOut extends BizEntity {
-    readonly isID = false;
+export abstract class BizInOut extends BizNotID {
     protected readonly fields = [];
 }
 
@@ -194,9 +193,8 @@ export enum IOConnectType {
 interface IOAppConnect {
     type: IOConnectType;
 }
-export class BizIOApp extends BizEntity {
+export class BizIOApp extends BizNotID {
     readonly bizPhraseType = BizPhraseType.ioApp;
-    readonly isID = false;
     readonly connect: IOAppConnect = { type: undefined, };
     readonly fields = [];
     readonly ioSites: BizIOSite[] = [];
@@ -233,9 +231,8 @@ export class BizIOApp extends BizEntity {
     }
 }
 
-export class BizIOSite extends BizEntity {
+export class BizIOSite extends BizNotID {
     readonly bizPhraseType = BizPhraseType.ioSite;
-    readonly isID = false;
     readonly fields = [];
     tie: BizAtom;
     readonly ioApps: BizIOApp[] = [];

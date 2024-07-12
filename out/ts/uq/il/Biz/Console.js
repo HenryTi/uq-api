@@ -4,11 +4,10 @@ exports.BizConsole = void 0;
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizConsole extends Entity_1.BizEntity {
+class BizConsole extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.console;
-        this.isID = false;
         this.fields = [];
         this.folder = {
             name: '$',

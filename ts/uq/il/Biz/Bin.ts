@@ -8,7 +8,7 @@ import { BizAtom, BizFork } from "./BizID";
 import { BizAct } from "./Base";
 import { Biz } from "./Biz";
 import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue, BizBudIXBase } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizEntity, BizID } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizSheet } from "./Sheet";
 import { UI } from "../UI";
@@ -225,10 +225,9 @@ export class BinPivot extends BinDiv {
     }
 }
 
-export class BizBin extends BizEntity {
+export class BizBin extends BizID {
     protected readonly fields = ['id', 'pend', ...binFieldArr];
     readonly bizPhraseType = BizPhraseType.bin;
-    readonly isID = false;
     readonly pickColl: { [name: string]: BinPick } = {};
     readonly inputColl: { [name: string]: BinInput } = {};
     readonly sheetArr: BizSheet[] = [];     // 被多少sheet引用了

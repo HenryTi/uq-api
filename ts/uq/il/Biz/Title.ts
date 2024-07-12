@@ -1,11 +1,10 @@
 import { PBizTitle, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizEntity } from "./Entity";
+import { BizNotID } from "./Entity";
 
-export class BizTitle extends BizEntity {
+export class BizTitle extends BizNotID {
     readonly bizPhraseType = BizPhraseType.book;
-    readonly isID = false;
     protected readonly fields = [];
 
     parser(context: PContext): PElement<IElement> {

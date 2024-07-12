@@ -8,12 +8,12 @@ const BizPhraseType_1 = require("./BizPhraseType");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 const Query_1 = require("./Query");
-class BizPend extends Entity_1.BizEntity {
+class BizPend extends Entity_1.BizID {
     constructor(biz) {
         super(biz);
         this.fields = [...BizPend.predefinedId, ...BizPend.predefinedValue];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
-        this.isID = true;
+        this.main = undefined;
         this.predefinedFields = [];
         this.bizBins = [];
         this.predefinedBuds = {};

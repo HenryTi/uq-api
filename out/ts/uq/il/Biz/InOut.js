@@ -14,10 +14,9 @@ const Entity_1 = require("./Entity");
 // 有可能同一份数据在这个app中出现两份。
 // 以后再解决。可能的办法是，这份数据有ID，然后在同一个App服务器去重复。
 // ???
-class BizInOut extends Entity_1.BizEntity {
+class BizInOut extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
-        this.isID = false;
         this.fields = [];
     }
 }
@@ -186,11 +185,10 @@ var IOConnectType;
     IOConnectType[IOConnectType["connect1"] = 1] = "connect1";
     IOConnectType[IOConnectType["connect2"] = 2] = "connect2";
 })(IOConnectType || (exports.IOConnectType = IOConnectType = {}));
-class BizIOApp extends Entity_1.BizEntity {
+class BizIOApp extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioApp;
-        this.isID = false;
         this.connect = { type: undefined, };
         this.fields = [];
         this.ioSites = [];
@@ -226,11 +224,10 @@ class BizIOApp extends Entity_1.BizEntity {
     }
 }
 exports.BizIOApp = BizIOApp;
-class BizIOSite extends Entity_1.BizEntity {
+class BizIOSite extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioSite;
-        this.isID = false;
         this.fields = [];
         this.ioApps = [];
     }

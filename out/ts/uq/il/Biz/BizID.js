@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIDAny = exports.BizCombo = exports.BizFork = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizID = void 0;
+exports.BizIDAny = exports.BizCombo = exports.BizFork = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizIDWithShowBuds = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -10,11 +10,7 @@ const Entity_1 = require("./Entity");
 // 扩展和继承：有两个方式，一个是typescript里面的extends，一个是spec的base
 // 按照这个原则，BizBin应该也是BizID。当前不处理。以后可以处理
 // BizBin是一次操作行为记录，跟普通的BizID区别明显。作为ID仅用于引用。
-class BizID extends Entity_1.BizEntity {
-    constructor() {
-        super(...arguments);
-        this.isID = true;
-    }
+class BizIDWithShowBuds extends Entity_1.BizID {
     buildSchema(res) {
         let ret = super.buildSchema(res);
         if (this.titleBuds !== undefined) {
@@ -35,8 +31,12 @@ class BizID extends Entity_1.BizEntity {
         return ret;
     }
 }
-exports.BizID = BizID;
-class BizIDExtendable extends BizID {
+exports.BizIDWithShowBuds = BizIDWithShowBuds;
+class BizIDExtendable extends BizIDWithShowBuds {
+    constructor() {
+        super(...arguments);
+        this.main = undefined;
+    }
     get extendsPhrase() { return this.extends === undefined ? '' : this.extends.phrase; }
     buildPhrases(phrases, prefix) {
         super.buildPhrases(phrases, prefix);
@@ -130,12 +130,13 @@ class BizAtom extends BizIDExtendable {
 exports.BizAtom = BizAtom;
 // 分子：atom 原子的合成
 // duo: 二重奏
-class BizDuo extends BizID {
+class BizDuo extends BizIDWithShowBuds {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.duo;
         this.i = {};
         this.x = {};
+        this.main = undefined;
         this.fields = ['id', 'i', 'x'];
     }
     parser(context) {
@@ -204,13 +205,14 @@ class BizFork extends BizIDWithBase {
     }
 }
 exports.BizFork = BizFork;
-class BizCombo extends BizID {
+class BizCombo extends BizIDWithShowBuds {
     constructor() {
         super(...arguments);
         this.fields = ['id'];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.combo;
         this.keys = [];
         this.indexes = [];
+        this.main = undefined;
     }
     parser(context) {
         return new parser_1.PBizCombo(this, context);
@@ -250,11 +252,12 @@ class BizCombo extends BizID {
     }
 }
 exports.BizCombo = BizCombo;
-class BizIDAny extends BizID {
+class BizIDAny extends BizIDWithShowBuds {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.any;
         this.fields = ['id'];
+        this.main = undefined;
         this.name = '*';
     }
     parser(context) { return undefined; }

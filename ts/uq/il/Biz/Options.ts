@@ -2,7 +2,7 @@ import { PBizOptions, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizEntity, BizID, BizNotID } from "./Entity";
 
 export enum OptionsItemValueType {
     none = 0,
@@ -29,10 +29,10 @@ export class OptionsItem extends BizBudValue {
     }
 }
 
-export class BizOptions extends BizEntity {
+export class BizOptions extends BizID {
     readonly bizPhraseType = BizPhraseType.options;
     protected readonly fields = [];
-    readonly isID = false;
+    readonly main = undefined;
     readonly items: OptionsItem[] = [];
     parser(context: PContext): PElement<IElement> {
         return new PBizOptions(this, context);

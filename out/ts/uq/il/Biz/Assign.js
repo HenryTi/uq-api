@@ -5,11 +5,10 @@ const builder_1 = require("../../builder");
 const Assign_1 = require("../../parser/Biz/Assign");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizAssign extends Entity_1.BizEntity {
+class BizAssign extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.assign;
-        this.isID = false;
         this.fields = [];
         this.atom = [];
         this.title = []; // of BizTitle buds

@@ -6,7 +6,7 @@ const parser_1 = require("../../parser");
 const statement_1 = require("../statement");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizQuery extends Entity_1.BizEntity {
+class BizQuery extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.query;
@@ -17,7 +17,6 @@ class BizQueryValue extends BizQuery {
     constructor() {
         super(...arguments);
         this.fields = [];
-        this.isID = false;
     }
     get type() { return 'queryvalue'; }
     parser(context) {
@@ -43,7 +42,6 @@ class BizQueryTable extends BizQuery {
     constructor() {
         super(...arguments);
         this.fields = [];
-        this.isID = false;
         this.params = [];
     }
     get type() { return 'query'; }

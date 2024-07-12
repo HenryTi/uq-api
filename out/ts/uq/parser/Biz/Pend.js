@@ -75,6 +75,28 @@ class PBizPend extends Base_1.PBizEntity {
     parseContent() {
         super.parseContent();
     }
+    scan0(space) {
+        let ok = super.scan0(space);
+        if (this.keys !== undefined) {
+            this.element.keys = [];
+            const { keys } = this.element;
+            for (let key of this.keys) {
+                let bud = this.element.getDefinedBud(key);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${key} is not defined in PEND`);
+                }
+                else {
+                    keys.push(bud);
+                }
+            }
+            if (keys.length < 2) {
+                ok = false;
+                this.log(`PEND key items count must be at least 2`);
+            }
+        }
+        return ok;
+    }
     scan(space) {
         let ok = true;
         if (super.scan(space) === false) {
@@ -108,24 +130,6 @@ class PBizPend extends Base_1.PBizEntity {
             if (predefines.includes(bud.name) === true) {
                 this.log(`Pend Prop name can not be one of these: ${predefines.join(', ')}`);
                 ok = false;
-            }
-        }
-        if (this.keys !== undefined) {
-            this.element.keys = [];
-            const { keys } = this.element;
-            for (let key of this.keys) {
-                let bud = this.element.getDefinedBud(key);
-                if (bud === undefined) {
-                    ok = false;
-                    this.log(`${key} is not defined in PEND`);
-                }
-                else {
-                    keys.push(bud);
-                }
-            }
-            if (keys.length < 2) {
-                ok = false;
-                this.log(`PEND key items count must be at least 2`);
             }
         }
         if (pendQuery !== undefined) {

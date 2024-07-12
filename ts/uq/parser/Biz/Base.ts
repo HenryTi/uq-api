@@ -670,6 +670,17 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return ok;
     }
 
+    override scan0(space: Space): boolean {
+        let ok = super.scan0(space);
+        const { props } = this.element;
+        for (let [, bud] of props) {
+            if (bud.pelement.scan0(space) === false) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
     scan(space: Space): boolean {
         let ok = true;
         const { props } = this.element;

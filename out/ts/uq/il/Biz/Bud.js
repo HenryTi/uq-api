@@ -38,6 +38,7 @@ class BizBud extends Base_1.BizBase {
     get bizPhraseType() { return BizPhraseType_1.BizPhraseType.bud; }
     get objName() { return undefined; }
     getFieldShows() { return undefined; }
+    get IDEntity() { return undefined; }
     constructor(entity, name, ui) {
         super(entity === null || entity === void 0 ? void 0 : entity.biz);
         this.flag = Entity_1.BudIndex.none;
@@ -277,6 +278,7 @@ class BizBudIDBase extends BizBudValue {
         this.canIndex = true;
         this.params = {}; // 仅仅针对Spec，可能有多级的base
     }
+    get IDEntity() { return this.ID; }
     getFieldShows() {
         let ret = [];
         if (this.fieldShows !== undefined)
@@ -384,6 +386,7 @@ class BizBudBin extends BizBudValue {
         this.dataType = BizPhraseType_1.BudDataType.bin;
         this.canIndex = false;
     }
+    get IDEntity() { return this.bin; }
     parser(context) {
         return new parser_1.PBizBudBin(this, context);
     }
@@ -392,9 +395,7 @@ class BizBudBin extends BizBudValue {
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
         ret.showBuds = (_a = this.showBuds) === null || _a === void 0 ? void 0 : _a.map(v => {
-            if (Array.isArray(v) === true)
-                return v.map(vi => vi === null || vi === void 0 ? void 0 : vi.id);
-            return v.id;
+            return v.map(vi => vi === null || vi === void 0 ? void 0 : vi.id);
         });
         return ret;
     }
@@ -402,9 +403,7 @@ class BizBudBin extends BizBudValue {
         if (this.showBuds === undefined)
             return;
         return [this.showBuds.map(v => {
-                if (Array.isArray(v) === true)
-                    return ([this, ...v]);
-                return ([this, v]);
+                return ([this, ...v]);
             })];
     }
 }

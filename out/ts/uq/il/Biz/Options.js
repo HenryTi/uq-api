@@ -27,12 +27,12 @@ class OptionsItem extends Bud_1.BizBudValue {
     }
 }
 exports.OptionsItem = OptionsItem;
-class BizOptions extends Entity_1.BizEntity {
+class BizOptions extends Entity_1.BizID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.options;
         this.fields = [];
-        this.isID = false;
+        this.main = undefined;
         this.items = [];
     }
     parser(context) {

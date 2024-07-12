@@ -6,7 +6,8 @@ import {
     , FieldShowItem, BizFork, BudValueSet, BizBudValueWithRange
     , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, UI, BinValue
     , BizBudIDBase,
-    BizBudBin
+    BizBudBin,
+    BizID
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -462,7 +463,7 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
     }
 }
 
-type ShowBud = (string | (string[]));
+type ShowBud = string[];
 
 export class PBizBudBin extends PBizBudValue<BizBudBin> {
     private binName: string;
@@ -476,10 +477,10 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
                 if (this.ts.token === Token.XOR as any) {
                     this.ts.readToken();
                     let bud = this.ts.passVar();
-                    showBud = [bud, undefined];
+                    showBud = [undefined, bud];
                 }
                 else {
-                    showBud = this.ts.passVar();
+                    showBud = [this.ts.passVar()];
                 }
                 this.showBuds.push(showBud);
                 if (this.ts.token === Token.COMMA as any) {
@@ -496,49 +497,61 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
         this.parseBudEquValue();
     }
 
-    scan(space: BizEntitySpace): boolean {
-        let ok = super.scan(space);
-        let bin = space.uq.biz.bizEntities.get(this.binName);
-        if (bin === undefined || bin.bizPhraseType !== BizPhraseType.bin) {
+    override scan0(space: Space): boolean {
+        let ok = super.scan0(space);
+        if (this.binName === undefined) {
             ok = false;
-            this.log(`${this.binName} is not a BIN`);
+            this.log(`${this.element.getJName()} does not define BIN`);
         }
         else {
-            let bizBin = this.element.bin = bin as BizBin;
-            if (this.showBuds.length > 0) {
-                this.element.showBuds = [];
-                const { showBuds } = this.element;
-                for (let showBudName of this.showBuds) {
-                    if (Array.isArray(showBudName) === true) {
-                        let arr: BizBud[] = [];
-                        showBudName.map(v => {
-                            if (v === undefined) {
-                                arr.push(undefined);
-                                return;
-                            }
-                            let bud = bizBin.getBud(v);
-                            if (bud === undefined) {
-                                ok = false;
-                                this.log(`${bin.getJName()} does not has bud ${showBudName}`);
-                            }
-                            else {
-                                arr.push(bud);
-                            }
-                        });
-                        showBuds.push(arr);
-                    }
-                    else {
-                        let bud = bizBin.getBud(showBudName);
-                        if (bud === undefined) {
-                            ok = false;
-                            this.log(`${bin.getJName()} does not has bud ${showBudName}`);
-                        }
-                        else {
-                            showBuds.push(bud);
-                        }
-                    }
-                }
+            let bin = space.uq.biz.bizEntities.get(this.binName);
+            this.element.bin = bin as BizBin;
+            if (bin === undefined || bin.bizPhraseType !== BizPhraseType.bin) {
+                ok = false;
+                this.log(`${this.binName} is not a BIN`);
             }
+        }
+        return ok;
+    }
+
+    override scan(space: BizEntitySpace): boolean {
+        let ok = super.scan(space);
+        if (this.showBuds.length === 0) {
+            return ok;
+        }
+        let { bin: bizBin } = this.element;
+        this.element.showBuds = [];
+        const { showBuds } = this.element;
+        for (let showBudName of this.showBuds) {
+            let pEntity: BizID = bizBin;
+            let bud: BizBud = undefined;
+            let arr: BizBud[] = [];
+            for (let sbn of showBudName) {
+                if (pEntity === undefined) {
+                    ok = false;
+                    this.log(`${bud.getJName()} does not has ${sbn}`);
+                    break;
+                }
+                if (sbn === undefined) {
+                    pEntity = pEntity.main;
+                    if (pEntity === undefined) {
+                        ok = false;
+                        this.log(`${bizBin.getJName()} does not has MAIN`);
+                        break;
+                    }
+                    arr.push(undefined);
+                    continue;
+                }
+                bud = pEntity.getBud(sbn);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${pEntity.getJName()} does not has bud ${showBudName}`);
+                    break;
+                }
+                arr.push(bud);
+                pEntity = bud.IDEntity;
+            };
+            showBuds.push(arr);
         }
         return ok;
     }

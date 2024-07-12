@@ -5,14 +5,13 @@ import { UI } from "../UI";
 import { IxField } from "./Base";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizID } from "./Entity";
 
 // 任何可以独立存在，可被引用ID
 // 扩展和继承：有两个方式，一个是typescript里面的extends，一个是spec的base
 // 按照这个原则，BizBin应该也是BizID。当前不处理。以后可以处理
 // BizBin是一次操作行为记录，跟普通的BizID区别明显。作为ID仅用于引用。
-export abstract class BizID extends BizEntity {
-    readonly isID = true;
+export abstract class BizIDWithShowBuds extends BizID {
     titleBuds: BizBud[];
     primeBuds: BizBud[];
     buildSchema(res: { [phrase: string]: string }) {
@@ -37,9 +36,10 @@ export abstract class BizID extends BizEntity {
 
 
 
-export abstract class BizIDExtendable extends BizID {
+export abstract class BizIDExtendable extends BizIDWithShowBuds {
     extends: BizIDExtendable;
     uniques: IDUnique[];
+    readonly main = undefined;
 
     get extendsPhrase(): string { return this.extends === undefined ? '' : this.extends.phrase; }
     buildPhrases(phrases: [string, string, string, string][], prefix: string) {
@@ -134,10 +134,11 @@ export class BizAtom extends BizIDExtendable {
 
 // 分子：atom 原子的合成
 // duo: 二重奏
-export class BizDuo extends BizID {
+export class BizDuo extends BizIDWithShowBuds {
     readonly bizPhraseType = BizPhraseType.duo;
     readonly i = {} as IxField;
     readonly x = {} as IxField;
+    readonly main = undefined;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizDuo(this, context);
@@ -210,11 +211,12 @@ export class BizFork extends BizIDWithBase {
     }
 }
 
-export class BizCombo extends BizID {
+export class BizCombo extends BizIDWithShowBuds {
     protected readonly fields = ['id'];
     readonly bizPhraseType = BizPhraseType.combo;
     readonly keys: BizBud[] = [];
     readonly indexes: BizBud[][] = [];
+    readonly main = undefined;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizCombo(this, context);
@@ -256,10 +258,11 @@ export class BizCombo extends BizID {
     }
 }
 
-export class BizIDAny extends BizID {
+export class BizIDAny extends BizIDWithShowBuds {
     static current: BizIDAny = new BizIDAny(undefined);
     readonly bizPhraseType = BizPhraseType.any;
     protected readonly fields = ['id'];
+    readonly main = undefined;
     name = '*';
     parser(context: PContext): PElement<IElement> { return undefined; }
 

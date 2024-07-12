@@ -1,11 +1,10 @@
 import { PBizTree, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizEntity } from "./Entity";
+import { BizNotID } from "./Entity";
 
-export class BizTree extends BizEntity {
+export class BizTree extends BizNotID {
     readonly bizPhraseType = BizPhraseType.tree;
-    readonly isID = false;
     protected fields = [];
     parser(context: PContext): PElement<IElement> {
         return new PBizTree(this, context);

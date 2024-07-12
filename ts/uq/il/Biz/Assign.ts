@@ -5,11 +5,10 @@ import { IElement } from "../IElement";
 import { BizAtom } from "./BizID";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud } from "./Bud";
-import { BizEntity } from "./Entity";
+import { BizEntity, BizNotID } from "./Entity";
 
-export class BizAssign extends BizEntity {
+export class BizAssign extends BizNotID {
     readonly bizPhraseType = BizPhraseType.assign;
-    readonly isID = false;
     protected readonly fields = [];
     readonly atom: BizAtom[] = [];
     readonly title: [BizEntity, BizBud][] = [];       // of BizTitle buds

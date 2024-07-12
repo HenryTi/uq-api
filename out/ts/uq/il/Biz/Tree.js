@@ -4,11 +4,10 @@ exports.BizTree = void 0;
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizTree extends Entity_1.BizEntity {
+class BizTree extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.tree;
-        this.isID = false;
         this.fields = [];
     }
     parser(context) {
