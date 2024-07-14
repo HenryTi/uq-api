@@ -131,34 +131,35 @@ class BBizEntity {
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', lastT), new sql_1.ExpField('id', b)), new sql_1.ExpEQ(new sql_1.ExpField('x', lastT), new sql_1.ExpNum(lastBud.id))));
             lastField = 'value';
         }
-        let tp, tId = 't0';
+        let tp, tId, fId;
         for (let i = 1; i < len; i++) {
             let bizBud = fieldShow[i];
-            // lastBud = bizBud;
             tp = 't' + i;
             if (bizBud === undefined) {
                 let tblBin = tp + 'bin';
                 let tblDetail = tp + 'detail';
-                // let tblBud = t + 'bud';
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, tblBin))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tblBin), new sql_1.ExpField(lastField, lastT)))
                     .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, tblDetail))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tblDetail), new sql_1.ExpField('id', tblBin)))
                     .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, tp))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tp), new sql_1.ExpField('base', tblDetail)));
-                // .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, t))
-                // .on(new ExpEQ(new ExpField('id', t), new ExpField('base', tblBud)));
                 lastField = 'base';
+                tId = 't0';
+                fId = 'value';
             }
             else {
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false, tp))
                     .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', tp), new sql_1.ExpField(lastField, lastT)), new sql_1.ExpEQ(new sql_1.ExpField('x', tp), new sql_1.ExpNum(bizBud.id))));
                 lastField = 'value';
             }
-            tId = 't' + (i - 1);
             lastT = tp;
         }
         let t = 't' + len;
+        if (tId === undefined) {
+            tId = t;
+            fId = 'i';
+        }
         let bizBud = fieldShow[len];
         let tblIxBud;
         let expFieldValue = new sql_1.ExpField('value', t);
@@ -201,7 +202,7 @@ class BBizEntity {
             select.column(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, new sql_1.ExpField('ext', k)));
             select.where(new sql_1.ExpEQ(new sql_1.ExpField('base', k), new sql_1.ExpNum(bizBud.id)));
         }
-        select.column(new sql_1.ExpField('value', tId), 'id');
+        select.column(new sql_1.ExpField(fId, tId), 'id');
         return select;
     }
 }

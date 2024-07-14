@@ -131,24 +131,22 @@ export class BBizEntity<B extends BizEntity = any> {
             lastField = 'value';
         }
 
-        let tp: string, tId: string = 't0';
+        let tp: string, tId: string, fId: string;
         for (let i = 1; i < len; i++) {
             let bizBud = fieldShow[i];
-            // lastBud = bizBud;
             tp = 't' + i;
             if (bizBud === undefined) {
                 let tblBin = tp + 'bin';
                 let tblDetail = tp + 'detail';
-                // let tblBud = t + 'bud';
                 select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, tblBin))
                     .on(new ExpEQ(new ExpField('id', tblBin), new ExpField(lastField, lastT)))
                     .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, tblDetail))
                     .on(new ExpEQ(new ExpField('id', tblDetail), new ExpField('id', tblBin)))
                     .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, tp))
                     .on(new ExpEQ(new ExpField('id', tp), new ExpField('base', tblDetail)))
-                // .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, t))
-                // .on(new ExpEQ(new ExpField('id', t), new ExpField('base', tblBud)));
                 lastField = 'base';
+                tId = 't0';
+                fId = 'value';
             }
             else {
                 select.join(JoinType.join, new EntityTable(EnumSysTable.ixBudInt, false, tp))
@@ -158,10 +156,13 @@ export class BBizEntity<B extends BizEntity = any> {
                     ));
                 lastField = 'value';
             }
-            tId = 't' + (i - 1);
             lastT = tp;
         }
         let t = 't' + len;
+        if (tId === undefined) {
+            tId = t;
+            fId = 'i';
+        }
         let bizBud = fieldShow[len];
         let tblIxBud: EnumSysTable;
         let expFieldValue = new ExpField('value', t);
@@ -207,7 +208,7 @@ export class BBizEntity<B extends BizEntity = any> {
             select.column(new ExpFunc('JSON_ARRAY', ExpNum.num0, new ExpField('ext', k)));
             select.where(new ExpEQ(new ExpField('base', k), new ExpNum(bizBud.id)))
         }
-        select.column(new ExpField('value', tId), 'id');
+        select.column(new ExpField(fId, tId), 'id');
         return select;
     }
 }
