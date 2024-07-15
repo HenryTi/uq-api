@@ -6,9 +6,16 @@ import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
+interface PPrint {
+    name: string;
+    caption: string;
+    main: string;
+    details: [string, string][];
+}
 export class PBizSheet extends PBizEntity<BizSheet> {
     private main: string;
     private details: { name: string, caption: string }[] = [];
+    private readonly prints: PPrint[] = [];
 
     private parseIO = () => {
         this.element.io = true;
@@ -39,6 +46,50 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         this.element.bizSearch = bizSearch;
     }
 
+    private parsePrint = () => {
+        let name: string, caption: string;
+        if (this.ts.token === Token.VAR) {
+            name = this.ts.lowerVar;
+            this.ts.readToken();
+            if (this.ts.token === Token.STRING as any) {
+                caption = this.ts.text;
+                this.ts.readToken();
+            }
+        }
+        this.ts.passToken(Token.LBRACE);
+        let main: string;
+        let details: [string, string][] = [];
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE) {
+                this.ts.readToken();
+                break;
+            }
+            let key = this.ts.passKey();
+            switch (key) {
+                default:
+                    this.ts.expect('main', 'detail');
+                    break;
+                case 'main':
+                    if (main !== undefined) {
+                        this.ts.error('duplicate MAIN');
+                    }
+                    main = this.ts.passVar();
+                    break;
+                case 'detail':
+                    let detail = this.ts.passVar();
+                    let templet = this.ts.passVar();
+                    if (details.findIndex(([d]) => d === detail) >= 0) {
+                        this.ts.error(`duplicate DETAIL ${detail}`);
+                    }
+                    details.push([detail, templet]);
+                    break;
+            }
+            this.ts.passToken(Token.SEMICOLON);
+        }
+        this.ts.mayPassToken(Token.SEMICOLON);
+        this.prints.push({ name, caption, main, details });
+    }
+
     readonly keyColl = {
         io: this.parseIO,
         prop: this.parseProp,
@@ -49,6 +100,7 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         permit: this.parsePermit,
         search: this.parseSheetSearch,
         user: this.parseBizUser,
+        print: this.parsePrint,
     };
 
     scan0(space: Space): boolean {

@@ -7,6 +7,7 @@ export * from './Title';
 export * from './Bud';
 export * from './Role';
 export * from './Tree';
+export * from './Print';
 export * from './Tie';
 export * from './Options';
 export * from './Report';

@@ -5,7 +5,6 @@ import { BizNotID } from "./Entity";
 
 export class BizRole extends BizNotID {
     readonly bizPhraseType = BizPhraseType.permit; //.role;
-    protected readonly fields = [];
     readonly roles = new Map<string, BizRole>();
     get type(): string { return 'permit'; }
     parser(context: PContext): PElement<IElement> {

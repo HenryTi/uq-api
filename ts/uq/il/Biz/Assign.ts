@@ -9,7 +9,6 @@ import { BizEntity, BizNotID } from "./Entity";
 
 export class BizAssign extends BizNotID {
     readonly bizPhraseType = BizPhraseType.assign;
-    protected readonly fields = [];
     readonly atom: BizAtom[] = [];
     readonly title: [BizEntity, BizBud][] = [];       // of BizTitle buds
 

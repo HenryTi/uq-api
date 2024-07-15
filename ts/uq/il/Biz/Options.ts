@@ -2,7 +2,7 @@ import { PBizOptions, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
-import { BizEntity, BizID, BizNotID } from "./Entity";
+import { BizID } from "./Entity";
 
 export enum OptionsItemValueType {
     none = 0,

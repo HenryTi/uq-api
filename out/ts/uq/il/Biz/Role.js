@@ -8,7 +8,6 @@ class BizRole extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.permit; //.role;
-        this.fields = [];
         this.roles = new Map();
     }
     get type() { return 'permit'; }

@@ -9,7 +9,6 @@ class BizAssign extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.assign;
-        this.fields = [];
         this.atom = [];
         this.title = []; // of BizTitle buds
     }

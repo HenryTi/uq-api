@@ -20,7 +20,6 @@ import { BizOptions } from "./Options";
 // ???
 
 export abstract class BizInOut extends BizNotID {
-    protected readonly fields = [];
 }
 
 export class BizIn extends BizInOut {
@@ -196,7 +195,6 @@ interface IOAppConnect {
 export class BizIOApp extends BizNotID {
     readonly bizPhraseType = BizPhraseType.ioApp;
     readonly connect: IOAppConnect = { type: undefined, };
-    readonly fields = [];
     readonly ioSites: BizIOSite[] = [];
     readonly IDs: IOAppID[] = [];
     readonly ins: IOAppIn[] = [];
@@ -233,7 +231,6 @@ export class BizIOApp extends BizNotID {
 
 export class BizIOSite extends BizNotID {
     readonly bizPhraseType = BizPhraseType.ioSite;
-    readonly fields = [];
     tie: BizAtom;
     readonly ioApps: BizIOApp[] = [];
     parser(context: PContext): PElement<IElement> {

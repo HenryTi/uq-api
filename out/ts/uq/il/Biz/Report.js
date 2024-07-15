@@ -14,7 +14,6 @@ var ReportJoinType;
 class BizReport extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
-        this.fields = [];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.report;
         this.titles = [];
         this.joins = [];

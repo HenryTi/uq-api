@@ -8,7 +8,6 @@ class BizTree extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.tree;
-        this.fields = [];
     }
     parser(context) {
         return new parser_1.PBizTree(this, context);

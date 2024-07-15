@@ -39,6 +39,8 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["optionsitem"] = 1031] = "optionsitem";
     BizPhraseType[BizPhraseType["binDiv"] = 2001] = "binDiv";
     BizPhraseType[BizPhraseType["console"] = 6001] = "console";
+    BizPhraseType[BizPhraseType["templet"] = 6101] = "templet";
+    BizPhraseType[BizPhraseType["print"] = 6102] = "print";
 })(BizPhraseType || (exports.BizPhraseType = BizPhraseType = {}));
 ;
 var BudDataType;

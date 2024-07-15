@@ -8,7 +8,6 @@ class BizConsole extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.console;
-        this.fields = [];
         this.folder = {
             name: '$',
             ui: undefined,

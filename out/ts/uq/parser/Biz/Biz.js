@@ -29,6 +29,8 @@ class PBiz extends entity_1.PEntity {
             tree: il_1.BizTree,
             tie: il_1.BizTie,
             report: il_1.BizReport,
+            templet: il_1.BizTemplet,
+            print: il_1.BizPrint,
             in: il_1.BizIn,
             out: il_1.BizOut,
             ioapp: il_1.BizIOApp,

@@ -6,6 +6,17 @@ import { BizBin } from "./Bin";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizNotID } from "./Entity";
 import { UseOut } from "./InOut";
+import { BizPrint } from "./Print";
+
+interface Print {
+    main: BizPrint;
+    details: DetailPrint[];
+}
+
+interface DetailPrint {
+    detail: BizBin;
+    print: BizPrint;
+}
 
 export class BizSheet extends BizNotID {
     protected readonly fields = ['id', 'no'];
@@ -15,6 +26,8 @@ export class BizSheet extends BizNotID {
     readonly details: { bin: BizBin; caption: string; }[] = [];
     io: boolean;
     bizSearch: BizSearch;
+    print: Print;
+    prints: Print[];
 
     parser(context: PContext): PElement<IElement> {
         return new PBizSheet(this, context);

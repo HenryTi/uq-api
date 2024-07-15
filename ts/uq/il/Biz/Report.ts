@@ -20,7 +20,6 @@ export interface ReportJoin {
 }
 
 export class BizReport extends BizNotID {
-    protected readonly fields = [];
     readonly bizPhraseType = BizPhraseType.report;
     readonly titles: ReportTitle[] = [];
     from: BizAtom | BizDuo;

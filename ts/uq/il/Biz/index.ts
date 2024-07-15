@@ -9,6 +9,7 @@ export * from './Role';
 export * from './Query';
 export * from './Entity';
 export * from './Tree';
+export * from './Print';
 export * from './Tie';
 export * from './Options';
 export * from './Report';

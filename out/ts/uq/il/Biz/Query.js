@@ -14,10 +14,6 @@ class BizQuery extends Entity_1.BizNotID {
 }
 exports.BizQuery = BizQuery;
 class BizQueryValue extends BizQuery {
-    constructor() {
-        super(...arguments);
-        this.fields = [];
-    }
     get type() { return 'queryvalue'; }
     parser(context) {
         return new parser_1.PBizQueryValue(this, context);
@@ -41,7 +37,6 @@ exports.BizQueryValueStatements = BizQueryValueStatements;
 class BizQueryTable extends BizQuery {
     constructor() {
         super(...arguments);
-        this.fields = [];
         this.params = [];
     }
     get type() { return 'query'; }

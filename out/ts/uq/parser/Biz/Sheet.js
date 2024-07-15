@@ -8,6 +8,7 @@ class PBizSheet extends Base_1.PBizEntity {
     constructor() {
         super(...arguments);
         this.details = [];
+        this.prints = [];
         this.parseIO = () => {
             this.element.io = true;
             this.ts.passToken(tokens_1.Token.SEMICOLON);
@@ -32,6 +33,49 @@ class PBizSheet extends Base_1.PBizEntity {
             let bizSearch = this.parseSearch(this.element);
             this.element.bizSearch = bizSearch;
         };
+        this.parsePrint = () => {
+            let name, caption;
+            if (this.ts.token === tokens_1.Token.VAR) {
+                name = this.ts.lowerVar;
+                this.ts.readToken();
+                if (this.ts.token === tokens_1.Token.STRING) {
+                    caption = this.ts.text;
+                    this.ts.readToken();
+                }
+            }
+            this.ts.passToken(tokens_1.Token.LBRACE);
+            let main;
+            let details = [];
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RBRACE) {
+                    this.ts.readToken();
+                    break;
+                }
+                let key = this.ts.passKey();
+                switch (key) {
+                    default:
+                        this.ts.expect('main', 'detail');
+                        break;
+                    case 'main':
+                        if (main !== undefined) {
+                            this.ts.error('duplicate MAIN');
+                        }
+                        main = this.ts.passVar();
+                        break;
+                    case 'detail':
+                        let detail = this.ts.passVar();
+                        let templet = this.ts.passVar();
+                        if (details.findIndex(([d]) => d === detail) >= 0) {
+                            this.ts.error(`duplicate DETAIL ${detail}`);
+                        }
+                        details.push([detail, templet]);
+                        break;
+                }
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
+            }
+            this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+            this.prints.push({ name, caption, main, details });
+        };
         this.keyColl = {
             io: this.parseIO,
             prop: this.parseProp,
@@ -42,6 +86,7 @@ class PBizSheet extends Base_1.PBizEntity {
             permit: this.parsePermit,
             search: this.parseSheetSearch,
             user: this.parseBizUser,
+            print: this.parsePrint,
         };
     }
     scan0(space) {

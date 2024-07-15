@@ -229,6 +229,7 @@ class BizNotID extends BizEntity {
     constructor() {
         super(...arguments);
         this.isID = false;
+        this.fields = [];
     }
 }
 exports.BizNotID = BizNotID;

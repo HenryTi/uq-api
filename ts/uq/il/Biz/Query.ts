@@ -17,7 +17,6 @@ export abstract class BizQuery extends BizNotID {
 }
 
 export class BizQueryValue extends BizQuery {
-    protected readonly fields = [];
     on: string[];
     get type() { return 'queryvalue'; }
     parser(context: PContext): PElement<IElement> {
@@ -39,7 +38,6 @@ export class BizQueryValueStatements extends Statements {
 }
 
 export class BizQueryTable extends BizQuery {
-    protected readonly fields = [];
     readonly params: BizBudValue[] = [];
     from: FromStatement;
     value: BizBud;

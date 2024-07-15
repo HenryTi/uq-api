@@ -42,6 +42,8 @@ export enum BizPhraseType {
     binDiv = 2001,
 
     console = 6001,
+    templet = 6101,
+    print = 6102,
 };
 
 export enum BudDataType {

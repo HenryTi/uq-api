@@ -245,6 +245,7 @@ export abstract class BizID extends BizEntity {
 
 export abstract class BizNotID extends BizEntity {
     readonly isID = false;
+    protected readonly fields = [];
 }
 
 export interface BizFromEntitySub {

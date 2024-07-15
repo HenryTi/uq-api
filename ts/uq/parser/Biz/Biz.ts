@@ -4,7 +4,9 @@ import {
     , BizSheet, BizOptions, BizFork
     , BizReport, BizQueryTable, BizAssign, BizConsole, BizDuo, BizIn, BizOut, BizIOApp, BizIOSite,
     BizFromEntity,
-    BizCombo
+    BizCombo,
+    BizTemplet,
+    BizPrint
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -42,6 +44,8 @@ export class PBiz extends PEntity<Biz> {
             tree: BizTree,
             tie: BizTie,
             report: BizReport,
+            templet: BizTemplet,
+            print: BizPrint,
 
             in: BizIn,
             out: BizOut,

@@ -25,6 +25,7 @@ __exportStar(require("./Title"), exports);
 __exportStar(require("./Bud"), exports);
 __exportStar(require("./Role"), exports);
 __exportStar(require("./Tree"), exports);
+__exportStar(require("./Print"), exports);
 __exportStar(require("./Tie"), exports);
 __exportStar(require("./Options"), exports);
 __exportStar(require("./Report"), exports);

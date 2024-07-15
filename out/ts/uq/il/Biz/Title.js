@@ -8,7 +8,6 @@ class BizTitle extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.book;
-        this.fields = [];
     }
     parser(context) {
         return new parser_1.PBizTitle(this, context);

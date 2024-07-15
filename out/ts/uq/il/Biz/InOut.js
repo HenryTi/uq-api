@@ -15,10 +15,6 @@ const Entity_1 = require("./Entity");
 // 以后再解决。可能的办法是，这份数据有ID，然后在同一个App服务器去重复。
 // ???
 class BizInOut extends Entity_1.BizNotID {
-    constructor() {
-        super(...arguments);
-        this.fields = [];
-    }
 }
 exports.BizInOut = BizInOut;
 class BizIn extends BizInOut {
@@ -190,7 +186,6 @@ class BizIOApp extends Entity_1.BizNotID {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioApp;
         this.connect = { type: undefined, };
-        this.fields = [];
         this.ioSites = [];
         this.IDs = [];
         this.ins = [];
@@ -228,7 +223,6 @@ class BizIOSite extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.ioSite;
-        this.fields = [];
         this.ioApps = [];
     }
     parser(context) {
