@@ -74,6 +74,10 @@ class PBinPick extends Bud_1.PBizBud {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
         else {
+            if (this.ts.isKeyword('on') === true) {
+                this.ts.readToken();
+                this.on = this.ts.passVar();
+            }
             this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
         }
     }
@@ -114,6 +118,16 @@ class PBinPick extends Bud_1.PBizBud {
             if (multipleEntity === false && entityArr.length > 1) {
                 this.log('from only one object');
                 ok = false;
+            }
+        }
+        if (this.on !== undefined) {
+            let on = this.element.bin.getBud(this.on);
+            if (on === undefined) {
+                ok = false;
+                this.log(`${this.on} is not a PROP`);
+            }
+            else {
+                this.element.on = on;
             }
         }
         return ok;

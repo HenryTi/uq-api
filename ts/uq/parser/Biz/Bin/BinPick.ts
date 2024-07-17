@@ -15,6 +15,7 @@ import { PBizBud, PBizBudValue } from "../Bud";
 
 export class PBinPick extends PBizBud<BinPick> {
     private from: string[] = [];
+    private on: string;
     private hides: string[];
     protected _parse(): void {
         this.ts.passKey('from');
@@ -79,6 +80,10 @@ export class PBinPick extends PBizBud<BinPick> {
             this.ts.passToken(Token.SEMICOLON);
         }
         else {
+            if (this.ts.isKeyword('on') === true) {
+                this.ts.readToken();
+                this.on = this.ts.passVar();
+            }
             this.ts.mayPassToken(Token.SEMICOLON);
         }
     }
@@ -120,6 +125,16 @@ export class PBinPick extends PBizBud<BinPick> {
             if (multipleEntity === false && entityArr.length > 1) {
                 this.log('from only one object');
                 ok = false;
+            }
+        }
+        if (this.on !== undefined) {
+            let on = this.element.bin.getBud(this.on);
+            if (on === undefined) {
+                ok = false;
+                this.log(`${this.on} is not a PROP`);
+            }
+            else {
+                this.element.on = on;
             }
         }
         return ok;
