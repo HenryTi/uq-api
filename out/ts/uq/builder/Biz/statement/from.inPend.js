@@ -7,6 +7,7 @@ const from_1 = require("./from");
 const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizField_1 = require("../BizField");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const a = 'a', b = 'b';
 class BFromInPendStatement extends from_1.BFromStatement {
     constructor(context, istatement) {
@@ -14,6 +15,8 @@ class BFromInPendStatement extends from_1.BFromStatement {
         this.asc = il_1.EnumAsc.asc;
     }
     buildFromMain(cmpStart) {
+        const { bizPend } = this.istatement.pendQuery;
+        let { i: iBud, x: xBud } = bizPend;
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);
         let tblA = 'pend';
@@ -26,9 +29,15 @@ class BFromInPendStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField('id', a), 'pend');
         select.column(new sql_1.ExpField('id', sheetBin), 'sheet');
         select.column(new sql_1.ExpField('bin', a), 'id');
-        select.column(new sql_1.ExpField('i', b), 'i');
-        select.column(new sql_1.ExpField('x', b), 'x');
-        //select.column(new ExpField(binValue, b), binValue);
+        function buidIXBud(bud, name) {
+            if (bud === undefined) {
+                select.column(new sql_1.ExpField(name, b), name);
+                return;
+            }
+            select.column(new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${bud.id}"`)), 'i');
+        }
+        buidIXBud(iBud, 'i');
+        buidIXBud(xBud, 'x');
         select.column(new sql_1.ExpField('value', a), consts_1.binValue);
         select.column(new sql_1.ExpField(consts_1.binPrice, b), consts_1.binPrice);
         select.column(new sql_1.ExpField(consts_1.binAmount, b), consts_1.binAmount);
@@ -68,16 +77,26 @@ class BFromInPendStatement extends from_1.BFromStatement {
         return [insert];
     }
     buildFromEntity(sqls) {
-        let insertAtom = this.buildInsertAtomDirect();
-        sqls.push(insertAtom);
-    }
-    buildInsertAtomDirect() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new statementWithFrom_1.VarTable('$page', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('id', b)));
-        return insert;
+        const { bizPend } = this.istatement.pendQuery;
+        let { i: iBud, x: xBud, props } = bizPend;
+        const buildInsertAtomSelect = (exp) => {
+            let insert = this.buildInsertAtom();
+            const { select } = insert;
+            select.from(new statementWithFrom_1.VarTable('$page', a))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
+                .on(new sql_1.ExpEQ(exp, new sql_1.ExpField('id', b)));
+            sqls.push(insert);
+        };
+        if (iBud !== undefined)
+            buildInsertAtomSelect(new sql_1.ExpField('i', a));
+        if (xBud !== undefined)
+            buildInsertAtomSelect(new sql_1.ExpField('x', a));
+        for (let [, bud] of props) {
+            if (bud.dataType === BizPhraseType_1.BudDataType.atom) {
+                let exp = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${bud.id}"`));
+                buildInsertAtomSelect(exp);
+            }
+        }
     }
     buildSelectFrom(select, fromEntity) {
     }

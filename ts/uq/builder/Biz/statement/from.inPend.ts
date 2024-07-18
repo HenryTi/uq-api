@@ -1,11 +1,13 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
-import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom, FromEntity } from "../../../il";
+import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom, FromEntity, BizBud } from "../../../il";
 import { BFromStatement } from "./from";
-import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, Select } from "../../sql";
+import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, ExpStr, ExpVal, Select } from "../../sql";
 import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWithFrom";
 import { KeyOfMapFieldTable, MapFieldTable } from "../BizField";
 import { DbContext } from "../../dbContext";
 import { Sqls } from "../../bstatement";
+import { BizPend } from "../../../il";
+import { BudDataType } from "../../../il/Biz/BizPhraseType";
 
 const a = 'a', b = 'b';
 export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
@@ -15,6 +17,8 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
     }
 
     protected override buildFromMain(cmpStart: ExpCmp) {
+        const { bizPend } = this.istatement.pendQuery;
+        let { i: iBud, x: xBud } = bizPend;
         const { factory } = this.context;
         let select = super.buildSelect(cmpStart);
         let tblA: KeyOfMapFieldTable = 'pend';
@@ -27,9 +31,23 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
         select.column(new ExpField('id', a), 'pend');
         select.column(new ExpField('id', sheetBin), 'sheet');
         select.column(new ExpField('bin', a), 'id');
-        select.column(new ExpField('i', b), 'i');
-        select.column(new ExpField('x', b), 'x');
-        //select.column(new ExpField(binValue, b), binValue);
+
+        function buidIXBud(bud: BizBud, name: string) {
+            if (bud === undefined) {
+                select.column(new ExpField(name, b), name);
+                return;
+            }
+            select.column(
+                new ExpFunc(
+                    'JSON_VALUE',
+                    new ExpField('mid', a),
+                    new ExpStr(`$."${bud.id}"`)
+                ),
+                'i'
+            );
+        }
+        buidIXBud(iBud, 'i');
+        buidIXBud(xBud, 'x');
         select.column(new ExpField('value', a), binValue);
         select.column(new ExpField(binPrice, b), binPrice);
         select.column(new ExpField(binAmount, b), binAmount);
@@ -77,17 +95,28 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
     }
 
     protected buildFromEntity(sqls: Sqls) {
-        let insertAtom = this.buildInsertAtomDirect()
-        sqls.push(insertAtom);
-    }
-
-    private buildInsertAtomDirect() {
-        let insert = this.buildInsertAtom();
-        const { select } = insert;
-        select.from(new VarTable('$page', a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
-            .on(new ExpEQ(new ExpField('id', a), new ExpField('id', b)));
-        return insert;
+        const { bizPend } = this.istatement.pendQuery;
+        let { i: iBud, x: xBud, props } = bizPend;
+        const buildInsertAtomSelect = (exp: ExpVal) => {
+            let insert = this.buildInsertAtom();
+            const { select } = insert;
+            select.from(new VarTable('$page', a))
+                .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
+                .on(new ExpEQ(exp, new ExpField('id', b)));
+            sqls.push(insert);
+        }
+        if (iBud !== undefined) buildInsertAtomSelect(new ExpField('i', a));
+        if (xBud !== undefined) buildInsertAtomSelect(new ExpField('x', a));
+        for (let [, bud] of props) {
+            if (bud.dataType === BudDataType.atom) {
+                let exp = new ExpFunc(
+                    'JSON_VALUE',
+                    new ExpField('mid', a),
+                    new ExpStr(`$."${bud.id}"`)
+                );
+                buildInsertAtomSelect(exp);
+            }
+        }
     }
 
     protected override buildSelectFrom(select: Select, fromEntity: FromEntity) {

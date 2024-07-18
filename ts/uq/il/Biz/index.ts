@@ -4,6 +4,7 @@ export * from './Sheet';
 export * from './Bin';
 export * from './BizID';
 export * from './Title';
+export * from './Pend';
 export * from './Bud';
 export * from './Role';
 export * from './Query';
