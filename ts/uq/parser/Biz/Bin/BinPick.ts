@@ -4,7 +4,8 @@ import {
     BudValueSetType,
     ValueExpression,
     PickParam,
-    BizEntity
+    BizEntity,
+    Uq
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { BizPend } from "../../../il/Biz/Pend";
@@ -173,6 +174,21 @@ export class PBinPick extends PBizBud<BinPick> {
                     this.log(`${h} not exists`);
                 }
                 hiddenBuds.push(bud);
+            }
+        }
+        return ok;
+    }
+
+    override scan2(uq: Uq): boolean {
+        let ok = super.scan2(uq);
+        const { on } = this.element;
+        if (on !== undefined) {
+            if (on.value === undefined) {
+                on.value = {
+                    exp: undefined, // new ValueExpression(),
+                    str: this.element.name,
+                    setType: BudValueSetType.equ,
+                };
             }
         }
         return ok;

@@ -88,8 +88,10 @@ class BizBudValue extends BizBud {
     buildBudValue(expStringify) {
         if (this.value === undefined)
             return;
-        let { exp, setType } = this.value;
-        let str = expStringify(exp);
+        let { exp, str, setType } = this.value;
+        if (str === undefined) {
+            str = expStringify(exp);
+        }
         let typeStr = BudValueSetType[setType];
         str += '\n' + typeStr;
         this.value.str = str;

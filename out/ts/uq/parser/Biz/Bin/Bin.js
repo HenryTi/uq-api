@@ -419,7 +419,7 @@ class PBizBin extends Base_1.PBizEntity {
         if (super.scan2(uq) === false) {
             ok = false;
         }
-        let { div, i, x, iBase, xBase } = this.element;
+        let { div, i, x, iBase, xBase, pickArr } = this.element;
         for (; div !== undefined; div = div.div) {
             let { format } = div;
             if (format === undefined)
@@ -465,6 +465,13 @@ class PBizBin extends Base_1.PBizEntity {
                         // ok = false;
                         // this.log('X Spec need X.base');
                     }
+                }
+            }
+        }
+        if (pickArr !== undefined) {
+            for (let pick of pickArr) {
+                if (pick.pelement.scan2(uq) === false) {
+                    ok = false;
                 }
             }
         }

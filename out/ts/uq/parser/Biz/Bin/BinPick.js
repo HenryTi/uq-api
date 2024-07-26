@@ -169,6 +169,20 @@ class PBinPick extends Bud_1.PBizBud {
         }
         return ok;
     }
+    scan2(uq) {
+        let ok = super.scan2(uq);
+        const { on } = this.element;
+        if (on !== undefined) {
+            if (on.value === undefined) {
+                on.value = {
+                    exp: undefined, // new ValueExpression(),
+                    str: this.element.name,
+                    setType: il_1.BudValueSetType.equ,
+                };
+            }
+        }
+        return ok;
+    }
 }
 exports.PBinPick = PBinPick;
 class PPickParam extends Bud_1.PBizBudValue {
