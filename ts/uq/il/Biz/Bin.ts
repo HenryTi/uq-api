@@ -138,7 +138,7 @@ export abstract class BinInput extends BizBud {
 }
 
 export class BinInputSpec extends BinInput {
-    spec: BizFork;
+    fork: BizFork;
     baseValue: ValueExpression;
     private baseValueStr: string;
 
@@ -153,7 +153,7 @@ export class BinInputSpec extends BinInput {
 
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        ret.spec = this.spec.id;
+        ret.spec = this.fork.id;
         ret.base = this.baseValueStr;
         return ret;
     }

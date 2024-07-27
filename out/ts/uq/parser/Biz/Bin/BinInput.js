@@ -8,12 +8,26 @@ const Bud_1 = require("../Bud");
 class PBinInput extends Bud_1.PBizBud {
 }
 class PBinInputSpec extends PBinInput {
+    constructor() {
+        super(...arguments);
+        this.params = {};
+    }
     _parse() {
         this.spec = this.ts.passVar();
         this.ts.passKey('base');
         this.ts.passToken(tokens_1.Token.EQU);
         let val = this.element.baseValue = new il_1.ValueExpression();
         this.context.parseElement(val);
+        for (;;) {
+            if (this.ts.token !== tokens_1.Token.COMMA)
+                break;
+            this.ts.readToken();
+            let p = this.ts.passVar();
+            this.ts.passToken(tokens_1.Token.EQU);
+            let pv = new il_1.ValueExpression();
+            this.context.parseElement(pv);
+            this.params[p] = pv;
+        }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
     scan(space) {
@@ -24,10 +38,24 @@ class PBinInputSpec extends PBinInput {
             ok = false;
         }
         else {
-            this.element.spec = ret;
+            let fork = this.element.fork = ret;
             let { baseValue } = this.element;
             if (baseValue.pelement.scan(space) === false) {
                 ok = false;
+            }
+            else {
+                for (let i in this.params) {
+                    let bud = fork.getBud(i);
+                    if (bud === undefined) {
+                        ok = false;
+                        this.log(`${i} is not a bud of ${fork.getJName()}`);
+                        continue;
+                    }
+                    let v = this.params[i];
+                    if (v.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
             }
         }
         return ok;

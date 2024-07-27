@@ -9,6 +9,7 @@ abstract class PBinInput<T extends BinInput> extends PBizBud<T> {
 
 export class PBinInputSpec extends PBinInput<BinInputSpec> {
     private spec: string;
+    private readonly params: { [name: string]: ValueExpression } = {};
 
     protected override _parse(): void {
         this.spec = this.ts.passVar();
@@ -16,6 +17,15 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
         this.ts.passToken(Token.EQU);
         let val = this.element.baseValue = new ValueExpression();
         this.context.parseElement(val);
+        for (; ;) {
+            if (this.ts.token !== Token.COMMA) break;
+            this.ts.readToken();
+            let p = this.ts.passVar();
+            this.ts.passToken(Token.EQU);
+            let pv = new ValueExpression();
+            this.context.parseElement(pv);
+            this.params[p] = pv;
+        }
         this.ts.passToken(Token.SEMICOLON);
     }
 
@@ -27,10 +37,24 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
             ok = false;
         }
         else {
-            this.element.spec = ret as BizFork;
+            let fork = this.element.fork = ret as BizFork;
             let { baseValue } = this.element;
             if (baseValue.pelement.scan(space) === false) {
                 ok = false;
+            }
+            else {
+                for (let i in this.params) {
+                    let bud = fork.getBud(i);
+                    if (bud === undefined) {
+                        ok = false;
+                        this.log(`${i} is not a bud of ${fork.getJName()}`);
+                        continue;
+                    }
+                    let v = this.params[i];
+                    if (v.pelement.scan(space) === false) {
+                        ok = false;
+                    }
+                }
             }
         }
         return ok;

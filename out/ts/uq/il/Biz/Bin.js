@@ -132,7 +132,7 @@ class BinInputSpec extends BinInput {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        ret.spec = this.spec.id;
+        ret.spec = this.fork.id;
         ret.base = this.baseValueStr;
         return ret;
     }
