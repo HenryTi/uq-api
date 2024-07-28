@@ -140,7 +140,9 @@ export abstract class BinInput extends BizBud {
 export class BinInputSpec extends BinInput {
     fork: BizFork;
     baseValue: ValueExpression;
+    readonly params: [BizBud, ValueExpression][] = [];
     private baseValueStr: string;
+    paramsArr: [number, string][];
 
     parser(context: PContext): PElement<IElement> {
         return new PBinInputSpec(this, context);
@@ -149,12 +151,16 @@ export class BinInputSpec extends BinInput {
     override buildBudValue(expStringify: (value: ValueExpression) => string): void {
         super.buildBudValue(expStringify)
         this.baseValueStr = expStringify(this.baseValue);
+        this.paramsArr = this.params.map(([bud, val]) => {
+            return [bud.id, expStringify(val)];
+        });
     }
 
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
         ret.spec = this.fork.id;
         ret.base = this.baseValueStr;
+        ret.params = this.paramsArr;
         return ret;
     }
 }

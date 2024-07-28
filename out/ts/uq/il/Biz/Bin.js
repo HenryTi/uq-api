@@ -123,17 +123,25 @@ class BinInput extends Bud_1.BizBud {
 }
 exports.BinInput = BinInput;
 class BinInputSpec extends BinInput {
+    constructor() {
+        super(...arguments);
+        this.params = [];
+    }
     parser(context) {
         return new parser_1.PBinInputSpec(this, context);
     }
     buildBudValue(expStringify) {
         super.buildBudValue(expStringify);
         this.baseValueStr = expStringify(this.baseValue);
+        this.paramsArr = this.params.map(([bud, val]) => {
+            return [bud.id, expStringify(val)];
+        });
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
         ret.spec = this.fork.id;
         ret.base = this.baseValueStr;
+        ret.params = this.paramsArr;
         return ret;
     }
 }

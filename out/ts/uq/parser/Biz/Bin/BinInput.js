@@ -10,7 +10,7 @@ class PBinInput extends Bud_1.PBizBud {
 class PBinInputSpec extends PBinInput {
     constructor() {
         super(...arguments);
-        this.params = {};
+        this.params = [];
     }
     _parse() {
         this.spec = this.ts.passVar();
@@ -26,7 +26,7 @@ class PBinInputSpec extends PBinInput {
             this.ts.passToken(tokens_1.Token.EQU);
             let pv = new il_1.ValueExpression();
             this.context.parseElement(pv);
-            this.params[p] = pv;
+            this.params.push([p, pv]);
         }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
@@ -44,17 +44,18 @@ class PBinInputSpec extends PBinInput {
                 ok = false;
             }
             else {
-                for (let i in this.params) {
-                    let bud = fork.getBud(i);
+                const { params } = this.element;
+                for (let [name, v] of this.params) {
+                    let bud = fork.getBud(name);
                     if (bud === undefined) {
                         ok = false;
-                        this.log(`${i} is not a bud of ${fork.getJName()}`);
+                        this.log(`${name} is not a bud of ${fork.getJName()}`);
                         continue;
                     }
-                    let v = this.params[i];
                     if (v.pelement.scan(space) === false) {
                         ok = false;
                     }
+                    params.push([bud, v]);
                 }
             }
         }

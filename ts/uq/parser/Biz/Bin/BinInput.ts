@@ -9,7 +9,7 @@ abstract class PBinInput<T extends BinInput> extends PBizBud<T> {
 
 export class PBinInputSpec extends PBinInput<BinInputSpec> {
     private spec: string;
-    private readonly params: { [name: string]: ValueExpression } = {};
+    private readonly params: [string, ValueExpression][] = [];
 
     protected override _parse(): void {
         this.spec = this.ts.passVar();
@@ -24,7 +24,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
             this.ts.passToken(Token.EQU);
             let pv = new ValueExpression();
             this.context.parseElement(pv);
-            this.params[p] = pv;
+            this.params.push([p, pv]);
         }
         this.ts.passToken(Token.SEMICOLON);
     }
@@ -43,17 +43,18 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
                 ok = false;
             }
             else {
-                for (let i in this.params) {
-                    let bud = fork.getBud(i);
+                const { params } = this.element;
+                for (let [name, v] of this.params) {
+                    let bud = fork.getBud(name);
                     if (bud === undefined) {
                         ok = false;
-                        this.log(`${i} is not a bud of ${fork.getJName()}`);
+                        this.log(`${name} is not a bud of ${fork.getJName()}`);
                         continue;
                     }
-                    let v = this.params[i];
                     if (v.pelement.scan(space) === false) {
                         ok = false;
                     }
+                    params.push([bud, v]);
                 }
             }
         }
