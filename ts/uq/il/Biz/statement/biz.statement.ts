@@ -51,6 +51,8 @@ export abstract class BizStatementSub<T extends BizAct> extends Statement {
 export abstract class BizStatementPend<T extends BizAct> extends BizStatementSub<T> {
     get type(): string { return 'bizpend'; }
     readonly sets: [BizBud, ValueExpression][] = [];
+    setI: ValueExpression;
+    setX: ValueExpression;
     pend: BizPend;
     setEqu: SetEqu;             // 仅用于 Pend -= val;
     val: ValueExpression;       // if val===undefined then _value

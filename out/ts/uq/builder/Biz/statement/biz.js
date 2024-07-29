@@ -37,6 +37,7 @@ class BBizStatementPend extends bstatement_1.BStatement {
         const a = 'a';
         let declare = factory.createDeclare();
         sqls.push(declare);
+        let { pend, no, val, setEqu, sets, keys, setI, setX } = this.istatement;
         function buildUpdatePoke() {
             let updatePoke = factory.createUpdate();
             updatePoke.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.userSite, false);
@@ -114,6 +115,15 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 let [bud, val] = s;
                 expMids.push(new sql_1.ExpStr(String(bud.id)), context.expVal(val));
             }
+            const { i, x } = pend;
+            if (i !== undefined) {
+                let val = setI === undefined ? new sql_1.ExpVar(i.name) : context.expVal(setI);
+                expMids.push(new sql_1.ExpStr(String(i.id)), val);
+            }
+            if (x !== undefined) {
+                let val = setX === undefined ? new sql_1.ExpVar(x.name) : context.expVal(setX);
+                expMids.push(new sql_1.ExpStr(String(x.id)), val);
+            }
             update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false);
             update.cols = [
                 { col: 'base', val: new sql_1.ExpNum(pend.id) },
@@ -124,7 +134,6 @@ class BBizStatementPend extends bstatement_1.BStatement {
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));
             ifValue.then(...buildUpdatePoke());
         };
-        let { pend, no, val, setEqu, sets, keys } = this.istatement;
         let expValue = this.context.expVal(val);
         if (pend === undefined) {
             buildChangePendFrom();

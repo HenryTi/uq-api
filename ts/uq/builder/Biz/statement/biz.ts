@@ -46,6 +46,7 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
         const a = 'a';
         let declare = factory.createDeclare();
         sqls.push(declare);
+        let { pend, no, val, setEqu, sets, keys, setI, setX } = this.istatement;
 
         function buildUpdatePoke(): Statement[] {
             let updatePoke = factory.createUpdate();
@@ -141,6 +142,15 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                     context.expVal(val)
                 );
             }
+            const { i, x } = pend;
+            if (i !== undefined) {
+                let val = setI === undefined ? new ExpVar(i.name) : context.expVal(setI);
+                expMids.push(new ExpStr(String(i.id)), val);
+            }
+            if (x !== undefined) {
+                let val = setX === undefined ? new ExpVar(x.name) : context.expVal(setX);
+                expMids.push(new ExpStr(String(x.id)), val);
+            }
 
             update.table = new EntityTable(EnumSysTable.pend, false);
             update.cols = [
@@ -156,7 +166,6 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             ifValue.then(...buildUpdatePoke());
         }
 
-        let { pend, no, val, setEqu, sets, keys } = this.istatement;
         let expValue = this.context.expVal(val);
         if (pend === undefined) {
             buildChangePendFrom();

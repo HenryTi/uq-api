@@ -206,19 +206,27 @@ class PBizStatementPend extends PBizStatementSub {
                         if (bud === undefined) {
                             ok = false;
                             this.log(`There is no ${i.toUpperCase()} in Pend ${pend.jName}`);
+                            continue;
                         }
-                        else if (bud.name === 'value') {
+                        let exp = this.sets[i];
+                        if (exp.pelement.scan(space) === false) {
                             ok = false;
-                            this.log(`VALUE= is no allowed here`);
+                            continue;
                         }
-                        else {
-                            let exp = this.sets[i];
-                            if (exp.pelement.scan(space) === false) {
-                                ok = false;
-                            }
-                            else {
+                        switch (bud.name) {
+                            default:
                                 sets.push([bud, exp]);
-                            }
+                                break;
+                            case 'value':
+                                ok = false;
+                                this.log(`VALUE= is no allowed here`);
+                                break;
+                            case 'i':
+                                this.element.setI = exp;
+                                break;
+                            case 'x':
+                                this.element.setX = exp;
+                                break;
                         }
                     }
                 }
