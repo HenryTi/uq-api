@@ -1,4 +1,4 @@
-import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizFork, BizID, EnumAsc, bigIntField, BizIDWithShowBuds } from "../../../il";
+import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizFork, BizID, EnumAsc, bigIntField, BizIDWithShowBuds, FromColumn } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNull,
     ExpLT, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Select,
@@ -93,15 +93,16 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
     protected buildSelectCols(/*select: Select, alias: string*/) {
         const { cols } = this.istatement;
         const arr: ExpVal[] = [];
-        for (let col of cols) {
-            const { name, val, bud } = col;
-            let expName: ExpVal;
-            if (bud !== undefined) expName = new ExpNum(bud.id);
-            else expName = new ExpStr(name);
-            arr.push(new ExpFunc('JSON_ARRAY', expName, this.context.expVal(val as ValueExpression)));
-        }
+        for (let col of cols) this.buildSelectCol(arr, col);
         return arr;
-        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
+    }
+
+    private buildSelectCol(arr: ExpVal[], col: FromColumn) {
+        const { name, val, bud } = col;
+        let expName: ExpVal;
+        if (bud !== undefined) expName = new ExpNum(bud.id);
+        else expName = new ExpStr(name);
+        arr.push(new ExpFunc('JSON_ARRAY', expName, this.context.expVal(val as ValueExpression)));
     }
 
     protected buildSelect(cmpPage: ExpCmp) {

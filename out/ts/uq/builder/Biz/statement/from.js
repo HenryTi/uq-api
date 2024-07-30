@@ -76,17 +76,18 @@ class BFromStatement extends biz_select_1.BBizSelect {
     buildSelectCols( /*select: Select, alias: string*/) {
         const { cols } = this.istatement;
         const arr = [];
-        for (let col of cols) {
-            const { name, val, bud } = col;
-            let expName;
-            if (bud !== undefined)
-                expName = new sql_1.ExpNum(bud.id);
-            else
-                expName = new sql_1.ExpStr(name);
-            arr.push(new sql_1.ExpFunc('JSON_ARRAY', expName, this.context.expVal(val)));
-        }
+        for (let col of cols)
+            this.buildSelectCol(arr, col);
         return arr;
-        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
+    }
+    buildSelectCol(arr, col) {
+        const { name, val, bud } = col;
+        let expName;
+        if (bud !== undefined)
+            expName = new sql_1.ExpNum(bud.id);
+        else
+            expName = new sql_1.ExpStr(name);
+        arr.push(new sql_1.ExpFunc('JSON_ARRAY', expName, this.context.expVal(val)));
     }
     buildSelect(cmpPage) {
         const { factory } = this.context;

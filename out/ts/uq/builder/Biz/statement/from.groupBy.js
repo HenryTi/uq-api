@@ -153,7 +153,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     }
     buildInsertRet() {
         const { factory } = this.context;
-        const { intoTables } = this.istatement;
+        const { intoTables, fromEntity } = this.istatement;
         const insertRet = factory.createInsert();
         insertRet.table = new statementWithFrom_1.VarTable(intoTables.ret);
         insertRet.cols = [
@@ -165,11 +165,17 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         let select = factory.createSelect();
         insertRet.select = select;
         select.from(new statementWithFrom_1.VarTable(pageGroupBy, a));
+        let entityTable = this.buildEntityTable(fromEntity);
+        select.join(il_1.JoinType.join, entityTable)
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', entityTable.alias), new sql_1.ExpField('id0', a)));
         select.column(new sql_1.ExpField('$id', a), 'id');
         select.column(new sql_1.ExpField('ban', a));
-        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, a))), 'json');
+        let arr = this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, a));
+        arr.push(...this.buildSelectCols());
+        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
         select.column(new sql_1.ExpField('value', a));
         select.order(new sql_1.ExpField('$id', a), 'asc');
+        this.buildSelectFrom(select, fromEntity);
         return insertRet;
     }
     buildFromEntity(sqls) {
