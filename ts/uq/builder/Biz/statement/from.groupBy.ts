@@ -210,9 +210,9 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
                 for (let [, bud] of spec.props) {
                     buds.push(bud);
                 }
-                let mapBuds = this.createMapBuds();
-                this.buildMapBuds(mapBuds, buds);
-                this.buildInsertBuds(sqls, 'specs', mapBuds);
+                // let mapBuds = this.createMapBuds();
+                let mapBuds = this.buildMapBuds(buds);
+                sqls.push(...this.buildInsertBuds('specs', mapBuds));
             }
         }
     }
@@ -316,7 +316,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.buildSelectBan(select);
         let arr = this.buildSelectCols();
         select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');
-        this.buildSelectVallue(select);
+        this.buildSelectValue(select);
 
         if (this.showIds.length === 0) {
             insertSpec.table = new VarTable(intoTables.specs);

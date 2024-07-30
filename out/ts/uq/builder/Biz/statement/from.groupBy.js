@@ -185,9 +185,9 @@ class BFromGroupByStatement extends from_1.BFromStatement {
                 for (let [, bud] of spec.props) {
                     buds.push(bud);
                 }
-                let mapBuds = this.createMapBuds();
-                this.buildMapBuds(mapBuds, buds);
-                this.buildInsertBuds(sqls, 'specs', mapBuds);
+                // let mapBuds = this.createMapBuds();
+                let mapBuds = this.buildMapBuds(buds);
+                sqls.push(...this.buildInsertBuds('specs', mapBuds));
             }
         }
     }
@@ -283,7 +283,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.buildSelectBan(select);
         let arr = this.buildSelectCols();
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
-        this.buildSelectVallue(select);
+        this.buildSelectValue(select);
         if (this.showIds.length === 0) {
             insertSpec.table = new statementWithFrom_1.VarTable(intoTables.specs);
             return [insertSpec];

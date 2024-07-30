@@ -82,7 +82,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         }
     }
 
-    protected buildSelectVallue(select: Select) {
+    protected buildSelectValue(select: Select) {
         this.buildSelectVallueBase(select, false);
     }
 
@@ -146,12 +146,12 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
 
     protected buildInsertAtomBuds(sqls: Sqls, atom: BizIDWithShowBuds) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
-        let mapBuds = this.createMapBuds();
-        this.buildMapBuds(mapBuds, titlePrimeBuds);
-        this.buildInsertBuds(sqls, 'atoms', mapBuds);
+        // let mapBuds = this.createMapBuds();
+        let mapBuds = this.buildMapBuds(titlePrimeBuds);
+        sqls.push(...this.buildInsertBuds('atoms', mapBuds));
     }
 
-    protected createMapBuds() {
+    private createMapBuds() {
         const { factory } = this.context;
         const mapBuds: Map<EnumSysTable, { buds: BizBud[]; value: ExpVal; }> = new Map();
         const valField = new ExpField('value', 'b');
@@ -163,8 +163,9 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         return mapBuds;
     }
 
-    protected buildMapBuds(mapBuds: Map<EnumSysTable, BudsValue>, buds: BizBud[]) {
+    protected buildMapBuds(buds: BizBud[]) {
         if (buds === undefined) return;
+        let mapBuds: Map<EnumSysTable, BudsValue> = this.createMapBuds();
         for (let bud of buds) {
             let ixBudTbl: EnumSysTable = EnumSysTable.ixBudInt;
             switch (bud.dataType) {
@@ -178,19 +179,21 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
             let tbl = mapBuds.get(ixBudTbl);
             tbl.buds.push(bud);
         }
+        return mapBuds;
     }
 
-    protected buildInsertBuds(sqls: Sqls, mainTbl: string, mapBuds: Map<EnumSysTable, BudsValue>) {
+    protected buildInsertBuds(mainTbl: string, mapBuds: Map<EnumSysTable, BudsValue>) {
+        let ret = [];
         for (let [tbl, { buds, value }] of mapBuds) {
             if (buds.length === 0) continue;
-            this.buildInsertBud(sqls, mainTbl, tbl, buds, value);
+            ret.push(this.buildInsertBud(mainTbl, tbl, buds, value));
         }
+        return ret;
     }
 
-    private buildInsertBud(sqls: Sqls, mainTbl: string, tbl: EnumSysTable, buds: BizBud[], expVal: ExpVal) {
+    private buildInsertBud(mainTbl: string, tbl: EnumSysTable, buds: BizBud[], expVal: ExpVal) {
         const { factory } = this.context;
         let insertBud = factory.createInsert();
-        sqls.push(insertBud);
         insertBud.ignore = true;
         insertBud.table = new VarTable('props');
         insertBud.cols = [
@@ -209,5 +212,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         select.column(new ExpField('id', a), 'id');
         select.column(new ExpField('x', b), 'phrase');
         select.column(expVal, 'value');
+        return insertBud;
     }
 }

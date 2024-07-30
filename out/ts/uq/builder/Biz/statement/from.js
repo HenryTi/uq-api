@@ -67,7 +67,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
             select.column(exp, cValue);
         }
     }
-    buildSelectVallue(select) {
+    buildSelectValue(select) {
         this.buildSelectVallueBase(select, false);
     }
     buildSelectVallueSum(select) {
@@ -126,9 +126,9 @@ class BFromStatement extends biz_select_1.BBizSelect {
     }
     buildInsertAtomBuds(sqls, atom) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
-        let mapBuds = this.createMapBuds();
-        this.buildMapBuds(mapBuds, titlePrimeBuds);
-        this.buildInsertBuds(sqls, 'atoms', mapBuds);
+        // let mapBuds = this.createMapBuds();
+        let mapBuds = this.buildMapBuds(titlePrimeBuds);
+        sqls.push(...this.buildInsertBuds('atoms', mapBuds));
     }
     createMapBuds() {
         const { factory } = this.context;
@@ -141,9 +141,10 @@ class BFromStatement extends biz_select_1.BBizSelect {
         mapBuds.set(il_1.EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
         return mapBuds;
     }
-    buildMapBuds(mapBuds, buds) {
+    buildMapBuds(buds) {
         if (buds === undefined)
             return;
+        let mapBuds = this.createMapBuds();
         for (let bud of buds) {
             let ixBudTbl = il_1.EnumSysTable.ixBudInt;
             switch (bud.dataType) {
@@ -161,18 +162,20 @@ class BFromStatement extends biz_select_1.BBizSelect {
             let tbl = mapBuds.get(ixBudTbl);
             tbl.buds.push(bud);
         }
+        return mapBuds;
     }
-    buildInsertBuds(sqls, mainTbl, mapBuds) {
+    buildInsertBuds(mainTbl, mapBuds) {
+        let ret = [];
         for (let [tbl, { buds, value }] of mapBuds) {
             if (buds.length === 0)
                 continue;
-            this.buildInsertBud(sqls, mainTbl, tbl, buds, value);
+            ret.push(this.buildInsertBud(mainTbl, tbl, buds, value));
         }
+        return ret;
     }
-    buildInsertBud(sqls, mainTbl, tbl, buds, expVal) {
+    buildInsertBud(mainTbl, tbl, buds, expVal) {
         const { factory } = this.context;
         let insertBud = factory.createInsert();
-        sqls.push(insertBud);
         insertBud.ignore = true;
         insertBud.table = new statementWithFrom_1.VarTable('props');
         insertBud.cols = [
@@ -188,6 +191,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
         select.column(new sql_1.ExpField('id', a), 'id');
         select.column(new sql_1.ExpField('x', b), 'phrase');
         select.column(expVal, 'value');
+        return insertBud;
     }
 }
 exports.BFromStatement = BFromStatement;
