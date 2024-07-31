@@ -7,7 +7,7 @@ import { Field } from "../field";
 import { BizAtom, BizFork } from "./BizID";
 import { BizAct } from "./Base";
 import { Biz } from "./Biz";
-import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue, BizBudIXBase } from "./Bud";
+import { BizBudValue, BizBud, BizBudID, BizBudDec, BinValue, BizBudIXBase, BudValueSetType } from "./Bud";
 import { BizEntity, BizID } from "./Entity";
 import { BizQueryTable } from "./Query";
 import { BizSheet } from "./Sheet";
@@ -140,9 +140,9 @@ export abstract class BinInput extends BizBud {
 export class BinInputSpec extends BinInput {
     fork: BizFork;
     baseValue: ValueExpression;
-    readonly params: [BizBud, ValueExpression][] = [];
+    readonly params: [BizBud, ValueExpression, BudValueSetType][] = [];
     private baseValueStr: string;
-    paramsArr: [number, string][];
+    paramsArr: [number, string, string][];
 
     parser(context: PContext): PElement<IElement> {
         return new PBinInputSpec(this, context);
@@ -151,8 +151,8 @@ export class BinInputSpec extends BinInput {
     override buildBudValue(expStringify: (value: ValueExpression) => string): void {
         super.buildBudValue(expStringify)
         this.baseValueStr = expStringify(this.baseValue);
-        this.paramsArr = this.params.map(([bud, val]) => {
-            return [bud.id, expStringify(val)];
+        this.paramsArr = this.params.map(([bud, val, valueSetType]) => {
+            return [bud.id, expStringify(val), valueSetType === BudValueSetType.equ ? '=' : ':='];
         });
     }
 

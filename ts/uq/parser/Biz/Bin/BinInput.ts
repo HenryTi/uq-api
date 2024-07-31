@@ -1,4 +1,4 @@
-import { BinInput, BinInputAtom, BinInputSpec, BizAtom, BizFork, BizEntity, ValueExpression } from "../../../il";
+import { BinInput, BinInputAtom, BinInputSpec, BizAtom, BizFork, BizEntity, ValueExpression, BudValueSetType } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Token } from "../../tokens";
 import { BizEntitySpace } from "../Biz";
@@ -9,7 +9,7 @@ abstract class PBinInput<T extends BinInput> extends PBizBud<T> {
 
 export class PBinInputSpec extends PBinInput<BinInputSpec> {
     private spec: string;
-    private readonly params: [string, ValueExpression][] = [];
+    private readonly params: [string, ValueExpression, BudValueSetType][] = [];
 
     protected override _parse(): void {
         this.spec = this.ts.passVar();
@@ -21,10 +21,23 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
             if (this.ts.token !== Token.COMMA) break;
             this.ts.readToken();
             let p = this.ts.passVar();
-            this.ts.passToken(Token.EQU);
+            let valueSetType: BudValueSetType;
+            switch (this.ts.token as any) {
+                default:
+                    this.ts.expectToken(Token.EQU, Token.COLONEQU);
+                    break;
+                case Token.COLONEQU:
+                    valueSetType = BudValueSetType.init;
+                    this.ts.readToken();
+                    break;
+                case Token.EQU:
+                    valueSetType = BudValueSetType.equ;
+                    this.ts.readToken();
+                    break;
+            }
             let pv = new ValueExpression();
             this.context.parseElement(pv);
-            this.params.push([p, pv]);
+            this.params.push([p, pv, valueSetType]);
         }
         this.ts.passToken(Token.SEMICOLON);
     }
@@ -44,7 +57,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
             }
             else {
                 const { params } = this.element;
-                for (let [name, v] of this.params) {
+                for (let [name, v, valueSetType] of this.params) {
                     let bud = fork.getBud(name);
                     if (bud === undefined) {
                         ok = false;
@@ -54,7 +67,7 @@ export class PBinInputSpec extends PBinInput<BinInputSpec> {
                     if (v.pelement.scan(space) === false) {
                         ok = false;
                     }
-                    params.push([bud, v]);
+                    params.push([bud, v, valueSetType]);
                 }
             }
         }

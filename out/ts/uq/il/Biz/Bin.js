@@ -133,8 +133,8 @@ class BinInputSpec extends BinInput {
     buildBudValue(expStringify) {
         super.buildBudValue(expStringify);
         this.baseValueStr = expStringify(this.baseValue);
-        this.paramsArr = this.params.map(([bud, val]) => {
-            return [bud.id, expStringify(val)];
+        this.paramsArr = this.params.map(([bud, val, valueSetType]) => {
+            return [bud.id, expStringify(val), valueSetType === Bud_1.BudValueSetType.equ ? '=' : ':='];
         });
     }
     buildSchema(res) {

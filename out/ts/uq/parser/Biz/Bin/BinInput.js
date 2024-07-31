@@ -23,10 +23,23 @@ class PBinInputSpec extends PBinInput {
                 break;
             this.ts.readToken();
             let p = this.ts.passVar();
-            this.ts.passToken(tokens_1.Token.EQU);
+            let valueSetType;
+            switch (this.ts.token) {
+                default:
+                    this.ts.expectToken(tokens_1.Token.EQU, tokens_1.Token.COLONEQU);
+                    break;
+                case tokens_1.Token.COLONEQU:
+                    valueSetType = il_1.BudValueSetType.init;
+                    this.ts.readToken();
+                    break;
+                case tokens_1.Token.EQU:
+                    valueSetType = il_1.BudValueSetType.equ;
+                    this.ts.readToken();
+                    break;
+            }
             let pv = new il_1.ValueExpression();
             this.context.parseElement(pv);
-            this.params.push([p, pv]);
+            this.params.push([p, pv, valueSetType]);
         }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
@@ -45,7 +58,7 @@ class PBinInputSpec extends PBinInput {
             }
             else {
                 const { params } = this.element;
-                for (let [name, v] of this.params) {
+                for (let [name, v, valueSetType] of this.params) {
                     let bud = fork.getBud(name);
                     if (bud === undefined) {
                         ok = false;
@@ -55,7 +68,7 @@ class PBinInputSpec extends PBinInput {
                     if (v.pelement.scan(space) === false) {
                         ok = false;
                     }
-                    params.push([bud, v]);
+                    params.push([bud, v, valueSetType]);
                 }
             }
         }
