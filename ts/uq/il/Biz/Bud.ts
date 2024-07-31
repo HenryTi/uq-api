@@ -117,12 +117,8 @@ export abstract class BizBudValue extends BizBud {
     buildBudValue(expStringify: (value: ValueExpression) => string) {
         if (this.value === undefined) return;
         let { exp, str, setType } = this.value;
-        if (str === undefined) {
-            str = expStringify(exp);
-        }
-        let typeStr = BudValueSetType[setType];
-        str += '\n' + typeStr;
-        this.value.str = str;
+        if (str !== undefined) return;
+        this.value.str = expStringify(exp) + '\n' + BudValueSetType[setType];
     }
 }
 
