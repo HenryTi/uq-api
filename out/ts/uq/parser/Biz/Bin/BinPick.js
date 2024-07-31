@@ -176,7 +176,7 @@ class PBinPick extends Bud_1.PBizBud {
             if (on.value === undefined) {
                 on.value = {
                     exp: undefined, // new ValueExpression(),
-                    str: this.element.name,
+                    str: [this.element.name, il_1.BudValueSetType.equ],
                     setType: il_1.BudValueSetType.equ,
                 };
             }

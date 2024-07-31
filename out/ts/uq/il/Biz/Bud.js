@@ -91,7 +91,7 @@ class BizBudValue extends BizBud {
         let { exp, str, setType } = this.value;
         if (str !== undefined)
             return;
-        this.value.str = expStringify(exp) + '\n' + BudValueSetType[setType];
+        this.value.str = [expStringify(exp), setType];
     }
 }
 exports.BizBudValue = BizBudValue;
@@ -179,10 +179,10 @@ class BizBudValueWithRange extends BizBudValue {
     buildBudValue(expStringify) {
         super.buildBudValue(expStringify);
         if (this.min !== undefined) {
-            this.min.str = expStringify(this.min.exp);
+            this.min.str = [expStringify(this.min.exp)];
         }
         if (this.max !== undefined) {
-            this.max.str = expStringify(this.max.exp);
+            this.max.str = [expStringify(this.max.exp)];
         }
     }
 }
@@ -340,7 +340,7 @@ class BizBudIDBase extends BizBudValue {
         for (let i in this.params) {
             let param = this.params[i];
             let { exp } = param;
-            param.str = expStringify(exp);
+            param.str = [expStringify(exp)];
         }
     }
 }

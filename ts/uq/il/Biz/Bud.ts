@@ -30,7 +30,7 @@ export type FieldShow = FieldShowItem[];
 
 export interface BudValue {
     exp: ValueExpression;
-    str?: string;           // 传到前台的schema: init, equ, show
+    str?: [string, BudValueSetType?];           // 传到前台的schema: init, equ, show
 }
 
 export interface BudValueSet extends BudValue {
@@ -118,7 +118,7 @@ export abstract class BizBudValue extends BizBud {
         if (this.value === undefined) return;
         let { exp, str, setType } = this.value;
         if (str !== undefined) return;
-        this.value.str = expStringify(exp) + '\n' + BudValueSetType[setType];
+        this.value.str = [expStringify(exp), setType];
     }
 }
 
@@ -197,10 +197,10 @@ export abstract class BizBudValueWithRange extends BizBudValue {
     override buildBudValue(expStringify: (value: ValueExpression) => string): void {
         super.buildBudValue(expStringify);
         if (this.min !== undefined) {
-            this.min.str = expStringify(this.min.exp);
+            this.min.str = [expStringify(this.min.exp)];
         }
         if (this.max !== undefined) {
-            this.max.str = expStringify(this.max.exp);
+            this.max.str = [expStringify(this.max.exp)];
         }
     }
 }
@@ -338,7 +338,7 @@ export abstract class BizBudIDBase extends BizBudValue {
         for (let i in this.params) {
             let param = this.params[i];
             let { exp } = param;
-            param.str = expStringify(exp);
+            param.str = [expStringify(exp)];
         }
     }
 }
