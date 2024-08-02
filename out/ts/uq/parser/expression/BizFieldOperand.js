@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizFieldOperand = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
 // %开始的字段，是BizField。
@@ -65,10 +66,27 @@ class PBizFieldOperand extends element_1.PElement {
             }
         }
         else {
-            this.log(`Unknown field ${this.fieldName.join('.')}`);
-            ok = false;
+            let fieldOptionsItem = this.scanOption(space, f0, f1);
+            if (fieldOptionsItem !== undefined) {
+                this.element.field = fieldOptionsItem;
+            }
+            else {
+                this.log(`Unknown field ${this.fieldName.join('.')}`);
+                ok = false;
+            }
         }
         return ok;
+    }
+    scanOption(space, f0, f1) {
+        let options = space.uq.biz.bizEntities.get(f0);
+        if (options === undefined)
+            return undefined;
+        if (options.bizPhraseType !== BizPhraseType_1.BizPhraseType.options)
+            return undefined;
+        let optionsItem = options.items.find(v => v.name === f1);
+        if (optionsItem === undefined)
+            return undefined;
+        return new il_1.BizFieldOptionsItem(options, optionsItem);
     }
 }
 exports.PBizFieldOperand = PBizFieldOperand;

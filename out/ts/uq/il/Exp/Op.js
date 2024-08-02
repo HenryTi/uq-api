@@ -288,6 +288,12 @@ class VarOperand extends Atom {
     get type() { return 'var'; }
     parser(context) { return new parser_1.PVarOperand(this, context); }
     to(stack) {
+        /*
+        if (this.options !== undefined) {
+            stack.dotVar(['%' + this.options.name, this.optionsItem.name]);
+            return;
+        }
+        */
         if (this.enumValue === undefined) {
             this.pointer.to(stack, this);
             return;

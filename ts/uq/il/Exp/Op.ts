@@ -11,7 +11,7 @@ import { IElement } from '../IElement';
 import { Select } from '../select';
 import { Pointer } from '../pointer';
 import { Entity, ID, Queue } from '../entity';
-import { BizBase } from '../Biz';
+import { BizBase, BizOptions, OptionsItem } from '../Biz';
 import { Stack } from './Stack';
 import { ValueExpression } from './Expression';
 
@@ -272,9 +272,19 @@ export class VarOperand extends Atom {
     dotFirst: boolean = false;
     _var: string[] = [];
     enumValue: number | string;
+    /*
+    options: BizOptions;
+    optionsItem: OptionsItem;
+    */
     pointer: Pointer;
     parser(context: PContext) { return new PVarOperand(this, context); }
     to(stack: Stack) {
+        /*
+        if (this.options !== undefined) {
+            stack.dotVar(['%' + this.options.name, this.optionsItem.name]);
+            return;
+        }
+        */
         if (this.enumValue === undefined) {
             this.pointer.to(stack, this);
             return;

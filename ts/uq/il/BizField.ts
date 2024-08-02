@@ -5,9 +5,10 @@ import {
     BBizFieldPendBin, BBizFieldPendBudSelect,
     BBizFieldPendBinBudSelect,
     BBizFieldBinBinBudSelect,
-    BBizFieldPendSheet
+    BBizFieldPendSheet,
+    BBizFieldOptionsItem
 } from "../builder";
-import { BinDiv, BizBin, FromStatement, FromInPendStatement } from "./Biz";
+import { BinDiv, BizBin, FromStatement, FromInPendStatement, BizOptions, OptionsItem } from "./Biz";
 import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
 import { BizBud, BizBudBin } from "./Biz/Bud";
 import { BizPend } from "./Biz/Pend";
@@ -180,6 +181,27 @@ export class BizFieldUser extends BizFieldTableAlias {
     override db(dbContext: DbContext): BBizField {
         return new BBizFieldUser(dbContext, this);
     }
+}
+
+export class BizFieldOptionsItem extends BizField {
+    options: BizOptions;
+    optionsItem: OptionsItem;
+    constructor(options: BizOptions, optionsItem: OptionsItem) {
+        super(undefined);
+        this.options = options;
+        this.optionsItem = optionsItem;
+    }
+
+    db(dbContext: DbContext): BBizField {
+        return new BBizFieldOptionsItem(dbContext, this);
+    }
+    buildSchema() {
+        return `%${this.options.name}.${this.optionsItem.name}`;
+    }
+    get tableAlias(): string {
+        return;
+    }
+
 }
 
 interface NameBizFields { [name: string]: BizField; };

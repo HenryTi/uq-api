@@ -1,6 +1,6 @@
 import {
     BizBud,
-    BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldPendBinBudSelect, BizFieldPendBudSelect, EnumSysTable
+    BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldOptionsItem, BizFieldPendBinBudSelect, BizFieldPendBudSelect, EnumSysTable
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
@@ -239,5 +239,12 @@ export class BBizFieldPendSheet extends BBizField {
 export class BBizFieldUser extends BBizField<BizField> {
     override to(sb: SqlBuilder): void {
         sb.append('%user').dot().append(this.bizField.tableAlias);
+    }
+}
+
+export class BBizFieldOptionsItem extends BBizField<BizFieldOptionsItem> {
+    override to(sb: SqlBuilder): void {
+        const { options, optionsItem } = this.bizField;
+        sb.append('%').append(options.name).dot().append(optionsItem.name);
     }
 }

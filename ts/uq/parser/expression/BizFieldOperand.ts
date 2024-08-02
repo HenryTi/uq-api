@@ -1,4 +1,5 @@
-import { BizFieldOperand, BizFieldUser } from '../../il';
+import { BizField, BizFieldOperand, BizFieldOptionsItem, BizFieldUser, BizOptions } from '../../il';
+import { BizPhraseType } from '../../il/Biz/BizPhraseType';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -62,9 +63,24 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
             }
         }
         else {
-            this.log(`Unknown field ${this.fieldName.join('.')}`);
-            ok = false;
+            let fieldOptionsItem = this.scanOption(space, f0, f1);
+            if (fieldOptionsItem !== undefined) {
+                this.element.field = fieldOptionsItem;
+            }
+            else {
+                this.log(`Unknown field ${this.fieldName.join('.')}`);
+                ok = false;
+            }
         }
         return ok;
+    }
+
+    private scanOption(space: Space, f0: string, f1: string): BizField {
+        let options = space.uq.biz.bizEntities.get(f0) as BizOptions;
+        if (options === undefined) return undefined;
+        if (options.bizPhraseType !== BizPhraseType.options) return undefined;
+        let optionsItem = options.items.find(v => v.name === f1);
+        if (optionsItem === undefined) return undefined;
+        return new BizFieldOptionsItem(options, optionsItem);
     }
 }

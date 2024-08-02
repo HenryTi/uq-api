@@ -1,5 +1,5 @@
 import _ = require('lodash');
-import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityBudPointer, BizBud, BizEntity, BizEntityFieldPointer } from '../../il';
+import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityBudPointer, BizBud, BizEntity, BizEntityFieldPointer, OptionsItem, BizOptions } from '../../il';
 import { VarOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -103,6 +103,20 @@ export class PVarOperand extends PElement<VarOperand> {
                     pointer = new ConstPointer(v);
                 }
 
+                /*
+                let options = space.uq.biz.bizEntities.get(var0) as BizOptions;
+                if (options !== undefined) {
+                    let optionsItem = options.items.find(v => v.name === var1);
+                    this.element.options = options;
+                    this.element.optionsItem = optionsItem;
+                    if (optionsItem === undefined) {
+                        this.log(`Options ${options.getJName()} 中没有定义 ${var1}`)
+                        return false;
+                    }
+                    return true;
+                }
+                */
+
                 let _obj = space.getBizFromEntityArrFromAlias(var0);
                 if (_obj !== undefined) {
                     let { bizEntityArr } = _obj;
@@ -135,7 +149,7 @@ export class PVarOperand extends PElement<VarOperand> {
                     let table: Table = space.getTableByAlias(var0);
                     if (table === undefined) {
                         let t: Table = space.getTableByAlias(var0);
-                        this.log(`没有定义Pick、表、Const或者Enum '${var0}'`);
+                        this.log(`没有定义Pick、表、Const、Enum、Options '${var0}'`);
                         return false;
                     }
                     pointer = table.fieldPointer(var1);
