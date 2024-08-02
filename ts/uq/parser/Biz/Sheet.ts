@@ -156,6 +156,14 @@ export class PBizSheet extends PBizEntity<BizSheet> {
             setOut(i, mainOuts[i]);
         }
         for (let detail of details) {
+            const { bin } = detail;
+            const { pickArr } = bin;
+            for (let pick of pickArr) {
+                if (main.getBud(pick.name) !== undefined) {
+                    this.log(`${bin.ui?.caption ?? bin.name} PICK ${pick.name} should not duplicate of MAIN ${main.ui?.caption ?? main.name} bud name`);
+                    ok = false;
+                }
+            }
             const detailOuts = detail.bin.outs
             for (let i in detailOuts) {
                 setOut(i, detailOuts[i]);
