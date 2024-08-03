@@ -68,7 +68,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         }
     }
 
-    private buildSelectVallueBase(select: Select, sum: boolean) {
+    private buildSelectValueBase(select: Select, sum: boolean) {
         const { factory } = this.context;
         const { value } = this.istatement;
         const cValue = 'value';
@@ -83,11 +83,11 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
     }
 
     protected buildSelectValue(select: Select) {
-        this.buildSelectVallueBase(select, false);
+        this.buildSelectValueBase(select, false);
     }
 
     protected buildSelectVallueSum(select: Select) {
-        this.buildSelectVallueBase(select, true);
+        this.buildSelectValueBase(select, true);
     }
 
     protected buildSelectCols(/*select: Select, alias: string*/) {

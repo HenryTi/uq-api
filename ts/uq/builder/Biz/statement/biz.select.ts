@@ -1,4 +1,4 @@
-import { EnumSysTable, JoinType, FromEntity } from "../../../il";
+import { EnumSysTable, JoinType, FromEntity, IdColumn } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, Select
 } from "../../sql";

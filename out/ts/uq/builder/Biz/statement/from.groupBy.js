@@ -153,7 +153,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     }
     buildInsertRet() {
         const { factory } = this.context;
-        const { intoTables, fromEntity } = this.istatement;
+        const { intoTables, fromEntity, ids } = this.istatement;
         const insertRet = factory.createInsert();
         insertRet.table = new statementWithFrom_1.VarTable(intoTables.ret);
         insertRet.cols = [
@@ -164,19 +164,35 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         ];
         let select = factory.createSelect();
         insertRet.select = select;
-        select.from(new statementWithFrom_1.VarTable(pageGroupBy, a));
+        select.from(new statementWithFrom_1.VarTable(pageGroupBy, pageGroupBy));
+        /*
         let entityTable = this.buildEntityTable(fromEntity);
-        select.join(il_1.JoinType.join, entityTable)
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', entityTable.alias), new sql_1.ExpField('id0', a)));
-        select.column(new sql_1.ExpField('$id', a), 'id');
-        select.column(new sql_1.ExpField('ban', a));
-        let arr = this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, a));
+        select.join(JoinType.join, entityTable)
+            .on(new ExpEQ(
+                new ExpField('id', entityTable.alias),
+                new ExpField('id0', pageGroupBy)
+            ));
+        */
+        select.column(new sql_1.ExpField('$id', pageGroupBy), 'id');
+        select.column(new sql_1.ExpField('ban', pageGroupBy));
+        let arr = this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, pageGroupBy));
         arr.push(...this.buildSelectCols());
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
-        select.column(new sql_1.ExpField('value', a));
-        select.order(new sql_1.ExpField('$id', a), 'asc');
-        this.buildSelectFrom(select, fromEntity);
+        select.column(new sql_1.ExpField('value', pageGroupBy));
+        select.order(new sql_1.ExpField('$id', pageGroupBy), 'asc');
+        this.buildSelectRetFrom(select, pageGroupBy);
         return insertRet;
+    }
+    buildSelectRetFrom(select, pageAlias) {
+        let { length } = this.idsGroupBy;
+        for (let i = 0; i < length; i++) {
+            let idc = this.idsGroupBy[i];
+            const { fromEntity } = idc;
+            const { bizEntityTable, alias } = fromEntity;
+            select
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(bizEntityTable, false, alias))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id' + i, pageAlias)));
+        }
     }
     buildFromEntity(sqls) {
         let { ids } = this.istatement;

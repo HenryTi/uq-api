@@ -3,6 +3,8 @@ import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { BizSelectStatementSpace, PBizSelectStatement, PIdColumn } from "./BizSelectStatement";
 
+const valueColumn = 'value';
+
 export class PFromStatement<T extends FromStatement = FromStatement> extends PBizSelectStatement<T> {
     private readonly ids: PIdColumn[] = [];
     private readonly showIds: PIdColumn[] = [];
@@ -36,13 +38,18 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                 }
                 else {
                     let name = this.ts.passVar();
-                    let ui = this.parseUI();
-                    this.ts.passToken(Token.EQU);
-                    let val = new ValueExpression();
-                    this.context.parseElement(val);
-                    this.element.cols.push({ name, ui, val, bud: undefined, });
-                    if (this.collColumns[name] === true) {
-                        this.ts.error(`duplicate column name ${name}`);
+                    if (name === valueColumn && this.ts.varBrace === false) {
+                        this.parseValue();
+                    }
+                    else {
+                        let ui = this.parseUI();
+                        this.ts.passToken(Token.EQU);
+                        let val = new ValueExpression();
+                        this.context.parseElement(val);
+                        this.element.cols.push({ name, ui, val, bud: undefined, });
+                        if (this.collColumns[name] === true) {
+                            this.ts.error(`duplicate column name ${name}`);
+                        }
                     }
                 }
                 if (this.ts.token === Token.RPARENTHESE as any) {
@@ -91,20 +98,22 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                     this.ts.passToken(Token.COMMA);
                 }
             }
+            // this.parseValue();
+        }
+    }
 
-            const value = 'value';
-            if (this.ts.isKeyword(value) === true) {
-                this.ts.readToken();
-                let caption = this.ts.mayPassString();
-                this.ts.passToken(Token.EQU);
-                let val = new ValueExpression();
-                this.context.parseElement(val);
-                this.collColumns[value] === true;
-                this.element.value = { name: value, ui: { caption }, val, bud: undefined };
-                if (this.ts.token !== Token.RPARENTHESE as any) {
-                    this.ts.passToken(Token.COMMA);
-                }
-            }
+    private parseValue() {
+        if (this.element.value !== undefined) {
+            this.ts.error('duplicate VALUE');
+        }
+        let caption = this.ts.mayPassString();
+        this.ts.passToken(Token.EQU);
+        let val = new ValueExpression();
+        this.context.parseElement(val);
+        this.collColumns[valueColumn] === true;
+        this.element.value = { name: valueColumn, ui: { caption }, val, bud: undefined };
+        if (this.ts.token !== Token.RPARENTHESE as any) {
+            this.ts.passToken(Token.COMMA);
         }
     }
 
@@ -178,8 +187,14 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                 }
             }
             if (value !== undefined) {
-                if (value.val.pelement.scan(space) === false) {
+                const { val, ui, name } = value;
+                if (val.pelement.scan(space) === false) {
                     ok = false;
+                }
+                else {
+                    let bizEntity = space.getBizEntity();
+                    let bud = new BizBudAny(bizEntity, name, ui);
+                    value.bud = bud;
                 }
             }
             if (this.scanIDsWithCheck0() === false) {

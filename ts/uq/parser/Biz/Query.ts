@@ -72,7 +72,8 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
         }
         else {
             const coll: { [col: string]: boolean } = {};
-            for (let col of from.cols) {
+            const { cols, value } = from;
+            for (let col of cols) {
                 let { ui, bud } = col;
                 if (ui !== null) {
                     // let bud = field.getBud();
@@ -94,17 +95,22 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
                             ok = false;
                         }
                         props.set(name, bud);
-                        if (name === 'value') this.element.value = bud;
                     }
                 }
             }
+            // if (name === 'value') 
+            // this.element.value = value;
             from.intoTables = {
                 ret: 'ret',
                 atoms: 'atoms',
                 specs: 'specs',
                 props: 'props',
             };
+            if (value !== undefined) {
+                props.set(value.name, value.bud);
+            }
         }
+
         for (let param of params) {
             const { name, value } = param;
             if (value !== undefined) {

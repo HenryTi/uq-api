@@ -71,7 +71,8 @@ class PBizQueryTable extends PBizQuery {
         }
         else {
             const coll = {};
-            for (let col of from.cols) {
+            const { cols, value } = from;
+            for (let col of cols) {
                 let { ui, bud } = col;
                 if (ui !== null) {
                     // let bud = field.getBud();
@@ -93,17 +94,20 @@ class PBizQueryTable extends PBizQuery {
                             ok = false;
                         }
                         props.set(name, bud);
-                        if (name === 'value')
-                            this.element.value = bud;
                     }
                 }
             }
+            // if (name === 'value') 
+            // this.element.value = value;
             from.intoTables = {
                 ret: 'ret',
                 atoms: 'atoms',
                 specs: 'specs',
                 props: 'props',
             };
+            if (value !== undefined) {
+                props.set(value.name, value.bud);
+            }
         }
         for (let param of params) {
             const { name, value } = param;

@@ -4,6 +4,7 @@ exports.FromSpace = exports.PFromStatement = void 0;
 const il_1 = require("../../../il");
 const tokens_1 = require("../../tokens");
 const BizSelectStatement_1 = require("./BizSelectStatement");
+const valueColumn = 'value';
 class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
     constructor() {
         super(...arguments);
@@ -38,13 +39,18 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                 }
                 else {
                     let name = this.ts.passVar();
-                    let ui = this.parseUI();
-                    this.ts.passToken(tokens_1.Token.EQU);
-                    let val = new il_1.ValueExpression();
-                    this.context.parseElement(val);
-                    this.element.cols.push({ name, ui, val, bud: undefined, });
-                    if (this.collColumns[name] === true) {
-                        this.ts.error(`duplicate column name ${name}`);
+                    if (name === valueColumn && this.ts.varBrace === false) {
+                        this.parseValue();
+                    }
+                    else {
+                        let ui = this.parseUI();
+                        this.ts.passToken(tokens_1.Token.EQU);
+                        let val = new il_1.ValueExpression();
+                        this.context.parseElement(val);
+                        this.element.cols.push({ name, ui, val, bud: undefined, });
+                        if (this.collColumns[name] === true) {
+                            this.ts.error(`duplicate column name ${name}`);
+                        }
                     }
                 }
                 if (this.ts.token === tokens_1.Token.RPARENTHESE) {
@@ -93,19 +99,21 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                     this.ts.passToken(tokens_1.Token.COMMA);
                 }
             }
-            const value = 'value';
-            if (this.ts.isKeyword(value) === true) {
-                this.ts.readToken();
-                let caption = this.ts.mayPassString();
-                this.ts.passToken(tokens_1.Token.EQU);
-                let val = new il_1.ValueExpression();
-                this.context.parseElement(val);
-                this.collColumns[value] === true;
-                this.element.value = { name: value, ui: { caption }, val, bud: undefined };
-                if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
-                    this.ts.passToken(tokens_1.Token.COMMA);
-                }
-            }
+            // this.parseValue();
+        }
+    }
+    parseValue() {
+        if (this.element.value !== undefined) {
+            this.ts.error('duplicate VALUE');
+        }
+        let caption = this.ts.mayPassString();
+        this.ts.passToken(tokens_1.Token.EQU);
+        let val = new il_1.ValueExpression();
+        this.context.parseElement(val);
+        this.collColumns[valueColumn] === true;
+        this.element.value = { name: valueColumn, ui: { caption }, val, bud: undefined };
+        if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
+            this.ts.passToken(tokens_1.Token.COMMA);
         }
     }
     parseIdColumn() {
@@ -178,8 +186,14 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                 }
             }
             if (value !== undefined) {
-                if (value.val.pelement.scan(space) === false) {
+                const { val, ui, name } = value;
+                if (val.pelement.scan(space) === false) {
                     ok = false;
+                }
+                else {
+                    let bizEntity = space.getBizEntity();
+                    let bud = new il_1.BizBudAny(bizEntity, name, ui);
+                    value.bud = bud;
                 }
             }
             if (this.scanIDsWithCheck0() === false) {

@@ -40,7 +40,7 @@ export class BizQueryValueStatements extends Statements {
 export class BizQueryTable extends BizQuery {
     readonly params: BizBudValue[] = [];
     from: FromStatement;
-    value: BizBud;
+    // value: BizBud;
     get type() { return 'query'; }
     parser(context: PContext): PElement<IElement> {
         return new PBizQueryTable(this, context);
@@ -85,7 +85,10 @@ export class BizQueryTable extends BizQuery {
             return [entity.id, bud.id];
         });
         ret.from = this.buildFromSchema(fromEntity);
-        ret.value = this.value?.id;
+        const { value } = this.from;
+        if (value !== undefined) {
+            ret.value = value.bud?.id;
+        }
         return ret;
     }
 

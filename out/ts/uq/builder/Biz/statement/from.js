@@ -53,7 +53,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
             select.column(this.context.expCmp(ban.val), cBan);
         }
     }
-    buildSelectVallueBase(select, sum) {
+    buildSelectValueBase(select, sum) {
         const { factory } = this.context;
         const { value } = this.istatement;
         const cValue = 'value';
@@ -68,10 +68,10 @@ class BFromStatement extends biz_select_1.BBizSelect {
         }
     }
     buildSelectValue(select) {
-        this.buildSelectVallueBase(select, false);
+        this.buildSelectValueBase(select, false);
     }
     buildSelectVallueSum(select) {
-        this.buildSelectVallueBase(select, true);
+        this.buildSelectValueBase(select, true);
     }
     buildSelectCols( /*select: Select, alias: string*/) {
         const { cols } = this.istatement;

@@ -39,6 +39,7 @@ class BizQueryTable extends BizQuery {
         super(...arguments);
         this.params = [];
     }
+    // value: BizBud;
     get type() { return 'query'; }
     parser(context) {
         return new parser_1.PBizQueryTable(this, context);
@@ -86,7 +87,10 @@ class BizQueryTable extends BizQuery {
             return [entity.id, bud.id];
         });
         ret.from = this.buildFromSchema(fromEntity);
-        ret.value = (_b = this.value) === null || _b === void 0 ? void 0 : _b.id;
+        const { value } = this.from;
+        if (value !== undefined) {
+            ret.value = (_b = value.bud) === null || _b === void 0 ? void 0 : _b.id;
+        }
         return ret;
     }
     buildFromSchema(from) {
