@@ -206,6 +206,18 @@ export class IDEntityTable extends EntityTable {
         //sb.append(' AND ').aliasDot(this._alias).fld('$unit').append('=').var('$unit');
     }
 }
+
+export class NameTable extends Table {
+    protected name: string;
+    constructor(name: string, alias?: string) {
+        super(alias);
+        this.name = name;
+    }
+    to(sb: SqlBuilder) {
+        sb.name(this.name);
+        super.to(sb);
+    }
+}
 export class VarTable extends Table {
     protected name: string;
     constructor(name: string, alias?: string) {

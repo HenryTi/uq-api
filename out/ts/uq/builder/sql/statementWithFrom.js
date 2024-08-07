@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VarTableWithDb = exports.VarTableWithSchema = exports.VarTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalTable = exports.FromJsonTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
+exports.VarTableWithDb = exports.VarTableWithSchema = exports.VarTable = exports.NameTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalTable = exports.FromJsonTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
 const statement_1 = require("./statement");
 const core_1 = require("../../../core");
 class WithFromBuilder {
@@ -184,6 +184,17 @@ class IDEntityTable extends EntityTable {
     }
 }
 exports.IDEntityTable = IDEntityTable;
+class NameTable extends Table {
+    constructor(name, alias) {
+        super(alias);
+        this.name = name;
+    }
+    to(sb) {
+        sb.name(this.name);
+        super.to(sb);
+    }
+}
+exports.NameTable = NameTable;
 class VarTable extends Table {
     constructor(name, alias) {
         super(alias);

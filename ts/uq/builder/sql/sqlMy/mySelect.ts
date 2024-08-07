@@ -150,10 +150,12 @@ export class MySelect extends Select {
         let { alias, recursive, select } = this.cte;
         sb.tab(tab).append('WITH ');
         if (recursive === true) sb.append('RECURSIVE ');
-        sb.var(alias);
+        sb.name(alias);
         sb.append(' AS ').l();
+        lnAuto(sb, tab + 2);
         (select as MySelect).buildSqlSelect(sb, tab);
         sb.r();
+        lnAuto(sb, tab + 1);
     }
 
     private buildSqlSelect(sb: SqlBuilder, tab: number) {
@@ -161,11 +163,15 @@ export class MySelect extends Select {
             sb.l();
             this.buildSelectParts(sb, tab);
             sb.r();
+            lnAuto(sb, tab + 2);
             for (let union of this.unions) {
-                lnAuto(sb, tab);
-                sb.append('UNION ').l();
+                sb.append('UNION ');
+                if (this.unionsAll === true) sb.append('ALL ');
+                lnAuto(sb, tab + 2);
+                sb.l();
                 union.buildSelect(sb, tab + 1);
                 sb.r();
+                lnAuto(sb, tab + 2);
             }
         }
         else {

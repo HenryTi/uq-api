@@ -87,6 +87,10 @@ class PBizIDWithShowBuds extends Base_1.PBizEntity {
         }
         return buds;
     }
+    setBudsShow(buds) {
+        for (let bud of buds)
+            bud.show = true;
+    }
     scanTitleBuds() {
         let ok = true;
         let ret = this.scanBudNameArr(this.titleBuds);
@@ -95,6 +99,7 @@ class PBizIDWithShowBuds extends Base_1.PBizEntity {
         }
         else if (ret !== undefined) {
             this.element.titleBuds = ret;
+            this.setBudsShow(ret);
         }
         return ok;
     }
@@ -106,6 +111,7 @@ class PBizIDWithShowBuds extends Base_1.PBizEntity {
         }
         else if (ret !== undefined) {
             this.element.primeBuds = ret;
+            this.setBudsShow(ret);
         }
         return ok;
     }
@@ -515,6 +521,8 @@ class PBizSpec extends PBizIDWithBase {
         primeBuds.push(...keys);
         for (let [, value] of props)
             primeBuds.push(value);
+        for (let bud of primeBuds)
+            bud.show = true;
         return ret;
     }
     scan(space) {

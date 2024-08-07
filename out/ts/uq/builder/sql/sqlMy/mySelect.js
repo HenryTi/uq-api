@@ -144,21 +144,28 @@ class MySelect extends select_1.Select {
         sb.tab(tab).append('WITH ');
         if (recursive === true)
             sb.append('RECURSIVE ');
-        sb.var(alias);
+        sb.name(alias);
         sb.append(' AS ').l();
+        lnAuto(sb, tab + 2);
         select.buildSqlSelect(sb, tab);
         sb.r();
+        lnAuto(sb, tab + 1);
     }
     buildSqlSelect(sb, tab) {
         if (this.unions !== undefined) {
             sb.l();
             this.buildSelectParts(sb, tab);
             sb.r();
+            lnAuto(sb, tab + 2);
             for (let union of this.unions) {
-                lnAuto(sb, tab);
-                sb.append('UNION ').l();
+                sb.append('UNION ');
+                if (this.unionsAll === true)
+                    sb.append('ALL ');
+                lnAuto(sb, tab + 2);
+                sb.l();
                 union.buildSelect(sb, tab + 1);
                 sb.r();
+                lnAuto(sb, tab + 2);
             }
         }
         else {

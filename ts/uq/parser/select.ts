@@ -6,8 +6,7 @@ import {
     , ValueExpression, CompareExpression, FromTable, JoinTable, Entity
     , Pointer, FieldPointer, GroupByPointer, VarPointer, WithFrom, Delete
     , EntityVarTable, Arr, Column, TableVar, SwitchOrderBy, OrderByWhenThen
-    , LocalTableBase, JoinType, ComarePartExpression, VarOperand, OpEQ
-    , CTE, Field, bigIntField, CTETable
+    , LocalTableBase, JoinType, ComarePartExpression, VarOperand, OpEQ, CTETable
 } from '../il';
 import { ExpressionSpace } from './expression';
 import { PContext } from './pContext';

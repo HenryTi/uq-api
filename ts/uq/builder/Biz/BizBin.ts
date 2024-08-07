@@ -1,12 +1,13 @@
 import { binAmount, binFieldArr, binPrice, binValue } from "../../consts";
 import {
     BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable,
-    Char, JsonDataType, BizBudIXBase, Statement
+    Char, JsonDataType, BizBudIXBase, Statement,
+    EntityVarTable
 } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
-import { ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVar, Procedure, Statement as SqlStatement } from "../sql";
-import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
+import { ExpDatePart, ExpEQ, ExpField, ExpFuncCustom, ExpNum, ExpVar, Procedure, Statement as SqlStatement } from "../sql";
+import { EntityTable, NameTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { buildSelectBinBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
@@ -206,6 +207,57 @@ export class BBizBin extends BBizEntity<BizBin> {
             memo.text = this.bizEntity.name + ' show buds';
             statements.push(...this.buildGetShowBuds(showBuds, tempBinTable, 'id'));
         }
+
+        this.buildGetShowBudsFromAtomId(statements);
+        // this.buildGetShowBudsFromForkId(statements);
+    }
+
+    private buildGetShowBudsFromAtomId(statements: SqlStatement[]) {
+        const { factory } = this.context;
+        let insert = this.buildGetShowBudsInsert();
+        statements.push(insert);
+        let select = factory.createSelect();
+        insert.select = select;
+        let selectCTE = factory.createSelect();
+        const cte = 'cte';
+        selectCTE.column(ExpNum.num0, 'a');
+        select.cte = { alias: cte, recursive: true, select: selectCTE };
+        let select1 = factory.createSelect();
+        select1.column(ExpNum.num1, 'a1');
+        selectCTE.unions = [select1];
+        selectCTE.unionsAll = true;
+        select.column(ExpNum.num2, 'b');
+        select.from(new NameTable(cte));
+    }
+
+    private buildGetShowBudsFromForkId(statements: SqlStatement[]) {
+        /*
+        const { factory } = this.context;
+        let insert = this.buildGetShowBudsInsert();
+        statements.push(insert);
+        let select = factory.createSelect();
+        insert.select = select;
+        let selectCTE = factory.createSelect();
+        select.cte = { alias: 'cte', recursive: true, select: selectCTE };
+        let select1 = factory.createSelect();
+        select1.column(ExpNum.num1, 'a');
+        selectCTE.unions = [select1];
+        selectCTE.unionsAll = true;
+        select.column(ExpNum.num1, 'b');
+        select.from(new VarNameTable('cte'));
+        */
+    }
+
+    private buildGetShowBudsInsert() {
+        let insert = this.context.factory.createInsert();
+        insert.ignore = true;
+        insert.table = new VarTableWithSchema('props');
+        insert.cols = [
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+            { col: 'id', val: undefined },
+        ];
+        return insert;
     }
 
     private buildGetIXBase(statements: SqlStatement[], bud: BizBudIXBase) {

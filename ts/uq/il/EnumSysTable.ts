@@ -8,6 +8,8 @@ export enum EnumSysTable {
     id_u = '$id_u',
     id_uu = '$id_uu',
     bizPhrase = 'bizphrase',
+    bizBudShow = 'bizbudshow',
+    ixBizPhrase = 'ixbizphrase',
 
     unit = '$unit',
     user = '$user',

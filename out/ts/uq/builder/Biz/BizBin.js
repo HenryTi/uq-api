@@ -205,6 +205,53 @@ class BBizBin extends BizEntity_1.BBizEntity {
             memo.text = this.bizEntity.name + ' show buds';
             statements.push(...this.buildGetShowBuds(showBuds, tempBinTable, 'id'));
         }
+        this.buildGetShowBudsFromAtomId(statements);
+        // this.buildGetShowBudsFromForkId(statements);
+    }
+    buildGetShowBudsFromAtomId(statements) {
+        const { factory } = this.context;
+        let insert = this.buildGetShowBudsInsert();
+        statements.push(insert);
+        let select = factory.createSelect();
+        insert.select = select;
+        let selectCTE = factory.createSelect();
+        const cte = 'cte';
+        selectCTE.column(sql_1.ExpNum.num0, 'a');
+        select.cte = { alias: cte, recursive: true, select: selectCTE };
+        let select1 = factory.createSelect();
+        select1.column(sql_1.ExpNum.num1, 'a1');
+        selectCTE.unions = [select1];
+        selectCTE.unionsAll = true;
+        select.column(sql_1.ExpNum.num2, 'b');
+        select.from(new statementWithFrom_1.NameTable(cte));
+    }
+    buildGetShowBudsFromForkId(statements) {
+        /*
+        const { factory } = this.context;
+        let insert = this.buildGetShowBudsInsert();
+        statements.push(insert);
+        let select = factory.createSelect();
+        insert.select = select;
+        let selectCTE = factory.createSelect();
+        select.cte = { alias: 'cte', recursive: true, select: selectCTE };
+        let select1 = factory.createSelect();
+        select1.column(ExpNum.num1, 'a');
+        selectCTE.unions = [select1];
+        selectCTE.unionsAll = true;
+        select.column(ExpNum.num1, 'b');
+        select.from(new VarNameTable('cte'));
+        */
+    }
+    buildGetShowBudsInsert() {
+        let insert = this.context.factory.createInsert();
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTableWithSchema('props');
+        insert.cols = [
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+            { col: 'id', val: undefined },
+        ];
+        return insert;
     }
     buildGetIXBase(statements, bud) {
         if (bud === undefined)

@@ -97,6 +97,10 @@ export abstract class PBizIDWithShowBuds<T extends BizIDWithShowBuds> extends PB
         return buds;
     }
 
+    private setBudsShow(buds: BizBud[]) {
+        for (let bud of buds) bud.show = true;
+    }
+
     private scanTitleBuds() {
         let ok = true;
         let ret = this.scanBudNameArr(this.titleBuds);
@@ -105,6 +109,7 @@ export abstract class PBizIDWithShowBuds<T extends BizIDWithShowBuds> extends PB
         }
         else if (ret !== undefined) {
             this.element.titleBuds = ret;
+            this.setBudsShow(ret);
         }
         return ok;
     }
@@ -117,6 +122,7 @@ export abstract class PBizIDWithShowBuds<T extends BizIDWithShowBuds> extends PB
         }
         else if (ret !== undefined) {
             this.element.primeBuds = ret;
+            this.setBudsShow(ret);
         }
         return ok;
     }
@@ -532,6 +538,7 @@ export class PBizSpec extends PBizIDWithBase<BizFork> {
         }
         primeBuds.push(...keys);
         for (let [, value] of props) primeBuds.push(value);
+        for (let bud of primeBuds) bud.show = true;
         return ret;
     }
 

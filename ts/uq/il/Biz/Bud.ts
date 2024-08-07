@@ -63,6 +63,7 @@ export abstract class BizBud extends BizBase {
     get bizPhraseType() { return BizPhraseType.bud; }
     abstract get dataType(): BudDataType;
     value: BudValueSet;
+    show: boolean;              // 如果是必须显示true
     get objName(): string { return undefined; }
     flag: BudIndex = BudIndex.none;
     getFieldShows(): FieldShow[][] { return undefined }

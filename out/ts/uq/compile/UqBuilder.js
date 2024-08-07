@@ -34,7 +34,7 @@ class UqBuilder {
             let budParams = [];
             let buds = [];
             entity.forEachBud(bud => {
-                let { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag } = bud;
+                let { phrase, ui: { caption }, memo, dataType: dataTypeNum, objName, flag, show } = bud;
                 if (dataTypeNum === 0) {
                     // Bin：Pick 和 Prop 可能重名
                     // pick.dataType=0 input.dataType=0
@@ -53,7 +53,7 @@ class UqBuilder {
                     id: bud.id,
                     name: phrase, caption,
                     type: typeNum, memo,
-                    dataType: dataTypeNum, objId, flag
+                    dataType: dataTypeNum, objId, flag, show
                 });
             });
             entity.forEachGroup(group => {

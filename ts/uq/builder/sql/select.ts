@@ -173,6 +173,7 @@ export abstract class Select extends WithFrom {
     toVar: boolean = false;
     lock: LockType = LockType.update;
     unions: Select[];
+    unionsAll: boolean;
     cte: CTE;
     private _fields: string[] = [];
     protected _columns: Column[] = [];

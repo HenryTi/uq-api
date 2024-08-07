@@ -12,6 +12,8 @@ var EnumSysTable;
     EnumSysTable["id_u"] = "$id_u";
     EnumSysTable["id_uu"] = "$id_uu";
     EnumSysTable["bizPhrase"] = "bizphrase";
+    EnumSysTable["bizBudShow"] = "bizbudshow";
+    EnumSysTable["ixBizPhrase"] = "ixbizphrase";
     EnumSysTable["unit"] = "$unit";
     EnumSysTable["user"] = "$user";
     EnumSysTable["userSite"] = "$usersite";
