@@ -186,9 +186,9 @@ export class BBizBin extends BBizEntity<BizBin> {
 
     private buildGetProc(proc: Procedure) {
         let { statements } = proc;
-        const { iBase, xBase } = this.bizEntity;
-        this.buildGetIXBase(statements, iBase);
-        this.buildGetIXBase(statements, xBase);
+        // const { iBase, xBase } = this.bizEntity;
+        // this.buildGetIXBase(statements, iBase);
+        // this.buildGetIXBase(statements, xBase);
 
         let showBuds = this.bizEntity.allShowBuds();
         if (showBuds === undefined) {
@@ -206,6 +206,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         statements.push(setSite);
         setSite.equ($site, new ExpNum(site));
 
+        /*
         if (showBuds !== undefined) {
             let memo = factory.createMemo();
             statements.push(memo)
@@ -232,8 +233,9 @@ export class BBizBin extends BBizEntity<BizBin> {
                 this.buildGetShowBudsFromAtomId(statements, binIType, func, tbl);
             }
         }
+        */
     }
-
+    /*
     private buildGetShowBudsFromAtomId(statements: SqlStatement[], binIType: BinIType, func: () => ExpVal, tbl: EnumSysTable) {
         const { factory } = this.context;
         let insert = this.buildGetShowBudsInsert();
@@ -313,37 +315,39 @@ export class BBizBin extends BBizEntity<BizBin> {
         ];
         return insert;
     }
-
-    private buildGetIXBase(statements: SqlStatement[], bud: BizBudIXBase) {
-        if (bud === undefined) return;
-        let { factory } = this.context;
-        const { name } = bud;
-        let memo = factory.createMemo();
-        statements.push(memo);
-        memo.text = name;
-        let select = factory.createSelect();
-        let budName = name[1];
-        select.column(new ExpNum(bud.id), 'phrase');
-        //select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));
-        select.column(new ExpFuncCustom(factory.func_cast, new ExpField('base', d), new ExpDatePart('JSON')));
-        select.column(new ExpField('id', a), 'id');
-        select.from(new VarTableWithSchema('bin', a));
-        select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
-            .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, c))
-            .on(new ExpEQ(new ExpField('id', c), new ExpField(budName, b)))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, d))
-            .on(new ExpEQ(new ExpField('id', d), new ExpField('base', c)));
-
-        let insert = factory.createInsert();
-        statements.push(insert);
-        insert.ignore = true;
-        insert.table = new VarTableWithSchema('props');
-        insert.cols = [
-            { col: 'phrase', val: undefined },
-            { col: 'value', val: undefined },
-            { col: 'id', val: undefined },
-        ];
-        insert.select = select;
-    }
+*/
+    /*
+        private buildGetIXBase(statements: SqlStatement[], bud: BizBudIXBase) {
+            if (bud === undefined) return;
+            let { factory } = this.context;
+            const { name } = bud;
+            let memo = factory.createMemo();
+            statements.push(memo);
+            memo.text = name;
+            let select = factory.createSelect();
+            let budName = name[1];
+            select.column(new ExpNum(bud.id), 'phrase');
+            //select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));
+            select.column(new ExpFuncCustom(factory.func_cast, new ExpField('base', d), new ExpDatePart('JSON')));
+            select.column(new ExpField('id', a), 'id');
+            select.from(new VarTableWithSchema('bin', a));
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
+                .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
+                .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, c))
+                .on(new ExpEQ(new ExpField('id', c), new ExpField(budName, b)))
+                .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, d))
+                .on(new ExpEQ(new ExpField('id', d), new ExpField('base', c)));
+    
+            let insert = factory.createInsert();
+            statements.push(insert);
+            insert.ignore = true;
+            insert.table = new VarTableWithSchema('props');
+            insert.cols = [
+                { col: 'phrase', val: undefined },
+                { col: 'value', val: undefined },
+                { col: 'id', val: undefined },
+            ];
+            insert.select = select;
+        }
+    */
 }

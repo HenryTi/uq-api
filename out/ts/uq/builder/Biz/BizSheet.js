@@ -218,20 +218,23 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         statements.push(varPhraseBudTable);
         varPhraseBudTable.name = tempPhraseBudTable;
         const phraseParentField = (0, il_1.bigIntField)('parent');
+        const budTypeField = (0, il_1.tinyIntField)('budtype');
         varPhraseBudTable.keys = [phraseField, phraseParentField, budField];
-        varPhraseBudTable.fields = [phraseField, phraseParentField, budField];
+        varPhraseBudTable.fields = [phraseField, phraseParentField, budField, budTypeField];
         statements.push(this.buildSelectPhraseBud());
+        /*
         const varITable = factory.createVarTable();
         statements.push(varITable);
         varITable.name = tempITable;
         varITable.keys = [idField, budField];
         varITable.fields = [idField, budField, typeField];
+
         statements.push(...arrBinIType.map(v => this.buildSelectShowBuds(v)));
-        const expValue = new sql_1.ExpField('value', b);
-        function funcJSON_QUOTE() {
+        */
+        function funcJSON_QUOTE(expValue) {
             return new sql_1.ExpFunc('JSON_QUOTE', expValue);
         }
-        function funcCast() {
+        function funcCast(expValue) {
             return new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
         }
         let budTypes = [
@@ -250,6 +253,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             { col: 'phrase', val: undefined },
             { col: 'parent', val: undefined },
             { col: 'bud', val: undefined },
+            { col: 'budtype', val: undefined },
         ];
         let selectAtomPhrase = factory.createSelect();
         insert.select = selectAtomPhrase;
@@ -259,10 +263,10 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
         selectAtomPhrase.cte = { alias: cte, recursive: true, select: selectCTE };
         selectCTE.column(new sql_1.ExpField('phrase', s0));
-        selectCTE.column(new sql_1.ExpField('i', s));
-        selectCTE.column(new sql_1.ExpField('x', s));
+        selectCTE.column(new sql_1.ExpField('i', s), 'i');
+        selectCTE.column(new sql_1.ExpField('phrase', s0), 'x');
         selectCTE.from(new statementWithFrom_1.VarTable(tempIdPhraseTable, s0))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, s))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, s))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('x', s), new sql_1.ExpField('phrase', s0)));
         let select1 = factory.createSelect();
         select1.lock = select_1.LockType.none;
@@ -278,9 +282,10 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         selectAtomPhrase.column(new sql_1.ExpField('phrase', a));
         selectAtomPhrase.column(new sql_1.ExpField('x', a));
         selectAtomPhrase.column(new sql_1.ExpField('x', b));
+        selectAtomPhrase.column(new sql_1.ExpField('type', b), 'budtype');
         selectAtomPhrase.from(new statementWithFrom_1.NameTable(cte, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBudShow, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('phrase', a)));
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('x', a)));
         return insert;
     }
     buildSelectIdPhrase(binIType) {
@@ -293,7 +298,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             { col: 'phrase', val: undefined },
             { col: 'type', val: undefined },
         ];
-        const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
+        const s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
         let select = factory.createSelect();
         insert.select = select;
         select.lock = select_1.LockType.none;
@@ -344,13 +349,15 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         ];
         let select = factory.createSelect();
         insert.select = select;
-        select.column(new sql_1.ExpField('bud', a), 'phrase');
-        select.column(func(), 'value');
-        select.column(new sql_1.ExpField('bud', a), 'id');
-        select.from(new statementWithFrom_1.VarTable(tempITable, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, b))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpField('bud', a))));
-        select.where(new sql_1.ExpEQ(new sql_1.ExpField('type', a), new sql_1.ExpNum(budDataType)));
+        select.column(new sql_1.ExpField('bud', b), 'phrase');
+        select.column(func(new sql_1.ExpField('value', c)), 'value');
+        select.column(new sql_1.ExpField('id', a), 'id');
+        select.from(new statementWithFrom_1.VarTable(tempIdPhraseTable, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.VarTable(tempPhraseBudTable, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('phrase', b), new sql_1.ExpField('phrase', a)))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, c))
+            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpField('bud', b))));
+        select.where(new sql_1.ExpEQ(new sql_1.ExpField('budtype', b), new sql_1.ExpNum(budDataType)));
         return insert;
     }
     buildSelectShowBuds(binIType) {
