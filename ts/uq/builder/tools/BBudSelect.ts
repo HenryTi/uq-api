@@ -42,7 +42,7 @@ export class BBudSelect {
                 break;
             case BudDataType.radio:
             case BudDataType.check:
-                this.selectCheck(select, EnumSysTable.ixBud, bud);
+                this.selectCheck(select, /*EnumSysTable.ixBud, */bud);
                 break;
         }
         let ret = new ExpSelect(select);
@@ -58,8 +58,9 @@ export class BBudSelect {
         ));
         select.column(new ExpField('value', t));
     }
-    private selectCheck(select: Select, tblIxBud: EnumSysTable, bud: BizBud) {
+    private selectCheck(select: Select, /*tblIxBud: EnumSysTable, */bud: BizBud) {
         const t = this.bBizExp.tt, c = this.bBizExp.tb;
+        /*
         select.from(new EntityTable(tblIxBud, false, t))
             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, c))
             .on(new ExpEQ(new ExpField('id', c), new ExpField('x', t)));
@@ -67,6 +68,13 @@ export class BBudSelect {
         select.where(new ExpAnd(
             new ExpEQ(new ExpField('base', c), new ExpNum(bud.id)),
             new ExpEQ(new ExpField('i', t), this.bBizExp.params[0])
+        ));
+        */
+        select.column(new ExpField('x', t), 'id');
+        select.from(new EntityTable(EnumSysTable.ixBudCheck, false, t));
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('ii', t), this.bBizExp.params[0]),
+            new ExpEQ(new ExpField('i', t), new ExpNum(bud.id)),
         ));
     }
 

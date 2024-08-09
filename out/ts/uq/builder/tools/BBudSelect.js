@@ -33,7 +33,7 @@ class BBudSelect {
                 break;
             case BizPhraseType_1.BudDataType.radio:
             case BizPhraseType_1.BudDataType.check:
-                this.selectCheck(select, il_1.EnumSysTable.ixBud, bud);
+                this.selectCheck(select, /*EnumSysTable.ixBud, */ bud);
                 break;
         }
         let ret = new exp_1.ExpSelect(select);
@@ -45,13 +45,21 @@ class BBudSelect {
         select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('i', t), this.bBizExp.params[0]), new exp_1.ExpEQ(new exp_1.ExpField('x', t), new exp_1.ExpNum(bud.id))));
         select.column(new exp_1.ExpField('value', t));
     }
-    selectCheck(select, tblIxBud, bud) {
+    selectCheck(select, /*tblIxBud: EnumSysTable, */ bud) {
         const t = this.bBizExp.tt, c = this.bBizExp.tb;
-        select.from(new statementWithFrom_1.EntityTable(tblIxBud, false, t))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, c))
-            .on(new exp_1.ExpEQ(new exp_1.ExpField('id', c), new exp_1.ExpField('x', t)));
-        select.column(new exp_1.ExpField('ext', c), 'id');
-        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('base', c), new exp_1.ExpNum(bud.id)), new exp_1.ExpEQ(new exp_1.ExpField('i', t), this.bBizExp.params[0])));
+        /*
+        select.from(new EntityTable(tblIxBud, false, t))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('x', t)));
+        select.column(new ExpField('ext', c), 'id');
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('base', c), new ExpNum(bud.id)),
+            new ExpEQ(new ExpField('i', t), this.bBizExp.params[0])
+        ));
+        */
+        select.column(new exp_1.ExpField('x', t), 'id');
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudCheck, false, t));
+        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('ii', t), this.bBizExp.params[0]), new exp_1.ExpEQ(new exp_1.ExpField('i', t), new exp_1.ExpNum(bud.id))));
     }
     buildSelectField(bud) {
         const { bizExp, params } = this.bBizExp;
