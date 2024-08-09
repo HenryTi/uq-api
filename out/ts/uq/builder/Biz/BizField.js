@@ -71,15 +71,16 @@ class BBizFieldBud extends BBizField {
             sb.append(`${x1}.ext as id`);
         }
         else {
-            sb.append(`JSON_ARRAYAGG(${x1}.ext)`);
+            //sb.append(`JSON_ARRAYAGG(${x1}.ext)`)
+            sb.append(`JSON_ARRAYAGG(${x0}.x)`);
         }
         ;
-        sb.append(' FROM ').dbName().dot().append(il_1.EnumSysTable.ixBud).append(` AS ${x0} JOIN `)
-            .dbName().dot().append(il_1.EnumSysTable.bud).append(` AS ${x1} ON ${x1}.id=${x0}.x `)
-            .append(` where ${x0}.i=`);
+        sb.append(' FROM ').dbName().dot().append(il_1.EnumSysTable.ixBudCheck).append(` AS ${x0}`)
+            // .dbName().dot().append(EnumSysTable.bud).append(` AS ${x1} ON ${x1}.id=${x0}.x `)
+            .append(` where ${x0}.ii=`);
         this.toIValue(sb);
-        sb.append(` AND ${x1}.base=`).append(bud.id)
-            .r();
+        sb.append(` AND ${x0}.i=`).append(bud.id)
+            .append(` GROUP BY ${x0}.i`).r();
     }
     toIValue(sb) {
         let { tableAlias } = this.bizField;
