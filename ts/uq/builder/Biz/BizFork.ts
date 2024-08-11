@@ -1,7 +1,8 @@
 import {
     BigInt, BizFork, Char, DataType, Dec, JoinType
     , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud,
-    tinyIntField
+    tinyIntField,
+    SetEqu
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
@@ -180,7 +181,7 @@ export class BBizFork extends BBizEntity<BizFork> {
                     col: 'x', val: new ExpVar(prefixPhrase + name),
                 },
             );
-            insert.cols.push({ col: 'value', val: varVal });
+            insert.cols.push({ col: 'value', val: varVal, setEqu: SetEqu.equ });
         }
         function setBuds(stats: Statement[], buds: BizBud[]) {
             for (let bud of buds) setBud(stats, bud);

@@ -157,7 +157,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
             insert.keys.push({ col: 'i', val: new sql_1.ExpVar(cNewId) }, {
                 col: 'x', val: new sql_1.ExpVar(prefixPhrase + name),
             });
-            insert.cols.push({ col: 'value', val: varVal });
+            insert.cols.push({ col: 'value', val: varVal, setEqu: il_1.SetEqu.equ });
         }
         function setBuds(stats, buds) {
             for (let bud of buds)

@@ -89,6 +89,7 @@ export class BizApiRunner extends Runner {
     // if return true, then everything done
     async processIOOut(batchNumber: number): Promise<number> {
         let result = await this.getIOOut(batchNumber);
+        if (result === undefined) return 0;
         const { length } = result;
         if (length === 0) return 0;
         for (let row of result) {

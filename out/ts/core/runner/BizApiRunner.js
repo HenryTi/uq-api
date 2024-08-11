@@ -104,6 +104,8 @@ class BizApiRunner extends Runner_1.Runner {
     processIOOut(batchNumber) {
         return __awaiter(this, void 0, void 0, function* () {
             let result = yield this.getIOOut(batchNumber);
+            if (result === undefined)
+                return 0;
             const { length } = result;
             if (length === 0)
                 return 0;
