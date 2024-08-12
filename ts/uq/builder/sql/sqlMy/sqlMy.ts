@@ -492,6 +492,9 @@ class Upsert extends stat.Upsert {
                 let { col, val, setEqu } = cv;
                 sb.sep().fld(col).append('=');
                 switch (setEqu) {
+                    default:
+                    case SetEqu.equ:
+                        break;
                     case SetEqu.add:
                         sb.append('ifnull(').fld(col).comma().append('0').r();
                         sb.append('+');
@@ -499,8 +502,6 @@ class Upsert extends stat.Upsert {
                     case SetEqu.sub:
                         sb.append('ifnull(').fld(col).comma().append('0').r();
                         sb.append('-');
-                        break;
-                    case SetEqu.equ:
                         break;
                 }
                 sb.append('VALUES(').fld(col).r();
@@ -545,14 +546,15 @@ class InsertOnDuplicate extends stat.InsertOnDuplicate {
             }
             else {
                 switch (setEqu) {
+                    default:
+                    case SetEqu.equ:
+                        sb.append('VALUES(').fld(col).r();
+                        break;
                     case SetEqu.add:
                         sb.append('IFNULL(').fld(col).append(',0)+IFNULL(').append('VALUES(').fld(col).r().append(',0)');
                         break;
                     case SetEqu.sub:
                         sb.append('IFNULL(').fld(col).append(',0)-IFNULL(').append('VALUES(').fld(col).r().append(',0)');
-                        break;
-                    case SetEqu.equ:
-                        sb.append('VALUES(').fld(col).r();
                         break;
                 }
             }

@@ -22,6 +22,7 @@ class BBudSelect {
         let select = factory.createSelect();
         switch (bud.dataType) {
             default:
+            case BizPhraseType_1.BudDataType.radio:
                 this.selectValue(select, il_1.EnumSysTable.ixBudInt, bud);
                 break;
             case BizPhraseType_1.BudDataType.dec:
@@ -31,7 +32,6 @@ class BBudSelect {
             case BizPhraseType_1.BudDataType.char:
                 this.selectValue(select, il_1.EnumSysTable.ixBudStr, bud);
                 break;
-            case BizPhraseType_1.BudDataType.radio:
             case BizPhraseType_1.BudDataType.check:
                 this.selectCheck(select, /*EnumSysTable.ixBud, */ bud);
                 break;
@@ -57,7 +57,7 @@ class BBudSelect {
             new ExpEQ(new ExpField('i', t), this.bBizExp.params[0])
         ));
         */
-        select.column(new exp_1.ExpField('x', t), 'id');
+        select.column(new exp_1.ExpField('x', t), 'value');
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudCheck, false, t));
         select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('ii', t), this.bBizExp.params[0]), new exp_1.ExpEQ(new exp_1.ExpField('i', t), new exp_1.ExpNum(bud.id))));
     }

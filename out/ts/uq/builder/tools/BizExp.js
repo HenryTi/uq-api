@@ -359,7 +359,7 @@ class BBizCheckBud extends exp_1.ExpVal {
             this.buildIn(sb);
         }
         else {
-            sb.append('EXISTS(SELECT ').append(t).dot().append('id FROM ');
+            sb.append('EXISTS(SELECT ').append(t).dot().append('value FROM ');
             if (this.bExp1 !== undefined) {
                 sb.l();
                 this.bExp1.to(sb);
@@ -369,7 +369,7 @@ class BBizCheckBud extends exp_1.ExpVal {
                 this.buildValExp(sb);
             }
             sb.append(' AS ').append(t)
-                .append(' WHERE ').append(t).dot().alias('id ');
+                .append(' WHERE ').append(t).dot().alias('value ');
             this.buildIn(sb);
             sb.r();
         }
