@@ -222,15 +222,6 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         varPhraseBudTable.keys = [phraseField, phraseParentField, budField];
         varPhraseBudTable.fields = [phraseField, phraseParentField, budField, budTypeField];
         statements.push(this.buildSelectPhraseBud());
-        /*
-        const varITable = factory.createVarTable();
-        statements.push(varITable);
-        varITable.name = tempITable;
-        varITable.keys = [idField, budField];
-        varITable.fields = [idField, budField, typeField];
-
-        statements.push(...arrBinIType.map(v => this.buildSelectShowBuds(v)));
-        */
         function funcJSON_QUOTE(expValue) {
             return new sql_1.ExpFunc('JSON_QUOTE', expValue);
         }
@@ -243,6 +234,58 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             [funcJSON_QUOTE, il_1.EnumSysTable.ixBudStr, BizPhraseType_1.BudDataType.str],
         ];
         statements.push(...budTypes.map(([func, tbl, budDataType]) => this.buildSelectIxBud(func, tbl, budDataType)));
+        this.buildGetProps(statements);
+    }
+    buildGetProps(statements) {
+        const { factory } = this.context;
+        let expCast = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', 'b'), new sql_1.ExpDatePart('JSON'));
+        let expJSONQUOTE = new sql_1.ExpFunc('JSON_QUOTE', new sql_1.ExpField('value', 'b'));
+        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudInt, expCast);
+        this.buildGetAtomProps(statements);
+        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudDec, expCast);
+        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudStr, expJSONQUOTE);
+    }
+    buildGetScalarProps(statements, sysTable, expValue) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('props');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(new sql_1.ExpField('id', a));
+        select.column(new sql_1.ExpField('x', b));
+        select.column(expValue);
+        select.from(new statementWithFrom_1.VarTable('bin', a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(sysTable, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('i', b)));
+    }
+    buildGetAtomProps(statements) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('atoms');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'base', val: undefined },
+            { col: 'no', val: undefined },
+            { col: 'ex', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(new sql_1.ExpField('id', a));
+        select.column(new sql_1.ExpField('base', b));
+        select.column(new sql_1.ExpField('no', b));
+        select.column(new sql_1.ExpField('ex', b));
+        select.from(new statementWithFrom_1.VarTable('props', a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('value', a)));
     }
     buildSelectPhraseBud() {
         const { factory } = this.context;
@@ -452,12 +495,12 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let iff = factory.createIf();
         statements.push(iff);
         iff.cmp = new sql_1.ExpRoutineExists(new sql_1.ExpStr(consts_1.$site), new sql_1.ExpVar(vProc));
-        let truncate = factory.createTruncate();
-        iff.then(truncate);
-        truncate.table = new statementWithFrom_1.VarTableWithSchema(tempBinTable);
+        // let truncate = factory.createTruncate();
+        // iff.then(truncate);
+        // truncate.table = new VarTableWithSchema(tempBinTable);
         let insertBins = factory.createInsert();
         iff.then(insertBins);
-        insertBins.table = truncate.table;
+        insertBins.table = new statementWithFrom_1.VarTableWithSchema(tempBinTable);
         insertBins.cols = [{ col: 'id', val: undefined }];
         let selectBins = factory.createSelect();
         insertBins.select = selectBins;

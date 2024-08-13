@@ -318,7 +318,7 @@ class BizBinActFieldSpace extends BizFieldSpace {
                 alias = 'b';
                 break;
             case 'sheet':
-                bud = this.bizBin.getSheetBud(n1);
+                bud = this.bizBin.getSheetMainBud(n1);
                 alias = 'sheet';
                 break;
         }

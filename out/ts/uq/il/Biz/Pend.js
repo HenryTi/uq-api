@@ -39,7 +39,7 @@ class BizPend extends Entity_1.BizID {
     }
     getSheetBud(name) {
         for (let bizBin of this.bizBins) {
-            let bud = bizBin.getSheetBud(name);
+            let bud = bizBin.getSheetMainBud(name);
             if (bud !== undefined)
                 return bud;
         }

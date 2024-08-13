@@ -336,7 +336,7 @@ export class BizBin extends BizID {
         return this.schema;
     }
 
-    getSheetBud(name: string): BizBud {
+    getSheetMainBud(name: string): BizBud {
         /*
         for (let sheet of this.sheetArr) {
             let { main } = sheet;

@@ -237,7 +237,7 @@ export class PBizExp extends PElement<BizExp> {
             if (arr.includes(prop) === false) {
                 let bud: BizBud;
                 if (isParent === true) {
-                    bud = bizBin.getSheetBud(prop);
+                    bud = bizBin.getSheetMainBud(prop);
                     if (bud === undefined) {
                         let { main } = bizBin;
                         if (main === undefined) {

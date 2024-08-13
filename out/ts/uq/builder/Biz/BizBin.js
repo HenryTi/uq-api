@@ -193,11 +193,13 @@ class BBizBin extends BizEntity_1.BBizEntity {
         // const { iBase, xBase } = this.bizEntity;
         // this.buildGetIXBase(statements, iBase);
         // this.buildGetIXBase(statements, xBase);
-        let showBuds = this.bizEntity.allShowBuds();
+        // let showBuds = this.bizEntity.allShowBuds();
+        /*
         if (showBuds === undefined) {
             proc.dropOnly = true;
             return;
         }
+        */
         let { factory, site } = this.context;
         const declare = factory.createDeclare();
         statements.push(declare);

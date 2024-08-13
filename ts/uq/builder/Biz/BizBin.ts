@@ -190,11 +190,13 @@ export class BBizBin extends BBizEntity<BizBin> {
         // this.buildGetIXBase(statements, iBase);
         // this.buildGetIXBase(statements, xBase);
 
-        let showBuds = this.bizEntity.allShowBuds();
+        // let showBuds = this.bizEntity.allShowBuds();
+        /*
         if (showBuds === undefined) {
             proc.dropOnly = true;
             return;
         }
+        */
 
         let { factory, site } = this.context;
 

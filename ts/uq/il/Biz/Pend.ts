@@ -53,7 +53,7 @@ export class BizPend extends BizID {
 
     getSheetBud(name: string): BizBud {
         for (let bizBin of this.bizBins) {
-            let bud = bizBin.getSheetBud(name);
+            let bud = bizBin.getSheetMainBud(name);
             if (bud !== undefined) return bud;
         }
     }

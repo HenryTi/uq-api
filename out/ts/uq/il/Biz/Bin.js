@@ -277,7 +277,7 @@ class BizBin extends Entity_1.BizID {
         this.schema = Object.assign(Object.assign({}, ret), { main: (_b = this.main) === null || _b === void 0 ? void 0 : _b.id, picks: picks.length === 0 ? undefined : picks, inputs: inputs.length === 0 ? undefined : inputs, pend: (_c = this.pend) === null || _c === void 0 ? void 0 : _c.id, i: (_d = this.i) === null || _d === void 0 ? void 0 : _d.buildSchema(res), iBase: (_e = this.iBase) === null || _e === void 0 ? void 0 : _e.buildSchema(res), x: (_f = this.x) === null || _f === void 0 ? void 0 : _f.buildSchema(res), xBase: (_g = this.xBase) === null || _g === void 0 ? void 0 : _g.buildSchema(res), value: (_h = this.value) === null || _h === void 0 ? void 0 : _h.buildSchema(res), amount: (_j = this.amount) === null || _j === void 0 ? void 0 : _j.buildSchema(res), price, div: this.div.buildSchema(res), pivot });
         return this.schema;
     }
-    getSheetBud(name) {
+    getSheetMainBud(name) {
         /*
         for (let sheet of this.sheetArr) {
             let { main } = sheet;
