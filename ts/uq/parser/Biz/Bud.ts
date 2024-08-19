@@ -7,7 +7,8 @@ import {
     , BizBudIXBase, BizBudIDIO, BizBudArr, budClassesOut, budClassKeysOut, UI, BinValue
     , BizBudIDBase,
     BizBudBin,
-    BizID
+    BizID,
+    BizBudJSON
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -273,6 +274,12 @@ export class PBizBudDec<T extends BizBudDec = BizBudDec> extends PBizBudValueWit
             this.element.ui.fraction = n;
         }
         this.parseBudEquValue();
+    }
+}
+
+
+export class PBizBudJSON extends PBizBudValue<BizBudJSON> {
+    protected _parse(): void {
     }
 }
 

@@ -1,5 +1,5 @@
 import { BBizAtom, BBizCombo, BBizFork, DbContext } from "../../builder";
-import { PBizAtom, /*PBizAtomBud, */PBizSpec, PBizDuo, PContext, PElement, PIDUnique, PBizCombo } from "../../parser";
+import { PBizAtom, /*PBizAtomBud, */PBizFork as PBizFork, PBizDuo, PContext, PElement, PIDUnique, PBizCombo } from "../../parser";
 import { IElement } from "../IElement";
 import { UI } from "../UI";
 import { IxField } from "./Base";
@@ -33,8 +33,6 @@ export abstract class BizIDWithShowBuds extends BizID {
         return ret;
     }
 }
-
-
 
 export abstract class BizIDExtendable extends BizIDWithShowBuds {
     extends: BizIDExtendable;
@@ -109,11 +107,39 @@ export class IDUnique extends BizBud {
     }
 }
 
+/*
+// fork only be used in Atom
+// BizFork obsolete
+export class BizAtomFork {
+    ui: Partial<UI>;
+    readonly keys: Map<string, BizBud> = new Map();
+    readonly buds: Map<string, BizBud> = new Map();
+    buildSchema(res: { [phrase: string]: string }) {
+        let keys: any[] = [], props: any[];
+        for (let [, v] of this.keys) {
+            keys.push(v.buildSchema(res));
+        }
+        if (this.buds.size > 0) {
+            props = [];
+            for (let [, v] of this.buds) {
+                props.push(v.buildSchema(res));
+            }
+        };
+        return {
+            ui: this.ui,
+            keys,
+            props,
+        };
+    }
+}
+*/
+
 export class BizAtom extends BizIDExtendable {
     readonly bizPhraseType = BizPhraseType.atom;
     ex: BizBudValue;
     uuid: boolean;
     protected readonly fields = ['id', 'no', 'ex'];
+    // fork: BizAtomFork;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);
@@ -122,14 +148,41 @@ export class BizAtom extends BizIDExtendable {
     db(dbContext: DbContext): BBizAtom {
         return new BBizAtom(dbContext, this);
     }
-
+    /*
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
+        let fork: any;
+        if (this.fork !== undefined) {
+            fork = this.fork.buildSchema(res);
+        }
         return Object.assign(ret, {
             uuid: this.uuid,
             ex: this.ex?.buildSchema(res),
+            fork,
         });
     }
+
+    buildPhrases(phrases: [string, string, string, string][], prefix: string) {
+        super.buildPhrases(phrases, prefix);
+        if (this.fork !== undefined) {
+            const { keys, buds } = this.fork;
+            let phrase = this.phrase + '.';
+            let arr: BizBud[] = [];
+            for (let [, bud] of keys) arr.push(bud);
+            for (let [, bud] of buds) arr.push(bud);
+            for (let bud of arr) bud.buildPhrases(phrases, phrase);
+        }
+    }
+
+    override forEachBud(callback: (bud: BizBud) => void) {
+        super.forEachBud(callback);
+        if (this.fork !== undefined) {
+            const { keys, buds } = this.fork;
+            for (let [, bud] of keys) callback(bud);
+            for (let [, bud] of buds) callback(bud);
+        }
+    }
+    */
 }
 
 // 分子：atom 原子的合成
@@ -154,6 +207,7 @@ export class BizDuo extends BizIDWithShowBuds {
 }
 
 export abstract class BizIDWithBase extends BizIDExtendable {
+    fork: BizIDWithBase;
     base: BizIDWithBase;    // only base, not base atom, then bizAtomFlag
     preset: boolean;          // 如果true，不能临时录入，只能选择。
 
@@ -172,7 +226,7 @@ export class BizFork extends BizIDWithBase {
     readonly keys: BizBud[] = [];
 
     parser(context: PContext): PElement<IElement> {
-        return new PBizSpec(this, context);
+        return new PBizFork(this, context);
     }
 
     buildSchema(res: { [phrase: string]: string }) {

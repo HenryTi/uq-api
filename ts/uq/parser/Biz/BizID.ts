@@ -2,14 +2,15 @@ import {
     BizAtom, BizIDExtendable, BizIDAny, BizIDWithBase, BizFork
     , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity,
     BizCombo,
-    BizIDWithShowBuds
+    BizIDWithShowBuds,
+    // BizAtomFork
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 import { BizEntitySpace } from "./Biz";
-import { PBizBud } from "./Bud";
+import { PBizBud, PBizBudValue } from "./Bud";
 
 export abstract class PBizIDWithShowBuds<T extends BizIDWithShowBuds> extends PBizEntity<T> {
     private titleBuds: string[];
@@ -318,6 +319,39 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
         this.parsePermission('crud');
     }
 
+    /*
+    private parseFork = () => {
+        this.element.fork = new BizAtomFork();
+        const { fork } = this.element;
+        fork.ui = this.parseUI();
+        const { keys, buds } = fork;
+        this.ts.passToken(Token.LBRACE);
+        for (; ;) {
+            if (this.ts.token === Token.RBRACE) {
+                this.ts.readToken();
+                this.ts.mayPassToken(Token.SEMICOLON);
+                break;
+            }
+            let k = this.ts.passKey();
+            switch (k) {
+                default:
+                    this.ts.expect('key', 'prop', 'bud');
+                    break;
+                case 'key':
+                    this.parseKeyBuds().forEach(v => keys.set(v.name, v));
+                    this.ts.mayPassToken(Token.SEMICOLON);
+                    break;
+                case 'prop':
+                case 'bud':
+                    const { budArr } = this.parseProp();
+                    budArr.forEach(v => buds.set(v.name, v));
+                    this.ts.mayPassToken(Token.SEMICOLON);
+                    break;
+            }
+        }
+    }
+    */
+
     private uniques: { [name: string]: IDUnique };
     private parseUnique = () => {
         if (this.uniques === undefined) this.uniques = {};
@@ -337,6 +371,7 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
         permit: this.parsePermit,
         unique: this.parseUnique,
         user: this.parseBizUser,
+        // fork: this.parseFork,
     };
 
     override scan0(space: Space): boolean {
@@ -362,12 +397,6 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
     scan(space: Space): boolean {
         let ok = true;
         if (super.scan(space) === false) ok = false;
-        return ok;
-    }
-
-    scan2(uq: Uq): boolean {
-        let ok = true;
-        if (super.scan2(uq) === false) ok = false;
         return ok;
     }
 }
@@ -513,7 +542,7 @@ abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<
     }
 }
 
-export class PBizSpec extends PBizIDWithBase<BizFork> {
+export class PBizFork extends PBizIDWithBase<BizFork> {
     private parseKey = () => {
         this.element.keys.push(...this.parseKeyBuds());
     }
@@ -553,6 +582,20 @@ export class PBizSpec extends PBizIDWithBase<BizFork> {
 
         for (let key of keys) {
             if (this.scanBud(space, key) === false) ok = false;
+        }
+        return ok;
+    }
+
+    override scan2(uq: Uq): boolean {
+        let ok = true;
+        let { base } = this.element;
+        const { fork } = base;
+        if (fork !== undefined) {
+            ok = false;
+            this.log(`${base.getJName()} can not have more than one FORK. ${this.element.getJName()} and ${fork.getJName()}`);
+        }
+        else {
+            base.fork = this.element;
         }
         return ok;
     }

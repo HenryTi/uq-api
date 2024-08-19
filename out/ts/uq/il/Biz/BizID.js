@@ -106,25 +106,79 @@ class IDUnique extends Bud_1.BizBud {
     }
 }
 exports.IDUnique = IDUnique;
+/*
+// fork only be used in Atom
+// BizFork obsolete
+export class BizAtomFork {
+    ui: Partial<UI>;
+    readonly keys: Map<string, BizBud> = new Map();
+    readonly buds: Map<string, BizBud> = new Map();
+    buildSchema(res: { [phrase: string]: string }) {
+        let keys: any[] = [], props: any[];
+        for (let [, v] of this.keys) {
+            keys.push(v.buildSchema(res));
+        }
+        if (this.buds.size > 0) {
+            props = [];
+            for (let [, v] of this.buds) {
+                props.push(v.buildSchema(res));
+            }
+        };
+        return {
+            ui: this.ui,
+            keys,
+            props,
+        };
+    }
+}
+*/
 class BizAtom extends BizIDExtendable {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.atom;
         this.fields = ['id', 'no', 'ex'];
+        /*
+        buildSchema(res: { [phrase: string]: string }) {
+            let ret = super.buildSchema(res);
+            let fork: any;
+            if (this.fork !== undefined) {
+                fork = this.fork.buildSchema(res);
+            }
+            return Object.assign(ret, {
+                uuid: this.uuid,
+                ex: this.ex?.buildSchema(res),
+                fork,
+            });
+        }
+    
+        buildPhrases(phrases: [string, string, string, string][], prefix: string) {
+            super.buildPhrases(phrases, prefix);
+            if (this.fork !== undefined) {
+                const { keys, buds } = this.fork;
+                let phrase = this.phrase + '.';
+                let arr: BizBud[] = [];
+                for (let [, bud] of keys) arr.push(bud);
+                for (let [, bud] of buds) arr.push(bud);
+                for (let bud of arr) bud.buildPhrases(phrases, phrase);
+            }
+        }
+    
+        override forEachBud(callback: (bud: BizBud) => void) {
+            super.forEachBud(callback);
+            if (this.fork !== undefined) {
+                const { keys, buds } = this.fork;
+                for (let [, bud] of keys) callback(bud);
+                for (let [, bud] of buds) callback(bud);
+            }
+        }
+        */
     }
+    // fork: BizAtomFork;
     parser(context) {
         return new parser_1.PBizAtom(this, context);
     }
     db(dbContext) {
         return new builder_1.BBizAtom(dbContext, this);
-    }
-    buildSchema(res) {
-        var _a;
-        let ret = super.buildSchema(res);
-        return Object.assign(ret, {
-            uuid: this.uuid,
-            ex: (_a = this.ex) === null || _a === void 0 ? void 0 : _a.buildSchema(res),
-        });
     }
 }
 exports.BizAtom = BizAtom;
@@ -168,7 +222,7 @@ class BizFork extends BizIDWithBase {
         this.keys = [];
     }
     parser(context) {
-        return new parser_1.PBizSpec(this, context);
+        return new parser_1.PBizFork(this, context);
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);

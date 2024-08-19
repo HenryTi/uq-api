@@ -3,7 +3,8 @@ import {
     , PBizBudDec, PBizBudInt
     , PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement
     , PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue, PBizUser,
-    PBizBudBin
+    PBizBudBin,
+    PBizBudJSON
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -121,6 +122,15 @@ export abstract class BizBudValue extends BizBud {
         if (str !== undefined) return;
         this.value.str = [expStringify(exp), setType];
     }
+}
+
+export class BizBudJSON extends BizBudValue {
+    readonly dataType = BudDataType.json;
+    readonly canIndex = false;
+    parser(context: PContext): PElement<IElement> {
+        return new PBizBudJSON(this, context);
+    }
+    createDataType(): DataType { return new JsonDataType(); }
 }
 
 export class BizBudArr extends BizBudValue {
@@ -428,6 +438,7 @@ export const budClassesIn: { [key: string]: new (entity: BizEntity, name: string
     date: BizBudDate,
     id: BizBudIDIO,
     bin: BizBudBin,
+    json: BizBudJSON,
     $arr: BizBudArr,
 }
 export const budClasses: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudPickable = exports.PBizBudBin = exports.PBizBudID = exports.PBizBudIXBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudAny = exports.PBizBudValue = exports.PBizBud = void 0;
+exports.PBizBudCheck = exports.PBizBudRadio = exports.PBizBudPickable = exports.PBizBudBin = exports.PBizBudID = exports.PBizBudIXBase = exports.PBizBudIDIO = exports.PBizBudDate = exports.PBizBudChar = exports.PBinValue = exports.PBizBudJSON = exports.PBizBudDec = exports.PBizBudInt = exports.PBizBudArr = exports.PBizBudAny = exports.PBizBudValue = exports.PBizBud = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
@@ -261,6 +261,11 @@ class PBizBudDec extends PBizBudValueWithRange {
     }
 }
 exports.PBizBudDec = PBizBudDec;
+class PBizBudJSON extends PBizBudValue {
+    _parse() {
+    }
+}
+exports.PBizBudJSON = PBizBudJSON;
 class PBinValue extends PBizBudDec {
     _parse() {
         if (this.ts.token === tokens_1.Token.LBRACE) {

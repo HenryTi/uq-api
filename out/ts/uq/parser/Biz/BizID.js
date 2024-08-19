@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizCombo = exports.PBizSpec = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizIDWithShowBuds = void 0;
+exports.PBizCombo = exports.PBizFork = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizIDWithShowBuds = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
@@ -313,6 +313,7 @@ class PBizAtom extends PBizIDExtendable {
             permit: this.parsePermit,
             unique: this.parseUnique,
             user: this.parseBizUser,
+            // fork: this.parseFork,
         };
     }
     parseParam() {
@@ -344,12 +345,6 @@ class PBizAtom extends PBizIDExtendable {
     scan(space) {
         let ok = true;
         if (super.scan(space) === false)
-            ok = false;
-        return ok;
-    }
-    scan2(uq) {
-        let ok = true;
-        if (super.scan2(uq) === false)
             ok = false;
         return ok;
     }
@@ -495,7 +490,7 @@ class PBizIDWithBase extends PBizIDExtendable {
         }
     }
 }
-class PBizSpec extends PBizIDWithBase {
+class PBizFork extends PBizIDWithBase {
     constructor() {
         super(...arguments);
         this.parseKey = () => {
@@ -540,8 +535,21 @@ class PBizSpec extends PBizIDWithBase {
         }
         return ok;
     }
+    scan2(uq) {
+        let ok = true;
+        let { base } = this.element;
+        const { fork } = base;
+        if (fork !== undefined) {
+            ok = false;
+            this.log(`${base.getJName()} can not have more than one FORK. ${this.element.getJName()} and ${fork.getJName()}`);
+        }
+        else {
+            base.fork = this.element;
+        }
+        return ok;
+    }
 }
-exports.PBizSpec = PBizSpec;
+exports.PBizFork = PBizFork;
 class PBizCombo extends PBizIDWithShowBuds {
     constructor() {
         super(...arguments);
