@@ -1,6 +1,6 @@
 import { BBizEntity, DbContext } from "../../builder";
 import { BBizBin } from "../../builder";
-import { PBinInputAtom, PBinInputSpec, PBinPick, PBizBin, PBizBinAct, PContext, PElement, PPickParam } from "../../parser";
+import { PBinInputAtom, PBinInputFork, PBinPick, PBizBin, PBizBinAct, PContext, PElement, PPickParam } from "../../parser";
 import { EnumSysTable } from "../EnumSysTable";
 import { IElement } from "../IElement";
 import { Field } from "../field";
@@ -137,7 +137,7 @@ export abstract class BinInput extends BizBud {
     }
 }
 
-export class BinInputSpec extends BinInput {
+export class BinInputFork extends BinInput {
     fork: BizFork;
     baseValue: ValueExpression;
     readonly params: [BizBud, ValueExpression, BudValueSetType][] = [];
@@ -145,20 +145,20 @@ export class BinInputSpec extends BinInput {
     paramsArr: [number, string, string][];
 
     parser(context: PContext): PElement<IElement> {
-        return new PBinInputSpec(this, context);
+        return new PBinInputFork(this, context);
     }
 
     override buildBudValue(expStringify: (value: ValueExpression) => string): void {
         super.buildBudValue(expStringify)
         this.baseValueStr = expStringify(this.baseValue);
         this.paramsArr = this.params.map(([bud, val, valueSetType]) => {
-            return [bud.id, expStringify(val), valueSetType === BudValueSetType.equ ? '=' : ':='];
+            return [bud?.id, expStringify(val), valueSetType === BudValueSetType.equ ? '=' : ':='];
         });
     }
 
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        ret.spec = this.fork.id;
+        ret.spec = this.fork?.id;
         ret.base = this.baseValueStr;
         ret.params = this.paramsArr;
         return ret;

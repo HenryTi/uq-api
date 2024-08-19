@@ -1,19 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBinInputAtom = exports.PBinInputSpec = void 0;
+exports.PBinInputAtom = exports.PBinInputFork = void 0;
 const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const tokens_1 = require("../../tokens");
 const Bud_1 = require("../Bud");
 class PBinInput extends Bud_1.PBizBud {
 }
-class PBinInputSpec extends PBinInput {
+class PBinInputFork extends PBinInput {
     constructor() {
         super(...arguments);
         this.params = [];
     }
     _parse() {
-        this.spec = this.ts.passVar();
+        if (this.ts.isKeyword('base') === false) {
+            this.spec = this.ts.passVar();
+        }
         this.ts.passKey('base');
         this.ts.passToken(tokens_1.Token.EQU);
         let val = this.element.baseValue = new il_1.ValueExpression();
@@ -45,18 +47,18 @@ class PBinInputSpec extends PBinInput {
     }
     scan(space) {
         let ok = true;
-        let { bizEntityArr: [ret] } = space.getBizFromEntityArrFromName(this.spec);
-        if ((ret === null || ret === void 0 ? void 0 : ret.bizPhraseType) !== BizPhraseType_1.BizPhraseType.fork) {
-            this.log(`${this.spec} is not SPEC`);
+        let { baseValue } = this.element;
+        if (baseValue.pelement.scan(space) === false) {
             ok = false;
         }
-        else {
-            let fork = this.element.fork = ret;
-            let { baseValue } = this.element;
-            if (baseValue.pelement.scan(space) === false) {
+        if (this.spec !== undefined) {
+            let { bizEntityArr: [ret] } = space.getBizFromEntityArrFromName(this.spec);
+            if ((ret === null || ret === void 0 ? void 0 : ret.bizPhraseType) !== BizPhraseType_1.BizPhraseType.fork) {
+                this.log(`${this.spec} is not SPEC`);
                 ok = false;
             }
             else {
+                let fork = this.element.fork = ret;
                 const { params } = this.element;
                 for (let [name, v, valueSetType] of this.params) {
                     let bud = fork.getBud(name);
@@ -72,10 +74,33 @@ class PBinInputSpec extends PBinInput {
                 }
             }
         }
+        else {
+            const { params } = this.element;
+            switch (this.params.length) {
+                default:
+                    ok = false;
+                    this.log(`Only param can set`);
+                    break;
+                case 0: break;
+                case 1:
+                    let [name, v, valueSetType] = this.params[0];
+                    if (name !== 'param') {
+                        ok = false;
+                        this.log(`Only PARAM can set`);
+                    }
+                    else {
+                        if (v.pelement.scan(space) === false) {
+                            ok = false;
+                        }
+                        params.push([undefined, v, valueSetType]);
+                    }
+                    break;
+            }
+        }
         return ok;
     }
 }
-exports.PBinInputSpec = PBinInputSpec;
+exports.PBinInputFork = PBinInputFork;
 class PBinInputAtom extends PBinInput {
     _parse() {
         this.atom = this.ts.passVar();

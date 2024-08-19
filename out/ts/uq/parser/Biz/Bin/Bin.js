@@ -30,16 +30,16 @@ class PBizBin extends Base_1.PBizEntity {
             let name = this.ts.passVar();
             let ui = this.parseUI();
             let input;
-            if (this.ts.isKeyword('spec') === true) {
+            if (this.ts.isKeywords('spec', 'fork') === true) {
                 this.ts.readToken();
-                input = new il_1.BinInputSpec(this.element, name, ui);
+                input = new il_1.BinInputFork(this.element, name, ui);
             }
             else if (this.ts.isKeyword('atom') === true) {
                 this.ts.readToken();
                 input = new il_1.BinInputAtom(this.element, name, ui);
             }
             else {
-                this.ts.expect('SPEC', 'ATOM');
+                this.ts.expect('FORK', 'SPEC', 'ATOM');
             }
             this.context.parseElement(input);
             this.element.setInput(input);

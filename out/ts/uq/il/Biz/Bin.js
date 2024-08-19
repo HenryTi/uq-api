@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputSpec = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
+exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputFork = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const EnumSysTable_1 = require("../EnumSysTable");
@@ -122,30 +122,31 @@ class BinInput extends Bud_1.BizBud {
     }
 }
 exports.BinInput = BinInput;
-class BinInputSpec extends BinInput {
+class BinInputFork extends BinInput {
     constructor() {
         super(...arguments);
         this.params = [];
     }
     parser(context) {
-        return new parser_1.PBinInputSpec(this, context);
+        return new parser_1.PBinInputFork(this, context);
     }
     buildBudValue(expStringify) {
         super.buildBudValue(expStringify);
         this.baseValueStr = expStringify(this.baseValue);
         this.paramsArr = this.params.map(([bud, val, valueSetType]) => {
-            return [bud.id, expStringify(val), valueSetType === Bud_1.BudValueSetType.equ ? '=' : ':='];
+            return [bud === null || bud === void 0 ? void 0 : bud.id, expStringify(val), valueSetType === Bud_1.BudValueSetType.equ ? '=' : ':='];
         });
     }
     buildSchema(res) {
+        var _a;
         let ret = super.buildSchema(res);
-        ret.spec = this.fork.id;
+        ret.spec = (_a = this.fork) === null || _a === void 0 ? void 0 : _a.id;
         ret.base = this.baseValueStr;
         ret.params = this.paramsArr;
         return ret;
     }
 }
-exports.BinInputSpec = BinInputSpec;
+exports.BinInputFork = BinInputFork;
 class BinInputAtom extends BinInput {
     parser(context) {
         return new parser_1.PBinInputAtom(this, context);

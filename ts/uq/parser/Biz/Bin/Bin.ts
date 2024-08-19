@@ -4,7 +4,7 @@ import {
     , Uq, Entity, Table, Pointer, VarPointer
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
     , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
-    , BinInputSpec, BinInputAtom, BinDiv, BizBudIXBase, BizStatementBin
+    , BinInputFork, BinInputAtom, BinDiv, BizBudIXBase, BizStatementBin
     , BizOut, UseOut, BinValue, UI, BinPivot, BizBudRadio, OptionsItem,
     BudValueSetType,
     BizFromEntity,
@@ -59,16 +59,16 @@ export class PBizBin extends PBizEntity<BizBin> {
         let name = this.ts.passVar();
         let ui = this.parseUI();
         let input: BinInput;
-        if (this.ts.isKeyword('spec') === true) {
+        if (this.ts.isKeywords('spec', 'fork') === true) {
             this.ts.readToken();
-            input = new BinInputSpec(this.element, name, ui);
+            input = new BinInputFork(this.element, name, ui);
         }
         else if (this.ts.isKeyword('atom') === true) {
             this.ts.readToken();
             input = new BinInputAtom(this.element, name, ui);
         }
         else {
-            this.ts.expect('SPEC', 'ATOM');
+            this.ts.expect('FORK', 'SPEC', 'ATOM');
         }
         this.context.parseElement(input);
         this.element.setInput(input);
