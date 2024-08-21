@@ -32,6 +32,10 @@ function buildSelectBinBud(context, bud, varBin, varName) {
             }
             declareType = bigint;
             break;
+        case BizPhraseType_1.BudDataType.fork:
+            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudJson);
+            declareType = json;
+            break;
         case BizPhraseType_1.BudDataType.ID:
         case BizPhraseType_1.BudDataType.date:
         case BizPhraseType_1.BudDataType.int:

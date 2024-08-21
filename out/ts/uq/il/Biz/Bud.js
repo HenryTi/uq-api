@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudJSON = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudFork = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -95,18 +95,25 @@ class BizBudValue extends BizBud {
     }
 }
 exports.BizBudValue = BizBudValue;
-class BizBudJSON extends BizBudValue {
+class BizBudFork extends BizBudValue {
     constructor() {
         super(...arguments);
-        this.dataType = BizPhraseType_1.BudDataType.json;
+        this.dataType = BizPhraseType_1.BudDataType.fork;
         this.canIndex = false;
     }
     parser(context) {
-        return new parser_1.PBizBudJSON(this, context);
+        return new parser_1.PBizBudFork(this, context);
     }
     createDataType() { return new datatype_1.JsonDataType(); }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        if (this.baseBud !== undefined) {
+            ret.base = this.baseBud.id;
+        }
+        return ret;
+    }
 }
-exports.BizBudJSON = BizBudJSON;
+exports.BizBudFork = BizBudFork;
 class BizBudArr extends BizBudValue {
     constructor() {
         super(...arguments);
@@ -459,7 +466,7 @@ exports.budClassesIn = {
     date: BizBudDate,
     id: BizBudIDIO,
     bin: BizBudBin,
-    json: BizBudJSON,
+    fork: BizBudFork,
     $arr: BizBudArr,
 };
 exports.budClasses = Object.assign(Object.assign({}, exports.budClassesIn), { none: BizBudAny, atom: BizBudID, id: BizBudID, radio: BizBudRadio, check: BizBudCheck, binValue: BinValue });

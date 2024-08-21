@@ -4,7 +4,7 @@ import {
     , PBizBudAny, PBizBudPickable, PBizBudRadio, PContext, PElement
     , PBizBudIXBase, PBizBudIDIO, PBizBudArr, PBinValue, PBizUser,
     PBizBudBin,
-    PBizBudJSON
+    PBizBudFork as PBizBudFork
 } from "../../parser";
 import { IElement } from "../IElement";
 import { BizBase } from "./Base";
@@ -124,13 +124,22 @@ export abstract class BizBudValue extends BizBud {
     }
 }
 
-export class BizBudJSON extends BizBudValue {
-    readonly dataType = BudDataType.json;
+export class BizBudFork extends BizBudValue {
+    readonly dataType = BudDataType.fork;
     readonly canIndex = false;
+    baseBudName: string;
+    baseBud: BizBud;
     parser(context: PContext): PElement<IElement> {
-        return new PBizBudJSON(this, context);
+        return new PBizBudFork(this, context);
     }
     createDataType(): DataType { return new JsonDataType(); }
+    buildSchema(res: { [phrase: string]: string; }) {
+        let ret = super.buildSchema(res);
+        if (this.baseBud !== undefined) {
+            ret.base = this.baseBud.id;
+        }
+        return ret;
+    }
 }
 
 export class BizBudArr extends BizBudValue {
@@ -438,7 +447,7 @@ export const budClassesIn: { [key: string]: new (entity: BizEntity, name: string
     date: BizBudDate,
     id: BizBudIDIO,
     bin: BizBudBin,
-    json: BizBudJSON,
+    fork: BizBudFork,
     $arr: BizBudArr,
 }
 export const budClasses: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {

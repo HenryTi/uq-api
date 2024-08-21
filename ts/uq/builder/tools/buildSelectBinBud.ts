@@ -35,6 +35,10 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
             }
             declareType = bigint;
             break;
+        case BudDataType.fork:
+            selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudJson);
+            declareType = json;
+            break;
         case BudDataType.ID:
         case BudDataType.date:
         case BudDataType.int:

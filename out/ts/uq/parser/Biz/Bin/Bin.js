@@ -475,6 +475,34 @@ class PBizBin extends Base_1.PBizEntity {
                 }
             }
         }
+        // check bud fork
+        for (let [, bud] of this.element.props) {
+            if (bud.dataType !== BizPhraseType_1.BudDataType.fork)
+                continue;
+            let budFork = bud;
+            const { baseBudName } = budFork;
+            if (baseBudName !== undefined) {
+                let baseBud;
+                switch (baseBudName) {
+                    default:
+                        baseBud = this.element.props.get(baseBudName);
+                        break;
+                    case 'i':
+                        baseBud = this.element.i;
+                        break;
+                    case 'x':
+                        baseBud = this.element.x;
+                        break;
+                }
+                if (baseBud === undefined) {
+                    ok = false;
+                    this.log(`FORK BASE ${baseBudName} not defined`);
+                }
+                else {
+                    budFork.baseBud = baseBud;
+                }
+            }
+        }
         return ok;
     }
     bizEntityScan2(bizEntity) {

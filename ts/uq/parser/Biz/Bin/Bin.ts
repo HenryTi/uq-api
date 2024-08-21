@@ -9,7 +9,10 @@ import {
     BudValueSetType,
     BizFromEntity,
     BizFieldSpace,
-    BizField
+    BizField,
+    EnumDataType,
+    BizBudFork,
+    BizBud
 } from "../../../il";
 import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
 import { PContext } from "../../pContext";
@@ -514,6 +517,28 @@ export class PBizBin extends PBizEntity<BizBin> {
             for (let pick of pickArr) {
                 if (pick.pelement.scan2(uq) === false) {
                     ok = false;
+                }
+            }
+        }
+
+        // check bud fork
+        for (let [, bud] of this.element.props) {
+            if (bud.dataType !== BudDataType.fork) continue;
+            let budFork = bud as BizBudFork;
+            const { baseBudName } = budFork;
+            if (baseBudName !== undefined) {
+                let baseBud: BizBud;
+                switch (baseBudName) {
+                    default: baseBud = this.element.props.get(baseBudName); break;
+                    case 'i': baseBud = this.element.i; break;
+                    case 'x': baseBud = this.element.x; break;
+                }
+                if (baseBud === undefined) {
+                    ok = false;
+                    this.log(`FORK BASE ${baseBudName} not defined`);
+                }
+                else {
+                    budFork.baseBud = baseBud;
                 }
             }
         }

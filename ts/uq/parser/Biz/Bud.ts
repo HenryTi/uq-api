@@ -8,7 +8,7 @@ import {
     , BizBudIDBase,
     BizBudBin,
     BizID,
-    BizBudJSON
+    BizBudFork
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -278,8 +278,13 @@ export class PBizBudDec<T extends BizBudDec = BizBudDec> extends PBizBudValueWit
 }
 
 
-export class PBizBudJSON extends PBizBudValue<BizBudJSON> {
+export class PBizBudFork extends PBizBudValue<BizBudFork> {
     protected _parse(): void {
+        if (this.ts.token === Token.LPARENTHESE) {
+            this.ts.readToken();
+            this.element.baseBudName = this.ts.passVar();
+            this.ts.passToken(Token.RPARENTHESE);
+        }
     }
 }
 
