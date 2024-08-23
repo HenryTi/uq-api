@@ -6,7 +6,6 @@ import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWi
 import { KeyOfMapFieldTable, MapFieldTable } from "../BizField";
 import { DbContext } from "../../dbContext";
 import { Sqls } from "../../bstatement";
-import { BizPend } from "../../../il";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 
 const a = 'a', b = 'b';

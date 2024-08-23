@@ -103,9 +103,9 @@ export function buildSelectPhraseBud(context: DbContext) {
     selectCTE.lock = LockType.none;
     const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
     selectAtomPhrase.cte = { alias: cte, recursive: true, select: selectCTE };
-    selectCTE.column(new ExpField('phrase', s0))
+    selectCTE.column(new ExpField('x', s), 'phrase')
     selectCTE.column(new ExpField('i', s), 'i');
-    selectCTE.column(new ExpField('phrase', s0), 'x');
+    selectCTE.column(new ExpField('x', s), 'x');
     selectCTE.from(new VarTable(tempIdPhraseTable, s0))
         .join(JoinType.left, new EntityTable(EnumSysTable.ixBizPhrase, false, s))
         .on(new ExpEQ(new ExpField('x', s), new ExpField('phrase', s0)));

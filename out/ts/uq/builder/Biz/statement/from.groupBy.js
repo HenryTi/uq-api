@@ -4,6 +4,7 @@ exports.BFromGroupByBaseStatement = exports.BFromGroupByStatement = void 0;
 const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const sql_1 = require("../../sql");
+const select_1 = require("../../sql/select");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const tools_1 = require("../../tools");
 const from_1 = require("./from");
@@ -115,14 +116,47 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         const { fromEntity } = this.istatement;
         const { bizEntityArr, bizPhraseType, alias } = fromEntity;
         const expBase = new sql_1.ExpField('base', alias);
-        function eqOrIn(expField) {
+        const eqOrIn = (expField) => {
+            /*
             if (bizEntityArr.length === 1) {
-                return new sql_1.ExpEQ(expField, new sql_1.ExpNum(bizEntityArr[0].id));
+                return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
             }
             else {
-                return new sql_1.ExpIn(expField, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
-            }
-        }
+            */
+            const { factory } = this.context;
+            let sel = factory.createSelect();
+            sel.lock = select_1.LockType.none;
+            let selectCTE = factory.createSelect();
+            selectCTE.lock = select_1.LockType.none;
+            const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
+            sel.cte = { alias: cte, recursive: true, select: selectCTE };
+            selectCTE.column(new sql_1.ExpField('x', s), 'phrase');
+            selectCTE.column(new sql_1.ExpField('i', s), 'i');
+            selectCTE.column(new sql_1.ExpField('x', s), 'x');
+            selectCTE.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, s));
+            selectCTE.where(new sql_1.ExpIn(new sql_1.ExpField('x', s), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id))));
+            let select1 = factory.createSelect();
+            select1.lock = select_1.LockType.none;
+            select1.column(new sql_1.ExpField('x', r), 'phrase');
+            select1.column(new sql_1.ExpField('i', r));
+            select1.column(new sql_1.ExpField('x', r));
+            select1.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, r))
+                .join(il_1.JoinType.join, new statementWithFrom_1.NameTable(cte, r0))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('x', r0), new sql_1.ExpField('i', r)));
+            selectCTE.unions = [select1];
+            selectCTE.unionsAll = true;
+            sel.distinct = true;
+            sel.column(new sql_1.ExpField('phrase', a));
+            // sel.column(new ExpField('x', a));
+            // sel.column(new ExpField('x', b));
+            // sel.column(new ExpField('type', b), 'budtype');
+            sel.from(new statementWithFrom_1.NameTable(cte, a));
+            //    .join(JoinType.join, new EntityTable(EnumSysTable.bizBudShow, false, b))
+            //    .on(new ExpEQ(new ExpField('i', b), new ExpField('x', a)));
+            // ...bizEntityArr.map(v => new ExpNum(v.id));
+            return new sql_1.ExpIn(expField, new sql_1.ExpSelect(sel));
+            //}
+        };
         switch (bizPhraseType) {
             default:
                 return;
