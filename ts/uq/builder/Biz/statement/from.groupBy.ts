@@ -8,10 +8,10 @@ import { Sqls } from "../../bstatement";
 import { DbContext } from "../../dbContext";
 import { ColVal, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpVal, ExpVar, Select, Statement } from "../../sql";
 import { EntityTable, VarTable } from "../../sql/statementWithFrom";
+import { pageGroupBy } from "../../tools";
 import { BFromStatement } from "./from";
 
 const a = 'a', b = 'b', c = 'c';
-const pageGroupBy = '$pageGroupBy';
 const tblDetail = '$detail';
 export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     protected readonly idFromEntity: FromEntity;
@@ -188,14 +188,6 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         let select = factory.createSelect();
         insertRet.select = select;
         select.from(new VarTable(pageGroupBy, pageGroupBy));
-        /*
-        let entityTable = this.buildEntityTable(fromEntity);
-        select.join(JoinType.join, entityTable)
-            .on(new ExpEQ(
-                new ExpField('id', entityTable.alias),
-                new ExpField('id0', pageGroupBy)
-            ));
-        */
         select.column(new ExpField('$id', pageGroupBy), 'id');
         select.column(new ExpField('ban', pageGroupBy));
         let arr: ExpVal[] = this.idsGroupBy.map((v, index) => new ExpField('id' + index, pageGroupBy));
@@ -233,7 +225,6 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
                 for (let [, bud] of spec.props) {
                     buds.push(bud);
                 }
-                // let mapBuds = this.createMapBuds();
                 let mapBuds = this.buildMapBuds(buds);
                 sqls.push(...this.buildInsertBuds('specs', mapBuds));
             }

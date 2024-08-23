@@ -17,6 +17,7 @@ const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const tools_1 = require("../tools");
 const BizEntity_1 = require("./BizEntity");
 const sheetId = 'sheet';
 const s = 's';
@@ -34,15 +35,7 @@ const c = 'c';
 const d = 'd';
 const tempBinTable = 'bin';
 const tempITable = 'bini';
-const tempIdPhraseTable = 'idphrase';
-const tempPhraseBudTable = 'phrasebud';
 const siteAtomApp = '$siteAtomApp';
-var BinIType;
-(function (BinIType) {
-    BinIType[BinIType["atom"] = 0] = "atom";
-    BinIType[BinIType["fork"] = 1] = "fork";
-    BinIType[BinIType["forkAtom"] = 2] = "forkAtom";
-})(BinIType || (BinIType = {}));
 class BBizSheet extends BizEntity_1.BBizEntity {
     buildProcedures() {
         const _super = Object.create(null, {
@@ -204,36 +197,49 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             const { bin } = detail;
             this.buildCallBin(statements, bin, 'details');
         }
-        const arrBinIType = [BinIType.atom, BinIType.fork, BinIType.forkAtom];
-        let typeField = (0, il_1.tinyIntField)('type');
-        const varIdPhraseTable = factory.createVarTable();
+        // let typeField = tinyIntField('type');
+        const varIdPhraseTable = (0, tools_1.buildIdPhraseTable)(this.context);
         statements.push(varIdPhraseTable);
+        /*
+        factory.createVarTable();
         varIdPhraseTable.name = tempIdPhraseTable;
-        const phraseField = (0, il_1.bigIntField)('phrase');
-        const budField = (0, il_1.bigIntField)('bud');
+        const phraseField = bigIntField('phrase');
+        const budField = bigIntField('bud');
         varIdPhraseTable.keys = [idField];
         varIdPhraseTable.fields = [idField, phraseField, typeField];
-        statements.push(...arrBinIType.map(v => this.buildSelectIdPhrase(v)));
-        const varPhraseBudTable = factory.createVarTable();
+        */
+        function buildSelectFrom(select) {
+            const s0 = 's0', s1 = 's1';
+            select.from(new statementWithFrom_1.VarTable('bin', s0))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, s1))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', s1), new sql_1.ExpField('id', s0)));
+        }
+        statements.push(...(0, tools_1.buildSelectIdPhrases)(this.context, buildSelectFrom));
+        const varPhraseBudTable = (0, tools_1.buildPhraseBudTable)(this.context); // factory.createVarTable();
         statements.push(varPhraseBudTable);
+        /*
         varPhraseBudTable.name = tempPhraseBudTable;
-        const phraseParentField = (0, il_1.bigIntField)('parent');
-        const budTypeField = (0, il_1.tinyIntField)('budtype');
+        const phraseParentField = bigIntField('parent');
+        const budTypeField = tinyIntField('budtype');
         varPhraseBudTable.keys = [phraseField, phraseParentField, budField];
         varPhraseBudTable.fields = [phraseField, phraseParentField, budField, budTypeField];
-        statements.push(this.buildSelectPhraseBud());
-        function funcJSON_QUOTE(expValue) {
-            return new sql_1.ExpFunc('JSON_QUOTE', expValue);
+        */
+        statements.push((0, tools_1.buildSelectPhraseBud)(this.context));
+        /*
+        function funcJSON_QUOTE(expValue: ExpVal) {
+            return new ExpFunc('JSON_QUOTE', expValue);
         }
-        function funcCast(expValue) {
-            return new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
+        function funcCast(expValue: ExpVal) {
+            return new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'))
         }
-        let budTypes = [
-            [funcCast, il_1.EnumSysTable.ixBudInt, BizPhraseType_1.BudDataType.int],
-            [funcCast, il_1.EnumSysTable.ixBudDec, BizPhraseType_1.BudDataType.dec],
-            [funcJSON_QUOTE, il_1.EnumSysTable.ixBudStr, BizPhraseType_1.BudDataType.str],
+        let budTypes: [(v: ExpVal) => ExpVal, EnumSysTable, BudDataType][] = [
+            [funcCast, EnumSysTable.ixBudInt, BudDataType.int],
+            [funcCast, EnumSysTable.ixBudDec, BudDataType.dec],
+            [funcJSON_QUOTE, EnumSysTable.ixBudStr, BudDataType.str],
         ];
         statements.push(...budTypes.map(([func, tbl, budDataType]) => this.buildSelectIxBud(func, tbl, budDataType)));
+        */
+        statements.push(...(0, tools_1.buildSelectIxBuds)(this.context));
         this.buildGetProps(statements);
     }
     buildGetProps(statements) {
@@ -287,191 +293,78 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('value', a)));
     }
-    buildSelectPhraseBud() {
-        const { factory } = this.context;
-        const insert = factory.createInsert();
-        insert.ignore = true;
-        insert.table = new statementWithFrom_1.VarTable(tempPhraseBudTable);
-        insert.cols = [
-            { col: 'phrase', val: undefined },
-            { col: 'parent', val: undefined },
-            { col: 'bud', val: undefined },
-            { col: 'budtype', val: undefined },
-        ];
-        let selectAtomPhrase = factory.createSelect();
-        insert.select = selectAtomPhrase;
-        selectAtomPhrase.lock = select_1.LockType.none;
-        let selectCTE = factory.createSelect();
-        selectCTE.lock = select_1.LockType.none;
-        const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
-        selectAtomPhrase.cte = { alias: cte, recursive: true, select: selectCTE };
-        selectCTE.column(new sql_1.ExpField('phrase', s0));
-        selectCTE.column(new sql_1.ExpField('i', s), 'i');
-        selectCTE.column(new sql_1.ExpField('phrase', s0), 'x');
-        selectCTE.from(new statementWithFrom_1.VarTable(tempIdPhraseTable, s0))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, s))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('x', s), new sql_1.ExpField('phrase', s0)));
-        let select1 = factory.createSelect();
-        select1.lock = select_1.LockType.none;
-        select1.column(new sql_1.ExpField('phrase', r0));
-        select1.column(new sql_1.ExpField('i', r));
-        select1.column(new sql_1.ExpField('x', r));
-        select1.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, r))
-            .join(il_1.JoinType.join, new statementWithFrom_1.NameTable(cte, r0))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', r0), new sql_1.ExpField('x', r)));
-        selectCTE.unions = [select1];
-        selectCTE.unionsAll = true;
-        selectAtomPhrase.distinct = true;
-        selectAtomPhrase.column(new sql_1.ExpField('phrase', a));
-        selectAtomPhrase.column(new sql_1.ExpField('x', a));
-        selectAtomPhrase.column(new sql_1.ExpField('x', b));
-        selectAtomPhrase.column(new sql_1.ExpField('type', b), 'budtype');
-        selectAtomPhrase.from(new statementWithFrom_1.NameTable(cte, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBudShow, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('x', a)));
-        return insert;
-    }
-    buildSelectIdPhrase(binIType) {
-        const { factory } = this.context;
-        const insert = factory.createInsert();
-        insert.ignore = true;
-        insert.table = new statementWithFrom_1.VarTable(tempIdPhraseTable);
-        insert.cols = [
-            { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
-            { col: 'type', val: undefined },
-        ];
-        const s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
-        let select = factory.createSelect();
-        insert.select = select;
-        select.lock = select_1.LockType.none;
-        select.from(new statementWithFrom_1.VarTable('bin', s0))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, s1))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', s1), new sql_1.ExpField('id', s0)));
-        switch (binIType) {
-            case BinIType.atom:
-                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, t))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t), new sql_1.ExpField('i', s1)));
-                select.column(new sql_1.ExpField('id', t));
-                select.column(new sql_1.ExpField('base', t));
-                select.column(new sql_1.ExpNum(BinIType.atom));
-                break;
-            case BinIType.fork:
-                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, u))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u), new sql_1.ExpField('i', s1)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, u0))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u0), new sql_1.ExpField('base', u)));
-                select.column(new sql_1.ExpField('id', u));
-                select.column(new sql_1.ExpField('ext', u0));
-                select.column(new sql_1.ExpNum(BinIType.fork));
-                break;
-            case BinIType.forkAtom:
-                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, u))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u), new sql_1.ExpField('i', s1)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, u0))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u0), new sql_1.ExpField('base', u)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, u1))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u1), new sql_1.ExpField('base', u0)));
-                ;
-                select.column(new sql_1.ExpField('id', u1));
-                select.column(new sql_1.ExpField('base', u1));
-                select.column(new sql_1.ExpNum(BinIType.atom));
-                break;
-        }
-        return insert;
-    }
-    buildSelectIxBud(func, tbl, budDataType) {
-        const { factory } = this.context;
-        let insert = factory.createInsert();
-        insert.ignore = true;
-        insert.table = new statementWithFrom_1.VarTableWithSchema('props');
-        insert.cols = [
-            { col: 'phrase', val: undefined },
-            { col: 'value', val: undefined },
-            { col: 'id', val: undefined },
-        ];
-        let select = factory.createSelect();
-        insert.select = select;
-        select.column(new sql_1.ExpField('bud', b), 'phrase');
-        select.column(func(new sql_1.ExpField('value', c)), 'value');
-        select.column(new sql_1.ExpField('id', a), 'id');
-        select.from(new statementWithFrom_1.VarTable(tempIdPhraseTable, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.VarTable(tempPhraseBudTable, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('phrase', b), new sql_1.ExpField('phrase', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, c))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpField('bud', b))));
-        select.where(new sql_1.ExpEQ(new sql_1.ExpField('budtype', b), new sql_1.ExpNum(budDataType)));
-        return insert;
-    }
-    buildSelectShowBuds(binIType) {
+    /*
+    private buildSelectShowBuds(binIType: BinIType) {
         const { factory } = this.context;
         let insert = this.buildInsertITable();
         let select = factory.createSelect();
         insert.select = select;
-        select.lock = select_1.LockType.none;
+        select.lock = LockType.none;
         let selectI = this.buildSelectI(binIType);
-        select.column(new sql_1.ExpField('i', b), 'id');
-        select.column(new sql_1.ExpField('x', b), 'bud');
-        select.column(new sql_1.ExpField('type', b), 'type');
-        select.from(new select_1.SelectTable(selectI, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBudShow, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('x', a)));
+        select.column(new ExpField('i', b), 'id');
+        select.column(new ExpField('x', b), 'bud');
+        select.column(new ExpField('type', b), 'type');
+        select.from(new SelectTable(selectI, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizBudShow, false, b))
+            .on(new ExpEQ(new ExpField('i', b), new ExpField('x', a)));
         return insert;
     }
-    buildSelectI(binIType) {
+
+    private buildSelectI(binIType: BinIType) {
         const { factory } = this.context;
         let selectAtomPhrase = factory.createSelect();
-        selectAtomPhrase.lock = select_1.LockType.none;
+        selectAtomPhrase.lock = LockType.none;
         let selectCTE = factory.createSelect();
-        selectCTE.lock = select_1.LockType.none;
+        selectCTE.lock = LockType.none;
         const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
         selectAtomPhrase.cte = { alias: cte, recursive: true, select: selectCTE };
-        selectCTE.column(new sql_1.ExpField('i', s));
-        selectCTE.column(new sql_1.ExpField('x', s));
-        selectCTE.from(new statementWithFrom_1.VarTable('bin', s0))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, s1))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', s1), new sql_1.ExpField('id', s0)));
-        let tField;
+        selectCTE.column(new ExpField('i', s));
+        selectCTE.column(new ExpField('x', s));
+        selectCTE.from(new VarTable('bin', s0))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, s1))
+            .on(new ExpEQ(new ExpField('id', s1), new ExpField('id', s0)));
+        let tField: ExpVal;
         switch (binIType) {
             case BinIType.atom:
-                selectCTE.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, t))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t), new sql_1.ExpField('i', s1)));
-                tField = new sql_1.ExpField('base', t);
+                selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.atom, false, t))
+                    .on(new ExpEQ(new ExpField('id', t), new ExpField('i', s1)));
+                tField = new ExpField('base', t);
                 break;
             case BinIType.fork:
-                selectCTE.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, u))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u), new sql_1.ExpField('i', s1)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, u0))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u0), new sql_1.ExpField('base', u)));
-                tField = new sql_1.ExpField('ext', u0);
+                selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
+                    .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
+                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
+                    .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)));
+                tField = new ExpField('ext', u0);
                 break;
             case BinIType.forkAtom:
-                selectCTE.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, u))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u), new sql_1.ExpField('i', s1)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, u0))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u0), new sql_1.ExpField('base', u)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, u1))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u1), new sql_1.ExpField('base', u0)));
-                ;
-                tField = new sql_1.ExpField('base', u1);
+                selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
+                    .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
+                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
+                    .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)))
+                    .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, u1))
+                    .on(new ExpEQ(new ExpField('id', u1), new ExpField('base', u0)));;
+                tField = new ExpField('base', u1);
                 break;
         }
-        selectCTE.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, s))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('x', s), tField));
+        selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.ixBizPhrase, false, s))
+            .on(new ExpEQ(new ExpField('x', s), tField));
         let select1 = factory.createSelect();
-        select1.lock = select_1.LockType.none;
-        select1.column(new sql_1.ExpField('i', r));
-        select1.column(new sql_1.ExpField('x', r));
-        select1.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, r))
-            .join(il_1.JoinType.join, new statementWithFrom_1.NameTable(cte, r0))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', r0), new sql_1.ExpField('x', r)));
+        select1.lock = LockType.none;
+        select1.column(new ExpField('i', r));
+        select1.column(new ExpField('x', r));
+        select1.from(new EntityTable(EnumSysTable.ixBizPhrase, false, r))
+            .join(JoinType.join, new NameTable(cte, r0))
+            .on(new ExpEQ(new ExpField('i', r0), new ExpField('x', r)));
+
         selectCTE.unions = [select1];
         selectCTE.unionsAll = true;
         selectAtomPhrase.distinct = true;
-        selectAtomPhrase.column(new sql_1.ExpField('x'));
-        selectAtomPhrase.from(new statementWithFrom_1.NameTable(cte));
-        return selectAtomPhrase;
+        selectAtomPhrase.column(new ExpField('x'));
+        selectAtomPhrase.from(new NameTable(cte));
+        return selectAtomPhrase
     }
+    */
     buildInsertITable() {
         let insert = this.context.factory.createInsert();
         insert.ignore = true;

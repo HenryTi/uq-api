@@ -19,4 +19,5 @@ __exportStar(require("./buildSetAtomBud"), exports);
 __exportStar(require("./buildSelectBinBud"), exports);
 __exportStar(require("./BBudSelect"), exports);
 __exportStar(require("./BizExp"), exports);
+__exportStar(require("./buildSelectIxBuds"), exports);
 //# sourceMappingURL=index.js.map

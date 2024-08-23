@@ -6,6 +6,8 @@ const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const biz_select_1 = require("./biz.select");
+const tools_1 = require("../../tools");
+const select_1 = require("../../sql/select");
 const a = 'a', b = 'b';
 // const t1 = 't1';
 const pageStart = '$pageStart';
@@ -37,6 +39,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
         this.buildFromEntity(sqls);
+        this.buildIdsProps(sqls);
     }
     buildExpFieldPageId() {
         const { fromEntity } = this.istatement;
@@ -52,6 +55,33 @@ class BFromStatement extends biz_select_1.BBizSelect {
         else {
             select.column(this.context.expCmp(ban.val), cBan);
         }
+    }
+    buildIdsProps(sqls) {
+        const { ids } = this.istatement;
+        const { factory } = this.context;
+        sqls.push((0, tools_1.buildIdPhraseTable)(this.context));
+        sqls.push((0, tools_1.buildPhraseBudTable)(this.context));
+        function buildSelectFrom(select) {
+            const s0 = 's0', s1 = 's1', colI = 'i';
+            const selectIds = factory.createSelect();
+            selectIds.lock = select_1.LockType.none;
+            selectIds.column(new sql_1.ExpField('id0', s0), colI);
+            selectIds.from(new statementWithFrom_1.VarTable(tools_1.pageGroupBy, s0));
+            const sels = [];
+            for (let i = 1; i < ids.length; i++) {
+                const selectIdi = factory.createSelect();
+                selectIdi.lock = select_1.LockType.none;
+                sels.push(selectIdi);
+                const t = '$x' + i;
+                selectIds.column(new sql_1.ExpField('id' + i, t), colI);
+                selectIds.from(new statementWithFrom_1.VarTable(tools_1.pageGroupBy, t));
+            }
+            selectIds.unions = sels;
+            select.from(new select_1.SelectTable(selectIds, s1));
+        }
+        sqls.push(...(0, tools_1.buildSelectIdPhrases)(this.context, buildSelectFrom));
+        sqls.push((0, tools_1.buildSelectPhraseBud)(this.context));
+        sqls.push(...(0, tools_1.buildSelectIxBuds)(this.context));
     }
     buildSelectValueBase(select, sum) {
         const { factory } = this.context;
@@ -73,21 +103,18 @@ class BFromStatement extends biz_select_1.BBizSelect {
     buildSelectVallueSum(select) {
         this.buildSelectValueBase(select, true);
     }
-    buildSelectCols( /*select: Select, alias: string*/) {
+    buildSelectCols() {
         const { cols } = this.istatement;
-        const arr = [];
-        for (let col of cols)
-            this.buildSelectCol(arr, col);
+        const arr = cols.map(col => {
+            const { name, val, bud } = col;
+            let expName;
+            if (bud !== undefined)
+                expName = new sql_1.ExpNum(bud.id);
+            else
+                expName = new sql_1.ExpStr(name);
+            return new sql_1.ExpFunc('JSON_ARRAY', expName, this.context.expVal(val));
+        });
         return arr;
-    }
-    buildSelectCol(arr, col) {
-        const { name, val, bud } = col;
-        let expName;
-        if (bud !== undefined)
-            expName = new sql_1.ExpNum(bud.id);
-        else
-            expName = new sql_1.ExpStr(name);
-        arr.push(new sql_1.ExpFunc('JSON_ARRAY', expName, this.context.expVal(val)));
     }
     buildSelect(cmpPage) {
         const { factory } = this.context;
@@ -127,7 +154,6 @@ class BFromStatement extends biz_select_1.BBizSelect {
     }
     buildInsertAtomBuds(sqls, atom) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
-        // let mapBuds = this.createMapBuds();
         let mapBuds = this.buildMapBuds(titlePrimeBuds);
         sqls.push(...this.buildInsertBuds('atoms', mapBuds));
     }

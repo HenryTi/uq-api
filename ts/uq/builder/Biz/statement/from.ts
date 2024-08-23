@@ -1,14 +1,15 @@
-import { FromStatement, EnumSysTable, ValueExpression, JoinType, FromEntity, BizBud, BizAtom, BizFork, BizID, EnumAsc, bigIntField, BizIDWithShowBuds, FromColumn } from "../../../il";
+import { FromStatement, EnumSysTable, ValueExpression, JoinType, BizBud, EnumAsc, BizIDWithShowBuds, FromColumn, EnumDataType } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNull,
     ExpLT, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Select,
     Statement
 } from "../../sql";
-import { EntityTable, GlobalTable, VarTable } from "../../sql/statementWithFrom";
-import { BStatement } from "../../bstatement/bstatement";
+import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { Sqls } from "../../bstatement/sqls";
-import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
+import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { BBizSelect } from "./biz.select";
+import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud, pageGroupBy } from "../../tools";
+import { LockType, SelectTable } from "../../sql/select";
 
 const a = 'a', b = 'b';
 export type BudsValue = { buds: BizBud[]; value: ExpVal; };
@@ -47,6 +48,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
         this.buildFromEntity(sqls);
+        this.buildIdsProps(sqls);
     }
 
     protected buildExpFieldPageId() {
@@ -66,6 +68,34 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         else {
             select.column(this.context.expCmp(ban.val) as ExpVal, cBan);
         }
+    }
+
+    private buildIdsProps(sqls: Sqls) {
+        const { ids } = this.istatement;
+        const { factory } = this.context;
+        sqls.push(buildIdPhraseTable(this.context));
+        sqls.push(buildPhraseBudTable(this.context));
+        function buildSelectFrom(select: Select) {
+            const s0 = 's0', s1 = 's1', colI = 'i';
+            const selectIds = factory.createSelect();
+            selectIds.lock = LockType.none;
+            selectIds.column(new ExpField('id0', s0), colI);
+            selectIds.from(new VarTable(pageGroupBy, s0));
+            const sels: Select[] = [];
+            for (let i = 1; i < ids.length; i++) {
+                const selectIdi = factory.createSelect();
+                selectIdi.lock = LockType.none;
+                sels.push(selectIdi);
+                const t = '$x' + i;
+                selectIds.column(new ExpField('id' + i, t), colI);
+                selectIds.from(new VarTable(pageGroupBy, t));
+            }
+            selectIds.unions = sels;
+            select.from(new SelectTable(selectIds, s1));
+        }
+        sqls.push(...buildSelectIdPhrases(this.context, buildSelectFrom));
+        sqls.push(buildSelectPhraseBud(this.context));
+        sqls.push(...buildSelectIxBuds(this.context));
     }
 
     private buildSelectValueBase(select: Select, sum: boolean) {
@@ -90,19 +120,16 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         this.buildSelectValueBase(select, true);
     }
 
-    protected buildSelectCols(/*select: Select, alias: string*/) {
+    protected buildSelectCols() {
         const { cols } = this.istatement;
-        const arr: ExpVal[] = [];
-        for (let col of cols) this.buildSelectCol(arr, col);
+        const arr: ExpVal[] = cols.map(col => {
+            const { name, val, bud } = col;
+            let expName: ExpVal;
+            if (bud !== undefined) expName = new ExpNum(bud.id);
+            else expName = new ExpStr(name);
+            return new ExpFunc('JSON_ARRAY', expName, this.context.expVal(val as ValueExpression));
+        });
         return arr;
-    }
-
-    private buildSelectCol(arr: ExpVal[], col: FromColumn) {
-        const { name, val, bud } = col;
-        let expName: ExpVal;
-        if (bud !== undefined) expName = new ExpNum(bud.id);
-        else expName = new ExpStr(name);
-        arr.push(new ExpFunc('JSON_ARRAY', expName, this.context.expVal(val as ValueExpression)));
     }
 
     protected buildSelect(cmpPage: ExpCmp) {
@@ -147,7 +174,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
 
     protected buildInsertAtomBuds(sqls: Sqls, atom: BizIDWithShowBuds) {
         let titlePrimeBuds = atom.getTitlePrimeBuds();
-        // let mapBuds = this.createMapBuds();
         let mapBuds = this.buildMapBuds(titlePrimeBuds);
         sqls.push(...this.buildInsertBuds('atoms', mapBuds));
     }

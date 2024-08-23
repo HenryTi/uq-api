@@ -7,7 +7,7 @@ import { DbContext } from "../dbContext";
 import {
     ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal, Statement,
 } from "../sql";
-import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
+import { EntityTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
 
 const a = 'a';
 const b = 'b';
@@ -211,4 +211,5 @@ export class BBizEntity<B extends BizEntity = any> {
         select.column(new ExpField(fId, tId), 'id');
         return select;
     }
+
 }
