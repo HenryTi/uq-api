@@ -10,7 +10,7 @@ import {
 import { LockType, Select, SelectTable } from "../sql/select";
 import { EntityTable, NameTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
 
-export const pageGroupBy = '$page';
+export const pageGroupBy = '$pageGroupBy';
 const a = 'a';
 const b = 'b';
 const c = 'c';

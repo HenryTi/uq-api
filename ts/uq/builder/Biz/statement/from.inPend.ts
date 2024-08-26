@@ -93,7 +93,7 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
         return [insert];
     }
 
-    protected buildFromEntity(sqls: Sqls) {
+    protected override buildFromEntity(sqls: Sqls) {
         const { bizPend } = this.istatement.pendQuery;
         let { i: iBud, x: xBud, props } = bizPend;
         const buildInsertAtomSelect = (exp: ExpVal) => {

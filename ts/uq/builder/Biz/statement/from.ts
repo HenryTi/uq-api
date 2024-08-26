@@ -8,8 +8,6 @@ import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { Sqls } from "../../bstatement/sqls";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { BBizSelect } from "./biz.select";
-import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud, pageGroupBy } from "../../tools";
-import { LockType, SelectTable } from "../../sql/select";
 
 const a = 'a', b = 'b';
 export type BudsValue = { buds: BizBud[]; value: ExpVal; };
@@ -48,7 +46,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
         this.buildFromEntity(sqls);
-        this.buildIdsProps(sqls);
     }
 
     protected buildExpFieldPageId() {
@@ -70,32 +67,12 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         }
     }
 
-    private buildIdsProps(sqls: Sqls) {
-        const { ids } = this.istatement;
-        const { factory } = this.context;
-        sqls.push(buildIdPhraseTable(this.context));
-        sqls.push(buildPhraseBudTable(this.context));
-        function buildSelectFrom(select: Select) {
-            const s0 = 's0', s1 = 's1', colI = 'i';
-            const selectIds = factory.createSelect();
-            selectIds.lock = LockType.none;
-            selectIds.column(new ExpField('id0', s0), colI);
-            selectIds.from(new VarTable(pageGroupBy, s0));
-            const sels: Select[] = [];
-            for (let i = 1; i < ids.length; i++) {
-                const selectIdi = factory.createSelect();
-                selectIdi.lock = LockType.none;
-                sels.push(selectIdi);
-                const t = '$x' + i;
-                selectIds.column(new ExpField('id' + i, t), colI);
-                selectIds.from(new VarTable(pageGroupBy, t));
-            }
-            selectIds.unions = sels;
-            select.from(new SelectTable(selectIds, s1));
-        }
-        sqls.push(...buildSelectIdPhrases(this.context, buildSelectFrom));
-        sqls.push(buildSelectPhraseBud(this.context));
-        sqls.push(...buildSelectIxBuds(this.context));
+    protected buildSelectValue(select: Select) {
+        this.buildSelectValueBase(select, false);
+    }
+
+    protected buildSelectVallueSum(select: Select) {
+        this.buildSelectValueBase(select, true);
     }
 
     private buildSelectValueBase(select: Select, sum: boolean) {
@@ -110,14 +87,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
             if (sum === true) exp = new ExpFunc(factory.func_sum, exp);
             select.column(exp, cValue);
         }
-    }
-
-    protected buildSelectValue(select: Select) {
-        this.buildSelectValueBase(select, false);
-    }
-
-    protected buildSelectVallueSum(select: Select) {
-        this.buildSelectValueBase(select, true);
     }
 
     protected buildSelectCols() {
