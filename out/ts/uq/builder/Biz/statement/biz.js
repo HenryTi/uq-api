@@ -69,6 +69,8 @@ class BBizStatementPend extends bstatement_1.BStatement {
         const buildWritePend = () => {
             let pendId = '$pendId_' + no;
             declare.var(pendId, new il_1.BigInt());
+            let mid = '$mid_' + no;
+            declare.var(mid, new il_1.JsonDataType());
             if (val === undefined) {
                 expValue = new sql_1.ExpVar('value');
             }
@@ -108,28 +110,49 @@ class BBizStatementPend extends bstatement_1.BStatement {
                     cols.push({ col: name, val: this.context.expVal(val) });
                 }
             }
-            let update = factory.createUpdate();
-            ifValue.then(update);
-            let expMids = [];
+            let setMid = factory.createSet();
+            ifValue.then(setMid);
+            setMid.equ(mid, new sql_1.ExpFunc('JSON_OBJECT'));
+            // let selectMids: Select[] = [];
+            let vMid = new sql_1.ExpVar(mid);
+            function buildMidProp(prop, exp) {
+                let iff = factory.createIf();
+                ifValue.then(iff);
+                iff.cmp = new sql_1.ExpIsNotNull(exp);
+                let setProp = factory.createSet();
+                iff.then(setProp);
+                setProp.equ(mid, new sql_1.ExpFunc('JSON_SET', vMid, new sql_1.ExpStr(`$."${prop}"`), exp));
+            }
+            // let expMids: ExpVal[] = [];
             for (let s of sets) {
                 let [bud, val] = s;
-                expMids.push(new sql_1.ExpStr(String(bud.id)), context.expVal(val));
+                buildMidProp(String(bud.id), context.expVal(val));
+                /*
+                expMids.push(
+                    new ExpStr(String(bud.id)),
+                    context.expVal(val)
+                );
+                */
             }
             const { i, x } = pend;
             if (i !== undefined) {
                 let val = setI === undefined ? new sql_1.ExpVar(i.name) : context.expVal(setI);
-                expMids.push(new sql_1.ExpStr(String(i.id)), val);
+                //expMids.push(new ExpStr(String(i.id)), val);
+                buildMidProp(String(i.id), val);
             }
             if (x !== undefined) {
                 let val = setX === undefined ? new sql_1.ExpVar(x.name) : context.expVal(setX);
-                expMids.push(new sql_1.ExpStr(String(x.id)), val);
+                // expMids.push(new ExpStr(String(x.id)), val);
+                buildMidProp(String(x.id), val);
             }
+            let update = factory.createUpdate();
+            ifValue.then(update);
             update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false);
             update.cols = [
                 { col: 'base', val: new sql_1.ExpNum(pend.id) },
                 { col: 'bin', val: new sql_1.ExpVar(binId) },
                 { col: 'value', val: expValue, setEqu },
-                { col: 'mid', val: new sql_1.ExpFunc('JSON_OBJECT', ...expMids) },
+                { col: 'mid', val: new sql_1.ExpVar(mid) },
             ];
             update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(pendId));
             ifValue.then(...buildUpdatePoke());

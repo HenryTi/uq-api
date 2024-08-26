@@ -3,19 +3,22 @@ import {
     , BizStatementBook, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet
     , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie,
-    BizStatementError
+    BizStatementError,
+    jsonField,
+    JsonDataType
 } from "../../../il";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { $site } from "../../consts";
 import { sysTable } from "../../dbContext";
 import {
     ColVal, ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
-    , ExpGT, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, Statements, VarTable
+    , ExpGT, ExpIsNotNull, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, Statements, VarTable
 } from "../../sql";
 import { EntityTable, GlobalTable } from "../../sql/statementWithFrom";
 import { buildSetAtomBud, buildSetSheetBud } from "../../tools";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
+import { LockType, Select, SelectTable } from "../../sql/select";
 
 export class BBizStatement extends BStatement<BizStatement<BizAct>> {
     head(sqls: Sqls) {
@@ -81,6 +84,8 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
         const buildWritePend = () => {
             let pendId = '$pendId_' + no;
             declare.var(pendId, new BigInt());
+            let mid = '$mid_' + no;
+            declare.var(mid, new JsonDataType());
 
             if (val === undefined) {
                 expValue = new ExpVar('value');
@@ -132,32 +137,53 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 }
             }
 
-            let update = factory.createUpdate();
-            ifValue.then(update);
-            let expMids: ExpVal[] = [];
+            let setMid = factory.createSet();
+            ifValue.then(setMid);
+            setMid.equ(mid, new ExpFunc('JSON_OBJECT'));
+            // let selectMids: Select[] = [];
+            let vMid = new ExpVar(mid);
+            function buildMidProp(prop: string, exp: ExpVal) {
+                let iff = factory.createIf();
+                ifValue.then(iff);
+                iff.cmp = new ExpIsNotNull(exp);
+                let setProp = factory.createSet();
+                iff.then(setProp);
+                setProp.equ(mid, new ExpFunc(
+                    'JSON_SET', vMid, new ExpStr(`$."${prop}"`), exp
+                ));
+            }
+            // let expMids: ExpVal[] = [];
             for (let s of sets) {
                 let [bud, val] = s;
+                buildMidProp(String(bud.id), context.expVal(val));
+                /*
                 expMids.push(
                     new ExpStr(String(bud.id)),
                     context.expVal(val)
                 );
+                */
             }
             const { i, x } = pend;
             if (i !== undefined) {
                 let val = setI === undefined ? new ExpVar(i.name) : context.expVal(setI);
-                expMids.push(new ExpStr(String(i.id)), val);
+                //expMids.push(new ExpStr(String(i.id)), val);
+                buildMidProp(String(i.id), val);
             }
             if (x !== undefined) {
                 let val = setX === undefined ? new ExpVar(x.name) : context.expVal(setX);
-                expMids.push(new ExpStr(String(x.id)), val);
+                // expMids.push(new ExpStr(String(x.id)), val);
+                buildMidProp(String(x.id), val);
             }
+
+            let update = factory.createUpdate();
+            ifValue.then(update);
 
             update.table = new EntityTable(EnumSysTable.pend, false);
             update.cols = [
                 { col: 'base', val: new ExpNum(pend.id) },
                 { col: 'bin', val: new ExpVar(binId) },
                 { col: 'value', val: expValue, setEqu },
-                { col: 'mid', val: new ExpFunc('JSON_OBJECT', ...expMids) },
+                { col: 'mid', val: new ExpVar(mid) },
             ];
             update.where = new ExpEQ(
                 new ExpField('id'), new ExpVar(pendId)
