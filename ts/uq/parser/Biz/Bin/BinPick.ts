@@ -202,7 +202,6 @@ export class PPickParam extends PBizBudValue<PickParam> {
             this.ts.error(': is not valid here');
         }
         if (setType === undefined) return;
-        this.ts.readToken();
         let exp = new ValueExpression();
         this.context.parseElement(exp);
         this.element.value = {

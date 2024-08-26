@@ -15,7 +15,6 @@ class PBizBudValue extends PBizBud {
     parseBudEquValue() {
         let setType = this.parseBudEqu();
         if (setType === il_1.BudValueSetType.show) {
-            this.ts.readToken();
             let varString = [];
             for (;;) {
                 varString.push(this.ts.passVar());
@@ -27,7 +26,6 @@ class PBizBudValue extends PBizBud {
             return;
         }
         if (setType !== undefined) {
-            this.ts.readToken();
             let exp = new il_1.ValueExpression();
             this.context.parseElement(exp);
             this.element.value = {

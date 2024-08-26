@@ -193,7 +193,6 @@ class PPickParam extends Bud_1.PBizBudValue {
         }
         if (setType === undefined)
             return;
-        this.ts.readToken();
         let exp = new il_1.ValueExpression();
         this.context.parseElement(exp);
         this.element.value = {

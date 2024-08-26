@@ -13,35 +13,32 @@ class PBinInputFork extends PBinInput {
         this.params = [];
     }
     _parse() {
-        if (this.ts.isKeyword('base') === false) {
+        if (this.ts.isKeywords('of') === false) {
             this.spec = this.ts.passVar();
         }
-        this.ts.passKey('base');
-        this.ts.passToken(tokens_1.Token.EQU);
+        this.ts.passKey('of');
+        // this.ts.passToken(Token.EQU);
         let val = this.element.baseValue = new il_1.ValueExpression();
         this.context.parseElement(val);
-        for (;;) {
-            if (this.ts.token !== tokens_1.Token.COMMA)
+        switch (this.ts.passKey()) {
+            case 'param':
+                let valueSetType = this.parseBudEqu();
+                let valParam = new il_1.ValueExpression();
+                this.context.parseElement(valParam);
+                this.params.push([undefined, valParam, valueSetType]);
                 break;
-            this.ts.readToken();
-            let p = this.ts.passVar();
-            let valueSetType;
-            switch (this.ts.token) {
-                default:
-                    this.ts.expectToken(tokens_1.Token.EQU, tokens_1.Token.COLONEQU);
-                    break;
-                case tokens_1.Token.COLONEQU:
-                    valueSetType = il_1.BudValueSetType.init;
+            case 'set':
+                for (;;) {
+                    let p = this.ts.passVar();
+                    let valueSetType = this.parseBudEqu();
+                    let pv = new il_1.ValueExpression();
+                    this.context.parseElement(pv);
+                    this.params.push([p, pv, valueSetType]);
+                    if (this.ts.token !== tokens_1.Token.COMMA)
+                        break;
                     this.ts.readToken();
-                    break;
-                case tokens_1.Token.EQU:
-                    valueSetType = il_1.BudValueSetType.equ;
-                    this.ts.readToken();
-                    break;
-            }
-            let pv = new il_1.ValueExpression();
-            this.context.parseElement(pv);
-            this.params.push([p, pv, valueSetType]);
+                }
+                break;
         }
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }
@@ -61,11 +58,14 @@ class PBinInputFork extends PBinInput {
                 let fork = this.element.fork = ret;
                 const { params } = this.element;
                 for (let [name, v, valueSetType] of this.params) {
-                    let bud = fork.getBud(name);
-                    if (bud === undefined) {
-                        ok = false;
-                        this.log(`${name} is not a bud of ${fork.getJName()}`);
-                        continue;
+                    let bud;
+                    if (name !== undefined) {
+                        bud = fork.getBud(name);
+                        if (bud === undefined) {
+                            ok = false;
+                            this.log(`${name} is not a bud of ${fork.getJName()}`);
+                            continue;
+                        }
                     }
                     if (v.pelement.scan(space) === false) {
                         ok = false;

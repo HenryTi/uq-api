@@ -1,4 +1,4 @@
-import { BinInput, BinInputAtom, BinInputFork, BizAtom, BizFork, BizEntity, ValueExpression, BudValueSetType } from "../../../il";
+import { BinInput, BinInputAtom, BinInputFork, BizAtom, BizFork, BizEntity, ValueExpression, BudValueSetType, BizBud } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Token } from "../../tokens";
 import { BizEntitySpace } from "../Biz";
@@ -12,34 +12,31 @@ export class PBinInputFork extends PBinInput<BinInputFork> {
     private readonly params: [string, ValueExpression, BudValueSetType][] = [];
 
     protected override _parse(): void {
-        if (this.ts.isKeyword('base') === false) {
+        if (this.ts.isKeywords('of') === false) {
             this.spec = this.ts.passVar();
         }
-        this.ts.passKey('base');
-        this.ts.passToken(Token.EQU);
+        this.ts.passKey('of');
+        // this.ts.passToken(Token.EQU);
         let val = this.element.baseValue = new ValueExpression();
         this.context.parseElement(val);
-        for (; ;) {
-            if (this.ts.token !== Token.COMMA) break;
-            this.ts.readToken();
-            let p = this.ts.passVar();
-            let valueSetType: BudValueSetType;
-            switch (this.ts.token as any) {
-                default:
-                    this.ts.expectToken(Token.EQU, Token.COLONEQU);
-                    break;
-                case Token.COLONEQU:
-                    valueSetType = BudValueSetType.init;
+        switch (this.ts.passKey()) {
+            case 'param':
+                let valueSetType: BudValueSetType = this.parseBudEqu();
+                let valParam = new ValueExpression();
+                this.context.parseElement(valParam);
+                this.params.push([undefined, valParam, valueSetType]);
+                break;
+            case 'set':
+                for (; ;) {
+                    let p = this.ts.passVar();
+                    let valueSetType: BudValueSetType = this.parseBudEqu();
+                    let pv = new ValueExpression();
+                    this.context.parseElement(pv);
+                    this.params.push([p, pv, valueSetType]);
+                    if (this.ts.token !== Token.COMMA) break;
                     this.ts.readToken();
-                    break;
-                case Token.EQU:
-                    valueSetType = BudValueSetType.equ;
-                    this.ts.readToken();
-                    break;
-            }
-            let pv = new ValueExpression();
-            this.context.parseElement(pv);
-            this.params.push([p, pv, valueSetType]);
+                }
+                break;
         }
         this.ts.passToken(Token.SEMICOLON);
     }
@@ -60,11 +57,14 @@ export class PBinInputFork extends PBinInput<BinInputFork> {
                 let fork = this.element.fork = ret as BizFork;
                 const { params } = this.element;
                 for (let [name, v, valueSetType] of this.params) {
-                    let bud = fork.getBud(name);
-                    if (bud === undefined) {
-                        ok = false;
-                        this.log(`${name} is not a bud of ${fork.getJName()}`);
-                        continue;
+                    let bud: BizBud;
+                    if (name !== undefined) {
+                        bud = fork.getBud(name);
+                        if (bud === undefined) {
+                            ok = false;
+                            this.log(`${name} is not a bud of ${fork.getJName()}`);
+                            continue;
+                        }
                     }
                     if (v.pelement.scan(space) === false) {
                         ok = false;

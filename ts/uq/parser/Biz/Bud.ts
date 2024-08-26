@@ -28,7 +28,6 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
     protected parseBudEquValue() {
         let setType = this.parseBudEqu();
         if (setType === BudValueSetType.show) {
-            this.ts.readToken();
             let varString: string[] = [];
             for (; ;) {
                 varString.push(this.ts.passVar());
@@ -39,7 +38,6 @@ export abstract class PBizBudValue<P extends BizBudValue> extends PBizBud<P> {
             return;
         }
         if (setType !== undefined) {
-            this.ts.readToken();
             let exp = new ValueExpression();
             this.context.parseElement(exp);
             this.element.value = {

@@ -97,12 +97,15 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         switch (this.ts.token) {
             case Token.EQU:
                 setType = BudValueSetType.equ;
+                this.ts.readToken();
                 break;
             case Token.COLONEQU:
                 setType = BudValueSetType.init;
+                this.ts.readToken();
                 break;
             case Token.COLON:
                 setType = BudValueSetType.show;
+                this.ts.readToken();
                 break;
         }
         return setType;

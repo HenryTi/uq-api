@@ -123,12 +123,15 @@ class PBizBase extends element_1.PElement {
         switch (this.ts.token) {
             case tokens_1.Token.EQU:
                 setType = il_1.BudValueSetType.equ;
+                this.ts.readToken();
                 break;
             case tokens_1.Token.COLONEQU:
                 setType = il_1.BudValueSetType.init;
+                this.ts.readToken();
                 break;
             case tokens_1.Token.COLON:
                 setType = il_1.BudValueSetType.show;
+                this.ts.readToken();
                 break;
         }
         return setType;

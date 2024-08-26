@@ -163,7 +163,8 @@ export class TokenStream {
 
     passKey(key?: string): string {
         if (this.token !== Token.VAR || this.varBrace === true) {
-            this.expect(key ?? 'key');
+            if (key === undefined) return;
+            this.expect(key ?? 'Bizscript keyword');
         }
         let ret = this.lowerVar;
         if (key !== undefined) {
