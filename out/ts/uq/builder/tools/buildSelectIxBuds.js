@@ -6,7 +6,7 @@ const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
-exports.pageGroupBy = '$page';
+exports.pageGroupBy = '$pageGroupBy';
 const a = 'a';
 const b = 'b';
 const c = 'c';
@@ -19,6 +19,9 @@ function buildSelectIxBuds(context) {
     }
     function funcCast(expValue) {
         return new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
+    }
+    function funcJson(expValue) {
+        return expValue;
     }
     let budTypes = [
         [funcCast, il_1.EnumSysTable.ixBudInt, BizPhraseType_1.BudDataType.int],

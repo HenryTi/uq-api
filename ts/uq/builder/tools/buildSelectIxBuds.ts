@@ -25,6 +25,9 @@ export function buildSelectIxBuds(context: DbContext) {
     function funcCast(expValue: ExpVal) {
         return new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'))
     }
+    function funcJson(expValue: ExpVal) {
+        return expValue;
+    }
     let budTypes: [(v: ExpVal) => ExpVal, EnumSysTable, BudDataType][] = [
         [funcCast, EnumSysTable.ixBudInt, BudDataType.int],
         [funcCast, EnumSysTable.ixBudDec, BudDataType.dec],

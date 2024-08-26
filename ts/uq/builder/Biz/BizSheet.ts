@@ -287,12 +287,14 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
     private buildGetProps(statements: Statement[]) {
         const { factory } = this.context;
-        let expCast = new ExpFuncCustom(factory.func_cast, new ExpField('value', 'b'), new ExpDatePart('JSON'));
-        let expJSONQUOTE = new ExpFunc('JSON_QUOTE', new ExpField('value', 'b'));
+        let expValue = new ExpField('value', 'b');
+        let expCast = new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'));
+        let expJSONQUOTE = new ExpFunc('JSON_QUOTE', expValue);
         this.buildGetScalarProps(statements, EnumSysTable.ixBudInt, expCast);
         this.buildGetAtomProps(statements);
         this.buildGetScalarProps(statements, EnumSysTable.ixBudDec, expCast);
         this.buildGetScalarProps(statements, EnumSysTable.ixBudStr, expJSONQUOTE);
+        this.buildGetScalarProps(statements, EnumSysTable.ixBudJson, expValue);
     }
 
     private buildGetScalarProps(statements: Statement[], sysTable: EnumSysTable, expValue: ExpVal) {

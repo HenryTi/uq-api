@@ -64,7 +64,7 @@ export enum BudDataType {
     datetime = 42,
 
     optionItem = 81,            // options item
-    fork = 95,
+    fork = 95,                  // json
     any = 96,
     unique = 97,
     user = 98,
