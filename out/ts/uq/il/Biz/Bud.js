@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudFork = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudFork = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.bizDecType = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -13,6 +13,7 @@ var BudValueSetType;
     BudValueSetType[BudValueSetType["init"] = 2] = "init";
     BudValueSetType[BudValueSetType["show"] = 3] = "show";
 })(BudValueSetType || (exports.BudValueSetType = BudValueSetType = {}));
+exports.bizDecType = new datatype_1.Dec(18, 6);
 class BudGroup extends Base_1.BizBase {
     constructor(biz, name) {
         super(biz);
@@ -230,7 +231,7 @@ class BizBudDec extends BizBudValueWithRange {
     parser(context) {
         return new parser_1.PBizBudDec(this, context);
     }
-    createDataType() { return new datatype_1.Dec(18, 6); }
+    createDataType() { return exports.bizDecType; }
 }
 exports.BizBudDec = BizBudDec;
 class BinValue extends BizBudDec {

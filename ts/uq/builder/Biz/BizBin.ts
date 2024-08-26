@@ -2,7 +2,8 @@ import { binAmount, binFieldArr, binPrice, binValue } from "../../consts";
 import {
     BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable,
     Char, JsonDataType, BizBudIXBase, Statement,
-    EntityVarTable
+    EntityVarTable,
+    bizDecType
 } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
@@ -82,7 +83,7 @@ export class BBizBin extends BBizEntity<BizBin> {
         const declare = factory.createDeclare();
         statements.push(declare);
         const bigint = new BigInt();
-        const decValue = new Dec(18, 6);
+        const decValue = bizDecType;
         declare.var($site, bigint);
         declare.var(sheetId, bigint);
         declare.var(si, bigint);
@@ -207,149 +208,5 @@ export class BBizBin extends BBizEntity<BizBin> {
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new ExpNum(site));
-
-        /*
-        if (showBuds !== undefined) {
-            let memo = factory.createMemo();
-            statements.push(memo)
-            memo.text = this.bizEntity.name + ' show buds';
-            statements.push(...this.buildGetShowBuds(showBuds, tempBinTable, 'id'));
-        }
-
-        const expValue = new ExpField('value', c);
-        function funcJSON_QUOTE() {
-            return new ExpFunc('JSON_QUOTE', expValue);
-        }
-        function funcCast() {
-            return new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'))
-        }
-
-        let budTypes: [() => ExpVal, EnumSysTable][] = [
-            [funcCast, EnumSysTable.ixBudInt],
-            [funcCast, EnumSysTable.ixBudDec],
-            [funcJSON_QUOTE, EnumSysTable.ixBudStr],
-        ]
-
-        for (let binIType of [BinIType.atom, BinIType.fork, BinIType.forkAtom]) {
-            for (let [func, tbl] of budTypes) {
-                this.buildGetShowBudsFromAtomId(statements, binIType, func, tbl);
-            }
-        }
-        */
     }
-    /*
-    private buildGetShowBudsFromAtomId(statements: SqlStatement[], binIType: BinIType, func: () => ExpVal, tbl: EnumSysTable) {
-        const { factory } = this.context;
-        let insert = this.buildGetShowBudsInsert();
-        statements.push(insert);
-        let select = factory.createSelect();
-        insert.select = select;
-        let selectI = this.buildSelectI(binIType);
-        select.column(new ExpField('x', a));
-        select.column(func());
-        select.column(new ExpField('i', c));
-        select.from(new SelectTable(selectI, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bizBudShow, false, b))
-            .on(new ExpEQ(new ExpField('i', b), new ExpField('x', a)))
-            .join(JoinType.join, new EntityTable(tbl, false, c))
-            .on(new ExpEQ(new ExpField('i', c), new ExpField('x', b)));
-    }
-
-    private buildSelectI(binIType: BinIType) {
-        const { factory } = this.context;
-        let selectAtomPhrase = factory.createSelect();
-        let selectCTE = factory.createSelect();
-        const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
-        selectAtomPhrase.cte = { alias: cte, recursive: true, select: selectCTE };
-        selectCTE.column(new ExpField('i', s));
-        selectCTE.column(new ExpField('x', s));
-        selectCTE.from(new VarTable('bin', s0))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, s1))
-            .on(new ExpEQ(new ExpField('id', s1), new ExpField('id', s0)));
-        let tField: ExpVal;
-        switch (binIType) {
-            case BinIType.atom:
-                selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.atom, false, t))
-                    .on(new ExpEQ(new ExpField('id', t), new ExpField('i', s1)));
-                tField = new ExpField('base', t);
-                break;
-            case BinIType.fork:
-                selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
-                    .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
-                    .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)));
-                tField = new ExpField('ext', u0);
-                break;
-            case BinIType.forkAtom:
-                selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
-                    .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
-                    .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, u1))
-                    .on(new ExpEQ(new ExpField('id', u1), new ExpField('base', u0)));;
-                tField = new ExpField('base', u1);
-                break;
-        }
-        selectCTE.join(JoinType.join, new EntityTable(EnumSysTable.ixBizPhrase, false, s))
-            .on(new ExpEQ(new ExpField('x', s), tField));
-        let select1 = factory.createSelect();
-        select1.column(new ExpField('i', r));
-        select1.column(new ExpField('x', r));
-        select1.from(new EntityTable(EnumSysTable.ixBizPhrase, false, r))
-            .join(JoinType.join, new NameTable(cte, r0))
-            .on(new ExpEQ(new ExpField('i', r0), new ExpField('x', r)));
-
-        selectCTE.unions = [select1];
-        selectCTE.unionsAll = true;
-        selectAtomPhrase.column(new ExpField('x'));
-        selectAtomPhrase.from(new NameTable(cte));
-        return selectAtomPhrase
-    }
-
-    private buildGetShowBudsInsert() {
-        let insert = this.context.factory.createInsert();
-        insert.ignore = true;
-        insert.table = new VarTableWithSchema('props');
-        insert.cols = [
-            { col: 'phrase', val: undefined },
-            { col: 'value', val: undefined },
-            { col: 'id', val: undefined },
-        ];
-        return insert;
-    }
-*/
-    /*
-        private buildGetIXBase(statements: SqlStatement[], bud: BizBudIXBase) {
-            if (bud === undefined) return;
-            let { factory } = this.context;
-            const { name } = bud;
-            let memo = factory.createMemo();
-            statements.push(memo);
-            memo.text = name;
-            let select = factory.createSelect();
-            let budName = name[1];
-            select.column(new ExpNum(bud.id), 'phrase');
-            //select.column(new ExpFunc('JSON_ARRAY', new ExpField('base', d)));
-            select.column(new ExpFuncCustom(factory.func_cast, new ExpField('base', d), new ExpDatePart('JSON')));
-            select.column(new ExpField('id', a), 'id');
-            select.from(new VarTableWithSchema('bin', a));
-            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
-                .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, c))
-                .on(new ExpEQ(new ExpField('id', c), new ExpField(budName, b)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, d))
-                .on(new ExpEQ(new ExpField('id', d), new ExpField('base', c)));
-    
-            let insert = factory.createInsert();
-            statements.push(insert);
-            insert.ignore = true;
-            insert.table = new VarTableWithSchema('props');
-            insert.cols = [
-                { col: 'phrase', val: undefined },
-                { col: 'value', val: undefined },
-                { col: 'id', val: undefined },
-            ];
-            insert.select = select;
-        }
-    */
 }

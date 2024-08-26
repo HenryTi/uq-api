@@ -174,13 +174,16 @@ class BBizEntity {
                 tblIxBud = il_1.EnumSysTable.ixBudDec;
                 selectValue();
                 break;
+            case BizPhraseType_1.BudDataType.fork:
+                tblIxBud = il_1.EnumSysTable.ixBudJson;
+                selectValue();
+                break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
                 tblIxBud = il_1.EnumSysTable.ixBudStr;
                 colValue = new sql_1.ExpFunc('JSON_QUOTE', expFieldValue);
                 selectValue();
                 break;
-            // case BudDataType.radio:
             case BizPhraseType_1.BudDataType.check:
                 tblIxBud = il_1.EnumSysTable.ixBud;
                 selectCheck();

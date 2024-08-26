@@ -54,11 +54,13 @@ function buildSetSheetBud(context, bud, idVal, expVal) {
             statement = createIxBud(il_1.EnumSysTable.ixBud, expVal);
             break;
         case BizPhraseType_1.BudDataType.date:
-            // insert = createIxBudValue(EnumSysTable.ixBudInt, new ExpNum(10000) /* expVal*/);
             statement = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
             break;
         case BizPhraseType_1.BudDataType.dec:
             statement = createIxBudValue(il_1.EnumSysTable.ixBudDec, expVal);
+            break;
+        case BizPhraseType_1.BudDataType.fork:
+            statement = createIxBudValue(il_1.EnumSysTable.ixBudJson, expVal);
             break;
     }
     return [statement];

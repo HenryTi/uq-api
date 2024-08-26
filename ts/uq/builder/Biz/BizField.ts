@@ -1,5 +1,6 @@
 import {
     BizBud,
+    bizDecType,
     BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldOptionsItem, BizFieldPendBinBudSelect, BizFieldPendBudSelect, EnumSysTable
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
@@ -32,8 +33,49 @@ export abstract class BBizField<T extends BizField = BizField> {
             case BudDataType.check:
                 tbl = EnumSysTable.ixBudCheck;
                 break;
+            case BudDataType.fork:
+                tbl = EnumSysTable.ixBudJson;
+                break;
         }
         return tbl;
+    }
+
+    protected buildPendBud(sb: SqlBuilder, bud: BizBud) {
+        sb.l();
+        function jsonValue() {
+            sb.append(`JSON_VALUE(t0.`).fld('mid').append(`, '$."${bud.id}"')`);
+        }
+        function cast(funcType: () => void) {
+            sb.append('CAST(');
+            jsonValue();
+            sb.append(' as ');
+            funcType();
+            sb.append(')');
+        }
+        sb.append('SELECT ');
+        switch (bud.dataType) {
+            default:
+                break;
+            case BudDataType.fork:
+                cast(() => sb.append('JSON'));
+                break;
+            case BudDataType.dec:
+                cast(() => bizDecType.sql(sb));
+                break;
+            case BudDataType.int:
+            case BudDataType.atom:
+            case BudDataType.radio:
+            case BudDataType.bin:
+            case BudDataType.ID:
+            case BudDataType.date:
+            case BudDataType.datetime:
+                cast(() => sb.append('UNSIGNED'));
+                break;
+        }
+        sb.append(' as value FROM ').dbName().dot().name(EnumSysTable.pend)
+            .append(' AS t0');
+        sb.append(' WHERE t0.id=').var('$pend');
+        sb.r();
     }
 }
 
@@ -56,7 +98,9 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
             case BudDataType.dec:
                 tbl = EnumSysTable.ixBudDec;
                 break;
-            // case BudDataType.radio: radio 按int处理
+            case BudDataType.fork:
+                tbl = EnumSysTable.ixBudJson;
+                break;
             case BudDataType.check:
                 this.buildSelectMulti(sb);
                 return;
@@ -79,11 +123,9 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
             sb.append(`${x1}.ext as id`)
         }
         else {
-            //sb.append(`JSON_ARRAYAGG(${x1}.ext)`)
             sb.append(`JSON_ARRAYAGG(${x0}.x)`)
         };
         sb.append(' FROM ').dbName().dot().append(EnumSysTable.ixBudCheck).append(` AS ${x0}`)
-            // .dbName().dot().append(EnumSysTable.bud).append(` AS ${x1} ON ${x1}.id=${x0}.x `)
             .append(` where ${x0}.ii=`)
         this.toIValue(sb);
         sb.append(` AND ${x0}.i=`).append(bud.id)
@@ -112,8 +154,6 @@ export const MapFieldTable: TypeMapFieldTable = {
     sheet: 'f',
     sheetBin: 'e',
     s: 'e',
-    // atom: 't1',
-    // baseAtom: 't1',
 }
 
 export type KeyOfMapFieldTable = keyof TypeMapFieldTable;
@@ -184,12 +224,16 @@ export abstract class BBizFieldBinBudSelect<T extends BizFieldBinBudSelect> exte
 export class BBizFieldPendBudSelect extends BBizFieldBinBudSelect<BizFieldPendBudSelect> {
     override to(sb: SqlBuilder): void {
         let { pend, bud } = this.bizField;
+        this.buildPendBud(sb, bud);
+        /*
         let tbl = this.ixTableFromBud(bud);
         sb.l();
         sb.append(`SELECT t0.`).fld('value').append(` FROM `).dbName().dot().name(tbl)
             .append(' AS t0');
         sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
         sb.r();
+        sb.append('/*BBizFieldPendBudSelect* /');
+        */
     }
 }
 
@@ -198,11 +242,13 @@ export class BBizFieldPendBinBudSelect extends BBizFieldBinBudSelect<BizFieldPen
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(EnumSysTable.ixBudInt)
-            .append(' AS t0');
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `); // .dbName().dot().name(EnumSysTable.ixBudInt)
+        this.buildPendBud(sb, bud);
+        sb.append(' AS t0');
         this.buildBudArr(sb, budArr);
-        sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
+        // sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
         sb.r();
+        // sb.append('/*BBizFieldPendBinBudSelect*/');
     }
 }
 

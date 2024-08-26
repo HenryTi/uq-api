@@ -177,13 +177,17 @@ export class BBizEntity<B extends BizEntity = any> {
                 tblIxBud = EnumSysTable.ixBudDec;
                 selectValue();
                 break;
+            case BudDataType.fork:
+                tblIxBud = EnumSysTable.ixBudJson;
+                selectValue();
+                break;
             case BudDataType.str:
             case BudDataType.char:
                 tblIxBud = EnumSysTable.ixBudStr;
                 colValue = new ExpFunc('JSON_QUOTE', expFieldValue);
                 selectValue();
                 break;
-            // case BudDataType.radio:
+
             case BudDataType.check:
                 tblIxBud = EnumSysTable.ixBud;
                 selectCheck();

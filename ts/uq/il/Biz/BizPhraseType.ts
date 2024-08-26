@@ -84,6 +84,9 @@ const budTypeStr: BudType = {
 const budTypeDec: BudType = {
     sysTable: EnumSysTable.ixBudDec,
 }
+const budTypeJson: BudType = {
+    sysTable: EnumSysTable.ixBudJson,
+}
 export const budTypes: { [type in BudDataType]?: BudType } = {
     [BudDataType.int]: budTypeInt,
     [BudDataType.str]: budTypeStr,
@@ -94,4 +97,5 @@ export const budTypes: { [type in BudDataType]?: BudType } = {
     [BudDataType.atom]: budTypeInt,
     [BudDataType.ID]: budTypeInt,
     [BudDataType.radio]: budTypeInt,
+    [BudDataType.fork]: budTypeJson,
 };

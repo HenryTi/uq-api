@@ -279,6 +279,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', a));
                 break;
             case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+            case BudDataType.fork: tbl = EnumSysTable.ixBudJson; break;
         }
         let select = factory.createSelect();
         select.from(new EntityTable(tbl, false, a));

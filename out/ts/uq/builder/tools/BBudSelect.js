@@ -28,6 +28,9 @@ class BBudSelect {
             case BizPhraseType_1.BudDataType.dec:
                 this.selectValue(select, il_1.EnumSysTable.ixBudDec, bud);
                 break;
+            case BizPhraseType_1.BudDataType.fork:
+                this.selectValue(select, il_1.EnumSysTable.ixBudJson, bud);
+                break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
                 this.selectValue(select, il_1.EnumSysTable.ixBudStr, bud);

@@ -87,7 +87,7 @@ export class Uq extends IElement {
     templets: { [key: string]: il.Templet } = {};
 
     dataTypes: { [name: string]: DataType } = {
-        value: new Dec(18, 6),
+        value: il.bizDecType,
     };
 
     readonly biz: Biz = new Biz(this);

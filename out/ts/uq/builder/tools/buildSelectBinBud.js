@@ -9,7 +9,7 @@ const a = 'a', b = 'b';
 function buildSelectBinBud(context, bud, varBin, varName) {
     const { factory } = context;
     const bigint = new il_1.BigInt();
-    const decValue = new il_1.Dec(18, 6);
+    const decValue = il_1.bizDecType;
     const str = new il_1.Char(200);
     const json = new il_1.JsonDataType();
     let declare = factory.createDeclare();

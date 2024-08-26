@@ -96,6 +96,7 @@ export abstract class JsonVal {
                 default: debugger; break;
                 case BudDataType.int: field = bigIntField(name); break;
                 case BudDataType.dec: field = decField(name, 24, 6); break;
+                case BudDataType.fork:
                 case BudDataType.arr: field = jsonField(name); break;
                 case BudDataType.ID:
                 case BudDataType.date:

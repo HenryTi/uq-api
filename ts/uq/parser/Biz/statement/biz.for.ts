@@ -1,4 +1,4 @@
-import { BigInt, BizField, BizFor, BizForIdCol, BizSelectStatement, Dec, EnumAsc, Field, Pointer, ValueExpression, Var, VarPointer, createDataType } from "../../../il";
+import { BigInt, BizField, BizFor, BizForIdCol, BizSelectStatement, Dec, EnumAsc, Field, Pointer, ValueExpression, Var, VarPointer, bizDecType, createDataType } from "../../../il";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { BizSelectStatementSpace, PBizSelectStatement } from "./BizSelectStatement";
@@ -110,7 +110,7 @@ export class PBizFor extends PBizSelectStatement<BizFor> {
             ids.set(n, idCol);
         }
         for (let [n, val] of values) {
-            vars[n] = new Var(n, new Dec(18, 6));
+            vars[n] = new Var(n, bizDecType);
             if (ids.has(n) === true) {
                 ok = false;
                 this.log(`duplicate name ${n}`);

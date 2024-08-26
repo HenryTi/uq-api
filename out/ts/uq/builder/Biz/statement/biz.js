@@ -546,6 +546,9 @@ class BBizStatementSpec extends BBizStatementID {
                 case BizPhraseType_1.BudDataType.dec:
                     tbl = il_1.EnumSysTable.ixBudDec;
                     break;
+                case BizPhraseType_1.BudDataType.fork:
+                    tbl = il_1.EnumSysTable.ixBudJson;
+                    break;
             }
             let t = 't' + i;
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, t));

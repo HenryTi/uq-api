@@ -86,7 +86,10 @@ class BBizFork extends BizEntity_1.BBizEntity {
                         dt = new il_1.Char(200);
                         break;
                     case BizPhraseType_1.BudDataType.dec:
-                        dt = new il_1.Dec(18, 6);
+                        dt = il_1.bizDecType;
+                        break;
+                    case BizPhraseType_1.BudDataType.fork:
+                        dt = new il_1.JsonDataType();
                         break;
                 }
                 declare.var(prefixBud + name, dt);
@@ -134,6 +137,9 @@ class BBizFork extends BizEntity_1.BBizEntity {
                     break;
                 case BizPhraseType_1.BudDataType.dec:
                     tbl = il_1.EnumSysTable.ixBudDec;
+                    break;
+                case BizPhraseType_1.BudDataType.fork:
+                    tbl = il_1.EnumSysTable.ixBudJson;
                     break;
             }
             return { varVal, tbl };
@@ -230,14 +236,17 @@ class BBizFork extends BizEntity_1.BBizEntity {
             let tbl;
             switch (dataType) {
                 default:
-                    tbl = 'ixbudint';
+                    tbl = il_1.EnumSysTable.ixBudInt;
                     break;
                 case BizPhraseType_1.BudDataType.char:
                 case BizPhraseType_1.BudDataType.str:
-                    tbl = 'ixbudstr';
+                    tbl = il_1.EnumSysTable.ixBudStr;
                     break;
                 case BizPhraseType_1.BudDataType.dec:
-                    tbl = 'ixbuddec';
+                    tbl = il_1.EnumSysTable.ixBudDec;
+                    break;
+                case BizPhraseType_1.BudDataType.fork:
+                    tbl = il_1.EnumSysTable.ixBudJson;
                     break;
             }
             const selectVal = factory.createSelect();

@@ -112,6 +112,9 @@ class BBizExp {
             case BizPhraseType_1.BudDataType.dec:
                 tbl = il_1.EnumSysTable.ixBudDec;
                 break;
+            case BizPhraseType_1.BudDataType.fork:
+                tbl = il_1.EnumSysTable.ixBudJson;
+                break;
         }
         sb.append(`${tt}.value FROM \`${this.db}\`.${tbl} as ${tt}
             WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
@@ -239,10 +242,10 @@ class TitleValueBase extends TitleExpBase {
         let ixBudTbl;
         switch (bud.dataType) {
             default:
-                ixBudTbl = 'ixbudint';
+                ixBudTbl = il_1.EnumSysTable.ixBudInt;
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                ixBudTbl = 'ixbuddec';
+                ixBudTbl = il_1.EnumSysTable.ixBudDec;
                 break;
         }
         return ixBudTbl;

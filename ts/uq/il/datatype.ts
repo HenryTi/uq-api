@@ -421,6 +421,7 @@ export function createDataProtoType(type: string): DataType {
         case 'text': return new Text();
         case 'bin':
         case 'binary': return new Bin();
+        case 'fork': return new JsonDataType();
     }
 }
 

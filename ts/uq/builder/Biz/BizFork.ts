@@ -2,7 +2,8 @@ import {
     BigInt, BizFork, Char, DataType, Dec, JoinType
     , JsonDataType, bigIntField, idField, jsonField, EnumSysTable, BizBud,
     tinyIntField,
-    SetEqu
+    SetEqu,
+    bizDecType
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
@@ -95,7 +96,10 @@ export class BBizFork extends BBizEntity<BizFork> {
                         dt = new Char(200);
                         break;
                     case BudDataType.dec:
-                        dt = new Dec(18, 6);
+                        dt = bizDecType;
+                        break;
+                    case BudDataType.fork:
+                        dt = new JsonDataType();
                         break;
                 }
                 declare.var(prefixBud + name, dt);
@@ -147,6 +151,9 @@ export class BBizFork extends BBizEntity<BizFork> {
                     break;
                 case BudDataType.dec:
                     tbl = EnumSysTable.ixBudDec;
+                    break;
+                case BudDataType.fork:
+                    tbl = EnumSysTable.ixBudJson;
                     break;
             }
             return { varVal, tbl };
@@ -275,12 +282,14 @@ export class BBizFork extends BBizEntity<BizFork> {
             let tbl: string;
             switch (dataType) {
                 default:
-                    tbl = 'ixbudint'; break;
+                    tbl = EnumSysTable.ixBudInt; break;
                 case BudDataType.char:
                 case BudDataType.str:
-                    tbl = 'ixbudstr'; break;
+                    tbl = EnumSysTable.ixBudStr; break;
                 case BudDataType.dec:
-                    tbl = 'ixbuddec'; break;
+                    tbl = EnumSysTable.ixBudDec; break;
+                case BudDataType.fork:
+                    tbl = EnumSysTable.ixBudJson; break;
             }
             const selectVal = factory.createSelect();
             selectVal.column(new ExpField('value', t));

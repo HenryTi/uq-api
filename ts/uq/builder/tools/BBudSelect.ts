@@ -37,6 +37,9 @@ export class BBudSelect {
             case BudDataType.dec:
                 this.selectValue(select, EnumSysTable.ixBudDec, bud);
                 break;
+            case BudDataType.fork:
+                this.selectValue(select, EnumSysTable.ixBudJson, bud);
+                break;
             case BudDataType.str:
             case BudDataType.char:
                 this.selectValue(select, EnumSysTable.ixBudStr, bud);

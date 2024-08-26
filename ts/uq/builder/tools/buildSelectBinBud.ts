@@ -1,5 +1,5 @@
 import {
-    BigInt, BizBud, BizBudIDBase, BizBudIXBase, Char, DataType
+    BigInt, BizBud, BizBudIDBase, BizBudIXBase, bizDecType, Char, DataType
     , Dec, EnumDataType, EnumSysTable, JoinType, JsonDataType
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
@@ -12,7 +12,7 @@ const a = 'a', b = 'b';
 export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVal, varName?: string) {
     const { factory } = context;
     const bigint = new BigInt();
-    const decValue = new Dec(18, 6);
+    const decValue = bizDecType;
     const str = new Char(200);
     const json = new JsonDataType();
     let declare = factory.createDeclare();

@@ -29,6 +29,8 @@ export type FieldShowItem = BizBud; // | (BizBud[]);
 
 export type FieldShow = FieldShowItem[];
 
+export const bizDecType = new Dec(18, 6);
+
 export interface BudValue {
     exp: ValueExpression;
     str?: [string, BudValueSetType?];           // 传到前台的schema: init, equ, show
@@ -243,7 +245,7 @@ export class BizBudDec extends BizBudValueWithRange {
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDec(this, context);
     }
-    createDataType(): DataType { return new Dec(18, 6); }
+    createDataType(): DataType { return bizDecType; }
 }
 
 export class BinValue extends BizBudDec {

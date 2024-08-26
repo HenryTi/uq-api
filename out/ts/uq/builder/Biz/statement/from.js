@@ -155,6 +155,9 @@ class BFromStatement extends biz_select_1.BBizSelect {
                 case BizPhraseType_1.BudDataType.char:
                     ixBudTbl = il_1.EnumSysTable.ixBudStr;
                     break;
+                case BizPhraseType_1.BudDataType.fork:
+                    ixBudTbl = il_1.EnumSysTable.ixBudJson;
+                    break;
             }
             let tbl = mapBuds.get(ixBudTbl);
             tbl.buds.push(bud);

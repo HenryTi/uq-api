@@ -109,6 +109,7 @@ export class BBizExp {
             case BudDataType.char:
             case BudDataType.str: tbl = EnumSysTable.ixBudStr; break;
             case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+            case BudDataType.fork: tbl = EnumSysTable.ixBudJson; break;
         }
         sb.append(`${tt}.value FROM \`${this.db}\`.${tbl} as ${tt}
             WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
@@ -243,8 +244,8 @@ abstract class TitleValueBase extends TitleExpBase {
         const { budEntitySub: bud } = this.bBizExp.bizExp;
         let ixBudTbl: string;
         switch (bud.dataType) {
-            default: ixBudTbl = 'ixbudint'; break;
-            case BudDataType.dec: ixBudTbl = 'ixbuddec'; break;
+            default: ixBudTbl = EnumSysTable.ixBudInt; break;
+            case BudDataType.dec: ixBudTbl = EnumSysTable.ixBudDec; break;
         }
         return ixBudTbl;
     }

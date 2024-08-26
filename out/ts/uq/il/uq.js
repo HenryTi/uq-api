@@ -16,7 +16,6 @@ const IElement_1 = require("./IElement");
 const entity_1 = require("./entity");
 const Biz_1 = require("./Biz");
 const busSchema_1 = require("./busSchema");
-const datatype_1 = require("./datatype");
 const field_1 = require("./field");
 const uq_1 = require("../parser/uq");
 class UqVersion {
@@ -89,7 +88,7 @@ class Uq extends IElement_1.IElement {
         this.buses = {};
         this.templets = {};
         this.dataTypes = {
-            value: new datatype_1.Dec(18, 6),
+            value: il.bizDecType,
         };
         this.biz = new Biz_1.Biz(this);
     }

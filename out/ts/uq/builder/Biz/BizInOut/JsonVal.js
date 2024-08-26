@@ -77,6 +77,7 @@ class JsonVal {
                 case BizPhraseType_1.BudDataType.dec:
                     field = (0, il_1.decField)(name, 24, 6);
                     break;
+                case BizPhraseType_1.BudDataType.fork:
                 case BizPhraseType_1.BudDataType.arr:
                     field = (0, il_1.jsonField)(name);
                     break;

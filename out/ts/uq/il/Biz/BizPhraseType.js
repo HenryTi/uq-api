@@ -74,6 +74,9 @@ const budTypeStr = {
 const budTypeDec = {
     sysTable: EnumSysTable_1.EnumSysTable.ixBudDec,
 };
+const budTypeJson = {
+    sysTable: EnumSysTable_1.EnumSysTable.ixBudJson,
+};
 exports.budTypes = {
     [BudDataType.int]: budTypeInt,
     [BudDataType.str]: budTypeStr,
@@ -84,5 +87,6 @@ exports.budTypes = {
     [BudDataType.atom]: budTypeInt,
     [BudDataType.ID]: budTypeInt,
     [BudDataType.radio]: budTypeInt,
+    [BudDataType.fork]: budTypeJson,
 };
 //# sourceMappingURL=BizPhraseType.js.map

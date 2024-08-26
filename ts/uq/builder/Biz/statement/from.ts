@@ -171,6 +171,8 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
                 case BudDataType.str:
                 case BudDataType.char:
                     ixBudTbl = EnumSysTable.ixBudStr; break;
+                case BudDataType.fork:
+                    ixBudTbl = EnumSysTable.ixBudJson; break;
             }
             let tbl = mapBuds.get(ixBudTbl);
             tbl.buds.push(bud);

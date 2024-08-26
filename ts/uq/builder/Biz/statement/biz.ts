@@ -602,6 +602,9 @@ export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
                 case BudDataType.dec:
                     tbl = EnumSysTable.ixBudDec;
                     break;
+                case BudDataType.fork:
+                    tbl = EnumSysTable.ixBudJson;
+                    break;
             }
             let t = 't' + i;
             select.join(JoinType.join, new EntityTable(tbl, false, t))

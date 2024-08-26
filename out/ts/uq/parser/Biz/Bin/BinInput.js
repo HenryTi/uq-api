@@ -84,7 +84,7 @@ class PBinInputFork extends PBinInput {
                 case 0: break;
                 case 1:
                     let [name, v, valueSetType] = this.params[0];
-                    if (name !== 'param') {
+                    if (name !== undefined) {
                         ok = false;
                         this.log(`Only PARAM can set`);
                     }

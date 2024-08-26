@@ -92,7 +92,7 @@ class BBizBin extends BizEntity_1.BBizEntity {
         const declare = factory.createDeclare();
         statements.push(declare);
         const bigint = new il_1.BigInt();
-        const decValue = new il_1.Dec(18, 6);
+        const decValue = il_1.bizDecType;
         declare.var(consts_2.$site, bigint);
         declare.var(sheetId, bigint);
         declare.var(si, bigint);
@@ -207,34 +207,6 @@ class BBizBin extends BizEntity_1.BBizEntity {
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ(consts_2.$site, new sql_1.ExpNum(site));
-        /*
-        if (showBuds !== undefined) {
-            let memo = factory.createMemo();
-            statements.push(memo)
-            memo.text = this.bizEntity.name + ' show buds';
-            statements.push(...this.buildGetShowBuds(showBuds, tempBinTable, 'id'));
-        }
-
-        const expValue = new ExpField('value', c);
-        function funcJSON_QUOTE() {
-            return new ExpFunc('JSON_QUOTE', expValue);
-        }
-        function funcCast() {
-            return new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'))
-        }
-
-        let budTypes: [() => ExpVal, EnumSysTable][] = [
-            [funcCast, EnumSysTable.ixBudInt],
-            [funcCast, EnumSysTable.ixBudDec],
-            [funcJSON_QUOTE, EnumSysTable.ixBudStr],
-        ]
-
-        for (let binIType of [BinIType.atom, BinIType.fork, BinIType.forkAtom]) {
-            for (let [func, tbl] of budTypes) {
-                this.buildGetShowBudsFromAtomId(statements, binIType, func, tbl);
-            }
-        }
-        */
     }
 }
 exports.BBizBin = BBizBin;
