@@ -266,6 +266,7 @@ class PBizBudFork extends PBizBudValue {
             this.element.baseBudName = this.ts.passVar();
             this.ts.passToken(tokens_1.Token.RPARENTHESE);
         }
+        super._parse();
     }
 }
 exports.PBizBudFork = PBizBudFork;
