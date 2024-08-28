@@ -196,8 +196,8 @@ class BinPivot extends BinDiv {
     buildSchema(res) {
         let ret = super.buildSchema(res);
         ret.key = this.key.id;
-        if (this.format !== undefined) {
-            ret.format = this.format.map(([bud, withLabel, exclude]) => {
+        if (this.pivotFormat !== undefined) {
+            ret.format = this.pivotFormat.map(([bud, withLabel, exclude]) => {
                 return [bud.id, withLabel === true ? 1 : 0, exclude === null || exclude === void 0 ? void 0 : exclude.id];
             });
         }

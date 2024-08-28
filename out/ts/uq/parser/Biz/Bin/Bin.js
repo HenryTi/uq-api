@@ -140,7 +140,7 @@ class PBizBin extends Base_1.PBizEntity {
             this.div.key = key;
         };
         this.parsePivotFormat = () => {
-            let format = this.div.format = [];
+            let pivotFormat = this.div.pivotFormat = [];
             for (;;) {
                 if (this.ts.token !== tokens_1.Token.VAR) {
                     this.ts.expectToken(tokens_1.Token.VAR);
@@ -164,7 +164,7 @@ class PBizBin extends Base_1.PBizEntity {
                     exclude = this.ts.lowerVar;
                     this.ts.readToken();
                 }
-                format.push([bud, withLabel, exclude]);
+                pivotFormat.push([bud, withLabel, exclude]);
                 if (this.ts.token === tokens_1.Token.COMMA) {
                     this.ts.readToken();
                     continue;
@@ -421,7 +421,7 @@ class PBizBin extends Base_1.PBizEntity {
         }
         let { div, i, x, iBase, xBase, pickArr } = this.element;
         for (; div !== undefined; div = div.div) {
-            let { format } = div;
+            let { pivotFormat: format } = div;
             if (format === undefined)
                 continue;
             let nf = [];
@@ -443,7 +443,7 @@ class PBizBin extends Base_1.PBizEntity {
                 }
                 nf.push([bud, withLabel, itemExclude]);
             }
-            div.format = nf;
+            div.pivotFormat = nf;
         }
         if (i !== undefined) {
             const { ID } = i;

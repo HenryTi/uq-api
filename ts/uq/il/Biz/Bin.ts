@@ -188,7 +188,7 @@ export class BinDiv {
     div: BinDiv;
     level: number;
     key: BizBudValue;        // only used in Pivot
-    format: any;
+    pivotFormat: any;
 
     constructor(parent: BinDiv, ui: Partial<UI>) {
         this.ui = ui;
@@ -222,8 +222,8 @@ export class BinPivot extends BinDiv {
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         ret.key = this.key.id;
-        if (this.format !== undefined) {
-            ret.format = this.format.map(([bud, withLabel, exclude]) => {
+        if (this.pivotFormat !== undefined) {
+            ret.format = this.pivotFormat.map(([bud, withLabel, exclude]) => {
                 return [bud.id, withLabel === true ? 1 : 0, exclude?.id]
             });
         }

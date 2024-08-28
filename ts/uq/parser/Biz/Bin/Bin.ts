@@ -246,7 +246,7 @@ export class PBizBin extends PBizEntity<BizBin> {
     }
 
     private parsePivotFormat = () => {
-        let format = this.div.format = [];
+        let pivotFormat = this.div.pivotFormat = [];
         for (; ;) {
             if (this.ts.token !== Token.VAR) {
                 this.ts.expectToken(Token.VAR);
@@ -270,7 +270,7 @@ export class PBizBin extends PBizEntity<BizBin> {
                 exclude = this.ts.lowerVar;
                 this.ts.readToken();
             }
-            format.push([bud, withLabel, exclude]);
+            pivotFormat.push([bud, withLabel, exclude]);
             if (this.ts.token === Token.COMMA) {
                 this.ts.readToken();
                 continue;
@@ -467,7 +467,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         }
         let { div, i, x, iBase, xBase, pickArr } = this.element;
         for (; div !== undefined; div = div.div) {
-            let { format } = div;
+            let { pivotFormat: format } = div;
             if (format === undefined) continue;
             let nf: any[] = [];
             for (let [budName, withLabel, exclude] of format) {
@@ -488,7 +488,7 @@ export class PBizBin extends PBizEntity<BizBin> {
                 }
                 nf.push([bud, withLabel, itemExclude]);
             }
-            div.format = nf;
+            div.pivotFormat = nf;
         }
         if (i !== undefined) {
             const { ID } = i;
