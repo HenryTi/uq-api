@@ -129,12 +129,6 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         const { bizEntityArr, bizPhraseType, alias } = fromEntity;
         const expBase = new ExpField('base', alias);
         const eqOrIn = (expField: ExpField) => {
-            /*
-            if (bizEntityArr.length === 1) {
-                return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
-            }
-            else {
-            */
             const { factory } = this.context;
             let sel = factory.createSelect();
             sel.lock = LockType.none;
@@ -159,18 +153,11 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             selectCTE.unionsAll = true;
             sel.distinct = true;
             sel.column(new ExpField('phrase', a));
-            // sel.column(new ExpField('x', a));
-            // sel.column(new ExpField('x', b));
-            // sel.column(new ExpField('type', b), 'budtype');
             sel.from(new NameTable(cte, a));
-            //    .join(JoinType.join, new EntityTable(EnumSysTable.bizBudShow, false, b))
-            //    .on(new ExpEQ(new ExpField('i', b), new ExpField('x', a)));
-            // ...bizEntityArr.map(v => new ExpNum(v.id));
             return new ExpIn(
                 expField,
                 new ExpSelect(sel),
             );
-            //}
         }
 
         switch (bizPhraseType) {
@@ -250,13 +237,14 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         for (let idc of ids) {
             const { fromEntity: { bizEntityArr } } = idc;
             // 暂时只生成第一个spec的atom的所有字段
+            if (bizEntityArr.length === 0) continue;
             let [bizEntity] = bizEntityArr;
             if (bizEntity.bizPhraseType === BizPhraseType.fork) {
-                let spec = bizEntity as BizFork;
-                this.buildInsertAtomBuds(sqls, spec.base);
+                let fork = bizEntity as BizFork;
+                this.buildInsertAtomBuds(sqls, fork.base);
 
-                const buds: BizBud[] = [...spec.keys];
-                for (let [, bud] of spec.props) {
+                const buds: BizBud[] = [...fork.keys];
+                for (let [, bud] of fork.props) {
                     buds.push(bud);
                 }
                 let mapBuds = this.buildMapBuds(buds);
@@ -267,29 +255,22 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     }
 
     private buildIdsProps(sqls: Sqls) {
-        const { ids } = this.istatement;
+        const ids = this.idsGroupBy;
         const { factory } = this.context;
         sqls.push(buildIdPhraseTable(this.context));
         sqls.push(buildPhraseBudTable(this.context));
-        function buildSelectFrom(select: Select) {
-            const s0 = 's0', s1 = 's1', colI = 'i';
-            const selectIds = factory.createSelect();
-            selectIds.lock = LockType.none;
-            selectIds.column(new ExpField('id0', s0), colI);
-            selectIds.from(new VarTable(pageGroupBy, s0));
-            const sels: Select[] = [];
-            for (let i = 1; i < ids.length; i++) {
-                const selectIdi = factory.createSelect();
-                selectIdi.lock = LockType.none;
-                sels.push(selectIdi);
-                const t = '$x' + i;
-                selectIds.column(new ExpField('id' + i, t), colI);
-                selectIds.from(new VarTable(pageGroupBy, t));
+        let { length } = ids;
+        for (let i = 0; i < length; i++) {
+            function buildSelectId(select: Select) {
+                const s = 's', colI = 'i', s1 = 's1';
+                const selectId = factory.createSelect();
+                selectId.lock = LockType.none;
+                selectId.column(new ExpField('id' + i, s), colI);
+                selectId.from(new VarTable(pageGroupBy, s));
+                select.from(new SelectTable(selectId, s1));
             }
-            selectIds.unions = sels;
-            select.from(new SelectTable(selectIds, s1));
+            sqls.push(...buildSelectIdPhrases(this.context, buildSelectId));
         }
-        sqls.push(...buildSelectIdPhrases(this.context, buildSelectFrom));
         sqls.push(buildSelectPhraseBud(this.context));
         sqls.push(...buildSelectIxBuds(this.context));
     }

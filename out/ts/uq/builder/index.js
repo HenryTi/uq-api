@@ -14,12 +14,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BUq = void 0;
 __exportStar(require("./dbContext"), exports);
 __exportStar(require("./entity"), exports);
 __exportStar(require("./Biz"), exports);
 __exportStar(require("./sql"), exports);
 __exportStar(require("./bstatement"), exports);
-var uq_1 = require("./uq");
-Object.defineProperty(exports, "BUq", { enumerable: true, get: function () { return uq_1.BUq; } });
 //# sourceMappingURL=index.js.map

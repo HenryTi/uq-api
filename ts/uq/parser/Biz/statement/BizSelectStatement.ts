@@ -10,7 +10,8 @@ import {
     BizDuo, BizCombo,
     BizBudID,
     BizSelectStatement,
-    BizField
+    BizField,
+    EnumSysTable
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
@@ -20,6 +21,7 @@ import { SameTypeEntityArrReturn } from "../../../il/Biz/Biz";
 
 interface PFromEntity {
     tbls: string[];
+    bizPhraseType: BizPhraseType.atom | BizPhraseType.fork;
     ofIXs: string[];
     ofOn: ValueExpression;
     alias: string;
@@ -81,8 +83,25 @@ export abstract class PBizSelectStatement<T extends BizSelectStatement> extends 
         if (this.ts.isKeyword('as') === true) {
             return;
         }
+        if (this.ts.token === Token.MUL) {
+            this.ts.readToken();
+            pFromEntity.tbls = undefined;
+            switch (this.ts.passKey()) {
+                default:
+                    this.ts.expect('atom', 'fork');
+                    break;
+                case 'atom':
+                    pFromEntity.bizPhraseType = BizPhraseType.atom;
+                    return;
+                case 'fork':
+                    pFromEntity.bizPhraseType = BizPhraseType.fork;
+                    return;
+            }
+
+        }
+        const { tbls } = pFromEntity;
         for (; ;) {
-            pFromEntity.tbls.push(this.ts.passVar());
+            tbls.push(this.ts.passVar());
             if (this.ts.token === Token.BITWISEOR) {
                 this.ts.readToken();
             }
@@ -127,23 +146,12 @@ export abstract class PBizSelectStatement<T extends BizSelectStatement> extends 
         }
         else {
             this.element.fromEntity = fromEntity;
-            /*
-            if (this.scanCols(space) === false) {
-                ok = false;
-                return ok;
-            }
-            */
             const { where } = this.element;
             if (where !== undefined) {
                 if (where.pelement.scan(space) === false) {
                     ok = false;
                 }
             }
-            /*
-            if (this.scanIDsWithCheck0() === false) {
-                ok = false;
-            }
-            */
         }
         return ok;
     }
@@ -199,7 +207,19 @@ class FromEntityScaner {
     createFromEntity(pFromEntity: PFromEntity, sameTypeEntityArr: (entityNames: string[]) => SameTypeEntityArrReturn): FromEntity {
         const fromEntity = new FromEntity();
         const { tbls } = pFromEntity;
-        if (tbls.length === 0) return fromEntity;
+        if (tbls === undefined || tbls.length === 0) {
+            let bizPhraseType = fromEntity.bizPhraseType = pFromEntity.bizPhraseType;
+            let bizEntityTable: EnumSysTable;
+            switch (bizPhraseType) {
+                case BizPhraseType.atom: bizEntityTable = EnumSysTable.atom; break;
+                case BizPhraseType.fork: bizEntityTable = EnumSysTable.spec; break;
+            }
+            if (tbls === undefined) {
+                fromEntity.bizEntityArr = undefined;
+            }
+            fromEntity.bizEntityTable = bizEntityTable;
+            return fromEntity;
+        }
         const { biz } = this.space.uq;
         let ret: SameTypeEntityArrReturn;
         if (sameTypeEntityArr === undefined) ret = biz.sameTypeEntityArr(tbls);
@@ -343,7 +363,11 @@ abstract class FEScanBase {
         if (fromEntity === undefined) {
             fromEntity = new FromEntity();
         }
-        if (fromEntity.bizEntityArr.length === 0) {
+        let { bizEntityArr } = fromEntity;
+        if (bizEntityArr === undefined) {
+            fromEntity.bizEntityArr = bizEntityArr = [];
+        }
+        else if (bizEntityArr.length === 0) {
             let entity = callbackOnEmpty();
             if (entity === undefined) return undefined;
             fromEntity.bizEntityArr.push(entity);

@@ -58,30 +58,43 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         if (subs !== undefined) {
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
-                const { alias: subAlias, bizPhraseType } = subFromEntity;
-                let { id } = subFromEntity.bizEntityArr[0];
+                const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
+                let entityId: number;
+                if (bizEntityArr.length > 0) {
+                    entityId = bizEntityArr[0].id;
+                }
                 const entityTable = this.buildEntityTable(subFromEntity);
                 let budAlias = alias + '$bud';
                 let subBudAlias = subAlias + '$bud';
                 let prevAlias = isSpecBase === true ? budAlias : alias;
                 switch (bizPhraseType) {
                     case BizPhraseType.atom:
+                        let expEQIdField = new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias));
+                        let expOnAtom = entityId === undefined ?
+                            expEQIdField
+                            :
+                            new ExpAnd(
+                                expEQIdField,
+                                new ExpEQ(new ExpField('base', subAlias), new ExpNum(entityId)),
+                            );
                         select
                             .join(JoinType.join, entityTable)
-                            .on(new ExpAnd(
-                                new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias)),
-                                new ExpEQ(new ExpField('base', subAlias), new ExpNum(id)),
-                            ));
+                            .on(expOnAtom);
                         break;
                     case BizPhraseType.fork:
+                        let expEQSubIdBase = new ExpEQ(new ExpField('id', subBudAlias), new ExpField('base', subAlias));
+                        let expOnFork = entityId === undefined ?
+                            expEQSubIdBase
+                            :
+                            new ExpAnd(
+                                expEQSubIdBase,
+                                new ExpEQ(new ExpField('ext', subBudAlias), new ExpNum(entityId))
+                            );
                         select
                             .join(JoinType.join, entityTable)
                             .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias)));
                         select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, subBudAlias))
-                            .on(new ExpAnd(
-                                new ExpEQ(new ExpField('id', subBudAlias), new ExpField('base', subAlias)),
-                                new ExpEQ(new ExpField('ext', subBudAlias), new ExpNum(id)),
-                            ));
+                            .on(expOnFork);
                         break;
                 }
                 this.buildSelectFromInternal(select, subFromEntity);

@@ -156,16 +156,6 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
     scan(space) {
         let ok = super.scan(space);
         space = this.createFromSpace(space);
-        // let scanner = new FromEntityScaner(space);
-        /*
-        let fromEntity = scanner.createFromEntity(this.pFromEntity, undefined);
-        if (scanner.scan(fromEntity, this.pFromEntity) === false) {
-            this.log(...scanner.msgs);
-            ok = false;
-        }
-        else {
-            this.element.fromEntity = fromEntity;
-        */
         if (this.element.fromEntity !== undefined) {
             if (this.scanCols(space) === false) {
                 ok = false;

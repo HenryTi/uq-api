@@ -117,12 +117,6 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         const { bizEntityArr, bizPhraseType, alias } = fromEntity;
         const expBase = new sql_1.ExpField('base', alias);
         const eqOrIn = (expField) => {
-            /*
-            if (bizEntityArr.length === 1) {
-                return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
-            }
-            else {
-            */
             const { factory } = this.context;
             let sel = factory.createSelect();
             sel.lock = select_1.LockType.none;
@@ -147,15 +141,8 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             selectCTE.unionsAll = true;
             sel.distinct = true;
             sel.column(new sql_1.ExpField('phrase', a));
-            // sel.column(new ExpField('x', a));
-            // sel.column(new ExpField('x', b));
-            // sel.column(new ExpField('type', b), 'budtype');
             sel.from(new statementWithFrom_1.NameTable(cte, a));
-            //    .join(JoinType.join, new EntityTable(EnumSysTable.bizBudShow, false, b))
-            //    .on(new ExpEQ(new ExpField('i', b), new ExpField('x', a)));
-            // ...bizEntityArr.map(v => new ExpNum(v.id));
             return new sql_1.ExpIn(expField, new sql_1.ExpSelect(sel));
-            //}
         };
         switch (bizPhraseType) {
             default:
@@ -225,12 +212,14 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         for (let idc of ids) {
             const { fromEntity: { bizEntityArr } } = idc;
             // 暂时只生成第一个spec的atom的所有字段
+            if (bizEntityArr.length === 0)
+                continue;
             let [bizEntity] = bizEntityArr;
             if (bizEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
-                let spec = bizEntity;
-                this.buildInsertAtomBuds(sqls, spec.base);
-                const buds = [...spec.keys];
-                for (let [, bud] of spec.props) {
+                let fork = bizEntity;
+                this.buildInsertAtomBuds(sqls, fork.base);
+                const buds = [...fork.keys];
+                for (let [, bud] of fork.props) {
                     buds.push(bud);
                 }
                 let mapBuds = this.buildMapBuds(buds);
@@ -240,29 +229,22 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         this.buildIdsProps(sqls);
     }
     buildIdsProps(sqls) {
-        const { ids } = this.istatement;
+        const ids = this.idsGroupBy;
         const { factory } = this.context;
         sqls.push((0, tools_1.buildIdPhraseTable)(this.context));
         sqls.push((0, tools_1.buildPhraseBudTable)(this.context));
-        function buildSelectFrom(select) {
-            const s0 = 's0', s1 = 's1', colI = 'i';
-            const selectIds = factory.createSelect();
-            selectIds.lock = select_1.LockType.none;
-            selectIds.column(new sql_1.ExpField('id0', s0), colI);
-            selectIds.from(new statementWithFrom_1.VarTable(tools_1.pageGroupBy, s0));
-            const sels = [];
-            for (let i = 1; i < ids.length; i++) {
-                const selectIdi = factory.createSelect();
-                selectIdi.lock = select_1.LockType.none;
-                sels.push(selectIdi);
-                const t = '$x' + i;
-                selectIds.column(new sql_1.ExpField('id' + i, t), colI);
-                selectIds.from(new statementWithFrom_1.VarTable(tools_1.pageGroupBy, t));
+        let { length } = ids;
+        for (let i = 0; i < length; i++) {
+            function buildSelectId(select) {
+                const s = 's', colI = 'i', s1 = 's1';
+                const selectId = factory.createSelect();
+                selectId.lock = select_1.LockType.none;
+                selectId.column(new sql_1.ExpField('id' + i, s), colI);
+                selectId.from(new statementWithFrom_1.VarTable(tools_1.pageGroupBy, s));
+                select.from(new select_1.SelectTable(selectId, s1));
             }
-            selectIds.unions = sels;
-            select.from(new select_1.SelectTable(selectIds, s1));
+            sqls.push(...(0, tools_1.buildSelectIdPhrases)(this.context, buildSelectId));
         }
-        sqls.push(...(0, tools_1.buildSelectIdPhrases)(this.context, buildSelectFrom));
         sqls.push((0, tools_1.buildSelectPhraseBud)(this.context));
         sqls.push(...(0, tools_1.buildSelectIxBuds)(this.context));
     }

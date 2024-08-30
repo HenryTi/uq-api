@@ -55,8 +55,24 @@ class PBizSelectStatement extends statement_1.PStatement {
         if (this.ts.isKeyword('as') === true) {
             return;
         }
+        if (this.ts.token === tokens_1.Token.MUL) {
+            this.ts.readToken();
+            pFromEntity.tbls = undefined;
+            switch (this.ts.passKey()) {
+                default:
+                    this.ts.expect('atom', 'fork');
+                    break;
+                case 'atom':
+                    pFromEntity.bizPhraseType = BizPhraseType_1.BizPhraseType.atom;
+                    return;
+                case 'fork':
+                    pFromEntity.bizPhraseType = BizPhraseType_1.BizPhraseType.fork;
+                    return;
+            }
+        }
+        const { tbls } = pFromEntity;
         for (;;) {
-            pFromEntity.tbls.push(this.ts.passVar());
+            tbls.push(this.ts.passVar());
             if (this.ts.token === tokens_1.Token.BITWISEOR) {
                 this.ts.readToken();
             }
@@ -96,23 +112,12 @@ class PBizSelectStatement extends statement_1.PStatement {
         }
         else {
             this.element.fromEntity = fromEntity;
-            /*
-            if (this.scanCols(space) === false) {
-                ok = false;
-                return ok;
-            }
-            */
             const { where } = this.element;
             if (where !== undefined) {
                 if (where.pelement.scan(space) === false) {
                     ok = false;
                 }
             }
-            /*
-            if (this.scanIDsWithCheck0() === false) {
-                ok = false;
-            }
-            */
         }
         return ok;
     }
@@ -155,8 +160,23 @@ class FromEntityScaner {
     createFromEntity(pFromEntity, sameTypeEntityArr) {
         const fromEntity = new il_1.FromEntity();
         const { tbls } = pFromEntity;
-        if (tbls.length === 0)
+        if (tbls === undefined || tbls.length === 0) {
+            let bizPhraseType = fromEntity.bizPhraseType = pFromEntity.bizPhraseType;
+            let bizEntityTable;
+            switch (bizPhraseType) {
+                case BizPhraseType_1.BizPhraseType.atom:
+                    bizEntityTable = il_1.EnumSysTable.atom;
+                    break;
+                case BizPhraseType_1.BizPhraseType.fork:
+                    bizEntityTable = il_1.EnumSysTable.spec;
+                    break;
+            }
+            if (tbls === undefined) {
+                fromEntity.bizEntityArr = undefined;
+            }
+            fromEntity.bizEntityTable = bizEntityTable;
             return fromEntity;
+        }
         const { biz } = this.space.uq;
         let ret;
         if (sameTypeEntityArr === undefined)
@@ -294,7 +314,11 @@ class FEScanBase {
         if (fromEntity === undefined) {
             fromEntity = new il_1.FromEntity();
         }
-        if (fromEntity.bizEntityArr.length === 0) {
+        let { bizEntityArr } = fromEntity;
+        if (bizEntityArr === undefined) {
+            fromEntity.bizEntityArr = bizEntityArr = [];
+        }
+        else if (bizEntityArr.length === 0) {
             let entity = callbackOnEmpty();
             if (entity === undefined)
                 return undefined;
