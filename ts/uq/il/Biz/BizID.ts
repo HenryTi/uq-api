@@ -36,6 +36,7 @@ export abstract class BizIDWithShowBuds extends BizID {
 
 export abstract class BizIDExtendable extends BizIDWithShowBuds {
     extends: BizIDExtendable;
+    extendeds: BizIDExtendable[];
     uniques: IDUnique[];
     readonly main = undefined;
 
@@ -88,6 +89,13 @@ export abstract class BizIDExtendable extends BizIDWithShowBuds {
         }
         return ret;
     }
+
+    decendants(set: Set<BizIDExtendable>) {
+        set.add(this);
+        if (this.extendeds !== undefined) {
+            for (let e of this.extendeds) e.decendants(set);
+        }
+    }
 }
 
 export class IDUnique extends BizBud {
@@ -107,39 +115,11 @@ export class IDUnique extends BizBud {
     }
 }
 
-/*
-// fork only be used in Atom
-// BizFork obsolete
-export class BizAtomFork {
-    ui: Partial<UI>;
-    readonly keys: Map<string, BizBud> = new Map();
-    readonly buds: Map<string, BizBud> = new Map();
-    buildSchema(res: { [phrase: string]: string }) {
-        let keys: any[] = [], props: any[];
-        for (let [, v] of this.keys) {
-            keys.push(v.buildSchema(res));
-        }
-        if (this.buds.size > 0) {
-            props = [];
-            for (let [, v] of this.buds) {
-                props.push(v.buildSchema(res));
-            }
-        };
-        return {
-            ui: this.ui,
-            keys,
-            props,
-        };
-    }
-}
-*/
-
 export class BizAtom extends BizIDExtendable {
     readonly bizPhraseType = BizPhraseType.atom;
     ex: BizBudValue;
     uuid: boolean;
     protected readonly fields = ['id', 'no', 'ex'];
-    // fork: BizAtomFork;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);
@@ -148,41 +128,6 @@ export class BizAtom extends BizIDExtendable {
     db(dbContext: DbContext): BBizAtom {
         return new BBizAtom(dbContext, this);
     }
-    /*
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        let fork: any;
-        if (this.fork !== undefined) {
-            fork = this.fork.buildSchema(res);
-        }
-        return Object.assign(ret, {
-            uuid: this.uuid,
-            ex: this.ex?.buildSchema(res),
-            fork,
-        });
-    }
-
-    buildPhrases(phrases: [string, string, string, string][], prefix: string) {
-        super.buildPhrases(phrases, prefix);
-        if (this.fork !== undefined) {
-            const { keys, buds } = this.fork;
-            let phrase = this.phrase + '.';
-            let arr: BizBud[] = [];
-            for (let [, bud] of keys) arr.push(bud);
-            for (let [, bud] of buds) arr.push(bud);
-            for (let bud of arr) bud.buildPhrases(phrases, phrase);
-        }
-    }
-
-    override forEachBud(callback: (bud: BizBud) => void) {
-        super.forEachBud(callback);
-        if (this.fork !== undefined) {
-            const { keys, buds } = this.fork;
-            for (let [, bud] of keys) callback(bud);
-            for (let [, bud] of buds) callback(bud);
-        }
-    }
-    */
 }
 
 // 分子：atom 原子的合成

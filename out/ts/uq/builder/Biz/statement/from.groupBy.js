@@ -210,20 +210,28 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     buildFromEntity(sqls) {
         let { ids } = this.istatement;
         for (let idc of ids) {
-            const { fromEntity: { bizEntityArr } } = idc;
-            // 暂时只生成第一个spec的atom的所有字段
-            if (bizEntityArr.length === 0)
+            const { fromEntity: { bizEntityArr, bizPhraseType } } = idc;
+            if (bizPhraseType !== BizPhraseType_1.BizPhraseType.fork)
                 continue;
-            let [bizEntity] = bizEntityArr;
-            if (bizEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
-                let fork = bizEntity;
-                this.buildInsertAtomBuds(sqls, fork.base);
-                const buds = [...fork.keys];
-                for (let [, bud] of fork.props) {
-                    buds.push(bud);
+            if (bizEntityArr.length === 0) {
+                this.ixValueArr().forEach(([tbl, val]) => {
+                    sqls.push(this.buildInsertBud('specs', tbl, undefined, val));
+                });
+                // sqls.push(this.buildInsertBud('specs', bizEntityTable, undefined, value));
+                // sqls.push(...this.buildInsertBuds('specs', mapBuds));
+            }
+            else {
+                // 暂时只生成第一个spec的atom的所有字段
+                for (let bizEntity of bizEntityArr) {
+                    let fork = bizEntity;
+                    this.buildInsertAtomBuds(sqls, fork.base);
+                    const buds = [...fork.keys];
+                    for (let [, bud] of fork.props) {
+                        buds.push(bud);
+                    }
+                    let mapBuds = this.buildMapBuds(buds);
+                    sqls.push(...this.buildInsertBuds('specs', mapBuds));
                 }
-                let mapBuds = this.buildMapBuds(buds);
-                sqls.push(...this.buildInsertBuds('specs', mapBuds));
             }
         }
         this.buildIdsProps(sqls);

@@ -49,35 +49,67 @@ class BBizSelect extends bstatement_1.BStatement {
             for (let sub of subs) {
                 const { field, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
-                let entityId;
+                let entityIds = [];
                 if (bizEntityArr.length > 0) {
-                    entityId = bizEntityArr[0].id;
+                    let set = new Set();
+                    for (let be of bizEntityArr) {
+                        be.decendants(set);
+                    }
+                    entityIds.push(...[...set].map(v => v.id));
                 }
+                let entityIdsLength = entityIds.length;
                 const entityTable = this.buildEntityTable(subFromEntity);
                 let budAlias = alias + '$bud';
                 let subBudAlias = subAlias + '$bud';
                 let prevAlias = isSpecBase === true ? budAlias : alias;
+                function buildExpOn(expAlias, expEQIdField) {
+                    let expEntities = entityIdsLength === 1 ?
+                        new sql_1.ExpEQ(expAlias, new sql_1.ExpNum(entityIds[0]))
+                        :
+                            new sql_1.ExpIn(expAlias, ...entityIds.map(v => new sql_1.ExpNum(v)));
+                    return entityIdsLength === 0 ?
+                        expEQIdField
+                        :
+                            new sql_1.ExpAnd(expEQIdField, expEntities);
+                }
                 switch (bizPhraseType) {
                     case BizPhraseType_1.BizPhraseType.atom:
-                        let expEQIdField = new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, prevAlias));
-                        let expOnAtom = entityId === undefined ?
+                        // let expEQIdField = new ExpEQ(new ExpField('id', subAlias), new ExpField(field, prevAlias));
+                        // let expSubAlias = new ExpField('base', subAlias);
+                        let expOnAtom = buildExpOn(new sql_1.ExpField('base', subAlias), // expSubAlias, 
+                        new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, prevAlias)));
+                        /*
+                        let expAtoms = entityIdsLength === 1 ?
+                            new ExpEQ(expSubAlias, new ExpNum(entityIds[0]))
+                            :
+                            new ExpIn(expSubAlias, ...entityIds.map(v => new ExpNum(v)));
+                        let expOnAtom = entityIdsLength === 0 ?
                             expEQIdField
                             :
-                                new sql_1.ExpAnd(expEQIdField, new sql_1.ExpEQ(new sql_1.ExpField('base', subAlias), new sql_1.ExpNum(entityId)));
+                            new ExpAnd(expEQIdField, expAtoms);
+                        */
                         select
                             .join(il_1.JoinType.join, entityTable)
                             .on(expOnAtom);
                         break;
                     case BizPhraseType_1.BizPhraseType.fork:
-                        let expEQSubIdBase = new sql_1.ExpEQ(new sql_1.ExpField('id', subBudAlias), new sql_1.ExpField('base', subAlias));
-                        let expOnFork = entityId === undefined ?
+                        // let expEQSubIdBase = new ExpEQ(new ExpField('id', subBudAlias), new ExpField('base', subAlias));
+                        // let expSubBudAlias = new ExpField('ext', subBudAlias);
+                        /*
+                        let expForks = entityIdsLength === 1 ?
+                            new ExpEQ(expSubBudAlias, new ExpNum(entityIds[0]))
+                            :
+                            new ExpIn(expSubBudAlias, ...entityIds.map(v => new ExpNum(v)));
+                        let expOnFork = entityIdsLength === 0 ?
                             expEQSubIdBase
                             :
-                                new sql_1.ExpAnd(expEQSubIdBase, new sql_1.ExpEQ(new sql_1.ExpField('ext', subBudAlias), new sql_1.ExpNum(entityId)));
+                            new ExpAnd(expEQSubIdBase, expForks);
+                        */
+                        let expOnFork = buildExpOn(new sql_1.ExpField('ext', subBudAlias), new sql_1.ExpEQ(new sql_1.ExpField('id', subBudAlias), new sql_1.ExpField('base', subAlias)));
                         select
                             .join(il_1.JoinType.join, entityTable)
-                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, prevAlias)));
-                        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, subBudAlias))
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, prevAlias)))
+                            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, subBudAlias))
                             .on(expOnFork);
                         break;
                 }

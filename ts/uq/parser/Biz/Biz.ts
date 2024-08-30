@@ -6,7 +6,8 @@ import {
     BizFromEntity,
     BizCombo,
     BizTemplet,
-    BizPrint
+    BizPrint,
+    BizIDExtendable
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -179,6 +180,22 @@ export class PBiz extends PEntity<Biz> {
         }
         for (let [, p] of this.entity.bizEntities) {
             if (p.isID === false) scan2(p);
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            switch (p.bizPhraseType) {
+                case BizPhraseType.atom:
+                case BizPhraseType.fork:
+                    let entity = p as BizIDExtendable;
+                    let { extends: _extends } = entity;
+                    if (_extends !== undefined) {
+                        let { extendeds } = _extends;
+                        if (extendeds === undefined) {
+                            _extends.extendeds = extendeds = [];
+                        }
+                        extendeds.push(entity);
+                    }
+                    break;
+            }
         }
         return ok;
     }

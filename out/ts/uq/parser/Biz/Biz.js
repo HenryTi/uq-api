@@ -169,6 +169,22 @@ class PBiz extends entity_1.PEntity {
             if (p.isID === false)
                 scan2(p);
         }
+        for (let [, p] of this.entity.bizEntities) {
+            switch (p.bizPhraseType) {
+                case BizPhraseType_1.BizPhraseType.atom:
+                case BizPhraseType_1.BizPhraseType.fork:
+                    let entity = p;
+                    let { extends: _extends } = entity;
+                    if (_extends !== undefined) {
+                        let { extendeds } = _extends;
+                        if (extendeds === undefined) {
+                            _extends.extendeds = extendeds = [];
+                        }
+                        extendeds.push(entity);
+                    }
+                    break;
+            }
+        }
         return ok;
     }
     scanDoc2() {

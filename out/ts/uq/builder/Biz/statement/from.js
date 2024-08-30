@@ -127,15 +127,31 @@ class BFromStatement extends biz_select_1.BBizSelect {
         let mapBuds = this.buildMapBuds(titlePrimeBuds);
         sqls.push(...this.buildInsertBuds('atoms', mapBuds));
     }
-    createMapBuds() {
+    ixValueArr() {
         const { factory } = this.context;
-        const mapBuds = new Map();
         const valField = new sql_1.ExpField('value', 'b');
         const valNumExp = new sql_1.ExpFuncCustom(factory.func_cast, valField, new sql_1.ExpDatePart('json'));
         const valStrExp = new sql_1.ExpFunc('JSON_QUOTE', valField);
-        mapBuds.set(il_1.EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
-        mapBuds.set(il_1.EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
-        mapBuds.set(il_1.EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
+        return [
+            [il_1.EnumSysTable.ixBudInt, valNumExp],
+            [il_1.EnumSysTable.ixBudDec, valNumExp],
+            [il_1.EnumSysTable.ixBudStr, valStrExp],
+        ];
+    }
+    createMapBuds() {
+        // const { factory } = this.context;
+        const mapBuds = new Map();
+        this.ixValueArr().forEach(([tbl, val]) => {
+            mapBuds.set(tbl, { buds: [], value: val });
+        });
+        /*
+        const valField = new ExpField('value', 'b');
+        const valNumExp = new ExpFuncCustom(factory.func_cast, valField, new ExpDatePart('json'));
+        const valStrExp = new ExpFunc('JSON_QUOTE', valField);
+        mapBuds.set(EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
+        mapBuds.set(EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
+        mapBuds.set(EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
+        */
         return mapBuds;
     }
     buildMapBuds(buds) {
@@ -185,9 +201,14 @@ class BFromStatement extends biz_select_1.BBizSelect {
         ];
         let select = factory.createSelect();
         insertBud.select = select;
+        let expIdEQ = new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('i', b));
+        let expON = buds === undefined || buds.length === 0 ?
+            expIdEQ
+            :
+                new sql_1.ExpAnd(expIdEQ, new sql_1.ExpIn(new sql_1.ExpField('x', b), ...buds.map(v => new sql_1.ExpNum(v.id))));
         select.from(new statementWithFrom_1.VarTable(mainTbl, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, b))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpField('i', b)), new sql_1.ExpIn(new sql_1.ExpField('x', b), ...buds.map(v => new sql_1.ExpNum(v.id)))));
+            .on(expON);
         select.column(new sql_1.ExpField('id', a), 'id');
         select.column(new sql_1.ExpField('x', b), 'phrase');
         select.column(expVal, 'value');

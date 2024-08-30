@@ -147,15 +147,32 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         sqls.push(...this.buildInsertBuds('atoms', mapBuds));
     }
 
-    private createMapBuds() {
+    protected ixValueArr(): [EnumSysTable, ExpVal][] {
         const { factory } = this.context;
+        const valField = new ExpField('value', 'b');
+        const valNumExp = new ExpFuncCustom(factory.func_cast, valField, new ExpDatePart('json'));
+        const valStrExp = new ExpFunc('JSON_QUOTE', valField);
+        return [
+            [EnumSysTable.ixBudInt, valNumExp],
+            [EnumSysTable.ixBudDec, valNumExp],
+            [EnumSysTable.ixBudStr, valStrExp],
+        ];
+    }
+
+    private createMapBuds() {
+        // const { factory } = this.context;
         const mapBuds: Map<EnumSysTable, { buds: BizBud[]; value: ExpVal; }> = new Map();
+        this.ixValueArr().forEach(([tbl, val]) => {
+            mapBuds.set(tbl, { buds: [], value: val });
+        });
+        /*
         const valField = new ExpField('value', 'b');
         const valNumExp = new ExpFuncCustom(factory.func_cast, valField, new ExpDatePart('json'));
         const valStrExp = new ExpFunc('JSON_QUOTE', valField);
         mapBuds.set(EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
         mapBuds.set(EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
         mapBuds.set(EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
+        */
         return mapBuds;
     }
 
@@ -189,7 +206,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         return ret;
     }
 
-    private buildInsertBud(mainTbl: string, tbl: EnumSysTable, buds: BizBud[], expVal: ExpVal) {
+    protected buildInsertBud(mainTbl: string, tbl: EnumSysTable, buds: BizBud[], expVal: ExpVal) {
         const { factory } = this.context;
         let insertBud = factory.createInsert();
         insertBud.ignore = true;
@@ -201,12 +218,17 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         ];
         let select = factory.createSelect();
         insertBud.select = select;
+        let expIdEQ = new ExpEQ(new ExpField('id', a), new ExpField('i', b));
+        let expON = buds === undefined || buds.length === 0 ?
+            expIdEQ
+            :
+            new ExpAnd(
+                expIdEQ,
+                new ExpIn(new ExpField('x', b), ...buds.map(v => new ExpNum(v.id))),
+            );
         select.from(new VarTable(mainTbl, a))
             .join(JoinType.join, new EntityTable(tbl, false, b))
-            .on(new ExpAnd(
-                new ExpEQ(new ExpField('id', a), new ExpField('i', b)),
-                new ExpIn(new ExpField('x', b), ...buds.map(v => new ExpNum(v.id))),
-            ));
+            .on(expON);
         select.column(new ExpField('id', a), 'id');
         select.column(new ExpField('x', b), 'phrase');
         select.column(expVal, 'value');
