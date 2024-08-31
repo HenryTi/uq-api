@@ -56,8 +56,12 @@ class Biz extends entity_1.Entity {
         const coll = {};
         const pairColl = {};
         for (const entity of bizNewest) {
-            if (entity.type !== 'atom')
-                continue;
+            switch (entity.bizPhraseType) {
+                default: continue;
+                case BizPhraseType_1.BizPhraseType.atom:
+                case BizPhraseType_1.BizPhraseType.fork:
+                    break;
+            }
             const bizAtom = entity;
             const { name } = bizAtom;
             coll[name] = bizAtom;

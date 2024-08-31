@@ -6,7 +6,7 @@ import { Entity, EntityAccessibility } from "../entity/entity";
 import { BizBase } from "./Base";
 import { BizEntity } from "./Entity";
 import { BizRole } from "./Role";
-import { BizAtom } from "./BizID";
+import { BizAtom, BizIDExtendable } from "./BizID";
 import { EnumSysTable } from "../EnumSysTable";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizIOApp, BizOut, IOAppOut } from "./InOut";
@@ -73,11 +73,16 @@ export class Biz extends Entity {
 
     getEntityIxPairs(bizNewest: BizEntity[]) {
         const pairs: [number, number][] = [];
-        const coll: { [name: string]: BizAtom } = {};
-        const pairColl: { [name: string]: BizAtom } = {};
+        const coll: { [name: string]: BizIDExtendable } = {};
+        const pairColl: { [name: string]: BizIDExtendable } = {};
         for (const entity of bizNewest) {
-            if (entity.type !== 'atom') continue;
-            const bizAtom = entity as BizAtom;
+            switch (entity.bizPhraseType) {
+                default: continue;
+                case BizPhraseType.atom:
+                case BizPhraseType.fork:
+                    break;
+            }
+            const bizAtom = entity as BizIDExtendable;
             const { name } = bizAtom;
             coll[name] = bizAtom;
             const { extends: _extends } = bizAtom;

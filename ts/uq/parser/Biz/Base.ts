@@ -283,11 +283,18 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         }
         let bizBud = new Bud(this.element.theEntity, name, ui);
         bizBud.parser(this.context).parse();
-        if (this.ts.isKeyword('required') === true) {
-            bizBud.required = true;
-            bizBud.ui.required = true;
+        let required: boolean = undefined;
+        if (this.ts.isKeyword('not') === true) {
             this.ts.readToken();
+            this.ts.passKey('required');
+            required = false;
         }
+        else if (this.ts.isKeyword('required') === true) {
+            this.ts.readToken();
+            required = true;
+        }
+        bizBud.required = bizBud.ui.required = required;
+
         const options: { [option: string]: boolean } = {};
         for (; ;) {
             if (this.ts.isKeyword(undefined) === false) break;

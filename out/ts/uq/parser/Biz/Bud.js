@@ -432,11 +432,17 @@ class PBizBudID extends PBizBudIDBase {
             this.ts.mayPassToken(tokens_1.Token.COMMA);
             this.ts.passToken(tokens_1.Token.RPARENTHESE);
         }
-        if (this.ts.isKeyword('required') === true) {
-            this.element.required = true;
-            this.element.ui.required = true;
+        let required = undefined;
+        if (this.ts.isKeyword('not') === true) {
             this.ts.readToken();
+            this.ts.passKey('required');
+            required = false;
         }
+        else if (this.ts.isKeyword('required') === true) {
+            this.ts.readToken();
+            required = true;
+        }
+        this.element.required = this.element.ui.required = required;
         this.parseFieldShow();
         this.parseBudEquValue();
     }
