@@ -7,7 +7,7 @@ import {
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
-    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpIsNull, ExpNeg, ExpNum
+    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpIsNull, ExpNeg, ExpNull, ExpNum
     , ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure,
     Statement
 } from "../sql";
@@ -207,7 +207,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         ifNewNullOrg.else(setId);
         setId.equ(cNewId, new ExpFuncInUq(
             'spec$id',
-            [varSite, new ExpVar(userParam.name), ExpNum.num1, varBase],
+            [varSite, new ExpVar(userParam.name), ExpNum.num1, ExpNull.null, varBase],
             true
         ));
         const setKeysSet = factory.createSet();

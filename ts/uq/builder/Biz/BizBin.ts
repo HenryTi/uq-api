@@ -63,8 +63,8 @@ export class BBizBin extends BBizEntity<BizBin> {
         const { id } = this.bizEntity;
         const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
         this.buildSubmitProc(procSubmit);
-        const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
-        this.buildGetProc(procGet);
+        // const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
+        // this.buildGetProc(procGet);
     }
 
     private buildSubmitProc(proc: Procedure) {

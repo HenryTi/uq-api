@@ -180,7 +180,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         setNew0.equ(cNewId, sql_1.ExpNum.num0);
         const setId = factory.createSet();
         ifNewNullOrg.else(setId);
-        setId.equ(cNewId, new sql_1.ExpFuncInUq('spec$id', [varSite, new sql_1.ExpVar(userParam.name), sql_1.ExpNum.num1, varBase], true));
+        setId.equ(cNewId, new sql_1.ExpFuncInUq('spec$id', [varSite, new sql_1.ExpVar(userParam.name), sql_1.ExpNum.num1, sql_1.ExpNull.null, varBase], true));
         const setKeysSet = factory.createSet();
         ifNewNullOrg.else(setKeysSet);
         setKeysSet.equ(cKeysSet, sql_1.ExpNum.num1);

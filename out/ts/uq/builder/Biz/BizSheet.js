@@ -297,31 +297,34 @@ class BBizSheet extends BizEntity_1.BBizEntity {
     }
     buildCallBin(statements, bizBin, tbl) {
         let { factory } = this.context;
+        /*
         let vProc = 'proc_' + bizBin.id;
         let declare = factory.createDeclare();
         statements.push(declare);
-        declare.var(vProc, new il_1.Char(200));
+        declare.var(vProc, new Char(200));
         let setVProc = factory.createSet();
         statements.push(setVProc);
-        setVProc.equ(vProc, new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpVar(consts_1.$site), new sql_1.ExpStr('.'), new sql_1.ExpNum(bizBin.id), new sql_1.ExpStr('gb')));
+        setVProc.equ(vProc, new ExpFunc(factory.func_concat, new ExpVar($site), new ExpStr('.'), new ExpNum(bizBin.id), new ExpStr('gb')));
+
         let iff = factory.createIf();
         statements.push(iff);
-        iff.cmp = new sql_1.ExpRoutineExists(new sql_1.ExpStr(consts_1.$site), new sql_1.ExpVar(vProc));
-        // let truncate = factory.createTruncate();
-        // iff.then(truncate);
-        // truncate.table = new VarTableWithSchema(tempBinTable);
+        iff.cmp = new ExpRoutineExists(new ExpStr($site), new ExpVar(vProc));
+        */
         let insertBins = factory.createInsert();
-        iff.then(insertBins);
+        statements.push(insertBins);
+        // iff.then(insertBins);
         insertBins.table = new statementWithFrom_1.VarTableWithSchema(tempBinTable);
         insertBins.cols = [{ col: 'id', val: undefined }];
         let selectBins = factory.createSelect();
         insertBins.select = selectBins;
         selectBins.col('id');
         selectBins.from(new statementWithFrom_1.VarTableWithSchema(tbl));
+        /*
         let execSql = factory.createExecSql();
         iff.then(execSql);
         execSql.no = bizBin.id;
-        execSql.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `' + consts_1.$site + '`.`'), new sql_1.ExpVar(vProc), new sql_1.ExpStr('`()'));
+        execSql.sql = new ExpFunc(factory.func_concat, new ExpStr('CALL `' + $site + '`.`'), new ExpVar(vProc), new ExpStr('`()'));
+        */
     }
     buildOutInit(statements, out) {
         const varName = '$' + out.varName;

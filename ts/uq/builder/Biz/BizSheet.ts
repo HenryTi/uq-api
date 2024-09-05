@@ -343,6 +343,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
     private buildCallBin(statements: Statement[], bizBin: BizBin, tbl: string) {
         let { factory } = this.context;
+        /*
         let vProc = 'proc_' + bizBin.id;
         let declare = factory.createDeclare();
         statements.push(declare);
@@ -354,21 +355,22 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         let iff = factory.createIf();
         statements.push(iff);
         iff.cmp = new ExpRoutineExists(new ExpStr($site), new ExpVar(vProc));
-        // let truncate = factory.createTruncate();
-        // iff.then(truncate);
-        // truncate.table = new VarTableWithSchema(tempBinTable);
+        */
         let insertBins = factory.createInsert();
-        iff.then(insertBins);
+        statements.push(insertBins);
+        // iff.then(insertBins);
         insertBins.table = new VarTableWithSchema(tempBinTable);
         insertBins.cols = [{ col: 'id', val: undefined }];
         let selectBins = factory.createSelect();
         insertBins.select = selectBins;
         selectBins.col('id');
         selectBins.from(new VarTableWithSchema(tbl));
+        /*
         let execSql = factory.createExecSql();
         iff.then(execSql);
         execSql.no = bizBin.id;
         execSql.sql = new ExpFunc(factory.func_concat, new ExpStr('CALL `' + $site + '`.`'), new ExpVar(vProc), new ExpStr('`()'));
+        */
     }
 
     private buildOutInit(statements: Statement[], out: UseOut): void {

@@ -26,9 +26,6 @@ export function buildSelectIxBuds(context: DbContext) {
     function funcCast(expValue: ExpVal) {
         return new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'))
     }
-    function funcJson(expValue: ExpVal) {
-        return expValue;
-    }
     let budTypes: [(v: ExpVal) => ExpVal, EnumSysTable, BudDataType][] = [
         [funcCast, EnumSysTable.ixBudInt, BudDataType.int],
         [funcCast, EnumSysTable.ixBudDec, BudDataType.dec],
@@ -105,7 +102,7 @@ export function buildSelectPhraseBud(context: DbContext) {
     selectAtomPhrase.lock = LockType.none;
     let selectCTE = factory.createSelect();
     selectCTE.lock = LockType.none;
-    const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
+    const cte = 'cte', r = 'r', r0 = 'r0', s = 's', s0 = 's0';
     selectAtomPhrase.cte = { alias: cte, recursive: true, select: selectCTE };
     selectCTE.column(new ExpField('x', s), 'phrase')
     selectCTE.column(new ExpField('i', s), 'i');
@@ -149,52 +146,45 @@ export function buildInsertSelectIdPhrase(context: DbContext, select: Select) {
     return insert;
 }
 
+/*
 enum BinIType {
     atom, fork, forkAtom
 }
-
-const arrBinIType = [BinIType.atom, BinIType.fork, BinIType.forkAtom];
+*/
+// const arrBinIType = [BinIType.atom, BinIType.fork, BinIType.forkAtom];
 
 export function buildSelectIdPhrases(context: DbContext, buildSelectFrom: (select: Select) => void) {
-    return arrBinIType.map(v => buildSelectIdPhrase(context, v, buildSelectFrom));
+    // return arrBinIType.map(v => buildSelectIdPhrase(context, v, buildSelectFrom));
+    return [
+        buildIDUSelectIdPhrase(context, buildSelectFrom),
+        buildIDUForkSelectIdPhrase(context, buildSelectFrom),
+    ]
 }
 
-function buildSelectIdPhrase(context: DbContext, binIType: BinIType, buildSelectFrom: (select: Select) => void) {
+function buildIDUSelectIdPhrase(context: DbContext, buildSelectFrom: (select: Select) => void) {
     const { factory } = context;
     let select = factory.createSelect();
     const insert = buildInsertSelectIdPhrase(context, select);
-    const s0 = 's0', s1 = 's1', t = 't', u = 'u', u0 = 'u0', u1 = 'u1';
+    const s1 = 's1', u0 = 'u0';
     buildSelectFrom(select);
-    switch (binIType) {
-        case BinIType.atom:
-            select.join(JoinType.join, new EntityTable(EnumSysTable.atom, false, t))
-                .on(new ExpEQ(new ExpField('id', t), new ExpField('i', s1)));
-            select.column(new ExpField('id', t));
-            select.column(new ExpField('base', t));
-            // select.column(new ExpNum(BinIType.atom));
-            break;
-        case BinIType.fork:
-            // select.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
-            // .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
-            // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
-            // .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)));
-            select.join(JoinType.join, new EntityTable(EnumSysTable.idu, false, u0))
-                .on(new ExpEQ(new ExpField('id', u0), new ExpField('i', s1)));
-            select.column(new ExpField('id', u0));
-            select.column(new ExpField('base', u0));
-            // select.column(new ExpNum(BinIType.fork));
-            break;
-        case BinIType.forkAtom:
-            select.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
-                .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
-                // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
-                // .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, u1))
-                .on(new ExpEQ(new ExpField('id', u1), new ExpField('base', u)));;
-            select.column(new ExpField('id', u1));
-            select.column(new ExpField('base', u1));
-            // select.column(new ExpNum(BinIType.atom));
-            break;
-    }
+    select.join(JoinType.join, new EntityTable(EnumSysTable.idu, false, u0))
+        .on(new ExpEQ(new ExpField('id', u0), new ExpField('i', s1)));
+    select.column(new ExpField('id', u0));
+    select.column(new ExpField('base', u0));
+    return insert;
+}
+
+function buildIDUForkSelectIdPhrase(context: DbContext, buildSelectFrom: (select: Select) => void) {
+    const { factory } = context;
+    let select = factory.createSelect();
+    const insert = buildInsertSelectIdPhrase(context, select);
+    const s1 = 's1', u = 'u', u1 = 'u1';
+    buildSelectFrom(select);
+    select.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
+        .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
+        .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, u1))
+        .on(new ExpEQ(new ExpField('id', u1), new ExpField('base', u)));;
+    select.column(new ExpField('id', u1));
+    select.column(new ExpField('base', u1));
     return insert;
 }
