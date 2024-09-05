@@ -196,10 +196,12 @@ class BizEntity extends Base_1.BizBase {
             default: break;
             case BizPhraseType_1.BizPhraseType.query: break;
             case BizPhraseType_1.BizPhraseType.atom:
-                bizEntityTable = EnumSysTable_1.EnumSysTable.atom;
+                //bizEntityTable = EnumSysTable.atom; 
+                bizEntityTable = EnumSysTable_1.EnumSysTable.idu;
                 break;
             case BizPhraseType_1.BizPhraseType.fork:
-                bizEntityTable = EnumSysTable_1.EnumSysTable.spec;
+                //bizEntityTable = EnumSysTable.spec; 
+                bizEntityTable = EnumSysTable_1.EnumSysTable.idu;
                 break;
             case BizPhraseType_1.BizPhraseType.duo:
                 bizEntityTable = EnumSysTable_1.EnumSysTable.duo;

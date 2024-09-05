@@ -17,6 +17,7 @@ export enum EnumSysTable {
     ixRole = '$ixrole',
 
     ixState = 'ixstate',
+    idu = 'idu',
     atom = 'atom',
     atomUnique = 'atomunique',
     spec = 'spec',

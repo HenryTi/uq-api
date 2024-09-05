@@ -76,6 +76,14 @@ class BBizCombo extends BizEntity_1.BBizEntity {
             { col: 'id', val: new sql_1.ExpVar(vId) },
             ...keys.map(v => ({ col: v.name, val: new sql_1.ExpVar(v.name) })),
         ];
+        const insertIDU = factory.createInsert();
+        iff.then(insertIDU);
+        ;
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false);
+        insert.cols = [
+            { col: 'id', val: new sql_1.ExpVar(vId) },
+            { col: 'base', val: new sql_1.ExpNum(id) },
+        ];
         const ret = factory.createReturn();
         statements.push(ret);
         ret.returnVar = vId;

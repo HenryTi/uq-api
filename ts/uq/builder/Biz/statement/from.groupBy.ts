@@ -10,10 +10,12 @@ import { ColVal, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpSel
 import { LockType, SelectTable } from "../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
-import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud, pageGroupBy } from "../../tools";
+import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
 
 const a = 'a', b = 'b', c = 'c';
 const tblDetail = '$detail';
+const pageGroupBy = '$pageGroupBy';
+
 export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     protected readonly idFromEntity: FromEntity;
     protected idsGroupBy: IdColumn[];
@@ -241,8 +243,6 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
                 this.ixValueArr().forEach(([tbl, val]) => {
                     sqls.push(this.buildInsertBud('specs', tbl, undefined, val));
                 });
-                // sqls.push(this.buildInsertBud('specs', bizEntityTable, undefined, value));
-                // sqls.push(...this.buildInsertBuds('specs', mapBuds));
             }
             else {
                 // 暂时只生成第一个spec的atom的所有字段
@@ -328,8 +328,9 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         select.from(new VarTable(tbl, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, b))
             .on(expOn)
-            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, c))
-            .on(new ExpAnd(new ExpEQ(new ExpField('id', c), new ExpField('base', b))));
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+            .on(new ExpAnd(new ExpEQ(new ExpField('id', c), new ExpField('base', c))))
+            ;
         return insert;
     }
 
@@ -427,7 +428,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         return ret;
     }
 
-    protected buildSelectCols(/*select: Select, alias: string*/) {
+    protected buildSelectCols() {
         let arr = super.buildSelectCols();
         if (this.showIds.length > 0) {
             arr.push(new ExpFunc('JSON_ARRAY'
@@ -436,6 +437,5 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
             ));
         }
         return arr;
-        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
     }
 }

@@ -165,10 +165,12 @@ class FromEntityScaner {
             let bizEntityTable;
             switch (bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.atom:
-                    bizEntityTable = il_1.EnumSysTable.atom;
+                    // bizEntityTable = EnumSysTable.atom; 
+                    bizEntityTable = il_1.EnumSysTable.idu;
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
-                    bizEntityTable = il_1.EnumSysTable.spec;
+                    // bizEntityTable = EnumSysTable.spec; 
+                    bizEntityTable = il_1.EnumSysTable.idu;
                     break;
             }
             if (tbls === undefined) {

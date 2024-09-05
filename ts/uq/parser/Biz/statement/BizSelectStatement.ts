@@ -211,8 +211,14 @@ class FromEntityScaner {
             let bizPhraseType = fromEntity.bizPhraseType = pFromEntity.bizPhraseType;
             let bizEntityTable: EnumSysTable;
             switch (bizPhraseType) {
-                case BizPhraseType.atom: bizEntityTable = EnumSysTable.atom; break;
-                case BizPhraseType.fork: bizEntityTable = EnumSysTable.spec; break;
+                case BizPhraseType.atom:
+                    // bizEntityTable = EnumSysTable.atom; 
+                    bizEntityTable = EnumSysTable.idu;
+                    break;
+                case BizPhraseType.fork:
+                    // bizEntityTable = EnumSysTable.spec; 
+                    bizEntityTable = EnumSysTable.idu;
+                    break;
             }
             if (tbls === undefined) {
                 fromEntity.bizEntityArr = undefined;

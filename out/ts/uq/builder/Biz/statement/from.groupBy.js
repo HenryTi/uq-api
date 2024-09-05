@@ -10,6 +10,7 @@ const from_1 = require("./from");
 const tools_1 = require("../../tools");
 const a = 'a', b = 'b', c = 'c';
 const tblDetail = '$detail';
+const pageGroupBy = '$pageGroupBy';
 class BFromGroupByStatement extends from_1.BFromStatement {
     constructor(context, istatement) {
         super(context, istatement);
@@ -30,11 +31,11 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         let selectPage = this.buildFromSelectPage(cmpPage);
         let insertPage = factory.createInsert();
         insertPage.select = selectPage;
-        insertPage.table = new statementWithFrom_1.VarTable(tools_1.pageGroupBy);
+        insertPage.table = new statementWithFrom_1.VarTable(pageGroupBy);
         insertPage.cols = this.buildInsertPageCols();
         let insertRet = this.buildInsertRet();
-        let insertIdsAtoms = this.buildInsertIdsAtoms(tools_1.pageGroupBy, this.idsGroupBy);
-        let insertIdsSpecs = this.buildInsertIdsSpecs(tools_1.pageGroupBy, this.idsGroupBy);
+        let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
+        let insertIdsSpecs = this.buildInsertIdsSpecs(pageGroupBy, this.idsGroupBy);
         let insertSpec = this.buildInsertSpec();
         return [tblPageGroupBy, tblDetail, insertPage, insertRet, insertIdsAtoms, insertIdsSpecs, ...insertSpec];
     }
@@ -50,7 +51,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     buildTablePageGroupBy() {
         const { factory } = this.context;
         let varTable = factory.createVarTable();
-        varTable.name = tools_1.pageGroupBy;
+        varTable.name = pageGroupBy;
         const ban = (0, il_1.tinyIntField)('ban');
         ban.nullable = true;
         const value = (0, il_1.decField)('value', 18, 6);
@@ -185,15 +186,15 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         ];
         let select = factory.createSelect();
         insertRet.select = select;
-        select.from(new statementWithFrom_1.VarTable(tools_1.pageGroupBy, tools_1.pageGroupBy));
-        select.column(new sql_1.ExpField('$id', tools_1.pageGroupBy), 'id');
-        select.column(new sql_1.ExpField('ban', tools_1.pageGroupBy));
-        let arr = this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, tools_1.pageGroupBy));
+        select.from(new statementWithFrom_1.VarTable(pageGroupBy, pageGroupBy));
+        select.column(new sql_1.ExpField('$id', pageGroupBy), 'id');
+        select.column(new sql_1.ExpField('ban', pageGroupBy));
+        let arr = this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, pageGroupBy));
         arr.push(...this.buildSelectCols());
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
-        select.column(new sql_1.ExpField('value', tools_1.pageGroupBy));
-        select.order(new sql_1.ExpField('$id', tools_1.pageGroupBy), 'asc');
-        this.buildSelectRetFrom(select, tools_1.pageGroupBy);
+        select.column(new sql_1.ExpField('value', pageGroupBy));
+        select.order(new sql_1.ExpField('$id', pageGroupBy), 'asc');
+        this.buildSelectRetFrom(select, pageGroupBy);
         return insertRet;
     }
     buildSelectRetFrom(select, pageAlias) {
@@ -217,8 +218,6 @@ class BFromGroupByStatement extends from_1.BFromStatement {
                 this.ixValueArr().forEach(([tbl, val]) => {
                     sqls.push(this.buildInsertBud('specs', tbl, undefined, val));
                 });
-                // sqls.push(this.buildInsertBud('specs', bizEntityTable, undefined, value));
-                // sqls.push(...this.buildInsertBuds('specs', mapBuds));
             }
             else {
                 // 暂时只生成第一个spec的atom的所有字段
@@ -248,7 +247,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
                 const selectId = factory.createSelect();
                 selectId.lock = select_1.LockType.none;
                 selectId.column(new sql_1.ExpField('id' + i, s), colI);
-                selectId.from(new statementWithFrom_1.VarTable(tools_1.pageGroupBy, s));
+                selectId.from(new statementWithFrom_1.VarTable(pageGroupBy, s));
                 select.from(new select_1.SelectTable(selectId, s1));
             }
             sqls.push(...(0, tools_1.buildSelectIdPhrases)(this.context, buildSelectId));
@@ -299,8 +298,8 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         select.from(new statementWithFrom_1.VarTable(tbl, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, b))
             .on(expOn)
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, c))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', b))));
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
+            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', c))));
         return insert;
     }
     buildInsertSpec() {
@@ -340,7 +339,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const entityTable = this.buildEntityTable(fromEntity);
         select.from(entityTable);
         this.buildSelectFrom(select, fromEntity);
-        select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable(tools_1.pageGroupBy, '$ret'))
+        select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable(pageGroupBy, '$ret'))
             .on(new sql_1.ExpAnd(...this.idsGroupBy.map((v, index) => new sql_1.ExpEQ(new sql_1.ExpField('id', v.fromEntity.alias), new sql_1.ExpField('id' + index, '$ret')))));
         select.column(new sql_1.ExpField('id', b), 'id');
         select.column(new sql_1.ExpField('$id', '$ret'), 'atom');
@@ -389,13 +388,12 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         ret.push(this.buildInsertIdsSpecs(tblDetail, this.showIds));
         return ret;
     }
-    buildSelectCols( /*select: Select, alias: string*/) {
+    buildSelectCols() {
         let arr = super.buildSelectCols();
         if (this.showIds.length > 0) {
             arr.push(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, ...this.showIds.map((v, index) => new sql_1.ExpField('id', v.fromEntity.alias))));
         }
         return arr;
-        // select.column(new ExpFunc('JSON_ARRAY', ...arr), alias);
     }
 }
 exports.BFromGroupByBaseStatement = BFromGroupByBaseStatement;

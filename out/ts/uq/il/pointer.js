@@ -121,7 +121,15 @@ class BizEntityFieldPointer extends Pointer {
         this.fieldName = fieldName;
     }
     to(stack, v) {
-        stack.dotVar([this.bizFromEntity.alias, this.fieldName]);
+        const { alias } = this.bizFromEntity;
+        /*
+        let tblAlias: string;
+        switch (bizPhraseType) {
+            default: tblAlias = alias; break;
+            case BizPhraseType.atom: tblAlias = alias + '$atom'; break;
+        }
+        */
+        stack.dotVar([alias, this.fieldName]);
     }
 }
 exports.BizEntityFieldPointer = BizEntityFieldPointer;

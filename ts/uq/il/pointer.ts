@@ -1,4 +1,5 @@
 import { BizBud, BizEntity, BizFromEntity } from './Biz';
+import { BizPhraseType } from './Biz/BizPhraseType';
 import { ValueExpression, VarOperand } from './Exp';
 import { Stack } from './Exp/Stack';
 
@@ -119,6 +120,14 @@ export class BizEntityFieldPointer extends Pointer {
     }
 
     override to(stack: Stack, v: VarOperand): void {
-        stack.dotVar([this.bizFromEntity.alias, this.fieldName]);
+        const { alias } = this.bizFromEntity;
+        /*
+        let tblAlias: string;
+        switch (bizPhraseType) {
+            default: tblAlias = alias; break;
+            case BizPhraseType.atom: tblAlias = alias + '$atom'; break;
+        }
+        */
+        stack.dotVar([alias, this.fieldName]);
     }
 }

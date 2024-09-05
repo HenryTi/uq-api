@@ -1,5 +1,7 @@
 import {
-    JoinType, EnumSysTable, bigIntField,
+    EnumSysTable,
+    JoinType,
+    bigIntField,
     tinyIntField
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
@@ -7,10 +9,9 @@ import { DbContext } from "../dbContext";
 import {
     ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal
 } from "../sql";
-import { LockType, Select, SelectTable } from "../sql/select";
+import { LockType, Select } from "../sql/select";
 import { EntityTable, NameTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
 
-export const pageGroupBy = '$pageGroupBy';
 const a = 'a';
 const b = 'b';
 const c = 'c';
@@ -173,21 +174,23 @@ function buildSelectIdPhrase(context: DbContext, binIType: BinIType, buildSelect
             // select.column(new ExpNum(BinIType.atom));
             break;
         case BinIType.fork:
-            select.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
-                .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
-                .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)));
-            select.column(new ExpField('id', u));
-            select.column(new ExpField('ext', u0));
+            // select.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
+            // .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
+            // .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)));
+            select.join(JoinType.join, new EntityTable(EnumSysTable.idu, false, u0))
+                .on(new ExpEQ(new ExpField('id', u0), new ExpField('i', s1)));
+            select.column(new ExpField('id', u0));
+            select.column(new ExpField('base', u0));
             // select.column(new ExpNum(BinIType.fork));
             break;
         case BinIType.forkAtom:
             select.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
                 .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
-                .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)))
+                // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
+                // .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)))
                 .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, u1))
-                .on(new ExpEQ(new ExpField('id', u1), new ExpField('base', u0)));;
+                .on(new ExpEQ(new ExpField('id', u1), new ExpField('base', u)));;
             select.column(new ExpField('id', u1));
             select.column(new ExpField('base', u1));
             // select.column(new ExpNum(BinIType.atom));

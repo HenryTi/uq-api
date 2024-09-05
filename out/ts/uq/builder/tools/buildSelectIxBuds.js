@@ -1,12 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildSelectIdPhrases = exports.buildInsertSelectIdPhrase = exports.buildSelectPhraseBud = exports.buildPhraseBudTable = exports.buildIdPhraseTable = exports.buildSelectIxBuds = exports.pageGroupBy = void 0;
+exports.buildSelectIdPhrases = exports.buildInsertSelectIdPhrase = exports.buildSelectPhraseBud = exports.buildPhraseBudTable = exports.buildIdPhraseTable = exports.buildSelectIxBuds = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
-exports.pageGroupBy = '$pageGroupBy';
 const a = 'a';
 const b = 'b';
 const c = 'c';
@@ -165,21 +164,23 @@ function buildSelectIdPhrase(context, binIType, buildSelectFrom) {
             // select.column(new ExpNum(BinIType.atom));
             break;
         case BinIType.fork:
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, u))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u), new sql_1.ExpField('i', s1)))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, u0))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u0), new sql_1.ExpField('base', u)));
-            select.column(new sql_1.ExpField('id', u));
-            select.column(new sql_1.ExpField('ext', u0));
+            // select.join(JoinType.join, new EntityTable(EnumSysTable.spec, false, u))
+            // .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
+            // .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)));
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, u0))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u0), new sql_1.ExpField('i', s1)));
+            select.column(new sql_1.ExpField('id', u0));
+            select.column(new sql_1.ExpField('base', u0));
             // select.column(new ExpNum(BinIType.fork));
             break;
         case BinIType.forkAtom:
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, u))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u), new sql_1.ExpField('i', s1)))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, u0))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u0), new sql_1.ExpField('base', u)))
+                // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, u0))
+                // .on(new ExpEQ(new ExpField('id', u0), new ExpField('base', u)))
                 .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, u1))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u1), new sql_1.ExpField('base', u0)));
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u1), new sql_1.ExpField('base', u)));
             ;
             select.column(new sql_1.ExpField('id', u1));
             select.column(new sql_1.ExpField('base', u1));
