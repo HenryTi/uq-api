@@ -118,6 +118,6 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
         }
     }
 
-    protected override buildSelectFrom(select: Select, fromEntity: FromEntity) {
+    protected override buildSelectJoin(select: Select, fromEntity: FromEntity) {
     }
 }

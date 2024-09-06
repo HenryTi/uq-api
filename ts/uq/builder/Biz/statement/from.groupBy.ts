@@ -112,8 +112,8 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
         this.buildSelectVallueSum(select);
-        this.buildSelectFromTable(select, fromEntity);
         this.buildSelectFrom(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity);
         const cmpEntityBase = this.buildRootEntityCompare(select);
         let wheres: ExpCmp[] = [
             cmpPage,
@@ -369,8 +369,8 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let select = factory.createSelect();
         insertSpec.select = select;
         select.distinct = true;
-        this.buildSelectFromTable(select, fromEntity);
         this.buildSelectFrom(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity);
         select.join(JoinType.join, new VarTable(pageGroupBy, '$ret'))
             .on(new ExpAnd(
                 ...this.idsGroupBy.map((v, index) => new ExpEQ(new ExpField('id', v.fromEntity.alias), new ExpField('id' + index, '$ret')))

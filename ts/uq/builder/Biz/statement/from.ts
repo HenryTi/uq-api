@@ -107,7 +107,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         const { bizEntityTable, alias: t0 } = fromEntity;
         const select = factory.createSelect();
         select.from(new EntityTable(bizEntityTable, false, t0));
-        this.buildSelectFrom(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity);
         let wheres: ExpCmp[] = [
             cmpPage,
             this.context.expCmp(where),

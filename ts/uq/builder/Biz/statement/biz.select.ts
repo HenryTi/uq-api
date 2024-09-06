@@ -8,22 +8,7 @@ import { BizSelectStatement } from "../../../il";
 import { BStatement } from "../../bstatement";
 
 export abstract class BBizSelect<T extends BizSelectStatement> extends BStatement<T> {
-    protected buildSelectFrom(select: Select, fromEntity: FromEntity) {
-        // const { bizPhraseType, alias, bizEntityArr } = fromEntity;
-        /*
-        if (bizPhraseType === BizPhraseType.fork) {
-            let budAlias = alias + '$bud';
-            select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
-                .on(new ExpAnd(
-                    new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
-                    new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntityArr[0].id)),
-                ));
-        }
-        */
-        this.buildSelectFromInternal(select, fromEntity);
-    }
-
-    private buildSelectFromInternal(select: Select, fromEntity: FromEntity) {
+    protected buildSelectJoin(select: Select, fromEntity: FromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new ExpField('id', alias);
         if (ofIXs !== undefined) {
@@ -122,7 +107,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                             ;
                         break;
                 }
-                this.buildSelectFromInternal(select, subFromEntity);
+                this.buildSelectJoin(select, subFromEntity);
             }
         }
     }
@@ -143,21 +128,21 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         }
     }
 
-    protected buildSelectFromTable(select: Select, fromEntity: FromEntity) {
+    protected buildSelectFrom(select: Select, fromEntity: FromEntity) {
         let table: Table;
         let { bizEntityArr, bizEntityTable, alias, bizPhraseType } = fromEntity;
         let t0 = alias;
+        let t0$idu = alias + '$idu';
+        let joinTable: EnumSysTable;
         if (bizEntityTable !== undefined) {
             switch (bizPhraseType) {
                 case BizPhraseType.atom:
-                    t0 += '$idu';
-                    select.join(JoinType.left, new EntityTable(EnumSysTable.atom, false, alias))
-                        .on(new ExpEQ(new ExpField('id', alias), new ExpField('id', t0)));
+                    t0 = t0$idu;
+                    joinTable = EnumSysTable.atom;
                     break;
                 case BizPhraseType.fork:
-                    t0 += '$idu';
-                    select.join(JoinType.left, new EntityTable(EnumSysTable.spec, false, alias))
-                        .on(new ExpEQ(new ExpField('id', alias), new ExpField('id', t0)));
+                    t0 = t0$idu;
+                    joinTable = EnumSysTable.spec;
                     break;
             }
             table = new EntityTable(bizEntityTable, false, t0);
@@ -166,5 +151,9 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
             table = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
         }
         select.from(table);
+        if (joinTable !== undefined) {
+            select.join(JoinType.left, new EntityTable(joinTable, false, alias))
+                .on(new ExpEQ(new ExpField('id', alias), new ExpField('id', t0)));
+        }
     }
 }

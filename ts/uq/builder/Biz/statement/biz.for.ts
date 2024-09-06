@@ -101,8 +101,8 @@ export class BBizFor extends BBizSelect<BizFor> {
             insertForCols.push({ col: n, val: undefined });
             collField[n] = expVal;
         }
-        this.buildSelectFromTable(select, fromEntity);
         this.buildSelectFrom(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity);
         select.where(this.context.expCmp(where));
         if (isGroup === true) {
             for (let [, idCol] of ids) {

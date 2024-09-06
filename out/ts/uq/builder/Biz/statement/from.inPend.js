@@ -98,7 +98,7 @@ class BFromInPendStatement extends from_1.BFromStatement {
             }
         }
     }
-    buildSelectFrom(select, fromEntity) {
+    buildSelectJoin(select, fromEntity) {
     }
 }
 exports.BFromInPendStatement = BFromInPendStatement;

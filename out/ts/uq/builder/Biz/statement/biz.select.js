@@ -7,21 +7,7 @@ const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const bstatement_1 = require("../../bstatement");
 class BBizSelect extends bstatement_1.BStatement {
-    buildSelectFrom(select, fromEntity) {
-        // const { bizPhraseType, alias, bizEntityArr } = fromEntity;
-        /*
-        if (bizPhraseType === BizPhraseType.fork) {
-            let budAlias = alias + '$bud';
-            select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
-                .on(new ExpAnd(
-                    new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
-                    new ExpEQ(new ExpField('ext', budAlias), new ExpNum(bizEntityArr[0].id)),
-                ));
-        }
-        */
-        this.buildSelectFromInternal(select, fromEntity);
-    }
-    buildSelectFromInternal(select, fromEntity) {
+    buildSelectJoin(select, fromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new sql_1.ExpField('id', alias);
         if (ofIXs !== undefined) {
@@ -106,7 +92,7 @@ class BBizSelect extends bstatement_1.BStatement {
                             .on(expOnFork);
                         break;
                 }
-                this.buildSelectFromInternal(select, subFromEntity);
+                this.buildSelectJoin(select, subFromEntity);
             }
         }
     }
@@ -127,21 +113,21 @@ class BBizSelect extends bstatement_1.BStatement {
             return ret;
         }
     }
-    buildSelectFromTable(select, fromEntity) {
+    buildSelectFrom(select, fromEntity) {
         let table;
         let { bizEntityArr, bizEntityTable, alias, bizPhraseType } = fromEntity;
         let t0 = alias;
+        let t0$idu = alias + '$idu';
+        let joinTable;
         if (bizEntityTable !== undefined) {
             switch (bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.atom:
-                    t0 += '$idu';
-                    select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, alias))
-                        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0)));
+                    t0 = t0$idu;
+                    joinTable = il_1.EnumSysTable.atom;
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
-                    t0 += '$idu';
-                    select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, alias))
-                        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0)));
+                    t0 = t0$idu;
+                    joinTable = il_1.EnumSysTable.spec;
                     break;
             }
             table = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);
@@ -150,6 +136,10 @@ class BBizSelect extends bstatement_1.BStatement {
             table = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
         }
         select.from(table);
+        if (joinTable !== undefined) {
+            select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(joinTable, false, alias))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0)));
+        }
     }
 }
 exports.BBizSelect = BBizSelect;
