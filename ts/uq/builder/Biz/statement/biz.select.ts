@@ -1,8 +1,8 @@
 import { EnumSysTable, JoinType, FromEntity, IdColumn, BizIDExtendable } from "../../../il";
 import {
-    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, ExpOr, ExpVal, Select
+    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, ExpOr, ExpVal, Select,
 } from "../../sql";
-import { EntityTable, GlobalTable } from "../../sql/statementWithFrom";
+import { EntityTable, GlobalTable, Table } from "../../sql/statementWithFrom";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { BizSelectStatement } from "../../../il";
 import { BStatement } from "../../bstatement";
@@ -24,7 +24,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
     }
 
     private buildSelectFromInternal(select: Select, fromEntity: FromEntity) {
-        const { bizEntityArr, ofIXs, ofOn, alias, subs, bizPhraseType: prevBizPhraseType } = fromEntity;
+        const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new ExpField('id', alias);
         if (ofIXs !== undefined) {
             let len = ofIXs.length;
@@ -141,5 +141,30 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
             let ret = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
             return ret;
         }
+    }
+
+    protected buildSelectFromTable(select: Select, fromEntity: FromEntity) {
+        let table: Table;
+        let { bizEntityArr, bizEntityTable, alias, bizPhraseType } = fromEntity;
+        let t0 = alias;
+        if (bizEntityTable !== undefined) {
+            switch (bizPhraseType) {
+                case BizPhraseType.atom:
+                    t0 += '$idu';
+                    select.join(JoinType.left, new EntityTable(EnumSysTable.atom, false, alias))
+                        .on(new ExpEQ(new ExpField('id', alias), new ExpField('id', t0)));
+                    break;
+                case BizPhraseType.fork:
+                    t0 += '$idu';
+                    select.join(JoinType.left, new EntityTable(EnumSysTable.spec, false, alias))
+                        .on(new ExpEQ(new ExpField('id', alias), new ExpField('id', t0)));
+                    break;
+            }
+            table = new EntityTable(bizEntityTable, false, t0);
+        }
+        else {
+            table = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        }
+        select.from(table);
     }
 }

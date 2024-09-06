@@ -99,8 +99,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
         this.buildSelectVallueSum(select);
-        let entityTable = this.buildEntityTable(fromEntity);
-        select.from(entityTable);
+        this.buildSelectFromTable(select, fromEntity);
         this.buildSelectFrom(select, fromEntity);
         const cmpEntityBase = this.buildRootEntityCompare(select);
         let wheres = [
@@ -336,8 +335,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let select = factory.createSelect();
         insertSpec.select = select;
         select.distinct = true;
-        const entityTable = this.buildEntityTable(fromEntity);
-        select.from(entityTable);
+        this.buildSelectFromTable(select, fromEntity);
         this.buildSelectFrom(select, fromEntity);
         select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable(pageGroupBy, '$ret'))
             .on(new sql_1.ExpAnd(...this.idsGroupBy.map((v, index) => new sql_1.ExpEQ(new sql_1.ExpField('id', v.fromEntity.alias), new sql_1.ExpField('id' + index, '$ret')))));

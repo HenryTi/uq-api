@@ -22,7 +22,7 @@ class BBizSelect extends bstatement_1.BStatement {
         this.buildSelectFromInternal(select, fromEntity);
     }
     buildSelectFromInternal(select, fromEntity) {
-        const { bizEntityArr, ofIXs, ofOn, alias, subs, bizPhraseType: prevBizPhraseType } = fromEntity;
+        const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new sql_1.ExpField('id', alias);
         if (ofIXs !== undefined) {
             let len = ofIXs.length;
@@ -126,6 +126,30 @@ class BBizSelect extends bstatement_1.BStatement {
             let ret = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
             return ret;
         }
+    }
+    buildSelectFromTable(select, fromEntity) {
+        let table;
+        let { bizEntityArr, bizEntityTable, alias, bizPhraseType } = fromEntity;
+        let t0 = alias;
+        if (bizEntityTable !== undefined) {
+            switch (bizPhraseType) {
+                case BizPhraseType_1.BizPhraseType.atom:
+                    t0 += '$idu';
+                    select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, alias))
+                        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0)));
+                    break;
+                case BizPhraseType_1.BizPhraseType.fork:
+                    t0 += '$idu';
+                    select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, alias))
+                        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0)));
+                    break;
+            }
+            table = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);
+        }
+        else {
+            table = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        }
+        select.from(table);
     }
 }
 exports.BBizSelect = BBizSelect;
