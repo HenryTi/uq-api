@@ -64,7 +64,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         let selectEntity = factory.createSelect();
         selectEntity.col('id');
         selectEntity.from(new EntityTable(EnumSysTable.entity, false));
-        selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr('duo')));
+        selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr('combo')));
         newId.equ(vId, new ExpFuncDb(dbName, '$IDMU', new ExpSelect(selectEntity), ExpNull.null));
 
         const insert = factory.createInsert();
@@ -77,8 +77,8 @@ export class BBizCombo extends BBizEntity<BizCombo> {
 
         const insertIDU = factory.createInsert();
         iff.then(insertIDU);;
-        insert.table = new EntityTable(EnumSysTable.idu, false);
-        insert.cols = [
+        insertIDU.table = new EntityTable(EnumSysTable.idu, false);
+        insertIDU.cols = [
             { col: 'id', val: new ExpVar(vId) },
             { col: 'base', val: new ExpNum(id) },
         ];
