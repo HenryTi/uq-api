@@ -319,39 +319,6 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
         this.parsePermission('crud');
     }
 
-    /*
-    private parseFork = () => {
-        this.element.fork = new BizAtomFork();
-        const { fork } = this.element;
-        fork.ui = this.parseUI();
-        const { keys, buds } = fork;
-        this.ts.passToken(Token.LBRACE);
-        for (; ;) {
-            if (this.ts.token === Token.RBRACE) {
-                this.ts.readToken();
-                this.ts.mayPassToken(Token.SEMICOLON);
-                break;
-            }
-            let k = this.ts.passKey();
-            switch (k) {
-                default:
-                    this.ts.expect('key', 'prop', 'bud');
-                    break;
-                case 'key':
-                    this.parseKeyBuds().forEach(v => keys.set(v.name, v));
-                    this.ts.mayPassToken(Token.SEMICOLON);
-                    break;
-                case 'prop':
-                case 'bud':
-                    const { budArr } = this.parseProp();
-                    budArr.forEach(v => buds.set(v.name, v));
-                    this.ts.mayPassToken(Token.SEMICOLON);
-                    break;
-            }
-        }
-    }
-    */
-
     private uniques: { [name: string]: IDUnique };
     private parseUnique = () => {
         if (this.uniques === undefined) this.uniques = {};
@@ -371,7 +338,6 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
         permit: this.parsePermit,
         unique: this.parseUnique,
         user: this.parseBizUser,
-        // fork: this.parseFork,
     };
 
     override scan0(space: Space): boolean {

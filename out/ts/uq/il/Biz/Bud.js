@@ -477,6 +477,7 @@ exports.budClassesUser = {
     char: BizBudChar,
     date: BizBudDate,
     atom: BizBudID,
+    id: BizBudID,
     radio: BizBudRadio,
 };
 exports.budClassKeys = Object.keys(exports.budClasses);

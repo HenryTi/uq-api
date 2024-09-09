@@ -467,6 +467,7 @@ export const budClassesUser: { [key: string]: new (entity: BizEntity, name: stri
     char: BizBudChar,
     date: BizBudDate,
     atom: BizBudID,
+    id: BizBudID,
     radio: BizBudRadio,
 }
 export const budClassKeys = Object.keys(budClasses);
