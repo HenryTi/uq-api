@@ -137,8 +137,23 @@ class BBizSelect extends bstatement_1.BStatement {
         }
         select.from(table);
         if (joinTable !== undefined) {
+            let expIdEQ = new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0));
+            let expBase = new sql_1.ExpField('base', alias + '$idu');
+            let expOn;
+            switch (bizEntityArr.length) {
+                case 0:
+                    expOn = expIdEQ;
+                    break;
+                case 1:
+                    let e0 = bizEntityArr[0];
+                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpEQ(expBase, new sql_1.ExpNum(e0.id)));
+                    break;
+                default:
+                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpIn(expBase, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id))));
+                    break;
+            }
             select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(joinTable, false, alias))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0)));
+                .on(expOn);
         }
     }
 }
