@@ -441,7 +441,10 @@ class FromEntityScanSpec extends FEScanBase {
     constructor(scaner, fromEntity, pSub) {
         super(scaner, fromEntity);
         this.onSpecEmpty = () => {
-            let baseEntity = this.fromEntity.bizEntityArr[0].base;
+            const { bizEntityArr } = this.fromEntity;
+            if (bizEntityArr.length === 0)
+                return;
+            let baseEntity = bizEntityArr[0].base;
             return baseEntity;
         };
         this.pSub = pSub;

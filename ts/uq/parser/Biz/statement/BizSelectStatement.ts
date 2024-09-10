@@ -505,7 +505,9 @@ class FromEntityScanSpec extends FEScanBase {
     }
 
     private onSpecEmpty = (): BizEntity => {
-        let baseEntity = (this.fromEntity.bizEntityArr[0] as BizFork).base;
+        const { bizEntityArr } = this.fromEntity;
+        if (bizEntityArr.length === 0) return;
+        let baseEntity = (bizEntityArr[0] as BizFork).base;
         return baseEntity;
     }
 
