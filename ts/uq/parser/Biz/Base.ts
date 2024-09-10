@@ -282,7 +282,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
             this.ts.expect(...this.getBudClassKeys());
         }
         let bizBud = new Bud(this.element.theEntity, name, ui);
-        bizBud.parser(this.context).parse();
+        this.context.parseElement(bizBud);
         let required: boolean = undefined;
         if (this.ts.isKeyword('not') === true) {
             this.ts.readToken();

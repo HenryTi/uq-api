@@ -8,7 +8,8 @@ import {
     , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
     , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement
     , SendStatement, UseStatement,
-    BizFor
+    BizFor,
+    BizLog
 } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -75,7 +76,7 @@ export abstract class PStatements<T extends Statements = Statements> extends PSt
                 statement.ignore = ignore;
                 return statement;
             case 'delete': return new DeleteStatement(parent);
-            case 'log': return new LogStatement(parent);
+            case 'log': return new BizLog(parent); // new LogStatement(parent);
             case 'transaction':
             case 'trans': return new TransactionStatement(parent);
             case 'poke': return new PokeStatement(parent);

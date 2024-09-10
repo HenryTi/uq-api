@@ -18,4 +18,5 @@ __exportStar(require("./biz"), exports);
 __exportStar(require("./from.groupBy"), exports);
 __exportStar(require("./from.inPend"), exports);
 __exportStar(require("./biz.for"), exports);
+__exportStar(require("./biz.log"), exports);
 //# sourceMappingURL=index.js.map

@@ -67,7 +67,7 @@ class PStatements extends PStatement {
                 statement.ignore = ignore;
                 return statement;
             case 'delete': return new il_1.DeleteStatement(parent);
-            case 'log': return new il_1.LogStatement(parent);
+            case 'log': return new il_1.BizLog(parent); // new LogStatement(parent);
             case 'transaction':
             case 'trans': return new il_1.TransactionStatement(parent);
             case 'poke': return new il_1.PokeStatement(parent);

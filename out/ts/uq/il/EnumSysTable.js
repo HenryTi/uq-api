@@ -38,6 +38,7 @@ var EnumSysTable;
     EnumSysTable["pend"] = "pend";
     EnumSysTable["binPend"] = "binpend";
     EnumSysTable["history"] = "history";
+    EnumSysTable["log"] = "log";
     // IO
     EnumSysTable["IOQueue"] = "ioqueue";
     EnumSysTable["IOInOut"] = "ioinout";

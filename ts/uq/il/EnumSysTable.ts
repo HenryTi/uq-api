@@ -36,6 +36,7 @@ export enum EnumSysTable {
     pend = 'pend',
     binPend = 'binpend',
     history = 'history',
+    log = 'log',
 
     // IO
     IOQueue = 'ioqueue',
