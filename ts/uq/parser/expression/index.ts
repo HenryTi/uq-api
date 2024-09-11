@@ -15,4 +15,5 @@ export { POpQueue } from './opQueue';
 export { POpCast } from './opCast';
 export { POpSearch } from './opSearch';
 export { POpAt } from './opAt';
+export { POpIsIdType } from './opIsIdType';
 export * from './BizFieldOperand';

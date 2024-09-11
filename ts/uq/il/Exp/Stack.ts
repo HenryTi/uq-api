@@ -37,6 +37,7 @@ export interface Stack {
     datePart(part: string): void;
     isNull(): void;
     isNotNull(): void;
+    isIdType(bizEntities: BizEntity[]): void;
     exists(): void;
     in(params: number): void;
     like(): void;

@@ -107,6 +107,7 @@ class Stack {
     datePart(part) { this.arr.push(new exps_1.ExpDatePart(this.context.factory.getDatePart(part))); }
     isNull() { this.op1Cmp(c1 => new exps_1.ExpIsNull(c1)); }
     isNotNull() { this.op1Cmp(c1 => new exps_1.ExpIsNotNull(c1)); }
+    isIdType(bizEntities) { this.op1Cmp(c1 => new exps_1.ExpIsIdType(c1, bizEntities)); }
     exists() { this.op1Cmp(c1 => new exps_1.ExpExists(c1)); }
     of(tuidArr) {
         let val = this.arr.pop();

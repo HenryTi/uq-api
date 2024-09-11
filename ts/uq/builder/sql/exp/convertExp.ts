@@ -20,7 +20,7 @@ import {
     ExpAdd, ExpAnd, ExpAt, ExpBitAnd, ExpBitInvert, ExpBitLeft, ExpBitOr, ExpBitRight
     , ExpCast, ExpCmp, ExpDatePart, ExpDecDiv, ExpDiv, ExpDollarVar, ExpDotVar
     , ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFuncInUq
-    , ExpGE, ExpGT, ExpHex, ExpIn, ExpIsNotNull, ExpIsNull, ExpJsonProp
+    , ExpGE, ExpGT, ExpHex, ExpIn, ExpIsIdType, ExpIsNotNull, ExpIsNull, ExpJsonProp
     , ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE
     , ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase
     , ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar
@@ -133,6 +133,7 @@ class Stack implements IlStack {
     datePart(part: string): void { this.arr.push(new ExpDatePart(this.context.factory.getDatePart(part))) }
     isNull() { this.op1Cmp(c1 => new ExpIsNull(c1)) }
     isNotNull() { this.op1Cmp(c1 => new ExpIsNotNull(c1)) }
+    isIdType(bizEntities: BizEntity[]) { this.op1Cmp(c1 => new ExpIsIdType(c1, bizEntities)); }
     exists() { this.op1Cmp(c1 => new ExpExists(c1 as any)) }
     of(tuidArr: TuidArr) {
         let val = this.arr.pop();

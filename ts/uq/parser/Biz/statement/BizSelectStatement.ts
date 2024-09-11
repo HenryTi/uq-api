@@ -373,12 +373,13 @@ abstract class FEScanBase {
         if (bizEntityArr === undefined) {
             fromEntity.bizEntityArr = bizEntityArr = [];
         }
-        else if (bizEntityArr.length === 0) {
+        if (bizEntityArr.length === 0) {
             let entity = callbackOnEmpty();
-            if (entity === undefined) return undefined;
-            fromEntity.bizEntityArr.push(entity);
-            fromEntity.bizPhraseType = entity.bizPhraseType;
-            fromEntity.bizEntityTable = entity.getEnumSysTable();
+            if (entity !== undefined) {
+                fromEntity.bizEntityArr.push(entity);
+                fromEntity.bizPhraseType = entity.bizPhraseType;
+                fromEntity.bizEntityTable = entity.getEnumSysTable();
+            }
         }
         if (this.scaner.scan(fromEntity, b) === false) return undefined;
         return {

@@ -2,7 +2,7 @@ import { SqlBuilder, unitFieldName } from '../sqlBuilder';
 import { Select as SqlSelect } from '../select';
 import { EntityTable } from '../statementWithFrom';
 import { Field } from '../../../il/field';
-import { TuidArr, Entity, DataType, BizBase, SpanPeriod, EnumSysTable } from '../../../il';
+import { TuidArr, Entity, DataType, BizBase, SpanPeriod, EnumSysTable, BizEntity } from '../../../il';
 import { Exp } from './Exp';
 import { sysTable } from '../../dbContext';
 
@@ -277,6 +277,26 @@ export class ExpIsNotNull extends ExpCmp {
     private opd: ExpVal;
     to(sb: SqlBuilder) { sb.exp(this.opd).append(' IS NOT NULL'); }
     constructor(opd: ExpVal) { super(); this.opd = opd; }
+}
+export class ExpIsIdType extends ExpCmp {
+    private val: ExpVal;
+    private bizEntities: BizEntity[];
+    constructor(val: ExpVal, bizEntities: BizEntity[]) {
+        super();
+        this.val = val;
+        this.bizEntities = bizEntities;
+    }
+    to(sb: SqlBuilder) {
+        sb.exp(this.val);
+        if (this.bizEntities.length === 1) {
+            sb.append('=').append(this.bizEntities[0].id);
+        }
+        else {
+            sb.append(' IN (');
+            sb.append(this.bizEntities.map(v => v.id).join(','));
+            sb.r();
+        }
+    }
 }
 export class ExpIn extends ExpCmp {
     private exps: ExpVal[];

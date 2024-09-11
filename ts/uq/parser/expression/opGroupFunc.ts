@@ -1,9 +1,9 @@
-import {OpGroupFunc, ValueExpression, GroupType, StarOperand} from '../../il';
+import { OpGroupFunc, ValueExpression, GroupType, StarOperand } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
-import {ExpressionSpace} from './expression';
-import {PContext} from '../pContext';
+import { ExpressionSpace } from './expression';
+import { PContext } from '../pContext';
 
 export class POpGroupFunc extends PElement {
     protected opGroupFunc: OpGroupFunc;
@@ -20,17 +20,17 @@ export class POpGroupFunc extends PElement {
         this.ts.readToken();
     }
 
-    scan(space:Space):boolean {
+    scan(space: Space): boolean {
         space.groupType = GroupType.Group;
         let exp = this.opGroupFunc.value;
-        let {pelement} = exp;
+        let { pelement } = exp;
         if (pelement === undefined) return true;
         let theSpace = new ExpressionSpace(space);
         let ok = pelement.scan(theSpace);
         if (theSpace.groupType === GroupType.Group) {
             this.log('group function的参数里面不可以再包含group function');
             ok = false;
-        } 
+        }
         return ok;
     }
 }

@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.POpAt = exports.POpSearch = exports.POpCast = exports.POpQueue = exports.POpDollarVar = exports.POpEntityName = exports.POpEntityId = exports.POpRole = exports.POpNO = exports.POpUMinute = exports.POpID = exports.POpNameof = exports.POpTypeof = exports.PMatchOperand = exports.POpGroupCountFunc = exports.POpGroupFunc = exports.PVarOperand = void 0;
+exports.POpIsIdType = exports.POpAt = exports.POpSearch = exports.POpCast = exports.POpQueue = exports.POpDollarVar = exports.POpEntityName = exports.POpEntityId = exports.POpRole = exports.POpNO = exports.POpUMinute = exports.POpID = exports.POpNameof = exports.POpTypeof = exports.PMatchOperand = exports.POpGroupCountFunc = exports.POpGroupFunc = exports.PVarOperand = void 0;
 __exportStar(require("./expression"), exports);
 var var_1 = require("./var");
 Object.defineProperty(exports, "PVarOperand", { enumerable: true, get: function () { return var_1.PVarOperand; } });
@@ -49,5 +49,7 @@ var opSearch_1 = require("./opSearch");
 Object.defineProperty(exports, "POpSearch", { enumerable: true, get: function () { return opSearch_1.POpSearch; } });
 var opAt_1 = require("./opAt");
 Object.defineProperty(exports, "POpAt", { enumerable: true, get: function () { return opAt_1.POpAt; } });
+var opIsIdType_1 = require("./opIsIdType");
+Object.defineProperty(exports, "POpIsIdType", { enumerable: true, get: function () { return opIsIdType_1.POpIsIdType; } });
 __exportStar(require("./BizFieldOperand"), exports);
 //# sourceMappingURL=index.js.map

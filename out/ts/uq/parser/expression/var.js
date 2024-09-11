@@ -118,27 +118,36 @@ class PVarOperand extends element_1.PElement {
                 let _obj = space.getBizFromEntityArrFromAlias(var0);
                 if (_obj !== undefined) {
                     let { bizEntityArr } = _obj;
-                    let bud, be, fieldName;
-                    for (let bizEntity of bizEntityArr) {
-                        be = bizEntity;
-                        bud = bizEntity.getBud(var1);
+                    if (bizEntityArr.length > 0) {
+                        let bud, be, fieldName;
+                        for (let bizEntity of bizEntityArr) {
+                            be = bizEntity;
+                            bud = bizEntity.getBud(var1);
+                            if (bud !== undefined) {
+                                break;
+                            }
+                            if (bizEntity.hasField(var1) === true) {
+                                fieldName = var1;
+                                break;
+                            }
+                        }
+                        // let v = _obj.getBud(var1);
                         if (bud !== undefined) {
-                            break;
+                            pointer = new il_1.BizEntityBudPointer(_obj, bud);
                         }
-                        if (bizEntity.hasField(var1) === true) {
-                            fieldName = var1;
-                            break;
+                        else if (fieldName !== undefined) {
+                            pointer = new il_1.BizEntityFieldPointer(_obj, fieldName);
+                        }
+                        else {
+                            this.log(`Biz entity ${bizEntityArr.map(v => v.jName).join(',')} has not ${var1}`);
+                            return false;
                         }
                     }
-                    // let v = _obj.getBud(var1);
-                    if (bud !== undefined) {
-                        pointer = new il_1.BizEntityBudPointer(_obj, bud);
-                    }
-                    else if (fieldName !== undefined) {
-                        pointer = new il_1.BizEntityFieldPointer(_obj, fieldName);
+                    else if (var1 === 'id') {
+                        pointer = new il_1.BizEntityFieldPointer(_obj, var1);
                     }
                     else {
-                        this.log(`Biz entity ${bizEntityArr.map(v => v.jName).join(',')} has not ${var1}`);
+                        this.log(`unknown ${var0}.${var1}`);
                         return false;
                     }
                 }

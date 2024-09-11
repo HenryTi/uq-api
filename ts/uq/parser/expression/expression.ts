@@ -128,8 +128,13 @@ export abstract class PExpression extends PElement {
                                 this.expect("NULL");
                             }
                         }
+                        else if (this.ts.token === Token.VAR) {
+                            let opIsIdType = new Exp.OpIsIdType();
+                            this.add(opIsIdType);
+                            this.context.parseElement(opIsIdType);
+                        }
                         else {
-                            this.expect("NULL");
+                            this.expect("NULL or ID Type");
                         }
                         break;
                     case 'in':

@@ -4,14 +4,15 @@ import {
     PContext, PMatchOperand, POpTypeof, POpID, POpDollarVar, POpNO,
     POpEntityId, POpEntityName, POpRole, POpQueue, POpCast,
     POpUMinute, POpSearch, POpNameof,
-    POpAt, POpUqDefinedFunction
+    POpAt, POpUqDefinedFunction,
+    POpIsIdType
 } from '../../parser';
 import { DataType } from '../datatype';
 import { IElement } from '../IElement';
 import { Select } from '../select';
 import { Pointer } from '../pointer';
 import { Entity, ID, Queue } from '../entity';
-import { BizBase, BizOptions, OptionsItem } from '../Biz';
+import { BizBase, BizEntity, BizOptions, OptionsItem } from '../Biz';
 import { Stack } from './Stack';
 import { ValueExpression } from './Expression';
 
@@ -226,6 +227,11 @@ export class OpIsNull extends Atom {
 }
 export class OpIsNotNull extends Atom {
     to(stack: Stack) { stack.isNotNull() }
+}
+export class OpIsIdType extends Atom {
+    bizEntities: BizEntity[] = [];
+    parser(context: PContext) { return new POpIsIdType(this, context); }
+    to(stack: Stack) { stack.isIdType(this.bizEntities); }
 }
 export class OpIn extends Atom {
     private params: number;
