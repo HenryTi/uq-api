@@ -287,7 +287,10 @@ export class ExpIsIdType extends ExpCmp {
         this.bizEntities = bizEntities;
     }
     to(sb: SqlBuilder) {
-        sb.exp(this.val);
+        sb.append('EXISTS(SELECT a.id FROM ')
+            .dbName().entityTable('idu').append(' AS a WHERE a.id=')
+            .exp(this.val)
+            .append(' AND a.base');
         if (this.bizEntities.length === 1) {
             sb.append('=').append(this.bizEntities[0].id);
         }
@@ -296,6 +299,7 @@ export class ExpIsIdType extends ExpCmp {
             sb.append(this.bizEntities.map(v => v.id).join(','));
             sb.r();
         }
+        sb.r();
     }
 }
 export class ExpIn extends ExpCmp {
