@@ -72,7 +72,7 @@ export class PBizExp extends PElement<BizExp> {
             }
         }
         this.ts.passToken(Token.LPARENTHESE);
-        this.element.param = new BizExpParam(); // new ValueExpression();
+        this.element.param = new BizExpParam();
         let { param } = this.element;
         this.context.parseElement(param);
         this.ts.passToken(Token.RPARENTHESE);
@@ -175,9 +175,13 @@ export class PBizExp extends PElement<BizExp> {
         const { bizEntity, prop } = this.element;
         if (this.checkScalar() === false) ok = false;
         let bizAtom = bizEntity as BizAtom;
+        let jName = bizEntity.getJName();
         if (this.bud !== undefined) {
-            this.log(`ATOM ${bizEntity.getJName()} should not .`);
-            ok = false;
+            let bud = this.element.budProp = bizAtom.getBud(this.bud);
+            if (bud === undefined) {
+                this.log(`SPEC ${jName} has not ${this.bud}.`);
+                ok = false;
+            }
         }
         if (prop === undefined) {
             this.element.prop = 'id';
@@ -185,7 +189,7 @@ export class PBizExp extends PElement<BizExp> {
         else {
             let bud = bizAtom.getBud(prop);
             if (bud === undefined) {
-                this.log(`${bizAtom.getJName()} does not have prop ${prop}`);
+                this.log(`${jName} does not have prop ${prop}`);
                 ok = false;
             }
             else {
@@ -200,9 +204,13 @@ export class PBizExp extends PElement<BizExp> {
         const { bizEntity, prop } = this.element;
         if (this.checkScalar() === false) ok = false;
         let bizSpec = bizEntity as BizFork;
+        let jName = bizEntity.getJName();
         if (this.bud !== undefined) {
-            this.log(`SPEC ${bizEntity.getJName()} should not .`);
-            ok = false;
+            let bud = this.element.budProp = bizSpec.getBud(this.bud);
+            if (bud === undefined) {
+                this.log(`SPEC ${jName} has not ${this.bud}.`);
+                ok = false;
+            }
         }
         if (prop === undefined) {
             this.element.prop = 'id';
@@ -210,7 +218,7 @@ export class PBizExp extends PElement<BizExp> {
         else {
             let bud = bizSpec.getBud(prop);
             if (bud === undefined) {
-                this.log(`${bizSpec.getJName()} does not have prop ${prop}`);
+                this.log(`${jName} does not have prop ${prop}`);
                 ok = false;
             }
             else {

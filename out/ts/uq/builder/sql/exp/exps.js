@@ -306,7 +306,7 @@ class ExpIsIdType extends ExpCmp {
     }
     to(sb) {
         sb.append('EXISTS(SELECT a.id FROM ')
-            .dbName().entityTable('idu').append(' AS a WHERE a.id=')
+            .dbName().dot().entityTable('idu').append(' AS a WHERE a.id=')
             .exp(this.val)
             .append(' AND a.base');
         if (this.bizEntities.length === 1) {
