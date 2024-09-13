@@ -83,6 +83,11 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                         new ExpAnd(expEQIdField, expEntities);
                 }
                 switch (bizPhraseType) {
+                    default:
+                        select
+                            .join(joinAtom, entityTable)
+                            .on(new ExpEQ(new ExpField('id', subAlias), new ExpField(field, alias)));
+                        break;
                     case BizPhraseType.atom:
                         let expOnAtom = buildExpOn(
                             new ExpField('base', aliasIDU), // expSubAlias, 
@@ -122,10 +127,12 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
             let ret = new EntityTable(bizEntityTable, false, t0);
             return ret;
         }
-        else {
-            let ret = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        if (bizEntityArr.length === 0) {
+            let ret = new EntityTable(EnumSysTable.idu, false, t0);
             return ret;
         }
+        let ret = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        return ret;
     }
 
     protected buildSelectFrom(select: Select, fromEntity: FromEntity) {

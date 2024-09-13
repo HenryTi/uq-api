@@ -74,6 +74,11 @@ class BBizSelect extends bstatement_1.BStatement {
                             new sql_1.ExpAnd(expEQIdField, expEntities);
                 }
                 switch (bizPhraseType) {
+                    default:
+                        select
+                            .join(joinAtom, entityTable)
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, alias)));
+                        break;
                     case BizPhraseType_1.BizPhraseType.atom:
                         let expOnAtom = buildExpOn(new sql_1.ExpField('base', aliasIDU), // expSubAlias, 
                         new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), new sql_1.ExpField(field, alias)));
@@ -108,10 +113,12 @@ class BBizSelect extends bstatement_1.BStatement {
             let ret = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);
             return ret;
         }
-        else {
-            let ret = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        if (bizEntityArr.length === 0) {
+            let ret = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, t0);
             return ret;
         }
+        let ret = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        return ret;
     }
     buildSelectFrom(select, fromEntity) {
         let table;
