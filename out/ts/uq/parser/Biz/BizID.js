@@ -315,6 +315,9 @@ class PBizAtom extends PBizIDExtendable {
             user: this.parseBizUser,
         };
     }
+    parseContent() {
+        super.parseContent();
+    }
     parseParam() {
         super.parseParam();
         if (this.ts.isKeyword('uuid') === true) {

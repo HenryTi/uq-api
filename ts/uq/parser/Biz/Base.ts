@@ -201,7 +201,7 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         }
     }
 
-    protected parseOptions: { [option: string]: (bizBud: BizBudValue) => void } = {
+    protected parseExtras: { [extra: string]: (bizBud: BizBudValue) => void } = {
         history: (bizBud: BizBudValue) => {
             bizBud.hasHistory = true;
             this.ts.readToken();
@@ -295,17 +295,17 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
         }
         bizBud.required = bizBud.ui.required = required;
 
-        const options: { [option: string]: boolean } = {};
+        const extras: { [option: string]: boolean } = {};
         for (; ;) {
             if (this.ts.isKeyword(undefined) === false) break;
-            let { lowerVar: option } = this.ts;
-            if (options[option] === true) {
-                this.ts.error(`${option} can define once`);
+            let { lowerVar: extra } = this.ts;
+            if (extras[extra] === true) {
+                this.ts.error(`${extra} can define once`);
             }
-            let parse = this.parseOptions[option];
+            let parse = this.parseExtras[extra];
             if (parse === undefined) break;
             parse(bizBud);
-            options[option] = true;
+            extras[extra] = true;
         }
         if (bizBud.setType === undefined) {
             bizBud.setType = SetType.assign;

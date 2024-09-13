@@ -300,6 +300,9 @@ export class PIDUnique extends PBizBud<IDUnique> {
 }
 
 export class PBizAtom extends PBizIDExtendable<BizAtom> {
+    protected parseContent(): void {
+        super.parseContent();
+    }
     protected parseParam(): void {
         super.parseParam();
         if (this.ts.isKeyword('uuid') === true) {

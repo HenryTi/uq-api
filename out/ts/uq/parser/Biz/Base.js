@@ -10,7 +10,7 @@ const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class PBizBase extends element_1.PElement {
     constructor() {
         super(...arguments);
-        this.parseOptions = {
+        this.parseExtras = {
             history: (bizBud) => {
                 bizBud.hasHistory = true;
                 this.ts.readToken();
@@ -274,19 +274,19 @@ class PBizBase extends element_1.PElement {
             required = true;
         }
         bizBud.required = bizBud.ui.required = required;
-        const options = {};
+        const extras = {};
         for (;;) {
             if (this.ts.isKeyword(undefined) === false)
                 break;
-            let { lowerVar: option } = this.ts;
-            if (options[option] === true) {
-                this.ts.error(`${option} can define once`);
+            let { lowerVar: extra } = this.ts;
+            if (extras[extra] === true) {
+                this.ts.error(`${extra} can define once`);
             }
-            let parse = this.parseOptions[option];
+            let parse = this.parseExtras[extra];
             if (parse === undefined)
                 break;
             parse(bizBud);
-            options[option] = true;
+            extras[extra] = true;
         }
         if (bizBud.setType === undefined) {
             bizBud.setType = il_1.SetType.assign;

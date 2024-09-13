@@ -160,7 +160,7 @@ export class PUq extends PElement {
             this.context.createStatements = statement.createStatements;
             let parser = statement.parser(this.context)
             parser.parse();
-            this.uq.statement = statement;
+            this.uq.statement = statement as any;
         }
 
         if (this.ts.token === Token.SEMICOLON) {
