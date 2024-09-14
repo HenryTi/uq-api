@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizSelectStatement = exports.EnumAsc = exports.FromEntity = void 0;
-const Entity_1 = require("../Entity");
+exports.BizSelectStatement = exports.EnumAsc = void 0;
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
 const statement_1 = require("../../statement");
-class FromEntity extends Entity_1.BizFromEntity {
+/*
+export class BizFromEntity<E extends BizEntity = BizEntity> extends BizFromEntity<E> {
 }
-exports.FromEntity = FromEntity;
+*/
 var EnumAsc;
 (function (EnumAsc) {
     EnumAsc[EnumAsc["asc"] = 1] = "asc";

@@ -1,5 +1,5 @@
 import { BizBud } from "../Bud";
-import { BizEntity, BizFromEntity } from "../Entity";
+import { BizFromEntity } from "../Entity";
 import { CompareExpression, ValueExpression } from "../../Exp";
 import { UI } from "../../UI";
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
@@ -17,25 +17,26 @@ export interface BanColumn {
     val: CompareExpression;
 }
 
-export class FromEntity<E extends BizEntity = BizEntity> extends BizFromEntity<E> {
+/*
+export class BizFromEntity<E extends BizEntity = BizEntity> extends BizFromEntity<E> {
 }
-
+*/
 export enum EnumAsc { asc = 1, desc = 0 }
 export interface IdColumn {
     asc: EnumAsc;
     ui?: Partial<UI>;
-    fromEntity: FromEntity;
+    fromEntity: BizFromEntity;
 }
 
 export abstract class BizSelectStatement extends Statement {
-    fromEntity: FromEntity;
+    fromEntity: BizFromEntity;
     where: CompareExpression;
 
-    getBizFromEntityFromAlias(alias: string): FromEntity {
+    getBizFromEntityFromAlias(alias: string): BizFromEntity {
         return this.getBizFromEntityArrFromAlias(alias, this.fromEntity);
     }
 
-    private getBizFromEntityArrFromAlias(alias: string, fromEntity: FromEntity) {
+    private getBizFromEntityArrFromAlias(alias: string, fromEntity: BizFromEntity) {
         if (alias === fromEntity.alias) return fromEntity;
         const { subs } = fromEntity;
         if (subs === undefined) return undefined;

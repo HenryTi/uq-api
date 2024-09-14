@@ -1,5 +1,5 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
-import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom, FromEntity, BizBud } from "../../../il";
+import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom, BizFromEntity, BizBud } from "../../../il";
 import { BFromStatement } from "./from";
 import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, ExpStr, ExpVal, Select } from "../../sql";
 import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWithFrom";
@@ -118,6 +118,6 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
         }
     }
 
-    protected override buildSelectJoin(select: Select, fromEntity: FromEntity) {
+    protected override buildSelectJoin(select: Select, fromEntity: BizFromEntity) {
     }
 }

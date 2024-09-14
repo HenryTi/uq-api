@@ -3,11 +3,12 @@ import { PBizFor, PContext, PElement } from '../../../parser';
 import { ValueExpression } from '../../Exp';
 import { IElement } from '../../IElement';
 import { Statements, Var } from '../../statement';
-import { BizSelectStatement, EnumAsc, FromEntity } from './biz.select';
+import { BizFromEntity } from '../Entity';
+import { BizSelectStatement, EnumAsc } from './biz.select';
 
 export interface BizForIdCol {
     name: string;
-    fromEntity: FromEntity;
+    fromEntity: BizFromEntity;
 }
 
 export interface BizForOrderBy {

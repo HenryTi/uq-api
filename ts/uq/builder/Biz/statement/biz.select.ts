@@ -1,4 +1,4 @@
-import { EnumSysTable, JoinType, FromEntity, IdColumn, BizIDExtendable } from "../../../il";
+import { EnumSysTable, JoinType, BizFromEntity, IdColumn, BizIDExtendable } from "../../../il";
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, ExpOr, ExpVal, Select,
 } from "../../sql";
@@ -8,7 +8,7 @@ import { BizSelectStatement } from "../../../il";
 import { BStatement } from "../../bstatement";
 
 export abstract class BBizSelect<T extends BizSelectStatement> extends BStatement<T> {
-    protected buildSelectJoin(select: Select, fromEntity: FromEntity) {
+    protected buildSelectJoin(select: Select, fromEntity: BizFromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
         let expPrev = new ExpField('id', alias);
         if (ofIXs !== undefined) {
@@ -117,7 +117,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         }
     }
 
-    protected buildEntityTable(fromEntity: FromEntity) {
+    protected buildEntityTable(fromEntity: BizFromEntity) {
         let { bizEntityArr, bizEntityTable, alias: t0, bizPhraseType } = fromEntity;
         if (bizEntityTable !== undefined) {
             switch (bizPhraseType) {
@@ -135,7 +135,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         return ret;
     }
 
-    protected buildSelectFrom(select: Select, fromEntity: FromEntity) {
+    protected buildSelectFrom(select: Select, fromEntity: BizFromEntity) {
         let table: Table;
         let { bizEntityArr, bizEntityTable, alias, bizPhraseType } = fromEntity;
         let t0 = alias;

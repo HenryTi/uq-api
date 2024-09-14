@@ -1,6 +1,6 @@
 import {
     BizBud, BizFork, EnumAsc, EnumSysTable
-    , FromEntity, FromStatement, IdColumn, JoinType
+    , BizFromEntity, FromStatement, IdColumn, JoinType
     , bigIntField, decField, intField, jsonField, tinyIntField
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
@@ -17,7 +17,7 @@ const tblDetail = '$detail';
 const pageGroupBy = '$pageGroupBy';
 
 export class BFromGroupByStatement extends BFromStatement<FromStatement> {
-    protected readonly idFromEntity: FromEntity;
+    protected readonly idFromEntity: BizFromEntity;
     protected idsGroupBy: IdColumn[];
     protected showIds: IdColumn[];
     constructor(context: DbContext, istatement: FromStatement) {

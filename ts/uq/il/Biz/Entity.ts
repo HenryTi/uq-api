@@ -1,4 +1,4 @@
-import { BBizEntity, DbContext } from "../../builder";
+import { BBizEntity, DbContext, ExpField } from "../../builder";
 import { EnumSysTable } from "../EnumSysTable";
 import { ValueExpression } from "../Exp";
 import { BizBase, IxField } from "./Base";
@@ -259,6 +259,7 @@ export interface BizFromEntitySub {
 }
 
 export class BizFromEntity<E extends BizEntity = BizEntity> {
+    private readonly parent: BizFromEntity<any>;
     bizEntityArr: E[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
@@ -266,4 +267,12 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
     ofIXs: BizTie[] = [];
     ofOn: ValueExpression;
     alias: string;
+
+    constructor(parent: BizFromEntity<any>) {
+        this.parent = parent;
+    }
+
+    expIdCol() {
+        return new ExpField('id', this.alias);
+    }
 }

@@ -158,7 +158,7 @@ class FromEntityScaner {
         this.msgs.push(...msg);
     }
     createFromEntity(pFromEntity, sameTypeEntityArr) {
-        const fromEntity = new il_1.FromEntity();
+        const fromEntity = new il_1.BizFromEntity(undefined);
         const { tbls } = pFromEntity;
         if (tbls === undefined || tbls.length === 0) {
             let bizPhraseType = fromEntity.bizPhraseType = pFromEntity.bizPhraseType;
@@ -314,7 +314,7 @@ class FEScanBase {
     scanSub(b, field, callbackOnEmpty) {
         let fromEntity = this.createFromEntity(b);
         if (fromEntity === undefined) {
-            fromEntity = new il_1.FromEntity();
+            fromEntity = new il_1.BizFromEntity(this.fromEntity);
         }
         let { bizEntityArr } = fromEntity;
         if (bizEntityArr === undefined) {

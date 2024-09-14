@@ -87,7 +87,7 @@ export class BBizFor extends BBizSelect<BizFor> {
         insertForCols.push({ col: tblField.name, val: undefined });
         select.column(new ExpVar(vtKey), tblField.name);
         for (let [n, idCol] of ids) {
-            let expVal = new ExpField('id', idCol.fromEntity.alias);
+            let expVal = idCol.fromEntity.expIdCol();  // new ExpField('id', idCol.fromEntity.alias);
             select.column(expVal, n);
             insertForCols.push({ col: n, val: undefined });
             collField[n] = expVal;

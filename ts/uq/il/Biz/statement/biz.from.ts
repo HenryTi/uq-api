@@ -4,7 +4,8 @@ import { IElement } from "../../IElement";
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
 import { Statement } from "../../statement";
 import { PendQuery } from "../../Biz/Pend";
-import { BanColumn, BizSelectStatement, FromColumn, FromEntity, IdColumn } from "./biz.select";
+import { BanColumn, BizSelectStatement, FromColumn, IdColumn } from "./biz.select";
+import { BizFromEntity } from "../Entity";
 
 interface IntoTables {
     ret: string;
@@ -30,7 +31,7 @@ export class FromStatement extends BizSelectStatement {
         return new PFromStatement(this, context);
     }
 
-    getIdFromEntity(idAlias: string): FromEntity {
+    getIdFromEntity(idAlias: string): BizFromEntity {
         if (idAlias === undefined) {
             return this.fromEntity;
         }

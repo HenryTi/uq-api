@@ -618,15 +618,11 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
                 return super._getBizFromEntityFromAlias(name);
             case 'pend':
                 const { pend } = this.bizEntity;
-                return {
-                    bizEntityArr: [pend],
-                    bizPhraseType: BizPhraseType.pend,
-                    bizEntityTable: EnumSysTable.pend,
-                    subs: undefined,
-                    ofIXs: undefined,
-                    ofOn: undefined,
-                    alias: undefined,
-                };
+                let fe = new BizFromEntity(undefined);
+                fe.bizEntityArr = [pend];
+                fe.bizPhraseType = BizPhraseType.pend;
+                fe.bizEntityTable = EnumSysTable.pend;
+                return fe;
         }
     }
     /*

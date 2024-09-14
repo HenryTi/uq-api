@@ -1,7 +1,7 @@
 import {
     BizTie, CompareExpression,
     Entity, Pointer, Table, ValueExpression,
-    BizFieldSpace, FromEntity,
+    BizFieldSpace, BizFromEntity,
     UI,
     EnumAsc,
     BizFromEntitySub,
@@ -204,8 +204,8 @@ class FromEntityScaner {
         this.msgs.push(...msg);
     }
 
-    createFromEntity(pFromEntity: PFromEntity, sameTypeEntityArr: (entityNames: string[]) => SameTypeEntityArrReturn): FromEntity {
-        const fromEntity = new FromEntity();
+    createFromEntity(pFromEntity: PFromEntity, sameTypeEntityArr: (entityNames: string[]) => SameTypeEntityArrReturn): BizFromEntity {
+        const fromEntity = new BizFromEntity(undefined);
         const { tbls } = pFromEntity;
         if (tbls === undefined || tbls.length === 0) {
             let bizPhraseType = fromEntity.bizPhraseType = pFromEntity.bizPhraseType;
@@ -245,7 +245,7 @@ class FromEntityScaner {
         return fromEntity;
     }
 
-    scan(fromEntity: FromEntity, pFromEntity: PFromEntity): boolean {
+    scan(fromEntity: BizFromEntity, pFromEntity: PFromEntity): boolean {
         if (fromEntity === undefined) return false;
         let ok = true;
         const { ofIXs, ofOn } = fromEntity;
@@ -351,8 +351,8 @@ class FromEntityScaner {
 abstract class FEScanBase {
     protected readonly scaner: FromEntityScaner;
     readonly logs: string[] = [];
-    readonly fromEntity: FromEntity;
-    constructor(scaner: FromEntityScaner, fromEntity: FromEntity) {
+    readonly fromEntity: BizFromEntity;
+    constructor(scaner: FromEntityScaner, fromEntity: BizFromEntity) {
         this.scaner = scaner;
         this.fromEntity = fromEntity;
     }
@@ -367,7 +367,7 @@ abstract class FEScanBase {
     protected scanSub(b: PFromEntity, field: string, callbackOnEmpty: () => BizEntity): BizFromEntitySub {
         let fromEntity = this.createFromEntity(b);
         if (fromEntity === undefined) {
-            fromEntity = new FromEntity();
+            fromEntity = new BizFromEntity(this.fromEntity);
         }
         let { bizEntityArr } = fromEntity;
         if (bizEntityArr === undefined) {
@@ -393,7 +393,7 @@ abstract class FEScanBase {
 class FromEntityScanDuo extends FEScanBase {
     private readonly pSub0: PFromEntity;
     private readonly pSub1: PFromEntity;
-    constructor(scaner: FromEntityScaner, fromEntity: FromEntity, pSub0: PFromEntity, pSub1: PFromEntity) {
+    constructor(scaner: FromEntityScaner, fromEntity: BizFromEntity, pSub0: PFromEntity, pSub1: PFromEntity) {
         super(scaner, fromEntity);
         this.pSub0 = pSub0;
         this.pSub1 = pSub1;
@@ -420,7 +420,7 @@ class FromEntityScanCombo extends FEScanBase {
     private readonly pSubs: PFromEntity[];
     private readonly combo: BizCombo;
     private readonly isDot: boolean;
-    constructor(scaner: FromEntityScaner, fromEntity: FromEntity, pSubs: PFromEntity[], isDot: boolean) {
+    constructor(scaner: FromEntityScaner, fromEntity: BizFromEntity, pSubs: PFromEntity[], isDot: boolean) {
         super(scaner, fromEntity);
         this.pSubs = pSubs;
         const { bizEntityArr } = this.fromEntity;
@@ -500,7 +500,7 @@ class FromEntityScanCombo extends FEScanBase {
 
 class FromEntityScanSpec extends FEScanBase {
     private readonly pSub: PFromEntity;
-    constructor(scaner: FromEntityScaner, fromEntity: FromEntity, pSub: PFromEntity) {
+    constructor(scaner: FromEntityScaner, fromEntity: BizFromEntity, pSub: PFromEntity) {
         super(scaner, fromEntity);
         this.pSub = pSub;
     }

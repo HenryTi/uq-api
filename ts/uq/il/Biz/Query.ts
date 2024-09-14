@@ -6,9 +6,9 @@ import { Builder } from "../builder";
 import { IElement } from "../IElement";
 import { Statements } from "../statement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizBud, BizBudValue } from "./Bud";
-import { BizNotID } from "./Entity";
-import { FromEntity, FromStatement } from "./statement";
+import { BizBudValue } from "./Bud";
+import { BizFromEntity, BizNotID } from "./Entity";
+import { FromStatement } from "./statement";
 
 export abstract class BizQuery extends BizNotID {
     readonly bizPhraseType = BizPhraseType.query;
@@ -92,7 +92,7 @@ export class BizQueryTable extends BizQuery {
         return ret;
     }
 
-    private buildFromSchema(from: FromEntity) {
+    private buildFromSchema(from: BizFromEntity) {
         const { bizEntityArr, bizPhraseType, subs, alias } = from;
         let subsSchema: any;
         if (subs !== undefined && subs.length > 0) {
