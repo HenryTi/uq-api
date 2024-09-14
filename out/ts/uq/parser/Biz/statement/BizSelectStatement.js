@@ -105,7 +105,7 @@ class PBizSelectStatement extends statement_1.PStatement {
         let ok = true;
         space = this.createFromSpace(space);
         let scanner = new FromEntityScaner(space);
-        let fromEntity = scanner.createFromEntity(this.pFromEntity, undefined);
+        let fromEntity = scanner.createFromEntity(undefined, this.pFromEntity, undefined);
         if (scanner.scan(fromEntity, this.pFromEntity) === false) {
             this.log(...scanner.msgs);
             ok = false;
@@ -157,8 +157,8 @@ class FromEntityScaner {
     log(...msg) {
         this.msgs.push(...msg);
     }
-    createFromEntity(pFromEntity, sameTypeEntityArr) {
-        const fromEntity = new il_1.BizFromEntity(undefined);
+    createFromEntity(parent, pFromEntity, sameTypeEntityArr) {
+        const fromEntity = new il_1.BizFromEntity(parent);
         const { tbls } = pFromEntity;
         if (tbls === undefined || tbls.length === 0) {
             let bizPhraseType = fromEntity.bizPhraseType = pFromEntity.bizPhraseType;
@@ -308,7 +308,7 @@ class FEScanBase {
         this.fromEntity = fromEntity;
     }
     createFromEntity(b) {
-        let fromEntity = this.scaner.createFromEntity(b, undefined);
+        let fromEntity = this.scaner.createFromEntity(this.fromEntity, b, undefined);
         return fromEntity;
     }
     scanSub(b, field, callbackOnEmpty) {
@@ -433,7 +433,7 @@ class FromEntityScanCombo extends FEScanBase {
         return ret;
     }
     createFromEntity(b) {
-        let fromEntity = this.scaner.createFromEntity(b, this.sameTypeEntityArr);
+        let fromEntity = this.scaner.createFromEntity(this.fromEntity, b, this.sameTypeEntityArr);
         return fromEntity;
     }
 }

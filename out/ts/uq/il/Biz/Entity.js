@@ -242,8 +242,30 @@ class BizFromEntity {
         this.ofIXs = [];
         this.parent = parent;
     }
+    get isForkBase() {
+        const { parent } = this;
+        if (parent !== undefined) {
+            // is fork base
+            if (parent.subs.length === 1) {
+                if (parent.bizEntityArr.length === 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     expIdCol() {
-        return new builder_1.ExpField('id', this.alias);
+        const { parent } = this;
+        if (this.isForkBase === true) {
+            return new builder_1.ExpFunc('ifnull', new builder_1.ExpField('id', this.alias), new builder_1.ExpField('id', parent.alias + '$idu'));
+        }
+        switch (this.bizPhraseType) {
+            default:
+                return new builder_1.ExpField('id', this.alias);
+            case BizPhraseType_1.BizPhraseType.atom:
+            case BizPhraseType_1.BizPhraseType.fork:
+                return new builder_1.ExpField('id', this.alias + '$idu');
+        }
     }
 }
 exports.BizFromEntity = BizFromEntity;

@@ -139,7 +139,7 @@ export abstract class PBizSelectStatement<T extends BizSelectStatement> extends 
         let ok = true;
         space = this.createFromSpace(space);
         let scanner = new FromEntityScaner(space);
-        let fromEntity = scanner.createFromEntity(this.pFromEntity, undefined);
+        let fromEntity = scanner.createFromEntity(undefined, this.pFromEntity, undefined);
         if (scanner.scan(fromEntity, this.pFromEntity) === false) {
             this.log(...scanner.msgs);
             ok = false;
@@ -204,8 +204,8 @@ class FromEntityScaner {
         this.msgs.push(...msg);
     }
 
-    createFromEntity(pFromEntity: PFromEntity, sameTypeEntityArr: (entityNames: string[]) => SameTypeEntityArrReturn): BizFromEntity {
-        const fromEntity = new BizFromEntity(undefined);
+    createFromEntity(parent: BizFromEntity, pFromEntity: PFromEntity, sameTypeEntityArr: (entityNames: string[]) => SameTypeEntityArrReturn): BizFromEntity {
+        const fromEntity = new BizFromEntity(parent);
         const { tbls } = pFromEntity;
         if (tbls === undefined || tbls.length === 0) {
             let bizPhraseType = fromEntity.bizPhraseType = pFromEntity.bizPhraseType;
@@ -360,7 +360,7 @@ abstract class FEScanBase {
     abstract createSubs(): BizFromEntitySub[];
 
     protected createFromEntity(b: PFromEntity) {
-        let fromEntity = this.scaner.createFromEntity(b, undefined);
+        let fromEntity = this.scaner.createFromEntity(this.fromEntity, b, undefined);
         return fromEntity;
     }
 
@@ -493,7 +493,7 @@ class FromEntityScanCombo extends FEScanBase {
     }
 
     protected createFromEntity(b: PFromEntity) {
-        let fromEntity = this.scaner.createFromEntity(b, this.sameTypeEntityArr);
+        let fromEntity = this.scaner.createFromEntity(this.fromEntity, b, this.sameTypeEntityArr);
         return fromEntity;
     }
 }

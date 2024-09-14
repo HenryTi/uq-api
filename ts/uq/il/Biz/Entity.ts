@@ -1,4 +1,4 @@
-import { BBizEntity, DbContext, ExpField } from "../../builder";
+import { BBizEntity, DbContext, ExpField, ExpFunc } from "../../builder";
 import { EnumSysTable } from "../EnumSysTable";
 import { ValueExpression } from "../Exp";
 import { BizBase, IxField } from "./Base";
@@ -259,7 +259,7 @@ export interface BizFromEntitySub {
 }
 
 export class BizFromEntity<E extends BizEntity = BizEntity> {
-    private readonly parent: BizFromEntity<any>;
+    readonly parent: BizFromEntity<any>;
     bizEntityArr: E[] = [];
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
@@ -272,7 +272,34 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
         this.parent = parent;
     }
 
+    get isForkBase(): boolean {
+        const { parent } = this;
+        if (parent !== undefined) {
+            // is fork base
+            if (parent.subs.length === 1) {
+                if (parent.bizEntityArr.length === 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     expIdCol() {
-        return new ExpField('id', this.alias);
+        const { parent } = this;
+        if (this.isForkBase === true) {
+            return new ExpFunc(
+                'ifnull',
+                new ExpField('id', this.alias),
+                new ExpField('id', parent.alias + '$idu'),
+            );
+        }
+        switch (this.bizPhraseType) {
+            default:
+                return new ExpField('id', this.alias);
+            case BizPhraseType.atom:
+            case BizPhraseType.fork:
+                return new ExpField('id', this.alias + '$idu');
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { BizBud, BizEntity, BizFromEntity } from './Biz';
+import { BizBud, BizFromEntity } from './Biz';
 import { BizPhraseType } from './Biz/BizPhraseType';
 import { ValueExpression, VarOperand } from './Exp';
 import { Stack } from './Exp/Stack';
@@ -7,9 +7,6 @@ export enum GroupType { Single = 1, Group = 2, Both = 3 }
 
 export abstract class Pointer {
     abstract get groupType(): GroupType;
-    //get type():string {return 'pointer';}
-    //parser(ts:TokenStream):PElement {return;}
-    //abstract builder(context:Context): BPointer;
     abstract to(stack: Stack, v: VarOperand): void;
 }
 
@@ -110,24 +107,37 @@ export class BizEntityBudPointer extends Pointer {
 export class BizEntityFieldPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
     readonly bizFromEntity: BizFromEntity;
-    // readonly entity: BizEntity;
     readonly fieldName: string;
     constructor(bizFromEntity: BizFromEntity, fieldName: string) {
         super();
         this.bizFromEntity = bizFromEntity;
-        // this.entity = entity;
         this.fieldName = fieldName;
     }
 
     override to(stack: Stack, v: VarOperand): void {
         const { alias } = this.bizFromEntity;
-        /*
-        let tblAlias: string;
-        switch (bizPhraseType) {
-            default: tblAlias = alias; break;
-            case BizPhraseType.atom: tblAlias = alias + '$atom'; break;
+        let fn = this.fieldName;
+        if (fn === 'id') {
+            const { isForkBase } = this.bizFromEntity;
+            if (isForkBase === true) {
+                stack.dotVar([alias, fn]);
+                stack.dotVar([this.bizFromEntity.parent.alias + '$idu', 'id']);
+                stack.func('IFNULL', 2, false);
+            }
+            else {
+                switch (this.bizFromEntity.bizPhraseType) {
+                    default:
+                        stack.dotVar([alias, fn]);
+                        break;
+                    case BizPhraseType.atom:
+                    case BizPhraseType.fork:
+                        stack.dotVar([alias + '$idu', fn]);
+                        break;
+                }
+            }
         }
-        */
-        stack.dotVar([alias, this.fieldName]);
+        else {
+            stack.dotVar([alias, fn]);
+        }
     }
 }

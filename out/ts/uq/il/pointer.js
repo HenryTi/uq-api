@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizEntityFieldPointer = exports.BizEntityBudPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
+const BizPhraseType_1 = require("./Biz/BizPhraseType");
 var GroupType;
 (function (GroupType) {
     GroupType[GroupType["Single"] = 1] = "Single";
@@ -117,19 +118,33 @@ class BizEntityFieldPointer extends Pointer {
         super();
         this.groupType = GroupType.Single;
         this.bizFromEntity = bizFromEntity;
-        // this.entity = entity;
         this.fieldName = fieldName;
     }
     to(stack, v) {
         const { alias } = this.bizFromEntity;
-        /*
-        let tblAlias: string;
-        switch (bizPhraseType) {
-            default: tblAlias = alias; break;
-            case BizPhraseType.atom: tblAlias = alias + '$atom'; break;
+        let fn = this.fieldName;
+        if (fn === 'id') {
+            const { isForkBase } = this.bizFromEntity;
+            if (isForkBase === true) {
+                stack.dotVar([alias, fn]);
+                stack.dotVar([this.bizFromEntity.parent.alias + '$idu', 'id']);
+                stack.func('IFNULL', 2, false);
+            }
+            else {
+                switch (this.bizFromEntity.bizPhraseType) {
+                    default:
+                        stack.dotVar([alias, fn]);
+                        break;
+                    case BizPhraseType_1.BizPhraseType.atom:
+                    case BizPhraseType_1.BizPhraseType.fork:
+                        stack.dotVar([alias + '$idu', fn]);
+                        break;
+                }
+            }
         }
-        */
-        stack.dotVar([alias, this.fieldName]);
+        else {
+            stack.dotVar([alias, fn]);
+        }
     }
 }
 exports.BizEntityFieldPointer = BizEntityFieldPointer;
