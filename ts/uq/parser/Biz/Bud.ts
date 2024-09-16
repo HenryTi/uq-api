@@ -8,7 +8,11 @@ import {
     , BizBudIDBase,
     BizBudBin,
     BizID,
-    BizBudFork
+    BizBudFork,
+    BizBudTieable,
+    BizIDExtendable,
+    BizTie,
+    BudIndex
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -335,7 +339,69 @@ export class PBizBudIDIO extends PBizBud<BizBudIDIO> {
     }
 }
 
-abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
+abstract class PBizBudTieable<T extends BizBudTieable> extends PBizBudValue<T> {
+    private tie: string;
+    private isBud: boolean;
+    protected parseTie() {
+        if (this.ts.isKeyword('ix') === false) return;
+        this.ts.readToken();
+        if (this.ts.token === Token.DOT) {
+            this.ts.readToken();
+            this.isBud = true;
+        }
+        this.tie = this.ts.passVar();
+        if (this.ts.isKeyword('on') === true) {
+            this.ts.readToken();
+            let val = new ValueExpression();
+            this.element.tieOn = val;
+            this.context.parseElement(val);
+        }
+    }
+
+    protected scanTie(space: Space): boolean {
+        let ok = true;
+        if (this.tie !== undefined) {
+            if (this.isBud === true) {
+                let ID = this.getTieID();
+                if (ID === undefined) {
+                    this.log(`.${this.tie} is not supported here`);
+                    ok = false;
+                }
+                else {
+                    let bud = this.element.bud = ID.getBud(this.tie);
+                    if (bud === undefined) {
+                        this.log(`${this.tie} is not a bud`);
+                        ok = false;
+                    }
+                    else {
+                        if ((bud.flag & BudIndex.index) !== BudIndex.index) {
+                            this.log(`${this.tie} is not indexed`);
+                            ok = false;
+                        }
+                    }
+                }
+            }
+            else {
+                let tie = this.element.tie = space.uq.biz.bizEntities.get(this.tie) as BizTie;
+                if (tie === undefined) {
+                    this.log(`${this.tie} is not a TIE`);
+                    ok = false;
+                }
+            }
+            const { tieOn } = this.element;
+            if (tieOn !== undefined) {
+                if (tieOn.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        }
+        return ok;
+    }
+
+    protected getTieID(): BizID { return undefined; }
+}
+
+abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudTieable<T> {
     protected idName: string;
     private fieldShows: string[][];
     private includeTitleBuds: boolean;
@@ -426,6 +492,8 @@ abstract class PBizBudIDBase<T extends BizBudIDBase> extends PBizBudValue<T> {
         }
         return ok;
     }
+
+    protected override getTieID(): BizID { return this.element.ID; }
 }
 
 export class PBizBudIXBase extends PBizBudIDBase<BizBudIXBase> {
@@ -464,6 +532,7 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
             required = true;
         }
         this.element.required = this.element.ui.required = required;
+        this.parseTie();
         this.parseFieldShow();
         this.parseBudEquValue();
     }
@@ -475,6 +544,9 @@ export class PBizBudID extends PBizBudIDBase<BizBudID> {
             if (params[i].exp.pelement.scan(space) === false) {
                 ok = false;
             }
+        }
+        if (this.scanTie(space) === false) {
+            ok = false;
         }
         return ok;
     }
@@ -611,7 +683,7 @@ export class PBizBudPickable extends PBizBudValue<BizBudPickable> {
     }
 }
 
-abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extends PBizBudValue<T> {
+abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extends PBizBudTieable<T> {
     private optionsName: string;
 
     protected _parse(): void {
@@ -621,6 +693,7 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extend
         }
         this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
+        this.parseTie();
         this.parseBudEquValue();
     }
     scan(space: Space): boolean {
@@ -640,13 +713,13 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extend
             return false;
         }
         this.element.options = options as BizOptions;
+        if (this.scanTie(space) === false) {
+            ok = false;
+        }
         return ok;
     }
 }
-/*
-export class PBizBudIntOf extends PBizBudRadioOrCheck<BizBudIntOf> {
-}
-*/
+
 export class PBizBudRadio extends PBizBudRadioOrCheck<BizBudRadio> {
 }
 

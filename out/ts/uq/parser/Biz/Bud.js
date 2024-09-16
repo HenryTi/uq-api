@@ -318,7 +318,65 @@ class PBizBudIDIO extends PBizBud {
     }
 }
 exports.PBizBudIDIO = PBizBudIDIO;
-class PBizBudIDBase extends PBizBudValue {
+class PBizBudTieable extends PBizBudValue {
+    parseTie() {
+        if (this.ts.isKeyword('ix') === false)
+            return;
+        this.ts.readToken();
+        if (this.ts.token === tokens_1.Token.DOT) {
+            this.ts.readToken();
+            this.isBud = true;
+        }
+        this.tie = this.ts.passVar();
+        if (this.ts.isKeyword('on') === true) {
+            this.ts.readToken();
+            let val = new il_1.ValueExpression();
+            this.element.tieOn = val;
+            this.context.parseElement(val);
+        }
+    }
+    scanTie(space) {
+        let ok = true;
+        if (this.tie !== undefined) {
+            if (this.isBud === true) {
+                let ID = this.getTieID();
+                if (ID === undefined) {
+                    this.log(`.${this.tie} is not supported here`);
+                    ok = false;
+                }
+                else {
+                    let bud = this.element.bud = ID.getBud(this.tie);
+                    if (bud === undefined) {
+                        this.log(`${this.tie} is not a bud`);
+                        ok = false;
+                    }
+                    else {
+                        if ((bud.flag & il_1.BudIndex.index) !== il_1.BudIndex.index) {
+                            this.log(`${this.tie} is not indexed`);
+                            ok = false;
+                        }
+                    }
+                }
+            }
+            else {
+                let tie = this.element.tie = space.uq.biz.bizEntities.get(this.tie);
+                if (tie === undefined) {
+                    this.log(`${this.tie} is not a TIE`);
+                    ok = false;
+                }
+            }
+            const { tieOn } = this.element;
+            if (tieOn !== undefined) {
+                if (tieOn.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        }
+        return ok;
+    }
+    getTieID() { return undefined; }
+}
+class PBizBudIDBase extends PBizBudTieable {
     parseFieldShow() {
         if (this.ts.token !== tokens_1.Token.LBRACE)
             return;
@@ -406,6 +464,7 @@ class PBizBudIDBase extends PBizBudValue {
         }
         return ok;
     }
+    getTieID() { return this.element.ID; }
 }
 class PBizBudIXBase extends PBizBudIDBase {
     _parse() {
@@ -443,6 +502,7 @@ class PBizBudID extends PBizBudIDBase {
             required = true;
         }
         this.element.required = this.element.ui.required = required;
+        this.parseTie();
         this.parseFieldShow();
         this.parseBudEquValue();
     }
@@ -453,6 +513,9 @@ class PBizBudID extends PBizBudIDBase {
             if (params[i].exp.pelement.scan(space) === false) {
                 ok = false;
             }
+        }
+        if (this.scanTie(space) === false) {
+            ok = false;
         }
         return ok;
     }
@@ -586,7 +649,7 @@ class PBizBudPickable extends PBizBudValue {
     }
 }
 exports.PBizBudPickable = PBizBudPickable;
-class PBizBudRadioOrCheck extends PBizBudValue {
+class PBizBudRadioOrCheck extends PBizBudTieable {
     _parse() {
         if (this.ts.token !== tokens_1.Token.VAR) {
             super._parse();
@@ -594,6 +657,7 @@ class PBizBudRadioOrCheck extends PBizBudValue {
         }
         this.optionsName = this.ts.lowerVar;
         this.ts.readToken();
+        this.parseTie();
         this.parseBudEquValue();
     }
     scan(space) {
@@ -614,13 +678,12 @@ class PBizBudRadioOrCheck extends PBizBudValue {
             return false;
         }
         this.element.options = options;
+        if (this.scanTie(space) === false) {
+            ok = false;
+        }
         return ok;
     }
 }
-/*
-export class PBizBudIntOf extends PBizBudRadioOrCheck<BizBudIntOf> {
-}
-*/
 class PBizBudRadio extends PBizBudRadioOrCheck {
 }
 exports.PBizBudRadio = PBizBudRadio;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudFork = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.bizDecType = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudTieable = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudFork = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.bizDecType = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -96,6 +96,7 @@ class BizBudValue extends BizBud {
     }
 }
 exports.BizBudValue = BizBudValue;
+// 存放fork的原始值。json多个属性
 class BizBudFork extends BizBudValue {
     constructor() {
         super(...arguments);
@@ -290,7 +291,11 @@ class BizBudDate extends BizBudValueWithRange {
     }
 }
 exports.BizBudDate = BizBudDate;
-class BizBudIDBase extends BizBudValue {
+// 可以用tie限定，包括ID或options
+class BizBudTieable extends BizBudValue {
+}
+exports.BizBudTieable = BizBudTieable;
+class BizBudIDBase extends BizBudTieable {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.atom;
@@ -427,7 +432,7 @@ class BizBudBin extends BizBudValue {
     }
 }
 exports.BizBudBin = BizBudBin;
-class BizBudOptions extends BizBudValue {
+class BizBudOptions extends BizBudTieable {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);

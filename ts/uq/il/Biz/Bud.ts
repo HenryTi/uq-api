@@ -18,6 +18,7 @@ import { BigInt, Char, DataType, Dec, JsonDataType } from "../datatype";
 import { Field } from "../field";
 import { BizBin } from "./Bin";
 import { BizIDWithShowBuds } from "./BizID";
+import { BizTie } from "./Tie";
 
 export enum BudValueSetType {
     equ = 1,            // 设置不可修改. 这是默认
@@ -126,6 +127,7 @@ export abstract class BizBudValue extends BizBud {
     }
 }
 
+// 存放fork的原始值。json多个属性
 export class BizBudFork extends BizBudValue {
     readonly dataType = BudDataType.fork;
     readonly canIndex = false;
@@ -295,7 +297,14 @@ export class BizBudDate extends BizBudValueWithRange {
     }
 }
 
-export abstract class BizBudIDBase extends BizBudValue {
+// 可以用tie限定，包括ID或options
+export abstract class BizBudTieable extends BizBudValue {
+    tie: BizTie;
+    bud: BizBud;            // or tied by a bud
+    tieOn: ValueExpression;
+}
+
+export abstract class BizBudIDBase extends BizBudTieable {
     readonly dataType = BudDataType.atom;
     readonly canIndex = true;
     ID: BizIDWithShowBuds;
@@ -415,7 +424,7 @@ export class BizBudBin extends BizBudValue {
     }
 }
 
-export abstract class BizBudOptions extends BizBudValue {
+export abstract class BizBudOptions extends BizBudTieable {
     options: BizOptions;
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
