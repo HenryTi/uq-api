@@ -299,9 +299,26 @@ export class BizBudDate extends BizBudValueWithRange {
 
 // 可以用tie限定，包括ID或options
 export abstract class BizBudTieable extends BizBudValue {
-    tie: BizTie;
-    bud: BizBud;            // or tied by a bud
+    tie: BizTie | BizBud;  // tie or by a indexed bud
+    // bud: BizBud;            // or tied by a bud
     tieOn: ValueExpression;
+    private tieOnStr: string;
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        if (this.tie !== undefined) {
+            ret.tie = {
+                id: this.tie.id,
+                on: this.tieOnStr,
+            }
+        }
+        return ret;
+    }
+    buildBudValue(expStringify: (value: ValueExpression) => string) {
+        super.buildBudValue(expStringify);
+        if (this.tieOn !== undefined) {
+            this.tieOnStr = expStringify(this.tieOn);
+        }
+    }
 }
 
 export abstract class BizBudIDBase extends BizBudTieable {

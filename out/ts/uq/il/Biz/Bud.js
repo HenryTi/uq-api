@@ -293,6 +293,22 @@ class BizBudDate extends BizBudValueWithRange {
 exports.BizBudDate = BizBudDate;
 // 可以用tie限定，包括ID或options
 class BizBudTieable extends BizBudValue {
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        if (this.tie !== undefined) {
+            ret.tie = {
+                id: this.tie.id,
+                on: this.tieOnStr,
+            };
+        }
+        return ret;
+    }
+    buildBudValue(expStringify) {
+        super.buildBudValue(expStringify);
+        if (this.tieOn !== undefined) {
+            this.tieOnStr = expStringify(this.tieOn);
+        }
+    }
 }
 exports.BizBudTieable = BizBudTieable;
 class BizBudIDBase extends BizBudTieable {

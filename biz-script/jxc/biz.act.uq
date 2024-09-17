@@ -695,58 +695,6 @@ RETURNS budsStr (
         WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
 };
 
-Biz Query GetTiedIDs (
-    tie ID,             -- phrase id
-    i ID,               -- i value id
-)
-PAGE (
-    id ID ASC,
-    phrase ID,
-)
-RETURNS props (
-    id ID,
-    phrase ID,
-    value JSON,
-    (id, phrase) KEY,
-)
-RETURNS atoms (
-    id ID,
-    base ID,
-    no NO,
-    ex EX,
-)
-RETURNS specs (
-    id ID,
-    atom ID,
-    json JSON,
-) {
-    PAGE SELECT a.x as id, b.base as phrase
-        FROM IxBud as a
-            LEFT JOIN IDU as b ON b.id=a.x
-        WHERE a.i=BudID(tie, i) AND a.x>$pageStart
-        ORDER BY a.x ASC
-        LIMIT $pageSize;
-/*
-    INTO budsInt SELECT a.id, d.id as bud, b.value
-        FROM $page as a 
-            JOIN IxBudInt as b ON b.i=a.id
-            JOIN BizPhrase as d ON d.id=b.x -- phrase
-        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
-
-    INTO budsDec SELECT a.id, d.id as bud, b.value
-        FROM $page as a 
-            JOIN IxBudDec as b ON b.i=a.id
-            JOIN BizPhrase as d ON d.id=b.x -- phrase
-        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
-
-    INTO budsStr SELECT a.id, d.id as bud, b.value
-        FROM $page as a 
-            JOIN IxBudStr as b ON b.i=a.id
-            JOIN BizPhrase as d ON d.id=b.x -- phrase
-        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
-*/
-}
-
 -- 可以取一个单据，也可以取单行
 Biz Query GetSheet ver 0.1 (
     id ID,                      -- sheetId or detailId

@@ -368,7 +368,7 @@ abstract class PBizBudTieable<T extends BizBudTieable> extends PBizBudValue<T> {
                     ok = false;
                 }
                 else {
-                    let bud = this.element.bud = ID.getBud(this.tie);
+                    let bud = this.element.tie = ID.getBud(this.tie) as BizBud;
                     if (bud === undefined) {
                         this.log(`${this.tie} is not a bud`);
                         ok = false;

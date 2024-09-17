@@ -1,0 +1,130 @@
+Biz Query GetIDList (
+    phrase ID,          -- ID prhase
+    tie ID,             -- tie ID, or index bud 
+    i ID,               -- i value id
+    searchKey CHAR,
+)
+PAGE (
+    id ID ASC,
+    phrase ID,
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    json JSON,
+) {
+    VAR bizPhraseType ENUM BizPhraseType = a.type FROM BizPhrase as a WHERE a.id=phrase;
+    TABLE idtable (KEY id ID, phrase ID);
+    IF tie IS NOT NULL {
+        IF bizPhraseType=BizPhraseType.atom {
+            PAGE SELECT a.x as id, b.base as phrase
+                FROM IxBud as a
+                    LEFT JOIN IDU as b ON b.id=a.x
+                    LEFT JOIN Atom as c ON c.id=b.id
+                WHERE a.i=BudID(tie, i) AND a.x>$pageStart AND SEARCH(c.no, c.ex LIKE searchKey)
+                ORDER BY a.x ASC
+                LIMIT $pageSize;
+        }
+        ELSE {
+            PAGE SELECT a.x as id, b.base as phrase
+                FROM IxBud as a
+                    LEFT JOIN IDU as b ON b.id=a.x
+                WHERE a.i=BudID(tie, i) AND a.x>$pageStart
+                ORDER BY a.x ASC
+                LIMIT $pageSize;
+        }
+    }
+    ELSE {
+        IF bizPhraseType=BizPhraseType.atom {
+            PAGE SELECT c.id as id, c.base as phrase
+                FROM Atom as c
+                WHERE c.base=phrase AND c.id>$pageStart AND SEARCH(c.no, c.ex LIKE searchKey)
+                ORDER BY c.id ASC
+                LIMIT $pageSize;
+        }
+        ELSEIF bizPhraseType=BizPhraseType.fork {
+            PAGE SELECT d.id as id, d.base as phrase
+                FROM IDU as d
+                WHERE d.base=phrase AND d.id>$pageStart
+                ORDER BY d.id ASC
+                LIMIT $pageSize;
+        }
+    }
+    
+    INTO idtable SELECT id, phrase FROM $page;
+    PROC ProcPropsOfIds();
+}
+
+PROC ProcPropsOfIds()
+RETURNS idtable VIRTUAL (
+    id ID,
+    phrase ID,
+)
+RETURNS props VIRTUAL (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms VIRTUAL (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs VIRTUAL (
+    id ID,
+    atom ID,
+    json JSON,
+)
+{
+    -- $idstable(id ID, phrase ID);
+    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+        FROM idtable as a
+            JOIN BizPhrase as b ON b.id=a.phrase
+            JOIN Atom as c ON c.id=a.id
+        WHERE b.type=BizPhraseType.atom;
+    INTO IGNORE specs SELECT c.id, c.base as atom
+        FROM idtable as a
+            JOIN BizPhrase as b ON b.id=a.phrase
+            JOIN Spec as c ON c.id=a.id
+        WHERE b.type=BizPhraseType.fork;
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
+        FROM atoms as a
+            JOIN BizBudShow as b ON b.i=a.base
+            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x;
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
+        FROM specs as a
+            JOIN IxBudInt as c ON c.i=a.id;
+    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+        FROM props as a
+            JOIN BizPhrase as b ON b.id=a.phrase
+            JOIN Atom as c ON c.id=a.value
+        WHERE b.type=BizPhraseType.atom;
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
+        FROM atoms as a
+            JOIN BizBudShow as b ON b.i=a.base
+            JOIN IxBudDec as c ON c.i=a.id AND c.x=b.x;
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
+        FROM specs as a
+            JOIN IxBudDec as c ON c.i=a.id;
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
+        FROM atoms as a
+            JOIN BizBudShow as b ON b.i=a.base
+            JOIN IxBudStr as c ON c.i=a.id AND c.x=b.x;
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
+        FROM specs as a
+            JOIN IxBudStr as c ON c.i=a.id;
+}

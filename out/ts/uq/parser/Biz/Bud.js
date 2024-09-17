@@ -345,7 +345,7 @@ class PBizBudTieable extends PBizBudValue {
                     ok = false;
                 }
                 else {
-                    let bud = this.element.bud = ID.getBud(this.tie);
+                    let bud = this.element.tie = ID.getBud(this.tie);
                     if (bud === undefined) {
                         this.log(`${this.tie} is not a bud`);
                         ok = false;
