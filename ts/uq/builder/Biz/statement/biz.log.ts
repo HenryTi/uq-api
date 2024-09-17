@@ -1,12 +1,12 @@
-import { bigIntField, BizLog, EnumSysTable } from "../../../il";
+import { bigIntField, BizLog, EnumSysTable, LogArray, LogObject, LogScalar, LogType, LogValue } from "../../../il";
 import { BStatement, Sqls } from "../../bstatement";
-import { ExpEQ, ExpField, ExpFuncInUq, ExpNull, ExpNum, ExpVar } from "../../sql";
+import { ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar } from "../../sql";
 import { EntityTable } from "../../sql/statementWithFrom";
 
 export class BBizLog extends BStatement<BizLog> {
     body(sqls: Sqls): void {
         const { factory, userParam } = this.context;
-        let { no } = this.istatement;
+        let { no, val } = this.istatement;
         let declare = factory.createDeclare();
         sqls.push(declare);
         let logId = 'logid_' + no;
@@ -19,9 +19,38 @@ export class BBizLog extends BStatement<BizLog> {
         const update = factory.createUpdate();
         sqls.push(update);
         update.table = new EntityTable(EnumSysTable.log, false);
+        let valJson = new ExpFunc(
+            'JSON_EXTRACT',
+            new ExpFunc('JSON_ARRAY', this.buildValue(val)),
+            new ExpStr('$[0]'),
+        );
         update.cols.push(
-            { col: 'value', val: this.context.expVal(this.istatement.val) },
+            { col: 'value', val: valJson },
         );
         update.where = new ExpEQ(new ExpField('id'), new ExpVar(logId));
+    }
+
+    private buildValue({ type, value }: LogValue): ExpVal {
+        switch (type) {
+            case LogType.scalar: return this.buildScalar(value as LogScalar);
+            case LogType.array: return this.buildArray(value as LogArray);
+            case LogType.object: return this.buildObject(value as LogObject);
+        }
+    }
+
+    private buildScalar(val: LogScalar): ExpVal {
+        return this.context.expVal(val);
+    }
+
+    private buildArray(val: LogArray): ExpVal {
+        return new ExpFunc('JSON_ARRAY', ...val.map(v => this.buildValue(v)));
+    }
+
+    private buildObject(val: LogObject): ExpVal {
+        let params: ExpVal[] = [];
+        for (let i in val) {
+            params.push(new ExpStr(i), this.buildValue(val[i]));
+        }
+        return new ExpFunc('JSON_OBJECT', ...params);
     }
 }

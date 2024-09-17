@@ -8,7 +8,7 @@ const statementWithFrom_1 = require("../../sql/statementWithFrom");
 class BBizLog extends bstatement_1.BStatement {
     body(sqls) {
         const { factory, userParam } = this.context;
-        let { no } = this.istatement;
+        let { no, val } = this.istatement;
         let declare = factory.createDeclare();
         sqls.push(declare);
         let logId = 'logid_' + no;
@@ -20,8 +20,29 @@ class BBizLog extends bstatement_1.BStatement {
         const update = factory.createUpdate();
         sqls.push(update);
         update.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.log, false);
-        update.cols.push({ col: 'value', val: this.context.expVal(this.istatement.val) });
+        let valJson = new sql_1.ExpFunc('JSON_EXTRACT', new sql_1.ExpFunc('JSON_ARRAY', this.buildValue(val)), new sql_1.ExpStr('$[0]'));
+        update.cols.push({ col: 'value', val: valJson });
         update.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), new sql_1.ExpVar(logId));
+    }
+    buildValue({ type, value }) {
+        switch (type) {
+            case il_1.LogType.scalar: return this.buildScalar(value);
+            case il_1.LogType.array: return this.buildArray(value);
+            case il_1.LogType.object: return this.buildObject(value);
+        }
+    }
+    buildScalar(val) {
+        return this.context.expVal(val);
+    }
+    buildArray(val) {
+        return new sql_1.ExpFunc('JSON_ARRAY', ...val.map(v => this.buildValue(v)));
+    }
+    buildObject(val) {
+        let params = [];
+        for (let i in val) {
+            params.push(new sql_1.ExpStr(i), this.buildValue(val[i]));
+        }
+        return new sql_1.ExpFunc('JSON_OBJECT', ...params);
     }
 }
 exports.BBizLog = BBizLog;

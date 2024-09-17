@@ -180,7 +180,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     protected buildGroupByIds(select: Select) {
         this.idsGroupBy.forEach((v, index) => {
             let idColumn = v;
-            let expField = new ExpField('id', idColumn.fromEntity.alias);
+            let expField = idColumn.fromEntity.expIdCol(); // new ExpField('id', idColumn.fromEntity.alias);
             select.column(expField, 'id' + index);
             select.group(expField);
             select.order(expField, this.buildAsc(idColumn));

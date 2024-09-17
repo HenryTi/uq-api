@@ -90,7 +90,8 @@ class BBizFor extends biz_select_1.BBizSelect {
         select.where(this.context.expCmp(where));
         if (isGroup === true) {
             for (let [, idCol] of ids) {
-                select.group(new sql_1.ExpField('id', idCol.fromEntity.alias));
+                //select.group(new ExpField('id', idCol.fromEntity.alias));
+                select.group(idCol.fromEntity.expIdCol());
             }
         }
         if (orderBys.length > 0) {

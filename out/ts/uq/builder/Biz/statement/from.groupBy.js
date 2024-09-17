@@ -159,7 +159,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     buildGroupByIds(select) {
         this.idsGroupBy.forEach((v, index) => {
             let idColumn = v;
-            let expField = new sql_1.ExpField('id', idColumn.fromEntity.alias);
+            let expField = idColumn.fromEntity.expIdCol(); // new ExpField('id', idColumn.fromEntity.alias);
             select.column(expField, 'id' + index);
             select.group(expField);
             select.order(expField, this.buildAsc(idColumn));
