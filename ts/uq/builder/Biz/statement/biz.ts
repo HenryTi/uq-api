@@ -18,7 +18,6 @@ import { EntityTable, GlobalTable } from "../../sql/statementWithFrom";
 import { buildSetAtomBud, buildSetSheetBud } from "../../tools";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
-import { LockType, Select, SelectTable } from "../../sql/select";
 
 export class BBizStatement extends BStatement<BizStatement<BizAct>> {
     head(sqls: Sqls) {
@@ -111,12 +110,15 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 ifValue.then(setPendIdNull);
                 setPendIdNull.equ(pendId, ExpNull.null);
 
-                let pendKeyTable = new GlobalTable($site, `${this.context.site}.${pend.id}`);
+                let pendKeyTableName = `${this.context.site}.${pend.id}`;
+                let pendKeyTable = new GlobalTable($site, pendKeyTableName, a);
                 let selectPendId = factory.createSelect();
                 ifValue.then(selectPendId);
                 selectPendId.toVar = true;
                 selectPendId.column(new ExpField('id'), pendId);
-                selectPendId.from(pendKeyTable);
+                selectPendId.from(pendKeyTable)
+                    .join(JoinType.join, new EntityTable(EnumSysTable.pend, false, b))
+                    .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)));
                 let wheres: ExpCmp[] = [];
                 for (let [name, val] of this.istatement.keys) {
                     wheres.push(new ExpEQ(new ExpField(name), this.context.expVal(val)));
@@ -127,13 +129,14 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 ifValue.then(ifKeyedId);
                 ifKeyedId.cmp = new ExpIsNull(new ExpVar(pendId));
                 ifKeyedId.then(setPendId);
-                let insertPendKey = factory.createInsert();
-                ifKeyedId.then(insertPendKey);
-                insertPendKey.table = pendKeyTable;
-                const { cols } = insertPendKey;
+                let upsertPendKey = factory.createInsertOnDuplicate();
+                ifKeyedId.then(upsertPendKey);
+                let pendKeyTableInsert = new GlobalTable($site, pendKeyTableName);
+                upsertPendKey.table = pendKeyTableInsert;
+                const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new ExpVar(pendId) });
                 for (let [name, val] of this.istatement.keys) {
-                    cols.push({ col: name, val: this.context.expVal(val) });
+                    keys.push({ col: name, val: this.context.expVal(val) });
                 }
             }
 

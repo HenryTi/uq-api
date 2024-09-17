@@ -86,12 +86,15 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 let setPendIdNull = factory.createSet();
                 ifValue.then(setPendIdNull);
                 setPendIdNull.equ(pendId, sql_1.ExpNull.null);
-                let pendKeyTable = new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${pend.id}`);
+                let pendKeyTableName = `${this.context.site}.${pend.id}`;
+                let pendKeyTable = new statementWithFrom_1.GlobalTable(consts_1.$site, pendKeyTableName, a);
                 let selectPendId = factory.createSelect();
                 ifValue.then(selectPendId);
                 selectPendId.toVar = true;
                 selectPendId.column(new sql_1.ExpField('id'), pendId);
-                selectPendId.from(pendKeyTable);
+                selectPendId.from(pendKeyTable)
+                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, b))
+                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));
                 let wheres = [];
                 for (let [name, val] of this.istatement.keys) {
                     wheres.push(new sql_1.ExpEQ(new sql_1.ExpField(name), this.context.expVal(val)));
@@ -101,13 +104,14 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 ifValue.then(ifKeyedId);
                 ifKeyedId.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(pendId));
                 ifKeyedId.then(setPendId);
-                let insertPendKey = factory.createInsert();
-                ifKeyedId.then(insertPendKey);
-                insertPendKey.table = pendKeyTable;
-                const { cols } = insertPendKey;
+                let upsertPendKey = factory.createInsertOnDuplicate();
+                ifKeyedId.then(upsertPendKey);
+                let pendKeyTableInsert = new statementWithFrom_1.GlobalTable(consts_1.$site, pendKeyTableName);
+                upsertPendKey.table = pendKeyTableInsert;
+                const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new sql_1.ExpVar(pendId) });
                 for (let [name, val] of this.istatement.keys) {
-                    cols.push({ col: name, val: this.context.expVal(val) });
+                    keys.push({ col: name, val: this.context.expVal(val) });
                 }
             }
             let setMid = factory.createSet();
