@@ -1,0 +1,18 @@
+-- UQ2 only support ID, IDX, IX
+-- UQ2 [bizdev]/[jxc] version='0.01' author='henry';
+UQ2 [jksoft]/[jksoft-mini-jxc-trial] version='0.60' author='henry' {
+    SCHEDULE CalcSource REPEAT -1 INTERVAL 1;
+    SCHEDULE CalcGroup REPEAT -1 INTERVAL 1;
+}
+
+DataType (
+    Amount DEC(18, 6),
+    Price DEC(18, 6),
+    Quantity DEC(18, 6),
+    Value DEC(18,6),
+    NO CHAR(30),
+    EX CHAR(200),
+    PropName CHAR(50),
+    Phrase CHAR(200),
+    BudStr CHAR(200),
+);

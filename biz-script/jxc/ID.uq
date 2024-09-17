@@ -1,0 +1,95 @@
+IDX IDU (
+    id,
+    base ID,            -- bizphrase ID,
+    INDEX base_id(base, id) Unique,
+);
+
+-- independant, searchable
+ID Atom ver 0.1 (
+    id,
+    KEY base ID,            -- sitePhrase
+    KEY id,
+    no NO,
+    ex EX,
+    INDEX base_no(base, no) UNIQUE,
+);
+
+IX AtomUnique ver 0.5 (
+    i,
+    x NO,
+    atom ID,
+    INDEX i_atom(i, atom) UNIQUE,
+);
+
+ID Spec ver 0.1 (
+    id MINUTE,
+    KEY base ID,
+    KEY id,
+);
+
+ID Duo ver 0.6 (
+    id MINUTE,
+    KEY i ID,
+    KEY x ID,
+    valid TINYINT DEFAULT 1,
+);
+
+-- 单据主表。单明细单据，也有主表
+ID Sheet ver 0.2 (
+    id MINUTE,
+    KEY base ID,            -- sitePhrase
+    KEY no,
+    operator ID,            -- employee Item
+);
+
+ID Detail ver 0.1 (
+    id MINUTE,
+    KEY base ID,
+    KEY id,
+);
+
+-- 所有单据的明细，单值
+IDX Bin (
+    id,
+    origin ID,              -- 源单
+    i ID,                   -- 计量对象。比如：商品不同包装或者批次
+    x ID,                   -- 两层关系，一行可分 操作对象。
+    value VALUE,
+    amount VALUE,
+    price VALUE,
+);
+
+ID Pend ver 0.1 (
+    id MINUTE,
+    KEY base ID,            -- BizPhrase
+    KEY id,
+    bin ID,
+    mid JSON,               -- 中间值，以数组方式存放
+    value VALUE DEFAULT 0,  -- 待处理数，到0，就清除
+);
+
+-- bin的pend来源。
+-- detail 提交之后，BinPend 这一行删除。
+IDX BinPend (
+    id,                 -- detail id
+    pendFrom ID,
+);
+
+IDX BinRed (
+    id,
+    red TINYINT DEFAULT 1,  -- 红冲单挂这里，挂主表
+);
+
+-- 各种中间状态。单据记账时，出现错误，在存储过程之间传递数据
+-- 这个需要仔细斟酌
+IDX Temp (
+    id,
+    value BIGINT,
+);
+
+ID Log (
+    id MINUTE,
+    KEY base ID,        -- site
+    KEY id,
+    value JSON,    -- text
+);

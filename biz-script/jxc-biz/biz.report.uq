@@ -1,0 +1,9 @@
+REPORT Sale '商品销售额' {
+    Permit *;
+    From Toy To SpecMedicine;
+    Title (D.a 'Da', D.a 'Dda');
+    -- Template template1;
+    -- List a '产品销售额' OF SpecMedicine;
+    -- List  '品类销售额' OF GoodsDirectory ON XDirectoryGoods;
+    -- From GoodsDirectory X XDirectoryGoods To SpecMedicine;
+}

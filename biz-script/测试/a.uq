@@ -1,0 +1,76 @@
+BIN 发货单明细 {
+    MAIN 发货单主表;    
+    PICK Pend '出库接口账' FROM 出库接口账 {
+        param param1 = %sheet.I;
+        --param param2 = pend.I;
+        Hide(物流中心);
+    };
+    I.base 货品信息;
+    I '器械批次' 器械批次 =pend.i;  
+    Value '发货数量' dec(2) := pend.value; 
+    Price '单价' dec(2) = pend.price;
+    Amount '金额' dec(2) = Value * Price;
+    Prop {
+      通知单号 char = pend.通知单号;
+      通知单行号 int = pend.通知单行号;
+      委托方 ATOM 委托方信息 = pend.委托方信息;
+      客户 ATOM 客户信息 = pend.客户信息;
+      出库类型  <edit:dropdown> radio 出库类型 = pend.出库类型 required;
+      计划数量 dec(4) = pend.value;
+      说明 char;
+    };
+    ACT {
+        Biz Pend -= value;
+        Biz Pend 待出库账 SET 
+          物流中心=%sheet.I,
+          委托方=%委托方,
+          客户=%客户,
+          出库类型=%出库类型, 
+          通知单号=%通知单号,
+          通知单行号=%通知单行号,
+          计划数量=%计划数量,
+          发货日期=%sheet.发货日期;
+
+        VAR 货位id ID = 1;
+        Biz Book 委托方货位批次库存账.可出数量 of (#委托方货位批次(%委托方,货位id,%I)) -= %value;
+        var 总出库数量 dec(2)=%计划数量;
+        For(
+            ID (
+                -- 有效期至=b.有效期至,--近效期先出
+                委托方货位批次ID=x, 
+                货品ID=c,
+                货位ID=a
+            ) 
+            Value(
+                可出总数量=(#委托方货位批次库存账.可出数量(x.id))
+            )
+            FROM 委托方货位批次(委托方信息 as d, F货位 as a, 器械批次(as c) as b) as x
+            WHERE d.id=%委托方 AND b.id=%I AND (#委托方货位批次库存账.可出数量(x.id)) > 0
+            ORDER BY c, 可出总数量 DESC
+        ) {
+            var 可出数量 dec(2)=可出总数量;
+            var 本次出库数量 dec(2)=0;
+            VAR exit TINYINT = 0;
+            
+            IF 可出数量>总出库数量 {
+                SET 本次出库数量=总出库数量;
+                SET exit = 1;
+            }
+            else {
+                SET 本次出库数量=可出数量;
+                SET 总出库数量=总出库数量-本次出库数量;
+            }
+            Biz Pend 待拣货任务下发账 SET 
+                物流中心=%sheet.I,
+                委托方=%委托方,
+                货位=货位id,
+                客户=%客户,
+                出库类型=%出库类型, 
+                通知单号=%通知单号,
+                通知单行号=%通知单行号,
+                发货日期=%sheet.发货日期,
+                Value=本次出库数量;
+            IF exit=1 BREAK;
+        }--循环体
+    }
+}

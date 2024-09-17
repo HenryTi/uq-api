@@ -1,0 +1,222 @@
+/*
+-- 度量类型
+ENUM MetricType (
+    count = 1,              -- 计数
+    length = 2,             -- 长度
+    area = 3,               -- 面积
+    volume = 4,             -- 体积
+    weight = 5,             -- 重量
+    time = 6,               -- 时长
+    currency = 7,           -- 货币
+);
+CONST CurrencyName = {
+    cny: 'cny',
+    usd: 'usd',
+    jpy: 'jpy',
+};
+
+-- 计量
+-- 比如：支，可以是针剂支，6支成盒，6盒成包，12包成箱
+-- 也可以：支，可以是杆支，8杆成捆，10捆成堆。
+-- 示例：MetricBase：阿莫西林支; 
+--    Metric1: 支(base:阿莫西林支，no:a1, ex:支, div:阿莫西林支, value: 1)
+--    Metric2: 盒(base:阿莫西林支，no:a1, ex:盒, div:支, value: 6)
+--    Metric3: 包(base:阿莫西林支，no:a1, ex:包, div:盒, value: 6)
+--    Metric4: 箱(base:阿莫西林支，no:a1, ex:箱, div:包, value: 12)
+ID Metric ver 0.3 (
+    id,
+    KEY base ID,            -- site
+    KEY no,                 -- 如果简单处理，可以直接是名字
+    ex CHAR(50),
+    type ENUM MetricType,
+    template ID,            -- 计量模板id
+) +(base, no, type)
+VALUES 
+(phraseId('subject.moniker'), CurrencyName.cny, MetricType.currency),
+(phraseId('subject.moniker'), CurrencyName.usd, MetricType.currency),
+(phraseId('subject.moniker'), CurrencyName.jpy, MetricType.currency),
+;
+
+-- 计量项，一个计量包含几个计量项
+ID MetricItem ver 0.3 (
+    id,
+    KEY base ID Metric,
+    KEY no,                     -- 如果简单处理，可以直接是名字
+    ex CHAR(50),
+    div ID Metric,              -- 细分层度量
+    value DEC(9,4) Default 1,   -- 换算值
+    template ID,                -- 计量项模板id
+) + (base, no)
+VALUES
+(ID(Metric new KEY base=phraseId('subject.moniker'), no=CurrencyName.cny), CurrencyName.cny),
+(ID(Metric new KEY base=phraseId('subject.moniker'), no=CurrencyName.usd), CurrencyName.usd),
+(ID(Metric new KEY base=phraseId('subject.moniker'), no=CurrencyName.jpy), CurrencyName.jpy),
+;
+
+-- site 自己的计量单位模板
+IX SiteMetric ver 0.1 (
+    ix,
+    xi Metric,
+) +(ix, xi)
+VALUES
+(0, ID(Metric new KEY base=phraseId('subject.moniker'), no=CurrencyName.cny)),
+(0, ID(Metric new KEY base=phraseId('subject.moniker'), no=CurrencyName.usd)),
+(0, ID(Metric new KEY base=phraseId('subject.moniker'), no=CurrencyName.jpy)),
+;
+
+IDX DxAtomMetric (
+    id,                         -- Atom
+    metricItem ID MetricItem,   -- Atom选定Metric后，会自动生成一个基础MetricItem项。这里记录基础item
+);
+
+ID AtomMetric ver 0.4 (
+    id,
+    KEY atom ID Atom *,
+    KEY metricItem ID MetricItem *,
+);
+
+ID AtomMetricSpec ver 0.4 (
+    id,
+    KEY atomMetric ID AtomMetric *,   -- atom and metricItem
+    KEY spec ID *,                    -- spec, 0 when no spec
+);
+
+ACT SaveMetric (
+    id ID,
+    -- KEY base ID,            -- site
+    no NO,                 -- 如果简单处理，可以直接是名字
+    ex CHAR(50),
+    type ENUM MetricType,
+    template ID,            -- 计量模板id
+)
+RETURNS ret (
+    id ID,
+) {
+    IF id IS NOT NULL {
+        -- 不可以修改no
+        WITH Metric as a ID=id SET a.ex=ex, a.type=type, a.template=template;
+    }
+    ELSE {
+        VAR noId ID = ID(Metric KEY base=$site, no=no);
+        IF noId IS NOT NULL {
+            SET id=-noId;
+        }
+        ELSE {
+            WITH Metric as a ID to id KEY($site, no) SET a.ex=ex, a.type=type, a.template=template;
+        }
+    }
+    INTO ret SELECT id;
+}
+
+ACT SaveMetricItem (
+    atom ID,
+    id ID,
+    base ID,
+    no NO,                      -- 如果简单处理，可以直接是名字
+    ex CHAR(50),
+    div ID Metric,              -- 细分层度量
+    value DEC(9,4),             -- 换算值
+    template ID,                -- 计量项模板id
+    metricType ENUM MetricType,
+    metricTemplate ID,
+)
+RETURNS ret (
+    id ID,
+    metric ID,
+    atomMetric ID,
+) {
+    VAR needSaveAtomMetric TINYINT;
+    VAR atomMetric ID;
+    IF base IS NULL {
+        SET needSaveAtomMetric=1;
+        WITH Metric as a ID to base KEY($site, no) SET a.ex=ex, a.type=metricType, a.template=metricTemplate;
+    }
+    ELSEIF NOT EXISTS (SELECT id FROM Metric as a WHERE a.id=base AND a.base=$site) {
+    -- 如果base不是当前site
+        RETURN;
+    }
+    IF id IS NOT NULL {
+        WITH MetricItem as a ID=id SET a.ex=ex, a.div=div, a.value=value;
+    }
+    ELSE {
+        WITH MetricItem as a ID TO id KEY(base, no) SET a.ex=ex, a.div=div, a.value=value, a.template=template;
+    }
+    IF atom IS NOT NULL {
+        WITH AtomMetric ID to atomMetric Key(atom, id as metricItem);
+        IF needSaveAtomMetric=1 {
+            WITH DxAtomMetric ID=atom SET metricItem=id;
+        }
+    }
+
+    INTO ret SELECT id, base as metric, atomMetric;
+}
+
+ACT SaveAtomMetric (
+    atom ID,
+    metricItem ID,
+)
+RETURNS ret (
+    id ID AtomMetric,
+) {
+    VAR id ID = ID(AtomMetric new KEY atom=atom, metricItem=metricItem);
+    INTO ret SELECT id;
+}
+
+ACT SaveAtomMetricSpec (
+    atomMetric ID,
+    spec ID,
+)
+RETURNS ret (
+    id ID AtomMetricSpec,
+) {
+    VAR id ID = ID(AtomMetricSpec new KEY atomMetric=atomMetric, spec=spec);
+    INTO ret SELECT id;
+}
+
+QUERY GetAtomMetric (
+    id ID,
+)
+RETURNS ret (
+    * Metric,
+)
+RETURNS items (
+    * MetricItem,
+) {
+    INTO ret SELECT * a
+        FROM DxAtomMetric as t
+            JOIN MetricItem as b ON b.id=t.metricItem
+            JOIN Metric as a ON a.id=b.base
+        WHERE t.id=id;
+    INTO items SELECT * b
+        FROM AtomMetric as t 
+            JOIN MetricItem as b ON b.id=t.metricItem
+            JOIN Metric as a ON a.id=b.base
+        WHERE t.atom=id;
+};
+
+QUERY SearchMetricTemplate (
+    key CHAR(50),
+    metricType ENUM MetricType,
+)
+PAGE (
+    * Metric ASC,
+) {
+    PAGE SELECT * b
+        FROM SiteMetric as a
+            JOIN Metric as b ON b.id=a.xi
+        WHERE (a.ix=$site OR a.ix=0)
+            AND (metricType IS NULL OR metricType<=0 OR b.type=metricType)
+            AND SEARCH(b.no, b.ex ON key);
+}
+
+QUERY GetMetricItems (
+    id ID Metric,
+)
+RETURNS ret (
+    * MetricItem,
+) {
+    INTO ret SELECT * a
+        FROM MetricItem as a
+        WHERE a.base=id;
+}
+*/

@@ -1,0 +1,340 @@
+SHEET 收货单 { 
+    Main 收货单主表; 
+    Detail 收货单明细; 
+    SEARCH (
+      I, 物流中心, 
+      收货单明细(I),
+    );
+}
+
+PEND 待验收账 '待验收' {  
+    S '单据'; 
+    SI '客户'; 
+    I '货品' 货品信息 { 
+      : 规格型号; 
+      : 单位; 
+      : 产地; 
+      : 生产厂商; 
+      : 包装; 
+      : 货品大类;  
+    };
+    Value '数量';
+    price '单价'; 
+    Prop { 
+        物流中心 Atom; 
+        委托方 Atom;
+        客户 Atom;
+        入库类型 radio 入库类型;
+        计划数量 dec(4);
+        到货日期 date;
+        批次证照证号 char;
+        生产许可或备案证号 char;
+      启运时间 date;
+      启运温度 char;
+      到货温度 char;
+      温控方式 radio 温控方式;
+    };
+    QUERY (
+        param1 Atom, 
+        param2 Atom, 
+        param3 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            and %物流中心=param1 
+            and %委托方=param2 
+            and %客户=param3 
+            ;
+        ; 
+    }
+} 
+
+SHEET 验收单 { 
+    Main 验收单主表; 
+    Detail 验收单明细; 
+    SEARCH (
+      I, 
+      验收单明细(I, 客户),
+    );
+}
+
+SHEET 入库单 { 
+    Main 入库单主表; 
+    Detail 入库单明细; 
+    SEARCH (
+      I, 
+      入库单明细(I),
+    );
+}
+
+BIN 收货单明细 {
+    Pick 货品  FROM 查询货品 {
+      Param 委托方 = %sheet.i; 
+      Param 客户 = %sheet.x;
+    };
+    Pick 货品批次证照 FROM 查询货品批次证照 {
+      Param 货品 = 货品; 
+    };
+    Pick 货品生产许可 FROM 查询货品生产证照 {
+      Param 货品 = 货品; 
+    }; 
+    I '货品Pick' 货品信息 {      
+      : 规格型号; 
+      : 单位; 
+      : 产地; 
+      : 生产厂商; 
+      : 包装; 
+      : 货品大类; 
+    } = 货品; 
+    Value '实收数量' dec(2); 
+    Price '单价' dec(2) = 货品.price;
+    Amount '金额' dec(2) = Value * Price;
+    Prop {
+      批次证照证号 char = 货品批次证照.证号;
+      生产许可或备案证号 char = 货品生产许可.证号;
+      计划数量 dec(4) = Value;
+      收货结论 <edit:pop> radio 收货结论 required;
+      说明 char;
+    };
+    ACT {
+      Biz Pend 待验收账 SET 
+      物流中心=%sheet.物流中心,
+      委托方=%sheet.i,
+      客户=%sheet.x,
+      入库类型=%sheet.入库类型, 
+      启运时间=%sheet.启运时间,
+      启运温度=%sheet.启运温度,
+      到货温度=%sheet.到货温度,
+      温控方式=%sheet.温控方式,  
+      计划数量=%计划数量,
+      到货日期=%sheet.到货日期,
+      批次证照证号=%批次证照证号,
+      生产许可或备案证号=%生产许可或备案证号;
+    }
+}
+
+PEND 待入库账 '待入库' {  
+    S '单据'; 
+    SI '客户'; 
+    I '货品' 货品信息 { 
+      : 规格型号; 
+      : 单位; 
+      : 产地; 
+      : 生产厂商; 
+      : 包装; 
+      : 货品大类;  
+      : 默认货位;
+    };
+    Value '数量';
+    price '单价'; 
+    Prop { 
+        物流中心 Atom; 
+        委托方 Atom;
+        客户 Atom;
+        入库类型 radio 入库类型;
+        验收结论 radio 验收结论;
+        --包装 dec(4);
+        --中包装 dec(4);
+        计划数量 dec(4);
+
+    };
+    QUERY (
+        param1 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            and %物流中心=param1 
+            ;
+        ; 
+    }
+} 
+
+BIN 入库单明细 {
+    Pick pend '待入库商品' FROM 待入库账 { 
+        param param1 = %sheet.X;
+    };
+    I '货品信息' 货品信息  { 
+        : 规格型号; 
+        : 单位; 
+        : 产地; 
+        : 生产厂商; 
+        : 包装; 
+        : 货品大类; 
+        : 默认货位;
+    }=pend.I;
+    Div '单价' {
+      Value '入库数量' := pend.value >=0 <=pend.value; 
+      Price '单价' = pend.price;
+      Amount '金额' = Value * Price;
+      --Pick 查询库区 from 查询库区信息 {
+          --Param p物流中心 = 查询物流中心;
+        --};
+        --Pick 查询货位 from 查询库区货位 {      
+          --Param p库区 = 查询库区; 
+        --};
+      Prop 库区 atom 库区信息;-- = 查询库区;
+      Prop 货位 atom 货位信息;-- = 查询货位; 
+      --Prop 货位 atom 货位信息=I.默认货位;-- = 查询货位; 
+      --库区类型 <edit:pop> radio 库区类型 = 查询库区.类型;
+    }
+    Prop {
+      委托方 atom 委托方信息 = pend.委托方;
+      客户 atom 客户信息 = pend.客户;
+      -- 批次货品
+      --包装 dec(4);
+      --件数 dec(4);
+      入库类型 radio 入库类型 = pend.入库类型;
+      验收结论 radio 验收结论 = pend.验收结论; 
+    };
+    ACT {
+      Biz Pend -= value;
+      Biz Title 库存.数量 of (#物流中心货品(%sheet.X,%I)) += %value;
+      Biz Title 库存.可出数量 of (#物流中心货品(%sheet.X,%I)) += %value;
+     
+     --写法1 
+     Biz Title 库存.数量 of (#物流中心货位货品new((#物流中心货位new(%sheet.X,%货位)),%I)) += %value;
+     
+     --Biz Title 库存.数量 of (#物流中心机构货品((#物流中心机构(收获物流中心,采购机构)),%I)) += %value
+     --写法2 
+     --VAR a = (#物流中心货位new(%sheet.X,%货位));
+     --VAR b = (#物流中心货位货品new(a,%I));
+     --Biz Title 库存.数量 of b += %value;
+
+
+
+    }
+}
+
+
+BIN 验收单明细 {
+    MAIN 验收单主表;
+    Pick pend '待验收' FROM 待验收账 {
+        param param1 = %sheet.I;
+        param param2 = %sheet.X; 
+        param param3 = %sheet.客户;
+    };
+    I.base; 
+    Div '单价' {
+      Input spec SPEC 器械批次 Base=Pend.i; 
+      I '器械批次' 器械批次  { 
+        : 规格型号; 
+        : 单位; 
+        : 产地; 
+        : 生产厂商; 
+        : 包装; 
+        : 货品大类; 
+      }= spec;
+      Price '单价' := pend.price; 
+      Div {
+          Prop 外观质量情况 Radio 外观质量情况 required; 
+          Prop 验收结论 Radio 验收结论 required; 
+          Prop 验收结论评定 radio 验收结论评定;
+          Prop 检验报告书 <edit:pop> radio 有无;
+          Value '验收数量' := pend.value >=0 <=pend.value; -- 订单数量;
+          Prop 抽检数量 dec(4);
+          Prop 抽检结论 <edit:pop> radio 是否合格;
+          Prop 查验结果 <edit:pop> radio 是否合格; 
+          Amount '金额'  = Value * Price; 
+      }
+    }
+    Prop {      
+      客户 atom 客户信息 = pend.客户;
+      到货日期 date=pend.到货日期;
+      入库类型 radio 入库类型 = pend.入库类型;
+      计划数量 dec(4)=pend.计划数量;
+      --中包装 dec(4);
+      --包装 dec(4);  
+      批次证照证号 char = pend.批次证照证号; 
+      生产许可或备案证号 char = pend.生产许可或备案证号;
+      --启运时间 date=curdate();
+      --启运温度 char;
+      --到货温度 char;
+      --温控方式 <edit:pop> radio 温控方式 required;
+      --说明 char;
+    };
+    ACT {
+      Biz Pend -= value;
+      Biz Pend 待入库账 SET 
+      物流中心=%sheet.I,
+      委托方=%sheet.X,
+      客户=%客户,
+      --包装=%包装,
+      --中包装=%中包装,
+      计划数量=%计划数量, 
+      入库类型=%入库类型,
+      验收结论=%验收结论
+      ;
+    }
+}
+
+BIN 入库单主表 {
+    Pick 保管员 from 职员信息;
+    Pick 查询物流中心 from 查询职员物流中心 {
+        Param 职员 = 保管员;
+    };
+    I '保管员' 职员信息 = 保管员;
+    X '物流中心' 物流中心信息 = 查询物流中心;
+    Prop {
+      备注 char;
+    }
+}
+
+BIN 验收单主表 {
+    Pick 验收员查询 from 职员信息;    
+    Pick 查询物流中心 from 查询职员物流中心 {
+        Param 职员 = 验收员查询;
+    };    
+    Pick 查询委托方 from 查询物流中心委托方 {
+        Param 物流中心 = 查询物流中心;
+    };    
+    Pick 查询客户 from 查询客户 {
+        Param 委托方 = 查询委托方;
+    };    
+    I '物流中心' 物流中心信息 = 查询物流中心;
+    X '委托方' 委托方信息 = 查询委托方;
+    Prop {         
+      客户 atom 客户信息 = 查询客户;
+      验收日期 date=curdate();
+      验收员 atom 职员信息 = 验收员查询 required;
+      验收员2 atom 职员信息;
+      备注 char;
+    }
+}
+
+BIN 收货单主表 {
+    Pick 查询收货员 from 职员信息;
+    Pick 查询物流中心 from 查询职员物流中心 {
+        Param 职员 = 查询收货员;
+    };    
+    Pick 委托方 from 查询物流中心委托方 {
+        Param 物流中心 = 查询物流中心;
+    };    
+    Pick 查询客户 from 查询客户 {
+        Param 委托方 = 委托方;
+    };
+    I '委托方' 委托方信息 = 委托方;
+    X '客户' 客户信息 = 查询客户;
+    Prop {
+      物流中心 ATOM 物流中心信息=查询物流中心 required;
+      收货员 ATOM 职员信息=查询收货员 required;
+      到货日期 date = curdate() required;
+      入库类型 <edit:pop> radio 入库类型 required;
+      温控方式 <edit:pop> radio 温控方式 required;
+      温控状况 <edit:pop> radio 温控状况 required;
+      收货员2 atom 职员信息;
+      业务员 char;
+      启运时间 date = curdate() required;
+      启运温度 char;
+      运输时间 char;
+      运输过程温度 char;
+      到货温度 char;
+      备注 char;
+    }
+}
+

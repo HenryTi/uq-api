@@ -1,0 +1,26 @@
+ATOM t1 {
+}
+
+ATOM 货品 {
+}
+
+SPEC 批次 {
+    BASE 货品;
+    PRESET;
+    KEY no;
+}
+
+SHEET 订单 {
+    Main 订单主表;
+    Detail 订单明细;
+}
+
+BIN 订单主表 {
+    I 货品;
+}
+
+BIN 订单明细 {
+    -- I.BASE;
+    I 批次;
+    Value;
+}

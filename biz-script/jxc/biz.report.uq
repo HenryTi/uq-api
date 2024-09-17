@@ -1,0 +1,95 @@
+Biz QUERY GetReport1 (
+    reportPhrase ID,
+    atomPhrase ID,
+    atomId ID,
+    dateStart Date,
+    dateEnd Date,
+    params JSON,
+)
+PAGE (
+    id ID ASC,
+    phrase ID,
+    no NO,
+    ex EX,
+    value JSON,
+) {
+
+}
+
+-- atomId is null, then Atom of phrase
+-- else, phrase IX atomId as i
+Biz QUERY GetReport (
+    reportPhrase ID,
+    atomPhrase ID,
+    atomId ID,
+    dateStart Date,
+    dateEnd Date,
+    params JSON,
+)
+PAGE (
+    id ID ASC,
+    phrase ID,
+    no NO,
+    ex EX,
+    value JSON,
+)
+RETURNS specs (
+    id ID,
+    phrase ID,
+    base ID,
+    value JSON,
+    props JSON,
+) {
+    VAR me ID = Me();
+
+    -- 查权限
+    IF NOT EXISTS (SELECT i FROM IxPermission WHERE i=reportPhrase AND x=-1 AND a=1)
+       OR NOT EXISTS (SELECT a.i 
+            FROM IxPermission as a
+                JOIN IxUserRole as b ON b.i=me AND b.x=a.x
+            WHERE a.i=reportPhrase AND a.a=1
+        )
+        AND NOT EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1)
+    {
+        RETURN;
+    }
+
+    -- 以后可以加其它的检查条件，查询权限
+    IF NOT EXISTS (SELECT a.id FROM BizPhrase as a WHERE a.id=reportPhrase AND a.base=$site)
+        OR  NOT EXISTS (SELECT a.id FROM BizPhrase as a WHERE a.id=atomPhrase AND a.base=$site)
+    {
+        RETURN;
+    }
+    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', reportPhrase, '`(?,?,?,?,?,?,?,?,?);');
+    LOG sql subject 'GetReport';
+    ExecSql sql USING $site, me, $pageStart, $pageSize, atomPhrase, atomId, dateStart, dateEnd, params;
+}
+
+QUERY GetHistory (
+    objId ID,
+    title ID,
+)
+PAGE (
+    id ID DESC,
+    value VALUE,
+    ref ID,
+    plusMinus TINYINT,
+    sheetNo NO,
+    sheetPhrase ID,
+    binPhrase ID,
+) {
+    -- VAR bud ID = ID(Bud KEY base=objId, ext=title);
+    PAGE SELECT a.id, a.value, a.ref, a.plusMinus, c.no as sheetNo, d.ext as sheetPhrase, b2.ext as binPhrase
+        FROM History as a
+            LEFT JOIN Bud as a1 ON a1.id=a.bud
+            LEFT JOIN Bin as b ON b.id=a.ref
+            LEFT JOIN Detail as b1 ON b1.id=b.id
+            LEFT JOIN Bud as b2 ON b2.id=b1.base
+            LEFT JOIN Sheet as c ON c.id=b2.base
+            LEFT JOIN Bud as d ON d.id=c.base
+            LEFT JOIN BizPhrase as e ON e.id=d.ext
+        WHERE a.id < $pageStart AND a1.base=objId AND a1.ext=title
+        ORDER BY a.id DESC
+        LIMIT $pageSize;
+};
+

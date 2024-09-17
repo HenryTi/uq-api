@@ -1,0 +1,117 @@
+Atom b ver 0.5 {
+    Permit (经理 crud, 检验 r);
+    Permit 销售1 r;
+    Permit *;                 -- 所有角色开放所有权限
+    -- Permit * r;               -- 所有角色开放读权限
+    prop a int ;
+    prop b char = 1;
+    prop c char;
+};
+
+Atom bc9 {
+    -- 没有Role，则意味着 ROLE -;
+    prop bc9a CHAR;
+}
+
+Atom Contact '往来单位' {
+    prop a '整数' int;
+    prop txt '字符串' char;
+    prop contactPerson '联系人' atom Person;
+    prop b '类型' radio ContactSize;
+    prop c '可信度' radio CreditOptions;
+    prop d '产品种类' check ProductType;
+};
+
+Options ContactSize (
+    big '大' = 1, 
+    中 = 2, 
+    small '小' = 3,
+);
+
+Options CreditOptions (
+    高 = 1, 
+    中 = 2, 
+    低 = 3,
+);
+
+Options ProductType (
+    中药 = 1,
+    片剂 = 2,
+    水剂 = 3,
+    器械 = 4,
+);
+
+-- 承担业务的人，可以是employee，也可以外部人员
+Atom Person '人员' {
+};
+
+Atom PersonGroup '小组' {
+};
+
+Atom Goods ver 0.1 '商品' {
+    UOM;
+    Prop 厂家 ATOM Contact;
+};
+
+Atom Toy '玩具' extends Goods {
+};
+
+Atom Medicine '药品' extends Goods {
+    -- Spec BatchValid;
+    Prop specification '规格' CHAR;
+};
+
+Spec SpecUom {
+    IX BASE;
+    KEY uom ATOM UOM;
+};
+
+-- Base: if no base, default to ($site, phrase)
+--      else, base=(base, phrase)
+-- Key: combine unique in base
+Spec SpecMedicine '药品批次' {
+    BASE Medicine;
+    KEY no '批号' Char;
+    KEY validTo '效期' Date;
+    Prop permit '批文号' Char;
+};
+
+Atom MedicineChinese '中药' extends Medicine {
+    Prop ApprovalChin '中药批号' CHAR;
+};
+
+Atom SpecialMedicineChinese '中药饮品' extends Medicine {
+    Prop ApprovalChin '中药批号' CHAR;
+};
+
+Atom MedicalDevice '医疗器械' extends Goods {
+};
+
+-- 鞋
+Atom Shoe '鞋' extends Goods {
+};
+
+Spec SpecShoe ver 1.7 '型号' {
+    BASE Shoe;
+    KEY size '尺码' CHAR;              -- size id 尺码
+    KEY color '颜色' CHAR;             -- color id 花色
+}
+
+Biz Tie ConcactProduct {
+};
+
+Biz Tie DepartmentMember '部门' {
+    Prop Director;
+    Prop Senior;
+    Prop Junior;
+};
+
+Tie XDirectoryGoods '大类商品对照表';
+
+ATOM GoodsDirectory '产品大类';
+
+ATOM Storage '仓库' {
+    prop 面积 dec;
+    prop 容积 dec;
+    prop 地点 char;
+}

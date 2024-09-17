@@ -1,0 +1,34 @@
+BIN 入库单明细 {
+    Pick pend '待入库商品' FROM 待入库账 { 
+        param param1 = %sheet.X;
+    };
+    I '货品信息' 货品信息  
+    { 
+        : 规格型号; 
+        : 单位; 
+        : 产地; 
+        : 生产厂商; 
+        : 包装; 
+        : 货品大类; 
+        : 默认货位;
+    }=pend.I;
+    Div '单价' {
+      Prop 库区 atom 库区信息;
+      Prop 货位 atom 货位信息; 
+      Value '入库数量' := pend.value >=0 <=pend.value; 
+      Price '单价' = pend.price;
+      Amount '金额' = Value * Price;
+    }
+    Prop {
+      委托方 atom 委托方信息 = pend.委托方;
+      客户 atom 客户信息 = pend.客户;
+      入库类型 radio 入库类型 = pend.入库类型;
+      验收结论 radio 验收结论 = pend.验收结论; 
+    };
+    ACT {
+      Biz Pend -= value;
+      Biz Title 库存.数量 of (#物流中心货品(%sheet.X,%I)) += %value;
+      Biz Title 库存.可出数量 of (#物流中心货品(%sheet.X,%I)) += %value;
+     Biz Title 库存.数量 of (#物流中心货位货品new((#物流中心货位new(%sheet.X,%货位)),%I)) += %value;
+    }
+}

@@ -1,0 +1,509 @@
+SHEET 入库单 {
+    Main 入库单主表;
+    Detail 入库单明细;
+        SEARCH (
+        I, 
+        入库单明细(I, 采购机构,收货物流中心,供应商)
+               );
+        } 
+
+SHEET 采购结算单 {
+    Main 采购结算单主表;
+    Detail 采购结算单明细;
+    SEARCH (
+        I, 汇款单号, 
+        采购结算单明细(I, 采购机构, 收货物流中心),
+    );
+} 
+SHEET 出库单 {
+    Main 出库单主表;
+    Detail 出库单明细;
+        SEARCH (
+        I, 
+        出库单明细(I, 客商,发货物流中心),
+        );
+} 
+
+SHEET 销售结算单 {
+    Main 销售结算单主表;
+    Detail 销售结算单明细;
+        SEARCH (
+        I, 汇款单号, 
+        销售结算单明细(I),
+    );
+} 
+PEND 待入库账 '待入库' {  
+    S '单据'; 
+    SI '客户'; 
+    I '商品' 货品信息 {
+            : 规格型号;  
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业;
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件; 
+    };
+    Value '数量';
+    price '单价'; 
+    Prop { 
+        采购机构 Atom; 
+        收货物流中心 Atom;  
+        采购员备注 DEC; 
+        供应商 Atom;
+    };
+    QUERY (
+        param1 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            and %收货物流中心=param1 
+            ;
+        ; 
+    }
+} 
+
+BIN 销售单主表 {
+    Pick 销售员 FROM 查询职员;
+    Pick 客商 FROM 查询客商 {
+       param 销售员 = 销售员; 
+    }    
+    I '客商' 客商信息 = 客商;
+    X '销售员' 职员信息 = 销售员; 
+        Prop {
+            
+        结算方式 <edit:pop> radio 结算方式;
+        备注 CHAR;
+    };
+}
+PEND 待出库账 '待出库' {  
+    S '单据'; 
+    SI '客户'; 
+    I '商品' 货品信息 {
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件;  
+    };
+    Value '数量'; 
+    price '单价'; 
+
+    Prop { 
+        客商 Atom;
+        发货物流中心 Atom;  
+    };
+    QUERY (
+        param1 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1
+            and %发货物流中心=param1
+            --and %客商=param1  
+            ;
+        ; 
+    }
+} 
+
+
+BIN 采购单主表 {
+    Pick 采购员 FROM 查询职员;
+    Pick 供应商 FROM 采购员查询供应商 {
+       param 采购员 = 采购员; 
+    }
+    I '供应商' 供应商信息 = 供应商;
+    X '采购员' 职员信息 = 采购员; 
+    Prop {
+        采购机构 ATOM 公司机构信息 required;
+        收货物流中心 ATOM 物流中心信息 required; 
+        签订日期  date=curdate();
+        结算方式 <edit:pop> radio 结算方式;
+        备注 CHAR;
+    };
+}
+BIN 入库单明细 ver 0.2 { 
+    --Pick 采购机构 FROM 公司机构信息;
+    Pick 收货物流中心 FROM 物流中心信息; 
+    Pick pend '待入库商品' FROM 待入库账 { 
+        param param1 = 收货物流中心;
+    };
+    I '商品' 货品信息  {
+            : 规格型号;
+            : 单位; 
+            : 注册人或备案人;   
+            : 受托生产企业;
+            : 注册证号或备案凭证号;
+            : 生产许可证号; 
+            : 存储条件; 
+    }= Pend.i;
+    Value '入库数量' := pend.value >=0 <=订单数量; 
+    Price '单价' := pend.price; 
+    Amount '金额'  = Value * Price;  
+    PROP {
+        订单数量'订单数量' = pend.value;
+        采购机构 ATOM 公司机构信息= Pend.采购机构;
+        收货物流中心 ATOM 物流中心信息= Pend.收货物流中心; 
+        供应商 ATOM 供应商信息= Pend.供应商;
+        供应商1 ATOM = Pend.si;
+    } 
+    ACT {
+        Biz Pend -= value;
+        Biz Pend 待采购结算账 SET 供应商=%供应商,采购机构=%采购机构,收货物流中心=%收货物流中心; 
+        --Biz Title 库存.数量 of %I += %value;
+        --Biz Title 库存.可出数量 of %I += %value;
+        Biz Title 库存.数量 of (#物流中心货品(%收货物流中心,%I)) += %value;
+        Biz Title 库存.可出数量 of (#物流中心货品(%收货物流中心,%I)) += %value;
+        --Biz Title 库存.数量 of (#物流中心公司机构货品((#物流中心公司机构(收货物流中心,采购机构)),%I)) += %value;
+    };
+}
+BIN 出库单明细 ver 0.2 { 
+    Pick 发货物流中心 FROM 物流中心信息; 
+    Pick pend '待出库商品' FROM 待出库账 {
+        param param1 = 发货物流中心;
+    };
+    I '商品' 货品信息 {
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件;  
+    }= Pend.i; 
+          
+    Value '发货数量' := Pend.value >=0 <=订单数量;
+    Price '单价' = Pend.price;
+    Amount '金额'  = Value * Price;   
+    PROP {
+        订单数量'订单数量' = pend.value;
+        客商 ATOM 客商信息= Pend.客商;
+        发货物流中心 ATOM 物流中心信息= Pend.发货物流中心;
+    } 
+    ACT {
+        Biz Pend -= value;
+        Biz Pend 待销售结算账 SET 客商=%客商;
+        --Biz Title 库存.数量 of %I -= %value;
+        Biz Title 库存.数量 of (#物流中心货品(%发货物流中心,%I)) -= %value;
+        --Biz Title 库存.数量 of (#物流中心货品(%收货物流中心,%I)) -= %value;
+    };
+}
+BIN 销售结算单主表 {
+    Pick 客商 FROM 客商信息;
+    I '客商' 客商信息 = 客商; 
+    prop {
+        汇款单号 char required;
+    }
+} 
+
+BIN 采购结算单明细 ver 0.2 {
+    Pick pend '待结算商品' FROM 待采购结算账 {
+        param param1 = %sheet.i; 
+    };
+    I '商品' 货品信息  { 
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件; 
+    }= Pend.i;
+
+    Value '数量' := Pend.value >=0 <=待结算数量;    
+    Price '单价' = Pend.price;
+    Amount '金额'  = Value * Price;   
+    PROP {
+        待结算数量 '待结算数量' = Pend.value;
+        采购机构 ATOM 公司机构信息= Pend.采购机构;
+        收货物流中心 ATOM 物流中心信息= Pend.收货物流中心;
+    }
+    ACT {
+        Biz Pend -= value;
+    };
+}
+SHEET 销售单 {
+    Main 销售单主表;
+    Detail 销售单明细;
+    SEARCH (
+        I, X, 结算方式, 
+        销售单明细(I, 物流中心),
+            );
+}   
+PEND 待销售结算账 '待销售结算' {  
+    S '单据'; 
+    SI '客商'; 
+    I '商品' 货品信息 {
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件; 
+    };
+    Value '数量';
+    price '单价'; 
+    Prop { 
+        客商 Atom;
+    };
+    QUERY (
+        param1 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            and %客商=param1
+            ;
+        ; 
+    }
+} 
+
+SHEET 采购单 { 
+    Main 采购单主表; 
+    Detail 采购单明细; 
+        SEARCH (
+        I, X, 采购机构, 
+        采购单明细(I, 采购员备注),
+    );
+}
+BIN 采购单明细 ver 0.2 {    
+    Pick 货品  FROM 查询货品 {
+        Param 供应商 = %sheet.i; 
+    }  
+    I '商品Pick' 货品信息 {      
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件; 
+    } = 货品; 
+    Value '数量' dec(2); 
+    Price '单价' dec(2) = 货品.price;
+    Amount '金额' dec(2) = Value * Price;  
+    Prop { 
+        采购员备注 char;  
+    };
+    ACT { 
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month;
+
+        Biz Pend 待验收账 SET 
+        收货物流中心=%sheet.收货物流中心,
+        采购机构=%sheet.采购机构,
+        采购员备注=%采购员备注,
+        供应商=%sheet.i;
+        
+        Biz Title 采购.数量 of %I += %value;
+        Biz Title 采购.单价 of %I = %Price;
+        Biz Title 采购.金额 of %I += %Amount;
+    };
+}
+BIN 销售单明细 ver 0.3 {
+    Pick 物流中心 FROM 物流中心信息;
+    Pick hp FROM 查询库存 {
+       param p物流中心 = 物流中心; 
+    };
+
+    I '货品信息' 货品信息 {    
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件;  
+    } = hp; 
+
+    --Value '数量' DEC;
+    Value '数量' := hp.可出数量 >=0 <=可出数量; 
+    Price '单价' DEC;
+    Amount '金额' DEC = Value * Price;
+    PROP {
+        可出数量'可出数量' = hp.可出数量;
+        物流中心 ATOM 物流中心信息= hp.物流中心; 
+    } 
+    ACT {
+        Biz Pend 待出库账 SET 
+        客商=%sheet.i
+        ,发货物流中心=%物流中心
+        ;
+        --Biz Title 库存.可出数量 of %I -= %value;
+        Biz Title 库存.可出数量 of (#物流中心货品(%物流中心,%I)) -= %value;
+        Biz Title 销售.数量 of %I += %value;
+        Biz Title 销售.单价 of I = Price;
+        Biz Title 销售.金额 of %I += %Amount;
+    };
+}
+BIN 入库单主表 {
+    Pick 保管员 FROM 职员信息;
+    I '保管员' 职员信息 = 保管员; 
+} 
+
+BIN 销售结算单明细 ver 0.2 {
+    Pick pend '待结算商品' FROM 待销售结算账 {
+        param param1 = %sheet.i; 
+    };
+    I '商品' 货品信息  { 
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件; 
+    }= Pend.i;
+
+    Value '数量' := Pend.value;
+    Price '单价' = Pend.price;
+    Amount '金额'  = Value * Price;   
+    PROP {
+        待结算数量 '待结算数量' = Pend.value;
+    }
+    ACT {
+        Biz Pend -= value;
+    };
+}
+BIN 出库单主表 {
+    Pick 保管员 FROM 职员信息;
+    I '保管员' 职员信息 = 保管员; 
+};
+
+BIN 采购结算单主表 {
+    Pick 供应商 FROM 供应商信息;
+    I '供应商' 供应商信息 = 供应商; 
+    prop {
+        汇款单号 char required;
+    }
+} 
+
+PEND 待采购结算账 '待采购结算' {  
+    S '单据'; 
+    SI '供应商'; 
+    I '商品' 货品信息 {
+            : 规格型号; 
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业; 
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件; 
+    };
+    Value '数量';
+    price '单价';  
+    Prop { 
+        供应商 Atom;
+        采购机构 Atom;
+        收货物流中心 Atom;
+    };
+    QUERY (
+        param1 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            and %供应商=param1
+            ;
+        ; 
+    }
+} 
+
+SHEET 验收单 {
+    Main 验收单主表;
+    Detail 验收单明细;
+        SEARCH (
+        I, 
+        验收单明细(I, 采购机构,收货物流中心,供应商)
+               );
+        } 
+
+PEND 待验收账 '待验收' {  
+    S '单据'; 
+    SI '客户'; 
+    I '商品' 货品信息 {
+            : 规格型号;  
+            : 单位; 
+            : 注册人或备案人; 
+            : 受托生产企业;
+            : 注册证号或备案凭证号; 
+            : 生产许可证号; 
+            : 存储条件; 
+    };
+    Value '数量';
+    price '单价'; 
+    Prop { 
+        采购机构 Atom; 
+        收货物流中心 Atom;  
+        采购员备注 DEC; 
+        供应商 Atom;
+    };
+    QUERY (
+        param1 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            and %收货物流中心=param1 
+            ;
+        ; 
+    }
+} 
+
+BIN 验收单明细 ver 0.2 {
+    --Pick 采购机构 FROM 公司机构信息;
+    Pick 收货物流中心 FROM 物流中心信息; 
+    Pick pend '待验收商品' FROM 待验收账 { 
+        param param1 = 收货物流中心; 
+    };
+    I.base;
+    Div '单价' {
+        Input spec SPEC 药品批次 Base=Pend.i; 
+        I '药品批次' 药品批次  { 
+                : 规格型号;
+                : 单位; 
+                : 注册人或备案人;   
+                : 受托生产企业;
+                : 注册证号或备案凭证号;
+                : 生产许可证号; 
+                : 存储条件; 
+        }= spec;
+        Price '单价' := pend.price; 
+        Amount '金额'  = Value * Price;  
+        Div {
+            Prop 外观质量情况 Radio 外观质量情况 required; 
+            Prop 验收结论 Radio 验收结论 required; 
+            Value '验收数量' := pend.value >=0 <=pend.value; -- 订单数量; 
+        }
+    }
+    PROP {        
+        采购机构 ATOM 公司机构信息= Pend.采购机构;
+        收货物流中心 ATOM 物流中心信息= Pend.收货物流中心;
+        供应商 ATOM 供应商信息= Pend.供应商;
+        订单数量'订单数量' = pend.value; 
+        --供应商1 ATOM = Pend.si;
+    } 
+    ACT {
+        Biz Pend -= value;
+        Biz Pend 待入库账 SET 供应商=%供应商,采购机构=%采购机构,收货物流中心=%收货物流中心;
+    };
+}
+BIN 验收单主表 {
+    Pick 验收员 FROM 职员信息;
+    I '验收员' 职员信息 = 验收员; 
+} 
+

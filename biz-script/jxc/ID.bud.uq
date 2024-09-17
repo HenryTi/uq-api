@@ -1,0 +1,153 @@
+IX *IxBud (
+    i,
+    x,
+);
+
+-- 分开IxBudInt, IxBudDec和IxBudStr的原因：
+-- subject会有很大量，都是用IxBudDec。report针对IxBudDec。计分，可能是整数，也放到dec里面。
+-- IxBudInt更多用于标志
+-- IxBudStr用量相对较少
+IX IxBudInt (
+    i,
+    x,
+    value BIGINT DEFAULT 0,
+);
+
+IX IxBudDec (
+    i,
+    x,
+    value VALUE DEFAULT 0,
+);
+
+IX IxBudStr (
+    i,
+    x,
+    value BudStr,
+);
+
+IX IxBudCheck (
+    ii,
+    i,
+    x,
+);
+
+IX IxBudJson (
+    i,
+    x,
+    value JSON,
+);
+
+-- 从id基于phrase分裂生长的id。比如特定权限id。仅限经理可以见的客户。ID(unit@permit.经理)/contact
+-- IxBud可以表达权限。i=id的权限bud，
+ID Bud ver 0.1 (
+    id MINUTE,
+    KEY base ID,            -- 任何的id，包含site
+    KEY ext ID,             -- 可以是任意定义的phrase，无site。也可以是任意的id
+);
+
+-- I: me or me bud
+IX IxState ver 0.1 (
+    i,                     -- UserSite
+    x INDEX,
+);
+
+ID History ver 0.1 (
+    id MINUTE,
+    bud ID,                 -- 科目 bud@(id, phrase)
+    value Value,
+    ref ID,                 -- 相关凭证
+    plusMinus TINYINT,      -- 0: =, 1: +, -1: -
+    INDEX bud_id(bud, id) UNIQUE,
+);
+
+FUNC SiteBudId ver 0.4 (
+    phrase CHAR(100),
+) 
+RETURNS ID {
+    VAR phraseId ID;
+    SET phraseId = (SELECT a.id 
+        FROM BizPhrase as a 
+--            JOIN BizPhrase as b ON b.id=a.base
+        WHERE a.name=phrase and a.base=$site);
+    VAR siteBud ID = ID(Bud New KEY base=$site, ext=phraseId);
+    return siteBud;
+};
+
+FUNC BudPhrase ver 0.4 (
+    SiteBudId ID
+) 
+RETURNS CHAR(200) {
+    VAR phrase CHAR(200) = (SELECT a.name 
+        FROM BizPhrase as a 
+            JOIN Bud as b ON b.ext=a.id -- AND b.base=$site 
+        WHERE b.id=SiteBudId
+        NO LOCK
+    );
+    return phrase;
+};
+
+FUNC BudId ver 0.1 (
+    base ID,                -- any ID, if null then $site
+    phrase ID,
+) 
+RETURNS ID {
+    /* VAR phraseId ID;
+    SET phraseId = (SELECT a.id 
+        FROM BizPhrase as a 
+--            JOIN BizPhrase as b ON b.id=a.base
+        WHERE a.name=phrase
+--         and b.base=$site
+    ); */
+    VAR budId ID = ID(Bud New KEY base=ifnull(base, $site), ext=phrase);
+    return budId;
+};
+
+Func BudValueInt (
+    atom ID,
+    bud ID,
+)
+RETURNS BIGINT {
+    VAR ret BIGINT;
+    SET ret = a.value FROM IxBudInt as a WHERE a.i=atom AND a.x=bud;
+    return ret;
+};
+
+Func BudValueStr (
+    atom ID,
+    bud ID,
+)
+RETURNS CHAR(100) {
+    VAR ret CHAR(100);
+    SET ret = a.value FROM IxBudStr as a WHERE a.i=atom AND a.x=bud;
+    return ret;
+};
+
+Func BudValueDec (
+    atom ID,
+    bud ID,
+)
+RETURNS VALUE {
+    VAR ret VALUE;
+    SET ret = a.value FROM IxBudDec as a WHERE a.i=atom AND a.x=bud;
+    return ret;
+};
+
+FUNC Me()
+RETURNS ID {
+    VAR me ID = ID($UserSite New KEY user=$user, site=$site);
+    return me;          -- $user site
+};
+
+FUNC AtomPhrase(
+    atom ID,
+)
+RETURNS CHAR(200) {
+    VAR phrase CHAR(200) = (SELECT c.name 
+        FROM Atom as a
+            JOIN Bud as b ON b.id=a.base
+            JOIN BizPhrase as c ON c.id=b.ext
+        WHERE a.id=atom
+        NO LOCK
+    );
+    return phrase;
+};

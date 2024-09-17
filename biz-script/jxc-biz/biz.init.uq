@@ -1,0 +1,11 @@
+Atom Currency {
+};
+
+Biz Title SiteSetting {
+    PROP {
+        currency '默认货币' ATOM Currency;
+        startSumMonth '汇总开始月' INT;      -- 月汇总的开始。之前的月汇总是预置的，之后的月汇总是计算的。
+        startFiscalMonth '财年开始月' INT;   -- 财年开始月
+        startFiscalDay '财年开始日' INT;     -- 财年开始日
+    }
+};

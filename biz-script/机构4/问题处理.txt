@@ -1,0 +1,153 @@
+美化：
+1、基础信息 字段标签整体靠左，字段和单据主表字段一样横向排列---先做
+问题：
+1、查询报表没有结果---bug正在改
+2、批选过来的枚举值不能赋值到明细---bug
+
+优化：（以下可以慢慢优化）
+1、目前查询里, 需要能支持Me 
+QUERY 查询操作人对应职员 “查询操作人对应职员”(
+FROM 职员信息 OF 操作人职员关联 on Me
+COLUMN
+ID ASC，
+%ex,
+2、Pick查询中好像还不支持使用主表的其它字段, 选待处理账是支持的
+3、拆分明细的地方支持pick基础信息---后期底层修改
+4、基础信息和单据能设置枚举值默认---后期底层修改
+5、基础信息和单据中除了基础信息，其他字段能否直接录入，不要在弹出窗体中填写---后期前台修改
+6、明细批选的数据能赋值主表字段---后期底层修改
+
+IN inTest {
+    prop a int; 
+    prop b dec; 
+    prop c date; 
+    prop d char; 
+    ACT {
+        VAR sheetId ID; 
+        WITH Sheet ID TO sheetId SET no='1', ex='bb';
+    };
+    ARR arr { 
+        PROP d1 int; 
+        PROP d2 dec;
+        PROP d3 date; 
+        PROP d4 char;
+        ACT {
+            VAR b ID = 1; 
+            VAR c DEC(18,4) = 1.0; 
+        };
+    }
+};
+
+IN inTest (
+    a int,
+    b dec, 
+    c date,
+    d char, 
+    arr (
+        d1 int,
+        d2 dec,
+        d3 date,
+        d4 char,
+    ),
+) {
+    VAR sheetId ID; 
+    WITH Sheet ID TO sheetId SET no='1', ex='bb';
+    FOR ARR arr { 
+        VAR b ID = 1; 
+        VAR c DEC(18,4) = 1.0; 
+        BIZ Detail 采购单明细 OF 采购单=id SET i=1, x=2, 采购机构=2; 
+    }
+}
+
+OUT out货主 ON 货主接口.jkscm.outtest;
+
+OUT OutTest (
+    a int,
+    b dec,  
+    c date, 
+    d char,
+    e ID, 
+    detail ( 
+            d1 int, 
+            d2 dec,
+            d3 date,
+            d4 char,
+            d5 ID,
+        )
+); 
+
+IOSite 货主接口 {
+    Tie 部门信息;
+    IOApp {
+        jkscm;
+    };
+};
+
+IOAPP jkscm '倢科SCM' {
+    ID b to 部门信息;
+    ID c to 物流中心信息;
+    ID d to 药品|器械;
+    ID jk供应商信息 TO 供应商信息;
+    IN intest {
+        a: b;
+        arr: {
+            d1: c ID b;
+        }
+    };
+    Out outtest {
+        e: e ID d;
+        detail: detail2 {
+            d5: k ID b;
+        }
+    };
+}
+
+-- 机构2：
+In in收货单 (
+    a int,
+    b dec,  
+    c date, 
+    d char,
+    e ID,  
+    detail (
+            d1 int, 
+            d2 dec, 
+            d3 date,
+            d4 char,
+            d5 ID,
+        )
+) {
+    USE SHEET sheetId 收货单;
+    Biz Sheet sheetId SET i=e;
+    For detail {
+--        Biz Sheet sheetId Detail 收货单明细 SET i=d5, value=d2, price=d1, amount=d1*d2;
+    }
+}
+
+-- 机构4：
+IOAPP bz机构2 '机构2业务管理' {
+    ID bz货品 to 器械|药品;
+    ID bz供应商信息 TO 供应商信息;
+    /*
+    IN in收货单 (
+        a int,
+        b dec,  
+        c date, 
+        d char,
+        e ID, 
+        detail ( 
+                d1 int, 
+                d2 dec,
+                d3 date,
+                d4 char,
+                d5 ID,
+            )
+        );
+        */
+        IN in收货单 {
+        e: e ID bz供应商信息;
+        detail: detail2 {
+            d5: k ID bz货品;
+        }
+    };
+}

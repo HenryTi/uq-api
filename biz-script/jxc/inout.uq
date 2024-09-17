@@ -1,0 +1,434 @@
+ENUM #EnumIODoneType (
+    pending = 0,
+    done = 1,
+    error = 2,
+    errorDeliver = 21,
+    errorID = 31,
+);
+
+ID #IOQueue (
+    id MINUTE,
+    KEY endPoint ID, -- DUO(siteAtomApp, appIO),
+    KEY id,
+    value JSON,
+    done ENUM EnumIODoneType DEFAULT EnumIODoneType.pending,
+    orgId ID,                       -- 防止重复，暂不处理
+    INDEX endPoint_orgId(endPoint, orgId) UNIQUE,
+);
+
+IX IOInOut (
+    i TINY,                         -- 0: out, 1: in, 2: atom unique
+    x,                              -- 待处理的IOQueue id
+);
+
+IDX IOError (
+    id,
+    siteAtomApp ID,
+    appIO ID,
+    inOut TINYINT DEFAULT 0,        -- 0: out, 1: in
+    result JSON,
+    times SMALLINT DEFAULT 1,
+    -- INDEX endPoint_id(endPoint, id) UNIQUE,
+    INDEX siteAtomApp_id(siteAtomApp, id) UNIQUE,
+);
+
+ID #IOSiteAtomApp (
+    id,
+    KEY ioSiteAtom ID,          -- DUO(IOSite entity id, tied atom)
+    KEY ioApp ID,               -- IOApp entity id
+    site ID,                    -- owner site
+    inKey CHAR(400),            -- in key
+    inPassword CHAR(30),        -- in password
+    outUrl CHAR(200),           -- out url
+    outKey CHAR(400),           -- out key
+    outPassword CHAR(30),       -- out password
+    valid TINYINT DEFAULT 1,    -- 0: invalid, 1: valid
+    INDEX site_id(site, id) UNIQUE,
+);
+
+IDX IOApp (
+    id,
+    connect JSON,                -- {connectType: 1|2}
+);
+
+-- 外部ID跟内部id对照表
+-- Duo AppID (IOSiteAtomApp, appID);
+ID #IOAppAtom (
+    id,                         -- IO atom id
+    KEY appID ID,               -- Duo AppID (IOSiteAtomApp, pharse IOApp.ID)
+    KEY atom ID,                -- tonwa uq atom id
+    no NO,                      -- outer app no
+    INDEX appID_no(appID, no) UNIQUE,
+);
+
+Biz QUERY GetIOSiteAtoms(
+    ioSite ID,
+)
+PAGE (
+    id ID ASC,
+    no NO,
+    ex EX,
+    ioSiteAtom ID,
+    errorCount INT,
+) {
+    PAGE SELECT b.id, b.no, b.ex, a.id as ioSiteAtom
+        , (SELECT count(*) FROM IOError as x JOIN IOSiteAtomApp as y ON y.id=x.siteAtomApp WHERE y.ioSiteAtom=a.id LIMIT 1) as errorCount
+        FROM Duo as a 
+            JOIN Atom as b ON b.id=a.x
+            JOIN BizPhrase as c ON c.id=a.i
+        WHERE c.base=$site AND a.i=ioSite AND a.x>$pageStart AND a.valid=1
+        ORDER BY a.x ASC
+        LIMIT $pageSize;
+}
+
+Biz QUERY GetIOAtomApps(
+    ioSite ID,
+    atom ID,
+)
+RETURNS ret (
+    ioSite ID,                  -- IOSite entity id
+    atom ID,                    -- atom
+    ioApp ID,                   -- IOApp entity id
+    siteAtomApp ID,
+    inKey CHAR(400),           -- app key
+    inPassword CHAR(50),
+    outUrl CHAR(200),           -- out url
+    outKey CHAR(400),           -- out key
+    outPassword CHAR(30),       -- out password
+    valid TINYINT,
+) {
+    VAR ioSiteAtom ID = ID(Duo Key i=ioSite, x=atom);
+    INTO ret SELECT b.i as ioSite, b.x as atom, a.ioApp, a.id as siteAtomApp
+        , a.inKey, a.inPassword
+        , a.outUrl, a.outKey, a.outPassword, a.valid
+        FROM IOSiteAtomApp as a
+            JOIN Duo as b ON b.id=a.ioSiteAtom
+        WHERE a.ioSiteAtom=ioSiteAtom;
+}
+
+PROC SetIOSiteAtomApp (
+    ioSite ID,
+    atom ID,
+    ioApp ID,                   -- IOApp entity id
+    valid TINYINT,
+)
+RETURNS ret (
+    id ID,
+) {
+    VAR id ID, ioSiteAtom ID;
+    SET ioSiteAtom=ID(Duo new Key i=ioSite, x=atom);
+    IF id IS NULL {
+        WITH IOSiteAtomApp as a ID to id KEY(ioSiteAtom, ioApp) SET a.valid=valid, a.site=$site;
+    }
+    ELSE {
+        WITH IOSiteAtomApp as a KEY(ioSiteAtom, ioApp) SET a.valid=valid, a.site=$site;
+    }
+    IF valid=1 {
+
+    }
+    INTO ret SELECT id;
+}
+
+Biz AC SetIOSiteAtomAppOut (
+    ioSiteAtomApp ID,
+    outUrl CHAR(200),
+    outKey CHAR(400),
+    outPassword CHAR(30),
+) {
+    WITH IOSiteAtomApp as a ID=ioSiteAtomApp 
+        SET a.outUrl=outUrl, a.outKey=outKey, a.outPassword=outPassword;
+}
+
+PROC SetIOSiteAtomAppKey (
+    ioSiteAtomApp ID,
+    key CHAR(200),
+    password CHAR(50),
+) {
+    WITH IOSiteAtomApp ID=ioSiteAtomApp SET inKey=key, inPassword=password;
+}
+
+PROC IOGetAppIn ver 0.2 (
+    siteAtomApp ID,
+    ioName CHAR(200),
+)
+RETURNS ret (
+    endPoint ID,
+    inPassword CHAR(50),
+) {
+    TRANS Rollback On Error;
+    TRANS START;
+    VAR endPoint ID, inPassword CHAR(50), appIO ID, ioApp ID;
+    SET appIO=c.id, ioApp=a.ioApp
+        FROM IOSiteAtomApp as a
+            JOIN BizPhrase as b ON b.id=a.ioApp
+            JOIN BizPhrase as c ON c.base=b.id
+        WHERE a.id=siteAtomApp AND c.name=CONCAT(b.name, '.', ioName);
+    SET inPassword=a.inPassword
+        FROM IOSiteAtomApp as a
+        WHERE a.id=siteAtomApp;
+    SET endPoint=a.id
+        FROM Duo as a -- IOEndPoint as a
+        WHERE a.i=siteAtomApp AND a.x=appIO;
+    IF endPoint IS NULL {
+        -- SET endPoint=ID(IOEndPoint new KEY siteAtomApp=siteAtomApp, appIO=appIO);
+        SET endPoint=ID(Duo new KEY i=siteAtomApp, x=appIO);
+    }
+    INTO ret SELECT endPoint as endPoint, inPassword as inPassword;
+    TRANS COMMIT;
+}
+
+PROC ProcessIOIn ver 0.2 (
+    batchNumber INT,            -- 批处理数量，默认1
+)
+RETURNS ret (
+    sql CHAR(200),
+    queueId ID,
+) {
+    TRANS Rollback On Error;
+    IF batchNumber IS NULL {
+        SET batchNumber=1;
+    }
+    VAR i INT = 0, id ID=0, sql CHAR(500), site ID, inout ID, json JSON, inSite ID;
+    WHILE i<batchNumber {
+        TRANS START;
+        SET inout=null;
+        SET id=b.id, site=e.base, inout=c.x, json=b.value, inSite=f.x
+            FROM IOInOut as a 
+                JOIN IOQueue as b ON a.i=1 AND b.id=a.x
+                JOIN Duo as c ON c.id=b.endPoint
+                JOIN IOSiteAtomApp as d ON d.id=c.i
+                JOIN BizPhrase as e ON e.id=d.ioApp
+                JOIN Duo as f ON f.id=d.ioSiteAtom
+            WHERE a.x>id
+            ORDER BY a.x ASC 
+            LIMIT 1;
+        IF inout IS NOT NULL {
+            SET sql = CONCAT('call `$site`.`', site, '.', inout, '`(?,?,?);');
+            ExecSql sql USING id, inSite, json;
+            INTO ret SELECT CONCAT('call `$site`.`', site, '.', inout, '`') as sql, id as queueId;
+            SET i=i+1;
+        }
+        TRANS COMMIT;
+        IF inout IS NULL { BREAK; }
+    }
+}
+
+PROC ProcessIOOut ver 0.2 (
+    batchNumber INT,            -- 批处理数量，默认1
+)
+RETURNS ret (
+    id ID,
+    value JSON,
+    outName Char(100),
+    outUrl CHAR(200),
+    outKey CHAR(400),
+    outPassword CHAR(30),
+    outConnect JSON,
+) {
+    TRANS Rollback On Error;
+    TRANS START;
+    IF batchNumber IS NULL {
+        SET batchNumber=1;
+    }
+    INTO ret SELECT b.id, b.value, e.name as outName, d.outUrl, d.outKey, d.outPassword, f.connect as outConnect
+        FROM IOInOut as a 
+            JOIN IOQueue as b ON a.i=0 AND b.id=a.x
+            -- JOIN IOEndPoint as c ON c.id=b.endPoint
+            JOIN Duo as c ON c.id=b.endPoint
+            JOIN IOSiteAtomApp as d ON d.id=c.i -- siteAtomApp
+            JOIN BizPhrase as e ON e.id=c.x -- appIO
+            JOIN IOApp as f ON f.id=d.ioApp
+        ORDER BY a.x ASC
+        LIMIT batchNumber;
+    TRANS COMMIT;
+}
+
+PROC ProcessIOOutDone ver 0.2 (
+    id ID,
+    doneType ENum EnumIODoneType,
+    result JSON,
+) {
+    TRANS Rollback On Error;
+    -- VAR endPoint ID;
+    VAR siteAtomApp ID, appIO ID;
+    SET siteAtomApp=b.i, appIO=b.x FROM IOQueue as a JOIN Duo as b ON b.id=a.endPoint WHERE a.id=id;
+    IF siteAtomApp IS NULL {
+        RETURN;
+    }
+    TRANS START;
+    IF result IS NOT NULL {
+        IF EXISTS(SELECT a.id FROM IOError as a WHERE a.id=id) {
+            WITH IOError as a ID=id SET a.result=result, a.times=a.times+1;
+        }
+        ELSE {
+            WITH IOError as a ID=id SET a.siteAtomApp=siteAtomApp, a.appIO=appIO, a.result=result, a.inOut=0;
+        }
+        IF doneType is NULL {
+            SET doneType = EnumIODoneType.error;
+        }
+    }
+    ELSE {
+        SET doneType=EnumIODoneType.done;
+        WITH IOError ID=id DEL;
+    }
+    WITH IOQueue ID=id SET done=doneType;
+    WITH IOInOut I=0 X=id DEL;
+    TRANS COMMIT;
+}
+
+PROC SaveIOInQueue ver 0.2 (
+    endPoint ID,
+    value JSON,
+    orgId ID,                   -- 防止重复
+)
+RETURNS ret (
+    queue ID,
+    reason CHAR(200),
+) {
+    TRANS Rollback On Error;
+    TRANS START;
+    VAR id ID, reason CHAR(200);
+    IF orgId<=0 {
+        SET orgId=NULL;
+    }
+    -- IF EXISTS(SELECT a.id FROM IOEndPoint as a WHERE a.id=endPoint) {
+    IF EXISTS(SELECT a.id FROM Duo as a WHERE a.id=endPoint) {
+        IF orgId IS NULL 
+            OR NOT EXISTS(SELECT a.id FROM IOQueue as a WHERE a.endPoint=endPoint AND a.orgId=orgId) 
+        {
+            WITH IOQueue ID to id KEY(endPoint) SET value=value, orgId=orgId;
+            WITH IOInOut I=1 X=id;
+        }
+    }
+    ELSE {
+        SET reason=CONCAT('endPoint not exists:', endPoint);
+    }
+    INTO ret SELECT id as queue, reason;
+    TRANS COMMIT;
+}
+
+BIZ ACT SaveIOAtom (
+    id ID,
+    ioSite ID,                  -- ioSite id
+    siteAtom ID,                    -- ioSite tied atom id
+    ioApp ID,                   -- ioApp id
+    ioAppID ID,                 -- ioApp.ID Entity id
+    atom ID,
+    no NO,                      -- outer atom no
+) 
+RETURNS ret (
+    id ID,
+) {
+    IF no IS NULL {
+        WITH IOAppAtom as a ID=id DEL;
+    }
+    ELSE {
+        VAR ioSiteAtom ID = ID(Duo new KEY i=ioSite, x=siteAtom);
+        VAR ioSiteAtomApp ID = a.id FROM IOSiteAtomApp as a WHERE a.ioSiteAtom=ioSiteAtom AND a.ioApp=ioApp;
+        VAR appID ID = ID(Duo new Key i=ioSiteAtomApp, x=ioAppID);
+        SET id = -a.id FROM IOAppAtom as a WHERE a.appID=appID AND a.no=no;
+        IF id IS NULL {
+            WITH IOAppAtom as a ID to id KEY(appID, atom) SET a.no=no;
+        }
+    }
+    INTO ret SELECT id;
+}
+
+BIZ QUERY GetIOAtoms (
+    ioSite ID,                  -- ioSite id
+    siteAtom ID,                -- ioSite tied atom id
+    ioApp ID,                   -- ioApp id
+    ioAppID ID,                 -- ioApp.ID entity id
+)
+PAGE (
+    atom ID ASC,
+    atomNo NO,
+    atomEx EX,
+    no NO,
+) {
+    VAR ioSiteAtom ID = ID(Duo new KEY i=ioSite, x=siteAtom);
+    VAR ioSiteAtomApp ID = a.id FROM IOSiteAtomApp as a WHERE a.ioSiteAtom=ioSiteAtom AND a.ioApp=ioApp;
+    VAR appID ID = ID(Duo new Key i=ioSiteAtomApp, x=ioAppID);
+    PAGE SELECT a.atom, c.no as atomNo, c.ex as atomEx, a.no
+        FROM IOAppAtom as a
+            JOIN Atom as c ON c.id=a.atom
+        WHERE a.appID=appID AND a.atom>$pageStart
+        ORDER BY a.atom ASC
+        LIMIT $pageSize;
+}
+
+BIZ QUERY GetIOErrorCounts (
+    -- siteAtomApp ID,
+)
+RETURNS ret (
+    siteAtomApp ID,
+    ioSite ID,
+    ioAtom ID,
+    ioApp ID,
+    errorCount INT,
+) {
+    INTO ret SELECT a.id as siteAtomApp, 
+        b.i as ioSite,
+        b.x as ioAtom,
+        a.ioApp as ioApp,
+        (SELECT COUNT(*) FROM (SELECT y.id FROM IOError as y WHERE y.siteAtomApp=a.id LIMIT 1) as x) as errorCount
+        FROM IOSiteAtomApp as a 
+            JOIN Duo as b ON b.id=a.ioSiteAtom
+        WHERE a.site=$site;
+}
+
+BIZ QUERY GetIOError (
+    siteAtomApp ID,
+)
+PAGE (
+    id ID DESC,
+    siteAtomApp ID,
+    appIO ID,
+    result JSON,
+    times SMALLINT,
+    done ENUM EnumIODoneType,
+) {
+    PAGE SELECT a.id, a.siteAtomApp, a.appIO, a.result, a.times, c.done
+        FROM IOError as a
+            JOIN IOSiteAtomApp as b ON b.id=a.siteAtomApp AND b.site=$site
+            JOIN IOQueue as c ON c.id=a.id
+        WHERE a.siteAtomApp=siteAtomApp AND a.id<$pageStart
+        ORDER BY a.id DESC
+        LIMIT $pageSize;
+}
+
+Biz AC IORetry (
+    id ID,
+) {
+    VAR inOut TINYINT;
+    SET inOut=a.inOut FROM IOError as a WHERE a.id=id;
+    WITH IOInOut I=inOut X=id;
+}
+
+Biz AC BuildAtomUnique(
+    phrase ID,              -- atom phrase id
+    start ID,               -- start id, from 0
+    batchNumber INT,        -- default 30,
+)
+RETURNS ret (
+    batchDone INT,          -- < batchNumber, then all done
+    lastId ID,
+)
+RETURNS DupTable (
+    unique ID,
+    i ID,                   -- bud(unique, key)
+    x NO,
+    atom ID,                -- 
+)
+{
+    IF start IS NULL {
+        SET start = 0;
+    }
+    VAR done INT = 0, lastId ID;
+    FOR (VAR id ID OF SELECT a.id FROM Atom as a WHERE a.base=phrase AND a.id>start ORDER BY a.id ASC LIMIT batchNumber) {
+        ProcCall '$site'.CONCAT($site, '.', phrase, 'u') USING id;
+        SET done = done+1;
+        SET lastId = id;
+    }
+    INTO ret SELECT done as batchDone, lastId;
+}

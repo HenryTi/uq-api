@@ -1,0 +1,29 @@
+REPORT cgcx '采购查询' {
+    Permit *;
+    From 器械 To 器械批次;
+    Title (采购.数量 '采购数量', 采购.单价 '采购单价', 采购.金额 '采购金额');
+}
+
+REPORT xscx '销售查询' {
+    Permit *;
+    From 器械 To 器械批次;
+    Title (销售.数量 '销售数量', 销售.单价 '销售单价', 销售.金额 '销售金额');
+}
+
+REPORT kccx '库存查询' {
+    Permit *;
+    From 器械 To 器械批次;
+    Title (库存.数量 '库存数量');
+}
+
+REPORT jxc '进销存报表' {
+    Permit *;
+    From 器械 To 器械批次;
+    Title (采购.数量, 销售.数量 '销售数量', 库存.数量 '库存数量');
+}
+
+REPORT 物流中心库存报表 {
+    Permit *;
+    From 物流中心货品 to 货品信息;
+    Title (库存.可出数量 '可出数量',库存.数量 '库存数量');
+}

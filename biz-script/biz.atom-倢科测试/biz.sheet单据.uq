@@ -1,0 +1,198 @@
+Biz Sheet 采购单 {
+    Main 采购单主表;
+    Detail 采购单明细;     
+}
+
+Biz Bin 采购单主表 {
+    I '供应商' Pick 客户信息;
+    X '采购员' Pick 职员信息;
+}
+
+QUERY qq1 (
+    a '参数a' CHAR='3',
+    b '参数b' INT=5,
+    -- c '参数c' Options b,
+    c, d, e,
+) {
+    /*
+    :(FROM) 医疗器械批次->(as)a x^ (货品信息,医疗器械)->b x ...;
+    @(WHERE) (a.id=1) && (a.x=3);
+    !(SELECT) a='bbd';           -- 基本不需要，因为选出字段都有默认id。当不是默认时，才需要select
+    !(SELECT) b=a.3;
+    #c @(ON) 1>2;                -- 禁止项
+    (:医疗器械批次->(as)a x^ (货品信息|医疗器械)->b @ a.id=1 && a.x=3 !b.id)
+    (:医疗器械批次 @=1 !id)
+    (:医疗器械批次@1 !a)
+    (#销售额(id)) -- title
+    (#采购单明细(bin).value)
+    (#采购单明细(1).a)
+    (#ix(2,bddd).value)
+    Use TimeZone = 3;
+    Use MonthZone = 16;
+    Use TimeSpan a week(now), day(now), year(now), month(now), hour(now), minute(now);
+    Use TimeSpan a+=1;
+    (#采购额(id) in a - 6);
+    */
+    VAR v1 INT = c; 
+    VAR p1 CHAR(200) = a; 
+    FROM 货品信息|医疗器械 OF 部门(id) as a
+        ID a.id ASC
+        -- RETURNS 1 as a, 2 as b
+        SEARCH p1
+        WHERE a like p1
+    ;
+    FROM 医疗器械批次 OF base as a
+        ID a.id ASC
+    ;
+};
+
+Pick 查询货品 {
+    ATOM (货品信息,医疗器械);
+    Spec 医疗器械批次;
+};
+
+Biz Pend 待入库账 '待入库' {  
+    S '单据'; 
+    SI '客户';
+    I '商品';
+    Value '数量';
+    Prop {
+        p1 DEC;
+        p2 DEC;
+    };
+}
+
+Biz Bin 采购单明细带查询 ver 0.1 {
+    Pick pickA FROM q1;
+    Pick pickB FROM q2 {
+        PARAM base=pickA;
+    }
+    I <caption:数量, a:1, b:3> = PickSpec; 
+    Value '数量' dec(2);
+    Price '单价' dec(2) = {
+        PUT = 2;
+        PUT Amount = Value*Price;
+    } ON (I);
+    Amount '金额' dec(2) = Value * Price;
+    ACT {
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month; 
+        VAR a VALUE = (#采购单明细(bin).value); 
+        VAR b VALUE = (#销售单明细(bin).value);
+        VAR c VALUE = (#采购.数量(#Spec on ^=i).sum in w);
+        VAR d VALUE = (#采购.数量(#TieA.b on i=i));
+        Biz Pend 待入库账 SET p1=price, p2=amount;
+        Biz Title 销售.数量 of I += value;
+        Biz Title 销售.金额 of I += value;
+    };
+}
+
+Biz Bin 采购单明细 ver 0.1 {
+    Pick pickA FROM q1;
+    Pick pickB FROM q2 {
+        PARAM base=pickA;
+    }
+    Pick pickGoods FROM 货品信息|医疗器械 {
+    }
+    Pick pickSpec FROM 医疗器械批次 {
+        PARAM base=pickA;
+    }
+
+    I '商品Pick' = PickSpec; 
+    Value '数量' dec(2);
+    Price '单价' dec(2) = {
+        PUT = 2;
+        PUT Amount = Value*Price;
+    } ON (I);
+    Amount '金额' dec(2) = Value * Price;
+    ACT {
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month; 
+        VAR a VALUE = (#采购单明细(bin).value); 
+        VAR b VALUE = (#销售单明细(bin).value);
+        VAR c VALUE = (#采购.数量(i).sum in w);
+        VAR d VALUE = (#采购.数量(i));
+        Biz Pend 待入库账 SET p1=price, p2=amount;
+        Biz Title D.a of I += value;
+        Biz Title D.b of I += value;
+    };
+}
+
+Biz Title D {
+    PROP a DEC History;
+    PROP b DEC History;
+    PROP c '库存' DEC History;
+}
+
+Biz Sheet SheetStoreIn '入库单' {
+    Main 入库单主表;
+    Detail 入库单明细;
+    /*
+    ACT {
+
+    }
+    STATE a1 {
+        Main {
+            prop a dec;
+            prop b dec;
+            ATC {
+
+            }
+        }
+        Detail 入库单明细 {
+            prop c dec;
+            ACT {
+
+            }
+        }
+        ACT {
+
+        }
+    }
+    STATE a2 {
+    }
+    */
+}
+
+Biz Bin 入库单主表 {
+    I '存货仓库' Pick 物流中心信息;
+}
+
+Biz Bin 入库单明细 ver 0.2 {
+    Pend 待入库账 '待入库商品' {
+        SEARCH I;
+    };      -- 从某个待处理账来
+    I '商品' = Pend.i;
+    Value '数量' := Pend.value;
+    ACT {
+        Biz Pend -= value;
+    };
+}
+
+Biz Sheet SheetSale '销售单' {
+    Main MainSale;
+    Detail DetailSale;
+}
+
+Biz Bin MainSale {
+}
+
+Biz Bin DetailSale ver 0.1 {
+    I '客户' Pick 客户信息;
+    X '商品Pick' Pick 货品信息; 
+    Value '数量' DEC;
+    Price '单价' DEC;
+    Amount '金额' DEC = Value * Price;
+    ACT (detail ID) {
+    };
+}
+
+--平台级字段
+--S,  单据ID
+--SI, 主表上的I
+--SX, 主表上的X
+--I, 明细上的I
+--X, 明细上的X
+--VALUE, 数量
+--Price, 单价
+--Amount，金额

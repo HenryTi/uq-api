@@ -1,0 +1,129 @@
+
+Atom 职员信息 {
+    prop 性别 radio 性别;
+    prop 家庭住址 char;
+    prop 手机号 char;
+};
+
+Atom 货位信息 {
+
+};
+
+Options 性别 (
+    男 = 1, 
+    女 = 2, 
+);
+
+Atom 物流中心信息 {
+    prop 职员人数 int;
+    prop 地址 char;
+    prop 营业执照 char;
+    prop 面积 char;
+    prop 负责人 atom 职员信息;
+    prop 认证类型 radio 认证类型分类;
+    prop 可存储类别 check 可存储类别分类;
+};
+
+Options 认证类型分类 (
+    器械第三方 = 1, 
+    药品第三方 = 2, 
+);
+
+Options 可存储类别分类 (
+    一类 = 1,
+    二类 = 2,
+    三类 = 3,
+);
+
+Atom 生产厂商信息 {
+    prop 地址 char;
+    prop 业务代表 char;
+};
+
+--货品信息分类
+Atom 药品信息 '药品信息' extends 货品信息 {
+     Prop 批准文号  CHAR;
+};
+Atom 医疗器械 '医疗器械' extends 货品信息 {
+     Prop 注册证号  CHAR;
+     Prop 注册证号有效期至  date;
+};
+Atom 中药饮片 '中药饮片' extends 货品信息 {
+     Prop 切制规格  CHAR;
+     Prop 炮制规格  CHAR;
+};
+
+Atom 货品信息 {
+    prop 规格 char;
+    prop 条形码 char;
+    prop 存储条件 char;
+    prop 长 dec(2);
+    prop 宽 dec(2);
+    prop 高 dec(2) format '{value}厘米';
+    prop 生产厂商 atom 生产厂商信息;
+    prop 双人验收 radio 选择是否;
+    prop 双人复核 radio 选择是否;
+};
+Options 选择是否 (
+    是 = 1, 
+    否 = 2, 
+);
+
+Spec 药品批次 '药品批次' {
+    BASE 药品信息;
+    KEY 批号 Char;
+    KEY 生产日期 Date;
+    KEY 效期 Date;
+};
+
+Spec 医疗器械批次 '医疗器械批次' {
+    BASE 医疗器械;
+    KEY 批号 Char;
+    KEY 生产日期 Date;
+    KEY 效期 Date;
+    Prop 注册证号  Char;
+};
+
+
+--客户信息分类
+Atom 供应商信息 '供应商' extends 客户信息 {
+     Prop 采购员  atom 职员信息;
+};
+Atom 客商信息 '客商' extends 客户信息 {
+     Prop 销售员  atom 职员信息;
+};
+Atom 经销商信息 '经销商'  extends 客户信息 {
+     Prop 渠道专员  atom 职员信息;
+};
+
+Atom 客户信息 {
+    prop 联系人 atom 职员信息;
+    prop 企业规模 radio 企业规模;
+    prop 资信度 radio 资信度;
+    prop 经营范围 check 可存储类别分类;
+    prop 客户类型 radio 客户类型;
+};
+
+Options 企业规模 (
+    大 = 1, 
+    中 = 2, 
+    小 = 3,
+);
+
+Options 资信度 (
+    高 = 1, 
+    中 = 2, 
+    低 = 3,
+);
+
+Options 客户类型 (
+    供应商 = 1, 
+    客商 = 2, 
+    供应商且客商 = 3,
+);
+
+Spec SpecUom {
+    IX BASE;
+    KEY uom ATOM UOM;
+};
+

@@ -1,0 +1,44 @@
+PEND 待验收账 '待验收' {  
+    S '单据'; 
+    SI '客户'; 
+    I '货品' 货品信息 { 
+      : 规格型号; 
+      : 单位; 
+      : 产地; 
+      : 生产厂商; 
+      : 包装; 
+      : 货品大类;  
+    };
+    Value '数量';
+    price '单价'; 
+    Prop { 
+        物流中心 Atom; 
+        委托方 Atom;
+        客户 Atom;
+        入库类型 radio 入库类型;
+        计划数量 dec(4);
+        到货日期 date;
+        批次证照证号 char;
+        生产许可或备案证号 char;
+      启运时间 date;
+      启运温度 char;
+      到货温度 char;
+      温控方式 radio 温控方式;
+    };
+    QUERY (
+        param1 Atom, 
+        param2 Atom, 
+        param3 Atom, 
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            --and %物流中心=param1 
+            --and %委托方=param2 
+            --and %客户=param3 
+            ;
+        ; 
+    }
+} 

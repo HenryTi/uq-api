@@ -1,0 +1,27 @@
+PERMIT A菜单 {
+};
+
+PERMIT 销售1 {
+}
+
+PERMIT 经理 ver 0.14 {
+    Permit 销售1;
+    Permit 销售部经理;
+};
+
+PERMIT 检验员 {
+    Permit 检验;
+}
+
+PERMIT 销售部经理 {
+    Permit 入库;
+}
+
+PERMIT 入库 {
+}
+
+PERMIT 检验 {
+    Permit 入库;
+};
+
+

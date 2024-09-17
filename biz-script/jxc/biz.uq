@@ -1,0 +1,433 @@
+-- all biz code tables start with biz
+-- all biz objects store here
+
+ENUM BizPhraseType (
+    any = 0,
+    atom = 11,
+    fork = 12,
+    bud = 13,
+    budGroup = 14,
+    duo = 15,           -- 二重奏
+    combo = 16,
+
+    sheet = 101,
+    main = 102,
+    detail = 103,
+    pend = 104,
+    detailAct = 111,
+    query = 151,
+    pick = 161,
+
+    role = 201,
+    permit = 202,
+    options = 301,
+    tree = 401,
+    tie = 501,
+    report = 601,
+    in = 701,
+    out = 700,
+    ioApp = 710,
+    ioSite = 711,
+    book = 901,
+    assign = 902,
+
+    key = 1001,
+    prop = 1011,
+    optionsitem = 1031,
+
+    console = 6001,
+    templet = 6101,
+    print = 6102,
+);
+
+ID #BizPhrase (
+    id,
+    KEY base ID,                    -- site for object, or owner for bud
+    KEY name Phrase,                -- really name, ~ seperated full name, include buds
+    type ENUM BizPhraseType,
+    memo CHAR(100),
+);
+
+ID #BizLang (
+    id small,
+    KEY lang CHAR(10),
+)
++ (id, lang)
+VALUES 
+(0, ''),
+(1, 'en'),
+(8, 'zh'),
+;
+
+ID #BizCulture (
+    id small,
+    KEY culture CHAR(10),
+)
++ (id, culture)
+VALUES 
+(0, ''),
+(18, 'cn'),
+(19, 'tw'),
+(78, 'ca'),
+(79, 'us'),
+;
+
+IX BizResource (
+    ii,
+    i,                              -- id
+    x,                              -- lang/culture
+    res CHAR(100),
+);
+
+-- obj x extended from obj i
+-- bud i owns bud x
+IX IxBizPhrase (
+    i,
+    x INDEX,
+);
+
+IDX BizObject (
+    id,
+    source TEXT,
+    schema TEXT,
+);
+
+ENUM BudDataType (
+    none = 0,
+    int = 11,                   -- bigint
+    atom = 12,                  -- atom id
+    radio = 13,                 -- single radio ids
+    check = 14,                 -- multiple checks
+    ID = 19,
+    dec = 21,                   -- dec(18.6)
+    char = 31,                  -- varchar(100)
+    str = 32,                   -- varchar(100)
+    date = 41,
+    datetime = 42,
+
+    optionItem = 81,            -- options item
+    fork = 95,
+    any = 96,
+    unique = 97,
+    user = 98,
+    arr = 99,                   -- array
+);
+
+ENUM BizBudFlag (
+    index = 1,                  -- 加index
+);
+IDX BizBud (
+    id,
+    type ENUM BudDataType,
+    obj ID,                     -- BizObject define of atom or options
+    flag SMALLINT DEFAULT 0,    -- 如果要加索引，flag=BizBudFlag.index
+    -- ex JSON,                    -- 其它附加属性。比如，小数点数。格式。
+);
+
+IX BizBudShow (
+    i,                          -- ID entity phrase
+    x,                          -- bud id
+    type TINYINT,               -- BudDataType.str, dec, int
+);
+
+IX IxPermission (
+    i,                          -- entity biz id
+    x,                          -- role biz id
+    a BIT DEFAULT 0,
+    c BIT DEFAULT 0,
+    r BIT DEFAULT 0,
+    u BIT DEFAULT 0,
+    d BIT DEFAULT 0,
+    l BIT DEFAULT 0,
+);
+
+IX IxUserRole (
+    i,
+    x,
+);
+
+FUNC bs_curdate()
+RETURNS INT {
+    return DATEDIFF(CURDATE(), '1970-1-1');
+}
+
+PROC SaveIxPermission (
+    bizRoles JSON,            -- '[[i,x, a, c, r, u, d, l], ]'
+) {
+    JSONTABLE tbl (
+        i ID PATH '$[0]', 
+        x ID PATH '$[1]',
+        a BIT PATH '$[2]',
+        c BIT PATH '$[3]',
+        r BIT PATH '$[4]',
+        u BIT PATH '$[5]',
+        d BIT PATH '$[6]',
+        l BIT PATH '$[7]'
+    ) FROM bizRoles PATH '$[*]';
+    /-mysql
+    DELETE a FROM ixpermission as a JOIN bizphrase as b ON b.id=a.i WHERE b.base=_$site;
+    -/
+    FOR (VAR i ID, x ID, a BIT, c BIT, r BIT, u BIT, d BIT, l BIT 
+        OF SELECT a.i, a.x, a.a, a.c, a.r, a.u, a.d, a.l
+            FROM tbl as a) 
+    {
+        WITH IxPermission I=IFNULL(i, 0) X=x SET a=a, c=c, r=r, u=u, d=d, l=l;
+    }
+}
+
+PROC SaveBizObject ver 0.3 (
+    entityId ID,
+    name Phrase,
+    caption CHAR(100),
+    type ENUM BizPhraseType,
+    memo CHAR(100),
+    source TEXT,
+    buds JSON,
+)
+RETURNS ret (
+    id ID,
+)
+RETURNS budIds (
+    id ID,
+    name Phrase,
+) {
+    JSONTABLE tbl (
+        id ID PATH '$.id',
+        name Phrase PATH '$.name',
+        caption CHAR(100) PATH '$.caption',
+        type ENUM BizPhraseType PATH '$.type',
+        memo CHAR(100) PATH '$.memo',
+        dataType ENUM BudDataType PATH '$.dataType',
+        objId ID PATH '$.objId',
+        flag SMALLINT PATH '$.flag',
+        show TINYINT PATH '$.show'
+    ) FROM buds PATH '$[*]';
+
+    TRANS START;
+    VAR id ID;
+    IF entityId IS NOT NULL {
+        WITH BizPhrase as a 
+            ID=entityId
+            SET a.name=name, a.type=type, a.memo=memo;
+        SET id = entityId;
+    }
+    ELSE {
+        WITH BizPhrase as a 
+            ID to id
+            KEY($site as base, name) 
+            SET a.type=type, a.memo=memo;
+    }
+    IF caption IS NOT NULL {
+        WITH BizResource II=id I=0 X=0 SET res=caption;
+    }
+    WITH BizObject as a ID=id SET a.source=source;
+    WITH XBiz ID=id;
+    -- 所有名下的属性置为无效，重新设置
+    -- WITH BizPhrase as a KEY(id as base) SET a.valid=0;
+    -- 这类的操作，以后可以优化成一个delete语句，而不用循环
+    SET @id=id;
+    /-mysql
+    DELETE a FROM xbiz as a JOIN bizphrase as b ON b.id=a.id WHERE b.base=@Id;
+    DELETE b FROM bizphrase as a JOIN bizbud as b ON b.id=a.id WHERE a.base=@id;
+    DELETE a FROM bizbudshow as a WHERE a.i=@id;
+    -/
+    FOR (
+        VAR budId ID, budName Phrase, budCaption CHAR(100), budType ENUM BizPhraseType
+            , budMemo CHAR(100), dataType ENUM BudDataType, objId ID, flag SMALLINT, show TINYINT
+        OF SELECT a.id as budId, a.name as budName, a.caption as budCaption, a.type as budType
+            , a.memo as budMemo, a.dataType, a.objId, a.flag, a.show
+            FROM tbl as a
+    )  {
+        IF budId IS NOT NULL {
+            WITH BizPhrase as a 
+                ID=budId
+                SET a.name=budName, a.type=budType, a.memo=budMemo;
+        }
+        ELSE {
+            WITH BizPhrase as a 
+                ID to budId
+                KEY(id, budName) 
+                SET a.type=budType, a.memo=budMemo;
+        }
+        IF budCaption IS NOT NULL {
+            WITH BizResource II=budId I=0 X=0 SET res=budCaption;
+        }
+        WITH XBiz ID=budId;
+        WITH BizBud as a ID=budId 
+            SET a.type=dataType
+                , a.obj=objId, a.flag=ifnull(flag, 0);
+        IF show=1 {
+            VAR bt TINYINT;
+            IF dataType=BudDataType.str OR dataType=BudDataType.char {
+                SET bt = BudDataType.str;
+            }
+            ELSEIF dataType=BudDataType.dec {
+                SET bt = BudDataType.dec;
+            }
+            ELSE {
+                SET bt = BudDataType.int;
+            }
+            WITH BizBudShow I=id X=budId SET type=bt;
+        }
+        INTO budIds SELECT budId as id, budName as name;
+    }
+
+    INTO ret SELECT id;
+    TRANS COMMIT;
+}
+
+PROC SaveBizSchema ver 0.3 (
+    entityId ID,
+    schema TEXT,
+) {
+    WITH BizObject as a ID=entityId SET a.schema=schema;
+}
+
+-- Biz object on the X is valid
+IDX XBiz (
+    id,
+);
+
+PROC SaveBizBud ver 0.3 (
+    base ID,                    -- entity id
+    id ID,                      -- bud id
+    name Phrase,
+    caption CHAR(100),
+    type ENUM BizPhraseType,
+    memo CHAR(100),
+    dataType ENUM BudDataType,
+    objId ID,
+    flag SMALLINT,
+)
+RETURNS ret (
+    id ID,
+) {
+    TRANS START;
+    IF id IS NOT NULL {
+        WITH BizPhrase as a 
+            ID=id
+            SET a.name=name, a.type=type, a.memo=memo;
+    }
+    ELSE {
+        WITH BizPhrase as a 
+            ID to id
+            KEY(base, name) 
+            SET a.type=type, a.memo=memo;
+    }
+    IF caption IS NOT NULL {
+        WITH BizResource II=id I=0 X=0 SET res=caption;
+    }
+    WITH XBiz ID=id;
+    WITH BizBud as a ID=id 
+        SET a.type=dataType
+            , a.obj=objId, a.flag=ifnull(flag, 0);
+    INTO ret SELECT id;
+    TRANS COMMIT;
+};
+
+PROC SaveBizIX (
+    pairs JSON,            -- '[[i,x], [i,x], ]'
+) {
+    JSONTABLE tbl (i ID PATH '$[0]', x ID PATH '$[1]') FROM pairs PATH '$[*]';
+    FOR (VAR i ID, x ID OF SELECT a.i, a.x FROM tbl as a) {
+        WITH IxBizPhrase I=IFNULL(i, 0) X=x;
+    }
+};
+
+QUERY #GetBizObjects(
+    lang CHAR(10),
+    culture CHAR(10),
+)
+RETURNS ret (
+    uqApiVersion INT,
+    compilingTick INT,
+)
+RETURNS objs (
+    id ID,
+    phrase PHRASE,
+    source TEXT,
+    caption CHAR(100),
+)
+RETURNS buds (
+    id ID,
+    base ID,
+    phrase PHRASE,
+    caption CHAR(100),
+)
+{
+    VAR langCode SMALLINT = IFNULL((SELECT a.id FROM BizLang as a WHERE a.lang=lang), 0);
+    VAR cultureCode SMALLINT = IFNULL((SELECT a.id FROM BizCulture as a WHERE a.culture=culture), 0);
+    INTO ret SELECT a.uqApiVersion, a.compilingTick FROM $site as a WHERE a.id=$site;
+    INTO objs SELECT a.id, a.name as phrase, b.source
+        , (SELECT r.res
+            FROM BizResource AS r
+            WHERE r.ii=a.id AND (r.i=0 AND r.x=0 or r.i=langCode AND r.x=0 or r.i=langCode AND r.x=cultureCode)
+            ORDER BY r.i DESC, r.x desc
+            LIMIT 1) as caption
+        FROM BizPhrase as a 
+            JOIN XBiz as a1 ON a1.id=a.id
+            LEFT JOIN BizObject as b ON b.id=a.id
+        WHERE a.base=$site
+        ORDER BY a.id ASC;
+    INTO buds SELECT a.id, a.base, a.name as phrase
+        , (SELECT r.res
+            FROM BizResource AS r
+            WHERE r.ii=a.id AND (r.i=0 AND r.x=0 or r.i=langCode AND r.x=0 or r.i=langCode AND r.x=cultureCode)
+            ORDER BY r.i DESC, r.x desc
+            LIMIT 1) as caption
+        FROM BizPhrase as a
+            JOIN XBiz as a1 ON a1.id=a.id
+            JOIN objs as b ON b.id=a.base
+            JOIN BizBud as c ON c.id=a.id
+        WHERE 1=1; -- AND a.valid=1;
+}
+
+Query GetEntityCode(
+    id ID,
+)
+RETURNS ret (
+    code TEXT,
+    schema TEXT,
+) {
+    INTO ret SELECT a.source as code, a.schema
+        FROM BizObject as a
+            JOIN BizPhrase as b ON b.id=a.id
+        WHERE a.id=id AND b.base=$site;
+};
+
+Biz Ac CreateSiteForUser ver 0.2 (
+    no NO,
+    ex EX,
+    tonwaUser ID,
+)
+RETURNS ret (
+    site ID,
+    userSite ID,
+) {
+    VAR site ID, userSite ID, user ID;
+    WITH $Site ID to site KEY(no) SET ex=ex;
+    WITH $User ID to user KEY(tonwaUser);
+    WITH $UserSite ID to userSite KEY(site, user) SET admin=3;
+    INTO ret SELECT site, userSite;
+}
+
+PROC RenameEntity(
+    id ID,
+    name PHRASE,
+    code TEXT,
+)
+RETURNS ret (
+    OK TINYINT,
+) {
+    IF EXISTS(SELECT a.id FROM BizPhrase as a WHERE a.name=name AND a.id<>id) {
+        RETURN;
+    }
+    VAR oldName PHRASE = a.name FROM BizPhrase as a WHERE a.id=id;
+    SET @oldName=oldName;
+    /-mysql
+    UPDATE bizphrase SET name=_name WHERE id=_id;
+    UPDATE bizphrase SET name=CONCAT(_name, SUBSTR(name, length(@oldname)+1)) WHERE name LIKE CONCAT(@oldname, '.%');
+    UPDATE bizobject SET source=_code WHERE id=_id;
+    -/
+    INTO ret SELECT 1 as OK;
+}

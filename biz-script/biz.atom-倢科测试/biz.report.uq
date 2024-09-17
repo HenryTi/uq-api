@@ -1,0 +1,5 @@
+REPORT Sale '商品销售额' {
+    Permit *;
+    From Toy To 医疗器械批次;
+    Title (D.a 'Da', D.b 'Dda');
+}

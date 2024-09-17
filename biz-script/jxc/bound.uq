@@ -1,0 +1,460 @@
+-- 后续的业绩计算的数据源。可以不断从这里重复计算
+-- 可以清楚汇总表，然后从这里开始，重新计算。
+-- 例如：
+-- 1. target：销售员，item：商品，subject：个人销售额
+-- 2. target：销售员，item：商品，subject：个人毛利润
+ID #SumSource (
+    id MINUTE,
+    bound ID,               -- 绑定对象
+    subject ID,             -- 科目，比如，销售额，毛利润，积分点
+    value VALUE,
+    target ID,              -- bound object subject 主语
+    item ID,                -- bound object 宾语
+    ref ID,                 -- 凭证
+);
+
+ID #Further (
+    id MINUTE,
+    formula ID,             -- 计算公式Phrase id，可以对应一个算法
+    detail ID,              -- 对应的明细id
+    value VALUE,
+    price PRICE,
+    amount Amount,
+);
+
+ENUM SumFormulaType (
+    person = 1,
+    group = 2,
+);
+
+ID SumFormula ver 0.4 (
+    id MINUTE,
+    KEY formulaType ENUM SumFormulaType DEFAULT SumFormulaType.person,
+    KEY subject ID,                 -- subject of datasource 特定科目
+    KEY post ID,                    -- 个人的post phrase
+    KEY sumSubject ID,              -- sum subject 比如：提成，毛利润，销售额，积分，组提成，教练提成
+    KEY id,                         -- subject-post-sum组可以不断修改。用时间匹配，当前用最新的
+    caption CHAR(100),
+    start DATE,                     -- 开始时间，null则当下开始
+    end DATE,                       -- 结束时间，null则不结束
+    ratio VALUE,
+    valid TINYINT DEFAULT 1,        -- 0=不起作用
+);
+
+ID #ObjPostSubject (
+    id,
+    KEY obj ID,                     -- person or group
+    KEY post ID,                    -- post phrase
+    KEY subject ID,                 -- 科目
+);
+
+IDX ObjPostSubjectBalance (
+    id,
+    value VALUE,
+);
+
+-- 运算过程的参数
+Biz Moniker Sum {
+    pSource INT;
+    pSource1 INT;
+};
+
+Biz Atom Subject '科目' UUID {
+    UOM;                            -- 带计量单位
+    Prop balance '结余' Radio (
+        none '无' = 0,
+        yes '有' = 1,
+    );
+};
+
+Biz Atom SumPersonPost '岗位' {
+    -- Prop sales '销售员';
+    -- Prop teamLeader '组长';
+};
+
+Biz Atom SumGroupPost '职能组' {
+    -- Prop salesGroup '销售小组';
+};
+
+-- 1. subject = 个人id @ subject 销售额
+-- 2. subject = 个人id @ subject 毛利润
+-- 3. subject = group @ subject 销售额
+-- 如果汇总月度或年度，i不同。比如，月度销售额，年度销售额，根据月度年度总额，分段计算不同的奖励。
+IX IxSumDate (
+    i,                              --- objPostSubject
+    x Date,
+    value VALUE,
+);
+
+-- 新增IxSumDate项，就在Quueue中加一项。针对DayQueue计算之后，删去。
+-- date 放前面。操作时，逐日顺序操作
+ID #SumDayQueue (
+    id MINUTE,
+    KEY date Date,
+    KEY objPostSubject ID ObjPostSubject,
+);
+
+Biz Atom SumGroup '小组合计' {
+};
+
+-- person的岗位
+-- sumgroup的汇总方式, 也叫post
+IX IxPost (
+    i,                              -- person atom / sumgroup atom
+    x,                              -- post subject / sum post subject
+);
+
+-- group下有多少人，每个人的角色
+-- group下有多少group，每个group的角色，暂时不考虑
+IX IxSumGroup (
+    i,                  -- SumGroup atom
+    x INDEX,            -- Person atom or SumGroup atom, 建index，所属group
+);
+
+IX IxMySum (
+    i,                  -- UserSite
+    x,                  -- Person or SumGroup
+);
+
+QUERY SearchGroupPersons(
+    group ID,
+    key CHAR(50),
+)
+PAGE (
+    id ID desc,
+    no CHAR(50),
+    ex CHAR(50),
+    phrase PHRASE,
+    selected TINYINT,
+) {
+    VAR person PHRASE = 'person';
+    VAR base ID = SiteBudId(person);
+
+    PAGE SELECT a.id, a.no, a.ex, d.name as phrase
+        , case when exists(select x from IxSumGroup WHERE i=group AND x=a.id) then 1 else 0 end as selected
+        FROM Atom as a
+            JOIN Bud as b ON b.id=a.base
+            JOIN BizPhrase as d ON d.id=b.ext
+        WHERE a.base=base AND a.id<$pageStart AND SEARCH(a.no, a.ex LIKE key)
+        ORDER BY a.id desc
+        LIMIT $pageSize;
+}
+
+ACT SaveSumFormula(
+    id ID,
+    formulaType ENUM SumFormulaType,
+    subject ID,                 -- subject of datasource 特定科目
+    post ID,                    -- 个人的post phrase
+    sumSubject ID,              -- sum subject 比如：提成，毛利润，销售额，积分，组提成，教练提成
+    caption CHAR(100),
+    start DATE,                     -- 开始时间，null则当下开始
+    end DATE,                       -- 结束时间，null则不结束
+    ratio VALUE,
+)
+RETURNS ret (
+    id ID,
+) {
+    IF id IS NULL {
+        SET id = ID(SumFormula New KEY formulaType=formulaType, subject=subject, post=post, sumSubject=sumSubject);
+    }
+    WITH SumFormula as a ID=id SET a.caption=caption, a.start=start, a.end=end, a.ratio=ratio;
+    INTO ret SELECT id;
+}
+
+ACT ChangeSumFormulaCaption (
+    id ID,
+    caption CHAR(100),
+) {
+    WITH SumFormula as a ID=id SET a.caption=caption;
+}
+
+ACT ChangeSumFormula(
+    id ID,
+    start DATE,                     -- 开始时间，null则当下开始
+    end DATE,                       -- 结束时间，null则不结束
+    ratio VALUE,                    -- if ratio is null, then invalid the formula
+)
+RETURNS ret (
+    id ID,
+) {
+    IF ratio IS NULL {
+        WITH SumFormula ID=id SET valid=0;
+        RETURN;
+    }
+
+    VAR formulaType ENUM SumFormulaType = a.formulaType,
+            subject ID = a.subject,
+            post ID = a.post,
+            sumSubject ID = a.sumSubject,
+            caption CHAR(100) = a.caption,
+            oldStart DATE = a.start,
+            oldEnd DATE = a.end,
+            oldRatio VALUE = a.ratio
+        FROM SumFormula as a 
+        WHERE a.id=id;
+    IF oldRatio<>ratio
+        OR ((oldStart IS NULL OR start IS NULL) AND oldStart<>start)
+        OR ((oldEnd IS NULL OR end IS NULL) AND oldEnd<>end)
+    {
+        VAR newId ID = ID(SumFormula create KEY formulaType=formulaType, subject=subject, post=post, sumSubject=sumSubject);
+        WITH SumFormula as a ID=newId
+            SET a.caption=caption, a.start=start, a.end=end, a.ratio=ratio;
+        INTO ret select newId as id;
+    }
+}
+
+ACT UserSiteFromTonwaUser(
+    tonwaUser ID,
+)
+RETURNS ret (
+    userSite ID,
+) {
+    VAR user ID = ID($User New KEY tonwaUser=tonwaUser);
+    VAR userSite ID = ID($UserSite New KEY user=user, site=$site);
+    INTO ret SELECT userSite;
+}
+
+ACT ChangeIxMySum (
+    userSite ID,
+    ARR added (
+        id ID,
+    ),
+    ARR removed (
+        idDel ID,
+    ),
+) {
+    FOR added {
+        WITH IxMySum I=userSite X=id;
+    }
+    FOR removed {
+        WITH IxMySum I=userSite X=idDel DEL;
+    }
+}
+
+QUERY GetIxMySum ver 0.1 (
+    userSite ID,
+)
+RETURNS users (
+    tonwaUser ID,
+    userSite ID,
+)
+RETURNS atoms (
+    userSite ID,
+    atom ID,
+    phrase PHRASE,
+    no NO,
+    ex CHAR(200),
+) {
+    INTO users SELECT z.tonwaUser, y.id as userSite
+        FROM (
+            SELECT a.i
+                FROM IxMySum as a
+                    JOIN $usersite as b ON b.id=a.i
+                WHERE b.site=$site
+                GROUP BY a.i
+            ) as x
+            JOIN $usersite as y ON y.id=x.i
+            JOIN $user as z ON z.id=y.user
+        WHERE (y.id=userSite OR userSite IS NULL);
+    INTO atoms SELECT a.userSite, d.id as atom, f.name as phrase, d.no, d.ex
+        FROM users as a
+            JOIN IxMySum as b ON b.i=a.userSite
+            JOIN Atom as d ON d.id=b.x
+            JOIN Bud as e ON e.id=d.base
+            JOIN BizPhrase as f ON f.id=e.ext
+        ;
+}
+
+QUERY GetAllFormula()
+RETURNS ret (
+    * SumFormula,
+) {
+    INTO ret 
+        SELECT * g
+        FROM (SELECT max(a.id) as id
+            FROM SumFormula as a
+            WHERE a.valid=1
+            GROUP BY a.formulaType, a.subject, a.post, a.sumSubject) as f
+            JOIN SumFormula as g ON g.id=f.id;
+}
+
+ACT SetSumGroupPerson(
+    group ID,
+    person ID,
+    act TINYINT,        -- -1: remove, 1: add 
+) {
+    IF act=1 {
+        WITH IxSumGroup I=group X=person;
+    }
+    ELSEIF act=-1{
+        WITH IxSumGroup I=group X=person DEL;
+    }
+}
+
+-- Sum.pSource=-1: 则停止计算
+-- Sum.pSource=-2: 则彻底全部重新计算
+PROC CalcSource ver 0.2 () LOG Error {
+    VAR pSource BIGINT, stamp INT, pId BIGINT;
+    Biz Bud Sum.pSource of 0 to pSource;
+    IF pSource IS NULL {
+        SET pSource = 0;
+    }
+    ELSEIF pSource=-1 {
+        RETURN;
+    }
+    ELSEIF pSource=-2 {
+        WITH IxSumDate TRUNCATE;
+        WITH SumDayQueue TRUNCATE;
+        SET pSource = 0;
+    }
+    SET stamp=unix_timestamp();
+    WHILE 1=1 {
+        TRANSACTION START;
+        SET pId =a.id
+            FROM SumSource as a 
+            WHERE a.id>pSource 
+            ORDER BY a.id ASC 
+            LIMIT 1;
+
+        IF pId IS NOT NULL {
+            PROC CalcOneSource(pId);
+            Biz Bud Sum.pSource of 0 = pId;
+        }
+        TRANSACTION COMMIT;
+        IF pId IS NULL {
+            Break;
+        }
+        SET pSource=pId;
+        IF unix_timestamp() - stamp > 2 {
+            SET stamp=unix_timestamp();
+            sleep 0.01;
+        }
+    }
+};
+
+PROC CalcOneSource ver 0.1 (
+    sourceId ID
+) {
+    VAR site ID = c.base,
+        bound ID = a.bound,         -- 绑定对象
+        subject ID = a.subject,     -- 科目，比如，销售额，毛利润，积分点
+        value VALUE = a.value,
+        target ID = a.target,       -- bound object subject 主语
+        item ID = a.item,           -- bound object 宾语
+        ref ID = a.ref,             -- 凭证
+        date DATE = UMINUTEDATE(sourceId, (SELECT s.timeZone FROM $Site as s WHERE s.id=c.base))
+        FROM SumSource as a 
+            JOIN Atom as b ON b.id=a.bound
+            JOIN Bud as c ON c.id=b.base
+        WHERE a.id=sourceId;
+    FOR (VAR post ID,               -- phrase, 个人的post，或者group phrase
+        sumSubject ID,              -- sum subject 比如：提成，毛利润，销售额，积分，组提成，教练提成
+        ratio VALUE
+        OF SELECT a.post, a.sumSubject, a.ratio
+            FROM SumFormula as a 
+                JOIN (
+                    SELECT f.id
+                        FROM SumFormula as f
+                        WHERE f.formulaType=SumFormulaType.person AND f.subject=subject
+                            AND (a.start IS NULL OR a.start<=date)
+                            AND (a.end IS NULL OR a.end>date)
+                            AND a.valid=1
+                        GROUP BY f.post, f.sumSubject
+                ) as b ON b.id=a.id
+            ORDER BY a.id
+    ) {
+        VAR toValue VALUE = value*ratio;
+        VAR subjectBP ID ObjPostSubject = ID(ObjPostSubject new KEY obj=bound, post=post, subject=sumSubject);
+        WITH IxSumDate I=subjectBP X=date SET value+=toValue;
+        WITH SumDayQueue KEY(date as date, subjectBP as objPostSubject);
+    }
+};
+
+PROC CalcGroup() LOG Error {
+    LOG 'CalcGroup start';
+    VAR today DATE = uminutedate(uminute(), 8);
+    LOG CONCAT('CalcGroup today = ', today);
+    WHILE 1=1 {
+        VAR queueId ID = a.id, date DATE = a.date, objPostSubject ID = a.objPostSubject 
+            FROM SumDayQueue as a
+            WHERE a.date<today
+            ORDER BY a.date, a.objPostSubject
+            LIMIT 1;
+        LOG CONCAT('CalcGroup date = ', ifnull(date, 'null'), ' objPostSubject=', objPostSubject);
+        IF date IS NULL {
+            BREAK;
+        }
+        VAR site ID = c.base,
+            obj ID = a.obj,
+            subject ID = a.subject
+            FROM ObjPostSubject as a 
+                JOIN Atom as b ON b.id=a.obj
+                JOIN Bud as c ON c.id=b.base
+            WHERE a.id=ObjPostSubject;
+        VAR value VALUE = a.value FROM IxSumDate as a WHERE a.i=ObjPostSubject AND a.x=date;
+        FOR (VAR post ID,               -- phrase, 个人的post，或者group phrase
+            sumSubject ID,              -- sum subject 比如：提成，毛利润，销售额，积分，组提成，教练提成
+            ratio VALUE
+            OF SELECT a.post, a.sumSubject, a.ratio
+                FROM SumFormula as a 
+                    JOIN (
+                        SELECT f.id
+                            FROM SumFormula as f
+                            WHERE f.formulaType=SumFormulaType.group AND f.subject=subject
+                                AND (a.start IS NULL OR a.start<=date)
+                                AND (a.end IS NULL OR a.end>date)
+                                AND a.valid=1
+                            GROUP BY f.post, f.sumSubject
+                    ) as b ON b.id=a.id
+                ORDER BY a.id
+        ) {
+            LOG CONCAT('CalcGroup post = ', post, ' sumSubject=', sumSubject, ' ratio=', ratio);
+            VAR groupId VALUE = b.i FROM IxPost as a JOIN IxSumGroup as b ON b.i=a.i WHERE a.x=post AND b.x=obj;
+            VAR toValue VALUE = value*ratio;
+            VAR subjectBP ID ObjPostSubject = ID(ObjPostSubject new KEY obj=groupId, post=post, subject=sumSubject);
+            VAR timeZone TINYINT = a.timeZone FROM $Site as a WHERE a.id=site;
+            WITH IxSumDate I=subjectBP X=date SET value+=toValue;
+        }
+
+        WITH SumDayQueue ID=queueId DEL;
+    }
+    LOG 'CalcGroup end';
+};
+
+Biz QUERY GetMySums ver 0.1 (
+    start DATE,
+    end DATE,
+)
+RETURNS ret (
+    obj ID,
+    post ID,
+    subject ID,
+    value VALUE,
+) {
+    VAR me ID = Me();
+    INTO ret SELECT b.obj, b.post, b.subject
+        , ifnull((
+            SELECT sum(m.value) 
+                FROM IxSumDate as m 
+                WHERE m.i=b.id AND m.x>=start AND m.x<end
+        ), 0) as value
+        FROM IxMySum as a
+            JOIN ObjPostSubject as b ON b.obj=a.x
+        WHERE a.i=me;
+}
+
+Biz QUERY GetMyBalance (
+)
+RETURNS ret (
+    obj ID,
+    post ID,
+    subject ID,
+    value VALUE,
+) {
+    VAR me ID = Me();
+    INTO ret SELECT b.obj, b.post, b.subject, c.value
+        FROM IxMySum as a
+            JOIN ObjPostSubject as b ON b.obj=a.x
+            JOIN ObjPostSubjectBalance as c ON c.id=b.id
+        WHERE a.i=me;
+}

@@ -1,0 +1,251 @@
+Biz Query GetPend (
+    pendEntity ID,                // pend entity id
+    params JSON,
+    pendId ID,
+)
+PAGE (
+    pend ID ASC,
+    sheet ID,
+    id ID,
+    i ID,
+    x ID,
+    value VALUE,
+    price VALUE,
+    amount VALUE,
+    pendValue VALUE,
+    mid JSON,
+    cols JSON,
+)
+RETURNS retSheet (
+    id ID,
+    no NO,
+    i ID,
+    x ID,
+    value VALUE,
+    price VALUE,
+    amount VALUE,
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    json JSON,
+)
+{
+    IF pendId IS NOT NULL {
+            PAGE SELECT t1.id AS pend, e.id AS sheet, t1.bin AS id, b.i AS i
+            , b.x AS x, b.value AS value, b.price AS price, b.amount
+            , t1.value AS pendvalue, t1.mid, null AS cols
+            FROM Pend AS t1 
+                JOIN Bin AS b ON b.id=t1.bin
+                JOIN BizPhrase AS c ON c.id=t1.base
+                JOIN BizObject as c1 ON c1.id=c.id
+                LEFT JOIN Detail AS b1 ON b1.id=b.id
+                LEFT JOIN Bud AS d ON d.id=b1.base
+                LEFT JOIN Bin AS e ON e.id=d.base
+                LEFT JOIN Sheet AS f ON f.id=e.id
+                WHERE 1=1 AND t1.id=pendId AND t1.base=pendEntity AND c.base=$site;
+    }
+
+    VAR procName CHAR(200) = CONCAT($site, '.', pendEntity, 'gp');
+    IF routine_exists('$site', procName) {
+        VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?,?,?,?);');
+        ExecSql sql USING $user,params,$pageStart,$pageSize;
+    }
+    else {
+        PAGE SELECT t1.id AS pend, e.id AS sheet, t1.bin AS id, b.i AS i
+        , b.x AS x, b.value AS value, b.price AS price, b.amount
+        , t1.value AS pendvalue, t1.mid, null AS cols
+        FROM Pend AS t1 
+            JOIN Bin AS b ON b.id=t1.bin
+            JOIN BizPhrase AS c ON c.id=t1.base
+            LEFT JOIN Detail AS b1 ON b1.id=b.id
+            LEFT JOIN Bud AS d ON d.id=b1.base
+            LEFT JOIN Bin AS e ON e.id=d.base
+            LEFT JOIN Sheet AS f ON f.id=e.id
+            WHERE 1=1 AND t1.id>$pageStart AND t1.base=pendEntity
+            ORDER BY t1.id ASC 
+            LIMIT $pageSize;
+    }
+
+    INTO retSheet SELECT b.id, b.no
+        , c.i, c.x, c.value, c.price, c.amount
+        FROM (SELECT DISTINCT a.sheet as id FROM $page as a) as s
+            JOIN Sheet as b ON b.id=s.id
+            JOIN Bin as c ON c.id=b.id;
+
+    INTO IGNORE atoms SELECT DISTINCT a.value as id, b.id as base, c.no, c.ex
+        FROM props as a 
+            JOIN BizBud as b ON b.id=a.phrase
+            JOIN Atom as c ON c.id=a.value
+        WHERE b.type=BudDataType.atom;
+
+    INTO IGNORE atoms SELECT DISTINCT c.id as id, c.base as base, c.no, c.ex
+        FROM $page as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x);
+    INTO IGNORE specs SELECT DISTINCT c.id as id, e.id as atom, null as json
+        FROM $page as a 
+            JOIN Spec as c ON (c.id=a.i OR c.id=a.x)
+            -- JOIN Bud as d ON d.id=c.base
+            JOIN Atom as e on e.id=c.base;
+
+    INTO IGNORE atoms SELECT DISTINCT e.id as id, e.base as base, e.no, e.ex
+        FROM specs as a JOIN Atom as e on e.id=a.atom;
+
+    INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, CAST(b.value AS JSON) as value
+        FROM specs as a JOIN IxBudInt as b ON b.i=a.id;
+    INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, CAST(b.value AS JSON) as value
+        FROM specs as a JOIN IxBudDec as b ON b.i=a.id;
+    INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, JSON_QUOTE(b.value) as value
+        FROM specs as a JOIN IxBudStr as b ON b.i=a.id;
+
+    FOR (VAR id ID, base ID OF SELECT a.id, a.base FROM atoms as a) {
+        SET procName = CONCAT($site, '.', base, 'tp');
+        IF routine_exists('$site', procName) {
+            VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?);');
+            ExecSql sql USING id;
+        }
+    }
+}
+
+Biz Query GetPendsNotify()
+RETURNS ret (
+    phrase ID,                  -- sheet phrase
+    count INT,                  -- pending count
+) {
+    INTO ret SELECT p as phrase, count(*) as count
+        FROM (
+            SELECT a.id, b.id as phrase 
+                FROM Pend as a
+                    JOIN BizPhrase as b ON b.id=a.base
+                    JOIN BizObject as c ON c.id=b.id
+            WHERE b.base=$site
+        ) as x
+        GROUP BY x.phrase as p;
+}
+
+Biz Query GetPendSheetFromNo ver 0.1 (
+    pend Phrase, 
+    key CHAR(100),              -- sheet no
+)
+PAGE (
+    * SHEET ASC,
+    sheet Phrase,
+) {
+    PAGE SELECT DISTINCT * c, BudPhrase(c.base) as sheet
+        FROM Pend as a
+            JOIN Bud as b ON b.id=a.bin
+            JOIN Sheet as c ON c.id=b.base
+        WHERE 1=1 AND a.base=SiteBudId(pend)
+            AND c.id>$pageStart
+            AND SEARCH(c.no ON key)
+        ORDER BY c.id ASC
+        LIMIT $pageSize;
+};
+
+Biz Query GetPendSheetFromTarget ver 0.1 (
+    pend Phrase, 
+    key CHAR(100),              -- target no or ex
+)
+PAGE (
+    * SHEET ASC,
+    sheet Phrase,
+) {
+    PAGE SELECT DISTINCT * c, BudPhrase(c.base) as sheet
+        FROM Pend as a
+            JOIN Bud as b ON b.id=a.bin
+            JOIN Sheet as c ON c.id=b.base
+        WHERE 1=1 AND a.base=SiteBudId(pend)
+            AND c.id>$pageStart
+        ORDER BY c.id ASC
+        LIMIT $pageSize;
+};
+
+Biz Query GetSiteSheets ver 0.1 (
+    from DATE,
+    to DATE,
+    timeZone TINYINT,
+)
+RETURNS ret (
+    phrase ID,
+    count INT,
+ ) {
+    INTO ret SELECT phrase, count(a.id) as count
+        FROM Sheet as a
+            JOIN BizPhrase as b ON b.id=a.base
+            JOIN IxState as c ON c.i=a.id AND c.x=a.base
+        WHERE b.base=$site AND a.id>=uminute_from_time(from, timeZone) AND a.id<uminute_from_time(to, timeZone)
+        GROUP BY b.id as phrase;
+};
+
+Biz Query GetSiteSheetList (
+    phrase ID,
+)
+PAGE (
+    * SHEET ASC,
+    * Bin,
+    rowCount INT,
+) {
+    PAGE SELECT * a, * b
+        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
+        FROM Sheet as a
+            JOIN Bin as b ON b.id=a.id
+            JOIN BizPhrase as c ON c.id=a.base
+            JOIN IxState as d ON d.i=a.id AND d.x=a.base
+        WHERE a.base=phrase AND a.id>$pageStart AND c.base=$site
+        ORDER BY a.id ASC
+        LIMIT $pageSize;
+};
+
+Biz Query GetMySheetList (
+    phrase ID,
+    from DATE,
+    to DATE,
+    timeZone INT,
+)
+PAGE (
+    * SHEET DESC,
+    * Bin,
+    rowCount INT,
+) {
+    VAR me ID = Me();
+    /*
+    IF dateNear IS NULL {
+        SET dateNear=;
+    }
+    */
+    PAGE SELECT * a, * b
+        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
+        FROM Sheet as a
+            JOIN Bin as b ON b.id=a.id
+            JOIN BizPhrase as c ON c.id=a.base
+            JOIN IxState as d ON d.i=a.id AND d.x=a.base
+        WHERE a.base=phrase AND a.id<$pageStart AND c.base=$site 
+            AND a.operator=me
+            AND a.id>=uminute_from_time(from, timeZone) AND a.id<uminute_from_time(to, timeZone)
+        ORDER BY a.id DESC
+        LIMIT $pageSize;
+};
+
+Biz Query GetLogs(
+) 
+PAGE (
+    id ID DESC,
+    value JSON,
+) {
+    PAGE SELECT a.id, a.value
+        FROM Log as a
+        WHERE a.id<$pageStart AND a.base=$site
+        ORDER BY a.id DESC
+        LIMIT $pageSize;
+}

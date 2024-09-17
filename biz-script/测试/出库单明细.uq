@@ -1,0 +1,38 @@
+BIN 出库单明细 {
+    MAIN 出库单主表; 
+    --Pick pend '待出库商品' FROM 待出库账 { 
+    Pick pend '待出库商品' FROM 待拣货任务下发账 { 
+        param param1 = %sheet.I;
+        Hide(物流中心);
+    };
+    --I.base 货品信息;
+    I '器械批次' 器械批次 =pend.i;  
+    Value '数量' dec(2) := pend.value >=0 <=计划数量; 
+    Price '单价' dec(2) = pend.price;
+    Amount '金额' dec(2) = Value * Price;
+    Prop {
+      通知单号 char = pend.通知单号;
+      通知单行号 int = pend.通知单行号;
+      委托方 ATOM 委托方信息 = pend.委托方;
+      客户 ATOM 客户信息 = pend.客户;
+      货位 ATOM  f货位 = pend.货位;
+      出库类型  <edit:dropdown> radio 出库类型 = pend.出库类型 required;
+      计划数量 dec(4) = pend.value;
+      说明 char;
+    };
+    ACT {
+        Biz Pend -= value;
+      --Biz Book 物流中心器械批次库存账.数量 of (#物流中心器械批次(%sheet.I,%I)) -= %value;
+      --Biz Book 货位器械批次库存账.数量 of (#货位器械批次(%货位,%I)) += %value;
+        Biz Pend 待复核账 += value
+            KEY (通知单号=%通知单号,通知单行号=%通知单行号,I=%i)
+            SET 物流中心=%sheet.I,
+              委托方=%委托方,
+              客户=%客户,
+              出库类型=%出库类型, 
+              通知单号=%通知单号,
+              通知单行号=%通知单行号,
+              出库日期=%sheet.出库日期;
+        }
+}
+

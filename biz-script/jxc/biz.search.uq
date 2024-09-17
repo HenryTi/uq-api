@@ -1,0 +1,74 @@
+Biz QUERY SearchAllSheets(
+    no NO,
+    phrase ID,
+    paramMain JSON,
+    paramDetail JSON,
+) 
+PAGE (
+    * SHEET DESC,
+    * Bin,
+    rowCount INT,
+    /*
+    id ID DESC,
+    no NO,
+    phrase ID,
+    operator ID,
+    buds JSON,
+    */
+) {
+    JSONTABLE tblParamMain (
+        bud ID PATH '$[0]', 
+        value BIGINT PATH '$[1]'
+    ) FROM paramMain PATH '$.buds[*]';
+    JSONTABLE tblParamDetail (
+        bud ID PATH '$[0]', 
+        value BIGINT PATH '$[1]'
+    ) FROM paramDetail PATH '$.buds[*]';
+
+    VAR i BIGINT = JSON_EXTRACT(paramMain, '$.i');
+    VAR x BIGINT = JSON_EXTRACT(paramMain, '$.x');
+    VAR buds JSON = JSON_EXTRACT(paramMain, '$.buds');
+
+    VAR di BIGINT = JSON_EXTRACT(paramDetail, '$.i');
+    VAR dx BIGINT = JSON_EXTRACT(paramDetail, '$.x');
+    VAR dBuds JSON = JSON_EXTRACT(paramDetail, '$.buds');
+
+    PAGE SELECT -- a.id, a.no, b.id as phrase, a.operator, '[]' as buds
+        * a, * c
+        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
+        FROM Sheet as a
+            JOIN BizPhrase as b ON b.id=a.base AND b.base=$site
+            JOIN Bin as c ON c.id=a.id
+        WHERE a.id<$pageStart
+            AND NOT EXISTS (
+                -- IxState 草稿 i=me，其它状态 i is bud
+                -- 去掉草稿
+                SELECT b.i FROM IxState as b LEFT JOIN Bud as c ON c.id=b.x WHERE b.x=a.id AND c.id IS NULL
+            )
+            AND (phrase IS NULL OR b.id=phrase)
+            AND (no is NULL OR SEARCH(a.no LIKE no)) 
+            AND (i IS NULL OR c.i=i)
+            AND (x IS NULL OR c.x=x)
+            AND (buds IS NULL OR (
+                EXISTS(
+                    SELECT b.id
+                        FROM Bin as b 
+                            JOIN IxBudInt as c ON c.i=b.id
+                            JOIN tblParamMain as d ON d.bud=c.x AND d.value=c.value
+                        WHERE b.id=a.id
+                )
+            ))
+            AND (di IS NULL AND dx IS NULL AND dBuds IS NULL OR EXISTS(
+                SELECT b.id 
+                    FROM Detail as b 
+                        JOIN Bud as c ON c.id=b.id 
+                        JOIN Bin as d ON d.id=b.id
+                        JOIN IxBudInt as e ON e.i=d.id
+                        JOIN tblParamDetail as f ON f.bud=e.x AND f.value=e.value
+                    WHERE c.base=a.id 
+                        AND (di IS NULL OR d.i=di)
+                        AND (dx IS NULL OR d.x=dx)
+            ))
+        ORDER BY a.id DESC
+        LIMIT $pageSize;
+}

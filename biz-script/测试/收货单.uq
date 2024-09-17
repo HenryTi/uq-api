@@ -1,0 +1,156 @@
+SHEET 收货单 { 
+    Main 收货单主表; 
+    Detail 收货单明细; 
+    SEARCH (
+      I, 物流中心, 
+      收货单明细(I),
+    );
+    PRINT {
+        MAIN SheetMainPage;
+        Detail 收货单明细 SheetDetailPage;
+    }
+    PRINT 单据 {
+        -- 覆盖PRINT定义
+        Detail 收货单明细 SheetDetailPage;
+    }
+    PRINT 标签 {
+        -- 覆盖PRINT定义
+        MAIN SheetMainPage;
+    }
+}
+
+BIN 收货单主表 {
+    Pick 查询收货员 from 职员信息;
+    Pick 查询物流中心 from 查询职员物流中心 {
+        Param 职员 = 查询收货员;
+    };    
+    Pick 委托方 from 查询物流中心委托方 {
+        Param 物流中心 = 查询物流中心;
+    };    
+    Pick 查询客户 from 查询客户 {
+        Param 委托方 = 委托方;
+    };
+    I '客户' 客户信息 = 查询客户;
+    X '委托方' 委托方信息 = 委托方;
+    
+    Prop {
+      收货员 ATOM 职员信息=查询收货员 required;
+      物流中心 ATOM 物流中心信息=查询物流中心 required;
+      到货日期 date = curdate() required;
+      入库类型 <edit:pop> radio 入库类型 required;
+      温控方式 <edit:pop> radio 温控方式 required;
+      温控状况 <edit:pop> radio 温控状况 required;
+      收货员2 atom 职员信息;
+      业务员 char;
+      启运时间 date = curdate() required;
+      启运温度 char;
+      运输时间 char;
+      运输过程温度 char;
+      到货温度 char;
+      备注 char;
+    }
+}
+
+BIN 收货单明细 {
+    MAIN 收货单主表;    
+    PICK Pend '入库接口账' FROM 入库接口账 {
+        param param1 = %sheet.物流中心;
+        param param2 = %sheet.X; 
+        param param3 = %sheet.I;
+    };
+    I '货品' 货品信息{
+          : 规格型号; 
+          : 单位; 
+          : 产地; 
+          : 生产厂商; 
+          : 包装; 
+          : 货品大类;
+    }= pend.货品;
+    Value '实收数量' dec(2) := pend.value; 
+    Price '单价' dec(2) = pend.price;
+    Amount '金额' dec(2) = Value * Price;
+    Prop {
+      通知单号 char = pend.通知单号;
+      通知单行号 int = pend.通知单行号;
+      /*货品 ATOM 货品信息{
+          : 规格型号; 
+          : 单位; 
+          : 产地; 
+          : 生产厂商; 
+          : 包装; 
+          : 货品大类;
+        }= pend.货品;
+        */
+      批号 char = pend.批号;
+      生产日期 date =pend.生产日期;
+      有效期至 date =pend.有效期至;
+      --批次证照证号 char; --= 货品批次证照.证号;
+      --生产许可或备案证号 char; --= 货品生产许可.证号;
+      计划数量 dec(4) = pend.value;
+      收货结论 <edit:pop> radio 收货结论 required;
+      说明 char;
+    };
+    ACT {
+        Biz Pend -= value;
+        Biz Pend 待验收账 SET 
+          物流中心=%sheet.物流中心,
+          委托方=%sheet.x,
+          客户=%sheet.i,
+          入库类型=%sheet.入库类型, 
+          启运时间=%sheet.启运时间,
+          启运温度=%sheet.启运温度,
+          到货温度=%sheet.到货温度,
+          温控方式=%sheet.温控方式,  
+          计划数量=%计划数量,
+          到货日期=%sheet.到货日期;
+          --批次证照证号=%批次证照证号,
+          --生产许可或备案证号=%生产许可或备案证号;
+    }
+}
+
+PEND 入库接口账 '入库接口' { 
+    S '单据';
+    SI '委托方';
+    SX '客户';
+    Value '数量';
+    price '单价'; 
+    Prop { 
+        通知单号 char;
+        通知单行号 int;
+        委托方信息 Atom;
+        客户信息 Atom;
+        货品 Atom 货品信息
+        {
+          : 规格型号; 
+          : 单位; 
+          : 产地; 
+          : 生产厂商; 
+          : 包装; 
+          : 货品大类;
+        };
+        批号 char;
+        生产日期 date;
+        有效期至 date;
+        到货日期 date;
+        入库类型 radio 入库类型;
+        物流中心 Atom; 
+    };
+    QUERY (
+        param1 Atom, 
+        param2 Atom, 
+        param3 Atom, 
+        --param4 char,
+    ) {
+        VAR a ID = 1;     
+        FROM
+            COLUMN ( 
+            )
+            WHERE 1=1 
+            --and %物流中心=param1 
+            --and %委托方信息=param2 
+            --and %客户信息=param3 
+            --and %通知单号 like param4
+            ;
+        ; 
+    }
+} 

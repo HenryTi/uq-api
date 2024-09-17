@@ -1,0 +1,29 @@
+Card card1 {
+    Prop a int;
+    prop b int;
+    Detail c {
+        prop a int;
+        prop b char;
+    }
+    detail d {
+        prop e char;
+        prop f char;
+    }
+    ACT {
+        -- VAR i INT;
+    }
+    State s1 {
+        prop {
+            a int;
+            b int;
+        }
+        ACT {
+
+        }
+    }
+    State s2 {
+        ACT {
+            
+        }
+    }
+}

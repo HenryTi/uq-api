@@ -1,0 +1,84 @@
+Title 价格 {
+    PROP 零售价 DEC;
+    PROP 批发价 DEC;
+};
+
+Assign 赋值价格 {
+    Atom 货品信息|医疗器械;
+    Title 价格.零售价, 价格.批发价;
+}
+
+QUERY 查询货品Query '查询货品Query标题' (  
+    a '参数a' CHAR,
+    b '参数b' CHAR, 
+    c, d, e, 
+) {
+    VAR v1 INT = c; 
+    VAR p1 CHAR(200) = a;  
+    VAR p2 CHAR(200) = e;
+    FROM 货品信息|医疗器械 -- OF 部门~(id)
+        COLUMN (
+            ID ASC,  
+            BAN '含糖字' = LOCATE('糖', %ex)>0,
+            cola = 1,
+            price = 5,
+            %no,
+            %ex,
+            /* 
+            %id,
+            %a,
+            price '价格' = (#价格(%id)),
+            */
+        )
+        -- BAN %批准日期 < today - INTERVAL 2 year
+        -- SEARCH p2
+        WHERE SEARCH(%no, %ex LIKE a) -- %批准文号='3355'
+    ;
+}
+
+QUERY 查询货品Query1 (
+    a,
+    b '参数query1 b' CHAR,
+) {
+    FROM 货品信息|医疗器械 -- OF 部门~(id)
+        COLUMN (
+            ID ASC,
+        )
+        WHERE 1=1
+    ;
+}
+
+Biz Sheet 采购单带查询 {
+    Main 采购单带查询主表;
+    Detail 采购单明细带查询;
+}
+
+Biz Bin 采购单带查询主表 {
+    Pick customer FROM 客户信息;
+    I '客户' = customer;
+}
+
+BIN 采购单明细带查询 ver 0.1 {
+    Pick pickA FROM 查询货品Query; 
+    /*Pick pickB FROM 查询货品Query1 {  
+        PARAM a=pickA.cola; 
+    }*/  
+    I '商品Pick' = pickA;  
+    Value '数量' dec(2); 
+    Price '单价' dec(2) = pickA.price/*{
+        PUT = 2;  
+        PUT Amount = Value*Price;
+    } ON (I)*/;
+    Amount '金额' dec(2) = Value * Price;
+    ACT {
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month; 
+        VAR a VALUE = (#采购单明细(bin).value); 
+        VAR b VALUE = (#销售单明细(bin).value);
+        VAR c VALUE = (#采购.数量(i).sum in w);
+        VAR d VALUE = (#采购.数量(i));
+        Biz Pend 待入库账 SET p1=price, p2=amount;
+        Biz Title 销售.数量 of I += value;
+        Biz Title 销售.金额 of I += value;
+    };
+}

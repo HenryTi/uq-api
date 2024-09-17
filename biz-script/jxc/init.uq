@@ -1,0 +1,56 @@
+Biz Moniker SiteSetting {
+    currency '默认货币' ID;
+    startSumMonth '汇总开始月' INT;      -- 月汇总的开始。之前的月汇总是预置的，之后的月汇总是计算的。
+    startFiscalMonth '财年开始月' INT;   -- 财年开始月
+    startFiscalDay '财年开始日' INT;     -- 财年开始日
+};
+
+Biz Query GetSiteSetting (
+    -- id ID,                   -- $site
+)
+RETURNS budsInt (
+    bud ID,
+    value BIGINT,
+)
+RETURNS budsDec (
+    bud ID,
+    value VALUE,
+)
+RETURNS budsStr (
+    bud ID,
+    value CHAR(200),
+)
+RETURNS budsCheck (
+    bud ID,
+    item ID,
+) {
+    VAR id ID = $site;
+    VAR entityId ID = PhraseId('siteSetting');
+    INTO budsInt SELECT a.x as bud
+        , a.value
+        FROM IxBudInt as a
+            -- JOIN Atom as b ON b.id=a.i
+            -- JOIN BizPhrase as c on c.id=b.base
+            JOIN BizPhrase as e ON e.id=a.x
+        WHERE a.i=id and e.base=entityId;
+
+    INTO budsDec SELECT a.x as bud
+        , a.value
+        FROM IxBudDec as a
+            JOIN BizPhrase as e ON e.id=a.x
+        WHERE a.i=id and e.base=entityId;
+    INTO budsStr SELECT a.x as bud
+        , a.value
+        FROM IxBudStr as a
+            JOIN BizPhrase as e ON e.id=a.x
+        WHERE a.i=id and e.base=entityId;
+
+    INTO budsCheck SELECT b.base as bud
+        -- , c.name as phrase
+        , b.ext as item
+        FROM IxBud as a
+            JOIN Bud as b ON b.id=a.x
+            JOIN BizPhrase as c ON c.id=b.base
+            -- JOIN BizPhrase as d ON d.id=b.ext
+        WHERE a.i=id AND c.base=entityId;
+};

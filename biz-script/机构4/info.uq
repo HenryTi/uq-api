@@ -1,0 +1,170 @@
+ATOM 公司机构信息 ver 0.2 {
+        prop + {
+    地址 char;
+        }
+    prop 电话 char;
+};
+
+ATOM 部门信息 {
+    prop 职责 char;
+};
+
+ATOM 职员信息 {
+    prop + {
+    所属公司 atom 公司机构信息;
+    部门 atom 部门信息;
+    性别 <edit:pop> radio 性别; 
+        }
+    prop 家庭住址 char;
+    prop 手机号 char; 
+    prop 邮箱 char; 
+    prop 生日 date;
+};
+
+ATOM 物流中心信息 {
+    prop + {
+        地址 char; 
+    }
+    prop 企业 { 
+        营业执照 char;
+        负责人 atom 职员信息; 
+        认证类型 <edit:pop> radio 认证类型分类;
+    }
+    prop 数量 {
+        职员人数 int; 
+        面积 char;
+    }
+    prop 特性 {
+        可存储类别 check 货品类别;
+    }
+};
+
+
+
+ATOM 供应商信息 ver 0.1 {
+    prop + {
+    经营许可证号  CHAR;
+    经营许可证号有效期至  date;
+    采购员 atom 职员信息;
+    经营范围 <edit:pop> check 货品类别;
+    电话  CHAR; 
+    }
+    Prop 地址  CHAR; 
+    Prop 统一社会信用代码  CHAR; 
+    prop 联系人  CHAR; 
+};
+
+ATOM 客商信息 { 
+    prop 联系人 atom 职员信息;
+    prop 企业 {  
+        资信度 radio 资信度;
+        经营范围 check 货品类别;
+        证照有效期至  date;
+    }
+};
+
+ATOM 注册人或备案人信息 {
+    prop 地址 char;
+    prop 业务代表 char;
+};
+
+ATOM 药品 '药品' extends 货品信息 {
+     Prop 药品特征  CHAR;
+};
+ATOM 器械 '器械' extends 货品信息 {
+     Prop 器械特征  CHAR;
+};
+
+ATOM 货品信息 { 
+    prop + {
+        规格型号 char;
+        单位 <edit:pop> radio 单位;
+        注册人或备案人  atom 注册人或备案人信息;
+        受托生产企业   Char;
+        注册证号或备案凭证号  Char;
+        注册证号或备案凭证号有效期至  date;
+        生产许可证号  Char;
+        生产许可证号有效期至  date;
+        存储条件  Char;
+    }
+    prop 货品类别  <edit:pop> radio 货品类别;
+    prop 物流相关 {
+        条形码 char;
+        包装 DEC;
+        长 dec(2) format '{value}厘米';
+        宽 dec(2) format '{value}厘米';
+        高 dec(2) format '{value}厘米';
+    }
+    prop 管理 {
+        双人验收  <edit:pop> radio 选择是否;
+        双人复核  <edit:pop> radio 选择是否;
+    }
+};
+
+ATOM 证照信息 {
+    prop 证照类型  <edit:pop> radio 证照类型;
+    prop 证照号 char; 
+    prop 证照有效自  date;
+    prop 证照有效至  date;
+    prop 证照状态  <edit:pop> radio 证照状态;
+    prop 对应货品 atom 货品信息;
+};
+--批次分类
+SPEC 器械批次 '器械批次' {
+    BASE 器械;
+    KEY 生产批号或序列号 Char;
+    KEY 生产日期 Date;
+    KEY 失效日期或有效期 Date;
+    Prop 注册证号或备案凭证号  Char;
+};
+
+ATOM 库房 {
+};
+
+TITLE SiteSetting { 
+    PROP {
+        默认货币 '默认货币' ATOM 默认货币;
+        startSumMonth '汇总开始月' INT;      -- 月汇总的开始。之前的月汇总是预置的，之后的月汇总是计算的。
+        startFiscalMonth '财年开始月' INT;   -- 财年开始月
+        startFiscalDay '财年开始日' INT;     -- 财年开始日
+    }
+};
+
+ATOM 默认货币 {
+};
+
+
+//Title 采购   采购的ID以后要记到X中，Title相当于以前的book
+TITLE 采购 {
+    PROP 单价 DEC History SET=assign;
+    PROP 数量 DEC History SET=cumulate;
+    PROP 金额 DEC History SET=cumulate;
+}
+
+TITLE 库存 {
+    PROP 数量 DEC History SET=balance;
+}
+
+TITLE 销售 {
+    PROP 单价 DEC History SET=assign;
+    PROP 数量 DEC History SET=cumulate;
+    PROP 金额 DEC History SET=cumulate;
+}
+
+TITLE 价格 {
+    PROP 零售价 DEC;
+    PROP 批发价 DEC;
+    PROP 采购价 DEC;
+};
+
+ASSIGN 赋值价格 {
+    Atom 货品信息|器械|药品;
+    Title 价格.采购价, 价格.批发价, 价格.零售价;
+}
+
+/*
+IX IxUomType (
+    i,                  -- bud(bud(site, @uom.type), typeValue)
+    x,                  -- uom
+);
+*/

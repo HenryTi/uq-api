@@ -1,0 +1,272 @@
+QUERY 查询货品 '查询货品' (
+    searchKey '关键字' CHAR,
+    maxRetailPrice '最大零售价' DEC := 11,
+) {
+    FROM 货品信息|医疗器械|药品信息
+        COLUMN (
+            ID ASC,  
+            BAN '零售价过高' = (#价格.零售价(%id))>ifnull(maxRetailPrice, 10000000000),
+            price '零售价' = (#价格.零售价(%id)),
+            wholesale '批发价' = (#价格.批发价(%id)),
+            %通用名,
+            %规格,
+            %生产厂商,
+            %计量单位,
+            %包装,
+            %批准文号,
+            %双人验收,
+            %双人复核,
+            %no,--编号
+            %ex,--名称
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey)
+--            AND CHECK((#器械(%id).供应商类别) ON (#供应商信息(供应商).经营范围))
+    ;
+}
+
+QUERY 查询货品Query '查询货品Query-Q标题' (
+    searchKey '关键字' CHAR,
+    maxRetailPrice '最大零售价' DEC := 11,
+    c, d, e, 
+) {
+    VAR v1 INT = c; 
+    VAR p1 CHAR(200) = maxRetailPrice;
+    VAR p2 CHAR(200) = e;
+    FROM 货品信息|医疗器械 -- OF 部门~(id)
+        COLUMN (
+            ID ASC,  
+            BAN '零售价过高' = (#价格.零售价(%id))>ifnull(maxRetailPrice, 10000000000),
+            cola = 1,
+            price '零售价' = (#价格.零售价(%id)),
+            wholesale '批发价' = (#价格.批发价(%id)),
+            %no,
+            %ex,
+            /* 
+            %id,
+            %a, 
+            price '价格' = (#价格(%id)),
+            */
+        )
+        -- BAN %批准日期 < today - INTERVAL 2 year
+        -- SEARCH p2
+        WHERE SEARCH(%no, %ex LIKE searchKey) -- %批准文号='3355'
+    ;
+}
+
+QUERY 查询货品Query1 (
+    a,
+    b '参数query1 b' CHAR,
+) {
+    FROM 货品信息|医疗器械 -- OF 部门~(id)
+        COLUMN (
+            ID ASC, 
+        )
+        WHERE 1=1
+    ;
+}
+
+QUERY 采购合同查货品 '采购合同查货品' (
+    searchKey '关键字' CHAR,
+    maxRetailPrice '最大零售价' DEC := 11,
+    c, d, e, 
+) {
+    VAR v1 INT = c; 
+    VAR p1 CHAR(200) = maxRetailPrice;
+    VAR p2 CHAR(200) = e;
+    FROM 货品信息|医疗器械 
+        COLUMN (
+            ID ASC,  
+            BAN '零售价过高' = (#价格.零售价(%id))>ifnull(maxRetailPrice, 10000000000),
+            cola = 1,
+            price '零售价' = (#价格.零售价(%id)),
+            wholesale '批发价' = (#价格.批发价(%id)),
+            %规格,
+            %生产厂商,--显示的是ID
+            %双人验收,--枚举值不显示
+            %no,--编号
+            %ex,--名称 
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey)
+    ;
+}
+
+QUERY 采购合同查库存 '采购合同查库存' (
+    searchKey '关键字' CHAR,
+    c, 
+) {
+    VAR v1 INT = c; 
+    FROM 货品信息|医疗器械 -- OF 部门~(id)
+        COLUMN (
+            ID ASC,  
+            cola = 1,
+            数量 '数量' = (#库存.数量(%id)),
+            %no,
+            %ex,
+            /* 
+            %id,
+            %a, 
+            */
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey) 
+    ;
+};
+
+QUERY 查库存 '查库存' (
+    searchKey '关键字' CHAR,
+    c, d, e, 
+) {
+    VAR v1 INT = c; 
+    VAR p2 CHAR(200) = e;
+    FROM 货品信息|医疗器械 
+        COLUMN (
+            ID ASC,  
+            cola = 1,
+            Value '数量' = (#库存.数量(%id)),
+            %no,
+            %ex, 
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey)
+    ;
+}
+
+--平台级字段说明
+--S,  单据ID
+--SI, 主表上的I
+--SX, 主表上的X
+--I, 明细上的I 
+--X, 明细上的X
+--VALUE, 数量
+--Price, 单价
+--Amount，金额
+QUERY 库存查询 '库存查询' (
+    searchKey '关键字' CHAR,
+    c, d, e, 
+) {
+    VAR v1 INT = c; 
+    VAR p2 CHAR(200) = e;
+    FROM 货品信息|医疗器械 
+        COLUMN (
+            ID ASC,  
+            库存数量 = (#库存.数量(%id)),--查不出库存数量
+            采购数量 = (#采购.数量(%id)),
+            销售数量 = (#销售.数量(%id)),
+            %no,
+            %ex,
+            %规格,
+            %生产厂商, 
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey)
+    ;
+}
+
+QUERY 客户查询 '客户查询' (
+    searchKey '关键字' CHAR,
+) {
+    FROM 客户信息 
+        COLUMN (
+            ID ASC,  
+            cola = 1,
+            %联系人,
+            %企业规模,
+            %资信度,
+            %no,--编号
+            %ex,--名称 
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey)
+    ;
+}
+
+QUERY 采购合同查供应商 '采购合同查供应商' (
+    searchKey '关键字' CHAR,
+    c, d, e, 
+) {
+    VAR v1 INT = c; 
+    VAR p2 CHAR(200) = e;
+    FROM 客户信息|供应商信息
+        COLUMN (
+            ID ASC,  
+            %ex,
+            %no,
+            %联系人,--显示的是ID
+            %企业规模,--查不出字段值
+            %资信度,--查不出字段值
+            %经营范围,--查不出字段值
+            %客户类型,--查不出字段值
+            --%采购员,--供应商信息的字段，加了查不到供应商
+            --%生产许可证号,--供应商信息的字段，加了查不到供应商
+            --%生产许可证号有效期至,--供应商信息的字段，加了查不到供应商 
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey)
+    ;
+}
+
+QUERY 查询供应商 '查询供应商' (
+    searchKey '关键字' CHAR,
+) { 
+    FROM 供应商信息 
+        COLUMN ( 
+            ID ASC,  
+            %ex, 
+            %no,
+            %客户类型, 
+            %经营许可证号,  
+            %经营许可证号有效期至, 
+            %地址, 
+            %电话,
+            %统一社会信用代码,
+            %采购员,
+            %经营范围,
+        )
+        WHERE SEARCH(%no, %ex, %采购员 LIKE searchKey)
+    ;
+}
+
+QUERY 查询职员 '查询职员' (
+    searchKey '关键字' CHAR,
+) {
+    FROM 职员信息
+        COLUMN (
+            ID ASC,
+            %ex,
+            %no,
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey) 
+    ;
+}
+
+QUERY 查询公司机构 '查询公司机构' (
+    searchKey '关键字' CHAR,
+) {
+    FROM 职员信息
+        COLUMN (
+            ID ASC, 
+            %ex,
+            %no,
+        )
+        WHERE SEARCH(%no, %ex LIKE searchKey)
+    ;
+}
+QUERY 采购员查询供应商 '采购员查询供应商' ( 
+    searchKey '关键字' CHAR,
+    采购员 ATOM, 
+    --p1 INT, 
+    --p2 INT,
+) {
+    FROM 供应商信息 OF 采购员供应商关联 ON 采购员
+        COLUMN (
+            ID ASC,   
+            %ex,
+            %no,
+            %客户类型,
+            %经营许可证号,      
+            %经营许可证号有效期至,
+            %地址, 
+            %电话,
+            %统一社会信用代码,
+            %采购员,
+            %经营范围, 
+        )
+        WHERE SEARCH(%ex, %no LIKE searchKey) -- AND %采购员=采购员
+    ;
+}
+

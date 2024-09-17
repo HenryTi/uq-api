@@ -1,0 +1,60 @@
+SHEET 验收单Pv { 
+    Main 验收单主表; 
+    Detail 验收单明细Pv; 
+    SEARCH ( 
+      I, 
+      验收单明细Pv(I, 客户),
+    );
+}
+
+BIN 验收单明细Pv { 
+    MAIN 验收单主表; 
+    Pick pend '待验收' FROM 待验收账 {
+        param param1 = %sheet.I;
+        param param2 = %sheet.X; 
+        param param3 = %sheet.客户;
+    };
+    I.base; 
+    Div '单价' {
+      Input spec SPEC 器械批次 Base=Pend.i; 
+      I '器械批次' 器械批次  { 
+        : 规格型号; 
+        : 单位; 
+        : 产地; 
+        : 生产厂商; 
+        : 包装; 
+        : 货品大类; 
+      }= spec;
+      Price '单价' := pend.price;
+      Div {
+          Prop 外观质量情况 Radio 外观质量情况 required; 
+          Prop 验收结论 Radio 验收结论 required; 
+          Prop 验收结论评定 radio 验收结论评定;
+          Prop 检验报告书 <edit:pop> radio 有无;
+          Value '验收数量' := pend.value >=0 <=pend.value;
+          Prop 抽检数量 dec(4);
+          Prop 抽检结论 <edit:pop> radio 是否合格;
+          Prop 查验结果 <edit:pop> radio 是否合格; 
+          Amount '金额'  = Value * Price; 
+      }
+    }
+    Prop {      
+      客户 atom 客户信息 = pend.客户;
+      到货日期 date=pend.到货日期;
+      入库类型 radio 入库类型 = pend.入库类型;
+      计划数量 dec(4)=pend.计划数量;
+      批次证照证号 char = pend.批次证照证号; 
+      生产许可或备案证号 char = pend.生产许可或备案证号;
+    };
+    ACT {
+      Biz Pend -= value;
+      Biz Pend 待入库账 SET 
+      物流中心=%sheet.I,
+      委托方=%sheet.X,
+      客户=%客户,
+      计划数量=%计划数量, 
+      入库类型=%入库类型,
+      验收结论=%验收结论
+      ;
+    }
+}

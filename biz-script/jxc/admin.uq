@@ -1,0 +1,78 @@
+BIZ AC ClearCode ver 0.2 () {
+    VAR me ID = Me();
+    IF EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
+        SET @site=$site;
+        /-mysql
+        -- 删去子buds
+        DELETE c
+            FROM bizphrase AS a 
+                left JOIN bizphrase AS b ON b.base=a.id 
+                left JOIN bizphrase AS c ON c.base=b.id 
+            WHERE a.base=@site;
+        -- 删去buds
+        DELETE b
+            FROM bizphrase AS a 
+                left JOIN bizphrase AS b ON b.base=a.id 
+            WHERE a.base=@site;
+        -- 删去objects
+        DELETE b
+            FROM bizphrase AS a 
+                LEFT JOIN bizobject AS b ON b.id=a.id
+            WHERE a.base=@site;
+        -- 删去entitys
+        DELETE a
+            FROM bizphrase AS a 
+                left JOIN bizphrase AS b ON b.base=a.id 
+            WHERE a.base=@site;
+        -/
+    }
+}
+
+BIZ AC ClearPend() {
+    VAR me ID = Me();
+    IF EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
+        SET @site=$site;
+        /-mysql
+        -- 删去pend
+        DELETE a
+            FROM pend AS a 
+                JOIN bizphrase AS b ON b.id=a.base 
+            WHERE b.base=@site;
+        -/
+    }
+}
+
+BIZ AC ClearBook(
+    bud ID,
+) {
+    VAR me ID = Me();
+    IF EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
+        SET @site=$site;
+        SET @bud=bud;
+        /-mysql
+        -- 清零
+        UPDATE ixbuddec as a
+            JOIN bizphrase AS b ON b.id=a.x
+            JOIN bizphrase AS c ON c.id=b.base
+            SET a.value=0
+            WHERE c.base=@site AND a.x=@bud;
+        -/
+    }
+}
+
+Biz Query AdminBook (
+    bud ID,
+)
+PAGE (
+    i ID ASC,
+    value VALUE,
+) {
+    VAR me ID = Me();
+    IF EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
+        PAGE SELECT a.i, a.value
+            FROM IxBudDec as a
+            WHERE a.x=bud AND a.i>$pageStart
+            ORDER BY a.i ASC
+            LIMIT $pageSize;
+    }
+}

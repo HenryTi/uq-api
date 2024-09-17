@@ -1,0 +1,1027 @@
+Biz ACT SaveAtom ver 0.2 (
+    atomPhrase ID,
+    base BIGINT,                -- always null, to align with $site.SaveAtom
+    no NO,
+    ex CHAR(200),
+)
+RETURNS ret (
+    id ID,
+) {
+    -- SET base = PhraseId(atom);
+
+    -- 判断是不是已经有同编号的输入了。比如，我正在输入的时候，别人也输入了。
+    VAR id ID = 0;
+    SET id=(SELECT a.id FROM Atom as a WHERE a.base=atomPhrase and a.no=no);
+    -- SET id = ID(Atom KEY base=atomPhrase, no=no);
+    IF id IS NULL {
+        SET id = ID(Atom new KEY base=atomPhrase);
+    }
+    WITH Atom as a ID=id SET a.no=no, a.ex=ex;
+    -- WITH IxAtom i=atomPhrase x=id;
+    WITH IDU as a ID=id SET a.base=atomPhrase;
+    INTO ret SELECT id;
+}
+Biz ACT SaveBudValue ver 0.4 (
+    phraseId ID,
+    id ID,
+    int BIGINT,
+    dec VALUE,
+    str CHAR(100),
+) {
+    IF phraseId IS NOT NULL {
+        IF id IS NULL {
+            SET id=$site;
+        }
+        ELSE IF NOT EXISTS (SELECT a.id FROM BizPhrase as a JOIN BizPhrase as b ON b.id=a.base WHERE a.id=phraseId AND b.base=$site)
+            AND NOT EXISTS (SELECT a.id FROM Bud as a
+                LEFT JOIN BizPhrase as b ON b.id=a.base
+                LEFT JOIN BizPhrase as c ON c.id=a.ext
+                WHERE a.id=phraseId AND (b.base=$site or c.base=$site))
+        {
+            RETURN;
+        }
+        IF int IS NOT NULL {
+            IF EXISTS(SELECT a.id FROM BizBud as a WHERE (a.flag & 1)=1) {
+                -- radio 直接调用SaveBudRadio
+                -- check 直接调用SaveBudCheck
+                -- 没有需要运行到这里。这里是错误的。
+                VAR old BIGINT;
+                SET old=a.value FROM IxBudInt as a WHERE a.i=id AND a.x=phraseId;
+                IF old IS NOT NULL {
+                    VAR oldBudId ID = ID(Bud New Key base=phraseId, ext=old);
+                    WITH IxBud I=oldBudId X=id DEL;
+                }
+                VAR budId ID = ID(Bud New Key base=phraseId, ext=int);
+                WITH IxBud I=budId X=id;
+            }
+            WITH IxBudInt I=id X=phraseId DEL;
+            WITH IxBudInt as a I=id X=phraseId SET a.value=int;
+        }
+        ELSE {
+            WITH IxBudInt I=id X=phraseId DEL;
+        }
+        WITH IxBudDec I=id X=phraseId DEL;
+        IF dec IS NOT NULL {
+            WITH IxBudDec as a I=id X=phraseId SET a.value=dec;
+        }
+        WITH IxBudStr I=id X=phraseId DEL;
+        IF str IS NOT NULL {
+            WITH IxBudStr as a I=id X=phraseId SET a.value=str;
+        }
+        FOR (VAR budId ID OF 
+                SELECT a.id as budId 
+                    FROM Bud as a
+                        JOIN BizPhrase as b ON b.id=a.ext
+                    WHERE a.base=phraseId AND b.type=BizPhraseType.optionsitem
+            )
+        {
+            WITH IxBud I=id X=budId DEL;
+        }
+        -- VAR atomPhrase ID;
+        -- SET atomPhrase = a.base FROM BizPhrase as a WHERE a.id=phraseId;
+        ProcCall '$site'.CONCAT($site, '.', phraseId, 'bu') USING id;
+    }
+};
+
+PROC ProcSaveBudCheck(
+    budPhrase ID,
+    id ID,
+    optionsItemPhrase ID,
+    checked TINYINT,            -- 0: remove, 1: add
+) {
+    // VAR budId ID = ID(Bud new KEY base=budPhrase, ext=optionsItemPhrase);
+    IF checked=0 {
+        // WITH IxBud I=id X=budId DEL;
+        WITH IxBudCheck II=id I=budPhrase X=optionsItemPhrase DEL;
+    }
+    ELSE {
+        // WITH IxBud I=id X=budId;
+        WITH IxBudCheck II=id I=budPhrase X=optionsItemPhrase;
+    }
+    WITH IxBudInt I=id X=budPhrase DEL;
+    WITH IxBudDec I=id X=budPhrase DEL;
+    WITH IxBudStr I=id X=budPhrase DEL;
+}
+
+Biz ACT SaveBudCheck (
+    budPhrase ID,
+    id ID,
+    optionsItemPhrase ID,
+    checked TINYINT,            -- 0: remove, 1: add
+) {
+    PROC ProcSaveBudCheck(budPhrase, id, optionsItemPhrase, checked);
+};
+
+PROC ProcSaveBudRadio (
+    budPhrase ID,
+    id ID,
+    optionsItemPhrase ID,
+) {
+    -- 自动清除原来的，添加现在的
+    WITH IxBudInt I=id X=budPhrase DEL;
+    WITH IxBudDec I=id X=budPhrase DEL;
+    WITH IxBudStr I=id X=budPhrase DEL;
+    FOR (VAR x ID OF SELECT a.x
+        FROM IxBud as a 
+            JOIN Bud as b ON b.id=a.x 
+        WHERE a.i=id AND b.base=budPhrase)
+    {
+        WITH IxBud I=id X=x DEL;
+    }
+    IF optionsItemPhrase > 0 {
+        -- VAR budId ID = ID(Bud new KEY base=budPhrase,ext=optionsItemPhrase);
+        WITH IxBudInt I=id X=budPhrase SET value=optionsItemPhrase;
+    }
+};
+
+Biz ACT SaveBudRadio (
+    budPhrase ID,
+    id ID,
+    optionsItemPhrase ID,
+) {
+    PROC ProcSaveBudRadio(budPhrase, id, optionsItemPhrase);
+};
+
+Biz Act DelAtom (
+    id ID,
+) {
+    VAR base ID = a.base FROM Atom as a WHERE a.id=id;
+    -- WITH IxAtom i=base x=id DEL;
+}
+
+Biz Ac SaveSpec ver 0.2 (
+    id ID,
+    spec ID,
+    base ID,
+    keys JSON,              -- {"k1": v1, "k2": v2}
+    props JSON,             -- {"p1": p1, "p2": p2}
+)
+RETURNS ret (
+    id ID,
+) {
+    VAR me ID = Me();
+    VAR retId ID;
+    VAR sql CHAR(500);
+    SET sql=CONCAT('call `$site`.`', $site, '.', spec, '$s`(?, ?,?,?,?,?);');
+    ExecSql sql to retId USING $site, me, id, base, keys, props;
+    WITH IDU as a ID=retId SET a.base=spec;
+    INTO ret SELECT retId as id;
+}
+
+Biz Query GetSpec (
+    id ID,
+)
+RETURNS props (
+    id ID,
+    base ID,
+    phrase ID,
+    value JSON,
+) {
+    PROC ProcGetSpec(id);
+};
+
+Biz ACT SaveSheet (
+    phrase ID,                 -- sheet phrase id --  CHAR(100),
+    no NO,
+    i ID,
+    x ID,
+    value VALUE,
+    price VALUE,
+    amount VALUE,
+    props JSON,
+)
+RETURNS ret (
+    id ID,
+    no NO,
+) {
+    -- VAR base ID = PhraseId(sheet);
+    -- 安全检查
+    IF NOT EXISTS (SELECT a.id FROM BizPhrase as a WHERE a.id=phrase AND a.base=$site) {
+        RETURN;
+    }
+
+    VAR me ID = Me();
+
+    IF no IS NULL {
+        SET no = NO(Sheet);
+    }
+    VAR sheetId ID;
+    WITH Sheet as a ID to sheetId Key(phrase, no) SET a.operator=me;
+    WITH Bin as a ID=sheetId SET a.i=i, a.x=x, a.value=value, a.price=price, a.amount=amount;
+    
+    PROC SaveBinBuds(sheetId, props);
+
+    WITH IxState I=me X=ID(Bud New KEY base=sheetId, ext=1);    -- 1: sheet is in PreDraft
+
+    INTO ret SELECT sheetId as id, no;
+};
+
+Biz AC SaveDetail ver 0.2 (
+    base ID,                -- sheet id
+    phrase ID,              -- detail phrase id
+    id ID,
+    i ID,                -- 计量对象。比如：商品不同包装或者批次
+    x ID,               -- 操作对象。比如：客户，仓库，等
+    origin ID,
+    value VALUE,
+    price VALUE,
+    amount VALUE,
+    pend ID,
+    props JSON,
+)
+RETURNS ret (
+    id ID,
+) {
+    VAR me ID = Me();
+    VAR pendFrom ID = pend;
+    -- 安全判断
+    IF base IS NULL OR NOT EXISTS(SELECT x FROM IxState WHERE i=me AND x=base) {
+        -- base sheet必须在我的draft里面
+        RETURN;
+    }
+    -- 安全判断
+    IF NOT EXISTS(SELECT a.id FROM BizPhrase as a WHERE a.id=phrase AND a.base=$site) {
+        -- phrase id 必须是 my site
+        RETURN;
+    }
+    IF id IS NULL {
+        SET id = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+    }
+    WITH Bin ID=id SET i=i, x=x
+        , origin=origin
+        , value=value, price=price, amount=amount;
+    IF pendFrom IS NOT NULL {
+        WITH BinPend as a ID=id SET a.pendFrom=pendFrom;
+    }
+
+    PROC SaveBinBuds(id, props);
+
+    INTO ret SELECT id;
+};
+
+PROC SaveBinBuds(
+    id ID,
+    props JSON,
+) {
+    JSONTABLE tbl (
+        bud ID PATH '$[0]', 
+        value CHAR(200) PATH '$[1]',
+        type INT PATH '$[2]'
+    ) FROM props PATH '$[*]';
+    FOR (VAR bud ID, value CHAR(200), type INT OF SELECT a.bud, a.value, a.type FROM tbl as a)
+    {
+        IF type=BudDataType.char OR type=BudDataType.str {
+            WITH IxBudStr I=id X=bud SET value=value;
+        }
+        ELSEIF type=BudDataType.dec {
+            WITH IxBudDec I=id X=bud SET value=value;
+        }
+        ELSEIF type=BudDataType.radio {
+            PROC ProcSaveBudRadio(bud, id, value);
+        }
+        ELSEIF type=BudDataType.check {
+            -- check 的参数应该是数组JsonArray，随后再改
+            PROC ProcSaveBudCheck(bud, id, value, 1);
+        }
+        ELSEIF type=BudDataType.fork {
+            WITH IxBudJson I=id X=bud SET value=value;
+        }
+        ELSE {
+            WITH IxBudInt I=id X=bud SET value=value;
+        }
+    }
+}
+
+Biz AC DeleteBin (
+    ids JSON,
+) {
+    JSONTABLE tblIds (
+        id ID PATH '$'
+    ) FROM ids PATH '$[*]';
+    VAR me ID = Me();
+
+    FOR (VAR id ID OF SELECT id FROM tblIds) {
+        IF EXISTS(SELECT a.i
+            FROM IxState as a
+            WHERE a.i=me AND a.x=id)  -- sheet id
+        {
+            WITH Bin ID=id DEL;
+            WITH BinPend ID=id DEL;
+        }
+        ELSEIF EXISTS(SELECT a.i
+            FROM IxState as a
+            JOIN Sheet as b ON b.id=a.x
+            JOIN Bud as c ON c.base=b.id
+            JOIN Detail as d ON d.base=c.id
+            WHERE a.i=me AND d.id=id)
+        {
+            -- 如果base sheet没有在我的draft里面，不能写入明细。这是安全保证
+            WITH Bin ID=id DEL;
+            WITH Detail ID=id DEL;
+            WITH BinPend ID=id DEL;
+        }
+    }
+}
+
+Biz AC SubmitSheet(
+    id ID,
+) 
+RETURNS checkPend (
+    pend ID,
+    overValue VALUE,
+)
+RETURNS checkBin (
+    bin ID,
+    message CHAR(200),
+) {
+    VAR me ID = Me();
+    VAR phraseId ID = a.base
+        FROM Sheet as a 
+            JOIN IxState as b ON b.x=a.id
+        WHERE b.i=me AND a.id=id;
+    IF phraseId IS NULL {
+        RETURN;
+    }
+    SET @checkPend=JSON_ARRAY();
+    SET @checkBin=JSON_ARRAY();
+    TRANS OFF;
+    TRANS START;
+    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phraseId, '`(?,?,?);');
+    ExecSql sql USING $site, me, id;
+
+    WITH IxState I=me X=id DEL;
+    WITH IxState I=id X=phraseId;
+
+    /-mysql
+    IF JSON_LENGTH(@checkPend, '$')+JSON_LENGTH(@checkBin, '$')=0 THEN
+        COMMIT;
+    ELSE
+        ROLLBACK;
+        INSERT INTO _checkpend (pend, overValue) SELECT a.pend, a.overValue 
+            FROM JSON_TABLE(@checkPend, '$[*]' COLUMNS (
+                pend BIGINT PATH '$.pend',
+                overValue DEC(18,6) PATH '$.overValue'
+            )) AS a;
+        INSERT INTO _checkbin (bin, message) SELECT a.bin, a.message 
+            FROM JSON_TABLE(@checkBin, '$[*]' COLUMNS (
+                bin BIGINT PATH '$.bin',
+                message VARCHAR(200) PATH '$.message'
+            )) AS a;
+    END IF;
+    -/
+};
+
+Biz AC DoQuery (
+    query ID, 
+    json JSON,
+    pageStart INT,
+    pageSize INT,
+)
+RETURNS ret (
+    id ID,
+    ban TINYINT,
+    json JSON,
+    value VALUE,
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    ban TINYINT,
+    json JSON,
+    value VALUE,
+) {
+    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', query, 'q`(?,?,?,?);');
+    ExecSql sql USING $user, json, pageStart, pageSize;
+};
+
+Biz ACT RemoveDraft (
+    id ID,
+) {
+    VAR me ID = Me();
+    IF EXISTS(SELECT a.i FROM IxState as a WHERE a.i=me AND a.x=id) {
+        /-mysql
+        DELETE a FROM ixbud as a WHERE a.i=_id;
+        DELETE a FROM ixbudint as a WHERE a.i=_id;
+        DELETE a FROM ixbuddec as a WHERE a.i=_id;
+        DELETE a FROM ixbudstr as a WHERE a.i=_id;
+        DELETE a FROM ixbudcheck as a WHERE a.i=_id;
+        DELETE a FROM bin as a WHERE a.id=_id;
+        DELETE a FROM bin as a JOIN bud as a1 ON a1.id=a.id WHERE a1.base=_id;
+        -/
+        WITH IxState I=me X=id DEL;
+        WITH Sheet ID=id DEL;
+    }
+};
+
+Biz QUERY GetMyDrafts ver 0.2 (
+    entitySheet ID,
+)
+PAGE (
+    * Sheet DESC,
+    * Bin,
+    rowCount INT,
+) {
+    VAR me ID = Me();
+    SET @me=me;
+
+    -- 删去所有的preDraft单据
+    IF exists(SELECT 1 FROM IxState as a JOIN Bud as b ON b.id=a.x WHERE a.i=me AND b.ext=1 LIMIT 1) {
+        /-mysql
+        DELETE a,b FROM ixstate as a JOIN bud as b ON b.id=a.x AND a.i=@me AND b.ext=1;
+        -/
+    }
+
+    -- 获取我正在录入的单据
+    PAGE SELECT * b, * d
+        , (SELECT count(*) 
+            FROM Detail as x 
+                JOIN Bud as y ON y.id=x.base
+                JOIN Bin as z ON z.id=x.id
+            WHERE y.base=b.id AND z.value IS NOT NULL
+        ) as rowCount
+        FROM IxState as a
+            JOIN Sheet as b ON a.x=b.id
+            JOIN BizPhrase as c ON c.id=b.base
+            JOIN Bin as d ON d.id=b.id
+        WHERE b.id<$pageStart AND a.i=me AND c.base=$site 
+            AND (entitySheet IS NULL OR b.base=entitySheet)
+        ORDER BY b.id DESC
+        LIMIT $pageSize;
+};
+
+Biz AC SetSheetPreToDraft (
+    id ID,
+    -- state INT,          -- 1: pre-draft, 仅仅录入条件中保存的单据
+) {
+    VAR me ID = Me();
+    VAR state ID = ID(Bud New KEY base=id,ext=1);
+    WITH IxState I=me X=state DEL;
+    WITH IxState I=me X=id;
+}
+
+Biz AC DeleteMyDrafts ver 0.5 (
+    entitySheet ID,
+) {
+    VAR me ID = Me();
+    SET @me=me;
+    SET @entity=entitySheet;
+    /-mysql
+    DELETE a FROM ixbud as a 
+        JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
+        WHERE @entity IS NULL OR b.base=@entity;
+    DELETE a FROM ixbudint as a 
+        JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
+        WHERE @entity IS NULL OR b.base=@entity;
+    DELETE a FROM ixbuddec as a 
+        JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
+        WHERE @entity IS NULL OR b.base=@entity;
+    DELETE a FROM ixbudstr as a 
+        JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
+        WHERE @entity IS NULL OR b.base=@entity;
+    DELETE a FROM bin as a
+        JOIN sheet as b ON b.id=a.id JOIN ixstate as c ON c.i=@me AND c.x=b.id
+        WHERE @entity IS NULL OR b.base=@entity;
+    DELETE a FROM bin as a 
+        JOIN bud as a1 ON a1.id=a.id
+        JOIN sheet as b ON b.id=a1.base
+        JOIN ixstate as c ON c.i=@me AND c.x=b.id
+        WHERE @entity IS NULL OR b.base=@entity;
+    DELETE a FROM sheet as a JOIN ixstate as b ON b.i=@me AND b.x=a.id
+        WHERE @entity IS NULL OR a.base=@entity;
+    -/
+    WITH IxState as a I=me
+        DEL WHERE EXISTS(
+            SELECT b.id 
+                FROM Sheet as b JOIN BizPhrase as c ON c.id=b.base 
+                WHERE b.id=a.x
+                    AND c.base=$site
+                    AND (entitySheet IS NULL OR b.base=entitySheet)
+        );
+}
+
+Biz Query SearchAtom (
+    atom ID,                -- atom phrase id
+    key CHAR(50),
+)
+PAGE (
+    id ID desc,
+    no CHAR(50),
+    ex CHAR(50),
+    phrase ID,
+) {
+    -- VAR base ID = PhraseId(atom);
+    PAGE SELECT a.id, a.no, a.ex, a.base as phrase -- d.name as phrase
+        FROM Atom as a 
+        WHERE a.base=atom AND a.id<$pageStart AND SEARCH(a.no, a.ex LIKE key)
+        ORDER BY a.id desc
+        LIMIT $pageSize;
+};
+
+Biz Query GetAssigns (
+    assign ID,
+    params JSON,
+)
+PAGE (
+    id ID ASC,
+    no NO,
+    ex EX,
+    values JSON,
+) {
+    VAR me ID = Me();
+
+    /*
+    -- 查权限
+    IF NOT EXISTS (SELECT i FROM IxPermission WHERE i=assign AND x=-1 AND a=1)
+       OR NOT EXISTS (SELECT a.i 
+            FROM IxPermission as a
+                JOIN IxUserRole as b ON b.i=me AND b.x=a.x
+            WHERE a.i=assign AND a.a=1
+        )
+        AND NOT EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1)
+    {
+        RETURN;
+    }
+
+    -- 以后可以加其它的检查条件，查询权限
+    IF NOT EXISTS (SELECT a.id FROM BizPhrase as a WHERE a.id=assign AND a.base=$site)
+        OR  NOT EXISTS (SELECT a.id FROM BizPhrase as a WHERE a.id=assign AND a.base=$site)
+    {
+        RETURN;
+    }
+    */
+    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', assign, 'a`(?,?,?,?);');
+    ExecSql sql USING me, $pageStart, $pageSize, params;
+}
+
+Biz Query GetTies (
+    tie ID,
+    params JSON,
+)
+PAGE (
+    id ID ASC,
+    no NO,
+    ex EX,
+    values JSON,
+) {
+    VAR me ID = Me();
+
+    /*
+    -- 查权限
+    IF NOT EXISTS (SELECT i FROM IxPermission WHERE i=tie AND x=-1 AND a=1)
+       OR NOT EXISTS (SELECT a.i 
+            FROM IxPermission as a
+                JOIN IxUserRole as b ON b.i=me AND b.x=a.x
+            WHERE a.i=tie AND a.a=1
+        )
+        AND NOT EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1)
+    {
+        RETURN;
+    }
+
+    -- 以后可以加其它的检查条件，查询权限
+    IF NOT EXISTS (SELECT a.id FROM BizPhrase as a WHERE a.id=tie AND a.base=$site)
+        OR  NOT EXISTS (SELECT a.id FROM BizPhrase as a WHERE a.id=tie AND a.base=$site)
+    {
+        RETURN;
+    }
+    */
+    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', tie, 't`(?,?,?,?);');
+    ExecSql sql USING me, $pageStart, $pageSize, params;
+}
+
+Biz AC SaveTie (
+    tie ID,
+    i ID,
+    x ID,
+) {
+    // 需要权限检查
+    VAR bud ID = ID(Bud NEW KEY base=tie, ext=i);
+    WITH IxBud I=bud X=x;
+}
+
+Biz AC DeleteTie (
+    tie ID,
+    i ID,
+    x ID,
+) {
+    // 需要权限检查
+    VAR bud ID = ID(Bud NEW KEY base=tie, ext=i);
+    WITH IxBud I=bud X=x DEL;
+}
+
+Biz Query SearchAtomBuds ver 0.3 (
+    phrase ID,
+    key CHAR(50),
+    buds JSON,
+)
+PAGE (
+    id ID desc,
+    no CHAR(50),
+    ex CHAR(50),
+    phrase ID,
+)
+RETURNS meds (
+    id ID,
+    main ID,
+    detail ID,
+)
+RETURNS budsInt (
+    id ID,
+    bud ID,
+    value INT,
+)
+RETURNS budsDec (
+    id ID,
+    bud ID,
+    value VALUE,
+)
+RETURNS budsStr (
+    id ID,
+    bud ID,
+    value CHAR(200),
+) {
+    PAGE WITH RECURSIVE pPhrase AS (
+        SELECT r.x as id, r.i as base
+        FROM IxBizPhrase as r
+            JOIN BizPhrase as p ON p.id=r.x
+            JOIN XBiz as p1 ON p1.id=p.id
+        WHERE p.id=phrase -- AND p.valid=1
+        UNION
+        SELECT a.x as id, a.i as base
+        FROM IxBizPhrase as a JOIN pPhrase AS b
+            ON b.id=a.i
+    )
+    SELECT a.id, a.no, a.ex, d.id as phrase
+        FROM Atom as a 
+            JOIN pPhrase as c ON c.id=a.base
+            JOIN BizPhrase as d ON d.id=a.base
+        WHERE a.id<$pageStart AND SEARCH(a.no, a.ex LIKE key) 
+            AND d.base=$site
+        ORDER BY a.id desc
+        LIMIT $pageSize;
+
+    INTO meds SELECT b.id, b.id as main, b.id as detail
+        FROM $page as b;
+
+    INTO budsInt SELECT a.id, d.id as bud, b.value
+        FROM $page as a 
+            JOIN IxBudInt as b ON b.i=a.id
+            JOIN BizPhrase as d ON d.id=b.x -- phrase
+        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
+
+    INTO budsDec SELECT a.id, d.id as bud, b.value
+        FROM $page as a 
+            JOIN IxBudDec as b ON b.i=a.id
+            JOIN BizPhrase as d ON d.id=b.x -- phrase
+        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
+
+    INTO budsStr SELECT a.id, d.id as bud, b.value
+        FROM $page as a 
+            JOIN IxBudStr as b ON b.i=a.id
+            JOIN BizPhrase as d ON d.id=b.x -- phrase
+        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
+};
+
+Biz Query GetTiedIDs (
+    tie ID,             -- phrase id
+    i ID,               -- i value id
+)
+PAGE (
+    id ID ASC,
+    phrase ID,
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    json JSON,
+) {
+    PAGE SELECT a.x as id, b.base as phrase
+        FROM IxBud as a
+            LEFT JOIN IDU as b ON b.id=a.x
+        WHERE a.i=BudID(tie, i) AND a.x>$pageStart
+        ORDER BY a.x ASC
+        LIMIT $pageSize;
+/*
+    INTO budsInt SELECT a.id, d.id as bud, b.value
+        FROM $page as a 
+            JOIN IxBudInt as b ON b.i=a.id
+            JOIN BizPhrase as d ON d.id=b.x -- phrase
+        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
+
+    INTO budsDec SELECT a.id, d.id as bud, b.value
+        FROM $page as a 
+            JOIN IxBudDec as b ON b.i=a.id
+            JOIN BizPhrase as d ON d.id=b.x -- phrase
+        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
+
+    INTO budsStr SELECT a.id, d.id as bud, b.value
+        FROM $page as a 
+            JOIN IxBudStr as b ON b.i=a.id
+            JOIN BizPhrase as d ON d.id=b.x -- phrase
+        WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
+*/
+}
+
+-- 可以取一个单据，也可以取单行
+Biz Query GetSheet ver 0.1 (
+    id ID,                      -- sheetId or detailId
+)
+RETURNS main (
+    * SHEET,
+    * Bin,
+    phrase ID,
+)
+RETURNS details (
+    * Bin,
+    pend ID,
+    pendValue VALUE,
+    phrase ID,
+)
+RETURNS origins (
+    * Bin,
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    json JSON,
+) {
+    VAR maySheetId ID, detail ID, sheetPhrase ID;
+    SET maySheetId = b.base FROM Detail as a JOIN Bud as b ON b.id=a.base WHERE a.id=id;
+    IF maySheetId IS NOT NULL {
+        SET detail = id;
+        SET id = maySheetId;
+    }
+    SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=id;
+    INTO main SELECT * a, * b, a.base as phrase
+        FROM Sheet as a
+            LEFT JOIN Bin as b ON b.id=a.id
+            JOIN BizPhrase as c ON c.id=a.base
+        WHERE a.id=id AND c.base=$site;
+    INTO details SELECT * a
+        , c.pendFrom as pend, d.value as pendValue
+        , b.ext as phrase
+        FROM Bin as a
+            JOIN Detail as a1 ON a1.id=a.id
+            JOIN Bud as b ON b.id=a1.base
+            LEFT JOIN BinPend as c ON c.id=a.id
+            LEFT JOIN Pend as d ON d.id=c.pendFrom
+        WHERE b.base=id AND (detail IS NULL OR a.id=detail);
+    INTO origins SELECT DISTINCT * b -- , IFNULL(c.value, 0) as done
+        FROM (SELECT DISTINCT origin FROM details) as a
+            JOIN Bin as b ON b.id=a.origin
+    ;
+    VAR procName CHAR(200) = CONCAT($site, '.', sheetPhrase, 'gs');
+    IF routine_exists('$site', procName) {
+        VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?);');
+        ExecSql sql USING id;
+    }
+
+    INTO IGNORE specs SELECT DISTINCT a.i as id, e.id as atom, null as json
+        FROM details as a 
+            JOIN Spec as c ON (c.id=a.i OR c.id=a.x)
+            -- -- JOIN Bud as d ON d.id=c.base
+            JOIN Atom as e on e.id=c.base;
+
+    INTO IGNORE atoms SELECT DISTINCT c.id as id, c.base as base, c.no, c.ex
+        FROM details as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x);
+    INTO IGNORE atoms SELECT DISTINCT a.value as id, b.id as base, c.no, c.ex
+        FROM props as a 
+            JOIN BizBud as b ON b.id=a.phrase
+            JOIN Atom as c ON c.id=a.value
+        WHERE b.type=BudDataType.atom;
+
+    INTO IGNORE atoms SELECT DISTINCT e.id as id, e.base as base, e.no, e.ex
+        FROM specs as a 
+            JOIN Atom as e on e.id=a.atom;
+};
+
+Biz Query GetAtom (
+    id ID,
+)
+RETURNS props (
+    phrase ID,
+    value JSON,
+)
+{
+    PROC ProcGetAtom(id);
+};
+
+Biz Query GetSpecsFromBase ver 0.1 (
+    base ID,
+)
+RETURNS ret (
+    id ID,
+    keys JSON,
+    props JSON,
+) {
+    INTO ret SELECT a.id as id,
+        (SELECT json_arrayagg(json_array(arr.name,arr.value)) FROM (
+            select ix.name, i.value from IxBudInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
+            union select dx.name, d.value from IxBudDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
+            union select sx.name, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
+        ) as arr ) as keys,
+        null as props
+        FROM Spec as a
+        WHERE a.base=base;
+}
+
+-- 这是 GetSpecsFromBase 的新版本。之前的base应该有问题。spec base应该是bud of (base, bizphrase)
+Biz Query GetSpecListFromBase ver 0.1 (
+    base ID,
+    phrase ID,
+)
+RETURNS ret (
+    id ID,
+    keys JSON,
+    props JSON,
+) {
+    INTO ret SELECT a.id as id,
+        (SELECT json_arrayagg(json_array(arr.id,arr.value)) FROM (
+            select ix.id, i.value from IxBudInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
+            union select dx.id, d.value from IxBudDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
+            union select sx.id, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
+        ) as arr ) as keys,
+        null as props
+        FROM Spec as a
+            JOIN IDU as b ON b.id=a.id
+        WHERE a.base=base AND b.base=phrase;
+}
+
+Biz AC SaveDuoOuterApp (
+    i ID,
+    x ID,
+)
+RETURNS ret (
+    id ID,
+) {
+    VAR id ID;
+    IF NOT EXISTS(SELECT id 
+        FROM Atom as a JOIN BizPhrase as b ON b.id=a.base 
+        WHERE b.base=$site AND a.id in (i,x)
+    ) {
+        RETURN;
+    }
+    WITH Duo as a ID to id KEY(i, x) SET a.valid=1;
+    WITH IxBud as a I=x X=i;
+    INTO ret SELECT id;
+}
+
+Biz AC DelDuoOuterApp (
+    id ID,
+    i ID,
+    x ID,
+) {
+    IF id IS NULL {
+        SET id=ID(DUO KEY i=i, x=x);
+    }
+    ELSE {
+        SET i=a.i, x=a.x FROM Duo as a WHERE a.id=id;
+    }
+    IF EXISTS(SELECT id FROM Duo as a 
+            LEFT JOIN ATOM as b ON b.id=a.i LEFT JOIN BizPhrase as b1 ON b1.id=b.base AND b1.base=$site
+            LEFT JOIN ATOM as c ON c.id=a.x LEFT JOIN BizPhrase as c1 ON c1.id=c.base AND c1.base=$site
+        WHERE a.id=id AND (b.id IS NOT NULL OR c.id IS NOT NULL)
+    ) {
+        WITH Duo ID=id SET valid=0;
+        WITH IxBud I=x X=i DEL;
+    }
+}
+
+Biz Query GetDuos ver 0.1 (
+    i ID,
+)
+RETURNS ret (
+    id ID,
+    x ID,
+    props JSON,
+) {
+    INTO ret SELECT a.id as id, a.x,
+        (SELECT json_arrayagg(json_array(arr.bud,arr.value)) FROM (
+            select ix.id as bud, i.value from IxBudInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
+            union select dx.id as bud, d.value from IxBudDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
+            union select sx.id as bud, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
+        ) as arr ) as props
+        FROM Duo as a
+        WHERE a.i=i AND a.valid=1;
+}
+
+-- Spec or Atom
+PROC ProcGetSpec ver 0.1 (
+    id ID,
+)
+RETURNS props VIRTUAL (
+    id ID,
+    base ID,                -- Fork parent base ID
+    phrase ID,
+    value JSON,
+) {
+    -- VAR jval JSON;
+    WHILE 1=1 {
+        VAR base ID=a.base, phrase Phrase=c.id, type ENUM BizPhraseType=c.type 
+            FROM Spec as a 
+                JOIN IDU as b ON b.id=a.id 
+                JOIN BizPhrase as c ON c.id=b.base
+            WHERE a.id=id;
+        IF type IS NULL {
+            BREAK;
+        }
+        INTO props SELECT id, base, phrase, (
+                SELECT JSON_ARRAYAGG(JSON_ARRAY(arr.x, arr.value)) FROM (
+                    SELECT a.x, a.value FROM IxBudInt as a WHERE a.i=id
+                    UNION SELECT a.x, a.value FROM IxBudDec as a WHERE a.i=id
+                    UNION SELECT a.x, a.value FROM IxBudStr as a WHERE a.i=id
+                ) as arr
+            ) as value;
+        IF type<>BizPhraseType.fork {
+            BREAK;
+        }
+        SET id=base;
+    }
+    INTO props SELECT id, 0 as base, a.base as phrase, JSON_ARRAY(a.no, a.ex) as value
+        FROM Atom as a
+        WHERE a.id=id;
+}
+
+PROC ProcGetProps (
+    id ID,
+)
+RETURNS props VIRTUAL ( -- VIRTUAL 就不会生成临时表，直接使用调用者的
+    phrase ID,
+    value JSON,
+) {
+    INTO props SELECT a.x as phrase, JSON_ARRAY(a.value) as value
+        FROM IxBudInt as a 
+            JOIN BizPhrase as b on b.id=a.x
+            JOIN BizPhrase as c on c.id=b.base
+        WHERE a.i=id AND c.type=BizPhraseType.atom;
+    INTO props SELECT a.x as phrase, JSON_ARRAY(a.value) as value
+        FROM IxBudDec as a 
+            JOIN BizPhrase as b on b.id=a.x
+            JOIN BizPhrase as c on c.id=b.base
+        WHERE a.i=id AND c.type=BizPhraseType.atom;
+    INTO props SELECT a.x as phrase, JSON_ARRAY(a.value) as value
+        FROM IxBudStr as a 
+            JOIN BizPhrase as b on b.id=a.x
+            JOIN BizPhrase as c on c.id=b.base
+        WHERE a.i=id AND c.type=BizPhraseType.atom;
+    INTO props SELECT a.i as phrase, JSON_ARRAYAGG(a.x) as value
+        FROM IxBudCheck as a
+        WHERE a.ii=id
+        GROUP BY a.i;
+}
+
+PROC ProcGetAtom ver 0.1 (
+    atom ID,
+)
+RETURNS props VIRTUAL ( -- VIRTUAL 就不会生成临时表，直接使用调用者的
+    phrase ID,
+    value JSON,
+) {
+    VAR id ID = a.id 
+        FROM Atom as a JOIN BizPhrase as b on b.id=a.base 
+        WHERE a.id=atom AND b.base=$site;
+    INTO props SELECT a.base as phrase, JSON_ARRAY(a.no, a.ex) as value
+        FROM Atom as a
+        WHERE a.id=id;
+    PROC ProcGetProps(id);
+}
+
+
+

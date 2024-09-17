@@ -1,0 +1,137 @@
+Biz Bin MainPurchase {
+    I '往来单位' Pick Contact;
+}
+
+Pick PurchaseItem '捡取商品' {
+    ATOM (Goods, Medicine, MedicineChinese);
+    -- 如果 atom.uom = true, 自动加上后面这一句。
+    -- Spec SpecUom;             -- 每一级spec都可以跳过去
+    Spec SpecMedicine;
+};
+
+Biz Title D {
+    PROP a DEC History;
+    PROP b DEC History;
+    PROP c '库存' DEC History;
+}
+
+Biz Bin DetailPurchase ver 0.1 {
+    I '商品Pick' Pick PurchaseItem; -- ATOM Goods;       -- 某类Atom
+    Value '数量' DEC;
+    Price '单价' DEC = 6;
+    Amount '金额' DEC = Value * Price;
+    
+    ACT {
+        -- Biz Pend += value;
+        Biz Pend PendStoreIn SET p1=price, p2=amount;
+        Biz Title D.a of I += value;
+        Biz Title D.b of I += value;
+    };
+}
+
+Biz Bin DetailPurchaseMedicine ver 0.1 '采购药品明细' {
+    I '药品' Pick Medicine;       -- 某类Atom
+    ACT {
+    };
+}
+
+Biz Sheet SheetPurchase '采购单 v5' {
+    Main MainPurchase;
+    Detail DetailPurchase;      -- 第一detail是主，可以由pend，其它随后的只能手工输入
+}
+
+Biz Bin MainStoreIn {
+    I '存货仓库' Pick Storage;
+}
+
+Biz Bin DetailStoreIn ver 0.2 {
+    Pend PendStoreIn '待入库商品' {
+        SEARCH I;
+    };      -- 从某个待处理账来
+    I '商品' = Pend.i;            -- Pick Goods;
+    Value := Pend.value;
+    ACT {
+        Biz Pend -= value;
+    };
+}
+
+Biz Pend PendStoreIn '待入库' {
+    S '单据';
+    SI '客户';
+    I '商品';
+    Value '数量';
+    Prop {
+        p1 DEC :=87;
+        p2 DEC = 3*5;
+    };
+}
+
+Biz Sheet SheetStoreIn '入库单' {
+    Main MainStoreIn;
+    Detail DetailStoreIn;
+}
+
+Biz Sheet SheetStoreInMultiStorage '入库单-分仓' {
+    Main MainStoreIn;
+    Detail DetailStoreIn;
+}
+
+Biz Bin MainSale {
+}
+
+Biz Sheet SheetSale '销售单' {
+    Main MainSale;
+    Detail DetailSale;
+}
+
+Biz Bin DetailSale ver 0.1 {
+    I '商品Pick' Pick PurchaseItem; -- ATOM Goods;       -- 某类Atom
+    X '客户' Pick Contact;
+    Value '数量' DEC;
+    Price '单价' DEC;
+    Amount '金额' DEC = Value * Price;
+    ACT (detail ID) {
+    };
+}
+
+Biz Bin MainStoreOut {
+}
+
+Biz Bin DetailStoreOut ver 0.2 {
+    I '商品' Pick Goods;       -- 某类Atom
+    Pend PendStoreOut {
+        SEARCH s;
+    }; -- ON Sheet ON Target ON Item ON Row;
+    ACT (detail ID) 
+    -- From PendStoreOut 
+    {
+    };
+}
+
+Biz Pend PendStoreOut '待出库' {
+
+}
+
+Biz Sheet SheetStoreOut '出库单' {
+    Main MainStoreOut;
+    Detail DetailStoreOut;
+}
+
+Bin 验收单主表 {
+    I '往来单位' Pick Contact;
+}
+Bin 验收单明细 {
+    I '商品Pick' Pick PurchaseItem; -- ATOM Goods;       -- 某类Atom
+    Value '数量' DEC;
+    Price '单价' DEC := 3;
+    Amount '金额' DEC = Value * Price;
+    Prop {
+        a dec;
+        b dec;
+    };
+}
+
+Sheet 验收单 {
+    Main 验收单主表;
+    Detail 验收单明细;
+}

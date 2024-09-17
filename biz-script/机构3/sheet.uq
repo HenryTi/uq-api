@@ -1,0 +1,289 @@
+SHEET 采购单 { 
+    Main 采购单主表; 
+    Detail 采购单明细; 
+}
+    
+PEND 待入库账 '待入库' {  
+    S '单据'; 
+    SI '客户';
+    I '商品';
+    Value '数量';
+    Prop {
+        p1 DEC; 
+        p2 DEC;
+    };
+    QUERY (
+        param1 Atom, 
+        param2 INT,  
+    ) {
+        VAR a ID = 1;
+        FROM WHERE 1=1; -- param1 = a; 
+    }
+}
+
+SHEET 入库单 {
+    Main 入库单主表;
+    Detail 入库单明细;
+} 
+BIN 采购单明细 ver 0.1 { 
+    Pick 货品  FROM 查询货品;   
+    I '商品Pick' 货品信息 = 货品 { 
+        : 规格; 
+        : 计量单位;
+        : 包装;
+        : 批准文号;
+        : 生产厂商;
+    };
+    Value '数量' dec(2); 
+    Price '单价' dec(2) = 货品.price;
+    Amount '金额' dec(2) = Value * Price;
+    Prop { 
+        规格 char : i.规格;
+        计量单位: i.计量单位; 
+        包装 char : i.包装;
+        批准文号 char : i.批准文号;
+        生产厂商: i.生产厂商;
+        采购员备注 char required;
+    };
+    ACT {
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month; 
+        VAR a VALUE = (#采购单明细(bin).value); 
+        VAR b VALUE = (#销售单明细(bin).value);
+        VAR c VALUE = (#采购.数量(i).sum in w);
+        VAR d VALUE = (#采购.数量(i));
+        Biz Pend 待入库账 SET p1=price, p2=amount;
+        Biz Title 销售.数量 of I += value;
+        Biz Title 销售.金额 of I += value;
+    };
+}
+BIN 采购单明细 ver 0.1 { 
+    Pick 货品  FROM 查询货品;   
+    I '商品Pick' 货品信息 = 货品 { 
+        : 规格; 
+        : 计量单位;
+        : 包装;
+        : 批准文号;
+        : 生产厂商;
+    };
+    Value '数量' dec(2); 
+    Price '单价' dec(2) = 货品.price;
+    Amount '金额' dec(2) = Value * Price;
+    Prop { 
+        规格 char : i.规格;
+        计量单位: i.计量单位; 
+        包装 char : i.包装;
+        批准文号 char : i.批准文号;
+        生产厂商: i.生产厂商;
+        采购员备注 char required;
+    };
+    ACT {
+        Biz Pend 待入库账 SET p1=price, p2=amount, 物流中心=(#采购单主表(bin).i), 采购员备注=%采购员备注;
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month; 
+        VAR a VALUE = (#采购单明细(bin).value); 
+        VAR b VALUE = (#销售单明细(bin).value);
+        VAR c VALUE = (#采购.数量(i).sum in w);
+        VAR d VALUE = (#采购.数量(%i));
+        Biz Pend 待入库账 SET p1=price, p2=amount, 物流中心=(#采购单主表(bin).i), 采购员备注=%采购员备注;
+        Biz Title 销售.数量 of I += value;
+        Biz Title 销售.金额 of I += value; 
+    };
+}
+
+SHEET 销售单 {
+    Main 销售单主表;
+    Detail 销售单明细;
+} 
+BIN 入库单明细 ver 0.2 {
+    Pick pend '待入库商品' FROM 待入库账 {
+        -- param i;
+    };
+    I '商品' 货品信息 = Pend.i { 
+        : 规格; 
+        : 计量单位;
+        : 包装;
+        : 批准文号;
+        : 生产厂商;
+    };
+    Value '数量' := Pend.value;
+    ACT {
+        Biz Pend -= value;
+        Biz Title 库存.数量 of I += Value;
+    };
+}
+
+
+
+BIN 采购单主表 {
+    Pick 采购员 FROM 查询职员;
+    Pick 供应商 FROM 采购员查询供应商 {
+       param 采购员 = 采购员; 
+    }
+    I '供应商' = 供应商;
+    X '采购员' = 采购员; 
+    Prop {
+        采购机构 ATOM 公司机构信息; 
+        签订日期  date=curdate();
+        结算方式 <edit:pop> radio 结算方式;
+        账期 int;
+        备注 CHAR;
+    };
+}
+
+BIN 销售单主表 {
+    Pick 客商 FROM 查询客商;
+    I '客商' = 客商; 
+}
+BIN 销售单明细 ver 0.1 {
+    Pick hp FROM 查询库存;
+    I '商品Pick' = hp; 
+    Value '数量' DEC;
+    Price '单价' DEC;
+    Amount '金额' DEC = Value * Price;
+    ACT {
+        Biz Title 库存.数量 of I -= Value;
+        Biz Title 销售.数量 of I += Value;
+        Biz Title 销售.单价 of I = Price;
+        Biz Title 销售.金额 of I += Amount;
+        Biz Pend 待出库账 SET p1=price, p2=amount;
+    };
+} 
+
+BIN 入库单主表 {
+    Pick 物流中心 FROM 查询物流中心;
+    I '物流中心' = 物流中心; 
+} 
+BIN 采购单明细带查询 ver 0.1 {
+    Pick pickA 'pickA-查询货品Query' FROM 查询货品Query; 
+    I '商品Pick' = pickA;  
+    Value '数量' dec(2); 
+    Price '单价' dec(2) = pickA.price;
+    Amount '金额' dec(2) = Value * Price;
+    ACT {
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month; 
+        VAR a VALUE = (#采购单明细(bin).value); 
+        VAR b VALUE = (#销售单明细(bin).value);
+        VAR c VALUE = (#采购.数量(i).sum in w);
+        VAR d VALUE = (#采购.数量(i));
+        Biz Pend 待入库账 SET p1=price, p2=amount;
+        Biz Title 销售.数量 of I += value;
+        Biz Title 销售.金额 of I += value;
+    };
+}
+
+BIN 采购单带查询主表 {
+    Pick customer FROM 客户信息;
+    I '客户' = customer;
+}
+
+SHEET 采购单带查询 {
+    Main 采购单带查询主表;
+    Detail 采购单明细带查询;
+}
+
+BIN 采购合同明细 ver 0.1 { 
+    Pick 货品  FROM 查询货品;   
+    --Pick 预留客商 FROM 客商信息;  
+    I '商品Pick' 货品信息 = 货品 { 
+        : 规格; 
+        : 计量单位;
+        : 包装;
+        : 批准文号;
+        : 生产厂商;
+    };
+    Value '数量' dec(2); 
+    Price '单价' dec(2) = 货品.price;
+    Amount '金额' dec(2) = Value * Price;
+    Prop { 
+        规格 char : i.规格;
+        计量单位: i.计量单位; 
+        包装 char : i.包装;
+        批准文号 char : i.批准文号;
+        生产厂商: i.生产厂商;
+        采购员备注 char required;
+    };
+    ACT {
+        Use TimeSpan w Week; 
+        Use TimeSpan m Month; 
+        VAR a VALUE = (#采购单明细(bin).value); 
+        VAR b VALUE = (#销售单明细(bin).value);
+        VAR c VALUE = (#采购.数量(i).sum in w);
+        VAR d VALUE = (#采购.数量(i));
+        Biz Pend 待入库账 SET p1=price, p2=amount;
+        Biz Title 销售.数量 of I += value;
+        Biz Title 销售.金额 of I += value;
+    };
+}
+
+
+SHEET 采购合同 { 
+    Main 采购合同主表; 
+    Detail 采购合同明细; 
+}
+    
+BIN 采购合同主表 {
+    --Pick 采购员 FROM 职员信息;
+    Pick 采购员 FROM 查询职员;
+    Pick 供应商 FROM 采购员查询供应商 {
+       param 采购员 = 采购员; 
+    }
+    I '供应商' = 供应商;
+    X '采购员' = 采购员; 
+    Prop {
+        --采购员 ATOM 职员信息; 
+        签订地点 CHAR;
+        签订日期  date=curdate();
+        结算方式 <edit:pop> radio 结算方式;
+        账期 int;
+        --采购员 = 供应商.采购员
+    };
+}
+
+SHEET 出库单 {
+    Main 出库单主表;
+    Detail 出库单明细;
+} 
+PEND 待出库账 '待出库' {  
+    S '单据'; 
+    SI '客户';
+    I '商品';
+    Value '数量';
+    Prop {
+        p1 DEC;
+        p2 DEC;
+    };
+}
+
+BIN 出库单明细 ver 0.2 {
+    Pick pend '待出库商品' FROM 待出库账 {
+        -- param i;
+    };
+    Pend 待出库账 '待出库商品' {
+        SEARCH I;
+    };      -- 从某个待处理账来
+    I '商品' = Pend.i;            
+    Value '数量' := Pend.value;
+    ACT {
+        Biz Pend -= value;
+        Biz Title 库存.数量 of I -= Value;
+    };
+}
+
+
+--平台级字段说明
+--S,  单据ID
+--SI, 主表上的I
+--SX, 主表上的X
+--I, 明细上的I 
+--X, 明细上的X
+--VALUE, 数量
+--Price, 单价
+--Amount，金额
+
+BIN 出库单主表 {
+    Pick 物流中心 FROM 查询物流中心;
+    I '物流中心' = 物流中心; 
+};
+
