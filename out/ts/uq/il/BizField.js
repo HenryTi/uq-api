@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromEntityFieldSpace = exports.BizFieldSpace = exports.BizFieldOptionsItem = exports.BizFieldUser = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldPendSheet = exports.BizFieldPendBin = exports.BizFieldBinBinBudSelect = exports.BizFieldPendBinBudSelect = exports.BizFieldPendBudSelect = exports.BizFieldBinBudSelect = exports.BizFieldBinBud = exports.BizFieldBud = exports.BizFieldTableAlias = exports.BizField = void 0;
+exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromEntityFieldSpace = exports.BizFieldSpace = exports.BizFieldOptionsItem = exports.BizFieldUser = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldPendSheet = exports.BizFieldPendBin = exports.BizFieldBinBinBudSelect = exports.BizFieldPendBinBudSelect = exports.BizFieldPendBudSelect = exports.BizFieldBinBudSelect = exports.BizFieldBinBud = exports.BizFieldBud = exports.BizFieldTableAlias = exports.BizForkBaseField = exports.BizField = void 0;
 const builder_1 = require("../builder");
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
 // in FROM statement, columns use BizField
@@ -15,6 +15,12 @@ class BizField {
     scanBinDiv() { }
 }
 exports.BizField = BizField;
+class BizForkBaseField extends BizField {
+    db(dbContext) { return new builder_1.BBizForkBaseField(dbContext, this); }
+    buildSchema() { return; }
+    get tableAlias() { return undefined; }
+}
+exports.BizForkBaseField = BizForkBaseField;
 class BizFieldTableAlias extends BizField {
     constructor(space, tableAlias) {
         super(space);

@@ -342,6 +342,9 @@ class BBizFieldOperand extends exp_1.ExpVal {
         this.bBizField = bBizField;
     }
     to(sb) {
+        if (this.bBizField === undefined) {
+            return;
+        }
         this.bBizField.to(sb);
     }
 }

@@ -3,6 +3,11 @@ import {
     , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity,
     BizCombo,
     BizIDWithShowBuds,
+    Entity,
+    Pointer,
+    Table,
+    BizField,
+    BizForkBaseField,
     // BizAtomFork
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
@@ -542,7 +547,8 @@ export class PBizFork extends PBizIDWithBase<BizFork> {
 
     scan(space: Space): boolean {
         let ok = true;
-        if (super.scan(space) === false) ok = false;
+        let forkSpace = new BizForkSpace(space);
+        if (super.scan(forkSpace) === false) ok = false;
         const { keys } = this.element;
         if (keys.length === 0) {
             this.log('SPEC must define KEY');
@@ -550,7 +556,7 @@ export class PBizFork extends PBizIDWithBase<BizFork> {
         }
 
         for (let key of keys) {
-            if (this.scanBud(space, key) === false) ok = false;
+            if (this.scanBud(forkSpace, key) === false) ok = false;
         }
         return ok;
     }
@@ -567,6 +573,22 @@ export class PBizFork extends PBizIDWithBase<BizFork> {
             base.fork = this.element;
         }
         return ok;
+    }
+}
+
+class BizForkSpace extends Space {
+    private readonly baseField = new BizForkBaseField(undefined);
+    protected _getEntityTable(name: string): Entity & Table {
+        return;
+    }
+    protected _getTableByAlias(alias: string): Table {
+        return;
+    }
+    protected _varPointer(name: string, isField: boolean): Pointer {
+        return;
+    }
+    protected override _getBizField(names: string[]): BizField {
+        if (names.length === 1 && names[0] === 'base') return this.baseField;
     }
 }
 

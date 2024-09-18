@@ -1,7 +1,7 @@
 import {
     BizBud,
     bizDecType,
-    BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldOptionsItem, BizFieldPendBinBudSelect, BizFieldPendBudSelect, EnumSysTable
+    BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldOptionsItem, BizFieldPendBinBudSelect, BizFieldPendBudSelect, BizForkBaseField, EnumSysTable
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
@@ -76,6 +76,15 @@ export abstract class BBizField<T extends BizField = BizField> {
             .append(' AS t0');
         sb.append(' WHERE t0.id=').var('$pend');
         sb.r();
+    }
+}
+
+export class BBizForkBaseField extends BBizField<BizForkBaseField> {
+    override to(sb: SqlBuilder): void {
+        if (sb.forClient === true) {
+            sb.append('%base');
+            return;
+        }
     }
 }
 

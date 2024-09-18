@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizFieldOptionsItem = exports.BBizFieldUser = exports.BBizFieldPendSheet = exports.BBizFieldPendBin = exports.BBizFieldBinBinBudSelect = exports.BBizFieldPendBinBudSelect = exports.BBizFieldPendBudSelect = exports.BBizFieldBinBudSelect = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizField = void 0;
+exports.BBizFieldOptionsItem = exports.BBizFieldUser = exports.BBizFieldPendSheet = exports.BBizFieldPendBin = exports.BBizFieldBinBinBudSelect = exports.BBizFieldPendBinBudSelect = exports.BBizFieldPendBudSelect = exports.BBizFieldBinBudSelect = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizForkBaseField = exports.BBizField = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class BBizField {
@@ -69,6 +69,15 @@ class BBizField {
     }
 }
 exports.BBizField = BBizField;
+class BBizForkBaseField extends BBizField {
+    to(sb) {
+        if (sb.forClient === true) {
+            sb.append('%base');
+            return;
+        }
+    }
+}
+exports.BBizForkBaseField = BBizForkBaseField;
 class BBizFieldBud extends BBizField {
     to(sb) {
         let { bud, tableAlias } = this.bizField;

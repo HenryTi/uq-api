@@ -357,6 +357,9 @@ export class BBizFieldOperand extends ExpVal {
     }
 
     to(sb: SqlBuilder): void {
+        if (this.bBizField === undefined) {
+            return;
+        }
         this.bBizField.to(sb);
     }
 }

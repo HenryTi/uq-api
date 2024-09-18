@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizCombo = exports.PBizFork = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizIDWithShowBuds = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
+const space_1 = require("../space");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
@@ -524,7 +525,8 @@ class PBizFork extends PBizIDWithBase {
     }
     scan(space) {
         let ok = true;
-        if (super.scan(space) === false)
+        let forkSpace = new BizForkSpace(space);
+        if (super.scan(forkSpace) === false)
             ok = false;
         const { keys } = this.element;
         if (keys.length === 0) {
@@ -532,7 +534,7 @@ class PBizFork extends PBizIDWithBase {
             ok = false;
         }
         for (let key of keys) {
-            if (this.scanBud(space, key) === false)
+            if (this.scanBud(forkSpace, key) === false)
                 ok = false;
         }
         return ok;
@@ -552,6 +554,25 @@ class PBizFork extends PBizIDWithBase {
     }
 }
 exports.PBizFork = PBizFork;
+class BizForkSpace extends space_1.Space {
+    constructor() {
+        super(...arguments);
+        this.baseField = new il_1.BizForkBaseField(undefined);
+    }
+    _getEntityTable(name) {
+        return;
+    }
+    _getTableByAlias(alias) {
+        return;
+    }
+    _varPointer(name, isField) {
+        return;
+    }
+    _getBizField(names) {
+        if (names.length === 1 && names[0] === 'base')
+            return this.baseField;
+    }
+}
 class PBizCombo extends PBizIDWithShowBuds {
     constructor() {
         super(...arguments);

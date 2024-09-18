@@ -6,7 +6,8 @@ import {
     BBizFieldPendBinBudSelect,
     BBizFieldBinBinBudSelect,
     BBizFieldPendSheet,
-    BBizFieldOptionsItem
+    BBizFieldOptionsItem,
+    BBizForkBaseField
 } from "../builder";
 import { BinDiv, BizBin, FromStatement, FromInPendStatement, BizOptions, OptionsItem } from "./Biz";
 import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
@@ -27,6 +28,12 @@ export abstract class BizField {
     abstract buildSchema(): any;
     abstract get tableAlias(): string;
     scanBinDiv() { }
+}
+
+export class BizForkBaseField extends BizField {
+    db(dbContext: DbContext): BBizField { return new BBizForkBaseField(dbContext, this); }
+    buildSchema(): any { return; }
+    get tableAlias(): string { return undefined; }
 }
 
 export abstract class BizFieldTableAlias extends BizField {
