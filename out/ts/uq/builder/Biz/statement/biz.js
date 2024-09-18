@@ -91,7 +91,7 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 let selectPendId = factory.createSelect();
                 ifValue.then(selectPendId);
                 selectPendId.toVar = true;
-                selectPendId.column(new sql_1.ExpField('id'), pendId);
+                selectPendId.column(new sql_1.ExpField('id', a), pendId);
                 selectPendId.from(pendKeyTable)
                     .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, b))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));

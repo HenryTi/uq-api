@@ -115,7 +115,7 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 let selectPendId = factory.createSelect();
                 ifValue.then(selectPendId);
                 selectPendId.toVar = true;
-                selectPendId.column(new ExpField('id'), pendId);
+                selectPendId.column(new ExpField('id', a), pendId);
                 selectPendId.from(pendKeyTable)
                     .join(JoinType.join, new EntityTable(EnumSysTable.pend, false, b))
                     .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)));
