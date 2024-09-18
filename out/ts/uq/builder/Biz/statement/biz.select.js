@@ -63,16 +63,18 @@ class BBizSelect extends bstatement_1.BStatement {
                     joinAtom = il_1.JoinType.join;
                     expOn$Atom = expOnEQAtom;
                 }
-                function buildExpOn(expAlias, expEQIdField) {
-                    let expEntities = entityIdsLength === 1 ?
-                        new sql_1.ExpEQ(expAlias, new sql_1.ExpNum(entityIds[0]))
+                const buildExpOn = (expAlias, expEQIdField) => {
+                    let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
+                    /*entityIdsLength === 1 ?
+                        new ExpEQ(expAlias, new ExpNum(entityIds[0]))
                         :
-                            new sql_1.ExpIn(expAlias, ...entityIds.map(v => new sql_1.ExpNum(v)));
+                        new ExpIn(expAlias, ...entityIds.map(v => new ExpNum(v)));
+                    */
                     return entityIdsLength === 0 ?
                         expEQIdField
                         :
-                            new sql_1.ExpAnd(expEQIdField, expEntities);
-                }
+                            new sql_1.ExpAnd(expEQIdField, expCmpBase);
+                };
                 switch (bizPhraseType) {
                     default:
                         select
@@ -101,6 +103,13 @@ class BBizSelect extends bstatement_1.BStatement {
             }
         }
     }
+    buildExpCmpBase(fromEntity, expField) {
+        const { bizEntityArr } = fromEntity;
+        return bizEntityArr.length === 1 ?
+            new sql_1.ExpEQ(expField, new sql_1.ExpNum(bizEntityArr[0].id))
+            :
+                new sql_1.ExpIn(expField, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
+    }
     buildEntityTable(fromEntity) {
         let { bizEntityArr, bizEntityTable, alias: t0, bizPhraseType } = fromEntity;
         if (bizEntityTable !== undefined) {
@@ -124,9 +133,9 @@ class BBizSelect extends bstatement_1.BStatement {
         let table;
         let { bizEntityArr, bizEntityTable, alias, bizPhraseType } = fromEntity;
         let t0 = alias;
-        let t0$idu = alias + '$idu';
         let joinTable;
         if (bizEntityTable !== undefined) {
+            let t0$idu = alias + '$idu';
             switch (bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.atom:
                     t0 = t0$idu;
@@ -145,20 +154,29 @@ class BBizSelect extends bstatement_1.BStatement {
         select.from(table);
         if (joinTable !== undefined) {
             let expIdEQ = new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0));
-            let expBase = new sql_1.ExpField('base', alias + '$idu');
-            let expOn;
+            let expOn = expIdEQ;
+            /*
+            // 直接放 Where
+            let expBase = new ExpField('base', alias + '$idu');
             switch (bizEntityArr.length) {
                 case 0:
                     expOn = expIdEQ;
                     break;
                 case 1:
                     let e0 = bizEntityArr[0];
-                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpEQ(expBase, new sql_1.ExpNum(e0.id)));
+                    expOn = new ExpAnd(
+                        expIdEQ,
+                        new ExpEQ(expBase, new ExpNum(e0.id))
+                    );
                     break;
                 default:
-                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpIn(expBase, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id))));
+                    expOn = new ExpAnd(
+                        expIdEQ,
+                        new ExpIn(expBase, ...bizEntityArr.map(v => new ExpNum(v.id))),
+                    );
                     break;
             }
+            */
             select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(joinTable, false, alias))
                 .on(expOn);
         }

@@ -3,6 +3,7 @@ import { EnumSysTable } from "../EnumSysTable";
 import { ValueExpression } from "../Exp";
 import { BizBase, IxField } from "./Base";
 import { Biz } from "./Biz";
+import { BizIDExtendable } from "./BizID";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizUser, BudGroup, FieldShow } from "./Bud";
 import { BizRole } from "./Role";
@@ -301,5 +302,19 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
             case BizPhraseType.fork:
                 return new ExpField('id', this.alias + '$idu');
         }
+    }
+
+    isExtended() {
+        let ret = false;
+        if (this.bizPhraseType === BizPhraseType.atom) {
+            for (let bizEntity of this.bizEntityArr) {
+                const { extendeds } = bizEntity as unknown as BizIDExtendable;
+                if (extendeds !== undefined) {
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
     }
 }

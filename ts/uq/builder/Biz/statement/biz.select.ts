@@ -72,15 +72,17 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     joinAtom = JoinType.join;
                     expOn$Atom = expOnEQAtom;
                 }
-                function buildExpOn(expAlias: ExpVal, expEQIdField: ExpCmp): ExpCmp {
-                    let expEntities = entityIdsLength === 1 ?
+                const buildExpOn = (expAlias: ExpVal, expEQIdField: ExpCmp): ExpCmp => {
+                    let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
+                    /*entityIdsLength === 1 ?
                         new ExpEQ(expAlias, new ExpNum(entityIds[0]))
                         :
                         new ExpIn(expAlias, ...entityIds.map(v => new ExpNum(v)));
+                    */
                     return entityIdsLength === 0 ?
                         expEQIdField
                         :
-                        new ExpAnd(expEQIdField, expEntities);
+                        new ExpAnd(expEQIdField, expCmpBase);
                 }
                 switch (bizPhraseType) {
                     default:
@@ -117,6 +119,14 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         }
     }
 
+    protected buildExpCmpBase(fromEntity: BizFromEntity, expField: ExpVal): ExpCmp {
+        const { bizEntityArr } = fromEntity;
+        return bizEntityArr.length === 1 ?
+            new ExpEQ(expField, new ExpNum(bizEntityArr[0].id))
+            :
+            new ExpIn(expField, ...bizEntityArr.map(v => new ExpNum(v.id)));
+    }
+
     protected buildEntityTable(fromEntity: BizFromEntity) {
         let { bizEntityArr, bizEntityTable, alias: t0, bizPhraseType } = fromEntity;
         if (bizEntityTable !== undefined) {
@@ -139,9 +149,9 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         let table: Table;
         let { bizEntityArr, bizEntityTable, alias, bizPhraseType } = fromEntity;
         let t0 = alias;
-        let t0$idu = alias + '$idu';
         let joinTable: EnumSysTable;
         if (bizEntityTable !== undefined) {
+            let t0$idu = alias + '$idu';
             switch (bizPhraseType) {
                 case BizPhraseType.atom:
                     t0 = t0$idu;
@@ -160,8 +170,10 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         select.from(table);
         if (joinTable !== undefined) {
             let expIdEQ = new ExpEQ(new ExpField('id', alias), new ExpField('id', t0));
+            let expOn: ExpCmp = expIdEQ;
+            /*
+            // 直接放 Where
             let expBase = new ExpField('base', alias + '$idu');
-            let expOn: ExpCmp;
             switch (bizEntityArr.length) {
                 case 0:
                     expOn = expIdEQ;
@@ -180,6 +192,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     );
                     break;
             }
+            */
             select.join(JoinType.left, new EntityTable(joinTable, false, alias))
                 .on(expOn);
         }

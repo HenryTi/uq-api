@@ -267,6 +267,19 @@ class BizFromEntity {
                 return new builder_1.ExpField('id', this.alias + '$idu');
         }
     }
+    isExtended() {
+        let ret = false;
+        if (this.bizPhraseType === BizPhraseType_1.BizPhraseType.atom) {
+            for (let bizEntity of this.bizEntityArr) {
+                const { extendeds } = bizEntity;
+                if (extendeds !== undefined) {
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
 }
 exports.BizFromEntity = BizFromEntity;
 //# sourceMappingURL=Entity.js.map

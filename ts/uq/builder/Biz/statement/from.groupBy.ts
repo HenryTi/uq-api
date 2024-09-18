@@ -125,12 +125,11 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         return select;
     }
 
-    private buildRootEntityCompare(select: Select): ExpCmp {
-        const { fromEntity } = this.istatement;
-        const { bizEntityArr, bizPhraseType, alias } = fromEntity;
-        const expBase = new ExpField('base', alias);
-        const eqOrIn = (expField: ExpField) => {
-            const { factory } = this.context;
+    protected buildExpCmpBase(fromEntity: BizFromEntity, expField: ExpField) {
+        // const { fromEntity } = this.istatement;
+        const { bizEntityArr } = fromEntity;
+        const { factory } = this.context;
+        if (fromEntity.isExtended() === true) {
             let sel = factory.createSelect();
             sel.lock = LockType.none;
             let selectCTE = factory.createSelect();
@@ -160,18 +159,30 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
                 new ExpSelect(sel),
             );
         }
+        if (bizEntityArr.length === 1) {
+            return new ExpEQ(expField, new ExpNum(bizEntityArr[0].id));
+        }
+        return new ExpIn(expField, ...bizEntityArr.map(v => new ExpNum(v.id)));
+    }
+
+    private buildRootEntityCompare(select: Select): ExpCmp {
+        const { fromEntity } = this.istatement;
+        const { bizEntityArr, bizPhraseType, alias } = fromEntity;
+        const baseAlias = bizEntityArr.length > 0 ?
+            alias + '$idu' : alias;
+        const expBase = new ExpField('base', baseAlias);
 
         switch (bizPhraseType) {
             default:
                 return;
             case BizPhraseType.atom:
-                return eqOrIn(expBase);
+                return this.buildExpCmpBase(fromEntity, expBase);
             case BizPhraseType.fork:
                 let budAlias = alias + '$bud';
                 select.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, budAlias))
                     .on(new ExpAnd(
-                        new ExpEQ(new ExpField('id', budAlias), new ExpField('base', alias)),
-                        eqOrIn(new ExpField('ext', budAlias)),
+                        new ExpEQ(new ExpField('id', budAlias), expBase),
+                        this.buildExpCmpBase(fromEntity, new ExpField('ext', budAlias)),
                     ));
                 return;
         }

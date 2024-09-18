@@ -112,12 +112,11 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
     }
-    buildRootEntityCompare(select) {
-        const { fromEntity } = this.istatement;
-        const { bizEntityArr, bizPhraseType, alias } = fromEntity;
-        const expBase = new sql_1.ExpField('base', alias);
-        const eqOrIn = (expField) => {
-            const { factory } = this.context;
+    buildExpCmpBase(fromEntity, expField) {
+        // const { fromEntity } = this.istatement;
+        const { bizEntityArr } = fromEntity;
+        const { factory } = this.context;
+        if (fromEntity.isExtended() === true) {
             let sel = factory.createSelect();
             sel.lock = select_1.LockType.none;
             let selectCTE = factory.createSelect();
@@ -143,16 +142,27 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             sel.column(new sql_1.ExpField('phrase', a));
             sel.from(new statementWithFrom_1.NameTable(cte, a));
             return new sql_1.ExpIn(expField, new sql_1.ExpSelect(sel));
-        };
+        }
+        if (bizEntityArr.length === 1) {
+            return new sql_1.ExpEQ(expField, new sql_1.ExpNum(bizEntityArr[0].id));
+        }
+        return new sql_1.ExpIn(expField, ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
+    }
+    buildRootEntityCompare(select) {
+        const { fromEntity } = this.istatement;
+        const { bizEntityArr, bizPhraseType, alias } = fromEntity;
+        const baseAlias = bizEntityArr.length > 0 ?
+            alias + '$idu' : alias;
+        const expBase = new sql_1.ExpField('base', baseAlias);
         switch (bizPhraseType) {
             default:
                 return;
             case BizPhraseType_1.BizPhraseType.atom:
-                return eqOrIn(expBase);
+                return this.buildExpCmpBase(fromEntity, expBase);
             case BizPhraseType_1.BizPhraseType.fork:
                 let budAlias = alias + '$bud';
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, budAlias))
-                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), new sql_1.ExpField('base', alias)), eqOrIn(new sql_1.ExpField('ext', budAlias))));
+                    .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', budAlias), expBase), this.buildExpCmpBase(fromEntity, new sql_1.ExpField('ext', budAlias))));
                 return;
         }
     }
