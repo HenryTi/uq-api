@@ -261,11 +261,13 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                 let names = [name];
                 let field = space.getBizField(names);
                 if (field !== undefined) {
-                    col.bud = field.getBud();
-                    if (col.bud === undefined) {
+                    if ((col.bud = field.getBud()) === undefined) {
                         //debugger;
                         // field = bizFieldSpace.getBizField([name]);
-                        field = space.getBizField(names);
+                        // field = space.getBizField(names);
+                        // Query From 不支持 no, ex 两个字段获取，会自动提取
+                        ok = false;
+                        this.log(`%${name} not needed here`);
                     }
                 }
                 else {
