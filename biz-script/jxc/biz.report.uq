@@ -1,3 +1,60 @@
+ID PrintTemplate (
+    id,
+    KEY base ID,            -- Atom or Sheet
+    KEY id,
+    no NO,
+    ex EX,
+    template TEXT,
+);
+
+Biz AC SavePrintTemplate (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+    template TEXT
+) {
+    IF id IS NULL {
+        SET id=ID(PrintTemplate new KEY base=base);
+    }
+    WITH PrintTemplate ID=id SET no=no, ex=ex, template=template;
+}
+
+Biz AC DeletePrintTemplate (
+    id ID,
+) {
+    WITH PrintTemplate ID=id DEL;
+}
+
+Biz QUERY GetPrintTemplate (
+    id ID,
+)
+RETURNS ret (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+    template TEXT,
+) {
+    INTO ret SELECT a.id, a.base, a.no, a.ex, a.template
+        FROM PrintTemplate as a
+        WHERE a.id=id;
+}
+
+Biz QUERY GetAllPrintTemplates ()
+RETURNS ret (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+{
+    INTO ret SELECT a.id, a.base, a.no, a.ex
+        FROM PrintTemplate as a
+            JOIN BizPhrase as b ON b.id=a.base
+        WHERE b.base=$site;
+}
+
 Biz QUERY GetReport1 (
     reportPhrase ID,
     atomPhrase ID,

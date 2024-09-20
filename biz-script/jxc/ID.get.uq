@@ -87,7 +87,7 @@ RETURNS atoms VIRTUAL (
 RETURNS specs VIRTUAL (
     id ID,
     atom ID,
-    json JSON,
+    -- json JSON,
 )
 {
     -- $idstable(id ID, phrase ID);
