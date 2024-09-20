@@ -379,7 +379,8 @@ RETURNS buds (
             JOIN XBiz as a1 ON a1.id=a.id
             JOIN objs as b ON b.id=a.base
             JOIN BizBud as c ON c.id=a.id
-        WHERE 1=1; -- AND a.valid=1;
+        WHERE 1=1
+        ORDER BY a.id; -- AND a.valid=1;
 }
 
 Query GetEntityCode(

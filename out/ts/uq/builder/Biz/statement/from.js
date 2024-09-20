@@ -212,6 +212,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
         select.column(new sql_1.ExpField('id', a), 'id');
         select.column(new sql_1.ExpField('x', b), 'phrase');
         select.column(expVal, 'value');
+        // select.order(new ExpField('x', b), 'asc');
         return insertBud;
     }
 }

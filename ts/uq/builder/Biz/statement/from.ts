@@ -232,6 +232,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         select.column(new ExpField('id', a), 'id');
         select.column(new ExpField('x', b), 'phrase');
         select.column(expVal, 'value');
+        // select.order(new ExpField('x', b), 'asc');
         return insertBud;
     }
 }
