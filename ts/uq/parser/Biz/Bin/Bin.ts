@@ -30,6 +30,7 @@ export class PBizBin extends PBizEntity<BizBin> {
     private main: string;
     private pickPendPos: number;
     private div: BinDiv;
+    private primeBuds: string[];
 
     constructor(element: BizBin, context: PContext) {
         super(element, context);
@@ -294,7 +295,16 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.ts.mayPassToken(Token.SEMICOLON);
     }
 
+    protected parseColonBuds = () => {
+        this.parsePrimeBuds();
+    }
+
+    private parsePrimeBuds() {
+        this.primeBuds = this.parseBudNameArr();
+    }
+
     readonly keyColl = {
+        ':': this.parseColonBuds,
         main: this.parseMain,
         pick: this.parsePick,
         pend: this.parsePend,

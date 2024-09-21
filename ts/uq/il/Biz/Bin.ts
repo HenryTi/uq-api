@@ -253,6 +253,7 @@ export class BizBin extends BizID {
     price: BizBudDec;
     amount: BizBudDec;
     pivot: BinPivot;
+    primeBuds: BizBud[];
 
     constructor(biz: Biz) {
         super(biz);

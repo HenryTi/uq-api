@@ -21,25 +21,6 @@ export abstract class PBizIDWithShowBuds<T extends BizIDWithShowBuds> extends PB
     private titleBuds: string[];
     private primeBuds: string[];
 
-    private parseBudNameArr(): string[] {
-        let arr: string[] = [];
-        this.ts.passToken(Token.LPARENTHESE);
-        for (; ;) {
-            arr.push(this.ts.passVar());
-            if (this.ts.token === Token.COMMA) {
-                this.ts.readToken();
-                continue;
-            }
-            if (this.ts.token === Token.RPARENTHESE) {
-                this.ts.readToken();
-                break;
-            }
-            this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
-        }
-        this.ts.passToken(Token.SEMICOLON);
-        return arr;
-    }
-
     private parseTitleBuds() {
         this.titleBuds = this.parseBudNameArr();
     }

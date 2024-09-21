@@ -383,6 +383,25 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return this.element.getJName();
     }
 
+    protected parseBudNameArr(): string[] {
+        let arr: string[] = [];
+        this.ts.passToken(Token.LPARENTHESE);
+        for (; ;) {
+            arr.push(this.ts.passVar());
+            if (this.ts.token === Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            if (this.ts.token === Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
+            this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
+        }
+        this.ts.passToken(Token.SEMICOLON);
+        return arr;
+    }
+
     protected abstract get keyColl(): { [key: string]: () => void };
     protected parseContent(): void {
         const keyColl = this.keyColl;
