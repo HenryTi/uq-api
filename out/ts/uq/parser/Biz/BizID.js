@@ -56,20 +56,6 @@ class PBizIDWithShowBuds extends Base_1.PBizEntity {
         }
         return keys;
     }
-    scanBudNameArr(nameArr) {
-        if (nameArr === undefined)
-            return undefined;
-        let buds = [];
-        for (let t of nameArr) {
-            let bud = this.element.getBud(t);
-            if (bud === undefined) {
-                this.log(`${t} not exists`);
-                return null;
-            }
-            buds.push(bud);
-        }
-        return buds;
-    }
     setBudsShow(buds) {
         for (let bud of buds)
             bud.show = true;

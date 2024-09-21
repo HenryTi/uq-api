@@ -419,6 +419,20 @@ class PBizBin extends Base_1.PBizEntity {
             }
         }
         Object.assign(this.element.outs, binSpace.bizOuts);
+        this.scanPrimeBuds();
+        return ok;
+    }
+    scanPrimeBuds() {
+        let ok = true;
+        if (this.primeBuds !== undefined) {
+            let ret = this.scanBudNameArr(this.primeBuds);
+            if (ret === null) {
+                ok = false;
+            }
+            else if (ret !== undefined) {
+                this.element.primeBuds = ret;
+            }
+        }
         return ok;
     }
     scan2(uq) {

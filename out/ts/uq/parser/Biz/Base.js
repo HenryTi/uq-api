@@ -458,6 +458,20 @@ class PBizEntity extends PBizBase {
         this.ts.passToken(tokens_1.Token.SEMICOLON);
         return arr;
     }
+    scanBudNameArr(nameArr) {
+        if (nameArr === undefined)
+            return undefined;
+        let buds = [];
+        for (let t of nameArr) {
+            let bud = this.element.getBud(t);
+            if (bud === undefined) {
+                this.log(`${t} not exists`);
+                return null;
+            }
+            buds.push(bud);
+        }
+        return buds;
+    }
     parseContent() {
         const keyColl = this.keyColl;
         const keys = Object.keys(keyColl);

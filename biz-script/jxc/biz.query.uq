@@ -195,7 +195,25 @@ PAGE (
     * SHEET ASC,
     * Bin,
     rowCount INT,
-) {
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    -- json JSON,
+)
+{
     PAGE SELECT * a, * b
         , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
         FROM Sheet as a
@@ -205,6 +223,9 @@ PAGE (
         WHERE a.base=phrase AND a.id>$pageStart AND c.base=$site
         ORDER BY a.id ASC
         LIMIT $pageSize;
+    TABLE idtable (KEY id ID,phrase ID);
+    INTO idtable SELECT id, phrase FROM $page;
+    PROC ProcPropsOfIds();
 };
 
 Biz Query GetMySheetList (
@@ -217,13 +238,26 @@ PAGE (
     * SHEET DESC,
     * Bin,
     rowCount INT,
-) {
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    -- json JSON,
+)
+{
     VAR me ID = Me();
-    /*
-    IF dateNear IS NULL {
-        SET dateNear=;
-    }
-    */
     PAGE SELECT * a, * b
         , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
         FROM Sheet as a
@@ -235,6 +269,9 @@ PAGE (
             AND a.id>=uminute_from_time(from, timeZone) AND a.id<uminute_from_time(to, timeZone)
         ORDER BY a.id DESC
         LIMIT $pageSize;
+    TABLE idtable (KEY id ID,phrase ID);
+    INTO idtable SELECT id, phrase FROM $page;
+    PROC ProcPropsOfIds();
 };
 
 Biz Query GetLogs(

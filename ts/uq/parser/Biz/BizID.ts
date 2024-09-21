@@ -70,20 +70,6 @@ export abstract class PBizIDWithShowBuds<T extends BizIDWithShowBuds> extends PB
         return keys;
     }
 
-    private scanBudNameArr(nameArr: string[]): BizBud[] {
-        if (nameArr === undefined) return undefined;
-        let buds: BizBud[] = [];
-        for (let t of nameArr) {
-            let bud = this.element.getBud(t);
-            if (bud === undefined) {
-                this.log(`${t} not exists`);
-                return null;
-            }
-            buds.push(bud);
-        }
-        return buds;
-    }
-
     private setBudsShow(buds: BizBud[]) {
         for (let bud of buds) bud.show = true;
     }

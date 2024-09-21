@@ -335,23 +335,23 @@ export class BizBin extends BizID {
         let price = this.price?.buildSchema(res);
         let pivot: boolean;
         if (this.pivot !== undefined) pivot = true;
-        this.schema = {
-            ...ret,
-            main: this.main?.id,
-            picks: picks.length === 0 ? undefined : picks,
-            inputs: inputs.length === 0 ? undefined : inputs,
-            pend: this.pend?.id,
-            i: this.i?.buildSchema(res),
-            iBase: this.iBase?.buildSchema(res),
-            x: this.x?.buildSchema(res),
-            xBase: this.xBase?.buildSchema(res),
-            value: this.value?.buildSchema(res),
-            amount: this.amount?.buildSchema(res),
-            price,
-            div: this.div.buildSchema(res),
-            pivot,
+        if (this.primeBuds !== undefined) {
+            ret[':'] = this.primeBuds.map(v => v.id);
         }
-        return this.schema;
+        ret.main = this.main?.id;
+        ret.picks = picks.length === 0 ? undefined : picks;
+        ret.inputs = inputs.length === 0 ? undefined : inputs;
+        ret.pend = this.pend?.id;
+        ret.i = this.i?.buildSchema(res);
+        ret.iBase = this.iBase?.buildSchema(res);
+        ret.x = this.x?.buildSchema(res);
+        ret.xBase = this.xBase?.buildSchema(res);
+        ret.value = this.value?.buildSchema(res);
+        ret.amount = this.amount?.buildSchema(res);
+        ret.price = price;
+        ret.div = this.div.buildSchema(res);
+        ret.pivot = pivot;
+        return this.schema = ret;
     }
 
     getSheetMainBud(name: string): BizBud {

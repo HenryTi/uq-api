@@ -433,7 +433,25 @@ PAGE (
     * Sheet DESC,
     * Bin,
     rowCount INT,
-) {
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    -- json JSON,
+)
+{
     VAR me ID = Me();
     SET @me=me;
 
@@ -460,6 +478,10 @@ PAGE (
             AND (entitySheet IS NULL OR b.base=entitySheet)
         ORDER BY b.id DESC
         LIMIT $pageSize;
+
+    TABLE idtable (KEY id ID,phrase ID);
+    -- INTO idtable SELECT id, phrase FROM $page;
+    PROC ProcPropsOfIds();
 };
 
 Biz AC SetSheetPreToDraft (

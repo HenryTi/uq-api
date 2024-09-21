@@ -402,6 +402,20 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
         return arr;
     }
 
+    protected scanBudNameArr(nameArr: string[]): BizBud[] {
+        if (nameArr === undefined) return undefined;
+        let buds: BizBud[] = [];
+        for (let t of nameArr) {
+            let bud = this.element.getBud(t);
+            if (bud === undefined) {
+                this.log(`${t} not exists`);
+                return null;
+            }
+            buds.push(bud);
+        }
+        return buds;
+    }
+
     protected abstract get keyColl(): { [key: string]: () => void };
     protected parseContent(): void {
         const keyColl = this.keyColl;
