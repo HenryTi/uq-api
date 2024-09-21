@@ -691,7 +691,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
                 atoms.push(bizEntity as BizIDExtendable | BizOptions);
             }
             else {
-                this.log(`${name} must be one of (ATOM, SPEC, DUO, Options)`);
+                this.log(`${name} must be one of (ATOM, FORK, DUO, Options)`);
                 ok = false;
             }
         }

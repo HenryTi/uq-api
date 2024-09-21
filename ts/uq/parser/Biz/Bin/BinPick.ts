@@ -1,11 +1,13 @@
 import {
     BinPick, PickBase, PickAtom
-    , BizAtom, PickSpec, BizFork, PickPend, PickQuery, BizQueryTable,
+    , BizAtom, PickFork, BizFork, PickPend, PickQuery, BizQueryTable,
     BudValueSetType,
     ValueExpression,
     PickParam,
     BizEntity,
-    Uq
+    Uq,
+    PickOptions,
+    BizOptions
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { BizPend } from "../../../il/Biz/Pend";
@@ -105,7 +107,7 @@ export class PBinPick extends PBizBud<BinPick> {
             const bizEntity0 = entityArr[0];
             switch (bizPhraseType) {
                 default:
-                    this.log(`Can only pick from ATOM, SPEC, Pend, or Query`);
+                    this.log(`Can only pick from ATOM, FORK, Options, Pend, or Query`);
                     ok = false;
                     break;
                 case BizPhraseType.atom:
@@ -113,13 +115,16 @@ export class PBinPick extends PBizBud<BinPick> {
                     multipleEntity = true;
                     break;
                 case BizPhraseType.fork:
-                    pickBase = new PickSpec(bizEntity0 as BizFork);
+                    pickBase = new PickFork(bizEntity0 as BizFork);
                     break;
                 case BizPhraseType.pend:
                     pickBase = new PickPend(bizEntity0 as BizPend);
                     break;
                 case BizPhraseType.query:
                     pickBase = new PickQuery(bizEntity0 as BizQueryTable);
+                    break;
+                case BizPhraseType.options:
+                    pickBase = new PickOptions(bizEntity0 as BizOptions);
                     break;
             }
             this.element.pick = pickBase;

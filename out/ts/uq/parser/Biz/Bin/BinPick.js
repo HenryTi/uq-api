@@ -97,7 +97,7 @@ class PBinPick extends Bud_1.PBizBud {
             const bizEntity0 = entityArr[0];
             switch (bizPhraseType) {
                 default:
-                    this.log(`Can only pick from ATOM, SPEC, Pend, or Query`);
+                    this.log(`Can only pick from ATOM, FORK, Options, Pend, or Query`);
                     ok = false;
                     break;
                 case BizPhraseType_1.BizPhraseType.atom:
@@ -105,13 +105,16 @@ class PBinPick extends Bud_1.PBizBud {
                     multipleEntity = true;
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
-                    pickBase = new il_1.PickSpec(bizEntity0);
+                    pickBase = new il_1.PickFork(bizEntity0);
                     break;
                 case BizPhraseType_1.BizPhraseType.pend:
                     pickBase = new il_1.PickPend(bizEntity0);
                     break;
                 case BizPhraseType_1.BizPhraseType.query:
                     pickBase = new il_1.PickQuery(bizEntity0);
+                    break;
+                case BizPhraseType_1.BizPhraseType.options:
+                    pickBase = new il_1.PickOptions(bizEntity0);
                     break;
             }
             this.element.pick = pickBase;

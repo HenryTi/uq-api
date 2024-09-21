@@ -17,6 +17,7 @@ import { ValueExpression } from "../Exp";
 import { binFieldArr } from "../../consts";
 import { UseOut } from "./InOut";
 import { BizPend } from "./Pend";
+import { BizOptions } from "./Options";
 
 export class PickParam extends BizBudValue {
     readonly canIndex = false;
@@ -52,14 +53,14 @@ export class BinPick extends BizBud {
     }
 }
 export interface PickBase {
-    get bizEntityTable(): EnumSysTable;
+    get bizPhraseType(): BizPhraseType;
     fromSchema(): string[];
     hasParam(param: string): boolean;
     hasReturn(prop: string): boolean;
     getBud(name: string): BizBud;
 }
 export class PickQuery implements PickBase {
-    readonly bizEntityTable = undefined;
+    readonly bizPhraseType = BizPhraseType.query;
     query: BizQueryTable;
     constructor(query: BizQueryTable) {
         this.query = query;
@@ -75,7 +76,7 @@ export class PickQuery implements PickBase {
     getBud(name: string): BizBud { return; }
 }
 export class PickAtom implements PickBase {
-    readonly bizEntityTable = EnumSysTable.atom;
+    readonly bizPhraseType = BizPhraseType.atom;
     readonly from: BizAtom[];
     constructor(from: BizAtom[]) {
         this.from = from;
@@ -91,8 +92,8 @@ export class PickAtom implements PickBase {
     }
     getBud(name: string): BizBud { return; }
 }
-export class PickSpec implements PickBase {
-    readonly bizEntityTable = EnumSysTable.spec;
+export class PickFork implements PickBase {
+    readonly bizPhraseType = BizPhraseType.fork;
     from: BizFork;
     constructor(from: BizFork) {
         this.from = from;
@@ -110,7 +111,7 @@ export class PickSpec implements PickBase {
     getBud(name: string): BizBud { return; }
 }
 export class PickPend implements PickBase {
-    readonly bizEntityTable = EnumSysTable.pend;
+    readonly bizPhraseType = BizPhraseType.pend;
     from: BizPend;
     hide: BizBud[];
     constructor(from: BizPend) {
@@ -126,6 +127,22 @@ export class PickPend implements PickBase {
         return this.from.hasField(prop);
     }
     getBud(name: string): BizBud { return this.from.getBud(name); }
+}
+export class PickOptions implements PickBase {
+    readonly bizPhraseType = BizPhraseType.options;
+    from: BizOptions;
+    constructor(from: BizOptions) {
+        this.from = from;
+    }
+    fromSchema(): string[] { return [this.from.name]; }
+    hasParam(param: string): boolean {
+        return false;
+    }
+    hasReturn(prop: string): boolean {
+        if (prop === undefined || prop === 'id') return true;
+        return false;
+    }
+    getBud(name: string): BizBud { return; }
 }
 
 export abstract class BinInput extends BizBud {

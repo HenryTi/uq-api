@@ -1,9 +1,14 @@
-ID PrintTemplate (
+ENUM EnumTemplateType (
+    print, data,
+);
+
+ID Template (
     id,
     KEY base ID,            -- Atom or Sheet
     KEY id,
     no NO,
     ex EX,
+    type ENUM EnumTemplateType
     template TEXT,
 );
 
@@ -12,21 +17,22 @@ Biz AC SavePrintTemplate (
     base ID,
     no NO,
     ex EX,
+    type ENUM EnumTemplateType,
     template TEXT
 ) {
     IF id IS NULL {
-        SET id=ID(PrintTemplate new KEY base=base);
+        SET id=ID(Template new KEY base=base);
     }
-    WITH PrintTemplate ID=id SET no=no, ex=ex, template=template;
+    WITH Template ID=id SET no=no, ex=ex, type=type, template=template;
 }
 
-Biz AC DeletePrintTemplate (
+Biz AC DeleteTemplate (
     id ID,
 ) {
-    WITH PrintTemplate ID=id DEL;
+    WITH Template ID=id DEL;
 }
 
-Biz QUERY GetPrintTemplate (
+Biz QUERY GetTemplate (
     id ID,
 )
 RETURNS ret (
@@ -34,23 +40,25 @@ RETURNS ret (
     base ID,
     no NO,
     ex EX,
+    type ENUM EnumTemplateType,
     template TEXT,
 ) {
-    INTO ret SELECT a.id, a.base, a.no, a.ex, a.template
-        FROM PrintTemplate as a
+    INTO ret SELECT a.id, a.base, a.no, a.ex, a.type, a.template
+        FROM Template as a
         WHERE a.id=id;
 }
 
-Biz QUERY GetAllPrintTemplates ()
+Biz QUERY GetAllTemplates ()
 RETURNS ret (
     id ID,
     base ID,
     no NO,
     ex EX,
+    type ENUM EnumTemplateType,
 )
 {
-    INTO ret SELECT a.id, a.base, a.no, a.ex
-        FROM PrintTemplate as a
+    INTO ret SELECT a.id, a.base, a.no, a.ex, a.type
+        FROM Template as a
             JOIN BizPhrase as b ON b.id=a.base
         WHERE b.base=$site;
 }

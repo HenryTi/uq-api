@@ -440,6 +440,24 @@ class PBizEntity extends PBizBase {
     getNameInSource() {
         return this.element.getJName();
     }
+    parseBudNameArr() {
+        let arr = [];
+        this.ts.passToken(tokens_1.Token.LPARENTHESE);
+        for (;;) {
+            arr.push(this.ts.passVar());
+            if (this.ts.token === tokens_1.Token.COMMA) {
+                this.ts.readToken();
+                continue;
+            }
+            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                this.ts.readToken();
+                break;
+            }
+            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
+        }
+        this.ts.passToken(tokens_1.Token.SEMICOLON);
+        return arr;
+    }
     parseContent() {
         const keyColl = this.keyColl;
         const keys = Object.keys(keyColl);
@@ -645,7 +663,7 @@ class PBizEntity extends PBizBase {
                 atoms.push(bizEntity);
             }
             else {
-                this.log(`${name} must be one of (ATOM, SPEC, DUO, Options)`);
+                this.log(`${name} must be one of (ATOM, FORK, DUO, Options)`);
                 ok = false;
             }
         }

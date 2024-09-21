@@ -120,7 +120,7 @@ class PBizExp extends element_1.PElement {
             switch (bizEntity.bizPhraseType) {
                 default:
                     ok = false;
-                    this.log(`${bizEntity.getJName()} must be either Atom, Spec, Bin or Title`);
+                    this.log(`${bizEntity.getJName()} must be either Atom, Fork, Bin or Title`);
                     break;
                 case BizPhraseType_1.BizPhraseType.atom:
                     ret = this.scanAtom(space);

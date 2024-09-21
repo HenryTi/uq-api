@@ -336,7 +336,7 @@ export class PBizBin extends PBizEntity<BizBin> {
             let end = length - 1;
             if (end >= 0) {
                 let { pick: pickBase } = pickArr[end];
-                if (pickBase !== undefined && pickBase.bizEntityTable === EnumSysTable.pend) {
+                if (pickBase !== undefined && pickBase.bizPhraseType === BizPhraseType.pend) {
                     let pend = (pickBase as PickPend).from;
                     if (pend === undefined) debugger;
                     this.element.pend = pend;
@@ -407,7 +407,7 @@ export class PBizBin extends PBizEntity<BizBin> {
                         ok = false;
                     }
                     const { pick: pickBase } = pick;
-                    if (pickBase?.bizEntityTable === EnumSysTable.pend) {
+                    if (pickBase?.bizPhraseType === BizPhraseType.pend) {
                         this.log(`Only last PICK can be from PEND`);
                         ok = false;
                     }

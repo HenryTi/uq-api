@@ -186,7 +186,11 @@ class PBizBin extends Base_1.PBizEntity {
             this.context.parseElement(bizBinAct);
             this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
         };
+        this.parseColonBuds = () => {
+            this.parsePrimeBuds();
+        };
         this.keyColl = {
+            ':': this.parseColonBuds,
             main: this.parseMain,
             pick: this.parsePick,
             pend: this.parsePend,
@@ -271,6 +275,9 @@ class PBizBin extends Base_1.PBizEntity {
             parse();
         }
     }
+    parsePrimeBuds() {
+        this.primeBuds = this.parseBudNameArr();
+    }
     scan0(space) {
         let ok = super.scan0(space);
         const { pickArr, act } = this.element;
@@ -285,7 +292,7 @@ class PBizBin extends Base_1.PBizEntity {
             let end = length - 1;
             if (end >= 0) {
                 let { pick: pickBase } = pickArr[end];
-                if (pickBase !== undefined && pickBase.bizEntityTable === il_1.EnumSysTable.pend) {
+                if (pickBase !== undefined && pickBase.bizPhraseType === BizPhraseType_1.BizPhraseType.pend) {
                     let pend = pickBase.from;
                     if (pend === undefined)
                         debugger;
@@ -353,7 +360,7 @@ class PBizBin extends Base_1.PBizEntity {
                         ok = false;
                     }
                     const { pick: pickBase } = pick;
-                    if ((pickBase === null || pickBase === void 0 ? void 0 : pickBase.bizEntityTable) === il_1.EnumSysTable.pend) {
+                    if ((pickBase === null || pickBase === void 0 ? void 0 : pickBase.bizPhraseType) === BizPhraseType_1.BizPhraseType.pend) {
                         this.log(`Only last PICK can be from PEND`);
                         ok = false;
                     }

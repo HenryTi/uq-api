@@ -1,9 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputFork = exports.BinInput = exports.PickPend = exports.PickSpec = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
+exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputFork = exports.BinInput = exports.PickOptions = exports.PickPend = exports.PickFork = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
-const EnumSysTable_1 = require("../EnumSysTable");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
@@ -43,7 +42,7 @@ class BinPick extends Bud_1.BizBud {
 exports.BinPick = BinPick;
 class PickQuery {
     constructor(query) {
-        this.bizEntityTable = undefined;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.query;
         this.query = query;
     }
     fromSchema() { return [this.query.name]; }
@@ -60,7 +59,7 @@ class PickQuery {
 exports.PickQuery = PickQuery;
 class PickAtom {
     constructor(from) {
-        this.bizEntityTable = EnumSysTable_1.EnumSysTable.atom;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.atom;
         this.from = from;
     }
     fromSchema() { return this.from.map(v => v.name); }
@@ -76,9 +75,9 @@ class PickAtom {
     getBud(name) { return; }
 }
 exports.PickAtom = PickAtom;
-class PickSpec {
+class PickFork {
     constructor(from) {
-        this.bizEntityTable = EnumSysTable_1.EnumSysTable.spec;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.fork;
         this.from = from;
     }
     fromSchema() { return [this.from.name]; }
@@ -95,10 +94,10 @@ class PickSpec {
     }
     getBud(name) { return; }
 }
-exports.PickSpec = PickSpec;
+exports.PickFork = PickFork;
 class PickPend {
     constructor(from) {
-        this.bizEntityTable = EnumSysTable_1.EnumSysTable.pend;
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
         this.from = from;
     }
     fromSchema() { return [this.from.name]; }
@@ -114,6 +113,23 @@ class PickPend {
     getBud(name) { return this.from.getBud(name); }
 }
 exports.PickPend = PickPend;
+class PickOptions {
+    constructor(from) {
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.options;
+        this.from = from;
+    }
+    fromSchema() { return [this.from.name]; }
+    hasParam(param) {
+        return false;
+    }
+    hasReturn(prop) {
+        if (prop === undefined || prop === 'id')
+            return true;
+        return false;
+    }
+    getBud(name) { return; }
+}
+exports.PickOptions = PickOptions;
 class BinInput extends Bud_1.BizBud {
     constructor(bin, name, ui) {
         super(bin, name, ui);

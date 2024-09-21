@@ -139,7 +139,7 @@ class Biz extends entity_1.Entity {
             // bizEntityTable = bizEntity.getEnumSysTable();
             switch (bizPhraseType) {
                 default:
-                    logs.push(`FROM can only be one of ATOM, SPEC, DUO, BIN, SHEET, PEND`);
+                    logs.push(`FROM can only be one of ATOM, FORK, Options, DUO, BIN, SHEET, PEND`);
                     ok = false;
                     break;
                 case BizPhraseType_1.BizPhraseType.query: break;
@@ -164,6 +164,9 @@ class Biz extends entity_1.Entity {
                     bizEntityTable = EnumSysTable_1.EnumSysTable.pend;
                     break;
                 case BizPhraseType_1.BizPhraseType.combo:
+                    bizEntityTable = undefined;
+                    break;
+                case BizPhraseType_1.BizPhraseType.options:
                     bizEntityTable = undefined;
                     break;
             }

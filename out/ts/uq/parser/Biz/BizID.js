@@ -20,24 +20,6 @@ class PBizIDWithShowBuds extends Base_1.PBizEntity {
             }
         };
     }
-    parseBudNameArr() {
-        let arr = [];
-        this.ts.passToken(tokens_1.Token.LPARENTHESE);
-        for (;;) {
-            arr.push(this.ts.passVar());
-            if (this.ts.token === tokens_1.Token.COMMA) {
-                this.ts.readToken();
-                continue;
-            }
-            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                this.ts.readToken();
-                break;
-            }
-            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
-        }
-        this.ts.passToken(tokens_1.Token.SEMICOLON);
-        return arr;
-    }
     parseTitleBuds() {
         this.titleBuds = this.parseBudNameArr();
     }
