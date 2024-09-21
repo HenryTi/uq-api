@@ -430,7 +430,10 @@ class PBizBin extends Base_1.PBizEntity {
                 ok = false;
             }
             else if (ret !== undefined) {
-                this.element.primeBuds = ret;
+                let primeBuds = this.element.primeBuds = ret;
+                for (let bud of primeBuds)
+                    bud.show = true;
+                return ret;
             }
         }
         return ok;
