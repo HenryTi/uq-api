@@ -207,11 +207,13 @@ RETURNS atoms (
     base ID,
     no NO,
     ex EX,
+    (id) KEY,
 )
 RETURNS specs (
     id ID,
     atom ID,
     -- json JSON,
+    (id) KEY,
 )
 {
     PAGE SELECT * a, * b
@@ -250,11 +252,13 @@ RETURNS atoms (
     base ID,
     no NO,
     ex EX,
+    (id) KEY,
 )
 RETURNS specs (
     id ID,
     atom ID,
     -- json JSON,
+    (id) KEY,
 )
 {
     VAR me ID = Me();

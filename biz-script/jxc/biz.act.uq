@@ -402,6 +402,7 @@ RETURNS specs (
     ban TINYINT,
     json JSON,
     value VALUE,
+    (id) KEY,
 ) {
     VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', query, 'q`(?,?,?,?);');
     ExecSql sql USING $user, json, pageStart, pageSize;
@@ -428,6 +429,7 @@ Biz ACT RemoveDraft (
 
 Biz QUERY GetMyDrafts ver 0.2 (
     entitySheet ID,
+    entityMain ID,
 )
 PAGE (
     * Sheet DESC,
@@ -445,11 +447,13 @@ RETURNS atoms (
     base ID,
     no NO,
     ex EX,
+    (id) KEY,
 )
 RETURNS specs (
     id ID,
     atom ID,
     -- json JSON,
+    (id) KEY,
 )
 {
     VAR me ID = Me();
@@ -480,7 +484,7 @@ RETURNS specs (
         LIMIT $pageSize;
 
     TABLE idtable (KEY id ID,phrase ID);
-    -- INTO idtable SELECT id, phrase FROM $page;
+    INTO idtable SELECT a.id, entityMain as phrase FROM $page as a;
     PROC ProcPropsOfIds();
 };
 
@@ -746,11 +750,13 @@ RETURNS atoms (
     base ID,
     no NO,
     ex EX,
+    (id) KEY,
 )
 RETURNS specs (
     id ID,
     atom ID,
     json JSON,
+    (id) KEY,
 ) {
     VAR maySheetId ID, detail ID, sheetPhrase ID;
     SET maySheetId = b.base FROM Detail as a JOIN Bud as b ON b.id=a.base WHERE a.id=id;

@@ -19,11 +19,13 @@ RETURNS atoms (
     base ID,
     no NO,
     ex EX,
+    (id) KEY,
 )
 RETURNS specs (
     id ID,
     atom ID,
     json JSON,
+    (id) KEY,
 ) {
     VAR bizPhraseType ENUM BizPhraseType = a.type FROM BizPhrase as a WHERE a.id=phrase;
     TABLE idtable (KEY id ID, phrase ID);
@@ -91,6 +93,17 @@ RETURNS specs VIRTUAL (
 )
 {
     -- $idstable(id ID, phrase ID);
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
+        FROM idtable as a
+            JOIN BizBudShow as b ON b.i=a.phrase
+            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x;
+    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+        FROM props as a
+            -- JOIN BizPhrase as b ON b.id=a.phrase
+            JOIN Atom as c ON c.id=a.value
+        -- WHERE b.type=BizPhraseType.atom
+        ;
+
     INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
         FROM idtable as a
             JOIN BizPhrase as b ON b.id=a.phrase
@@ -127,4 +140,13 @@ RETURNS specs VIRTUAL (
     INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
         FROM specs as a
             JOIN IxBudStr as c ON c.i=a.id;
+
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
+        FROM idtable as a
+            JOIN BizBudShow as b ON b.i=a.phrase
+            JOIN IxBudDec as c ON c.i=a.id;
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
+        FROM idtable as a
+            JOIN BizBudShow as b ON b.i=a.phrase
+            JOIN IxBudStr as c ON c.i=a.id AND c.x=b.x;
 }
