@@ -7,7 +7,8 @@ import {
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
 import {
-    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal
+    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal,
+    Statement
 } from "../sql";
 import { LockType, Select } from "../sql/select";
 import { EntityTable, NameTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
@@ -26,12 +27,39 @@ export function buildSelectIxBuds(context: DbContext) {
     function funcCast(expValue: ExpVal) {
         return new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'))
     }
+
+    // [funcCast, EnumSysTable.ixBudInt, BudDataType.int],
+    let ret: Statement[] = [
+        buildSelectIxBud(context, funcCast, EnumSysTable.ixBudInt, BudDataType.int),
+    ];
+
+    let insert = factory.createInsert();
+    ret.push(insert);
+    insert.ignore = true;
+    insert.table = new VarTableWithSchema('atoms');
+    insert.cols = [
+        { col: 'id', val: undefined },
+        { col: 'base', val: undefined },
+        { col: 'no', val: undefined },
+        { col: 'ex', val: undefined },
+    ];
+    let select = factory.createSelect();
+    insert.select = select;
+    select.distinct = true;
+    select.col('id', undefined, b);
+    select.col('base', undefined, b);
+    select.col('no', undefined, b);
+    select.col('ex', undefined, b);
+    select.from(new VarTableWithSchema('props', a))
+        .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
+        .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)));
+
     let budTypes: [(v: ExpVal) => ExpVal, EnumSysTable, BudDataType][] = [
-        [funcCast, EnumSysTable.ixBudInt, BudDataType.int],
         [funcCast, EnumSysTable.ixBudDec, BudDataType.dec],
         [funcJSON_QUOTE, EnumSysTable.ixBudStr, BudDataType.str],
     ];
-    return budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType));
+    ret.push(...budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType)));
+    return ret;
 }
 
 function buildSelectIxBud(context: DbContext, func: (expValue: ExpVal) => ExpVal, tbl: EnumSysTable, budDataType: BudDataType) {

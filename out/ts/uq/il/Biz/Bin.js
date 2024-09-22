@@ -310,14 +310,6 @@ class BizBin extends Entity_1.BizID {
         return this.schema = ret;
     }
     getSheetMainBud(name) {
-        /*
-        for (let sheet of this.sheetArr) {
-            let { main } = sheet;
-            if (main === undefined) continue;
-            let bud = main.getBud(name);
-            if (bud !== undefined) return bud;
-        }
-        */
         if (this.main === undefined)
             return;
         let bud = this.main.getBud(name);

@@ -19,12 +19,36 @@ function buildSelectIxBuds(context) {
     function funcCast(expValue) {
         return new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
     }
+    // [funcCast, EnumSysTable.ixBudInt, BudDataType.int],
+    let ret = [
+        buildSelectIxBud(context, funcCast, il_1.EnumSysTable.ixBudInt, BizPhraseType_1.BudDataType.int),
+    ];
+    let insert = factory.createInsert();
+    ret.push(insert);
+    insert.ignore = true;
+    insert.table = new statementWithFrom_1.VarTableWithSchema('atoms');
+    insert.cols = [
+        { col: 'id', val: undefined },
+        { col: 'base', val: undefined },
+        { col: 'no', val: undefined },
+        { col: 'ex', val: undefined },
+    ];
+    let select = factory.createSelect();
+    insert.select = select;
+    select.distinct = true;
+    select.col('id', undefined, b);
+    select.col('base', undefined, b);
+    select.col('no', undefined, b);
+    select.col('ex', undefined, b);
+    select.from(new statementWithFrom_1.VarTableWithSchema('props', a))
+        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
+        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('value', a)));
     let budTypes = [
-        [funcCast, il_1.EnumSysTable.ixBudInt, BizPhraseType_1.BudDataType.int],
         [funcCast, il_1.EnumSysTable.ixBudDec, BizPhraseType_1.BudDataType.dec],
         [funcJSON_QUOTE, il_1.EnumSysTable.ixBudStr, BizPhraseType_1.BudDataType.str],
     ];
-    return budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType));
+    ret.push(...budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType)));
+    return ret;
 }
 exports.buildSelectIxBuds = buildSelectIxBuds;
 function buildSelectIxBud(context, func, tbl, budDataType) {

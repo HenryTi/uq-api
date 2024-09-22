@@ -289,9 +289,9 @@ class PBizBin extends Base_1.PBizEntity {
                 }
             }
             let { length } = pickArr;
-            let end = length - 1;
-            if (end >= 0) {
-                let { pick: pickBase } = pickArr[end];
+            let end = length;
+            if (end >= 1) {
+                let { pick: pickBase } = pickArr[end - 1];
                 if (pickBase !== undefined && pickBase.bizPhraseType === BizPhraseType_1.BizPhraseType.pend) {
                     let pend = pickBase.from;
                     if (pend === undefined)

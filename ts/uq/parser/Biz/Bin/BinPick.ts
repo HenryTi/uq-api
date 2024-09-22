@@ -190,9 +190,10 @@ export class PBinPick extends PBizBud<BinPick> {
         if (on !== undefined) {
             if (on.value === undefined) {
                 on.value = {
-                    exp: undefined, // new ValueExpression(),
-                    str: [this.element.name, BudValueSetType.equ],
-                    setType: BudValueSetType.equ,
+                    exp: undefined,
+                    str: [this.element.name, BudValueSetType.init],
+                    // setType: BudValueSetType.equ,
+                    setType: BudValueSetType.init,
                 };
             }
         }
