@@ -287,7 +287,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         ];
         const select = factory.createSelect();
         insert.select = select;
-        select.column(new sql_1.ExpField('id', a));
+        select.column(new sql_1.ExpField('id', b));
         select.column(new sql_1.ExpField('base', b));
         select.column(new sql_1.ExpField('no', b));
         select.column(new sql_1.ExpField('ex', b));

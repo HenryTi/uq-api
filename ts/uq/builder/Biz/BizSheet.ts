@@ -332,7 +332,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         ];
         const select = factory.createSelect();
         insert.select = select;
-        select.column(new ExpField('id', a));
+        select.column(new ExpField('id', b));
         select.column(new ExpField('base', b));
         select.column(new ExpField('no', b));
         select.column(new ExpField('ex', b));
