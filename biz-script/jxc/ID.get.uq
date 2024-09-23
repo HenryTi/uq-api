@@ -24,7 +24,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
-    json JSON,
+    -- json JSON,
     (id) KEY,
 ) {
     VAR bizPhraseType ENUM BizPhraseType = a.type FROM BizPhrase as a WHERE a.id=phrase;

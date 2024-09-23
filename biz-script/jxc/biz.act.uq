@@ -755,7 +755,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
-    json JSON,
+    -- json JSON,
     (id) KEY,
 ) {
     VAR maySheetId ID, detail ID, sheetPhrase ID;
@@ -789,7 +789,7 @@ RETURNS specs (
         ExecSql sql USING id;
     }
 
-    INTO IGNORE specs SELECT DISTINCT a.i as id, e.id as atom, null as json
+    INTO IGNORE specs SELECT DISTINCT a.i as id, e.id as atom -- , null as json
         FROM details as a 
             JOIN Spec as c ON (c.id=a.i OR c.id=a.x)
             -- -- JOIN Bud as d ON d.id=c.base

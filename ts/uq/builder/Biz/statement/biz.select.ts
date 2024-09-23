@@ -74,11 +74,6 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                 }
                 const buildExpOn = (expAlias: ExpVal, expEQIdField: ExpCmp): ExpCmp => {
                     let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
-                    /*entityIdsLength === 1 ?
-                        new ExpEQ(expAlias, new ExpNum(entityIds[0]))
-                        :
-                        new ExpIn(expAlias, ...entityIds.map(v => new ExpNum(v)));
-                    */
                     return entityIdsLength === 0 ?
                         expEQIdField
                         :
@@ -171,28 +166,6 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         if (joinTable !== undefined) {
             let expIdEQ = new ExpEQ(new ExpField('id', alias), new ExpField('id', t0));
             let expOn: ExpCmp = expIdEQ;
-            /*
-            // 直接放 Where
-            let expBase = new ExpField('base', alias + '$idu');
-            switch (bizEntityArr.length) {
-                case 0:
-                    expOn = expIdEQ;
-                    break;
-                case 1:
-                    let e0 = bizEntityArr[0];
-                    expOn = new ExpAnd(
-                        expIdEQ,
-                        new ExpEQ(expBase, new ExpNum(e0.id))
-                    );
-                    break;
-                default:
-                    expOn = new ExpAnd(
-                        expIdEQ,
-                        new ExpIn(expBase, ...bizEntityArr.map(v => new ExpNum(v.id))),
-                    );
-                    break;
-            }
-            */
             select.join(JoinType.left, new EntityTable(joinTable, false, alias))
                 .on(expOn);
         }

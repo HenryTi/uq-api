@@ -238,17 +238,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             this.buildCallBin(statements, bin, 'details');
         }
 
-        // let typeField = tinyIntField('type');
         const varIdPhraseTable = buildIdPhraseTable(this.context);
         statements.push(varIdPhraseTable);
-        /*
-        factory.createVarTable();
-        varIdPhraseTable.name = tempIdPhraseTable;
-        const phraseField = bigIntField('phrase');
-        const budField = bigIntField('bud');
-        varIdPhraseTable.keys = [idField];
-        varIdPhraseTable.fields = [idField, phraseField, typeField];
-        */
         function buildSelectFrom(select: Select) {
             const s0 = 's0', s1 = 's1';
             select.from(new VarTable('bin', s0))
@@ -259,28 +250,12 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
         const varPhraseBudTable = buildPhraseBudTable(this.context); // factory.createVarTable();
         statements.push(varPhraseBudTable);
-        /*
-        varPhraseBudTable.name = tempPhraseBudTable;
-        const phraseParentField = bigIntField('parent');
-        const budTypeField = tinyIntField('budtype');
-        varPhraseBudTable.keys = [phraseField, phraseParentField, budField];
-        varPhraseBudTable.fields = [phraseField, phraseParentField, budField, budTypeField];
-        */
         statements.push(buildSelectPhraseBud(this.context));
-        /*
-        function funcJSON_QUOTE(expValue: ExpVal) {
-            return new ExpFunc('JSON_QUOTE', expValue);
-        }
-        function funcCast(expValue: ExpVal) {
-            return new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'))
-        }
-        let budTypes: [(v: ExpVal) => ExpVal, EnumSysTable, BudDataType][] = [
-            [funcCast, EnumSysTable.ixBudInt, BudDataType.int],
-            [funcCast, EnumSysTable.ixBudDec, BudDataType.dec],
-            [funcJSON_QUOTE, EnumSysTable.ixBudStr, BudDataType.str],
-        ];
-        statements.push(...budTypes.map(([func, tbl, budDataType]) => this.buildSelectIxBud(func, tbl, budDataType)));
-        */
+
+        let expValue = new ExpField('value', 'b');
+        let expCast = new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'));
+        this.buildGetScalarProps(statements, EnumSysTable.ixBudInt, expCast);
+
         statements.push(...buildSelectIxBuds(this.context));
         this.buildGetProps(statements);
     }
@@ -290,8 +265,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         let expValue = new ExpField('value', 'b');
         let expCast = new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'));
         let expJSONQUOTE = new ExpFunc('JSON_QUOTE', expValue);
-        this.buildGetScalarProps(statements, EnumSysTable.ixBudInt, expCast);
-        this.buildGetAtomProps(statements);
+        // this.buildGetScalarProps(statements, EnumSysTable.ixBudInt, expCast);
+        // this.buildGetAtomProps(statements);
         this.buildGetScalarProps(statements, EnumSysTable.ixBudDec, expCast);
         this.buildGetScalarProps(statements, EnumSysTable.ixBudStr, expJSONQUOTE);
         this.buildGetScalarProps(statements, EnumSysTable.ixBudJson, expValue);
@@ -318,6 +293,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             .on(new ExpEQ(new ExpField('id', a), new ExpField('i', b)));
     }
 
+    // done in buildSelectIxBuds
     private buildGetAtomProps(statements: Statement[]) {
         const { factory } = this.context;
         const insert = factory.createInsert();
@@ -343,34 +319,14 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
     private buildCallBin(statements: Statement[], bizBin: BizBin, tbl: string) {
         let { factory } = this.context;
-        /*
-        let vProc = 'proc_' + bizBin.id;
-        let declare = factory.createDeclare();
-        statements.push(declare);
-        declare.var(vProc, new Char(200));
-        let setVProc = factory.createSet();
-        statements.push(setVProc);
-        setVProc.equ(vProc, new ExpFunc(factory.func_concat, new ExpVar($site), new ExpStr('.'), new ExpNum(bizBin.id), new ExpStr('gb')));
-
-        let iff = factory.createIf();
-        statements.push(iff);
-        iff.cmp = new ExpRoutineExists(new ExpStr($site), new ExpVar(vProc));
-        */
         let insertBins = factory.createInsert();
         statements.push(insertBins);
-        // iff.then(insertBins);
         insertBins.table = new VarTableWithSchema(tempBinTable);
         insertBins.cols = [{ col: 'id', val: undefined }];
         let selectBins = factory.createSelect();
         insertBins.select = selectBins;
         selectBins.col('id');
         selectBins.from(new VarTableWithSchema(tbl));
-        /*
-        let execSql = factory.createExecSql();
-        iff.then(execSql);
-        execSql.no = bizBin.id;
-        execSql.sql = new ExpFunc(factory.func_concat, new ExpStr('CALL `' + $site + '`.`'), new ExpVar(vProc), new ExpStr('`()'));
-        */
     }
 
     private buildOutInit(statements: Statement[], out: UseOut): void {
