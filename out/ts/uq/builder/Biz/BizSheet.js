@@ -220,7 +220,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let expValue = new sql_1.ExpField('value', 'b');
         let expCast = new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
         let expJSONQUOTE = new sql_1.ExpFunc('JSON_QUOTE', expValue);
-        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudInt, expCast);
+        // this.buildGetScalarProps(statements, EnumSysTable.ixBudInt, expCast);
         // this.buildGetAtomProps(statements);
         this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudDec, expCast);
         this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudStr, expJSONQUOTE);

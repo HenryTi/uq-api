@@ -232,6 +232,7 @@ RETURNS specs (
 
 Biz Query GetMySheetList (
     phrase ID,
+    mainPhrase ID,
     from DATE,
     to DATE,
     timeZone INT,
@@ -274,7 +275,7 @@ RETURNS specs (
         ORDER BY a.id DESC
         LIMIT $pageSize;
     TABLE idtable (KEY id ID,phrase ID);
-    INTO idtable SELECT id, phrase FROM $page;
+    INTO idtable SELECT id, mainPhrase as phrase FROM $page;
     PROC ProcPropsOfIds();
 };
 

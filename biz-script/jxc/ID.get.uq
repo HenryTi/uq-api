@@ -150,3 +150,19 @@ RETURNS specs VIRTUAL (
             JOIN BizBudShow as b ON b.i=a.phrase
             JOIN IxBudStr as c ON c.i=a.id AND c.x=b.x;
 }
+
+Biz Query GetIDListCount(
+    phrase ID,          -- ID prhase
+) 
+RETURNS ret (
+    count INT,
+) {
+    INTO ret SELECT count(*) as count FROM Atom as a WHERE a.base=phrase;
+}
+
+Biz AC SetIDBase (
+    id ID,
+    base ID,
+) {
+    WITH Atom ID=id SET base=base;
+}

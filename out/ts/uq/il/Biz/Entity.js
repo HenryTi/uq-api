@@ -246,8 +246,12 @@ class BizFromEntity {
         const { parent } = this;
         if (parent !== undefined) {
             // is fork base
-            if (parent.subs.length === 1) {
-                if (parent.bizEntityArr.length === 0) {
+            const { subs, bizEntityArr, bizPhraseType } = parent;
+            if (subs.length === 1) {
+                if (bizEntityArr.length === 0) {
+                    return true;
+                }
+                if (bizPhraseType === BizPhraseType_1.BizPhraseType.fork) {
                     return true;
                 }
             }
@@ -255,16 +259,17 @@ class BizFromEntity {
         return false;
     }
     expIdCol() {
+        const $idu = '$idu';
         const { parent } = this;
         if (this.isForkBase === true) {
-            return new builder_1.ExpFunc('ifnull', new builder_1.ExpField('id', this.alias), new builder_1.ExpField('id', parent.alias + '$idu'));
+            return new builder_1.ExpFunc('ifnull', new builder_1.ExpField('id', this.alias + $idu), new builder_1.ExpField('id', parent.alias + $idu));
         }
         switch (this.bizPhraseType) {
             default:
                 return new builder_1.ExpField('id', this.alias);
             case BizPhraseType_1.BizPhraseType.atom:
             case BizPhraseType_1.BizPhraseType.fork:
-                return new builder_1.ExpField('id', this.alias + '$idu');
+                return new builder_1.ExpField('id', this.alias + $idu);
         }
     }
     isExtended() {

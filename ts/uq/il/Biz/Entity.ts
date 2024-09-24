@@ -277,8 +277,12 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
         const { parent } = this;
         if (parent !== undefined) {
             // is fork base
-            if (parent.subs.length === 1) {
-                if (parent.bizEntityArr.length === 0) {
+            const { subs, bizEntityArr, bizPhraseType } = parent;
+            if (subs.length === 1) {
+                if (bizEntityArr.length === 0) {
+                    return true;
+                }
+                if (bizPhraseType === BizPhraseType.fork) {
                     return true;
                 }
             }
@@ -287,12 +291,13 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
     }
 
     expIdCol() {
+        const $idu = '$idu';
         const { parent } = this;
         if (this.isForkBase === true) {
             return new ExpFunc(
                 'ifnull',
-                new ExpField('id', this.alias),
-                new ExpField('id', parent.alias + '$idu'),
+                new ExpField('id', this.alias + $idu),
+                new ExpField('id', parent.alias + $idu),
             );
         }
         switch (this.bizPhraseType) {
@@ -300,7 +305,7 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
                 return new ExpField('id', this.alias);
             case BizPhraseType.atom:
             case BizPhraseType.fork:
-                return new ExpField('id', this.alias + '$idu');
+                return new ExpField('id', this.alias + $idu);
         }
     }
 
