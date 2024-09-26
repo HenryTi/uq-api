@@ -371,6 +371,65 @@ RETURNS checkBin (
     -/
 };
 
+Biz AC SubmitSheetDebug(
+    id ID,
+)
+RETURNS logs (
+    id ID,
+    value JSON,
+)
+RETURNS checkPend (
+    pend ID,
+    overValue VALUE,
+)
+RETURNS checkBin (
+    bin ID,
+    message CHAR(200),
+) {
+    VAR me ID = Me();
+    VAR phraseId ID = a.base
+        FROM Sheet as a 
+            -- JOIN IxState as b ON b.x=a.id
+        WHERE a.id=id
+            -- AND b.i=me
+        ;
+    IF phraseId IS NULL {
+        RETURN;
+    }
+    SET @checkPend=JSON_ARRAY();
+    SET @checkBin=JSON_ARRAY();
+    TRANS OFF;
+    TRANS START;
+    VAR logMax BIGINT = MAX(a.id) FROM Log as a WHERE a.base=$site;
+    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phraseId, '`(?,?,?);');
+    ExecSql sql USING $site, me, id;
+
+    -- WITH IxState I=me X=id DEL;
+    -- WITH IxState I=id X=phraseId;
+    INTO Logs SELECT a.id, a.value 
+        FROM LOG as a 
+        WHERE a.id>IFNULL(logMax,0) AND a.base=$site
+        ORDER BY a.id asc;
+
+    /-mysql
+    IF JSON_LENGTH(@checkPend, '$')+JSON_LENGTH(@checkBin, '$')=0 THEN
+        COMMIT;
+    ELSE
+        ROLLBACK;
+        INSERT INTO _checkpend (pend, overValue) SELECT a.pend, a.overValue 
+            FROM JSON_TABLE(@checkPend, '$[*]' COLUMNS (
+                pend BIGINT PATH '$.pend',
+                overValue DEC(18,6) PATH '$.overValue'
+            )) AS a;
+        INSERT INTO _checkbin (bin, message) SELECT a.bin, a.message 
+            FROM JSON_TABLE(@checkBin, '$[*]' COLUMNS (
+                bin BIGINT PATH '$.bin',
+                message VARCHAR(200) PATH '$.message'
+            )) AS a;
+    END IF;
+    -/
+};
+
 Biz AC DoQuery (
     query ID, 
     json JSON,
