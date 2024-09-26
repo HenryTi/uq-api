@@ -103,8 +103,10 @@ class PBizLog extends statement_1.PStatement {
     }
     scanScalar(space, val) {
         let ok = true;
-        if (val.pelement.scan(space) === false)
+        if (val.pelement.scan(space) === false) {
             ok = false;
+            // val.pelement.scan(space);
+        }
         return ok;
     }
     scanArray(space, val) {

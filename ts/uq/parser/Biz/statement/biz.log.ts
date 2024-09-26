@@ -109,7 +109,10 @@ export class PBizLog extends PStatement<BizLog> {
 
     private scanScalar(space: Space, val: LogScalar): boolean {
         let ok = true;
-        if (val.pelement.scan(space) === false) ok = false;
+        if (val.pelement.scan(space) === false) {
+            ok = false;
+            // val.pelement.scan(space);
+        }
         return ok;
     }
 

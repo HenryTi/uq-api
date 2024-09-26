@@ -26,9 +26,9 @@ const samount = '$samount';
 const sprice = '$sprice';
 const pendFrom = '$pend';
 const i = 'i';
-const iBase = '.i';
+const iBase = 'ibase';
 const x = 'x';
-const xBase = '.x';
+const xBase = 'xbase';
 const value = consts_1.binValue;
 const amount = consts_1.binAmount;
 const price = consts_1.binPrice;
@@ -41,7 +41,7 @@ const c = 'c';
 const d = 'd';
 const bin = '$bin';
 const tempBinTable = 'bin';
-const binFieldsSet = new Set(consts_1.binFieldArr);
+const binFieldsSet = new Set(consts_1.binFieldArrRoot);
 var BinIType;
 (function (BinIType) {
     BinIType[BinIType["atom"] = 0] = "atom";
@@ -187,26 +187,6 @@ class BBizBin extends BizEntity_1.BBizEntity {
         sqls.head(actStatements);
         sqls.body(actStatements);
         sqls.foot(actStatements);
-    }
-    buildGetProc(proc) {
-        let { statements } = proc;
-        // const { iBase, xBase } = this.bizEntity;
-        // this.buildGetIXBase(statements, iBase);
-        // this.buildGetIXBase(statements, xBase);
-        // let showBuds = this.bizEntity.allShowBuds();
-        /*
-        if (showBuds === undefined) {
-            proc.dropOnly = true;
-            return;
-        }
-        */
-        let { factory, site } = this.context;
-        const declare = factory.createDeclare();
-        statements.push(declare);
-        declare.var(consts_2.$site, new il_1.BigInt());
-        const setSite = factory.createSet();
-        statements.push(setSite);
-        setSite.equ(consts_2.$site, new sql_1.ExpNum(site));
     }
 }
 exports.BBizBin = BBizBin;

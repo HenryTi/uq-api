@@ -93,17 +93,23 @@ RETURNS specs VIRTUAL (
 )
 {
     -- $idstable(id ID, phrase ID);
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM idtable as a
-            JOIN BizBudShow as b ON b.i=a.phrase
-            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x;
-    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
-        FROM props as a
-            -- JOIN BizPhrase as b ON b.id=a.phrase
-            JOIN Atom as c ON c.id=a.value
-        -- WHERE b.type=BizPhraseType.atom
-        ;
+    TABLE IdBuds(id BIGINT, bud BIGINT);
+    INTO IdBuds WITH RECURSIVE pPhrase AS (
+        SELECT r.x as id, r.i as base
+        FROM idtable as s
+            JOIN IxBizPhrase as r ON r.x=s.id
+            JOIN XBiz as p1 ON p1.id=r.x
+        -- WHERE r.x=phrase -- AND p.valid=1
+        UNION
+        SELECT a.x as id, a.i as base
+        FROM IxBizPhrase as a JOIN pPhrase AS b
+            ON b.id=a.i
+    )
+    SELECT d.i as id, d.x as bud
+        FROM pPhrase as c
+            JOIN BizBudShow as d ON d.i=c.id;
 
+    -- id 对应的atoms or spec
     INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
         FROM idtable as a
             JOIN BizPhrase as b ON b.id=a.phrase
@@ -114,10 +120,35 @@ RETURNS specs VIRTUAL (
             JOIN BizPhrase as b ON b.id=a.phrase
             JOIN Spec as c ON c.id=a.id
         WHERE b.type=BizPhraseType.fork;
+        
+    -- id对应的atoms里面的必显示字段
+    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
+        FROM idtable as a
+            JOIN BizBudShow
+                /* WITH RECURSIVE pPhrase AS (
+                    SELECT r.x as id, r.i as base
+                    FROM IxBizPhrase as r JOIN XBiz as r1 ON r1.id=r.x
+                        -- JOIN BizPhrase as p ON p.id=r.x
+                    WHERE r.x=a.phrase -- AND p.valid=1
+                    UNION
+                    SELECT s.x as id, s.i as base
+                    FROM IxBizPhrase as s 
+                        JOIN XBiz as s1 ON s1.id=r.x 
+                        JOIN pPhrase AS s2 ON s2.id=s.i
+                ) SELECT v.x FROM pPhrase as v
+            )*/ as b ON b.x=a.phrase
+            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x;
+    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+        FROM props as a
+            JOIN Atom as c ON c.id=a.value;
+
+    /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM atoms as a
             JOIN BizBudShow as b ON b.i=a.base
             JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x;
+    */
+
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM specs as a
             JOIN IxBudInt as c ON c.i=a.id;
@@ -126,17 +157,25 @@ RETURNS specs VIRTUAL (
             JOIN BizPhrase as b ON b.id=a.phrase
             JOIN Atom as c ON c.id=a.value
         WHERE b.type=BizPhraseType.atom;
+
+    /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM atoms as a
             JOIN BizBudShow as b ON b.i=a.base
             JOIN IxBudDec as c ON c.i=a.id AND c.x=b.x;
+    */
+
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM specs as a
             JOIN IxBudDec as c ON c.i=a.id;
+
+    /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
         FROM atoms as a
             JOIN BizBudShow as b ON b.i=a.base
             JOIN IxBudStr as c ON c.i=a.id AND c.x=b.x;
+    */
+
     INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
         FROM specs as a
             JOIN IxBudStr as c ON c.i=a.id;

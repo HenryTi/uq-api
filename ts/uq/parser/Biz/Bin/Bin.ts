@@ -89,7 +89,7 @@ export class PBizBin extends PBizEntity<BizBin> {
         this.ts.readToken();
         this.ts.passKey('base');
         let nameIX = EnumIX[IX];
-        let bud = new BizBudIXBase(this.element, '.' + nameIX, undefined);
+        let bud = new BizBudIXBase(this.element, nameIX + 'base', undefined);
         this.context.parseElement(bud);
         const { value } = bud;
         if (value?.setType !== BudValueSetType.equ) {
@@ -609,6 +609,11 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (binPreDefined.indexOf(name) >= 0) {
+            switch (name) {
+                default: break;
+                case 'ibase': if (this.bizEntity.iBase === undefined) return; break;
+                case 'xbase': if (this.bizEntity.xBase === undefined) return; break;
+            }
             return new VarPointer(name);
         }
         if (this.bizEntity.props.has(name) === true) {
@@ -652,11 +657,6 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
                 return fe;
         }
     }
-    /*
-    override getBizFieldSpace() {
-        return new BizBinActFieldSpace(this.bizEntity);
-    }
-    */
 
     protected override _getBizField(names: string[]): BizField {
         return this.bizFieldSpace.getBizField(names);

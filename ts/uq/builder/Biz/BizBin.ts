@@ -1,15 +1,11 @@
-import { binAmount, binFieldArr, binPrice, binValue } from "../../consts";
+import { binAmount, binFieldArr, binFieldArrRoot, binPrice, binValue } from "../../consts";
 import {
-    BigInt, BizBin, Dec, JoinType, bigIntField, EnumSysTable,
-    Char, JsonDataType, BizBudIXBase, Statement,
-    EntityVarTable,
-    bizDecType
+    BigInt, BizBin, JoinType, bigIntField, EnumSysTable, bizDecType
 } from "../../il";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
-import { ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal, ExpVar, Procedure, Statement as SqlStatement } from "../sql";
-import { SelectTable } from "../sql/select";
-import { EntityTable, NameTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
+import { ExpEQ, ExpField, ExpNum, ExpVar, Procedure } from "../sql";
+import { EntityTable } from "../sql/statementWithFrom";
 import { buildSelectBinBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
@@ -22,9 +18,9 @@ const samount = '$samount';
 const sprice = '$sprice';
 const pendFrom = '$pend';
 const i = 'i';
-const iBase = '.i';
+const iBase = 'ibase';
 const x = 'x';
-const xBase = '.x';
+const xBase = 'xbase';
 const value = binValue;
 const amount = binAmount;
 const price = binPrice;
@@ -37,7 +33,7 @@ const c = 'c';
 const d = 'd';
 const bin = '$bin';
 const tempBinTable = 'bin';
-const binFieldsSet = new Set(binFieldArr);
+const binFieldsSet = new Set(binFieldArrRoot);
 
 enum BinIType {
     atom, fork, forkAtom
@@ -183,30 +179,5 @@ export class BBizBin extends BBizEntity<BizBin> {
         sqls.head(actStatements);
         sqls.body(actStatements);
         sqls.foot(actStatements);
-    }
-
-    private buildGetProc(proc: Procedure) {
-        let { statements } = proc;
-        // const { iBase, xBase } = this.bizEntity;
-        // this.buildGetIXBase(statements, iBase);
-        // this.buildGetIXBase(statements, xBase);
-
-        // let showBuds = this.bizEntity.allShowBuds();
-        /*
-        if (showBuds === undefined) {
-            proc.dropOnly = true;
-            return;
-        }
-        */
-
-        let { factory, site } = this.context;
-
-        const declare = factory.createDeclare();
-        statements.push(declare);
-        declare.var($site, new BigInt());
-
-        const setSite = factory.createSet();
-        statements.push(setSite);
-        setSite.equ($site, new ExpNum(site));
     }
 }
