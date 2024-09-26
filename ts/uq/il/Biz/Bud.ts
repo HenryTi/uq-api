@@ -91,7 +91,7 @@ export abstract class BizBud extends BizBase {
     createDataType(): DataType { return new BigInt(); }
     createField(): Field {
         let ret = new Field();
-        ret.name = this.name;
+        ret.name = String(this.id); // this.name;
         ret.dataType = this.createDataType();
         ret.nullable = true;
         return ret;

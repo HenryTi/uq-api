@@ -98,6 +98,7 @@ abstract class PBizStatementSub<A extends BizAct, T extends BizStatementSub<A>> 
 export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementSub<A, BizStatementPend<A>> {
     protected pend: string;
     private sets: { [v: string]: ValueExpression };
+    private keys: Map<string, ValueExpression>;
 
     protected _parse(): void {
         let setEqu: SetEqu;
@@ -117,18 +118,18 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
 
             if (this.ts.isKeyword('key') === true) {
                 this.ts.readToken();
-                this.element.keys = new Map();
-                const { keys } = this.element;
+                this.keys = new Map();
+                // const { keys } = this.element;
                 this.ts.passToken(Token.LPARENTHESE);
                 for (; ;) {
                     let key = this.ts.passVar();
-                    if (keys.has(key) === true) {
+                    if (this.keys.has(key) === true) {
                         this.ts.error(`duplicate ${key}`);
                     }
                     this.ts.passToken(Token.EQU);
                     let val = new ValueExpression();
                     this.context.parseElement(val);
-                    keys.set(key, val);
+                    this.keys.set(key, val);
                     if (this.ts.token === Token.COMMA as any) {
                         this.ts.readToken();
                         if (this.ts.token === Token.RPARENTHESE as any) {
@@ -243,20 +244,21 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
                         }
                     }
                 }
-                let { keys } = this.element;
-                if (keys !== undefined) {
+                if (this.keys !== undefined) {
                     let { keys: keyBuds } = pend;
                     if (keyBuds === undefined) {
                         ok = false;
                         this.log(`no keys defined in ${pend.getJName()}`);
                     }
-                    else if (keys.size !== keyBuds.length) {
+                    else if (this.keys.size !== keyBuds.length) {
                         ok = false;
-                        this.log(`keys count here is ${keys.size}, PEND ${pend.getJName()} keys count is ${keyBuds.length}. must be equal`);
+                        this.log(`keys count here is ${this.keys.size}, PEND ${pend.getJName()} keys count is ${keyBuds.length}. must be equal`);
                     }
                     else {
                         let i = 0;
-                        for (let [name, val] of keys) {
+                        this.element.keys = new Map();
+                        const { keys } = this.element;
+                        for (let [name, val] of this.keys) {
                             let bud = keyBuds[i];
                             if (bud.name !== name) {
                                 ok = false;
@@ -265,6 +267,9 @@ export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementS
                             else {
                                 if (val.pelement.scan(space) === false) {
                                     ok = false;
+                                }
+                                else {
+                                    keys.set(bud, val);
                                 }
                             }
                             i++;

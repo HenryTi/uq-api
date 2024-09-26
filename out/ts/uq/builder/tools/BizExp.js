@@ -225,7 +225,7 @@ class BBizExp {
             if (cp === undefined)
                 continue;
             let ck = keys[i];
-            sb.append(' AND bca.').name(ck.name).append('=').exp(dbContext.expVal(cp));
+            sb.append(' AND bca.').name(String(ck.id)).append('=').exp(dbContext.expVal(cp));
         }
     }
 }

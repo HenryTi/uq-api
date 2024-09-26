@@ -311,7 +311,7 @@ class FEScanBase {
         let fromEntity = this.scaner.createFromEntity(this.fromEntity, b, undefined);
         return fromEntity;
     }
-    scanSub(b, field, callbackOnEmpty) {
+    scanSub(b, field, fieldBud, callbackOnEmpty) {
         let fromEntity = this.createFromEntity(b);
         if (fromEntity === undefined) {
             fromEntity = new il_1.BizFromEntity(this.fromEntity);
@@ -332,6 +332,7 @@ class FEScanBase {
             return undefined;
         return {
             field,
+            fieldBud,
             fromEntity,
             isSpecBase: undefined,
         };
@@ -350,10 +351,10 @@ class FromEntityScanDuo extends FEScanBase {
         this.pSub1 = pSub1;
     }
     createSubs() {
-        let subI = this.scanSub(this.pSub0, 'i', this.onIEmpty);
+        let subI = this.scanSub(this.pSub0, 'i', undefined, this.onIEmpty);
         if (subI === undefined)
             return;
-        let subX = this.scanSub(this.pSub1, 'x', this.onXEmpty);
+        let subX = this.scanSub(this.pSub1, 'x', undefined, this.onXEmpty);
         if (subX === undefined)
             return;
         return [subI, subX];
@@ -419,7 +420,7 @@ class FromEntityScanCombo extends FEScanBase {
             let key = keys[i];
             let pSub = this.pSubs[i];
             let { name: keyName } = key;
-            let sub = this.scanSub(pSub, keyName, onEmpty);
+            let sub = this.scanSub(pSub, keyName, key, onEmpty);
             if (sub !== undefined) {
                 if (this.isDot === true)
                     sub.field = keyName;
@@ -450,7 +451,7 @@ class FromEntityScanSpec extends FEScanBase {
         this.pSub = pSub;
     }
     createSubs() {
-        let sub = this.scanSub(this.pSub, 'base', this.onSpecEmpty);
+        let sub = this.scanSub(this.pSub, 'base', undefined, this.onSpecEmpty);
         if (sub === undefined)
             return;
         sub.isSpecBase = true;

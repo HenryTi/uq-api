@@ -113,7 +113,6 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         return select;
     }
     buildExpCmpBase(fromEntity, expField) {
-        // const { fromEntity } = this.istatement;
         const { bizEntityArr } = fromEntity;
         const { factory } = this.context;
         if (fromEntity.isExtended() === true) {

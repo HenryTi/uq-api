@@ -25,7 +25,7 @@ export class PBiz extends PEntity<Biz> {
             atom: BizAtom,
             spec: BizFork,
             fork: BizFork,
-            duo: BizDuo,
+            duo: BizDuo,            // 取消，不再使用。用 BizCombo 替代
             combo: BizCombo,
 
             title: BizTitle,

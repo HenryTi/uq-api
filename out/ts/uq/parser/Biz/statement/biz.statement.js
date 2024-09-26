@@ -102,18 +102,18 @@ class PBizStatementPend extends PBizStatementSub {
             }
             if (this.ts.isKeyword('key') === true) {
                 this.ts.readToken();
-                this.element.keys = new Map();
-                const { keys } = this.element;
+                this.keys = new Map();
+                // const { keys } = this.element;
                 this.ts.passToken(tokens_1.Token.LPARENTHESE);
                 for (;;) {
                     let key = this.ts.passVar();
-                    if (keys.has(key) === true) {
+                    if (this.keys.has(key) === true) {
                         this.ts.error(`duplicate ${key}`);
                     }
                     this.ts.passToken(tokens_1.Token.EQU);
                     let val = new il_1.ValueExpression();
                     this.context.parseElement(val);
-                    keys.set(key, val);
+                    this.keys.set(key, val);
                     if (this.ts.token === tokens_1.Token.COMMA) {
                         this.ts.readToken();
                         if (this.ts.token === tokens_1.Token.RPARENTHESE) {
@@ -230,20 +230,21 @@ class PBizStatementPend extends PBizStatementSub {
                         }
                     }
                 }
-                let { keys } = this.element;
-                if (keys !== undefined) {
+                if (this.keys !== undefined) {
                     let { keys: keyBuds } = pend;
                     if (keyBuds === undefined) {
                         ok = false;
                         this.log(`no keys defined in ${pend.getJName()}`);
                     }
-                    else if (keys.size !== keyBuds.length) {
+                    else if (this.keys.size !== keyBuds.length) {
                         ok = false;
-                        this.log(`keys count here is ${keys.size}, PEND ${pend.getJName()} keys count is ${keyBuds.length}. must be equal`);
+                        this.log(`keys count here is ${this.keys.size}, PEND ${pend.getJName()} keys count is ${keyBuds.length}. must be equal`);
                     }
                     else {
                         let i = 0;
-                        for (let [name, val] of keys) {
+                        this.element.keys = new Map();
+                        const { keys } = this.element;
+                        for (let [name, val] of this.keys) {
                             let bud = keyBuds[i];
                             if (bud.name !== name) {
                                 ok = false;
@@ -252,6 +253,9 @@ class PBizStatementPend extends PBizStatementSub {
                             else {
                                 if (val.pelement.scan(space) === false) {
                                     ok = false;
+                                }
+                                else {
+                                    keys.set(bud, val);
                                 }
                             }
                             i++;

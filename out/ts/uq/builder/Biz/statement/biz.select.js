@@ -38,7 +38,7 @@ class BBizSelect extends bstatement_1.BStatement {
         }
         if (subs !== undefined) {
             for (let sub of subs) {
-                const { field, fromEntity: subFromEntity, isSpecBase } = sub;
+                const { field, fieldBud, fromEntity: subFromEntity, isSpecBase } = sub;
                 const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
                 let entityIds = [];
                 if (bizEntityArr.length > 0) {
@@ -70,15 +70,16 @@ class BBizSelect extends bstatement_1.BStatement {
                         :
                             new sql_1.ExpAnd(expEQIdField, expCmpBase);
                 };
+                const expMainField = new sql_1.ExpField(fieldBud === undefined ? field : String(fieldBud.id), alias);
                 switch (bizPhraseType) {
                     default:
                         select
                             .join(joinAtom, entityTable)
-                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField(field, alias)));
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), expMainField));
                         break;
                     case BizPhraseType_1.BizPhraseType.atom:
                         let expOnAtom = buildExpOn(new sql_1.ExpField('base', aliasIDU), // expSubAlias, 
-                        new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), new sql_1.ExpField(field, alias)));
+                        new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), expMainField));
                         select
                             .join(joinAtom, entityTable)
                             .on(expOnAtom)
@@ -89,7 +90,7 @@ class BBizSelect extends bstatement_1.BStatement {
                         let expOnFork = buildExpOn(new sql_1.ExpField('base', aliasIDU), new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', aliasIDU)));
                         select
                             .join(il_1.JoinType.join, entityTable)
-                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), new sql_1.ExpField(field, alias)))
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), expMainField))
                             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, subAlias))
                             .on(expOnFork);
                         break;

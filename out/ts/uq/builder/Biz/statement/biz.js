@@ -96,8 +96,8 @@ class BBizStatementPend extends bstatement_1.BStatement {
                     .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, b))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));
                 let wheres = [];
-                for (let [name, val] of this.istatement.keys) {
-                    wheres.push(new sql_1.ExpEQ(new sql_1.ExpField(name), this.context.expVal(val)));
+                for (let [bud, val] of this.istatement.keys) {
+                    wheres.push(new sql_1.ExpEQ(new sql_1.ExpField(String(bud.id), a), this.context.expVal(val)));
                 }
                 selectPendId.where(new sql_1.ExpAnd(...wheres));
                 let ifKeyedId = factory.createIf();
@@ -110,8 +110,8 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 upsertPendKey.table = pendKeyTableInsert;
                 const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new sql_1.ExpVar(pendId) });
-                for (let [name, val] of this.istatement.keys) {
-                    keys.push({ col: name, val: this.context.expVal(val) });
+                for (let [bud, val] of this.istatement.keys) {
+                    keys.push({ col: String(bud.id), val: this.context.expVal(val) });
                 }
             }
             let setMid = factory.createSet();
@@ -131,22 +131,14 @@ class BBizStatementPend extends bstatement_1.BStatement {
             for (let s of sets) {
                 let [bud, val] = s;
                 buildMidProp(String(bud.id), context.expVal(val));
-                /*
-                expMids.push(
-                    new ExpStr(String(bud.id)),
-                    context.expVal(val)
-                );
-                */
             }
             const { i, x } = pend;
             if (i !== undefined) {
                 let val = setI === undefined ? new sql_1.ExpVar(i.name) : context.expVal(setI);
-                //expMids.push(new ExpStr(String(i.id)), val);
                 buildMidProp(String(i.id), val);
             }
             if (x !== undefined) {
                 let val = setX === undefined ? new sql_1.ExpVar(x.name) : context.expVal(setX);
-                // expMids.push(new ExpStr(String(x.id)), val);
                 buildMidProp(String(x.id), val);
             }
             let update = factory.createUpdate();
@@ -169,23 +161,30 @@ class BBizStatementPend extends bstatement_1.BStatement {
             buildWritePend();
         }
     }
+}
+exports.BBizStatementPend = BBizStatementPend;
+class BBizStatementBinPend extends BBizStatementPend {
     foot(sqls) {
         const { factory } = this.context;
         let { pend } = this.istatement;
         if (pend !== undefined)
             return;
+        const { bizBin } = this.istatement.bizStatement.bizAct;
+        const { pend: binPend } = bizBin;
         let del = factory.createDelete();
         sqls.push(del);
         del.tables = [a];
         del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
+        del.join(il_1.JoinType.join, new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${binPend.id}`, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));
         del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
     }
 }
-exports.BBizStatementPend = BBizStatementPend;
-class BBizStatementBinPend extends BBizStatementPend {
-}
 exports.BBizStatementBinPend = BBizStatementBinPend;
 class BBizStatementInPend extends BBizStatementPend {
+    foot(sqls) {
+        // 这个没有在bizscript中定义
+    }
 }
 exports.BBizStatementInPend = BBizStatementInPend;
 const phraseId = '$phraseId_';

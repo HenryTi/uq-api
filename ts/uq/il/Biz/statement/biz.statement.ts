@@ -56,7 +56,7 @@ export abstract class BizStatementPend<T extends BizAct> extends BizStatementSub
     pend: BizPend;
     setEqu: SetEqu;             // 仅用于 Pend -= val;
     val: ValueExpression;       // if val===undefined then _value
-    keys: Map<string, ValueExpression>;
+    keys: Map<BizBud, ValueExpression>;
 }
 
 export class BizStatementBinPend extends BizStatementPend<BizBinAct> {

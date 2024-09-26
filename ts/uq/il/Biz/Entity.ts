@@ -255,6 +255,7 @@ export abstract class BizNotID extends BizEntity {
 
 export interface BizFromEntitySub {
     field: string;
+    fieldBud: BizBud;
     fromEntity: BizFromEntity;
     isSpecBase: boolean;
 }

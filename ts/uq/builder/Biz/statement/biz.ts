@@ -120,8 +120,8 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                     .join(JoinType.join, new EntityTable(EnumSysTable.pend, false, b))
                     .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)));
                 let wheres: ExpCmp[] = [];
-                for (let [name, val] of this.istatement.keys) {
-                    wheres.push(new ExpEQ(new ExpField(name), this.context.expVal(val)));
+                for (let [bud, val] of this.istatement.keys) {
+                    wheres.push(new ExpEQ(new ExpField(String(bud.id), a), this.context.expVal(val)));
                 }
                 selectPendId.where(new ExpAnd(...wheres));
 
@@ -135,8 +135,8 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 upsertPendKey.table = pendKeyTableInsert;
                 const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new ExpVar(pendId) });
-                for (let [name, val] of this.istatement.keys) {
-                    keys.push({ col: name, val: this.context.expVal(val) });
+                for (let [bud, val] of this.istatement.keys) {
+                    keys.push({ col: String(bud.id), val: this.context.expVal(val) });
                 }
             }
 
@@ -159,22 +159,14 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             for (let s of sets) {
                 let [bud, val] = s;
                 buildMidProp(String(bud.id), context.expVal(val));
-                /*
-                expMids.push(
-                    new ExpStr(String(bud.id)),
-                    context.expVal(val)
-                );
-                */
             }
             const { i, x } = pend;
             if (i !== undefined) {
                 let val = setI === undefined ? new ExpVar(i.name) : context.expVal(setI);
-                //expMids.push(new ExpStr(String(i.id)), val);
                 buildMidProp(String(i.id), val);
             }
             if (x !== undefined) {
                 let val = setX === undefined ? new ExpVar(x.name) : context.expVal(setX);
-                // expMids.push(new ExpStr(String(x.id)), val);
                 buildMidProp(String(x.id), val);
             }
 
@@ -203,15 +195,22 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
             buildWritePend();
         }
     }
+}
 
-    foot(sqls: Sqls): void {
+export class BBizStatementBinPend extends BBizStatementPend<BizBinAct> {
+    override foot(sqls: Sqls): void {
         const { factory } = this.context;
         let { pend } = this.istatement;
         if (pend !== undefined) return;
+
+        const { bizBin } = this.istatement.bizStatement.bizAct;
+        const { pend: binPend } = bizBin;
         let del = factory.createDelete();
         sqls.push(del);
         del.tables = [a];
         del.from(new EntityTable(EnumSysTable.pend, false, a));
+        del.join(JoinType.join, new GlobalTable($site, `${this.context.site}.${binPend.id}`, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
         del.where(new ExpAnd(
             new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
             new ExpEQ(new ExpField('value', a), ExpNum.num0),
@@ -219,10 +218,10 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
     }
 }
 
-export class BBizStatementBinPend extends BBizStatementPend<BizBinAct> {
-}
-
 export class BBizStatementInPend extends BBizStatementPend<BizInAct> {
+    override foot(sqls: Sqls): void {
+        // 这个没有在bizscript中定义
+    }
 }
 
 const phraseId = '$phraseId_';

@@ -9,7 +9,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         const { id, keys, indexes } = this.bizEntity;
         let table = this.createTable(`${this.context.site}.${id}`);
         let keyFields = keys.map(v => {
-            let ret = bigIntField(v.name);
+            let ret = bigIntField(String(v.id));
             ret.nullable = false;
             return ret;
         });
@@ -48,7 +48,8 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         select.from(tbl);
         select.where(new ExpAnd(
             ...keys.map(v => {
-                const { name } = v;
+                const { id } = v;
+                const name = String(id);
                 return new ExpEQ(new ExpField(name), new ExpVar(name));
             })
         ));
@@ -72,7 +73,13 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         insert.table = tbl;
         insert.cols = [
             { col: 'id', val: new ExpVar(vId) },
-            ...keys.map(v => ({ col: v.name, val: new ExpVar(v.name) })),
+            ...keys.map(v => {
+                const name = String(v.id);
+                return {
+                    col: name,
+                    val: new ExpVar(name),
+                };
+            }),
         ];
 
         const insertIDU = factory.createInsert();

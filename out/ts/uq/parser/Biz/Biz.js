@@ -13,7 +13,7 @@ class PBiz extends entity_1.PEntity {
             atom: il_1.BizAtom,
             spec: il_1.BizFork,
             fork: il_1.BizFork,
-            duo: il_1.BizDuo,
+            duo: il_1.BizDuo, // 取消，不再使用。用 BizCombo 替代
             combo: il_1.BizCombo,
             title: il_1.BizTitle,
             book: il_1.BizTitle,

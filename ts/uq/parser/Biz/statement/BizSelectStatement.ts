@@ -11,7 +11,8 @@ import {
     BizBudID,
     BizSelectStatement,
     BizField,
-    EnumSysTable
+    EnumSysTable,
+    BizBud
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
@@ -364,7 +365,7 @@ abstract class FEScanBase {
         return fromEntity;
     }
 
-    protected scanSub(b: PFromEntity, field: string, callbackOnEmpty: () => BizEntity): BizFromEntitySub {
+    protected scanSub(b: PFromEntity, field: string, fieldBud: BizBud, callbackOnEmpty: () => BizEntity): BizFromEntitySub {
         let fromEntity = this.createFromEntity(b);
         if (fromEntity === undefined) {
             fromEntity = new BizFromEntity(this.fromEntity);
@@ -384,6 +385,7 @@ abstract class FEScanBase {
         if (this.scaner.scan(fromEntity, b) === false) return undefined;
         return {
             field,
+            fieldBud,
             fromEntity,
             isSpecBase: undefined,
         };
@@ -408,9 +410,9 @@ class FromEntityScanDuo extends FEScanBase {
     }
 
     createSubs(): BizFromEntitySub[] {
-        let subI = this.scanSub(this.pSub0, 'i', this.onIEmpty);
+        let subI = this.scanSub(this.pSub0, 'i', undefined, this.onIEmpty);
         if (subI === undefined) return;
-        let subX = this.scanSub(this.pSub1, 'x', this.onXEmpty);
+        let subX = this.scanSub(this.pSub1, 'x', undefined, this.onXEmpty);
         if (subX === undefined) return;
         return [subI, subX];
     }
@@ -440,7 +442,7 @@ class FromEntityScanCombo extends FEScanBase {
             let key = keys[i];
             let pSub = this.pSubs[i];
             let { name: keyName } = key;
-            let sub = this.scanSub(pSub, keyName, onEmpty);
+            let sub = this.scanSub(pSub, keyName, key, onEmpty);
             if (sub !== undefined) {
                 if (this.isDot === true) sub.field = keyName;
             }
@@ -513,7 +515,7 @@ class FromEntityScanSpec extends FEScanBase {
     }
 
     createSubs(): BizFromEntitySub[] {
-        let sub = this.scanSub(this.pSub, 'base', this.onSpecEmpty);
+        let sub = this.scanSub(this.pSub, 'base', undefined, this.onSpecEmpty);
         if (sub === undefined) return;
         sub.isSpecBase = true;
         return [sub];
