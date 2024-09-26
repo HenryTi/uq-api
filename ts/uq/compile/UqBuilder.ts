@@ -163,7 +163,7 @@ export class UqBuilder {
         }
 
         for (let bizEntity of newest) {
-            console.log(bizEntity.name, bizEntity);
+            console.log(bizEntity.name/*, bizEntity*/);
             try {
                 let builder = bizEntity.db(context);
                 if (builder === undefined) continue;
