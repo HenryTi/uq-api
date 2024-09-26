@@ -166,6 +166,23 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         if (joinTable !== undefined) {
             let expIdEQ = new ExpEQ(new ExpField('id', alias), new ExpField('id', t0));
             let expOn: ExpCmp = expIdEQ;
+            switch (bizEntityArr.length) {
+                case 0:
+                    expOn = expIdEQ;
+                    break;
+                case 1:
+                    expOn = new ExpAnd(
+                        expIdEQ,
+                        new ExpEQ(new ExpField('base', alias), new ExpNum(bizEntityArr[0].id))
+                    )
+                    break;
+                default:
+                    expOn = new ExpAnd(
+                        expIdEQ,
+                        new ExpIn(new ExpField('base', alias), ...bizEntityArr.map(v => new ExpNum(v.id)))
+                    )
+                    break;
+            }
             select.join(JoinType.left, new EntityTable(joinTable, false, alias))
                 .on(expOn);
         }

@@ -1,7 +1,7 @@
 {
     "name": "uq-api",
-    "version": "1.4.0",
-    "description": "uq-api 1.4.0",
+    "version": "1.4.1",
+    "description": "uq-api 1.4.1",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
