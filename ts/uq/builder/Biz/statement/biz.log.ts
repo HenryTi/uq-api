@@ -1,12 +1,14 @@
 import { bigIntField, BizLog, EnumSysTable, LogArray, LogObject, LogScalar, LogType, LogValue } from "../../../il";
 import { BStatement, Sqls } from "../../bstatement";
-import { ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar } from "../../sql";
+import { ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar } from "../../sql";
 import { EntityTable } from "../../sql/statementWithFrom";
 
+const loginact = 'loginact';
 export class BBizLog extends BStatement<BizLog> {
     body(sqls: Sqls): void {
         const { factory, userParam } = this.context;
         let { no, val } = this.istatement;
+        /*
         let declare = factory.createDeclare();
         sqls.push(declare);
         let logId = 'logid_' + no;
@@ -28,6 +30,16 @@ export class BBizLog extends BStatement<BizLog> {
             { col: 'value', val: valJson },
         );
         update.where = new ExpEQ(new ExpField('id'), new ExpVar(logId));
+        */
+        let setLog = factory.createSet();
+        sqls.push(setLog);
+        setLog.isAtVar = true;
+        let valJson = new ExpFunc(
+            'JSON_EXTRACT',
+            new ExpFunc('JSON_ARRAY', this.buildValue(val)),
+            new ExpStr('$[0]'),
+        );
+        setLog.equ('loginact', new ExpFunc('JSON_ARRAY_APPEND', new ExpAtVar('loginact'), new ExpStr('$'), valJson));
     }
 
     private buildValue({ type, value }: LogValue): ExpVal {

@@ -342,6 +342,7 @@ RETURNS checkBin (
     IF phraseId IS NULL {
         RETURN;
     }
+    SET @loginact=JSON_ARRAY();
     SET @checkPend=JSON_ARRAY();
     SET @checkBin=JSON_ARRAY();
     TRANS OFF;
@@ -367,6 +368,10 @@ RETURNS checkBin (
                 bin BIGINT PATH '$.bin',
                 message VARCHAR(200) PATH '$.message'
             )) AS a;
+    END IF;
+    IF JSON_LENGTH(@loginact)>0 THEN
+        SET @logIdInSubmitSheet=log$id(_$site, 0, 1, null, _$site);
+        UPDATE `log` SET `value`=@loginact where id=@logIdInSubmitSheet AND base=_$site;
     END IF;
     -/
 };
@@ -396,6 +401,7 @@ RETURNS checkBin (
     IF phraseId IS NULL {
         RETURN;
     }
+    SET @loginact=JSON_ARRAY();
     SET @checkPend=JSON_ARRAY();
     SET @checkBin=JSON_ARRAY();
     TRANS OFF;
@@ -406,12 +412,15 @@ RETURNS checkBin (
 
     -- WITH IxState I=me X=id DEL;
     -- WITH IxState I=id X=phraseId;
-    INTO Logs SELECT a.id, a.value 
+    /*
+    INTO Logs SELECT 0 as id, @loginact as value 
         FROM LOG as a 
         WHERE a.id>IFNULL(logMax,0) AND a.base=$site
         ORDER BY a.id asc;
+    */
 
     /-mysql
+    INSERT INTO _logs (id, value) VALUES(0, @loginact);
     IF JSON_LENGTH(@checkPend, '$')+JSON_LENGTH(@checkBin, '$')=0 THEN
         COMMIT;
     ELSE
@@ -426,6 +435,10 @@ RETURNS checkBin (
                 bin BIGINT PATH '$.bin',
                 message VARCHAR(200) PATH '$.message'
             )) AS a;
+    END IF;
+    IF JSON_LENGTH(@loginact)>0 THEN
+        SET @logIdInSubmitSheet=log$id(_$site, 0, 1, null, _$site);
+        UPDATE `log` SET `value`=@loginact where id=@logIdInSubmitSheet AND base=_$site;
     END IF;
     -/
 };
