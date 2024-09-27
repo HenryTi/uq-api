@@ -93,19 +93,19 @@ RETURNS specs VIRTUAL (
 )
 {
     -- $idstable(id ID, phrase ID);
-    TABLE IdBuds(id BIGINT, bud BIGINT);
-    INTO IdBuds WITH RECURSIVE pPhrase AS (
-        SELECT r.x as id, r.i as base
+    TABLE PhraseBuds(phrase BIGINT, bud BIGINT);
+    INTO PhraseBuds WITH RECURSIVE pPhrase AS (
+        SELECT s.phrase, r.x as id, r.i as base
         FROM idtable as s
-            JOIN IxBizPhrase as r ON r.x=s.id
+            JOIN IxBizPhrase as r ON r.x=s.phrase
             JOIN XBiz as p1 ON p1.id=r.x
         -- WHERE r.x=phrase -- AND p.valid=1
         UNION
-        SELECT a.x as id, a.i as base
+        SELECT b.phrase, a.x as id, a.i as base
         FROM IxBizPhrase as a JOIN pPhrase AS b
-            ON b.id=a.i
+            ON b.base=a.x
     )
-    SELECT d.i as id, d.x as bud
+    SELECT c.phrase as phrase, d.x as bud
         FROM pPhrase as c
             JOIN BizBudShow as d ON d.i=c.id;
 
@@ -124,20 +124,8 @@ RETURNS specs VIRTUAL (
     -- id对应的atoms里面的必显示字段
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM idtable as a
-            JOIN BizBudShow
-                /* WITH RECURSIVE pPhrase AS (
-                    SELECT r.x as id, r.i as base
-                    FROM IxBizPhrase as r JOIN XBiz as r1 ON r1.id=r.x
-                        -- JOIN BizPhrase as p ON p.id=r.x
-                    WHERE r.x=a.phrase -- AND p.valid=1
-                    UNION
-                    SELECT s.x as id, s.i as base
-                    FROM IxBizPhrase as s 
-                        JOIN XBiz as s1 ON s1.id=r.x 
-                        JOIN pPhrase AS s2 ON s2.id=s.i
-                ) SELECT v.x FROM pPhrase as v
-            )*/ as b ON b.x=a.phrase
-            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x;
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.bud;
     INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
         FROM props as a
             JOIN Atom as c ON c.id=a.value;
@@ -182,12 +170,12 @@ RETURNS specs VIRTUAL (
 
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM idtable as a
-            JOIN BizBudShow as b ON b.i=a.phrase
-            JOIN IxBudDec as c ON c.i=a.id;
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxBudDec as c ON c.i=a.id AND c.x=b.bud;
     INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
         FROM idtable as a
-            JOIN BizBudShow as b ON b.i=a.phrase
-            JOIN IxBudStr as c ON c.i=a.id AND c.x=b.x;
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxBudStr as c ON c.i=a.id AND c.x=b.bud;
 }
 
 Biz Query GetIDListCount(
