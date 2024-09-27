@@ -156,10 +156,10 @@ class BBizSelect extends bstatement_1.BStatement {
                     expOn = expIdEQ;
                     break;
                 case 1:
-                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpEQ(new sql_1.ExpField('base', alias), new sql_1.ExpNum(bizEntityArr[0].id)));
+                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpEQ(new sql_1.ExpField('base', t0), new sql_1.ExpNum(bizEntityArr[0].id)));
                     break;
                 default:
-                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpIn(new sql_1.ExpField('base', alias), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id))));
+                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpIn(new sql_1.ExpField('base', t0), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id))));
                     break;
             }
             select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(joinTable, false, alias))

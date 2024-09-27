@@ -68,7 +68,8 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         let selectEntity = factory.createSelect();
         selectEntity.col('id');
         selectEntity.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.entity, false));
-        selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('combo')));
+        // selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr('combo')));
+        selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('spec'))); // 没有combo表,存放spec $id_u
         newId.equ(vId, new sql_1.ExpFuncDb(dbName, '$IDMU', new sql_1.ExpSelect(selectEntity), sql_1.ExpNull.null));
         const insert = factory.createInsert();
         iff.then(insert);
@@ -85,7 +86,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         ];
         const insertIDU = factory.createInsert();
         iff.then(insertIDU);
-        ;
+        insertIDU.ignore = true;
         insertIDU.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false);
         insertIDU.cols = [
             { col: 'id', val: new sql_1.ExpVar(vId) },
