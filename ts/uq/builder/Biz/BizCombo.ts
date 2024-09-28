@@ -1,8 +1,10 @@
-import { BigInt, BizCombo, EnumSysTable, Field, Index, bigIntField, tinyIntField } from "../../il";
+import { BigInt, BizBud, BizCombo, EnumSysTable, Field, Index, JoinType, bigIntField, tinyIntField } from "../../il";
 import { $site } from "../consts";
-import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncDb, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure } from "../sql";
-import { EntityTable, GlobalTable } from "../sql/statementWithFrom";
+import { ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpFuncDb, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure } from "../sql";
+import { EntityTable, GlobalTable, VarTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
+
+const a = 'a', b = 'b', c = 'c';
 
 export class BBizCombo extends BBizEntity<BizCombo> {
     override async buildTables(): Promise<void> {
@@ -25,6 +27,8 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         const { id } = this.bizEntity;
         const funcId = this.createFunction(`${this.context.site}.${id}.ID`, new BigInt());
         this.buildFuncId(funcId);
+        const toIdTable = this.createProcedure(`${this.context.site}.${id}ids`);
+        this.buildIdTable(toIdTable);
     }
 
     private buildFuncId(funcId: Procedure) {
@@ -95,5 +99,59 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         const ret = factory.createReturn();
         statements.push(ret);
         ret.returnVar = vId;
+    }
+
+    private buildIdTable(proc: Procedure) {
+        const { keys } = this.bizEntity;
+        const { statements } = proc;
+        for (let key of keys) {
+            statements.push(this.buildInsertProp(key));
+            statements.push(this.buildInsertKey(key));
+        }
+    }
+
+    private buildInsertProp(key: BizBud) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.ignore = true;
+        insert.table = new VarTable('props');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+        ]
+        const { id: keyId } = key;
+        const expValue = new ExpField(String(keyId), a);
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(new ExpField('id', a), 'id');
+        select.column(new ExpNum(keyId), 'phrase');
+        select.column(new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON')), 'value');
+        select.from(new GlobalTable($site, `${this.context.site}.${this.bizEntity.id}`, a))
+            .join(JoinType.join, new VarTable('$page', b))
+            .on(new ExpEQ(new ExpField('i', b), new ExpField('id', a)));
+        return insert;
+    }
+
+    private buildInsertKey(key: BizBud) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.ignore = true;
+        insert.table = new VarTable('idtable');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+        ]
+        const expId = new ExpField(String(key.id), a);
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(expId, 'id');
+        select.column(new ExpField('base', c), 'phrase');
+        select.from(new GlobalTable($site, `${this.context.site}.${this.bizEntity.id}`, a))
+            .join(JoinType.join, new VarTable('$page', b))
+            .on(new ExpEQ(new ExpField('i', b), new ExpField('id', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+            .on(new ExpEQ(new ExpField('id', c), expId));
+        return insert;
     }
 }

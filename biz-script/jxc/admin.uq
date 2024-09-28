@@ -60,19 +60,58 @@ BIZ AC ClearBook(
     }
 }
 
-Biz Query AdminBook (
+Biz Query GetAdminBook (
     bud ID,
+    -- allowZero TINYINT,
 )
 PAGE (
     i ID ASC,
+    phrase ID,
     value VALUE,
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    base ID,
+    (id) KEY,
 ) {
     VAR me ID = Me();
-    IF EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
-        PAGE SELECT a.i, a.value
-            FROM IxBudDec as a
-            WHERE a.x=bud AND a.i>$pageStart
-            ORDER BY a.i ASC
-            LIMIT $pageSize;
+    IF NOT EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
+        RETURN;
     }
+
+    VAR phrase ID=b.id FROM BizPhrase as a JOIN BizPhrase as b ON b.id=a.base WHERE a.id=bud;
+    PAGE SELECT a.i, b.base as phrase, a.value
+        FROM IxBudDec as a
+            LEFT JOIN Idu as b ON b.id=a.i
+        WHERE a.x=bud AND a.i>$pageStart AND a.value <> 0
+        ORDER BY a.i ASC
+        LIMIT $pageSize;
+    TABLE idtable (KEY id ID, phrase ID);
+    FOR (VAR i ID, phrase ID, type SMALLINT
+        OF SELECT a.i, a.phrase, b.type FROM $page as a JOIN bizphrase as b ON b.id=a.phrase) 
+    {
+        IF type=BizPhraseType.combo {
+            VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phrase, 'ids', '`();');
+            ExecSql sql;
+        }
+        ELSE {
+            INTO idtable SELECT i as id, phrase;
+        }
+    }
+
+    PROC ProcPropsOfIds();
 }

@@ -15,6 +15,7 @@ const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
+const a = 'a', b = 'b', c = 'c';
 class BBizCombo extends BizEntity_1.BBizEntity {
     buildTables() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -38,6 +39,8 @@ class BBizCombo extends BizEntity_1.BBizEntity {
             const { id } = this.bizEntity;
             const funcId = this.createFunction(`${this.context.site}.${id}.ID`, new il_1.BigInt());
             this.buildFuncId(funcId);
+            const toIdTable = this.createProcedure(`${this.context.site}.${id}ids`);
+            this.buildIdTable(toIdTable);
         });
     }
     buildFuncId(funcId) {
@@ -95,6 +98,57 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         const ret = factory.createReturn();
         statements.push(ret);
         ret.returnVar = vId;
+    }
+    buildIdTable(proc) {
+        const { keys } = this.bizEntity;
+        const { statements } = proc;
+        for (let key of keys) {
+            statements.push(this.buildInsertProp(key));
+            statements.push(this.buildInsertKey(key));
+        }
+    }
+    buildInsertProp(key) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('props');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        const { id: keyId } = key;
+        const expValue = new sql_1.ExpField(String(keyId), a);
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(new sql_1.ExpField('id', a), 'id');
+        select.column(new sql_1.ExpNum(keyId), 'phrase');
+        select.column(new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON')), 'value');
+        select.from(new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${this.bizEntity.id}`, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)));
+        return insert;
+    }
+    buildInsertKey(key) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('idtable');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+        ];
+        const expId = new sql_1.ExpField(String(key.id), a);
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(expId, 'id');
+        select.column(new sql_1.ExpField('base', c), 'phrase');
+        select.from(new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${this.bizEntity.id}`, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), expId));
+        return insert;
     }
 }
 exports.BBizCombo = BBizCombo;
