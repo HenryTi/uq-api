@@ -40,7 +40,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
-    base ID,
+    (id) KEY,
 )
 {
     IF pendId IS NOT NULL {
@@ -93,10 +93,10 @@ RETURNS specs (
 
     INTO IGNORE atoms SELECT DISTINCT c.id as id, c.base as base, c.no, c.ex
         FROM $page as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x);
-    INTO IGNORE specs SELECT DISTINCT c.id as id, e.id as atom, d.base
+    INTO IGNORE specs SELECT DISTINCT c.id as id, e.id as atom -- , d.base
         FROM $page as a 
             JOIN Spec as c ON (c.id=a.i OR c.id=a.x)
-            JOIN Idu as d ON d.id=c.id
+            -- JOIN Idu as d ON d.id=c.id
             JOIN Atom as e on e.id=c.base;
 
     INTO IGNORE atoms SELECT DISTINCT e.id as id, e.base as base, e.no, e.ex
@@ -212,7 +212,6 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
-    base ID,
     (id) KEY,
 )
 {
@@ -258,7 +257,6 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
-    base ID,
     (id) KEY,
 )
 {

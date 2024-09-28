@@ -85,7 +85,6 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
-    base ID,
     (id) KEY,
 ) {
     VAR me ID = Me();
