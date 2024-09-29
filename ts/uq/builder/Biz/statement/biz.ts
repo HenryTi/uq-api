@@ -205,16 +205,19 @@ export class BBizStatementBinPend extends BBizStatementPend<BizBinAct> {
 
         const { bizBin } = this.istatement.bizStatement.bizAct;
         const { pend: binPend } = bizBin;
-        let del = factory.createDelete();
-        sqls.push(del);
-        del.tables = [a];
-        del.from(new EntityTable(EnumSysTable.pend, false, a));
-        del.join(JoinType.join, new GlobalTable($site, `${this.context.site}.${binPend.id}`, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
-        del.where(new ExpAnd(
-            new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
-            new ExpEQ(new ExpField('value', a), ExpNum.num0),
-        ));
+        const { keys } = binPend;
+        if (keys !== undefined && keys.length > 0) {
+            let del = factory.createDelete();
+            sqls.push(del);
+            del.tables = [a];
+            del.from(new EntityTable(EnumSysTable.pend, false, a));
+            del.join(JoinType.join, new GlobalTable($site, `${this.context.site}.${binPend.id}`, b))
+                .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
+            del.where(new ExpAnd(
+                new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
+                new ExpEQ(new ExpField('value', a), ExpNum.num0),
+            ));
+        }
     }
 }
 

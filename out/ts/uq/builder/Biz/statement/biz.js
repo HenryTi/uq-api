@@ -171,13 +171,16 @@ class BBizStatementBinPend extends BBizStatementPend {
             return;
         const { bizBin } = this.istatement.bizStatement.bizAct;
         const { pend: binPend } = bizBin;
-        let del = factory.createDelete();
-        sqls.push(del);
-        del.tables = [a];
-        del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
-        del.join(il_1.JoinType.join, new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${binPend.id}`, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));
-        del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
+        const { keys } = binPend;
+        if (keys !== undefined && keys.length > 0) {
+            let del = factory.createDelete();
+            sqls.push(del);
+            del.tables = [a];
+            del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
+            del.join(il_1.JoinType.join, new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${binPend.id}`, b))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));
+            del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
+        }
     }
 }
 exports.BBizStatementBinPend = BBizStatementBinPend;
