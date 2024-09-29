@@ -77,6 +77,14 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 case SetEqu.sub: expValue = new ExpSub(expValueField, expValue); break;
             }
             cols.push({ col: 'value', val: expValue });
+            let del = factory.createDelete();
+            sqls.push(del);
+            del.tables = [a];
+            del.from(new EntityTable(EnumSysTable.pend, false, a));
+            del.where(new ExpAnd(
+                new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
+                new ExpEQ(new ExpField('value', a), ExpNum.num0),
+            ))
             sqls.push(...buildUpdatePoke());
         }
 

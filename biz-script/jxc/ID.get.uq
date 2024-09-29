@@ -90,7 +90,20 @@ RETURNS specs VIRTUAL (
     atom ID,
 )
 {
-    -- $idstable(id ID, phrase ID);
+    -- 这个id对应的必显示字段，比如sheet或atom的bizbudshow
+    INTO props SELECT a.id, b.x as phrase, CAST(c.value as JSON) as value
+        FROM idtable as a
+            JOIN BizBudShow as b ON b.i=a.phrase
+            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x;
+    INTO props SELECT a.id, b.x as phrase, CAST(c.value as JSON) as value
+        FROM idtable as a
+            JOIN BizBudShow as b ON b.i=a.phrase
+            JOIN IxBudDec as c ON c.i=a.id AND c.x=b.x;
+    INTO props SELECT a.id, b.x as phrase, JSON_QUOTE(c.value) as value
+        FROM idtable as a
+            JOIN BizBudShow as b ON b.i=a.phrase
+            JOIN IxBudStr as c ON c.i=a.id AND c.x=b.x;
+
     TABLE PhraseBuds(phrase BIGINT, bud BIGINT);
     INTO PhraseBuds WITH RECURSIVE pPhrase AS (
         SELECT s.phrase, r.x as id, r.i as base
@@ -130,7 +143,6 @@ RETURNS specs VIRTUAL (
     INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
         FROM props as a
             JOIN Atom as c ON c.id=a.value;
-        
 
     /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value

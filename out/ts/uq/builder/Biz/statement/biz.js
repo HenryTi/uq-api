@@ -64,6 +64,11 @@ class BBizStatementPend extends bstatement_1.BStatement {
                     break;
             }
             cols.push({ col: 'value', val: expValue });
+            let del = factory.createDelete();
+            sqls.push(del);
+            del.tables = [a];
+            del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
+            del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
             sqls.push(...buildUpdatePoke());
         }
         const buildWritePend = () => {

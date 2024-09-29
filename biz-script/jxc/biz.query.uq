@@ -216,7 +216,7 @@ RETURNS specs (
 )
 {
     PAGE SELECT * a, * b
-        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
+        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
         FROM Sheet as a
             JOIN Bin as b ON b.id=a.id
             JOIN BizPhrase as c ON c.id=a.base
@@ -262,7 +262,7 @@ RETURNS specs (
 {
     VAR me ID = Me();
     PAGE SELECT * a, * b
-        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
+        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
         FROM Sheet as a
             JOIN Bin as b ON b.id=a.id
             JOIN BizPhrase as c ON c.id=a.base

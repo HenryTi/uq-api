@@ -556,6 +556,13 @@ RETURNS specs (
 
     TABLE idtable (KEY id ID,phrase ID);
     INTO idtable SELECT a.id, entityMain as phrase FROM $page as a;
+    /*
+    INTO idtable SELECT c.value as id, d.base as phrase
+        FROM $page as a
+            JOIN BizBudShow as b ON b.i=entityMain
+            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x
+            JOIN Idu as d ON d.id=c.value;
+    */
     PROC ProcPropsOfIds();
 };
 
