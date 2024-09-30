@@ -11,7 +11,6 @@ class ExpVal extends Exp_1.Exp {
     constructor() {
         super(...arguments);
         this.brace = false;
-        // protected val: ExpVal;
     }
 }
 exports.ExpVal = ExpVal;

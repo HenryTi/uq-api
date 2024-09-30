@@ -15,7 +15,6 @@ export abstract class ExpVal extends Exp {
     static num_1: ExpVal;
 
     brace: boolean = false;
-    // protected val: ExpVal;
 }
 
 export abstract class ExpCmp extends Exp {
