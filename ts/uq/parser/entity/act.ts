@@ -177,9 +177,9 @@ class ActionSpace extends ActionBaseSpace {
         if (paramConvert === undefined) return;
         if (paramConvert.to.find(v => v === name) !== undefined) return new VarPointer();
     }
-    protected _setTransactionOff(): boolean {
-        super._setTransactionOff();
-        this.action.transactionOff = true;
+    protected _setTransactionOff(off: boolean): boolean {
+        super._setTransactionOff(off);
+        this.action.transactionOff = off;
         return true;
     }
 }

@@ -1053,8 +1053,8 @@ export class ActionBaseSpace extends Space {
     protected _getArr(name: string): Arr {
         return this.actionBase?.arrs.find(v => v.name === name);
     }
-    protected _setTransactionOff(): boolean {
-        this.actionBase.transactionOff = true;
+    protected _setTransactionOff(off: boolean): boolean {
+        this.actionBase.transactionOff = off;
         return true;
     }
     protected _getActionBase(): ActionBase {

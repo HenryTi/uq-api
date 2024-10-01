@@ -25,7 +25,7 @@ export abstract class Space {
     protected _addTableVar(tableVar: TableVar): boolean { return }
     protected _getTableVar(name: string): TableVar { return }
     protected _isOrderSwitch(_orderSwitch: string): boolean { return }
-    protected _setTransactionOff(): boolean { return false; }
+    protected _setTransactionOff(off: boolean): boolean { return false; }
     protected _getActionBase(): ActionBase { return undefined; }
     protected _getBizBase(bizName: string[]): BizBase { return undefined; }
     protected _getBizFromEntityFromAlias(alias: string): BizFromEntity<BizEntity> { return undefined; }
@@ -139,20 +139,6 @@ export abstract class Space {
         if (this.outer !== undefined)
             return this.outer.getBizFromEntityArrFromName(name);
     }
-    /*
-    getBizFieldSpace(): BizFieldSpace {
-        let ret = this._getBizFieldSpace();
-        if (ret !== undefined) return ret;
-        if (this.outer !== undefined) return this.outer.getBizFieldSpace();
-    }
-    */
-    /*
-    getBizEntitySpace(): BizEntitySpace {
-        let ret = this._getBizEntitySpace();
-        if (ret !== undefined) return ret;
-        if (this.outer !== undefined) return this.outer.getBizEntitySpace();
-    }
-    */
     // 当前space对应的主BizEntity
     getBizEntity(): BizEntity {
         let ret = this._getBizEntity();
@@ -229,10 +215,10 @@ export abstract class Space {
     getOwnerField(owner: string): Field {
         return;
     }
-    setTransactionOff(): boolean {
-        if (this._setTransactionOff() === true) return true;
+    setTransactionOff(off: boolean): boolean {
+        if (this._setTransactionOff(off) === true) return true;
         if (this.outer === undefined) return true;
-        return this.outer.setTransactionOff();
+        return this.outer.setTransactionOff(off);
     }
     getActionBase(): ActionBase {
         let ret = this._getActionBase();

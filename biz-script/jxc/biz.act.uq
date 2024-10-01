@@ -323,7 +323,7 @@ Biz AC DeleteBin (
     }
 }
 
-Biz AC SubmitSheet(
+Biz AC SubmitSheet ver 0.2 (
     id ID,
 ) 
 RETURNS checkPend (
@@ -376,7 +376,7 @@ RETURNS checkBin (
     -/
 };
 
-Biz AC SubmitSheetDebug(
+Biz AC SubmitSheetDebug ver 0.1 (
     id ID,
 )
 RETURNS logs (
