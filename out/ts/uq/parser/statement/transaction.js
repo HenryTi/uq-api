@@ -31,8 +31,13 @@ class PTransactionStatement extends statement_1.PStatement {
     }
     scan(space) {
         let ok = true;
-        if (this.stat.act === il_1.EnumTransaction.off) {
-            space.setTransactionOff();
+        switch (this.stat.act) {
+            case il_1.EnumTransaction.off:
+                space.setTransactionOff(true);
+                break;
+            case il_1.EnumTransaction.start:
+                space.setTransactionOff(false);
+                break;
         }
         return ok;
     }

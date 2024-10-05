@@ -144,14 +144,15 @@ class PBizSheet extends Base_1.PBizEntity {
         }
         for (let detail of details) {
             const { bin } = detail;
-            const { pickArr } = bin;
-            for (let pick of pickArr) {
-                if (main.getBud(pick.name) !== undefined) {
-                    this.log(`${(_b = (_a = bin.ui) === null || _a === void 0 ? void 0 : _a.caption) !== null && _b !== void 0 ? _b : bin.name} PICK ${pick.name} should not duplicate of MAIN ${(_d = (_c = main.ui) === null || _c === void 0 ? void 0 : _c.caption) !== null && _d !== void 0 ? _d : main.name} bud name`);
-                    ok = false;
+            const { pickArr, outs: detailOuts } = bin;
+            if (pickArr !== undefined) {
+                for (let pick of pickArr) {
+                    if (main.getBud(pick.name) !== undefined) {
+                        this.log(`${(_b = (_a = bin.ui) === null || _a === void 0 ? void 0 : _a.caption) !== null && _b !== void 0 ? _b : bin.name} PICK ${pick.name} should not duplicate of MAIN ${(_d = (_c = main.ui) === null || _c === void 0 ? void 0 : _c.caption) !== null && _d !== void 0 ? _d : main.name} bud name`);
+                        ok = false;
+                    }
                 }
             }
-            const detailOuts = detail.bin.outs;
             for (let i in detailOuts) {
                 setOut(i, detailOuts[i]);
             }

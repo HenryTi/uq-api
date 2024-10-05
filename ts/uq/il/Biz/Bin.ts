@@ -37,7 +37,7 @@ export class BinPick extends BizBud {
     pick: PickBase;
     single: boolean;
     hiddenBuds: BizBud[];
-    on: BizBud;
+    to: BizBud;
     constructor(bin: BizBin, name: string, ui: Partial<UI>) {
         super(bin, name, ui);
         this.bin = bin;
@@ -52,6 +52,7 @@ export class BinPick extends BizBud {
         }
     }
 }
+
 export interface PickBase {
     get bizPhraseType(): BizPhraseType;
     fromSchema(): string[];
@@ -309,7 +310,7 @@ export class BizBin extends BizID {
         let picks: any[] = [];
         if (this.pickArr !== undefined) {
             for (let value of this.pickArr) {
-                const { name, ui, pick, params, single, hiddenBuds, on } = value;
+                const { name, ui, pick, params, single, hiddenBuds, to } = value;
                 let from: any;
                 if (pick !== undefined) {
                     from = pick.fromSchema();
@@ -321,7 +322,7 @@ export class BizBin extends BizID {
                     hidden: hiddenBuds?.map(v => v.id),
                     params: params?.map(v => v.buildSchema(res)),
                     single,
-                    on: on?.id,
+                    to: to?.id,
                 });
             }
         };

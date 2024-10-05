@@ -183,9 +183,9 @@ class ActionSpace extends entity_1.ActionBaseSpace {
         if (paramConvert.to.find(v => v === name) !== undefined)
             return new il_1.VarPointer();
     }
-    _setTransactionOff() {
-        super._setTransactionOff();
-        this.action.transactionOff = true;
+    _setTransactionOff(off) {
+        super._setTransactionOff(off);
+        this.action.transactionOff = off;
         return true;
     }
 }

@@ -18,7 +18,7 @@ import { PBizBud, PBizBudValue } from "../Bud";
 
 export class PBinPick extends PBizBud<BinPick> {
     private from: string[] = [];
-    private on: string;
+    private to: string;
     private hides: string[];
     protected _parse(): void {
         this.ts.passKey('from');
@@ -83,9 +83,9 @@ export class PBinPick extends PBizBud<BinPick> {
             this.ts.passToken(Token.SEMICOLON);
         }
         else {
-            if (this.ts.isKeyword('on') === true) {
+            if (this.ts.isKeyword('to') === true) {
                 this.ts.readToken();
-                this.on = this.ts.passVar();
+                this.to = this.ts.passVar();
             }
             this.ts.mayPassToken(Token.SEMICOLON);
         }
@@ -133,14 +133,14 @@ export class PBinPick extends PBizBud<BinPick> {
                 ok = false;
             }
         }
-        if (this.on !== undefined) {
-            let on = this.element.bin.getBud(this.on);
-            if (on === undefined) {
+        if (this.to !== undefined) {
+            let to = this.element.bin.getBud(this.to);
+            if (to === undefined) {
                 ok = false;
-                this.log(`${this.on} is not a PROP`);
+                this.log(`${this.to} is not a PROP`);
             }
             else {
-                this.element.on = on;
+                this.element.to = to;
             }
         }
         return ok;
@@ -186,13 +186,12 @@ export class PBinPick extends PBizBud<BinPick> {
 
     override scan2(uq: Uq): boolean {
         let ok = super.scan2(uq);
-        const { on } = this.element;
-        if (on !== undefined) {
-            if (on.value === undefined) {
-                on.value = {
+        const { to } = this.element;
+        if (to !== undefined) {
+            if (to.value === undefined) {
+                to.value = {
                     exp: undefined,
                     str: [this.element.name, BudValueSetType.init],
-                    // setType: BudValueSetType.equ,
                     setType: BudValueSetType.init,
                 };
             }

@@ -17,7 +17,7 @@ class Space {
     _addTableVar(tableVar) { return; }
     _getTableVar(name) { return; }
     _isOrderSwitch(_orderSwitch) { return; }
-    _setTransactionOff() { return false; }
+    _setTransactionOff(off) { return false; }
     _getActionBase() { return undefined; }
     _getBizBase(bizName) { return undefined; }
     _getBizFromEntityFromAlias(alias) { return undefined; }
@@ -148,20 +148,6 @@ class Space {
         if (this.outer !== undefined)
             return this.outer.getBizFromEntityArrFromName(name);
     }
-    /*
-    getBizFieldSpace(): BizFieldSpace {
-        let ret = this._getBizFieldSpace();
-        if (ret !== undefined) return ret;
-        if (this.outer !== undefined) return this.outer.getBizFieldSpace();
-    }
-    */
-    /*
-    getBizEntitySpace(): BizEntitySpace {
-        let ret = this._getBizEntitySpace();
-        if (ret !== undefined) return ret;
-        if (this.outer !== undefined) return this.outer.getBizEntitySpace();
-    }
-    */
     // 当前space对应的主BizEntity
     getBizEntity() {
         let ret = this._getBizEntity();
@@ -254,12 +240,12 @@ class Space {
     getOwnerField(owner) {
         return;
     }
-    setTransactionOff() {
-        if (this._setTransactionOff() === true)
+    setTransactionOff(off) {
+        if (this._setTransactionOff(off) === true)
             return true;
         if (this.outer === undefined)
             return true;
-        return this.outer.setTransactionOff();
+        return this.outer.setTransactionOff(off);
     }
     getActionBase() {
         var _a;

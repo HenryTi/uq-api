@@ -326,6 +326,12 @@ class PBizBin extends Base_1.PBizEntity {
     }
     scan(space) {
         let ok = true;
+        const { pend, main } = this.element;
+        if (pend === undefined) {
+            if (main !== undefined) {
+                this.element.pend = main.pend;
+            }
+        }
         let binSpace = new BizBinSpace(space, this.element);
         const { iBase, xBase } = this.element;
         if (iBase !== undefined) {
@@ -610,7 +616,9 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
             default:
                 return super._getBizFromEntityFromAlias(name);
             case 'pend':
-                const { pend } = this.bizEntity;
+                let { pend } = this.bizEntity;
+                if (pend === undefined)
+                    return;
                 let fe = new il_1.BizFromEntity(undefined);
                 fe.bizEntityArr = [pend];
                 fe.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;

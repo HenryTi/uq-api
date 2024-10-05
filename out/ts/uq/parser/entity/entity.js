@@ -1032,8 +1032,8 @@ class ActionBaseSpace extends space_1.Space {
         var _a;
         return (_a = this.actionBase) === null || _a === void 0 ? void 0 : _a.arrs.find(v => v.name === name);
     }
-    _setTransactionOff() {
-        this.actionBase.transactionOff = true;
+    _setTransactionOff(off) {
+        this.actionBase.transactionOff = off;
         return true;
     }
     _getActionBase() {

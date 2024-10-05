@@ -10,7 +10,6 @@ import {
     BizFromEntity,
     BizFieldSpace,
     BizField,
-    EnumDataType,
     BizBudFork,
     BizBud
 } from "../../../il";
@@ -370,6 +369,12 @@ export class PBizBin extends PBizEntity<BizBin> {
 
     scan(space: Space): boolean {
         let ok = true;
+        const { pend, main } = this.element;
+        if (pend === undefined) {
+            if (main !== undefined) {
+                this.element.pend = main.pend;
+            }
+        }
         let binSpace = new BizBinSpace(space, this.element);
 
         const { iBase, xBase } = this.element;
@@ -649,7 +654,8 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
             default:
                 return super._getBizFromEntityFromAlias(name);
             case 'pend':
-                const { pend } = this.bizEntity;
+                let { pend } = this.bizEntity;
+                if (pend === undefined) return;
                 let fe = new BizFromEntity(undefined);
                 fe.bizEntityArr = [pend];
                 fe.bizPhraseType = BizPhraseType.pend;

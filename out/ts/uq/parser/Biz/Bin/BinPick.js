@@ -74,9 +74,9 @@ class PBinPick extends Bud_1.PBizBud {
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         }
         else {
-            if (this.ts.isKeyword('on') === true) {
+            if (this.ts.isKeyword('to') === true) {
                 this.ts.readToken();
-                this.on = this.ts.passVar();
+                this.to = this.ts.passVar();
             }
             this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
         }
@@ -123,14 +123,14 @@ class PBinPick extends Bud_1.PBizBud {
                 ok = false;
             }
         }
-        if (this.on !== undefined) {
-            let on = this.element.bin.getBud(this.on);
-            if (on === undefined) {
+        if (this.to !== undefined) {
+            let to = this.element.bin.getBud(this.to);
+            if (to === undefined) {
                 ok = false;
-                this.log(`${this.on} is not a PROP`);
+                this.log(`${this.to} is not a PROP`);
             }
             else {
-                this.element.on = on;
+                this.element.to = to;
             }
         }
         return ok;
@@ -174,13 +174,12 @@ class PBinPick extends Bud_1.PBizBud {
     }
     scan2(uq) {
         let ok = super.scan2(uq);
-        const { on } = this.element;
-        if (on !== undefined) {
-            if (on.value === undefined) {
-                on.value = {
+        const { to } = this.element;
+        if (to !== undefined) {
+            if (to.value === undefined) {
+                to.value = {
                     exp: undefined,
                     str: [this.element.name, il_1.BudValueSetType.init],
-                    // setType: BudValueSetType.equ,
                     setType: il_1.BudValueSetType.init,
                 };
             }
