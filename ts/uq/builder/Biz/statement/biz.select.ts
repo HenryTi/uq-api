@@ -175,10 +175,12 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     expOn = expIdEQ;
                     break;
                 case 1:
-                    expOn = new ExpAnd(
-                        expIdEQ,
-                        new ExpEQ(new ExpField('base', t0), new ExpNum(bizEntityArr[0].id))
-                    )
+                    if (fromEntity.isExtended() === false) {
+                        expOn = new ExpAnd(
+                            expIdEQ,
+                            new ExpEQ(new ExpField('base', t0), new ExpNum(bizEntityArr[0].id))
+                        );
+                    }
                     break;
                 default:
                     expOn = new ExpAnd(
