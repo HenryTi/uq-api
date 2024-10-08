@@ -1,8 +1,10 @@
 import {
-    BizBud, JoinType, EnumSysTable
+    BizBud, JoinType, EnumSysTable,
+    BizExpIDType
 } from "../../il";
 import {
-    ExpAnd, ExpEQ, ExpField, ExpNum, ExpVal, ExpSelect
+    ExpAnd, ExpEQ, ExpField, ExpNum, ExpVal, ExpSelect,
+    ExpCmp
 } from "../sql/exp";
 import { DbContext } from "../dbContext";
 import { EntityTable } from "../sql/statementWithFrom";
@@ -19,11 +21,25 @@ export class BBudSelect {
     }
 
     build(): ExpVal {
-        const { prop, budProp } = this.bBizExp.bizExp;
+        const { prop, budProp, isParent } = this.bBizExp.bizExp;
+        if (isParent === true) {
+            return this.buildSelectBase();
+        }
         if (budProp === undefined) {
             return this.buildSelectField(prop);
         }
         return this.buildSelectBud(budProp);
+    }
+
+    private buildSelectBase() {
+        let { params } = this.bBizExp;
+        let { factory } = this.context;
+        let select = factory.createSelect();
+        select.col('base');
+        select.from(new EntityTable(EnumSysTable.idu, false));
+        select.where(new ExpEQ(new ExpField('id'), params[0]))
+        let ret = new ExpSelect(select);
+        return ret;
     }
 
     private buildSelectBud(bud: BizBud) {
@@ -61,18 +77,8 @@ export class BBudSelect {
         ));
         select.column(new ExpField('value', t));
     }
-    private selectCheck(select: Select, /*tblIxBud: EnumSysTable, */bud: BizBud) {
+    private selectCheck(select: Select, bud: BizBud) {
         const t = this.bBizExp.tt, c = this.bBizExp.tb;
-        /*
-        select.from(new EntityTable(tblIxBud, false, t))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, c))
-            .on(new ExpEQ(new ExpField('id', c), new ExpField('x', t)));
-        select.column(new ExpField('ext', c), 'id');
-        select.where(new ExpAnd(
-            new ExpEQ(new ExpField('base', c), new ExpNum(bud.id)),
-            new ExpEQ(new ExpField('i', t), this.bBizExp.params[0])
-        ));
-        */
         select.column(new ExpField('x', t), 'value');
         select.from(new EntityTable(EnumSysTable.ixBudCheck, false, t));
         select.where(new ExpAnd(
@@ -83,21 +89,33 @@ export class BBudSelect {
 
     private buildSelectField(bud: string) {
         const { bizExp, params } = this.bBizExp;
-        const { bizEntity } = bizExp;
+        const { bizEntity, expIDType } = bizExp;
         const { factory } = this.context;
         let select = factory.createSelect();
         select.col(bud);
         let tbl: EnumSysTable;
-        switch (bizEntity.bizPhraseType) {
-            default: debugger; throw new Error('select field must be ATOM or SPEC');
-            case BizPhraseType.atom: tbl = EnumSysTable.atom; break;
-            case BizPhraseType.fork: tbl = EnumSysTable.spec; break;
+        let wheres: ExpCmp, expId = new ExpEQ(new ExpField('id'), params[0]);
+        if (bizEntity !== undefined) {
+            switch (bizEntity.bizPhraseType) {
+                default: debugger; throw new Error('select field must be ATOM or SPEC');
+                case BizPhraseType.atom: tbl = EnumSysTable.atom; break;
+                case BizPhraseType.fork: tbl = EnumSysTable.spec; break;
+            }
+            wheres = new ExpAnd(
+                new ExpEQ(new ExpField('id'), params[0]),
+                new ExpEQ(new ExpField('base'), new ExpNum(bizEntity.id)),
+            );
+        }
+        else {
+            switch (expIDType) {
+                default: debugger; throw new Error('select field must be ATOM or SPEC');
+                case BizExpIDType.atom: tbl = EnumSysTable.atom; break;
+                case BizExpIDType.fork: tbl = EnumSysTable.spec; break;
+            }
+            wheres = expId;
         }
         select.from(new EntityTable(tbl, false));
-        select.where(new ExpAnd(
-            new ExpEQ(new ExpField('id'), params[0]),
-            new ExpEQ(new ExpField('base'), new ExpNum(bizEntity.id)),
-        ));
+        select.where(wheres);
         return new ExpSelect(select);
     }
 }

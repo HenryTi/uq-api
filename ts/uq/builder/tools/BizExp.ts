@@ -36,14 +36,22 @@ export class BBizExp {
         }
         else {
             sb.append('SELECT ');
-            const { bizPhraseType } = this.bizExp.bizEntity;
-            switch (bizPhraseType) {
-                default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                case BizPhraseType.bin: this.bin(sb); break;
-                case BizPhraseType.book: this.book(sb); break;
-                case BizPhraseType.tie: this.tie(sb); break;
-                case BizPhraseType.duo: this.duo(sb); break;
-                case BizPhraseType.combo: this.combo(sb); break;
+            const { bizEntity, expIDType } = this.bizExp;
+            if (bizEntity !== undefined) {
+                const { bizPhraseType } = bizEntity;
+                switch (bizPhraseType) {
+                    default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
+                    case BizPhraseType.bin: this.bin(sb); break;
+                    case BizPhraseType.book: this.book(sb); break;
+                    case BizPhraseType.tie: this.tie(sb); break;
+                    case BizPhraseType.duo: this.duo(sb); break;
+                    case BizPhraseType.combo: this.combo(sb); break;
+                }
+            }
+            else {
+                switch (expIDType) {
+                }
+                debugger;
             }
         }
         sb.r();
@@ -62,13 +70,20 @@ export class BBizExp {
             const { val: inVal, spanPeiod } = inVar;
             this.inVal = new ExpInterval(spanPeiod, context.expVal(inVal));
         }
-        const { bizPhraseType } = this.bizExp.bizEntity;
-        switch (bizPhraseType) {
-            case BizPhraseType.atom:
-            case BizPhraseType.fork:
-                let bBudSelect = new BBudSelect(context, this);
-                this.expSelect = bBudSelect.build();
-                break;
+        const { bizEntity } = this.bizExp;
+        if (bizEntity !== undefined) {
+            const { bizPhraseType } = bizEntity;
+            switch (bizPhraseType) {
+                case BizPhraseType.atom:
+                case BizPhraseType.fork:
+                    let bBudSelect = new BBudSelect(context, this);
+                    this.expSelect = bBudSelect.build();
+                    break;
+            }
+        }
+        else {
+            let bBudSelect = new BBudSelect(context, this);
+            this.expSelect = bBudSelect.build();
         }
     }
 

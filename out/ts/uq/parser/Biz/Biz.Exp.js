@@ -22,9 +22,13 @@ class PBizExpOperand extends element_1.PElement {
     }
 }
 exports.PBizExpOperand = PBizExpOperand;
-// (#Entity.Bud(id).^|Prop IN timeSpan +- delta)
+// (#Entity.Bud(id)[^|.Prop] IN timeSpan +- delta)
 class PBizExp extends element_1.PElement {
     _parse() {
+        if (this.ts.token === tokens_1.Token.MUL) {
+            this.isStar = true;
+            this.ts.readToken();
+        }
         this.bizEntity = this.ts.passVar();
         if (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
@@ -65,12 +69,18 @@ class PBizExp extends element_1.PElement {
         let { param } = this.element;
         this.context.parseElement(param);
         this.ts.passToken(tokens_1.Token.RPARENTHESE);
-        if (this.ts.token === tokens_1.Token.DOT) {
+        if (this.ts.token === tokens_1.Token.XOR) {
+            this.element.isParent = true;
             this.ts.readToken();
-            if (this.ts.token === tokens_1.Token.XOR) {
+        }
+        else if (this.ts.token === tokens_1.Token.DOT) {
+            this.ts.readToken();
+            /*
+            if (this.ts.token === Token.XOR as any) {
                 this.element.isParent = true;
                 this.ts.readToken();
             }
+            */
             this.element.prop = this.ts.passVar();
         }
         if (this.ts.isKeyword('in') === true) {
@@ -102,8 +112,26 @@ class PBizExp extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        let { bizEntityArr: [be] } = space.getBizFromEntityArrFromName(this.bizEntity);
-        this.element.bizEntity = be;
+        let expIDType;
+        if (this.isStar === true) {
+            switch (this.bizEntity) {
+                default:
+                    this.log('Only atom or fork allowed after *');
+                    ok = false;
+                    break;
+                case 'atom':
+                    expIDType = il_1.BizExpIDType.atom;
+                    break;
+                case 'fork':
+                    expIDType = il_1.BizExpIDType.fork;
+                    break;
+            }
+            this.element.expIDType = expIDType;
+        }
+        else {
+            let { bizEntityArr: [be] } = space.getBizFromEntityArrFromName(this.bizEntity);
+            this.element.bizEntity = be;
+        }
         this.element.isReadonly = space.isReadonly;
         const { bizEntity, in: varIn, param } = this.element;
         if (param !== undefined) {
@@ -112,8 +140,10 @@ class PBizExp extends element_1.PElement {
             }
         }
         if (bizEntity === undefined) {
-            this.log(`${this.bizEntity} is not a Biz Entity`);
-            ok = false;
+            if (expIDType === undefined) {
+                this.log(`${this.bizEntity} is not a Biz Entity`);
+                ok = false;
+            }
         }
         else {
             let ret;

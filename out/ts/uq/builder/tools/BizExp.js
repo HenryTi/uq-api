@@ -21,26 +21,34 @@ class BBizExp {
         }
         else {
             sb.append('SELECT ');
-            const { bizPhraseType } = this.bizExp.bizEntity;
-            switch (bizPhraseType) {
-                default:
-                    debugger;
-                    throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                case BizPhraseType_1.BizPhraseType.bin:
-                    this.bin(sb);
-                    break;
-                case BizPhraseType_1.BizPhraseType.book:
-                    this.book(sb);
-                    break;
-                case BizPhraseType_1.BizPhraseType.tie:
-                    this.tie(sb);
-                    break;
-                case BizPhraseType_1.BizPhraseType.duo:
-                    this.duo(sb);
-                    break;
-                case BizPhraseType_1.BizPhraseType.combo:
-                    this.combo(sb);
-                    break;
+            const { bizEntity, expIDType } = this.bizExp;
+            if (bizEntity !== undefined) {
+                const { bizPhraseType } = bizEntity;
+                switch (bizPhraseType) {
+                    default:
+                        debugger;
+                        throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
+                    case BizPhraseType_1.BizPhraseType.bin:
+                        this.bin(sb);
+                        break;
+                    case BizPhraseType_1.BizPhraseType.book:
+                        this.book(sb);
+                        break;
+                    case BizPhraseType_1.BizPhraseType.tie:
+                        this.tie(sb);
+                        break;
+                    case BizPhraseType_1.BizPhraseType.duo:
+                        this.duo(sb);
+                        break;
+                    case BizPhraseType_1.BizPhraseType.combo:
+                        this.combo(sb);
+                        break;
+                }
+            }
+            else {
+                switch (expIDType) {
+                }
+                debugger;
             }
         }
         sb.r();
@@ -60,13 +68,20 @@ class BBizExp {
             const { val: inVal, spanPeiod } = inVar;
             this.inVal = new exp_1.ExpInterval(spanPeiod, context.expVal(inVal));
         }
-        const { bizPhraseType } = this.bizExp.bizEntity;
-        switch (bizPhraseType) {
-            case BizPhraseType_1.BizPhraseType.atom:
-            case BizPhraseType_1.BizPhraseType.fork:
-                let bBudSelect = new BBudSelect_1.BBudSelect(context, this);
-                this.expSelect = bBudSelect.build();
-                break;
+        const { bizEntity } = this.bizExp;
+        if (bizEntity !== undefined) {
+            const { bizPhraseType } = bizEntity;
+            switch (bizPhraseType) {
+                case BizPhraseType_1.BizPhraseType.atom:
+                case BizPhraseType_1.BizPhraseType.fork:
+                    let bBudSelect = new BBudSelect_1.BBudSelect(context, this);
+                    this.expSelect = bBudSelect.build();
+                    break;
+            }
+        }
+        else {
+            let bBudSelect = new BBudSelect_1.BBudSelect(context, this);
+            this.expSelect = bBudSelect.build();
         }
     }
     bin(sb) {

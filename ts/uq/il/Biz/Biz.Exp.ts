@@ -41,8 +41,10 @@ export class BizExpParam extends IElement {
 
 // 1. (#Entity.Bud(id).^|Prop IN timeSpan +- delta)     -- sigle value
 // 2. (#Book.Bud#ID(*,*,1))                             -- group by Sum
+export enum BizExpIDType { fork, atom }
 export class BizExp extends IElement {
     bizEntity: BizEntity;
+    expIDType: BizExpIDType;
     budEntitySub: BizBud;
     param: BizExpParam;
     prop: string;

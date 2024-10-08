@@ -11,11 +11,24 @@ class BBudSelect {
         this.bBizExp = bBizExp;
     }
     build() {
-        const { prop, budProp } = this.bBizExp.bizExp;
+        const { prop, budProp, isParent } = this.bBizExp.bizExp;
+        if (isParent === true) {
+            return this.buildSelectBase();
+        }
         if (budProp === undefined) {
             return this.buildSelectField(prop);
         }
         return this.buildSelectBud(budProp);
+    }
+    buildSelectBase() {
+        let { params } = this.bBizExp;
+        let { factory } = this.context;
+        let select = factory.createSelect();
+        select.col('base');
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false));
+        select.where(new exp_1.ExpEQ(new exp_1.ExpField('id'), params[0]));
+        let ret = new exp_1.ExpSelect(select);
+        return ret;
     }
     buildSelectBud(bud) {
         let { factory } = this.context;
@@ -48,42 +61,50 @@ class BBudSelect {
         select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('i', t), this.bBizExp.params[0]), new exp_1.ExpEQ(new exp_1.ExpField('x', t), new exp_1.ExpNum(bud.id))));
         select.column(new exp_1.ExpField('value', t));
     }
-    selectCheck(select, /*tblIxBud: EnumSysTable, */ bud) {
+    selectCheck(select, bud) {
         const t = this.bBizExp.tt, c = this.bBizExp.tb;
-        /*
-        select.from(new EntityTable(tblIxBud, false, t))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, c))
-            .on(new ExpEQ(new ExpField('id', c), new ExpField('x', t)));
-        select.column(new ExpField('ext', c), 'id');
-        select.where(new ExpAnd(
-            new ExpEQ(new ExpField('base', c), new ExpNum(bud.id)),
-            new ExpEQ(new ExpField('i', t), this.bBizExp.params[0])
-        ));
-        */
         select.column(new exp_1.ExpField('x', t), 'value');
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudCheck, false, t));
         select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('ii', t), this.bBizExp.params[0]), new exp_1.ExpEQ(new exp_1.ExpField('i', t), new exp_1.ExpNum(bud.id))));
     }
     buildSelectField(bud) {
         const { bizExp, params } = this.bBizExp;
-        const { bizEntity } = bizExp;
+        const { bizEntity, expIDType } = bizExp;
         const { factory } = this.context;
         let select = factory.createSelect();
         select.col(bud);
         let tbl;
-        switch (bizEntity.bizPhraseType) {
-            default:
-                debugger;
-                throw new Error('select field must be ATOM or SPEC');
-            case BizPhraseType_1.BizPhraseType.atom:
-                tbl = il_1.EnumSysTable.atom;
-                break;
-            case BizPhraseType_1.BizPhraseType.fork:
-                tbl = il_1.EnumSysTable.spec;
-                break;
+        let wheres, expId = new exp_1.ExpEQ(new exp_1.ExpField('id'), params[0]);
+        if (bizEntity !== undefined) {
+            switch (bizEntity.bizPhraseType) {
+                default:
+                    debugger;
+                    throw new Error('select field must be ATOM or SPEC');
+                case BizPhraseType_1.BizPhraseType.atom:
+                    tbl = il_1.EnumSysTable.atom;
+                    break;
+                case BizPhraseType_1.BizPhraseType.fork:
+                    tbl = il_1.EnumSysTable.spec;
+                    break;
+            }
+            wheres = new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('id'), params[0]), new exp_1.ExpEQ(new exp_1.ExpField('base'), new exp_1.ExpNum(bizEntity.id)));
+        }
+        else {
+            switch (expIDType) {
+                default:
+                    debugger;
+                    throw new Error('select field must be ATOM or SPEC');
+                case il_1.BizExpIDType.atom:
+                    tbl = il_1.EnumSysTable.atom;
+                    break;
+                case il_1.BizExpIDType.fork:
+                    tbl = il_1.EnumSysTable.spec;
+                    break;
+            }
+            wheres = expId;
         }
         select.from(new statementWithFrom_1.EntityTable(tbl, false));
-        select.where(new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('id'), params[0]), new exp_1.ExpEQ(new exp_1.ExpField('base'), new exp_1.ExpNum(bizEntity.id))));
+        select.where(wheres);
         return new exp_1.ExpSelect(select);
     }
 }

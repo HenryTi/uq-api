@@ -8,6 +8,8 @@ import {
     BizFieldOperand,
     BizBud,
     BizCombo,
+    BizEntity,
+    BizExpIDType,
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { PElement } from "../element";
@@ -31,12 +33,17 @@ export class PBizExpOperand extends PElement<BizExpOperand> {
     }
 }
 
-// (#Entity.Bud(id).^|Prop IN timeSpan +- delta)
+// (#Entity.Bud(id)[^|.Prop] IN timeSpan +- delta)
 export class PBizExp extends PElement<BizExp> {
     private bizEntity: string;
+    private isStar: boolean;       // *fork or *atom
     private bud: string;
     private combo: string;
     protected _parse(): void {
+        if (this.ts.token === Token.MUL as any) {
+            this.isStar = true;
+            this.ts.readToken();
+        }
         this.bizEntity = this.ts.passVar();
         if (this.ts.token === Token.DOT) {
             this.ts.readToken();
@@ -76,12 +83,18 @@ export class PBizExp extends PElement<BizExp> {
         let { param } = this.element;
         this.context.parseElement(param);
         this.ts.passToken(Token.RPARENTHESE);
-        if (this.ts.token === Token.DOT) {
+        if (this.ts.token === Token.XOR) {
+            this.element.isParent = true;
             this.ts.readToken();
+        }
+        else if (this.ts.token === Token.DOT) {
+            this.ts.readToken();
+            /*
             if (this.ts.token === Token.XOR as any) {
                 this.element.isParent = true;
                 this.ts.readToken();
             }
+            */
             this.element.prop = this.ts.passVar();
         }
         if (this.ts.isKeyword('in') === true) {
@@ -110,8 +123,23 @@ export class PBizExp extends PElement<BizExp> {
 
     scan(space: Space): boolean {
         let ok = true;
-        let { bizEntityArr: [be] } = space.getBizFromEntityArrFromName(this.bizEntity);
-        this.element.bizEntity = be;
+        let expIDType: BizExpIDType;
+        if (this.isStar === true) {
+            switch (this.bizEntity) {
+                default:
+                    this.log('Only atom or fork allowed after *');
+                    ok = false;
+                    break;
+                case 'atom': expIDType = BizExpIDType.atom; break;
+                case 'fork': expIDType = BizExpIDType.fork; break;
+            }
+            this.element.expIDType = expIDType;
+        }
+        else {
+            let { bizEntityArr: [be] } = space.getBizFromEntityArrFromName(this.bizEntity);
+            this.element.bizEntity = be;
+        }
+
         this.element.isReadonly = space.isReadonly;
         const { bizEntity, in: varIn, param } = this.element;
         if (param !== undefined) {
@@ -120,8 +148,10 @@ export class PBizExp extends PElement<BizExp> {
             }
         }
         if (bizEntity === undefined) {
-            this.log(`${this.bizEntity} is not a Biz Entity`);
-            ok = false;
+            if (expIDType === undefined) {
+                this.log(`${this.bizEntity} is not a Biz Entity`);
+                ok = false;
+            }
         }
         else {
             let ret: boolean;

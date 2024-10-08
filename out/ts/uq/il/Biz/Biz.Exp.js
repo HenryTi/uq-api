@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizCheckBudOperand = exports.CheckAction = exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.BizExpParam = exports.BizExpParamType = void 0;
+exports.BizCheckBudOperand = exports.CheckAction = exports.BizExpOperand = exports.BizFieldOperand = exports.BizExp = exports.BizExpIDType = exports.BizExpParam = exports.BizExpParamType = void 0;
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
 const Op_1 = require("../Exp/Op");
@@ -27,6 +27,11 @@ class BizExpParam extends IElement_1.IElement {
 exports.BizExpParam = BizExpParam;
 // 1. (#Entity.Bud(id).^|Prop IN timeSpan +- delta)     -- sigle value
 // 2. (#Book.Bud#ID(*,*,1))                             -- group by Sum
+var BizExpIDType;
+(function (BizExpIDType) {
+    BizExpIDType[BizExpIDType["fork"] = 0] = "fork";
+    BizExpIDType[BizExpIDType["atom"] = 1] = "atom";
+})(BizExpIDType || (exports.BizExpIDType = BizExpIDType = {}));
 class BizExp extends IElement_1.IElement {
     constructor() {
         super(...arguments);
