@@ -13,6 +13,10 @@ export class ExpBizEntityBud extends ExpVal {
     }
 
     to(sb: SqlBuilder) {
+        if (sb.forClient === true) {
+            sb.append('%').append(this.bizFromEntity.bizEntityTable).dot().append(this.bud.name);
+            return;
+        }
         switch (this.bizFromEntity.bizPhraseType) {
             default:
                 this.buildSelectBud(sb);

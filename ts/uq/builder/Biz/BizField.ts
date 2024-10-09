@@ -41,6 +41,10 @@ export abstract class BBizField<T extends BizField = BizField> {
     }
 
     protected buildPendBud(sb: SqlBuilder, bud: BizBud) {
+        if (sb.forClient === true) {
+            sb.append('%pend').dot().append(bud.name);
+            return;
+        }
         sb.l();
         function jsonValue() {
             sb.append(`JSON_VALUE(t0.`).fld('mid').append(`, '$."${bud.id}"')`);

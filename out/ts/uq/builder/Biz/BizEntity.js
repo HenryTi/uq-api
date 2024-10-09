@@ -26,6 +26,11 @@ class BBizEntity {
             let sb = this.context.createClientBuilder();
             exp.to(sb);
             const { sql } = sb;
+            if (sql.length > 30) {
+                debugger;
+                let sb = this.context.createClientBuilder();
+                exp.to(sb);
+            }
             return sql;
         };
         this.context = context;

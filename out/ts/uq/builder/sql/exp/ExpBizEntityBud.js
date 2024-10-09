@@ -10,6 +10,10 @@ class ExpBizEntityBud extends exps_1.ExpVal {
         this.bud = bud;
     }
     to(sb) {
+        if (sb.forClient === true) {
+            sb.append('%').append(this.bizFromEntity.bizEntityTable).dot().append(this.bud.name);
+            return;
+        }
         switch (this.bizFromEntity.bizPhraseType) {
             default:
                 this.buildSelectBud(sb);
