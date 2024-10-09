@@ -16,6 +16,7 @@ const UqBuilder_1 = require("./UqBuilder");
 const UqParser_1 = require("./UqParser");
 const compileSource_1 = require("./compileSource");
 const BizPhraseType_1 = require("../il/Biz/BizPhraseType");
+const tool_1 = require("../../tool");
 const groups = {
     info: [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.fork, BizPhraseType_1.BizPhraseType.book, BizPhraseType_1.BizPhraseType.assign, BizPhraseType_1.BizPhraseType.duo],
     sheet: [BizPhraseType_1.BizPhraseType.sheet, BizPhraseType_1.BizPhraseType.bin, BizPhraseType_1.BizPhraseType.pend],
@@ -46,6 +47,7 @@ class Compiler {
     }
     loadBizObjects() {
         return __awaiter(this, void 0, void 0, function* () {
+            const time = Date.now();
             const [objs, props] = yield this.getBizObjects();
             this.objs = objs;
             for (let obj of objs) {
@@ -65,6 +67,7 @@ class Compiler {
                 this.buds[phrase] = prop;
                 this.res[phrase] = caption;
             }
+            tool_1.logger.debug('loadBizObjects from DB ', Date.now() - time, 'ms');
         });
     }
     getSource(group) {

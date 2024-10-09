@@ -166,10 +166,10 @@ export abstract class RouterBuilder {
 
 export class RouterWebBuilder extends RouterBuilder {
     protected async entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
+        let time = Date.now();
         try {
             let userToken: User = (req as any).user;
-            let { /*db, */id: userId, unit, roles } = userToken;
-            //if (db === undefined) db = consts.$unitx;
+            let { id: userId, unit, roles } = userToken;
             let runner = await this.checkRunner(req);
             if (runner === undefined) return;
             let db = runner.dbName;
@@ -237,6 +237,9 @@ export class RouterWebBuilder extends RouterBuilder {
             logger.error(err);
             res.json({ error: err });
         }
+        finally {
+            logger.debug('done:', req.originalUrl, Date.now() - time, 'ms');
+        }
     }
 
     protected async entityHttpDownload(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
@@ -263,11 +266,8 @@ export class RouterWebBuilder extends RouterBuilder {
 
 export class RouterLocalBuilder extends RouterBuilder {
     protected async entityHttpProcess(req: Request, res: Response, entityType: string, processer: EntityProcesser, isGet: boolean): Promise<void> {
+        let time = Date.now();
         try {
-            //let userToken: User = (req as any).user;
-            //let { db, id: userId, unit, roles } = userToken;
-            //if (db === undefined) db = consts.$unitx;
-            // let db = req.params.db;
             let sUnit = req.header('unit');
             let unit: number = sUnit ? Number(sUnit) : 24;
             let userId = 0;
@@ -296,6 +296,9 @@ export class RouterLocalBuilder extends RouterBuilder {
         catch (err) {
             logger.error(err);
             res.json({ error: err });
+        }
+        finally {
+            logger.debug('done:', req.originalUrl, Date.now() - time, 'ms');
         }
     }
 

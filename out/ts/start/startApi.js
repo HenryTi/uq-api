@@ -72,8 +72,8 @@ function startApi() {
                         p = p.substring(0, 100);
                 }
                 const ipAddress = req.header('x-forwarded-for') || req.socket.remoteAddress;
-                const time = Date.now();
-                tool_1.logger.debug(req.method, ipAddress, req.originalUrl, p);
+                // const time = Date.now();
+                // logger.debug(req.method, ipAddress, req.originalUrl, p);
                 try {
                     next();
                 }
@@ -81,7 +81,7 @@ function startApi() {
                     tool_1.logger.error(e);
                 }
                 finally {
-                    tool_1.logger.debug(`${req.originalUrl} time ${(Date.now() - time)}ms`);
+                    // logger.debug(`${req.originalUrl} time ${(Date.now() - time)}ms`);
                 }
             }));
             app.use('/res', res_1.router);

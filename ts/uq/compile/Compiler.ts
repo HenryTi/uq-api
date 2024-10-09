@@ -5,6 +5,7 @@ import { UqParser } from './UqParser';
 import { Biz, BizEntity } from '../il';
 import { compileBizThoroughly } from './compileSource';
 import { BizPhraseType } from '../il/Biz/BizPhraseType';
+import { logger } from '../../tool';
 
 const groups: { [name: string]: BizPhraseType[] } = {
     info: [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.book, BizPhraseType.assign, BizPhraseType.duo],
@@ -41,6 +42,7 @@ export class Compiler {
     }
 
     async loadBizObjects() {
+        const time = Date.now();
         const [objs, props] = await this.getBizObjects();
         this.objs = objs;
         for (let obj of objs) {
@@ -60,6 +62,7 @@ export class Compiler {
             this.buds[phrase] = prop;
             this.res[phrase] = caption;
         }
+        logger.debug('loadBizObjects from DB ', Date.now() - time, 'ms');
     }
 
     getSource(group: string) {

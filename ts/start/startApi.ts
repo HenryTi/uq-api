@@ -64,8 +64,8 @@ export async function startApi(): Promise<void> {
                 if (p.length > 100) p = p.substring(0, 100);
             }
             const ipAddress = req.header('x-forwarded-for') || req.socket.remoteAddress;
-            const time = Date.now();
-            logger.debug(req.method, ipAddress, req.originalUrl, p);
+            // const time = Date.now();
+            // logger.debug(req.method, ipAddress, req.originalUrl, p);
             try {
                 next();
             }
@@ -73,7 +73,7 @@ export async function startApi(): Promise<void> {
                 logger.error(e);
             }
             finally {
-                logger.debug(`${req.originalUrl} time ${(Date.now() - time)}ms`);
+                // logger.debug(`${req.originalUrl} time ${(Date.now() - time)}ms`);
             }
         });
 

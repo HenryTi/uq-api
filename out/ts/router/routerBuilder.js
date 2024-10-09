@@ -166,10 +166,10 @@ class RouterWebBuilder extends RouterBuilder {
     entityHttpProcess(req, res, entityType, processer, isGet) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
+            let time = Date.now();
             try {
                 let userToken = req.user;
-                let { /*db, */ id: userId, unit, roles } = userToken;
-                //if (db === undefined) db = consts.$unitx;
+                let { id: userId, unit, roles } = userToken;
                 let runner = yield this.checkRunner(req);
                 if (runner === undefined)
                     return;
@@ -238,6 +238,9 @@ class RouterWebBuilder extends RouterBuilder {
                 tool_1.logger.error(err);
                 res.json({ error: err });
             }
+            finally {
+                tool_1.logger.debug('done:', req.originalUrl, Date.now() - time, 'ms');
+            }
         });
     }
     entityHttpDownload(req, res, entityType, processer, isGet) {
@@ -268,11 +271,8 @@ exports.RouterWebBuilder = RouterWebBuilder;
 class RouterLocalBuilder extends RouterBuilder {
     entityHttpProcess(req, res, entityType, processer, isGet) {
         return __awaiter(this, void 0, void 0, function* () {
+            let time = Date.now();
             try {
-                //let userToken: User = (req as any).user;
-                //let { db, id: userId, unit, roles } = userToken;
-                //if (db === undefined) db = consts.$unitx;
-                // let db = req.params.db;
                 let sUnit = req.header('unit');
                 let unit = sUnit ? Number(sUnit) : 24;
                 let userId = 0;
@@ -303,6 +303,9 @@ class RouterLocalBuilder extends RouterBuilder {
             catch (err) {
                 tool_1.logger.error(err);
                 res.json({ error: err });
+            }
+            finally {
+                tool_1.logger.debug('done:', req.originalUrl, Date.now() - time, 'ms');
             }
         });
     }
