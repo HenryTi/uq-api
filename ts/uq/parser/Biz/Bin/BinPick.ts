@@ -179,7 +179,7 @@ export class PBinPick extends PBizBud<BinPick> {
             if (pickBase !== undefined) {
                 if (params !== undefined) {
                     for (let p of params) {
-                        const { name/*, bud, prop*/ } = p;
+                        const { name } = p;
                         if (pickBase.hasParam(name) === false) {
                             this.log(`PARAM ${name} is not defined`);
                             ok = false;
@@ -216,50 +216,41 @@ export class PBinPick extends PBizBud<BinPick> {
     private scanPickTo(): boolean {
         if (this.to === undefined) return true;
         const { pick } = this.element;
-        if (pick === undefined) {
-            if (this.to.length > 1) {
-                this.log('not support multiple to');
-                return false;
-            }
-            const [budName, val] = this.to[0];
-            if (val !== undefined) {
-                this.log('not support to = ');
-                return false;
-            }
-            let bud = this.element.bin.getBud(budName);
-            if (bud === undefined) {
-                this.log(`${budName} is not defined`);
-                return false;
-            }
-            return true;
-        }
         let scanPickTo: ScanPickTo<any>;
-        switch (pick.bizPhraseType) {
-            default: debugger; break;
-            case BizPhraseType.atom:
-                scanPickTo = new ScanPickAtomTo(this, pick as PickAtom);
-                break;
-            case BizPhraseType.query:
-                scanPickTo = new ScanPickQueryTo(this, pick as PickQuery);
-                break;
-            case BizPhraseType.pend:
-                scanPickTo = new ScanPickPendTo(this, pick as PickPend);
-                break;
-            case BizPhraseType.options:
-                scanPickTo = new ScanPickOptionsTo(this, pick as PickOptions);
-                break;
+        if (pick === undefined) {
+            scanPickTo = new ScanPickTo(this, pick);
+        }
+        else {
+            switch (pick.bizPhraseType) {
+                default: debugger; break;
+                case BizPhraseType.any:
+                    break;
+                case BizPhraseType.atom:
+                    scanPickTo = new ScanPickAtomTo(this, pick as PickAtom);
+                    break;
+                case BizPhraseType.query:
+                    scanPickTo = new ScanPickQueryTo(this, pick as PickQuery);
+                    break;
+                case BizPhraseType.pend:
+                    scanPickTo = new ScanPickPendTo(this, pick as PickPend);
+                    break;
+                case BizPhraseType.options:
+                    scanPickTo = new ScanPickOptionsTo(this, pick as PickOptions);
+                    break;
+            }
         }
         return scanPickTo.scan();
     }
 }
 
-abstract class ScanPickTo<P extends PickBase> {
+class ScanPickTo<P extends PickBase = PickBase> {
     protected readonly pBinPick: PBinPick
     protected readonly pick: P;
     constructor(pBinPick: PBinPick, pick: P) {
         this.pBinPick = pBinPick;
         this.pick = pick;
     }
+    protected log(...msg: string[]) { this.pBinPick.log(...msg); }
     scan(): boolean {
         let ok = true;
         const { to: pTos, element } = this.pBinPick;
@@ -269,7 +260,7 @@ abstract class ScanPickTo<P extends PickBase> {
         for (let [to, col] of pTos) {
             let toBud = bin.getBud(to);
             if (toBud === undefined) {
-                this.pBinPick.log(`${to} is not defined`);
+                this.log(`${to} is not defined`);
                 ok = false;
             }
             else {
@@ -283,23 +274,45 @@ abstract class ScanPickTo<P extends PickBase> {
             }
             if (this.isValidCol(col) === false) ok = false;
             toArr.push([toBud, col]);
-            return ok;
         }
+        return ok;
     }
 
     protected checkToLength(pTos: [string, string][]): boolean {
+        if (pTos.length > 1) {
+            this.log('only one TO');
+            return false;
+        }
         return true;
     }
 
     protected isValidCol(col: string) {
-        return true;
+        if (col === undefined) return true;
+        this.log(`col ${col} not defined`);
+        return false;
     }
 }
 class ScanPickAtomTo extends ScanPickTo<PickAtom> {
+    protected checkToLength(pTos: [string, string][]): boolean {
+        if (pTos.length > 1) {
+            this.log('only one TO');
+            return false;
+        }
+        return true;
+    }
 }
 class ScanPickQueryTo extends ScanPickTo<PickQuery> {
 }
 class ScanPickPendTo extends ScanPickTo<PickPend> {
+    protected override checkToLength(pTos: [string, string][]): boolean {
+        return true;
+    }
+    protected isValidCol(col: string) {
+        let bud = this.pick.from.getBud(col);
+        if (bud !== undefined) return true;
+        this.log(`col ${col} not defined`);
+        return false;
+    }
 }
 class ScanPickOptionsTo extends ScanPickTo<PickOptions> {
 }

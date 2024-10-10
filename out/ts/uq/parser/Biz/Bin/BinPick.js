@@ -163,7 +163,7 @@ class PBinPick extends Bud_1.PBizBud {
             if (pickBase !== undefined) {
                 if (params !== undefined) {
                     for (let p of params) {
-                        const { name /*, bud, prop*/ } = p;
+                        const { name } = p;
                         if (pickBase.hasParam(name) === false) {
                             this.log(`PARAM ${name} is not defined`);
                             ok = false;
@@ -200,40 +200,30 @@ class PBinPick extends Bud_1.PBizBud {
         if (this.to === undefined)
             return true;
         const { pick } = this.element;
-        if (pick === undefined) {
-            if (this.to.length > 1) {
-                this.log('not support multiple to');
-                return false;
-            }
-            const [budName, val] = this.to[0];
-            if (val !== undefined) {
-                this.log('not support to = ');
-                return false;
-            }
-            let bud = this.element.bin.getBud(budName);
-            if (bud === undefined) {
-                this.log(`${budName} is not defined`);
-                return false;
-            }
-            return true;
-        }
         let scanPickTo;
-        switch (pick.bizPhraseType) {
-            default:
-                debugger;
-                break;
-            case BizPhraseType_1.BizPhraseType.atom:
-                scanPickTo = new ScanPickAtomTo(this, pick);
-                break;
-            case BizPhraseType_1.BizPhraseType.query:
-                scanPickTo = new ScanPickQueryTo(this, pick);
-                break;
-            case BizPhraseType_1.BizPhraseType.pend:
-                scanPickTo = new ScanPickPendTo(this, pick);
-                break;
-            case BizPhraseType_1.BizPhraseType.options:
-                scanPickTo = new ScanPickOptionsTo(this, pick);
-                break;
+        if (pick === undefined) {
+            scanPickTo = new ScanPickTo(this, pick);
+        }
+        else {
+            switch (pick.bizPhraseType) {
+                default:
+                    debugger;
+                    break;
+                case BizPhraseType_1.BizPhraseType.any:
+                    break;
+                case BizPhraseType_1.BizPhraseType.atom:
+                    scanPickTo = new ScanPickAtomTo(this, pick);
+                    break;
+                case BizPhraseType_1.BizPhraseType.query:
+                    scanPickTo = new ScanPickQueryTo(this, pick);
+                    break;
+                case BizPhraseType_1.BizPhraseType.pend:
+                    scanPickTo = new ScanPickPendTo(this, pick);
+                    break;
+                case BizPhraseType_1.BizPhraseType.options:
+                    scanPickTo = new ScanPickOptionsTo(this, pick);
+                    break;
+            }
         }
         return scanPickTo.scan();
     }
@@ -244,6 +234,7 @@ class ScanPickTo {
         this.pBinPick = pBinPick;
         this.pick = pick;
     }
+    log(...msg) { this.pBinPick.log(...msg); }
     scan() {
         let ok = true;
         const { to: pTos, element } = this.pBinPick;
@@ -254,7 +245,7 @@ class ScanPickTo {
         for (let [to, col] of pTos) {
             let toBud = bin.getBud(to);
             if (toBud === undefined) {
-                this.pBinPick.log(`${to} is not defined`);
+                this.log(`${to} is not defined`);
                 ok = false;
             }
             else {
@@ -269,21 +260,45 @@ class ScanPickTo {
             if (this.isValidCol(col) === false)
                 ok = false;
             toArr.push([toBud, col]);
-            return ok;
         }
+        return ok;
     }
     checkToLength(pTos) {
+        if (pTos.length > 1) {
+            this.log('only one TO');
+            return false;
+        }
         return true;
     }
     isValidCol(col) {
-        return true;
+        if (col === undefined)
+            return true;
+        this.log(`col ${col} not defined`);
+        return false;
     }
 }
 class ScanPickAtomTo extends ScanPickTo {
+    checkToLength(pTos) {
+        if (pTos.length > 1) {
+            this.log('only one TO');
+            return false;
+        }
+        return true;
+    }
 }
 class ScanPickQueryTo extends ScanPickTo {
 }
 class ScanPickPendTo extends ScanPickTo {
+    checkToLength(pTos) {
+        return true;
+    }
+    isValidCol(col) {
+        let bud = this.pick.from.getBud(col);
+        if (bud !== undefined)
+            return true;
+        this.log(`col ${col} not defined`);
+        return false;
+    }
 }
 class ScanPickOptionsTo extends ScanPickTo {
 }

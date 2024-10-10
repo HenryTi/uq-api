@@ -258,15 +258,22 @@ class BizBin extends Entity_1.BizID {
         });
     }
     buildSchema(res) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         let ret = super.buildSchema(res);
         let picks = [];
         if (this.pickArr !== undefined) {
             for (let value of this.pickArr) {
-                const { name, ui, pick, params, single, hiddenBuds, toArr: to } = value;
+                let { name, ui, pick, params, single, hiddenBuds, toArr: to } = value;
                 let from;
                 if (pick !== undefined) {
                     from = pick.fromSchema();
+                }
+                else {
+                    if (name[0] === '$') {
+                        let [toBud] = to[0];
+                        let { ui: budUi, name: budName } = toBud;
+                        ui = { caption: (_a = (budUi === null || budUi === void 0 ? void 0 : budUi.caption)) !== null && _a !== void 0 ? _a : budName };
+                    }
                 }
                 picks.push({
                     name,
@@ -287,23 +294,23 @@ class BizBin extends Entity_1.BizID {
                 inputs.push(schema);
             }
         }
-        let price = (_a = this.price) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
+        let price = (_b = this.price) === null || _b === void 0 ? void 0 : _b.buildSchema(res);
         let pivot;
         if (this.pivot !== undefined)
             pivot = true;
         if (this.primeBuds !== undefined) {
             ret[':'] = this.primeBuds.map(v => v.id);
         }
-        ret.main = (_b = this.main) === null || _b === void 0 ? void 0 : _b.id;
+        ret.main = (_c = this.main) === null || _c === void 0 ? void 0 : _c.id;
         ret.picks = picks.length === 0 ? undefined : picks;
         ret.inputs = inputs.length === 0 ? undefined : inputs;
-        ret.pend = (_c = this.pend) === null || _c === void 0 ? void 0 : _c.id;
-        ret.i = (_d = this.i) === null || _d === void 0 ? void 0 : _d.buildSchema(res);
-        ret.iBase = (_e = this.iBase) === null || _e === void 0 ? void 0 : _e.buildSchema(res);
-        ret.x = (_f = this.x) === null || _f === void 0 ? void 0 : _f.buildSchema(res);
-        ret.xBase = (_g = this.xBase) === null || _g === void 0 ? void 0 : _g.buildSchema(res);
-        ret.value = (_h = this.value) === null || _h === void 0 ? void 0 : _h.buildSchema(res);
-        ret.amount = (_j = this.amount) === null || _j === void 0 ? void 0 : _j.buildSchema(res);
+        ret.pend = (_d = this.pend) === null || _d === void 0 ? void 0 : _d.id;
+        ret.i = (_e = this.i) === null || _e === void 0 ? void 0 : _e.buildSchema(res);
+        ret.iBase = (_f = this.iBase) === null || _f === void 0 ? void 0 : _f.buildSchema(res);
+        ret.x = (_g = this.x) === null || _g === void 0 ? void 0 : _g.buildSchema(res);
+        ret.xBase = (_h = this.xBase) === null || _h === void 0 ? void 0 : _h.buildSchema(res);
+        ret.value = (_j = this.value) === null || _j === void 0 ? void 0 : _j.buildSchema(res);
+        ret.amount = (_k = this.amount) === null || _k === void 0 ? void 0 : _k.buildSchema(res);
         ret.price = price;
         ret.div = this.div.buildSchema(res);
         ret.pivot = pivot;

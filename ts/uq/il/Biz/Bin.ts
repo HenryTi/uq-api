@@ -310,10 +310,17 @@ export class BizBin extends BizID {
         let picks: any[] = [];
         if (this.pickArr !== undefined) {
             for (let value of this.pickArr) {
-                const { name, ui, pick, params, single, hiddenBuds, toArr: to } = value;
+                let { name, ui, pick, params, single, hiddenBuds, toArr: to } = value;
                 let from: any;
                 if (pick !== undefined) {
                     from = pick.fromSchema();
+                }
+                else {
+                    if (name[0] === '$') {
+                        let [toBud] = to[0];
+                        let { ui: budUi, name: budName } = toBud;
+                        ui = { caption: (budUi?.caption) ?? budName };
+                    }
                 }
                 picks.push({
                     name,
