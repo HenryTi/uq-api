@@ -37,7 +37,7 @@ export class BinPick extends BizBud {
     pick: PickBase;
     single: boolean;
     hiddenBuds: BizBud[];
-    to: BizBud;
+    toArr: [BizBud, string][];
     constructor(bin: BizBin, name: string, ui: Partial<UI>) {
         super(bin, name, ui);
         this.bin = bin;
@@ -310,7 +310,7 @@ export class BizBin extends BizID {
         let picks: any[] = [];
         if (this.pickArr !== undefined) {
             for (let value of this.pickArr) {
-                const { name, ui, pick, params, single, hiddenBuds, to } = value;
+                const { name, ui, pick, params, single, hiddenBuds, toArr: to } = value;
                 let from: any;
                 if (pick !== undefined) {
                     from = pick.fromSchema();
@@ -322,7 +322,7 @@ export class BizBin extends BizID {
                     hidden: hiddenBuds?.map(v => v.id),
                     params: params?.map(v => v.buildSchema(res)),
                     single,
-                    to: to?.id,
+                    to: to?.map(([bud, col]) => ([bud.id, col])),
                 });
             }
         };

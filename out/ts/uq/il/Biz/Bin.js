@@ -263,7 +263,7 @@ class BizBin extends Entity_1.BizID {
         let picks = [];
         if (this.pickArr !== undefined) {
             for (let value of this.pickArr) {
-                const { name, ui, pick, params, single, hiddenBuds, to } = value;
+                const { name, ui, pick, params, single, hiddenBuds, toArr: to } = value;
                 let from;
                 if (pick !== undefined) {
                     from = pick.fromSchema();
@@ -275,7 +275,7 @@ class BizBin extends Entity_1.BizID {
                     hidden: hiddenBuds === null || hiddenBuds === void 0 ? void 0 : hiddenBuds.map(v => v.id),
                     params: params === null || params === void 0 ? void 0 : params.map(v => v.buildSchema(res)),
                     single,
-                    to: to === null || to === void 0 ? void 0 : to.id,
+                    to: to === null || to === void 0 ? void 0 : to.map(([bud, col]) => ([bud.id, col])),
                 });
             }
         }

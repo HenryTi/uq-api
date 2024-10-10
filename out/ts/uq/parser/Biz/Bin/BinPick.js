@@ -7,81 +7,101 @@ const tokens_1 = require("../../tokens");
 const Bud_1 = require("../Bud");
 class PBinPick extends Bud_1.PBizBud {
     _parse() {
-        if (this.ts.isKeyword('from') === true) {
-            this.from = [];
-            this.ts.readToken();
-            for (;;) {
-                this.from.push(this.ts.passVar());
-                if (this.ts.token !== tokens_1.Token.BITWISEOR)
-                    break;
-                this.ts.readToken();
-            }
-            if (this.ts.token === tokens_1.Token.LBRACE) {
-                this.ts.readToken();
-                for (;;) {
-                    if (this.ts.token === tokens_1.Token.RBRACE) {
-                        this.ts.readToken();
-                        break;
-                    }
-                    if (this.ts.isKeyword('param') === true) {
-                        this.ts.readToken();
-                        let name = this.ts.passVar();
-                        let ui = this.parseUI();
-                        let pickParam = new il_1.PickParam(this.element.bin, name, ui);
-                        this.context.parseElement(pickParam);
-                        let { params } = this.element;
-                        if (params === undefined) {
-                            params = this.element.params = [];
-                        }
-                        params.push(pickParam);
-                    }
-                    else if (this.ts.isKeyword('hide') === true) {
-                        this.hides = [];
-                        this.ts.readToken();
-                        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
-                            this.ts.readToken();
-                            for (;;) {
-                                this.hides.push(this.ts.passVar());
-                                if (this.ts.token === tokens_1.Token.COMMA) {
-                                    this.ts.readToken();
-                                    continue;
-                                }
-                                if (this.ts.token === tokens_1.Token.RPARENTHESE) {
-                                    this.ts.readToken();
-                                    break;
-                                }
-                                this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
-                            }
-                        }
-                        else if (this.ts.token === tokens_1.Token.VAR) {
-                            this.hides.push(this.ts.lowerVar);
-                            this.ts.readToken();
-                        }
-                    }
-                    else {
-                        this.ts.expect('param');
-                    }
-                    this.ts.passToken(tokens_1.Token.SEMICOLON);
-                }
-            }
-            if (this.ts.isKeyword('single') === true) {
-                this.element.single = true;
-                this.ts.readToken();
-            }
-        }
-        else {
+        if (this.parseFrom() === false) {
             if (this.ts.prevLowerVar === 'to') {
-                this.to = this.ts.passVar();
-                this.element.name = this.to;
+                this.to = [[this.ts.passVar(), undefined]];
+                this.element.name = undefined;
                 this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
                 return;
             }
         }
         if (this.ts.isKeyword('to') === true) {
             this.ts.readToken();
-            this.to = this.ts.passVar();
+            this.to = [];
+            for (;;) {
+                let to = this.ts.passVar();
+                let val;
+                if (this.ts.token === tokens_1.Token.EQU) {
+                    this.ts.readToken();
+                    val = this.ts.passVar();
+                }
+                this.to.push([to, val]);
+                if (this.ts.token !== tokens_1.Token.COMMA)
+                    break;
+                this.ts.readToken();
+            }
         }
         this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+    }
+    parseFrom() {
+        if (this.ts.prevLowerVar === 'from') {
+            this.element.name = undefined;
+        }
+        else if (this.ts.isKeyword('from') === true) {
+            this.ts.readToken();
+        }
+        else {
+            return false;
+        }
+        this.from = [];
+        for (;;) {
+            this.from.push(this.ts.passVar());
+            if (this.ts.token !== tokens_1.Token.BITWISEOR)
+                break;
+            this.ts.readToken();
+        }
+        if (this.ts.token === tokens_1.Token.LBRACE) {
+            this.ts.readToken();
+            for (;;) {
+                if (this.ts.token === tokens_1.Token.RBRACE) {
+                    this.ts.readToken();
+                    break;
+                }
+                if (this.ts.isKeyword('param') === true) {
+                    this.ts.readToken();
+                    let name = this.ts.passVar();
+                    let ui = this.parseUI();
+                    let pickParam = new il_1.PickParam(this.element.bin, name, ui);
+                    this.context.parseElement(pickParam);
+                    let { params } = this.element;
+                    if (params === undefined) {
+                        params = this.element.params = [];
+                    }
+                    params.push(pickParam);
+                }
+                else if (this.ts.isKeyword('hide') === true) {
+                    this.hides = [];
+                    this.ts.readToken();
+                    if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+                        this.ts.readToken();
+                        for (;;) {
+                            this.hides.push(this.ts.passVar());
+                            if (this.ts.token === tokens_1.Token.COMMA) {
+                                this.ts.readToken();
+                                continue;
+                            }
+                            if (this.ts.token === tokens_1.Token.RPARENTHESE) {
+                                this.ts.readToken();
+                                break;
+                            }
+                            this.ts.expectToken(tokens_1.Token.COMMA, tokens_1.Token.RPARENTHESE);
+                        }
+                    }
+                    else if (this.ts.token === tokens_1.Token.VAR) {
+                        this.hides.push(this.ts.lowerVar);
+                        this.ts.readToken();
+                    }
+                }
+                else {
+                    this.ts.expect('param');
+                }
+                this.ts.passToken(tokens_1.Token.SEMICOLON);
+            }
+        }
+        if (this.ts.isKeyword('single') === true) {
+            this.element.single = true;
+            this.ts.readToken();
+        }
     }
     scan0(space) {
         if (this.element.pick !== undefined)
@@ -125,16 +145,6 @@ class PBinPick extends Bud_1.PBizBud {
                     this.log('from only one object');
                     ok = false;
                 }
-            }
-        }
-        if (this.to !== undefined) {
-            let to = this.element.bin.getBud(this.to);
-            if (to === undefined) {
-                ok = false;
-                this.log(`${this.to} is not a PROP`);
-            }
-            else {
-                this.element.to = to;
             }
         }
         return ok;
@@ -182,20 +192,101 @@ class PBinPick extends Bud_1.PBizBud {
     }
     scan2(uq) {
         let ok = super.scan2(uq);
-        const { to } = this.element;
-        if (to !== undefined) {
-            if (to.value === undefined) {
-                to.value = {
-                    exp: undefined,
-                    str: [this.element.name, il_1.BudValueSetType.init],
-                    setType: il_1.BudValueSetType.init,
-                };
-            }
-        }
+        if (this.scanPickTo() === false)
+            ok = false;
         return ok;
+    }
+    scanPickTo() {
+        if (this.to === undefined)
+            return true;
+        const { pick } = this.element;
+        if (pick === undefined) {
+            if (this.to.length > 1) {
+                this.log('not support multiple to');
+                return false;
+            }
+            const [budName, val] = this.to[0];
+            if (val !== undefined) {
+                this.log('not support to = ');
+                return false;
+            }
+            let bud = this.element.bin.getBud(budName);
+            if (bud === undefined) {
+                this.log(`${budName} is not defined`);
+                return false;
+            }
+            return true;
+        }
+        let scanPickTo;
+        switch (pick.bizPhraseType) {
+            default:
+                debugger;
+                break;
+            case BizPhraseType_1.BizPhraseType.atom:
+                scanPickTo = new ScanPickAtomTo(this, pick);
+                break;
+            case BizPhraseType_1.BizPhraseType.query:
+                scanPickTo = new ScanPickQueryTo(this, pick);
+                break;
+            case BizPhraseType_1.BizPhraseType.pend:
+                scanPickTo = new ScanPickPendTo(this, pick);
+                break;
+            case BizPhraseType_1.BizPhraseType.options:
+                scanPickTo = new ScanPickOptionsTo(this, pick);
+                break;
+        }
+        return scanPickTo.scan();
     }
 }
 exports.PBinPick = PBinPick;
+class ScanPickTo {
+    constructor(pBinPick, pick) {
+        this.pBinPick = pBinPick;
+        this.pick = pick;
+    }
+    scan() {
+        let ok = true;
+        const { to: pTos, element } = this.pBinPick;
+        if (this.checkToLength(pTos) === false)
+            ok = false;
+        element.toArr = [];
+        const { toArr, bin } = element;
+        for (let [to, col] of pTos) {
+            let toBud = bin.getBud(to);
+            if (toBud === undefined) {
+                this.pBinPick.log(`${to} is not defined`);
+                ok = false;
+            }
+            else {
+                if (toBud.value === undefined) {
+                    toBud.value = {
+                        exp: undefined,
+                        str: [element.name, il_1.BudValueSetType.init],
+                        setType: il_1.BudValueSetType.init,
+                    };
+                }
+            }
+            if (this.isValidCol(col) === false)
+                ok = false;
+            toArr.push([toBud, col]);
+            return ok;
+        }
+    }
+    checkToLength(pTos) {
+        return true;
+    }
+    isValidCol(col) {
+        return true;
+    }
+}
+class ScanPickAtomTo extends ScanPickTo {
+}
+class ScanPickQueryTo extends ScanPickTo {
+}
+class ScanPickPendTo extends ScanPickTo {
+}
+class ScanPickOptionsTo extends ScanPickTo {
+}
 class PPickParam extends Bud_1.PBizBudValue {
     _parse() {
         let setType = this.parseBudEqu();

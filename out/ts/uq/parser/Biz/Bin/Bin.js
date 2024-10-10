@@ -357,6 +357,8 @@ class PBizBin extends Base_1.PBizEntity {
             let { length } = pickArr;
             for (let i = 0; i < length; i++) {
                 let pick = pickArr[i];
+                if (pick.name === undefined)
+                    pick.name = '$pick' + i;
                 if (pick.pelement.scan(binSpace) === false) {
                     ok = false;
                 }
