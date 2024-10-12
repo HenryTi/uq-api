@@ -259,6 +259,126 @@ RETURNS ret (
     INTO ret SELECT id;
 };
 
+Biz AC SaveDetails ver 0.2 (
+    base ID,                -- sheet id
+    phrase ID,              -- detail phrase id
+    details JSON,
+    /*
+    id ID,
+    i ID,                -- 计量对象。比如：商品不同包装或者批次
+    x ID,               -- 操作对象。比如：客户，仓库，等
+    origin ID,
+    value VALUE,
+    price VALUE,
+    amount VALUE,
+    pend ID,
+    props JSON,
+    */
+)
+RETURNS main (
+    * SHEET,
+    * Bin,
+    phrase ID,
+)
+RETURNS details (
+    * Bin,
+    pend ID,
+    pendValue VALUE,
+    phrase ID,
+)
+RETURNS origins (
+    * Bin,
+)
+RETURNS props (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS specs (
+    id ID,
+    atom ID,
+    (id) KEY,
+) {
+    VAR me ID = Me();
+    -- 安全判断
+    IF base IS NULL OR NOT EXISTS(SELECT x FROM IxState WHERE i=me AND x=base) {
+        -- base sheet必须在我的draft里面
+        RETURN;
+    }
+    -- 安全判断
+    IF NOT EXISTS(SELECT a.id FROM BizPhrase as a WHERE a.id=phrase AND a.base=$site) {
+        -- phrase id 必须是 my site
+        RETURN;
+    }
+
+    TABLE idtable(KEY id ID);
+    JSONTABLE tblDetail (
+        id ID PATH '$.id',
+        i ID PATH '$.i',                -- 计量对象。比如：商品不同包装或者批次
+        x ID PATH '$.x',               -- 操作对象。比如：客户，仓库，等
+        origin ID PATH '$.origin',
+        value VALUE PATH '$.value',
+        price VALUE PATH '$.price',
+        amount VALUE PATH '$.amount',
+        pend ID PATH '$.pend',
+        props JSON PATH '$.props'
+    ) FROM details PATH '$[*]';
+
+    FOR (VAR id ID,
+        i ID,                -- 计量对象。比如：商品不同包装或者批次
+        x ID,               -- 操作对象。比如：客户，仓库，等
+        origin ID,
+        value VALUE,
+        price VALUE,
+        amount VALUE,
+        pend ID,
+        props JSON
+        OF SELECT a.id, a.i, a.x, a.origin, a.value, a.price, a.amount, a.pend, a.props
+            FROM tblDetail as a
+    ) {
+        VAR pendFrom ID = pend;
+        IF id IS NULL {
+            SET id = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+        }
+        WITH Bin ID=id SET i=i, x=x
+            , origin=origin
+            , value=value, price=price, amount=amount;
+        IF pendFrom IS NOT NULL {
+            WITH BinPend as a ID=id SET a.pendFrom=pendFrom;
+        }
+        PROC SaveBinBuds(id, props);
+        INTO idtable SELECT id;
+    }
+
+    INTO main SELECT * a, * b, a.base as phrase
+        FROM Sheet as a
+            LEFT JOIN Bin as b ON b.id=a.id
+            JOIN BizPhrase as c ON c.id=a.base
+        WHERE a.id=base AND c.base=$site;
+    INTO details SELECT * a
+        , c.pendFrom as pend, d.value as pendValue
+        , b.ext as phrase
+        FROM Bin as a
+            JOIN idtable as a0 ON a0.id=a.id
+            JOIN Detail as a1 ON a1.id=a.id
+            JOIN Bud as b ON b.id=a1.base
+            LEFT JOIN BinPend as c ON c.id=a.id
+            LEFT JOIN Pend as d ON d.id=c.pendFrom
+        ;
+
+    VAR sheetPhrase ID;
+    SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=base;
+    PROC ProcGetSheetProps(sheetPhrase);
+};
+
 PROC SaveBinBuds(
     id ID,
     props JSON,
@@ -835,13 +955,12 @@ RETURNS specs (
     atom ID,
     (id) KEY,
 ) {
-    VAR maySheetId ID, detail ID, sheetPhrase ID;
+    VAR maySheetId ID, detail ID;
     SET maySheetId = b.base FROM Detail as a JOIN Bud as b ON b.id=a.base WHERE a.id=id;
     IF maySheetId IS NOT NULL {
         SET detail = id;
         SET id = maySheetId;
     }
-    SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=id;
     INTO main SELECT * a, * b, a.base as phrase
         FROM Sheet as a
             LEFT JOIN Bin as b ON b.id=a.id
@@ -856,6 +975,48 @@ RETURNS specs (
             LEFT JOIN BinPend as c ON c.id=a.id
             LEFT JOIN Pend as d ON d.id=c.pendFrom
         WHERE b.base=id AND (detail IS NULL OR a.id=detail);
+
+    VAR sheetPhrase ID;
+    SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=id;
+    PROC ProcGetSheetProps(sheetPhrase);
+}
+
+PROC ProcGetSheetProps ver 0.1 (
+    -- id ID,                      -- sheetId or detailId
+    sheetPhrase ID,
+)
+RETURNS main VIRTUAL (
+    * SHEET,
+    * Bin,
+    phrase ID,
+)
+RETURNS details VIRTUAL (
+    * Bin,
+    pend ID,
+    pendValue VALUE,
+    phrase ID,
+)
+RETURNS origins VIRTUAL (
+    * Bin,
+)
+RETURNS props VIRTUAL (
+    id ID,
+    phrase ID,
+    value JSON,
+    (id, phrase) KEY,
+)
+RETURNS atoms VIRTUAL (
+    id ID,
+    base ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS specs VIRTUAL (
+    id ID,
+    atom ID,
+    (id) KEY,
+) {
     INTO origins SELECT DISTINCT * b -- , IFNULL(c.value, 0) as done
         FROM (SELECT DISTINCT origin FROM details) as a
             JOIN Bin as b ON b.id=a.origin
@@ -863,7 +1024,7 @@ RETURNS specs (
     VAR procName CHAR(200) = CONCAT($site, '.', sheetPhrase, 'gs');
     IF routine_exists('$site', procName) {
         VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?);');
-        ExecSql sql USING id;
+        ExecSql sql USING 0; -- id 底层调用中，这个id没有用，都是通过main和details来获得行;
     }
 
     INTO IGNORE specs SELECT DISTINCT a.i as id, e.id as atom
