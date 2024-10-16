@@ -1,10 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizSheet = void 0;
+exports.BizSheet = exports.EnumDetailOperate = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
+var EnumDetailOperate;
+(function (EnumDetailOperate) {
+    EnumDetailOperate[EnumDetailOperate["default"] = 0] = "default";
+    EnumDetailOperate[EnumDetailOperate["pend"] = 1] = "pend";
+    EnumDetailOperate[EnumDetailOperate["direct"] = 2] = "direct";
+    EnumDetailOperate[EnumDetailOperate["scan"] = 3] = "scan";
+})(EnumDetailOperate || (exports.EnumDetailOperate = EnumDetailOperate = {}));
 class BizSheet extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
@@ -32,11 +39,12 @@ class BizSheet extends Entity_1.BizNotID {
                 }
             }
         }
-        ret = Object.assign(Object.assign({}, ret), { io: this.io, main: this.main.name, details: this.details.map(v => {
-                const { bin, caption } = v;
+        ret = Object.assign(Object.assign({}, ret), { io: this.io, main: this.main.id, details: this.details.map(v => {
+                const { bin, caption, operate } = v;
                 return {
-                    bin: bin.name,
+                    bin: bin.id,
                     caption, // 此处暂时不做res翻译
+                    operate,
                 };
             }), search });
         return ret;

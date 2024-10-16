@@ -18,12 +18,24 @@ interface DetailPrint {
     print: BizPrint;
 }
 
+export enum EnumDetailOperate {
+    default = 0,            // 默认方式
+    pend = 1,               // 先上pend，再逐行修改
+    direct = 2,             // 直接加入明细，可以不再修改
+    scan = 3,               // 扫描逐行操作。暂时不支持。需要前台代码处理
+}
+export interface Detail {
+    caption: string;
+    bin: BizBin;
+    operate: EnumDetailOperate;
+}
+
 export class BizSheet extends BizNotID {
     protected readonly fields = ['id', 'no'];
     readonly bizPhraseType = BizPhraseType.sheet;
     readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;
-    readonly details: { bin: BizBin; caption: string; }[] = [];
+    readonly details: Detail[] = [];
     io: boolean;
     bizSearch: BizSearch;
     print: Print;
@@ -50,12 +62,13 @@ export class BizSheet extends BizNotID {
         ret = {
             ...ret,
             io: this.io,
-            main: this.main.name,
+            main: this.main.id,
             details: this.details.map(v => {
-                const { bin, caption } = v;
+                const { bin, caption, operate } = v;
                 return {
-                    bin: bin.name,
+                    bin: bin.id,
                     caption,                // 此处暂时不做res翻译
+                    operate,
                 }
             }),
             search,

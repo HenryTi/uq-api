@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizSheet = void 0;
+const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
@@ -23,7 +24,21 @@ class PBizSheet extends Base_1.PBizEntity {
         this.parseDetail = () => {
             let name = this.ts.passVar();
             let caption = this.ts.mayPassString();
-            this.details.push({ name, caption });
+            let operate = il_1.EnumDetailOperate.default;
+            if (this.ts.isKeywordToken === true) {
+                switch (this.ts.lowerVar) {
+                    case 'operate':
+                        this.ts.readToken();
+                        const operateOptions = Object.keys(il_1.EnumDetailOperate);
+                        if (this.ts.isKeywordToken === false) {
+                            this.ts.expect(...operateOptions);
+                        }
+                        operate = il_1.EnumDetailOperate[this.ts.lowerVar];
+                        this.ts.readToken();
+                        break;
+                }
+            }
+            this.details.push({ name, caption, operate });
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
         this.parsePermit = () => {
@@ -103,13 +118,13 @@ class PBizSheet extends Base_1.PBizEntity {
         else {
             this.element.main = main;
         }
-        for (let { name, caption } of this.details) {
+        for (let { name, caption, operate } of this.details) {
             let bin = this.getBizEntity(space, name, BizPhraseType_1.BizPhraseType.bin);
             if (bin === undefined) {
                 ok = false;
                 continue;
             }
-            this.element.details.push({ bin, caption });
+            this.element.details.push({ bin, caption, operate });
         }
         return ok;
     }

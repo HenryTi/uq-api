@@ -1,5 +1,5 @@
 import {
-    BizBin, BizSheet, Uq, UseOut
+    BizBin, BizSheet, Detail, EnumDetailOperate, Uq, UseOut
 } from "../../il";
 import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -14,7 +14,7 @@ interface PPrint {
 }
 export class PBizSheet extends PBizEntity<BizSheet> {
     private main: string;
-    private details: { name: string, caption: string }[] = [];
+    private details: { name: string, caption: string, operate: EnumDetailOperate; }[] = [];
     private readonly prints: PPrint[] = [];
 
     private parseIO = () => {
@@ -33,7 +33,22 @@ export class PBizSheet extends PBizEntity<BizSheet> {
     private parseDetail = () => {
         let name = this.ts.passVar();
         let caption = this.ts.mayPassString();
-        this.details.push({ name, caption });
+        let operate: EnumDetailOperate = EnumDetailOperate.default;
+        if (this.ts.isKeywordToken === true) {
+            switch (this.ts.lowerVar) {
+                case 'operate':
+                    this.ts.readToken();
+                    const operateOptions = Object.keys(EnumDetailOperate);
+                    if (this.ts.isKeywordToken as any === false) {
+                        this.ts.expect(...operateOptions);
+                    }
+                    operate = EnumDetailOperate[this.ts.lowerVar];
+                    this.ts.readToken();
+                    break;
+            }
+
+        }
+        this.details.push({ name, caption, operate });
         this.ts.passToken(Token.SEMICOLON);
     }
 
@@ -117,13 +132,13 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         else {
             this.element.main = main;
         }
-        for (let { name, caption } of this.details) {
+        for (let { name, caption, operate } of this.details) {
             let bin = this.getBizEntity<BizBin>(space, name, BizPhraseType.bin);
             if (bin === undefined) {
                 ok = false;
                 continue;
             }
-            this.element.details.push({ bin, caption });
+            this.element.details.push({ bin, caption, operate });
         }
         return ok;
     }
