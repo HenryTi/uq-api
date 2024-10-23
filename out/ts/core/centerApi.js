@@ -13,8 +13,8 @@ exports.centerApi = exports.urlSetCenterHost = void 0;
 const config = require("config");
 const fetch_1 = require("./fetch");
 const centerHost = config.get('centerhost');
-//const centerUrl = urlSetCenterHost(config.get<string>('center'));
-const centerUrl = 'http://localhost:3000';
+const centerUrl = urlSetCenterHost(config.get('center'));
+//const centerUrl = 'http://localhost:3000';
 function urlSetCenterHost(url) {
     return url.replace('://centerhost/', '://' + centerHost + '/');
 }
