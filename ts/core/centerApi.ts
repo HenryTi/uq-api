@@ -2,7 +2,8 @@ import * as config from 'config';
 import { Fetch } from './fetch';
 
 const centerHost = config.get<string>('centerhost');
-const centerUrl = urlSetCenterHost(config.get<string>('center'));
+//const centerUrl = urlSetCenterHost(config.get<string>('center'));
+const centerUrl = 'http://localhost:3000';
 
 export function urlSetCenterHost(url: string): string {
     return url.replace('://centerhost/', '://' + centerHost + '/');
