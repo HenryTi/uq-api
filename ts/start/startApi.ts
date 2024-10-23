@@ -11,6 +11,7 @@ import {
 import { authJoint, authUpBuild } from '../core/auth';
 import { buildProcRouter } from '../router/proc';
 import { buildApiRouter } from '../router/api';
+import fetch from 'node-fetch';
 
 export async function startApi(): Promise<void> {
     process.on('uncaughtException', function (err: any) {
@@ -109,6 +110,8 @@ export async function startApi(): Promise<void> {
             logger.debug('DB host: %s, user: %s', host, user);
             logger.debug('Tonwa uq-api started!');
             expressListRoutes(app, {});
+            let fetchRet = await fetch('http://localhost:3000/tv/hello');
+            console.error(await fetchRet.json());
         });
 
         let localApp = express();
