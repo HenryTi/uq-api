@@ -46,10 +46,14 @@ class Fetch {
             return yield this.innerFetch(url, 'POST', params);
         });
     }
+    innerFetchLog(url, method) {
+        let fullUrl = this.baseUrl + url;
+        tool_1.logger.debug('innerFetch ' + method + '  ' + fullUrl);
+    }
     innerFetch(url, method, body) {
         return __awaiter(this, void 0, void 0, function* () {
+            this.innerFetchLog(url, method);
             let fullUrl = this.baseUrl + url;
-            tool_1.logger.debug('innerFetch ' + method + '  ' + fullUrl);
             //var headers = new Headers();
             //headers.append('Accept', 'application/json'); // This one is enough for GET requests
             //headers.append('Content-Type', 'application/json'); // This one sends body

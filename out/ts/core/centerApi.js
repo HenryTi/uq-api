@@ -12,9 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.centerApi = exports.urlSetCenterHost = void 0;
 const config = require("config");
 const fetch_1 = require("./fetch");
+const tool_1 = require("../tool");
 const centerHost = config.get('centerhost');
-const centerUrl = urlSetCenterHost(config.get('center'));
-//const centerUrl = 'http://localhost:3000';
+//const centerUrl = urlSetCenterHost(config.get<string>('center'));
+const centerUrl = 'http://localhost:3000';
 function urlSetCenterHost(url) {
     return url.replace('://centerhost/', '://' + centerHost + '/');
 }
@@ -22,6 +23,10 @@ exports.urlSetCenterHost = urlSetCenterHost;
 class CenterApi extends fetch_1.Fetch {
     constructor() {
         super(centerUrl);
+    }
+    innerFetchLog(url, method) {
+        let fullUrl = this.baseUrl + url;
+        tool_1.logger.error('???? CenterApi innerFetch ' + method + '  ' + fullUrl);
     }
     busSchema(owner, bus, version) {
         return __awaiter(this, void 0, void 0, function* () {

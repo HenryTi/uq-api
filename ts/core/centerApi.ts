@@ -1,9 +1,10 @@
 import * as config from 'config';
 import { Fetch } from './fetch';
+import { logger } from '../tool';
 
 const centerHost = config.get<string>('centerhost');
-const centerUrl = urlSetCenterHost(config.get<string>('center'));
-//const centerUrl = 'http://localhost:3000';
+//const centerUrl = urlSetCenterHost(config.get<string>('center'));
+const centerUrl = 'http://localhost:3000';
 
 export function urlSetCenterHost(url: string): string {
     return url.replace('://centerhost/', '://' + centerHost + '/');
@@ -25,6 +26,11 @@ export interface CenterUnitxUrls {
 class CenterApi extends Fetch {
     constructor() {
         super(centerUrl);
+    }
+
+    protected innerFetchLog(url: string, method: string) {
+        let fullUrl = this.baseUrl + url;
+        logger.error('???? CenterApi innerFetch ' + method + '  ' + fullUrl);
     }
 
     async busSchema(owner: string, bus: string, version: number): Promise<string> {

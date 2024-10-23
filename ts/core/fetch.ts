@@ -31,9 +31,14 @@ export abstract class Fetch {
         return await this.innerFetch(url, 'POST', params);
     }
 
-    private async innerFetch(url: string, method: string, body?: any): Promise<any> {
+    protected innerFetchLog(url: string, method: string) {
         let fullUrl = this.baseUrl + url;
         logger.debug('innerFetch ' + method + '  ' + fullUrl);
+    }
+
+    private async innerFetch(url: string, method: string, body?: any): Promise<any> {
+        this.innerFetchLog(url, method);
+        let fullUrl = this.baseUrl + url;
         //var headers = new Headers();
         //headers.append('Accept', 'application/json'); // This one is enough for GET requests
         //headers.append('Content-Type', 'application/json'); // This one sends body
