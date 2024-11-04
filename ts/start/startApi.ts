@@ -110,8 +110,6 @@ export async function startApi(): Promise<void> {
             logger.debug('DB host: %s, user: %s', host, user);
             logger.debug('Tonwa uq-api started!');
             expressListRoutes(app, {});
-            let fetchRet = await fetch('http://localhost:3000/tv/hello');
-            console.error(await fetchRet.json());
         });
 
         let localApp = express();

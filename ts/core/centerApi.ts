@@ -3,8 +3,8 @@ import { Fetch } from './fetch';
 import { logger } from '../tool';
 
 const centerHost = config.get<string>('centerhost');
-//const centerUrl = urlSetCenterHost(config.get<string>('center'));
-const centerUrl = 'http://localhost:3000/tv';
+const centerUrl = urlSetCenterHost(config.get<string>('center'));
+//const centerUrl = 'http://localhost:3000/tv';
 
 export function urlSetCenterHost(url: string): string {
     return url.replace('://centerhost/', '://' + centerHost + '/');

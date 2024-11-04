@@ -21,11 +21,11 @@ export class UnitxApi extends Fetch {
             defer,
         };
         try {
-            let ret = await this.post('fetch-bus', param);
+            let ret = await this.post(pathFetchBus, param);
             return ret;
         }
         catch (err) {
-            logger.error(err, this.baseUrl + pathFetchBus, unit, param);
+            // logger.error(err, this.baseUrl + pathFetchBus, unit, param);
             return undefined;
         }
     }

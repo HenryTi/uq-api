@@ -14,8 +14,8 @@ const config = require("config");
 const fetch_1 = require("./fetch");
 const tool_1 = require("../tool");
 const centerHost = config.get('centerhost');
-//const centerUrl = urlSetCenterHost(config.get<string>('center'));
-const centerUrl = 'http://localhost:3000/tv';
+const centerUrl = urlSetCenterHost(config.get('center'));
+//const centerUrl = 'http://localhost:3000/tv';
 function urlSetCenterHost(url) {
     return url.replace('://centerhost/', '://' + centerHost + '/');
 }

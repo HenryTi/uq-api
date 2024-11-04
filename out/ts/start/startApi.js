@@ -20,7 +20,6 @@ const router_1 = require("../router");
 const auth_1 = require("../core/auth");
 const proc_1 = require("../router/proc");
 const api_1 = require("../router/api");
-const node_fetch_1 = require("node-fetch");
 function startApi() {
     return __awaiter(this, void 0, void 0, function* () {
         process.on('uncaughtException', function (err) {
@@ -114,8 +113,6 @@ function startApi() {
                 tool_1.logger.debug('DB host: %s, user: %s', host, user);
                 tool_1.logger.debug('Tonwa uq-api started!');
                 (0, tool_1.expressListRoutes)(app, {});
-                let fetchRet = yield (0, node_fetch_1.default)('http://localhost:3000/tv/hello');
-                console.error(yield fetchRet.json());
             }));
             let localApp = express();
             if (localPort) {
