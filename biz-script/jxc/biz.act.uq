@@ -259,10 +259,10 @@ RETURNS ret (
     INTO ret SELECT id;
 };
 
-Biz AC SaveDetails ver 0.2 (
+Biz ACT SaveDetails ver 0.4 (
     base ID,                -- sheet id
     phrase ID,              -- detail phrase id
-    details JSON,
+    -- details JSON,
     /*
     id ID,
     i ID,                -- 计量对象。比如：商品不同包装或者批次
@@ -274,6 +274,17 @@ Biz AC SaveDetails ver 0.2 (
     pend ID,
     props JSON,
     */
+    ARR inDetails (
+        id ID,
+        i ID,                -- 计量对象。比如：商品不同包装或者批次
+        x ID,               -- 操作对象。比如：客户，仓库，等
+        origin ID,
+        value VALUE,
+        price VALUE,
+        amount VALUE,
+        pend ID,
+        props JSON        
+    ),
 )
 RETURNS main (
     * SHEET,
@@ -320,6 +331,7 @@ RETURNS specs (
     }
 
     TABLE idtable(KEY id ID);
+    /*
     JSONTABLE tblDetail (
         id ID PATH '$.id',
         i ID PATH '$.i',                -- 计量对象。比如：商品不同包装或者批次
@@ -331,8 +343,8 @@ RETURNS specs (
         pend ID PATH '$.pend',
         props JSON PATH '$.props'
     ) FROM details PATH '$[*]';
-
-    FOR (VAR id ID,
+    */
+    FOR inDetails /*(VAR id ID,
         i ID,                -- 计量对象。比如：商品不同包装或者批次
         x ID,               -- 操作对象。比如：客户，仓库，等
         origin ID,
@@ -342,8 +354,8 @@ RETURNS specs (
         pend ID,
         props JSON
         OF SELECT a.id, a.i, a.x, a.origin, a.value, a.price, a.amount, a.pend, a.props
-            FROM tblDetail as a
-    ) {
+            FROM inDetails as a
+    )*/ {
         VAR pendFrom ID = pend;
         IF id IS NULL {
             SET id = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
