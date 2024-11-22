@@ -318,12 +318,18 @@ RETURNS specs (
     atom ID,
     (id) KEY,
 ) {
-    VAR me ID = Me();
+    VAR me ID = Me(), owner ID;
     -- 安全判断
-    IF base IS NULL OR NOT EXISTS(SELECT x FROM IxState WHERE i=me AND x=base) {
+    IF base IS NULL {
         -- base sheet必须在我的draft里面
         RETURN;
     }
+    SET owner= a.i FROM IxState as a WHERE a.x=base;
+    IF owner IS NOT NULL AND owner <> me {
+        -- 有owner，但不是我
+        RETURN;
+    }
+
     -- 安全判断
     IF NOT EXISTS(SELECT a.id FROM BizPhrase as a WHERE a.id=phrase AND a.base=$site) {
         -- phrase id 必须是 my site

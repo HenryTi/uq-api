@@ -1,5 +1,5 @@
 import {
-    BizBin, BizSheet, Detail, EnumDetailOperate, Uq, UseOut
+    BizBin, BizSheet, EnumDetailOperate, Uq, UseOut
 } from "../../il";
 import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
