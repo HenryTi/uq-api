@@ -8,7 +8,7 @@ import { BizPhraseType } from '../il/Biz/BizPhraseType';
 import { logger } from '../../tool';
 
 const groups: { [name: string]: BizPhraseType[] } = {
-    info: [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.book, BizPhraseType.assign, BizPhraseType.duo],
+    info: [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.book, BizPhraseType.assign, BizPhraseType.duo, BizPhraseType.combo],
     sheet: [BizPhraseType.sheet, BizPhraseType.bin, BizPhraseType.pend],
     query: [BizPhraseType.query],
     relate: [BizPhraseType.pick, BizPhraseType.options, BizPhraseType.tie, BizPhraseType.tree],
@@ -65,8 +65,7 @@ export class Compiler {
         logger.debug('loadBizObjects from DB ', Date.now() - time, 'ms');
     }
 
-    getSource(group: string) {
-        let sources: string[] = [];
+    private getSourceInternal(group: string, sources: string[]) {
         let arr = groups[group];
         if (arr !== undefined) {
             for (let entity of this.biz.bizArr) {
@@ -83,6 +82,18 @@ export class Compiler {
             sources.push(
                 `-- ${group} is not a valid source group
 `);
+        }
+    }
+
+    getSource(group: string) {
+        let sources: string[] = [];
+        if (group === undefined) {
+            for (let i in groups) {
+                this.getSourceInternal(i, sources);
+            }
+        }
+        else {
+            this.getSourceInternal(group, sources);
         }
         return sources.join('');
     }

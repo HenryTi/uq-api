@@ -63,6 +63,12 @@ export function buildCompileRouter(router: Router, rb: RouterBuilder) {
             return ret
         });
 
+    rb.entityDownload(router, actionType, '/source',
+        async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
+            let ret = await compileDownload(runner, unit, user, undefined);
+            return ret;
+        });
+
     rb.entityDownload(router, actionType, '/source/:file',
         async (unit: number, user: number, name: string, db: string, urlParams: any, runner: EntityRunner, body: any, schema: any, run: any, net: Net): Promise<any> => {
             let ret = await compileDownload(runner, unit, user, urlParams.file);

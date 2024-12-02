@@ -57,6 +57,10 @@ function buildCompileRouter(router, rb) {
         let ret = yield (0, compile_1.compileBiz)(runner, unit, user);
         return ret;
     }));
+    rb.entityDownload(router, actionType, '/source', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
+        let ret = yield (0, compile_1.compileDownload)(runner, unit, user, undefined);
+        return ret;
+    }));
     rb.entityDownload(router, actionType, '/source/:file', (unit, user, name, db, urlParams, runner, body, schema, run, net) => __awaiter(this, void 0, void 0, function* () {
         let ret = yield (0, compile_1.compileDownload)(runner, unit, user, urlParams.file);
         return ret;

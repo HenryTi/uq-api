@@ -336,6 +336,7 @@ RETURNS specs (
         RETURN;
     }
 
+    TABLE originTable(KEY id BIGINT, value BIGINT);
     TABLE idtable(KEY id ID);
     /*
     JSONTABLE tblDetail (
@@ -363,8 +364,16 @@ RETURNS specs (
             FROM inDetails as a
     )*/ {
         VAR pendFrom ID = pend;
-        IF id IS NULL {
-            SET id = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+
+        IF id IS NULL OR id <= 0 {
+            VAR idNew ID = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+            IF id <= 0 {
+                INTO originTable SELECT id, idNew as value;
+            }
+            SET id = idNew;
+        }
+        IF origin<=0 {
+            SET origin=a.value FROM originTable as a WHERE a.id=origin;
         }
         WITH Bin ID=id SET i=i, x=x
             , origin=origin
