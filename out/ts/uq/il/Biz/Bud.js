@@ -358,7 +358,7 @@ class BizBudIDBase extends BizBudTieable {
     buildSchema(res) {
         var _a;
         let ret = super.buildSchema(res);
-        ret.atom = (_a = this.ID) === null || _a === void 0 ? void 0 : _a.name;
+        ret.atom = (_a = this.ID) === null || _a === void 0 ? void 0 : _a.id;
         let hasParams = false;
         let params = {};
         for (let i in this.params) {

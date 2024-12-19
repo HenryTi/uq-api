@@ -363,7 +363,7 @@ export abstract class BizBudIDBase extends BizBudTieable {
     readonly params: { [param: string]: BudValueSet; } = {};        // 仅仅针对Spec，可能有多级的base
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        ret.atom = this.ID?.name;
+        ret.atom = this.ID?.id;
         let hasParams: boolean = false;
         let params = {} as any;
         for (let i in this.params) {

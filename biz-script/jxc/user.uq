@@ -35,7 +35,9 @@ RETURNS buds (
     IF userId IS NULL {
         SET userId=ME();
     }
-    INTO buds SELECT a.x as bud, a.value FROM IxBudJson as a WHERE a.i=userId;
+    INTO buds SELECT a.x as bud, a.value 
+        FROM IxBudJson as a JOIN BizPhrase as b ON b.id=a.x 
+        WHERE a.i=userId;
     -- INTO buds SELECT a.x as bud, a.value FROM IxBudStr as a WHERE a.i=userId;
     -- INTO buds SELECT a.x as bud, a.value FROM IxBudDec as a WHERE a.i=userId;
 }
