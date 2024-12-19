@@ -129,7 +129,7 @@ RETURNS specs VIRTUAL (
     INTO IGNORE specs SELECT c.id, c.base as atom -- , b.id as base
         FROM idtable as a
             JOIN BizPhrase as b ON b.id=a.phrase
-            JOIN Spec as c ON c.id=a.id
+            JOIN Fork as c ON c.id=a.id
         WHERE b.type=BizPhraseType.fork;
     INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
         FROM specs as a

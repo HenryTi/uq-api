@@ -149,12 +149,13 @@ Biz Act DelAtom (
     -- WITH IxAtom i=base x=id DEL;
 }
 
-Biz Ac SaveSpec ver 0.2 (
+Biz Ac SaveFork ver 0.2 (
     id ID,
-    spec ID,
+    fork ID,
     base ID,
-    keys JSON,              -- {"k1": v1, "k2": v2}
-    props JSON,             -- {"p1": p1, "p2": p2}
+    values JSON,               -- {"id1": v1, "id2": v2}
+    -- keys JSON,              -- {"k1": v1, "k2": v2}
+    -- props JSON,             -- {"p1": p1, "p2": p2}
 )
 RETURNS ret (
     id ID,
@@ -162,13 +163,30 @@ RETURNS ret (
     VAR me ID = Me();
     VAR retId ID;
     VAR sql CHAR(500);
-    SET sql=CONCAT('call `$site`.`', $site, '.', spec, '$s`(?, ?,?,?,?,?);');
-    ExecSql sql to retId USING $site, me, id, base, keys, props;
-    WITH IDU as a ID=retId SET a.base=spec;
+    SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
+    ExecSql sql to retId USING $site, me, id, base, values; -- keys, props;
+    WITH IDU as a ID=retId SET a.base=fork;
     INTO ret SELECT retId as id;
 }
 
-Biz Query GetSpec (
+PROC ProcSaveFork (
+    id ID,
+    -- fork ID,
+    -- base ID,
+    values JSON,               -- {"id1": v1, "id2": v2}
+) {
+    VAR me ID = Me();
+    VAR fork ID, base ID;
+    VAR retId ID;
+    VAR sql CHAR(500);
+    SET fork=JSON_VALUE(values, '$."$"');
+    SET base=JSON_VALUE(values, '$."$base"');
+    SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
+    ExecSql sql to retId USING $site, me, id, base, values; -- keys, props;
+    WITH IDU as a ID=retId SET a.base=fork;
+}
+
+Biz Query GetFork (
     id ID,
 )
 RETURNS props (
@@ -177,7 +195,7 @@ RETURNS props (
     phrase ID,
     value JSON,
 ) {
-    PROC ProcGetSpec(id);
+    PROC ProcGetFork(id);
 };
 
 Biz ACT SaveSheet (
@@ -1056,7 +1074,7 @@ RETURNS specs VIRTUAL (
 
     INTO IGNORE specs SELECT DISTINCT a.i as id, e.id as atom
         FROM details as a 
-            JOIN Spec as c ON (c.id=a.i OR c.id=a.x)
+            JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
             -- JOIN Idu as d ON d.id=c.id
             JOIN Atom as e on e.id=c.base;
 
@@ -1099,7 +1117,7 @@ RETURNS ret (
             union select sx.name, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
         ) as arr ) as keys,
         null as props
-        FROM Spec as a
+        FROM Fork as a
         WHERE a.base=base;
 }
 
@@ -1120,7 +1138,7 @@ RETURNS ret (
             union select sx.id, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
         ) as arr ) as keys,
         null as props
-        FROM Spec as a
+        FROM Fork as a
             JOIN IDU as b ON b.id=a.id
         WHERE a.base=base AND b.base=phrase;
 }
@@ -1183,8 +1201,8 @@ RETURNS ret (
         WHERE a.i=i AND a.valid=1;
 }
 
--- Spec or Atom
-PROC ProcGetSpec ver 0.1 (
+-- Fork or Atom
+PROC ProcGetFork ver 0.1 (
     id ID,
 )
 RETURNS props VIRTUAL (
@@ -1196,7 +1214,7 @@ RETURNS props VIRTUAL (
     -- VAR jval JSON;
     WHILE 1=1 {
         VAR base ID=a.base, phrase Phrase=c.id, type ENUM BizPhraseType=c.type 
-            FROM Spec as a 
+            FROM Fork as a 
                 JOIN IDU as b ON b.id=a.id 
                 JOIN BizPhrase as c ON c.id=b.base
             WHERE a.id=id;

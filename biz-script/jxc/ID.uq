@@ -21,7 +21,7 @@ IX AtomUnique ver 0.5 (
     INDEX i_atom(i, atom) UNIQUE,
 );
 
-ID Spec ver 0.1 (
+ID Fork ver 0.1 (
     id MINUTE,
     KEY base ID,
     KEY id,

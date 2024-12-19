@@ -28,7 +28,7 @@ export class BBizFork extends BBizEntity<BizFork> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
         const { id } = this.bizEntity;
-        const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
+        const procSave = this.createProcedure(`${this.context.site}.${id}$f`);
         this.buildSaveProc(procSave);
         const funcGet = this.createFunction(`${this.context.site}.${id}`, new JsonDataType());
         this.buildGetFunc(funcGet);
@@ -46,17 +46,19 @@ export class BBizFork extends BBizEntity<BizFork> {
 
         const cOrgId = '$id';
         const cBase = '$base';
-        const cKeys = '$keys';
-        const cProps = '$props';
+        // const cKeys = '$keys';
+        // const cProps = '$props';
+        const cValues = '$values';
         const cNewId = '$newId';
         const cKeysSet = '$keysSet';
         const cPropsSet = '$propsSet';
         const a = 'a';
         const site = '$site';
         const len = keys.length;
-        const varKeys = new ExpVar(cKeys);
+        // const varKeys = new ExpVar(cKeys);
         const varBase = new ExpVar(cBase);
-        const varProps = new ExpVar(cProps);
+        //const varProps = new ExpVar(cProps);
+        const varValues = new ExpVar(cValues);
         const varSite = new ExpVar(site);
         const prefixBud = '$bud_';
         const prefixPhrase = '$phrase_';
@@ -69,8 +71,9 @@ export class BBizFork extends BBizEntity<BizFork> {
             userParam,
             bigIntField(cOrgId),
             idField(cBase, 'big'),
-            jsonField(cKeys),
-            jsonField(cProps),
+            // jsonField(cKeys),
+            // jsonField(cProps),
+            jsonField(cValues),
         );
 
         const declare = factory.createDeclare();
@@ -84,7 +87,7 @@ export class BBizFork extends BBizEntity<BizFork> {
 
         function declareBuds(buds: BizBud[]) {
             for (let bud of buds) {
-                const { name, id, dataType } = bud;
+                const { id, dataType } = bud;
                 let dt: DataType;
                 switch (dataType) {
                     default:
@@ -102,11 +105,11 @@ export class BBizFork extends BBizEntity<BizFork> {
                         dt = new JsonDataType();
                         break;
                 }
-                declare.var(prefixBud + name, dt);
-                declare.var(prefixPhrase + name, new BigInt());
+                declare.var(prefixBud + id, dt);
+                declare.var(prefixPhrase + id, new BigInt());
                 let setPhraseId = factory.createSet();
                 statements.push(setPhraseId);
-                setPhraseId.equ(prefixPhrase + name,
+                setPhraseId.equ(prefixPhrase + id,
                     new ExpNum(id)
                 )
             }
@@ -120,11 +123,11 @@ export class BBizFork extends BBizEntity<BizFork> {
             statements.push(select);
             select.toVar = true;
             for (let bud of buds) {
-                const { name } = bud;
-                select.column(new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)), `${prefix}${name}`);
+                const { id } = bud;
+                select.column(new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${id}"`)), `${prefix}${id}`);
             }
         }
-        selectJsonValue(varKeys, keys, prefixBud);
+        selectJsonValue(varValues, keys, prefixBud);
 
         const select = factory.createSelect();
         statements.push(select);
@@ -135,8 +138,8 @@ export class BBizFork extends BBizEntity<BizFork> {
         const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
 
         function tblAndValFromBud(bud: BizBud): { varVal: ExpVal; tbl: string; } {
-            const { name, dataType } = bud;
-            let varVal: ExpVal = new ExpVar(`${prefixBud}${name}`);
+            const { id, dataType } = bud;
+            let varVal: ExpVal = new ExpVar(`${prefixBud}${id}`);
             let tbl: EnumSysTable;
             switch (dataType) {
                 default:
@@ -161,7 +164,7 @@ export class BBizFork extends BBizEntity<BizFork> {
 
         for (let i = 0; i < len; i++) {
             const key = keys[i];
-            const { name } = key;
+            const { id } = key;
             const { varVal, tbl } = tblAndValFromBud(key);
             let t = 't' + i;
             select.join(JoinType.join, new EntityTable(tbl, false, t))
@@ -169,7 +172,7 @@ export class BBizFork extends BBizEntity<BizFork> {
                 new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
                 new ExpEQ(
                     new ExpField('x', t),
-                    new ExpVar(prefixPhrase + name),
+                    new ExpVar(prefixPhrase + id),
                 ),
             ));
             wheres.push(new ExpEQ(new ExpField('value', t), varVal));
@@ -177,7 +180,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         select.where(new ExpAnd(...wheres));
 
         function setBud(stats: Statement[], bud: BizBud) {
-            const { name } = bud;
+            const { id } = bud;
             const { varVal, tbl } = tblAndValFromBud(bud);
             const insert = factory.createInsertOnDuplicate();
             stats.push(insert);
@@ -185,7 +188,7 @@ export class BBizFork extends BBizEntity<BizFork> {
             insert.keys.push(
                 { col: 'i', val: new ExpVar(cNewId) },
                 {
-                    col: 'x', val: new ExpVar(prefixPhrase + name),
+                    col: 'x', val: new ExpVar(prefixPhrase + id),
                 },
             );
             insert.cols.push({ col: 'value', val: varVal, setEqu: SetEqu.equ });
@@ -206,7 +209,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         const setId = factory.createSet();
         ifNewNullOrg.else(setId);
         setId.equ(cNewId, new ExpFuncInUq(
-            'spec$id',
+            'fork$id',
             [varSite, new ExpVar(userParam.name), ExpNum.num1, ExpNull.null, varBase],
             true
         ));
@@ -228,7 +231,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         ifNewIdNull.else(setNewNeg);
         setNewNeg.equ(cNewId, new ExpNeg(new ExpVar(cNewId)));
 
-        selectJsonValue(varProps, props, prefixBud);
+        selectJsonValue(varValues, props, prefixBud);
 
         const ifKeysSet = factory.createIf();
         statements.push(ifKeysSet);

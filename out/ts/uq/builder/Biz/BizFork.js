@@ -34,7 +34,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
             const { id } = this.bizEntity;
-            const procSave = this.createProcedure(`${this.context.site}.${id}$s`);
+            const procSave = this.createProcedure(`${this.context.site}.${id}$f`);
             this.buildSaveProc(procSave);
             const funcGet = this.createFunction(`${this.context.site}.${id}`, new il_1.JsonDataType());
             this.buildGetFunc(funcGet);
@@ -50,31 +50,36 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const { factory, unitField, userParam } = this.context;
         const cOrgId = '$id';
         const cBase = '$base';
-        const cKeys = '$keys';
-        const cProps = '$props';
+        // const cKeys = '$keys';
+        // const cProps = '$props';
+        const cValues = '$values';
         const cNewId = '$newId';
         const cKeysSet = '$keysSet';
         const cPropsSet = '$propsSet';
         const a = 'a';
         const site = '$site';
         const len = keys.length;
-        const varKeys = new sql_1.ExpVar(cKeys);
+        // const varKeys = new ExpVar(cKeys);
         const varBase = new sql_1.ExpVar(cBase);
-        const varProps = new sql_1.ExpVar(cProps);
+        //const varProps = new ExpVar(cProps);
+        const varValues = new sql_1.ExpVar(cValues);
         const varSite = new sql_1.ExpVar(site);
         const prefixBud = '$bud_';
         const prefixPhrase = '$phrase_';
         const props = [];
         for (let [, value] of propsMap)
             props.push(value);
-        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.bigIntField)(cOrgId), (0, il_1.idField)(cBase, 'big'), (0, il_1.jsonField)(cKeys), (0, il_1.jsonField)(cProps));
+        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.bigIntField)(cOrgId), (0, il_1.idField)(cBase, 'big'), 
+        // jsonField(cKeys),
+        // jsonField(cProps),
+        (0, il_1.jsonField)(cValues));
         const declare = factory.createDeclare();
         declare.var(cNewId, new il_1.BigInt());
         declare.vars((0, il_1.bigIntField)(cNewId), (0, il_1.tinyIntField)(cKeysSet), (0, il_1.tinyIntField)(cPropsSet));
         statements.push(declare);
         function declareBuds(buds) {
             for (let bud of buds) {
-                const { name, id, dataType } = bud;
+                const { id, dataType } = bud;
                 let dt;
                 switch (dataType) {
                     default:
@@ -92,11 +97,11 @@ class BBizFork extends BizEntity_1.BBizEntity {
                         dt = new il_1.JsonDataType();
                         break;
                 }
-                declare.var(prefixBud + name, dt);
-                declare.var(prefixPhrase + name, new il_1.BigInt());
+                declare.var(prefixBud + id, dt);
+                declare.var(prefixPhrase + id, new il_1.BigInt());
                 let setPhraseId = factory.createSet();
                 statements.push(setPhraseId);
-                setPhraseId.equ(prefixPhrase + name, new sql_1.ExpNum(id));
+                setPhraseId.equ(prefixPhrase + id, new sql_1.ExpNum(id));
             }
         }
         declareBuds(keys);
@@ -108,11 +113,11 @@ class BBizFork extends BizEntity_1.BBizEntity {
             statements.push(select);
             select.toVar = true;
             for (let bud of buds) {
-                const { name } = bud;
-                select.column(new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${name}"`)), `${prefix}${name}`);
+                const { id } = bud;
+                select.column(new sql_1.ExpFunc('JSON_VALUE', varJson, new sql_1.ExpStr(`$."${id}"`)), `${prefix}${id}`);
             }
         }
-        selectJsonValue(varKeys, keys, prefixBud);
+        selectJsonValue(varValues, keys, prefixBud);
         const select = factory.createSelect();
         statements.push(select);
         select.toVar = true;
@@ -121,8 +126,8 @@ class BBizFork extends BizEntity_1.BBizEntity {
         select.from(new statementWithFrom_1.EntityTable('spec', false, a));
         const wheres = [new sql_1.ExpEQ(new sql_1.ExpField('base', a), varBase)];
         function tblAndValFromBud(bud) {
-            const { name, dataType } = bud;
-            let varVal = new sql_1.ExpVar(`${prefixBud}${name}`);
+            const { id, dataType } = bud;
+            let varVal = new sql_1.ExpVar(`${prefixBud}${id}`);
             let tbl;
             switch (dataType) {
                 default:
@@ -146,22 +151,22 @@ class BBizFork extends BizEntity_1.BBizEntity {
         }
         for (let i = 0; i < len; i++) {
             const key = keys[i];
-            const { name } = key;
+            const { id } = key;
             const { varVal, tbl } = tblAndValFromBud(key);
             let t = 't' + i;
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tbl, false, t));
-            select.on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpVar(prefixPhrase + name))));
+            select.on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpVar(prefixPhrase + id))));
             wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('value', t), varVal));
         }
         select.where(new sql_1.ExpAnd(...wheres));
         function setBud(stats, bud) {
-            const { name } = bud;
+            const { id } = bud;
             const { varVal, tbl } = tblAndValFromBud(bud);
             const insert = factory.createInsertOnDuplicate();
             stats.push(insert);
             insert.table = new statementWithFrom_1.EntityTable(tbl, false);
             insert.keys.push({ col: 'i', val: new sql_1.ExpVar(cNewId) }, {
-                col: 'x', val: new sql_1.ExpVar(prefixPhrase + name),
+                col: 'x', val: new sql_1.ExpVar(prefixPhrase + id),
             });
             insert.cols.push({ col: 'value', val: varVal, setEqu: il_1.SetEqu.equ });
         }
@@ -180,7 +185,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         setNew0.equ(cNewId, sql_1.ExpNum.num0);
         const setId = factory.createSet();
         ifNewNullOrg.else(setId);
-        setId.equ(cNewId, new sql_1.ExpFuncInUq('spec$id', [varSite, new sql_1.ExpVar(userParam.name), sql_1.ExpNum.num1, sql_1.ExpNull.null, varBase], true));
+        setId.equ(cNewId, new sql_1.ExpFuncInUq('fork$id', [varSite, new sql_1.ExpVar(userParam.name), sql_1.ExpNum.num1, sql_1.ExpNull.null, varBase], true));
         const setKeysSet = factory.createSet();
         ifNewNullOrg.else(setKeysSet);
         setKeysSet.equ(cKeysSet, sql_1.ExpNum.num1);
@@ -194,7 +199,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const setNewNeg = factory.createSet();
         ifNewIdNull.else(setNewNeg);
         setNewNeg.equ(cNewId, new sql_1.ExpNeg(new sql_1.ExpVar(cNewId)));
-        selectJsonValue(varProps, props, prefixBud);
+        selectJsonValue(varValues, props, prefixBud);
         const ifKeysSet = factory.createIf();
         statements.push(ifKeysSet);
         ifKeysSet.cmp = new sql_1.ExpEQ(new sql_1.ExpVar(cKeysSet), sql_1.ExpNum.num1);
