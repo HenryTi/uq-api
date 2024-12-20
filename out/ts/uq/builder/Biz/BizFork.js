@@ -123,7 +123,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         select.toVar = true;
         select.limit(sql_1.ExpNum.num1);
         select.column(new sql_1.ExpField('id', a), cNewId);
-        select.from(new statementWithFrom_1.EntityTable('spec', false, a));
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, a));
         const wheres = [new sql_1.ExpEQ(new sql_1.ExpField('base', a), varBase)];
         function tblAndValFromBud(bud) {
             const { id, dataType } = bud;

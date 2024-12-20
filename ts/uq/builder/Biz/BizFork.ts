@@ -134,7 +134,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         select.toVar = true;
         select.limit(ExpNum.num1);
         select.column(new ExpField('id', a), cNewId);
-        select.from(new EntityTable('spec', false, a));
+        select.from(new EntityTable(EnumSysTable.fork, false, a));
         const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
 
         function tblAndValFromBud(bud: BizBud): { varVal: ExpVal; tbl: string; } {
