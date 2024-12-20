@@ -96,7 +96,7 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
         selectBud.toVar = true;
         selectBud.column(new ExpField('base', b), budName);
         selectBud.from(new EntityTable(EnumSysTable.bizBin, false, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, b))
+            .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField(budName.substring(0, 1), a)));
         selectBud.where(new ExpEQ(new ExpField('id', a), varBin));
         return selectBud;

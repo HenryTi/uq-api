@@ -304,7 +304,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             expOn = new sql_1.ExpIn(...arrExp);
         }
         select.from(new statementWithFrom_1.VarTable(tbl, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, b))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, b))
             .on(expOn)
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', c))));

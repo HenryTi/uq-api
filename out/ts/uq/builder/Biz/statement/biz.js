@@ -532,7 +532,7 @@ class BBizStatementSpec extends BBizStatementID {
         sqls.push(select);
         select.toVar = true;
         select.column(new sql_1.ExpField('id', a), undefined, this.istatement.toVar);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, a));
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, a));
         let wheres = [
             new sql_1.ExpEQ(new sql_1.ExpField('base', a), this.context.expVal(inVals[0])),
         ];

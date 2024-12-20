@@ -84,7 +84,7 @@ class BBudSelect {
                     tbl = il_1.EnumSysTable.atom;
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
-                    tbl = il_1.EnumSysTable.spec;
+                    tbl = il_1.EnumSysTable.fork;
                     break;
             }
             wheres = new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('id'), params[0]), new exp_1.ExpEQ(new exp_1.ExpField('base'), new exp_1.ExpNum(bizEntity.id)));
@@ -98,7 +98,7 @@ class BBudSelect {
                     tbl = il_1.EnumSysTable.atom;
                     break;
                 case il_1.BizExpIDType.fork:
-                    tbl = il_1.EnumSysTable.spec;
+                    tbl = il_1.EnumSysTable.fork;
                     break;
             }
             wheres = expId;

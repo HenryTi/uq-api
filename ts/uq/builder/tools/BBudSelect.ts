@@ -99,7 +99,7 @@ export class BBudSelect {
             switch (bizEntity.bizPhraseType) {
                 default: debugger; throw new Error('select field must be ATOM or SPEC');
                 case BizPhraseType.atom: tbl = EnumSysTable.atom; break;
-                case BizPhraseType.fork: tbl = EnumSysTable.spec; break;
+                case BizPhraseType.fork: tbl = EnumSysTable.fork; break;
             }
             wheres = new ExpAnd(
                 new ExpEQ(new ExpField('id'), params[0]),
@@ -110,7 +110,7 @@ export class BBudSelect {
             switch (expIDType) {
                 default: debugger; throw new Error('select field must be ATOM or SPEC');
                 case BizExpIDType.atom: tbl = EnumSysTable.atom; break;
-                case BizExpIDType.fork: tbl = EnumSysTable.spec; break;
+                case BizExpIDType.fork: tbl = EnumSysTable.fork; break;
             }
             wheres = expId;
         }

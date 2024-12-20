@@ -20,7 +20,7 @@ export enum EnumSysTable {
     idu = 'idu',
     atom = 'atom',
     atomUnique = 'atomunique',
-    spec = 'spec',
+    fork = 'fork',
     bud = 'bud',
     duo = 'duo',
     combo = 'combo',

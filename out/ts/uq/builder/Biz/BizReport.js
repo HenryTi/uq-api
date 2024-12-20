@@ -173,7 +173,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpSelect(selectPhrase));
         select.column(new sql_1.ExpField('base', b));
         select.column(expJsonValues);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, a))
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, a))
             .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)))
             .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable('_$page', false, d))

@@ -91,7 +91,7 @@ class BBizSelect extends bstatement_1.BStatement {
                         select
                             .join(il_1.JoinType.join, entityTable)
                             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), expMainField))
-                            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.spec, false, subAlias))
+                            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, subAlias))
                             .on(expOnFork);
                         break;
                 }
@@ -139,7 +139,7 @@ class BBizSelect extends bstatement_1.BStatement {
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
                     t0 = t0$idu;
-                    joinTable = il_1.EnumSysTable.spec;
+                    joinTable = il_1.EnumSysTable.fork;
                     break;
             }
             table = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);

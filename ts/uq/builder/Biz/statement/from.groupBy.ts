@@ -335,7 +335,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             expOn = new ExpIn(...arrExp);
         }
         select.from(new VarTable(tbl, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.spec, false, b))
+            .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
             .on(expOn)
             .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
             .on(new ExpAnd(new ExpEQ(new ExpField('id', c), new ExpField('base', c))))

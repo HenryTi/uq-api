@@ -108,7 +108,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                         select
                             .join(JoinType.join, entityTable)
                             .on(new ExpEQ(new ExpField('id', aliasIDU), expMainField))
-                            .join(JoinType.left, new EntityTable(EnumSysTable.spec, false, subAlias))
+                            .join(JoinType.left, new EntityTable(EnumSysTable.fork, false, subAlias))
                             .on(expOnFork)
                             ;
                         break;
@@ -158,7 +158,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     break;
                 case BizPhraseType.fork:
                     t0 = t0$idu;
-                    joinTable = EnumSysTable.spec;
+                    joinTable = EnumSysTable.fork;
                     break;
             }
             table = new EntityTable(bizEntityTable, false, t0);

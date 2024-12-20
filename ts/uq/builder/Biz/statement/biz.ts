@@ -590,7 +590,7 @@ export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
         sqls.push(select);
         select.toVar = true;
         select.column(new ExpField('id', a), undefined, this.istatement.toVar);
-        select.from(new EntityTable(EnumSysTable.spec, false, a));
+        select.from(new EntityTable(EnumSysTable.fork, false, a));
         let wheres: ExpCmp[] = [
             new ExpEQ(new ExpField('base', a), this.context.expVal(inVals[0])),
         ]

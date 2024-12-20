@@ -11,7 +11,6 @@ import {
 import { authJoint, authUpBuild } from '../core/auth';
 import { buildProcRouter } from '../router/proc';
 import { buildApiRouter } from '../router/api';
-import fetch from 'node-fetch';
 
 export async function startApi(): Promise<void> {
     process.on('uncaughtException', function (err: any) {
