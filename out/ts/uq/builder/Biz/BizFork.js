@@ -33,10 +33,10 @@ class BBizFork extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const { id } = this.bizEntity;
-            const procSave = this.createProcedure(`${this.context.site}.${id}$f`);
+            // const { id } = this.bizEntity;
+            const procSave = this.createSiteEntityProcedure('$f');
             this.buildSaveProc(procSave);
-            const funcGet = this.createFunction(`${this.context.site}.${id}`, new il_1.JsonDataType());
+            const funcGet = this.createSiteEntityFunction(new il_1.JsonDataType());
             this.buildGetFunc(funcGet);
         });
     }
@@ -222,7 +222,6 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const { parameters, statements } = func;
         const { factory, userParam } = this.context;
         const id = 'id';
-        const a = 'a';
         const site = '$site';
         const valJson = 'valJson';
         parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.idField)(id, 'big'));

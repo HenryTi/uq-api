@@ -1,4 +1,4 @@
-import { Db$Res, Db$Site, Db$Unitx, Db$Uq, Db$X, DbNoName, DbUq } from "../Db";
+import { Db$Res, Db$Site, Db$Unitx, Db$Uq, DbUq } from "../Db";
 import { Dbs } from "../Dbs";
 import { MyDb$Res } from "./MyDb$Res";
 import { MyDb$Site } from "./MyDb$Site";
@@ -25,7 +25,7 @@ export class MyDbs implements Dbs {
         this.uq_api_version = uq_api_version;
         this.db$Uq = new MyDb$Uq(this);
         this.db$Res = new MyDb$Res(this);
-        this.db$Site = new MyDb$Site(this);
+        this.db$Site = new MyDb$Site(this, undefined);
         this.db$UnitxTest = new MyDb$Unitx(this, true);
         this.db$UnitxProd = new MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName(this);
@@ -33,6 +33,12 @@ export class MyDbs implements Dbs {
         this.dbBiz = new MyDbUq(this, dbBizName);
         this.dbUqs = {};
         this.dbUqs[dbBizName] = this.dbBiz;
+    }
+
+    async createSiteDb(siteId: number) {
+        const dbSite = new MyDb$Site(this, siteId);
+        await dbSite.createDatabase();
+        // return new MyDb$Site(this, siteId);
     }
 
     async getDbUq(dbName: string): Promise<DbUq> {

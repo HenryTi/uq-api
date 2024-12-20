@@ -122,7 +122,7 @@ class BBizSelect extends bstatement_1.BStatement {
             let ret = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, t0);
             return ret;
         }
-        let ret = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        let ret = new statementWithFrom_1.GlobalSiteTable(this.context.site, bizEntityArr[0].id, t0);
         return ret;
     }
     buildSelectFrom(select, fromEntity) {
@@ -145,7 +145,7 @@ class BBizSelect extends bstatement_1.BStatement {
             table = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);
         }
         else {
-            table = new statementWithFrom_1.GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+            table = new statementWithFrom_1.GlobalSiteTable(this.context.site, bizEntityArr[0].id, t0);
         }
         select.from(table);
         if (joinTable !== undefined) {

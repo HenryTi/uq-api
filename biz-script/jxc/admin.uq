@@ -104,7 +104,8 @@ RETURNS specs (
         OF SELECT a.i, a.phrase, b.type FROM $page as a JOIN bizphrase as b ON b.id=a.phrase) 
     {
         IF type=BizPhraseType.combo {
-            VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phrase, 'ids', '`();');
+            -- VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phrase, 'ids', '`();');
+            VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', phrase, 'ids', '`();');
             ExecSql sql;
         }
         ELSE {

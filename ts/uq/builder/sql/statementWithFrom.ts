@@ -3,6 +3,7 @@ import { SqlBuilder } from './sqlBuilder';
 import { ExpCmp, ExpVal } from "./exp";
 import { SqlSysTable, SqlTable, StatementBase } from './statement';
 import { consts } from "../../../core";
+import { $site } from "../consts";
 
 export abstract class WithFromBuilder {
     protected _from: From;
@@ -164,6 +165,7 @@ export class FromJsonTable extends Table {
         sb.r().r().append(' AS ').append(this._alias);
     }
 }
+
 export class GlobalTable extends Table {
     protected readonly name: string;
     private schema: string;
@@ -177,6 +179,21 @@ export class GlobalTable extends Table {
         super.to(sb);
     }
 }
+
+export class GlobalSiteTable extends Table {
+    protected readonly name: string | number;
+    private readonly siteId: number;
+    constructor(siteId: number, tableName: string | number, alias?: string) {
+        super(alias);
+        this.siteId = siteId;
+        this.name = tableName;
+    }
+    to(sb: SqlBuilder) {
+        sb.name(`${$site}.${this.siteId}`).dot().name(String(this.name));
+        super.to(sb);
+    }
+}
+
 export class EntityTable extends Table {
     protected name: string;
     constructor(name: string, hasUnit: boolean, alias?: string) {

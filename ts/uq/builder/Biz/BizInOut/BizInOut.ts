@@ -34,8 +34,8 @@ export class BBizIn extends BBizInOut<BizIn> {
     static inSite = '$inSite';
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+        // const { id } = this.bizEntity;
+        const procSubmit = this.createSiteEntityProcedure();
         this.buildSubmitProc(procSubmit);
     }
 
@@ -161,8 +161,8 @@ export class BBizIn extends BBizInOut<BizIn> {
 export class BBizOut extends BBizInOut<BizOut> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const proc = this.createProcedure(`${this.context.site}.${id}`);
+        // const { id } = this.bizEntity;
+        const proc = this.createSiteEntityProcedure();
         this.buildProc(proc);
     }
 
@@ -207,8 +207,8 @@ export class BBizOut extends BBizInOut<BizOut> {
                 memo.text = `IOSite: ${ioSite.getJName()} IOApp: ${ioApp.getJName()} Out: ${ioAppOut.bizIO.getJName()}`;
                 let call = factory.createCall();
                 statements.push(call);
-                call.db = '$site';
-                call.procName = `${site}.${ioAppOut.id}`;
+                call.db = `${$site}.${site}`;
+                call.procName = `${ioAppOut.id}`;
                 call.params = [
                     { value: new ExpNum(ioSite.id) },
                     { value: new ExpVar(json) },
@@ -234,13 +234,13 @@ export class BBizIOApp extends BBizEntity<BizIOApp> {
             this.buildUniqueFunc(ioAppID);
         }
         for (let ioAppIn of ins) {
-            const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
+            const proc = this.createSiteProcedure(ioAppIn.id);
             let ioProc = new IOProcIn(this.context, ioAppIn, proc);
             ioProc.buildProc();
         }
         let objOuts: { [out: string]: string } = {};
         for (let ioAppOut of outs) {
-            const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
+            const proc = this.createSiteProcedure(ioAppOut.id);
             let ioProc = new IOProcOut(this.context, ioAppOut, proc);
             ioProc.buildProc();
             objOuts[ioAppOut.name] = ioAppOut.to;
@@ -385,8 +385,8 @@ class IOProcIn extends IOProc<IOAppIn> {
         let statements: Statement[] = [];
         let call = this.factory.createCall();
         statements.push(call);
-        call.db = $site;
-        call.procName = `${this.context.site}.${this.ioAppIO.bizIO.id}`;
+        call.db = `${$site}.${this.context.site}`;
+        call.procName = `${this.ioAppIO.bizIO.id}`;
         call.params = [
             { paramType: ProcParamType.in, value: new ExpVar(IOProc.queueId) },
             { paramType: ProcParamType.in, value: new ExpVar(IOProc.otherSite) },

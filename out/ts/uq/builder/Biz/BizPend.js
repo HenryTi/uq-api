@@ -21,7 +21,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
             const { id, keys } = this.bizEntity;
             if (keys === undefined)
                 return;
-            let table = this.createTable(`${this.context.site}.${id}`);
+            let table = this.createSiteTable(id); // `${this.context.site}.${id}`);
             let keyFields = keys.map(v => v.createField());
             let idField = (0, il_1.bigIntField)('id');
             table.keys = [idField];
@@ -37,8 +37,8 @@ class BBizPend extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const { id } = this.bizEntity;
-            const procQuery = this.createProcedure(`${this.context.site}.${id}gp`);
+            // const { id } = this.bizEntity;
+            const procQuery = this.createSiteEntityProcedure('gp');
             this.buildQueryProc(procQuery);
         });
     }

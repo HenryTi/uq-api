@@ -1006,8 +1006,6 @@ class PActionBase extends PEntity {
 exports.PActionBase = PActionBase;
 const dollarVars = [
     '$unit', '$user', '$date', '$site'
-    // 'pagestart', 'pagesize',
-    // '$date', '$id', '$state', '$row', '$sheet_date', '$sheet_no', '$sheet_discription'
 ];
 class ActionBaseSpace extends space_1.Space {
     constructor(outer, actionBase) {

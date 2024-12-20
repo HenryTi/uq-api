@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizCombo = void 0;
 const il_1 = require("../../il");
-const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
@@ -20,7 +19,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
     buildTables() {
         return __awaiter(this, void 0, void 0, function* () {
             const { id, keys, indexes } = this.bizEntity;
-            let table = this.createTable(`${this.context.site}.${id}`);
+            let table = this.createSiteTable(id);
             let keyFields = keys.map(v => {
                 let ret = (0, il_1.bigIntField)(String(v.id));
                 ret.nullable = false;
@@ -36,10 +35,10 @@ class BBizCombo extends BizEntity_1.BBizEntity {
     }
     buildProcedures() {
         return __awaiter(this, void 0, void 0, function* () {
-            const { id } = this.bizEntity;
-            const funcId = this.createFunction(`${this.context.site}.${id}.ID`, new il_1.BigInt());
+            // const { id } = this.bizEntity;
+            const funcId = this.createSiteEntityFunction(new il_1.BigInt(), '.ID');
             this.buildFuncId(funcId);
-            const toIdTable = this.createProcedure(`${this.context.site}.${id}ids`);
+            const toIdTable = this.createSiteEntityProcedure('ids');
             this.buildIdTable(toIdTable);
         });
     }
@@ -52,7 +51,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         const declare = factory.createDeclare();
         statements.push(declare);
         declare.var(vId, new il_1.BigInt());
-        let tbl = new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${id}`);
+        let tbl = new statementWithFrom_1.GlobalSiteTable(this.context.site, id);
         const select = factory.createSelect();
         statements.push(select);
         select.toVar = true;
@@ -124,7 +123,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpField('id', a), 'id');
         select.column(new sql_1.ExpNum(keyId), 'phrase');
         select.column(new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON')), 'value');
-        select.from(new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${this.bizEntity.id}`, a))
+        select.from(new statementWithFrom_1.GlobalSiteTable(this.context.site, this.bizEntity.id, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)));
         return insert;
@@ -143,7 +142,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         insert.select = select;
         select.column(expId, 'id');
         select.column(new sql_1.ExpField('base', c), 'phrase');
-        select.from(new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${this.bizEntity.id}`, a))
+        select.from(new statementWithFrom_1.GlobalSiteTable(this.context.site, this.bizEntity.id, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))

@@ -25,8 +25,8 @@ class BBizTie extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures;
-            const { id } = this.bizEntity;
-            const procGet = this.createProcedure(`${this.context.site}.${id}t`);
+            // const { id } = this.bizEntity;
+            const procGet = this.createSiteEntityProcedure('t');
             this.buildGetProc(procGet);
         });
     }

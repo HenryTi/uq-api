@@ -5,10 +5,13 @@ import { MyDb } from "./MyDb";
 import { MyDbs } from "./MyDbs";
 
 export class MyDb$Site extends MyDb implements Db$Site {
-    constructor(myDbs: MyDbs) {
-        super(myDbs, consts.$site)
+    constructor(myDbs: MyDbs, siteId: number) {
+        let dbName = consts.$site;
+        if (siteId !== undefined) dbName += '.' + siteId;
+        super(myDbs, dbName);
     }
     protected override initConfig(dbName: string) { return env.connection; }
+    /*
     override async createDatabase(): Promise<void> {
         await Promise.all([
             super.createDatabase(),
@@ -30,7 +33,7 @@ BEGIN
     ELSE
         SET @sql=CONCAT(db, '.');
     END IF;
-	SET @sql = concat('call ', @sql, 'SaveAtom(?,?,?,?)');
+    SET @sql = concat('call ', @sql, 'SaveAtom(?,?,?,?)');
     PREPARE stmt FROM @sql;
     SET @atomPhrase=atomPhrase;
     SET @base=base;
@@ -42,4 +45,5 @@ END;
 `;
         this.sql(sql, undefined);
     }
+*/
 }

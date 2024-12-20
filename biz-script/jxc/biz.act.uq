@@ -163,7 +163,8 @@ RETURNS ret (
     VAR me ID = Me();
     VAR retId ID;
     VAR sql CHAR(500);
-    SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
+    -- SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
+    SET sql=CONCAT('call `$site.', $site, '`.`', fork, '$f`(?,?,?,?,?);');
     ExecSql sql to retId USING $site, me, id, base, values; -- keys, props;
     WITH IDU as a ID=retId SET a.base=fork;
     INTO ret SELECT retId as id;
@@ -181,7 +182,8 @@ PROC ProcSaveFork (
     VAR sql CHAR(500);
     SET fork=JSON_VALUE(values, '$."$"');
     SET base=JSON_VALUE(values, '$."$base"');
-    SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
+    -- SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
+    SET sql=CONCAT('call `$site.', $site, '`.`', fork, '$f`(?,?,?,?,?);');
     ExecSql sql to retId USING $site, me, id, base, values; -- keys, props;
     WITH IDU as a ID=retId SET a.base=fork;
 }
@@ -512,7 +514,8 @@ RETURNS checkBin (
     SET @checkBin=JSON_ARRAY();
     TRANS OFF;
     TRANS START;
-    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phraseId, '`(?,?,?);');
+    -- VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phraseId, '`(?,?,?);');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', phraseId, '`(?,?,?);');
     ExecSql sql USING $site, me, id;
 
     WITH IxState I=me X=id DEL;
@@ -572,7 +575,8 @@ RETURNS checkBin (
     TRANS OFF;
     TRANS START;
     VAR logMax BIGINT = MAX(a.id) FROM Log as a WHERE a.base=$site;
-    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phraseId, '`(?,?,?);');
+    -- VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', phraseId, '`(?,?,?);');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', phraseId, '`(?,?,?);');
     ExecSql sql USING $site, me, id;
 
     -- WITH IxState I=me X=id DEL;
@@ -641,7 +645,8 @@ RETURNS specs (
     value VALUE,
     (id) KEY,
 ) {
-    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', query, 'q`(?,?,?,?);');
+    -- VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', query, 'q`(?,?,?,?);');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', query, 'q`(?,?,?,?);');
     ExecSql sql USING $user, json, pageStart, pageSize;
 };
 
@@ -831,7 +836,8 @@ PAGE (
         RETURN;
     }
     */
-    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', assign, 'a`(?,?,?,?);');
+    -- VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', assign, 'a`(?,?,?,?);');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', assign, 'a`(?,?,?,?);');
     ExecSql sql USING me, $pageStart, $pageSize, params;
 }
 
@@ -867,7 +873,8 @@ PAGE (
         RETURN;
     }
     */
-    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', tie, 't`(?,?,?,?);');
+    -- VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', tie, 't`(?,?,?,?);');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', tie, 't`(?,?,?,?);');
     ExecSql sql USING me, $pageStart, $pageSize, params;
 }
 
@@ -1066,9 +1073,11 @@ RETURNS specs VIRTUAL (
         FROM (SELECT DISTINCT origin FROM details) as a
             JOIN Bin as b ON b.id=a.origin
     ;
-    VAR procName CHAR(200) = CONCAT($site, '.', sheetPhrase, 'gs');
-    IF routine_exists('$site', procName) {
-        VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?);');
+    -- VAR procName CHAR(200) = CONCAT($site, '.', sheetPhrase, 'gs');
+    VAR procName CHAR(200) = CONCAT(sheetPhrase, 'gs');
+    IF routine_exists(CONCAT('$site.', $site), procName) {
+        -- VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?);');
+        VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', procName, '`(?);');
         ExecSql sql USING 0; -- id 底层调用中，这个id没有用，都是通过main和details来获得行;
     }
 

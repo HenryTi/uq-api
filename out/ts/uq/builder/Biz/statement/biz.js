@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizStatementError = exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementSpec = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementBook = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
+exports.BBizStatementError = exports.BBizStatementOut = exports.BBizStatementTie = exports.BBizStatementFork = exports.BBizStatementAtom = exports.BBizStatementSheet = exports.BBizStatementBook = exports.BBizStatementInPend = exports.BBizStatementBinPend = exports.BBizStatementPend = exports.BBizStatement = void 0;
 const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const consts_1 = require("../../consts");
@@ -91,8 +91,8 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 let setPendIdNull = factory.createSet();
                 ifValue.then(setPendIdNull);
                 setPendIdNull.equ(pendId, sql_1.ExpNull.null);
-                let pendKeyTableName = `${this.context.site}.${pend.id}`;
-                let pendKeyTable = new statementWithFrom_1.GlobalTable(consts_1.$site, pendKeyTableName, a);
+                // let pendKeyTableName = `${this.context.site}.${pend.id}`;
+                let pendKeyTable = new statementWithFrom_1.GlobalSiteTable(this.context.site, pend.id, a);
                 let selectPendId = factory.createSelect();
                 ifValue.then(selectPendId);
                 selectPendId.toVar = true;
@@ -111,7 +111,7 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 ifKeyedId.then(setPendId);
                 let upsertPendKey = factory.createInsertOnDuplicate();
                 ifKeyedId.then(upsertPendKey);
-                let pendKeyTableInsert = new statementWithFrom_1.GlobalTable(consts_1.$site, pendKeyTableName);
+                let pendKeyTableInsert = pendKeyTable; // new GlobalTable($site, pendKeyTableName);
                 upsertPendKey.table = pendKeyTableInsert;
                 const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new sql_1.ExpVar(pendId) });
@@ -182,7 +182,7 @@ class BBizStatementBinPend extends BBizStatementPend {
             sqls.push(del);
             del.tables = [a];
             del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a));
-            del.join(il_1.JoinType.join, new statementWithFrom_1.GlobalTable(consts_1.$site, `${this.context.site}.${binPend.id}`, b))
+            del.join(il_1.JoinType.join, new statementWithFrom_1.GlobalSiteTable(this.context.site, binPend.id, b))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id', a)));
             del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(pendFrom)), new sql_1.ExpEQ(new sql_1.ExpField('value', a), sql_1.ExpNum.num0)));
         }
@@ -519,12 +519,13 @@ class BBizStatementAtom extends BBizStatementID {
         let sqlCall = factory.createExecSql();
         sqls.push(sqlCall);
         sqlCall.no = no;
-        sqlCall.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `$site`.`'), new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('.'), varAtomPhrase, new sql_1.ExpStr('u`(?)'));
+        sqlCall.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `$site.'), // + this.context.site + '`.`'),
+        new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('`.`'), varAtomPhrase, new sql_1.ExpStr('u`(?)'));
         sqlCall.parameters = [varId];
     }
 }
 exports.BBizStatementAtom = BBizStatementAtom;
-class BBizStatementSpec extends BBizStatementID {
+class BBizStatementFork extends BBizStatementID {
     body(sqls) {
         const { inVals, spec } = this.istatement;
         const { factory } = this.context;
@@ -569,7 +570,7 @@ class BBizStatementSpec extends BBizStatementID {
         select.where(new sql_1.ExpAnd(...wheres));
     }
 }
-exports.BBizStatementSpec = BBizStatementSpec;
+exports.BBizStatementFork = BBizStatementFork;
 class BBizStatementTie extends bstatement_1.BStatement {
     body(sqls) {
         const { tie, i, x } = this.istatement;

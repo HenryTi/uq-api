@@ -235,8 +235,8 @@ class BUseSheet extends BUseBase {
         memo.text = `call Sheet.Submit ${varName} ${sheet.getJName()}`;
         const proc = factory.createCall();
         sqls.push(proc);
-        proc.db = '$site';
-        proc.procName = `${this.context.site}.${sheet.id}`;
+        proc.db = `${consts_1.$site}.${this.context.site}`;
+        proc.procName = `${sheet.id}`;
         proc.params.push({
             paramType: il_1.ProcParamType.in,
             value: new sql_1.ExpVar(consts_1.$site),

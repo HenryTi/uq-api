@@ -2,7 +2,7 @@ import {
     EnumSysTable, BigInt, BizStatementPend
     , BizStatementBook, BudIndex, SetEqu, BizBinAct, BizAct, BizInAct
     , BizStatement, BizStatementSheet
-    , BizStatementID, BizStatementAtom, BizStatementSpec, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie,
+    , BizStatementID, BizStatementAtom, BizStatementFork, JoinType, BizStatementOut, bigIntField, BizBud, BizStatementTie,
     BizStatementError,
     jsonField,
     JsonDataType
@@ -14,7 +14,7 @@ import {
     ColVal, ExpAdd, ExpAnd, ExpAtVar, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq
     , ExpGT, ExpIsNotNull, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpSub, ExpVal, ExpVar, SqlVarTable, Statement, Statements, VarTable
 } from "../../sql";
-import { EntityTable, GlobalTable } from "../../sql/statementWithFrom";
+import { EntityTable, GlobalSiteTable, GlobalTable } from "../../sql/statementWithFrom";
 import { buildSetAtomBud, buildSetSheetBud } from "../../tools";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
@@ -118,8 +118,8 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 ifValue.then(setPendIdNull);
                 setPendIdNull.equ(pendId, ExpNull.null);
 
-                let pendKeyTableName = `${this.context.site}.${pend.id}`;
-                let pendKeyTable = new GlobalTable($site, pendKeyTableName, a);
+                // let pendKeyTableName = `${this.context.site}.${pend.id}`;
+                let pendKeyTable = new GlobalSiteTable(this.context.site, pend.id, a);
                 let selectPendId = factory.createSelect();
                 ifValue.then(selectPendId);
                 selectPendId.toVar = true;
@@ -139,7 +139,7 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 ifKeyedId.then(setPendId);
                 let upsertPendKey = factory.createInsertOnDuplicate();
                 ifKeyedId.then(upsertPendKey);
-                let pendKeyTableInsert = new GlobalTable($site, pendKeyTableName);
+                let pendKeyTableInsert = pendKeyTable; // new GlobalTable($site, pendKeyTableName);
                 upsertPendKey.table = pendKeyTableInsert;
                 const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new ExpVar(pendId) });
@@ -219,7 +219,7 @@ export class BBizStatementBinPend extends BBizStatementPend<BizBinAct> {
             sqls.push(del);
             del.tables = [a];
             del.from(new EntityTable(EnumSysTable.pend, false, a));
-            del.join(JoinType.join, new GlobalTable($site, `${this.context.site}.${binPend.id}`, b))
+            del.join(JoinType.join, new GlobalSiteTable(this.context.site, binPend.id, b))
                 .on(new ExpEQ(new ExpField('id', b), new ExpField('id', a)))
             del.where(new ExpAnd(
                 new ExpEQ(new ExpField('id', a), new ExpVar(pendFrom)),
@@ -572,9 +572,9 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         sqls.push(sqlCall);
         sqlCall.no = no;
         sqlCall.sql = new ExpFunc(factory.func_concat,
-            new ExpStr('CALL `$site`.`'),
+            new ExpStr('CALL `$site.'), // + this.context.site + '`.`'),
             new ExpNum(this.context.site),
-            new ExpStr('.'),
+            new ExpStr('`.`'),
             varAtomPhrase,
             new ExpStr('u`(?)'),
         );
@@ -582,7 +582,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
     }
 }
 
-export class BBizStatementSpec extends BBizStatementID<BizStatementSpec> {
+export class BBizStatementFork extends BBizStatementID<BizStatementFork> {
     override body(sqls: Sqls): void {
         const { inVals, spec } = this.istatement;
         const { factory } = this.context;

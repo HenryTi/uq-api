@@ -170,16 +170,19 @@ class BBizExp {
         const { bizEntity, isReadonly, prop } = this.bizExp;
         const { ta } = this;
         const { site } = sb.factory.dbContext;
-        let siteEntityId = `${site}.${bizEntity.id}`;
+        const db = `${consts_1.$site}.${site}`;
+        // let siteEntityId = `${site}.${bizEntity.id}`;
+        const siteEntityId = bizEntity.id;
         if (prop !== undefined) {
             sb.append(`${ta}.${prop} FROM `)
-                .name(siteEntityId)
+                .name(db).dot()
+                .name(String(siteEntityId))
                 .append(` as ${ta} WHERE ${ta}.id=`)
                 .exp(this.params[0]);
         }
         else {
             let w = isReadonly === true ? 0 : 1;
-            sb.name(consts_1.$site).dot();
+            sb.name(db).dot();
             sb.fld(siteEntityId + '.ID');
             sb.l().append(w);
             for (let p of this.params) {

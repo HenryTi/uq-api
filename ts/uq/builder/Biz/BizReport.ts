@@ -15,15 +15,15 @@ import { BBizEntity } from "./BizEntity";
 export class BBizReport extends BBizEntity<BizReport> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procGet = this.createProcedure(`${this.context.site}.${id}`);
+        // const { id } = this.bizEntity;
+        const procGet = this.createSiteEntityProcedure();
         this.buildGetProc(procGet);
     }
 
     private buildGetProc(proc: Procedure) {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
-        const { titles, from, joins } = this.bizEntity;
+        const { titles, from } = this.bizEntity;
 
         const site = '$site';
         const params = '$params';

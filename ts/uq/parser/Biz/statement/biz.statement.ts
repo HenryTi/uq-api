@@ -4,7 +4,7 @@ import {
     , BizStatementBook, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
-    , VarPointer, BizStatementID, BizStatementAtom, BizStatementSpec
+    , VarPointer, BizStatementID, BizStatementAtom, BizStatementFork
     , BizAtom, BizFork, BizStatementOut, BizBudArr, BizOut
     , Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie,
     BizFromEntity,
@@ -73,8 +73,8 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
             pend: BizStatementBinPend,
             out: BizStatementOut,
             atom: BizStatementAtom,
-            spec: BizStatementSpec,
-            fork: BizStatementSpec,
+            spec: BizStatementFork,
+            fork: BizStatementFork,
             tie: BizStatementTie,
             error: BizStatementError,
         };
@@ -85,8 +85,8 @@ export class PBizStatementIn extends PBizStatement<BizInAct, BizStatementIn> {
     protected getBizSubsEx() {
         return {
             atom: BizStatementAtom,
-            spec: BizStatementSpec,
-            fork: BizStatementSpec,
+            spec: BizStatementFork,
+            fork: BizStatementFork,
             tie: BizStatementTie,
         };
     }
@@ -683,7 +683,7 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
     }
 }
 
-export class PBizStatementSpec<A extends BizAct, T extends BizStatementSpec<A>> extends PBizStatementID<A, T> {
+export class PBizStatementFork<A extends BizAct, T extends BizStatementFork<A>> extends PBizStatementID<A, T> {
     private entityName: string;
     protected parseIDEntity() {
         this.entityName = this.ts.passVar();

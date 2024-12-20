@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementError = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSpec = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementError = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementFork = exports.PBizStatementAtom = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../../il");
 const statement_1 = require("../../statement/statement");
 const element_1 = require("../../element");
@@ -57,8 +57,8 @@ class PBizStatementBin extends PBizStatement {
             pend: il_1.BizStatementBinPend,
             out: il_1.BizStatementOut,
             atom: il_1.BizStatementAtom,
-            spec: il_1.BizStatementSpec,
-            fork: il_1.BizStatementSpec,
+            spec: il_1.BizStatementFork,
+            fork: il_1.BizStatementFork,
             tie: il_1.BizStatementTie,
             error: il_1.BizStatementError,
         };
@@ -69,8 +69,8 @@ class PBizStatementIn extends PBizStatement {
     getBizSubsEx() {
         return {
             atom: il_1.BizStatementAtom,
-            spec: il_1.BizStatementSpec,
-            fork: il_1.BizStatementSpec,
+            spec: il_1.BizStatementFork,
+            fork: il_1.BizStatementFork,
             tie: il_1.BizStatementTie,
         };
     }
@@ -677,7 +677,7 @@ class PBizStatementAtom extends PBizStatementID {
     }
 }
 exports.PBizStatementAtom = PBizStatementAtom;
-class PBizStatementSpec extends PBizStatementID {
+class PBizStatementFork extends PBizStatementID {
     parseIDEntity() {
         this.entityName = this.ts.passVar();
     }
@@ -703,7 +703,7 @@ class PBizStatementSpec extends PBizStatementID {
         return ok;
     }
 }
-exports.PBizStatementSpec = PBizStatementSpec;
+exports.PBizStatementFork = PBizStatementFork;
 class PBizStatementTie extends PBizStatementSub {
     _parse() {
         this.tieName = this.ts.passVar();

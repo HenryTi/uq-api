@@ -15,8 +15,8 @@ const c = 'c';
 export class BBizTie extends BBizEntity<BizTie> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures
-        const { id } = this.bizEntity;
-        const procGet = this.createProcedure(`${this.context.site}.${id}t`);
+        // const { id } = this.bizEntity;
+        const procGet = this.createSiteEntityProcedure('t');
         this.buildGetProc(procGet);
     }
 

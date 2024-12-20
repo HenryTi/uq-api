@@ -21,8 +21,8 @@ class BBizQuery extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const { id } = this.bizEntity;
-            const procQuery = this.createProcedure(`${this.context.site}.${id}q`);
+            // const { id } = this.bizEntity;
+            const procQuery = this.createSiteEntityProcedure('q');
             this.buildQueryProc(procQuery);
         });
     }

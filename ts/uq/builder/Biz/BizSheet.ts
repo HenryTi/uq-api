@@ -34,13 +34,12 @@ const tempITable = 'bini';
 const siteAtomApp = '$siteAtomApp';
 
 export class BBizSheet extends BBizEntity<BizSheet> {
-
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+        // const { id } = this.bizEntity;
+        const procSubmit = this.createSiteEntityProcedure();
         this.buildSubmitProc(procSubmit);
-        const procGet = this.createProcedure(`${this.context.site}.${id}gs`); // gs = get sheet
+        const procGet = this.createSiteEntityProcedure('gs'); // gs = get sheet
         this.buildGetProc(procGet);
     }
 
@@ -192,8 +191,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         if (act !== undefined) {
             const call = factory.createCall();
             statements.push(call);
-            call.db = '$site';
-            call.procName = `${site}.${entityId}`;
+            call.db = `${$site}.${site}`;
+            call.procName = `${entityId}`;
             call.params = [
                 { value: new ExpVar(userParamName) },
                 { value: new ExpVar(binId) },
@@ -360,8 +359,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         memo.text = `call PROC to write OUT @${vName} ${bizOut.getJName()}`;
         const call = factory.createCall();
         statements.push(call);
-        call.db = '$site';
-        call.procName = `${this.context.site}.${bizOut.id}`;
+        call.db = `${$site}.${this.context.site}`;
+        call.procName = `${bizOut.id}`;
         call.params.push(
             {
                 paramType: ProcParamType.in,

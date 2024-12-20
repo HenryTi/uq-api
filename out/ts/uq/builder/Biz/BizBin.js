@@ -74,8 +74,8 @@ class BBizBin extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const { id } = this.bizEntity;
-            const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+            // const { id } = this.bizEntity;
+            const procSubmit = this.createSiteEntityProcedure();
             this.buildSubmitProc(procSubmit);
             // const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
             // this.buildGetProc(procGet);

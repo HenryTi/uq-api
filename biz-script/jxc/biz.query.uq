@@ -58,9 +58,9 @@ RETURNS specs (
                 WHERE 1=1 AND t1.id=pendId AND t1.base=pendEntity AND c.base=$site;
     }
 
-    VAR procName CHAR(200) = CONCAT($site, '.', pendEntity, 'gp');
-    IF routine_exists('$site', procName) {
-        VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?,?,?,?);');
+    VAR procName CHAR(200) = CONCAT(pendEntity, 'gp');
+    IF routine_exists(CONCAT('$site.', $site), procName) {
+        VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', procName, '`(?,?,?,?);');
         ExecSql sql USING $user,params,$pageStart,$pageSize;
     }
     else {
@@ -109,9 +109,9 @@ RETURNS specs (
         FROM specs as a JOIN IxBudStr as b ON b.i=a.id;
 
     FOR (VAR id ID, base ID OF SELECT a.id, a.base FROM atoms as a) {
-        SET procName = CONCAT($site, '.', base, 'tp');
-        IF routine_exists('$site', procName) {
-            VAR sql CHAR(500) = CONCAT('call `$site`.`', procName, '`(?);');
+        SET procName = CONCAT(base, 'tp');
+        IF routine_exists(CONCAT('$site.', $site), procName) {
+            VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', procName, '`(?);');
             ExecSql sql USING id;
         }
     }

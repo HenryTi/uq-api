@@ -11,7 +11,7 @@ export class BBizPend extends BBizEntity<BizPend> {
     override async buildTables(): Promise<void> {
         const { id, keys } = this.bizEntity;
         if (keys === undefined) return;
-        let table = this.createTable(`${this.context.site}.${id}`);
+        let table = this.createSiteTable(id); // `${this.context.site}.${id}`);
         let keyFields = keys.map(v => v.createField());
         let idField = bigIntField('id');
         table.keys = [idField];
@@ -23,8 +23,8 @@ export class BBizPend extends BBizEntity<BizPend> {
 
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procQuery = this.createProcedure(`${this.context.site}.${id}gp`);
+        // const { id } = this.bizEntity;
+        const procQuery = this.createSiteEntityProcedure('gp');
         this.buildQueryProc(procQuery);
     }
 

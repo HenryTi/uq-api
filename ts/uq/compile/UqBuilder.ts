@@ -1,4 +1,5 @@
-import { EntityRunner } from "../../core";
+import { EntityRunner, getDbs } from "../../core";
+import { MyDbs } from "../../core/db/my";
 import { CompileOptions, DbContext } from "../builder";
 import { Biz, BizBin, BizBud, BizEntity } from "../il";
 import { BizPhraseType } from "../il/Biz/BizPhraseType";
@@ -132,7 +133,7 @@ export class UqBuilder {
         const compilerVersion = '0.0';
         let context = new DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
         context.site = this.site;
-        context.ownerDbName = '$site';
+        context.ownerDbName = `$site.${this.site}`;
         await this.buildSiteDbs(context, log);
         this.buildBudsValue(context);
         this.biz.buildSchema(res);
@@ -150,6 +151,11 @@ export class UqBuilder {
             autoRemoveTableIndex: false,
         }
         const { newest } = this.compiler;
+        if (newest.length > 0) {
+            const dbs = getDbs();
+            await dbs.createSiteDb(this.site);
+        }
+
         for (let bizEntity of newest) {
             try {
                 let builder = bizEntity.db(context);
@@ -163,7 +169,7 @@ export class UqBuilder {
         }
 
         for (let bizEntity of newest) {
-            console.log(bizEntity.name/*, bizEntity*/);
+            console.log(bizEntity.name);
             try {
                 let builder = bizEntity.db(context);
                 if (builder === undefined) continue;

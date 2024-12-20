@@ -43,10 +43,10 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const { id } = this.bizEntity;
-            const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+            // const { id } = this.bizEntity;
+            const procSubmit = this.createSiteEntityProcedure();
             this.buildSubmitProc(procSubmit);
-            const procGet = this.createProcedure(`${this.context.site}.${id}gs`); // gs = get sheet
+            const procGet = this.createSiteEntityProcedure('gs'); // gs = get sheet
             this.buildGetProc(procGet);
         });
     }
@@ -159,8 +159,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         if (act !== undefined) {
             const call = factory.createCall();
             statements.push(call);
-            call.db = '$site';
-            call.procName = `${site}.${entityId}`;
+            call.db = `${consts_1.$site}.${site}`;
+            call.procName = `${entityId}`;
             call.params = [
                 { value: new sql_1.ExpVar(sqlBuilder_1.userParamName) },
                 { value: new sql_1.ExpVar(binId) },
@@ -310,8 +310,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         memo.text = `call PROC to write OUT @${vName} ${bizOut.getJName()}`;
         const call = factory.createCall();
         statements.push(call);
-        call.db = '$site';
-        call.procName = `${this.context.site}.${bizOut.id}`;
+        call.db = `${consts_1.$site}.${this.context.site}`;
+        call.procName = `${bizOut.id}`;
         call.params.push({
             paramType: il_1.ProcParamType.in,
             value: new sql_1.ExpAtVar(vName),

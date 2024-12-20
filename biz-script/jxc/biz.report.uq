@@ -126,7 +126,7 @@ RETURNS specs (
     {
         RETURN;
     }
-    VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', reportPhrase, '`(?,?,?,?,?,?,?,?,?);');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', reportPhrase, '`(?,?,?,?,?,?,?,?,?);');
     LOG sql subject 'GetReport';
     ExecSql sql USING $site, me, $pageStart, $pageSize, atomPhrase, atomId, dateStart, dateEnd, params;
 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizStatementError = exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementSpec = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
+exports.BizStatementError = exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementFork = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
 const builder_1 = require("../../../builder");
 const parser = require("../../../parser");
 const statement_1 = require("../../statement");
@@ -88,13 +88,13 @@ class BizStatementAtom extends BizStatementID {
     db(db) { return new builder_1.BBizStatementAtom(db, this); }
 }
 exports.BizStatementAtom = BizStatementAtom;
-class BizStatementSpec extends BizStatementID {
+class BizStatementFork extends BizStatementID {
     parser(context) {
-        return new parser.PBizStatementSpec(this, context);
+        return new parser.PBizStatementFork(this, context);
     }
-    db(db) { return new builder_1.BBizStatementSpec(db, this); }
+    db(db) { return new builder_1.BBizStatementFork(db, this); }
 }
-exports.BizStatementSpec = BizStatementSpec;
+exports.BizStatementFork = BizStatementFork;
 class BizStatementTie extends BizStatementSub {
     parser(context) {
         return new parser.PBizStatementTie(this, context);

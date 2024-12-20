@@ -26,7 +26,7 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures;
             const { id, uniques } = this.bizEntity;
-            const procTitlePrime = this.createProcedure(`${this.context.site}.${id}tp`);
+            const procTitlePrime = this.createSiteEntityProcedure('tp');
             this.buildProcTitlePrime(procTitlePrime);
             if (uniques !== undefined) {
                 const budUniques = new Map();
@@ -48,13 +48,13 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                     addBudUniques(no);
                 }
                 for (let [bud, uniqueArr] of budUniques) {
-                    const procBudUnqiue = this.createProcedure(`${this.context.site}.${bud.id}bu`);
+                    const procBudUnqiue = this.createSiteProcedure(bud.id, 'bu');
                     this.buildBudUniqueProc(procBudUnqiue, uniqueArr);
                 }
             }
             let uniquesAll = this.bizEntity.getUniques();
             if (uniquesAll.length > 0) {
-                const procUnqiue = this.createProcedure(`${this.context.site}.${id}u`);
+                const procUnqiue = this.createSiteEntityProcedure('u');
                 this.buildUniqueProc(procUnqiue, uniquesAll);
             }
         });

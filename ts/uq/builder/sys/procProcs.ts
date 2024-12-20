@@ -8,117 +8,117 @@ import { LockType } from '../sql/select';
 // no used now. uq-api 自动生成
 export class ProcProcedures extends SysProcedures {
     build() {
-		this.saveProcProc(this.coreProc('$proc_save'));
-		this.getProcProc(this.coreProc('$proc_get'));
-	}
-	
-	private saveProcProc(proc:sql.Procedure) {
-		let {factory} = this.context;
-		proc.parameters.push(
-			charField('schema', 200),
-			charField('name', 200),
-			textField('proc'),
-		);
-		let tblProc = new EntityTable('$proc', false);
-		let declare = factory.createDeclare();
-		proc.statements.push(declare);
-		declare.var('procOld', new Text());
-		declare.var('changed', new TinyInt());
+        this.saveProcProc(this.coreProc('$proc_save'));
+        this.getProcProc(this.coreProc('$proc_get'));
+    }
 
-		let iifClear = factory.createIf();
-		proc.statements.push(iifClear);
-		iifClear.cmp = new ExpIsNull(new ExpVar('proc'));
-		let clearFlag = factory.createUpdate();
-		iifClear.then(clearFlag);
-		clearFlag.cols = [
-			{col:'changed', val:ExpNum.num0}
-		];
-		clearFlag.table = tblProc;
-		clearFlag.where = new ExpEQ(new ExpField('name'), new ExpVar('name'));
-		let ret = factory.createLeaveProc();
-		iifClear.then(ret);
+    private saveProcProc(proc: sql.Procedure) {
+        let { factory } = this.context;
+        proc.parameters.push(
+            charField('schema', 200),
+            charField('name', 200),
+            textField('proc'),
+        );
+        let tblProc = new EntityTable('$proc', false);
+        let declare = factory.createDeclare();
+        proc.statements.push(declare);
+        declare.var('procOld', new Text());
+        declare.var('changed', new TinyInt());
 
-		let select = factory.createSelect();
-		proc.statements.push(select);
-		select.toVar = true; 
-		select.col('proc', 'procOld');
-		select.from(tblProc);
-		select.where(new ExpEQ(new ExpField('name'), new ExpVar('name')));
-		select.lock = LockType.update;
+        let iifClear = factory.createIf();
+        proc.statements.push(iifClear);
+        iifClear.cmp = new ExpIsNull(new ExpVar('proc'));
+        let clearFlag = factory.createUpdate();
+        iifClear.then(clearFlag);
+        clearFlag.cols = [
+            { col: 'changed', val: ExpNum.num0 }
+        ];
+        clearFlag.table = tblProc;
+        clearFlag.where = new ExpEQ(new ExpField('name'), new ExpVar('name'));
+        let ret = factory.createLeaveProc();
+        iifClear.then(ret);
 
-		let set1 = factory.createSet();
-		set1.equ('changed', ExpNum.num1);
-		proc.statements.push(set1);
+        let select = factory.createSelect();
+        proc.statements.push(select);
+        select.toVar = true;
+        select.col('proc', 'procOld');
+        select.from(tblProc);
+        select.where(new ExpEQ(new ExpField('name'), new ExpVar('name')));
+        select.lock = LockType.update;
 
-		let iif = factory.createIf();
-		proc.statements.push(iif);
-		iif.cmp = new ExpIsNull(new ExpVar('procOld'));
-		let insert = factory.createInsert();
-		iif.then(insert);
-		insert.table = tblProc;
-		insert.cols = [
-			{col: 'name', val: new ExpVar('name')},
-			{col: 'proc', val: new ExpVar('proc')},
-			{col: 'changed', val: ExpNum.num1}
-		];
+        let set1 = factory.createSet();
+        set1.equ('changed', ExpNum.num1);
+        proc.statements.push(set1);
 
-		let elseIfStats = new Statements();
-		let set0 = factory.createSet();
-		set0.equ('changed', ExpNum.num0);
-		elseIfStats.add(set0);
-		iif.elseIf(new ExpEQBinary(new ExpVar('proc'), new ExpVar('procOld')), elseIfStats);
+        let iif = factory.createIf();
+        proc.statements.push(iif);
+        iif.cmp = new ExpIsNull(new ExpVar('procOld'));
+        let insert = factory.createInsert();
+        iif.then(insert);
+        insert.table = tblProc;
+        insert.cols = [
+            { col: 'name', val: new ExpVar('name') },
+            { col: 'proc', val: new ExpVar('proc') },
+            { col: 'changed', val: ExpNum.num1 }
+        ];
 
-		let update = factory.createUpdate()
-		update.table = tblProc;
-		update.cols = [
-			{col: 'proc', val: new ExpVar('proc')},
-			{col: 'changed', val: ExpNum.num1}
-		];
-		update.where = new ExpEQ(new ExpField('name'), new ExpVar('name'));
-		iif.else(update);
+        let elseIfStats = new Statements();
+        let set0 = factory.createSet();
+        set0.equ('changed', ExpNum.num0);
+        elseIfStats.add(set0);
+        iif.elseIf(new ExpEQBinary(new ExpVar('proc'), new ExpVar('procOld')), elseIfStats);
 
-		let retSelect = factory.createSelect();
-		proc.statements.push(retSelect);
-		retSelect.column(
-			this.expProcChangedOrNotExists(new ExpEQ(new ExpVar('changed'), ExpNum.num1)),
-			'changed');
-	}
+        let update = factory.createUpdate()
+        update.table = tblProc;
+        update.cols = [
+            { col: 'proc', val: new ExpVar('proc') },
+            { col: 'changed', val: ExpNum.num1 }
+        ];
+        update.where = new ExpEQ(new ExpField('name'), new ExpVar('name'));
+        iif.else(update);
 
-	private getProcProc(proc:sql.Procedure) {
-		let {factory} = this.context;
-		proc.parameters.push(
-			charField('schema', 200),
-			charField('name', 200),
-		);
+        let retSelect = factory.createSelect();
+        proc.statements.push(retSelect);
+        retSelect.column(
+            this.expProcChangedOrNotExists(new ExpEQ(new ExpVar('changed'), ExpNum.num1)),
+            'changed');
+    }
 
-		let select = factory.createSelect()
-		select.from(new EntityTable('$proc', false));
-		select.col('proc');
-		select.column(this.expProcChangedOrNotExists(new ExpEQ(new ExpField('changed'), ExpNum.num1)), 'changed');
-		select.where(new ExpEQ(new ExpField('name'), new ExpVar('name')));
-		select.lock = LockType.update;
-		proc.statements.push(select);
-	}
+    private getProcProc(proc: sql.Procedure) {
+        let { factory } = this.context;
+        proc.parameters.push(
+            charField('schema', 200),
+            charField('name', 200),
+        );
 
-	private expProcChangedOrNotExists(expChanged:ExpCmp) {
-		let {factory} = this.context;
-		let collate = 'utf8_general_ci';
-		let selectRoutine = factory.createSelect();
-		selectRoutine.col('ROUTINE_BODY');
-		selectRoutine.from(new GlobalTable('information_schema', 'routines'));
-		selectRoutine.where(
-			new ExpAnd(
-				new ExpEQ(new ExpField('ROUTINE_SCHEMA', undefined, collate), new ExpVar('schema', collate)),
-				new ExpEQ(new ExpField('ROUTINE_NAME', undefined, collate), new ExpVar('name', collate))
-			)
-		);
-		let or = [
-			expChanged,
-			new ExpNot(new ExpExists(selectRoutine))
-		];
-		return new ExpSearchCase(
-			[new ExpOr(...or), ExpNum.num1],
-			ExpNum.num0
-		);
-	}
+        let select = factory.createSelect()
+        select.from(new EntityTable('$proc', false));
+        select.col('proc');
+        select.column(this.expProcChangedOrNotExists(new ExpEQ(new ExpField('changed'), ExpNum.num1)), 'changed');
+        select.where(new ExpEQ(new ExpField('name'), new ExpVar('name')));
+        select.lock = LockType.update;
+        proc.statements.push(select);
+    }
+
+    private expProcChangedOrNotExists(expChanged: ExpCmp) {
+        let { factory } = this.context;
+        let collate = 'utf8_general_ci';
+        let selectRoutine = factory.createSelect();
+        selectRoutine.col('ROUTINE_BODY');
+        selectRoutine.from(new GlobalTable('information_schema', 'routines'));
+        selectRoutine.where(
+            new ExpAnd(
+                new ExpEQ(new ExpField('ROUTINE_SCHEMA', undefined, collate), new ExpVar('schema', collate)),
+                new ExpEQ(new ExpField('ROUTINE_NAME', undefined, collate), new ExpVar('name', collate))
+            )
+        );
+        let or = [
+            expChanged,
+            new ExpNot(new ExpExists(selectRoutine))
+        ];
+        return new ExpSearchCase(
+            [new ExpOr(...or), ExpNum.num1],
+            ExpNum.num0
+        );
+    }
 }

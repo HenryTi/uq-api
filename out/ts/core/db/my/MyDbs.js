@@ -22,13 +22,20 @@ class MyDbs {
         this.uq_api_version = uq_api_version;
         this.db$Uq = new MyDb_Uq_1.MyDb$Uq(this);
         this.db$Res = new MyDb_Res_1.MyDb$Res(this);
-        this.db$Site = new MyDb_Site_1.MyDb$Site(this);
+        this.db$Site = new MyDb_Site_1.MyDb$Site(this, undefined);
         this.db$UnitxTest = new MyDb_Unitx_1.MyDb$Unitx(this, true);
         this.db$UnitxProd = new MyDb_Unitx_1.MyDb$Unitx(this, false);
         this.dbNoName = new MyDbNoName_1.MyDbNoName(this);
         this.dbBiz = new MyDbUq_1.MyDbUq(this, dbBizName);
         this.dbUqs = {};
         this.dbUqs[dbBizName] = this.dbBiz;
+    }
+    createSiteDb(siteId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dbSite = new MyDb_Site_1.MyDb$Site(this, siteId);
+            yield dbSite.createDatabase();
+            // return new MyDb$Site(this, siteId);
+        });
     }
     getDbUq(dbName) {
         return __awaiter(this, void 0, void 0, function* () {

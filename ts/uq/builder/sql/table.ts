@@ -3,7 +3,7 @@ import * as il from '../../il';
 import { SqlBuilder } from './sqlBuilder';
 import { DataType, Index, IdDataType, StringType, Field, DataTypeDef } from '../../il';
 import { ExpVal } from './exp';
-import { EntityRunner } from '../../../core';
+import { EntityRunner, getDbs } from '../../../core';
 import { getErrorString } from '../../../tool';
 
 
@@ -128,7 +128,7 @@ export abstract class TableUpdater {
             if (existTable === undefined) {
                 await this.createTable();
                 this.context.log('TABLE [' + tblName + '] created');
-                //await this.buildRows();
+                await this.copyDataFrom$Site();
                 return undefined;
             }
             if (existTable.hasUnit !== this.table.hasUnit) {
@@ -321,6 +321,24 @@ export abstract class TableUpdater {
             // this.context.log(msg);
             debugger;
             return msg;
+        }
+    }
+
+    async copyDataFrom$Site() {
+        const parts = this.dbName.split('.');
+        if (parts[0] !== '$site') return;
+        let dbs = getDbs();
+        let exists = await dbs.db$Site.existsDatabase();
+        if (exists === false) return;
+        const sql =
+            `INSERT INTO \`${this.dbName}\`.\`${this.table.name}\`
+    SELECT * FROM $site.\`${parts[1]}.${this.table.name}\`
+`;
+        try {
+            await this.runner.sql(sql, undefined);
+        }
+        catch {
+            console.error('copy data from $site', sql);
         }
     }
 

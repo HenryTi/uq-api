@@ -1030,8 +1030,6 @@ export abstract class PActionBase<T extends ActionBase> extends PEntity<T> {
 
 const dollarVars = [
     '$unit', '$user', '$date', '$site'
-    // 'pagestart', 'pagesize',
-    // '$date', '$id', '$state', '$row', '$sheet_date', '$sheet_no', '$sheet_discription'
 ];
 export class ActionBaseSpace extends Space {
     private actionBase: ActionBase;

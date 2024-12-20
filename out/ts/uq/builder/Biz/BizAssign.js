@@ -24,7 +24,7 @@ class BBizAssign extends BizEntity_1.BBizEntity {
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures;
             const { id } = this.bizEntity;
-            const procGet = this.createProcedure(`${this.context.site}.${id}a`);
+            const procGet = this.createSiteEntityProcedure('a');
             this.buildGetProc(procGet);
         });
     }

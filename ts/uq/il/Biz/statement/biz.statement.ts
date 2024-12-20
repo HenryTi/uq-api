@@ -1,6 +1,6 @@
 import {
     BBizStatementBinPend, BBizStatementBook as BBizStatementBook, BBizStatementInPend, BStatement, DbContext
-    , BBizStatementSheet, BBizStatementAtom, BBizStatementSpec, BBizStatementOut, BBizStatementTie,
+    , BBizStatementSheet, BBizStatementAtom, BBizStatementFork as BBizStatementFork, BBizStatementOut, BBizStatementTie,
     BBizStatementError
 } from '../../../builder';
 import * as parser from '../../../parser';
@@ -113,12 +113,12 @@ export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<
     db(db: DbContext): BStatement { return new BBizStatementAtom(db, this); }
 }
 
-export class BizStatementSpec<T extends BizAct = BizAct> extends BizStatementID<T> {
+export class BizStatementFork<T extends BizAct = BizAct> extends BizStatementID<T> {
     spec: BizFork;
     parser(context: parser.PContext): parser.PElement<IElement> {
-        return new parser.PBizStatementSpec(this, context);
+        return new parser.PBizStatementFork(this, context);
     }
-    db(db: DbContext): BStatement { return new BBizStatementSpec(db, this); }
+    db(db: DbContext): BStatement { return new BBizStatementFork(db, this); }
 }
 
 export class BizStatementTie<T extends BizAct = BizAct> extends BizStatementSub<T> {

@@ -8,8 +8,8 @@ import { BBizEntity } from "./BizEntity";
 export class BBizQuery extends BBizEntity<BizQueryTable> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procQuery = this.createProcedure(`${this.context.site}.${id}q`);
+        // const { id } = this.bizEntity;
+        const procQuery = this.createSiteEntityProcedure('q');
         this.buildQueryProc(procQuery);
     }
 

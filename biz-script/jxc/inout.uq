@@ -203,9 +203,9 @@ RETURNS ret (
             ORDER BY a.x ASC 
             LIMIT 1;
         IF inout IS NOT NULL {
-            SET sql = CONCAT('call `$site`.`', site, '.', inout, '`(?,?,?);');
+            SET sql = CONCAT('call `$site.', $site, '`.`', inout, '`(?,?,?);');
             ExecSql sql USING id, inSite, json;
-            INTO ret SELECT CONCAT('call `$site`.`', site, '.', inout, '`') as sql, id as queueId;
+            INTO ret SELECT CONCAT('call `$site.', $site, '`.`', inout, '`') as sql, id as queueId;
             SET i=i+1;
         }
         TRANS COMMIT;

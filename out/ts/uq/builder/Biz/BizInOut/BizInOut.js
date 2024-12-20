@@ -31,8 +31,8 @@ class BBizIn extends BBizInOut {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const { id } = this.bizEntity;
-            const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+            // const { id } = this.bizEntity;
+            const procSubmit = this.createSiteEntityProcedure();
             this.buildSubmitProc(procSubmit);
         });
     }
@@ -154,8 +154,8 @@ class BBizOut extends BBizInOut {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const { id } = this.bizEntity;
-            const proc = this.createProcedure(`${this.context.site}.${id}`);
+            // const { id } = this.bizEntity;
+            const proc = this.createSiteEntityProcedure();
             this.buildProc(proc);
         });
     }
@@ -188,8 +188,8 @@ class BBizOut extends BBizInOut {
                 memo.text = `IOSite: ${ioSite.getJName()} IOApp: ${ioApp.getJName()} Out: ${ioAppOut.bizIO.getJName()}`;
                 let call = factory.createCall();
                 statements.push(call);
-                call.db = '$site';
-                call.procName = `${site}.${ioAppOut.id}`;
+                call.db = `${consts_1.$site}.${site}`;
+                call.procName = `${ioAppOut.id}`;
                 call.params = [
                     { value: new sql_1.ExpNum(ioSite.id) },
                     { value: new sql_1.ExpVar(json) },
@@ -218,13 +218,13 @@ class BBizIOApp extends BizEntity_1.BBizEntity {
                 this.buildUniqueFunc(ioAppID);
             }
             for (let ioAppIn of ins) {
-                const proc = this.createProcedure(`${this.context.site}.${ioAppIn.id}`);
+                const proc = this.createSiteProcedure(ioAppIn.id);
                 let ioProc = new IOProcIn(this.context, ioAppIn, proc);
                 ioProc.buildProc();
             }
             let objOuts = {};
             for (let ioAppOut of outs) {
-                const proc = this.createProcedure(`${this.context.site}.${ioAppOut.id}`);
+                const proc = this.createSiteProcedure(ioAppOut.id);
                 let ioProc = new IOProcOut(this.context, ioAppOut, proc);
                 ioProc.buildProc();
                 objOuts[ioAppOut.name] = ioAppOut.to;
@@ -341,8 +341,8 @@ class IOProcIn extends IOProc {
         let statements = [];
         let call = this.factory.createCall();
         statements.push(call);
-        call.db = consts_1.$site;
-        call.procName = `${this.context.site}.${this.ioAppIO.bizIO.id}`;
+        call.db = `${consts_1.$site}.${this.context.site}`;
+        call.procName = `${this.ioAppIO.bizIO.id}`;
         call.params = [
             { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.queueId) },
             { paramType: il_1.ProcParamType.in, value: new sql_1.ExpVar(IOProc.otherSite) },

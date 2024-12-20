@@ -2,7 +2,7 @@ import { EnumSysTable, JoinType, BizFromEntity, IdColumn, BizIDExtendable } from
 import {
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, ExpOr, ExpVal, Select,
 } from "../../sql";
-import { EntityTable, GlobalTable, Table } from "../../sql/statementWithFrom";
+import { EntityTable, GlobalSiteTable, GlobalTable, Table } from "../../sql/statementWithFrom";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { BizSelectStatement } from "../../../il";
 import { BStatement } from "../../bstatement";
@@ -140,7 +140,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
             let ret = new EntityTable(EnumSysTable.idu, false, t0);
             return ret;
         }
-        let ret = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+        let ret = new GlobalSiteTable(this.context.site, bizEntityArr[0].id, t0);
         return ret;
     }
 
@@ -164,7 +164,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
             table = new EntityTable(bizEntityTable, false, t0);
         }
         else {
-            table = new GlobalTable('$site', `${this.context.site}.${bizEntityArr[0].id}`, t0);
+            table = new GlobalSiteTable(this.context.site, bizEntityArr[0].id, t0);
         }
         select.from(table);
         if (joinTable !== undefined) {

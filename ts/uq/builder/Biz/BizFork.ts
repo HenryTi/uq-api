@@ -27,10 +27,10 @@ export class BBizFork extends BBizEntity<BizFork> {
 
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procSave = this.createProcedure(`${this.context.site}.${id}$f`);
+        // const { id } = this.bizEntity;
+        const procSave = this.createSiteEntityProcedure('$f');
         this.buildSaveProc(procSave);
-        const funcGet = this.createFunction(`${this.context.site}.${id}`, new JsonDataType());
+        const funcGet = this.createSiteEntityFunction(new JsonDataType());
         this.buildGetFunc(funcGet);
     }
 
@@ -260,7 +260,6 @@ export class BBizFork extends BBizEntity<BizFork> {
         const { factory, userParam } = this.context;
 
         const id = 'id';
-        const a = 'a';
         const site = '$site';
         const valJson = 'valJson';
 

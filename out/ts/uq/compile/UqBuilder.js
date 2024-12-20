@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UqBuilder = void 0;
+const core_1 = require("../../core");
 const builder_1 = require("../builder");
 const BizPhraseType_1 = require("../il/Biz/BizPhraseType");
 const sqlType = 'mysql';
@@ -132,7 +133,7 @@ class UqBuilder {
             const compilerVersion = '0.0';
             let context = new builder_1.DbContext(compilerVersion, sqlType, this.runner.dbName, '', log, hasUnit);
             context.site = this.site;
-            context.ownerDbName = '$site';
+            context.ownerDbName = `$site.${this.site}`;
             yield this.buildSiteDbs(context, log);
             this.buildBudsValue(context);
             this.biz.buildSchema(res);
@@ -151,6 +152,10 @@ class UqBuilder {
                 autoRemoveTableIndex: false,
             };
             const { newest } = this.compiler;
+            if (newest.length > 0) {
+                const dbs = (0, core_1.getDbs)();
+                yield dbs.createSiteDb(this.site);
+            }
             for (let bizEntity of newest) {
                 try {
                     let builder = bizEntity.db(context);
@@ -164,7 +169,7 @@ class UqBuilder {
                 }
             }
             for (let bizEntity of newest) {
-                console.log(bizEntity.name /*, bizEntity*/);
+                console.log(bizEntity.name);
                 try {
                     let builder = bizEntity.db(context);
                     if (builder === undefined)

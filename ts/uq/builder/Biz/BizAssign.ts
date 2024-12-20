@@ -14,7 +14,7 @@ export class BBizAssign extends BBizEntity<BizAssign> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures
         const { id } = this.bizEntity;
-        const procGet = this.createProcedure(`${this.context.site}.${id}a`);
+        const procGet = this.createSiteEntityProcedure('a');
         this.buildGetProc(procGet);
     }
 

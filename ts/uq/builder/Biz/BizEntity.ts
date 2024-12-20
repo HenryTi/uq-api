@@ -53,16 +53,33 @@ export class BBizEntity<B extends BizEntity = any> {
         return sql;
     }
 
+    protected createSiteTable(tableName: string | number) {
+        return this.createTable(String(tableName));
+    }
+
     protected createTable(tableName: string) {
         const table = this.context.createTable(tableName);
         this.context.coreObjs.tables.push(table);
         return table;
     }
 
+    protected createSiteEntityProcedure(suffix: string = undefined) {
+        //return this.createProcedure(`${this.context.site}.${procName}`);
+        return this.createProcedure(`${this.bizEntity.id}` + (suffix ?? ''));
+    }
+
+    protected createSiteProcedure(objId: number, suffix: string = undefined) {
+        return this.createProcedure(`${objId}` + (suffix ?? ''));
+    }
+
     protected createProcedure(procName: string) {
         const proc = this.context.createProcedure(procName, true);
         this.context.coreObjs.procedures.push(proc);
         return proc;
+    }
+
+    protected createSiteEntityFunction(returnType: DataType, suffix: string = undefined) {
+        return this.createFunction(`${this.bizEntity.id}` + (suffix ?? ''), returnType);
     }
 
     protected createFunction(name: string, returnType: DataType) {

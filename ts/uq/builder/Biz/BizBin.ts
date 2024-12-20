@@ -56,8 +56,8 @@ export class BBizBin extends BBizEntity<BizBin> {
     }
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const { id } = this.bizEntity;
-        const procSubmit = this.createProcedure(`${this.context.site}.${id}`);
+        // const { id } = this.bizEntity;
+        const procSubmit = this.createSiteEntityProcedure();
         this.buildSubmitProc(procSubmit);
         // const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
         // this.buildGetProc(procGet);

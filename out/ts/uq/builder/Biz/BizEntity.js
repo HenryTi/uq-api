@@ -61,15 +61,28 @@ class BBizEntity {
             });
         });
     }
+    createSiteTable(tableName) {
+        return this.createTable(String(tableName));
+    }
     createTable(tableName) {
         const table = this.context.createTable(tableName);
         this.context.coreObjs.tables.push(table);
         return table;
     }
+    createSiteEntityProcedure(suffix = undefined) {
+        //return this.createProcedure(`${this.context.site}.${procName}`);
+        return this.createProcedure(`${this.bizEntity.id}` + (suffix !== null && suffix !== void 0 ? suffix : ''));
+    }
+    createSiteProcedure(objId, suffix = undefined) {
+        return this.createProcedure(`${objId}` + (suffix !== null && suffix !== void 0 ? suffix : ''));
+    }
     createProcedure(procName) {
         const proc = this.context.createProcedure(procName, true);
         this.context.coreObjs.procedures.push(proc);
         return proc;
+    }
+    createSiteEntityFunction(returnType, suffix = undefined) {
+        return this.createFunction(`${this.bizEntity.id}` + (suffix !== null && suffix !== void 0 ? suffix : ''), returnType);
     }
     createFunction(name, returnType) {
         const func = this.context.createAppFunc(name, returnType);

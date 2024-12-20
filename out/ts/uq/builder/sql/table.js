@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TableUpdater = exports.Table = void 0;
 const il_1 = require("../../il");
+const core_1 = require("../../../core");
 const tool_1 = require("../../../tool");
 class Table {
     constructor(dbName, tblName) {
@@ -116,7 +117,7 @@ class TableUpdater {
                 if (existTable === undefined) {
                     yield this.createTable();
                     this.context.log('TABLE [' + tblName + '] created');
-                    //await this.buildRows();
+                    yield this.copyDataFrom$Site();
                     return undefined;
                 }
                 if (existTable.hasUnit !== this.table.hasUnit) {
@@ -306,6 +307,26 @@ class TableUpdater {
                 // this.context.log(msg);
                 debugger;
                 return msg;
+            }
+        });
+    }
+    copyDataFrom$Site() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const parts = this.dbName.split('.');
+            if (parts[0] !== '$site')
+                return;
+            let dbs = (0, core_1.getDbs)();
+            let exists = yield dbs.db$Site.existsDatabase();
+            if (exists === false)
+                return;
+            const sql = `INSERT INTO \`${this.dbName}\`.\`${this.table.name}\`
+    SELECT * FROM $site.\`${parts[1]}.${this.table.name}\`
+`;
+            try {
+                yield this.runner.sql(sql, undefined);
+            }
+            catch (_a) {
+                console.error('copy data from $site', sql);
             }
         });
     }
