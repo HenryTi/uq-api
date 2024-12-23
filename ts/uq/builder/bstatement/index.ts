@@ -4,7 +4,7 @@ export * from './table';
 export * from './text';
 export * from './set';
 export * from './with';
-export * from '../Biz/statement/biz';
+export * from '../Biz/statement/biz.statement';
 export * from './value';
 export * from './setting';
 export * from './if';

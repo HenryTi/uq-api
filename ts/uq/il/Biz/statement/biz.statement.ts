@@ -114,7 +114,8 @@ export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<
 }
 
 export class BizStatementFork<T extends BizAct = BizAct> extends BizStatementID<T> {
-    spec: BizFork;
+    fork: BizFork;
+    valFork: ValueExpression;
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementFork(this, context);
     }

@@ -3,20 +3,17 @@ import {
     BizStatementPend, BizStatementSub
     , BizStatementBook, ValueExpression
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet
-    , VarPointer, BizStatementID, BizStatementAtom, BizStatementFork
-    , BizAtom, BizFork, BizStatementOut, BizBudArr, BizOut
-    , Uq, CompareExpression, IDUnique, BizBud, BizStatementTie, BizTie,
-    BizFromEntity,
-    BizStatementError
+    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet, BizStatementAtom
+    , BizStatementFork, BizStatementOut, BizBudArr, BizOut, BizStatementTie, BizTie
+    , BizFromEntity, BizStatementError
 } from '../../../il';
 import { PStatement } from '../../statement/statement';
 import { PContext } from '../../pContext';
-import { PElement } from '../../element';
 import { Token } from '../../tokens';
 import { binFieldArr } from '../../../consts';
 import { BizPhraseType, BudDataType } from '../../../il/Biz/BizPhraseType';
 import { BizPend } from '../../../il/Biz/Pend';
+import { PBizStatementSub } from './biz.statement.sub';
 
 export abstract class PBizStatement<A extends BizAct, T extends BizStatement<A>> extends PStatement {
     bizStatement: T;
@@ -90,9 +87,6 @@ export class PBizStatementIn extends PBizStatement<BizInAct, BizStatementIn> {
             tie: BizStatementTie,
         };
     }
-}
-
-abstract class PBizStatementSub<A extends BizAct, T extends BizStatementSub<A>> extends PElement<T> {
 }
 
 export abstract class PBizStatementPend<A extends BizAct> extends PBizStatementSub<A, BizStatementPend<A>> {
@@ -452,260 +446,6 @@ export class PBizStatementSheet extends PBizStatementSub<BizAct, BizStatementShe
             }
             ok = false;
             this.log(`${i} is not defined in ${bin.getJName()}`);
-        }
-        return ok;
-    }
-}
-
-abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> extends PBizStatementSub<A, T> {
-    protected readonly entityCase: { entityName: string; condition: CompareExpression; }[] = [];
-    protected toVar: string;
-    protected inVals: ValueExpression[] = [];
-    protected override _parse(): void {
-        this.parseIDEntity();
-        this.ts.passKey('in');
-        this.ts.passToken(Token.EQU);
-        this.parseUnique();
-        this.parseTo();
-    }
-
-    protected parseIDEntity() {
-        if (this.ts.token === Token.LPARENTHESE) {
-            this.ts.readToken();
-            for (; ;) {
-                this.ts.passKey('when');
-                let condition = new CompareExpression();
-                this.context.parseElement(condition);
-                this.ts.passKey('then');
-                let entityName = this.ts.passVar();
-                this.entityCase.push({ condition, entityName });
-                if (this.ts.isKeyword('else') === true) {
-                    this.ts.readToken();
-                    entityName = this.ts.passVar();
-                    this.entityCase.push({ entityName, condition: undefined });
-                    break;
-                }
-            }
-            this.ts.passToken(Token.RPARENTHESE);
-        }
-        else {
-            this.entityCase.push({ entityName: this.ts.passVar(), condition: undefined });
-        }
-    }
-
-    protected parseUnique() {
-        if (this.ts.token === Token.LPARENTHESE) {
-            this.ts.readToken();
-            for (; ;) {
-                let val = new ValueExpression();
-                this.context.parseElement(val);
-                this.inVals.push(val);
-                const { token } = this.ts;
-                if (token === Token.COMMA as any) {
-                    this.ts.readToken();
-                    continue;
-                }
-                if (token === Token.RPARENTHESE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-                this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
-            }
-        }
-        else {
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.inVals.push(val);
-        }
-    }
-
-    protected parseTo() {
-        this.ts.passKey('to');
-        this.toVar = this.ts.passVar();
-    }
-
-    override scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-        }
-        this.element.toVar = space.varPointer(this.toVar, false) as VarPointer;
-        if (this.element.toVar === undefined) {
-            ok = false;
-            this.log(`${this.toVar} is not defined`);
-        }
-        for (let inVal of this.inVals) {
-            if (inVal.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        this.element.inVals = this.inVals;
-        return ok;
-    }
-}
-
-export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> extends PBizStatementID<A, T> {
-    private unique: string;
-    private sets: { [bud: string]: ValueExpression } = {};
-    protected override _parse(): void {
-        this.parseIDEntity();
-        let key = this.ts.passKey();
-        switch (key) {
-            case 'no': break;
-            case 'unique': this.unique = this.ts.passVar(); break;
-            default: this.ts.expect('no', 'unique');
-        }
-        this.parseUnique();
-        this.parseTo();
-        this.parseSets();
-    }
-
-    private parseSets() {
-        if (this.ts.token !== Token.VAR) return;
-        if (this.ts.varBrace === true || this.ts.lowerVar !== 'set') {
-            this.ts.expect('set');
-        }
-        this.ts.readToken();
-        for (; ;) {
-            let bud = this.ts.passVar();
-            this.ts.passToken(Token.EQU);
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            if (bud === 'ex') {
-                this.element.ex = val;
-            }
-            else {
-                this.sets[bud] = val;
-            }
-            const { token } = this.ts;
-            if (token === Token.SEMICOLON as any) {
-                // this.ts.readToken();
-                break;
-            }
-            if (token === Token.COMMA as any) {
-                this.ts.readToken();
-                continue;
-            }
-            this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
-        }
-    }
-
-    override scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-            return ok;
-        }
-
-        for (let { entityName, condition } of this.entityCase) {
-            if (condition !== undefined) {
-                if (condition.pelement.scan(space) === false) {
-                    ok = false;
-                }
-            }
-            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(entityName);
-            if (entity === undefined) {
-                ok = false;
-                this.log(`${entityName} is not defined`);
-            }
-            else if (entity.bizPhraseType !== BizPhraseType.atom) {
-                ok = false;
-                this.log(`${entityName} is not ATOM`);
-            }
-            else {
-                this.element.atomCase.push({ bizID: entity as BizAtom, condition });
-            }
-        }
-        const { atomCase, sets, ex } = this.element;
-        let { length } = this.inVals;
-        if (this.unique === undefined) {
-            if (length !== 1) {
-                ok = false;
-                this.log(`NO ${length} variables, can only have 1 variable`);
-            }
-        }
-        else {
-            let unique: IDUnique;
-            for (let { bizID } of atomCase) {
-                let unq = bizID.getUnique(this.unique);
-                if (unq === undefined) {
-                    ok = false;
-                    this.log(`ATOM ${bizID.getJName()} has no UNIQUE ${this.unique}`);
-                }
-                else if (unique === undefined) {
-                    unique = unq;
-                }
-                else if (unq !== unique) {
-                    ok = false;
-                    this.log(`${this.unique} is different across ATOMS`);
-                }
-            }
-            this.element.unique = unique;
-        }
-        if (ex !== undefined) {
-            if (ex.pelement.scan(space) === false) {
-                ok = false;
-            }
-        }
-        else {
-            ok = false;
-            this.log('EX must set value');
-        }
-        function getBud(budName: string): BizBud {
-            for (let { bizID } of atomCase) {
-                let bud = bizID.getBud(budName);
-                if (bud !== undefined) return bud;
-            }
-        }
-        for (let i in this.sets) {
-            let val = this.sets[i];
-            if (val.pelement.scan(space) === false) {
-                ok = false;
-            }
-            let bud = getBud(i);
-            if (bud === undefined) {
-                ok = false;
-                this.log(`ATOM has no PROP ${i}`);
-            }
-            sets.set(bud, val);
-        }
-        return ok;
-    }
-
-    scan2(uq: Uq): boolean {
-        let ok = true;
-        const { unique } = this.element;
-        if (unique.keys.length + 1 !== this.inVals.length) {
-            ok = false;
-            this.log(`ATOM UNIQUE ${this.unique} keys count mismatch`);
-        }
-        return ok;
-    }
-}
-
-export class PBizStatementFork<A extends BizAct, T extends BizStatementFork<A>> extends PBizStatementID<A, T> {
-    private entityName: string;
-    protected parseIDEntity() {
-        this.entityName = this.ts.passVar();
-    }
-    override scan(space: Space): boolean {
-        let ok = true;
-        if (super.scan(space) === false) {
-            ok = false;
-            return ok;
-        }
-        let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(this.entityName);
-        if (entity.bizPhraseType !== BizPhraseType.fork) {
-            ok = false;
-            this.log(`${this.entityName} is not SPEC`);
-        }
-        else {
-            this.element.spec = entity as BizFork;
-            let length = this.element.spec.keys.length + 1;
-            if (length !== this.inVals.length) {
-                ok = false;
-                this.log(`IN ${this.inVals.length} variables, must have ${length} variables`);
-            }
         }
         return ok;
     }

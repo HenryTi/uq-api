@@ -40,4 +40,4 @@ class BBizStatementError extends bstatement_1.BStatement {
     }
 }
 exports.BBizStatementError = BBizStatementError;
-//# sourceMappingURL=biz.js.map
+//# sourceMappingURL=biz.statement.js.map

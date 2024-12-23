@@ -20,7 +20,7 @@ __exportStar(require("./table"), exports);
 __exportStar(require("./text"), exports);
 __exportStar(require("./set"), exports);
 __exportStar(require("./with"), exports);
-__exportStar(require("../Biz/statement/biz"), exports);
+__exportStar(require("../Biz/statement/biz.statement"), exports);
 __exportStar(require("./value"), exports);
 __exportStar(require("./setting"), exports);
 __exportStar(require("./if"), exports);
