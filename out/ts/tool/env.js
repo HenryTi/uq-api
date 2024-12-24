@@ -47,7 +47,7 @@ class Env {
         }
     }
     loadSqlType() {
-        console.error(config.util.getConfigSources());
+        console.error('config.util.getConfigSources()', config.util.getConfigSources());
         switch (config.get('sqlType')) {
             default:
             case 'mysql': return SqlType.mysql;
