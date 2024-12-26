@@ -52,6 +52,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         const cNewId = '$newId';
         const cKeysSet = '$keysSet';
         const cPropsSet = '$propsSet';
+        const cPhrase = '$phrase';
         const a = 'a';
         const site = '$site';
         const len = keys.length;
@@ -71,14 +72,13 @@ export class BBizFork extends BBizEntity<BizFork> {
             userParam,
             bigIntField(cOrgId),
             idField(cBase, 'big'),
-            // jsonField(cKeys),
-            // jsonField(cProps),
             jsonField(cValues),
         );
 
         const declare = factory.createDeclare();
         declare.var(cNewId, new BigInt());
         declare.vars(
+            bigIntField(cPhrase),
             bigIntField(cNewId),
             tinyIntField(cKeysSet),
             tinyIntField(cPropsSet),
@@ -128,6 +128,11 @@ export class BBizFork extends BBizEntity<BizFork> {
             }
         }
         selectJsonValue(varValues, keys, prefixBud);
+
+        const selectPhrase = factory.createSelect();
+        statements.push(selectPhrase);
+        selectPhrase.toVar = true;
+        selectPhrase.column(new ExpFunc('JSON_VALUE', varValues, new ExpStr('$."$"')), cPhrase);
 
         const select = factory.createSelect();
         statements.push(select);
@@ -219,6 +224,15 @@ export class BBizFork extends BBizEntity<BizFork> {
         const setPropsSet = factory.createSet();
         ifNewNullOrg.else(setPropsSet);
         setPropsSet.equ(cPropsSet, ExpNum.num1);
+
+        const insertIDU = factory.createInsert();
+        ifNewNullOrg.else(insertIDU);
+        insertIDU.ignore = true;
+        insertIDU.table = new EntityTable(EnumSysTable.idu, false);
+        insertIDU.cols = [
+            { col: 'id', val: new ExpVar(cNewId) },
+            { col: 'base', val: new ExpVar(cPhrase) },
+        ];
 
         const ifNewOrg = factory.createIf();
         ifNewIdNull.else(ifNewOrg);

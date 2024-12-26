@@ -11,5 +11,6 @@
         "host": "0.0.0.0",
         "user": "usr",
         "password": "pwd"
-    }
+    },
+    "log": false
 }

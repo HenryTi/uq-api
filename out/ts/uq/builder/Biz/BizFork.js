@@ -56,6 +56,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const cNewId = '$newId';
         const cKeysSet = '$keysSet';
         const cPropsSet = '$propsSet';
+        const cPhrase = '$phrase';
         const a = 'a';
         const site = '$site';
         const len = keys.length;
@@ -69,13 +70,10 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const props = [];
         for (let [, value] of propsMap)
             props.push(value);
-        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.bigIntField)(cOrgId), (0, il_1.idField)(cBase, 'big'), 
-        // jsonField(cKeys),
-        // jsonField(cProps),
-        (0, il_1.jsonField)(cValues));
+        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.bigIntField)(cOrgId), (0, il_1.idField)(cBase, 'big'), (0, il_1.jsonField)(cValues));
         const declare = factory.createDeclare();
         declare.var(cNewId, new il_1.BigInt());
-        declare.vars((0, il_1.bigIntField)(cNewId), (0, il_1.tinyIntField)(cKeysSet), (0, il_1.tinyIntField)(cPropsSet));
+        declare.vars((0, il_1.bigIntField)(cPhrase), (0, il_1.bigIntField)(cNewId), (0, il_1.tinyIntField)(cKeysSet), (0, il_1.tinyIntField)(cPropsSet));
         statements.push(declare);
         function declareBuds(buds) {
             for (let bud of buds) {
@@ -118,6 +116,10 @@ class BBizFork extends BizEntity_1.BBizEntity {
             }
         }
         selectJsonValue(varValues, keys, prefixBud);
+        const selectPhrase = factory.createSelect();
+        statements.push(selectPhrase);
+        selectPhrase.toVar = true;
+        selectPhrase.column(new sql_1.ExpFunc('JSON_VALUE', varValues, new sql_1.ExpStr('$."$"')), cPhrase);
         const select = factory.createSelect();
         statements.push(select);
         select.toVar = true;
@@ -192,6 +194,14 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const setPropsSet = factory.createSet();
         ifNewNullOrg.else(setPropsSet);
         setPropsSet.equ(cPropsSet, sql_1.ExpNum.num1);
+        const insertIDU = factory.createInsert();
+        ifNewNullOrg.else(insertIDU);
+        insertIDU.ignore = true;
+        insertIDU.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false);
+        insertIDU.cols = [
+            { col: 'id', val: new sql_1.ExpVar(cNewId) },
+            { col: 'base', val: new sql_1.ExpVar(cPhrase) },
+        ];
         const ifNewOrg = factory.createIf();
         ifNewIdNull.else(ifNewOrg);
         ifNewOrg.cmp = new sql_1.ExpOr(new sql_1.ExpIsNull(new sql_1.ExpVar(cOrgId)), new sql_1.ExpEQ(new sql_1.ExpVar(cOrgId), new sql_1.ExpVar(cNewId)));

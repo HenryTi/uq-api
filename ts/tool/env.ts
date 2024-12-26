@@ -37,6 +37,7 @@ class Env {
     readonly serverId: number;
     readonly port: number;
     readonly localPort: number;
+    readonly log: boolean;          // 是不是写log.performance表, 如果undefined，则默认写
     // 整个服务器，可以单独设置一个unit id。跟老版本兼容。
     // 新版本会去掉uq里面的唯一unit的概念。
     readonly uniqueUnitInConfig: number;
@@ -69,6 +70,13 @@ class Env {
         this.serverId = Number(this.connection[this.server_id] ?? 0);
         delete this.connection[this.server_id]; // MySql connection 不允许多余的属性出现
 
+        if (config.has('log') === true) {
+            this.log = config.get<boolean>('log');
+        }
+        else {
+            this.log = true;
+        }
+
         this.port = config.get<number>('port');
         this.localPort = config.get<number>('local-port');
         this.uniqueUnitInConfig = config.get<number>('unique-unit') ?? 0;
@@ -81,7 +89,6 @@ class Env {
     }
 
     private loadSqlType(): SqlType {
-        console.error('config.util.getConfigSources()', config.util.getConfigSources());
         switch (config.get<string>('sqlType')) {
             default:
             case 'mysql': return SqlType.mysql;

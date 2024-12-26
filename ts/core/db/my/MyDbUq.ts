@@ -260,7 +260,12 @@ export class MyDbUq extends MyDb implements DbUq {
                 throw err;
             }
         }
-        return await this.procWithLog(proc, params);
+        if (env.log === true) {
+            return await this.procWithLog(proc, params);
+        }
+        else {
+            return await this.proc(proc, params);
+        }
     }
 
     private isExistsProc(proc: string): boolean {

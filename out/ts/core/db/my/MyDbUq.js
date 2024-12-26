@@ -294,7 +294,12 @@ class MyDbUq extends MyDb_1.MyDb {
                     throw err;
                 }
             }
-            return yield this.procWithLog(proc, params);
+            if (tool_1.env.log === true) {
+                return yield this.procWithLog(proc, params);
+            }
+            else {
+                return yield this.proc(proc, params);
+            }
         });
     }
     isExistsProc(proc) {

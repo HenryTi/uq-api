@@ -37,6 +37,12 @@ class Env {
         }
         this.serverId = Number((_a = this.connection[this.server_id]) !== null && _a !== void 0 ? _a : 0);
         delete this.connection[this.server_id]; // MySql connection 不允许多余的属性出现
+        if (config.has('log') === true) {
+            this.log = config.get('log');
+        }
+        else {
+            this.log = true;
+        }
         this.port = config.get('port');
         this.localPort = config.get('local-port');
         this.uniqueUnitInConfig = (_b = config.get('unique-unit')) !== null && _b !== void 0 ? _b : 0;
@@ -47,7 +53,6 @@ class Env {
         }
     }
     loadSqlType() {
-        console.error('config.util.getConfigSources()', config.util.getConfigSources());
         switch (config.get('sqlType')) {
             default:
             case 'mysql': return SqlType.mysql;
