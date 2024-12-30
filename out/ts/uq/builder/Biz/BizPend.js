@@ -11,10 +11,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizPend = void 0;
 const il_1 = require("../../il");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const bstatement_1 = require("../bstatement");
 const consts_1 = require("../consts");
 const sql_1 = require("../sql");
+const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
+const a = 'a';
+const b = 'b';
+const c = 'c';
 class BBizPend extends BizEntity_1.BBizEntity {
     buildTables() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -73,13 +78,149 @@ class BBizPend extends BizEntity_1.BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
+        /*
         let showBuds = this.bizEntity.allShowBuds();
         if (showBuds !== undefined) {
             let memo = factory.createMemo();
-            statements.push(memo);
+            statements.push(memo)
             memo.text = this.bizEntity.name + ' show buds';
             statements.push(...this.buildGetShowBuds(showBuds, '$page', 'id'));
         }
+        */
+        this.buildGetBinProps(statements);
+    }
+    buildGetBinProps(statements) {
+        this.bizEntity.forEachBud(v => this.buildBinBud(statements, '$page', v));
+    }
+    buildBinBud(statements, tbl, bud) {
+        if (bud.dataType !== BizPhraseType_1.BudDataType.bin)
+            return;
+        const { factory } = this.context;
+        const binBud = bud;
+        const { showBuds, sysBuds } = binBud;
+        const memo = factory.createMemo();
+        statements.push(memo);
+        memo.text = `bud ${binBud.getJName()} bin ${binBud.bin.getJName()}`;
+        for (let sysBud of sysBuds) {
+            this.buildBinSysProp(statements, tbl, binBud, sysBud);
+        }
+        for (let [bud0, bud1] of showBuds) {
+            if (bud0 === undefined) {
+                this.buildBinProp(statements, tbl, bud, bud1, true);
+            }
+            else {
+                this.buildBinProp(statements, tbl, bud, bud0, false);
+            }
+        }
+    }
+    buildBinSysProp(statements, tbl, binBud, sysBud) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('props');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        select.from(new statementWithFrom_1.VarTable(tbl, a));
+        /*
+            .join(JoinType.join, new EntityTable('ixbudint', false, b))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
+                new ExpEQ(new ExpField('x', b), new ExpNum(binBud.id)),
+            ));
+        */
+        let expBin = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${binBud.id}"`));
+        if (binBud.bin.main !== undefined) {
+            const t0 = 't0', t1 = 't1';
+            select.column(new sql_1.ExpField('id', t0), 'id');
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, t0))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expBin))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('bud', false, t1))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), new sql_1.ExpField('base', t0)));
+            expBin = new sql_1.ExpField('base', t1);
+        }
+        else {
+            select.column(new sql_1.ExpField('id', c), 'id');
+        }
+        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, c))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), expBin));
+        select.column(new sql_1.ExpNum(sysBud), 'phrase');
+        let valueCol;
+        switch (sysBud) {
+            default:
+                debugger;
+                break;
+            case il_1.EnumSysBud.id:
+                valueCol = 'id';
+                break;
+            case il_1.EnumSysBud.sheetDate:
+                valueCol = 'id';
+                break;
+            case il_1.EnumSysBud.sheetNo:
+                valueCol = 'no';
+                break;
+            case il_1.EnumSysBud.sheetOperator:
+                valueCol = 'operator';
+                break;
+        }
+        select.column(new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField(valueCol, c), new sql_1.ExpDatePart('json')), 'value');
+    }
+    buildBinProp(statements, tbl, binBud, bud, upMain) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('props');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        let tblIxName;
+        switch (bud.dataType) {
+            default:
+                tblIxName = 'ixbudint';
+                break;
+            case BizPhraseType_1.BudDataType.str:
+            case BizPhraseType_1.BudDataType.char:
+                tblIxName = 'ixbudstr';
+                break;
+            case BizPhraseType_1.BudDataType.dec:
+                tblIxName = 'ixbuddec';
+                break;
+        }
+        select.from(new statementWithFrom_1.VarTable(tbl, a));
+        /*
+            .join(JoinType.join, new EntityTable('ixbudint', false, b))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
+                new ExpEQ(new ExpField('x', b), new ExpNum(binBud.id)),
+            ));
+        */
+        let expBin = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${binBud.id}"`));
+        if (upMain === true) {
+            const t0 = 't0', t1 = 't1';
+            select.column(new sql_1.ExpField('id', t0), 'id');
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('detail', false, t0))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expBin))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('bud', false, t1))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), new sql_1.ExpField('base', t0)));
+            expBin = new sql_1.ExpField('base', t1);
+        }
+        else {
+            select.column(new sql_1.ExpField('i', c), 'id');
+        }
+        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxName, false, c))
+            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), expBin), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpNum(bud.id))));
+        select.column(new sql_1.ExpField('x', c), 'phrase');
+        select.column(new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', c), new sql_1.ExpDatePart('json')), 'value');
     }
 }
 exports.BBizPend = BBizPend;
