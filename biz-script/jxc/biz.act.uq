@@ -994,6 +994,7 @@ RETURNS props (
     phrase ID,
     value JSON,
     (id, phrase) KEY,
+    (phrase, id) UNIQUE,
 )
 RETURNS atoms (
     id ID,

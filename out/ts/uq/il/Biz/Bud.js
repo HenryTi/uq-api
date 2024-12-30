@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudTieable = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudFork = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.bizDecType = exports.BudValueSetType = void 0;
+exports.budClassKeysOut = exports.budClassesOut = exports.budClassKeysIn = exports.budClassKeys = exports.budClassesUser = exports.budClasses = exports.budClassesIn = exports.BizBudCheck = exports.BizBudRadio = exports.BizBudOptions = exports.BizBudBin = exports.EnumSysBud = exports.BizBudIDIO = exports.BizBudIXBase = exports.BizBudID = exports.BizBudIDBase = exports.BizBudTieable = exports.BizBudDate = exports.BizBudNO = exports.BizBudChar = exports.BinValue = exports.BizBudDec = exports.BizBudInt = exports.BizBudValueWithRange = exports.BizBudAny = exports.BizBudPickable = exports.BizUser = exports.BizBudArr = exports.BizBudFork = exports.BizBudValue = exports.SetType = exports.BizBud = exports.BudGroup = exports.bizDecType = exports.BudValueSetType = void 0;
 const parser_1 = require("../../parser");
 const Base_1 = require("./Base");
 const Entity_1 = require("./Entity");
@@ -420,6 +420,13 @@ class BizBudIDIO extends BizBudValue {
     }
 }
 exports.BizBudIDIO = BizBudIDIO;
+var EnumSysBud;
+(function (EnumSysBud) {
+    EnumSysBud[EnumSysBud["id"] = 1] = "id";
+    EnumSysBud[EnumSysBud["sheetNo"] = 2] = "sheetNo";
+    EnumSysBud[EnumSysBud["sheetOperator"] = 3] = "sheetOperator";
+    EnumSysBud[EnumSysBud["sheetDate"] = 4] = "sheetDate";
+})(EnumSysBud || (exports.EnumSysBud = EnumSysBud = {}));
 class BizBudBin extends BizBudValue {
     constructor() {
         super(...arguments);
@@ -434,6 +441,7 @@ class BizBudBin extends BizBudValue {
         var _a;
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
+        ret.sysBuds = this.sysBuds;
         ret.showBuds = (_a = this.showBuds) === null || _a === void 0 ? void 0 : _a.map(v => {
             return v.map(vi => vi === null || vi === void 0 ? void 0 : vi.id);
         });

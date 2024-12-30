@@ -416,11 +416,18 @@ export class BizBudIDIO extends BizBudValue {
     }
 }
 
+export enum EnumSysBud {
+    id = 1,
+    sheetNo = 2,
+    sheetOperator = 3,
+    sheetDate = 4,
+}
 export class BizBudBin extends BizBudValue {
     readonly dataType = BudDataType.bin;
     readonly canIndex = false;
     bin: BizBin;
     get IDEntity(): BizID { return this.bin; }
+    sysBuds: EnumSysBud[];
     showBuds: BizBud[][];
     parser(context: PContext): PElement<IElement> {
         return new PBizBudBin(this, context);
@@ -428,6 +435,7 @@ export class BizBudBin extends BizBudValue {
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         ret.bin = this.bin.id;
+        ret.sysBuds = this.sysBuds;
         ret.showBuds = this.showBuds?.map(v => {
             return v.map(vi => vi?.id);
         });

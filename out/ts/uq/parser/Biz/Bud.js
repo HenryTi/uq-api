@@ -577,11 +577,42 @@ class PBizBudBin extends PBizBudValue {
         }
         let { bin: bizBin } = this.element;
         this.element.showBuds = [];
-        const { showBuds } = this.element;
+        this.element.sysBuds = [];
+        const { showBuds, sysBuds } = this.element;
         for (let showBudName of this.showBuds) {
             let pEntity = bizBin;
             let bud = undefined;
             let arr = [];
+            let [b0, b1] = showBudName;
+            if (b0 === undefined) {
+                arr.push(undefined);
+                pEntity = pEntity.main;
+                if (pEntity === undefined) {
+                    ok = false;
+                    this.log(`${bizBin.getJName()} does not has MAIN`);
+                    break;
+                }
+                b0 = b1;
+            }
+            switch (b0) {
+                case 'no':
+                    sysBuds.push(il_1.EnumSysBud.sheetNo);
+                    continue;
+                case 'operator':
+                    sysBuds.push(il_1.EnumSysBud.sheetOperator);
+                    continue;
+                case 'date':
+                    sysBuds.push(il_1.EnumSysBud.sheetDate);
+                    continue;
+            }
+            bud = pEntity.getBud(b0);
+            if (bud === undefined) {
+                ok = false;
+                this.log(`${pEntity.getJName()} does not has bud ${b0}`);
+                break;
+            }
+            arr.push(bud);
+            /*
             for (let sbn of showBudName) {
                 if (pEntity === undefined) {
                     ok = false;
@@ -606,8 +637,8 @@ class PBizBudBin extends PBizBudValue {
                 }
                 arr.push(bud);
                 pEntity = bud.IDEntity;
-            }
-            ;
+            };
+            */
             showBuds.push(arr);
         }
         return ok;

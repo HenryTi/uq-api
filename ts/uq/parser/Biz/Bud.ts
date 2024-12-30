@@ -12,7 +12,8 @@ import {
     BizBudTieable,
     BizIDExtendable,
     BizTie,
-    BudIndex
+    BudIndex,
+    EnumSysBud
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -610,11 +611,36 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
         }
         let { bin: bizBin } = this.element;
         this.element.showBuds = [];
-        const { showBuds } = this.element;
+        this.element.sysBuds = [];
+        const { showBuds, sysBuds } = this.element;
         for (let showBudName of this.showBuds) {
             let pEntity: BizID = bizBin;
             let bud: BizBud = undefined;
             let arr: BizBud[] = [];
+            let [b0, b1] = showBudName;
+            if (b0 === undefined) {
+                arr.push(undefined);
+                pEntity = pEntity.main;
+                if (pEntity === undefined) {
+                    ok = false;
+                    this.log(`${bizBin.getJName()} does not has MAIN`);
+                    break;
+                }
+                b0 = b1;
+            }
+            switch (b0) {
+                case 'no': sysBuds.push(EnumSysBud.sheetNo); continue;
+                case 'operator': sysBuds.push(EnumSysBud.sheetOperator); continue;
+                case 'date': sysBuds.push(EnumSysBud.sheetDate); continue;
+            }
+            bud = pEntity.getBud(b0);
+            if (bud === undefined) {
+                ok = false;
+                this.log(`${pEntity.getJName()} does not has bud ${b0}`);
+                break;
+            }
+            arr.push(bud);
+            /*
             for (let sbn of showBudName) {
                 if (pEntity === undefined) {
                     ok = false;
@@ -640,6 +666,7 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
                 arr.push(bud);
                 pEntity = bud.IDEntity;
             };
+            */
             showBuds.push(arr);
         }
         return ok;
