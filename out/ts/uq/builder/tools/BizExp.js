@@ -171,7 +171,6 @@ class BBizExp {
         const { ta } = this;
         const { site } = sb.factory.dbContext;
         const db = `${consts_1.$site}.${site}`;
-        // let siteEntityId = `${site}.${bizEntity.id}`;
         const siteEntityId = bizEntity.id;
         if (prop !== undefined) {
             sb.append(`${ta}.${prop} FROM `)
@@ -233,7 +232,7 @@ class BBizExp {
         const { budEntitySub, combo, comboParams } = this.bizExp;
         const { dbContext } = sb.factory;
         sb.append('SUM(bcb.value) FROM ')
-            .name(consts_1.$site).dot().name(`${dbContext.site}.${combo.id}`).append(' AS bca JOIN ')
+            .name(`${consts_1.$site}.${dbContext.site}`).dot().name(`${combo.id}`).append(' AS bca JOIN ')
             .dbName().dot().name(il_1.EnumSysTable.ixBudDec)
             .append(` AS bcb ON bcb.x=${budEntitySub.id} AND bcb.i=bca.id WHERE 1=1`);
         const { length } = comboParams;
