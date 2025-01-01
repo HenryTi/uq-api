@@ -302,12 +302,15 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         if (bud.dataType !== BudDataType.bin) return;
         const { factory } = this.context;
         const binBud = bud as BizBudBin;
-        const { showBuds, sysBuds } = binBud;
+        const { showBuds, sysBuds, sysNO } = binBud;
         const memo = factory.createMemo();
         statements.push(memo);
         memo.text = `bud ${binBud.getJName()} bin ${binBud.bin.getJName()}`;
         for (let sysBud of sysBuds) {
             this.buildBinSysProp(statements, tbl, bud, sysBud);
+        }
+        if (sysNO === undefined) {
+            this.buildBinSysProp(statements, tbl, bud, EnumSysBud.sheetNo);
         }
         for (let [bud0, bud1] of showBuds) {
             if (bud0 === undefined) {

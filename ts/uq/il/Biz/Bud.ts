@@ -427,6 +427,7 @@ export class BizBudBin extends BizBudValue {
     readonly canIndex = false;
     bin: BizBin;
     get IDEntity(): BizID { return this.bin; }
+    sysNO: boolean;
     sysBuds: EnumSysBud[];
     showBuds: BizBud[][];
     parser(context: PContext): PElement<IElement> {

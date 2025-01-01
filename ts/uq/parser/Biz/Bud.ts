@@ -629,7 +629,10 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
                 b0 = b1;
             }
             switch (b0) {
-                case 'no': sysBuds.push(EnumSysBud.sheetNo); continue;
+                case 'no':
+                    sysBuds.push(EnumSysBud.sheetNo);
+                    this.element.sysNO = true;
+                    continue;
                 case 'operator': sysBuds.push(EnumSysBud.sheetOperator); continue;
                 case 'date': sysBuds.push(EnumSysBud.sheetDate); continue;
             }

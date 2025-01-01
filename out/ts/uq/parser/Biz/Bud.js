@@ -597,6 +597,7 @@ class PBizBudBin extends PBizBudValue {
             switch (b0) {
                 case 'no':
                     sysBuds.push(il_1.EnumSysBud.sheetNo);
+                    this.element.sysNO = true;
                     continue;
                 case 'operator':
                     sysBuds.push(il_1.EnumSysBud.sheetOperator);
