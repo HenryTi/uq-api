@@ -534,7 +534,9 @@ class PBizCheckBudOperand extends element_1.PElement {
             this.element.optionIdVal = optionIdVal;
         }
         if (this.ts.token === tokens_1.Token.EQU) {
-            if (this.element.bizField === undefined && this.element.optionIdVal === undefined) {
+            if (this.element.bizField === undefined
+                && this.element.optionIdVal === undefined
+                && this.element.bizExp1 === undefined) {
                 this.ts.error('= not expected');
             }
             this.ts.readToken();
@@ -543,7 +545,9 @@ class PBizCheckBudOperand extends element_1.PElement {
             this.items = [this.ts.passVar()];
         }
         else if (this.ts.isKeyword('in') === true) {
-            if (this.element.bizField === undefined && this.element.optionIdVal === undefined) {
+            if (this.element.bizField === undefined
+                && this.element.optionIdVal === undefined
+                && this.element.bizExp1 === undefined) {
                 this.ts.error('IN not expected');
             }
             this.items = [];
