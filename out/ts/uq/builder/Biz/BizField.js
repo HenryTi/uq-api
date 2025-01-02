@@ -216,15 +216,6 @@ class BBizFieldPendBudSelect extends BBizFieldBinBudSelect {
     to(sb) {
         let { pend, bud } = this.bizField;
         this.buildPendBud(sb, bud);
-        /*
-        let tbl = this.ixTableFromBud(bud);
-        sb.l();
-        sb.append(`SELECT t0.`).fld('value').append(` FROM `).dbName().dot().name(tbl)
-            .append(' AS t0');
-        sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
-        sb.r();
-        sb.append('/*BBizFieldPendBudSelect* /');
-        */
     }
 }
 exports.BBizFieldPendBudSelect = BBizFieldPendBudSelect;
@@ -233,13 +224,11 @@ class BBizFieldPendBinBudSelect extends BBizFieldBinBudSelect {
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `); // .dbName().dot().name(EnumSysTable.ixBudInt)
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `);
         this.buildPendBud(sb, bud);
         sb.append(' AS t0');
         this.buildBudArr(sb, budArr);
-        // sb.append(' WHERE t0.i=').var('$pend').append(' AND t0.x=').append(bud.id);
         sb.r();
-        // sb.append('/*BBizFieldPendBinBudSelect*/');
     }
 }
 exports.BBizFieldPendBinBudSelect = BBizFieldPendBinBudSelect;
@@ -283,7 +272,12 @@ exports.BBizFieldUser = BBizFieldUser;
 class BBizFieldOptionsItem extends BBizField {
     to(sb) {
         const { options, optionsItem } = this.bizField;
-        sb.append('%').append(options.name).dot().append(optionsItem.name);
+        if (sb.forClient === true) {
+            sb.append('%').append(options.name).dot().append(optionsItem.name);
+        }
+        else {
+            sb.append(optionsItem.id);
+        }
     }
 }
 exports.BBizFieldOptionsItem = BBizFieldOptionsItem;

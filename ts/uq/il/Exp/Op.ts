@@ -278,10 +278,9 @@ export class VarOperand extends Atom {
     dotFirst: boolean = false;
     _var: string[] = [];
     enumValue: number | string;
-    /*
-    options: BizOptions;
-    optionsItem: OptionsItem;
-    */
+    // #OPTIONS.Item 所以不需要了
+    // options: BizOptions;
+    // optionsItem: OptionsItem;
     pointer: Pointer;
     parser(context: PContext) { return new PVarOperand(this, context); }
     to(stack: Stack) {

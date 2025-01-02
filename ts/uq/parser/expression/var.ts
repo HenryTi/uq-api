@@ -104,6 +104,7 @@ export class PVarOperand extends PElement<VarOperand> {
                 }
 
                 /*
+                #OPTIONS.Item 所以不需要了
                 let options = space.uq.biz.bizEntities.get(var0) as BizOptions;
                 if (options !== undefined) {
                     let optionsItem = options.items.find(v => v.name === var1);

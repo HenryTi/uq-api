@@ -103,6 +103,7 @@ class PVarOperand extends element_1.PElement {
                     pointer = new il_1.ConstPointer(v);
                 }
                 /*
+                #OPTIONS.Item 所以不需要了
                 let options = space.uq.biz.bizEntities.get(var0) as BizOptions;
                 if (options !== undefined) {
                     let optionsItem = options.items.find(v => v.name === var1);

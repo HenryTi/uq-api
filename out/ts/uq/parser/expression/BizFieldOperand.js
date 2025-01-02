@@ -20,19 +20,9 @@ class PBizFieldOperand extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        // let bizFieldSpace = space.getBizFieldSpace();
-        // let field = bizFieldSpace.getBizField(this.fieldName);
         let field = space.getBizField(this.fieldName);
-        /*
-        if (field === undefined) {
-            debugger;
-            space.getBizField(this.fieldName);
-        }
-        */
         if (field === null) {
             this.log(`%${this.fieldName.join('.')} is not defined`);
-            // bizFieldSpace.getBizField(this.fieldName);
-            // space.getBizField(this.fieldName);
             return false;
         }
         const [f0, f1] = this.fieldName;
@@ -54,13 +44,11 @@ class PBizFieldOperand extends element_1.PElement {
                 this.log(`%${f0}.${f1} can only be used in biz Entity`);
             }
             else {
-                // const { bizEntity } = bizEntitySpace;
                 if (bizEntity.checkUserDefault(f1) === false) {
                     ok = false;
                     this.log(`%${f0}.${f1} not defined`);
                 }
                 else {
-                    // this.element.field = new BizFieldUser(bizFieldSpace, f1);
                     this.element.field = new il_1.BizFieldUser(undefined, f1);
                 }
             }
