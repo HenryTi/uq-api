@@ -1,4 +1,5 @@
 import {
+    BizBinVar,
     BizBud,
     bizDecType,
     BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldOptionsItem, BizFieldPendBinBudSelect, BizFieldPendBudSelect, BizForkBaseField, EnumSysTable
@@ -80,6 +81,12 @@ export abstract class BBizField<T extends BizField = BizField> {
             .append(' AS t0');
         sb.append(' WHERE t0.id=').var('$pend');
         sb.r();
+    }
+}
+
+export class BBizBinVar extends BBizField<BizBinVar> {
+    override to(sb: SqlBuilder): void {
+        sb.var('$bin');
     }
 }
 

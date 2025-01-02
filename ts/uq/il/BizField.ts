@@ -7,7 +7,8 @@ import {
     BBizFieldBinBinBudSelect,
     BBizFieldPendSheet,
     BBizFieldOptionsItem,
-    BBizForkBaseField
+    BBizForkBaseField,
+    BBizBinVar
 } from "../builder";
 import { BinDiv, BizBin, FromStatement, FromInPendStatement, BizOptions, OptionsItem } from "./Biz";
 import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
@@ -28,6 +29,12 @@ export abstract class BizField {
     abstract buildSchema(): any;
     abstract get tableAlias(): string;
     scanBinDiv() { }
+}
+
+export class BizBinVar extends BizField {
+    db(dbContext: DbContext): BBizField { return new BBizBinVar(dbContext, this); }
+    buildSchema(): any { return; }
+    get tableAlias(): string { return undefined; }
 }
 
 export class BizForkBaseField extends BizField {
@@ -245,6 +252,9 @@ export abstract class BizFieldSpace {
     }
 
     protected buildBizFieldFromSolo(name: string): BizField {
+        if (name === 'bin') {
+            return new BizBinVar(this);
+        }
         return this.buildBizFieldFromDuo('$t1', name);
     }
 
