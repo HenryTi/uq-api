@@ -7,7 +7,7 @@ import { Atom } from "../Exp/Op";
 import { Stack } from "../Exp/Stack";
 import { BizTie } from "./Tie";
 import { BizEntity } from "./Entity";
-import { BizBud } from "./Bud";
+import { BizBud, EnumSysBud } from "./Bud";
 import { BizOptions, OptionsItem } from "./Options";
 import { PBizCheckBudOperand, PBizExp, PBizExpOperand, PBizExpParam } from "../../parser/Biz/Biz.Exp";
 import { BizCombo } from "./BizID";
@@ -49,6 +49,7 @@ export class BizExp extends IElement {
     param: BizExpParam;
     prop: string;
     budProp: BizBud;
+    sysBud: EnumSysBud;
     in: BizExpIn;
     type = 'BizExp';
     isReadonly: boolean = false;

@@ -113,7 +113,7 @@ export abstract class BBizStatementPend<T extends BizAct> extends BStatement<Biz
                 ifKeyedId.then(setPendId);
                 let upsertPendKey = factory.createInsertOnDuplicate();
                 ifKeyedId.then(upsertPendKey);
-                let pendKeyTableInsert = pendKeyTable; // new GlobalTable($site, pendKeyTableName);
+                let pendKeyTableInsert = new GlobalSiteTable(this.context.site, pend.id);
                 upsertPendKey.table = pendKeyTableInsert;
                 const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new ExpVar(pendId) });

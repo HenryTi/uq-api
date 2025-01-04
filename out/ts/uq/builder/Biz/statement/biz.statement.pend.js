@@ -93,7 +93,7 @@ class BBizStatementPend extends bstatement_1.BStatement {
                 ifKeyedId.then(setPendId);
                 let upsertPendKey = factory.createInsertOnDuplicate();
                 ifKeyedId.then(upsertPendKey);
-                let pendKeyTableInsert = pendKeyTable; // new GlobalTable($site, pendKeyTableName);
+                let pendKeyTableInsert = new statementWithFrom_1.GlobalSiteTable(this.context.site, pend.id);
                 upsertPendKey.table = pendKeyTableInsert;
                 const { cols, keys } = upsertPendKey;
                 cols.push({ col: 'id', val: new sql_1.ExpVar(pendId) });

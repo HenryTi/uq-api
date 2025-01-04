@@ -10,6 +10,7 @@ import {
     BizCombo,
     BizEntity,
     BizExpIDType,
+    EnumSysBud,
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { PElement } from "../element";
@@ -86,15 +87,14 @@ export class PBizExp extends PElement<BizExp> {
         if (this.ts.token === Token.XOR) {
             this.element.isParent = true;
             this.ts.readToken();
+            this.element.prop = this.ts.passVar();
         }
         else if (this.ts.token === Token.DOT) {
             this.ts.readToken();
-            /*
             if (this.ts.token === Token.XOR as any) {
                 this.element.isParent = true;
                 this.ts.readToken();
             }
-            */
             this.element.prop = this.ts.passVar();
         }
         if (this.ts.isKeyword('in') === true) {
@@ -273,6 +273,15 @@ export class PBizExp extends PElement<BizExp> {
         else {
             const arr = binFieldArr;
             if (arr.includes(prop) === false) {
+                let sysBud: EnumSysBud;
+                switch (prop) {
+                    case 'no': sysBud = EnumSysBud.sheetNo; break;
+                    case 'operator': sysBud = EnumSysBud.sheetOperator; break;
+                }
+                if (sysBud !== undefined) {
+                    this.element.sysBud = sysBud;
+                    return ok;
+                }
                 let bud: BizBud;
                 if (isParent === true) {
                     bud = bizBin.getSheetMainBud(prop);

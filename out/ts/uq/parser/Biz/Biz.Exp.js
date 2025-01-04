@@ -72,15 +72,14 @@ class PBizExp extends element_1.PElement {
         if (this.ts.token === tokens_1.Token.XOR) {
             this.element.isParent = true;
             this.ts.readToken();
+            this.element.prop = this.ts.passVar();
         }
         else if (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
-            /*
-            if (this.ts.token === Token.XOR as any) {
+            if (this.ts.token === tokens_1.Token.XOR) {
                 this.element.isParent = true;
                 this.ts.readToken();
             }
-            */
             this.element.prop = this.ts.passVar();
         }
         if (this.ts.isKeyword('in') === true) {
@@ -278,6 +277,19 @@ class PBizExp extends element_1.PElement {
         else {
             const arr = consts_1.binFieldArr;
             if (arr.includes(prop) === false) {
+                let sysBud;
+                switch (prop) {
+                    case 'no':
+                        sysBud = il_1.EnumSysBud.sheetNo;
+                        break;
+                    case 'operator':
+                        sysBud = il_1.EnumSysBud.sheetOperator;
+                        break;
+                }
+                if (sysBud !== undefined) {
+                    this.element.sysBud = sysBud;
+                    return ok;
+                }
                 let bud;
                 if (isParent === true) {
                     bud = bizBin.getSheetMainBud(prop);

@@ -336,7 +336,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         ];
         const select = factory.createSelect();
         insert.select = select;
-        let tblIxName;
+        const expValue = new sql_1.ExpField('value', c);
+        let tblIxName, colValue = new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('json'));
         switch (bud.dataType) {
             default:
                 tblIxName = 'ixbudint';
@@ -344,18 +345,19 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
                 tblIxName = 'ixbudstr';
+                colValue = new sql_1.ExpFunc('JSON_QUOTE', expValue);
                 break;
             case BizPhraseType_1.BudDataType.dec:
                 tblIxName = 'ixbuddec';
                 break;
         }
-        select.column(new sql_1.ExpField('value', b), 'id');
+        let expBin = new sql_1.ExpField('value', b);
+        select.column(expBin, 'id');
         select.column(new sql_1.ExpField('x', c), 'phrase');
-        select.column(new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', c), new sql_1.ExpDatePart('json')), 'value');
+        select.column(colValue, 'value');
         select.from(new statementWithFrom_1.VarTable(tbl, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('ixbudint', false, b))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpNum(binBud.id))));
-        let expBin = new sql_1.ExpField('value', b);
         if (upMain === true) {
             const t0 = 't0', t1 = 't1';
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('detail', false, t0))

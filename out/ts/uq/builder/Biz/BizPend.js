@@ -186,7 +186,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
         ];
         const select = factory.createSelect();
         insert.select = select;
-        let tblIxName;
+        let tblIxName, colValue = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', c), new sql_1.ExpDatePart('json'));
         switch (bud.dataType) {
             default:
                 tblIxName = 'ixbudint';
@@ -194,6 +194,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
                 tblIxName = 'ixbudstr';
+                colValue = new sql_1.ExpFunc('JSON_QUOTE', new sql_1.ExpField('value', c));
                 break;
             case BizPhraseType_1.BudDataType.dec:
                 tblIxName = 'ixbuddec';
@@ -223,7 +224,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxName, false, c))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), expBin), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpNum(bud.id))));
         select.column(new sql_1.ExpField('x', c), 'phrase');
-        select.column(new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', c), new sql_1.ExpDatePart('json')), 'value');
+        select.column(colValue, 'value');
     }
 }
 exports.BBizPend = BBizPend;

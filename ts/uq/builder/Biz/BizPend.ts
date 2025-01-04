@@ -186,7 +186,8 @@ export class BBizPend extends BBizEntity<BizPend> {
         ];
         const select = factory.createSelect();
         insert.select = select;
-        let tblIxName: string;
+        let tblIxName: string
+            , colValue: ExpVal = new ExpFuncCustom(factory.func_cast, new ExpField('value', c), new ExpDatePart('json'));
         switch (bud.dataType) {
             default:
                 tblIxName = 'ixbudint';
@@ -194,6 +195,7 @@ export class BBizPend extends BBizEntity<BizPend> {
             case BudDataType.str:
             case BudDataType.char:
                 tblIxName = 'ixbudstr';
+                colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', c));
                 break;
             case BudDataType.dec:
                 tblIxName = 'ixbuddec';
@@ -228,6 +230,6 @@ export class BBizPend extends BBizEntity<BizPend> {
                 new ExpEQ(new ExpField('x', c), new ExpNum(bud.id))
             ));
         select.column(new ExpField('x', c), 'phrase');
-        select.column(new ExpFuncCustom(factory.func_cast, new ExpField('value', c), new ExpDatePart('json')), 'value');
+        select.column(colValue, 'value');
     }
 }

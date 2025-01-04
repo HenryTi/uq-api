@@ -85,17 +85,53 @@ class BBizExp {
         }
     }
     bin(sb) {
-        const { budProp } = this.bizExp;
-        if (budProp !== undefined)
+        const { budProp, sysBud } = this.bizExp;
+        if (sysBud !== undefined)
+            this.binSheetProp(sb);
+        else if (budProp !== undefined)
             this.binBud(sb);
         else
             this.binField(sb);
     }
+    binSheetProp(sb) {
+        const { bizEntity, sysBud, isParent } = this.bizExp;
+        const { ta, tb, tt } = this;
+        const tSheet = '$tsheet';
+        let col = tSheet + '.';
+        switch (sysBud) {
+            case il_1.EnumSysBud.sheetNo:
+                col += 'no';
+                break;
+            case il_1.EnumSysBud.sheetOperator:
+                col += 'operator';
+                break;
+        }
+        let joinBud = `JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id}`;
+        let sql, ttBin;
+        if (isParent === true) {
+            sql = `${col} 
+                FROM \`${this.db}\`.detail as ${tt}
+                    JOIN \`${this.db}\`.bin as ${ta} ON ${ta}.id=${tt}.base
+                    ${joinBud} `;
+            // WHERE ${tt}.id=`;
+            ttBin = tt;
+        }
+        else {
+            sql = `${col} 
+                FROM \`${this.db}\`.detail as ${ta} ${joinBud} `;
+            // WHERE ${ta}.id=`;
+            ttBin = ta;
+        }
+        sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON $tsheet.id=${tb}.base `;
+        sql += ` WHERE ${ttBin}.id = `;
+        sb.append(sql);
+        sb.exp(this.params[0]);
+    }
     binField(sb) {
         const { bizEntity, prop, isParent } = this.bizExp;
         const { ta, tb, tt } = this;
-        let col = `${ta}.${prop !== null && prop !== void 0 ? prop : 'id'}`;
-        let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id}`;
+        let col = `${ta}.${prop !== null && prop !== void 0 ? prop : 'id'} `;
+        let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
         let sql;
         if (isParent === true) {
             sql = `${col} 
