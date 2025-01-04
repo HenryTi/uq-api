@@ -678,6 +678,9 @@ class PExpression extends element_1.PElement {
             case 'search':
                 this.add(this.parseOpSearch());
                 break;
+            case 'between':
+                this.add(this.parseFuncBetween());
+                break;
         }
         return true;
     }
@@ -724,6 +727,11 @@ class PExpression extends element_1.PElement {
     }
     parseOpSearch() {
         let ret = new Exp.OpSearch();
+        this.context.parseElement(ret);
+        return ret;
+    }
+    parseFuncBetween() {
+        let ret = new Exp.FuncBetween();
         this.context.parseElement(ret);
         return ret;
     }

@@ -12,6 +12,7 @@ const ExpBizOperand_1 = require("./ExpBizOperand");
 const tools_1 = require("../../tools");
 const ExpRole_1 = require("./ExpRole");
 const ExpBizEntityBud_1 = require("./ExpBizEntityBud");
+const ExpFuncBetween_1 = require("./ExpFuncBetween");
 function convertExpInternal(stack, exp) {
     if (!exp)
         return;
@@ -261,6 +262,10 @@ class Stack {
     }
     Search(key, values) {
         this.arr.push(new ExpSearch_1.ExpSearch(key, values));
+    }
+    FuncBetween(funcBetween) {
+        const { value, left, right } = funcBetween;
+        this.arr.push(new ExpFuncBetween_1.ExpFuncBetween(funcBetween, this.context.expVal(value), this.context.expVal(left), this.context.expVal(right)));
     }
 }
 //# sourceMappingURL=convertExp.js.map

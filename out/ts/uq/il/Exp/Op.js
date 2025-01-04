@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VarOperand = exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = exports.OpLike = exports.SubSelectOperand = exports.OpIn = exports.OpIsIdType = exports.OpIsNotNull = exports.OpIsNull = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = void 0;
-exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = void 0;
+exports.FuncBetween = exports.EnumFuncBetweenCompare = exports.EnumFuncBetweenType = exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = void 0;
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
 const select_1 = require("../select");
@@ -430,4 +430,29 @@ class OpSearch extends Atom {
     }
 }
 exports.OpSearch = OpSearch;
+var EnumFuncBetweenType;
+(function (EnumFuncBetweenType) {
+    EnumFuncBetweenType[EnumFuncBetweenType["iddate"] = 1] = "iddate";
+    EnumFuncBetweenType[EnumFuncBetweenType["date"] = 2] = "date";
+    EnumFuncBetweenType[EnumFuncBetweenType["int"] = 3] = "int";
+    EnumFuncBetweenType[EnumFuncBetweenType["dec"] = 4] = "dec";
+})(EnumFuncBetweenType || (exports.EnumFuncBetweenType = EnumFuncBetweenType = {}));
+var EnumFuncBetweenCompare;
+(function (EnumFuncBetweenCompare) {
+    EnumFuncBetweenCompare[EnumFuncBetweenCompare["inclusive"] = 1] = "inclusive";
+    EnumFuncBetweenCompare[EnumFuncBetweenCompare["exclusive"] = 0] = "exclusive";
+})(EnumFuncBetweenCompare || (exports.EnumFuncBetweenCompare = EnumFuncBetweenCompare = {}));
+class FuncBetween extends Atom {
+    constructor() {
+        super(...arguments);
+        this.leftCompare = EnumFuncBetweenCompare.inclusive;
+        this.rightCompare = EnumFuncBetweenCompare.exclusive;
+    }
+    get type() { return 'funcbetween'; }
+    parser(context) { return new parser_1.PFuncBetween(this, context); }
+    to(stack) {
+        stack.FuncBetween(this);
+    }
+}
+exports.FuncBetween = FuncBetween;
 //# sourceMappingURL=Op.js.map

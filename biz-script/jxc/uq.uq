@@ -16,3 +16,118 @@ DataType (
     Phrase CHAR(200),
     BudStr CHAR(200),
 );
+
+FUNC IdDateBetween(
+    value BIGINT,
+    left BIGINT,
+    leftCompare INT,
+    right BIGINT,
+    rightCompare INT,
+    timeZone INT,
+)
+RETURNS TINYINT {
+    VAR date DATETIME;
+    IF value IS NULL RETURN 0;
+    SET date=UMINUTETIME(value, timeZone);
+    IF left IS NOT NULL {
+        IF leftCompare=0 {
+            IF date<=leftCompare { RETURN 0; }
+        }
+        ELSE {
+            IF date<leftCompare { RETURN 0; }
+        }
+    }
+    IF right IS NOT NULL {
+        IF rightCompare=0 {
+            IF date>=rightCompare { RETURN 0; }
+        }
+        ELSE {
+            IF date>rightCompare { RETURN 0; }
+        }
+    }
+    RETURN 1;
+}
+
+FUNC DateBetween(
+    date DATETIME,
+    left DATETIME,
+    leftCompare INT,
+    right DATETIME,
+    rightCompare INT,
+)
+RETURNS TINYINT {
+    IF date IS NULL { RETURN 0; }
+    IF left IS NOT NULL {
+        IF leftCompare=0 {
+            IF date<=leftCompare { RETURN 0; }
+        }
+        ELSE {
+            IF date<leftCompare { RETURN 0; }
+        }
+    }
+    IF right IS NOT NULL {
+        IF rightCompare=0 {
+            IF date>=rightCompare { RETURN 0; }
+        }
+        ELSE {
+            IF date>rightCompare { RETURN 0; }
+        }
+    }
+    RETURN 1;
+}
+
+FUNC IntBetween(
+    value BIGINT,
+    left BIGINT,
+    leftCompare INT,
+    right BIGINT,
+    rightCompare INT,
+)
+RETURNS TINYINT {
+    IF value IS NULL RETURN 0;
+    IF left IS NOT NULL {
+        IF leftCompare=0 {
+            IF value<=leftCompare { RETURN 0; }
+        }
+        ELSE {
+            IF value<leftCompare { RETURN 0; }
+        }
+    }
+    IF right IS NOT NULL {
+        IF rightCompare=0 {
+            IF value>=rightCompare { RETURN 0; }
+        }
+        ELSE {
+            IF value>rightCompare { RETURN 0; }
+        }
+    }
+    RETURN 1;
+}
+
+FUNC DecBetween(
+    value VALUE,
+    left VALUE,
+    leftCompare INT,
+    right VALUE,
+    rightCompare INT,
+)
+RETURNS TINYINT {
+    IF value IS NULL RETURN 0;
+    IF left IS NOT NULL {
+        IF leftCompare=0 {
+            IF value<=leftCompare { RETURN 0; }
+        }
+        ELSE {
+            IF value<leftCompare { RETURN 0; }
+        }
+    }
+    IF right IS NOT NULL {
+        IF rightCompare=0 {
+            IF value>=rightCompare { RETURN 0; }
+        }
+        ELSE {
+            IF value>rightCompare { RETURN 0; }
+        }
+    }
+    RETURN 1;
+}

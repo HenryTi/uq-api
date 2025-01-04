@@ -10,7 +10,8 @@ import {
     BizEntity,
     BizBud,
     BizCheckBudOperand,
-    BizFromEntity
+    BizFromEntity,
+    FuncBetween
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
@@ -35,6 +36,7 @@ import {
 import { ExpRole } from './ExpRole';
 import { ExpBizEntityBud } from './ExpBizEntityBud';
 import { BBizField } from '../../Biz';
+import { ExpFuncBetween } from './ExpFuncBetween';
 
 function convertExpInternal(stack: Stack, exp: Expression) {
     if (!exp) return;
@@ -294,5 +296,14 @@ class Stack implements IlStack {
     }
     Search(key: ValueExpression, values: ValueExpression[]) {
         this.arr.push(new ExpSearch(key, values));
+    }
+    FuncBetween(funcBetween: FuncBetween): void {
+        const { value, left, right } = funcBetween;
+        this.arr.push(new ExpFuncBetween(
+            funcBetween,
+            this.context.expVal(value),
+            this.context.expVal(left),
+            this.context.expVal(right),
+        ));
     }
 }

@@ -97,30 +97,33 @@ export class BBizExp {
     private binSheetProp(sb: SqlBuilder) {
         const { bizEntity, sysBud, isParent } = this.bizExp;
         const { ta, tb, tt } = this;
-        const tSheet = '$tsheet';
+        const tSheet = 'tsheet';
         let col = tSheet + '.';
         switch (sysBud) {
             case EnumSysBud.sheetNo: col += 'no'; break;
             case EnumSysBud.sheetOperator: col += 'operator'; break;
         }
-        let joinBud = `JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.id AND ${tb}.ext=${bizEntity.id}`;
-        let sql: string, ttBin: string;
+        let sql: string;
+        sql = `${col} FROM \`${this.db}\`.detail as \`${ta}\` `;
+        // let ttBin: string;
         if (isParent === true) {
+            sql += `JOIN \`${this.db}\`.bud as \`${tb}\` ON ${tb}.id=${ta}.base AND ${tb}.ext=${bizEntity.id}`;
+            /*
             sql = `${col} 
                 FROM \`${this.db}\`.detail as ${tt}
                     JOIN \`${this.db}\`.bin as ${ta} ON ${ta}.id=${tt}.base
                     ${joinBud} `;
+            */
             // WHERE ${tt}.id=`;
-            ttBin = tt;
+            // ttBin = ta;
         }
         else {
-            sql = `${col} 
-                FROM \`${this.db}\`.detail as ${ta} ${joinBud} `;
+            // sql = `${col} FROM \`${this.db}\`.detail as ${ta} ${joinBud} `;
             // WHERE ${ta}.id=`;
-            ttBin = ta;
+            // ttBin = ta;
         }
-        sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON $tsheet.id=${tb}.base `;
-        sql += ` WHERE ${ttBin}.id = `;
+        sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON ${tSheet}.id=${tb}.base `;
+        sql += ` WHERE \`${ta}\`.id = `;
         sb.append(sql);
         sb.exp(this.params[0]);
     }

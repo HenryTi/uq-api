@@ -679,6 +679,9 @@ export abstract class PExpression extends PElement {
             case 'search':
                 this.add(this.parseOpSearch());
                 break;
+            case 'between':
+                this.add(this.parseFuncBetween());
+                break;
         }
         return true;
     }
@@ -734,6 +737,12 @@ export abstract class PExpression extends PElement {
 
     private parseOpSearch() {
         let ret = new Exp.OpSearch();
+        this.context.parseElement(ret);
+        return ret;
+    }
+
+    private parseFuncBetween() {
+        let ret = new Exp.FuncBetween();
         this.context.parseElement(ret);
         return ret;
     }

@@ -5,7 +5,8 @@ import {
     POpEntityId, POpEntityName, POpRole, POpQueue, POpCast,
     POpUMinute, POpSearch, POpNameof,
     POpAt, POpUqDefinedFunction,
-    POpIsIdType
+    POpIsIdType,
+    PFuncBetween
 } from '../../parser';
 import { DataType } from '../datatype';
 import { IElement } from '../IElement';
@@ -414,9 +415,33 @@ export class OpQueue extends Atom {
 export class OpSearch extends Atom {
     key: ValueExpression;
     values: ValueExpression[];
-    get type(): string { return 'search' }
+    get type(): string { return 'search'; }
     parser(context: PContext) { return new POpSearch(this, context); }
     to(stack: Stack) {
         stack.Search(this.key, this.values);
+    }
+}
+
+export enum EnumFuncBetweenType {
+    iddate = 1,
+    date = 2,
+    int = 3,
+    dec = 4,
+}
+export enum EnumFuncBetweenCompare {
+    inclusive = 1,
+    exclusive = 0,
+}
+export class FuncBetween extends Atom {
+    betweenType: EnumFuncBetweenType;
+    value: ValueExpression;
+    left: ValueExpression;
+    leftCompare: EnumFuncBetweenCompare = EnumFuncBetweenCompare.inclusive;
+    right: ValueExpression;
+    rightCompare: EnumFuncBetweenCompare = EnumFuncBetweenCompare.exclusive;
+    get type(): string { return 'funcbetween'; }
+    parser(context: PContext) { return new PFuncBetween(this, context); }
+    to(stack: Stack) {
+        stack.FuncBetween(this);
     }
 }
