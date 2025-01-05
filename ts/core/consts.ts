@@ -4,6 +4,7 @@ export const consts = {
     $uq: '$uq',
     $res: '$res',
     $site: '$site',
+    $user: '$user',
     $x: '$x',
     $$$unitx: '$$$/$unitx',
     $test: '$test',
