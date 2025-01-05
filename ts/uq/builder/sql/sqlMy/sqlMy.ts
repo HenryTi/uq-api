@@ -123,7 +123,7 @@ export class MyFactory extends Factory {
     func_ifnull = 'IFNULL';
     func_if = 'IF';
     func_greatest = 'GREATEST';
-    func_adddate = 'DATEADD';
+    func_adddate = 'DATE_ADD';
     func_timestampdiff = 'TIMESTAMPDIFF';
     func_rowCount = 'ROW_COUNT';
     func_rand = 'RAND';

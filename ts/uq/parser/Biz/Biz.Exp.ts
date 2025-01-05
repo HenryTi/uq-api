@@ -275,6 +275,7 @@ export class PBizExp extends PElement<BizExp> {
             if (arr.includes(prop) === false) {
                 let sysBud: EnumSysBud;
                 switch (prop) {
+                    case 'id': sysBud = EnumSysBud.id; break;
                     case 'no': sysBud = EnumSysBud.sheetNo; break;
                     case 'operator': sysBud = EnumSysBud.sheetOperator; break;
                 }

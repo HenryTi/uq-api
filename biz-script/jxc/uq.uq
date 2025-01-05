@@ -19,9 +19,9 @@ DataType (
 
 FUNC IdDateBetween(
     value BIGINT,
-    left BIGINT,
+    left DATETIME,
     leftCompare INT,
-    right BIGINT,
+    right DATETIME,
     rightCompare INT,
     timeZone INT,
 )
@@ -31,18 +31,18 @@ RETURNS TINYINT {
     SET date=UMINUTETIME(value, timeZone);
     IF left IS NOT NULL {
         IF leftCompare=0 {
-            IF date<=leftCompare { RETURN 0; }
+            IF date<=left { RETURN 0; }
         }
         ELSE {
-            IF date<leftCompare { RETURN 0; }
+            IF date<left { RETURN 0; }
         }
     }
     IF right IS NOT NULL {
         IF rightCompare=0 {
-            IF date>=rightCompare { RETURN 0; }
+            IF date>=right { RETURN 0; }
         }
         ELSE {
-            IF date>rightCompare { RETURN 0; }
+            IF date>right { RETURN 0; }
         }
     }
     RETURN 1;
@@ -59,18 +59,18 @@ RETURNS TINYINT {
     IF date IS NULL { RETURN 0; }
     IF left IS NOT NULL {
         IF leftCompare=0 {
-            IF date<=leftCompare { RETURN 0; }
+            IF date<=left { RETURN 0; }
         }
         ELSE {
-            IF date<leftCompare { RETURN 0; }
+            IF date<left { RETURN 0; }
         }
     }
     IF right IS NOT NULL {
         IF rightCompare=0 {
-            IF date>=rightCompare { RETURN 0; }
+            IF date>=right { RETURN 0; }
         }
         ELSE {
-            IF date>rightCompare { RETURN 0; }
+            IF date>right { RETURN 0; }
         }
     }
     RETURN 1;
@@ -87,18 +87,18 @@ RETURNS TINYINT {
     IF value IS NULL RETURN 0;
     IF left IS NOT NULL {
         IF leftCompare=0 {
-            IF value<=leftCompare { RETURN 0; }
+            IF value<=left { RETURN 0; }
         }
         ELSE {
-            IF value<leftCompare { RETURN 0; }
+            IF value<left { RETURN 0; }
         }
     }
     IF right IS NOT NULL {
         IF rightCompare=0 {
-            IF value>=rightCompare { RETURN 0; }
+            IF value>=right { RETURN 0; }
         }
         ELSE {
-            IF value>rightCompare { RETURN 0; }
+            IF value>right { RETURN 0; }
         }
     }
     RETURN 1;
@@ -115,18 +115,18 @@ RETURNS TINYINT {
     IF value IS NULL RETURN 0;
     IF left IS NOT NULL {
         IF leftCompare=0 {
-            IF value<=leftCompare { RETURN 0; }
+            IF value<=left { RETURN 0; }
         }
         ELSE {
-            IF value<leftCompare { RETURN 0; }
+            IF value<left { RETURN 0; }
         }
     }
     IF right IS NOT NULL {
         IF rightCompare=0 {
-            IF value>=rightCompare { RETURN 0; }
+            IF value>=right { RETURN 0; }
         }
         ELSE {
-            IF value>rightCompare { RETURN 0; }
+            IF value>right { RETURN 0; }
         }
     }
     RETURN 1;

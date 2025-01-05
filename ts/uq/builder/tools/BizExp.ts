@@ -100,6 +100,7 @@ export class BBizExp {
         const tSheet = 'tsheet';
         let col = tSheet + '.';
         switch (sysBud) {
+            case EnumSysBud.id: col += 'id'; break;
             case EnumSysBud.sheetNo: col += 'no'; break;
             case EnumSysBud.sheetOperator: col += 'operator'; break;
         }

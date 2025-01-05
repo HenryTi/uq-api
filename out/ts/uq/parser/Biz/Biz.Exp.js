@@ -279,6 +279,9 @@ class PBizExp extends element_1.PElement {
             if (arr.includes(prop) === false) {
                 let sysBud;
                 switch (prop) {
+                    case 'id':
+                        sysBud = il_1.EnumSysBud.id;
+                        break;
                     case 'no':
                         sysBud = il_1.EnumSysBud.sheetNo;
                         break;

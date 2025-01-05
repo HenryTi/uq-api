@@ -66,7 +66,7 @@ class MyFactory extends factory_1.Factory {
         this.func_ifnull = 'IFNULL';
         this.func_if = 'IF';
         this.func_greatest = 'GREATEST';
-        this.func_adddate = 'DATEADD';
+        this.func_adddate = 'DATE_ADD';
         this.func_timestampdiff = 'TIMESTAMPDIFF';
         this.func_rowCount = 'ROW_COUNT';
         this.func_rand = 'RAND';

@@ -99,6 +99,9 @@ class BBizExp {
         const tSheet = 'tsheet';
         let col = tSheet + '.';
         switch (sysBud) {
+            case il_1.EnumSysBud.id:
+                col += 'id';
+                break;
             case il_1.EnumSysBud.sheetNo:
                 col += 'no';
                 break;
