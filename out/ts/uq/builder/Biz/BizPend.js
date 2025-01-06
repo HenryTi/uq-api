@@ -42,7 +42,6 @@ class BBizPend extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            // const { id } = this.bizEntity;
             const procQuery = this.createSiteEntityProcedure('gp');
             this.buildQueryProc(procQuery);
         });
@@ -78,15 +77,6 @@ class BBizPend extends BizEntity_1.BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
-        /*
-        let showBuds = this.bizEntity.allShowBuds();
-        if (showBuds !== undefined) {
-            let memo = factory.createMemo();
-            statements.push(memo)
-            memo.text = this.bizEntity.name + ' show buds';
-            statements.push(...this.buildGetShowBuds(showBuds, '$page', 'id'));
-        }
-        */
         this.buildGetBinProps(statements);
     }
     buildGetBinProps(statements) {
@@ -130,13 +120,6 @@ class BBizPend extends BizEntity_1.BBizEntity {
         const select = factory.createSelect();
         insert.select = select;
         select.from(new statementWithFrom_1.VarTable(tbl, a));
-        /*
-            .join(JoinType.join, new EntityTable('ixbudint', false, b))
-            .on(new ExpAnd(
-                new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
-                new ExpEQ(new ExpField('x', b), new ExpNum(binBud.id)),
-            ));
-        */
         let expBin = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${binBud.id}"`));
         if (binBud.bin.main !== undefined) {
             const t0 = 't0', t1 = 't1';
@@ -201,13 +184,6 @@ class BBizPend extends BizEntity_1.BBizEntity {
                 break;
         }
         select.from(new statementWithFrom_1.VarTable(tbl, a));
-        /*
-            .join(JoinType.join, new EntityTable('ixbudint', false, b))
-            .on(new ExpAnd(
-                new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
-                new ExpEQ(new ExpField('x', b), new ExpNum(binBud.id)),
-            ));
-        */
         let expBin = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${binBud.id}"`));
         if (upMain === true) {
             const t0 = 't0', t1 = 't1';
