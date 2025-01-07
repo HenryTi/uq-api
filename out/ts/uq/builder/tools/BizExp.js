@@ -111,22 +111,8 @@ class BBizExp {
         }
         let sql;
         sql = `${col} FROM \`${this.db}\`.detail as \`${ta}\` `;
-        // let ttBin: string;
         if (isParent === true) {
             sql += `JOIN \`${this.db}\`.bud as \`${tb}\` ON ${tb}.id=${ta}.base AND ${tb}.ext=${bizEntity.id}`;
-            /*
-            sql = `${col}
-                FROM \`${this.db}\`.detail as ${tt}
-                    JOIN \`${this.db}\`.bin as ${ta} ON ${ta}.id=${tt}.base
-                    ${joinBud} `;
-            */
-            // WHERE ${tt}.id=`;
-            // ttBin = ta;
-        }
-        else {
-            // sql = `${col} FROM \`${this.db}\`.detail as ${ta} ${joinBud} `;
-            // WHERE ${ta}.id=`;
-            // ttBin = ta;
         }
         sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON ${tSheet}.id=${tb}.base `;
         sql += ` WHERE \`${ta}\`.id = `;
@@ -156,7 +142,7 @@ class BBizExp {
     }
     binBud(sb) {
         const { budProp, isParent } = this.bizExp;
-        const { ta, tt } = this;
+        const { ta, tb, tt } = this;
         let tbl;
         switch (budProp.dataType) {
             default:
@@ -177,7 +163,7 @@ class BBizExp {
             WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
         if (isParent === true) {
             sb.l();
-            sb.append(`SELECT ${ta}.base FROM \`${this.db}\`.detail as ${ta} WHERE `);
+            sb.append(`SELECT ${tb}.base FROM \`${this.db}\`.detail as ${ta} JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.base WHERE `);
             sb.append(ta).dot().append('id=');
             sb.exp(this.params[0]);
             sb.r();
