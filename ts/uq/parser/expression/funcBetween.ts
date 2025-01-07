@@ -39,7 +39,7 @@ export class PFuncBetween extends PElement<FuncBetween> {
             let compare: EnumFuncBetweenCompare;
             switch (this.ts.token as any) {
                 default:
-                    compare = EnumFuncBetweenCompare.inclusive;
+                    compare = EnumFuncBetweenCompare.exclusive;
                     break;
                 case Token.Exclamation:
                     compare = EnumFuncBetweenCompare.exclusive;

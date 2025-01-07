@@ -1,4 +1,5 @@
 import {
+    BizBin,
     BizExp, BizExpParamType, BizField, EnumSysBud, EnumSysTable, OptionsItem
 } from "../../il";
 import { ExpVal, ExpInterval } from "../sql/exp";
@@ -88,10 +89,19 @@ export class BBizExp {
     }
 
     private bin(sb: SqlBuilder) {
-        const { budProp, sysBud } = this.bizExp;
-        if (sysBud !== undefined) this.binSheetProp(sb);
-        else if (budProp !== undefined) this.binBud(sb);
-        else this.binField(sb);
+        const { bizEntity, budProp, sysBud } = this.bizExp;
+        if (budProp !== undefined) this.binBud(sb);
+        else {
+            const binEntity = bizEntity as BizBin;
+            if (binEntity.main !== undefined) {
+                if (sysBud !== undefined) this.binSheetProp(sb);
+                else this.binField(sb);
+            }
+            else {
+                if (sysBud !== undefined) this.mainSheetProp(sb);
+                else this.mainField(sb);
+            }
+        }
     }
 
     private binSheetProp(sb: SqlBuilder) {
@@ -160,6 +170,31 @@ export class BBizExp {
         else {
             sb.exp(this.params[0]);
         }
+    }
+
+    private mainSheetProp(sb: SqlBuilder) {
+        const { sysBud } = this.bizExp;
+        const tSheet = 'tsheet';
+        let col = tSheet + '.';
+        switch (sysBud) {
+            case EnumSysBud.id: col += 'id'; break;
+            case EnumSysBud.sheetNo: col += 'no'; break;
+            case EnumSysBud.sheetOperator: col += 'operator'; break;
+        }
+        let sql: string;
+        sql = `${col} FROM \`${this.db}\`.sheet as \`${tSheet}\` `;
+        sql += ` WHERE \`${tSheet}\`.id = `;
+        sb.append(sql);
+        sb.exp(this.params[0]);
+    }
+
+    private mainField(sb: SqlBuilder) {
+        const { prop } = this.bizExp;
+        const { ta } = this;
+        sb.append(`${ta}.${prop ?? 'id'} 
+                FROM \`${this.db}\`.bin as ${ta} 
+                WHERE ${ta}.id=`);
+        sb.exp(this.params[0]);
     }
 
     private tie(sb: SqlBuilder) {

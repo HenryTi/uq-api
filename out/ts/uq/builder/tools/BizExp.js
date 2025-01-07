@@ -85,13 +85,24 @@ class BBizExp {
         }
     }
     bin(sb) {
-        const { budProp, sysBud } = this.bizExp;
-        if (sysBud !== undefined)
-            this.binSheetProp(sb);
-        else if (budProp !== undefined)
+        const { bizEntity, budProp, sysBud } = this.bizExp;
+        if (budProp !== undefined)
             this.binBud(sb);
-        else
-            this.binField(sb);
+        else {
+            const binEntity = bizEntity;
+            if (binEntity.main !== undefined) {
+                if (sysBud !== undefined)
+                    this.binSheetProp(sb);
+                else
+                    this.binField(sb);
+            }
+            else {
+                if (sysBud !== undefined)
+                    this.mainSheetProp(sb);
+                else
+                    this.mainField(sb);
+            }
+        }
     }
     binSheetProp(sb) {
         const { bizEntity, sysBud, isParent } = this.bizExp;
@@ -171,6 +182,35 @@ class BBizExp {
         else {
             sb.exp(this.params[0]);
         }
+    }
+    mainSheetProp(sb) {
+        const { sysBud } = this.bizExp;
+        const tSheet = 'tsheet';
+        let col = tSheet + '.';
+        switch (sysBud) {
+            case il_1.EnumSysBud.id:
+                col += 'id';
+                break;
+            case il_1.EnumSysBud.sheetNo:
+                col += 'no';
+                break;
+            case il_1.EnumSysBud.sheetOperator:
+                col += 'operator';
+                break;
+        }
+        let sql;
+        sql = `${col} FROM \`${this.db}\`.sheet as \`${tSheet}\` `;
+        sql += ` WHERE \`${tSheet}\`.id = `;
+        sb.append(sql);
+        sb.exp(this.params[0]);
+    }
+    mainField(sb) {
+        const { prop } = this.bizExp;
+        const { ta } = this;
+        sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'} 
+                FROM \`${this.db}\`.bin as ${ta} 
+                WHERE ${ta}.id=`);
+        sb.exp(this.params[0]);
     }
     tie(sb) {
         const { bizEntity } = this.bizExp;
