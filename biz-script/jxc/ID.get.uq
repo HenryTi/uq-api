@@ -49,9 +49,22 @@ RETURNS specs (
     }
     ELSE {
         IF bizPhraseType=BizPhraseType.atom {
-            PAGE SELECT c.id as id, c.base as phrase
-                FROM Atom as c
-                WHERE c.base=phrase AND c.id>$pageStart AND SEARCH(c.no, c.ex LIKE searchKey)
+            PAGE WITH RECURSIVE pPhrase AS (
+                SELECT r.i, r.x
+                FROM -- idtable as s
+                    -- JOIN 
+                    IxBizPhrase as r -- ON r.x=s.phrase
+                    JOIN XBiz as p1 ON p1.id=r.x
+                WHERE r.x=phrase -- AND p.valid=1
+                UNION
+                SELECT b.i, b.x
+                FROM pPhrase AS a 
+                    JOIN IxBizPhrase as b ON a.x=b.i
+                    JOIN XBiz AS p2 ON p2.id=b.x
+            )
+            SELECT c.id as id, c.base as phrase
+                FROM Atom as c JOIN pPhrase as p ON c.base=p.x
+                WHERE c.id>$pageStart AND SEARCH(c.no, c.ex LIKE searchKey)
                 ORDER BY c.id ASC
                 LIMIT $pageSize;
         }
