@@ -198,7 +198,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField('$id', pageGroupBy), 'id');
         select.column(new sql_1.ExpField('ban', pageGroupBy));
         let arr = this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, pageGroupBy));
-        arr.push(...this.buildSelectCols());
+        // arr.push(...this.buildSelectCols());
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
         select.column(new sql_1.ExpField('value', pageGroupBy));
         select.order(new sql_1.ExpField('$id', pageGroupBy), 'asc');
