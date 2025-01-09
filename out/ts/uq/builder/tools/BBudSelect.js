@@ -24,21 +24,33 @@ class BBudSelect {
         return this.buildSelectBud(budProp);
     }
     buildEntitySys() {
-        const a = 'a', b = 'b';
-        let { params, bizExp: { bizEntitySys } } = this.bBizExp;
+        const a = 'a', b = 'b', c = 'c';
+        let { params, bizExp: { bizEntitySys, prop } } = this.bBizExp;
         let { factory } = this.context;
         let select = factory.createSelect();
-        select.col('base', a);
+        let t;
         switch (bizEntitySys) {
             case il_1.EnumEntitySys.fork:
                 select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, a));
+                if (prop === 'id') {
+                    t = a;
+                }
+                else {
+                    t = b;
+                    select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
+                        .on(new exp_1.ExpEQ(new exp_1.ExpField('id', b), new exp_1.ExpField('base', a)));
+                }
                 break;
             case il_1.EnumEntitySys.bin:
-                select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, b))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, a))
-                    .on(new exp_1.ExpEQ(new exp_1.ExpField('id', a), new exp_1.ExpField('base', b)));
+                t = c;
+                select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, a))
+                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
+                    .on(new exp_1.ExpEQ(new exp_1.ExpField('id', b), new exp_1.ExpField('base', a)))
+                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, c))
+                    .on(new exp_1.ExpEQ(new exp_1.ExpField('id', c), new exp_1.ExpField('base', b)));
                 break;
         }
+        select.col(prop, undefined, t);
         select.where(new exp_1.ExpEQ(new exp_1.ExpField('id', a), params[0]));
         let ret = new exp_1.ExpSelect(select);
         return ret;

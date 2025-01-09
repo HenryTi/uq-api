@@ -36,22 +36,33 @@ export class BBudSelect {
     }
 
     private buildEntitySys() {
-        const a = 'a', b = 'b';
-        let { params, bizExp: { bizEntitySys } } = this.bBizExp;
+        const a = 'a', b = 'b', c = 'c';
+        let { params, bizExp: { bizEntitySys, prop } } = this.bBizExp;
         let { factory } = this.context;
         let select = factory.createSelect();
-        select.col('base', a);
+        let t: string;
         switch (bizEntitySys) {
             case EnumEntitySys.fork:
                 select.from(new EntityTable(EnumSysTable.fork, false, a));
+                if (prop === 'id') {
+                    t = a;
+                }
+                else {
+                    t = b;
+                    select.join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
+                        .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)));
+                }
                 break;
             case EnumEntitySys.bin:
-                select.from(new EntityTable(EnumSysTable.bizDetail, false, b))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, a))
-                    .on(new ExpEQ(new ExpField('id', a), new ExpField('base', b)));
+                t = c;
+                select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
+                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+                    .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
+                    .join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
+                    .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)));
                 break;
         }
-
+        select.col(prop, undefined, t);
         select.where(new ExpEQ(new ExpField('id', a), params[0]))
         let ret = new ExpSelect(select);
         return ret;
