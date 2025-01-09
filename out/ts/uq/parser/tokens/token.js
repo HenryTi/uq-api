@@ -47,6 +47,7 @@ var Token;
     Token[Token["BITWISEINVERT"] = 40] = "BITWISEINVERT";
     Token[Token["DoubleGT"] = 41] = "DoubleGT";
     Token[Token["DoubleLS"] = 42] = "DoubleLS";
+    Token[Token["QuestionEQU"] = 43] = "QuestionEQU";
     Token[Token["COLONEQU"] = 61] = "COLONEQU";
     Token[Token["SubGT"] = 62] = "SubGT";
     Token[Token["Exclamation"] = 66] = "Exclamation";

@@ -378,6 +378,13 @@ export class TokenStream {
                         default: this.token = Token.LT; break;
                     }
                     break;
+                case Char.QUESTION:
+                    this.advance();
+                    switch (this.cur) {
+                        case Char.EQU: this.token = Token.QuestionEQU; this.advance(); break;
+                        default: this.error("? expect =");
+                    }
+                    break;
                 case Char.AND:
                     this.advance();
                     this.token = Token.BITWISEAND;

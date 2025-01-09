@@ -13,6 +13,7 @@ export interface Stack {
     le(): void;
     lt(): void;
     eq(): void;
+    questionEq(): void;
     ne(): void;
     gt(): void;
     ge(): void;

@@ -13,15 +13,6 @@ ID #SumSource (
     ref ID,                 -- 凭证
 );
 
-ID #Further (
-    id MINUTE,
-    formula ID,             -- 计算公式Phrase id，可以对应一个算法
-    detail ID,              -- 对应的明细id
-    value VALUE,
-    price PRICE,
-    amount Amount,
-);
-
 ENUM SumFormulaType (
     person = 1,
     group = 2,

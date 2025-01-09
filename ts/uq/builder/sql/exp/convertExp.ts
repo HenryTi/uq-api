@@ -23,7 +23,7 @@ import {
     , ExpEntityId, ExpEntityName, ExpEQ, ExpExists, ExpField, ExpFuncInUq
     , ExpGE, ExpGT, ExpHex, ExpIn, ExpIsIdType, ExpIsNotNull, ExpIsNull, ExpJsonProp
     , ExpLE, ExpLike, ExpLT, ExpMatch, ExpMod, ExpMul, ExpNameof, ExpNE
-    , ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpSearchCase
+    , ExpNeg, ExpNot, ExpNum, ExpOf, ExpOr, ExpParenthese, ExpQuestionEQ, ExpSearchCase
     , ExpSelect, ExpSimpleCase, ExpStar, ExpStr, ExpSub, ExpTypeof, ExpVal, ExpVar
 } from './exps';
 import { ExpUMinute } from './ExpUMinute';
@@ -107,6 +107,7 @@ class Stack implements IlStack {
     le() { this.op2Cmp((c1, c2) => new ExpLE(c1, c2)); }
     lt() { this.op2Cmp((c1, c2) => new ExpLT(c1, c2)); }
     eq() { this.op2Cmp((c1, c2) => new ExpEQ(c1, c2)); }
+    questionEq() { this.op2Cmp((c1, c2) => new ExpQuestionEQ(c1, c2)); }
     ne() { this.op2Cmp((c1, c2) => new ExpNE(c1, c2)); }
     gt() { this.op2Cmp((c1, c2) => new ExpGT(c1, c2)); }
     ge() { this.op2Cmp((c1, c2) => new ExpGE(c1, c2)); }

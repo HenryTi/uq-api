@@ -329,8 +329,8 @@ export class ExpUnitCmp extends ExpCmp {
     }
 }
 export abstract class Exp2Cmp extends ExpCmp {
-    private op1: ExpVal;
-    private op2: ExpVal;
+    protected op1: ExpVal;
+    protected op2: ExpVal;
     to(sb: SqlBuilder) {
         sb.exp(this.op1).append(this.op).exp(this.op2);
     }
@@ -342,6 +342,13 @@ export class ExpLike extends Exp2Cmp {
 }
 export class ExpEQ extends Exp2Cmp {
     get op(): string { return '='; }
+}
+export class ExpQuestionEQ extends ExpEQ {
+    to(sb: SqlBuilder) {
+        sb.l().exp(this.op2).append(' IS NULL OR ');
+        super.to(sb);
+        sb.r();
+    }
 }
 export class ExpEQBinary extends Exp2Cmp {
     get op(): string { return '='; }

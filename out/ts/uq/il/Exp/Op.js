@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VarOperand = exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = exports.OpLike = exports.SubSelectOperand = exports.OpIn = exports.OpIsIdType = exports.OpIsNotNull = exports.OpIsNull = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = void 0;
-exports.FuncBetween = exports.EnumFuncBetweenCompare = exports.EnumFuncBetweenType = exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = void 0;
+exports.OpDollarVar = exports.OpNotBetween = exports.OpBetween = exports.OpLike = exports.SubSelectOperand = exports.OpIn = exports.OpIsIdType = exports.OpIsNotNull = exports.OpIsNull = exports.ExistsSubOperand = exports.DatePartOperand = exports.OpConverter = exports.StarOperand = exports.OpUqDefinedFunction = exports.OpGroupCountFunc = exports.OpGroupFunc = exports.OpFunction = exports.OpCast = exports.OpSimpleCase = exports.OpSearchCase = exports.NullOperand = exports.HexOperand = exports.NumberOperand = exports.TextOperand = exports.OpAt = exports.OpJsonProp = exports.OpParenthese = exports.OpNeg = exports.OpBitRight = exports.OpBitLeft = exports.OpBitwiseInvert = exports.OpBitwiseOr = exports.OpBitwiseAnd = exports.OpMod = exports.OpDecDiv = exports.OpDiv = exports.OpMul = exports.OpSub = exports.OpAdd = exports.OpGE = exports.OpGT = exports.OpNE = exports.OpQuestionEQ = exports.OpEQ = exports.OpLT = exports.OpLE = exports.OpNot = exports.OpAnd = exports.OpOr = exports.Atom = void 0;
+exports.FuncBetween = exports.EnumFuncBetweenCompare = exports.EnumFuncBetweenType = exports.OpSearch = exports.OpQueue = exports.OpQueueAction = exports.OpEntityName = exports.OpEntityId = exports.OpNO = exports.OpUMinute = exports.OpID = exports.IDNewType = exports.OpRole = exports.OpNameof = exports.OpTypeof = exports.OpMatch = exports.VarOperand = void 0;
 const parser_1 = require("../../parser");
 const IElement_1 = require("../IElement");
 const select_1 = require("../select");
@@ -35,6 +35,10 @@ class OpEQ extends Atom {
     to(stack) { stack.eq(); }
 }
 exports.OpEQ = OpEQ;
+class OpQuestionEQ extends Atom {
+    to(stack) { stack.questionEq(); }
+}
+exports.OpQuestionEQ = OpQuestionEQ;
 class OpNE extends Atom {
     to(stack) { stack.ne(); }
 }

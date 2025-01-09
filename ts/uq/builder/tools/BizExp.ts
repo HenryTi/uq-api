@@ -1,6 +1,6 @@
 import {
     BizBin,
-    BizExp, BizExpParamType, BizField, EnumSysBud, EnumSysTable, OptionsItem
+    BizExp, BizExpParamType, BizField, EnumEntitySys, EnumSysBud, EnumSysTable, OptionsItem
 } from "../../il";
 import { ExpVal, ExpInterval } from "../sql/exp";
 import { DbContext } from "../dbContext";
@@ -37,7 +37,8 @@ export class BBizExp {
         }
         else {
             sb.append('SELECT ');
-            const { bizEntity, expIDType } = this.bizExp;
+            const { bizEntitySys, bizEntity, expIDType } = this.bizExp;
+
             if (bizEntity !== undefined) {
                 const { bizPhraseType } = bizEntity;
                 switch (bizPhraseType) {

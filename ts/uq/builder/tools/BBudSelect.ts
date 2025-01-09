@@ -1,6 +1,7 @@
 import {
     BizBud, JoinType, EnumSysTable,
-    BizExpIDType
+    BizExpIDType,
+    EnumEntitySys
 } from "../../il";
 import {
     ExpAnd, ExpEQ, ExpField, ExpNum, ExpVal, ExpSelect,
@@ -21,7 +22,10 @@ export class BBudSelect {
     }
 
     build(): ExpVal {
-        const { prop, budProp, isParent } = this.bBizExp.bizExp;
+        const { prop, budProp, isParent, bizEntitySys } = this.bBizExp.bizExp;
+        if (bizEntitySys !== undefined) {
+            return this.buildEntitySys();
+        }
         if (isParent === true) {
             return this.buildSelectBase();
         }
@@ -29,6 +33,28 @@ export class BBudSelect {
             return this.buildSelectField(prop);
         }
         return this.buildSelectBud(budProp);
+    }
+
+    private buildEntitySys() {
+        const a = 'a', b = 'b';
+        let { params, bizExp: { bizEntitySys } } = this.bBizExp;
+        let { factory } = this.context;
+        let select = factory.createSelect();
+        select.col('base', a);
+        switch (bizEntitySys) {
+            case EnumEntitySys.fork:
+                select.from(new EntityTable(EnumSysTable.fork, false, a));
+                break;
+            case EnumEntitySys.bin:
+                select.from(new EntityTable(EnumSysTable.bizDetail, false, b))
+                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, a))
+                    .on(new ExpEQ(new ExpField('id', a), new ExpField('base', b)));
+                break;
+        }
+
+        select.where(new ExpEQ(new ExpField('id', a), params[0]))
+        let ret = new ExpSelect(select);
+        return ret;
     }
 
     private buildSelectBase() {

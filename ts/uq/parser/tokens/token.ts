@@ -44,6 +44,7 @@ export enum Token {
     BITWISEINVERT = 40, // ~
     DoubleGT = 41,
     DoubleLS = 42,
+    QuestionEQU = 43,
 
     COLONEQU = 61,
     SubGT = 62,         // ->

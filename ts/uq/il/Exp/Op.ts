@@ -42,6 +42,9 @@ export class OpLT extends Atom {
 export class OpEQ extends Atom {
     to(stack: Stack) { stack.eq(); }
 }
+export class OpQuestionEQ extends Atom {
+    to(stack: Stack) { stack.questionEq(); }
+}
 export class OpNE extends Atom {
     to(stack: Stack) { stack.ne(); }
 }

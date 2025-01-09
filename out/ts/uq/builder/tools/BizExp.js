@@ -21,7 +21,7 @@ class BBizExp {
         }
         else {
             sb.append('SELECT ');
-            const { bizEntity, expIDType } = this.bizExp;
+            const { bizEntitySys, bizEntity, expIDType } = this.bizExp;
             if (bizEntity !== undefined) {
                 const { bizPhraseType } = bizEntity;
                 switch (bizPhraseType) {

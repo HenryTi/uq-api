@@ -197,6 +197,12 @@ class PExpression extends element_1.PElement {
                 this.checkVarEqVar();
                 this.add(new Exp.OpEQ());
                 break;
+            case tokens_1.Token.QuestionEQU:
+                this.ts.readToken();
+                this.expValue();
+                this.checkVarEqVar();
+                this.add(new Exp.OpQuestionEQ());
+                break;
             case tokens_1.Token.NE:
                 this.ts.readToken();
                 this.expValue();

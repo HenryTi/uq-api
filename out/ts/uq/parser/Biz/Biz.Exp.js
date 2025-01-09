@@ -128,20 +128,41 @@ class PBizExp extends element_1.PElement {
             this.element.expIDType = expIDType;
         }
         else {
-            let { bizEntityArr: [be] } = space.getBizFromEntityArrFromName(this.bizEntity);
-            this.element.bizEntity = be;
+            let fromEntity = space.getBizFromEntityArrFromName(this.bizEntity);
+            if (fromEntity === undefined) {
+                ok = false;
+                this.log(`'${this.bizEntity}' not defined`);
+            }
+            else {
+                let { bizEntityArr, bizEntitySys } = fromEntity;
+                if (bizEntitySys !== undefined) {
+                    if (this.element.isParent !== true) {
+                        this.log('#FORK and #BIN only support ^id');
+                        ok = false;
+                    }
+                    else {
+                        this.element.bizEntitySys = bizEntitySys;
+                    }
+                }
+                else {
+                    const [be] = bizEntityArr;
+                    this.element.bizEntity = be;
+                }
+            }
         }
         this.element.isReadonly = space.isReadonly;
-        const { bizEntity, in: varIn, param } = this.element;
+        const { bizEntity, bizEntitySys, in: varIn, param } = this.element;
         if (param !== undefined) {
             if (param.pelement.scan(space) === false) {
                 ok = false;
             }
         }
         if (bizEntity === undefined) {
-            if (expIDType === undefined) {
-                this.log(`${this.bizEntity} is not a Biz Entity`);
-                ok = false;
+            if (bizEntitySys === undefined) {
+                if (expIDType === undefined) {
+                    this.log(`${this.bizEntity} is not a Biz Entity`);
+                    ok = false;
+                }
             }
         }
         else {

@@ -11,7 +11,10 @@ class BBudSelect {
         this.bBizExp = bBizExp;
     }
     build() {
-        const { prop, budProp, isParent } = this.bBizExp.bizExp;
+        const { prop, budProp, isParent, bizEntitySys } = this.bBizExp.bizExp;
+        if (bizEntitySys !== undefined) {
+            return this.buildEntitySys();
+        }
         if (isParent === true) {
             return this.buildSelectBase();
         }
@@ -19,6 +22,26 @@ class BBudSelect {
             return this.buildSelectField(prop);
         }
         return this.buildSelectBud(budProp);
+    }
+    buildEntitySys() {
+        const a = 'a', b = 'b';
+        let { params, bizExp: { bizEntitySys } } = this.bBizExp;
+        let { factory } = this.context;
+        let select = factory.createSelect();
+        select.col('base', a);
+        switch (bizEntitySys) {
+            case il_1.EnumEntitySys.fork:
+                select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, a));
+                break;
+            case il_1.EnumEntitySys.bin:
+                select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, b))
+                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, a))
+                    .on(new exp_1.ExpEQ(new exp_1.ExpField('id', a), new exp_1.ExpField('base', b)));
+                break;
+        }
+        select.where(new exp_1.ExpEQ(new exp_1.ExpField('id', a), params[0]));
+        let ret = new exp_1.ExpSelect(select);
+        return ret;
     }
     buildSelectBase() {
         let { params } = this.bBizExp;

@@ -7,7 +7,8 @@ import {
     , Templet, SysProc, Pending, Pointer, Role, Enum, Proc
     , IX, ID, IDX, Const, ConstPointer, UqVersion, Function, Queue
     , UqStatement, DataTypeDefine, DataType, BusAcceptStatement, BizBase, BizEntity,
-    BizFromEntity
+    BizFromEntity,
+    EnumEntitySys
 } from '../il';
 
 export class PUq extends PElement {
@@ -498,18 +499,15 @@ class UqSpace extends Space {
         return this.uq.consts[name];
     }
     protected _getBizFromEntityFromAlias(name: string) {
-        /*
-        let bizEntity = this.uq.biz.bizEntities.get(name);
-        if (bizEntity === undefined) return undefined;
-        return {
-            bizEntityArr: [bizEntity],
-        } as BizFromEntity;
-        */
         return undefined;
     }
     protected _getBizFromEntityFromName(name: string) {
         let bizEntity = this.uq.biz.bizEntities.get(name);
-        if (bizEntity === undefined) return undefined;
+        if (bizEntity === undefined) {
+            let bizEntitySys: EnumEntitySys = EnumEntitySys[name];
+            if (bizEntitySys === undefined) return;
+            return { bizEntitySys } as BizFromEntity;
+        }
         return {
             bizEntityArr: [bizEntity],
         } as BizFromEntity;

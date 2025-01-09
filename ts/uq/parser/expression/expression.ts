@@ -200,6 +200,12 @@ export abstract class PExpression extends PElement {
                 this.checkVarEqVar();
                 this.add(new Exp.OpEQ());
                 break;
+            case Token.QuestionEQU:
+                this.ts.readToken();
+                this.expValue();
+                this.checkVarEqVar();
+                this.add(new Exp.OpQuestionEQ());
+                break;
             case Token.NE:
                 this.ts.readToken();
                 this.expValue();

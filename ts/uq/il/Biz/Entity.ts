@@ -260,9 +260,14 @@ export interface BizFromEntitySub {
     isSpecBase: boolean;
 }
 
+export enum EnumEntitySys {
+    fork = 1,
+    bin = 2,
+}
 export class BizFromEntity<E extends BizEntity = BizEntity> {
     readonly parent: BizFromEntity<any>;
     bizEntityArr: E[] = [];
+    bizEntitySys: EnumEntitySys;
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
     subs: BizFromEntitySub[];

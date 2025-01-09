@@ -6,7 +6,7 @@ import { ValueExpression } from "../Exp/Expression";
 import { Atom } from "../Exp/Op";
 import { Stack } from "../Exp/Stack";
 import { BizTie } from "./Tie";
-import { BizEntity } from "./Entity";
+import { BizEntity, EnumEntitySys } from "./Entity";
 import { BizBud, EnumSysBud } from "./Bud";
 import { BizOptions, OptionsItem } from "./Options";
 import { PBizCheckBudOperand, PBizExp, PBizExpOperand, PBizExpParam } from "../../parser/Biz/Biz.Exp";
@@ -44,6 +44,7 @@ export class BizExpParam extends IElement {
 export enum BizExpIDType { fork, atom }
 export class BizExp extends IElement {
     bizEntity: BizEntity;
+    bizEntitySys: EnumEntitySys;
     expIDType: BizExpIDType;
     budEntitySub: BizBud;
     param: BizExpParam;

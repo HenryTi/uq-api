@@ -9,30 +9,30 @@ const tokens_1 = require("../tokens");
 class PBizFieldOperand extends element_1.PElement {
     constructor() {
         super(...arguments);
-        this.fieldName = [];
+        this.arrFieldName = [];
     }
     _parse() {
-        this.fieldName.push(this.ts.passVar());
+        this.arrFieldName.push(this.ts.passVar());
         while (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
-            this.fieldName.push(this.ts.passVar());
+            this.arrFieldName.push(this.ts.passVar());
         }
     }
     scan(space) {
         let ok = true;
-        let field = space.getBizField(this.fieldName);
+        let field = space.getBizField(this.arrFieldName);
         if (field === null) {
-            this.log(`%${this.fieldName.join('.')} is not defined`);
+            this.log(`%${this.arrFieldName.join('.')} is not defined`);
             return false;
         }
-        const [f0, f1] = this.fieldName;
+        const [f0, f1] = this.arrFieldName;
         if (field !== undefined) {
             this.element.field = field;
             field.scanBinDiv();
         }
         else if (f0 === 'id') {
-            if (this.fieldName[1] !== undefined) {
-                this.log(`Unknown field ${this.fieldName.join('.')}`);
+            if (this.arrFieldName[1] !== undefined) {
+                this.log(`Unknown field ${this.arrFieldName.join('.')}`);
                 ok = false;
             }
         }
@@ -59,7 +59,7 @@ class PBizFieldOperand extends element_1.PElement {
                 this.element.field = fieldOptionsItem;
             }
             else {
-                this.log(`Unknown field ${this.fieldName.join('.')}`);
+                this.log(`Unknown field ${this.arrFieldName.join('.')}`);
                 ok = false;
             }
         }

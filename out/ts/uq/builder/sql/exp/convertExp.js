@@ -80,6 +80,7 @@ class Stack {
     le() { this.op2Cmp((c1, c2) => new exps_1.ExpLE(c1, c2)); }
     lt() { this.op2Cmp((c1, c2) => new exps_1.ExpLT(c1, c2)); }
     eq() { this.op2Cmp((c1, c2) => new exps_1.ExpEQ(c1, c2)); }
+    questionEq() { this.op2Cmp((c1, c2) => new exps_1.ExpQuestionEQ(c1, c2)); }
     ne() { this.op2Cmp((c1, c2) => new exps_1.ExpNE(c1, c2)); }
     gt() { this.op2Cmp((c1, c2) => new exps_1.ExpGT(c1, c2)); }
     ge() { this.op2Cmp((c1, c2) => new exps_1.ExpGE(c1, c2)); }

@@ -419,6 +419,16 @@ class TokenStream {
                             break;
                     }
                     break;
+                case char_1.Char.QUESTION:
+                    this.advance();
+                    switch (this.cur) {
+                        case char_1.Char.EQU:
+                            this.token = token_1.Token.QuestionEQU;
+                            this.advance();
+                            break;
+                        default: this.error("? expect =");
+                    }
+                    break;
                 case char_1.Char.AND:
                     this.advance();
                     this.token = token_1.Token.BITWISEAND;

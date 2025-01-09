@@ -327,6 +327,9 @@ export class FromInPendFieldSpace extends FromEntityFieldSpace<FromInPendStateme
             case '$t1':
             case '$':
                 bud = bizPend.getBud(n1);
+                if (bud === undefined) {
+                    return null;
+                }
                 alias = 'a';
                 return new BizFieldJsonProp(this, alias, bud);
             case 'bin':
@@ -338,7 +341,10 @@ export class FromInPendFieldSpace extends FromEntityFieldSpace<FromInPendStateme
                 alias = 'c';
                 break;
         }
-        if (bud === undefined) debugger;
+        // if (bud === undefined) debugger;
+        if (bud === undefined) {
+            return null;
+        }
         return this.buildBizFieldFromBud(alias, bud);
     }
 
