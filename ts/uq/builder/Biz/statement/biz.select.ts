@@ -44,7 +44,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         }
         if (subs !== undefined) {
             for (let sub of subs) {
-                const { field, fieldBud, fromEntity: subFromEntity, isSpecBase } = sub;
+                const { field, fieldBud, fromEntity: subFromEntity, isForkBase } = sub;
                 const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
                 let entityIds: number[] = [];
                 if (bizEntityArr.length > 0) {
@@ -61,7 +61,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                 let aliasIDU = subAlias + $idu;
                 let expOnEQAtom = new ExpEQ(new ExpField('id', subAlias), new ExpField('id', aliasIDU));
                 let expOn$Atom: ExpCmp;
-                if (isSpecBase === true) {
+                if (isForkBase === true) {
                     joinAtom = JoinType.left;
                     expOn$Atom = new ExpOr(
                         expOnEQAtom,

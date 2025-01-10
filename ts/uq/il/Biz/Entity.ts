@@ -257,7 +257,7 @@ export interface BizFromEntitySub {
     field: string;
     fieldBud: BizBud;
     fromEntity: BizFromEntity;
-    isSpecBase: boolean;
+    isForkBase: boolean;
 }
 
 export enum EnumEntitySys {

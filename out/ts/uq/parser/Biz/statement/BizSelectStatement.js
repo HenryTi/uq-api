@@ -165,11 +165,9 @@ class FromEntityScaner {
             let bizEntityTable;
             switch (bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.atom:
-                    // bizEntityTable = EnumSysTable.atom; 
                     bizEntityTable = il_1.EnumSysTable.idu;
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
-                    // bizEntityTable = EnumSysTable.spec; 
                     bizEntityTable = il_1.EnumSysTable.idu;
                     break;
             }
@@ -251,6 +249,8 @@ class FromEntityScaner {
                         this.log(`${BizPhraseType_1.BizPhraseType[bizPhraseType].toUpperCase()} can not join sub. Only COMBO, SPEC and DUO can join sub`);
                     }
                     break;
+                case BizPhraseType_1.BizPhraseType.bin:
+                    break;
                 case BizPhraseType_1.BizPhraseType.duo:
                     if (length !== 0 && length !== 2) {
                         ok = false;
@@ -265,10 +265,10 @@ class FromEntityScaner {
                 case BizPhraseType_1.BizPhraseType.fork:
                     if (length !== 0 && length !== 1) {
                         ok = false;
-                        this.log('SPEC must have 1 sub join');
+                        this.log('FORK must have 1 sub join');
                     }
                     if (isDot === true) {
-                        this.log('SPEC. is not allowed');
+                        this.log('FORK. is not allowed');
                         ok = false;
                     }
                     scanBase = new FromEntityScanSpec(this, fromEntity, pSubs[0]);
@@ -334,7 +334,7 @@ class FEScanBase {
             field,
             fieldBud,
             fromEntity,
-            isSpecBase: undefined,
+            isForkBase: undefined,
         };
     }
 }
@@ -454,7 +454,7 @@ class FromEntityScanSpec extends FEScanBase {
         let sub = this.scanSub(this.pSub, 'base', undefined, this.onSpecEmpty);
         if (sub === undefined)
             return;
-        sub.isSpecBase = true;
+        sub.isForkBase = true;
         return [sub];
     }
 }

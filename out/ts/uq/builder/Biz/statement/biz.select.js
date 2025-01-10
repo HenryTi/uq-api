@@ -38,7 +38,7 @@ class BBizSelect extends bstatement_1.BStatement {
         }
         if (subs !== undefined) {
             for (let sub of subs) {
-                const { field, fieldBud, fromEntity: subFromEntity, isSpecBase } = sub;
+                const { field, fieldBud, fromEntity: subFromEntity, isForkBase } = sub;
                 const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
                 let entityIds = [];
                 if (bizEntityArr.length > 0) {
@@ -55,7 +55,7 @@ class BBizSelect extends bstatement_1.BStatement {
                 let aliasIDU = subAlias + $idu;
                 let expOnEQAtom = new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', aliasIDU));
                 let expOn$Atom;
-                if (isSpecBase === true) {
+                if (isForkBase === true) {
                     joinAtom = il_1.JoinType.left;
                     expOn$Atom = new sql_1.ExpOr(expOnEQAtom, new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', alias + $idu)));
                 }
