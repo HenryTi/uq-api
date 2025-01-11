@@ -46,7 +46,7 @@ export class BBizExp {
                     case BizPhraseType.bin: this.bin(sb); break;
                     case BizPhraseType.book: this.book(sb); break;
                     case BizPhraseType.tie: this.tie(sb); break;
-                    case BizPhraseType.duo: this.duo(sb); break;
+                    // case BizPhraseType.duo: this.duo(sb); break;
                     case BizPhraseType.combo: this.combo(sb); break;
                 }
             }
@@ -207,6 +207,7 @@ export class BBizExp {
             .exp(this.params[0]);
     }
 
+    /*
     private duo(sb: SqlBuilder) {
         const { isReadonly, prop } = this.bizExp;
         const { ta } = this;
@@ -221,6 +222,7 @@ export class BBizExp {
                 .exp(param);
         }
     }
+    */
 
     private combo(sb: SqlBuilder) {
         const { bizEntity, isReadonly, prop } = this.bizExp;

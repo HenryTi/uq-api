@@ -664,7 +664,7 @@ class PBizEntity extends PBizBase {
             }
             return ok;
         }
-        const ids = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.fork, BizPhraseType_1.BizPhraseType.duo, BizPhraseType_1.BizPhraseType.options];
+        const ids = [BizPhraseType_1.BizPhraseType.atom, BizPhraseType_1.BizPhraseType.fork, BizPhraseType_1.BizPhraseType.combo, BizPhraseType_1.BizPhraseType.options];
         for (let name of atomNames) {
             let { bizEntityArr: [bizEntity] } = space.getBizFromEntityArrFromName(name);
             if (bizEntity === undefined) {

@@ -22,7 +22,7 @@ export enum EnumSysTable {
     atomUnique = 'atomunique',
     fork = 'fork',
     bud = 'bud',
-    duo = 'duo',
+    // duo = 'duo',
     combo = 'combo',
     ixBud = 'ixbud',
     ixBudDec = 'ixbuddec',

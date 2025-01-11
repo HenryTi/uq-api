@@ -129,7 +129,8 @@ class PBizReport extends Base_1.PBizEntity {
                         this.log(`FROM ${this.from} must be ATOM`);
                         break;
                     case BizPhraseType_1.BizPhraseType.atom:
-                    case BizPhraseType_1.BizPhraseType.duo:
+                    case BizPhraseType_1.BizPhraseType.combo:
+                    case BizPhraseType_1.BizPhraseType.fork:
                         break;
                 }
                 this.element.from = entity;

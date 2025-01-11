@@ -251,7 +251,8 @@ class FromEntityScaner {
                     break;
                 case BizPhraseType_1.BizPhraseType.bin:
                     break;
-                case BizPhraseType_1.BizPhraseType.duo:
+                /*
+                case BizPhraseType.duo:
                     if (length !== 0 && length !== 2) {
                         ok = false;
                         this.log('DUO must have 2 sub join');
@@ -262,6 +263,7 @@ class FromEntityScaner {
                     }
                     scanBase = new FromEntityScanDuo(this, fromEntity, pSubs[0], pSubs[1]);
                     break;
+                */
                 case BizPhraseType_1.BizPhraseType.fork:
                     if (length !== 0 && length !== 1) {
                         ok = false;
@@ -338,28 +340,33 @@ class FEScanBase {
         };
     }
 }
+/*
 class FromEntityScanDuo extends FEScanBase {
-    constructor(scaner, fromEntity, pSub0, pSub1) {
+    private readonly pSub0: PFromEntity;
+    private readonly pSub1: PFromEntity;
+    constructor(scaner: FromEntityScaner, fromEntity: BizFromEntity, pSub0: PFromEntity, pSub1: PFromEntity) {
         super(scaner, fromEntity);
-        this.onIEmpty = () => {
-            return this.fromEntity.bizEntityArr[0].i.atoms[0];
-        };
-        this.onXEmpty = () => {
-            return this.fromEntity.bizEntityArr[0].x.atoms[0];
-        };
         this.pSub0 = pSub0;
         this.pSub1 = pSub1;
     }
-    createSubs() {
+
+    private onIEmpty = (): BizEntity => {
+        return (this.fromEntity.bizEntityArr[0] as BizDuo).i.atoms[0];
+    }
+
+    private onXEmpty = (): BizEntity => {
+        return (this.fromEntity.bizEntityArr[0] as BizDuo).x.atoms[0];
+    }
+
+    createSubs(): BizFromEntitySub[] {
         let subI = this.scanSub(this.pSub0, 'i', undefined, this.onIEmpty);
-        if (subI === undefined)
-            return;
+        if (subI === undefined) return;
         let subX = this.scanSub(this.pSub1, 'x', undefined, this.onXEmpty);
-        if (subX === undefined)
-            return;
+        if (subX === undefined) return;
         return [subI, subX];
     }
 }
+*/
 class FromEntityScanCombo extends FEScanBase {
     constructor(scaner, fromEntity, pSubs, isDot) {
         super(scaner, fromEntity);

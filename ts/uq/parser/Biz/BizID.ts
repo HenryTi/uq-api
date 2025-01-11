@@ -1,6 +1,6 @@
 import {
     BizAtom, BizIDExtendable, BizIDAny, BizIDWithBase, BizFork
-    , BizDuo, Uq, BizID, BizBud, IDUnique, BizEntity,
+    , Uq, BizBud, IDUnique, BizEntity,
     BizCombo,
     BizIDWithShowBuds,
     Entity,
@@ -341,7 +341,7 @@ export class PBizAtom extends PBizIDExtendable<BizAtom> {
         return ok;
     }
 }
-
+/*
 export class PBizDuo extends PBizIDWithShowBuds<BizDuo> {
     private parseI = () => {
         this.parseIField(this.element.i);
@@ -369,7 +369,7 @@ export class PBizDuo extends PBizIDWithShowBuds<BizDuo> {
         return ok;
     }
 }
-
+*/
 abstract class PBizIDWithBase<T extends BizIDWithBase> extends PBizIDExtendable<T> {
     protected baseName: string;
     protected parsePreset = () => {

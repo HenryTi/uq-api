@@ -27,13 +27,6 @@ ID Fork ver 0.1 (
     KEY id,
 );
 
-ID Duo ver 0.6 (
-    id MINUTE,
-    KEY i ID,
-    KEY x ID,
-    valid TINYINT DEFAULT 1,
-);
-
 -- 单据主表。单明细单据，也有主表
 ID Sheet ver 0.2 (
     id MINUTE,

@@ -1,7 +1,7 @@
 import { binFieldArr } from "../../consts";
 import {
     ValueExpression, BizExp, BizAtom
-    , BizFork, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie, BizDuo
+    , BizFork, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie
     , BizCheckBudOperand, BizBudCheck, BizOptions
     , BizExpOperand,
     Uq,
@@ -200,11 +200,11 @@ export class PBizExp extends PElement<BizExp> {
                     this.log(`${bizEntity.getJName()} must be either Atom, Fork, Bin or Title`);
                     break;
                 case BizPhraseType.atom: ret = this.scanAtom(space); break;
-                case BizPhraseType.fork: ret = this.scanSpec(space); break;
+                case BizPhraseType.fork: ret = this.scanFork(space); break;
                 case BizPhraseType.bin: ret = this.scanBin(space); break;
                 case BizPhraseType.book: ret = this.scanBook(space); break;
                 case BizPhraseType.tie: ret = this.scanTie(space); break;
-                case BizPhraseType.duo: ret = this.scanDuo(space); break;
+                // case BizPhraseType.duo: ret = this.scanDuo(space); break;
                 case BizPhraseType.combo: ret = this.scanCombo(space); break;
             }
             if (ret === false) {
@@ -248,7 +248,7 @@ export class PBizExp extends PElement<BizExp> {
         if (this.bud !== undefined) {
             let bud = this.element.budProp = bizAtom.getBud(this.bud);
             if (bud === undefined) {
-                this.log(`SPEC ${jName} has not ${this.bud}.`);
+                this.log(`FORK ${jName} has not ${this.bud}.`);
                 ok = false;
             }
         }
@@ -268,7 +268,7 @@ export class PBizExp extends PElement<BizExp> {
         return ok;
     }
 
-    private scanSpec(space: Space): boolean {
+    private scanFork(space: Space): boolean {
         let ok = true;
         const { bizEntity, prop } = this.element;
         if (this.checkScalar() === false) ok = false;
@@ -277,7 +277,7 @@ export class PBizExp extends PElement<BizExp> {
         if (this.bud !== undefined) {
             let bud = this.element.budProp = bizSpec.getBud(this.bud);
             if (bud === undefined) {
-                this.log(`SPEC ${jName} has not ${this.bud}.`);
+                this.log(`FORK ${jName} has not ${this.bud}.`);
                 ok = false;
             }
         }
@@ -416,7 +416,7 @@ export class PBizExp extends PElement<BizExp> {
         }
         return ok;
     }
-
+    /*
     private scanDuo(space: Space): boolean {
         let ok = true;
         const { bizEntity, param: bizParam } = this.element;
@@ -436,7 +436,7 @@ export class PBizExp extends PElement<BizExp> {
         }
         return ok;
     }
-
+    */
     private scanCombo(space: Space): boolean {
         let ok = true;
         const { bizEntity, param: bizParam } = this.element;

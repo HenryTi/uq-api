@@ -1,4 +1,4 @@
-import { BizAtom, BizBudValue, BizDuo, BizReport, BizTitle, ReportJoinType } from "../../il";
+import { BizAtom, BizBudValue, BizCombo, BizFork, BizReport, BizTitle, ReportJoinType } from "../../il";
 import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -124,10 +124,11 @@ export class PBizReport extends PBizEntity<BizReport> {
                         this.log(`FROM ${this.from} must be ATOM`);
                         break;
                     case BizPhraseType.atom:
-                    case BizPhraseType.duo:
+                    case BizPhraseType.combo:
+                    case BizPhraseType.fork:
                         break;
                 }
-                this.element.from = entity as BizAtom | BizDuo;
+                this.element.from = entity as BizAtom | BizCombo | BizFork;
                 for (let join of this.joins) {
                     let { type, entity } = join;
                     let { bizEntityArr: [en] } = space.getBizFromEntityArrFromName(entity);

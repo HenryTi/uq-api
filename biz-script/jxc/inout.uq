@@ -432,3 +432,68 @@ RETURNS DupTable (
     }
     INTO ret SELECT done as batchDone, lastId;
 }
+
+Biz AC SaveDuoOuterApp (
+    i ID,
+    x ID,
+)
+RETURNS ret (
+    id ID,
+) {
+    VAR id ID;
+    IF NOT EXISTS(SELECT id 
+        FROM Atom as a JOIN BizPhrase as b ON b.id=a.base 
+        WHERE b.base=$site AND a.id in (i,x)
+    ) {
+        RETURN;
+    }
+    WITH Duo as a ID to id KEY(i, x) SET a.valid=1;
+    WITH IxBud as a I=x X=i;
+    INTO ret SELECT id;
+}
+
+Biz AC DelDuoOuterApp (
+    id ID,
+    i ID,
+    x ID,
+) {
+    IF id IS NULL {
+        SET id=ID(DUO KEY i=i, x=x);
+    }
+    ELSE {
+        SET i=a.i, x=a.x FROM Duo as a WHERE a.id=id;
+    }
+    IF EXISTS(SELECT id FROM Duo as a 
+            LEFT JOIN ATOM as b ON b.id=a.i LEFT JOIN BizPhrase as b1 ON b1.id=b.base AND b1.base=$site
+            LEFT JOIN ATOM as c ON c.id=a.x LEFT JOIN BizPhrase as c1 ON c1.id=c.base AND c1.base=$site
+        WHERE a.id=id AND (b.id IS NOT NULL OR c.id IS NOT NULL)
+    ) {
+        WITH Duo ID=id SET valid=0;
+        WITH IxBud I=x X=i DEL;
+    }
+}
+
+Biz Query GetDuos ver 0.1 (
+    i ID,
+)
+RETURNS ret (
+    id ID,
+    x ID,
+    props JSON,
+) {
+    INTO ret SELECT a.id as id, a.x,
+        (SELECT json_arrayagg(json_array(arr.bud,arr.value)) FROM (
+            select ix.id as bud, i.value from IxBudInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
+            union select dx.id as bud, d.value from IxBudDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
+            union select sx.id as bud, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
+        ) as arr ) as props
+        FROM Duo as a
+        WHERE a.i=i AND a.valid=1;
+}
+
+ID Duo ver 0.6 (
+    id MINUTE,
+    KEY i ID,
+    KEY x ID,
+    valid TINYINT DEFAULT 1,
+);

@@ -1,8 +1,7 @@
 import { BBizAtom, BBizCombo, BBizFork, DbContext } from "../../builder";
-import { PBizAtom, /*PBizAtomBud, */PBizFork as PBizFork, PBizDuo, PContext, PElement, PIDUnique, PBizCombo } from "../../parser";
+import { PBizAtom, /*PBizAtomBud, */PBizFork as PBizFork, PContext, PElement, PIDUnique, PBizCombo } from "../../parser";
 import { IElement } from "../IElement";
 import { UI } from "../UI";
-import { IxField } from "./Base";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizID } from "./Entity";
@@ -130,6 +129,7 @@ export class BizAtom extends BizIDExtendable {
     }
 }
 
+/*
 // 分子：atom 原子的合成
 // duo: 二重奏
 export class BizDuo extends BizIDWithShowBuds {
@@ -150,6 +150,7 @@ export class BizDuo extends BizIDWithShowBuds {
         return ret;
     }
 }
+*/
 
 export abstract class BizIDWithBase extends BizIDExtendable {
     fork: BizIDWithBase;

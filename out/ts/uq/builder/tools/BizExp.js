@@ -37,9 +37,7 @@ class BBizExp {
                     case BizPhraseType_1.BizPhraseType.tie:
                         this.tie(sb);
                         break;
-                    case BizPhraseType_1.BizPhraseType.duo:
-                        this.duo(sb);
-                        break;
+                    // case BizPhraseType.duo: this.duo(sb); break;
                     case BizPhraseType_1.BizPhraseType.combo:
                         this.combo(sb);
                         break;
@@ -220,7 +218,8 @@ class BBizExp {
             WHERE ${tb}.ext=`)
             .exp(this.params[0]);
     }
-    duo(sb) {
+    /*
+    private duo(sb: SqlBuilder) {
         const { isReadonly, prop } = this.bizExp;
         const { ta } = this;
         let param = this.params[0];
@@ -234,6 +233,7 @@ class BBizExp {
                 .exp(param);
         }
     }
+    */
     combo(sb) {
         const { bizEntity, isReadonly, prop } = this.bizExp;
         const { ta } = this;

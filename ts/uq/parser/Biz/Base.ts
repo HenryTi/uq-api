@@ -692,7 +692,7 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
             }
             return ok;
         }
-        const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.duo, BizPhraseType.options];
+        const ids: BizPhraseType[] = [BizPhraseType.atom, BizPhraseType.fork, BizPhraseType.combo, BizPhraseType.options];
         for (let name of atomNames) {
             let { bizEntityArr: [bizEntity] } = space.getBizFromEntityArrFromName(name);
             if (bizEntity === undefined) {

@@ -6,7 +6,7 @@ export enum BizPhraseType {
     fork = 12,
     bud = 13,
     budGroup = 14,
-    duo = 15,           // 二重奏
+    // duo = 15,           // 二重奏
     combo = 16,
 
     /*

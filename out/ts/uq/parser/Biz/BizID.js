@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizCombo = exports.PBizFork = exports.PBizDuo = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizIDWithShowBuds = void 0;
+exports.PBizCombo = exports.PBizFork = exports.PBizAtom = exports.PIDUnique = exports.PBizIDExtendable = exports.PBizIDWithShowBuds = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const space_1 = require("../space");
@@ -321,22 +321,23 @@ class PBizAtom extends PBizIDExtendable {
     }
 }
 exports.PBizAtom = PBizAtom;
-class PBizDuo extends PBizIDWithShowBuds {
-    constructor() {
-        super(...arguments);
-        this.parseI = () => {
-            this.parseIField(this.element.i);
-        };
-        this.parseX = () => {
-            this.parseXField(this.element.x);
-        };
-        this.keyColl = {
-            prop: this.parseProp,
-            i: this.parseI,
-            x: this.parseX,
-        };
+/*
+export class PBizDuo extends PBizIDWithShowBuds<BizDuo> {
+    private parseI = () => {
+        this.parseIField(this.element.i);
     }
-    scan(space) {
+
+    private parseX = () => {
+        this.parseXField(this.element.x);
+    }
+
+    readonly keyColl = {
+        prop: this.parseProp,
+        i: this.parseI,
+        x: this.parseX,
+    };
+
+    scan(space: Space): boolean {
         let ok = true;
         let { i, x } = this.element;
         if (this.scanIxField(space, i) === false) {
@@ -348,7 +349,7 @@ class PBizDuo extends PBizIDWithShowBuds {
         return ok;
     }
 }
-exports.PBizDuo = PBizDuo;
+*/
 class PBizIDWithBase extends PBizIDExtendable {
     constructor() {
         super(...arguments);

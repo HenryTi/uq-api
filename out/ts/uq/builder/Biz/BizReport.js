@@ -86,11 +86,19 @@ class BBizReport extends BizEntity_1.BBizEntity {
                 wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('base', a), varPhrase));
                 mainTbl = a;
                 break;
-            case BizPhraseType_1.BizPhraseType.duo:
+            case BizPhraseType_1.BizPhraseType.combo:
+                /*
                 mainTbl = b;
-                selectPage.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpField('id', a)));
-                wheres.push(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpVar(atomId)));
+                selectPage.join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
+                    .on(new ExpEQ(new ExpField('x', b), new ExpField('id', a)));
+                wheres.push(new ExpEQ(new ExpField('i', b), new ExpVar(atomId)));
+                */
+                // 去掉duo，暂时不处理
+                debugger;
+                break;
+            case BizPhraseType_1.BizPhraseType.fork:
+                // 去掉duo，暂时不处理
+                debugger;
                 break;
         }
         let expJsonValues = this.buildSumJsonValues(titles, varS0, varS1, mainTbl);

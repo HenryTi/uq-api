@@ -129,8 +129,10 @@ export class IOStatementBuilder {
     transSelect() {
         let tblTransErr = new VarTable(IOStatementBuilder.transerr, a);
         let selectTranErr = this.factory.createSelect();
+        // 正在去掉 duo
+        debugger;
         selectTranErr.from(tblTransErr)
-            .join(JoinType.left, new EntityTable(EnumSysTable.duo, false, b))
+            // .join(JoinType.left, new EntityTable(EnumSysTable.duo, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('appID', a)));
         selectTranErr.column(
             new ExpFunc('JSON_ARRAYAGG',

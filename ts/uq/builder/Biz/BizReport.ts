@@ -101,11 +101,19 @@ export class BBizReport extends BBizEntity<BizReport> {
                 wheres.push(new ExpEQ(new ExpField('base', a), varPhrase));
                 mainTbl = a;
                 break;
-            case BizPhraseType.duo:
+            case BizPhraseType.combo:
+                /*
                 mainTbl = b;
                 selectPage.join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
                     .on(new ExpEQ(new ExpField('x', b), new ExpField('id', a)));
                 wheres.push(new ExpEQ(new ExpField('i', b), new ExpVar(atomId)));
+                */
+                // 去掉duo，暂时不处理
+                debugger;
+                break;
+            case BizPhraseType.fork:
+                // 去掉duo，暂时不处理
+                debugger;
                 break;
         }
 

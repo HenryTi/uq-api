@@ -340,8 +340,10 @@ class IOProcIn extends IOProc<IOAppIn> {
         selectSiteAtomApp.toVar = true;
         selectSiteAtomApp.col('i', IOProc.siteAtomApp, b);
         selectSiteAtomApp.col('x', IOProc.ioAppIO, b);
+        // 正在去掉 duo
+        debugger;
         selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOQueue, false, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('endPoint', a)));
         selectSiteAtomApp.where(new ExpEQ(new ExpField('id', a), new ExpVar(IOProc.queueId)));
 
@@ -445,8 +447,10 @@ class IOProcOut extends IOProc<IOAppOut> {
         loop.statements.add(selectSiteAtomApp);
         selectSiteAtomApp.toVar = true;
         selectSiteAtomApp.col('id', IOProc.siteAtomApp, a);
+        // 正在去掉 duo
+        debugger;
         selectSiteAtomApp.from(new EntityTable(EnumSysTable.IOSiteAtomApp, false, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
             .on(new ExpAnd(
                 new ExpEQ(new ExpField('ioSiteAtom', a), new ExpField('id', b)),
                 new ExpEQ(new ExpField('i', b), new ExpVar(IOProc.ioSite))
@@ -488,7 +492,9 @@ class IOProcOut extends IOProc<IOAppOut> {
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
         selectEndPoint.col('id', IOProc.endPoint);
-        selectEndPoint.from(new EntityTable(EnumSysTable.duo, false));
+        // 正在去掉 duo
+        debugger;
+        // selectEndPoint.from(new EntityTable(EnumSysTable.duo, false));
         selectEndPoint.where(new ExpAnd(
             new ExpEQ(new ExpField('i'), new ExpVar(IOProc.siteAtomApp)),
             new ExpEQ(new ExpField('x'), new ExpVar(IOProc.ioAppIO)),

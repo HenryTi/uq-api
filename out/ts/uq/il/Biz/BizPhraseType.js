@@ -9,7 +9,7 @@ var BizPhraseType;
     BizPhraseType[BizPhraseType["fork"] = 12] = "fork";
     BizPhraseType[BizPhraseType["bud"] = 13] = "bud";
     BizPhraseType[BizPhraseType["budGroup"] = 14] = "budGroup";
-    BizPhraseType[BizPhraseType["duo"] = 15] = "duo";
+    // duo = 15,           // 二重奏
     BizPhraseType[BizPhraseType["combo"] = 16] = "combo";
     /*
     card = 61,

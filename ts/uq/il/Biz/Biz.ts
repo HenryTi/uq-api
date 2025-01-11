@@ -154,7 +154,6 @@ export class Biz extends Entity {
                 }
             }
             bizPhraseType = bpt;
-            // bizEntityTable = bizEntity.getEnumSysTable();
             switch (bizPhraseType) {
                 default:
                     logs.push(`FROM can only be one of ATOM, FORK, Options, DUO, BIN, SHEET, PEND`);
@@ -162,13 +161,9 @@ export class Biz extends Entity {
                     break;
                 case BizPhraseType.query: break;
                 case BizPhraseType.atom:
-                    //bizEntityTable = EnumSysTable.atom; break;
                     bizEntityTable = EnumSysTable.idu; break;
                 case BizPhraseType.fork:
-                    //bizEntityTable = EnumSysTable.spec; break;
                     bizEntityTable = EnumSysTable.idu; break;
-                case BizPhraseType.duo:
-                    bizEntityTable = EnumSysTable.duo; break;
                 case BizPhraseType.bin:
                     bizEntityTable = EnumSysTable.bizBin; break;
                 case BizPhraseType.sheet:

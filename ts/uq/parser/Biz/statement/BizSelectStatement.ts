@@ -7,7 +7,7 @@ import {
     BizFromEntitySub,
     BizFork,
     BizEntity,
-    BizDuo, BizCombo,
+    BizCombo,
     BizBudID,
     BizSelectStatement,
     BizField,
@@ -298,6 +298,7 @@ class FromEntityScaner {
                     break;
                 case BizPhraseType.bin:
                     break;
+                /*
                 case BizPhraseType.duo:
                     if (length !== 0 && length !== 2) {
                         ok = false;
@@ -309,6 +310,7 @@ class FromEntityScaner {
                     }
                     scanBase = new FromEntityScanDuo(this, fromEntity, pSubs[0], pSubs[1]);
                     break;
+                */
                 case BizPhraseType.fork:
                     if (length !== 0 && length !== 1) {
                         ok = false;
@@ -391,7 +393,7 @@ abstract class FEScanBase {
         };
     }
 }
-
+/*
 class FromEntityScanDuo extends FEScanBase {
     private readonly pSub0: PFromEntity;
     private readonly pSub1: PFromEntity;
@@ -417,7 +419,7 @@ class FromEntityScanDuo extends FEScanBase {
         return [subI, subX];
     }
 }
-
+*/
 class FromEntityScanCombo extends FEScanBase {
     private readonly pSubs: PFromEntity[];
     private readonly combo: BizCombo;

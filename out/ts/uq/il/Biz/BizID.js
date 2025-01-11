@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizIDAny = exports.BizCombo = exports.BizFork = exports.BizIDWithBase = exports.BizDuo = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizIDWithShowBuds = void 0;
+exports.BizIDAny = exports.BizCombo = exports.BizFork = exports.BizIDWithBase = exports.BizAtom = exports.IDUnique = exports.BizIDExtendable = exports.BizIDWithShowBuds = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -127,28 +127,28 @@ class BizAtom extends BizIDExtendable {
     }
 }
 exports.BizAtom = BizAtom;
+/*
 // 分子：atom 原子的合成
 // duo: 二重奏
-class BizDuo extends BizIDWithShowBuds {
-    constructor() {
-        super(...arguments);
-        this.bizPhraseType = BizPhraseType_1.BizPhraseType.duo;
-        this.i = {};
-        this.x = {};
-        this.main = undefined;
-        this.fields = ['id', 'i', 'x'];
+export class BizDuo extends BizIDWithShowBuds {
+    readonly bizPhraseType = BizPhraseType.duo;
+    readonly i = {} as IxField;
+    readonly x = {} as IxField;
+    readonly main = undefined;
+
+    parser(context: PContext): PElement<IElement> {
+        return new PBizDuo(this, context);
     }
-    parser(context) {
-        return new parser_1.PBizDuo(this, context);
-    }
-    buildSchema(res) {
+    protected readonly fields = ['id', 'i', 'x'];
+
+    buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         ret.i = this.ixFieldSchema(this.i);
         ret.x = this.ixFieldSchema(this.x);
         return ret;
     }
 }
-exports.BizDuo = BizDuo;
+*/
 class BizIDWithBase extends BizIDExtendable {
     buildSchema(res) {
         let ret = super.buildSchema(res);

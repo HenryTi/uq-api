@@ -223,15 +223,15 @@ export abstract class BizEntity extends BizBase {
             default: break;
             case BizPhraseType.query: break;
             case BizPhraseType.atom:
-                //bizEntityTable = EnumSysTable.atom; 
                 bizEntityTable = EnumSysTable.idu;
                 break;
             case BizPhraseType.fork:
-                //bizEntityTable = EnumSysTable.spec; 
                 bizEntityTable = EnumSysTable.idu;
                 break;
+            /*
             case BizPhraseType.duo:
                 bizEntityTable = EnumSysTable.duo; break;
+            */
             case BizPhraseType.bin:
                 bizEntityTable = EnumSysTable.bizBin; break;
             case BizPhraseType.sheet:

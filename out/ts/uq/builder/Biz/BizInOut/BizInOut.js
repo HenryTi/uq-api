@@ -305,8 +305,10 @@ class IOProcIn extends IOProc {
         selectSiteAtomApp.toVar = true;
         selectSiteAtomApp.col('i', IOProc.siteAtomApp, b);
         selectSiteAtomApp.col('x', IOProc.ioAppIO, b);
+        // 正在去掉 duo
+        debugger;
         selectSiteAtomApp.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOQueue, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('endPoint', a)));
         selectSiteAtomApp.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(IOProc.queueId)));
         let ifSiteAtomApp = factory.createIf();
@@ -389,8 +391,10 @@ class IOProcOut extends IOProc {
         loop.statements.add(selectSiteAtomApp);
         selectSiteAtomApp.toVar = true;
         selectSiteAtomApp.col('id', IOProc.siteAtomApp, a);
+        // 正在去掉 duo
+        debugger;
         selectSiteAtomApp.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.IOSiteAtomApp, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false, b))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.duo, false, b))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('ioSiteAtom', a), new sql_1.ExpField('id', b)), new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpVar(IOProc.ioSite))))
             .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$' + this.ioAppIO.bizIO.id + '$TO', c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpField('to', c)));
@@ -418,7 +422,9 @@ class IOProcOut extends IOProc {
         statements.push(selectEndPoint);
         selectEndPoint.toVar = true;
         selectEndPoint.col('id', IOProc.endPoint);
-        selectEndPoint.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.duo, false));
+        // 正在去掉 duo
+        debugger;
+        // selectEndPoint.from(new EntityTable(EnumSysTable.duo, false));
         selectEndPoint.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(IOProc.siteAtomApp)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpVar(IOProc.ioAppIO))));
         const ifEndPoint = this.factory.createIf();
         statements.push(ifEndPoint);

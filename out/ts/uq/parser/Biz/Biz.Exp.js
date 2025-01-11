@@ -193,7 +193,7 @@ class PBizExp extends element_1.PElement {
                     ret = this.scanAtom(space);
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
-                    ret = this.scanSpec(space);
+                    ret = this.scanFork(space);
                     break;
                 case BizPhraseType_1.BizPhraseType.bin:
                     ret = this.scanBin(space);
@@ -204,9 +204,7 @@ class PBizExp extends element_1.PElement {
                 case BizPhraseType_1.BizPhraseType.tie:
                     ret = this.scanTie(space);
                     break;
-                case BizPhraseType_1.BizPhraseType.duo:
-                    ret = this.scanDuo(space);
-                    break;
+                // case BizPhraseType.duo: ret = this.scanDuo(space); break;
                 case BizPhraseType_1.BizPhraseType.combo:
                     ret = this.scanCombo(space);
                     break;
@@ -251,7 +249,7 @@ class PBizExp extends element_1.PElement {
         if (this.bud !== undefined) {
             let bud = this.element.budProp = bizAtom.getBud(this.bud);
             if (bud === undefined) {
-                this.log(`SPEC ${jName} has not ${this.bud}.`);
+                this.log(`FORK ${jName} has not ${this.bud}.`);
                 ok = false;
             }
         }
@@ -270,7 +268,7 @@ class PBizExp extends element_1.PElement {
         }
         return ok;
     }
-    scanSpec(space) {
+    scanFork(space) {
         let ok = true;
         const { bizEntity, prop } = this.element;
         if (this.checkScalar() === false)
@@ -280,7 +278,7 @@ class PBizExp extends element_1.PElement {
         if (this.bud !== undefined) {
             let bud = this.element.budProp = bizSpec.getBud(this.bud);
             if (bud === undefined) {
-                this.log(`SPEC ${jName} has not ${this.bud}.`);
+                this.log(`FORK ${jName} has not ${this.bud}.`);
                 ok = false;
             }
         }
@@ -424,11 +422,12 @@ class PBizExp extends element_1.PElement {
         }
         return ok;
     }
-    scanDuo(space) {
+    /*
+    private scanDuo(space: Space): boolean {
         let ok = true;
         const { bizEntity, param: bizParam } = this.element;
         const { params: [param, param2] } = bizParam;
-        let duo = bizEntity;
+        let duo = bizEntity as BizDuo;
         if (param2 === undefined) {
             if (this.bud !== 'i' && this.bud !== 'x') {
                 this.log(`DUO ${duo.getJName()}(p1, p2) should follow I or X`);
@@ -443,6 +442,7 @@ class PBizExp extends element_1.PElement {
         }
         return ok;
     }
+    */
     scanCombo(space) {
         let ok = true;
         const { bizEntity, param: bizParam } = this.element;
