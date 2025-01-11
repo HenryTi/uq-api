@@ -148,20 +148,20 @@ export class BBizFork extends BBizEntity<BizFork> {
             let tbl: EnumSysTable;
             switch (dataType) {
                 default:
-                    tbl = EnumSysTable.ixBudInt;
+                    tbl = EnumSysTable.ixInt;
                     break;
                 case BudDataType.date:
-                    tbl = EnumSysTable.ixBudInt;
+                    tbl = EnumSysTable.ixInt;
                     break;
                 case BudDataType.str:
                 case BudDataType.char:
-                    tbl = EnumSysTable.ixBudStr;
+                    tbl = EnumSysTable.ixStr;
                     break;
                 case BudDataType.dec:
-                    tbl = EnumSysTable.ixBudDec;
+                    tbl = EnumSysTable.ixDec;
                     break;
                 case BudDataType.fork:
-                    tbl = EnumSysTable.ixBudJson;
+                    tbl = EnumSysTable.ixJson;
                     break;
             }
             return { varVal, tbl };
@@ -298,14 +298,14 @@ export class BBizFork extends BBizEntity<BizFork> {
             let tbl: string;
             switch (dataType) {
                 default:
-                    tbl = EnumSysTable.ixBudInt; break;
+                    tbl = EnumSysTable.ixInt; break;
                 case BudDataType.char:
                 case BudDataType.str:
-                    tbl = EnumSysTable.ixBudStr; break;
+                    tbl = EnumSysTable.ixStr; break;
                 case BudDataType.dec:
-                    tbl = EnumSysTable.ixBudDec; break;
+                    tbl = EnumSysTable.ixDec; break;
                 case BudDataType.fork:
-                    tbl = EnumSysTable.ixBudJson; break;
+                    tbl = EnumSysTable.ixJson; break;
             }
             const selectVal = factory.createSelect();
             selectVal.column(new ExpField('value', t));

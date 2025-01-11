@@ -22,20 +22,20 @@ export abstract class BBizField<T extends BizField = BizField> {
         let tbl: EnumSysTable;
         switch (bud.dataType) {
             default:
-                tbl = EnumSysTable.ixBudInt;
+                tbl = EnumSysTable.ixInt;
                 break;
             case BudDataType.str:
             case BudDataType.char:
-                tbl = EnumSysTable.ixBudStr;
+                tbl = EnumSysTable.ixStr;
                 break;
             case BudDataType.dec:
-                tbl = EnumSysTable.ixBudDec;
+                tbl = EnumSysTable.ixDec;
                 break;
             case BudDataType.check:
-                tbl = EnumSysTable.ixBudCheck;
+                tbl = EnumSysTable.ixCheck;
                 break;
             case BudDataType.fork:
-                tbl = EnumSysTable.ixBudJson;
+                tbl = EnumSysTable.ixJson;
                 break;
         }
         return tbl;
@@ -109,17 +109,17 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
         let tbl: EnumSysTable;
         switch (bud.dataType) {
             default:
-                tbl = EnumSysTable.ixBudInt;
+                tbl = EnumSysTable.ixInt;
                 break;
             case BudDataType.str:
             case BudDataType.char:
-                tbl = EnumSysTable.ixBudStr;
+                tbl = EnumSysTable.ixStr;
                 break;
             case BudDataType.dec:
-                tbl = EnumSysTable.ixBudDec;
+                tbl = EnumSysTable.ixDec;
                 break;
             case BudDataType.fork:
-                tbl = EnumSysTable.ixBudJson;
+                tbl = EnumSysTable.ixJson;
                 break;
             case BudDataType.check:
                 this.buildSelectMulti(sb);
@@ -145,7 +145,7 @@ export class BBizFieldBud extends BBizField<BizFieldBud> {
         else {
             sb.append(`JSON_ARRAYAGG(${x0}.x)`)
         };
-        sb.append(' FROM ').dbName().dot().append(EnumSysTable.ixBudCheck).append(` AS ${x0}`)
+        sb.append(' FROM ').dbName().dot().append(EnumSysTable.ixCheck).append(` AS ${x0}`)
             .append(` where ${x0}.ii=`)
         this.toIValue(sb);
         sb.append(` AND ${x0}.i=`).append(bud.id)
@@ -229,7 +229,7 @@ export abstract class BBizFieldBinBudSelect<T extends BizFieldBinBudSelect> exte
             let bud = budArr[t];
             let tbl: EnumSysTable;
             if (t < length - 1) {
-                tbl = EnumSysTable.ixBudInt;
+                tbl = EnumSysTable.ixInt;
             }
             else {
                 tbl = this.ixTableFromBud(bud);
@@ -266,7 +266,7 @@ export class BBizFieldBinBinBudSelect extends BBizFieldBinBudSelect<BizFieldBinB
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(EnumSysTable.ixBudInt)
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(EnumSysTable.ixInt)
             .append(' AS t0');
         this.buildBudArr(sb, budArr);
         sb.append(' WHERE t0.i=').var(bud.name).append(' AND t0.x=').append(bud.id);
@@ -284,10 +284,11 @@ export class BBizFieldPendBin extends BBizField {
 export class BBizFieldPendSheet extends BBizField {
     override to(sb: SqlBuilder): void {
         sb.l().append(`SELECT c.base FROM `).dbName().dot().name(EnumSysTable.pend)
-            .append(' AS a JOIN ').dbName().dot().name(EnumSysTable.bizDetail)
-            .append(' AS b ON b.id=a.bin')
-            .append(' JOIN ').dbName().dot().name(EnumSysTable.bud)
-            .append(' AS c ON c.id=b.base')
+            // .append(' AS a JOIN ').dbName().dot().name(EnumSysTable.bizDetail)
+            // .append(' AS b ON b.id=a.bin')
+            // .append(' JOIN ').dbName().dot().name(EnumSysTable.bud)
+            // .append(' AS c ON c.id=b.base')
+            .append(' AS a JOIN ').dbName().dot().name(EnumSysTable.bizBin).append(' AS c ON c.id=a.bin')
             .append(' WHERE a.id=').var('$pend').r();
     }
 }

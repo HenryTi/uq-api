@@ -37,21 +37,21 @@ class BBizStatementFork extends biz_statement_ID_1.BBizStatementID {
             let tbl, val = this.context.expVal(inVals[i + 1]);
             switch (dataType) {
                 default:
-                    tbl = il_1.EnumSysTable.ixBudInt;
+                    tbl = il_1.EnumSysTable.ixInt;
                     break;
                 case BizPhraseType_1.BudDataType.date:
-                    tbl = il_1.EnumSysTable.ixBudInt;
+                    tbl = il_1.EnumSysTable.ixInt;
                     val = new sql_1.ExpFunc('DATEDIFF', val, new sql_1.ExpStr('1970-01-01'));
                     break;
                 case BizPhraseType_1.BudDataType.str:
                 case BizPhraseType_1.BudDataType.char:
-                    tbl = il_1.EnumSysTable.ixBudStr;
+                    tbl = il_1.EnumSysTable.ixStr;
                     break;
                 case BizPhraseType_1.BudDataType.dec:
-                    tbl = il_1.EnumSysTable.ixBudDec;
+                    tbl = il_1.EnumSysTable.ixDec;
                     break;
                 case BizPhraseType_1.BudDataType.fork:
-                    tbl = il_1.EnumSysTable.ixBudJson;
+                    tbl = il_1.EnumSysTable.ixJson;
                     break;
             }
             let t = 't' + i;

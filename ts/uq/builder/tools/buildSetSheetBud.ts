@@ -37,23 +37,23 @@ export function buildSetSheetBud(context: DbContext, bud: BizBud, idVal: ExpVal,
         case BudDataType.datetime: debugger; break;
         case BudDataType.int: // break;
         case BudDataType.atom:
-            statement = createIxBudValue(EnumSysTable.ixBudInt, expVal);
+            statement = createIxBudValue(EnumSysTable.ixInt, expVal);
             break;
         case BudDataType.char:
         case BudDataType.str:
-            statement = createIxBudValue(EnumSysTable.ixBudStr, expVal);
+            statement = createIxBudValue(EnumSysTable.ixStr, expVal);
             break;
         case BudDataType.radio:
-            statement = createIxBud(EnumSysTable.ixBud, expVal);
+            statement = createIxBud(EnumSysTable.ix, expVal);
             break;
         case BudDataType.date:
-            statement = createIxBudValue(EnumSysTable.ixBudInt, expVal);
+            statement = createIxBudValue(EnumSysTable.ixInt, expVal);
             break;
         case BudDataType.dec:
-            statement = createIxBudValue(EnumSysTable.ixBudDec, expVal);
+            statement = createIxBudValue(EnumSysTable.ixDec, expVal);
             break;
         case BudDataType.fork:
-            statement = createIxBudValue(EnumSysTable.ixBudJson, expVal);
+            statement = createIxBudValue(EnumSysTable.ixJson, expVal);
             break;
     }
     return [statement];

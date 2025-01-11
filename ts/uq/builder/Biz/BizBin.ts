@@ -127,12 +127,13 @@ export class BBizBin extends BBizEntity<BizBin> {
         select.column(new ExpField('amount', a), amount);
         select.column(new ExpField('price', a), price);
         select.from(new EntityTable(EnumSysTable.bizBin, false, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, dt))
-            .on(new ExpEQ(new ExpField('id', dt), new ExpField('id', a)))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', dt)))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, dt))
+            // .on(new ExpEQ(new ExpField('id', dt), new ExpField('id', a)))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+            // .on(new ExpEQ(new ExpField('id', b), new ExpField('base', dt)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, c))
-            .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)))
+            // .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('sheet', a)))
             .join(JoinType.left, new EntityTable(EnumSysTable.binPend, false, d))
             .on(new ExpEQ(new ExpField('id', d), new ExpField('id', a)))
             ;

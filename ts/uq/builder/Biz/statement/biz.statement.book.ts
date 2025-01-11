@@ -53,14 +53,14 @@ export class BBizStatementBook extends BStatement<BizStatementBook> {
         let table: EnumSysTable;
         switch (dataType) {
             default:
-                table = EnumSysTable.ixBudInt;
+                table = EnumSysTable.ixInt;
                 buildIxBudIndex();
                 break;
             case BudDataType.char:
-                table = EnumSysTable.ixBudStr;
+                table = EnumSysTable.ixStr;
                 break;
             case BudDataType.dec:
-                table = EnumSysTable.ixBudDec;
+                table = EnumSysTable.ixDec;
                 break;
         }
 
@@ -70,7 +70,7 @@ export class BBizStatementBook extends BStatement<BizStatementBook> {
             if ((flag & BudIndex.index) !== BudIndex.index) return;
             let upsert = factory.createUpsert();
             sqls.push(upsert);
-            upsert.table = new EntityTable(EnumSysTable.ixBud, false);
+            upsert.table = new EntityTable(EnumSysTable.ix, false);
             const expBud = new ExpFuncInUq('bud$id'
                 , [expSite, expUser, ExpNum.num1, ExpVal.null, expValue, expPhraseId]
                 , true);

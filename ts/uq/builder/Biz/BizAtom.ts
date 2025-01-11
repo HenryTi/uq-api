@@ -139,7 +139,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                 switch (key.dataType) {
                     case BudDataType.radio:
                         selectKey.column(new ExpField('ext', b), vKeyI);
-                        selectKey.from(new EntityTable(EnumSysTable.ixBud, false, a))
+                        selectKey.from(new EntityTable(EnumSysTable.ix, false, a))
                             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
                             .on(new ExpEQ(new ExpField('id', b), new ExpField('x', a)));
                         selectKey.where(new ExpAnd(
@@ -149,7 +149,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
                         break;
                     default:
                         selectKey.col('value', vKeyI);
-                        selectKey.from(new EntityTable(EnumSysTable.ixBudInt, false));
+                        selectKey.from(new EntityTable(EnumSysTable.ixInt, false));
                         selectKey.where(new ExpAnd(
                             new ExpEQ(new ExpField('i'), new ExpVar(cId)),
                             new ExpEQ(new ExpField('x'), new ExpNum(key.id)),
@@ -185,7 +185,7 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         statements.push(setNo);
         let selectNO = factory.createSelect();
         selectNO.col('value');
-        selectNO.from(new EntityTable(EnumSysTable.ixBudStr, false));
+        selectNO.from(new EntityTable(EnumSysTable.ixStr, false));
         selectNO.where(new ExpAnd(
             new ExpEQ(new ExpField('i'), new ExpVar(cId)),
             new ExpEQ(new ExpField('x'), new ExpNum(no.id)),
@@ -272,14 +272,14 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         let tbl: string;
         let colValue: ExpVal = new ExpFuncCustom(factory.func_cast, new ExpField('value', a), new ExpDatePart('JSON'));
         switch (dataType) {
-            default: tbl = EnumSysTable.ixBudInt; break;
+            default: tbl = EnumSysTable.ixInt; break;
             case BudDataType.str:
             case BudDataType.char:
-                tbl = EnumSysTable.ixBudStr;
+                tbl = EnumSysTable.ixStr;
                 colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', a));
                 break;
-            case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
-            case BudDataType.fork: tbl = EnumSysTable.ixBudJson; break;
+            case BudDataType.dec: tbl = EnumSysTable.ixDec; break;
+            case BudDataType.fork: tbl = EnumSysTable.ixJson; break;
         }
         let select = factory.createSelect();
         select.from(new EntityTable(tbl, false, a));

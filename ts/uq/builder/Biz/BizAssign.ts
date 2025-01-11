@@ -87,7 +87,7 @@ export class BBizAssign extends BBizEntity<BizAssign> {
         const t = 't0';
         let select = factory.createSelect();
         select.col('value', undefined, t);
-        select.from(new EntityTable(EnumSysTable.ixBudDec, false, t));
+        select.from(new EntityTable(EnumSysTable.ixDec, false, t));
         select.where(new ExpAnd(
             new ExpEQ(new ExpField('i', t), new ExpField('id', a)),
             new ExpEQ(new ExpField('x', t), new ExpNum(bud.id)),

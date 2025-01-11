@@ -153,11 +153,11 @@ export class BBizExp {
         const { ta, tb, tt } = this;
         let tbl: EnumSysTable;
         switch (budProp.dataType) {
-            default: tbl = EnumSysTable.ixBudInt; break;
+            default: tbl = EnumSysTable.ixInt; break;
             case BudDataType.char:
-            case BudDataType.str: tbl = EnumSysTable.ixBudStr; break;
-            case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
-            case BudDataType.fork: tbl = EnumSysTable.ixBudJson; break;
+            case BudDataType.str: tbl = EnumSysTable.ixStr; break;
+            case BudDataType.dec: tbl = EnumSysTable.ixDec; break;
+            case BudDataType.fork: tbl = EnumSysTable.ixJson; break;
         }
         sb.append(`${tt}.value FROM \`${this.db}\`.${tbl} as ${tt}
             WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
@@ -202,7 +202,7 @@ export class BBizExp {
         const { bizEntity } = this.bizExp;
         const { ta, tb } = this;
         sb.append(`${ta}.x
-        FROM ${this.db}.ixbud as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.i AND ${tb}.base=${bizEntity.id} 
+        FROM ${this.db}.ix as ${ta} JOIN ${this.db}.bud as ${tb} ON ${tb}.id=${ta}.i AND ${tb}.base=${bizEntity.id} 
             WHERE ${tb}.ext=`)
             .exp(this.params[0]);
     }
@@ -293,7 +293,7 @@ export class BBizExp {
         const { dbContext } = sb.factory;
         sb.append('SUM(bcb.value) FROM ')
             .name(`${$site}.${dbContext.site}`).dot().name(`${combo.id}`).append(' AS bca JOIN ')
-            .dbName().dot().name(EnumSysTable.ixBudDec)
+            .dbName().dot().name(EnumSysTable.ixDec)
             .append(` AS bcb ON bcb.x=${budEntitySub.id} AND bcb.i=bca.id WHERE 1=1`);
         const { length } = comboParams;
         const { keys } = combo;
@@ -321,8 +321,8 @@ abstract class TitleValueBase extends TitleExpBase {
         const { budEntitySub: bud } = this.bBizExp.bizExp;
         let ixBudTbl: string;
         switch (bud.dataType) {
-            default: ixBudTbl = EnumSysTable.ixBudInt; break;
-            case BudDataType.dec: ixBudTbl = EnumSysTable.ixBudDec; break;
+            default: ixBudTbl = EnumSysTable.ixInt; break;
+            case BudDataType.dec: ixBudTbl = EnumSysTable.ixDec; break;
         }
         return ixBudTbl;
     }
@@ -368,10 +368,10 @@ class TitleSpecSum extends TitleSum {
 class TitleIxSum extends TitleSum {
     override from() {
         const { ta, tt, db } = this.bBizExp;
-        // this.titleValueSum(sb, 'ixbud', 'x', 'i');
+        // this.titleValueSum(sb, 'ix', 'x', 'i');
         let tblBudValue = this.ixBudTbl();
         this.sb.append(`
-        FROM ${db}.ixbud as ${tt}
+        FROM ${db}.ix as ${tt}
         JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.x
     WHERE ${tt}.i=`);
 
@@ -421,7 +421,7 @@ class TitleIxHistory extends TitleHistoryBase {
     from() {
         const { ta, tt, db, bizExp, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
-        this.sb.append(`JOIN ${db}.ixbud as ${tt} ON ${tt}.i=`).exp(param)
+        this.sb.append(`JOIN ${db}.ix as ${tt} ON ${tt}.i=`).exp(param)
             .append(` AND ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, ${tt}.x, ${bud.id}) WHERE `);
     }
 }

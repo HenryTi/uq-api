@@ -26,10 +26,10 @@ export function buildSetAtomBud(context: DbContext, bud: BizBud, idVal: ExpVal, 
         let statements: Statement[] = [insertDup];
         let tbl: EnumSysTable;
         switch (bud.dataType) {
-            default: tbl = EnumSysTable.ixBudInt; break;
-            case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+            default: tbl = EnumSysTable.ixInt; break;
+            case BudDataType.dec: tbl = EnumSysTable.ixDec; break;
             case BudDataType.str:
-            case BudDataType.char: tbl = EnumSysTable.ixBudStr; break;
+            case BudDataType.char: tbl = EnumSysTable.ixStr; break;
         }
         insertDup.keys = [
             { col: 'i', val: varId },
@@ -47,7 +47,7 @@ export function buildSetAtomBud(context: DbContext, bud: BizBud, idVal: ExpVal, 
         let del = factory.createDelete();
         statements.push(del);
         del.tables = [a];
-        del.from(new EntityTable(EnumSysTable.ixBud, false, a))
+        del.from(new EntityTable(EnumSysTable.ix, false, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('x', a)));
         del.where(new ExpAnd(
@@ -58,7 +58,7 @@ export function buildSetAtomBud(context: DbContext, bud: BizBud, idVal: ExpVal, 
         let insert = factory.createInsert();
         statements.push(insert);
         insert.ignore = true;
-        insert.table = new EntityTable(EnumSysTable.ixBud, false);
+        insert.table = new EntityTable(EnumSysTable.ix, false);
         insert.cols = [
             { col: 'i', val: varId },
             {

@@ -32,14 +32,14 @@ export function buildSelectIxBuds(context: DbContext) {
     memo.text = '$ buildSelectIxBuds';
     let ret: Statement[] = [
         memo,
-        buildSelectIxBud(context, funcCast, EnumSysTable.ixBudInt, BudDataType.int),
+        buildSelectIxBud(context, funcCast, EnumSysTable.ixInt, BudDataType.int),
         buildInsertAtoms(context),
         buildInsertSpecs(context),
     ];
 
     let budTypes: [(v: ExpVal) => ExpVal, EnumSysTable, BudDataType][] = [
-        [funcCast, EnumSysTable.ixBudDec, BudDataType.dec],
-        [funcJSON_QUOTE, EnumSysTable.ixBudStr, BudDataType.str],
+        [funcCast, EnumSysTable.ixDec, BudDataType.dec],
+        [funcJSON_QUOTE, EnumSysTable.ixStr, BudDataType.str],
     ];
     ret.push(...budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType)));
     let memoEnd = factory.createMemo();
@@ -168,14 +168,14 @@ export function buildSelectPhraseBud(context: DbContext) {
     selectCTE.column(new ExpField('i', s), 'i');
     selectCTE.column(new ExpField('x', s), 'x');
     selectCTE.from(new VarTable(tempIdPhraseTable, s0))
-        .join(JoinType.left, new EntityTable(EnumSysTable.ixBizPhrase, false, s))
+        .join(JoinType.left, new EntityTable(EnumSysTable.ixPhrase, false, s))
         .on(new ExpEQ(new ExpField('x', s), new ExpField('phrase', s0)));
     let select1 = factory.createSelect();
     select1.lock = LockType.none;
     select1.column(new ExpField('phrase', r0));
     select1.column(new ExpField('i', r));
     select1.column(new ExpField('x', r));
-    select1.from(new EntityTable(EnumSysTable.ixBizPhrase, false, r))
+    select1.from(new EntityTable(EnumSysTable.ixPhrase, false, r))
         .join(JoinType.join, new NameTable(cte, r0))
         .on(new ExpEQ(new ExpField('i', r0), new ExpField('x', r)));
     selectCTE.unions = [select1];

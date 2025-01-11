@@ -133,10 +133,10 @@ class BBizReport extends BizEntity_1.BBizEntity {
             let tbl;
             switch (dataType) {
                 default:
-                    tbl = il_1.EnumSysTable.ixBudInt;
+                    tbl = il_1.EnumSysTable.ixInt;
                     break;
                 case BizPhraseType_1.BudDataType.dec:
-                    tbl = il_1.EnumSysTable.ixBudDec;
+                    tbl = il_1.EnumSysTable.ixDec;
                     break;
             }
             select.from(new statementWithFrom_1.EntityTable(tbl, false, h));

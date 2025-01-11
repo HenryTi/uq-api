@@ -35,7 +35,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     wheres.push(new ExpEQ(expPrev, this.context.expVal(ofOn)));
                 }
 
-                select.join(JoinType.join, new EntityTable(EnumSysTable.ixBud, false, tOf))
+                select.join(JoinType.join, new EntityTable(EnumSysTable.ix, false, tOf))
                     .on(new ExpEQ(new ExpField('x', tOf), expPrev))
                     .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, tBud))
                     .on(new ExpAnd(...wheres));

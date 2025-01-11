@@ -31,12 +31,12 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
                 selectBud = buildSelectBudIxBase(bud as BizBudIXBase);
             }
             else {
-                selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
+                selectBud = buildSelectBudValue(bud, EnumSysTable.ixInt);
             }
             declareType = bigint;
             break;
         case BudDataType.fork:
-            selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudJson);
+            selectBud = buildSelectBudValue(bud, EnumSysTable.ixJson);
             declareType = json;
             break;
         case BudDataType.ID:
@@ -44,16 +44,16 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
         case BudDataType.int:
         case BudDataType.radio:
         case BudDataType.bin:
-            selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudInt);
+            selectBud = buildSelectBudValue(bud, EnumSysTable.ixInt);
             declareType = bigint;
             break;
         case BudDataType.str:
         case BudDataType.char:
-            selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudStr);
+            selectBud = buildSelectBudValue(bud, EnumSysTable.ixStr);
             declareType = str;
             break;
         case BudDataType.dec:
-            selectBud = buildSelectBudValue(bud, EnumSysTable.ixBudDec);
+            selectBud = buildSelectBudValue(bud, EnumSysTable.ixDec);
             declareType = decValue;
             break;
         case BudDataType.check:
@@ -85,7 +85,7 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
             new ExpField('x', a)
             : new ExpFunc('JSON_ARRAYAGG', new ExpField('x', a));
         selectBud.column(exp, budName);
-        selectBud.from(new EntityTable(EnumSysTable.ixBud, false, a));
+        selectBud.from(new EntityTable(EnumSysTable.ix, false, a));
         selectBud.where(new ExpEQ(new ExpField('i', a), varBin));
         return selectBud;
     }

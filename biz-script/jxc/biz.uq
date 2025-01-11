@@ -81,7 +81,7 @@ IX BizResource (
 
 -- obj x extended from obj i
 -- bud i owns bud x
-IX IxBizPhrase (
+IX IxPhrase (
     i,
     x INDEX,
 );
@@ -330,7 +330,7 @@ PROC SaveBizIX (
 ) {
     JSONTABLE tbl (i ID PATH '$[0]', x ID PATH '$[1]') FROM pairs PATH '$[*]';
     FOR (VAR i ID, x ID OF SELECT a.i, a.x FROM tbl as a) {
-        WITH IxBizPhrase I=IFNULL(i, 0) X=x;
+        WITH IxPhrase I=IFNULL(i, 0) X=x;
     }
 };
 

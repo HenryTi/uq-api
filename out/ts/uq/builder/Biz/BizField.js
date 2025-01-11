@@ -12,20 +12,20 @@ class BBizField {
         let tbl;
         switch (bud.dataType) {
             default:
-                tbl = il_1.EnumSysTable.ixBudInt;
+                tbl = il_1.EnumSysTable.ixInt;
                 break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
-                tbl = il_1.EnumSysTable.ixBudStr;
+                tbl = il_1.EnumSysTable.ixStr;
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                tbl = il_1.EnumSysTable.ixBudDec;
+                tbl = il_1.EnumSysTable.ixDec;
                 break;
             case BizPhraseType_1.BudDataType.check:
-                tbl = il_1.EnumSysTable.ixBudCheck;
+                tbl = il_1.EnumSysTable.ixCheck;
                 break;
             case BizPhraseType_1.BudDataType.fork:
-                tbl = il_1.EnumSysTable.ixBudJson;
+                tbl = il_1.EnumSysTable.ixJson;
                 break;
         }
         return tbl;
@@ -98,17 +98,17 @@ class BBizFieldBud extends BBizField {
         let tbl;
         switch (bud.dataType) {
             default:
-                tbl = il_1.EnumSysTable.ixBudInt;
+                tbl = il_1.EnumSysTable.ixInt;
                 break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
-                tbl = il_1.EnumSysTable.ixBudStr;
+                tbl = il_1.EnumSysTable.ixStr;
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                tbl = il_1.EnumSysTable.ixBudDec;
+                tbl = il_1.EnumSysTable.ixDec;
                 break;
             case BizPhraseType_1.BudDataType.fork:
-                tbl = il_1.EnumSysTable.ixBudJson;
+                tbl = il_1.EnumSysTable.ixJson;
                 break;
             case BizPhraseType_1.BudDataType.check:
                 this.buildSelectMulti(sb);
@@ -135,7 +135,7 @@ class BBizFieldBud extends BBizField {
             sb.append(`JSON_ARRAYAGG(${x0}.x)`);
         }
         ;
-        sb.append(' FROM ').dbName().dot().append(il_1.EnumSysTable.ixBudCheck).append(` AS ${x0}`)
+        sb.append(' FROM ').dbName().dot().append(il_1.EnumSysTable.ixCheck).append(` AS ${x0}`)
             .append(` where ${x0}.ii=`);
         this.toIValue(sb);
         sb.append(` AND ${x0}.i=`).append(bud.id)
@@ -206,7 +206,7 @@ class BBizFieldBinBudSelect extends BBizField {
             let bud = budArr[t];
             let tbl;
             if (t < length - 1) {
-                tbl = il_1.EnumSysTable.ixBudInt;
+                tbl = il_1.EnumSysTable.ixInt;
             }
             else {
                 tbl = this.ixTableFromBud(bud);
@@ -243,7 +243,7 @@ class BBizFieldBinBinBudSelect extends BBizFieldBinBudSelect {
         let { bud, budArr } = this.bizField;
         sb.l();
         const { length } = budArr;
-        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(il_1.EnumSysTable.ixBudInt)
+        sb.append(`SELECT t${length}.`).fld('value').append(` FROM `).dbName().dot().name(il_1.EnumSysTable.ixInt)
             .append(' AS t0');
         this.buildBudArr(sb, budArr);
         sb.append(' WHERE t0.i=').var(bud.name).append(' AND t0.x=').append(bud.id);
@@ -261,10 +261,11 @@ exports.BBizFieldPendBin = BBizFieldPendBin;
 class BBizFieldPendSheet extends BBizField {
     to(sb) {
         sb.l().append(`SELECT c.base FROM `).dbName().dot().name(il_1.EnumSysTable.pend)
-            .append(' AS a JOIN ').dbName().dot().name(il_1.EnumSysTable.bizDetail)
-            .append(' AS b ON b.id=a.bin')
-            .append(' JOIN ').dbName().dot().name(il_1.EnumSysTable.bud)
-            .append(' AS c ON c.id=b.base')
+            // .append(' AS a JOIN ').dbName().dot().name(EnumSysTable.bizDetail)
+            // .append(' AS b ON b.id=a.bin')
+            // .append(' JOIN ').dbName().dot().name(EnumSysTable.bud)
+            // .append(' AS c ON c.id=b.base')
+            .append(' AS a JOIN ').dbName().dot().name(il_1.EnumSysTable.bizBin).append(' AS c ON c.id=a.bin')
             .append(' WHERE a.id=').var('$pend').r();
     }
 }

@@ -153,9 +153,9 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         const valNumExp = new ExpFuncCustom(factory.func_cast, valField, new ExpDatePart('json'));
         const valStrExp = new ExpFunc('JSON_QUOTE', valField);
         return [
-            [EnumSysTable.ixBudInt, valNumExp],
-            [EnumSysTable.ixBudDec, valNumExp],
-            [EnumSysTable.ixBudStr, valStrExp],
+            [EnumSysTable.ixInt, valNumExp],
+            [EnumSysTable.ixDec, valNumExp],
+            [EnumSysTable.ixStr, valStrExp],
         ];
     }
 
@@ -165,14 +165,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         this.ixValueArr().forEach(([tbl, val]) => {
             mapBuds.set(tbl, { buds: [], value: val });
         });
-        /*
-        const valField = new ExpField('value', 'b');
-        const valNumExp = new ExpFuncCustom(factory.func_cast, valField, new ExpDatePart('json'));
-        const valStrExp = new ExpFunc('JSON_QUOTE', valField);
-        mapBuds.set(EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
-        mapBuds.set(EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
-        mapBuds.set(EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
-        */
         return mapBuds;
     }
 
@@ -180,16 +172,16 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         if (buds === undefined) return;
         let mapBuds: Map<EnumSysTable, BudsValue> = this.createMapBuds();
         for (let bud of buds) {
-            let ixBudTbl: EnumSysTable = EnumSysTable.ixBudInt;
+            let ixBudTbl: EnumSysTable = EnumSysTable.ixInt;
             switch (bud.dataType) {
-                default: ixBudTbl = EnumSysTable.ixBudInt; break;
+                default: ixBudTbl = EnumSysTable.ixInt; break;
                 case BudDataType.dec:
-                    ixBudTbl = EnumSysTable.ixBudDec; break;
+                    ixBudTbl = EnumSysTable.ixDec; break;
                 case BudDataType.str:
                 case BudDataType.char:
-                    ixBudTbl = EnumSysTable.ixBudStr; break;
+                    ixBudTbl = EnumSysTable.ixStr; break;
                 case BudDataType.fork:
-                    ixBudTbl = EnumSysTable.ixBudJson; break;
+                    ixBudTbl = EnumSysTable.ixJson; break;
             }
             let tbl = mapBuds.get(ixBudTbl);
             tbl.buds.push(bud);

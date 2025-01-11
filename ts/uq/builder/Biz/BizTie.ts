@@ -110,7 +110,7 @@ export class BBizTie extends BBizEntity<BizTie> {
                 'JSON_ARRAY', new ExpField('id', ta), new ExpField('no', ta), new ExpField('ex', ta)
             )
         ), 'value');
-        select.from(new EntityTable(EnumSysTable.ixBud, false, t))
+        select.from(new EntityTable(EnumSysTable.ix, false, t))
             .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, ta))
             .on(new ExpEQ(new ExpField('id', ta), new ExpField('x', t)));
         select.where(new ExpEQ(new ExpField('i', t), new ExpField('id', b)));

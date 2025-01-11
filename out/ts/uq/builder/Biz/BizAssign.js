@@ -77,7 +77,7 @@ class BBizAssign extends BizEntity_1.BBizEntity {
         const t = 't0';
         let select = factory.createSelect();
         select.col('value', undefined, t);
-        select.from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.ixBudDec, false, t));
+        select.from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.ixDec, false, t));
         select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', t), new sql_1.ExpNum(bud.id))));
         return select;
     }

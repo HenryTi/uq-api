@@ -55,11 +55,16 @@ export class BBudSelect {
                 break;
             case EnumEntitySys.bin:
                 t = c;
+                /*
                 select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
                     .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
                     .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
                     .join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
                     .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)));
+                */
+                select.from(new EntityTable(EnumSysTable.bizBin, false, a))
+                    .join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
+                    .on(new ExpEQ(new ExpField('id', c), new ExpField('sheet', a)));
                 break;
         }
         select.col(prop, undefined, t);
@@ -85,20 +90,20 @@ export class BBudSelect {
         switch (bud.dataType) {
             default:
             case BudDataType.radio:
-                this.selectValue(select, EnumSysTable.ixBudInt, bud);
+                this.selectValue(select, EnumSysTable.ixInt, bud);
                 break;
             case BudDataType.dec:
-                this.selectValue(select, EnumSysTable.ixBudDec, bud);
+                this.selectValue(select, EnumSysTable.ixDec, bud);
                 break;
             case BudDataType.fork:
-                this.selectValue(select, EnumSysTable.ixBudJson, bud);
+                this.selectValue(select, EnumSysTable.ixJson, bud);
                 break;
             case BudDataType.str:
             case BudDataType.char:
-                this.selectValue(select, EnumSysTable.ixBudStr, bud);
+                this.selectValue(select, EnumSysTable.ixStr, bud);
                 break;
             case BudDataType.check:
-                this.selectCheck(select, /*EnumSysTable.ixBud, */bud);
+                this.selectCheck(select, /*EnumSysTable.ix, */bud);
                 break;
         }
         let ret = new ExpSelect(select);
@@ -117,7 +122,7 @@ export class BBudSelect {
     private selectCheck(select: Select, bud: BizBud) {
         const t = this.bBizExp.tt, c = this.bBizExp.tb;
         select.column(new ExpField('x', t), 'value');
-        select.from(new EntityTable(EnumSysTable.ixBudCheck, false, t));
+        select.from(new EntityTable(EnumSysTable.ixCheck, false, t));
         select.where(new ExpAnd(
             new ExpEQ(new ExpField('ii', t), this.bBizExp.params[0]),
             new ExpEQ(new ExpField('i', t), new ExpNum(bud.id)),

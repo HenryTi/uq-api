@@ -133,9 +133,9 @@ class BFromStatement extends biz_select_1.BBizSelect {
         const valNumExp = new sql_1.ExpFuncCustom(factory.func_cast, valField, new sql_1.ExpDatePart('json'));
         const valStrExp = new sql_1.ExpFunc('JSON_QUOTE', valField);
         return [
-            [il_1.EnumSysTable.ixBudInt, valNumExp],
-            [il_1.EnumSysTable.ixBudDec, valNumExp],
-            [il_1.EnumSysTable.ixBudStr, valStrExp],
+            [il_1.EnumSysTable.ixInt, valNumExp],
+            [il_1.EnumSysTable.ixDec, valNumExp],
+            [il_1.EnumSysTable.ixStr, valStrExp],
         ];
     }
     createMapBuds() {
@@ -144,14 +144,6 @@ class BFromStatement extends biz_select_1.BBizSelect {
         this.ixValueArr().forEach(([tbl, val]) => {
             mapBuds.set(tbl, { buds: [], value: val });
         });
-        /*
-        const valField = new ExpField('value', 'b');
-        const valNumExp = new ExpFuncCustom(factory.func_cast, valField, new ExpDatePart('json'));
-        const valStrExp = new ExpFunc('JSON_QUOTE', valField);
-        mapBuds.set(EnumSysTable.ixBudInt, { buds: [], value: valNumExp });
-        mapBuds.set(EnumSysTable.ixBudDec, { buds: [], value: valNumExp });
-        mapBuds.set(EnumSysTable.ixBudStr, { buds: [], value: valStrExp });
-        */
         return mapBuds;
     }
     buildMapBuds(buds) {
@@ -159,20 +151,20 @@ class BFromStatement extends biz_select_1.BBizSelect {
             return;
         let mapBuds = this.createMapBuds();
         for (let bud of buds) {
-            let ixBudTbl = il_1.EnumSysTable.ixBudInt;
+            let ixBudTbl = il_1.EnumSysTable.ixInt;
             switch (bud.dataType) {
                 default:
-                    ixBudTbl = il_1.EnumSysTable.ixBudInt;
+                    ixBudTbl = il_1.EnumSysTable.ixInt;
                     break;
                 case BizPhraseType_1.BudDataType.dec:
-                    ixBudTbl = il_1.EnumSysTable.ixBudDec;
+                    ixBudTbl = il_1.EnumSysTable.ixDec;
                     break;
                 case BizPhraseType_1.BudDataType.str:
                 case BizPhraseType_1.BudDataType.char:
-                    ixBudTbl = il_1.EnumSysTable.ixBudStr;
+                    ixBudTbl = il_1.EnumSysTable.ixStr;
                     break;
                 case BizPhraseType_1.BudDataType.fork:
-                    ixBudTbl = il_1.EnumSysTable.ixBudJson;
+                    ixBudTbl = il_1.EnumSysTable.ixJson;
                     break;
             }
             let tbl = mapBuds.get(ixBudTbl);

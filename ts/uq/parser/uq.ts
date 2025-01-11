@@ -396,10 +396,12 @@ export class PUq extends PElement {
                     ok = false;
                     this.log(en.type + '[' + n + ']与' + en0.type + '[' + n + ']重名');
                 }
+                /*
                 if (this.context.inDenyList(n) === true) {
                     ok = false;
                     this.log(`'${n}' should not be used as entity name`);
                 }
+                */
             });
 
             let appSpace = new UqSpace(this.uq);

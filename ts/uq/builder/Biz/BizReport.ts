@@ -155,8 +155,8 @@ export class BBizReport extends BBizEntity<BizReport> {
             select.column(new ExpField('value', h));
             let tbl: EnumSysTable;
             switch (dataType) {
-                default: tbl = EnumSysTable.ixBudInt; break;
-                case BudDataType.dec: tbl = EnumSysTable.ixBudDec; break;
+                default: tbl = EnumSysTable.ixInt; break;
+                case BudDataType.dec: tbl = EnumSysTable.ixDec; break;
             }
             select.from(new EntityTable(tbl, false, h));
             select.where(new ExpAnd(

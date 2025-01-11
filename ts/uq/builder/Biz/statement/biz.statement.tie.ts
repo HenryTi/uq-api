@@ -21,7 +21,7 @@ export class BBizStatementTie extends BStatement<BizStatementTie> {
             { col: 'i', val: iVal },
             { col: 'x', val: this.context.expVal(x) },
         ]
-        insert.table = new EntityTable(EnumSysTable.ixBud, false);
+        insert.table = new EntityTable(EnumSysTable.ix, false);
         insert.ignore = true;
     }
 }

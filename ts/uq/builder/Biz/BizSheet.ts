@@ -82,7 +82,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         let setBin = factory.createSet();
         statements.push(setBin);
         setBin.equ(binId, new ExpVar(cId));
-        // sheet main 界面编辑的时候，value，amount，price 保存到 ixBudDec 里面了。现在转到bin表上
+        // sheet main 界面编辑的时候，value，amount，price 保存到 ixDec 里面了。现在转到bin表上
         this.saveMainVPA(statements);
         let mainStatements = this.buildBinOneRow(main);
         statements.push(...mainStatements);
@@ -116,7 +116,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             let select = factory.createSelect();
             select.lock = LockType.none;
             select.col('value');
-            select.from(new EntityTable(EnumSysTable.ixBudDec, false));
+            select.from(new EntityTable(EnumSysTable.ixDec, false));
             select.where(new ExpAnd(
                 new ExpEQ(new ExpField('i'), varBinId),
                 new ExpEQ(new ExpField('x'), new ExpNum(bud.id)),
@@ -151,6 +151,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         loop.statements.add(select);
         select.toVar = true;
         select.column(new ExpField('id', a), binId);
+        /*
         select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
@@ -161,6 +162,14 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             new ExpEQ(new ExpField('ext', b), new ExpNum(entityId)),
             new ExpEQ(new ExpField('base', b), new ExpVar('$id')),
             new ExpIsNotNull(new ExpField('value', c)),
+        ));
+        */
+        select.from(new EntityTable(EnumSysTable.bizBin, false, a));
+        select.where(new ExpAnd(
+            new ExpGT(new ExpField('id', a), new ExpVar(pBinId)),
+            new ExpEQ(new ExpField('base', a), new ExpNum(entityId)),
+            new ExpEQ(new ExpField('sheet', a), new ExpVar('$id')),
+            new ExpIsNotNull(new ExpField('value', a)),
         ));
         select.order(new ExpField('id', a), 'asc');
         select.limit(ExpNum.num1);
@@ -254,7 +263,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
         let expValue = new ExpField('value', 'b');
         let expCast = new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'));
-        this.buildGetScalarProps(statements, EnumSysTable.ixBudInt, expCast);
+        this.buildGetScalarProps(statements, EnumSysTable.ixInt, expCast);
 
         statements.push(...buildSelectIxBuds(this.context));
         this.buildGetProps(statements);
@@ -266,9 +275,9 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         let expValue = new ExpField('value', 'b');
         let expCast = new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'));
         let expJSONQUOTE = new ExpFunc('JSON_QUOTE', expValue);
-        this.buildGetScalarProps(statements, EnumSysTable.ixBudDec, expCast);
-        this.buildGetScalarProps(statements, EnumSysTable.ixBudStr, expJSONQUOTE);
-        this.buildGetScalarProps(statements, EnumSysTable.ixBudJson, expValue);
+        this.buildGetScalarProps(statements, EnumSysTable.ixDec, expCast);
+        this.buildGetScalarProps(statements, EnumSysTable.ixStr, expJSONQUOTE);
+        this.buildGetScalarProps(statements, EnumSysTable.ixJson, expValue);
     }
 
     private buildGetScalarProps(statements: Statement[], sysTable: EnumSysTable, expValue: ExpVal) {
@@ -348,7 +357,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         }
         select.column(new ExpFuncCustom(factory.func_cast, new ExpField(valueCol, c), new ExpDatePart('json')), 'value');
         select.from(new VarTable(tbl, a))
-            .join(JoinType.join, new EntityTable('ixbudint', false, b))
+            .join(JoinType.join, new EntityTable(EnumSysTable.ixInt, false, b))
             .on(new ExpAnd(
                 new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
                 new ExpEQ(new ExpField('x', b), new ExpNum(binBud.id)),
@@ -357,11 +366,16 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         let expId: ExpVal = new ExpField('value', b);
         if (tbl === 'details') {
             const t0 = 't0', t1 = 't1';
+            /*
             select.join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, t0))
                 .on(new ExpEQ(new ExpField('id', t0), expId))
                 .join(JoinType.join, new EntityTable('bud', false, t1))
                 .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
             expId = new ExpField('base', t1);
+            */
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, t0))
+                .on(new ExpEQ(new ExpField('id', t0), expId));
+            expId = new ExpField('sheet', t0);
         }
         select.join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
             .on(new ExpEQ(new ExpField('id', c), expId));
@@ -381,19 +395,19 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const select = factory.createSelect();
         insert.select = select;
         const expValue = new ExpField('value', c);
-        let tblIxName: string
+        let tblIxName: EnumSysTable
             , colValue: ExpVal = new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('json'));
         switch (bud.dataType) {
             default:
-                tblIxName = 'ixbudint';
+                tblIxName = EnumSysTable.ixInt;
                 break;
             case BudDataType.str:
             case BudDataType.char:
-                tblIxName = 'ixbudstr';
+                tblIxName = EnumSysTable.ixStr;
                 colValue = new ExpFunc('JSON_QUOTE', expValue);
                 break;
             case BudDataType.dec:
-                tblIxName = 'ixbuddec';
+                tblIxName = EnumSysTable.ixDec;
                 break;
         }
 
@@ -402,7 +416,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         select.column(new ExpField('x', c), 'phrase');
         select.column(colValue, 'value');
         select.from(new VarTable(tbl, a))
-            .join(JoinType.join, new EntityTable('ixbudint', false, b))
+            .join(JoinType.join, new EntityTable(EnumSysTable.ixInt, false, b))
             .on(new ExpAnd(
                 new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
                 new ExpEQ(new ExpField('x', b), new ExpNum(binBud.id)),

@@ -145,7 +145,7 @@ export class BBizEntity<B extends BizEntity = any> {
         else {
             select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
                 .on(new ExpEQ(new ExpField('id', b), new ExpField(tempfield, a)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.ixBudInt, false, lastT))
+                .join(JoinType.join, new EntityTable(EnumSysTable.ixInt, false, lastT))
                 .on(new ExpAnd(
                     new ExpEQ(new ExpField('i', lastT), new ExpField('id', b)),
                     new ExpEQ(new ExpField('x', lastT), new ExpNum(lastBud.id)),
@@ -162,16 +162,16 @@ export class BBizEntity<B extends BizEntity = any> {
                 let tblDetail = tp + 'detail';
                 select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, tblBin))
                     .on(new ExpEQ(new ExpField('id', tblBin), new ExpField(lastField, lastT)))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, tblDetail))
-                    .on(new ExpEQ(new ExpField('id', tblDetail), new ExpField('id', tblBin)))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, tp))
-                    .on(new ExpEQ(new ExpField('id', tp), new ExpField('base', tblDetail)))
+                // .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, tblDetail))
+                // .on(new ExpEQ(new ExpField('id', tblDetail), new ExpField('id', tblBin)))
+                // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, tp))
+                // .on(new ExpEQ(new ExpField('id', tp), new ExpField('base', tblDetail)))
                 lastField = 'base';
                 tId = 't0';
                 fId = 'value';
             }
             else {
-                select.join(JoinType.join, new EntityTable(EnumSysTable.ixBudInt, false, tp))
+                select.join(JoinType.join, new EntityTable(EnumSysTable.ixInt, false, tp))
                     .on(new ExpAnd(
                         new ExpEQ(new ExpField('i', tp), new ExpField(lastField, lastT)),
                         new ExpEQ(new ExpField('x', tp), new ExpNum(bizBud.id)),
@@ -192,26 +192,26 @@ export class BBizEntity<B extends BizEntity = any> {
         switch (bizBud.dataType) {
             default:
             case BudDataType.radio:
-                tblIxBud = EnumSysTable.ixBudInt;
+                tblIxBud = EnumSysTable.ixInt;
                 selectValue();
                 break;
             case BudDataType.dec:
-                tblIxBud = EnumSysTable.ixBudDec;
+                tblIxBud = EnumSysTable.ixDec;
                 selectValue();
                 break;
             case BudDataType.fork:
-                tblIxBud = EnumSysTable.ixBudJson;
+                tblIxBud = EnumSysTable.ixJson;
                 selectValue();
                 break;
             case BudDataType.str:
             case BudDataType.char:
-                tblIxBud = EnumSysTable.ixBudStr;
+                tblIxBud = EnumSysTable.ixStr;
                 colValue = new ExpFunc('JSON_QUOTE', expFieldValue);
                 selectValue();
                 break;
 
             case BudDataType.check:
-                tblIxBud = EnumSysTable.ixBud;
+                tblIxBud = EnumSysTable.ix;
                 selectCheck();
                 break;
         }

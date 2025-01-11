@@ -145,15 +145,15 @@ PAGE (
     binPhrase ID,
 ) {
     -- VAR bud ID = ID(Bud KEY base=objId, ext=title);
-    PAGE SELECT a.id, a.value, a.ref, a.plusMinus, c.no as sheetNo, d.ext as sheetPhrase, b2.ext as binPhrase
+    PAGE SELECT a.id, a.value, a.ref, a.plusMinus, c.no as sheetNo, c.base as sheetPhrase, b.base as binPhrase
         FROM History as a
             LEFT JOIN Bud as a1 ON a1.id=a.bud
             LEFT JOIN Bin as b ON b.id=a.ref
-            LEFT JOIN Detail as b1 ON b1.id=b.id
-            LEFT JOIN Bud as b2 ON b2.id=b1.base
-            LEFT JOIN Sheet as c ON c.id=b2.base
-            LEFT JOIN Bud as d ON d.id=c.base
-            LEFT JOIN BizPhrase as e ON e.id=d.ext
+            -- LEFT JOIN Detail as b1 ON b1.id=b.id
+            -- LEFT JOIN Bud as b2 ON b2.id=b1.base
+            LEFT JOIN Sheet as c ON c.id=b.sheet -- b2.base
+            -- LEFT JOIN Bud as d ON d.id=c.base
+            -- LEFT JOIN BizPhrase as e ON e.id=d.ext
         WHERE a.id < $pageStart AND a1.base=objId AND a1.ext=title
         ORDER BY a.id DESC
         LIMIT $pageSize;

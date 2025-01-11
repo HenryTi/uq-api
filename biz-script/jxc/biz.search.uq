@@ -35,7 +35,8 @@ PAGE (
 
     PAGE SELECT -- a.id, a.no, b.id as phrase, a.operator, '[]' as buds
         * a, * c
-        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
+        -- , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base WHERE y.base=a.id) as rowCount
+        , (SELECT count(*) FROM Bin as x WHERE x.sheet=a.id AND x.id<>x.sheet) as rowCount
         FROM Sheet as a
             JOIN BizPhrase as b ON b.id=a.base AND b.base=$site
             JOIN Bin as c ON c.id=a.id
@@ -53,19 +54,20 @@ PAGE (
                 EXISTS(
                     SELECT b.id
                         FROM Bin as b 
-                            JOIN IxBudInt as c ON c.i=b.id
+                            JOIN IxInt as c ON c.i=b.id
                             JOIN tblParamMain as d ON d.bud=c.x AND d.value=c.value
                         WHERE b.id=a.id
                 )
             ))
             AND (di IS NULL AND dx IS NULL AND dBuds IS NULL OR EXISTS(
-                SELECT b.id 
-                    FROM Detail as b 
-                        JOIN Bud as c ON c.id=b.id 
-                        JOIN Bin as d ON d.id=b.id
-                        JOIN IxBudInt as e ON e.i=d.id
+                SELECT d.id 
+                    FROM -- Detail as b 
+                        -- JOIN Bud as c ON c.id=b.id 
+                        -- JOIN 
+                        Bin as d -- ON d.id=b.id
+                        JOIN IxInt as e ON e.i=d.id
                         JOIN tblParamDetail as f ON f.bud=e.x AND f.value=e.value
-                    WHERE c.base=a.id 
+                    WHERE d.sheet=a.id 
                         AND (di IS NULL OR d.i=di)
                         AND (dx IS NULL OR d.x=dx)
             ))

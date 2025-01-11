@@ -133,20 +133,20 @@ class BBizFork extends BizEntity_1.BBizEntity {
             let tbl;
             switch (dataType) {
                 default:
-                    tbl = il_1.EnumSysTable.ixBudInt;
+                    tbl = il_1.EnumSysTable.ixInt;
                     break;
                 case BizPhraseType_1.BudDataType.date:
-                    tbl = il_1.EnumSysTable.ixBudInt;
+                    tbl = il_1.EnumSysTable.ixInt;
                     break;
                 case BizPhraseType_1.BudDataType.str:
                 case BizPhraseType_1.BudDataType.char:
-                    tbl = il_1.EnumSysTable.ixBudStr;
+                    tbl = il_1.EnumSysTable.ixStr;
                     break;
                 case BizPhraseType_1.BudDataType.dec:
-                    tbl = il_1.EnumSysTable.ixBudDec;
+                    tbl = il_1.EnumSysTable.ixDec;
                     break;
                 case BizPhraseType_1.BudDataType.fork:
-                    tbl = il_1.EnumSysTable.ixBudJson;
+                    tbl = il_1.EnumSysTable.ixJson;
                     break;
             }
             return { varVal, tbl };
@@ -250,17 +250,17 @@ class BBizFork extends BizEntity_1.BBizEntity {
             let tbl;
             switch (dataType) {
                 default:
-                    tbl = il_1.EnumSysTable.ixBudInt;
+                    tbl = il_1.EnumSysTable.ixInt;
                     break;
                 case BizPhraseType_1.BudDataType.char:
                 case BizPhraseType_1.BudDataType.str:
-                    tbl = il_1.EnumSysTable.ixBudStr;
+                    tbl = il_1.EnumSysTable.ixStr;
                     break;
                 case BizPhraseType_1.BudDataType.dec:
-                    tbl = il_1.EnumSysTable.ixBudDec;
+                    tbl = il_1.EnumSysTable.ixDec;
                     break;
                 case BizPhraseType_1.BudDataType.fork:
-                    tbl = il_1.EnumSysTable.ixBudJson;
+                    tbl = il_1.EnumSysTable.ixJson;
                     break;
             }
             const selectVal = factory.createSelect();

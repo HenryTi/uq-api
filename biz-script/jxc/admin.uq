@@ -51,7 +51,7 @@ BIZ AC ClearBook(
         SET @bud=bud;
         /-mysql
         -- 清零
-        UPDATE ixbuddec as a
+        UPDATE ixdec as a
             JOIN bizphrase AS b ON b.id=a.x
             JOIN bizphrase AS c ON c.id=b.base
             SET a.value=0
@@ -94,7 +94,7 @@ RETURNS specs (
 
     VAR phrase ID=b.id FROM BizPhrase as a JOIN BizPhrase as b ON b.id=a.base WHERE a.id=bud;
     PAGE SELECT a.i, b.base as phrase, a.value
-        FROM IxBudDec as a
+        FROM IxDec as a
             LEFT JOIN Idu as b ON b.id=a.i
         WHERE a.x=bud AND a.i>$pageStart AND a.value <> 0
         ORDER BY a.i ASC

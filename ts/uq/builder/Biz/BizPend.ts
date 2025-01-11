@@ -131,11 +131,15 @@ export class BBizPend extends BBizEntity<BizPend> {
         if (binBud.bin.main !== undefined) {
             const t0 = 't0', t1 = 't1';
             select.column(new ExpField('id', t0), 'id');
+            /*
             select.join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, t0))
                 .on(new ExpEQ(new ExpField('id', t0), expBin))
                 .join(JoinType.join, new EntityTable('bud', false, t1))
                 .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
-            expBin = new ExpField('base', t1);
+            */
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, t0))
+                .on(new ExpEQ(new ExpField('id', t0), expBin));
+            expBin = new ExpField('base', t0);
         }
         else {
             select.column(new ExpField('id', c), 'id');
@@ -167,19 +171,19 @@ export class BBizPend extends BBizEntity<BizPend> {
         ];
         const select = factory.createSelect();
         insert.select = select;
-        let tblIxName: string
+        let tblIxName: EnumSysTable
             , colValue: ExpVal = new ExpFuncCustom(factory.func_cast, new ExpField('value', c), new ExpDatePart('json'));
         switch (bud.dataType) {
             default:
-                tblIxName = 'ixbudint';
+                tblIxName = EnumSysTable.ixInt;
                 break;
             case BudDataType.str:
             case BudDataType.char:
-                tblIxName = 'ixbudstr';
+                tblIxName = EnumSysTable.ixStr;
                 colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', c));
                 break;
             case BudDataType.dec:
-                tblIxName = 'ixbuddec';
+                tblIxName = EnumSysTable.ixDec;
                 break;
         }
 

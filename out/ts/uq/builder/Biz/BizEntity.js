@@ -145,7 +145,7 @@ class BBizEntity {
         else {
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField(tempfield, a)))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false, lastT))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, lastT))
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', lastT), new sql_1.ExpField('id', b)), new sql_1.ExpEQ(new sql_1.ExpField('x', lastT), new sql_1.ExpNum(lastBud.id))));
             lastField = 'value';
         }
@@ -157,17 +157,17 @@ class BBizEntity {
                 let tblBin = tp + 'bin';
                 let tblDetail = tp + 'detail';
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, tblBin))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tblBin), new sql_1.ExpField(lastField, lastT)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, tblDetail))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tblDetail), new sql_1.ExpField('id', tblBin)))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, tp))
-                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tp), new sql_1.ExpField('base', tblDetail)));
+                    .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tblBin), new sql_1.ExpField(lastField, lastT)));
+                // .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, tblDetail))
+                // .on(new ExpEQ(new ExpField('id', tblDetail), new ExpField('id', tblBin)))
+                // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, tp))
+                // .on(new ExpEQ(new ExpField('id', tp), new ExpField('base', tblDetail)))
                 lastField = 'base';
                 tId = 't0';
                 fId = 'value';
             }
             else {
-                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false, tp))
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, tp))
                     .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', tp), new sql_1.ExpField(lastField, lastT)), new sql_1.ExpEQ(new sql_1.ExpField('x', tp), new sql_1.ExpNum(bizBud.id))));
                 lastField = 'value';
             }
@@ -185,25 +185,25 @@ class BBizEntity {
         switch (bizBud.dataType) {
             default:
             case BizPhraseType_1.BudDataType.radio:
-                tblIxBud = il_1.EnumSysTable.ixBudInt;
+                tblIxBud = il_1.EnumSysTable.ixInt;
                 selectValue();
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                tblIxBud = il_1.EnumSysTable.ixBudDec;
+                tblIxBud = il_1.EnumSysTable.ixDec;
                 selectValue();
                 break;
             case BizPhraseType_1.BudDataType.fork:
-                tblIxBud = il_1.EnumSysTable.ixBudJson;
+                tblIxBud = il_1.EnumSysTable.ixJson;
                 selectValue();
                 break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
-                tblIxBud = il_1.EnumSysTable.ixBudStr;
+                tblIxBud = il_1.EnumSysTable.ixStr;
                 colValue = new sql_1.ExpFunc('JSON_QUOTE', expFieldValue);
                 selectValue();
                 break;
             case BizPhraseType_1.BudDataType.check:
-                tblIxBud = il_1.EnumSysTable.ixBud;
+                tblIxBud = il_1.EnumSysTable.ix;
                 selectCheck();
                 break;
         }

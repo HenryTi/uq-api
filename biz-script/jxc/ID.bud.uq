@@ -1,37 +1,37 @@
-IX *IxBud (
+IX *Ix (
     i,
     x,
 );
 
--- 分开IxBudInt, IxBudDec和IxBudStr的原因：
--- subject会有很大量，都是用IxBudDec。report针对IxBudDec。计分，可能是整数，也放到dec里面。
--- IxBudInt更多用于标志
+-- 分开IxInt, IxDec和IxBudStr的原因：
+-- subject会有很大量，都是用IxDec。report针对IxDec。计分，可能是整数，也放到dec里面。
+-- IxInt更多用于标志
 -- IxBudStr用量相对较少
-IX IxBudInt (
+IX IxInt (
     i,
     x,
     value BIGINT DEFAULT 0,
 );
 
-IX IxBudDec (
+IX IxDec (
     i,
     x,
     value VALUE DEFAULT 0,
 );
 
-IX IxBudStr (
+IX IxStr (
     i,
     x,
     value BudStr,
 );
 
-IX IxBudCheck (
+IX IxCheck (
     ii,
     i,
     x,
 );
 
-IX IxBudJson (
+IX IxJson (
     i,
     x,
     value JSON,
@@ -108,7 +108,7 @@ Func BudValueInt (
 )
 RETURNS BIGINT {
     VAR ret BIGINT;
-    SET ret = a.value FROM IxBudInt as a WHERE a.i=atom AND a.x=bud;
+    SET ret = a.value FROM IxInt as a WHERE a.i=atom AND a.x=bud;
     return ret;
 };
 
@@ -118,7 +118,7 @@ Func BudValueStr (
 )
 RETURNS CHAR(100) {
     VAR ret CHAR(100);
-    SET ret = a.value FROM IxBudStr as a WHERE a.i=atom AND a.x=bud;
+    SET ret = a.value FROM IxStr as a WHERE a.i=atom AND a.x=bud;
     return ret;
 };
 
@@ -128,7 +128,7 @@ Func BudValueDec (
 )
 RETURNS VALUE {
     VAR ret VALUE;
-    SET ret = a.value FROM IxBudDec as a WHERE a.i=atom AND a.x=bud;
+    SET ret = a.value FROM IxDec as a WHERE a.i=atom AND a.x=bud;
     return ret;
 };
 

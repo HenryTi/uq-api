@@ -64,12 +64,15 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
                 new ExpEQ(new ExpField('base', a), new ExpNum(this.istatement.pendQuery.bizPend.id)),
                 new ExpEQ(new ExpField('id', c), new ExpField('base', a)),
             ))
+            /*
             .join(JoinType.left, new EntityTable(EnumSysTable.bizDetail, false, b1))
             .on(new ExpEQ(new ExpField('id', b1), new ExpField('id', b)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bud, false, d))
             .on(new ExpEQ(new ExpField('id', d), new ExpField('base', b1)))
+            */
             .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, sheetBin))
-            .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('base', d)))
+            // .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('base', d)))
+            .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('sheet', b)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bizSheet, false, sheet))
             .on(new ExpEQ(new ExpField('id', sheet), new ExpField('id', sheetBin)))
             ;

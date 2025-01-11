@@ -23,13 +23,13 @@ function buildSelectIxBuds(context) {
     memo.text = '$ buildSelectIxBuds';
     let ret = [
         memo,
-        buildSelectIxBud(context, funcCast, il_1.EnumSysTable.ixBudInt, BizPhraseType_1.BudDataType.int),
+        buildSelectIxBud(context, funcCast, il_1.EnumSysTable.ixInt, BizPhraseType_1.BudDataType.int),
         buildInsertAtoms(context),
         buildInsertSpecs(context),
     ];
     let budTypes = [
-        [funcCast, il_1.EnumSysTable.ixBudDec, BizPhraseType_1.BudDataType.dec],
-        [funcJSON_QUOTE, il_1.EnumSysTable.ixBudStr, BizPhraseType_1.BudDataType.str],
+        [funcCast, il_1.EnumSysTable.ixDec, BizPhraseType_1.BudDataType.dec],
+        [funcJSON_QUOTE, il_1.EnumSysTable.ixStr, BizPhraseType_1.BudDataType.str],
     ];
     ret.push(...budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType)));
     let memoEnd = factory.createMemo();
@@ -152,14 +152,14 @@ function buildSelectPhraseBud(context) {
     selectCTE.column(new sql_1.ExpField('i', s), 'i');
     selectCTE.column(new sql_1.ExpField('x', s), 'x');
     selectCTE.from(new statementWithFrom_1.VarTable(tempIdPhraseTable, s0))
-        .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, s))
+        .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixPhrase, false, s))
         .on(new sql_1.ExpEQ(new sql_1.ExpField('x', s), new sql_1.ExpField('phrase', s0)));
     let select1 = factory.createSelect();
     select1.lock = select_1.LockType.none;
     select1.column(new sql_1.ExpField('phrase', r0));
     select1.column(new sql_1.ExpField('i', r));
     select1.column(new sql_1.ExpField('x', r));
-    select1.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, r))
+    select1.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixPhrase, false, r))
         .join(il_1.JoinType.join, new statementWithFrom_1.NameTable(cte, r0))
         .on(new sql_1.ExpEQ(new sql_1.ExpField('i', r0), new sql_1.ExpField('x', r)));
     selectCTE.unions = [select1];

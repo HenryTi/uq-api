@@ -48,14 +48,14 @@ class BBizStatementBook extends bstatement_1.BStatement {
         let table;
         switch (dataType) {
             default:
-                table = il_1.EnumSysTable.ixBudInt;
+                table = il_1.EnumSysTable.ixInt;
                 buildIxBudIndex();
                 break;
             case BizPhraseType_1.BudDataType.char:
-                table = il_1.EnumSysTable.ixBudStr;
+                table = il_1.EnumSysTable.ixStr;
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                table = il_1.EnumSysTable.ixBudDec;
+                table = il_1.EnumSysTable.ixDec;
                 break;
         }
         const expSite = new sql_1.ExpVar('$site');
@@ -65,7 +65,7 @@ class BBizStatementBook extends bstatement_1.BStatement {
                 return;
             let upsert = factory.createUpsert();
             sqls.push(upsert);
-            upsert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false);
+            upsert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ix, false);
             const expBud = new sql_1.ExpFuncInUq('bud$id', [expSite, expUser, sql_1.ExpNum.num1, sql_1.ExpVal.null, expValue, expPhraseId], true);
             upsert.keys = [
                 { col: 'i', val: expBud },

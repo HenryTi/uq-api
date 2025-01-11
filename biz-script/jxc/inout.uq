@@ -448,7 +448,7 @@ RETURNS ret (
         RETURN;
     }
     WITH Duo as a ID to id KEY(i, x) SET a.valid=1;
-    WITH IxBud as a I=x X=i;
+    WITH Ix as a I=x X=i;
     INTO ret SELECT id;
 }
 
@@ -469,7 +469,7 @@ Biz AC DelDuoOuterApp (
         WHERE a.id=id AND (b.id IS NOT NULL OR c.id IS NOT NULL)
     ) {
         WITH Duo ID=id SET valid=0;
-        WITH IxBud I=x X=i DEL;
+        WITH Ix I=x X=i DEL;
     }
 }
 
@@ -483,9 +483,9 @@ RETURNS ret (
 ) {
     INTO ret SELECT a.id as id, a.x,
         (SELECT json_arrayagg(json_array(arr.bud,arr.value)) FROM (
-            select ix.id as bud, i.value from IxBudInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
-            union select dx.id as bud, d.value from IxBudDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
-            union select sx.id as bud, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
+            select ix.id as bud, i.value from IxInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
+            union select dx.id as bud, d.value from IxDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
+            union select sx.id as bud, s.value from IxStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
         ) as arr ) as props
         FROM Duo as a
         WHERE a.i=i AND a.valid=1;

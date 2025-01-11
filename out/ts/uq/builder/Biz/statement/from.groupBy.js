@@ -125,14 +125,14 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             selectCTE.column(new sql_1.ExpField('x', s), 'phrase');
             selectCTE.column(new sql_1.ExpField('i', s), 'i');
             selectCTE.column(new sql_1.ExpField('x', s), 'x');
-            selectCTE.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, s));
+            selectCTE.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixPhrase, false, s));
             selectCTE.where(new sql_1.ExpIn(new sql_1.ExpField('x', s), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id))));
             let select1 = factory.createSelect();
             select1.lock = select_1.LockType.none;
             select1.column(new sql_1.ExpField('x', r), 'phrase');
             select1.column(new sql_1.ExpField('i', r));
             select1.column(new sql_1.ExpField('x', r));
-            select1.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBizPhrase, false, r))
+            select1.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixPhrase, false, r))
                 .join(il_1.JoinType.join, new statementWithFrom_1.NameTable(cte, r0))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('x', r0), new sql_1.ExpField('i', r)));
             selectCTE.unions = [select1];

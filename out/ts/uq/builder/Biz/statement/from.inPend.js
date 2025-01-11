@@ -50,12 +50,15 @@ class BFromInPendStatement extends from_1.BFromStatement {
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(this.istatement.pendQuery.bizPend.id)), new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a))))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, b1))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b1), new sql_1.ExpField('id', b)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, d))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', b1)))
+            /*
+            .join(JoinType.left, new EntityTable(EnumSysTable.bizDetail, false, b1))
+            .on(new ExpEQ(new ExpField('id', b1), new ExpField('id', b)))
+            .join(JoinType.left, new EntityTable(EnumSysTable.bud, false, d))
+            .on(new ExpEQ(new ExpField('id', d), new ExpField('base', b1)))
+            */
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('base', d)))
+            // .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('base', d)))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('sheet', b)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, sheet))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
         let insert = factory.createInsert();

@@ -43,21 +43,21 @@ export class BBizStatementFork extends BBizStatementID<BizStatementFork> {
             let tbl: EnumSysTable, val: ExpVal = this.context.expVal(inVals[i + 1]);
             switch (dataType) {
                 default:
-                    tbl = EnumSysTable.ixBudInt;
+                    tbl = EnumSysTable.ixInt;
                     break;
                 case BudDataType.date:
-                    tbl = EnumSysTable.ixBudInt;
+                    tbl = EnumSysTable.ixInt;
                     val = new ExpFunc('DATEDIFF', val, new ExpStr('1970-01-01'));
                     break;
                 case BudDataType.str:
                 case BudDataType.char:
-                    tbl = EnumSysTable.ixBudStr;
+                    tbl = EnumSysTable.ixStr;
                     break;
                 case BudDataType.dec:
-                    tbl = EnumSysTable.ixBudDec;
+                    tbl = EnumSysTable.ixDec;
                     break;
                 case BudDataType.fork:
-                    tbl = EnumSysTable.ixBudJson;
+                    tbl = EnumSysTable.ixJson;
                     break;
             }
             let t = 't' + i;

@@ -46,27 +46,27 @@ Biz ACT SaveBudValue ver 0.4 (
                 -- check 直接调用SaveBudCheck
                 -- 没有需要运行到这里。这里是错误的。
                 VAR old BIGINT;
-                SET old=a.value FROM IxBudInt as a WHERE a.i=id AND a.x=phraseId;
+                SET old=a.value FROM IxInt as a WHERE a.i=id AND a.x=phraseId;
                 IF old IS NOT NULL {
                     VAR oldBudId ID = ID(Bud New Key base=phraseId, ext=old);
-                    WITH IxBud I=oldBudId X=id DEL;
+                    WITH Ix I=oldBudId X=id DEL;
                 }
                 VAR budId ID = ID(Bud New Key base=phraseId, ext=int);
-                WITH IxBud I=budId X=id;
+                WITH Ix I=budId X=id;
             }
-            WITH IxBudInt I=id X=phraseId DEL;
-            WITH IxBudInt as a I=id X=phraseId SET a.value=int;
+            WITH IxInt I=id X=phraseId DEL;
+            WITH IxInt as a I=id X=phraseId SET a.value=int;
         }
         ELSE {
-            WITH IxBudInt I=id X=phraseId DEL;
+            WITH IxInt I=id X=phraseId DEL;
         }
-        WITH IxBudDec I=id X=phraseId DEL;
+        WITH IxDec I=id X=phraseId DEL;
         IF dec IS NOT NULL {
-            WITH IxBudDec as a I=id X=phraseId SET a.value=dec;
+            WITH IxDec as a I=id X=phraseId SET a.value=dec;
         }
-        WITH IxBudStr I=id X=phraseId DEL;
+        WITH IxStr I=id X=phraseId DEL;
         IF str IS NOT NULL {
-            WITH IxBudStr as a I=id X=phraseId SET a.value=str;
+            WITH IxStr as a I=id X=phraseId SET a.value=str;
         }
         FOR (VAR budId ID OF 
                 SELECT a.id as budId 
@@ -75,7 +75,7 @@ Biz ACT SaveBudValue ver 0.4 (
                     WHERE a.base=phraseId AND b.type=BizPhraseType.optionsitem
             )
         {
-            WITH IxBud I=id X=budId DEL;
+            WITH Ix I=id X=budId DEL;
         }
         -- VAR atomPhrase ID;
         -- SET atomPhrase = a.base FROM BizPhrase as a WHERE a.id=phraseId;
@@ -91,16 +91,16 @@ PROC ProcSaveBudCheck(
 ) {
     // VAR budId ID = ID(Bud new KEY base=budPhrase, ext=optionsItemPhrase);
     IF checked=0 {
-        // WITH IxBud I=id X=budId DEL;
-        WITH IxBudCheck II=id I=budPhrase X=optionsItemPhrase DEL;
+        // WITH Ix I=id X=budId DEL;
+        WITH IxCheck II=id I=budPhrase X=optionsItemPhrase DEL;
     }
     ELSE {
-        // WITH IxBud I=id X=budId;
-        WITH IxBudCheck II=id I=budPhrase X=optionsItemPhrase;
+        // WITH Ix I=id X=budId;
+        WITH IxCheck II=id I=budPhrase X=optionsItemPhrase;
     }
-    WITH IxBudInt I=id X=budPhrase DEL;
-    WITH IxBudDec I=id X=budPhrase DEL;
-    WITH IxBudStr I=id X=budPhrase DEL;
+    WITH IxInt I=id X=budPhrase DEL;
+    WITH IxDec I=id X=budPhrase DEL;
+    WITH IxStr I=id X=budPhrase DEL;
 }
 
 Biz ACT SaveBudCheck (
@@ -118,19 +118,19 @@ PROC ProcSaveBudRadio (
     optionsItemPhrase ID,
 ) {
     -- 自动清除原来的，添加现在的
-    WITH IxBudInt I=id X=budPhrase DEL;
-    WITH IxBudDec I=id X=budPhrase DEL;
-    WITH IxBudStr I=id X=budPhrase DEL;
+    WITH IxInt I=id X=budPhrase DEL;
+    WITH IxDec I=id X=budPhrase DEL;
+    WITH IxStr I=id X=budPhrase DEL;
     FOR (VAR x ID OF SELECT a.x
-        FROM IxBud as a 
+        FROM Ix as a 
             JOIN Bud as b ON b.id=a.x 
         WHERE a.i=id AND b.base=budPhrase)
     {
-        WITH IxBud I=id X=x DEL;
+        WITH Ix I=id X=x DEL;
     }
     IF optionsItemPhrase > 0 {
         -- VAR budId ID = ID(Bud new KEY base=budPhrase,ext=optionsItemPhrase);
-        WITH IxBudInt I=id X=budPhrase SET value=optionsItemPhrase;
+        WITH IxInt I=id X=budPhrase SET value=optionsItemPhrase;
     }
 };
 
@@ -227,7 +227,7 @@ RETURNS ret (
     }
     VAR sheetId ID;
     WITH Sheet as a ID to sheetId Key(phrase, no) SET a.operator=me;
-    WITH Bin as a ID=sheetId SET a.i=i, a.x=x, a.value=value, a.price=price, a.amount=amount;
+    WITH Bin as a ID=sheetId SET a.sheet=sheetId, a.i=i, a.x=x, a.value=value, a.price=price, a.amount=amount;
     
     PROC SaveBinBuds(sheetId, props);
 
@@ -265,7 +265,8 @@ RETURNS ret (
         RETURN;
     }
     IF id IS NULL {
-        SET id = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+        -- SET id = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+        SET id = ID(Bin New Key sheet=base);
     }
     WITH Bin ID=id SET i=i, x=x
         , origin=origin
@@ -386,7 +387,8 @@ RETURNS specs (
         VAR pendFrom ID = pend;
 
         IF id IS NULL OR id <= 0 {
-            VAR idNew ID = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+            -- VAR idNew ID = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
+            VAR idNew ID = ID(Bin New Key sheet=base);
             IF id <= 0 {
                 INTO originTable SELECT id, idNew as value;
             }
@@ -412,11 +414,11 @@ RETURNS specs (
         WHERE a.id=base AND c.base=$site;
     INTO details SELECT * a
         , c.pendFrom as pend, d.value as pendValue
-        , b.ext as phrase
+        , a.base as phrase -- b.ext as phrase
         FROM Bin as a
             JOIN idtable as a0 ON a0.id=a.id
-            JOIN Detail as a1 ON a1.id=a.id
-            JOIN Bud as b ON b.id=a1.base
+            -- JOIN Detail as a1 ON a1.id=a.id
+            -- JOIN Bud as b ON b.id=a1.base
             LEFT JOIN BinPend as c ON c.id=a.id
             LEFT JOIN Pend as d ON d.id=c.pendFrom
         ;
@@ -438,10 +440,10 @@ PROC SaveBinBuds(
     FOR (VAR bud ID, value CHAR(200), type INT OF SELECT a.bud, a.value, a.type FROM tbl as a)
     {
         IF type=BudDataType.char OR type=BudDataType.str {
-            WITH IxBudStr I=id X=bud SET value=value;
+            WITH IxStr I=id X=bud SET value=value;
         }
         ELSEIF type=BudDataType.dec {
-            WITH IxBudDec I=id X=bud SET value=value;
+            WITH IxDec I=id X=bud SET value=value;
         }
         ELSEIF type=BudDataType.radio {
             PROC ProcSaveBudRadio(bud, id, value);
@@ -451,10 +453,10 @@ PROC SaveBinBuds(
             PROC ProcSaveBudCheck(bud, id, value, 1);
         }
         ELSEIF type=BudDataType.fork {
-            WITH IxBudJson I=id X=bud SET value=value;
+            WITH IxJson I=id X=bud SET value=value;
         }
         ELSE {
-            WITH IxBudInt I=id X=bud SET value=value;
+            WITH IxInt I=id X=bud SET value=value;
         }
     }
 }
@@ -478,13 +480,14 @@ Biz AC DeleteBin (
         ELSEIF EXISTS(SELECT a.i
             FROM IxState as a
             JOIN Sheet as b ON b.id=a.x
-            JOIN Bud as c ON c.base=b.id
-            JOIN Detail as d ON d.base=c.id
+            -- JOIN Bud as c ON c.base=b.id
+            -- JOIN Detail as d ON d.base=c.id
+            JOIN Bin as d ON d.sheet=b.id
             WHERE a.i=me AND d.id=id)
         {
             -- 如果base sheet没有在我的draft里面，不能写入明细。这是安全保证
             WITH Bin ID=id DEL;
-            WITH Detail ID=id DEL;
+            -- WITH Detail ID=id DEL;
             WITH BinPend ID=id DEL;
         }
     }
@@ -656,11 +659,11 @@ Biz ACT RemoveDraft (
     VAR me ID = Me();
     IF EXISTS(SELECT a.i FROM IxState as a WHERE a.i=me AND a.x=id) {
         /-mysql
-        DELETE a FROM ixbud as a WHERE a.i=_id;
-        DELETE a FROM ixbudint as a WHERE a.i=_id;
-        DELETE a FROM ixbuddec as a WHERE a.i=_id;
-        DELETE a FROM ixbudstr as a WHERE a.i=_id;
-        DELETE a FROM ixbudcheck as a WHERE a.i=_id;
+        DELETE a FROM ix as a WHERE a.i=_id;
+        DELETE a FROM ixint as a WHERE a.i=_id;
+        DELETE a FROM ixdec as a WHERE a.i=_id;
+        DELETE a FROM ixstr as a WHERE a.i=_id;
+        DELETE a FROM ixcheck as a WHERE a.i=_id;
         DELETE a FROM bin as a WHERE a.id=_id;
         DELETE a FROM bin as a JOIN bud as a1 ON a1.id=a.id WHERE a1.base=_id;
         -/
@@ -730,7 +733,7 @@ RETURNS specs (
     INTO idtable SELECT c.value as id, d.base as phrase
         FROM $page as a
             JOIN BizBudShow as b ON b.i=entityMain
-            JOIN IxBudInt as c ON c.i=a.id AND c.x=b.x
+            JOIN IxInt as c ON c.i=a.id AND c.x=b.x
             JOIN Idu as d ON d.id=c.value;
     */
     PROC ProcPropsOfIds();
@@ -753,16 +756,16 @@ Biz AC DeleteMyDrafts ver 0.5 (
     SET @me=me;
     SET @entity=entitySheet;
     /-mysql
-    DELETE a FROM ixbud as a 
+    DELETE a FROM ix as a 
         JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
         WHERE @entity IS NULL OR b.base=@entity;
-    DELETE a FROM ixbudint as a 
+    DELETE a FROM ixint as a 
         JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
         WHERE @entity IS NULL OR b.base=@entity;
-    DELETE a FROM ixbuddec as a 
+    DELETE a FROM ixdec as a 
         JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
         WHERE @entity IS NULL OR b.base=@entity;
-    DELETE a FROM ixbudstr as a 
+    DELETE a FROM ixstr as a 
         JOIN sheet as b ON b.id=a.i JOIN ixstate as c ON c.i=@me AND c.x=b.id
         WHERE @entity IS NULL OR b.base=@entity;
     DELETE a FROM bin as a
@@ -885,7 +888,7 @@ Biz AC SaveTie (
 ) {
     // 需要权限检查
     VAR bud ID = ID(Bud NEW KEY base=tie, ext=i);
-    WITH IxBud I=bud X=x;
+    WITH Ix I=bud X=x;
 }
 
 Biz AC DeleteTie (
@@ -895,7 +898,7 @@ Biz AC DeleteTie (
 ) {
     // 需要权限检查
     VAR bud ID = ID(Bud NEW KEY base=tie, ext=i);
-    WITH IxBud I=bud X=x DEL;
+    WITH Ix I=bud X=x DEL;
 }
 
 Biz Query SearchAtomBuds ver 0.3 (
@@ -931,13 +934,13 @@ RETURNS budsStr (
 ) {
     PAGE WITH RECURSIVE pPhrase AS (
         SELECT r.x as id, r.i as base
-        FROM IxBizPhrase as r
+        FROM IxPhrase as r
             JOIN BizPhrase as p ON p.id=r.x
             JOIN XBiz as p1 ON p1.id=p.id
         WHERE p.id=phrase -- AND p.valid=1
         UNION
         SELECT a.x as id, a.i as base
-        FROM IxBizPhrase as a JOIN pPhrase AS b
+        FROM IxPhrase as a JOIN pPhrase AS b
             ON b.id=a.i
     )
     SELECT a.id, a.no, a.ex, d.id as phrase
@@ -954,19 +957,19 @@ RETURNS budsStr (
 
     INTO budsInt SELECT a.id, d.id as bud, b.value
         FROM $page as a 
-            JOIN IxBudInt as b ON b.i=a.id
+            JOIN IxInt as b ON b.i=a.id
             JOIN BizPhrase as d ON d.id=b.x -- phrase
         WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
 
     INTO budsDec SELECT a.id, d.id as bud, b.value
         FROM $page as a 
-            JOIN IxBudDec as b ON b.i=a.id
+            JOIN IxDec as b ON b.i=a.id
             JOIN BizPhrase as d ON d.id=b.x -- phrase
         WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
 
     INTO budsStr SELECT a.id, d.id as bud, b.value
         FROM $page as a 
-            JOIN IxBudStr as b ON b.i=a.id
+            JOIN IxStr as b ON b.i=a.id
             JOIN BizPhrase as d ON d.id=b.x -- phrase
         WHERE JSON_CONTAINS(buds, CAST(d.id as CHAR), '$');
 };
@@ -1009,7 +1012,8 @@ RETURNS specs (
     (id) KEY,
 ) {
     VAR maySheetId ID, detail ID;
-    SET maySheetId = b.base FROM Detail as a JOIN Bud as b ON b.id=a.base WHERE a.id=id;
+    -- SET maySheetId = b.base FROM Detail as a JOIN Bud as b ON b.id=a.base WHERE a.id=id;
+    SET maySheetId = a.sheet FROM Bin as a WHERE a.id=id;
     IF maySheetId IS NOT NULL {
         SET detail = id;
         SET id = maySheetId;
@@ -1021,13 +1025,13 @@ RETURNS specs (
         WHERE a.id=id AND c.base=$site;
     INTO details SELECT * a
         , c.pendFrom as pend, d.value as pendValue
-        , b.ext as phrase
+        , a.base as phrase
         FROM Bin as a
-            JOIN Detail as a1 ON a1.id=a.id
-            JOIN Bud as b ON b.id=a1.base
+            -- JOIN Detail as a1 ON a1.id=a.id
+            -- JOIN Bud as b ON b.id=a1.base
             LEFT JOIN BinPend as c ON c.id=a.id
             LEFT JOIN Pend as d ON d.id=c.pendFrom
-        WHERE b.base=id AND (detail IS NULL OR a.id=detail);
+        WHERE a.sheet=id AND (detail IS NULL OR a.id=detail);
 
     VAR sheetPhrase ID;
     SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=id;
@@ -1122,9 +1126,9 @@ RETURNS ret (
 ) {
     INTO ret SELECT a.id as id,
         (SELECT json_arrayagg(json_array(arr.name,arr.value)) FROM (
-            select ix.name, i.value from IxBudInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
-            union select dx.name, d.value from IxBudDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
-            union select sx.name, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
+            select ix.name, i.value from IxInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
+            union select dx.name, d.value from IxDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
+            union select sx.name, s.value from IxStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
         ) as arr ) as keys,
         null as props
         FROM Fork as a
@@ -1143,9 +1147,9 @@ RETURNS ret (
 ) {
     INTO ret SELECT a.id as id,
         (SELECT json_arrayagg(json_array(arr.id,arr.value)) FROM (
-            select ix.id, i.value from IxBudInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
-            union select dx.id, d.value from IxBudDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
-            union select sx.id, s.value from IxBudStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
+            select ix.id, i.value from IxInt as i join bizphrase as ix on ix.id=i.x where i.i=a.id
+            union select dx.id, d.value from IxDec as d join bizphrase as dx on dx.id=d.x where d.i=a.id
+            union select sx.id, s.value from IxStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
         ) as arr ) as keys,
         null as props
         FROM Fork as a
@@ -1175,9 +1179,9 @@ RETURNS props VIRTUAL (
         }
         INTO props SELECT id, base, phrase, (
                 SELECT JSON_ARRAYAGG(JSON_ARRAY(arr.x, arr.value)) FROM (
-                    SELECT a.x, a.value FROM IxBudInt as a WHERE a.i=id
-                    UNION SELECT a.x, a.value FROM IxBudDec as a WHERE a.i=id
-                    UNION SELECT a.x, a.value FROM IxBudStr as a WHERE a.i=id
+                    SELECT a.x, a.value FROM IxInt as a WHERE a.i=id
+                    UNION SELECT a.x, a.value FROM IxDec as a WHERE a.i=id
+                    UNION SELECT a.x, a.value FROM IxStr as a WHERE a.i=id
                 ) as arr
             ) as value;
         IF type<>BizPhraseType.fork {
@@ -1198,22 +1202,22 @@ RETURNS props VIRTUAL ( -- VIRTUAL 就不会生成临时表，直接使用调用
     value JSON,
 ) {
     INTO props SELECT a.x as phrase, JSON_ARRAY(a.value) as value
-        FROM IxBudInt as a 
+        FROM IxInt as a 
             JOIN BizPhrase as b on b.id=a.x
             JOIN BizPhrase as c on c.id=b.base
         WHERE a.i=id AND c.type=BizPhraseType.atom;
     INTO props SELECT a.x as phrase, JSON_ARRAY(a.value) as value
-        FROM IxBudDec as a 
+        FROM IxDec as a 
             JOIN BizPhrase as b on b.id=a.x
             JOIN BizPhrase as c on c.id=b.base
         WHERE a.i=id AND c.type=BizPhraseType.atom;
     INTO props SELECT a.x as phrase, JSON_ARRAY(a.value) as value
-        FROM IxBudStr as a 
+        FROM IxStr as a 
             JOIN BizPhrase as b on b.id=a.x
             JOIN BizPhrase as c on c.id=b.base
         WHERE a.i=id AND c.type=BizPhraseType.atom;
     INTO props SELECT a.i as phrase, JSON_ARRAYAGG(a.x) as value
-        FROM IxBudCheck as a
+        FROM IxCheck as a
         WHERE a.ii=id
         GROUP BY a.i;
 }

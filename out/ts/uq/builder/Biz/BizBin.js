@@ -138,12 +138,13 @@ class BBizBin extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpField('amount', a), amount);
         select.column(new sql_1.ExpField('price', a), price);
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, dt))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', dt), new sql_1.ExpField('id', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', dt)))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, dt))
+            // .on(new ExpEQ(new ExpField('id', dt), new ExpField('id', a)))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+            // .on(new ExpEQ(new ExpField('id', b), new ExpField('base', dt)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', b)))
+            // .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('sheet', a)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.binPend, false, d))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('id', a)));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), varBin));

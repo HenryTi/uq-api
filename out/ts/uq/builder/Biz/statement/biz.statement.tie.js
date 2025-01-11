@@ -20,7 +20,7 @@ class BBizStatementTie extends bstatement_1.BStatement {
             { col: 'i', val: iVal },
             { col: 'x', val: this.context.expVal(x) },
         ];
-        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false);
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ix, false);
         insert.ignore = true;
     }
 }

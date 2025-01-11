@@ -124,11 +124,15 @@ class BBizPend extends BizEntity_1.BBizEntity {
         if (binBud.bin.main !== undefined) {
             const t0 = 't0', t1 = 't1';
             select.column(new sql_1.ExpField('id', t0), 'id');
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, t0))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expBin))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('bud', false, t1))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), new sql_1.ExpField('base', t0)));
-            expBin = new sql_1.ExpField('base', t1);
+            /*
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, t0))
+                .on(new ExpEQ(new ExpField('id', t0), expBin))
+                .join(JoinType.join, new EntityTable('bud', false, t1))
+                .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
+            */
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, t0))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expBin));
+            expBin = new sql_1.ExpField('base', t0);
         }
         else {
             select.column(new sql_1.ExpField('id', c), 'id');
@@ -172,15 +176,15 @@ class BBizPend extends BizEntity_1.BBizEntity {
         let tblIxName, colValue = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', c), new sql_1.ExpDatePart('json'));
         switch (bud.dataType) {
             default:
-                tblIxName = 'ixbudint';
+                tblIxName = il_1.EnumSysTable.ixInt;
                 break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
-                tblIxName = 'ixbudstr';
+                tblIxName = il_1.EnumSysTable.ixStr;
                 colValue = new sql_1.ExpFunc('JSON_QUOTE', new sql_1.ExpField('value', c));
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                tblIxName = 'ixbuddec';
+                tblIxName = il_1.EnumSysTable.ixDec;
                 break;
         }
         select.from(new statementWithFrom_1.VarTable(tbl, a));

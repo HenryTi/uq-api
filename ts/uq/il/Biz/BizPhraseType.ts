@@ -76,16 +76,16 @@ export interface BudType {
 }
 
 const budTypeInt: BudType = {
-    sysTable: EnumSysTable.ixBudInt,
+    sysTable: EnumSysTable.ixInt,
 }
 const budTypeStr: BudType = {
-    sysTable: EnumSysTable.ixBudStr,
+    sysTable: EnumSysTable.ixStr,
 }
 const budTypeDec: BudType = {
-    sysTable: EnumSysTable.ixBudDec,
+    sysTable: EnumSysTable.ixDec,
 }
 const budTypeJson: BudType = {
-    sysTable: EnumSysTable.ixBudJson,
+    sysTable: EnumSysTable.ixJson,
 }
 export const budTypes: { [type in BudDataType]?: BudType } = {
     [BudDataType.int]: budTypeInt,

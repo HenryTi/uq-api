@@ -138,14 +138,14 @@ class BBizAtom extends BizEntity_1.BBizEntity {
                 switch (key.dataType) {
                     case BizPhraseType_1.BudDataType.radio:
                         selectKey.column(new sql_1.ExpField('ext', b), vKeyI);
-                        selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a))
+                        selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ix, false, a))
                             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
                             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('x', a)));
                         selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(key.id))));
                         break;
                     default:
                         selectKey.col('value', vKeyI);
-                        selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudInt, false));
+                        selectKey.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false));
                         selectKey.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(key.id))));
                         break;
                 }
@@ -173,7 +173,7 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         statements.push(setNo);
         let selectNO = factory.createSelect();
         selectNO.col('value');
-        selectNO.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudStr, false));
+        selectNO.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixStr, false));
         selectNO.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), new sql_1.ExpVar(cId)), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(no.id))));
         setNo.equ(vNo, new sql_1.ExpSelect(selectNO));
         let ifNoNull = factory.createIf();
@@ -246,18 +246,18 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         let colValue = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', a), new sql_1.ExpDatePart('JSON'));
         switch (dataType) {
             default:
-                tbl = il_1.EnumSysTable.ixBudInt;
+                tbl = il_1.EnumSysTable.ixInt;
                 break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
-                tbl = il_1.EnumSysTable.ixBudStr;
+                tbl = il_1.EnumSysTable.ixStr;
                 colValue = new sql_1.ExpFunc('JSON_QUOTE', new sql_1.ExpField('value', a));
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                tbl = il_1.EnumSysTable.ixBudDec;
+                tbl = il_1.EnumSysTable.ixDec;
                 break;
             case BizPhraseType_1.BudDataType.fork:
-                tbl = il_1.EnumSysTable.ixBudJson;
+                tbl = il_1.EnumSysTable.ixJson;
                 break;
         }
         let select = factory.createSelect();

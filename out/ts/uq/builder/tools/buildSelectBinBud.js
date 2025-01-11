@@ -28,12 +28,12 @@ function buildSelectBinBud(context, bud, varBin, varName) {
                 selectBud = buildSelectBudIxBase(bud);
             }
             else {
-                selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudInt);
+                selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixInt);
             }
             declareType = bigint;
             break;
         case BizPhraseType_1.BudDataType.fork:
-            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudJson);
+            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixJson);
             declareType = json;
             break;
         case BizPhraseType_1.BudDataType.ID:
@@ -41,16 +41,16 @@ function buildSelectBinBud(context, bud, varBin, varName) {
         case BizPhraseType_1.BudDataType.int:
         case BizPhraseType_1.BudDataType.radio:
         case BizPhraseType_1.BudDataType.bin:
-            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudInt);
+            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixInt);
             declareType = bigint;
             break;
         case BizPhraseType_1.BudDataType.str:
         case BizPhraseType_1.BudDataType.char:
-            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudStr);
+            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixStr);
             declareType = str;
             break;
         case BizPhraseType_1.BudDataType.dec:
-            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixBudDec);
+            selectBud = buildSelectBudValue(bud, il_1.EnumSysTable.ixDec);
             declareType = decValue;
             break;
         case BizPhraseType_1.BudDataType.check:
@@ -77,7 +77,7 @@ function buildSelectBinBud(context, bud, varBin, varName) {
             new sql_1.ExpField('x', a)
             : new sql_1.ExpFunc('JSON_ARRAYAGG', new sql_1.ExpField('x', a));
         selectBud.column(exp, budName);
-        selectBud.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a));
+        selectBud.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ix, false, a));
         selectBud.where(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varBin));
         return selectBud;
     }

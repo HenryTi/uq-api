@@ -44,23 +44,23 @@ function buildSetSheetBud(context, bud, idVal, expVal) {
             break;
         case BizPhraseType_1.BudDataType.int: // break;
         case BizPhraseType_1.BudDataType.atom:
-            statement = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
+            statement = createIxBudValue(il_1.EnumSysTable.ixInt, expVal);
             break;
         case BizPhraseType_1.BudDataType.char:
         case BizPhraseType_1.BudDataType.str:
-            statement = createIxBudValue(il_1.EnumSysTable.ixBudStr, expVal);
+            statement = createIxBudValue(il_1.EnumSysTable.ixStr, expVal);
             break;
         case BizPhraseType_1.BudDataType.radio:
-            statement = createIxBud(il_1.EnumSysTable.ixBud, expVal);
+            statement = createIxBud(il_1.EnumSysTable.ix, expVal);
             break;
         case BizPhraseType_1.BudDataType.date:
-            statement = createIxBudValue(il_1.EnumSysTable.ixBudInt, expVal);
+            statement = createIxBudValue(il_1.EnumSysTable.ixInt, expVal);
             break;
         case BizPhraseType_1.BudDataType.dec:
-            statement = createIxBudValue(il_1.EnumSysTable.ixBudDec, expVal);
+            statement = createIxBudValue(il_1.EnumSysTable.ixDec, expVal);
             break;
         case BizPhraseType_1.BudDataType.fork:
-            statement = createIxBudValue(il_1.EnumSysTable.ixBudJson, expVal);
+            statement = createIxBudValue(il_1.EnumSysTable.ixJson, expVal);
             break;
     }
     return [statement];

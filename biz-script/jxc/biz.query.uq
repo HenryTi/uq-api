@@ -50,10 +50,10 @@ RETURNS specs (
             FROM Pend AS t1 
                 JOIN Bin AS b ON b.id=t1.bin
                 JOIN BizPhrase AS c ON c.id=t1.base
-                JOIN BizObject as c1 ON c1.id=c.id
-                LEFT JOIN Detail AS b1 ON b1.id=b.id
-                LEFT JOIN Bud AS d ON d.id=b1.base
-                LEFT JOIN Bin AS e ON e.id=d.base
+                -- JOIN BizObject as c1 ON c1.id=c.id
+                -- LEFT JOIN Detail AS b1 ON b1.id=b.id
+                -- LEFT JOIN Bud AS d ON d.id=b1.base
+                LEFT JOIN Bin AS e ON e.id=b.sheet
                 LEFT JOIN Sheet AS f ON f.id=e.id
                 WHERE 1=1 AND t1.id=pendId AND t1.base=pendEntity AND c.base=$site;
     }
@@ -70,9 +70,9 @@ RETURNS specs (
         FROM Pend AS t1 
             JOIN Bin AS b ON b.id=t1.bin
             JOIN BizPhrase AS c ON c.id=t1.base
-            LEFT JOIN Detail AS b1 ON b1.id=b.id
-            LEFT JOIN Bud AS d ON d.id=b1.base
-            LEFT JOIN Bin AS e ON e.id=d.base
+            -- LEFT JOIN Detail AS b1 ON b1.id=b.id
+            -- LEFT JOIN Bud AS d ON d.id=b1.base
+            LEFT JOIN Bin AS e ON e.id=b.sheet
             LEFT JOIN Sheet AS f ON f.id=e.id
             WHERE 1=1 AND t1.id>$pageStart AND t1.base=pendEntity
             ORDER BY t1.id ASC 
@@ -102,11 +102,11 @@ RETURNS specs (
         FROM specs as a JOIN Atom as e on e.id=a.atom;
 
     INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, CAST(b.value AS JSON) as value
-        FROM specs as a JOIN IxBudInt as b ON b.i=a.id;
+        FROM specs as a JOIN IxInt as b ON b.i=a.id;
     INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, CAST(b.value AS JSON) as value
-        FROM specs as a JOIN IxBudDec as b ON b.i=a.id;
+        FROM specs as a JOIN IxDec as b ON b.i=a.id;
     INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, JSON_QUOTE(b.value) as value
-        FROM specs as a JOIN IxBudStr as b ON b.i=a.id;
+        FROM specs as a JOIN IxStr as b ON b.i=a.id;
 
     FOR (VAR id ID, base ID OF SELECT a.id, a.base FROM atoms as a) {
         SET procName = CONCAT(base, 'tp');
@@ -215,7 +215,8 @@ RETURNS specs (
 )
 {
     PAGE SELECT * a, * b
-        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
+        -- , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
+        , (SELECT count(*) FROM Bin as x WHERE x.sheet=a.id AND x.id<>x.sheet AND x.value IS NOT NULL) as rowCount
         FROM Sheet as a
             JOIN Bin as b ON b.id=a.id
             JOIN BizPhrase as c ON c.id=a.base
@@ -261,7 +262,8 @@ RETURNS specs (
 {
     VAR me ID = Me();
     PAGE SELECT * a, * b
-        , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
+        -- , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
+        , (SELECT count(*) FROM Bin as x WHERE x.sheet=a.id AND x.id<>x.sheet AND x.value IS NOT NULL) as rowCount
         FROM Sheet as a
             JOIN Bin as b ON b.id=a.id
             JOIN BizPhrase as c ON c.id=a.base

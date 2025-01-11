@@ -70,7 +70,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let setBin = factory.createSet();
         statements.push(setBin);
         setBin.equ(binId, new sql_1.ExpVar(cId));
-        // sheet main 界面编辑的时候，value，amount，price 保存到 ixBudDec 里面了。现在转到bin表上
+        // sheet main 界面编辑的时候，value，amount，price 保存到 ixDec 里面了。现在转到bin表上
         this.saveMainVPA(statements);
         let mainStatements = this.buildBinOneRow(main);
         statements.push(...mainStatements);
@@ -98,7 +98,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             let select = factory.createSelect();
             select.lock = select_1.LockType.none;
             select.col('value');
-            select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBudDec, false));
+            select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixDec, false));
             select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i'), varBinId), new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpNum(bud.id))));
             cols.push({ col: bud.name, val: new sql_1.ExpSelect(select) });
         }
@@ -128,12 +128,21 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         loop.statements.add(select);
         select.toVar = true;
         select.column(new sql_1.ExpField('id', a), binId);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('id', a)));
-        select.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar(pBinId)), new sql_1.ExpEQ(new sql_1.ExpField('ext', b), new sql_1.ExpNum(entityId)), new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpVar('$id')), new sql_1.ExpIsNotNull(new sql_1.ExpField('value', c))));
+        /*
+        select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('id', a)));
+        select.where(new ExpAnd(
+            new ExpGT(new ExpField('id', a), new ExpVar(pBinId)),
+            new ExpEQ(new ExpField('ext', b), new ExpNum(entityId)),
+            new ExpEQ(new ExpField('base', b), new ExpVar('$id')),
+            new ExpIsNotNull(new ExpField('value', c)),
+        ));
+        */
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a));
+        select.where(new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('id', a), new sql_1.ExpVar(pBinId)), new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(entityId)), new sql_1.ExpEQ(new sql_1.ExpField('sheet', a), new sql_1.ExpVar('$id')), new sql_1.ExpIsNotNull(new sql_1.ExpField('value', a))));
         select.order(new sql_1.ExpField('id', a), 'asc');
         select.limit(sql_1.ExpNum.num1);
         const iffExit = factory.createIf();
@@ -210,7 +219,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         statements.push((0, tools_1.buildSelectPhraseBud)(this.context));
         let expValue = new sql_1.ExpField('value', 'b');
         let expCast = new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
-        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudInt, expCast);
+        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixInt, expCast);
         statements.push(...(0, tools_1.buildSelectIxBuds)(this.context));
         this.buildGetProps(statements);
         this.buildGetBinProps(statements);
@@ -220,9 +229,9 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let expValue = new sql_1.ExpField('value', 'b');
         let expCast = new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
         let expJSONQUOTE = new sql_1.ExpFunc('JSON_QUOTE', expValue);
-        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudDec, expCast);
-        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudStr, expJSONQUOTE);
-        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixBudJson, expValue);
+        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixDec, expCast);
+        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixStr, expJSONQUOTE);
+        this.buildGetScalarProps(statements, il_1.EnumSysTable.ixJson, expValue);
     }
     buildGetScalarProps(statements, sysTable, expValue) {
         const { factory } = this.context;
@@ -309,16 +318,21 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         }
         select.column(new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField(valueCol, c), new sql_1.ExpDatePart('json')), 'value');
         select.from(new statementWithFrom_1.VarTable(tbl, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('ixbudint', false, b))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, b))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpNum(binBud.id))));
         let expId = new sql_1.ExpField('value', b);
         if (tbl === 'details') {
             const t0 = 't0', t1 = 't1';
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizDetail, false, t0))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expId))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('bud', false, t1))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), new sql_1.ExpField('base', t0)));
-            expId = new sql_1.ExpField('base', t1);
+            /*
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, t0))
+                .on(new ExpEQ(new ExpField('id', t0), expId))
+                .join(JoinType.join, new EntityTable('bud', false, t1))
+                .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
+            expId = new ExpField('base', t1);
+            */
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, t0))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expId));
+            expId = new sql_1.ExpField('sheet', t0);
         }
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), expId));
@@ -340,15 +354,15 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         let tblIxName, colValue = new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('json'));
         switch (bud.dataType) {
             default:
-                tblIxName = 'ixbudint';
+                tblIxName = il_1.EnumSysTable.ixInt;
                 break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
-                tblIxName = 'ixbudstr';
+                tblIxName = il_1.EnumSysTable.ixStr;
                 colValue = new sql_1.ExpFunc('JSON_QUOTE', expValue);
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                tblIxName = 'ixbuddec';
+                tblIxName = il_1.EnumSysTable.ixDec;
                 break;
         }
         let expBin = new sql_1.ExpField('value', b);
@@ -356,7 +370,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpField('x', c), 'phrase');
         select.column(colValue, 'value');
         select.from(new statementWithFrom_1.VarTable(tbl, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('ixbudint', false, b))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, b))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpNum(binBud.id))));
         if (upMain === true) {
             const t0 = 't0', t1 = 't1';

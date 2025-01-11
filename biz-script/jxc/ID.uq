@@ -42,14 +42,18 @@ ID Detail ver 0.1 (
 );
 
 -- 所有单据的明细，单值
-IDX Bin (
-    id,
+ID Bin (
+    id MINUTE,
+    KEY sheet ID,
+    KEY id,
+    base ID,
     origin ID,              -- 源单
     i ID,                   -- 计量对象。比如：商品不同包装或者批次
     x ID,                   -- 两层关系，一行可分 操作对象。
     value VALUE,
     amount VALUE,
     price VALUE,
+    INDEX sheet_id(sheet, id) UNIQUE,
 );
 
 ID Pend ver 0.1 (
@@ -64,7 +68,7 @@ ID Pend ver 0.1 (
 -- bin的pend来源。
 -- detail 提交之后，BinPend 这一行删除。
 IDX BinPend (
-    id,                 -- detail id
+    id,                 -- detail bin id
     pendFrom ID,
 );
 

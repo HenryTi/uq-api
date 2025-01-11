@@ -28,7 +28,7 @@ RETURNS budsCheck (
     VAR entityId ID = PhraseId('siteSetting');
     INTO budsInt SELECT a.x as bud
         , a.value
-        FROM IxBudInt as a
+        FROM IxInt as a
             -- JOIN Atom as b ON b.id=a.i
             -- JOIN BizPhrase as c on c.id=b.base
             JOIN BizPhrase as e ON e.id=a.x
@@ -36,19 +36,19 @@ RETURNS budsCheck (
 
     INTO budsDec SELECT a.x as bud
         , a.value
-        FROM IxBudDec as a
+        FROM IxDec as a
             JOIN BizPhrase as e ON e.id=a.x
         WHERE a.i=id and e.base=entityId;
     INTO budsStr SELECT a.x as bud
         , a.value
-        FROM IxBudStr as a
+        FROM IxStr as a
             JOIN BizPhrase as e ON e.id=a.x
         WHERE a.i=id and e.base=entityId;
 
     INTO budsCheck SELECT b.base as bud
         -- , c.name as phrase
         , b.ext as item
-        FROM IxBud as a
+        FROM Ix as a
             JOIN Bud as b ON b.id=a.x
             JOIN BizPhrase as c ON c.id=b.base
             -- JOIN BizPhrase as d ON d.id=b.ext

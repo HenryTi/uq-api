@@ -66,16 +66,16 @@ var BudDataType;
 })(BudDataType || (exports.BudDataType = BudDataType = {}));
 ;
 const budTypeInt = {
-    sysTable: EnumSysTable_1.EnumSysTable.ixBudInt,
+    sysTable: EnumSysTable_1.EnumSysTable.ixInt,
 };
 const budTypeStr = {
-    sysTable: EnumSysTable_1.EnumSysTable.ixBudStr,
+    sysTable: EnumSysTable_1.EnumSysTable.ixStr,
 };
 const budTypeDec = {
-    sysTable: EnumSysTable_1.EnumSysTable.ixBudDec,
+    sysTable: EnumSysTable_1.EnumSysTable.ixDec,
 };
 const budTypeJson = {
-    sysTable: EnumSysTable_1.EnumSysTable.ixBudJson,
+    sysTable: EnumSysTable_1.EnumSysTable.ixJson,
 };
 exports.budTypes = {
     [BudDataType.int]: budTypeInt,

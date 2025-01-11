@@ -29,7 +29,7 @@ class BBizSelect extends bstatement_1.BStatement {
                 if (ofOn !== undefined) {
                     wheres.push(new sql_1.ExpEQ(expPrev, this.context.expVal(ofOn)));
                 }
-                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, tOf))
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ix, false, tOf))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('x', tOf), expPrev))
                     .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, tBud))
                     .on(new sql_1.ExpAnd(...wheres));

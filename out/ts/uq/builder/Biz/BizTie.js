@@ -91,7 +91,7 @@ class BBizTie extends BizEntity_1.BBizEntity {
         const t = 't0', ta = 'ta';
         let select = factory.createSelect();
         select.column(new sql_1.ExpFunc('JSON_ARRAYAGG', new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('id', ta), new sql_1.ExpField('no', ta), new sql_1.ExpField('ex', ta))), 'value');
-        select.from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.ixBud, false, t))
+        select.from(new statementWithFrom_1.EntityTable(il_2.EnumSysTable.ix, false, t))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_2.EnumSysTable.atom, false, ta))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', ta), new sql_1.ExpField('x', t)));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('i', t), new sql_1.ExpField('id', b)));

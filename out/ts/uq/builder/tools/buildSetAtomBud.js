@@ -27,14 +27,14 @@ function buildSetAtomBud(context, bud, idVal, expVal, noOfState) {
         let tbl;
         switch (bud.dataType) {
             default:
-                tbl = il_1.EnumSysTable.ixBudInt;
+                tbl = il_1.EnumSysTable.ixInt;
                 break;
             case BizPhraseType_1.BudDataType.dec:
-                tbl = il_1.EnumSysTable.ixBudDec;
+                tbl = il_1.EnumSysTable.ixDec;
                 break;
             case BizPhraseType_1.BudDataType.str:
             case BizPhraseType_1.BudDataType.char:
-                tbl = il_1.EnumSysTable.ixBudStr;
+                tbl = il_1.EnumSysTable.ixStr;
                 break;
         }
         insertDup.keys = [
@@ -52,14 +52,14 @@ function buildSetAtomBud(context, bud, idVal, expVal, noOfState) {
         let del = factory.createDelete();
         statements.push(del);
         del.tables = [a];
-        del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false, a))
+        del.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ix, false, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('x', a)));
         del.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), varId), new sql_1.ExpEQ(new sql_1.ExpField('base', b), new sql_1.ExpNum(bud.id))));
         let insert = factory.createInsert();
         statements.push(insert);
         insert.ignore = true;
-        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixBud, false);
+        insert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ix, false);
         insert.cols = [
             { col: 'i', val: varId },
             {
