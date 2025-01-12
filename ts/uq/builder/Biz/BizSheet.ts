@@ -8,7 +8,7 @@ import {
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { $site } from "../consts";
 import {
-    ExpAnd, ExpAtVar, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIsNotNull, ExpIsNull, ExpNum
+    ExpAnd, ExpAtVar, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIsNotNull, ExpIsNull, ExpNE, ExpNum
     , ExpRoutineExists, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement,
 } from "../sql";
 import { LockType, Select, SelectTable } from "../sql/select";
@@ -169,6 +169,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             new ExpGT(new ExpField('id', a), new ExpVar(pBinId)),
             new ExpEQ(new ExpField('base', a), new ExpNum(entityId)),
             new ExpEQ(new ExpField('sheet', a), new ExpVar('$id')),
+            new ExpNE(new ExpField('id', a), new ExpField('sheet', a)),
             new ExpIsNotNull(new ExpField('value', a)),
         ));
         select.order(new ExpField('id', a), 'asc');

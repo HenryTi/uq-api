@@ -33,10 +33,11 @@ export class ExpFuncBetween extends Exp {
                 .comma().exp(right)
                 .comma().exp(new ExpNum(rightCompare));
         }
-        sb.dbName();
+        sb.dbName().dot();
         switch (betweenType) {
+            default: debugger;
             case EnumFuncBetweenType.iddate:
-                sb.dot().append('IdDateBetween');
+                sb.append('IdDateBetween');
                 addParams();
                 const selectTimezone = factory.createSelect();
                 selectTimezone.lock = LockType.none;

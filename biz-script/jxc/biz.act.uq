@@ -202,6 +202,7 @@ RETURNS props (
 
 Biz ACT SaveSheet (
     phrase ID,                 -- sheet phrase id --  CHAR(100),
+    mainPhrase ID,              -- main phrase
     no NO,
     i ID,
     x ID,
@@ -227,7 +228,7 @@ RETURNS ret (
     }
     VAR sheetId ID;
     WITH Sheet as a ID to sheetId Key(phrase, no) SET a.operator=me;
-    WITH Bin as a ID=sheetId SET a.sheet=sheetId, a.i=i, a.x=x, a.value=value, a.price=price, a.amount=amount;
+    WITH Bin as a ID=sheetId SET a.base=mainPhrase, a.sheet=sheetId, a.i=i, a.x=x, a.value=value, a.price=price, a.amount=amount;
     
     PROC SaveBinBuds(sheetId, props);
 
@@ -268,7 +269,7 @@ RETURNS ret (
         -- SET id = ID(Detail New Key base=ID(Bud New KEY base=base, ext=phrase));
         SET id = ID(Bin New Key sheet=base);
     }
-    WITH Bin ID=id SET i=i, x=x
+    WITH Bin ID=id SET base=phrase, i=i, x=x
         , origin=origin
         , value=value, price=price, amount=amount;
     IF pendFrom IS NOT NULL {
@@ -397,7 +398,7 @@ RETURNS specs (
         IF origin<=0 {
             SET origin=a.value FROM originTable as a WHERE a.id=origin;
         }
-        WITH Bin ID=id SET i=i, x=x
+        WITH Bin ID=id SET base=phrase, i=i, x=x
             , origin=origin
             , value=value, price=price, amount=amount;
         IF pendFrom IS NOT NULL {
@@ -713,10 +714,8 @@ RETURNS specs (
     -- 获取我正在录入的单据
     PAGE SELECT * b, * d
         , (SELECT count(*) 
-            FROM Detail as x 
-                JOIN Bud as y ON y.id=x.base
-                JOIN Bin as z ON z.id=x.id
-            WHERE y.base=b.id AND z.value IS NOT NULL
+            FROM Bin as z
+            WHERE z.sheet=b.id AND z.value IS NOT NULL
         ) as rowCount
         FROM IxState as a
             JOIN Sheet as b ON a.x=b.id
@@ -1013,7 +1012,7 @@ RETURNS specs (
 ) {
     VAR maySheetId ID, detail ID;
     -- SET maySheetId = b.base FROM Detail as a JOIN Bud as b ON b.id=a.base WHERE a.id=id;
-    SET maySheetId = a.sheet FROM Bin as a WHERE a.id=id;
+    SET maySheetId = a.sheet FROM Bin as a WHERE a.id=id AND a.id<>a.sheet;
     IF maySheetId IS NOT NULL {
         SET detail = id;
         SET id = maySheetId;
@@ -1031,7 +1030,7 @@ RETURNS specs (
             -- JOIN Bud as b ON b.id=a1.base
             LEFT JOIN BinPend as c ON c.id=a.id
             LEFT JOIN Pend as d ON d.id=c.pendFrom
-        WHERE a.sheet=id AND (detail IS NULL OR a.id=detail);
+        WHERE a.sheet=id AND a.id<>a.sheet AND (detail IS NULL OR a.id=detail);
 
     VAR sheetPhrase ID;
     SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=id;

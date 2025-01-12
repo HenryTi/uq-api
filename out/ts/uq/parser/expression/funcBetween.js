@@ -60,7 +60,11 @@ class PFuncBetween extends element_1.PElement {
     }
     scan(space) {
         let ok = true;
-        let { value, left, right } = this.element;
+        let { betweenType, value, left, right } = this.element;
+        if (betweenType === undefined) {
+            this.log('BETWEEN([idate, date, int, dec] value, left, right)');
+            ok = false;
+        }
         if (value.pelement.scan(space) === false)
             ok = false;
         if (left !== undefined) {
