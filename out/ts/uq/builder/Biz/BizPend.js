@@ -132,7 +132,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
             */
             select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, t0))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expBin));
-            expBin = new sql_1.ExpField('base', t0);
+            expBin = new sql_1.ExpField('sheet', t0);
         }
         else {
             select.column(new sql_1.ExpField('id', c), 'id');
@@ -190,13 +190,17 @@ class BBizPend extends BizEntity_1.BBizEntity {
         select.from(new statementWithFrom_1.VarTable(tbl, a));
         let expBin = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${binBud.id}"`));
         if (upMain === true) {
-            const t0 = 't0', t1 = 't1';
-            select.column(new sql_1.ExpField('id', t0), 'id');
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('detail', false, t0))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expBin))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('bud', false, t1))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), new sql_1.ExpField('base', t0)));
-            expBin = new sql_1.ExpField('base', t1);
+            const t1 = 't1';
+            select.column(new sql_1.ExpField('id', t1), 'id');
+            /*
+            select.join(JoinType.join, new EntityTable('detail', false, t0))
+                .on(new ExpEQ(new ExpField('id', t0), expBin))
+                .join(JoinType.join, new EntityTable('bud', false, t1))
+                .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
+            */
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, t1))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), expBin));
+            expBin = new sql_1.ExpField('sheet', t1);
         }
         else {
             select.column(new sql_1.ExpField('i', c), 'id');

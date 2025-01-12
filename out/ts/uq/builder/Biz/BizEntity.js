@@ -155,7 +155,7 @@ class BBizEntity {
             tp = 't' + i;
             if (bizBud === undefined) {
                 let tblBin = tp + 'bin';
-                let tblDetail = tp + 'detail';
+                // let tblDetail = tp + 'detail';
                 select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, tblBin))
                     .on(new sql_1.ExpEQ(new sql_1.ExpField('id', tblBin), new sql_1.ExpField(lastField, lastT)));
                 // .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, tblDetail))

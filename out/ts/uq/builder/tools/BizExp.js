@@ -119,11 +119,16 @@ class BBizExp {
                 break;
         }
         let sql;
+        /*
         sql = `${col} FROM \`${this.db}\`.detail as \`${ta}\` `;
         if (isParent === true) {
             sql += `JOIN \`${this.db}\`.bud as \`${tb}\` ON ${tb}.id=${ta}.base AND ${tb}.ext=${bizEntity.id}`;
         }
         sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON ${tSheet}.id=${tb}.base `;
+        */
+        sql = `${col} FROM \`${this.db}\`.${il_1.EnumSysTable.bizBin} as \`${ta}\` `;
+        sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON ${tSheet}.id=\`${ta}\`.`;
+        sql += isParent === true ? '`sheet`' : '`id`';
         sql += ` WHERE \`${ta}\`.id = `;
         sb.append(sql);
         sb.exp(this.params[0]);
@@ -132,21 +137,24 @@ class BBizExp {
         const { bizEntity, prop, isParent } = this.bizExp;
         const { ta, tb, tt } = this;
         let col = `${ta}.${prop !== null && prop !== void 0 ? prop : 'id'} `;
-        let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
-        let sql;
+        // let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
+        // let sql: string;
+        /*
         if (isParent === true) {
-            sql = `${col} 
+            sql = `${col}
                 FROM \`${this.db}\`.detail as ${tt}
                     JOIN \`${this.db}\`.bin as ${ta} ON ${ta}.id=${tt}.base
-                    ${joinBud} 
+                    ${joinBud}
                 WHERE ${tt}.id=`;
         }
         else {
-            sql = `${col} 
-                FROM \`${this.db}\`.detail as ${ta} ${joinBud} 
+            sql = `${col}
+                FROM \`${this.db}\`.detail as ${ta} ${joinBud}
                 WHERE ${ta}.id=`;
         }
-        sb.append(sql);
+        */
+        sb.append(`${col} FROM \`${this.db}\`.${il_1.EnumSysTable.bizBin} as ${tt} 
+            WHERE ${tt}.base=${bizEntity.id} AND ${tt}.id=`);
         sb.exp(this.params[0]);
     }
     binBud(sb) {
@@ -172,7 +180,8 @@ class BBizExp {
             WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
         if (isParent === true) {
             sb.l();
-            sb.append(`SELECT ${tb}.base FROM \`${this.db}\`.detail as ${ta} JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.base WHERE `);
+            // sb.append(`SELECT ${tb}.base FROM \`${this.db}\`.detail as ${ta} JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.base WHERE `)
+            sb.append(`SELECT ${ta}.sheet FROM \`${this.db}\`.${il_1.EnumSysTable.bizBin} as ${ta} WHERE `);
             sb.append(ta).dot().append('id=');
             sb.exp(this.params[0]);
             sb.r();

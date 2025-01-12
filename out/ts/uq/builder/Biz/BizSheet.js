@@ -374,11 +374,15 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), new sql_1.ExpEQ(new sql_1.ExpField('x', b), new sql_1.ExpNum(binBud.id))));
         if (upMain === true) {
             const t0 = 't0', t1 = 't1';
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('detail', false, t0))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expBin))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable('bud', false, t1))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), new sql_1.ExpField('base', t0)));
-            expBin = new sql_1.ExpField('base', t1);
+            /*
+            select.join(JoinType.join, new EntityTable('detail', false, t0))
+                .on(new ExpEQ(new ExpField('id', t0), expBin))
+                .join(JoinType.join, new EntityTable('bud', false, t1))
+                .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
+            */
+            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, t1))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t1), expBin));
+            expBin = new sql_1.ExpField('sheet', t1);
         }
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxName, false, c))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), expBin), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpNum(bud.id))));

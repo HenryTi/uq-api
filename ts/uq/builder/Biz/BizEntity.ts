@@ -159,7 +159,7 @@ export class BBizEntity<B extends BizEntity = any> {
             tp = 't' + i;
             if (bizBud === undefined) {
                 let tblBin = tp + 'bin';
-                let tblDetail = tp + 'detail';
+                // let tblDetail = tp + 'detail';
                 select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, tblBin))
                     .on(new ExpEQ(new ExpField('id', tblBin), new ExpField(lastField, lastT)))
                 // .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, tblDetail))

@@ -139,7 +139,7 @@ export class BBizPend extends BBizEntity<BizPend> {
             */
             select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, t0))
                 .on(new ExpEQ(new ExpField('id', t0), expBin));
-            expBin = new ExpField('base', t0);
+            expBin = new ExpField('sheet', t0);
         }
         else {
             select.column(new ExpField('id', c), 'id');
@@ -191,13 +191,17 @@ export class BBizPend extends BBizEntity<BizPend> {
 
         let expBin: ExpVal = new ExpFunc('JSON_VALUE', new ExpField('mid', a), new ExpStr(`$."${binBud.id}"`));
         if (upMain === true) {
-            const t0 = 't0', t1 = 't1';
-            select.column(new ExpField('id', t0), 'id');
+            const t1 = 't1';
+            select.column(new ExpField('id', t1), 'id');
+            /*
             select.join(JoinType.join, new EntityTable('detail', false, t0))
                 .on(new ExpEQ(new ExpField('id', t0), expBin))
                 .join(JoinType.join, new EntityTable('bud', false, t1))
                 .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
-            expBin = new ExpField('base', t1);
+            */
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, t1))
+                .on(new ExpEQ(new ExpField('id', t1), expBin))
+            expBin = new ExpField('sheet', t1);
         }
         else {
             select.column(new ExpField('i', c), 'id');

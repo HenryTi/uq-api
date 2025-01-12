@@ -116,11 +116,16 @@ export class BBizExp {
             case EnumSysBud.sheetOperator: col += 'operator'; break;
         }
         let sql: string;
+        /*
         sql = `${col} FROM \`${this.db}\`.detail as \`${ta}\` `;
         if (isParent === true) {
             sql += `JOIN \`${this.db}\`.bud as \`${tb}\` ON ${tb}.id=${ta}.base AND ${tb}.ext=${bizEntity.id}`;
         }
         sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON ${tSheet}.id=${tb}.base `;
+        */
+        sql = `${col} FROM \`${this.db}\`.${EnumSysTable.bizBin} as \`${ta}\` `;
+        sql += ` JOIN \`${this.db}\`.sheet as ${tSheet} ON ${tSheet}.id=\`${ta}\`.`;
+        sql += isParent === true ? '`sheet`' : '`id`';
         sql += ` WHERE \`${ta}\`.id = `;
         sb.append(sql);
         sb.exp(this.params[0]);
@@ -130,8 +135,9 @@ export class BBizExp {
         const { bizEntity, prop, isParent } = this.bizExp;
         const { ta, tb, tt } = this;
         let col = `${ta}.${prop ?? 'id'} `
-        let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
-        let sql: string;
+        // let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
+        // let sql: string;
+        /*
         if (isParent === true) {
             sql = `${col} 
                 FROM \`${this.db}\`.detail as ${tt}
@@ -144,7 +150,9 @@ export class BBizExp {
                 FROM \`${this.db}\`.detail as ${ta} ${joinBud} 
                 WHERE ${ta}.id=`;
         }
-        sb.append(sql);
+        */
+        sb.append(`${col} FROM \`${this.db}\`.${EnumSysTable.bizBin} as ${tt} 
+            WHERE ${tt}.base=${bizEntity.id} AND ${tt}.id=`);
         sb.exp(this.params[0]);
     }
 
@@ -163,7 +171,8 @@ export class BBizExp {
             WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
         if (isParent === true) {
             sb.l();
-            sb.append(`SELECT ${tb}.base FROM \`${this.db}\`.detail as ${ta} JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.base WHERE `)
+            // sb.append(`SELECT ${tb}.base FROM \`${this.db}\`.detail as ${ta} JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.base WHERE `)
+            sb.append(`SELECT ${ta}.sheet FROM \`${this.db}\`.${EnumSysTable.bizBin} as ${ta} WHERE `)
             sb.append(ta).dot().append('id=');
             sb.exp(this.params[0]);
             sb.r();

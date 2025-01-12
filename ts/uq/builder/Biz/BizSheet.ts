@@ -425,11 +425,15 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
         if (upMain === true) {
             const t0 = 't0', t1 = 't1';
+            /*
             select.join(JoinType.join, new EntityTable('detail', false, t0))
                 .on(new ExpEQ(new ExpField('id', t0), expBin))
                 .join(JoinType.join, new EntityTable('bud', false, t1))
                 .on(new ExpEQ(new ExpField('id', t1), new ExpField('base', t0)));
-            expBin = new ExpField('base', t1);
+            */
+            select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, t1))
+                .on(new ExpEQ(new ExpField('id', t1), expBin))
+            expBin = new ExpField('sheet', t1);
         }
         select.join(JoinType.join, new EntityTable(tblIxName, false, c))
             .on(new ExpAnd(
