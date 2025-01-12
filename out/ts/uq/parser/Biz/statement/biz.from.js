@@ -162,14 +162,6 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                 return ok;
             }
             const { ban, value } = this.element;
-            /*
-            if (where !== undefined) {
-                if (where.pelement.scan(space) === false) {
-                    ok = false;
-                }
-            }
-                */
-            // if (asc === undefined) this.element.asc = 'asc';
             if (ban !== undefined) {
                 if (ban.val.pelement.scan(space) === false) {
                     ok = false;
@@ -189,7 +181,6 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
             if (this.scanIDsWithCheck0() === false) {
                 ok = false;
             }
-            // }
         }
         return ok;
     }

@@ -39,7 +39,6 @@ class BizQueryTable extends BizQuery {
         super(...arguments);
         this.params = [];
     }
-    // value: BizBud;
     get type() { return 'query'; }
     parser(context) {
         return new parser_1.PBizQueryTable(this, context);

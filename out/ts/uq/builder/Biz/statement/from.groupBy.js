@@ -198,7 +198,15 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField('$id', pageGroupBy), 'id');
         select.column(new sql_1.ExpField('ban', pageGroupBy));
         let arr = this.idsGroupBy.map((v, index) => new sql_1.ExpField('id' + index, pageGroupBy));
+        //====
+        // 之前注释掉，2025-1-12加回来。好像对于QueryAtom这种简单的单id查询是需要的
+        // 第三方物流WMS系统: 查询货品
+        // 必须加上这一行，才有
         // arr.push(...this.buildSelectCols());
+        this.buildRetSelectCols(arr);
+        // 查询货品是单id查询，没有用group by，所以在ret.json里面返回所有列。
+        // 多id查询，用到了group by，在ret.json里面不返回所有列，在specs.json里面返回所有列
+        //====
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
         select.column(new sql_1.ExpField('value', pageGroupBy));
         select.order(new sql_1.ExpField('$id', pageGroupBy), 'asc');
@@ -313,9 +321,13 @@ class BFromGroupByStatement extends from_1.BFromStatement {
     buildInsertSpec() {
         return [];
     }
+    buildRetSelectCols(arr) {
+        arr.push(...this.buildSelectCols());
+    }
 }
 exports.BFromGroupByStatement = BFromGroupByStatement;
 class BFromGroupByBaseStatement extends BFromGroupByStatement {
+    buildRetSelectCols(arr) { }
     setIds() {
         const { ids, showIds } = this.istatement;
         this.idsGroupBy = [...ids];

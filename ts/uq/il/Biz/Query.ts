@@ -40,7 +40,6 @@ export class BizQueryValueStatements extends Statements {
 export class BizQueryTable extends BizQuery {
     readonly params: BizBudValue[] = [];
     from: FromStatement;
-    // value: BizBud;
     get type() { return 'query'; }
     parser(context: PContext): PElement<IElement> {
         return new PBizQueryTable(this, context);

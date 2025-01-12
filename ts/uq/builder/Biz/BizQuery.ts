@@ -8,7 +8,6 @@ import { BBizEntity } from "./BizEntity";
 export class BBizQuery extends BBizEntity<BizQueryTable> {
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        // const { id } = this.bizEntity;
         const procQuery = this.createSiteEntityProcedure('q');
         this.buildQueryProc(procQuery);
     }
@@ -37,11 +36,11 @@ export class BBizQuery extends BBizEntity<BizQueryTable> {
 
         for (let param of params) {
             const bud = param;
-            const { name } = bud;
+            const { name, id } = bud;
             declare.var(name, new Char(200));
             let set = factory.createSet();
             statements.push(set);
-            set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${name}"`)));
+            set.equ(name, new ExpFunc('JSON_VALUE', varJson, new ExpStr(`$."${id}"`)));
         }
 
         let sqls = new Sqls(this.context, statements);
