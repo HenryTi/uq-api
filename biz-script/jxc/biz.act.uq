@@ -166,7 +166,9 @@ RETURNS ret (
     -- SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
     SET sql=CONCAT('call `$site.', $site, '`.`', fork, '$f`(?,?,?,?,?);');
     ExecSql sql to retId USING $site, me, id, base, values; -- keys, props;
-    WITH IDU as a ID=retId SET a.base=fork;
+    IF retId>0 {
+        WITH IDU as a ID=retId SET a.base=fork, a.seed=base;
+    }
     INTO ret SELECT retId as id;
 }
 
@@ -185,7 +187,9 @@ PROC ProcSaveFork (
     -- SET sql=CONCAT('call `$site`.`', $site, '.', fork, '$f`(?,?,?,?,?);');
     SET sql=CONCAT('call `$site.', $site, '`.`', fork, '$f`(?,?,?,?,?);');
     ExecSql sql to retId USING $site, me, id, base, values; -- keys, props;
-    WITH IDU as a ID=retId SET a.base=fork;
+    IF retId>0 {
+        WITH IDU as a ID=retId SET a.base=fork, a.seed=base;
+    }
 }
 
 Biz Query GetFork (

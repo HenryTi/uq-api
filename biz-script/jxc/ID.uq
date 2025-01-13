@@ -1,7 +1,10 @@
-IDX IDU (
-    id,
-    base ID,            -- bizphrase ID,
+ID IDU (
+    id MINUTE,
+    KEY seed ID,            -- fork seed
+    KEY id,
+    base ID,                -- bizphrase ID,
     INDEX base_id(base, id) Unique,
+    -- INDEX seed_id(seed, id) Unique,
 );
 
 -- independant, searchable
@@ -53,7 +56,7 @@ ID Bin (
     value VALUE,
     amount VALUE,
     price VALUE,
-    INDEX sheet_id(sheet, id) UNIQUE,
+    -- INDEX sheet_id(sheet, id) UNIQUE,
 );
 
 ID Pend ver 0.1 (
