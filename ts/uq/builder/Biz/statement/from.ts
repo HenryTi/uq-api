@@ -48,7 +48,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         this.buildFromEntity(sqls);
     }
 
-    protected buildExpFieldPageId() {
+    protected buildExpFieldPageId(): ExpVal {
         const { fromEntity } = this.istatement;
         let { alias: t1 } = fromEntity;
         return new ExpField('id', t1);

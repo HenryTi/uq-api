@@ -371,8 +371,11 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
     }
 
     protected buildExpFieldPageId() {
-        let { alias: t1 } = this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity;
-        return new ExpField('id', t1);
+        // let { alias: t1 } = this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity;
+        // return new ExpField('id', t1);
+        let idColumn = this.idsGroupBy[this.idsGroupBy.length - 1];
+        let expField = idColumn.fromEntity.expIdCol(); // new ExpField('id', idColumn.fromEntity.alias);
+        return expField;
     }
 
     protected override buildInsertSpec() {
@@ -397,7 +400,10 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.buildSelectJoin(select, fromEntity);
         select.join(JoinType.join, new VarTable(pageGroupBy, '$ret'))
             .on(new ExpAnd(
-                ...this.idsGroupBy.map((v, index) => new ExpEQ(new ExpField('id', v.fromEntity.alias), new ExpField('id' + index, '$ret')))
+                ...this.idsGroupBy.map((v, index) => (
+                    new ExpEQ(new ExpField('id', v.fromEntity.alias + $idu)
+                        , new ExpField('id' + index, '$ret')
+                    )))
             ));
         // ids最后一个id，无group by
         const lastIdAlias = ids[ids.length - 1].fromEntity.alias + $idu;
@@ -419,7 +425,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
             for (let id of this.showIds) {
                 select.column(new ExpField('id', id.fromEntity.alias));
             }
-            return [insertSpec, ...this.buildFromDetailToSpecs()];
+            return [memo, insertSpec, ...this.buildFromDetailToSpecs()];
         }
     }
 

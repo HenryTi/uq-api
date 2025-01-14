@@ -335,8 +335,11 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.showIds = showIds;
     }
     buildExpFieldPageId() {
-        let { alias: t1 } = this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity;
-        return new sql_1.ExpField('id', t1);
+        // let { alias: t1 } = this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity;
+        // return new ExpField('id', t1);
+        let idColumn = this.idsGroupBy[this.idsGroupBy.length - 1];
+        let expField = idColumn.fromEntity.expIdCol(); // new ExpField('id', idColumn.fromEntity.alias);
+        return expField;
     }
     buildInsertSpec() {
         const { factory } = this.context;
@@ -359,7 +362,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.buildSelectFrom(select, fromEntity);
         this.buildSelectJoin(select, fromEntity);
         select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable(pageGroupBy, '$ret'))
-            .on(new sql_1.ExpAnd(...this.idsGroupBy.map((v, index) => new sql_1.ExpEQ(new sql_1.ExpField('id', v.fromEntity.alias), new sql_1.ExpField('id' + index, '$ret')))));
+            .on(new sql_1.ExpAnd(...this.idsGroupBy.map((v, index) => (new sql_1.ExpEQ(new sql_1.ExpField('id', v.fromEntity.alias + $idu), new sql_1.ExpField('id' + index, '$ret'))))));
         // ids最后一个id，无group by
         const lastIdAlias = ids[ids.length - 1].fromEntity.alias + $idu;
         select.column(new sql_1.ExpField('id', lastIdAlias), 'id');
@@ -379,7 +382,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
             for (let id of this.showIds) {
                 select.column(new sql_1.ExpField('id', id.fromEntity.alias));
             }
-            return [insertSpec, ...this.buildFromDetailToSpecs()];
+            return [memo, insertSpec, ...this.buildFromDetailToSpecs()];
         }
     }
     buildFromDetailToSpecs() {
