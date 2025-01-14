@@ -43,11 +43,16 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                         this.parseValue();
                     }
                     else {
+                        let hide;
+                        if (this.ts.isKeyword('hide') === true) {
+                            this.ts.readToken();
+                            hide = true;
+                        }
                         let ui = this.parseUI();
                         this.ts.passToken(tokens_1.Token.EQU);
                         let val = new il_1.ValueExpression();
                         this.context.parseElement(val);
-                        this.element.cols.push({ name, ui, val, bud: undefined, });
+                        this.element.cols.push({ name, ui, val, bud: undefined, hide });
                         if (this.collColumns[name] === true) {
                             this.ts.error(`duplicate column name ${name}`);
                         }

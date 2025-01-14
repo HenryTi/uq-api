@@ -104,6 +104,7 @@ export class BizEntityBudPointer extends Pointer {
     }
 }
 
+const $idu = '$idu';
 export class BizEntityFieldPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
     readonly bizFromEntity: BizFromEntity;
@@ -120,8 +121,8 @@ export class BizEntityFieldPointer extends Pointer {
         if (fn === 'id') {
             const { isForkBase } = this.bizFromEntity;
             if (isForkBase === true) {
-                stack.dotVar([alias, fn]);
-                stack.dotVar([this.bizFromEntity.parent.alias + '$idu', 'id']);
+                stack.dotVar([alias + $idu, fn]);
+                stack.dotVar([this.bizFromEntity.parent.alias + $idu, 'id']);
                 stack.func('IFNULL', 2, false);
             }
             else {
@@ -131,7 +132,7 @@ export class BizEntityFieldPointer extends Pointer {
                         break;
                     case BizPhraseType.atom:
                     case BizPhraseType.fork:
-                        stack.dotVar([alias + '$idu', fn]);
+                        stack.dotVar([alias + $idu, fn]);
                         break;
                 }
             }

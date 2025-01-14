@@ -3,10 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizSelectStatement = exports.EnumAsc = void 0;
 // 下面这句，改成 from "../Biz"; 会出错 Class extends value undefined is not a constructor or null
 const statement_1 = require("../../statement");
-/*
-export class BizFromEntity<E extends BizEntity = BizEntity> extends BizFromEntity<E> {
-}
-*/
 var EnumAsc;
 (function (EnumAsc) {
     EnumAsc[EnumAsc["asc"] = 1] = "asc";

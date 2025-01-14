@@ -517,7 +517,7 @@ class FromEntityScanSpec extends FEScanBase {
     }
 
     createSubs(): BizFromEntitySub[] {
-        let sub = this.scanSub(this.pSub, 'base', undefined, this.onSpecEmpty);
+        let sub = this.scanSub(this.pSub, 'seed', undefined, this.onSpecEmpty);
         if (sub === undefined) return;
         sub.isForkBase = true;
         return [sub];

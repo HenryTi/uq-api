@@ -70,7 +70,10 @@ class BBizSelect extends bstatement_1.BStatement {
                         :
                             new sql_1.ExpAnd(expEQIdField, expCmpBase);
                 };
-                const expMainField = new sql_1.ExpField(fieldBud === undefined ? field : String(fieldBud.id), alias);
+                const expMainField = fieldBud === undefined ?
+                    new sql_1.ExpField(field, alias + $idu)
+                    :
+                        new sql_1.ExpField(String(fieldBud.id), alias);
                 switch (bizPhraseType) {
                     default:
                         select
@@ -90,9 +93,7 @@ class BBizSelect extends bstatement_1.BStatement {
                         let expOnFork = buildExpOn(new sql_1.ExpField('base', aliasIDU), new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', aliasIDU)));
                         select
                             .join(il_1.JoinType.join, entityTable)
-                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), expMainField))
-                            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, subAlias))
-                            .on(expOnFork);
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), expMainField));
                         break;
                 }
                 this.buildSelectJoin(select, subFromEntity);

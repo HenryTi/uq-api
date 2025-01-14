@@ -79,9 +79,11 @@ export class BizQueryTable extends BizQuery {
         ret.params = this.params.map(v => v.buildSchema(res));
         let budCols = cols.filter(v => v.bud !== undefined);
         ret.cols = budCols.map(v => {
-            const { bud } = v;
+            const { bud, hide } = v;
             const { entity } = bud;
-            return [entity.id, bud.id];
+            let entityId = entity.id;
+            if (hide === true) entityId = -entityId;
+            return [entityId, bud.id];
         });
         ret.from = this.buildFromSchema(fromEntity);
         const { value } = this.from;

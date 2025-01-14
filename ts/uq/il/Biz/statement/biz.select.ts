@@ -10,6 +10,7 @@ export interface FromColumn {
     ui?: Partial<UI>;
     val: ValueExpression;
     bud: BizBud;
+    hide?: boolean;
 }
 
 export interface BanColumn {
@@ -17,10 +18,6 @@ export interface BanColumn {
     val: CompareExpression;
 }
 
-/*
-export class BizFromEntity<E extends BizEntity = BizEntity> extends BizFromEntity<E> {
-}
-*/
 export enum EnumAsc { asc = 1, desc = 0 }
 export interface IdColumn {
     asc: EnumAsc;

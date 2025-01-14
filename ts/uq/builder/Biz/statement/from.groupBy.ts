@@ -12,7 +12,7 @@ import { EntityTable, NameTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
 import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
 
-const a = 'a', b = 'b', c = 'c';
+const a = 'a', b = 'b', c = 'c', $idu = '$idu';
 const tblDetail = '$detail';
 const pageGroupBy = '$pageGroupBy';
 
@@ -168,7 +168,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         const { fromEntity } = this.istatement;
         const { bizEntityArr, bizPhraseType, alias } = fromEntity;
         const baseAlias = bizEntityArr.length > 0 ?
-            alias + '$idu' : alias;
+            alias + $idu : alias;
         const expBase = new ExpField('base', baseAlias);
 
         switch (bizPhraseType) {
@@ -379,7 +379,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const { factory } = this.context;
         let memo = factory.createMemo();
         memo.text = 'insert spec';
-        const { fromEntity, intoTables, where } = this.istatement;
+        const { ids, fromEntity, intoTables, where } = this.istatement;
         let insertSpec = factory.createInsert();
         insertSpec.ignore = true;
         insertSpec.table = new VarTable(intoTables.specs);
@@ -399,7 +399,9 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
             .on(new ExpAnd(
                 ...this.idsGroupBy.map((v, index) => new ExpEQ(new ExpField('id', v.fromEntity.alias), new ExpField('id' + index, '$ret')))
             ));
-        select.column(new ExpField('id', b), 'id');
+        // ids最后一个id，无group by
+        const lastIdAlias = ids[ids.length - 1].fromEntity.alias + $idu;
+        select.column(new ExpField('id', lastIdAlias), 'id');
         select.column(new ExpField('$id', '$ret'), 'atom');
         select.where(this.context.expCmp(where));
         this.buildSelectBan(select);
@@ -455,7 +457,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         if (this.showIds.length > 0) {
             arr.push(new ExpFunc('JSON_ARRAY'
                 , ExpNum.num0,
-                ...this.showIds.map((v, index) => new ExpField('id', v.fromEntity.alias))
+                ...this.showIds.map((v, index) => new ExpField('id', v.fromEntity.alias + $idu))
             ));
         }
         return arr;

@@ -8,7 +8,7 @@ const select_1 = require("../../sql/select");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const from_1 = require("./from");
 const tools_1 = require("../../tools");
-const a = 'a', b = 'b', c = 'c';
+const a = 'a', b = 'b', c = 'c', $idu = '$idu';
 const tblDetail = '$detail';
 const pageGroupBy = '$pageGroupBy';
 class BFromGroupByStatement extends from_1.BFromStatement {
@@ -151,7 +151,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         const { fromEntity } = this.istatement;
         const { bizEntityArr, bizPhraseType, alias } = fromEntity;
         const baseAlias = bizEntityArr.length > 0 ?
-            alias + '$idu' : alias;
+            alias + $idu : alias;
         const expBase = new sql_1.ExpField('base', baseAlias);
         switch (bizPhraseType) {
             default:
@@ -342,7 +342,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const { factory } = this.context;
         let memo = factory.createMemo();
         memo.text = 'insert spec';
-        const { fromEntity, intoTables, where } = this.istatement;
+        const { ids, fromEntity, intoTables, where } = this.istatement;
         let insertSpec = factory.createInsert();
         insertSpec.ignore = true;
         insertSpec.table = new statementWithFrom_1.VarTable(intoTables.specs);
@@ -360,7 +360,9 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.buildSelectJoin(select, fromEntity);
         select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable(pageGroupBy, '$ret'))
             .on(new sql_1.ExpAnd(...this.idsGroupBy.map((v, index) => new sql_1.ExpEQ(new sql_1.ExpField('id', v.fromEntity.alias), new sql_1.ExpField('id' + index, '$ret')))));
-        select.column(new sql_1.ExpField('id', b), 'id');
+        // ids最后一个id，无group by
+        const lastIdAlias = ids[ids.length - 1].fromEntity.alias + $idu;
+        select.column(new sql_1.ExpField('id', lastIdAlias), 'id');
         select.column(new sql_1.ExpField('$id', '$ret'), 'atom');
         select.where(this.context.expCmp(where));
         this.buildSelectBan(select);
@@ -410,7 +412,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
     buildSelectCols() {
         let arr = super.buildSelectCols();
         if (this.showIds.length > 0) {
-            arr.push(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, ...this.showIds.map((v, index) => new sql_1.ExpField('id', v.fromEntity.alias))));
+            arr.push(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, ...this.showIds.map((v, index) => new sql_1.ExpField('id', v.fromEntity.alias + $idu))));
         }
         return arr;
     }

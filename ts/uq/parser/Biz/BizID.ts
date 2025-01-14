@@ -8,9 +8,10 @@ import {
     Table,
     BizField,
     BizForkBaseField,
+    BizBudIDBase,
     // BizAtomFork
 } from "../../il";
-import { BudDataType } from "../../il/Biz/BizPhraseType";
+import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -606,6 +607,13 @@ export class PBizCombo extends PBizIDWithShowBuds<BizCombo> {
 
         for (let key of keys) {
             if (this.scanBud(space, key) === false) ok = false;
+            const { ID } = key as BizBudIDBase;
+            if (ID !== undefined) {
+                if (ID.bizPhraseType === BizPhraseType.combo) {
+                    this.log('COMBO keys can not be combo');
+                    ok = false;
+                }
+            }
         }
 
         for (let index of this.indexes) {

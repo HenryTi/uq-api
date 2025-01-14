@@ -79,7 +79,10 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                         :
                         new ExpAnd(expEQIdField, expCmpBase);
                 }
-                const expMainField = new ExpField(fieldBud === undefined ? field : String(fieldBud.id), alias);
+                const expMainField = fieldBud === undefined ?
+                    new ExpField(field, alias + $idu)
+                    :
+                    new ExpField(String(fieldBud.id), alias);
                 switch (bizPhraseType) {
                     default:
                         select
@@ -108,8 +111,8 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                         select
                             .join(JoinType.join, entityTable)
                             .on(new ExpEQ(new ExpField('id', aliasIDU), expMainField))
-                            .join(JoinType.left, new EntityTable(EnumSysTable.fork, false, subAlias))
-                            .on(expOnFork)
+                            // .join(JoinType.left, new EntityTable(EnumSysTable.fork, false, subAlias))
+                            // .on(expOnFork)
                             ;
                         break;
                 }

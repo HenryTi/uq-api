@@ -42,11 +42,16 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                         this.parseValue();
                     }
                     else {
+                        let hide: boolean;
+                        if (this.ts.isKeyword('hide') === true) {
+                            this.ts.readToken();
+                            hide = true;
+                        }
                         let ui = this.parseUI();
                         this.ts.passToken(Token.EQU);
                         let val = new ValueExpression();
                         this.context.parseElement(val);
-                        this.element.cols.push({ name, ui, val, bud: undefined, });
+                        this.element.cols.push({ name, ui, val, bud: undefined, hide });
                         if (this.collColumns[name] === true) {
                             this.ts.error(`duplicate column name ${name}`);
                         }

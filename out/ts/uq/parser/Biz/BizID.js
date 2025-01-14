@@ -589,6 +589,13 @@ class PBizCombo extends PBizIDWithShowBuds {
         for (let key of keys) {
             if (this.scanBud(space, key) === false)
                 ok = false;
+            const { ID } = key;
+            if (ID !== undefined) {
+                if (ID.bizPhraseType === BizPhraseType_1.BizPhraseType.combo) {
+                    this.log('COMBO keys can not be combo');
+                    ok = false;
+                }
+            }
         }
         for (let index of this.indexes) {
             let indexBuds = [];
