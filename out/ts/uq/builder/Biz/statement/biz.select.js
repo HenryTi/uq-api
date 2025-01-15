@@ -52,10 +52,11 @@ class BBizSelect extends bstatement_1.BStatement {
                 const entityTable = this.buildEntityTable(subFromEntity);
                 let joinAtom;
                 let $idu = '$idu';
-                let aliasIDU = subAlias + $idu;
-                let expOnEQAtom = new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', aliasIDU));
+                let subAliasIDU = subAlias + $idu;
+                let expOnEQAtom = new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', subAliasIDU));
                 let expOn$Atom;
                 if (isForkBase === true) {
+                    // isForkBase
                     joinAtom = il_1.JoinType.left;
                     expOn$Atom = new sql_1.ExpOr(expOnEQAtom, new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', alias + $idu)));
                 }
@@ -81,8 +82,8 @@ class BBizSelect extends bstatement_1.BStatement {
                             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), expMainField));
                         break;
                     case BizPhraseType_1.BizPhraseType.atom:
-                        let expOnAtom = buildExpOn(new sql_1.ExpField('base', aliasIDU), // expSubAlias, 
-                        new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), expMainField));
+                        let expOnAtom = buildExpOn(new sql_1.ExpField('base', subAliasIDU), // expSubAlias, 
+                        new sql_1.ExpEQ(new sql_1.ExpField('id', subAliasIDU), expMainField));
                         select
                             .join(joinAtom, entityTable)
                             .on(expOnAtom)
@@ -90,10 +91,9 @@ class BBizSelect extends bstatement_1.BStatement {
                             .on(expOn$Atom);
                         break;
                     case BizPhraseType_1.BizPhraseType.fork:
-                        let expOnFork = buildExpOn(new sql_1.ExpField('base', aliasIDU), new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', aliasIDU)));
                         select
                             .join(il_1.JoinType.join, entityTable)
-                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', aliasIDU), expMainField));
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAliasIDU), expMainField));
                         break;
                 }
                 this.buildSelectJoin(select, subFromEntity);

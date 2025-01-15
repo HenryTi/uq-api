@@ -58,10 +58,11 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                 const entityTable = this.buildEntityTable(subFromEntity);
                 let joinAtom: JoinType;
                 let $idu = '$idu';
-                let aliasIDU = subAlias + $idu;
-                let expOnEQAtom = new ExpEQ(new ExpField('id', subAlias), new ExpField('id', aliasIDU));
+                let subAliasIDU = subAlias + $idu;
+                let expOnEQAtom = new ExpEQ(new ExpField('id', subAlias), new ExpField('id', subAliasIDU));
                 let expOn$Atom: ExpCmp;
                 if (isForkBase === true) {
+                    // isForkBase
                     joinAtom = JoinType.left;
                     expOn$Atom = new ExpOr(
                         expOnEQAtom,
@@ -94,8 +95,8 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                         break;
                     case BizPhraseType.atom:
                         let expOnAtom = buildExpOn(
-                            new ExpField('base', aliasIDU), // expSubAlias, 
-                            new ExpEQ(new ExpField('id', aliasIDU), expMainField),
+                            new ExpField('base', subAliasIDU), // expSubAlias, 
+                            new ExpEQ(new ExpField('id', subAliasIDU), expMainField),
                         );
                         select
                             .join(joinAtom, entityTable)
@@ -104,16 +105,9 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                             .on(expOn$Atom);
                         break;
                     case BizPhraseType.fork:
-                        let expOnFork = buildExpOn(
-                            new ExpField('base', aliasIDU),
-                            new ExpEQ(new ExpField('id', subAlias), new ExpField('id', aliasIDU))
-                        );
                         select
                             .join(JoinType.join, entityTable)
-                            .on(new ExpEQ(new ExpField('id', aliasIDU), expMainField))
-                            // .join(JoinType.left, new EntityTable(EnumSysTable.fork, false, subAlias))
-                            // .on(expOnFork)
-                            ;
+                            .on(new ExpEQ(new ExpField('id', subAliasIDU), expMainField));
                         break;
                 }
                 this.buildSelectJoin(select, subFromEntity);

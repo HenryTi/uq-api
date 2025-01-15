@@ -253,11 +253,11 @@ export abstract class BizNotID extends BizEntity {
     protected readonly fields = [];
 }
 
-export interface BizFromEntitySub {
-    field: string;
+export class BizFromEntitySub {
+    field: string;              // combo的key字段，或者fork的seed
     fieldBud: BizBud;
     fromEntity: BizFromEntity;
-    isForkBase: boolean;
+    isForkBase: boolean;        // isForkBase
 }
 
 export enum EnumEntitySys {
@@ -267,7 +267,7 @@ export enum EnumEntitySys {
 export class BizFromEntity<E extends BizEntity = BizEntity> {
     readonly parent: BizFromEntity<any>;
     bizEntityArr: E[] = [];
-    bizEntitySys: EnumEntitySys;
+    bizEntitySys: EnumEntitySys;    // FROM [bin|fork]
     bizPhraseType: BizPhraseType;
     bizEntityTable: EnumSysTable;
     subs: BizFromEntitySub[];

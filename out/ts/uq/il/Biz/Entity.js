@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizFromEntity = exports.EnumEntitySys = exports.BizNotID = exports.BizID = exports.BizEntity = exports.BudIndex = void 0;
+exports.BizFromEntity = exports.EnumEntitySys = exports.BizFromEntitySub = exports.BizNotID = exports.BizID = exports.BizEntity = exports.BudIndex = void 0;
 const builder_1 = require("../../builder");
 const EnumSysTable_1 = require("../EnumSysTable");
 const Base_1 = require("./Base");
@@ -235,6 +235,9 @@ class BizNotID extends BizEntity {
     }
 }
 exports.BizNotID = BizNotID;
+class BizFromEntitySub {
+}
+exports.BizFromEntitySub = BizFromEntitySub;
 var EnumEntitySys;
 (function (EnumEntitySys) {
     EnumEntitySys[EnumEntitySys["fork"] = 1] = "fork";
