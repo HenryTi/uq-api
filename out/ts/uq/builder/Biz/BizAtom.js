@@ -15,6 +15,7 @@ const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const BizBud_1 = require("./BizBud");
 const BizEntity_1 = require("./BizEntity");
 const cId = '$id';
 const a = 'a', b = 'b';
@@ -28,6 +29,10 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             const { id, uniques } = this.bizEntity;
             const procTitlePrime = this.createSiteEntityProcedure('tp');
             this.buildProcTitlePrime(procTitlePrime);
+            const procGet = this.createSiteEntityProcedure('ag');
+            this.buildProcGet(procGet);
+            const procSet = this.createSiteEntityProcedure('as');
+            this.buildProcSet(procSet);
             if (uniques !== undefined) {
                 const budUniques = new Map();
                 for (let uq of uniques) {
@@ -66,7 +71,6 @@ class BBizAtom extends BizEntity_1.BBizEntity {
         parameters.push((0, il_1.bigIntField)(cId));
         const declare = factory.createDeclare();
         statements.push(declare);
-        // const { uniques } = this.bizEntity;
         for (let unique of uniquesAll) {
             const { id: unqiueId, name } = unique;
             if (name === 'no') {
@@ -222,10 +226,13 @@ class BBizAtom extends BizEntity_1.BBizEntity {
     buildProcTitlePrime(procTitlePrime) {
         let buds = this.bizEntity.getTitlePrimeBuds();
         let { statements, parameters } = procTitlePrime;
+        const atomId = 'atomId';
         parameters.push((0, il_1.idField)('atomId', 'big'));
         let { factory } = this.context;
         for (let bud of buds) {
-            let select = this.buildBudSelect(bud);
+            // let select = this.buildBudSelect(bud);
+            const expPhrase = new sql_1.ExpNum(bud.id);
+            let select = BizBud_1.BBizBud.createBBizBud(this.context, bud).buildBudSelectWithIdCol(expPhrase, new sql_1.ExpVar(atomId));
             let insert = factory.createInsert();
             statements.push(insert);
             insert.ignore = true;
@@ -238,35 +245,70 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             insert.select = select;
         }
     }
-    buildBudSelect(bud) {
+    /*
+    private buildBudSelect(bud: BizBud) {
         const { factory } = this.context;
+
         const { id, dataType } = bud;
         const a = 'a';
-        let tbl;
-        let colValue = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpField('value', a), new sql_1.ExpDatePart('JSON'));
+        let tbl: string;
+        let colValue: ExpVal = new ExpFuncCustom(factory.func_cast, new ExpField('value', a), new ExpDatePart('JSON'));
         switch (dataType) {
-            default:
-                tbl = il_1.EnumSysTable.ixInt;
+            default: tbl = EnumSysTable.ixInt; break;
+            case BudDataType.str:
+            case BudDataType.char:
+                tbl = EnumSysTable.ixStr;
+                colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', a));
                 break;
-            case BizPhraseType_1.BudDataType.str:
-            case BizPhraseType_1.BudDataType.char:
-                tbl = il_1.EnumSysTable.ixStr;
-                colValue = new sql_1.ExpFunc('JSON_QUOTE', new sql_1.ExpField('value', a));
-                break;
-            case BizPhraseType_1.BudDataType.dec:
-                tbl = il_1.EnumSysTable.ixDec;
-                break;
-            case BizPhraseType_1.BudDataType.fork:
-                tbl = il_1.EnumSysTable.ixJson;
-                break;
+            case BudDataType.dec: tbl = EnumSysTable.ixDec; break;
+            case BudDataType.fork: tbl = EnumSysTable.ixJson; break;
         }
         let select = factory.createSelect();
-        select.from(new statementWithFrom_1.EntityTable(tbl, false, a));
-        select.column(new sql_1.ExpNum(id), 'phrase');
+        select.from(new EntityTable(tbl, false, a));
+        select.column(new ExpNum(id), 'phrase');
         select.column(colValue, 'value');
-        select.column(new sql_1.ExpVar('atomId'), 'id');
-        select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', a), new sql_1.ExpVar('atomId')), new sql_1.ExpEQ(new sql_1.ExpField('x', a), new sql_1.ExpNum(id))));
+        select.column(new ExpVar('atomId'), 'id');
+        select.where(new ExpAnd(
+            new ExpEQ(new ExpField('i', a), new ExpVar('atomId')),
+            new ExpEQ(new ExpField('x', a), new ExpNum(id)),
+        ));
         return select;
+    }
+    */
+    buildProcGet(proc) {
+        const { parameters, statements } = proc;
+        const { factory } = this.context;
+        parameters.push((0, il_1.bigIntField)('id'));
+        const memo = factory.createMemo();
+        statements.push(memo);
+        memo.text = 'get atom ' + this.bizEntity.name;
+        const varTable = factory.createVarTable();
+        statements.push(varTable);
+        varTable.name = 'arrProps';
+        const phraseField = (0, il_1.charField)('phrase', 200);
+        const valueField = (0, il_1.charField)('value', 200);
+        varTable.keys = [phraseField];
+        varTable.fields = [phraseField, valueField];
+        const varId = new sql_1.ExpVar('id');
+        this.bizEntity.forEachBud(bud => {
+            const insert = factory.createInsert();
+            +statements.push(insert);
+            insert.ignore = true;
+            insert.table = new statementWithFrom_1.VarTableWithSchema(varTable.name);
+            insert.cols = [
+                { col: 'phrase', val: undefined },
+                { col: 'value', val: undefined },
+            ];
+            const expPhrase = new sql_1.ExpStr(bud.name);
+            insert.select = BizBud_1.BBizBud.createBBizBud(this.context, bud).buildBudSelectWithoutIdCol(expPhrase, varId);
+        });
+    }
+    buildProcSet(proc) {
+        const { parameters, statements } = proc;
+        const { factory } = this.context;
+        const memo = factory.createMemo();
+        statements.push(memo);
+        memo.text = 'set atom ' + this.bizEntity.name;
     }
 }
 exports.BBizAtom = BBizAtom;

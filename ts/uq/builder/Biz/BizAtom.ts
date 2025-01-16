@@ -1,7 +1,9 @@
 import {
     BigInt, Char
     , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, JoinType,
-    idField
+    idField,
+    jsonField,
+    charField
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
@@ -10,6 +12,7 @@ import {
 } from "../sql";
 import { LockType } from "../sql/select";
 import { EntityTable, Table, VarTableWithSchema } from "../sql/statementWithFrom";
+import { BBizBud } from "./BizBud";
 import { BBizEntity } from "./BizEntity";
 
 const cId = '$id';
@@ -20,6 +23,8 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         const { id, uniques } = this.bizEntity;
         const procTitlePrime = this.createSiteEntityProcedure('tp');
         this.buildProcTitlePrime(procTitlePrime);
+        const procGet = this.createSiteEntityProcedure('ag');
+        this.buildProcGet(procGet);
 
         if (uniques !== undefined) {
             const budUniques: Map<BizBud, IDUnique[]> = new Map();
@@ -59,7 +64,6 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         );
         const declare = factory.createDeclare();
         statements.push(declare);
-        // const { uniques } = this.bizEntity;
         for (let unique of uniquesAll) {
             const { id: unqiueId, name } = unique;
             if (name === 'no') {
@@ -248,10 +252,13 @@ export class BBizAtom extends BBizEntity<BizAtom> {
     private buildProcTitlePrime(procTitlePrime: Procedure) {
         let buds = this.bizEntity.getTitlePrimeBuds();
         let { statements, parameters } = procTitlePrime;
+        const atomId = 'atomId';
         parameters.push(idField('atomId', 'big'));
         let { factory } = this.context;
         for (let bud of buds) {
-            let select = this.buildBudSelect(bud);
+            // let select = this.buildBudSelect(bud);
+            const expPhrase = new ExpNum(bud.id);
+            let select = BBizBud.createBBizBud(this.context, bud).buildBudSelectWithIdCol(expPhrase, new ExpVar(atomId));
             let insert = factory.createInsert();
             statements.push(insert);
             insert.ignore = true;
@@ -265,8 +272,10 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         }
     }
 
+    /*
     private buildBudSelect(bud: BizBud) {
         const { factory } = this.context;
+
         const { id, dataType } = bud;
         const a = 'a';
         let tbl: string;
@@ -291,5 +300,35 @@ export class BBizAtom extends BBizEntity<BizAtom> {
             new ExpEQ(new ExpField('x', a), new ExpNum(id)),
         ));
         return select;
+    }
+    */
+
+    private buildProcGet(proc: Procedure,) {
+        const { parameters, statements } = proc;
+        const { factory } = this.context;
+        parameters.push(bigIntField('id'));
+        const memo = factory.createMemo();
+        statements.push(memo);
+        memo.text = 'get atom ' + this.bizEntity.name;
+        const varTable = factory.createVarTable();
+        statements.push(varTable);
+        varTable.name = 'arrProps';
+        const phraseField = charField('phrase', 200);
+        const valueField = charField('value', 200);
+        varTable.keys = [phraseField];
+        varTable.fields = [phraseField, valueField];
+        const varId = new ExpVar('id');
+        this.bizEntity.forEachBud(bud => {
+            const insert = factory.createInsert(); +
+                statements.push(insert);
+            insert.ignore = true;
+            insert.table = new VarTableWithSchema(varTable.name);
+            insert.cols = [
+                { col: 'phrase', val: undefined },
+                { col: 'value', val: undefined },
+            ];
+            const expPhrase = new ExpStr(bud.name);
+            insert.select = BBizBud.createBBizBud(this.context, bud).buildBudSelectWithoutIdCol(expPhrase, varId);
+        });
     }
 }

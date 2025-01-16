@@ -426,6 +426,7 @@ RETURNS DupTable (
     }
     VAR done INT = 0, lastId ID;
     FOR (VAR id ID OF SELECT a.id FROM Atom as a WHERE a.base=phrase AND a.id>start ORDER BY a.id ASC LIMIT batchNumber) {
+        -- 下面的调用已经不起作用了。现在$site没有内容，都转移到 $site.xxx 里面了
         ProcCall '$site'.CONCAT($site, '.', phrase, 'u') USING id;
         SET done = done+1;
         SET lastId = id;

@@ -1,26 +1,83 @@
 Biz ACT SaveAtom ver 0.2 (
-    atomPhrase ID,
-    base BIGINT,                -- always null, to align with $site.SaveAtom
+    rootPhrase ID,
+    phrase ID,
     no NO,
     ex CHAR(200),
 )
 RETURNS ret (
     id ID,
 ) {
-    -- SET base = PhraseId(atom);
-
     -- 判断是不是已经有同编号的输入了。比如，我正在输入的时候，别人也输入了。
     VAR id ID = 0;
-    SET id=(SELECT a.id FROM Atom as a WHERE a.base=atomPhrase and a.no=no);
-    -- SET id = ID(Atom KEY base=atomPhrase, no=no);
+    SET id=(SELECT a.id FROM Atom as a WHERE a.base=rootPhrase and a.no=no);
     IF id IS NULL {
-        SET id = ID(Atom new KEY base=atomPhrase);
+        SET id = ID(Atom new KEY base=rootPhrase);
+        WITH Atom as a ID=id SET a.no=no;
     }
-    WITH Atom as a ID=id SET a.no=no, a.ex=ex;
-    -- WITH IxAtom i=atomPhrase x=id;
-    WITH IDU as a ID=id SET a.base=atomPhrase;
+    WITH Atom as a ID=id SET a.ex=ex;
+    WITH IDU as a ID=id SET a.base=phrase;
     INTO ret SELECT id;
 }
+
+Biz ACT SaveAtomAndProps (
+    rootPhrase ID,
+    phrase ID,
+    no NO,
+    ex CHAR(200),
+    props JSON,
+)
+RETURNS ret (
+    id ID,
+) {
+    -- 判断是不是已经有同编号的输入了。比如，我正在输入的时候，别人也输入了。
+    VAR id ID = 0;
+    JSONTABLE tbl (
+        bud ID PATH '$[0]', 
+        value CHAR(200) PATH '$[1]'
+    ) FROM props PATH '$[*]';
+
+    SET id=(SELECT a.id FROM Atom as a WHERE a.base=rootPhrase and a.no=no);
+    IF id IS NULL {
+        SET id = ID(Atom new KEY base=rootPhrase);
+        WITH Atom as a ID=id SET a.no=no;
+    }
+    WITH Atom as a ID=id SET a.ex=ex;
+    WITH IDU as a ID=id SET a.base=phrase;
+
+    VAR atomPhraseName CHAR(200) = CONCAT(a.name, '.') FROM BizPhrase as a WHERE a.id=phrase;
+    FOR (VAR bud ID, value CHAR(200) OF SELECT bud, value FROM tbl) {
+        VAR budType ID=b.type FROM BizBud as b WHERE b.id=bud;
+        IF bud IS NULL { BREAK; }
+        IF budType=BudDataType.check {
+
+        }
+        ELSEIF budType=BudDataType.dec {
+            WITH IxDec as a I=id X=bud SET a.value=value;
+        }
+        ELSEIF budType=BudDataType.char OR budType=BudDataType.str {
+            WITH IxStr as a I=id X=bud SET a.value=value;
+        }
+        ELSE {
+            -- INT
+            WITH IxInt as a I=id X=bud SET a.value=value;
+        }
+    }
+    INTO ret SELECT id;
+}
+
+Biz ACT GetAtomNos(
+    ARR arr (
+        entity ID,
+        no CHAR(100),
+    )
+)
+RETURNS ret (
+    id ID,
+) {
+    INTO ret SELECT b.id
+        FROM Arr as a LEFT JOIN Atom as b ON b.base=a.entity AND b.no=a.no;
+}
+
 Biz ACT SaveBudValue ver 0.4 (
     phraseId ID,
     id ID,
@@ -79,6 +136,7 @@ Biz ACT SaveBudValue ver 0.4 (
         }
         -- VAR atomPhrase ID;
         -- SET atomPhrase = a.base FROM BizPhrase as a WHERE a.id=phraseId;
+        -- 下面的调用已经不起作用了。现在$site没有内容，都转移到 $site.xxx 里面了
         ProcCall '$site'.CONCAT($site, '.', phraseId, 'bu') USING id;
     }
 };
