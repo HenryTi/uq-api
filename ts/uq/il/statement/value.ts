@@ -3,15 +3,15 @@ import { Builder } from "../builder";
 import { IX } from "../entity";
 import { ValueExpression } from "../Exp";
 import { Statement } from "./Statement";
-import { VarPointer } from "..";
+import { NamePointer } from "..";
 
 export class ValueXi {
     IX: IX;
     xi: ValueExpression;
     varType: string;
-    typePointer: VarPointer;
+    typePointer: NamePointer;
     varValue: string;
-    valuePointer: VarPointer;
+    valuePointer: NamePointer;
 }
 
 export class ValueStatement extends Statement {

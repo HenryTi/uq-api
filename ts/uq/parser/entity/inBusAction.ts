@@ -1,7 +1,7 @@
 import {
     Field, Returns,
     Uq, InBusAction, InBusActionStatement, VarStatement, Return, Var,
-    SelectStatement, Select, VarOperand, ValueExpression, VarPointer, Column, Arr
+    SelectStatement, Select, VarOperand, ValueExpression, NamePointer, Column, Arr
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -201,9 +201,9 @@ class InBusActionSpace extends ActionBaseSpace {
         this.inBusAction = inBusAction;
     }
 
-    _varPointer(name: string, isField: boolean): VarPointer {
+    _varPointer(name: string, isField: boolean): NamePointer {
         if (this.inBusAction.ownerAction.fields.find(v => v.name === name) !== undefined)
-            return new VarPointer();
+            return new NamePointer();
     }
     protected _getArr(name: string): Arr {
         return this.inBusAction.ownerAction.arrs.find(v => v.name === name);

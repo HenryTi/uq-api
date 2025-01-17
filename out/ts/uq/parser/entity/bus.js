@@ -441,7 +441,7 @@ class BusAcceptSpace extends entity_1.ActionBaseSpace {
         if (ret)
             return ret;
         if (name === '$stamp' || name === '$importing')
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         return undefined;
     }
 }

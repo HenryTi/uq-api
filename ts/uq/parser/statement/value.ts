@@ -1,6 +1,6 @@
 import {
     IX,
-    ValueExpression, ValueStatement, ValueXi, VarPointer,
+    ValueExpression, ValueStatement, ValueXi, NamePointer,
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -47,7 +47,7 @@ export class PValueStatement extends PStatement<ValueStatement> {
         if (xi.pelement.scan(space) === false) ok = false;
 
         if (this.varType) {
-            let varTypePointer = space.varPointer(this.varType, false) as VarPointer;
+            let varTypePointer = space.varPointer(this.varType, false) as NamePointer;
             if (!varTypePointer) {
                 this.log(`${this.varType} is not defined`);
                 ok = false;
@@ -57,7 +57,7 @@ export class PValueStatement extends PStatement<ValueStatement> {
         }
 
         if (this.varValue) {
-            let varValuePointer = space.varPointer(this.varValue, false) as VarPointer;
+            let varValuePointer = space.varPointer(this.varValue, false) as NamePointer;
             if (!varValuePointer) {
                 this.log(`${this.varValue} is not defined`);
                 ok = false;

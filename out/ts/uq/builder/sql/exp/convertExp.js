@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertExp = void 0;
+exports.convertAtom = exports.convertExp = void 0;
 const select_1 = require("../select");
 const ExpQueue_1 = require("./ExpQueue");
 const ExpID_1 = require("./ExpID");
@@ -26,17 +26,14 @@ function convertExpInternal(stack, exp) {
 function convertExp(context, exp) {
     let stack = new Stack(context);
     return convertExpInternal(stack, exp);
-    /*
-    if (!exp) return;
-    let stack = new Stack(context);
-    for (let atom of exp.atoms) {
-        atom.to(stack);
-    }
-    let ret = stack.getExp();
-    return ret;
-    */
 }
 exports.convertExp = convertExp;
+function convertAtom(context, atom) {
+    let stack = new Stack(context);
+    atom.to(stack);
+    return stack.getExp();
+}
+exports.convertAtom = convertAtom;
 class Stack {
     constructor(context) {
         this.arr = [];

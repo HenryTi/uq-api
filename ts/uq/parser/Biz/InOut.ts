@@ -1,7 +1,7 @@
 import {
     BizBudValue, BizIn, BizInOut, BizOut, Statements
     , Statement, BizInAct, BizStatementIn, BizInActStatements
-    , Pointer, BizEntity, VarPointer, Biz, UI
+    , Pointer, BizEntity, NamePointer, Biz, UI
     , budClassesOut, budClassKeysOut, budClassesIn, budClassKeysIn, BizBudArr, BizIOApp
     , IOAppID, IOAppIn, IOAppOut, BizAtom, IOAppIO
     , IOPeerID, IOPeer, IOPeerScalar, IOPeerArr, BizBud, PeerType, Uq, BizIOSite, IOConnectType
@@ -131,10 +131,10 @@ class BizInActSpace extends BizEntitySpace<BizIn> {
     protected _varPointer(name: string, isField: boolean): Pointer {
 
         if (this.bizEntity.props.has(name) === true) {
-            return new VarPointer(name);
+            return new NamePointer(name);
         }
         if (name === inSite) {
-            return new VarPointer(inSite);
+            return new NamePointer(inSite);
         }
     }
 

@@ -1,5 +1,5 @@
 import { Space } from '../../space';
-import { ValueExpression, BizAct, VarPointer, BizStatementID, CompareExpression } from '../../../il';
+import { ValueExpression, BizAct, NamePointer, BizStatementID, CompareExpression } from '../../../il';
 import { Token } from '../../tokens';
 import { PBizStatementSub } from './biz.statement.sub';
 
@@ -75,7 +75,7 @@ export abstract class PBizStatementID<A extends BizAct, T extends BizStatementID
         if (super.scan(space) === false) {
             ok = false;
         }
-        this.element.toVar = space.varPointer(this.toVar, false) as VarPointer;
+        this.element.toVar = space.varPointer(this.toVar, false) as NamePointer;
         if (this.element.toVar === undefined) {
             ok = false;
             this.log(`${this.toVar} is not defined`);

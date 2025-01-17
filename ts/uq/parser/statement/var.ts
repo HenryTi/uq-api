@@ -1,4 +1,4 @@
-import { VarStatement, ValueExpression, createDataType, Var, VarPointer, Select, Entity, Pointer, Table, FromTable, OpEQ, CompareExpression, VarOperand, OpParenthese, Dec, DataType } from '../../il';
+import { VarStatement, ValueExpression, createDataType, Var, NamePointer, Select, Entity, Pointer, Table, FromTable, OpEQ, CompareExpression, VarOperand, OpParenthese, Dec, DataType } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { PContext } from '../pContext';
@@ -90,7 +90,7 @@ export class PVarStatement extends PStatement {
                     this.log('重复定义变量 ' + name);
                     ok = false;
                 }
-                let vp = v.pointer = new VarPointer(name);
+                let vp = v.pointer; // = new VarPointer(name);
                 let no = this._var.no; // space.getVarNo();
                 vp.no = no;
                 space.setVarNo(no + 1);
@@ -115,7 +115,7 @@ export class PVarStatement extends PStatement {
                     this.log('重复定义变量 ' + name);
                     ok = false;
                 }
-                let vp = v.pointer = new VarPointer(name);
+                let vp = v.pointer; // = new VarPointer(name);
                 let no = this._var.no; //space.getVarNo();
                 vp.no = no;
                 space.setVarNo(no + 1);

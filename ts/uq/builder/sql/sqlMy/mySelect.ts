@@ -1,4 +1,4 @@
-import { OrderType, Return as IlReturn, VarPointer } from '../../../il';
+import { OrderType, Return as IlReturn, NamePointer } from '../../../il';
 import { ExpVal } from '../exp';
 import { Select, LockType, Order } from '../select';
 import { SqlBuilder } from '../sqlBuilder';
@@ -8,7 +8,7 @@ import { MyColumn, MyOrder } from './myWithFromBuilder';
 
 export class MySelect extends Select {
     protected createWithFromBuilder() { return new MySelectBuilder }
-    protected createColumn(exp: ExpVal, alias?: string, pointer?: VarPointer): Column { return new MyColumn(exp, alias, pointer) }
+    protected createColumn(exp: ExpVal, alias?: string, pointer?: NamePointer): Column { return new MyColumn(exp, alias, pointer) }
     createOrder(exp: ExpVal, asc: OrderType): Order { return new MyOrder(exp, asc) }
     to(sb: SqlBuilder, tab: number) {
         this.buildSelect(sb, tab);

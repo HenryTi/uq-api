@@ -19,7 +19,7 @@ class BBizFor extends biz_select_1.BBizSelect {
         sqls.foot(statements.statements);
     }
     buildForSelect(sqls) {
-        const { ids, values, vars, statements, fromEntity, where, isGroup, orderBys } = this.istatement;
+        const { ids, values, vars, statements, fromEntity, where, isGroup, orderBys, limit } = this.istatement;
         this.createDeclareVars(sqls);
         let { no } = this.istatement;
         let { factory } = this.context;
@@ -87,7 +87,7 @@ class BBizFor extends biz_select_1.BBizSelect {
         }
         this.buildSelectFrom(select, fromEntity);
         this.buildSelectJoin(select, fromEntity);
-        select.where(this.context.expCmp(where));
+        select.where(this.context.expCmp(where), sql_1.EnumExpOP.and);
         if (isGroup === true) {
             for (let [, idCol] of ids) {
                 //select.group(new ExpField('id', idCol.fromEntity.alias));
@@ -101,6 +101,9 @@ class BBizFor extends biz_select_1.BBizSelect {
                     debugger;
                 select.order(expVal, asc === il_1.EnumAsc.desc ? 'desc' : 'asc');
             }
+        }
+        if (limit !== undefined) {
+            select.limit(this.context.atomVal(limit));
         }
         let row = '$row_' + no;
         let row_ok = '$row_ok_' + no;

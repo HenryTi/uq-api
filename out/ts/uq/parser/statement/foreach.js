@@ -172,7 +172,7 @@ class PForEach extends statement_1.PStatement {
                     this.log('foreach select column name must be the same as variable name');
                     ok = false;
                 }
-                let vp = v.pointer = new il_1.VarPointer();
+                let vp = v.pointer = new il_1.NamePointer();
                 let no = theSpace.getVarNo();
                 vp.no = no;
                 theSpace.setVarNo(no + 1);
@@ -198,7 +198,7 @@ class PForEach extends statement_1.PStatement {
                 theSpace = new ForEachVarsSpace(space, this.vars);
                 for (let i = 0; i < len; i++) {
                     let v = this.vars[i];
-                    let vp = v.pointer = new il_1.VarPointer();
+                    let vp = v.pointer = new il_1.NamePointer();
                     let no = theSpace.getVarNo();
                     vp.no = no;
                     theSpace.setVarNo(no + 1);
@@ -214,7 +214,7 @@ class PForEach extends statement_1.PStatement {
         else if (this.bizDetail !== undefined) {
             // biz detail 相关的处理
             theSpace = new ForEachVarsSpace(space, this.vars);
-            let vp = this.vars[0].pointer = new il_1.VarPointer();
+            let vp = this.vars[0].pointer = new il_1.NamePointer();
             let no = theSpace.getVarNo();
             vp.no = no;
             theSpace.setVarNo(no + 1);
@@ -256,7 +256,7 @@ class ForBizInOutArrSpace extends space_1.Space {
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
         if (this.arr.props.has(name) === true) {
-            return new il_1.VarPointer(name);
+            return new il_1.NamePointer(name);
         }
     }
 }
@@ -272,7 +272,7 @@ class ForEachArrSpace extends space_1.Space {
         let ret = this.arr.fields.find(v => v.name === name);
         if (ret === undefined)
             return;
-        let vp = new il_1.VarPointer();
+        let vp = new il_1.NamePointer();
         vp.arr = this.arr.name;
         return vp;
     }

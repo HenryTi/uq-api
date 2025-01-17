@@ -23,6 +23,12 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         let keyIndex = new Index('$key', true);
         keyIndex.fields.push(...keyFields);
         table.indexes.push(keyIndex);
+        for (let buds of indexes) {
+            let name = buds.map(v => v.id).join('_');
+            let index = new Index(name);
+            table.indexes.push(index);
+            index.fields = buds.map(v => v.createField());
+        }
     }
 
     override async buildProcedures(): Promise<void> {

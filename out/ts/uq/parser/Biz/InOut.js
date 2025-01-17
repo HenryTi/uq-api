@@ -116,10 +116,10 @@ const inSite = '$insite';
 class BizInActSpace extends Biz_1.BizEntitySpace {
     _varPointer(name, isField) {
         if (this.bizEntity.props.has(name) === true) {
-            return new il_1.VarPointer(name);
+            return new il_1.NamePointer(name);
         }
         if (name === inSite) {
-            return new il_1.VarPointer(inSite);
+            return new il_1.NamePointer(inSite);
         }
     }
     _varsPointer(names) {

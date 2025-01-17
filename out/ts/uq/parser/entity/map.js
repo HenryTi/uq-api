@@ -531,10 +531,10 @@ class MapSaveSpace extends entity_1.ActionBaseSpace {
         if (vp)
             return vp;
         if (this.map.fields.find(f => f.name === name) !== undefined) {
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         }
         if (this.map.keys.find(f => f.name === name) !== undefined) {
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         }
     }
     _useBusFace(bus, face, arr, local) {

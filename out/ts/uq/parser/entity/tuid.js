@@ -545,13 +545,13 @@ class TuidSpace extends entity_1.ActionBaseSpace {
     _getTableByAlias(alias) { return; }
     _varPointer(name, isField) {
         if (name === 'id')
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         if (name === '$user')
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         if (this.tuid.main.find(f => f.name === name) !== undefined)
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         return this.tuid.fields.find(f => f.name === name) !== undefined ?
-            new il_1.VarPointer() : undefined;
+            new il_1.NamePointer() : undefined;
     }
     _useBusFace(bus, face, arr, local) {
         this.tuid.useBusFace(bus, face, arr, local);

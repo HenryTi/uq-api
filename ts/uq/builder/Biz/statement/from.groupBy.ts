@@ -1,12 +1,13 @@
 import {
     BizBud, BizFork, EnumAsc, EnumSysTable
     , BizFromEntity, FromStatement, IdColumn, JoinType
-    , bigIntField, decField, intField, jsonField, tinyIntField
+    , bigIntField, decField, intField, jsonField, tinyIntField,
+    OpAnd
 } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
 import { DbContext } from "../../dbContext";
-import { ColVal, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpSelect, ExpVal, ExpVar, Select, Statement } from "../../sql";
+import { ColVal, EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpSelect, ExpVal, ExpVar, Select, Statement } from "../../sql";
 import { LockType, SelectTable } from "../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
@@ -120,7 +121,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             this.context.expCmp(where),
         ];
         if (cmpEntityBase !== undefined) wheres.unshift(cmpEntityBase);
-        select.where(new ExpAnd(...wheres));
+        select.where(new ExpAnd(...wheres), EnumExpOP.and);
         select.limit(new ExpVar('$pageSize'));
         return select;
     }
@@ -409,7 +410,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const lastIdAlias = ids[ids.length - 1].fromEntity.alias + $idu;
         select.column(new ExpField('id', lastIdAlias), 'id');
         select.column(new ExpField('$id', '$ret'), 'atom');
-        select.where(this.context.expCmp(where));
+        select.where(this.context.expCmp(where), EnumExpOP.and);
         this.buildSelectBan(select);
         let arr = this.buildSelectCols();
         select.column(new ExpFunc('JSON_ARRAY', ...arr), 'json');

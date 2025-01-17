@@ -2,6 +2,7 @@ import { BizBud, BizFromEntity } from './Biz';
 import { BizPhraseType } from './Biz/BizPhraseType';
 import { ValueExpression, VarOperand } from './Exp';
 import { Stack } from './Exp/Stack';
+import { Var } from './statement';
 
 export enum GroupType { Single = 1, Group = 2, Both = 3 }
 
@@ -10,7 +11,7 @@ export abstract class Pointer {
     abstract to(stack: Stack, v: VarOperand): void;
 }
 
-export class VarPointer extends Pointer {
+export class NamePointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
     name: string;
     no: number;     // 扫描之后的局部变量编号
@@ -30,6 +31,14 @@ export class VarPointer extends Pointer {
             v = this.arr + '_' + v;
         }
         return this.no === undefined ? v : v + '_' + this.no;
+    }
+}
+
+export class VarPointer extends NamePointer {
+    readonly _var: Var;
+    constructor(_var: Var) {
+        super(_var.name);
+        this._var = _var;
     }
 }
 

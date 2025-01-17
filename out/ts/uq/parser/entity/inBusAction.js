@@ -188,7 +188,7 @@ class InBusActionSpace extends entity_1.ActionBaseSpace {
     }
     _varPointer(name, isField) {
         if (this.inBusAction.ownerAction.fields.find(v => v.name === name) !== undefined)
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
     }
     _getArr(name) {
         return this.inBusAction.ownerAction.arrs.find(v => v.name === name);

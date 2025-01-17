@@ -1022,9 +1022,9 @@ class ActionBaseSpace extends space_1.Space {
     _varPointer(name, isField) {
         var _a;
         if (dollarVars.indexOf(name) >= 0)
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         return ((_a = this.actionBase) === null || _a === void 0 ? void 0 : _a.fields.find(f => f.name === name)) !== undefined ?
-            new il_1.VarPointer() : undefined;
+            new il_1.NamePointer() : undefined;
     }
     _getArr(name) {
         var _a;

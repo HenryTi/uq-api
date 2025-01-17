@@ -1,6 +1,6 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
-import { SettingStatement, ValueExpression, createDataType, Var, VarPointer } from '../../il';
+import { SettingStatement, ValueExpression, createDataType, Var, NamePointer } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
 
@@ -78,7 +78,7 @@ export class PSettingStatement extends PStatement {
                 this.log(`变量 ${varName} 没有定义`);
                 ok = false;
             }
-            varName.pointer = vp as VarPointer;
+            varName.pointer = vp as NamePointer;
         }
         if (dataType !== undefined) {
             if (dataType.pelement.scan(space) === false) {

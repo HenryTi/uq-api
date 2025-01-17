@@ -1,6 +1,6 @@
 import {
     BizQuery, BizQueryTable, BizQueryTableStatements, BizQueryValue, BizQueryValueStatements
-    , Entity, FromStatement, Pointer, PutStatement, Statement, Table, VarPointer
+    , Entity, FromStatement, Pointer, PutStatement, Statement, Table, NamePointer
 } from "../../il";
 import { Space } from "../space";
 import { PStatements } from "../statement";
@@ -207,7 +207,7 @@ class BizQuerySpace extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (isField === true) return;
         if (this.query.hasParam(name) === true) {
-            return new VarPointer();
+            return new NamePointer();
         }
     }
 }

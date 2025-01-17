@@ -172,6 +172,7 @@ class Var {
         this.name = name;
         this.dataType = dataType;
         this.exp = exp;
+        this.pointer = new pointer_1.VarPointer(this);
     }
     varName() {
         return this.pointer.varName(this.name);

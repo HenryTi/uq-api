@@ -140,10 +140,26 @@ class BBizSelect extends bstatement_1.BStatement {
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
                     t0 = t0$idu;
-                    joinTable = il_1.EnumSysTable.fork;
+                    // joinTable = EnumSysTable.fork;
                     break;
             }
             table = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);
+            let expBaseEQ;
+            switch (bizEntityArr.length) {
+                case 0:
+                    break;
+                case 1:
+                    if (fromEntity.isExtended() === false) {
+                        expBaseEQ = new sql_1.ExpEQ(new sql_1.ExpField('base', t0), new sql_1.ExpNum(bizEntityArr[0].id));
+                    }
+                    break;
+                default:
+                    expBaseEQ = new sql_1.ExpIn(new sql_1.ExpField('base', t0), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id)));
+                    break;
+            }
+            if (expBaseEQ !== undefined) {
+                select.where(expBaseEQ, sql_1.EnumExpOP.and);
+            }
         }
         else {
             table = new statementWithFrom_1.GlobalSiteTable(this.context.site, bizEntityArr[0].id, t0);
@@ -152,19 +168,27 @@ class BBizSelect extends bstatement_1.BStatement {
         if (joinTable !== undefined) {
             let expIdEQ = new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0));
             let expOn = expIdEQ;
+            /*
             switch (bizEntityArr.length) {
                 case 0:
                     expOn = expIdEQ;
                     break;
                 case 1:
                     if (fromEntity.isExtended() === false) {
-                        expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpEQ(new sql_1.ExpField('base', t0), new sql_1.ExpNum(bizEntityArr[0].id)));
+                        expOn = new ExpAnd(
+                            expIdEQ,
+                            new ExpEQ(new ExpField('base', t0), new ExpNum(bizEntityArr[0].id))
+                        );
                     }
                     break;
                 default:
-                    expOn = new sql_1.ExpAnd(expIdEQ, new sql_1.ExpIn(new sql_1.ExpField('base', t0), ...bizEntityArr.map(v => new sql_1.ExpNum(v.id))));
+                    expOn = new ExpAnd(
+                        expIdEQ,
+                        new ExpIn(new ExpField('base', t0), ...bizEntityArr.map(v => new ExpNum(v.id)))
+                    )
                     break;
             }
+            */
             select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(joinTable, false, alias))
                 .on(expOn);
         }

@@ -21,6 +21,7 @@ const il_1 = require("../il");
 const statementWithFrom_1 = require("./sql/statementWithFrom");
 const select_1 = require("./sql/select");
 const Biz_1 = require("./Biz");
+const convertExp_1 = require("./sql/exp/convertExp");
 exports.max_promises_uq_api = 10;
 function createFactory(dbContext, sqlType) {
     switch (sqlType) {
@@ -240,6 +241,9 @@ class DbContext {
     }
     expVal(exp) {
         return (0, sql_1.convertExp)(this, exp);
+    }
+    atomVal(atom) {
+        return (0, convertExp_1.convertAtom)(this, atom);
     }
     arr(v) { return new ent.BArr(this, v); }
     role(v) { return new ent.BRole(this, v); }

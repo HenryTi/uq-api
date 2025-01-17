@@ -181,7 +181,7 @@ class ActionSpace extends entity_1.ActionBaseSpace {
         if (paramConvert === undefined)
             return;
         if (paramConvert.to.find(v => v === name) !== undefined)
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
     }
     _setTransactionOff(off) {
         super._setTransactionOff(off);

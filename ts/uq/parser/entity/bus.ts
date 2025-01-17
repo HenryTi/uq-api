@@ -2,7 +2,7 @@ import {
     Uq, Field, Bus, BusField, BusAccept,
     Arr, decField, textField, bigIntField, BusQuery, Returns, Return,
     TableStatement, TextStatement, ActionBase,
-    FaceAcceptSchema, FaceQuerySchema, FacePrimitivType, Pointer, VarPointer
+    FaceAcceptSchema, FaceQuerySchema, FacePrimitivType, Pointer, NamePointer
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -444,7 +444,7 @@ class BusAcceptSpace extends ActionBaseSpace {
     protected _varPointer(name: string, isField: boolean): Pointer {
         let ret = super._varPointer(name, isField);
         if (ret) return ret;
-        if (name === '$stamp' || name === '$importing') return new VarPointer();
+        if (name === '$stamp' || name === '$importing') return new NamePointer();
         return undefined;
     }
 }

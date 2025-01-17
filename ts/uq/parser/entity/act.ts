@@ -1,6 +1,6 @@
 import {
     Act, ActionParamConvert, ActionStatement, Returns, Bus,
-    Uq, VarPointer, Pointer, Proc, ProcParamType
+    Uq, NamePointer, Pointer, Proc, ProcParamType
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -175,7 +175,7 @@ class ActionSpace extends ActionBaseSpace {
         if (p) return p;
         let { paramConvert } = this.action;
         if (paramConvert === undefined) return;
-        if (paramConvert.to.find(v => v === name) !== undefined) return new VarPointer();
+        if (paramConvert.to.find(v => v === name) !== undefined) return new NamePointer();
     }
     protected _setTransactionOff(off: boolean): boolean {
         super._setTransactionOff(off);

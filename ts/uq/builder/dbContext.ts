@@ -22,6 +22,7 @@ import { Select, LockType } from './sql/select';
 import { Sqls } from './bstatement';
 import { BBiz, BFromGroupByBaseStatement, BFromGroupByStatement, BFromInPendStatement } from './Biz';
 import { EntityRunner } from '../../core';
+import { convertAtom } from './sql/exp/convertExp';
 
 export const max_promises_uq_api = 10;
 
@@ -277,6 +278,9 @@ export class DbContext implements il.Builder {
     }
     expVal(exp: ValueExpression) {
         return convertExp(this, exp) as ExpVal;
+    }
+    atomVal(atom: il.Atom) {
+        return convertAtom(this, atom) as ExpVal;
     }
 
     arr(v: il.Arr) { return new ent.BArr(this, v) }

@@ -2,7 +2,7 @@ import { Space } from '../space';
 import { Token } from '../tokens';
 import {
     ForEach, Select, Arr, Table, Entity,
-    Pointer, VarPointer, Var, createDataType, ForSelect, ForArr, ForQueue
+    Pointer, NamePointer, Var, createDataType, ForSelect, ForArr, ForQueue
     , Queue, ValueExpression, BigInt, BizIn, ForBizInOutArr, BizBudArr
 } from '../../il';
 import { PStatement } from './statement';
@@ -178,7 +178,7 @@ export class PForEach extends PStatement<ForEach> {
                     this.log('foreach select column name must be the same as variable name');
                     ok = false;
                 }
-                let vp = v.pointer = new VarPointer();
+                let vp = v.pointer = new NamePointer();
                 let no = theSpace.getVarNo();
                 vp.no = no;
                 theSpace.setVarNo(no + 1);
@@ -203,7 +203,7 @@ export class PForEach extends PStatement<ForEach> {
                 theSpace = new ForEachVarsSpace(space, this.vars);
                 for (let i = 0; i < len; i++) {
                     let v = this.vars[i];
-                    let vp = v.pointer = new VarPointer();
+                    let vp = v.pointer = new NamePointer();
                     let no = theSpace.getVarNo();
                     vp.no = no;
                     theSpace.setVarNo(no + 1);
@@ -217,7 +217,7 @@ export class PForEach extends PStatement<ForEach> {
         else if (this.bizDetail !== undefined) {
             // biz detail 相关的处理
             theSpace = new ForEachVarsSpace(space, this.vars);
-            let vp = this.vars[0].pointer = new VarPointer();
+            let vp = this.vars[0].pointer = new NamePointer();
             let no = theSpace.getVarNo();
             vp.no = no;
             theSpace.setVarNo(no + 1);
@@ -259,7 +259,7 @@ class ForBizInOutArrSpace extends Space {
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (this.arr.props.has(name) === true) {
-            return new VarPointer(name);
+            return new NamePointer(name);
         }
     }
 }
@@ -276,7 +276,7 @@ class ForEachArrSpace extends Space {
     protected _varPointer(name: string, isField: boolean): Pointer {
         let ret = this.arr.fields.find(v => v.name === name);
         if (ret === undefined) return;
-        let vp = new VarPointer();
+        let vp = new NamePointer();
         vp.arr = this.arr.name;
         return vp;
     }

@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Map, smallIntField, Import, ActionStatement, Entity, Table, Pointer, VarPointer, Bus, IdDataType } from '../../il';
+import { Map, smallIntField, Import, ActionStatement, Entity, Table, Pointer, NamePointer, Bus, IdDataType } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { SBuilder } from '../SBuilder';
@@ -526,10 +526,10 @@ export class MapSaveSpace extends ActionBaseSpace {
         let vp = super._varPointer(name, isField);
         if (vp) return vp;
         if (this.map.fields.find(f => f.name === name) !== undefined) {
-            return new VarPointer();
+            return new NamePointer();
         }
         if (this.map.keys.find(f => f.name === name) !== undefined) {
-            return new VarPointer();
+            return new NamePointer();
         }
     }
     protected _useBusFace(bus: Bus, face: string, arr: string, local: boolean): boolean {

@@ -1,6 +1,6 @@
 import {
     Query, QueryStatement,
-    Returns, Uq, VarPointer, Pointer, Entity
+    Returns, Uq, NamePointer, Pointer, Entity
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -100,7 +100,7 @@ class QuerySpace extends ActionBaseSpace {
         if (isField === false) {
             if (name === '$date') return;
             if (this.isSupportedDollarVar(name) === true) {
-                return new VarPointer();
+                return new NamePointer();
             }
         }
         return super._varPointer(name, isField);

@@ -2,7 +2,7 @@ import {
     CompareExpression, ValueExpression, WithStatement
     , Entity, EntityWithTable, ID, IX, IDX, Pointer, Field, Table
     , WithID, WithIX, WithIDX, WithActDel, WithActSet
-    , WithActTruncate, Var, VarPointer, IDNewType, SetValue
+    , WithActTruncate, Var, NamePointer, IDNewType, SetValue
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
@@ -457,7 +457,7 @@ export class PWithStatement extends PStatement {
                     break;
             }
             if (this.idTo !== undefined) {
-                let vp = space.varPointer(this.idTo, false) as VarPointer;
+                let vp = space.varPointer(this.idTo, false) as NamePointer;
                 if (vp === undefined) {
                     this.log(`变量 ${this.idTo} 没有定义`);
                     isOk = false;
@@ -477,7 +477,7 @@ export class PWithStatement extends PStatement {
                         isOk = false;
                     }
 
-                    let vp = space.varPointer(this.idPrevTo, false) as VarPointer;
+                    let vp = space.varPointer(this.idPrevTo, false) as NamePointer;
                     if (vp === undefined) {
                         this.log(`变量 ${this.idPrevTo} 没有定义`);
                         isOk = false;

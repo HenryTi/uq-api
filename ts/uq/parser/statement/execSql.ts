@@ -1,5 +1,5 @@
 import { Space } from '../space';
-import { ExecSqlStatement, ValueExpression, VarPointer } from '../../il';
+import { ExecSqlStatement, ValueExpression, NamePointer } from '../../il';
 import { PStatement } from './statement';
 import { PContext } from '../pContext';
 
@@ -27,7 +27,7 @@ export class PExecSqlStatement extends PStatement {
         if (sql.pelement.scan(space) === false) ok = false;
         if (this.toVar) {
             this.execSqlStatement.toVar = this.toVar;
-            this.execSqlStatement.toVarPointer = space.varPointer(this.toVar, false) as VarPointer;
+            this.execSqlStatement.toVarPointer = space.varPointer(this.toVar, false) as NamePointer;
         }
         return ok;
     }

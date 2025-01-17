@@ -2,7 +2,7 @@ import { SqlBuilder } from './sqlBuilder';
 import { ExpVal, ExpCmp, convertExp, ExpField, ExpEQ, ExpAnd, ExpNum } from './exp';
 import { DbContext } from '../dbContext';
 import {
-    Field, VarPointer, OrderType
+    Field, NamePointer, OrderType
     , Delete as IlDelete
     , FromTable, LocalTableBase, OrderBy, Expression, JoinType
     , Select as IlSelect,
@@ -190,13 +190,13 @@ export abstract class Select extends WithFrom {
     protected _limit: ExpVal;
     // protected _lock: boolean = true;
 
-    protected abstract createColumn(exp: ExpVal, alias?: string, pointer?: VarPointer): Column;
+    protected abstract createColumn(exp: ExpVal, alias?: string, pointer?: NamePointer): Column;
     abstract createOrder(exp: ExpVal, asc: OrderType): Order;
 
     declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }) { }
     abstract to(sb: SqlBuilder, tab: number): void;
     abstract buildSelect(sb: SqlBuilder, tab: number): void;
-    column(exp: ExpVal, alias?: string, pointer?: VarPointer) {
+    column(exp: ExpVal, alias?: string, pointer?: NamePointer) {
         this._columns.push(this.createColumn(exp, alias, pointer));
         return this;
     }

@@ -4,7 +4,7 @@ import { Token } from './tokens';
 import {
     Select, Table, GroupType, OrderBy
     , ValueExpression, CompareExpression, FromTable, JoinTable, Entity
-    , Pointer, FieldPointer, GroupByPointer, VarPointer, WithFrom, Delete
+    , Pointer, FieldPointer, GroupByPointer, NamePointer, WithFrom, Delete
     , EntityVarTable, Arr, Column, TableVar, SwitchOrderBy, OrderByWhenThen
     , LocalTableBase, JoinType, ComarePartExpression, VarOperand, OpEQ, CTETable
 } from '../il';
@@ -633,7 +633,7 @@ export class PSelect extends PWithFrom<Select> {
             if (toVar === true) {
                 // 这个地方space不能用colSpace，也不能是theSpace，必须用space
                 // 这里是查变量，不能是表中的字段                
-                let p = col.pointer = space.varPointer(alias, undefined) as VarPointer;
+                let p = col.pointer = space.varPointer(alias, undefined) as NamePointer;
                 if (p === undefined) {
                     ok = false;
                     this.log(alias + '没有定义');

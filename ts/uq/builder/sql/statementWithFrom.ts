@@ -1,6 +1,6 @@
-import { Entity, JoinType, JsonTableColumn, VarPointer } from "../../il";
+import { Entity, JoinType, JsonTableColumn, NamePointer } from "../../il";
 import { SqlBuilder } from './sqlBuilder';
-import { ExpCmp, ExpVal } from "./exp";
+import { EnumExpOP, ExpAnd, ExpCmp, ExpOr, ExpVal } from "./exp";
 import { SqlSysTable, SqlTable, StatementBase } from './statement';
 import { consts } from "../../../core";
 import { $site } from "../consts";
@@ -17,10 +17,21 @@ export abstract class WithFromBuilder {
     abstract buildFrom(sb: SqlBuilder, tab: number): void;
     abstract buildWhereTo(sb: SqlBuilder, tab: number): void;
 
-    where(exp: ExpCmp) {
-        this._where = this.createWhere();
+    where(exp: ExpCmp, expOp?: EnumExpOP) {
+        if (expOp === undefined || this._where === undefined) {
+            this._where = this.createWhere();
+        }
+        else {
+            const { exp: exp0 } = this._where;
+            switch (expOp) {
+                default: debugger; break;
+                case EnumExpOP.and: exp = new ExpAnd(exp0, exp); break;
+                case EnumExpOP.or: exp = new ExpOr(exp0, exp); break;
+            }
+        }
         this._where.exp = exp;
     }
+
     from(tbl: Table) {
         this._from = this.createFrom();
         this._from.tbl = tbl;
@@ -64,7 +75,7 @@ export abstract class WithFrom extends StatementBase {
     }
 
     protected abstract createWithFromBuilder(): WithFromBuilder;
-    where(exp: ExpCmp) { this.withFromBuilder.where(exp); return this; }
+    where(exp: ExpCmp, expOp?: EnumExpOP) { this.withFromBuilder.where(exp, expOp); return this; }
     from(tbl: Table) { this.withFromBuilder.from(tbl); return this; }
     join(join: JoinType, tbl: Table) { this.withFromBuilder.join(join, tbl); return this; }
     on(exp: ExpCmp) { this.withFromBuilder.on(exp); return this; }
@@ -77,8 +88,8 @@ export abstract class WithFrom extends StatementBase {
 export abstract class Column {
     exp: ExpVal;
     alias: string;
-    pointer: VarPointer;
-    constructor(exp: ExpVal, alias?: string, pointer?: VarPointer) {
+    pointer: NamePointer;
+    constructor(exp: ExpVal, alias?: string, pointer?: NamePointer) {
         this.exp = exp;
         this.alias = alias;
         this.pointer = pointer;

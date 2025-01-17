@@ -2,7 +2,7 @@ import * as parser from '../parser';
 import { CompareExpression, ValueExpression } from './Exp';
 import { IElement } from './IElement';
 import { Field, Table } from './field';
-import { Pointer, VarPointer, FieldPointer } from './pointer';
+import { Pointer, NamePointer, FieldPointer } from './pointer';
 import { Entity, Queue } from './entity';
 import { LocalTableBase } from './statement';
 
@@ -64,7 +64,7 @@ export class Delete extends WithFrom {
 export interface Column {
     alias: string;
     value: ValueExpression;
-    pointer?: VarPointer;
+    pointer?: NamePointer;
 }
 
 export interface OrderByWhenThen {

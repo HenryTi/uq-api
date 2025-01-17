@@ -11,7 +11,7 @@ import {
 } from '..';
 import { CompareExpression, ValueExpression } from '../../Exp';
 import { SetEqu } from '../../tool';
-import { VarPointer } from '../../pointer';
+import { NamePointer } from '../../pointer';
 import { BizPend } from '../Pend';
 import { Statement, UseSheet } from '../../statement';
 
@@ -98,7 +98,7 @@ export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSu
 }
 
 export abstract class BizStatementID<T extends BizAct = BizAct> extends BizStatementSub<T> {
-    toVar: VarPointer;
+    toVar: NamePointer;
     inVals: ValueExpression[];
 }
 

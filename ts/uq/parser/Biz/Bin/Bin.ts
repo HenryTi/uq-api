@@ -1,7 +1,7 @@
 import { binAmount, binFieldArr, binPrice, binValue } from "../../../consts";
 import {
     BizBin, BizBinAct, Field, Statements, Statement, BizBinActStatements
-    , Uq, Entity, Table, Pointer, VarPointer
+    , Uq, Entity, Table, Pointer, NamePointer
     , BizBudValue, bigIntField, BizEntity, BinPick, PickPend
     , DotVarPointer, EnumSysTable, BizBinActFieldSpace, BizBudDec, BudValue, BinInput
     , BinInputFork, BinInputAtom, BinDiv, BizBudIXBase, BizStatementBin
@@ -620,19 +620,19 @@ class BizBinSpace extends BizEntitySpace<BizBin> {
                 case 'ibase': if (this.bizEntity.iBase === undefined) return; break;
                 case 'xbase': if (this.bizEntity.xBase === undefined) return; break;
             }
-            return new VarPointer(name);
+            return new NamePointer(name);
         }
         if (this.bizEntity.props.has(name) === true) {
-            return new VarPointer(name);
+            return new NamePointer(name);
         }
         let pick = this.bizEntity.pickColl[name];
         if (pick !== undefined) {
-            return new VarPointer(name);
+            return new NamePointer(name);
         }
         else {
             let input = this.bizEntity.inputColl[name];
             if (input !== undefined) {
-                return new VarPointer(name);
+                return new NamePointer(name);
             }
         }
     }
@@ -690,7 +690,7 @@ class BizBinActSpace extends BizEntitySpace<BizBin> { // BizBinSpace {
 
     protected _varPointer(name: string, isField: boolean): Pointer {
         if (binPreDefined.indexOf(name) >= 0) {
-            return new VarPointer(name);
+            return new NamePointer(name);
         }
     }
 

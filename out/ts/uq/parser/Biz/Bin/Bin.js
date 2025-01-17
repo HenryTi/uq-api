@@ -585,19 +585,19 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
                         return;
                     break;
             }
-            return new il_1.VarPointer(name);
+            return new il_1.NamePointer(name);
         }
         if (this.bizEntity.props.has(name) === true) {
-            return new il_1.VarPointer(name);
+            return new il_1.NamePointer(name);
         }
         let pick = this.bizEntity.pickColl[name];
         if (pick !== undefined) {
-            return new il_1.VarPointer(name);
+            return new il_1.NamePointer(name);
         }
         else {
             let input = this.bizEntity.inputColl[name];
             if (input !== undefined) {
-                return new il_1.VarPointer(name);
+                return new il_1.NamePointer(name);
             }
         }
     }
@@ -649,7 +649,7 @@ class BizBinActSpace extends Biz_1.BizEntitySpace {
     }
     _varPointer(name, isField) {
         if (exports.binPreDefined.indexOf(name) >= 0) {
-            return new il_1.VarPointer(name);
+            return new il_1.NamePointer(name);
         }
     }
     _varsPointer(names) {

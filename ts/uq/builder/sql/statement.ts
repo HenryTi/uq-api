@@ -1,7 +1,7 @@
 import { ExpCmp, ExpVal } from './exp';
 import { SqlBuilder } from './sqlBuilder';
 import { Select } from './select';
-import { Field, DataType, Entity, VarPointer, SetEqu, TableVar, ProcParamType, Index } from '../../il';
+import { Field, DataType, Entity, NamePointer, SetEqu, TableVar, ProcParamType, Index } from '../../il';
 
 export interface Statement {
     declare(vars: { [name: string]: Field }, puts: { [name: string]: boolean }): void;
@@ -338,7 +338,7 @@ export abstract class Call extends StatementBase {
 
 export abstract class ExecSql extends StatementBase {
     toVar: string;
-    toVarPoint: VarPointer;
+    toVarPoint: NamePointer;
     sql: ExpVal;
     parameters: ExpVal[];
     no: number;

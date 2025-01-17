@@ -14,10 +14,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertExp = exports.Exp = void 0;
+exports.convertExp = void 0;
 __exportStar(require("./exps"), exports);
-var Exp_1 = require("./Exp");
-Object.defineProperty(exports, "Exp", { enumerable: true, get: function () { return Exp_1.Exp; } });
+__exportStar(require("./Exp"), exports);
 var convertExp_1 = require("./convertExp");
 Object.defineProperty(exports, "convertExp", { enumerable: true, get: function () { return convertExp_1.convertExp; } });
 __exportStar(require("./ExpRoutineExists"), exports);

@@ -90,7 +90,7 @@ class PVarStatement extends statement_1.PStatement {
                     this.log('重复定义变量 ' + name);
                     ok = false;
                 }
-                let vp = v.pointer = new il_1.VarPointer(name);
+                let vp = v.pointer; // = new VarPointer(name);
                 let no = this._var.no; // space.getVarNo();
                 vp.no = no;
                 space.setVarNo(no + 1);
@@ -117,7 +117,7 @@ class PVarStatement extends statement_1.PStatement {
                     this.log('重复定义变量 ' + name);
                     ok = false;
                 }
-                let vp = v.pointer = new il_1.VarPointer(name);
+                let vp = v.pointer; // = new VarPointer(name);
                 let no = this._var.no; //space.getVarNo();
                 vp.no = no;
                 space.setVarNo(no + 1);

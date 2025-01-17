@@ -210,7 +210,7 @@ class BizQuerySpace extends space_1.Space {
         if (isField === true)
             return;
         if (this.query.hasParam(name) === true) {
-            return new il_1.VarPointer();
+            return new il_1.NamePointer();
         }
     }
 }

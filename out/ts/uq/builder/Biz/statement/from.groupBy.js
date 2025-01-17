@@ -108,7 +108,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         ];
         if (cmpEntityBase !== undefined)
             wheres.unshift(cmpEntityBase);
-        select.where(new sql_1.ExpAnd(...wheres));
+        select.where(new sql_1.ExpAnd(...wheres), sql_1.EnumExpOP.and);
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
     }
@@ -367,7 +367,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const lastIdAlias = ids[ids.length - 1].fromEntity.alias + $idu;
         select.column(new sql_1.ExpField('id', lastIdAlias), 'id');
         select.column(new sql_1.ExpField('$id', '$ret'), 'atom');
-        select.where(this.context.expCmp(where));
+        select.where(this.context.expCmp(where), sql_1.EnumExpOP.and);
         this.buildSelectBan(select);
         let arr = this.buildSelectCols();
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');

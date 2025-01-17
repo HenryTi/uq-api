@@ -7,7 +7,7 @@ import {
     InBusAction, TuidArr, Proc, BookBase, Queue
 } from '../entity';
 import { Table, Field, ProcParamType, bigIntField } from '../field';
-import { FieldPointer, Pointer, VarPointer } from '../pointer';
+import { FieldPointer, Pointer, NamePointer, VarPointer } from '../pointer';
 import { Builder } from '../builder';
 import { Select, Delete, CTE } from '../select';
 import { FaceDataType } from '../busSchema';
@@ -181,11 +181,12 @@ export class Var {
     readonly name: string;
     readonly dataType: DataType;
     readonly exp: Expression;
-    pointer: VarPointer;   // scan之后才有的
+    pointer: NamePointer;   // scan之后才有的
     constructor(name: string, dataType: DataType, exp?: Expression) {
         this.name = name;
         this.dataType = dataType;
         this.exp = exp;
+        this.pointer = new VarPointer(this);
     }
     varName() {
         return this.pointer.varName(this.name);
@@ -459,7 +460,7 @@ export class TuidWrite extends Statement {
     div: TuidArr;
     into: string;
     isFlagInto: boolean = false;
-    intoPointer: VarPointer;
+    intoPointer: NamePointer;
     of: ValueExpression;
     id: ValueExpression;
     unique: ValueExpression[];
@@ -479,7 +480,7 @@ export class PendingWrite extends Statement {
     pending: Pending;
     act: '+' | '-' | '=';
     idVar: string;
-    idPointer: VarPointer;
+    idPointer: NamePointer;
     idExp: ValueExpression;
     //fieldVals: {[field:string]: ValueExpression};
     set: WriteSet[] = [];
@@ -585,7 +586,7 @@ export class ScheduleStatement extends Statement {
 export class ExecSqlStatement extends Statement {
     sql: ValueExpression;
     toVar: string;
-    toVarPointer: VarPointer;
+    toVarPointer: NamePointer;
     get type(): string { return 'execSql'; }
     db(db: Builder): object { return db.execSqlStatement(this) }
     parser(context: parser.PContext) { return new parser.PExecSqlStatement(this, context); }

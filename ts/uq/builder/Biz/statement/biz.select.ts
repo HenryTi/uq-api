@@ -1,5 +1,6 @@
 import { EnumSysTable, JoinType, BizFromEntity, IdColumn, BizIDExtendable } from "../../../il";
 import {
+    EnumExpOP,
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, ExpOr, ExpVal, Select,
 } from "../../sql";
 import { EntityTable, GlobalSiteTable, GlobalTable, Table } from "../../sql/statementWithFrom";
@@ -155,10 +156,26 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     break;
                 case BizPhraseType.fork:
                     t0 = t0$idu;
-                    joinTable = EnumSysTable.fork;
+                    // joinTable = EnumSysTable.fork;
                     break;
             }
             table = new EntityTable(bizEntityTable, false, t0);
+            let expBaseEQ: ExpCmp;
+            switch (bizEntityArr.length) {
+                case 0:
+                    break;
+                case 1:
+                    if (fromEntity.isExtended() === false) {
+                        expBaseEQ = new ExpEQ(new ExpField('base', t0), new ExpNum(bizEntityArr[0].id))
+                    }
+                    break;
+                default:
+                    expBaseEQ = new ExpIn(new ExpField('base', t0), ...bizEntityArr.map(v => new ExpNum(v.id)))
+                    break;
+            }
+            if (expBaseEQ !== undefined) {
+                select.where(expBaseEQ, EnumExpOP.and);
+            }
         }
         else {
             table = new GlobalSiteTable(this.context.site, bizEntityArr[0].id, t0);
@@ -167,6 +184,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         if (joinTable !== undefined) {
             let expIdEQ = new ExpEQ(new ExpField('id', alias), new ExpField('id', t0));
             let expOn: ExpCmp = expIdEQ;
+            /*
             switch (bizEntityArr.length) {
                 case 0:
                     expOn = expIdEQ;
@@ -186,6 +204,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     )
                     break;
             }
+            */
             select.join(JoinType.left, new EntityTable(joinTable, false, alias))
                 .on(expOn);
         }

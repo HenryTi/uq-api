@@ -11,7 +11,8 @@ import {
     BizBud,
     BizCheckBudOperand,
     BizFromEntity,
-    FuncBetween
+    FuncBetween,
+    Atom
 } from '../../../il';
 import { ExpQueue } from './ExpQueue';
 import { ExpID } from './ExpID';
@@ -51,15 +52,12 @@ function convertExpInternal(stack: Stack, exp: Expression) {
 export function convertExp(context: DbContext, exp: Expression): Exp {
     let stack = new Stack(context);
     return convertExpInternal(stack, exp);
-    /*
-    if (!exp) return;
+}
+
+export function convertAtom(context: DbContext, atom: Atom): Exp {
     let stack = new Stack(context);
-    for (let atom of exp.atoms) {
-        atom.to(stack);
-    }
-    let ret = stack.getExp();
-    return ret;
-    */
+    atom.to(stack);
+    return stack.getExp();
 }
 
 class Stack implements IlStack {

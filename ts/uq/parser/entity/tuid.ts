@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Tuid, Field, ID, BigInt, Index, TuidArr, Entity, Table, Uq, Import, IdSize, ActionStatement, Pointer, VarPointer, Bus, /*TagDataType, */IdDataType } from '../../il';
+import { Tuid, Field, ID, BigInt, Index, TuidArr, Entity, Table, Uq, Import, IdSize, ActionStatement, Pointer, NamePointer, Bus, /*TagDataType, */IdDataType } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { ActionBaseSpace } from './entity';
@@ -527,11 +527,11 @@ export class TuidSpace extends ActionBaseSpace {
     }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
-        if (name === 'id') return new VarPointer();
-        if (name === '$user') return new VarPointer();
-        if (this.tuid.main.find(f => f.name === name) !== undefined) return new VarPointer();
+        if (name === 'id') return new NamePointer();
+        if (name === '$user') return new NamePointer();
+        if (this.tuid.main.find(f => f.name === name) !== undefined) return new NamePointer();
         return this.tuid.fields.find(f => f.name === name) !== undefined ?
-            new VarPointer() : undefined;
+            new NamePointer() : undefined;
     }
     protected _useBusFace(bus: Bus, face: string, arr: string, local: boolean): boolean {
         this.tuid.useBusFace(bus, face, arr, local);

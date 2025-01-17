@@ -64,6 +64,25 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
         }
         this.parseWhere();
         this.parseOrder();
+        if (this.ts.isKeyword('limit') === true) {
+            this.ts.readToken();
+            let limit;
+            switch (this.ts.token) {
+                default: this.expect('number or var');
+                case tokens_1.Token.NUM:
+                    limit = new il_1.NumberOperand(this.ts.dec);
+                    this.ts.readToken();
+                    break;
+                case tokens_1.Token.VAR:
+                    let v = new il_1.VarOperand();
+                    limit = v;
+                    v._var.push(this.ts.lowerVar);
+                    this.ts.readToken();
+                    this.context.parseElement(v);
+                    break;
+            }
+            this.element.limit = limit;
+        }
         this.ts.passToken(tokens_1.Token.RPARENTHESE);
         let statement = this.element.statements = this.context.createStatements(this.element);
         statement.level = this.element.level;
@@ -103,7 +122,7 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
         let ok = super.scan(space);
         if (ok === false)
             return ok;
-        const { ids, values, statements, vars, orderBys } = this.element;
+        const { ids, values, statements, vars, orderBys, limit } = this.element;
         let theSpace = new BizForSpace(space, this.element);
         for (let [n, [v, asc]] of this.ids) {
             let fromEntity = theSpace.getBizFromEntityArrFromAlias(v);
@@ -133,7 +152,7 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
         }
         for (let i in vars) {
             let vr = vars[i];
-            let vp = vr.pointer = new il_1.VarPointer();
+            let vp = vr.pointer; //  = new VarPointer(vr);
             let no = theSpace.getVarNo();
             vp.no = no;
             theSpace.setVarNo(no + 1);
@@ -145,6 +164,29 @@ class PBizFor extends BizSelectStatement_1.PBizSelectStatement {
                 continue;
             ok = false;
             this.log(`${fieldName} is not defined`);
+        }
+        if (limit !== undefined) {
+            const { pelement } = limit;
+            if (pelement !== undefined) {
+                if (pelement.scan(space) === false) {
+                    ok = false;
+                }
+                else if (limit.type === 'var') {
+                    let varLimit = limit;
+                    let vp = varLimit.pointer;
+                    switch (vp._var.dataType.type) {
+                        default:
+                            this.log('LIMIT only support int variable');
+                            ok = false;
+                            break;
+                        case 'tinyint':
+                        case 'smallint':
+                        case 'int':
+                        case 'bigint':
+                            break;
+                    }
+                }
+            }
         }
         if (statements.pelement.scan(theSpace) === false) {
             ok = false;

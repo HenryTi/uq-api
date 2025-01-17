@@ -1,12 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VarTableWithDb = exports.VarTableWithSchema = exports.VarTable = exports.NameTable = exports.IDEntityTable = exports.EntityTable = exports.GlobalSiteTable = exports.GlobalTable = exports.FromJsonTable = exports.Table = exports.Search = exports.Where = exports.Join = exports.From = exports.Column = exports.WithFrom = exports.WithFromBuilder = void 0;
+const exp_1 = require("./exp");
 const statement_1 = require("./statement");
 const core_1 = require("../../../core");
 const consts_1 = require("../consts");
 class WithFromBuilder {
-    where(exp) {
-        this._where = this.createWhere();
+    where(exp, expOp) {
+        if (expOp === undefined || this._where === undefined) {
+            this._where = this.createWhere();
+        }
+        else {
+            const { exp: exp0 } = this._where;
+            switch (expOp) {
+                default:
+                    debugger;
+                    break;
+                case exp_1.EnumExpOP.and:
+                    exp = new exp_1.ExpAnd(exp0, exp);
+                    break;
+                case exp_1.EnumExpOP.or:
+                    exp = new exp_1.ExpOr(exp0, exp);
+                    break;
+            }
+        }
         this._where.exp = exp;
     }
     from(tbl) {
@@ -51,7 +68,7 @@ class WithFrom extends statement_1.StatementBase {
         super();
         this.withFromBuilder = this.createWithFromBuilder();
     }
-    where(exp) { this.withFromBuilder.where(exp); return this; }
+    where(exp, expOp) { this.withFromBuilder.where(exp, expOp); return this; }
     from(tbl) { this.withFromBuilder.from(tbl); return this; }
     join(join, tbl) { this.withFromBuilder.join(join, tbl); return this; }
     on(exp) { this.withFromBuilder.on(exp); return this; }

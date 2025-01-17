@@ -1,5 +1,5 @@
 import { EnumAsc, Field, Int, intField, tinyIntField } from '../../../il';
-import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar, SqlVarTable } from '../../sql';
+import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar, SqlVarTable, EnumExpOP } from '../../sql';
 import { VarTable as FromVarTable } from '../../sql/statementWithFrom';
 
 import { BizFor } from "../../../il";
@@ -22,7 +22,7 @@ export class BBizFor extends BBizSelect<BizFor> {
     }
 
     private buildForSelect(sqls: Sqls) {
-        const { ids, values, vars, statements, fromEntity, where, isGroup, orderBys } = this.istatement;
+        const { ids, values, vars, statements, fromEntity, where, isGroup, orderBys, limit } = this.istatement;
         this.createDeclareVars(sqls);
 
         let { no } = this.istatement;
@@ -103,7 +103,7 @@ export class BBizFor extends BBizSelect<BizFor> {
         }
         this.buildSelectFrom(select, fromEntity);
         this.buildSelectJoin(select, fromEntity);
-        select.where(this.context.expCmp(where));
+        select.where(this.context.expCmp(where), EnumExpOP.and);
         if (isGroup === true) {
             for (let [, idCol] of ids) {
                 //select.group(new ExpField('id', idCol.fromEntity.alias));
@@ -116,6 +116,9 @@ export class BBizFor extends BBizSelect<BizFor> {
                 if (expVal === undefined) debugger;
                 select.order(expVal, asc === EnumAsc.desc ? 'desc' : 'asc');
             }
+        }
+        if (limit !== undefined) {
+            select.limit(this.context.atomVal(limit));
         }
 
         let row = '$row_' + no;

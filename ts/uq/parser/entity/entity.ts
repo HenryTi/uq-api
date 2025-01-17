@@ -1,7 +1,7 @@
 import { PContext } from '../pContext';
 import {
     Entity, Field, Table, ActionBase, Arr
-    , Pointer, VarPointer, Of, Tuid, TableVar
+    , Pointer, NamePointer, Of, Tuid, TableVar
     , EntityWithTable, Index, decField, textField, bigIntField
     , BusField, FacePrimitivType, InBusAction, ActionHasInBus
     , ID, IDX, SharpField, ValueExpression, SysProc, EntityAccessibility
@@ -1044,9 +1044,9 @@ export class ActionBaseSpace extends Space {
     }
     protected _getTableByAlias(alias: string): Table { return; }
     protected _varPointer(name: string, isField: boolean): Pointer {
-        if (dollarVars.indexOf(name) >= 0) return new VarPointer();
+        if (dollarVars.indexOf(name) >= 0) return new NamePointer();
         return this.actionBase?.fields.find(f => f.name === name) !== undefined ?
-            new VarPointer() : undefined;
+            new NamePointer() : undefined;
     }
     protected _getArr(name: string): Arr {
         return this.actionBase?.arrs.find(v => v.name === name);

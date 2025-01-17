@@ -1,6 +1,6 @@
 import { BBizFor, DbContext } from '../../../builder';
 import { PBizFor, PContext, PElement } from '../../../parser';
-import { ValueExpression } from '../../Exp';
+import { Atom, ValueExpression } from '../../Exp';
 import { IElement } from '../../IElement';
 import { Statements, Var } from '../../statement';
 import { BizFromEntity } from '../Entity';
@@ -23,6 +23,7 @@ export class BizFor extends BizSelectStatement {
     readonly values: Map<string, ValueExpression> = new Map();
     isGroup: boolean;
     readonly orderBys: BizForOrderBy[] = [];
+    limit: Atom;
     statements: Statements;
 
     db(db: DbContext): object {

@@ -5,3 +5,8 @@ export abstract class Exp {
     abstract to(sb: SqlBuilder): void;
     get voided(): boolean { return false; }
 }
+
+export enum EnumExpOP {
+    and,
+    or,
+}

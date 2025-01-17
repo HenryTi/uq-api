@@ -99,7 +99,7 @@ class QuerySpace extends entity_1.ActionBaseSpace {
             if (name === '$date')
                 return;
             if (this.isSupportedDollarVar(name) === true) {
-                return new il_1.VarPointer();
+                return new il_1.NamePointer();
             }
         }
         return super._varPointer(name, isField);

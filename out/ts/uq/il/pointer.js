@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntityFieldPointer = exports.BizEntityBudPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.Pointer = exports.GroupType = void 0;
+exports.BizEntityFieldPointer = exports.BizEntityBudPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.NamePointer = exports.Pointer = exports.GroupType = void 0;
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
 var GroupType;
 (function (GroupType) {
@@ -11,7 +11,7 @@ var GroupType;
 class Pointer {
 }
 exports.Pointer = Pointer;
-class VarPointer extends Pointer {
+class NamePointer extends Pointer {
     constructor(name) {
         super();
         this.groupType = GroupType.Single;
@@ -28,6 +28,13 @@ class VarPointer extends Pointer {
             v = this.arr + '_' + v;
         }
         return this.no === undefined ? v : v + '_' + this.no;
+    }
+}
+exports.NamePointer = NamePointer;
+class VarPointer extends NamePointer {
+    constructor(_var) {
+        super(_var.name);
+        this._var = _var;
     }
 }
 exports.VarPointer = VarPointer;
