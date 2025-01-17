@@ -223,14 +223,14 @@ exports.BizEntity = BizEntity;
 class BizID extends BizEntity {
     constructor() {
         super(...arguments);
-        this.isID = true;
+        this.isIDScan = true;
     }
 }
 exports.BizID = BizID;
 class BizNotID extends BizEntity {
     constructor() {
         super(...arguments);
-        this.isID = false;
+        this.isIDScan = false;
         this.fields = [];
     }
 }

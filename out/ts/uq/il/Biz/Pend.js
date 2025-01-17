@@ -136,7 +136,7 @@ exports.BizQueryTableInPendStatements = BizQueryTableInPendStatements;
 class PendQuery extends Query_1.BizQueryTable {
     constructor(bizPend) {
         super(bizPend.biz);
-        this.isID = false;
+        this.isIDScan = false;
         this.bizPend = bizPend;
     }
     parser(context) {

@@ -31,8 +31,6 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             this.buildProcTitlePrime(procTitlePrime);
             const procGet = this.createSiteEntityProcedure('ag');
             this.buildProcGet(procGet);
-            const procSet = this.createSiteEntityProcedure('as');
-            this.buildProcSet(procSet);
             if (uniques !== undefined) {
                 const budUniques = new Map();
                 for (let uq of uniques) {
@@ -302,13 +300,6 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             const expPhrase = new sql_1.ExpStr(bud.name);
             insert.select = BizBud_1.BBizBud.createBBizBud(this.context, bud).buildBudSelectWithoutIdCol(expPhrase, varId);
         });
-    }
-    buildProcSet(proc) {
-        const { parameters, statements } = proc;
-        const { factory } = this.context;
-        const memo = factory.createMemo();
-        statements.push(memo);
-        memo.text = 'set atom ' + this.bizEntity.name;
     }
 }
 exports.BBizAtom = BBizAtom;

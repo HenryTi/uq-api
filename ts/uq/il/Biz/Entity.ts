@@ -45,7 +45,7 @@ export abstract class BizEntity extends BizBase {
         return this;
     }
 
-    abstract get isID(): boolean;
+    abstract get isIDScan(): boolean;
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -244,12 +244,12 @@ export abstract class BizEntity extends BizBase {
 }
 
 export abstract class BizID extends BizEntity {
-    readonly isID = true;
+    readonly isIDScan = true;
     abstract get main(): BizID;
 }
 
 export abstract class BizNotID extends BizEntity {
-    readonly isID = false;
+    readonly isIDScan = false;
     protected readonly fields = [];
 }
 

@@ -138,7 +138,7 @@ export class BizQueryTableInPendStatements extends Statements {
 }
 
 export class PendQuery extends BizQueryTable {
-    readonly isID = false;
+    readonly isIDScan = false;
     readonly bizPend: BizPend;
     constructor(bizPend: BizPend) {
         super(bizPend.biz);

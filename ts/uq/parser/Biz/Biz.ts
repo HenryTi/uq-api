@@ -91,6 +91,18 @@ export class PBiz extends PEntity<Biz> {
         bizArr.push(root);
     }
 
+    private foreachScan(scan: (entity: BizEntity) => void) {
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isIDScan === true && p.bizPhraseType !== BizPhraseType.bin) scan(p);
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.bizPhraseType === BizPhraseType.bin) scan(p);
+        }
+        for (let [, p] of this.entity.bizEntities) {
+            if (p.isIDScan === false) scan(p);
+        }
+    }
+
     scan0(space: Space): boolean {
         let ok = true;
         function scan0(entity: BizEntity) {
@@ -99,13 +111,16 @@ export class PBiz extends PEntity<Biz> {
                 ok = false;
             }
         }
+        this.foreachScan(scan0);
+        /*
         for (let [, p] of this.entity.bizEntities) {
-            if (p.isID === true) scan0(p);
+            if (p.isIDScan === true) scan0(p);
         }
 
         for (let [, p] of this.entity.bizEntities) {
-            if (p.isID === false) scan0(p);
+            if (p.isIDScan === false) scan0(p);
         }
+        */
         return ok;
     }
 
@@ -125,14 +140,7 @@ export class PBiz extends PEntity<Biz> {
                         const { main: binMain } = bin;
                         bin.sheetArr.push(sheet);
                         if (binMain !== main && binMain !== undefined && main !== undefined) {
-                            /*
-                            if (binMain === undefined) {
-                                this.log(`BIN ${bin.name} must define MAIN when used as DETAIL`);
-                            }
-                            else if (main !== undefined) {
-                            */
                             this.log(`BIN ${bin.name} MAIN ${binMain.name}, SHEET ${sheet.name} MAIN ${main.name}, must be the same`);
-                            // }
                             ok = false;
                         }
                     }
@@ -148,20 +156,15 @@ export class PBiz extends PEntity<Biz> {
                 ok = false;
             }
         }
+        this.foreachScan(scan);
+        /*
         for (let [, p] of bizEntities) {
-            if (p.isID === true) scan(p);
+            if (p.isIDScan === true) scan(p);
         }
         for (let [, p] of bizEntities) {
-            if (p.isID === false) scan(p);
-            /*
-            let { pelement } = p;
-            if (pelement === undefined) continue;
-            let bizEntitySpace = new BizEntitySpace(space, p);
-            if (pelement.scan(bizEntitySpace) === false) {
-                ok = false;
-            }
-            */
+            if (p.isIDScan === false) scan(p);
         }
+        */
         this.entity.buildPhrases();
         return ok;
     }
@@ -175,12 +178,15 @@ export class PBiz extends PEntity<Biz> {
                 ok = false;
             }
         }
+        this.foreachScan(scan2);
+        /*
         for (let [, p] of this.entity.bizEntities) {
-            if (p.isID === true) scan2(p);
+            if (p.isIDScan === true) scan2(p);
         }
         for (let [, p] of this.entity.bizEntities) {
-            if (p.isID === false) scan2(p);
+            if (p.isIDScan === false) scan2(p);
         }
+        */
         for (let [, p] of this.entity.bizEntities) {
             switch (p.bizPhraseType) {
                 case BizPhraseType.atom:
