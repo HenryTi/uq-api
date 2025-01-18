@@ -12,8 +12,9 @@ import { LockType, SelectTable } from "../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
 import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
+import { $idu } from "./biz.select";
 
-const a = 'a', b = 'b', c = 'c', $idu = '$idu';
+const a = 'a', b = 'b', c = 'c';
 const tblDetail = '$detail';
 const pageGroupBy = '$pageGroupBy';
 

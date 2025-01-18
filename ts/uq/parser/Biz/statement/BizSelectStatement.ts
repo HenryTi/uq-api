@@ -380,7 +380,8 @@ abstract class FEScanBase {
     protected scanSub(b: PFromEntity, field: string, fieldBud: BizBud, callbackOnEmpty: () => BizEntity): BizFromEntitySub {
         let fromEntity = this.createFromEntity(b);
         if (fromEntity === undefined) {
-            fromEntity = new BizFromEntity(this.fromEntity);
+            return;
+            // fromEntity = new BizFromEntity(this.fromEntity);
         }
         let { bizEntityArr } = fromEntity;
         if (bizEntityArr === undefined) {

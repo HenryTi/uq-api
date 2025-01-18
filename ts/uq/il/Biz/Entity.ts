@@ -297,7 +297,7 @@ export class BizFromEntity<E extends BizEntity = BizEntity> {
     }
 
     expIdCol() {
-        const $idu = '$idu';
+        const $idu = ''; // '$idu';
         const { parent } = this;
         if (this.isForkBase === true) {
             return new ExpFunc(

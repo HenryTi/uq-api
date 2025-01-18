@@ -8,6 +8,8 @@ import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { BizSelectStatement } from "../../../il";
 import { BStatement } from "../../bstatement";
 
+export const $idu = ''; // '$idu';
+export const $atom = '$atom';
 export abstract class BBizSelect<T extends BizSelectStatement> extends BStatement<T> {
     protected buildSelectJoin(select: Select, fromEntity: BizFromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
@@ -58,21 +60,20 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                 let entityIdsLength = entityIds.length;
                 const entityTable = this.buildEntityTable(subFromEntity);
                 let joinAtom: JoinType;
-                let $idu = '$idu';
                 let subAliasIDU = subAlias + $idu;
-                let expOnEQAtom = new ExpEQ(new ExpField('id', subAlias), new ExpField('id', subAliasIDU));
+                let subAliasAtom = subAlias + $atom;
+                let expOnEQAtom = new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', subAliasIDU));
                 let expOn$Atom: ExpCmp;
                 if (isForkBase === true) {
                     // isForkBase
                     joinAtom = JoinType.left;
                     expOn$Atom = new ExpOr(
                         expOnEQAtom,
-                        new ExpEQ(new ExpField('id', subAlias), new ExpField('id', alias + $idu)),
+                        new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', alias + $idu)),
                     );
                 }
                 else {
                     joinAtom = JoinType.join;
-                    expOn$Atom = expOnEQAtom;
                 }
                 const buildExpOn = (expAlias: ExpVal, expEQIdField: ExpCmp): ExpCmp => {
                     let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
@@ -102,7 +103,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                         select
                             .join(joinAtom, entityTable)
                             .on(expOnAtom)
-                            .join(JoinType.left, new EntityTable(EnumSysTable.atom, false, subAlias))
+                            .join(JoinType.left, new EntityTable(EnumSysTable.atom, false, subAliasAtom))
                             .on(expOn$Atom);
                         break;
                     case BizPhraseType.fork:
@@ -129,7 +130,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         if (bizEntityTable !== undefined) {
             switch (bizPhraseType) {
                 case BizPhraseType.atom:
-                case BizPhraseType.fork: t0 += '$idu'; break;
+                case BizPhraseType.fork: t0 += $idu; break;
             }
             let ret = new EntityTable(bizEntityTable, false, t0);
             return ret;
@@ -148,7 +149,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         let t0 = alias;
         let joinTable: EnumSysTable;
         if (bizEntityTable !== undefined) {
-            let t0$idu = alias + '$idu';
+            let t0$idu = alias + $idu;
             switch (bizPhraseType) {
                 case BizPhraseType.atom:
                     t0 = t0$idu;
@@ -182,7 +183,8 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         }
         select.from(table);
         if (joinTable !== undefined) {
-            let expIdEQ = new ExpEQ(new ExpField('id', alias), new ExpField('id', t0));
+            let aliasAtom = alias + $atom;
+            let expIdEQ = new ExpEQ(new ExpField('id', aliasAtom), new ExpField('id', t0));
             let expOn: ExpCmp = expIdEQ;
             /*
             switch (bizEntityArr.length) {
@@ -205,7 +207,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                     break;
             }
             */
-            select.join(JoinType.left, new EntityTable(joinTable, false, alias))
+            select.join(JoinType.left, new EntityTable(joinTable, false, aliasAtom))
                 .on(expOn);
         }
     }

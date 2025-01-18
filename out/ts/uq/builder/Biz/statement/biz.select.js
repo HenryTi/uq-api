@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizSelect = void 0;
+exports.BBizSelect = exports.$atom = exports.$idu = void 0;
 const il_1 = require("../../../il");
 const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const bstatement_1 = require("../../bstatement");
+exports.$idu = ''; // '$idu';
+exports.$atom = '$atom';
 class BBizSelect extends bstatement_1.BStatement {
     buildSelectJoin(select, fromEntity) {
         const { bizEntityArr, ofIXs, ofOn, alias, subs } = fromEntity;
@@ -51,18 +53,17 @@ class BBizSelect extends bstatement_1.BStatement {
                 let entityIdsLength = entityIds.length;
                 const entityTable = this.buildEntityTable(subFromEntity);
                 let joinAtom;
-                let $idu = '$idu';
-                let subAliasIDU = subAlias + $idu;
-                let expOnEQAtom = new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', subAliasIDU));
+                let subAliasIDU = subAlias + exports.$idu;
+                let subAliasAtom = subAlias + exports.$atom;
+                let expOnEQAtom = new sql_1.ExpEQ(new sql_1.ExpField('id', subAliasAtom), new sql_1.ExpField('id', subAliasIDU));
                 let expOn$Atom;
                 if (isForkBase === true) {
                     // isForkBase
                     joinAtom = il_1.JoinType.left;
-                    expOn$Atom = new sql_1.ExpOr(expOnEQAtom, new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', alias + $idu)));
+                    expOn$Atom = new sql_1.ExpOr(expOnEQAtom, new sql_1.ExpEQ(new sql_1.ExpField('id', subAliasAtom), new sql_1.ExpField('id', alias + exports.$idu)));
                 }
                 else {
                     joinAtom = il_1.JoinType.join;
-                    expOn$Atom = expOnEQAtom;
                 }
                 const buildExpOn = (expAlias, expEQIdField) => {
                     let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
@@ -72,7 +73,7 @@ class BBizSelect extends bstatement_1.BStatement {
                             new sql_1.ExpAnd(expEQIdField, expCmpBase);
                 };
                 const expMainField = fieldBud === undefined ?
-                    new sql_1.ExpField(field, alias + $idu)
+                    new sql_1.ExpField(field, alias + exports.$idu)
                     :
                         new sql_1.ExpField(String(fieldBud.id), alias);
                 switch (bizPhraseType) {
@@ -87,7 +88,7 @@ class BBizSelect extends bstatement_1.BStatement {
                         select
                             .join(joinAtom, entityTable)
                             .on(expOnAtom)
-                            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, subAlias))
+                            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, subAliasAtom))
                             .on(expOn$Atom);
                         break;
                     case BizPhraseType_1.BizPhraseType.fork:
@@ -113,7 +114,7 @@ class BBizSelect extends bstatement_1.BStatement {
             switch (bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.atom:
                 case BizPhraseType_1.BizPhraseType.fork:
-                    t0 += '$idu';
+                    t0 += exports.$idu;
                     break;
             }
             let ret = new statementWithFrom_1.EntityTable(bizEntityTable, false, t0);
@@ -132,7 +133,7 @@ class BBizSelect extends bstatement_1.BStatement {
         let t0 = alias;
         let joinTable;
         if (bizEntityTable !== undefined) {
-            let t0$idu = alias + '$idu';
+            let t0$idu = alias + exports.$idu;
             switch (bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.atom:
                     t0 = t0$idu;
@@ -166,7 +167,8 @@ class BBizSelect extends bstatement_1.BStatement {
         }
         select.from(table);
         if (joinTable !== undefined) {
-            let expIdEQ = new sql_1.ExpEQ(new sql_1.ExpField('id', alias), new sql_1.ExpField('id', t0));
+            let aliasAtom = alias + exports.$atom;
+            let expIdEQ = new sql_1.ExpEQ(new sql_1.ExpField('id', aliasAtom), new sql_1.ExpField('id', t0));
             let expOn = expIdEQ;
             /*
             switch (bizEntityArr.length) {
@@ -189,7 +191,7 @@ class BBizSelect extends bstatement_1.BStatement {
                     break;
             }
             */
-            select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(joinTable, false, alias))
+            select.join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(joinTable, false, aliasAtom))
                 .on(expOn);
         }
     }

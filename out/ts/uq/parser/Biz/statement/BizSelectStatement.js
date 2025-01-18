@@ -326,7 +326,8 @@ class FEScanBase {
     scanSub(b, field, fieldBud, callbackOnEmpty) {
         let fromEntity = this.createFromEntity(b);
         if (fromEntity === undefined) {
-            fromEntity = new il_1.BizFromEntity(this.fromEntity);
+            return;
+            // fromEntity = new BizFromEntity(this.fromEntity);
         }
         let { bizEntityArr } = fromEntity;
         if (bizEntityArr === undefined) {

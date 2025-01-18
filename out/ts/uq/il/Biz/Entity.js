@@ -266,7 +266,7 @@ class BizFromEntity {
         return false;
     }
     expIdCol() {
-        const $idu = '$idu';
+        const $idu = ''; // '$idu';
         const { parent } = this;
         if (this.isForkBase === true) {
             return new builder_1.ExpFunc('ifnull', new builder_1.ExpField('id', this.alias + $idu), new builder_1.ExpField('id', parent.alias + $idu));
