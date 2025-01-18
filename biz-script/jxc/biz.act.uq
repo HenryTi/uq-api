@@ -65,17 +65,19 @@ RETURNS ret (
     INTO ret SELECT id;
 }
 
-Biz ACT GetAtomNos(
-    ARR arr (
-        entity ID,
-        no CHAR(100),
-    )
+Biz ACT GetAtomIds(
+    entity ID,
+    arrNo JSON,
 )
 RETURNS ret (
+    no CHAR(100),
     id ID,
 ) {
-    INTO ret SELECT b.id
-        FROM Arr as a LEFT JOIN Atom as b ON b.base=a.entity AND b.no=a.no;
+    JSONTABLE tbl (
+        no CHAR(200) PATH '$[0]'
+    ) FROM arrNo PATH '$[*]';
+    INTO ret SELECT a.no, b.id
+        FROM tbl as a LEFT JOIN Atom as b ON b.base=entity AND b.no=a.no;
 }
 
 Biz ACT SaveBudValue ver 0.4 (
