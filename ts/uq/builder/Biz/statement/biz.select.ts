@@ -74,6 +74,7 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                 }
                 else {
                     joinAtom = JoinType.join;
+                    expOn$Atom = expOnEQAtom;
                 }
                 const buildExpOn = (expAlias: ExpVal, expEQIdField: ExpCmp): ExpCmp => {
                     let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);

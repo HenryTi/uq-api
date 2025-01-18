@@ -64,6 +64,7 @@ class BBizSelect extends bstatement_1.BStatement {
                 }
                 else {
                     joinAtom = il_1.JoinType.join;
+                    expOn$Atom = expOnEQAtom;
                 }
                 const buildExpOn = (expAlias, expEQIdField) => {
                     let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
