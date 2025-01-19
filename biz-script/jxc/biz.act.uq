@@ -1,5 +1,4 @@
 Biz ACT SaveAtom ver 0.2 (
-    rootPhrase ID,
     phrase ID,
     no NO,
     ex CHAR(200),
@@ -9,6 +8,7 @@ RETURNS ret (
 ) {
     -- 判断是不是已经有同编号的输入了。比如，我正在输入的时候，别人也输入了。
     VAR id ID = 0;
+    VAR rootPhrase ID=RootPhrase(phrase);
     SET id=(SELECT a.id FROM Atom as a WHERE a.base=rootPhrase and a.no=no);
     IF id IS NULL {
         SET id = ID(Atom new KEY base=rootPhrase);
