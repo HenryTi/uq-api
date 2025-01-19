@@ -1,3 +1,15 @@
+FUNC RootPhrase(
+    phrase ID,
+) RETURNS ID {
+    VAR rootPhrase ID=phrase, parentPhrase ID;
+    WHILE 1=1 {
+        SET parentPhrase=a.i FROM IxPhrase as a WHERE a.x=rootPhrase;
+        IF parentPhrase IS NULL OR parentPhrase<=0 {break;}
+        SET rootPhrase=parentPhrase;
+    }
+    RETURN rootPhrase;
+}
+
 Biz Query GetIDList (
     phrase ID,          -- ID prhase
     tie ID,             -- tie ID, or index bud 
@@ -27,6 +39,8 @@ RETURNS specs (
     (id) KEY,
 ) {
     VAR bizPhraseType ENUM BizPhraseType = a.type FROM BizPhrase as a WHERE a.id=phrase;
+    VAR rootPhrase ID=RootPhrase(phrase);
+
     TABLE idtable (KEY id ID, phrase ID);
     IF tie IS NOT NULL {
         IF bizPhraseType=BizPhraseType.atom {
@@ -49,6 +63,7 @@ RETURNS specs (
     }
     ELSE {
         IF bizPhraseType=BizPhraseType.atom {
+            /*
             PAGE WITH RECURSIVE pPhrase AS (
                 SELECT r.i, r.x
                 FROM -- idtable as s
@@ -67,6 +82,21 @@ RETURNS specs (
                 WHERE c.id>$pageStart AND SEARCH(c.no, c.ex LIKE searchKey)
                 ORDER BY c.id ASC
                 LIMIT $pageSize;
+            */
+            IF searchKey IS NULL OR searchKey='' {
+                PAGE SELECT c.id as id, c.base as phrase
+                    FROM IDU as a JOIN Atom as c ON c.id=a.id AND a.base=phrase AND c.base=rootPhrase
+                    WHERE c.id>$pageStart
+                    ORDER BY c.id ASC
+                    LIMIT $pageSize;
+            }
+            ELSE {
+                PAGE SELECT c.id as id, c.base as phrase
+                    FROM IDU as a JOIN Atom as c ON c.id=a.id AND a.base=phrase AND c.base=rootPhrase
+                    WHERE c.id>$pageStart AND SEARCH(c.no, c.ex LIKE searchKey)
+                    ORDER BY c.id ASC
+                    LIMIT $pageSize;
+            }
         }
         ELSEIF bizPhraseType=BizPhraseType.fork {
             PAGE SELECT d.id as id, d.base as phrase

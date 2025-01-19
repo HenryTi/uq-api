@@ -864,8 +864,9 @@ PAGE (
 ) {
     -- VAR base ID = PhraseId(atom);
     PAGE SELECT a.id, a.no, a.ex, a.base as phrase -- d.name as phrase
-        FROM Atom as a 
-        WHERE a.base=atom AND a.id<$pageStart AND SEARCH(a.no, a.ex LIKE key)
+        FROM Atom as a JOIN IDU as b ON b.id=a.id AND a.base=RootPhrase(atom) AND b.base=atom
+        -- WHERE (a.base=atom OR b.base=atom) AND a.id<$pageStart AND SEARCH(a.no, a.ex LIKE key)
+        WHERE a.id<$pageStart AND SEARCH(a.no, a.ex LIKE key)
         ORDER BY a.id desc
         LIMIT $pageSize;
 };

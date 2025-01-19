@@ -123,8 +123,10 @@ export class UqBuilder {
             return this.saveBizObject(entity);
         }));
         const ixPairs = this.biz.getEntityIxPairs(newest);
-        await this.runner.unitUserTableFromProc('SaveBizIX'
-            , this.site, this.user, JSON.stringify(ixPairs));
+        if (ixPairs.length > 0) {
+            await this.runner.unitUserTableFromProc('SaveBizIX'
+                , this.site, this.user, JSON.stringify(ixPairs));
+        }
         const ixBizRoles = this.biz.getIxRoles();
         await this.runner.unitUserTableFromProc('SaveIxPermission'
             , this.site, this.user, JSON.stringify(ixBizRoles));
