@@ -13,7 +13,7 @@ import { IElement } from '../IElement';
 import { Select } from '../select';
 import { Pointer } from '../pointer';
 import { Entity, ID, Queue } from '../entity';
-import { BizBase, BizEntity, BizOptions, OptionsItem } from '../Biz';
+import { BizBase, BizEntity } from '../Biz';
 import { Stack } from './Stack';
 import { ValueExpression } from './Expression';
 

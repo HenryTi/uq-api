@@ -41,6 +41,7 @@ exports.functions = {
     timediff: 2,
     abs: 1,
     floor: 1,
+    ceiling: 1,
     ceil: 1,
 };
 exports.uqFunctions = {

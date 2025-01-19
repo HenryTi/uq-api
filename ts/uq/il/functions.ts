@@ -1,3 +1,5 @@
+import { ceil } from "lodash";
+
 export const functions: { [name: string]: number | [number, number] } = {
     concat: -1,
     concat_ws: -1,
@@ -39,6 +41,7 @@ export const functions: { [name: string]: number | [number, number] } = {
 
     abs: 1,
     floor: 1,
+    ceiling: 1,
     ceil: 1,
 }
 
