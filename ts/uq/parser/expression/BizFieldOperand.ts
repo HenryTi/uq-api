@@ -6,30 +6,34 @@ import { Token } from '../tokens';
 
 // %开始的字段，是BizField。
 export class PBizFieldOperand extends PElement<BizFieldOperand> {
-    private arrFieldName: string[] = [];
+    private fieldNames: string[] = [];
     _parse() {
-        this.arrFieldName.push(this.ts.passVar());
+        this.fieldNames.push(this.ts.passVar());
         while (this.ts.token === Token.DOT) {
             this.ts.readToken();
-            this.arrFieldName.push(this.ts.passVar());
+            this.fieldNames.push(this.ts.passVar());
         }
     }
 
     scan(space: Space): boolean {
         let ok = true;
-        let field = space.getBizField(this.arrFieldName);
+        let field = space.getBizField(this.fieldNames);
         if (field === null) {
-            this.log(`%${this.arrFieldName.join('.')} is not defined`);
+            this.log(`%${this.fieldNames.join('.')} is not defined`);
             return false;
         }
-        const [f0, f1] = this.arrFieldName;
+        const [f0, f1] = this.fieldNames;
         if (field !== undefined) {
             this.element.field = field;
             field.scanBinDiv();
         }
         else if (f0 === 'id') {
-            if (this.arrFieldName[1] !== undefined) {
-                this.log(`Unknown field ${this.arrFieldName.join('.')}`);
+            if (this.fieldNames[1] !== undefined) {
+                this.log(`Unknown field ${this.fieldNames.join('.')}`);
+                ok = false;
+            }
+            else {
+                this.log(`Unknown ID field`);
                 ok = false;
             }
         }
@@ -56,7 +60,7 @@ export class PBizFieldOperand extends PElement<BizFieldOperand> {
                 this.element.field = fieldOptionsItem;
             }
             else {
-                this.log(`Unknown field ${this.arrFieldName.join('.')}`);
+                this.log(`Unknown field ${this.fieldNames.join('.')}`);
                 ok = false;
             }
         }

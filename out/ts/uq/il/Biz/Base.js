@@ -84,7 +84,6 @@ class BizBase extends IElement_1.IElement {
     }
     getBizBase1(bizName) {
         return;
-        // if (this.name === bizName) return this;
     }
     getBudClass(budClass) {
         return;

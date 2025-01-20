@@ -99,7 +99,6 @@ export abstract class BizBase extends IElement {
     }
     getBizBase1(bizName: string): BizBase {
         return;
-        // if (this.name === bizName) return this;
     }
     protected getBudClass(budClass: string): new (biz: Biz, name: string, ui: Partial<UI>) => BizBudValue {
         return;

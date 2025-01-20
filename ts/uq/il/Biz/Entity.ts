@@ -47,6 +47,10 @@ export abstract class BizEntity extends BizBase {
 
     abstract get isIDScan(): boolean;
 
+    decendants(set: Set<BizEntity>) {
+        set.add(this);
+    }
+
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
         if (this.props.size > 0) {

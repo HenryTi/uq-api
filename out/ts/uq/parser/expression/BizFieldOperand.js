@@ -9,30 +9,34 @@ const tokens_1 = require("../tokens");
 class PBizFieldOperand extends element_1.PElement {
     constructor() {
         super(...arguments);
-        this.arrFieldName = [];
+        this.fieldNames = [];
     }
     _parse() {
-        this.arrFieldName.push(this.ts.passVar());
+        this.fieldNames.push(this.ts.passVar());
         while (this.ts.token === tokens_1.Token.DOT) {
             this.ts.readToken();
-            this.arrFieldName.push(this.ts.passVar());
+            this.fieldNames.push(this.ts.passVar());
         }
     }
     scan(space) {
         let ok = true;
-        let field = space.getBizField(this.arrFieldName);
+        let field = space.getBizField(this.fieldNames);
         if (field === null) {
-            this.log(`%${this.arrFieldName.join('.')} is not defined`);
+            this.log(`%${this.fieldNames.join('.')} is not defined`);
             return false;
         }
-        const [f0, f1] = this.arrFieldName;
+        const [f0, f1] = this.fieldNames;
         if (field !== undefined) {
             this.element.field = field;
             field.scanBinDiv();
         }
         else if (f0 === 'id') {
-            if (this.arrFieldName[1] !== undefined) {
-                this.log(`Unknown field ${this.arrFieldName.join('.')}`);
+            if (this.fieldNames[1] !== undefined) {
+                this.log(`Unknown field ${this.fieldNames.join('.')}`);
+                ok = false;
+            }
+            else {
+                this.log(`Unknown ID field`);
                 ok = false;
             }
         }
@@ -59,7 +63,7 @@ class PBizFieldOperand extends element_1.PElement {
                 this.element.field = fieldOptionsItem;
             }
             else {
-                this.log(`Unknown field ${this.arrFieldName.join('.')}`);
+                this.log(`Unknown field ${this.fieldNames.join('.')}`);
                 ok = false;
             }
         }

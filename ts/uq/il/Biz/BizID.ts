@@ -4,7 +4,7 @@ import { IElement } from "../IElement";
 import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
-import { BizID } from "./Entity";
+import { BizEntity, BizID } from "./Entity";
 
 // 任何可以独立存在，可被引用ID
 // 扩展和继承：有两个方式，一个是typescript里面的extends，一个是spec的base
@@ -89,8 +89,8 @@ export abstract class BizIDExtendable extends BizIDWithShowBuds {
         return ret;
     }
 
-    decendants(set: Set<BizIDExtendable>) {
-        set.add(this);
+    decendants(set: Set<BizEntity>) {
+        super.decendants(set);
         if (this.extendeds !== undefined) {
             for (let e of this.extendeds) e.decendants(set);
         }

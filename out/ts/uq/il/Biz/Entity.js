@@ -24,6 +24,9 @@ class BizEntity extends Base_1.BizBase {
     get theEntity() {
         return this;
     }
+    decendants(set) {
+        set.add(this);
+    }
     buildSchema(res) {
         let ret = super.buildSchema(res);
         if (this.props.size > 0) {

@@ -1,4 +1,4 @@
-import { EnumSysTable, JoinType, BizFromEntity, IdColumn, BizIDExtendable } from "../../../il";
+import { EnumSysTable, JoinType, BizFromEntity, IdColumn, BizIDExtendable, BizEntity } from "../../../il";
 import {
     EnumExpOP,
     ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, ExpOr, ExpVal, Select,
@@ -51,9 +51,9 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                 const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
                 let entityIds: number[] = [];
                 if (bizEntityArr.length > 0) {
-                    let set = new Set<BizIDExtendable>();
+                    let set = new Set<BizEntity>();
                     for (let be of bizEntityArr) {
-                        (be as BizIDExtendable).decendants(set);
+                        be.decendants(set);
                     }
                     entityIds.push(...[...set].map(v => v.id));
                 }
@@ -94,6 +94,14 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                             .on(new ExpEQ(
                                 new ExpField('id', subAlias),
                                 expMainField
+                            ));
+                        break;
+                    case BizPhraseType.bin:
+                        select
+                            .join(joinAtom, entityTable)
+                            .on(new ExpEQ(
+                                new ExpField(field, subAlias),
+                                new ExpField('id', alias)
                             ));
                         break;
                     case BizPhraseType.atom:

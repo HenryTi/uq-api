@@ -254,35 +254,16 @@ class FromEntityScaner {
                 case BizPhraseType_1.BizPhraseType.sheet:
                     if (length > 2) {
                         ok = false;
-                        this.log('SHEET can not have more than 3 subs');
+                        this.log('SHEET can not have more than 2 subs');
                         break;
                     }
-                    // scanBase = new FromEntityScanSheet(this, fromEntity, pSubs);
+                    scanBase = new FromEntityScanSheet(this, fromEntity, pSubs);
                     break;
-                /*
-                case BizPhraseType.duo:
-                    if (length !== 0 && length !== 2) {
-                        ok = false;
-                        this.log('DUO must have 2 sub join');
-                    }
-                    if (isDot === true) {
-                        this.log('DUO. is not allowed');
-                        ok = false;
-                    }
-                    scanBase = new FromEntityScanDuo(this, fromEntity, pSubs[0], pSubs[1]);
-                    break;
-                */
                 case BizPhraseType_1.BizPhraseType.fork:
                     if (length !== 0 && length !== 1) {
                         ok = false;
                         this.log('FORK must have 1 sub join');
                     }
-                    /*
-                    if (isDot === true) {
-                        this.log('FORK. is not allowed');
-                        ok = false;
-                    }
-                    */
                     scanBase = new FromEntityScanFork(this, fromEntity, pSubs[0]);
                     break;
                 case BizPhraseType_1.BizPhraseType.combo:
@@ -296,7 +277,7 @@ class FromEntityScaner {
                         ok = false;
                         this.log(`${combo.getJName()} must have ${keysLength} subs`);
                     }
-                    scanBase = new FromEntityScanCombo(this, fromEntity, pSubs /*, isDot*/);
+                    scanBase = new FromEntityScanCombo(this, fromEntity, pSubs);
                     break;
             }
             if (scanBase !== undefined) {
@@ -327,7 +308,6 @@ class FEScanBase {
         let fromEntity = this.createFromEntity(b);
         if (fromEntity === undefined) {
             return;
-            // fromEntity = new BizFromEntity(this.fromEntity);
         }
         let { bizEntityArr } = fromEntity;
         if (bizEntityArr === undefined) {
@@ -351,36 +331,8 @@ class FEScanBase {
         };
     }
 }
-/*
-class FromEntityScanDuo extends FEScanBase {
-    private readonly pSub0: PFromEntity;
-    private readonly pSub1: PFromEntity;
-    constructor(scaner: FromEntityScaner, fromEntity: BizFromEntity, pSub0: PFromEntity, pSub1: PFromEntity) {
-        super(scaner, fromEntity);
-        this.pSub0 = pSub0;
-        this.pSub1 = pSub1;
-    }
-
-    private onIEmpty = (): BizEntity => {
-        return (this.fromEntity.bizEntityArr[0] as BizDuo).i.atoms[0];
-    }
-
-    private onXEmpty = (): BizEntity => {
-        return (this.fromEntity.bizEntityArr[0] as BizDuo).x.atoms[0];
-    }
-
-    createSubs(): BizFromEntitySub[] {
-        let subI = this.scanSub(this.pSub0, 'i', undefined, this.onIEmpty);
-        if (subI === undefined) return;
-        let subX = this.scanSub(this.pSub1, 'x', undefined, this.onXEmpty);
-        if (subX === undefined) return;
-        return [subI, subX];
-    }
-}
-*/
 class FromEntityScanCombo extends FEScanBase {
-    // private readonly isDot: boolean;
-    constructor(scaner, fromEntity, pSubs /*, isDot: boolean*/) {
+    constructor(scaner, fromEntity, pSubs) {
         super(scaner, fromEntity);
         this.sameTypeEntityArr = (entityNames) => {
             const { keys } = this.combo;
@@ -423,8 +375,6 @@ class FromEntityScanCombo extends FEScanBase {
         this.pSubs = pSubs;
         const { bizEntityArr } = this.fromEntity;
         this.combo = bizEntityArr[0];
-        // if (isDot !== true) this.sameTypeEntityArr = undefined;
-        // else this.isDot = true;
     }
     createSubs() {
         const { keys } = this.combo;
@@ -443,7 +393,6 @@ class FromEntityScanCombo extends FEScanBase {
                 return undefined;
             }
             else {
-                // if (this.isDot === true) sub.field = keyName;
             }
             ret.push(sub);
         }
@@ -472,6 +421,77 @@ class FromEntityScanFork extends FEScanBase {
             return;
         sub.isForkBase = true;
         return [sub];
+    }
+}
+class FromEntityScanSheet extends FEScanBase {
+    constructor(scaner, fromEntity, pSubs) {
+        super(scaner, fromEntity);
+        this.sameTypeEntityArr = (entityNames) => {
+            const { main, details } = this.sheet;
+            const en = entityNames[0];
+            if (main.name === en) {
+                let ret = {
+                    ok: true,
+                    entityArr: [main],
+                    logs: [],
+                    bizPhraseType: main.bizPhraseType,
+                    bizEntityTable: il_1.EnumSysTable.bizBin,
+                };
+                return ret;
+            }
+            let detail = details.find(v => v.bin.name === en);
+            if (detail !== undefined) {
+                const { bin } = detail;
+                let ret = {
+                    ok: true,
+                    entityArr: [bin],
+                    logs: [],
+                    bizPhraseType: bin.bizPhraseType,
+                    bizEntityTable: il_1.EnumSysTable.bizBin,
+                };
+                return ret;
+            }
+            let ret = {
+                ok: false,
+                entityArr: [],
+                logs: [`${this.sheet.name} has not ${en} `],
+                bizPhraseType: undefined,
+                bizEntityTable: undefined,
+            };
+            return ret;
+        };
+        this.pSubs = pSubs;
+        const { bizEntityArr } = this.fromEntity;
+        this.sheet = bizEntityArr[0];
+    }
+    createSubs() {
+        let ret = [];
+        for (let pSub of this.pSubs) {
+            function onEmpty() {
+                return undefined;
+            }
+            let field = undefined;
+            let fieldBud = undefined;
+            let sub = this.scanSub(pSub, field, fieldBud, onEmpty);
+            if (sub === undefined) {
+                this.logs.push(`${pSub.tbls.join(',').toUpperCase()} undefined`);
+                return undefined;
+            }
+            else {
+                if (sub.fromEntity.bizEntityArr[0] === this.sheet.main) {
+                    sub.field = 'id';
+                }
+                else {
+                    sub.field = 'sheet';
+                }
+            }
+            ret.push(sub);
+        }
+        return ret;
+    }
+    createFromEntity(b) {
+        let fromEntity = this.scaner.createFromEntity(this.fromEntity, b, this.sameTypeEntityArr);
+        return fromEntity;
     }
 }
 //# sourceMappingURL=BizSelectStatement.js.map

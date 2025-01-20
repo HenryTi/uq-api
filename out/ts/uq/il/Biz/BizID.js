@@ -94,7 +94,7 @@ class BizIDExtendable extends BizIDWithShowBuds {
         return ret;
     }
     decendants(set) {
-        set.add(this);
+        super.decendants(set);
         if (this.extendeds !== undefined) {
             for (let e of this.extendeds)
                 e.decendants(set);

@@ -83,6 +83,11 @@ class BBizSelect extends bstatement_1.BStatement {
                             .join(joinAtom, entityTable)
                             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), expMainField));
                         break;
+                    case BizPhraseType_1.BizPhraseType.bin:
+                        select
+                            .join(joinAtom, entityTable)
+                            .on(new sql_1.ExpEQ(new sql_1.ExpField(field, subAlias), new sql_1.ExpField('id', alias)));
+                        break;
                     case BizPhraseType_1.BizPhraseType.atom:
                         let expOnAtom = buildExpOn(new sql_1.ExpField('base', subAliasIDU), // expSubAlias, 
                         new sql_1.ExpEQ(new sql_1.ExpField('id', subAliasIDU), expMainField));

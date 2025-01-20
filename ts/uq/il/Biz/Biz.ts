@@ -167,7 +167,7 @@ export class Biz extends Entity {
                 case BizPhraseType.bin:
                     bizEntityTable = EnumSysTable.bizBin; break;
                 case BizPhraseType.sheet:
-                    bizEntityTable = EnumSysTable.sheet; break;
+                    bizEntityTable = EnumSysTable.bizSheet; break;
                 case BizPhraseType.pend:
                     bizEntityTable = EnumSysTable.pend; break;
                 case BizPhraseType.combo:
