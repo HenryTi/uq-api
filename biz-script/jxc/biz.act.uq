@@ -19,7 +19,7 @@ RETURNS ret (
     INTO ret SELECT id;
 }
 
-Biz ACT SaveAtomAndProps (
+Biz ACT SaveAtomAndProps ver 0.1 (
     rootPhrase ID,
     phrase ID,
     no NO,
@@ -51,7 +51,7 @@ RETURNS ret (
         IF budType=BudDataType.check {
             VAR i INT = 0, len INT = JSON_LENGTH(value);
             WHILE i<len {
-                WITH IxCheck as a II=id I=bud X=JSON_VALUE(value,CONCAT('$[',i,']'));
+                WITH IxCheck as a II=id I=bud X=JSON_EXTRACT(value,CONCAT('$[',i,']'));
                 SET i=i+1;
             }
         }

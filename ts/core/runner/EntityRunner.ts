@@ -685,7 +685,6 @@ export class EntityRunner extends Runner {
         let result = await this.unitUserCallEx(actionName, unit, user, proxyUser, actionData);
         return result;
     }
-
     async actionFromObj(actionName: string, unit: number, user: number, obj: any): Promise<any[][]> {
         let inBusAction = this.getActionParametersBus(actionName);
         let actionData = await inBusAction.buildDataFromObj(unit, user, obj);
