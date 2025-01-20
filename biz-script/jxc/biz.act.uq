@@ -33,7 +33,7 @@ RETURNS ret (
     VAR id ID = 0;
     JSONTABLE tbl (
         bud ID PATH '$[0]', 
-        value CHAR(200) PATH '$[1]'
+        value JSON PATH '$[1]'
     ) FROM props PATH '$[*]';
 
     SET id=(SELECT a.id FROM Atom as a WHERE a.base=rootPhrase and a.no=no);
@@ -45,17 +45,21 @@ RETURNS ret (
     WITH IDU as a ID=id SET a.base=phrase;
 
     VAR atomPhraseName CHAR(200) = CONCAT(a.name, '.') FROM BizPhrase as a WHERE a.id=phrase;
-    FOR (VAR bud ID, value CHAR(200) OF SELECT bud, value FROM tbl) {
+    FOR (VAR bud ID, value JSON OF SELECT bud, value FROM tbl) {
         VAR budType ID=b.type FROM BizBud as b WHERE b.id=bud;
         IF bud IS NULL { BREAK; }
         IF budType=BudDataType.check {
-
+            VAR i INT = 0, len INT = JSON_LENGTH(value);
+            WHILE i<len {
+                WITH IxCheck as a II=id I=bud X=JSON_VALUE(value,CONCAT('$[',i,']'));
+                SET i=i+1;
+            }
         }
         ELSEIF budType=BudDataType.dec {
             WITH IxDec as a I=id X=bud SET a.value=value;
         }
         ELSEIF budType=BudDataType.char OR budType=BudDataType.str {
-            WITH IxStr as a I=id X=bud SET a.value=value;
+            WITH IxStr as a I=id X=bud SET a.value=JSON_UNQUOTE(value);
         }
         ELSE {
             -- INT
