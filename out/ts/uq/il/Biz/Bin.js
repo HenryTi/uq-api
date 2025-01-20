@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputFork = exports.BinInput = exports.PickOptions = exports.PickPend = exports.PickFork = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
+const BizID_1 = require("./BizID");
 const Base_1 = require("./Base");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
@@ -70,7 +71,7 @@ class PickAtom {
         if (prop === undefined)
             return true;
         // 不支持atom的其它字段属性。只能用查询
-        return ['id', 'no', 'ex'].includes(prop);
+        return BizID_1.BizAtom.ownFields.includes(prop);
     }
     getBud(name) { return; }
 }

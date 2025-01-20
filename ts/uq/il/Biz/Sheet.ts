@@ -31,7 +31,8 @@ export interface Detail {
 }
 
 export class BizSheet extends BizNotID {
-    protected readonly fields = ['id', 'no'];
+    static ownFields = ['id', 'no', 'operator'];
+    protected readonly fields = BizSheet.ownFields; // ['id', 'no'];
     readonly bizPhraseType = BizPhraseType.sheet;
     readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;

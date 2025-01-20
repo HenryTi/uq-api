@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntityFieldPointer = exports.BizEntityBudPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.NamePointer = exports.Pointer = exports.GroupType = void 0;
+exports.BizEntityBinUpPointer = exports.BizEntityForkUpPointer = exports.BizEntityFieldPointer = exports.BizEntityBudPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.NamePointer = exports.Pointer = exports.GroupType = void 0;
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
 var GroupType;
 (function (GroupType) {
@@ -163,4 +163,29 @@ class BizEntityFieldPointer extends Pointer {
     }
 }
 exports.BizEntityFieldPointer = BizEntityFieldPointer;
+class BizEntityForkUpPointer extends Pointer {
+    constructor(bizFromEntity, upField) {
+        super();
+        this.groupType = GroupType.Single;
+        this.bizFromEntity = bizFromEntity;
+        this.upField = upField;
+    }
+    to(stack, v) {
+        // stack.dotVar(['fork', this.upField]);
+        stack.bizForkUp(this.bizFromEntity.alias, this.upField);
+    }
+}
+exports.BizEntityForkUpPointer = BizEntityForkUpPointer;
+class BizEntityBinUpPointer extends Pointer {
+    constructor(bizFromEntity, upField) {
+        super();
+        this.groupType = GroupType.Single;
+        this.bizFromEntity = bizFromEntity;
+        this.upField = upField;
+    }
+    to(stack, v) {
+        stack.bizBinUp(this.bizFromEntity.alias, this.upField);
+    }
+}
+exports.BizEntityBinUpPointer = BizEntityBinUpPointer;
 //# sourceMappingURL=pointer.js.map

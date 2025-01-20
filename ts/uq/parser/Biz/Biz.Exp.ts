@@ -12,6 +12,7 @@ import {
     BizExpIDType,
     EnumSysBud,
     EnumEntitySys,
+    BizSheet,
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { PElement } from "../element";
@@ -154,14 +155,14 @@ export class PBizExp extends PElement<BizExp> {
                         const { prop } = this.element;
                         switch (bizEntitySys) {
                             case EnumEntitySys.fork:
-                                const forkProps = ['id', 'no', 'ex'];
+                                const forkProps = BizAtom.ownFields; // ['id', 'no', 'ex'];
                                 if (forkProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
                                     this.log(`FORK prop only ${forkProps.join(',')}`);
                                 }
                                 break;
                             case EnumEntitySys.bin:
-                                const binProps = ['id', 'no', 'operator'];
+                                const binProps = BizSheet.ownFields; // ['id', 'no', 'operator'];
                                 if (binProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
                                     this.log(`BIN prop only ${forkProps.join(',')}`);

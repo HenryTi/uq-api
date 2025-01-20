@@ -145,14 +145,14 @@ class PBizExp extends element_1.PElement {
                         const { prop } = this.element;
                         switch (bizEntitySys) {
                             case il_1.EnumEntitySys.fork:
-                                const forkProps = ['id', 'no', 'ex'];
+                                const forkProps = il_1.BizAtom.ownFields; // ['id', 'no', 'ex'];
                                 if (forkProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
                                     this.log(`FORK prop only ${forkProps.join(',')}`);
                                 }
                                 break;
                             case il_1.EnumEntitySys.bin:
-                                const binProps = ['id', 'no', 'operator'];
+                                const binProps = il_1.BizSheet.ownFields; // ['id', 'no', 'operator'];
                                 if (binProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
                                     this.log(`BIN prop only ${forkProps.join(',')}`);

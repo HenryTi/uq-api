@@ -47,6 +47,8 @@ export interface Stack {
     bizExp(exp: BizExp): void;
     bizCheckBud(checkBud: BizCheckBudOperand/*exp1: BizExp, exp2: BizExp, item: OptionsItem*/): void;
     bizFieldOperand(bizField: BizFieldOperand): void;
+    bizBinUp(tblAlias: string, upField: string): void;
+    bizForkUp(tblAlias: string, upField: string): void;
     searchCase(whenCount: number, hasElse: boolean): void;
     simpleCase(whenCount: number, hasElse: boolean): void;
     func(func: string, n: number, isUqFunc: boolean): void;

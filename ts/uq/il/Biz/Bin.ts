@@ -89,7 +89,7 @@ export class PickAtom implements PickBase {
     hasReturn(prop: string): boolean {
         if (prop === undefined) return true;
         // 不支持atom的其它字段属性。只能用查询
-        return ['id', 'no', 'ex'].includes(prop);
+        return BizAtom.ownFields.includes(prop);
     }
     getBud(name: string): BizBud { return; }
 }

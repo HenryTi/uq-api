@@ -32,12 +32,13 @@ import { ExpSearch } from './ExpSearch';
 import { BizExpOperand } from './ExpBizOperand';
 import {
     BBizCheckBud,
-    BBizExp, BBizFieldOperand
+    BBizExp, BBizFieldOperand,
 } from '../../tools';
 import { ExpRole } from './ExpRole';
 import { ExpBizEntityBud } from './ExpBizEntityBud';
 import { BBizField } from '../../Biz';
 import { ExpFuncBetween } from './ExpFuncBetween';
+import { ExpBinUpField } from './ExpUpField';
 
 function convertExpInternal(stack: Stack, exp: Expression) {
     if (!exp) return;
@@ -212,6 +213,12 @@ class Stack implements IlStack {
         let bBizField = field.db(this.context);
         let bBizFieldOperand = new BBizFieldOperand(bBizField);
         this.arr.push(bBizFieldOperand);
+    }
+    bizBinUp(tblAlias: string, upField: string): void {
+        this.arr.push(new ExpBinUpField(tblAlias, upField))
+    }
+    bizForkUp(tblAlias: string, upField: string): void {
+        this.arr.push(new ExpBinUpField(tblAlias, upField));
     }
     func(func: string, n: number, isUqFunc: boolean) {
         let params: ExpVal[] = [];

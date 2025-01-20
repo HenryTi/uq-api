@@ -13,6 +13,7 @@ const tools_1 = require("../../tools");
 const ExpRole_1 = require("./ExpRole");
 const ExpBizEntityBud_1 = require("./ExpBizEntityBud");
 const ExpFuncBetween_1 = require("./ExpFuncBetween");
+const ExpUpField_1 = require("./ExpUpField");
 function convertExpInternal(stack, exp) {
     if (!exp)
         return;
@@ -187,6 +188,12 @@ class Stack {
         let bBizField = field.db(this.context);
         let bBizFieldOperand = new tools_1.BBizFieldOperand(bBizField);
         this.arr.push(bBizFieldOperand);
+    }
+    bizBinUp(tblAlias, upField) {
+        this.arr.push(new ExpUpField_1.ExpBinUpField(tblAlias, upField));
+    }
+    bizForkUp(tblAlias, upField) {
+        this.arr.push(new ExpUpField_1.ExpBinUpField(tblAlias, upField));
     }
     func(func, n, isUqFunc) {
         let params = [];

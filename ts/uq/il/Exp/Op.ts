@@ -281,6 +281,7 @@ export class VarOperand extends Atom {
     get type(): string { return 'var'; }
     dotFirst: boolean = false;
     _var: string[] = [];
+    upField: string;                // 单据明细^no，表示单据编号。批次^no表示基础信息的编号
     enumValue: number | string;
     // #OPTIONS.Item 所以不需要了
     // options: BizOptions;
@@ -288,12 +289,6 @@ export class VarOperand extends Atom {
     pointer: Pointer;
     parser(context: PContext) { return new PVarOperand(this, context); }
     to(stack: Stack) {
-        /*
-        if (this.options !== undefined) {
-            stack.dotVar(['%' + this.options.name, this.optionsItem.name]);
-            return;
-        }
-        */
         if (this.enumValue === undefined) {
             this.pointer.to(stack, this);
             return;

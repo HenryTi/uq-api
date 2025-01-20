@@ -115,10 +115,11 @@ export class IDUnique extends BizBud {
 }
 
 export class BizAtom extends BizIDExtendable {
+    static ownFields = ['id', 'no', 'ex'];
     readonly bizPhraseType = BizPhraseType.atom;
     ex: BizBudValue;
     uuid: boolean;
-    protected readonly fields = ['id', 'no', 'ex'];
+    protected readonly fields = BizAtom.ownFields;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizAtom(this, context);

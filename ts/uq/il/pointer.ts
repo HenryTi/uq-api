@@ -158,3 +158,34 @@ export class BizEntityFieldPointer extends Pointer {
         }
     }
 }
+
+export class BizEntityForkUpPointer extends Pointer {
+    readonly groupType: GroupType = GroupType.Single;
+    readonly bizFromEntity: BizFromEntity;
+    readonly upField: string;
+    constructor(bizFromEntity: BizFromEntity, upField: string) {
+        super();
+        this.bizFromEntity = bizFromEntity;
+        this.upField = upField;
+    }
+
+    override to(stack: Stack, v: VarOperand): void {
+        // stack.dotVar(['fork', this.upField]);
+        stack.bizForkUp(this.bizFromEntity.alias, this.upField);
+    }
+}
+
+export class BizEntityBinUpPointer extends Pointer {
+    readonly groupType: GroupType = GroupType.Single;
+    readonly bizFromEntity: BizFromEntity;
+    readonly upField: string;
+    constructor(bizFromEntity: BizFromEntity, upField: string) {
+        super();
+        this.bizFromEntity = bizFromEntity;
+        this.upField = upField;
+    }
+
+    override to(stack: Stack, v: VarOperand): void {
+        stack.bizBinUp(this.bizFromEntity.alias, this.upField);
+    }
+}

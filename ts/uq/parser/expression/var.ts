@@ -1,9 +1,10 @@
 import _ = require('lodash');
-import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityBudPointer, BizBud, BizEntity, BizEntityFieldPointer, OptionsItem, BizOptions } from '../../il';
+import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityBudPointer, BizBud, BizEntity, BizEntityFieldPointer, OptionsItem, BizOptions, BizFromEntity, BizAtom, BizSheet, BizEntityForkUpPointer, BizEntityBinUpPointer } from '../../il';
 import { VarOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
+import { BizPhraseType } from '../../il/Biz/BizPhraseType';
 
 export class PVarOperand extends PElement<VarOperand> {
     override parse(): void {
@@ -12,8 +13,14 @@ export class PVarOperand extends PElement<VarOperand> {
     _parse() {
         // # column 中的value，是生成的，没有ts
         if (this.ts === undefined) return;
-        if (this.ts.token === Token.DOT) {
-            this.dotVar();
+        switch (this.ts.token) {
+            case Token.DOT:
+                this.dotVar();
+                break;
+            case Token.XOR:
+                this.ts.readToken();
+                this.element.upField = this.ts.passVar();
+                break;
         }
     }
 
@@ -36,7 +43,7 @@ export class PVarOperand extends PElement<VarOperand> {
     }
 
     scan(space: Space): boolean {
-        let { _var, dotFirst } = this.element;
+        let { _var, dotFirst, upField } = this.element;
         let len = _var.length;
         if (dotFirst === true) {
             if (len !== 1) {
@@ -74,6 +81,9 @@ export class PVarOperand extends PElement<VarOperand> {
                         pointer = new UnitPointer();
                         break;
                     default:
+                        if (upField !== undefined) {
+                            return this.scanUpField(space, var0, upField);
+                        }
                         if (dotFirst === undefined) dotFirst = false;
                         pointer = space.varPointer(var0, dotFirst);
                         if (pointer === undefined) {
@@ -134,7 +144,6 @@ export class PVarOperand extends PElement<VarOperand> {
                                 break;
                             }
                         }
-                        // let v = _obj.getBud(var1);
                         if (bud !== undefined) {
                             pointer = new BizEntityBudPointer(_obj, bud);
                         }
@@ -169,6 +178,47 @@ export class PVarOperand extends PElement<VarOperand> {
                     }
                 }
             }
+        }
+        this.element.pointer = pointer;
+        space.groupType = pointer.groupType;
+        return true;
+    }
+
+    private scanUpField(space: Space, v0: string, upField: string) {
+        let _obj = space.getBizFromEntityArrFromAlias(v0);
+        if (_obj === undefined) {
+            this.log(`${v0} undefined`);
+            return false;
+        }
+        let { bizEntityArr } = _obj;
+        let bizEntity = bizEntityArr[0];
+        if (bizEntity === undefined) {
+            this.log(`${v0} undefined`);
+            return false;
+        }
+        let pointer: Pointer;
+        switch (bizEntity.bizPhraseType) {
+            default: return false;
+            case BizPhraseType.fork:
+                {
+                    const { ownFields } = BizAtom;
+                    if (ownFields.findIndex(v => upField) < 0) {
+                        this.log(`FORK ^ [${ownFields.join(',')}]`);
+                        return false;
+                    }
+                    pointer = new BizEntityForkUpPointer(_obj, upField);
+                }
+                break;
+            case BizPhraseType.bin:
+                {
+                    const { ownFields } = BizSheet;
+                    if (ownFields.findIndex(v => upField) < 0) {
+                        this.log(`BIN ^ [${ownFields.join(',')}]`);
+                        return false;
+                    }
+                    pointer = new BizEntityBinUpPointer(_obj, upField);
+                }
+                break;
         }
         this.element.pointer = pointer;
         space.groupType = pointer.groupType;

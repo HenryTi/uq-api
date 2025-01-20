@@ -4,6 +4,7 @@ exports.PVarOperand = void 0;
 const il_1 = require("../../il");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
+const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class PVarOperand extends element_1.PElement {
     parse() {
         super.parse();
@@ -12,8 +13,14 @@ class PVarOperand extends element_1.PElement {
         // # column 中的value，是生成的，没有ts
         if (this.ts === undefined)
             return;
-        if (this.ts.token === tokens_1.Token.DOT) {
-            this.dotVar();
+        switch (this.ts.token) {
+            case tokens_1.Token.DOT:
+                this.dotVar();
+                break;
+            case tokens_1.Token.XOR:
+                this.ts.readToken();
+                this.element.upField = this.ts.passVar();
+                break;
         }
     }
     dotVar() {
@@ -35,7 +42,7 @@ class PVarOperand extends element_1.PElement {
         }
     }
     scan(space) {
-        let { _var, dotFirst } = this.element;
+        let { _var, dotFirst, upField } = this.element;
         let len = _var.length;
         if (dotFirst === true) {
             if (len !== 1) {
@@ -73,6 +80,9 @@ class PVarOperand extends element_1.PElement {
                         pointer = new il_1.UnitPointer();
                         break;
                     default:
+                        if (upField !== undefined) {
+                            return this.scanUpField(space, var0, upField);
+                        }
                         if (dotFirst === undefined)
                             dotFirst = false;
                         pointer = space.varPointer(var0, dotFirst);
@@ -132,7 +142,6 @@ class PVarOperand extends element_1.PElement {
                                 break;
                             }
                         }
-                        // let v = _obj.getBud(var1);
                         if (bud !== undefined) {
                             pointer = new il_1.BizEntityBudPointer(_obj, bud);
                         }
@@ -167,6 +176,46 @@ class PVarOperand extends element_1.PElement {
                     }
                 }
             }
+        }
+        this.element.pointer = pointer;
+        space.groupType = pointer.groupType;
+        return true;
+    }
+    scanUpField(space, v0, upField) {
+        let _obj = space.getBizFromEntityArrFromAlias(v0);
+        if (_obj === undefined) {
+            this.log(`${v0} undefined`);
+            return false;
+        }
+        let { bizEntityArr } = _obj;
+        let bizEntity = bizEntityArr[0];
+        if (bizEntity === undefined) {
+            this.log(`${v0} undefined`);
+            return false;
+        }
+        let pointer;
+        switch (bizEntity.bizPhraseType) {
+            default: return false;
+            case BizPhraseType_1.BizPhraseType.fork:
+                {
+                    const { ownFields } = il_1.BizAtom;
+                    if (ownFields.findIndex(v => upField) < 0) {
+                        this.log(`FORK ^ [${ownFields.join(',')}]`);
+                        return false;
+                    }
+                    pointer = new il_1.BizEntityForkUpPointer(_obj, upField);
+                }
+                break;
+            case BizPhraseType_1.BizPhraseType.bin:
+                {
+                    const { ownFields } = il_1.BizSheet;
+                    if (ownFields.findIndex(v => upField) < 0) {
+                        this.log(`BIN ^ [${ownFields.join(',')}]`);
+                        return false;
+                    }
+                    pointer = new il_1.BizEntityBinUpPointer(_obj, upField);
+                }
+                break;
         }
         this.element.pointer = pointer;
         space.groupType = pointer.groupType;

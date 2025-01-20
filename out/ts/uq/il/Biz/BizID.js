@@ -117,7 +117,7 @@ class BizAtom extends BizIDExtendable {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.atom;
-        this.fields = ['id', 'no', 'ex'];
+        this.fields = BizAtom.ownFields;
     }
     parser(context) {
         return new parser_1.PBizAtom(this, context);
@@ -127,6 +127,7 @@ class BizAtom extends BizIDExtendable {
     }
 }
 exports.BizAtom = BizAtom;
+BizAtom.ownFields = ['id', 'no', 'ex'];
 /*
 // 分子：atom 原子的合成
 // duo: 二重奏

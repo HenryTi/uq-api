@@ -15,7 +15,7 @@ var EnumDetailOperate;
 class BizSheet extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
-        this.fields = ['id', 'no'];
+        this.fields = BizSheet.ownFields; // ['id', 'no'];
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.sheet;
         this.outs = {};
         this.details = [];
@@ -56,4 +56,5 @@ class BizSheet extends Entity_1.BizNotID {
     }
 }
 exports.BizSheet = BizSheet;
+BizSheet.ownFields = ['id', 'no', 'operator'];
 //# sourceMappingURL=Sheet.js.map
