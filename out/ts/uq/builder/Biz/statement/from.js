@@ -6,7 +6,7 @@ const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const biz_select_1 = require("./biz.select");
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 // const t1 = 't1';
 const pageStart = '$pageStart';
 class BFromStatement extends biz_select_1.BBizSelect {
@@ -77,12 +77,12 @@ class BFromStatement extends biz_select_1.BBizSelect {
         const { cols } = this.istatement;
         const arr = cols.map(col => {
             const { name, val, bud } = col;
-            let expName;
+            let expBud;
             if (bud !== undefined)
-                expName = new sql_1.ExpNum(bud.id);
+                expBud = new sql_1.ExpNum(bud.id);
             else
-                expName = new sql_1.ExpStr(name);
-            return new sql_1.ExpFunc('JSON_ARRAY', expName, this.context.expVal(val));
+                expBud = new sql_1.ExpStr(name);
+            return new sql_1.ExpFunc('JSON_ARRAY', expBud, this.context.expVal(val));
         });
         return arr;
     }
@@ -117,7 +117,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
         insertAtom.select = select;
         select.distinct = true;
         select.column(new sql_1.ExpField('id', b));
-        select.column(new sql_1.ExpField('base', b));
+        select.column(new sql_1.ExpField('base', c));
         select.column(new sql_1.ExpField('no', b));
         select.column(new sql_1.ExpField('ex', b));
         return insertAtom;

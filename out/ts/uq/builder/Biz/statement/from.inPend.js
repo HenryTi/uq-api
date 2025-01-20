@@ -8,7 +8,7 @@ const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizField_1 = require("../BizField");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 class BFromInPendStatement extends from_1.BFromStatement {
     constructor(context, istatement) {
         super(context, istatement);
@@ -87,7 +87,9 @@ class BFromInPendStatement extends from_1.BFromStatement {
             const { select } = insert;
             select.from(new statementWithFrom_1.VarTable('$page', a))
                 .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-                .on(new sql_1.ExpEQ(exp, new sql_1.ExpField('id', b)));
+                .on(new sql_1.ExpEQ(exp, new sql_1.ExpField('id', b)))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('id', b)));
             sqls.push(insert);
         };
         if (iBud !== undefined)

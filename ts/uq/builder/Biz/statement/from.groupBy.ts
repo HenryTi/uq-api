@@ -318,7 +318,10 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         }
         select.from(new VarTable(tbl, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
-            .on(expOn);
+            .on(expOn)
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('id', b)));
+        ;
         return insert;
     }
 

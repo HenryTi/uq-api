@@ -9,7 +9,7 @@ import { Sqls } from "../../bstatement/sqls";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { BBizSelect } from "./biz.select";
 
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 export type BudsValue = { buds: BizBud[]; value: ExpVal; };
 // const t1 = 't1';
 const pageStart = '$pageStart';
@@ -93,10 +93,10 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         const { cols } = this.istatement;
         const arr: ExpVal[] = cols.map(col => {
             const { name, val, bud } = col;
-            let expName: ExpVal;
-            if (bud !== undefined) expName = new ExpNum(bud.id);
-            else expName = new ExpStr(name);
-            return new ExpFunc('JSON_ARRAY', expName, this.context.expVal(val as ValueExpression));
+            let expBud: ExpVal;
+            if (bud !== undefined) expBud = new ExpNum(bud.id);
+            else expBud = new ExpStr(name);
+            return new ExpFunc('JSON_ARRAY', expBud, this.context.expVal(val as ValueExpression));
         });
         return arr;
     }
@@ -133,7 +133,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         insertAtom.select = select;
         select.distinct = true;
         select.column(new ExpField('id', b));
-        select.column(new ExpField('base', b));
+        select.column(new ExpField('base', c));
         select.column(new ExpField('no', b));
         select.column(new ExpField('ex', b));
         return insertAtom;

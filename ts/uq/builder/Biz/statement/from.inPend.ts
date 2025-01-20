@@ -8,7 +8,7 @@ import { DbContext } from "../../dbContext";
 import { Sqls } from "../../bstatement";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 
-const a = 'a', b = 'b';
+const a = 'a', b = 'b', c = 'c';
 export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
     constructor(context: DbContext, istatement: FromInPendStatement) {
         super(context, istatement);
@@ -104,7 +104,9 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
             const { select } = insert;
             select.from(new VarTable('$page', a))
                 .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
-                .on(new ExpEQ(exp, new ExpField('id', b)));
+                .on(new ExpEQ(exp, new ExpField('id', b)))
+                .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+                .on(new ExpEQ(new ExpField('id', c), new ExpField('id', b)));
             sqls.push(insert);
         }
         if (iBud !== undefined) buildInsertAtomSelect(new ExpField('i', a));

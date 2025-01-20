@@ -180,7 +180,7 @@ export type KeyOfMapFieldTable = keyof TypeMapFieldTable;
 
 export class BBizFieldField extends BBizField<BizFieldField> {
     override to(sb: SqlBuilder): void {
-        sb.append(this.bizField.tableAlias).dot().append(this.bizField.name);
+        sb.fld(this.bizField.tableAlias).dot().fld(this.bizField.name);
     }
 }
 

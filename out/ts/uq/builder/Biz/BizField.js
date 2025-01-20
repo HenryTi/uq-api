@@ -156,7 +156,7 @@ exports.MapFieldTable = {
 };
 class BBizFieldField extends BBizField {
     to(sb) {
-        sb.append(this.bizField.tableAlias).dot().append(this.bizField.name);
+        sb.fld(this.bizField.tableAlias).dot().fld(this.bizField.name);
     }
 }
 exports.BBizFieldField = BBizFieldField;

@@ -126,7 +126,9 @@ class UqBuilder {
                 return this.saveBizObject(entity);
             }));
             const ixPairs = this.biz.getEntityIxPairs(newest);
-            yield this.runner.unitUserTableFromProc('SaveBizIX', this.site, this.user, JSON.stringify(ixPairs));
+            if (ixPairs.length > 0) {
+                yield this.runner.unitUserTableFromProc('SaveBizIX', this.site, this.user, JSON.stringify(ixPairs));
+            }
             const ixBizRoles = this.biz.getIxRoles();
             yield this.runner.unitUserTableFromProc('SaveIxPermission', this.site, this.user, JSON.stringify(ixBizRoles));
             const hasUnit = false;

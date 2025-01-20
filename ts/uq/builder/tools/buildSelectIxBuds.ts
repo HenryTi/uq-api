@@ -63,12 +63,15 @@ function buildInsertAtoms(context: DbContext) {
     insert.select = select;
     select.distinct = true;
     select.col('id', undefined, b);
-    select.col('base', undefined, b);
+    select.col('base', undefined, c);
     select.col('no', undefined, b);
     select.col('ex', undefined, b);
     select.from(new VarTableWithSchema('props', a))
         .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
-        .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)));
+        .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)))
+        .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+        .on(new ExpEQ(new ExpField('id', c), new ExpField('id', b)));
+    ;
     return insert;
 }
 

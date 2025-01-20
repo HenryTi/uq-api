@@ -298,7 +298,14 @@ export abstract class FromEntityFieldSpace<F extends FromStatement> extends BizF
         const { alias, bizEntityArr } = bizEntityFrom;
         for (let bizEntity of bizEntityArr) {
             if (bizEntity.hasField(n1) === true) {
-                return new BizFieldField(this, alias, n1);
+                let t: string;
+                if (bizEntity.bizPhraseType === BizPhraseType.atom && n1 !== 'id') {
+                    t = alias + '$atom';
+                }
+                else {
+                    t = alias;
+                }
+                return new BizFieldField(this, t, n1);
             }
             let bud = bizEntity.props.get(n1);
             if (bud !== undefined) {

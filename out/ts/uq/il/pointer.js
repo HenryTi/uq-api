@@ -121,6 +121,7 @@ class BizEntityBudPointer extends Pointer {
 }
 exports.BizEntityBudPointer = BizEntityBudPointer;
 const $idu = ''; // '$idu';
+const $atom = '$atom';
 class BizEntityFieldPointer extends Pointer {
     constructor(bizFromEntity, fieldName) {
         super();
@@ -144,7 +145,7 @@ class BizEntityFieldPointer extends Pointer {
                         stack.dotVar([alias, fn]);
                         break;
                     case BizPhraseType_1.BizPhraseType.atom:
-                        stack.dotVar([alias, fn]);
+                        stack.dotVar([alias + $atom, fn]);
                         break;
                     case BizPhraseType_1.BizPhraseType.fork:
                         stack.dotVar([alias + $idu, fn]);
@@ -155,7 +156,7 @@ class BizEntityFieldPointer extends Pointer {
         else {
             let tAlias = alias;
             if (this.bizFromEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.atom) {
-                tAlias += '$atom';
+                tAlias += $atom;
             }
             stack.dotVar([tAlias, fn]);
         }

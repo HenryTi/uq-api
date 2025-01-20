@@ -53,12 +53,15 @@ function buildInsertAtoms(context) {
     insert.select = select;
     select.distinct = true;
     select.col('id', undefined, b);
-    select.col('base', undefined, b);
+    select.col('base', undefined, c);
     select.col('no', undefined, b);
     select.col('ex', undefined, b);
     select.from(new statementWithFrom_1.VarTableWithSchema('props', a))
         .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('value', a)));
+        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('value', a)))
+        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
+        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('id', b)));
+    ;
     return insert;
 }
 function buildInsertSpecs(context) {
