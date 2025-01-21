@@ -704,7 +704,7 @@ class VarTable extends stat.VarTable {
                 sb.r();
             }
         }
-        sb.r().append(' ENGINE=MyISAM').ln();
+        sb.r().append(' ENGINE=MEMORY').ln();
     }
 }
 class ForTable extends stat.ForTable {
@@ -754,7 +754,7 @@ class ForTable extends stat.ForTable {
         else if (autoId !== undefined) {
             sb.comma().append('PRIMARY KEY(').fld(autoId.name).r();
         }
-        sb.r().append(' ENGINE=MyISAM').ln();
+        sb.r().append(' ENGINE=MEMORY').ln();
     }
 }
 class LeaveProc extends stat.LeaveProc {

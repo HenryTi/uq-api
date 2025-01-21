@@ -62,7 +62,7 @@ class BizQueryTable extends BizQuery {
     buildSchema(res) {
         var _a, _b;
         let ret = super.buildSchema(res);
-        const { ban, cols, fromEntity, ids, showIds, groupByBase } = this.from;
+        const { ban, cols, subCols, fromEntity, ids, showIds, groupByBase } = this.from;
         ret.ids = ids.map(v => ({
             ui: v.ui,
             alias: v.fromEntity.alias,
@@ -88,6 +88,9 @@ class BizQueryTable extends BizQuery {
                 entityId = -entityId;
             return [entityId, bud.id];
         });
+        if (subCols !== undefined) {
+            ret.subCols = subCols.map(v => v.bud.id);
+        }
         ret.from = this.buildFromSchema(fromEntity);
         const { value } = this.from;
         if (value !== undefined) {

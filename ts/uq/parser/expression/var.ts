@@ -132,15 +132,14 @@ export class PVarOperand extends PElement<VarOperand> {
                 if (_obj !== undefined) {
                     let { bizEntityArr } = _obj;
                     if (bizEntityArr.length > 0) {
-                        let bud: BizBud, be: BizEntity, fieldName: string;
+                        let bud: BizBud, fieldName: string;
                         for (let bizEntity of bizEntityArr) {
-                            be = bizEntity;
-                            bud = bizEntity.getBud(var1);
-                            if (bud !== undefined) {
-                                break;
-                            }
                             if (bizEntity.hasField(var1) === true) {
                                 fieldName = var1;
+                                break;
+                            }
+                            bud = bizEntity.getBud(var1);
+                            if (bud !== undefined) {
                                 break;
                             }
                         }

@@ -8,7 +8,7 @@ const biz_from_1 = require("./biz.from");
 class PFromStatementInPend extends biz_from_1.PFromStatement {
     _parse() {
         this.parseTblsOf(this.pFromEntity);
-        this.parseColumn();
+        this.parseColumns();
         this.parseWhere();
         this.ts.passToken(tokens_1.Token.SEMICOLON);
     }

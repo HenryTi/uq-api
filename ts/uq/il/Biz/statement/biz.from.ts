@@ -19,6 +19,7 @@ export class FromStatement extends BizSelectStatement {
     ids: IdColumn[];
     value: FromColumn;
     cols: FromColumn[] = [];
+    subCols: FromColumn[];          // 查询单据的时候，sub中的字段，会算为明细
     showIds: IdColumn[];
     groupByBase?: boolean;          // spec group by base atom
     ban: BanColumn;

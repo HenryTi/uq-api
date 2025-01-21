@@ -212,6 +212,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField('value', pageGroupBy));
         select.order(new sql_1.ExpField('$id', pageGroupBy), 'asc');
         this.buildSelectRetFrom(select, pageGroupBy);
+        this.buildSelectJoinSubs(select, fromEntity);
         return insertRet;
     }
     buildSelectRetFrom(select, pageAlias) {

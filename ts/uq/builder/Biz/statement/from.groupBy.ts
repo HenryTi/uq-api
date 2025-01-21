@@ -240,6 +240,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         select.column(new ExpField('value', pageGroupBy));
         select.order(new ExpField('$id', pageGroupBy), 'asc');
         this.buildSelectRetFrom(select, pageGroupBy);
+        this.buildSelectJoinSubs(select, fromEntity);
         return insertRet;
     }
 

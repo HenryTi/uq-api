@@ -24,7 +24,7 @@ class MySelect extends select_1.Select {
     }
     buildSqlWithSwithOrder(sb, tab) {
         sb.tab(tab).append('DROP TEMPORARY TABLE IF EXISTS `_$page_order`').ln();
-        sb.tab(tab).append('CREATE TEMPORARY TABLE `_$page_order` (`order` INT NOT NULL AUTO_INCREMENT,`id` BIGINT NULL,PRIMARY KEY(`order`)) ENGINE=MyISAM').ln();
+        sb.tab(tab).append('CREATE TEMPORARY TABLE `_$page_order` (`order` INT NOT NULL AUTO_INCREMENT,`id` BIGINT NULL,PRIMARY KEY(`order`)) ENGINE=MEMORY').ln();
         sb.tab(tab).append('IF ').var('$pageStart').append(' IS NULL THEN SET ')
             .var('$pageStart').append('=0; END IF').ln();
         let { whenThen, whenElse } = this._switchOrder;

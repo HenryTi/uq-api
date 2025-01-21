@@ -7,7 +7,7 @@ import { FromSpace, PFromStatement } from "./biz.from";
 export class PFromStatementInPend extends PFromStatement<FromInPendStatement> {
     protected _parse(): void {
         this.parseTblsOf(this.pFromEntity);
-        this.parseColumn();
+        this.parseColumns();
         this.parseWhere();
         this.ts.passToken(Token.SEMICOLON);
     }

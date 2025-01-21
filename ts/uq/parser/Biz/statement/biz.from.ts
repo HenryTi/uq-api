@@ -1,4 +1,4 @@
-import { CompareExpression, FromStatement, ValueExpression, FromInQueryFieldSpace, BizBudAny, EnumAsc, IdColumn } from "../../../il";
+import { CompareExpression, FromStatement, ValueExpression, FromInQueryFieldSpace, BizBudAny, EnumAsc, IdColumn, FromColumn } from "../../../il";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { BizSelectStatementSpace, PBizSelectStatement, PIdColumn } from "./BizSelectStatement";
@@ -12,12 +12,12 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
 
     protected _parse(): void {
         this.parseFromEntity(this.pFromEntity);
-        this.parseColumn();
+        this.parseColumns();
         this.parseWhere();
         this.ts.passToken(Token.SEMICOLON);
     }
 
-    protected parseColumn() {
+    protected parseColumns() {
         if (this.ts.isKeyword('column') === true) {
             this.ts.readToken();
             this.ts.passToken(Token.LPARENTHESE);
@@ -27,35 +27,12 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                     this.ts.readToken();
                     break;
                 }
-                if (this.ts.token === Token.MOD) {
-                    const { peekToken, lowerVar } = this.ts.peekToken();
-                    if (peekToken !== Token.VAR) {
-                        this.ts.expectToken(Token.VAR);
-                    }
-                    let val = new ValueExpression();
-                    this.context.parseElement(val);
-                    this.element.cols.push({ name: lowerVar, ui: null, val, bud: undefined, });
+                if (this.ts.isKeyword('sub') === true) {
+                    this.ts.readToken();
+                    this.parseSubColumns();
                 }
                 else {
-                    let name = this.ts.passVar();
-                    if (name === valueColumn && this.ts.varBrace === false) {
-                        this.parseValue();
-                    }
-                    else {
-                        let hide: boolean;
-                        if (this.ts.isKeyword('hide') === true) {
-                            this.ts.readToken();
-                            hide = true;
-                        }
-                        let ui = this.parseUI();
-                        this.ts.passToken(Token.EQU);
-                        let val = new ValueExpression();
-                        this.context.parseElement(val);
-                        this.element.cols.push({ name, ui, val, bud: undefined, hide });
-                        if (this.collColumns[name] === true) {
-                            this.ts.error(`duplicate column name ${name}`);
-                        }
-                    }
+                    this.parseColumn();
                 }
                 if (this.ts.token === Token.RPARENTHESE as any) {
                     this.ts.readToken();
@@ -64,6 +41,62 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                 this.ts.passToken(Token.COMMA);
             }
         }
+    }
+
+    private parseSubColumns() {
+        let { subCols } = this.element;
+        if (subCols === undefined) this.element.subCols = subCols = [];
+        this.ts.passToken(Token.LPARENTHESE);
+        for (; ;) {
+            if (this.ts.token === Token.RPARENTHESE as any) {
+                this.ts.readToken();
+                break;
+            }
+            let col = this.parseColumn();
+            subCols.push(col);
+            if (this.ts.token === Token.RPARENTHESE as any) {
+                this.ts.readToken();
+                break;
+            }
+            this.ts.passToken(Token.COMMA);
+        }
+    }
+
+    private parseColumn() {
+        let col: FromColumn;
+        if (this.ts.token === Token.MOD) {
+            const { peekToken, lowerVar } = this.ts.peekToken();
+            if (peekToken !== Token.VAR) {
+                this.ts.expectToken(Token.VAR);
+            }
+            let val = new ValueExpression();
+            this.context.parseElement(val);
+            col = { name: lowerVar, ui: null, val, bud: undefined, };
+        }
+        else {
+            let name = this.ts.passVar();
+            if (name === valueColumn && this.ts.varBrace === false) {
+                this.parseValue();
+                return;
+            }
+            else {
+                let hide: boolean;
+                if (this.ts.isKeyword('hide') === true) {
+                    this.ts.readToken();
+                    hide = true;
+                }
+                let ui = this.parseUI();
+                this.ts.passToken(Token.EQU);
+                let val = new ValueExpression();
+                this.context.parseElement(val);
+                col = { name, ui, val, bud: undefined, hide };
+                if (this.collColumns[name] === true) {
+                    this.ts.error(`duplicate column name ${name}`);
+                }
+            }
+        }
+        this.element.cols.push(col);
+        return col;
     }
 
     private parseIdColumns() {
