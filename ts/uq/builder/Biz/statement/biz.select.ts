@@ -1,7 +1,7 @@
 import { EnumSysTable, JoinType, BizFromEntity, IdColumn, BizIDExtendable, BizEntity } from "../../../il";
 import {
     EnumExpOP,
-    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNum, ExpOr, ExpVal, Select,
+    ExpAnd, ExpCmp, ExpEQ, ExpField, ExpIn, ExpNE, ExpNum, ExpOr, ExpVal, Select,
 } from "../../sql";
 import { EntityTable, GlobalSiteTable, GlobalTable, Table } from "../../sql/statementWithFrom";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
@@ -105,12 +105,20 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                         ));
                     break;
                 case BizPhraseType.bin:
-                    select
-                        .join(joinAtom, entityTable)
-                        .on(new ExpEQ(
-                            new ExpField(field, subAlias),
+                    let expBinOn: ExpCmp = new ExpEQ(
+                        new ExpField(field, subAlias),
+                        new ExpField('id', alias)
+                    );
+                    if (field === 'sheet') {
+                        // 表示是明细，要去掉主表join
+                        expBinOn = new ExpAnd(expBinOn, new ExpNE(
+                            new ExpField('id', subAlias),
                             new ExpField('id', alias)
                         ));
+                    }
+                    select
+                        .join(joinAtom, entityTable)
+                        .on(expBinOn);
                     break;
                 case BizPhraseType.atom:
                     let expOnAtom = buildExpOn(

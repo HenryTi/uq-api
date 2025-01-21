@@ -92,9 +92,14 @@ class BBizSelect extends bstatement_1.BStatement {
                         .on(new sql_1.ExpEQ(new sql_1.ExpField('id', subAlias), expMainField));
                     break;
                 case BizPhraseType_1.BizPhraseType.bin:
+                    let expBinOn = new sql_1.ExpEQ(new sql_1.ExpField(field, subAlias), new sql_1.ExpField('id', alias));
+                    if (field === 'sheet') {
+                        // 表示是明细，要去掉主表join
+                        expBinOn = new sql_1.ExpAnd(expBinOn, new sql_1.ExpNE(new sql_1.ExpField('id', subAlias), new sql_1.ExpField('id', alias)));
+                    }
                     select
                         .join(joinAtom, entityTable)
-                        .on(new sql_1.ExpEQ(new sql_1.ExpField(field, subAlias), new sql_1.ExpField('id', alias)));
+                        .on(expBinOn);
                     break;
                 case BizPhraseType_1.BizPhraseType.atom:
                     let expOnAtom = buildExpOn(new sql_1.ExpField('base', subAliasIDU), // expSubAlias, 
