@@ -4,7 +4,7 @@ import { DeleteStatement } from "../../il";
 import { convertDelete } from "../sql/select";
 
 export class BDeleteStatement extends BStatement<DeleteStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         sqls.push(convertDelete(this.context, this.istatement.del));
     }
 }

@@ -3,7 +3,7 @@ import { Sqls } from "./sqls";
 import { InlineStatement } from "../../il";
 
 export class BInlineStatement extends BStatement<InlineStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let factory = this.context.factory;
         let inline = factory.createInline();
         inline.dbType = this.istatement.dbType;

@@ -22,7 +22,7 @@ var EnumSysTable;
     EnumSysTable["idu"] = "idu";
     EnumSysTable["atom"] = "atom";
     EnumSysTable["atomUnique"] = "atomunique";
-    EnumSysTable["fork"] = "fork";
+    // fork = 'fork',
     EnumSysTable["bud"] = "bud";
     // duo = 'duo',
     EnumSysTable["combo"] = "combo";

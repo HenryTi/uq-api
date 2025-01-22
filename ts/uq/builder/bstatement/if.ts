@@ -4,7 +4,7 @@ import { If, BreakStatement, ReturnStatement, ForEach, ContinueStatement } from 
 import { Statements as SqlStatements, ExpCmp, convertExp, ExpVal } from '../sql';
 
 export class BIfStatement extends BStatement<If> {
-    head(sqls: Sqls) {
+    override head(sqls: Sqls) {
         let { then: ifThen, else: ifElse, elseIfs } = this.istatement;
         sqls.head(ifThen.statements);
         if (elseIfs !== undefined) {
@@ -14,7 +14,7 @@ export class BIfStatement extends BStatement<If> {
             sqls.head(ifElse.statements);
         }
     }
-    foot(sqls: Sqls) {
+    override foot(sqls: Sqls) {
         let { then: ifThen, else: ifElse, elseIfs } = this.istatement;
         sqls.foot(ifThen.statements);
         if (elseIfs !== undefined) {
@@ -24,7 +24,7 @@ export class BIfStatement extends BStatement<If> {
             sqls.foot(ifElse.statements);
         }
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { factory } = this.context;
         let _if = factory.createIf();
         _if.cmp = convertExp(this.context, this.istatement.condition) as ExpCmp;
@@ -50,7 +50,7 @@ export class BIfStatement extends BStatement<If> {
 }
 
 export class BBreakStatement extends BStatement<BreakStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createBreak();
         let { loop } = this.istatement;
@@ -65,7 +65,7 @@ export class BBreakStatement extends BStatement<BreakStatement> {
 }
 
 export class BContinueStatement extends BStatement<ContinueStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createContinue();
         let { loop } = this.istatement;
@@ -80,7 +80,7 @@ export class BContinueStatement extends BStatement<ContinueStatement> {
 }
 
 export class BReturnStatement extends BStatement<ReturnStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createReturn();
         b.expVal = convertExp(this.context, this.istatement.exp) as ExpVal;
@@ -89,7 +89,7 @@ export class BReturnStatement extends BStatement<ReturnStatement> {
 }
 
 export class BReturnStartStatement extends BStatement {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createReturnBegin();
         sqls.push(b);
@@ -97,7 +97,7 @@ export class BReturnStartStatement extends BStatement {
 }
 
 export class BReturnEndStatement extends BStatement {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let factory = this.context.factory;
         let b = factory.createReturnEnd();
         sqls.push(b);

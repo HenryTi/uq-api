@@ -4,15 +4,15 @@ import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
 
 export class BBizStatement extends BStatement<BizStatement<BizAct>> {
-    head(sqls: Sqls) {
+    override head(sqls: Sqls) {
         let bSub = this.istatement.sub.db(this.context);
         bSub.head(sqls);
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let bSub = this.istatement.sub.db(this.context);
         bSub.body(sqls);
     }
-    foot(sqls: Sqls): void {
+    override foot(sqls: Sqls): void {
         let bSub = this.istatement.sub.db(this.context);
         bSub.foot(sqls);
     }

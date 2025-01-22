@@ -4,7 +4,7 @@ import { ExecSqlStatement } from "../../il";
 import { convertExp, ExpVal } from "../sql";
 
 export class BExecSqlStatement extends BStatement<ExecSqlStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { sql, toVarPointer, toVar } = this.istatement;
         let factory = this.context.factory;
         let execSql = factory.createExecSql();

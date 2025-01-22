@@ -12,7 +12,7 @@ const pendFrom = '$pend';
 const binId = '$bin';
 export abstract class BBizStatementPend<T extends BizAct> extends BStatement<BizStatementPend<T>> {
     // 可以发送sheet主表，也可以是Detail
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         const { context } = this;
         const { factory, varSite, varUser } = context;
         const memo = factory.createMemo();

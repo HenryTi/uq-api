@@ -79,10 +79,10 @@ function buildInsertSpecs(context) {
     select.col('id', undefined, b);
     select.col('base', 'atom', c);
     select.from(new statementWithFrom_1.VarTableWithSchema('props', a))
-        .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, b))
-        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('value', a)))
+        // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
+        // .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)))
         .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
-        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('id', b)));
+        .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('value', a)));
     return insert;
 }
 function buildSelectIxBud(context, func, tbl, budDataType) {
@@ -225,7 +225,7 @@ function buildIDUForkSelectIdPhrase(context, buildSelectFrom) {
     const insert = buildInsertSelectIdPhrase(context, select);
     const s1 = 's1', u = 'u', u1 = 'u1';
     buildSelectFrom(select);
-    select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, u))
+    select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, u))
         .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u), new sql_1.ExpField('i', s1)))
         .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, u1))
         .on(new sql_1.ExpEQ(new sql_1.ExpField('id', u1), new sql_1.ExpField('base', u)));

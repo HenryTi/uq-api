@@ -4,7 +4,6 @@ exports.BBizLog = void 0;
 const il_1 = require("../../../il");
 const bstatement_1 = require("../../bstatement");
 const sql_1 = require("../../sql");
-const loginact = 'loginact';
 class BBizLog extends bstatement_1.BStatement {
     body(sqls) {
         const { factory, userParam } = this.context;

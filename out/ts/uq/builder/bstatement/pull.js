@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
 export class BPull extends BStatement {
     protected istatement: Pull;
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         switch (this.istatement.entity.type) {
             case 'map':
                 this.buildMapPull(sqls);

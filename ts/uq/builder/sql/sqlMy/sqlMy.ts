@@ -676,21 +676,25 @@ class VarTable extends stat.VarTable {
             sb.space().append(field.nullable === true ? 'NULL' : 'NOT NULL');
             if (field.autoInc === true) {
                 autoId = field;
-                sb.space().append('AUTO_INCREMENT');
+                sb.space().append('AUTO_INCREMENT, PRIMARY KEY(').fld(field.name).r();
             }
         }
         if (this.keys !== undefined) {
             first = true;
-            sb.comma().append('PRIMARY KEY(')
+            let index: string;
+            if (autoId === undefined) {
+                index = 'PRIMARY KEY';
+            }
+            else {
+                index = 'UNIQUE `' + this.keys.map(v => v.name).join('_') + '`';
+            }
+            sb.comma().append(index).l()
             for (let key of this.keys) {
                 if (first === true) first = false;
                 else sb.comma();
                 sb.fld(key.name);
             }
             sb.r();
-        }
-        else if (autoId !== undefined) {
-            sb.comma().append('PRIMARY KEY(').fld(autoId.name).r();
         }
         if (this.indexes !== undefined) {
             for (let index of this.indexes) {
@@ -746,21 +750,26 @@ class ForTable extends stat.ForTable {
             sb.space().append(field.nullable === true ? 'NULL' : 'NOT NULL');
             if (field.autoInc === true) {
                 autoId = field;
-                sb.space().append('AUTO_INCREMENT');
+                sb.space().append('AUTO_INCREMENT, PRIMARY KEY(').fld(field.name).r();
             }
         }
         if (this.keys !== undefined) {
             first = true;
-            sb.comma().append('PRIMARY KEY(')
+            sb.comma();
+            let index: string;
+            if (autoId === undefined) {
+                index = 'PRIMARY KEY';
+            }
+            else {
+                index = 'UNIQUE `' + this.keys.map(v => v.name).join('_') + '`';
+            }
+            sb.append(index).l()
             for (let key of this.keys) {
                 if (first === true) first = false;
                 else sb.comma();
                 sb.fld(key.name);
             }
             sb.r();
-        }
-        else if (autoId !== undefined) {
-            sb.comma().append('PRIMARY KEY(').fld(autoId.name).r();
         }
         sb.r().append(' ENGINE=MEMORY').ln();
     }

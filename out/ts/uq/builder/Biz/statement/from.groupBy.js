@@ -271,7 +271,6 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             sqls.push(...(0, tools_1.buildSelectIdPhrases)(this.context, buildSelectId));
         }
         sqls.push((0, tools_1.buildSelectPhraseBud)(this.context));
-        sqls.push(...(0, tools_1.buildSelectIxBuds)(this.context));
     }
     buildInsertIdsAtoms(tbl, ids) {
         let insert = this.buildInsertAtom();
@@ -305,9 +304,9 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         let select = factory.createSelect();
         insert.select = select;
         select.distinct = true;
-        select.column(new sql_1.ExpField('id', b));
+        select.column(new sql_1.ExpField('id', c));
         select.column(new sql_1.ExpField('base', c));
-        let expBId = new sql_1.ExpField('id', b);
+        let expBId = new sql_1.ExpField('id', c);
         let expOn;
         if (this.idsGroupBy.length === 1) {
             expOn = new sql_1.ExpEQ(expBId, new sql_1.ExpField('id0', a));
@@ -317,10 +316,10 @@ class BFromGroupByStatement extends from_1.BFromStatement {
             expOn = new sql_1.ExpIn(...arrExp);
         }
         select.from(new statementWithFrom_1.VarTable(tbl, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, b))
-            .on(expOn)
+            // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
+            // .on(expOn)
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', c))));
+            .on(expOn);
         return insert;
     }
     buildInsertSpec() {

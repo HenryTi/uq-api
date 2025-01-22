@@ -9,9 +9,9 @@ import { LockType } from "../sql/select";
 import { EntityTable } from '../sql/statementWithFrom';
 
 export class BHistoryWrite extends BStatement<HistoryWrite> {
-    head(sqls: Sqls): void { }
+    override head(sqls: Sqls): void { }
 
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let syncStats: Statement[] = [];
         let factory = this.context.factory;
         let { no, history, set, inSheet, date: valDate } = this.istatement;

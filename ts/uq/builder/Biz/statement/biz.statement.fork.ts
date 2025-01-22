@@ -31,7 +31,7 @@ export class BBizStatementFork extends BBizStatementID<BizStatementFork> {
         sqls.push(select);
         select.toVar = true;
         select.column(new ExpField('id', a), undefined, this.istatement.toVar);
-        select.from(new EntityTable(EnumSysTable.fork, false, a));
+        select.from(new EntityTable(EnumSysTable.idu, false, a));
         let wheres: ExpCmp[] = [
             new ExpEQ(new ExpField('base', a), this.context.expVal(inVals[0])),
         ]

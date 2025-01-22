@@ -4,13 +4,13 @@ import { While } from '../../il';
 import { ExpCmp, convertExp } from '../sql';
 
 export class BWhileStatement extends BStatement<While> {
-    head(sqls: Sqls) {
+    override head(sqls: Sqls) {
         sqls.head(this.istatement.statements.statements);
     }
-    foot(sqls: Sqls) {
+    override foot(sqls: Sqls) {
         sqls.foot(this.istatement.statements.statements);
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { factory } = this.context;
         let whileLoop = factory.createWhile();
         whileLoop.no = this.istatement.no;

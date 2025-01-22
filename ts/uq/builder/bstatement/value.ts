@@ -6,7 +6,7 @@ import { EntityTable } from "../sql/statementWithFrom";
 import { sysTable } from "../dbContext";
 
 export class BValueStatement extends BStatement<ValueStatement> {
-    head(sqls: Sqls) {
+    override head(sqls: Sqls) {
         let { factory } = this.context;
         let { no } = this.istatement;
         let declare = factory.createDeclare();
@@ -14,7 +14,7 @@ export class BValueStatement extends BStatement<ValueStatement> {
         declare.var(`$type_${no}`, new Char(100));
         declare.var(`$sql_${no}`, new Text());
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { valueXi } = this.istatement;
         if (valueXi !== undefined) {
             this.buildValueXi(sqls, valueXi);

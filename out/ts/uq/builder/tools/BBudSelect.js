@@ -31,7 +31,7 @@ class BBudSelect {
         let t;
         switch (bizEntitySys) {
             case il_1.EnumEntitySys.fork:
-                select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, a));
+                select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, a));
                 if (prop === 'id') {
                     t = a;
                 }
@@ -124,7 +124,7 @@ class BBudSelect {
                     tbl = il_1.EnumSysTable.atom;
                     break;
                 case BizPhraseType_1.BizPhraseType.fork:
-                    tbl = il_1.EnumSysTable.fork;
+                    tbl = il_1.EnumSysTable.idu;
                     break;
             }
             wheres = new exp_1.ExpAnd(new exp_1.ExpEQ(new exp_1.ExpField('id'), params[0]), new exp_1.ExpEQ(new exp_1.ExpField('base'), new exp_1.ExpNum(bizEntity.id)));
@@ -138,7 +138,7 @@ class BBudSelect {
                     tbl = il_1.EnumSysTable.atom;
                     break;
                 case il_1.BizExpIDType.fork:
-                    tbl = il_1.EnumSysTable.fork;
+                    tbl = il_1.EnumSysTable.idu;
                     break;
             }
             wheres = expId;

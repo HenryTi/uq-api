@@ -272,7 +272,7 @@ abstract class BWithIX extends BWithStatement {
 }
 
 export class BWithIDSetOnId extends BWithIDOnId {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         this.buildUpsert(sqls);
     }
     protected buildInsertIdCol(): ColValUpdate {
@@ -283,7 +283,7 @@ export class BWithIDSetOnId extends BWithIDOnId {
 }
 
 export class BWithIDSetOnKeys extends BWithIDOnKeys {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { factory } = this.context;
         let { entity, keyVals, idToVar, prevToVar, stampVal, newType } = this.istatement.with as WithID;
         let { keys } = entity as ID;
@@ -360,13 +360,13 @@ export class BWithIDSetOnKeys extends BWithIDOnKeys {
 }
 
 export class BWithIDXSet extends BWithIDX {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         this.buildUpsert(sqls);
     }
 }
 
 export class BWithIXSet extends BWithIX {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { factory } = this.context;
         let { no } = this.istatement;
         let { IX, ixxVal, iVal, xVal } = this.istatement.with as WithIX;
@@ -426,32 +426,32 @@ export class BWithIXSet extends BWithIX {
 }
 
 export class BWithIDDelOnId extends BWithIDOnId {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         sqls.push(this.createDel());
     }
 }
 
 export class BWithIDDelOnKeys extends BWithIDOnKeys {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         sqls.push(this.createDel());
     }
 }
 
 export class BWithIDXDel extends BWithIDX {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         sqls.push(this.createDel());
     }
 }
 
 export class BWithIXDel extends BWithIX {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         sqls.push(this.createDel());
     }
 }
 
 export class BWithTruncate extends BWithStatement {
     get entity() { return this.istatement.with.entity }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         sqls.push(this.createTruncate());
     }
 }

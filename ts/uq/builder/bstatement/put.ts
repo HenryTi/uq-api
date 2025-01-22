@@ -3,7 +3,7 @@ import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
 export class BPutStatement extends BStatement<PutStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         const { factory } = this.context;
         let { putName, val } = this.istatement;
         putName = putName ?? '$';

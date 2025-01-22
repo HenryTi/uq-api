@@ -43,7 +43,7 @@ export class BBudSelect {
         let t: string;
         switch (bizEntitySys) {
             case EnumEntitySys.fork:
-                select.from(new EntityTable(EnumSysTable.fork, false, a));
+                select.from(new EntityTable(EnumSysTable.idu, false, a));
                 if (prop === 'id') {
                     t = a;
                 }
@@ -141,7 +141,7 @@ export class BBudSelect {
             switch (bizEntity.bizPhraseType) {
                 default: debugger; throw new Error('select field must be ATOM or SPEC');
                 case BizPhraseType.atom: tbl = EnumSysTable.atom; break;
-                case BizPhraseType.fork: tbl = EnumSysTable.fork; break;
+                case BizPhraseType.fork: tbl = EnumSysTable.idu; break;
             }
             wheres = new ExpAnd(
                 new ExpEQ(new ExpField('id'), params[0]),
@@ -152,7 +152,7 @@ export class BBudSelect {
             switch (expIDType) {
                 default: debugger; throw new Error('select field must be ATOM or SPEC');
                 case BizExpIDType.atom: tbl = EnumSysTable.atom; break;
-                case BizExpIDType.fork: tbl = EnumSysTable.fork; break;
+                case BizExpIDType.fork: tbl = EnumSysTable.idu; break;
             }
             wheres = expId;
         }

@@ -36,7 +36,7 @@ export class BForArr extends BForList {
         super(context, forEach);
         this.forArr = forArr;
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         this.context.forArr(this.forArr.arr, sqls, this.istatement.no, (body: Statement[]) => {
             let forSqls = new Sqls(sqls.context, body);
             forSqls.body(this.forEach.statements.statements);
@@ -50,7 +50,7 @@ export class BForBizInOutArr extends BForList {
         super(context, forEach);
         this.forArr = forArr;
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         const { arr } = this.forArr;
         this.context.forBizInOutArr(arr, sqls, this.istatement.no, (body: Statement[]) => {
             let forSqls = new Sqls(sqls.context, body);
@@ -82,7 +82,7 @@ export class BForSelect extends BForListWithVars {
         this.forSelect = forSelect;
     }
 
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         this.buildForSelect(sqls);
     }
 
@@ -200,7 +200,7 @@ export class BForQueue extends BForListWithVars {
         super(context, forEach, forQueue);
         this.forQueue = forQueue;
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         this.createDeclareVars(sqls);
 
         let { factory, hasUnit, unitFieldName } = this.context;

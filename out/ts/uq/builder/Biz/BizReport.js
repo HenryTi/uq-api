@@ -181,11 +181,11 @@ class BBizReport extends BizEntity_1.BBizEntity {
         select.column(new sql_1.ExpSelect(selectPhrase));
         select.column(new sql_1.ExpField('base', b));
         select.column(expJsonValues);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, a))
-            .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('base', a)))
+        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, a))
+            //.join(JoinType.inner, new EntityTable(EnumSysTable.bud, false, b))
+            //.on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
             .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable('_$page', false, d))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', b)))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', d), new sql_1.ExpField('base', a)))
             .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bud, false, hb))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('base', hb), new sql_1.ExpField('id', a)))
             .join(il_1.JoinType.inner, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.history, false, h))

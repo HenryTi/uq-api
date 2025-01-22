@@ -5,7 +5,7 @@ import { convertExp, ExpIsNull, ExpNull, ExpNum, ExpVal, ExpVar } from "../sql";
 import { LockType, convertSelect } from "../sql/select";
 
 export class BVarStatement extends BStatement<VarStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { vars, select } = this.istatement;
         let { factory } = this.context;
         let declare = factory.createDeclare();

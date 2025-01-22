@@ -136,10 +136,11 @@ export class BBizEntity<B extends BizEntity = any> {
             let budName = lastBudName[1];
             select.join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
                 .on(new ExpEQ(new ExpField('id', b), new ExpField(tempfield, a)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, c))
+                .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
                 .on(new ExpEQ(new ExpField('id', c), new ExpField(budName, b)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, lastT))
-                .on(new ExpEQ(new ExpField('id', lastT), new ExpField('base', c)));
+            //.join(JoinType.join, new EntityTable(EnumSysTable.bud, false, lastT))
+            //.on(new ExpEQ(new ExpField('id', lastT), new ExpField('base', c)));
+            lastT = b;
             lastField = 'base';
         }
         else {

@@ -10,7 +10,7 @@ import { EntityTable } from '../sql/statementWithFrom';
 import { sysTable } from "../dbContext";
 
 export class BTuidWrite extends BStatement<TuidWrite> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let syncStats: Statement[] = [];
         let context = this.context;
         let { factory, hasUnit, unitField, unitFieldName } = context;

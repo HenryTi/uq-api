@@ -87,7 +87,7 @@ function buildSelectBinBud(context, bud, varBin, varName) {
         selectBud.toVar = true;
         selectBud.column(new sql_1.ExpField('base', b), budName);
         selectBud.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.fork, false, b))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField(budName.substring(0, 1), a)));
         selectBud.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), varBin));
         return selectBud;

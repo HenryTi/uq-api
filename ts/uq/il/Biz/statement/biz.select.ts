@@ -11,6 +11,7 @@ export interface FromColumn {
     val: ValueExpression;
     bud: BizBud;
     hide?: boolean;
+    valBud?: BizBud;        // 字段值推演出来的bud
 }
 
 export interface BanColumn {

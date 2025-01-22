@@ -3,7 +3,7 @@ import { Sqls } from "./sqls";
 import { TableStatement } from "../../il";
 
 export class BTableStatement extends BStatement<TableStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { noDrop, table } = this.istatement;
         let { name, fields, keys } = table;
         let factory = this.context.factory;

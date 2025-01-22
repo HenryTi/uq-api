@@ -5,7 +5,7 @@ import { Statement, ExpCmp, ExpEQ, ExpAnd, ExpField, ExpVar, ExpStr, SqlSysTable
 import { DbContext, sysTable } from "../dbContext";
 
 export class BStateTo extends BStatement<StateToStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let buildStateTo = new BuildStateTo(sqls, this.context, this.istatement.no, new ExpVar('$id'), this.istatement.to);
         buildStateTo.build();
     }

@@ -5,7 +5,7 @@ import { ExpVar, ExpVal, ExpFunc, ExpStr, convertExp, SqlSysTable, ExpNum, ExpFu
 import { settingQueueSeed } from '../consts';
 
 export class BBusStatement extends BStatement<BusStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let text: string;
         let memo = this.context.factory.createMemo();
         sqls.push(memo);

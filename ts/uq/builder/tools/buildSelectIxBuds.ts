@@ -90,10 +90,10 @@ function buildInsertSpecs(context: DbContext) {
     select.col('id', undefined, b);
     select.col('base', 'atom', c);
     select.from(new VarTableWithSchema('props', a))
-        .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
-        .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)))
+        // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
+        // .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)))
         .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
-        .on(new ExpEQ(new ExpField('id', c), new ExpField('id', b)));
+        .on(new ExpEQ(new ExpField('id', c), new ExpField('value', a)));
     return insert;
 }
 
@@ -243,7 +243,7 @@ function buildIDUForkSelectIdPhrase(context: DbContext, buildSelectFrom: (select
     const insert = buildInsertSelectIdPhrase(context, select);
     const s1 = 's1', u = 'u', u1 = 'u1';
     buildSelectFrom(select);
-    select.join(JoinType.join, new EntityTable(EnumSysTable.fork, false, u))
+    select.join(JoinType.join, new EntityTable(EnumSysTable.idu, false, u))
         .on(new ExpEQ(new ExpField('id', u), new ExpField('i', s1)))
         .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, u1))
         .on(new ExpEQ(new ExpField('id', u1), new ExpField('base', u)));;

@@ -13,7 +13,7 @@ import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
 
 export class BBizStatementSheet extends BStatement<BizStatementSheet> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         const { detail } = this.istatement;
         if (detail === undefined) this.buildMain(sqls);
         else this.buildDetail(sqls);

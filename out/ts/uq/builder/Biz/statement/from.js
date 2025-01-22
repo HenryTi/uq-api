@@ -6,6 +6,7 @@ const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const biz_select_1 = require("./biz.select");
+const tools_1 = require("../../tools");
 const a = 'a', b = 'b', c = 'c';
 // const t1 = 't1';
 const pageStart = '$pageStart';
@@ -37,6 +38,32 @@ class BFromStatement extends biz_select_1.BBizSelect {
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
         this.buildFromEntity(sqls);
+        this.buildInsertColumnsProps(sqls);
+    }
+    buildInsertColumnsProps(sqls) {
+        const { cols } = this.istatement;
+        for (let col of cols) {
+            if (col.valBud === undefined)
+                continue;
+            this.buildColumnProps(sqls, col);
+        }
+    }
+    buildColumnProps(sqls, col) {
+        const { factory } = this.context;
+        /*
+        const insert = factory.createInsert();
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'base', val: undefined },
+            { col: 'no', val: undefined },
+        ];
+        */
+    }
+    foot(sqls) {
+        let memo = this.context.factory.createMemo();
+        sqls.push(memo);
+        memo.text = 'FROM foot';
+        sqls.push(...(0, tools_1.buildSelectIxBuds)(this.context));
     }
     buildExpFieldPageId() {
         const { fromEntity } = this.istatement;

@@ -5,7 +5,7 @@ import { convertExp, ExpNum, ExpVal } from "../sql";
 import { sysTable } from "../dbContext";
 
 export class BPokeStatement extends BStatement<PokeStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { user } = this.istatement;
         let { factory } = this.context;
         let upsert = factory.createUpsert();

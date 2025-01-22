@@ -11,7 +11,7 @@ import { LockType } from "../sql/select";
 import { sysTable } from "../dbContext";
 
 export class BQueueStatement extends BStatement<QueueStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         const { factory, hasUnit } = this.context;
         const { no, entityId, queue, value, ix } = this.istatement;
         const queueEntityId = '$queue_entity_' + no;

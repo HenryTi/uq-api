@@ -1,11 +1,9 @@
-import { bigIntField, BizLog, EnumSysTable, LogArray, LogObject, LogScalar, LogType, LogValue } from "../../../il";
+import { BizLog, LogArray, LogObject, LogScalar, LogType, LogValue } from "../../../il";
 import { BStatement, Sqls } from "../../bstatement";
-import { ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar } from "../../sql";
-import { EntityTable } from "../../sql/statementWithFrom";
+import { ExpAtVar, ExpFunc, ExpStr, ExpVal } from "../../sql";
 
-const loginact = 'loginact';
 export class BBizLog extends BStatement<BizLog> {
-    body(sqls: Sqls): void {
+    override body(sqls: Sqls): void {
         const { factory, userParam } = this.context;
         let { no, val } = this.istatement;
         /*

@@ -16,7 +16,7 @@ const objId = '$objId_';
 const budId = '$budId_';
 const historyId = '$history_';
 export class BBizStatementBook extends BStatement<BizStatementBook> {
-    head(sqls: Sqls): void {
+    override head(sqls: Sqls): void {
         let { factory } = this.context;
         let { bud, no } = this.istatement;
         let { hasHistory } = bud;
@@ -29,7 +29,7 @@ export class BBizStatementBook extends BStatement<BizStatementBook> {
             declare.var(historyId + no, new BigInt());
         }
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { factory, varUser, varSite } = this.context;
         const memo = factory.createMemo();
         sqls.push(memo);

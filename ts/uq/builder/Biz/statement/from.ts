@@ -8,6 +8,7 @@ import { EntityTable, VarTable } from "../../sql/statementWithFrom";
 import { Sqls } from "../../bstatement/sqls";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 import { BBizSelect } from "./biz.select";
+import { buildSelectIxBuds } from "../../tools";
 
 const a = 'a', b = 'b', c = 'c';
 export type BudsValue = { buds: BizBud[]; value: ExpVal; };
@@ -17,7 +18,7 @@ const pageStart = '$pageStart';
 export abstract class BFromStatement<T extends FromStatement> extends BBizSelect<T> {
     protected asc: EnumAsc;
 
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         const { factory } = this.context;
         const declare = factory.createDeclare();
         sqls.push(declare);
@@ -46,6 +47,35 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
         this.buildFromEntity(sqls);
+
+        this.buildInsertColumnsProps(sqls);
+    }
+
+    private buildInsertColumnsProps(sqls: Sqls): void {
+        const { cols } = this.istatement;
+        for (let col of cols) {
+            if (col.valBud === undefined) continue;
+            this.buildColumnProps(sqls, col);
+        }
+    }
+
+    private buildColumnProps(sqls: Sqls, col: FromColumn) {
+        const { factory } = this.context;
+        /*
+        const insert = factory.createInsert();
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'base', val: undefined },
+            { col: 'no', val: undefined },
+        ];
+        */
+    }
+
+    override foot(sqls: Sqls): void {
+        let memo = this.context.factory.createMemo();
+        sqls.push(memo);
+        memo.text = 'FROM foot';
+        sqls.push(...buildSelectIxBuds(this.context));
     }
 
     protected buildExpFieldPageId(): ExpVal {

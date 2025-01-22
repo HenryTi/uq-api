@@ -9,7 +9,7 @@ import { settingQueueSeed } from "../consts";
 
 // send email or sms
 export class BSendMsgStatement extends BStatement<SendMsgStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { factory, hasUnit } = this.context;
         let { templet, isUser, method, to, cc, bcc, with: withSend, importing } = this.istatement;
         let parts: ExpVal[] = [];
@@ -114,7 +114,7 @@ export class BSendAppStatement extends BStatement<SendAppStatement> {
             { col: 'id', val: new ExpVar(settingQueueSeed) },
         ];
     }
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { factory } = this.context;
         let { user, app, action } = this.istatement;
         let set = factory.createSet();

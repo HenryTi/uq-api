@@ -11,7 +11,7 @@ import { ColVal, EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, Exp
 import { LockType, SelectTable } from "../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
-import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
+import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectPhraseBud } from "../../tools";
 import { $idu } from "./biz.select";
 
 const a = 'a', b = 'b', c = 'c';
@@ -302,7 +302,6 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             sqls.push(...buildSelectIdPhrases(this.context, buildSelectId));
         }
         sqls.push(buildSelectPhraseBud(this.context));
-        sqls.push(...buildSelectIxBuds(this.context));
     }
 
     protected buildInsertIdsAtoms(tbl: string, ids: IdColumn[]) {
@@ -338,10 +337,10 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         let select = factory.createSelect();
         insert.select = select;
         select.distinct = true;
-        select.column(new ExpField('id', b));
+        select.column(new ExpField('id', c));
         select.column(new ExpField('base', c));
 
-        let expBId = new ExpField('id', b);
+        let expBId = new ExpField('id', c);
         let expOn: ExpCmp;
         if (this.idsGroupBy.length === 1) {
             expOn = new ExpEQ(expBId, new ExpField('id0', a));
@@ -351,10 +350,11 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             expOn = new ExpIn(...arrExp);
         }
         select.from(new VarTable(tbl, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
-            .on(expOn)
+            // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
+            // .on(expOn)
             .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
-            .on(new ExpAnd(new ExpEQ(new ExpField('id', c), new ExpField('base', c))))
+            .on(expOn)
+            // .on(new ExpAnd(new ExpEQ(new ExpField('id', c), new ExpField('base', c))))
             ;
         return insert;
     }

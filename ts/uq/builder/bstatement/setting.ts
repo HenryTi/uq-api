@@ -8,7 +8,7 @@ import { ExpEQ, ExpCmp, ExpAnd, ExpField, ExpVar, ExpStr, convertExp, ExpVal, Ex
 import { sysTable } from "../dbContext";
 
 export class BSettingStatement extends BStatement<SettingStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { addUnit } = this.istatement;
         if (addUnit === true) {
             sqls.push(this.buildAddUnit());

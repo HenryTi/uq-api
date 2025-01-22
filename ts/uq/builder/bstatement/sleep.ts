@@ -4,7 +4,7 @@ import { SleepStatement } from "../../il";
 import { convertExp, ExpNum, ExpVal } from "../sql";
 
 export class BSleepStatement extends BStatement<SleepStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { value } = this.istatement;
         let { factory } = this.context;
         let sleep = factory.createSleep();

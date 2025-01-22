@@ -6,7 +6,7 @@ import { VarTable } from "../sql/statementWithFrom";
 
 export class BTextStatement extends BStatement<TextStatement> {
 
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { textVar, tableVar, sep, ln } = this.istatement;
         let { name, fields } = tableVar;
         let factory = this.context.factory;

@@ -5,7 +5,7 @@ import { ExpVar, ExpFunc, ExpField, ExpEQ, convertExp, ExpVal, ExpAnd, SqlEntity
 import { unitFieldName } from "../sql/sqlBuilder";
 
 export class BBookWrite extends BStatement<BookWrite> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         if (this.istatement.book.type === 'map') {
             this.buildMapWrite(sqls);
         }

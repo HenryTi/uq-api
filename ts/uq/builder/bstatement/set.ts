@@ -5,7 +5,7 @@ import { BStatement } from "./bstatement";
 import { Sqls } from "./sqls";
 
 export class BSetStatement extends BStatement<SetStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { select, out } = this.istatement;
         let factory = this.context.factory;
         let { columns, from, where } = select;

@@ -4,7 +4,7 @@ import { LogStatement } from "../../il";
 import { convertExp, ExpStr, ExpVal, ExpVar } from "../sql";
 
 export class BLogStatement extends BStatement<LogStatement> {
-    body(sqls: Sqls) {
+    override body(sqls: Sqls) {
         let { unit, uq, subject, content, isError } = this.istatement;
         let { factory, unitFieldName } = this.context;
         let log = factory.createLog();
