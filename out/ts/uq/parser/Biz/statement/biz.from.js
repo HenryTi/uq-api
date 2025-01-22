@@ -54,7 +54,9 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                 break;
             }
             let col = this.parseColumn();
-            subCols.push(col);
+            if (col !== undefined) {
+                subCols.push(col);
+            }
             if (this.ts.token === tokens_1.Token.RPARENTHESE) {
                 this.ts.readToken();
                 break;
@@ -149,9 +151,11 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
         this.context.parseElement(val);
         this.collColumns[valueColumn] === true;
         this.element.value = { name: valueColumn, ui: { caption }, val, bud: undefined };
-        if (this.ts.token !== tokens_1.Token.RPARENTHESE) {
-            this.ts.passToken(tokens_1.Token.COMMA);
+        /*
+        if (this.ts.token !== Token.RPARENTHESE as any) {
+            this.ts.passToken(Token.COMMA);
         }
+        */
     }
     parseIdColumn() {
         if (this.ts.token === tokens_1.Token.COLON) {
@@ -304,6 +308,8 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                     space.getBizField(names);
                     // 'no', 'ex' 不能出现这样的情况
                     col.bud = undefined;
+                    this.log(`${names.join('.')} not valid`);
+                    ok = false;
                 }
             }
             else {

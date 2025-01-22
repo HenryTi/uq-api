@@ -53,7 +53,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                 break;
             }
             let col = this.parseColumn();
-            subCols.push(col);
+            if (col !== undefined) {
+                subCols.push(col);
+            }
             if (this.ts.token === Token.RPARENTHESE as any) {
                 this.ts.readToken();
                 break;
@@ -150,9 +152,11 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         this.context.parseElement(val);
         this.collColumns[valueColumn] === true;
         this.element.value = { name: valueColumn, ui: { caption }, val, bud: undefined };
+        /*
         if (this.ts.token !== Token.RPARENTHESE as any) {
             this.ts.passToken(Token.COMMA);
         }
+        */
     }
 
     private parseIdColumn() {
@@ -309,6 +313,8 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                     space.getBizField(names);
                     // 'no', 'ex' 不能出现这样的情况
                     col.bud = undefined;
+                    this.log(`${names.join('.')} not valid`);
+                    ok = false;
                 }
             }
             else {
