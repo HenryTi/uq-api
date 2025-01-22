@@ -164,28 +164,31 @@ RETURNS specs VIRTUAL (
             JOIN BizBudShow as d ON d.i=c.id;
 
     -- id 对应的atoms or spec
-    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
         FROM idtable as a
             JOIN BizPhrase as b ON b.id=a.phrase
             JOIN Atom as c ON c.id=a.id
+            JOIN IDU as d ON d.id=c.id
         WHERE b.type=BizPhraseType.atom;
     INTO IGNORE specs SELECT c.id, c.base as atom -- , b.id as base
         FROM idtable as a
             JOIN BizPhrase as b ON b.id=a.phrase
             JOIN Fork as c ON c.id=a.id
         WHERE b.type=BizPhraseType.fork;
-    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
         FROM specs as a
-            JOIN Atom as c ON c.id=a.atom;
+            JOIN Atom as c ON c.id=a.atom
+            JOIN IDU as d ON d.id=c.id;
         
     -- id对应的atoms里面的必显示字段
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM idtable as a
             JOIN PhraseBuds as b ON b.phrase=a.phrase
             JOIN IxInt as c ON c.i=a.id AND c.x=b.bud;
-    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
         FROM props as a
-            JOIN Atom as c ON c.id=a.value;
+            JOIN Atom as c ON c.id=a.value
+            JOIN IDU as d ON d.id=c.id;
 
     /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
@@ -197,10 +200,11 @@ RETURNS specs VIRTUAL (
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM specs as a
             JOIN IxInt as c ON c.i=a.id;
-    INTO IGNORE atoms SELECT c.id, c.base, c.no, c.ex
+    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
         FROM props as a
             JOIN BizPhrase as b ON b.id=a.phrase
             JOIN Atom as c ON c.id=a.value
+            JOIN IDU as d ON d.id=c.id
         WHERE b.type=BizPhraseType.atom;
 
     /* prop atoms 的必显示字段不需要

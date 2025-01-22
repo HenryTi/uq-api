@@ -247,7 +247,7 @@ RETURNS atoms (
             JOIN $usersite as y ON y.id=x.i
             JOIN $user as z ON z.id=y.user
         WHERE (y.id=userSite OR userSite IS NULL);
-    INTO atoms SELECT a.userSite, d.id as atom, f.name as phrase, d.no, d.ex
+    INTO IGNORE atoms SELECT a.userSite, d.id as atom, f.name as phrase, d.no, d.ex
         FROM users as a
             JOIN IxMySum as b ON b.i=a.userSite
             JOIN Atom as d ON d.id=b.x

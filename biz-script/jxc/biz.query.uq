@@ -85,21 +85,22 @@ RETURNS specs (
             JOIN Sheet as b ON b.id=s.id
             JOIN Bin as c ON c.id=b.id;
 
-    INTO IGNORE atoms SELECT DISTINCT a.value as id, b.id as base, c.no, c.ex
+    INTO IGNORE atoms SELECT DISTINCT a.value as id, d.base as base, c.no, c.ex
         FROM props as a 
             JOIN BizBud as b ON b.id=a.phrase
             JOIN Atom as c ON c.id=a.value
+            JOIN IDU as d ON d.id=c.id
         WHERE b.type=BudDataType.atom;
 
-    INTO IGNORE atoms SELECT DISTINCT c.id as id, c.base as base, c.no, c.ex
-        FROM $page as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x);
+    INTO IGNORE atoms SELECT DISTINCT c.id as id, d.base as base, c.no, c.ex
+        FROM $page as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x) JOIN IDU as d ON d.id=c.id;
     INTO IGNORE specs SELECT DISTINCT c.id as id, e.id as atom -- , d.base
         FROM $page as a 
             JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
             JOIN Atom as e on e.id=c.base;
 
-    INTO IGNORE atoms SELECT DISTINCT e.id as id, e.base as base, e.no, e.ex
-        FROM specs as a JOIN Atom as e on e.id=a.atom;
+    INTO IGNORE atoms SELECT DISTINCT e.id as id, f.base as base, e.no, e.ex
+        FROM specs as a JOIN Atom as e on e.id=a.atom JOIN IDU as f ON f.id=e.id;
 
     INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, CAST(b.value AS JSON) as value
         FROM specs as a JOIN IxInt as b ON b.i=a.id;
