@@ -76,7 +76,7 @@ function buildInsertSpecs(context) {
     let select = factory.createSelect();
     insert.select = select;
     select.distinct = true;
-    select.col('id', undefined, b);
+    select.col('id', undefined, c);
     select.col('base', 'atom', c);
     select.from(new statementWithFrom_1.VarTableWithSchema('props', a))
         // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
