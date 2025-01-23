@@ -7,7 +7,7 @@ import {
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
 import {
-    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpVal,
+    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIsNotNull, ExpNum, ExpVal,
     Statement
 } from "../sql";
 import { LockType, Select } from "../sql/select";
@@ -83,17 +83,20 @@ function buildInsertSpecs(context: DbContext) {
     insert.cols = [
         { col: 'id', val: undefined },
         { col: 'atom', val: undefined },
+        { col: 'seed', val: undefined },
     ];
     let select = factory.createSelect();
     insert.select = select;
     select.distinct = true;
     select.col('id', undefined, c);
     select.col('base', 'atom', c);
+    select.col('seed', undefined, c);
     select.from(new VarTableWithSchema('props', a))
         // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
         // .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)))
         .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
         .on(new ExpEQ(new ExpField('id', c), new ExpField('value', a)));
+    select.where(new ExpGT(new ExpField('seed', c), ExpNum.num0));
     return insert;
 }
 

@@ -72,17 +72,20 @@ function buildInsertSpecs(context) {
     insert.cols = [
         { col: 'id', val: undefined },
         { col: 'atom', val: undefined },
+        { col: 'seed', val: undefined },
     ];
     let select = factory.createSelect();
     insert.select = select;
     select.distinct = true;
     select.col('id', undefined, c);
     select.col('base', 'atom', c);
+    select.col('seed', undefined, c);
     select.from(new statementWithFrom_1.VarTableWithSchema('props', a))
         // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
         // .on(new ExpEQ(new ExpField('id', b), new ExpField('value', a)))
         .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
         .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('value', a)));
+    select.where(new sql_1.ExpGT(new sql_1.ExpField('seed', c), sql_1.ExpNum.num0));
     return insert;
 }
 function buildSelectIxBud(context, func, tbl, budDataType) {

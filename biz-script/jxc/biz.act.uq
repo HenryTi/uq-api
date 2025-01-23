@@ -406,6 +406,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
+    seed ID,
     (id) KEY,
 ) {
     VAR me ID = Me(), owner ID;
@@ -712,6 +713,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
+    seed ID,
     ban TINYINT,
     json JSON,
     value VALUE,
@@ -766,6 +768,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
+    seed ID,
     (id) KEY,
 )
 {
@@ -1077,6 +1080,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
+    seed ID,
     (id) KEY,
 ) {
     VAR maySheetId ID, detail ID;
@@ -1140,6 +1144,7 @@ RETURNS atoms VIRTUAL (
 RETURNS specs VIRTUAL (
     id ID,
     atom ID,
+    seed ID,
     (id) KEY,
 ) {
     INTO origins SELECT DISTINCT * b -- , IFNULL(c.value, 0) as done
@@ -1154,11 +1159,12 @@ RETURNS specs VIRTUAL (
         ExecSql sql USING 0; -- id 底层调用中，这个id没有用，都是通过main和details来获得行;
     }
 
-    INTO IGNORE specs SELECT DISTINCT a.i as id, e.id as atom
+    INTO IGNORE specs SELECT DISTINCT a.i as id, c.base as atom, c.seed
         FROM details as a 
-            JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
-            -- JOIN Idu as d ON d.id=c.id
-            JOIN Atom as e on e.id=c.base;
+            -- JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
+            JOIN Idu as c ON (c.id=a.i OR c.id=a.x)
+            -- LEFT JOIN Atom as e on e.id=c.base
+            ;
 
     INTO IGNORE atoms SELECT DISTINCT c.id as id, d.base as base, c.no, c.ex
         FROM details as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x) JOIN IDU as d ON d.id=c.id;

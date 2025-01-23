@@ -40,6 +40,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
+    seed ID,
     (id) KEY,
 )
 {
@@ -94,10 +95,12 @@ RETURNS specs (
 
     INTO IGNORE atoms SELECT DISTINCT c.id as id, d.base as base, c.no, c.ex
         FROM $page as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x) JOIN IDU as d ON d.id=c.id;
-    INTO IGNORE specs SELECT DISTINCT c.id as id, e.id as atom -- , d.base
+    INTO IGNORE specs SELECT DISTINCT c.id as id, c.base as atom, c.seed -- , d.base
         FROM $page as a 
-            JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
-            JOIN Atom as e on e.id=c.base;
+            -- JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
+            JOIN IDU as c ON (c.id=a.i OR c.id=a.x)
+            -- JOIN Atom as e on e.id=c.base
+            ;
 
     INTO IGNORE atoms SELECT DISTINCT e.id as id, f.base as base, e.no, e.ex
         FROM specs as a JOIN Atom as e on e.id=a.atom JOIN IDU as f ON f.id=e.id;
@@ -212,6 +215,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
+    seed ID,
     (id) KEY,
 )
 {
@@ -258,6 +262,7 @@ RETURNS atoms (
 RETURNS specs (
     id ID,
     atom ID,
+    seed ID,
     (id) KEY,
 )
 {
