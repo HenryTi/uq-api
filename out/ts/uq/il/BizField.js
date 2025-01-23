@@ -93,6 +93,9 @@ class BizFieldPendBudSelect extends BizFieldBinBudSelect {
     db(dbContext) {
         return new builder_1.BBizFieldPendBudSelect(dbContext, this);
     }
+    getBud() {
+        return this.bud;
+    }
 }
 exports.BizFieldPendBudSelect = BizFieldPendBudSelect;
 class BizFieldPendBinBudSelect extends BizFieldBinBudSelect {
@@ -105,6 +108,9 @@ class BizFieldPendBinBudSelect extends BizFieldBinBudSelect {
     db(dbContext) {
         return new builder_1.BBizFieldPendBinBudSelect(dbContext, this);
     }
+    getBud() {
+        return this.bud;
+    }
 }
 exports.BizFieldPendBinBudSelect = BizFieldPendBinBudSelect;
 class BizFieldBinBinBudSelect extends BizFieldBinBudSelect {
@@ -116,6 +122,9 @@ class BizFieldBinBinBudSelect extends BizFieldBinBudSelect {
     }
     db(dbContext) {
         return new builder_1.BBizFieldBinBinBudSelect(dbContext, this);
+    }
+    getBud() {
+        return this.bud;
     }
 }
 exports.BizFieldBinBinBudSelect = BizFieldBinBinBudSelect;

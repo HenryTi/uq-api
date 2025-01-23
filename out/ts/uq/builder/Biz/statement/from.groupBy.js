@@ -20,6 +20,9 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         this.asc = asc;
         this.idFromEntity = fromEntity;
     }
+    foot(sqls) {
+        sqls.push(...(0, tools_1.buildSelectIxBuds)(this.context));
+    }
     setIds() {
         const { ids, showIds } = this.istatement;
         this.idsGroupBy = ids;

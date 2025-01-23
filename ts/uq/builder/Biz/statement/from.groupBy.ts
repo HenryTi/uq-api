@@ -11,7 +11,7 @@ import { ColVal, EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, Exp
 import { LockType, SelectTable } from "../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
-import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectPhraseBud } from "../../tools";
+import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
 import { $idu } from "./biz.select";
 
 const a = 'a', b = 'b', c = 'c';
@@ -28,6 +28,10 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         const [{ asc, fromEntity }] = this.istatement.ids;
         this.asc = asc;
         this.idFromEntity = fromEntity;
+    }
+
+    foot(sqls: Sqls): void {
+        sqls.push(...buildSelectIxBuds(this.context));
     }
 
     protected setIds() {

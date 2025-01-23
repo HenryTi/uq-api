@@ -75,7 +75,6 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         let memo = this.context.factory.createMemo();
         sqls.push(memo);
         memo.text = 'FROM foot';
-        sqls.push(...buildSelectIxBuds(this.context));
     }
 
     protected buildExpFieldPageId(): ExpVal {

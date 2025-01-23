@@ -6,6 +6,9 @@ import { Statement } from "../../statement";
 import { PendQuery } from "../../Biz/Pend";
 import { BanColumn, BizSelectStatement, FromColumn, IdColumn } from "./biz.select";
 import { BizFromEntity } from "../Entity";
+import { VarOperand } from "../../Exp";
+import { BizBud } from "../Bud";
+import { BudDataType } from "../BizPhraseType";
 
 interface IntoTables {
     ret: string;
@@ -37,6 +40,19 @@ export class FromStatement extends BizSelectStatement {
             return this.fromEntity;
         }
         return this.getBizFromEntityFromAlias(idAlias);
+    }
+
+    // 从值表达式推到bud
+    setValBud(col: FromColumn) {
+        const { val: { atoms } } = col;
+        if (atoms.length !== 1) return;
+        let atom = atoms[0];
+        if (atom.type !== 'var') return;
+        let { pointer } = atom as VarOperand;
+        let bud: BizBud = (pointer as unknown as any).bud;
+        if (bud === undefined) return;
+        if (bud.dataType !== BudDataType.atom) return;
+        col.valBud = bud;
     }
 }
 

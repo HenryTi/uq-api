@@ -288,6 +288,9 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
             if (val.pelement.scan(space) === false) {
                 ok = false;
             }
+            else {
+                this.element.setValBud(col);
+            }
             if (ui === null) {
                 // let field = bizFieldSpace.getBizField([name]);
                 let names = [name];

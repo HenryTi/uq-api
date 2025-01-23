@@ -119,10 +119,14 @@ export class BizEntityFieldPointer extends Pointer {
     readonly groupType: GroupType = GroupType.Single;
     readonly bizFromEntity: BizFromEntity;
     readonly fieldName: string;
+    readonly bud: BizBud;
     constructor(bizFromEntity: BizFromEntity, fieldName: string) {
         super();
         this.bizFromEntity = bizFromEntity;
         this.fieldName = fieldName;
+        let bizEntity = bizFromEntity.bizEntityArr[0];
+        if (bizEntity === undefined) return;
+        this.bud = bizEntity.getBud(fieldName);
     }
 
     override to(stack: Stack, v: VarOperand): void {

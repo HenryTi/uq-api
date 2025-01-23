@@ -128,6 +128,10 @@ class BizEntityFieldPointer extends Pointer {
         this.groupType = GroupType.Single;
         this.bizFromEntity = bizFromEntity;
         this.fieldName = fieldName;
+        let bizEntity = bizFromEntity.bizEntityArr[0];
+        if (bizEntity === undefined)
+            return;
+        this.bud = bizEntity.getBud(fieldName);
     }
     to(stack, v) {
         const { alias } = this.bizFromEntity;

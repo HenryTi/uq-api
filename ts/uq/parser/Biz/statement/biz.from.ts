@@ -1,4 +1,7 @@
-import { CompareExpression, FromStatement, ValueExpression, FromInQueryFieldSpace, BizBudAny, EnumAsc, IdColumn, FromColumn } from "../../../il";
+import {
+    CompareExpression, FromStatement, ValueExpression, FromInQueryFieldSpace, BizBudAny
+    , EnumAsc, IdColumn, FromColumn
+} from "../../../il";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { BizSelectStatementSpace, PBizSelectStatement, PIdColumn } from "./BizSelectStatement";
@@ -293,6 +296,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
             if (val.pelement.scan(space) === false) {
                 ok = false;
             }
+            else {
+                this.element.setValBud(col);
+            }
             if (ui === null) {
                 // let field = bizFieldSpace.getBizField([name]);
                 let names = [name];
@@ -327,6 +333,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                 let bud = new BizBudAny(bizEntity, name, ui);
                 col.bud = bud;
             }
+
         }
         return ok;
     }

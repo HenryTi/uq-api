@@ -108,6 +108,9 @@ export class BizFieldPendBudSelect extends BizFieldBinBudSelect {
     db(dbContext: DbContext): BBizField<BizField> {
         return new BBizFieldPendBudSelect(dbContext, this);
     }
+    override getBud(): BizBud {
+        return this.bud;
+    }
 }
 
 export class BizFieldPendBinBudSelect extends BizFieldBinBudSelect {
@@ -122,6 +125,9 @@ export class BizFieldPendBinBudSelect extends BizFieldBinBudSelect {
     }
     db(dbContext: DbContext): BBizField<BizField> {
         return new BBizFieldPendBinBudSelect(dbContext, this);
+    }
+    override getBud(): BizBud {
+        return this.bud;
     }
 }
 
@@ -138,6 +144,9 @@ export class BizFieldBinBinBudSelect extends BizFieldBinBudSelect {
 
     db(dbContext: DbContext): BBizField<BizField> {
         return new BBizFieldBinBinBudSelect(dbContext, this);
+    }
+    override getBud(): BizBud {
+        return this.bud;
     }
 }
 
