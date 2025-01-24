@@ -19,6 +19,7 @@ Biz Query GetIDList (
 PAGE (
     id ID ASC,
     phrase ID,
+    seed ID,
 )
 RETURNS props (
     id ID,
@@ -45,7 +46,7 @@ RETURNS forks (
     TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     IF tie IS NOT NULL {
         IF bizPhraseType=BizPhraseType.atom {
-            PAGE SELECT a.x as id, b.base as phrase
+            PAGE SELECT a.x as id, b.base as phrase, b.seed
                 FROM Ix as a
                     LEFT JOIN IDU as b ON b.id=a.x
                     LEFT JOIN Atom as c ON c.id=b.id
@@ -54,7 +55,7 @@ RETURNS forks (
                 LIMIT $pageSize;
         }
         ELSE {
-            PAGE SELECT a.x as id, b.base as phrase
+            PAGE SELECT a.x as id, b.base as phrase, b.seed
                 FROM Ix as a
                     LEFT JOIN IDU as b ON b.id=a.x
                 WHERE a.i=BudID(tie, i) AND a.x>$pageStart
@@ -85,14 +86,14 @@ RETURNS forks (
                 LIMIT $pageSize;
             */
             IF searchKey IS NULL OR searchKey='' {
-                PAGE SELECT c.id as id, c.base as phrase
+                PAGE SELECT c.id as id, a.base as phrase, a.seed
                     FROM IDU as a JOIN Atom as c ON c.id=a.id AND a.base=phrase AND c.base=rootPhrase
                     WHERE c.id>$pageStart
                     ORDER BY c.id ASC
                     LIMIT $pageSize;
             }
             ELSE {
-                PAGE SELECT c.id as id, c.base as phrase
+                PAGE SELECT c.id as id, a.base as phrase, a.seed
                     FROM IDU as a JOIN Atom as c ON c.id=a.id AND a.base=phrase AND c.base=rootPhrase
                     WHERE c.id>$pageStart AND SEARCH(c.no, c.ex LIKE searchKey)
                     ORDER BY c.id ASC
@@ -100,7 +101,7 @@ RETURNS forks (
             }
         }
         ELSEIF bizPhraseType=BizPhraseType.fork {
-            PAGE SELECT d.id as id, d.base as phrase
+            PAGE SELECT d.id as id, d.base as phrase, d.seed
                 FROM IDU as d
                 WHERE d.base=phrase AND d.id>$pageStart
                 ORDER BY d.id ASC
@@ -108,7 +109,7 @@ RETURNS forks (
         }
     }
     
-    INTO idtable SELECT id, phrase, 0 as seed, 1 as show FROM $page;
+    INTO idtable SELECT id, phrase, seed, 1 as show FROM $page;
     PROC ProcPropsOfIds();
 }
 
@@ -181,9 +182,10 @@ RETURNS forks VIRTUAL (
         WHERE a.show=1;
 
     -- id 对应的atoms or fork
-    INTO IGNORE atoms SELECT c.id, a.phrase, c.no, c.ex
+    INTO IGNORE atoms SELECT c.id, d.base as phrase, c.no, c.ex
         FROM idtable as a
             JOIN Atom as c ON c.id=a.seed
+            JOIN IDU as d ON d.id=c.id
         WHERE a.seed>0;
     INTO IGNORE atoms SELECT c.id, a.phrase, c.no, c.ex
         FROM idtable as a
