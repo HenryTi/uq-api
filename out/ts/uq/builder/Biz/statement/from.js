@@ -127,7 +127,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
         select.limit(new sql_1.ExpVar('$pageSize'));
         return select;
     }
-    buildInsertIdTable() {
+    buildInsertIdTable(expShow) {
         const { factory } = this.context;
         let insertAtom = factory.createInsert();
         insertAtom.ignore = true;
@@ -144,7 +144,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
         select.column(new sql_1.ExpField('id', b));
         select.column(new sql_1.ExpField('base', b), 'phrase');
         select.column(new sql_1.ExpField('seed', b));
-        select.column(sql_1.ExpNum.num0, 'show');
+        select.column(expShow !== null && expShow !== void 0 ? expShow : sql_1.ExpNum.num0, 'show');
         return insertAtom;
     }
     buildInsertAtom() {

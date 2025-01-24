@@ -119,7 +119,7 @@ export class BBizPend extends BBizEntity<BizPend> {
         insert.table = new VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
@@ -146,7 +146,7 @@ export class BBizPend extends BBizEntity<BizPend> {
         }
         select.join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
             .on(new ExpEQ(new ExpField('id', c), expBin));
-        select.column(new ExpNum(sysBud), 'phrase');
+        select.column(new ExpNum(sysBud), 'bud');
         let valueCol: string;
         switch (sysBud) {
             default: debugger; break;
@@ -166,7 +166,7 @@ export class BBizPend extends BBizEntity<BizPend> {
         insert.table = new VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
@@ -211,7 +211,7 @@ export class BBizPend extends BBizEntity<BizPend> {
                 new ExpEQ(new ExpField('i', c), expBin),
                 new ExpEQ(new ExpField('x', c), new ExpNum(bud.id))
             ));
-        select.column(new ExpField('x', c), 'phrase');
+        select.column(new ExpField('x', c), 'bud');
         select.column(colValue, 'value');
     }
 }

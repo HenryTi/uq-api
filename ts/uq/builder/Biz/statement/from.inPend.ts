@@ -64,14 +64,7 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
                 new ExpEQ(new ExpField('base', a), new ExpNum(this.istatement.pendQuery.bizPend.id)),
                 new ExpEQ(new ExpField('id', c), new ExpField('base', a)),
             ))
-            /*
-            .join(JoinType.left, new EntityTable(EnumSysTable.bizDetail, false, b1))
-            .on(new ExpEQ(new ExpField('id', b1), new ExpField('id', b)))
-            .join(JoinType.left, new EntityTable(EnumSysTable.bud, false, d))
-            .on(new ExpEQ(new ExpField('id', d), new ExpField('base', b1)))
-            */
             .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, sheetBin))
-            // .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('base', d)))
             .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('sheet', b)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bizSheet, false, sheet))
             .on(new ExpEQ(new ExpField('id', sheet), new ExpField('id', sheetBin)))
@@ -99,18 +92,16 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
     protected override buildFromEntity(sqls: Sqls) {
         const { bizPend } = this.istatement.pendQuery;
         let { i: iBud, x: xBud, props } = bizPend;
-        const buildInsertAtomSelect = (exp: ExpVal) => {
-            let insert = this.buildInsertAtom();
+        const buildInsertIdTableSelect = (exp: ExpVal, expShow: ExpVal) => {
+            let insert = this.buildInsertIdTable(expShow);
             const { select } = insert;
             select.from(new VarTable('$page', a))
-                .join(JoinType.join, new EntityTable(EnumSysTable.atom, false, b))
-                .on(new ExpEQ(exp, new ExpField('id', b)))
-                .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
-                .on(new ExpEQ(new ExpField('id', c), new ExpField('id', b)));
+                .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
+                .on(new ExpEQ(exp, new ExpField('id', b)));
             sqls.push(insert);
         }
-        if (iBud !== undefined) buildInsertAtomSelect(new ExpField('i', a));
-        if (xBud !== undefined) buildInsertAtomSelect(new ExpField('x', a));
+        if (iBud !== undefined) buildInsertIdTableSelect(new ExpField('i', a), ExpNum.num1);
+        if (xBud !== undefined) buildInsertIdTableSelect(new ExpField('x', a), ExpNum.num1);
         for (let [, bud] of props) {
             if (bud.dataType === BudDataType.atom) {
                 let exp = new ExpFunc(
@@ -118,7 +109,7 @@ export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
                     new ExpField('mid', a),
                     new ExpStr(`$."${bud.id}"`)
                 );
-                buildInsertAtomSelect(exp);
+                buildInsertIdTableSelect(exp, ExpNum.num0);
             }
         }
     }

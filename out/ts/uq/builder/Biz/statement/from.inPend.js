@@ -50,14 +50,7 @@ class BFromInPendStatement extends from_1.BFromStatement {
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(this.istatement.pendQuery.bizPend.id)), new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a))))
-            /*
-            .join(JoinType.left, new EntityTable(EnumSysTable.bizDetail, false, b1))
-            .on(new ExpEQ(new ExpField('id', b1), new ExpField('id', b)))
-            .join(JoinType.left, new EntityTable(EnumSysTable.bud, false, d))
-            .on(new ExpEQ(new ExpField('id', d), new ExpField('base', b1)))
-            */
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
-            // .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('base', d)))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('sheet', b)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, sheet))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
@@ -82,24 +75,22 @@ class BFromInPendStatement extends from_1.BFromStatement {
     buildFromEntity(sqls) {
         const { bizPend } = this.istatement.pendQuery;
         let { i: iBud, x: xBud, props } = bizPend;
-        const buildInsertAtomSelect = (exp) => {
-            let insert = this.buildInsertAtom();
+        const buildInsertIdTableSelect = (exp, expShow) => {
+            let insert = this.buildInsertIdTable(expShow);
             const { select } = insert;
             select.from(new statementWithFrom_1.VarTable('$page', a))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, b))
-                .on(new sql_1.ExpEQ(exp, new sql_1.ExpField('id', b)))
-                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('id', b)));
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, b))
+                .on(new sql_1.ExpEQ(exp, new sql_1.ExpField('id', b)));
             sqls.push(insert);
         };
         if (iBud !== undefined)
-            buildInsertAtomSelect(new sql_1.ExpField('i', a));
+            buildInsertIdTableSelect(new sql_1.ExpField('i', a), sql_1.ExpNum.num1);
         if (xBud !== undefined)
-            buildInsertAtomSelect(new sql_1.ExpField('x', a));
+            buildInsertIdTableSelect(new sql_1.ExpField('x', a), sql_1.ExpNum.num1);
         for (let [, bud] of props) {
             if (bud.dataType === BizPhraseType_1.BudDataType.atom) {
                 let exp = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${bud.id}"`));
-                buildInsertAtomSelect(exp);
+                buildInsertIdTableSelect(exp, sql_1.ExpNum.num0);
             }
         }
     }

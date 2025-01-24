@@ -147,7 +147,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         return select;
     }
 
-    protected buildInsertIdTable() {
+    protected buildInsertIdTable(expShow?: ExpVal) {
         const { factory } = this.context;
         let insertAtom = factory.createInsert();
         insertAtom.ignore = true;
@@ -164,7 +164,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         select.column(new ExpField('id', b));
         select.column(new ExpField('base', b), 'phrase');
         select.column(new ExpField('seed', b));
-        select.column(ExpNum.num0, 'show');
+        select.column(expShow ?? ExpNum.num0, 'show');
         return insertAtom;
     }
 

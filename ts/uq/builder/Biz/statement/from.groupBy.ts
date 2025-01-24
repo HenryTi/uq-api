@@ -317,7 +317,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     }
 
     protected buildInsertIdsToIdTable(tbl: string, ids: IdColumn[]) {
-        let insert = this.buildInsertIdTable();
+        let insert = this.buildInsertIdTable(ExpNum.num1);
         const { select } = insert;
         let expBId = new ExpField('id', b);
         let expOn: ExpCmp;

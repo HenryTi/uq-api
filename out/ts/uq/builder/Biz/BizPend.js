@@ -114,7 +114,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
         insert.table = new statementWithFrom_1.VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
@@ -139,7 +139,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
         }
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), expBin));
-        select.column(new sql_1.ExpNum(sysBud), 'phrase');
+        select.column(new sql_1.ExpNum(sysBud), 'bud');
         let valueCol;
         switch (sysBud) {
             default:
@@ -168,7 +168,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
         insert.table = new statementWithFrom_1.VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
@@ -207,7 +207,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
         }
         select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(tblIxName, false, c))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', c), expBin), new sql_1.ExpEQ(new sql_1.ExpField('x', c), new sql_1.ExpNum(bud.id))));
-        select.column(new sql_1.ExpField('x', c), 'phrase');
+        select.column(new sql_1.ExpField('x', c), 'bud');
         select.column(colValue, 'value');
     }
 }

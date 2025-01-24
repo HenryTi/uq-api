@@ -285,7 +285,7 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         */
     }
     buildInsertIdsToIdTable(tbl, ids) {
-        let insert = this.buildInsertIdTable();
+        let insert = this.buildInsertIdTable(sql_1.ExpNum.num1);
         const { select } = insert;
         let expBId = new sql_1.ExpField('id', b);
         let expOn;
