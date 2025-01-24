@@ -1,17 +1,15 @@
 import {
-    BigInt, Char
-    , bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, JoinType,
-    idField,
-    jsonField,
-    charField
+    BigInt, Char,
+    bigIntField, EnumSysTable, BizBud, BizAtom, IDUnique, JoinType,
+    idField, charField
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
-    ExpAnd, ExpCmp, ExpDatePart, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncCustom, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum
-    , ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlSysTable, SqlVarTable, Statement,
+    ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum,
+    ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement
 } from "../sql";
 import { LockType } from "../sql/select";
-import { EntityTable, Table, VarTableWithSchema } from "../sql/statementWithFrom";
+import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BBizBud } from "./BizBud";
 import { BBizEntity } from "./BizEntity";
 

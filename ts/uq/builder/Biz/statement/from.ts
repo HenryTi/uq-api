@@ -147,6 +147,27 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         return select;
     }
 
+    protected buildInsertIdTable() {
+        const { factory } = this.context;
+        let insertAtom = factory.createInsert();
+        insertAtom.ignore = true;
+        insertAtom.table = new VarTable('idtable');
+        insertAtom.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
+        ];
+        let select = factory.createSelect();
+        insertAtom.select = select;
+        select.distinct = true;
+        select.column(new ExpField('id', b));
+        select.column(new ExpField('base', b), 'phrase');
+        select.column(new ExpField('seed', b));
+        select.column(ExpNum.num0, 'show');
+        return insertAtom;
+    }
+
     protected buildInsertAtom() {
         const { factory } = this.context;
         let insertAtom = factory.createInsert();

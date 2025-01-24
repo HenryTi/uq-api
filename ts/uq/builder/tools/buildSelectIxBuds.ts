@@ -16,7 +16,7 @@ import { EntityTable, NameTable, VarTable, VarTableWithSchema } from "../sql/sta
 const a = 'a';
 const b = 'b';
 const c = 'c';
-const tempIdPhraseTable = 'idphrase';
+// const tempIdPhraseTable = 'idphrase';
 const tempPhraseBudTable = 'phrasebud';
 
 export function buildSelectIxBuds(context: DbContext) {
@@ -32,16 +32,16 @@ export function buildSelectIxBuds(context: DbContext) {
     memo.text = '$ buildSelectIxBuds';
     let ret: Statement[] = [
         memo,
-        buildSelectIxBud(context, funcCast, EnumSysTable.ixInt, BudDataType.int),
+        // buildSelectIxBud(context, funcCast, EnumSysTable.ixInt, BudDataType.int),
         buildInsertAtoms(context),
-        buildInsertSpecs(context),
+        buildInsertForks(context),
     ];
 
     let budTypes: [(v: ExpVal) => ExpVal, EnumSysTable, BudDataType][] = [
         [funcCast, EnumSysTable.ixDec, BudDataType.dec],
         [funcJSON_QUOTE, EnumSysTable.ixStr, BudDataType.str],
     ];
-    ret.push(...budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType)));
+    // ret.push(...budTypes.map(([func, tbl, budDataType]) => buildSelectIxBud(context, func, tbl, budDataType)));
     let memoEnd = factory.createMemo();
     memoEnd.text = '# buildSelectIxBuds';
     ret.push(memoEnd);
@@ -75,21 +75,21 @@ function buildInsertAtoms(context: DbContext) {
     return insert;
 }
 
-function buildInsertSpecs(context: DbContext) {
+function buildInsertForks(context: DbContext) {
     const { factory } = context;
     let insert = factory.createInsert();
     insert.ignore = true;
-    insert.table = new VarTableWithSchema('specs');
+    insert.table = new VarTableWithSchema('forks');
     insert.cols = [
         { col: 'id', val: undefined },
-        { col: 'atom', val: undefined },
+        { col: 'base', val: undefined },
         { col: 'seed', val: undefined },
     ];
     let select = factory.createSelect();
     insert.select = select;
     select.distinct = true;
     select.col('id', undefined, c);
-    select.col('base', 'atom', c);
+    select.col('base', undefined, c);
     select.col('seed', undefined, c);
     select.from(new VarTableWithSchema('props', a))
         // .join(JoinType.join, new EntityTable(EnumSysTable.fork, false, b))
@@ -99,7 +99,7 @@ function buildInsertSpecs(context: DbContext) {
     select.where(new ExpGT(new ExpField('seed', c), ExpNum.num0));
     return insert;
 }
-
+/*
 function buildSelectIxBud(context: DbContext, func: (expValue: ExpVal) => ExpVal, tbl: EnumSysTable, budDataType: BudDataType) {
     const { factory } = context;
     let insert = factory.createInsert();
@@ -135,7 +135,7 @@ export function buildIdPhraseTable(context: DbContext) {
     const phraseField = bigIntField('phrase');
     // let typeField = tinyIntField('type');
     varIdPhraseTable.keys = [idField];
-    varIdPhraseTable.fields = [idField, phraseField/*, typeField*/];
+    varIdPhraseTable.fields = [idField, phraseField];
     return varIdPhraseTable;
 }
 
@@ -211,14 +211,14 @@ export function buildInsertSelectIdPhrase(context: DbContext, select: Select) {
     select.lock = LockType.none;
     return insert;
 }
-
+*/
 /*
 enum BinIType {
     atom, fork, forkAtom
 }
 */
 // const arrBinIType = [BinIType.atom, BinIType.fork, BinIType.forkAtom];
-
+/*
 export function buildSelectIdPhrases(context: DbContext, buildSelectFrom: (select: Select) => void) {
     // return arrBinIType.map(v => buildSelectIdPhrase(context, v, buildSelectFrom));
     return [
@@ -254,3 +254,4 @@ function buildIDUForkSelectIdPhrase(context: DbContext, buildSelectFrom: (select
     select.column(new ExpField('base', u1));
     return insert;
 }
+*/

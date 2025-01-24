@@ -40,6 +40,7 @@ class MyProcedure extends procedure_1.Procedure {
             sb.append('LANGUAGE SQL DETERMINISTIC MODIFIES SQL DATA').n();
         }
         sb.append('__proc_exit: BEGIN').n();
+        sb.append('-- Procedure build time: ').append(new Date().toLocaleTimeString()).n();
     }
     end(sb) {
         sb.append('END').semicolon();

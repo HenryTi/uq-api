@@ -13,7 +13,7 @@ import { BudDataType } from "../BizPhraseType";
 interface IntoTables {
     ret: string;
     atoms: string;
-    specs: string;
+    forks: string;
     props: string;
 }
 

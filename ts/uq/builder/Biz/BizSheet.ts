@@ -3,18 +3,19 @@ import {
     , bigIntField, decField, idField, EnumSysTable, Char, ProcParamType, UseOut,
     BizBud,
     BizBudBin,
-    EnumSysBud
+    EnumSysBud,
+    BizBudID
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { $site } from "../consts";
 import {
-    ExpAnd, ExpAtVar, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIsNotNull, ExpIsNull, ExpNE, ExpNum
+    ExpAnd, ExpAtVar, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpNE, ExpNum
     , ExpRoutineExists, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement,
 } from "../sql";
 import { LockType, Select, SelectTable } from "../sql/select";
 import { userParamName } from "../sql/sqlBuilder";
 import { EntityTable, NameTable, Table, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
-import { buildIdPhraseTable, buildInsertSelectIdPhrase, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../tools";
+// import { buildIdPhraseTable, buildInsertSelectIdPhrase, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
 const sheetId = 'sheet';
@@ -218,8 +219,6 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         return statements;
     }
 
-    // 这个应该是之前试验的老版本，现在应该不用了。
-    // 直接在uq GetSheet里面实现了。
     private buildGetProc(proc: Procedure) {
         let { statements, parameters } = proc;
         let { factory, site } = this.context;
@@ -248,27 +247,110 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             this.buildCallBin(statements, bin, 'details');
         }
 
-        const varIdPhraseTable = buildIdPhraseTable(this.context);
-        statements.push(varIdPhraseTable);
+        // const varIdPhraseTable = buildIdPhraseTable(this.context);
+        // statements.push(varIdPhraseTable);
         function buildSelectFrom(select: Select) {
             const s0 = 's0', s1 = 's1';
             select.from(new VarTable('bin', s0))
                 .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, s1))
                 .on(new ExpEQ(new ExpField('id', s1), new ExpField('id', s0)));
         }
-        statements.push(...buildSelectIdPhrases(this.context, buildSelectFrom));
+        // statements.push(...buildSelectIdPhrases(this.context, buildSelectFrom));
 
+        /*
         const varPhraseBudTable = buildPhraseBudTable(this.context); // factory.createVarTable();
         statements.push(varPhraseBudTable);
         statements.push(buildSelectPhraseBud(this.context));
+        */
+
+        const idBuds: BizBudID[] = [];
+        this.collectIdBuds(main, idBuds);
+        this.buildInsertIdTable(statements, main, 'main');
+        for (let detail of details) {
+            const { bin } = detail;
+            this.collectIdBuds(bin, idBuds);
+            this.buildInsertIdTable(statements, bin, 'details');
+        }
+        this.buildInsertIdTableBuds(statements, idBuds);
 
         let expValue = new ExpField('value', 'b');
         let expCast = new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON'));
         this.buildGetScalarProps(statements, EnumSysTable.ixInt, expCast);
 
-        statements.push(...buildSelectIxBuds(this.context));
+        // statements.push(...buildSelectIxBuds(this.context));
         this.buildGetProps(statements);
         this.buildGetBinProps(statements);
+    }
+
+    private collectIdBuds(bizBin: BizBin, idBuds: BizBudID[]) {
+        let { props, i, x } = bizBin;
+        for (let [, value] of props) {
+            if (value === i || value === x) continue;
+            if (value.dataType === BudDataType.atom) idBuds.push(value as BizBudID);
+        }
+    }
+
+    private buildInsertIdTable(statements: Statement[], bizBin: BizBin, tbl: string) {
+        const { i, x } = bizBin;
+        if (i !== undefined) statements.push(this.buildInsertIdTableIX(i, tbl));
+        if (x !== undefined) statements.push(this.buildInsertIdTableIX(x, tbl));
+    }
+
+    private buildInsertIdTableBuds(statements: Statement[], idBuds: BizBudID[]) {
+        if (idBuds.length === 0) return;
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
+        ];
+        insert.ignore = true;
+        insert.table = new VarTable('idtable');
+        const select = factory.createSelect();
+        insert.select = select;
+        select.col('id', undefined, c);
+        select.col('base', 'phrase', c);
+        select.col('seed', undefined, c);
+        select.column(ExpNum.num1, 'show');
+        let expX = new ExpField('x', b);
+        let expXEqu: ExpCmp = idBuds.length === 1 ?
+            new ExpEQ(expX, new ExpNum(idBuds[0].id))
+            :
+            new ExpIn(expX, ...(idBuds.map(v => new ExpNum(v.id))));
+        select.from(new VarTable('bin', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.ixInt, false, b))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
+                expXEqu
+            ))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('value', b)));
+        statements.push(insert);
+    }
+
+    private buildInsertIdTableIX(ix: BizBud, tbl: string) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
+        ];
+        insert.ignore = true;
+        insert.table = new VarTable('idtable');
+        const select = factory.createSelect();
+        insert.select = select;
+        select.col('id', undefined, b);
+        select.col('base', 'phrase', b);
+        select.col('seed', undefined, b);
+        select.column(ExpNum.num1, 'show');
+        select.from(new VarTable(tbl, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
+            .on(new ExpEQ(new ExpField(ix.name, a), new ExpField('id', b)));
+        return insert;
     }
 
     private buildGetProps(statements: Statement[]) {
@@ -289,7 +371,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         insert.table = new VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
@@ -340,14 +422,14 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         insert.table = new VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
         insert.select = select;
 
         select.column(new ExpField('value', b), 'id');
-        select.column(new ExpNum(sysBud), 'phrase');
+        select.column(new ExpNum(sysBud), 'bud');
         let valueCol: string;
         switch (sysBud) {
             default: debugger; break;
@@ -390,7 +472,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         insert.table = new VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();

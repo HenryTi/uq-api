@@ -392,20 +392,20 @@ RETURNS origins (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
     (id) KEY,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
     (id) KEY,
 ) {
@@ -428,7 +428,7 @@ RETURNS specs (
     }
 
     TABLE originTable(KEY id BIGINT, value BIGINT);
-    TABLE idtable(KEY id ID);
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     /*
     JSONTABLE tblDetail (
         id ID PATH '$.id',
@@ -474,7 +474,7 @@ RETURNS specs (
             WITH BinPend as a ID=id SET a.pendFrom=pendFrom;
         }
         PROC SaveBinBuds(id, props);
-        INTO idtable SELECT id;
+        INTO idtable SELECT id, phrase, -1 as seed, 0 as show;
     }
 
     INTO main SELECT * a, * b, a.base as phrase
@@ -495,7 +495,15 @@ RETURNS specs (
 
     VAR sheetPhrase ID;
     SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=base;
-    PROC ProcGetSheetProps(sheetPhrase);
+    INTO origins SELECT DISTINCT * b -- , IFNULL(c.value, 0) as done
+        FROM (SELECT DISTINCT origin FROM details) as a
+            JOIN Bin as b ON b.id=a.origin
+    ;
+    VAR procName CHAR(200) = CONCAT(sheetPhrase, 'gs');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', procName, '`(?);');
+    ExecSql sql USING 0; -- id 底层调用中，这个id没有用，都是通过main和details来获得行;
+
+    PROC ProcPropsOfIds();
 };
 
 PROC SaveBinBuds(
@@ -697,31 +705,39 @@ RETURNS ret (
     json JSON,
     value VALUE,
 )
-RETURNS props (
-    id ID,
-    phrase ID,
-    value JSON,
-    (id, phrase) KEY,
-)
-RETURNS atoms (
+RETURNS details (
     id ID,
     base ID,
-    no NO,
-    ex EX,
-    (id) KEY,
-)
-RETURNS specs (
-    id ID,
-    atom ID,
     seed ID,
     ban TINYINT,
     json JSON,
     value VALUE,
     (id) KEY,
+)
+RETURNS props (
+    id ID,
+    bud ID,
+    value JSON,
+    (id, bud) KEY,
+)
+RETURNS atoms (
+    id ID,
+    phrase ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS forks (
+    id ID,
+    phrase ID,
+    seed ID,
+    (id) KEY,
 ) {
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     -- VAR sql CHAR(500) = CONCAT('call `$site`.`', $site, '.', query, 'q`(?,?,?,?);');
     VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', query, 'q`(?,?,?,?);');
     ExecSql sql USING $user, json, pageStart, pageSize;
+    PROC ProcPropsOfIds();
 };
 
 Biz ACT RemoveDraft (
@@ -754,24 +770,23 @@ PAGE (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
     (id) KEY,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
     (id) KEY,
-)
-{
+) {
     VAR me ID = Me();
     SET @me=me;
 
@@ -797,8 +812,8 @@ RETURNS specs (
         ORDER BY b.id DESC
         LIMIT $pageSize;
 
-    TABLE idtable (KEY id ID,phrase ID);
-    INTO idtable SELECT a.id, entityMain as phrase FROM $page as a;
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
+    INTO idtable SELECT a.id, entityMain as phrase, -1 as seed, 0 as show FROM $page as a;
     /*
     INTO idtable SELECT c.value as id, d.base as phrase
         FROM $page as a
@@ -1065,21 +1080,20 @@ RETURNS origins (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
-    (phrase, id) UNIQUE,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
     (id) KEY,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
     (id) KEY,
 ) {
@@ -1105,9 +1119,17 @@ RETURNS specs (
             LEFT JOIN Pend as d ON d.id=c.pendFrom
         WHERE a.sheet=id AND a.id<>a.sheet AND (detail IS NULL OR a.id=detail);
 
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     VAR sheetPhrase ID;
     SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=id;
-    PROC ProcGetSheetProps(sheetPhrase);
+    INTO origins SELECT DISTINCT * b -- , IFNULL(c.value, 0) as done
+        FROM (SELECT DISTINCT origin FROM details) as a
+            JOIN Bin as b ON b.id=a.origin
+    ;
+    VAR procName CHAR(200) = CONCAT(sheetPhrase, 'gs');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', procName, '`(?);');
+    ExecSql sql USING 0; -- id 底层调用中，这个id没有用，都是通过main和details来获得行;
+    PROC ProcPropsOfIds();
 }
 
 PROC ProcGetSheetProps ver 0.1 (
@@ -1141,9 +1163,9 @@ RETURNS atoms VIRTUAL (
     ex EX,
     (id) KEY,
 )
-RETURNS specs VIRTUAL (
+RETURNS forks VIRTUAL (
     id ID,
-    atom ID,
+    base ID,
     seed ID,
     (id) KEY,
 ) {
@@ -1159,12 +1181,12 @@ RETURNS specs VIRTUAL (
         ExecSql sql USING 0; -- id 底层调用中，这个id没有用，都是通过main和details来获得行;
     }
 
-    INTO IGNORE specs SELECT DISTINCT a.i as id, c.base as atom, c.seed
+    INTO IGNORE forks SELECT DISTINCT a.i as id, c.base, c.seed
         FROM details as a 
             -- JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
             JOIN Idu as c ON (c.id=a.i OR c.id=a.x)
             -- LEFT JOIN Atom as e on e.id=c.base
-            ;
+            WHERE c.seed>0;
 
     INTO IGNORE atoms SELECT DISTINCT c.id as id, d.base as base, c.no, c.ex
         FROM details as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x) JOIN IDU as d ON d.id=c.id;
@@ -1176,9 +1198,10 @@ RETURNS specs VIRTUAL (
         WHERE b.type=BudDataType.atom;
 
     INTO IGNORE atoms SELECT DISTINCT e.id as id, f.base as base, e.no, e.ex
-        FROM specs as a 
-            JOIN Atom as e on e.id=a.atom
-            JOIN IDU as f ON f.id=e.id;
+        FROM forks as a 
+            JOIN Atom as e on e.id=a.seed
+            JOIN IDU as f ON f.id=e.id
+            ;
 };
 
 Biz Query GetAtom (

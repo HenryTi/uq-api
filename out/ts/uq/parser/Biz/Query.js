@@ -102,7 +102,7 @@ class PBizQueryTable extends PBizQuery {
             from.intoTables = {
                 ret: 'ret',
                 atoms: 'atoms',
-                specs: 'specs',
+                forks: 'forks',
                 props: 'props',
             };
             if (value !== undefined) {

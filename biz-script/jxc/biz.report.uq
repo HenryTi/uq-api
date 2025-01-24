@@ -98,7 +98,7 @@ PAGE (
     ex EX,
     value JSON,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
     phrase ID,
     base ID,

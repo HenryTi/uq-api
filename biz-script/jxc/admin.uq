@@ -71,20 +71,20 @@ PAGE (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
     (id) KEY,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
     (id) KEY,
 ) {
@@ -100,7 +100,7 @@ RETURNS specs (
         WHERE a.x=bud AND a.i>$pageStart AND a.value <> 0
         ORDER BY a.i ASC
         LIMIT $pageSize;
-    TABLE idtable (KEY id ID, phrase ID);
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     FOR (VAR i ID, phrase ID, type SMALLINT
         OF SELECT a.i, a.phrase, b.type FROM $page as a JOIN bizphrase as b ON b.id=a.phrase) 
     {
@@ -110,7 +110,7 @@ RETURNS specs (
             ExecSql sql;
         }
         ELSE {
-            INTO idtable SELECT i as id, phrase;
+            INTO idtable SELECT i as id, phrase, 0 as seed, 0 as show;
         }
     }
 

@@ -149,12 +149,16 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         insert.cols = [
             { col: 'id', val: undefined },
             { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
         ]
         const expId = new ExpField(String(key.id), a);
         const select = factory.createSelect();
         insert.select = select;
         select.column(expId, 'id');
         select.column(new ExpField('base', c), 'phrase');
+        select.column(ExpNum.num0, 'seed');
+        select.column(ExpNum.num0, 'show');
         select.from(new GlobalSiteTable(this.context.site, this.bizEntity.id, a))
             .join(JoinType.join, new VarTable('$page', b))
             .on(new ExpEQ(new ExpField('i', b), new ExpField('id', a)))

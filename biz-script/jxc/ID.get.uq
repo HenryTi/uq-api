@@ -22,27 +22,27 @@ PAGE (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
     (id) KEY,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
     (id) KEY,
 ) {
     VAR bizPhraseType ENUM BizPhraseType = a.type FROM BizPhrase as a WHERE a.id=phrase;
     VAR rootPhrase ID=RootPhrase(phrase);
 
-    TABLE idtable (KEY id ID, phrase ID);
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     IF tie IS NOT NULL {
         IF bizPhraseType=BizPhraseType.atom {
             PAGE SELECT a.x as id, b.base as phrase
@@ -108,7 +108,7 @@ RETURNS specs (
         }
     }
     
-    INTO idtable SELECT id, phrase FROM $page;
+    INTO idtable SELECT id, phrase, 0 as seed, 1 as show FROM $page;
     PROC ProcPropsOfIds();
 }
 
@@ -116,46 +116,36 @@ PROC ProcPropsOfIds()
 RETURNS idtable VIRTUAL (
     id ID,
     phrase ID,
+    seed ID,
+    show TINYINT,       -- 1: add showBuds
 )
 RETURNS props VIRTUAL (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms VIRTUAL (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
+    (id) KEY,
 )
-RETURNS specs VIRTUAL (
+RETURNS forks VIRTUAL (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
+    (id) KEY,
 )
 {
-    -- 这个id对应的必显示字段，比如sheet或atom的bizbudshow
-    INTO props SELECT a.id, b.x as phrase, CAST(c.value as JSON) as value
-        FROM idtable as a
-            JOIN BizBudShow as b ON b.i=a.phrase
-            JOIN IxInt as c ON c.i=a.id AND c.x=b.x;
-    INTO props SELECT a.id, b.x as phrase, CAST(c.value as JSON) as value
-        FROM idtable as a
-            JOIN BizBudShow as b ON b.i=a.phrase
-            JOIN IxDec as c ON c.i=a.id AND c.x=b.x;
-    INTO props SELECT a.id, b.x as phrase, JSON_QUOTE(c.value) as value
-        FROM idtable as a
-            JOIN BizBudShow as b ON b.i=a.phrase
-            JOIN IxStr as c ON c.i=a.id AND c.x=b.x;
-
-    TABLE PhraseBuds(phrase BIGINT, bud BIGINT);
+    TABLE PhraseBuds(KEY phrase BIGINT, KEY bud BIGINT);
     INTO PhraseBuds WITH RECURSIVE pPhrase AS (
         SELECT s.phrase, r.x as id, r.i as base
         FROM idtable as s
             JOIN IxPhrase as r ON r.x=s.phrase
             JOIN XBiz as p1 ON p1.id=r.x
-        -- WHERE r.x=phrase -- AND p.valid=1
+        WHERE s.show=1
         UNION
         SELECT b.phrase, a.x as id, a.i as base
         FROM IxPhrase as a JOIN pPhrase AS b
@@ -165,22 +155,55 @@ RETURNS specs VIRTUAL (
         FROM pPhrase as c
             JOIN BizBudShow as d ON d.i=c.id;
 
-    -- id 对应的atoms or spec
-    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
+    -- 必显示字段可能有atom，取出no，ex
+    INTO IGNORE atoms SELECT d.id, d.base as phrase, e.no, e.ex
         FROM idtable as a
-            JOIN BizPhrase as b ON b.id=a.phrase
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxInt as c ON c.i=a.id AND c.x=b.bud
+            JOIN IDU as d ON d.id=c.value
+            JOIN Atom as e ON e.id=d.id
+        WHERE a.show=1;
+    -- 这个id对应的必显示字段，比如sheet或atom的bizbudshow
+    INTO IGNORE props SELECT a.id, c.x as bud, CAST(c.value as JSON) as value
+        FROM idtable as a
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxInt as c ON c.i=a.id AND c.x=b.bud
+        WHERE a.show=1;
+    INTO IGNORE props SELECT a.id, c.x as bud, CAST(c.value as JSON) as value
+        FROM idtable as a
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxDec as c ON c.i=a.id AND c.x=b.bud
+        WHERE a.show=1;
+    INTO IGNORE props SELECT a.id, c.x as bud, JSON_QUOTE(c.value) as value
+        FROM idtable as a
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxStr as c ON c.i=a.id AND c.x=b.bud
+        WHERE a.show=1;
+
+    -- id 对应的atoms or fork
+    INTO IGNORE atoms SELECT c.id, a.phrase, c.no, c.ex
+        FROM idtable as a
+            JOIN Atom as c ON c.id=a.seed
+        WHERE a.seed>0;
+    INTO IGNORE atoms SELECT c.id, a.phrase, c.no, c.ex
+        FROM idtable as a
             JOIN Atom as c ON c.id=a.id
-            JOIN IDU as d ON d.id=c.id
-        WHERE b.type=BizPhraseType.atom;
-    INTO IGNORE specs SELECT c.id, c.base as atom, c.seed -- , b.id as base
+        WHERE a.seed IS NULL;
+    
+    INTO IGNORE forks SELECT a.id, a.phrase, a.seed
+        FROM idtable as a
+        WHERE a.seed>0;
+
+    /*
+    INTO IGNORE forks SELECT c.id, c.base, c.seed -- , b.id as base
         FROM idtable as a
             JOIN BizPhrase as b ON b.id=a.phrase
             -- JOIN Fork as c ON c.id=a.id
             JOIN IDU as c ON c.id=a.id
         WHERE b.type=BizPhraseType.fork;
     INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
-        FROM specs as a
-            JOIN Atom as c ON c.id=a.atom
+        FROM forks as a
+            JOIN Atom as c ON c.id=a.seed
             JOIN IDU as d ON d.id=c.id;
         
     -- id对应的atoms里面的必显示字段
@@ -193,15 +216,8 @@ RETURNS specs VIRTUAL (
             JOIN Atom as c ON c.id=a.value
             JOIN IDU as d ON d.id=c.id;
 
-    /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM atoms as a
-            JOIN BizBudShow as b ON b.i=a.base
-            JOIN IxInt as c ON c.i=a.id AND c.x=b.x;
-    */
-
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM specs as a
+        FROM forks as a
             JOIN IxInt as c ON c.i=a.id;
     INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
         FROM props as a
@@ -210,26 +226,12 @@ RETURNS specs VIRTUAL (
             JOIN IDU as d ON d.id=c.id
         WHERE b.type=BizPhraseType.atom;
 
-    /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM atoms as a
-            JOIN BizBudShow as b ON b.i=a.base
-            JOIN IxDec as c ON c.i=a.id AND c.x=b.x;
-    */
-
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM specs as a
+        FROM forks as a
             JOIN IxDec as c ON c.i=a.id;
 
-    /* prop atoms 的必显示字段不需要
     INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
-        FROM atoms as a
-            JOIN BizBudShow as b ON b.i=a.base
-            JOIN IxStr as c ON c.i=a.id AND c.x=b.x;
-    */
-
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
-        FROM specs as a
+        FROM forks as a
             JOIN IxStr as c ON c.i=a.id;
     INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
         FROM idtable as a
@@ -239,6 +241,7 @@ RETURNS specs VIRTUAL (
         FROM idtable as a
             JOIN PhraseBuds as b ON b.phrase=a.phrase
             JOIN IxStr as c ON c.i=a.id AND c.x=b.bud;
+    */
 }
 
 Biz Query GetIDListCount(

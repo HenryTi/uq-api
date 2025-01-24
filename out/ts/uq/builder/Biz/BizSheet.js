@@ -17,7 +17,7 @@ const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
-const tools_1 = require("../tools");
+// import { buildIdPhraseTable, buildInsertSelectIdPhrase, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../tools";
 const BizEntity_1 = require("./BizEntity");
 const sheetId = 'sheet';
 const s = 's';
@@ -181,8 +181,6 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         delBinPend.where(new sql_1.ExpEQ(new sql_1.ExpField('id', a), new sql_1.ExpVar(binId)));
         return statements;
     }
-    // 这个应该是之前试验的老版本，现在应该不用了。
-    // 直接在uq GetSheet里面实现了。
     buildGetProc(proc) {
         let { statements, parameters } = proc;
         let { factory, site } = this.context;
@@ -205,24 +203,104 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             const { bin } = detail;
             this.buildCallBin(statements, bin, 'details');
         }
-        const varIdPhraseTable = (0, tools_1.buildIdPhraseTable)(this.context);
-        statements.push(varIdPhraseTable);
+        // const varIdPhraseTable = buildIdPhraseTable(this.context);
+        // statements.push(varIdPhraseTable);
         function buildSelectFrom(select) {
             const s0 = 's0', s1 = 's1';
             select.from(new statementWithFrom_1.VarTable('bin', s0))
                 .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, s1))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', s1), new sql_1.ExpField('id', s0)));
         }
-        statements.push(...(0, tools_1.buildSelectIdPhrases)(this.context, buildSelectFrom));
-        const varPhraseBudTable = (0, tools_1.buildPhraseBudTable)(this.context); // factory.createVarTable();
+        // statements.push(...buildSelectIdPhrases(this.context, buildSelectFrom));
+        /*
+        const varPhraseBudTable = buildPhraseBudTable(this.context); // factory.createVarTable();
         statements.push(varPhraseBudTable);
-        statements.push((0, tools_1.buildSelectPhraseBud)(this.context));
+        statements.push(buildSelectPhraseBud(this.context));
+        */
+        const idBuds = [];
+        this.collectIdBuds(main, idBuds);
+        this.buildInsertIdTable(statements, main, 'main');
+        for (let detail of details) {
+            const { bin } = detail;
+            this.collectIdBuds(bin, idBuds);
+            this.buildInsertIdTable(statements, bin, 'details');
+        }
+        this.buildInsertIdTableBuds(statements, idBuds);
         let expValue = new sql_1.ExpField('value', 'b');
         let expCast = new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON'));
         this.buildGetScalarProps(statements, il_1.EnumSysTable.ixInt, expCast);
-        statements.push(...(0, tools_1.buildSelectIxBuds)(this.context));
+        // statements.push(...buildSelectIxBuds(this.context));
         this.buildGetProps(statements);
         this.buildGetBinProps(statements);
+    }
+    collectIdBuds(bizBin, idBuds) {
+        let { props, i, x } = bizBin;
+        for (let [, value] of props) {
+            if (value === i || value === x)
+                continue;
+            if (value.dataType === BizPhraseType_1.BudDataType.atom)
+                idBuds.push(value);
+        }
+    }
+    buildInsertIdTable(statements, bizBin, tbl) {
+        const { i, x } = bizBin;
+        if (i !== undefined)
+            statements.push(this.buildInsertIdTableIX(i, tbl));
+        if (x !== undefined)
+            statements.push(this.buildInsertIdTableIX(x, tbl));
+    }
+    buildInsertIdTableBuds(statements, idBuds) {
+        if (idBuds.length === 0)
+            return;
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
+        ];
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('idtable');
+        const select = factory.createSelect();
+        insert.select = select;
+        select.col('id', undefined, c);
+        select.col('base', 'phrase', c);
+        select.col('seed', undefined, c);
+        select.column(sql_1.ExpNum.num1, 'show');
+        let expX = new sql_1.ExpField('x', b);
+        let expXEqu = idBuds.length === 1 ?
+            new sql_1.ExpEQ(expX, new sql_1.ExpNum(idBuds[0].id))
+            :
+                new sql_1.ExpIn(expX, ...(idBuds.map(v => new sql_1.ExpNum(v.id))));
+        select.from(new statementWithFrom_1.VarTable('bin', a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, b))
+            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), expXEqu))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('value', b)));
+        statements.push(insert);
+    }
+    buildInsertIdTableIX(ix, tbl) {
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
+        ];
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('idtable');
+        const select = factory.createSelect();
+        insert.select = select;
+        select.col('id', undefined, b);
+        select.col('base', 'phrase', b);
+        select.col('seed', undefined, b);
+        select.column(sql_1.ExpNum.num1, 'show');
+        select.from(new statementWithFrom_1.VarTable(tbl, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField(ix.name, a), new sql_1.ExpField('id', b)));
+        return insert;
     }
     buildGetProps(statements) {
         const { factory } = this.context;
@@ -241,7 +319,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         insert.table = new statementWithFrom_1.VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
@@ -291,13 +369,13 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         insert.table = new statementWithFrom_1.VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();
         insert.select = select;
         select.column(new sql_1.ExpField('value', b), 'id');
-        select.column(new sql_1.ExpNum(sysBud), 'phrase');
+        select.column(new sql_1.ExpNum(sysBud), 'bud');
         let valueCol;
         switch (sysBud) {
             default:
@@ -345,7 +423,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         insert.table = new statementWithFrom_1.VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const select = factory.createSelect();

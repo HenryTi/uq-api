@@ -27,23 +27,24 @@ RETURNS retSheet (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
-)
-RETURNS specs (
-    id ID,
-    atom ID,
-    seed ID,
     (id) KEY,
 )
-{
+RETURNS forks (
+    id ID,
+    phrase ID,
+    seed ID,
+    (id) KEY,
+) {
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     IF pendId IS NOT NULL {
             PAGE SELECT t1.id AS pend, e.id AS sheet, t1.bin AS id, b.i AS i
             , b.x AS x, b.value AS value, b.price AS price, b.amount
@@ -60,32 +61,15 @@ RETURNS specs (
     }
 
     VAR procName CHAR(200) = CONCAT(pendEntity, 'gp');
-    IF routine_exists(CONCAT('$site.', $site), procName) {
-        VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', procName, '`(?,?,?,?);');
-        ExecSql sql USING $user,params,$pageStart,$pageSize;
-    }
-    else {
-        PAGE SELECT t1.id AS pend, e.id AS sheet, t1.bin AS id, b.i AS i
-        , b.x AS x, b.value AS value, b.price AS price, b.amount
-        , t1.value AS pendvalue, t1.mid, null AS cols
-        FROM Pend AS t1 
-            JOIN Bin AS b ON b.id=t1.bin
-            JOIN BizPhrase AS c ON c.id=t1.base
-            -- LEFT JOIN Detail AS b1 ON b1.id=b.id
-            -- LEFT JOIN Bud AS d ON d.id=b1.base
-            LEFT JOIN Bin AS e ON e.id=b.sheet
-            LEFT JOIN Sheet AS f ON f.id=e.id
-            WHERE 1=1 AND t1.id>$pageStart AND t1.base=pendEntity
-            ORDER BY t1.id ASC 
-            LIMIT $pageSize;
-    }
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', procName, '`(?,?,?,?);');
+    ExecSql sql USING $user,params,$pageStart,$pageSize;
 
     INTO retSheet SELECT b.id, b.no
         , c.i, c.x, c.value, c.price, c.amount
         FROM (SELECT DISTINCT a.sheet as id FROM $page as a) as s
             JOIN Sheet as b ON b.id=s.id
             JOIN Bin as c ON c.id=b.id;
-
+/*
     INTO IGNORE atoms SELECT DISTINCT a.value as id, d.base as base, c.no, c.ex
         FROM props as a 
             JOIN BizBud as b ON b.id=a.phrase
@@ -95,7 +79,7 @@ RETURNS specs (
 
     INTO IGNORE atoms SELECT DISTINCT c.id as id, d.base as base, c.no, c.ex
         FROM $page as a JOIN Atom as c ON (c.id=a.i OR c.id=a.x) JOIN IDU as d ON d.id=c.id;
-    INTO IGNORE specs SELECT DISTINCT c.id as id, c.base as atom, c.seed -- , d.base
+    INTO IGNORE forks SELECT DISTINCT c.id as id, c.base, c.seed -- , d.base
         FROM $page as a 
             -- JOIN Fork as c ON (c.id=a.i OR c.id=a.x)
             JOIN IDU as c ON (c.id=a.i OR c.id=a.x)
@@ -103,15 +87,14 @@ RETURNS specs (
             ;
 
     INTO IGNORE atoms SELECT DISTINCT e.id as id, f.base as base, e.no, e.ex
-        FROM specs as a JOIN Atom as e on e.id=a.atom JOIN IDU as f ON f.id=e.id;
+        FROM forks as a JOIN Atom as e on e.id=a.seed JOIN IDU as f ON f.id=e.id;
 
     INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, CAST(b.value AS JSON) as value
-        FROM specs as a JOIN IxInt as b ON b.i=a.id;
+        FROM forks as a JOIN IxInt as b ON b.i=a.id;
     INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, CAST(b.value AS JSON) as value
-        FROM specs as a JOIN IxDec as b ON b.i=a.id;
+        FROM forks as a JOIN IxDec as b ON b.i=a.id;
     INTO IGNORE props SELECT DISTINCT a.id as id, b.x as phrase, JSON_QUOTE(b.value) as value
-        FROM specs as a JOIN IxStr as b ON b.i=a.id;
-
+        FROM forks as a JOIN IxStr as b ON b.i=a.id;
     FOR (VAR id ID, base ID OF SELECT a.id, a.base FROM atoms as a) {
         SET procName = CONCAT(base, 'tp');
         IF routine_exists(CONCAT('$site.', $site), procName) {
@@ -119,6 +102,8 @@ RETURNS specs (
             ExecSql sql USING id;
         }
     }
+*/
+    PROC ProcPropsOfIds();
 }
 
 Biz Query GetPendsNotify()
@@ -201,24 +186,23 @@ PAGE (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
     (id) KEY,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
     (id) KEY,
-)
-{
+) {
     PAGE SELECT * a, * b
         -- , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
         , (SELECT count(*) FROM Bin as x WHERE x.sheet=a.id AND x.id<>x.sheet AND x.value IS NOT NULL) as rowCount
@@ -229,8 +213,8 @@ RETURNS specs (
         WHERE a.base=phrase AND a.id>$pageStart AND c.base=$site
         ORDER BY a.id ASC
         LIMIT $pageSize;
-    TABLE idtable (KEY id ID,phrase ID);
-    INTO idtable SELECT id, phrase FROM $page;
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
+    INTO idtable SELECT id, phrase, -1 as seed, 0 as show FROM $page;
     PROC ProcPropsOfIds();
 };
 
@@ -248,24 +232,23 @@ PAGE (
 )
 RETURNS props (
     id ID,
-    phrase ID,
+    bud ID,
     value JSON,
-    (id, phrase) KEY,
+    (id, bud) KEY,
 )
 RETURNS atoms (
     id ID,
-    base ID,
+    phrase ID,
     no NO,
     ex EX,
     (id) KEY,
 )
-RETURNS specs (
+RETURNS forks (
     id ID,
-    atom ID,
+    phrase ID,
     seed ID,
     (id) KEY,
-)
-{
+) {
     VAR me ID = Me();
     PAGE SELECT * a, * b
         -- , (SELECT count(*) FROM Detail as x JOIN Bud as y ON y.id=x.base JOIN Bin as z ON z.id=x.id WHERE y.base=a.id AND z.value IS NOT NULL) as rowCount
@@ -279,8 +262,8 @@ RETURNS specs (
             AND a.id>=uminute_from_time(from, timeZone) AND a.id<uminute_from_time(to, timeZone)
         ORDER BY a.id DESC
         LIMIT $pageSize;
-    TABLE idtable (KEY id ID,phrase ID);
-    INTO idtable SELECT id, mainPhrase as phrase FROM $page;
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
+    INTO idtable SELECT id, mainPhrase as phrase, -1 as seed, 0 as show FROM $page;
     PROC ProcPropsOfIds();
 };
 

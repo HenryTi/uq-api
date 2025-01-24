@@ -7,11 +7,11 @@ import {
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Sqls } from "../../bstatement";
 import { DbContext } from "../../dbContext";
-import { ColVal, EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpIn, ExpNum, ExpSelect, ExpVal, ExpVar, Select, Statement } from "../../sql";
+import { ColVal, EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn, ExpNum, ExpSelect, ExpVal, ExpVar, Select, Statement } from "../../sql";
 import { LockType, SelectTable } from "../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../sql/statementWithFrom";
 import { BFromStatement } from "./from";
-import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
+// import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
 import { $idu } from "./biz.select";
 
 const a = 'a', b = 'b', c = 'c';
@@ -31,7 +31,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     }
 
     foot(sqls: Sqls): void {
-        sqls.push(...buildSelectIxBuds(this.context));
+        // sqls.push(...buildSelectIxBuds(this.context));
     }
 
     protected setIds() {
@@ -50,10 +50,16 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         insertPage.table = new VarTable(pageGroupBy);
         insertPage.cols = this.buildInsertPageCols();
         let insertRet = this.buildInsertRet();
-        let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
-        let insertIdsSpecs = this.buildInsertIdsSpecs(pageGroupBy, this.idsGroupBy);
-        let insertSpec = this.buildInsertSpec();
-        return [tblPageGroupBy, tblDetail, insertPage, insertRet, insertIdsAtoms, insertIdsSpecs, ...insertSpec];
+        // let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
+        // let insertIdsForks = this.buildInsertIdsForks(pageGroupBy, this.idsGroupBy);
+        let insertIdsTable = this.buildInsertIdsToIdTable(pageGroupBy, this.idsGroupBy);
+        let insertGroupDetail = this.buildInsertGroupDetail();
+        return [
+            tblPageGroupBy, tblDetail, insertPage, insertRet
+            , insertIdsTable
+            // , insertIdsAtoms, insertIdsForks
+            , ...insertGroupDetail
+        ];
     }
 
     protected buildInsertPageCols(): ColVal[] {
@@ -267,7 +273,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             if (bizPhraseType !== BizPhraseType.fork) continue;
             if (bizEntityArr.length === 0) {
                 this.ixValueArr().forEach(([tbl, val]) => {
-                    sqls.push(this.buildInsertBud('specs', tbl, undefined, val));
+                    sqls.push(this.buildInsertBud('forks', tbl, undefined, val));
                 });
             }
             else {
@@ -281,7 +287,7 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
                         buds.push(bud);
                     }
                     let mapBuds = this.buildMapBuds(buds);
-                    sqls.push(...this.buildInsertBuds('specs', mapBuds));
+                    sqls.push(...this.buildInsertBuds('forks', mapBuds));
                 }
             }
         }
@@ -291,8 +297,9 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
     private buildIdsProps(sqls: Sqls) {
         const ids = this.idsGroupBy;
         const { factory } = this.context;
-        sqls.push(buildIdPhraseTable(this.context));
-        sqls.push(buildPhraseBudTable(this.context));
+        // sqls.push(buildIdPhraseTable(this.context));
+        // sqls.push(buildPhraseBudTable(this.context));
+        /*
         let { length } = ids;
         for (let i = 0; i < length; i++) {
             function buildSelectId(select: Select) {
@@ -306,6 +313,26 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             sqls.push(...buildSelectIdPhrases(this.context, buildSelectId));
         }
         sqls.push(buildSelectPhraseBud(this.context));
+        */
+    }
+
+    protected buildInsertIdsToIdTable(tbl: string, ids: IdColumn[]) {
+        let insert = this.buildInsertIdTable();
+        const { select } = insert;
+        let expBId = new ExpField('id', b);
+        let expOn: ExpCmp;
+        if (this.idsGroupBy.length === 1) {
+            expOn = new ExpEQ(expBId, new ExpField('id0', a));
+        }
+        else {
+            let arrExp: ExpVal[] = [expBId, ...ids.map((v, index) => new ExpField('id' + index, a))];
+            expOn = new ExpIn(...arrExp);
+        }
+        select.from(new VarTable(tbl, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
+            .on(expOn);
+        ;
+        return insert;
     }
 
     protected buildInsertIdsAtoms(tbl: string, ids: IdColumn[]) {
@@ -329,20 +356,22 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         return insert;
     }
 
-    protected buildInsertIdsSpecs(tbl: string, ids: IdColumn[]) {
+    protected buildInsertIdsForks(tbl: string, ids: IdColumn[]) {
         const { factory } = this.context;
         let insert = factory.createInsert();
         insert.ignore = true;
-        insert.table = new VarTable('atoms');
+        insert.table = new VarTable('forks');
         insert.cols = [
             { col: 'id', val: undefined },
             { col: 'base', val: undefined },
+            { col: 'seed', val: undefined },
         ];
         let select = factory.createSelect();
         insert.select = select;
         select.distinct = true;
         select.column(new ExpField('id', c));
         select.column(new ExpField('base', c));
+        select.column(new ExpField('seed', c));
 
         let expBId = new ExpField('id', c);
         let expOn: ExpCmp;
@@ -360,9 +389,10 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
             .on(expOn)
             // .on(new ExpAnd(new ExpEQ(new ExpField('id', c), new ExpField('base', c))))
             ;
+        select.where(new ExpGT(new ExpField('seed', c), ExpNum.num0));
         return insert;
     }
-    protected buildInsertSpec(): Statement[] {
+    protected buildInsertGroupDetail(): Statement[] {
         return [];
     }
     protected buildRetSelectCols(arr: ExpVal[]) {
@@ -388,15 +418,15 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         return expField;
     }
 
-    protected override buildInsertSpec() {
+    protected override buildInsertGroupDetail() {
         const { factory } = this.context;
         let memo = factory.createMemo();
-        memo.text = 'insert spec';
+        memo.text = 'insert group detail';
         const { ids, fromEntity, intoTables, where } = this.istatement;
-        let insertSpec = factory.createInsert();
-        insertSpec.ignore = true;
-        insertSpec.table = new VarTable(intoTables.specs);
-        insertSpec.cols = [
+        let insertIdTable = factory.createInsert();
+        insertIdTable.ignore = true;
+        insertIdTable.table = new VarTable(intoTables.forks);
+        insertIdTable.cols = [
             { col: 'id', val: undefined },
             { col: 'atom', val: undefined },
             { col: 'ban', val: undefined },
@@ -404,7 +434,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
             { col: 'value', val: undefined },
         ];
         let select = factory.createSelect();
-        insertSpec.select = select;
+        insertIdTable.select = select;
         select.distinct = true;
         this.buildSelectFrom(select, fromEntity);
         this.buildSelectJoin(select, fromEntity);
@@ -426,27 +456,27 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.buildSelectValue(select);
 
         if (this.showIds.length === 0) {
-            insertSpec.table = new VarTable(intoTables.specs);
-            return [insertSpec];
+            insertIdTable.table = new VarTable(intoTables.forks);
+            return [insertIdTable];
         }
         else {
-            insertSpec.table = new VarTable(tblDetail);
-            insertSpec.cols.push(...this.showIds.map((v, index) => ({ col: 'id' + index, val: undefined })));
+            insertIdTable.table = new VarTable(tblDetail);
+            insertIdTable.cols.push(...this.showIds.map((v, index) => ({ col: 'id' + index, val: undefined })));
             for (let id of this.showIds) {
                 select.column(new ExpField('id', id.fromEntity.alias));
             }
-            return [memo, insertSpec, ...this.buildFromDetailToSpecs()];
+            return [memo, insertIdTable, ...this.buildFromDetailToIds()];
         }
     }
 
-    private buildFromDetailToSpecs(): Statement[] {
+    private buildFromDetailToIds(): Statement[] {
         const { factory } = this.context;
         const { intoTables } = this.istatement;
         let ret: Statement[] = [];
         let insertSpec = factory.createInsert();
         ret.push(insertSpec);
         insertSpec.ignore = true;
-        insertSpec.table = new VarTable(intoTables.specs);
+        insertSpec.table = new VarTable(intoTables.forks);
         insertSpec.cols = [
             { col: 'id', val: undefined },
             { col: 'atom', val: undefined },
@@ -464,7 +494,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         select.column(new ExpField('value', a));
 
         ret.push(this.buildInsertIdsAtoms(tblDetail, this.showIds));
-        ret.push(this.buildInsertIdsSpecs(tblDetail, this.showIds));
+        ret.push(this.buildInsertIdsForks(tblDetail, this.showIds));
         return ret;
     }
 
