@@ -693,6 +693,53 @@ RETURNS checkBin (
     -/
 };
 
+Biz AC ExecQuery (
+    query ID, 
+    json JSON,
+    pageStart INT,
+    pageSize INT,
+)
+RETURNS main (
+    rowId ID,
+    ban TINYINT,
+    ids JSON,
+    values JSON,
+    (rowId) KEY,
+)
+RETURNS detail (
+    mainId ID,
+    rowId ID,
+    ban TINYINT,
+    ids JSON,
+    values JSON,
+    cols JSON,
+    (mainId, rowId) KEY,
+)
+RETURNS props (
+    id ID,
+    bud ID,
+    value JSON,
+    (id, bud) KEY,
+)
+RETURNS atoms (
+    id ID,
+    phrase ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS forks (
+    id ID,
+    phrase ID,
+    seed ID,
+    (id) KEY,
+) {
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', query, 'qx`(?,?,?,?);');
+    ExecSql sql USING $user, json, pageStart, pageSize;
+    PROC ProcPropsOfIds();
+}
+
 Biz AC DoQuery (
     query ID, 
     json JSON,

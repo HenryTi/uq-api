@@ -36,28 +36,22 @@ class BFromStatement extends biz_select_1.BBizSelect {
         setPageState.equ(pageStart, expStart);
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
-        this.buildFromEntity(sqls);
-        this.buildInsertColumnsProps(sqls);
+        // this.buildFromEntity(sqls);
+        // this.buildInsertColumnsProps(sqls);
     }
-    buildInsertColumnsProps(sqls) {
+    /*
+    private buildInsertColumnsProps(sqls: Sqls): void {
         const { cols } = this.istatement;
         for (let col of cols) {
-            if (col.valBud === undefined)
-                continue;
+            if (col.valBud === undefined) continue;
             this.buildColumnProps(sqls, col);
         }
     }
-    buildColumnProps(sqls, col) {
+
+    private buildColumnProps(sqls: Sqls, col: FromColumn) {
         const { factory } = this.context;
-        /*
-        const insert = factory.createInsert();
-        insert.cols = [
-            { col: 'id', val: undefined },
-            { col: 'base', val: undefined },
-            { col: 'no', val: undefined },
-        ];
-        */
     }
+    */
     foot(sqls) {
         let memo = this.context.factory.createMemo();
         sqls.push(memo);
@@ -81,7 +75,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
     buildSelectValue(select) {
         this.buildSelectValueBase(select, false);
     }
-    buildSelectVallueSum(select) {
+    buildSelectValueSum(select) {
         this.buildSelectValueBase(select, true);
     }
     buildSelectValueBase(select, sum) {
@@ -117,7 +111,7 @@ class BFromStatement extends biz_select_1.BBizSelect {
         const { bizEntityTable, alias: t0 } = fromEntity;
         const select = factory.createSelect();
         select.from(new statementWithFrom_1.EntityTable(bizEntityTable, false, t0));
-        this.buildSelectJoin(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity, undefined);
         let wheres = [
             cmpPage,
             this.context.expCmp(where),

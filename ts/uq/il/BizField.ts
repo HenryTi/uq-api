@@ -10,7 +10,7 @@ import {
     BBizForkBaseField,
     BBizBinVar
 } from "../builder";
-import { BinDiv, BizBin, FromStatement, FromInPendStatement, BizOptions, OptionsItem } from "./Biz";
+import { BinDiv, BizBin, FromStatement, FromStatementInPend, BizOptions, OptionsItem } from "./Biz";
 import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
 import { BizBud, BizBudBin } from "./Biz/Bud";
 import { BizPend } from "./Biz/Pend";
@@ -332,7 +332,7 @@ export abstract class FromEntityFieldSpace<F extends FromStatement> extends BizF
 export class FromInQueryFieldSpace extends FromEntityFieldSpace<FromStatement> {
 }
 
-export class FromInPendFieldSpace extends FromEntityFieldSpace<FromInPendStatement> {
+export class FromInPendFieldSpace extends FromEntityFieldSpace<FromStatementInPend> {
     get bBudNoArrayAgg(): boolean { return true; }
 
     protected buildBizFieldFromDuo(n0: string, n1: string): BizField {

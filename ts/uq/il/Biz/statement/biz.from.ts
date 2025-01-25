@@ -10,21 +10,22 @@ import { VarOperand } from "../../Exp";
 import { BizBud } from "../Bud";
 import { BudDataType } from "../BizPhraseType";
 
-interface IntoTables {
+export interface IntoTables {
     ret: string;
     atoms: string;
     forks: string;
     props: string;
+    details: string;
 }
 
 export class FromStatement extends BizSelectStatement {
     get type(): string { return 'from'; }
-    ids: IdColumn[];
+    readonly ids: IdColumn[] = [];
+    readonly cols: FromColumn[] = [];
     value: FromColumn;
-    cols: FromColumn[] = [];
     subCols: FromColumn[];          // 查询单据的时候，sub中的字段，会算为明细
     showIds: IdColumn[];
-    groupByBase?: boolean;          // spec group by base atom
+    // groupByBase?: boolean;          // spec group by base atom
     ban: BanColumn;
     intoTables: IntoTables;
 
@@ -53,19 +54,5 @@ export class FromStatement extends BizSelectStatement {
         if (bud === undefined) return;
         if (bud.dataType !== BudDataType.atom) return;
         col.valBud = bud;
-    }
-}
-
-export class FromInPendStatement extends FromStatement {
-    readonly pendQuery: PendQuery;
-    constructor(parent: Statement, pendQuery: PendQuery) {
-        super(parent);
-        this.pendQuery = pendQuery;
-    }
-    parser(context: PContext): PElement<IElement> {
-        return new PFromStatementInPend(this, context);
-    }
-    db(db: Builder): object {
-        return db.fromStatementInPend(this);
     }
 }

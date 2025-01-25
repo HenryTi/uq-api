@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FromInPendStatement = exports.FromStatement = void 0;
+exports.FromStatement = void 0;
 const parser_1 = require("../../../parser");
 const biz_select_1 = require("./biz.select");
 const BizPhraseType_1 = require("../BizPhraseType");
 class FromStatement extends biz_select_1.BizSelectStatement {
     constructor() {
         super(...arguments);
+        this.ids = [];
         this.cols = [];
     }
     get type() { return 'from'; }
@@ -40,17 +41,4 @@ class FromStatement extends biz_select_1.BizSelectStatement {
     }
 }
 exports.FromStatement = FromStatement;
-class FromInPendStatement extends FromStatement {
-    constructor(parent, pendQuery) {
-        super(parent);
-        this.pendQuery = pendQuery;
-    }
-    parser(context) {
-        return new parser_1.PFromStatementInPend(this, context);
-    }
-    db(db) {
-        return db.fromStatementInPend(this);
-    }
-}
-exports.FromInPendStatement = FromInPendStatement;
 //# sourceMappingURL=biz.from.js.map

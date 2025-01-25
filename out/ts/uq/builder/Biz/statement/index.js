@@ -24,6 +24,7 @@ __exportStar(require("./biz.statement.fork"), exports);
 __exportStar(require("./biz.statement.tie"), exports);
 __exportStar(require("./from.groupBy"), exports);
 __exportStar(require("./from.inPend"), exports);
+__exportStar(require("./from.inQuery"), exports);
 __exportStar(require("./biz.for"), exports);
 __exportStar(require("./biz.log"), exports);
 //# sourceMappingURL=index.js.map

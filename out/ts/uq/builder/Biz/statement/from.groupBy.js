@@ -10,7 +10,7 @@ const from_1 = require("./from");
 // import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
 const biz_select_1 = require("./biz.select");
 const a = 'a', b = 'b', c = 'c';
-const tblDetail = '$detail';
+const tblDetail = 'detail';
 const pageGroupBy = '$pageGroupBy';
 class BFromGroupByStatement extends from_1.BFromStatement {
     constructor(context, istatement) {
@@ -109,9 +109,9 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         const select = factory.createSelect();
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
-        this.buildSelectVallueSum(select);
+        this.buildSelectValueSum(select);
         this.buildSelectFrom(select, fromEntity);
-        this.buildSelectJoin(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity, undefined);
         const cmpEntityBase = this.buildRootEntityCompare(select);
         let wheres = [
             cmpPage,
@@ -222,7 +222,10 @@ class BFromGroupByStatement extends from_1.BFromStatement {
         select.column(new sql_1.ExpField('value', pageGroupBy));
         select.order(new sql_1.ExpField('$id', pageGroupBy), 'asc');
         this.buildSelectRetFrom(select, pageGroupBy);
-        this.buildSelectJoinSubs(select, fromEntity);
+        const excludeSub = (sub) => {
+            return ids.findIndex(v => v.fromEntity === sub) >= 0;
+        };
+        this.buildSelectJoinSubs(select, fromEntity, undefined); // excludeSub);
         return insertRet;
     }
     buildSelectRetFrom(select, pageAlias) {
@@ -385,7 +388,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const { ids, fromEntity, intoTables, where } = this.istatement;
         let insertIdTable = factory.createInsert();
         insertIdTable.ignore = true;
-        insertIdTable.table = new statementWithFrom_1.VarTable(intoTables.forks);
+        insertIdTable.table = new statementWithFrom_1.VarTable(intoTables.details);
         insertIdTable.cols = [
             { col: 'id', val: undefined },
             { col: 'atom', val: undefined },
@@ -397,7 +400,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         insertIdTable.select = select;
         select.distinct = true;
         this.buildSelectFrom(select, fromEntity);
-        this.buildSelectJoin(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity, undefined);
         select.join(il_1.JoinType.join, new statementWithFrom_1.VarTable(pageGroupBy, '$ret'))
             .on(new sql_1.ExpAnd(...this.idsGroupBy.map((v, index) => (new sql_1.ExpEQ(new sql_1.ExpField('id', v.fromEntity.alias + biz_select_1.$idu), new sql_1.ExpField('id' + index, '$ret'))))));
         // ids最后一个id，无group by
@@ -410,7 +413,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...arr), 'json');
         this.buildSelectValue(select);
         if (this.showIds.length === 0) {
-            insertIdTable.table = new statementWithFrom_1.VarTable(intoTables.forks);
+            insertIdTable.table = new statementWithFrom_1.VarTable(intoTables.details);
             return [insertIdTable];
         }
         else {
@@ -429,7 +432,7 @@ class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let insertSpec = factory.createInsert();
         ret.push(insertSpec);
         insertSpec.ignore = true;
-        insertSpec.table = new statementWithFrom_1.VarTable(intoTables.forks);
+        insertSpec.table = new statementWithFrom_1.VarTable(intoTables.details);
         insertSpec.cols = [
             { col: 'id', val: undefined },
             { col: 'atom', val: undefined },

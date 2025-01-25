@@ -15,7 +15,7 @@ import { BFromStatement } from "./from";
 import { $idu } from "./biz.select";
 
 const a = 'a', b = 'b', c = 'c';
-const tblDetail = '$detail';
+const tblDetail = 'detail';
 const pageGroupBy = '$pageGroupBy';
 
 export class BFromGroupByStatement extends BFromStatement<FromStatement> {
@@ -123,9 +123,9 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         const select = factory.createSelect();
         this.buildGroupByIds(select);
         this.buildSelectBan(select);
-        this.buildSelectVallueSum(select);
+        this.buildSelectValueSum(select);
         this.buildSelectFrom(select, fromEntity);
-        this.buildSelectJoin(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity, undefined);
         const cmpEntityBase = this.buildRootEntityCompare(select);
         let wheres: ExpCmp[] = [
             cmpPage,
@@ -250,7 +250,11 @@ export class BFromGroupByStatement extends BFromStatement<FromStatement> {
         select.column(new ExpField('value', pageGroupBy));
         select.order(new ExpField('$id', pageGroupBy), 'asc');
         this.buildSelectRetFrom(select, pageGroupBy);
-        this.buildSelectJoinSubs(select, fromEntity);
+
+        const excludeSub = (sub: BizFromEntity): boolean => {
+            return ids.findIndex(v => v.fromEntity === sub) >= 0;
+        }
+        this.buildSelectJoinSubs(select, fromEntity, undefined); // excludeSub);
         return insertRet;
     }
 
@@ -425,7 +429,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         const { ids, fromEntity, intoTables, where } = this.istatement;
         let insertIdTable = factory.createInsert();
         insertIdTable.ignore = true;
-        insertIdTable.table = new VarTable(intoTables.forks);
+        insertIdTable.table = new VarTable(intoTables.details);
         insertIdTable.cols = [
             { col: 'id', val: undefined },
             { col: 'atom', val: undefined },
@@ -437,7 +441,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         insertIdTable.select = select;
         select.distinct = true;
         this.buildSelectFrom(select, fromEntity);
-        this.buildSelectJoin(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity, undefined);
         select.join(JoinType.join, new VarTable(pageGroupBy, '$ret'))
             .on(new ExpAnd(
                 ...this.idsGroupBy.map((v, index) => (
@@ -456,7 +460,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         this.buildSelectValue(select);
 
         if (this.showIds.length === 0) {
-            insertIdTable.table = new VarTable(intoTables.forks);
+            insertIdTable.table = new VarTable(intoTables.details);
             return [insertIdTable];
         }
         else {
@@ -476,7 +480,7 @@ export class BFromGroupByBaseStatement extends BFromGroupByStatement {
         let insertSpec = factory.createInsert();
         ret.push(insertSpec);
         insertSpec.ignore = true;
-        insertSpec.table = new VarTable(intoTables.forks);
+        insertSpec.table = new VarTable(intoTables.details);
         insertSpec.cols = [
             { col: 'id', val: undefined },
             { col: 'atom', val: undefined },

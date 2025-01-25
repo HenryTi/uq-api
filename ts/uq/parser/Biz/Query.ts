@@ -1,6 +1,7 @@
 import {
     BizQuery, BizQueryTable, BizQueryTableStatements, BizQueryValue, BizQueryValueStatements
-    , Entity, FromStatement, Pointer, PutStatement, Statement, Table, NamePointer
+    , Entity, FromStatement, Pointer, PutStatement, Statement, Table, NamePointer,
+    FromStatementInQuery
 } from "../../il";
 import { Space } from "../space";
 import { PStatements } from "../statement";
@@ -105,6 +106,7 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
                 atoms: 'atoms',
                 forks: 'forks',
                 props: 'props',
+                details: 'details',
             };
             if (value !== undefined) {
                 props.set(value.name, value.bud);
@@ -187,7 +189,8 @@ export class PBizQueryTableStatements extends PStatements<BizQueryTableStatement
     protected statementFromKey(parent: Statement, key: string): Statement {
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'from': return new FromStatement(parent);
+            // case 'from': return new FromStatement(parent);
+            case 'from': return new FromStatementInQuery(parent);
         }
     }
 }

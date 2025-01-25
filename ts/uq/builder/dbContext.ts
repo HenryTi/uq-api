@@ -20,7 +20,7 @@ import {
 import { EntityTable, VarTable, GlobalTable } from './sql/statementWithFrom';
 import { Select, LockType } from './sql/select';
 import { Sqls } from './bstatement';
-import { BBiz, BFromGroupByBaseStatement, BFromGroupByStatement, BFromInPendStatement } from './Biz';
+import { BBiz, BFromGroupByBaseStatement, BFromGroupByStatement, BFromInPendStatement, BFromStatementInQueryId, BFromStatementInQueryIds } from './Biz';
 import { EntityRunner } from '../../core';
 import { convertAtom } from './sql/exp/convertExp';
 
@@ -317,7 +317,13 @@ export class DbContext implements il.Builder {
         }
         return new BFromGroupByStatement(this, v);
     }
-    fromStatementInPend(v: il.FromInPendStatement) { return new BFromInPendStatement(this, v) }
+    fromStatementInQuery(v: il.FromStatementInQuery): stat.BStatement {
+        if (v.ids.length > 1) {
+            return new BFromStatementInQueryIds(this, v);
+        }
+        return new BFromStatementInQueryId(this, v);
+    }
+    fromStatementInPend(v: il.FromStatementInPend) { return new BFromInPendStatement(this, v) }
     withIDDelOnId(v: il.WithStatement) { return new stat.BWithIDDelOnId(this, v) }
     withIDDelOnKeys(v: il.WithStatement) { return new stat.BWithIDDelOnKeys(this, v) }
     withIDXDel(v: il.WithStatement) { return new stat.BWithIDXDel(this, v) }

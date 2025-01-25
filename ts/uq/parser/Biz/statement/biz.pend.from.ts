@@ -1,10 +1,10 @@
-import { EnumSysTable, FromInPendFieldSpace, FromInPendStatement } from "../../../il";
+import { EnumSysTable, FromInPendFieldSpace, FromStatementInPend } from "../../../il";
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
 import { FromSpace, PFromStatement } from "./biz.from";
 
-export class PFromStatementInPend extends PFromStatement<FromInPendStatement> {
+export class PFromStatementInPend extends PFromStatement<FromStatementInPend> {
     protected _parse(): void {
         this.parseTblsOf(this.pFromEntity);
         this.parseColumns();
@@ -49,7 +49,7 @@ export class PFromStatementInPend extends PFromStatement<FromInPendStatement> {
 }
 
 class FromInPendSpace extends FromSpace {
-    protected override createBizFieldSpace(from: FromInPendStatement) {
+    protected override createBizFieldSpace(from: FromStatementInPend) {
         return new FromInPendFieldSpace(from);
     }
 }

@@ -11,9 +11,9 @@ import { BStatement } from "../../bstatement";
 export const $idu = ''; // '$idu';
 export const $atom = '$atom';
 export abstract class BBizSelect<T extends BizSelectStatement> extends BStatement<T> {
-    protected buildSelectJoin(select: Select, fromEntity: BizFromEntity) {
+    protected buildSelectJoin(select: Select, fromEntity: BizFromEntity, excludeSub: (sub: BizFromEntity) => boolean) {
         this.buildSelectJoinIXs(select, fromEntity);
-        this.buildSelectJoinSubs(select, fromEntity);
+        this.buildSelectJoinSubs(select, fromEntity, excludeSub);
     }
 
     protected buildSelectJoinIXs(select: Select, fromEntity: BizFromEntity) {
@@ -51,93 +51,97 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
         }
     }
 
-    protected buildSelectJoinSubs(select: Select, fromEntity: BizFromEntity) {
+    // 如果已经在$pageGroupBy表里面，有ids，则不要join sub
+    protected buildSelectJoinSubs(select: Select, fromEntity: BizFromEntity, excludeSub: (sub: BizFromEntity) => boolean) {
         const { alias, subs } = fromEntity;
         if (subs === undefined) return;
         for (let sub of subs) {
-            const { field, fieldBud, fromEntity: subFromEntity, isForkBase } = sub;
-            const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
-            let entityIds: number[] = [];
-            if (bizEntityArr.length > 0) {
-                let set = new Set<BizEntity>();
-                for (let be of bizEntityArr) {
-                    be.decendants(set);
-                }
-                entityIds.push(...[...set].map(v => v.id));
-            }
-            let entityIdsLength = entityIds.length;
-            const entityTable = this.buildEntityTable(subFromEntity);
-            let joinAtom: JoinType;
-            let subAliasIDU = subAlias + $idu;
-            let subAliasAtom = subAlias + $atom;
-            let expOnEQAtom = new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', subAliasIDU));
-            let expOn$Atom: ExpCmp;
-            if (isForkBase === true) {
-                // isForkBase
-                joinAtom = JoinType.left;
-                expOn$Atom = new ExpOr(
-                    expOnEQAtom,
-                    new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', alias + $idu)),
-                );
-            }
-            else {
-                joinAtom = JoinType.join;
-                expOn$Atom = expOnEQAtom;
-            }
-            const buildExpOn = (expAlias: ExpVal, expEQIdField: ExpCmp): ExpCmp => {
-                let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
-                return entityIdsLength === 0 ?
-                    expEQIdField
-                    :
-                    new ExpAnd(expEQIdField, expCmpBase);
-            }
-            const expMainField = fieldBud === undefined ?
-                new ExpField(field, alias + $idu)
-                :
-                new ExpField(String(fieldBud.id), alias);
-            switch (bizPhraseType) {
-                default:
-                    select
-                        .join(joinAtom, entityTable)
-                        .on(new ExpEQ(
-                            new ExpField('id', subAlias),
-                            expMainField
-                        ));
-                    break;
-                case BizPhraseType.bin:
-                    let expBinOn: ExpCmp = new ExpEQ(
-                        new ExpField(field, subAlias),
-                        new ExpField('id', alias)
-                    );
-                    if (field === 'sheet') {
-                        // 表示是明细，要去掉主表join
-                        expBinOn = new ExpAnd(expBinOn, new ExpNE(
-                            new ExpField('id', subAlias),
-                            new ExpField('id', alias)
-                        ));
+            const { fromEntity: subFromEntity } = sub;
+            if (excludeSub === undefined || excludeSub(sub.fromEntity) !== true) {
+                const { field, fieldBud, isForkBase } = sub;
+                const { alias: subAlias, bizPhraseType, bizEntityArr } = subFromEntity;
+                let entityIds: number[] = [];
+                if (bizEntityArr.length > 0) {
+                    let set = new Set<BizEntity>();
+                    for (let be of bizEntityArr) {
+                        be.decendants(set);
                     }
-                    select
-                        .join(joinAtom, entityTable)
-                        .on(expBinOn);
-                    break;
-                case BizPhraseType.atom:
-                    let expOnAtom = buildExpOn(
-                        new ExpField('base', subAliasIDU), // expSubAlias, 
-                        new ExpEQ(new ExpField('id', subAliasIDU), expMainField),
+                    entityIds.push(...[...set].map(v => v.id));
+                }
+                let entityIdsLength = entityIds.length;
+                const entityTable = this.buildEntityTable(subFromEntity);
+                let joinAtom: JoinType;
+                let subAliasIDU = subAlias + $idu;
+                let subAliasAtom = subAlias + $atom;
+                let expOnEQAtom = new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', subAliasIDU));
+                let expOn$Atom: ExpCmp;
+                if (isForkBase === true) {
+                    // isForkBase
+                    joinAtom = JoinType.left;
+                    expOn$Atom = new ExpOr(
+                        expOnEQAtom,
+                        new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', alias + $idu)),
                     );
-                    select
-                        .join(joinAtom, entityTable)
-                        .on(expOnAtom)
-                        .join(JoinType.left, new EntityTable(EnumSysTable.atom, false, subAliasAtom))
-                        .on(expOn$Atom);
-                    break;
-                case BizPhraseType.fork:
-                    select
-                        .join(JoinType.join, entityTable)
-                        .on(new ExpEQ(new ExpField('id', subAliasIDU), expMainField));
-                    break;
+                }
+                else {
+                    joinAtom = JoinType.join;
+                    expOn$Atom = expOnEQAtom;
+                }
+                const buildExpOn = (expAlias: ExpVal, expEQIdField: ExpCmp): ExpCmp => {
+                    let expCmpBase = this.buildExpCmpBase(subFromEntity, expAlias);
+                    return entityIdsLength === 0 ?
+                        expEQIdField
+                        :
+                        new ExpAnd(expEQIdField, expCmpBase);
+                }
+                const expMainField = fieldBud === undefined ?
+                    new ExpField(field, alias + $idu)
+                    :
+                    new ExpField(String(fieldBud.id), alias);
+                switch (bizPhraseType) {
+                    default:
+                        select
+                            .join(joinAtom, entityTable)
+                            .on(new ExpEQ(
+                                new ExpField('id', subAlias),
+                                expMainField
+                            ));
+                        break;
+                    case BizPhraseType.bin:
+                        let expBinOn: ExpCmp = new ExpEQ(
+                            new ExpField(field, subAlias),
+                            new ExpField('id', alias)
+                        );
+                        if (field === 'sheet') {
+                            // 表示是明细，要去掉主表join
+                            expBinOn = new ExpAnd(expBinOn, new ExpNE(
+                                new ExpField('id', subAlias),
+                                new ExpField('id', alias)
+                            ));
+                        }
+                        select
+                            .join(joinAtom, entityTable)
+                            .on(expBinOn);
+                        break;
+                    case BizPhraseType.atom:
+                        let expOnAtom = buildExpOn(
+                            new ExpField('base', subAliasIDU), // expSubAlias, 
+                            new ExpEQ(new ExpField('id', subAliasIDU), expMainField),
+                        );
+                        select
+                            .join(joinAtom, entityTable)
+                            .on(expOnAtom)
+                            .join(JoinType.left, new EntityTable(EnumSysTable.atom, false, subAliasAtom))
+                            .on(expOn$Atom);
+                        break;
+                    case BizPhraseType.fork:
+                        select
+                            .join(JoinType.join, entityTable)
+                            .on(new ExpEQ(new ExpField('id', subAliasIDU), expMainField));
+                        break;
+                }
             }
-            this.buildSelectJoinSubs(select, subFromEntity);
+            this.buildSelectJoinSubs(select, subFromEntity, excludeSub);
         }
     }
 

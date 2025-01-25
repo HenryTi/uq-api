@@ -8,5 +8,6 @@ export * from "./biz.statement.fork";
 export * from "./biz.statement.tie";
 export * from "./from.groupBy";
 export * from "./from.inPend";
+export * from "./from.inQuery";
 export * from "./biz.for";
 export * from "./biz.log";

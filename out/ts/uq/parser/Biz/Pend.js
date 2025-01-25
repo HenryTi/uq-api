@@ -177,7 +177,7 @@ class PBizQueryTableInPendStatements extends Query_1.PBizQueryTableStatements {
         let bizQueryTableInPendStatements = this.element;
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'from': return new il_1.FromInPendStatement(parent, bizQueryTableInPendStatements.pendQuery);
+            case 'from': return new il_1.FromStatementInPend(parent, bizQueryTableInPendStatements.pendQuery);
         }
     }
 }

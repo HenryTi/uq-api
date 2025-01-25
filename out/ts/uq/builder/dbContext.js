@@ -281,6 +281,12 @@ class DbContext {
         }
         return new Biz_1.BFromGroupByStatement(this, v);
     }
+    fromStatementInQuery(v) {
+        if (v.ids.length > 1) {
+            return new Biz_1.BFromStatementInQueryIds(this, v);
+        }
+        return new Biz_1.BFromStatementInQueryId(this, v);
+    }
     fromStatementInPend(v) { return new Biz_1.BFromInPendStatement(this, v); }
     withIDDelOnId(v) { return new stat.BWithIDDelOnId(this, v); }
     withIDDelOnKeys(v) { return new stat.BWithIDDelOnKeys(this, v); }

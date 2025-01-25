@@ -46,11 +46,11 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
 
         let stat = this.buildFromMain(cmpPage);
         sqls.push(...stat);
-        this.buildFromEntity(sqls);
+        // this.buildFromEntity(sqls);
 
-        this.buildInsertColumnsProps(sqls);
+        // this.buildInsertColumnsProps(sqls);
     }
-
+    /*
     private buildInsertColumnsProps(sqls: Sqls): void {
         const { cols } = this.istatement;
         for (let col of cols) {
@@ -61,15 +61,8 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
 
     private buildColumnProps(sqls: Sqls, col: FromColumn) {
         const { factory } = this.context;
-        /*
-        const insert = factory.createInsert();
-        insert.cols = [
-            { col: 'id', val: undefined },
-            { col: 'base', val: undefined },
-            { col: 'no', val: undefined },
-        ];
-        */
     }
+    */
 
     override foot(sqls: Sqls): void {
         let memo = this.context.factory.createMemo();
@@ -100,7 +93,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         this.buildSelectValueBase(select, false);
     }
 
-    protected buildSelectVallueSum(select: Select) {
+    protected buildSelectValueSum(select: Select) {
         this.buildSelectValueBase(select, true);
     }
 
@@ -136,7 +129,7 @@ export abstract class BFromStatement<T extends FromStatement> extends BBizSelect
         const { bizEntityTable, alias: t0 } = fromEntity;
         const select = factory.createSelect();
         select.from(new EntityTable(bizEntityTable, false, t0));
-        this.buildSelectJoin(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity, undefined);
         let wheres: ExpCmp[] = [
             cmpPage,
             this.context.expCmp(where),

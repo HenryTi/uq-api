@@ -9,9 +9,9 @@ import { BizSelectStatementSpace, PBizSelectStatement, PIdColumn } from "./BizSe
 const valueColumn = 'value';
 
 export class PFromStatement<T extends FromStatement = FromStatement> extends PBizSelectStatement<T> {
-    private readonly ids: PIdColumn[] = [];
-    private readonly showIds: PIdColumn[] = [];
-    private readonly collColumns: { [name: string]: boolean } = {};
+    protected readonly ids: PIdColumn[] = [];
+    protected readonly showIds: PIdColumn[] = [];
+    protected readonly collColumns: { [name: string]: boolean } = {};
 
     protected _parse(): void {
         this.parseFromEntity(this.pFromEntity);
@@ -46,7 +46,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         }
     }
 
-    private parseSubColumns() {
+    protected parseSubColumns() {
         let { subCols } = this.element;
         if (subCols === undefined) this.element.subCols = subCols = [];
         this.ts.passToken(Token.LPARENTHESE);
@@ -67,7 +67,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         }
     }
 
-    private parseColumn() {
+    protected parseColumn() {
         let col: FromColumn;
         if (this.ts.token === Token.MOD) {
             const { peekToken, lowerVar } = this.ts.peekToken();
@@ -104,7 +104,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         return col;
     }
 
-    private parseIdColumns() {
+    protected parseIdColumns() {
         if (this.ts.isKeyword('id') !== true) return;
         this.ts.readToken();
         if (this.ts.token === Token.LPARENTHESE) {
@@ -145,7 +145,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         }
     }
 
-    private parseValue() {
+    protected parseValue() {
         if (this.element.value !== undefined) {
             this.ts.error('duplicate VALUE');
         }
@@ -162,7 +162,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         */
     }
 
-    private parseIdColumn() {
+    protected parseIdColumn() {
         if (this.ts.token === Token.COLON) {
             this.ts.readToken();
             let ui = this.parseUI();
@@ -187,6 +187,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
             this.ts.readToken();
             alias = this.ts.passVar();
         }
+        /*
         if (this.ts.isKeyword('group') === true) {
             if (this.element.groupByBase === true) {
                 this.ts.error('ID GROUP BY can only be the last');
@@ -196,6 +197,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
             this.ts.passKey('base');
             this.element.groupByBase = true;
         }
+        */
         this.ids.push({ ui, asc, alias });
     }
 
@@ -247,7 +249,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         return ok;
     }
 
-    private convertIds(ids: PIdColumn[]) {
+    protected convertIds(ids: PIdColumn[]) {
         let ok = true;
         let ret: IdColumn[] = [];
         for (let idc of ids) {
@@ -276,7 +278,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
             ok = false;
         }
         else {
-            this.element.ids = ret;
+            this.element.ids.push(...ret);
         }
         ret = this.convertIds(this.showIds);
         if (ret === undefined) {
@@ -288,7 +290,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         return ok;
     }
 
-    private scanCols(space: Space) {
+    protected scanCols(space: Space) {
         let ok = true;
         const { cols } = this.element;
         for (let col of cols) {

@@ -1,5 +1,5 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
-import { EnumSysTable, JoinType, FromInPendStatement, EnumAsc, BizAtom, BizFromEntity, BizBud } from "../../../il";
+import { EnumSysTable, JoinType, FromStatementInPend, EnumAsc, BizAtom, BizFromEntity, BizBud } from "../../../il";
 import { BFromStatement } from "./from";
 import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, ExpStr, ExpVal, Select } from "../../sql";
 import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWithFrom";
@@ -9,8 +9,8 @@ import { Sqls } from "../../bstatement";
 import { BudDataType } from "../../../il/Biz/BizPhraseType";
 
 const a = 'a', b = 'b', c = 'c';
-export class BFromInPendStatement extends BFromStatement<FromInPendStatement> {
-    constructor(context: DbContext, istatement: FromInPendStatement) {
+export class BFromInPendStatement extends BFromStatement<FromStatementInPend> {
+    constructor(context: DbContext, istatement: FromStatementInPend) {
         super(context, istatement);
         this.asc = EnumAsc.asc;
     }

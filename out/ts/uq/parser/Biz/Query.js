@@ -104,6 +104,7 @@ class PBizQueryTable extends PBizQuery {
                 atoms: 'atoms',
                 forks: 'forks',
                 props: 'props',
+                details: 'details',
             };
             if (value !== undefined) {
                 props.set(value.name, value.bud);
@@ -190,7 +191,8 @@ class PBizQueryTableStatements extends statement_1.PStatements {
     statementFromKey(parent, key) {
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'from': return new il_1.FromStatement(parent);
+            // case 'from': return new FromStatement(parent);
+            case 'from': return new il_1.FromStatementInQuery(parent);
         }
     }
 }

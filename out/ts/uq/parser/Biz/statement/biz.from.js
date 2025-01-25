@@ -183,6 +183,7 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
             this.ts.readToken();
             alias = this.ts.passVar();
         }
+        /*
         if (this.ts.isKeyword('group') === true) {
             if (this.element.groupByBase === true) {
                 this.ts.error('ID GROUP BY can only be the last');
@@ -192,6 +193,7 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
             this.ts.passKey('base');
             this.element.groupByBase = true;
         }
+        */
         this.ids.push({ ui, asc, alias });
     }
     scan(space) {
@@ -269,7 +271,7 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
             ok = false;
         }
         else {
-            this.element.ids = ret;
+            this.element.ids.push(...ret);
         }
         ret = this.convertIds(this.showIds);
         if (ret === undefined) {

@@ -1,6 +1,6 @@
 import {
     Statement, BizBudValue
-    , BizEntity, BizQueryTableStatements, FromInPendStatement
+    , BizEntity, BizQueryTableStatements, FromStatementInPend
 } from "../../il";
 import { BizPend, BizQueryTableInPendStatements, PendQuery } from "../../il/Biz/Pend";
 import { Space } from "../space";
@@ -188,7 +188,7 @@ export class PBizQueryTableInPendStatements extends PBizQueryTableStatements {
         let bizQueryTableInPendStatements = this.element as BizQueryTableInPendStatements;
         switch (key) {
             default: return super.statementFromKey(parent, key);
-            case 'from': return new FromInPendStatement(parent, bizQueryTableInPendStatements.pendQuery);
+            case 'from': return new FromStatementInPend(parent, bizQueryTableInPendStatements.pendQuery);
         }
     }
 }

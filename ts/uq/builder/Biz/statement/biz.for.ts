@@ -102,7 +102,7 @@ export class BBizFor extends BBizSelect<BizFor> {
             collField[n] = expVal;
         }
         this.buildSelectFrom(select, fromEntity);
-        this.buildSelectJoin(select, fromEntity);
+        this.buildSelectJoin(select, fromEntity, undefined);
         select.where(this.context.expCmp(where), EnumExpOP.and);
         if (isGroup === true) {
             for (let [, idCol] of ids) {

@@ -15,7 +15,8 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./biz.from"), exports);
-__exportStar(require("./biz.fromInPend"), exports);
+__exportStar(require("./biz.query.from"), exports);
+__exportStar(require("./biz.pend.from"), exports);
 __exportStar(require("./biz.statement"), exports);
 __exportStar(require("./biz.statement.atom"), exports);
 __exportStar(require("./biz.statement.fork"), exports);
