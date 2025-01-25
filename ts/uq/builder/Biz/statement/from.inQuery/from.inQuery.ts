@@ -148,8 +148,16 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
         */
         this.buildSelectBan(select);
         this.buildSelectValue(select);
-        let arr = this.buildCols();
-        arr.forEach(v => select.column(v));
+        // let arr = this.buildCols();
+        // arr.forEach(v => select.column(v, String(v.)));
+        cols.forEach(col => {
+            const { name, val, bud } = col;
+            // let expBud: ExpVal;
+            let alias: string = (bud !== undefined) ? String(bud.id) : name;
+            let expVal = this.context.expVal(val as ValueExpression);
+            select.column(expVal, alias)
+        });
+
         return insertIdTable;
     }
 
@@ -157,6 +165,7 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
     protected abstract buildDetailJoinPage(select: Select): void;
     protected abstract buildDetailIds(select: Select): void;
 
+    /*
     private buildCols() {
         const { cols } = this.istatement;
         const arr: ExpVal[] = cols.map(col => {
@@ -168,6 +177,7 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
         });
         return arr;
     }
+    */
 
     protected buildInsertDetail() {
         const { factory } = this.context;

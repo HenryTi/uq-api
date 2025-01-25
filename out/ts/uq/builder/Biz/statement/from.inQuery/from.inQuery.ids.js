@@ -4,8 +4,6 @@ exports.BFromStatementInQueryIds = void 0;
 const il_1 = require("../../../../il");
 const sql_1 = require("../../../sql");
 const statementWithFrom_1 = require("../../../sql/statementWithFrom");
-// import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
-const biz_select_1 = require("../biz.select");
 const from_inQuery_1 = require("./from.inQuery");
 const a = 'a', b = 'b', c = 'c';
 const tblDetail = 'detail';
@@ -70,6 +68,7 @@ class BFromStatementInQueryIds extends from_inQuery_1.BFromStatementInQuery {
     buildDetailWhere(select, cmpPage) {
         this.buildWhereWithoutPage(select);
     }
+    // query branch
     buildDetailIds(select) {
         const { ids } = this.istatement;
         select.column(new sql_1.ExpField('$id', '$ret'), 'mainId');
@@ -101,47 +100,6 @@ class BFromStatementInQueryIds extends from_inQuery_1.BFromStatementInQuery {
         select.order(new sql_1.ExpField('$id', p), 'asc');
         // this.buildSelectRetFrom(select, pageGroupBy);
         return insertMain;
-    }
-    buildExpFieldPageId() {
-        // let { alias: t1 } = this.idsGroupBy[this.idsGroupBy.length - 1].fromEntity;
-        // return new ExpField('id', t1);
-        let idColumn = this.idsGroupBy[this.idsGroupBy.length - 1];
-        let expField = idColumn.fromEntity.expIdCol(); // new ExpField('id', idColumn.fromEntity.alias);
-        return expField;
-    }
-    buildFromDetailToIds() {
-        const { factory } = this.context;
-        const { intoTables } = this.istatement;
-        let ret = [];
-        let insertSpec = factory.createInsert();
-        ret.push(insertSpec);
-        insertSpec.ignore = true;
-        insertSpec.table = new statementWithFrom_1.VarTable(intoTables.details);
-        insertSpec.cols = [
-            { col: 'id', val: undefined },
-            { col: 'atom', val: undefined },
-            { col: 'ban', val: undefined },
-            { col: 'json', val: undefined },
-            { col: 'value', val: undefined },
-        ];
-        let select = factory.createSelect();
-        insertSpec.select = select;
-        select.from(new statementWithFrom_1.VarTable(tblDetail, a));
-        select.column(new sql_1.ExpField('id', a));
-        select.column(new sql_1.ExpField('atom', a));
-        select.column(new sql_1.ExpField('ban', a));
-        select.column(new sql_1.ExpField('json', a));
-        select.column(new sql_1.ExpField('value', a));
-        ret.push(this.buildInsertIdsAtoms(tblDetail, this.showIds));
-        ret.push(this.buildInsertIdsForks(tblDetail, this.showIds));
-        return ret;
-    }
-    buildSelectCols() {
-        let arr = super.buildSelectCols();
-        if (this.showIds.length > 0) {
-            arr.push(new sql_1.ExpFunc('JSON_ARRAY', sql_1.ExpNum.num0, ...this.showIds.map((v, index) => new sql_1.ExpField('id', v.fromEntity.alias + biz_select_1.$idu))));
-        }
-        return arr;
     }
 }
 exports.BFromStatementInQueryIds = BFromStatementInQueryIds;

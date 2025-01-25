@@ -129,23 +129,30 @@ class BFromStatementInQuery extends from_1.BFromStatement {
         */
         this.buildSelectBan(select);
         this.buildSelectValue(select);
-        let arr = this.buildCols();
-        arr.forEach(v => select.column(v));
+        // let arr = this.buildCols();
+        // arr.forEach(v => select.column(v, String(v.)));
+        cols.forEach(col => {
+            const { name, val, bud } = col;
+            // let expBud: ExpVal;
+            let alias = (bud !== undefined) ? String(bud.id) : name;
+            let expVal = this.context.expVal(val);
+            select.column(expVal, alias);
+        });
         return insertIdTable;
     }
-    buildCols() {
+    /*
+    private buildCols() {
         const { cols } = this.istatement;
-        const arr = cols.map(col => {
+        const arr: ExpVal[] = cols.map(col => {
             const { name, val, bud } = col;
-            let expBud;
-            if (bud !== undefined)
-                expBud = new sql_1.ExpNum(bud.id);
-            else
-                expBud = new sql_1.ExpStr(name);
-            return this.context.expVal(val);
+            let expBud: ExpVal;
+            if (bud !== undefined) expBud = new ExpNum(bud.id);
+            else expBud = new ExpStr(name);
+            return this.context.expVal(val as ValueExpression);
         });
         return arr;
     }
+    */
     buildInsertDetail() {
         const { factory } = this.context;
         let memo = factory.createMemo();
