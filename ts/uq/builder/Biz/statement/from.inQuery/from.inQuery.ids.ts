@@ -76,6 +76,7 @@ export class BFromStatementInQueryIds extends BFromStatementInQuery {
         this.buildWhereWithoutPage(select);
     }
 
+    // query branch
     protected buildDetailIds(select: Select): void {
         const { ids } = this.istatement;
         select.column(new ExpField('$id', '$ret'), 'mainId');
