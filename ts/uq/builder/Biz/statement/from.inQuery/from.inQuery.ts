@@ -122,7 +122,7 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
         insertIdTable.cols = [
             { col: '$main', val: undefined },
             // { col: '$id', val: undefined },
-            ...ids.map((v, index) => ({ col: 'id' + index, val: undefined })),
+            { col: 'id' + (ids.length - 1), val: undefined },
             { col: 'ban', val: undefined },
             { col: 'value', val: undefined },
             ...cols.map(v => ({ col: String(v.bud.id), val: undefined })),
@@ -397,15 +397,18 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
     }
 
     protected buildInsertIdsToIdTable() {
-        return this.istatement.ids.map((v, index) => {
-            return this.buildInsertIdToIdTable(index);
-        });
+        return [
+            ...this.idsGroupBy.map((v, index) => {
+                return this.buildInsertIdToIdTable(pageGroupBy, index);
+            }),
+            this.buildInsertIdToIdTable($tblDetail, this.istatement.ids.length - 1),
+        ];
     }
 
-    private buildInsertIdToIdTable(idIndex: number) {
+    private buildInsertIdToIdTable(tbl: string, idIndex: number) {
         let insert = this.buildInsertIdTable(ExpNum.num1);
         const { select } = insert;
-        select.from(new VarTable($tblDetail, a))
+        select.from(new VarTable(tbl, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('id' + idIndex, a)));
         return insert;

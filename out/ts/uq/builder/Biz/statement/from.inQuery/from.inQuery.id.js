@@ -7,7 +7,8 @@ const from_inQuery_1 = require("./from.inQuery");
 class BFromStatementInQueryId extends from_inQuery_1.BFromStatementInQuery {
     setIds() {
         const { ids, showIds } = this.istatement;
-        this.idsGroupBy = ids;
+        this.idsGroupBy = [...ids];
+        this.idsGroupBy.pop();
         this.showIds = showIds;
     }
     buildFromMain(cmpPage) {

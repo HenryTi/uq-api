@@ -1,12 +1,12 @@
-import { EnumExpOP, ExpAnd, ExpCmp, ExpField, ExpFunc, ExpNum, ExpVal, ExpVar, Select, Statement } from "../../../sql";
-import { VarTable } from "../../../sql/statementWithFrom";
+import { ExpCmp, ExpNum, Select, Statement } from "../../../sql";
 // import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
-import { BFromStatementInQuery, pageGroupBy, tblMain } from "./from.inQuery";
+import { BFromStatementInQuery } from "./from.inQuery";
 
 export class BFromStatementInQueryId extends BFromStatementInQuery {
     protected setIds() {
         const { ids, showIds } = this.istatement;
-        this.idsGroupBy = ids;
+        this.idsGroupBy = [...ids];
+        this.idsGroupBy.pop();
         this.showIds = showIds;
     }
 
