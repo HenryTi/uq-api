@@ -1,7 +1,7 @@
 import { binAmount, binPrice, binValue } from "../../../consts";
 import { EnumSysTable, JoinType, FromStatementInPend, EnumAsc, BizAtom, BizFromEntity, BizBud } from "../../../il";
 import { BFromStatement } from "./from";
-import { ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, ExpStr, ExpVal, Select } from "../../sql";
+import { EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, ExpStr, ExpVal, Select } from "../../sql";
 import { EntityTable, VarTableWithSchema, VarTable } from "../../sql/statementWithFrom";
 import { KeyOfMapFieldTable, MapFieldTable } from "../BizField";
 import { DbContext } from "../../dbContext";
@@ -30,7 +30,6 @@ export class BFromInPendStatement extends BFromStatement<FromStatementInPend> {
         select.column(new ExpField('id', a), 'pend');
         select.column(new ExpField('id', sheetBin), 'sheet');
         select.column(new ExpField('bin', a), 'id');
-
         function buidIXBud(bud: BizBud, name: string) {
             if (bud === undefined) {
                 select.column(new ExpField(name, b), name);
@@ -59,16 +58,19 @@ export class BFromInPendStatement extends BFromStatement<FromStatementInPend> {
         select.from(new EntityTable(EnumSysTable.pend, false, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, b))
             .on(new ExpEQ(new ExpField('id', b), new ExpField('bin', a)))
+            /*
             .join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, c))
             .on(new ExpAnd(
                 new ExpEQ(new ExpField('base', a), new ExpNum(this.istatement.pendQuery.bizPend.id)),
                 new ExpEQ(new ExpField('id', c), new ExpField('base', a)),
             ))
+            */
             .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, sheetBin))
             .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('sheet', b)))
             .join(JoinType.left, new EntityTable(EnumSysTable.bizSheet, false, sheet))
             .on(new ExpEQ(new ExpField('id', sheet), new ExpField('id', sheetBin)))
             ;
+        select.where(new ExpEQ(new ExpField('base', a), new ExpNum(bizPend.id)), EnumExpOP.and);
 
         let insert = factory.createInsert();
         insert.table = new VarTableWithSchema('$page');

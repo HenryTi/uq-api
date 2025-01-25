@@ -65,7 +65,7 @@ class BFromStatementInQuery extends from_1.BFromStatement {
         varTable.fields = [
             mainField,
             $idField,
-            ...ids.map((v, index) => (0, il_1.bigIntField)('id' + index)),
+            (0, il_1.bigIntField)('id' + (ids.length - 1)),
             banField,
             valueField,
             ...cols.map(v => { let f = (0, il_1.charField)(String(v.bud.id), 200); f.nullable = true; return f; }),
@@ -176,12 +176,14 @@ class BFromStatementInQuery extends from_1.BFromStatement {
         select.col('$main', 'mainId', a);
         select.col('$id', 'rowId', a);
         select.col('ban', undefined, a);
-        select.column(new sql_1.ExpFunc('JSON_ARRAY', ...ids.map((v, index) => new sql_1.ExpField('id' + index, a))));
+        select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('id' + (ids.length - 1), a)));
         select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('value', a)), 'values');
         select.column(new sql_1.ExpFunc('JSON_ARRAY', ...cols.map(v => {
             const { id } = v.bud;
             return new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpNum(id), new sql_1.ExpField(String(id), a));
         })), 'cols');
+        select.order(new sql_1.ExpField('$main', a), 'asc');
+        select.order(new sql_1.ExpField('$id', a), 'asc');
         return insertIdTable;
     }
     buildExpCmpBase(fromEntity, expField) {

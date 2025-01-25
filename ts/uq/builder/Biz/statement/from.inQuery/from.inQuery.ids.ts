@@ -81,9 +81,11 @@ export class BFromStatementInQueryIds extends BFromStatementInQuery {
         const { ids } = this.istatement;
         select.column(new ExpField('$id', '$ret'), 'mainId');
         // rowId 自动生成
+        /*
         this.idsGroupBy.forEach((v, index) => {
             select.column(new ExpField('id' + index, '$ret'));
-        })
+        });
+        */
         select.column(ids[ids.length - 1].fromEntity.expIdCol());
     }
 

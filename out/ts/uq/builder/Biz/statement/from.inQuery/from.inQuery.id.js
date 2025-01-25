@@ -65,7 +65,7 @@ class BFromStatementInQueryId extends from_inQuery_1.BFromStatementInQuery {
         const { ids } = this.istatement;
         select.column(sql_1.ExpNum.num0, 'mainId');
         // rowId 自动生成
-        ids.forEach((v, index) => v.fromEntity.expIdCol());
+        ids.forEach((v, index) => select.column(v.fromEntity.expIdCol(), 'id' + index));
     }
 }
 exports.BFromStatementInQueryId = BFromStatementInQueryId;

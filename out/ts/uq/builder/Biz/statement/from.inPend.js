@@ -48,12 +48,18 @@ class BFromInPendStatement extends from_1.BFromStatement {
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.pend, false, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, b))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('bin', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizPhrase, false, c))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(this.istatement.pendQuery.bizPend.id)), new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('base', a))))
+            /*
+            .join(JoinType.join, new EntityTable(EnumSysTable.bizPhrase, false, c))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('base', a), new ExpNum(this.istatement.pendQuery.bizPend.id)),
+                new ExpEQ(new ExpField('id', c), new ExpField('base', a)),
+            ))
+            */
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('sheet', b)))
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, sheet))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
+        select.where(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(bizPend.id)), sql_1.EnumExpOP.and);
         let insert = factory.createInsert();
         insert.table = new statementWithFrom_1.VarTableWithSchema('$page');
         insert.cols = [

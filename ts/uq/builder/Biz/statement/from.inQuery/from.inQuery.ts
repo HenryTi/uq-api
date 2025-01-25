@@ -10,7 +10,7 @@ import { Sqls } from "../../../bstatement";
 import { DbContext } from "../../../dbContext";
 import {
     ColVal, EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn,
-    ExpNum, ExpSelect, ExpStr, ExpVal, ExpVar, Select
+    ExpNum, ExpSelect, ExpVal, ExpVar, Select
 } from "../../../sql";
 import { LockType } from "../../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../../sql/statementWithFrom";
@@ -83,7 +83,7 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
         varTable.fields = [
             mainField,
             $idField,
-            ...ids.map((v, index) => bigIntField('id' + index)),
+            bigIntField('id' + (ids.length - 1)),
             banField,
             valueField,
             ...cols.map(v => { let f = charField(String(v.bud.id), 200); f.nullable = true; return f; }),
@@ -202,12 +202,14 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
         select.col('$main', 'mainId', a);
         select.col('$id', 'rowId', a);
         select.col('ban', undefined, a);
-        select.column(new ExpFunc('JSON_ARRAY', ...ids.map((v, index) => new ExpField('id' + index, a))));
+        select.column(new ExpFunc('JSON_ARRAY', new ExpField('id' + (ids.length - 1), a)));
         select.column(new ExpFunc('JSON_ARRAY', new ExpField('value', a)), 'values');
         select.column(new ExpFunc('JSON_ARRAY', ...cols.map(v => {
             const { id } = v.bud;
             return new ExpFunc('JSON_ARRAY', new ExpNum(id), new ExpField(String(id), a));
         })), 'cols');
+        select.order(new ExpField('$main', a), 'asc');
+        select.order(new ExpField('$id', a), 'asc');
         return insertIdTable;
     }
 

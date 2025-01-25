@@ -65,7 +65,7 @@ export class BFromStatementInQueryId extends BFromStatementInQuery {
         const { ids } = this.istatement;
         select.column(ExpNum.num0, 'mainId');
         // rowId 自动生成
-        ids.forEach((v, index) => v.fromEntity.expIdCol());
+        ids.forEach((v, index) => select.column(v.fromEntity.expIdCol(), 'id' + index));
     }
     /*
         private buildFromSelectPage(cmpPage: ExpCmp): Select {
@@ -73,7 +73,7 @@ export class BFromStatementInQueryId extends BFromStatementInQuery {
             const { where, fromEntity } = this.istatement;
             const select = factory.createSelect();
             this.buildGroupByIds(select);
-            this.buildSelectBan(select);
+            this.buildSelectBan(select)-;
             this.buildSelectValueSum(select);
             this.buildSelectFrom(select, fromEntity);
             this.buildSelectJoin(select, fromEntity, undefined);

@@ -735,7 +735,7 @@ RETURNS forks (
     (id) KEY,
 ) {
     TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
-    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', query, 'qx`(?,?,?,?);');
+    VAR sql CHAR(500) = CONCAT('call `$site.', $site, '`.`', query, 'q`(?,?,?,?);');
     ExecSql sql USING $user, json, pageStart, pageSize;
     PROC ProcPropsOfIds();
 }
