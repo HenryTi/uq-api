@@ -69,5 +69,6 @@ exports.uqFunctions = {
     phraseofid: 1,
     // 这里添加uq函数后，必须在 MyFactory 里面明确增加相关的mysql build函数，才会自动加$site和$user两个参数
     bs_curdate: 0,
+    seedatom: 1,
 };
 //# sourceMappingURL=functions.js.map

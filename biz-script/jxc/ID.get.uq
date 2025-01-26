@@ -10,6 +10,15 @@ FUNC RootPhrase(
     RETURN rootPhrase;
 }
 
+FUNC SeedAtom(fork ID)
+RETURNS ID {
+    VAR seed ID = a.seed FROM IDU as a WHERE a.id=fork;
+    IF seed IS NULL or seed=0 {
+        SET seed=fork;
+    }
+    RETURN seed;
+}
+
 Biz Query GetIDList (
     phrase ID,          -- ID prhase
     tie ID,             -- tie ID, or index bud 
@@ -140,6 +149,13 @@ RETURNS forks VIRTUAL (
     (id) KEY,
 )
 {
+    TABLE ForkIdTable (KEY id ID,phrase ID,seed ID,show TINYINT);       -- 1: add showBuds
+    INTO ForkIdTable 
+        SELECT a.id, a.phrase, a.seed, a.show FROM IdTable as a 
+        WHERE a.seed>0;
+    INTO IdTable SELECT b.id, b.base as phrase, b.seed, a.show
+        FROM ForkIdTable as a JOIN IDU as b ON b.id=a.seed;
+
     TABLE PhraseBuds(KEY phrase BIGINT, KEY bud BIGINT);
     INTO PhraseBuds WITH RECURSIVE pPhrase AS (
         SELECT s.phrase, r.x as id, r.i as base
@@ -191,59 +207,8 @@ RETURNS forks VIRTUAL (
         FROM idtable as a
             JOIN Atom as c ON c.id=a.id
         WHERE a.seed IS NULL;
-    
     INTO IGNORE forks SELECT a.id, a.phrase, a.seed
-        FROM idtable as a
-        WHERE a.seed>0;
-
-    /*
-    INTO IGNORE forks SELECT c.id, c.base, c.seed -- , b.id as base
-        FROM idtable as a
-            JOIN BizPhrase as b ON b.id=a.phrase
-            -- JOIN Fork as c ON c.id=a.id
-            JOIN IDU as c ON c.id=a.id
-        WHERE b.type=BizPhraseType.fork;
-    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
-        FROM forks as a
-            JOIN Atom as c ON c.id=a.seed
-            JOIN IDU as d ON d.id=c.id;
-        
-    -- id对应的atoms里面的必显示字段
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM idtable as a
-            JOIN PhraseBuds as b ON b.phrase=a.phrase
-            JOIN IxInt as c ON c.i=a.id AND c.x=b.bud;
-    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
-        FROM props as a
-            JOIN Atom as c ON c.id=a.value
-            JOIN IDU as d ON d.id=c.id;
-
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM forks as a
-            JOIN IxInt as c ON c.i=a.id;
-    INTO IGNORE atoms SELECT c.id, d.base, c.no, c.ex
-        FROM props as a
-            JOIN BizPhrase as b ON b.id=a.phrase
-            JOIN Atom as c ON c.id=a.value
-            JOIN IDU as d ON d.id=c.id
-        WHERE b.type=BizPhraseType.atom;
-
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM forks as a
-            JOIN IxDec as c ON c.i=a.id;
-
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
-        FROM forks as a
-            JOIN IxStr as c ON c.i=a.id;
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, CAST(c.value as JSON) as value
-        FROM idtable as a
-            JOIN PhraseBuds as b ON b.phrase=a.phrase
-            JOIN IxDec as c ON c.i=a.id AND c.x=b.bud;
-    INTO IGNORE props SELECT c.i as id, c.x as phrase, JSON_QUOTE(c.value) as value
-        FROM idtable as a
-            JOIN PhraseBuds as b ON b.phrase=a.phrase
-            JOIN IxStr as c ON c.i=a.id AND c.x=b.bud;
-    */
+        FROM ForkIdTable as a;
 }
 
 Biz Query GetIDListCount(

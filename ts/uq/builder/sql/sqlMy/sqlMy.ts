@@ -200,6 +200,13 @@ export class MyFactory extends Factory {
     func_bs_curdate(sb: SqlBuilder): void {
         sb.dbName().dot().append('bs_curdate(_$site, _$user)');
     }
+    func_seedatom(sb: SqlBuilder, params: ExpVal[]): void {
+        sb.dbName().dot().append('seedatom(')
+            .var('$site')
+            .comma().var('$user')
+            .comma().exp(params[0])
+            .r();
+    }
 }
 
 class Declare extends stat.Declare {

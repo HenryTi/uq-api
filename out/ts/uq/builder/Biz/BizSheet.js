@@ -254,7 +254,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         if (idBuds.length === 0)
             return;
         const expId = new sql_1.ExpField('value', b);
-        const buildFrom = (select) => {
+        function buildFrom(select) {
             let expX = new sql_1.ExpField('x', b);
             let expXEqu = idBuds.length === 1 ?
                 new sql_1.ExpEQ(expX, new sql_1.ExpNum(idBuds[0].id))
@@ -263,8 +263,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             select.from(new statementWithFrom_1.VarTable('bin', a))
                 .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, b))
                 .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), expXEqu));
-        };
-        let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, true, buildFrom);
+        }
+        let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, false, buildFrom);
         /*
         const { factory } = this.context;
         const insert = factory.createInsert();
@@ -300,9 +300,9 @@ class BBizSheet extends BizEntity_1.BBizEntity {
     }
     buildInsertIdTableIX(ix, tbl) {
         const expId = new sql_1.ExpField(ix.name, a);
-        const buildFrom = (select) => {
+        function buildFrom(select) {
             select.from(new statementWithFrom_1.VarTable(tbl, a));
-        };
+        }
         let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, true, buildFrom);
         /*
         const { factory } = this.context;

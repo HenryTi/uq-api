@@ -107,6 +107,7 @@ export class MsFactory extends Factory {
     func_bizmonthid(sb: SqlBuilder, params: ExpVal[]): void { return; }
     func_bizyearid(sb: SqlBuilder, params: ExpVal[]): void { return; }
     func_abs = 'ABS';
+    func_seedatom(sb: SqlBuilder, params: ExpVal[]): void { return; }
 }
 
 export class MsTable extends Table {

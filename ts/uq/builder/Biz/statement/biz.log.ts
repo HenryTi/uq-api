@@ -1,41 +1,23 @@
 import { BizLog, LogArray, LogObject, LogScalar, LogType, LogValue } from "../../../il";
 import { BStatement, Sqls } from "../../bstatement";
-import { ExpAtVar, ExpFunc, ExpStr, ExpVal } from "../../sql";
+import { ExpAtVar, ExpFunc, ExpFuncCustom, ExpNum, ExpStr, ExpVal } from "../../sql";
 
 export class BBizLog extends BStatement<BizLog> {
     override body(sqls: Sqls): void {
-        const { factory, userParam } = this.context;
-        let { no, val } = this.istatement;
-        /*
-        let declare = factory.createDeclare();
-        sqls.push(declare);
-        let logId = 'logid_' + no;
-        declare.vars(bigIntField(logId));
-        let setId = factory.createSet();
-        sqls.push(setId);
-        const varSite = new ExpVar('$site');
-        setId.equ(logId, new ExpFuncInUq('log$id', [varSite, new ExpVar(userParam.name), ExpNum.num1, ExpNull.null, varSite], true));
-
-        const update = factory.createUpdate();
-        sqls.push(update);
-        update.table = new EntityTable(EnumSysTable.log, false);
-        let valJson = new ExpFunc(
-            'JSON_EXTRACT',
-            new ExpFunc('JSON_ARRAY', this.buildValue(val)),
-            new ExpStr('$[0]'),
-        );
-        update.cols.push(
-            { col: 'value', val: valJson },
-        );
-        update.where = new ExpEQ(new ExpField('id'), new ExpVar(logId));
-        */
+        const { factory } = this.context;
+        let { val } = this.istatement;
         let setLog = factory.createSet();
         sqls.push(setLog);
         setLog.isAtVar = true;
         let valJson = new ExpFunc(
-            'JSON_EXTRACT',
-            new ExpFunc('JSON_ARRAY', this.buildValue(val)),
-            new ExpStr('$[0]'),
+            'JSON_OBJECT',
+            new ExpStr('stamp'), new ExpFuncCustom(factory.func_unix_timestamp, new ExpFunc('current_timestamp', ExpNum.num3)),
+            new ExpStr('log'),
+            new ExpFunc(
+                'JSON_EXTRACT',
+                new ExpFunc('JSON_ARRAY', this.buildValue(val)),
+                new ExpStr('$[0]'),
+            )
         );
         setLog.equ('loginact', new ExpFunc('JSON_ARRAY_APPEND', new ExpAtVar('loginact'), new ExpStr('$'), valJson));
     }
@@ -57,9 +39,10 @@ export class BBizLog extends BStatement<BizLog> {
     }
 
     private buildObject(val: LogObject): ExpVal {
+        const { factory } = this.context;
         let params: ExpVal[] = [];
         for (let i in val) {
-            params.push(new ExpStr(i), this.buildValue(val[i]));
+            params.push(new ExpStr(i), new ExpFunc(factory.func_ifnull, this.buildValue(val[i]), new ExpStr('null')));
         }
         return new ExpFunc('JSON_OBJECT', ...params);
     }

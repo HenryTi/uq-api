@@ -104,6 +104,7 @@ class MsFactory extends factory_1.Factory {
     func_bizdate(sb) { return; }
     func_bizmonthid(sb, params) { return; }
     func_bizyearid(sb, params) { return; }
+    func_seedatom(sb, params) { return; }
 }
 exports.MsFactory = MsFactory;
 class MsTable extends table_1.Table {
