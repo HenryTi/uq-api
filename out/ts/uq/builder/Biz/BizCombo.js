@@ -137,11 +137,11 @@ class BBizCombo extends BizEntity_1.BBizEntity {
     }
     buildInsertKey(key) {
         const expId = new sql_1.ExpField(String(key.id), a);
-        function buildFrom(select) {
+        const buildFrom = (select) => {
             select.from(new statementWithFrom_1.GlobalSiteTable(this.context.site, this.bizEntity.id, a))
                 .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)));
-        }
+        };
         let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, false, buildFrom);
         /*
         const { factory } = this.context;

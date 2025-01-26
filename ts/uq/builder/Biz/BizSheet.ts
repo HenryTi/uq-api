@@ -300,7 +300,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     private buildInsertIdTableBuds(statements: Statement[], idBuds: BizBudID[]) {
         if (idBuds.length === 0) return;
         const expId = new ExpField('value', b);
-        function buildFrom(select: Select): void {
+        const buildFrom = (select: Select): void => {
             let expX = new ExpField('x', b);
             let expXEqu: ExpCmp = idBuds.length === 1 ?
                 new ExpEQ(expX, new ExpNum(idBuds[0].id))
@@ -350,7 +350,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
     private buildInsertIdTableIX(ix: BizBud, tbl: string) {
         const expId = new ExpField(ix.name, a);
-        function buildFrom(select: Select): void {
+        const buildFrom = (select: Select): void => {
             select.from(new VarTable(tbl, a));
         }
         let insert = buildInsertIdTable(this.context, expId, true, buildFrom);

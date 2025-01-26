@@ -145,7 +145,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
 
     private buildInsertKey(key: BizBud) {
         const expId = new ExpField(String(key.id), a);
-        function buildFrom(select: Select): void {
+        const buildFrom = (select: Select): void => {
             select.from(new GlobalSiteTable(this.context.site, this.bizEntity.id, a))
                 .join(JoinType.join, new VarTable('$page', b))
                 .on(new ExpEQ(new ExpField('i', b), new ExpField('id', a)))
