@@ -12,10 +12,7 @@ FUNC RootPhrase(
 
 FUNC SeedAtom(fork ID)
 RETURNS ID {
-    VAR seed ID = a.seed FROM IDU as a WHERE a.id=fork;
-    IF seed IS NULL or seed=0 {
-        SET seed=fork;
-    }
+    VAR seed ID = IFNULL(a.seed, a.id) FROM IDU as a WHERE a.id=fork;
     RETURN seed;
 }
 

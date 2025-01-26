@@ -39,6 +39,7 @@ exports.functions = {
     ascii: 1,
     date_format: 2,
     timediff: 2,
+    current_timestamp: [0, 1],
     abs: 1,
     floor: 1,
     ceiling: 1,

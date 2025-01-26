@@ -1,5 +1,3 @@
-import { ceil } from "lodash";
-
 export const functions: { [name: string]: number | [number, number] } = {
     concat: -1,
     concat_ws: -1,
@@ -38,6 +36,7 @@ export const functions: { [name: string]: number | [number, number] } = {
     ascii: 1,
     date_format: 2,
     timediff: 2,
+    current_timestamp: [0, 1],
 
     abs: 1,
     floor: 1,
