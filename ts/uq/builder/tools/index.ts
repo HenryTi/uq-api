@@ -4,3 +4,4 @@ export * from "./buildSelectBinBud";
 export * from "./BBudSelect";
 export * from "./BizExp";
 export * from "./buildSelectIxBuds";
+export * from "./buildInsertIdTable";

@@ -13,6 +13,7 @@ exports.BBizCombo = void 0;
 const il_1 = require("../../il");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const tools_1 = require("../tools");
 const BizEntity_1 = require("./BizEntity");
 const a = 'a', b = 'b', c = 'c';
 class BBizCombo extends BizEntity_1.BBizEntity {
@@ -135,28 +136,37 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         return insert;
     }
     buildInsertKey(key) {
+        const expId = new sql_1.ExpField(String(key.id), a);
+        function buildFrom(select) {
+            select.from(new statementWithFrom_1.GlobalSiteTable(this.context.site, this.bizEntity.id, a))
+                .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)));
+        }
+        let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, false, buildFrom);
+        /*
         const { factory } = this.context;
         const insert = factory.createInsert();
         insert.ignore = true;
-        insert.table = new statementWithFrom_1.VarTable('idtable');
+        insert.table = new VarTable('idtable');
         insert.cols = [
             { col: 'id', val: undefined },
             { col: 'phrase', val: undefined },
             { col: 'seed', val: undefined },
             { col: 'show', val: undefined },
-        ];
-        const expId = new sql_1.ExpField(String(key.id), a);
+        ]
+        const expId = new ExpField(String(key.id), a);
         const select = factory.createSelect();
         insert.select = select;
         select.column(expId, 'id');
-        select.column(new sql_1.ExpField('base', c), 'phrase');
-        select.column(sql_1.ExpNum.num0, 'seed');
-        select.column(sql_1.ExpNum.num0, 'show');
-        select.from(new statementWithFrom_1.GlobalSiteTable(this.context.site, this.bizEntity.id, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), expId));
+        select.column(new ExpField('base', c), 'phrase');
+        select.column(ExpNum.num0, 'seed');
+        select.column(ExpNum.num0, 'show');
+        select.from(new GlobalSiteTable(this.context.site, this.bizEntity.id, a))
+            .join(JoinType.join, new VarTable('$page', b))
+            .on(new ExpEQ(new ExpField('i', b), new ExpField('id', a)))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+            .on(new ExpEQ(new ExpField('id', c), expId));
+        */
         return insert;
     }
 }

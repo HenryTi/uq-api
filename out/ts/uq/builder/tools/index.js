@@ -20,4 +20,5 @@ __exportStar(require("./buildSelectBinBud"), exports);
 __exportStar(require("./BBudSelect"), exports);
 __exportStar(require("./BizExp"), exports);
 __exportStar(require("./buildSelectIxBuds"), exports);
+__exportStar(require("./buildInsertIdTable"), exports);
 //# sourceMappingURL=index.js.map

@@ -11,9 +11,10 @@ import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Sqls } from "../bstatement";
 import { $site } from "../consts";
 import {
-    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpStr, ExpVal, ExpVar, Procedure, Statement
+    ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpNum, ExpStr, ExpVal, ExpVar, Procedure, Select, Statement
 } from "../sql";
 import { EntityTable, VarTable } from "../sql/statementWithFrom";
+import { buildInsertIdTable } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
 const a = 'a';
@@ -80,7 +81,51 @@ export class BBizPend extends BBizEntity<BizPend> {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
+        this.buildAtoms(statements);
         this.buildGetBinProps(statements);
+    }
+
+    private buildAtoms(statements: Statement[]) {
+        const expId = new ExpField('i', a);
+        let insert = buildInsertIdTable(this.context, expId, true, (select: Select): void => {
+            select.from(new VarTable('$page', a))
+        });
+        statements.push(insert);
+        this.bizEntity.forEachBud(bud => {
+            switch (bud.dataType) {
+                default: return;
+                case BudDataType.atom:
+                case BudDataType.ID:
+                    break;
+            }
+            const expId = new ExpFunc('JSON_VALUE', new ExpField('mid', a), new ExpStr(`$."${bud.id}"`));
+            let insert = buildInsertIdTable(this.context, expId, false, (select: Select): void => {
+                select.from(new VarTable('$page', a))
+            });
+            statements.push(insert);
+        })
+        /*
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new VarTable('idtable');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        select.col('id', undefined, b);
+        select.col('base', 'phrase', b);
+        select.col('seed', undefined, b);
+        select.column(ExpNum.num1, 'show');
+        select.from(new VarTable('$page', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('i', a)));
+        */
     }
 
     private buildGetBinProps(statements: Statement[]) {

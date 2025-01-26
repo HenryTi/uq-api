@@ -16,6 +16,7 @@ const bstatement_1 = require("../bstatement");
 const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const tools_1 = require("../tools");
 const BizEntity_1 = require("./BizEntity");
 const a = 'a';
 const b = 'b';
@@ -77,7 +78,50 @@ class BBizPend extends BizEntity_1.BBizEntity {
         sqls.head(queryStatements);
         sqls.body(queryStatements);
         sqls.foot(queryStatements);
+        this.buildAtoms(statements);
         this.buildGetBinProps(statements);
+    }
+    buildAtoms(statements) {
+        const expId = new sql_1.ExpField('i', a);
+        let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, true, (select) => {
+            select.from(new statementWithFrom_1.VarTable('$page', a));
+        });
+        statements.push(insert);
+        this.bizEntity.forEachBud(bud => {
+            switch (bud.dataType) {
+                default: return;
+                case BizPhraseType_1.BudDataType.atom:
+                case BizPhraseType_1.BudDataType.ID:
+                    break;
+            }
+            const expId = new sql_1.ExpFunc('JSON_VALUE', new sql_1.ExpField('mid', a), new sql_1.ExpStr(`$."${bud.id}"`));
+            let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, false, (select) => {
+                select.from(new statementWithFrom_1.VarTable('$page', a));
+            });
+            statements.push(insert);
+        });
+        /*
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new VarTable('idtable');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'phrase', val: undefined },
+            { col: 'seed', val: undefined },
+            { col: 'show', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        select.col('id', undefined, b);
+        select.col('base', 'phrase', b);
+        select.col('seed', undefined, b);
+        select.column(ExpNum.num1, 'show');
+        select.from(new VarTable('$page', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('i', a)));
+        */
     }
     buildGetBinProps(statements) {
         this.bizEntity.forEachBud(v => this.buildBinBud(statements, '$page', v));

@@ -17,6 +17,7 @@ const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
+const tools_1 = require("../tools");
 // import { buildIdPhraseTable, buildInsertSelectIdPhrase, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../tools";
 const BizEntity_1 = require("./BizEntity");
 const sheetId = 'sheet';
@@ -252,6 +253,19 @@ class BBizSheet extends BizEntity_1.BBizEntity {
     buildInsertIdTableBuds(statements, idBuds) {
         if (idBuds.length === 0)
             return;
+        const expId = new sql_1.ExpField('value', b);
+        function buildFrom(select) {
+            let expX = new sql_1.ExpField('x', b);
+            let expXEqu = idBuds.length === 1 ?
+                new sql_1.ExpEQ(expX, new sql_1.ExpNum(idBuds[0].id))
+                :
+                    new sql_1.ExpIn(expX, ...(idBuds.map(v => new sql_1.ExpNum(v.id))));
+            select.from(new statementWithFrom_1.VarTable('bin', a))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, b))
+                .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), expXEqu));
+        }
+        let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, true, buildFrom);
+        /*
         const { factory } = this.context;
         const insert = factory.createInsert();
         insert.cols = [
@@ -261,26 +275,36 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             { col: 'show', val: undefined },
         ];
         insert.ignore = true;
-        insert.table = new statementWithFrom_1.VarTable('idtable');
+        insert.table = new VarTable('idtable');
         const select = factory.createSelect();
         insert.select = select;
         select.col('id', undefined, c);
         select.col('base', 'phrase', c);
         select.col('seed', undefined, c);
-        select.column(sql_1.ExpNum.num1, 'show');
-        let expX = new sql_1.ExpField('x', b);
-        let expXEqu = idBuds.length === 1 ?
-            new sql_1.ExpEQ(expX, new sql_1.ExpNum(idBuds[0].id))
+        select.column(ExpNum.num1, 'show');
+        let expX = new ExpField('x', b);
+        let expXEqu: ExpCmp = idBuds.length === 1 ?
+            new ExpEQ(expX, new ExpNum(idBuds[0].id))
             :
-                new sql_1.ExpIn(expX, ...(idBuds.map(v => new sql_1.ExpNum(v.id))));
-        select.from(new statementWithFrom_1.VarTable('bin', a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixInt, false, b))
-            .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), new sql_1.ExpField('id', a)), expXEqu))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, c))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), new sql_1.ExpField('value', b)));
+            new ExpIn(expX, ...(idBuds.map(v => new ExpNum(v.id))));
+        select.from(new VarTable('bin', a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.ixInt, false, b))
+            .on(new ExpAnd(
+                new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
+                expXEqu
+            ))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('value', b)));
+        */
         statements.push(insert);
     }
     buildInsertIdTableIX(ix, tbl) {
+        const expId = new sql_1.ExpField(ix.name, a);
+        function buildFrom(select) {
+            select.from(new statementWithFrom_1.VarTable(tbl, a));
+        }
+        let insert = (0, tools_1.buildInsertIdTable)(this.context, expId, true, buildFrom);
+        /*
         const { factory } = this.context;
         const insert = factory.createInsert();
         insert.cols = [
@@ -290,16 +314,17 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             { col: 'show', val: undefined },
         ];
         insert.ignore = true;
-        insert.table = new statementWithFrom_1.VarTable('idtable');
+        insert.table = new VarTable('idtable');
         const select = factory.createSelect();
         insert.select = select;
         select.col('id', undefined, b);
         select.col('base', 'phrase', b);
         select.col('seed', undefined, b);
-        select.column(sql_1.ExpNum.num1, 'show');
-        select.from(new statementWithFrom_1.VarTable(tbl, a))
-            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, b))
-            .on(new sql_1.ExpEQ(new sql_1.ExpField(ix.name, a), new sql_1.ExpField('id', b)));
+        select.column(ExpNum.num1, 'show');
+        select.from(new VarTable(tbl, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
+            .on(new ExpEQ(new ExpField(ix.name, a), new ExpField('id', b)));
+        */
         return insert;
     }
     buildGetProps(statements) {

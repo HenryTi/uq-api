@@ -1,9 +1,11 @@
 import { BigInt, BizBud, BizCombo, EnumSysTable, Index, JoinType, bigIntField, tinyIntField } from "../../il";
 import {
     ExpAnd, ExpDatePart, ExpEQ, ExpField, ExpFuncCustom, ExpFuncDb
-    , ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure
+    , ExpIsNull, ExpNE, ExpNull, ExpNum, ExpSelect, ExpStr, ExpVar, Procedure,
+    Select
 } from "../sql";
 import { EntityTable, GlobalSiteTable, VarTable } from "../sql/statementWithFrom";
+import { buildInsertIdTable } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
 const a = 'a', b = 'b', c = 'c';
@@ -142,6 +144,14 @@ export class BBizCombo extends BBizEntity<BizCombo> {
     }
 
     private buildInsertKey(key: BizBud) {
+        const expId = new ExpField(String(key.id), a);
+        function buildFrom(select: Select): void {
+            select.from(new GlobalSiteTable(this.context.site, this.bizEntity.id, a))
+                .join(JoinType.join, new VarTable('$page', b))
+                .on(new ExpEQ(new ExpField('i', b), new ExpField('id', a)))
+        }
+        let insert = buildInsertIdTable(this.context, expId, false, buildFrom);
+        /*
         const { factory } = this.context;
         const insert = factory.createInsert();
         insert.ignore = true;
@@ -164,6 +174,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
             .on(new ExpEQ(new ExpField('i', b), new ExpField('id', a)))
             .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
             .on(new ExpEQ(new ExpField('id', c), expId));
+        */
         return insert;
     }
 }

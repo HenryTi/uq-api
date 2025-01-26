@@ -15,6 +15,7 @@ import {
 import { LockType, Select, SelectTable } from "../sql/select";
 import { userParamName } from "../sql/sqlBuilder";
 import { EntityTable, NameTable, Table, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
+import { buildInsertIdTable } from "../tools";
 // import { buildIdPhraseTable, buildInsertSelectIdPhrase, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
@@ -298,6 +299,22 @@ export class BBizSheet extends BBizEntity<BizSheet> {
 
     private buildInsertIdTableBuds(statements: Statement[], idBuds: BizBudID[]) {
         if (idBuds.length === 0) return;
+        const expId = new ExpField('value', b);
+        function buildFrom(select: Select): void {
+            let expX = new ExpField('x', b);
+            let expXEqu: ExpCmp = idBuds.length === 1 ?
+                new ExpEQ(expX, new ExpNum(idBuds[0].id))
+                :
+                new ExpIn(expX, ...(idBuds.map(v => new ExpNum(v.id))));
+            select.from(new VarTable('bin', a))
+                .join(JoinType.join, new EntityTable(EnumSysTable.ixInt, false, b))
+                .on(new ExpAnd(
+                    new ExpEQ(new ExpField('i', b), new ExpField('id', a)),
+                    expXEqu
+                ))
+        }
+        let insert = buildInsertIdTable(this.context, expId, true, buildFrom);
+        /*
         const { factory } = this.context;
         const insert = factory.createInsert();
         insert.cols = [
@@ -327,10 +344,17 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             ))
             .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, c))
             .on(new ExpEQ(new ExpField('id', c), new ExpField('value', b)));
+        */
         statements.push(insert);
     }
 
     private buildInsertIdTableIX(ix: BizBud, tbl: string) {
+        const expId = new ExpField(ix.name, a);
+        function buildFrom(select: Select): void {
+            select.from(new VarTable(tbl, a));
+        }
+        let insert = buildInsertIdTable(this.context, expId, true, buildFrom);
+        /*
         const { factory } = this.context;
         const insert = factory.createInsert();
         insert.cols = [
@@ -350,6 +374,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         select.from(new VarTable(tbl, a))
             .join(JoinType.join, new EntityTable(EnumSysTable.idu, false, b))
             .on(new ExpEQ(new ExpField(ix.name, a), new ExpField('id', b)));
+        */
         return insert;
     }
 
