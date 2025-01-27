@@ -571,7 +571,7 @@ Biz AC DeleteBin (
     }
 }
 
-Biz AC SubmitSheet ver 0.4 (
+Biz AC SubmitSheet ver 0.5 (
     id ID,
 ) 
 RETURNS checkPend (
@@ -590,9 +590,9 @@ RETURNS checkBin (
     IF phraseId IS NULL {
         RETURN;
     }
-    SET @loginact=JSON_ARRAY();
     SET @logstamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));
     SET @loglaststamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));
+    SET @loginact=JSON_ARRAY();
     SET @checkPend=JSON_ARRAY();
     SET @checkBin=JSON_ARRAY();
     TRANS OFF;
@@ -652,6 +652,8 @@ RETURNS checkBin (
     IF phraseId IS NULL {
         RETURN;
     }
+    SET @logstamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));
+    SET @loglaststamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));
     SET @loginact=JSON_ARRAY();
     SET @checkPend=JSON_ARRAY();
     SET @checkBin=JSON_ARRAY();
