@@ -12,15 +12,20 @@ class BBizLog extends bstatement_1.BStatement {
         sqls.push(setCurrentTime);
         setCurrentTime.isAtVar = true;
         setCurrentTime.equ('logcurstamp', new sql_1.ExpFuncCustom(factory.func_unix_timestamp, new sql_1.ExpFunc('current_timestamp', sql_1.ExpNum.num3)));
-        let expStamp = new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpMul(new sql_1.ExpNum(1000), new sql_1.ExpSub(new sql_1.ExpAtVar('logcurstamp'), new sql_1.ExpAtVar('logstamp'))), new sql_1.ExpDatePart('signed'));
+        const exp1000 = new sql_1.ExpNum(1000);
+        const expCurStamp = new sql_1.ExpAtVar('logcurstamp');
+        const expSigned = new sql_1.ExpDatePart('signed');
+        const logLastStamp = 'loglaststamp';
+        const logstamp = 'logstamp';
+        let expMs = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpMul(exp1000, new sql_1.ExpSub(expCurStamp, new sql_1.ExpAtVar(logLastStamp))), expSigned), new sql_1.ExpStr(' # '), new sql_1.ExpFuncCustom(factory.func_cast, new sql_1.ExpMul(exp1000, new sql_1.ExpSub(expCurStamp, new sql_1.ExpAtVar(logstamp))), expSigned));
         let setLog = factory.createSet();
         sqls.push(setLog);
         setLog.isAtVar = true;
-        let valJson = new sql_1.ExpFunc('JSON_OBJECT', new sql_1.ExpStr('ms'), expStamp, new sql_1.ExpStr('stamp'), new sql_1.ExpAtVar('logcurstamp'), new sql_1.ExpStr('log'), new sql_1.ExpFunc('JSON_EXTRACT', new sql_1.ExpFunc('JSON_ARRAY', this.buildValue(val)), new sql_1.ExpStr('$[0]')));
+        let valJson = new sql_1.ExpFunc('JSON_OBJECT', new sql_1.ExpStr('ms'), expMs, new sql_1.ExpStr('stamp'), expCurStamp, new sql_1.ExpStr('log'), new sql_1.ExpFunc('JSON_EXTRACT', new sql_1.ExpFunc('JSON_ARRAY', this.buildValue(val)), new sql_1.ExpStr('$[0]')));
         let setStamp = factory.createSet();
         sqls.push(setStamp);
         setStamp.isAtVar = true;
-        setStamp.equ('logstamp', new sql_1.ExpAtVar('logcurstamp'));
+        setStamp.equ(logLastStamp, expCurStamp);
         setLog.equ('loginact', new sql_1.ExpFunc('JSON_ARRAY_APPEND', new sql_1.ExpAtVar('loginact'), new sql_1.ExpStr('$'), valJson));
     }
     buildValue({ type, value }) {

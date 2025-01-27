@@ -592,6 +592,7 @@ RETURNS checkBin (
     }
     SET @loginact=JSON_ARRAY();
     SET @logstamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));
+    SET @loglaststamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));
     SET @checkPend=JSON_ARRAY();
     SET @checkBin=JSON_ARRAY();
     TRANS OFF;

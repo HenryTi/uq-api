@@ -10,20 +10,29 @@ export class BBizLog extends BStatement<BizLog> {
         sqls.push(setCurrentTime);
         setCurrentTime.isAtVar = true;
         setCurrentTime.equ('logcurstamp', new ExpFuncCustom(factory.func_unix_timestamp, new ExpFunc('current_timestamp', ExpNum.num3)));
-        let expStamp = new ExpFuncCustom(factory.func_cast,
-            new ExpMul(
-                new ExpNum(1000),
-                new ExpSub(new ExpAtVar('logcurstamp'), new ExpAtVar('logstamp'))
+        const exp1000 = new ExpNum(1000);
+        const expCurStamp = new ExpAtVar('logcurstamp');
+        const expSigned = new ExpDatePart('signed');
+        const logLastStamp = 'loglaststamp';
+        const logstamp = 'logstamp';
+        let expMs = new ExpFunc(factory.func_concat,
+            new ExpFuncCustom(factory.func_cast,
+                new ExpMul(exp1000, new ExpSub(expCurStamp, new ExpAtVar(logLastStamp))),
+                expSigned
             ),
-            new ExpDatePart('signed')
+            new ExpStr(' # '),
+            new ExpFuncCustom(factory.func_cast,
+                new ExpMul(exp1000, new ExpSub(expCurStamp, new ExpAtVar(logstamp))),
+                expSigned
+            ),
         );
         let setLog = factory.createSet();
         sqls.push(setLog);
         setLog.isAtVar = true;
         let valJson = new ExpFunc(
             'JSON_OBJECT',
-            new ExpStr('ms'), expStamp,
-            new ExpStr('stamp'), new ExpAtVar('logcurstamp'),
+            new ExpStr('ms'), expMs,
+            new ExpStr('stamp'), expCurStamp,
             new ExpStr('log'),
             new ExpFunc(
                 'JSON_EXTRACT',
@@ -34,7 +43,7 @@ export class BBizLog extends BStatement<BizLog> {
         let setStamp = factory.createSet();
         sqls.push(setStamp);
         setStamp.isAtVar = true;
-        setStamp.equ('logstamp', new ExpAtVar('logcurstamp'));
+        setStamp.equ(logLastStamp, expCurStamp);
         setLog.equ('loginact', new ExpFunc('JSON_ARRAY_APPEND', new ExpAtVar('loginact'), new ExpStr('$'), valJson));
     }
 
