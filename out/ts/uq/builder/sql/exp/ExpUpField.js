@@ -13,7 +13,7 @@ class ExpUpField extends Exp_1.Exp {
 class ExpBinUpField extends ExpUpField {
     to(sb) {
         sb.append('(SELECT ').fld(this.upField).append(' FROM ').dbName().dot().fld(il_1.EnumSysTable.bizSheet)
-            .append(' WHERE id=').fld(this.tblAlias).dot().fld('sheet)');
+            .append(' WHERE id=').fld(this.tblAlias).dot().fld('sheet').r();
     }
 }
 exports.ExpBinUpField = ExpBinUpField;
