@@ -52,7 +52,7 @@ class BBizReport extends BizEntity_1.BBizEntity {
         statements.push(setTimeZone);
         const selectTimeZone = factory.createSelect();
         selectTimeZone.col('timezone');
-        selectTimeZone.from(new statementWithFrom_1.EntityTable('$site', false));
+        selectTimeZone.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.site, false));
         selectTimeZone.where(new sql_1.ExpEQ(new sql_1.ExpField('id'), varSite));
         setTimeZone.equ(timeZone, new sql_1.ExpSelect(selectTimeZone));
         const setS0 = factory.createSet();
