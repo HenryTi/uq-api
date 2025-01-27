@@ -147,14 +147,14 @@ RETURNS forks VIRTUAL (
 )
 {
     TABLE ForkIdTable (KEY id ID,phrase ID,seed ID,show TINYINT);       -- 1: add showBuds
-    INTO ForkIdTable 
+    INTO IGNORE ForkIdTable 
         SELECT a.id, a.phrase, a.seed, a.show FROM IdTable as a 
         WHERE a.seed>0;
-    INTO IdTable SELECT b.id, b.base as phrase, b.seed, a.show
+    INTO IGNORE IdTable SELECT b.id, b.base as phrase, b.seed, a.show
         FROM ForkIdTable as a JOIN IDU as b ON b.id=a.seed;
 
     TABLE PhraseBuds(KEY phrase BIGINT, KEY bud BIGINT);
-    INTO PhraseBuds WITH RECURSIVE pPhrase AS (
+    INTO IGNORE PhraseBuds WITH RECURSIVE pPhrase AS (
         SELECT s.phrase, r.x as id, r.i as base
         FROM idtable as s
             JOIN IxPhrase as r ON r.x=s.phrase

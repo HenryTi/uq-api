@@ -15,8 +15,8 @@ class PBiz extends entity_1.PEntity {
             fork: il_1.BizFork,
             // duo: BizDuo,            // 取消，不再使用。用 BizCombo 替代
             combo: il_1.BizCombo,
-            title: il_1.BizTitle,
-            book: il_1.BizTitle,
+            title: il_1.BizBook,
+            book: il_1.BizBook,
             options: il_1.BizOptions,
             assign: il_1.BizAssign,
             // permit: BizPermit,   不再需要permit，直接简单用role

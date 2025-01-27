@@ -474,7 +474,7 @@ RETURNS forks (
             WITH BinPend as a ID=id SET a.pendFrom=pendFrom;
         }
         PROC SaveBinBuds(id, props);
-        INTO idtable SELECT id, phrase, -1 as seed, 0 as show;
+        INTO IGNORE idtable SELECT id, phrase, -1 as seed, 0 as show;
     }
 
     INTO main SELECT * a, * b, a.base as phrase
@@ -864,9 +864,13 @@ RETURNS forks (
         LIMIT $pageSize;
 
     TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
-    INTO idtable SELECT a.id, entityMain as phrase, -1 as seed, 0 as show FROM $page as a;
+    INTO IGNORE idtable SELECT a.id, entityMain as phrase, -1 as seed, 0 as show FROM $page as a;
+    INTO IGNORE idtable SELECT b.id, b.base as phrase, b.seed, 0 as show
+        FROM $page as a JOIN IDU as b ON b.id=a.i;
+    INTO IGNORE idtable SELECT b.id, b.base as phrase, b.seed, 0 as show
+        FROM $page as a JOIN IDU as b ON b.id=a.x;
     /*
-    INTO idtable SELECT c.value as id, d.base as phrase
+    INTO IGNORE idtable SELECT c.value as id, d.base as phrase
         FROM $page as a
             JOIN BizBudShow as b ON b.i=entityMain
             JOIN IxInt as c ON c.i=a.id AND c.x=b.x

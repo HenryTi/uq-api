@@ -1,17 +1,21 @@
-import { PBizTitle, PContext, PElement } from "../../parser";
+import { PBizBook, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
 import { BizPhraseType } from "./BizPhraseType";
-import { BizNotID } from "./Entity";
+import { BizID, BizNotID } from "./Entity";
 
-export class BizTitle extends BizNotID {
+export class BizBook extends BizNotID {
     readonly bizPhraseType = BizPhraseType.book;
+    i: BizID;
 
     parser(context: PContext): PElement<IElement> {
-        return new PBizTitle(this, context);
+        return new PBizBook(this, context);
     }
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        return { ...ret, };
+        if (this.i !== undefined) {
+            ret.i = this.i.id;
+        }
+        return ret;
     }
 }

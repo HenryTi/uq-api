@@ -1,21 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizTitle = void 0;
+exports.BizBook = void 0;
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
-class BizTitle extends Entity_1.BizNotID {
+class BizBook extends Entity_1.BizNotID {
     constructor() {
         super(...arguments);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.book;
     }
     parser(context) {
-        return new parser_1.PBizTitle(this, context);
+        return new parser_1.PBizBook(this, context);
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        return Object.assign({}, ret);
+        if (this.i !== undefined) {
+            ret.i = this.i.id;
+        }
+        return ret;
     }
 }
-exports.BizTitle = BizTitle;
+exports.BizBook = BizBook;
 //# sourceMappingURL=Title.js.map

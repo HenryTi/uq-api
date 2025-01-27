@@ -1,7 +1,7 @@
 import { binFieldArr } from "../../consts";
 import {
     ValueExpression, BizExp, BizAtom
-    , BizFork, BizBin, BizTitle, BizExpParam, BizExpParamType, BizTie
+    , BizFork, BizBin, BizBook, BizExpParam, BizExpParamType, BizTie
     , BizCheckBudOperand, BizBudCheck, BizOptions
     , BizExpOperand,
     Uq,
@@ -355,7 +355,7 @@ export class PBizExp extends PElement<BizExp> {
     private scanBook(space: Space): boolean {
         let ok = true;
         const { bizEntity, prop } = this.element;
-        let title = bizEntity as BizTitle;
+        let title = bizEntity as BizBook;
         if (this.bud === undefined) {
             this.log(`TITLE ${title.getJName()} should follow .`);
             ok = false;

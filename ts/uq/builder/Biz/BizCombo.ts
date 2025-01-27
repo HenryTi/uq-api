@@ -127,7 +127,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         insert.table = new VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ]
         const { id: keyId } = key;
@@ -135,7 +135,7 @@ export class BBizCombo extends BBizEntity<BizCombo> {
         const select = factory.createSelect();
         insert.select = select;
         select.column(new ExpField('id', a), 'id');
-        select.column(new ExpNum(keyId), 'phrase');
+        select.column(new ExpNum(keyId), 'bud');
         select.column(new ExpFuncCustom(factory.func_cast, expValue, new ExpDatePart('JSON')), 'value');
         select.from(new GlobalSiteTable(this.context.site, this.bizEntity.id, a))
             .join(JoinType.join, new VarTable('$page', b))

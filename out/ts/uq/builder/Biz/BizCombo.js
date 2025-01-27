@@ -120,7 +120,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         insert.table = new statementWithFrom_1.VarTable('props');
         insert.cols = [
             { col: 'id', val: undefined },
-            { col: 'phrase', val: undefined },
+            { col: 'bud', val: undefined },
             { col: 'value', val: undefined },
         ];
         const { id: keyId } = key;
@@ -128,7 +128,7 @@ class BBizCombo extends BizEntity_1.BBizEntity {
         const select = factory.createSelect();
         insert.select = select;
         select.column(new sql_1.ExpField('id', a), 'id');
-        select.column(new sql_1.ExpNum(keyId), 'phrase');
+        select.column(new sql_1.ExpNum(keyId), 'bud');
         select.column(new sql_1.ExpFuncCustom(factory.func_cast, expValue, new sql_1.ExpDatePart('JSON')), 'value');
         select.from(new statementWithFrom_1.GlobalSiteTable(this.context.site, this.bizEntity.id, a))
             .join(il_1.JoinType.join, new statementWithFrom_1.VarTable('$page', b))

@@ -10,7 +10,7 @@ class PBizReport extends Base_1.PBizEntity {
         super(...arguments);
         this.titles = [];
         this.joins = [];
-        this.parseTitles = () => {
+        this.parseBooks = () => {
             if (this.titles.length > 0) {
                 this.ts.error(`Title can define only once in REPORT`);
             }
@@ -67,8 +67,8 @@ class PBizReport extends Base_1.PBizEntity {
             this.parsePermission('');
         };
         this.keyColl = {
-            title: this.parseTitles,
-            book: this.parseTitles,
+            title: this.parseBooks,
+            book: this.parseBooks,
             from: this.parseFrom,
             permit: this.parsePermit,
         };

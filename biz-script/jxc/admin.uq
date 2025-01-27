@@ -43,6 +43,7 @@ BIZ AC ClearPend() {
 }
 
 BIZ AC ClearBook(
+    i ID,
     bud ID,
 ) {
     VAR me ID = Me();
@@ -52,6 +53,7 @@ BIZ AC ClearBook(
         /-mysql
         -- 清零
         UPDATE ixdec as a
+            JOIN idu AS i ON a.i=i.id AND i.base=i
             JOIN bizphrase AS b ON b.id=a.x
             JOIN bizphrase AS c ON c.id=b.base
             SET a.value=0
@@ -61,7 +63,9 @@ BIZ AC ClearBook(
 }
 
 Biz Query GetAdminBook (
+    i ID,
     bud ID,
+    keys JSON,
     -- allowZero TINYINT,
 )
 PAGE (
@@ -92,14 +96,33 @@ RETURNS forks (
     IF NOT EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
         RETURN;
     }
-
+    VAR iType ID=a.type FROM BizPhrase as a WHERE a.id=i;
     VAR phrase ID=b.id FROM BizPhrase as a JOIN BizPhrase as b ON b.id=a.base WHERE a.id=bud;
-    PAGE SELECT a.i, b.base as phrase, a.value
-        FROM IxDec as a
-            LEFT JOIN Idu as b ON b.id=a.i
-        WHERE a.x=bud AND a.i>$pageStart AND a.value <> 0
-        ORDER BY a.i ASC
-        LIMIT $pageSize;
+    IF iType=BizPhraseType.atom {
+        PAGE SELECT a.i, b.base as phrase, a.value
+            FROM Idu as b 
+                JOIN IxDec as a ON b.id=a.i AND b.base=i AND a.x=bud
+            WHERE a.i>$pageStart AND a.value <> 0
+            ORDER BY a.i ASC
+            LIMIT $pageSize;
+    }
+    ELSEIF iType=BizPhraseType.combo {
+        PAGE SELECT a.i, b.base as phrase, a.value
+            FROM Idu as b 
+                JOIN IxDec as a ON b.id=a.i AND b.base=i AND a.x=bud
+            WHERE a.i>$pageStart AND a.value <> 0
+            ORDER BY a.i ASC
+            LIMIT $pageSize;
+    }
+    ELSEIF iType=BizPhraseType.fork {
+        PAGE SELECT a.i, b.base as phrase, a.value
+            FROM Idu as b 
+                JOIN IxDec as a ON b.id=a.i AND b.base=i and a.x=bud
+            WHERE a.i>$pageStart AND a.value <> 0
+            ORDER BY a.i ASC
+            LIMIT $pageSize;
+    }
+
     TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     FOR (VAR i ID, phrase ID, type SMALLINT
         OF SELECT a.i, a.phrase, b.type FROM $page as a JOIN bizphrase as b ON b.id=a.phrase) 
@@ -110,7 +133,7 @@ RETURNS forks (
             ExecSql sql;
         }
         ELSE {
-            INTO idtable SELECT i as id, phrase, 0 as seed, 0 as show;
+            INTO IGNORE idtable SELECT i as id, phrase, 0 as seed, 0 as show;
         }
     }
 

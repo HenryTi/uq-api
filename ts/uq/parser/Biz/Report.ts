@@ -1,4 +1,4 @@
-import { BizAtom, BizBudValue, BizCombo, BizFork, BizReport, BizTitle, ReportJoinType } from "../../il";
+import { BizAtom, BizBudValue, BizCombo, BizFork, BizReport, BizBook, ReportJoinType } from "../../il";
 import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
 import { Token } from "../tokens";
@@ -8,7 +8,7 @@ export class PBizReport extends PBizEntity<BizReport> {
     private readonly titles: { title: [string, string]; caption: string; }[] = [];
     private from: string;
     private joins: { type: ReportJoinType; entity: string; }[] = [];
-    private parseTitles = () => {
+    private parseBooks = () => {
         if (this.titles.length > 0) {
             this.ts.error(`Title can define only once in REPORT`);
         }
@@ -69,8 +69,8 @@ export class PBizReport extends PBizEntity<BizReport> {
     }
 
     readonly keyColl = {
-        title: this.parseTitles,
-        book: this.parseTitles,
+        title: this.parseBooks,
+        book: this.parseBooks,
         from: this.parseFrom,
         permit: this.parsePermit,
     };
@@ -90,7 +90,7 @@ export class PBizReport extends PBizEntity<BizReport> {
                     this.log(`${t0} is not a title`);
                 }
                 else {
-                    let title = entity as BizTitle;
+                    let title = entity as BizBook;
                     let bud = title.getBud(t1) as BizBudValue;
                     if (bud === undefined) {
                         ok = false;

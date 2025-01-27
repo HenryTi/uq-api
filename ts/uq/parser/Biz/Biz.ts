@@ -1,6 +1,6 @@
 import {
     Biz, BizAtom, BizRole, BizEntity
-    , BizTitle, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
+    , BizBook, Entity, Pointer, Table, Uq, BizTree, BizTie, BizBin
     , BizSheet, BizOptions, BizFork
     , BizReport, BizQueryTable, BizAssign, BizConsole, BizIn, BizOut, BizIOApp, BizIOSite,
     BizFromEntity,
@@ -28,8 +28,8 @@ export class PBiz extends PEntity<Biz> {
             // duo: BizDuo,            // 取消，不再使用。用 BizCombo 替代
             combo: BizCombo,
 
-            title: BizTitle,
-            book: BizTitle,
+            title: BizBook,
+            book: BizBook,
             options: BizOptions,
             assign: BizAssign,
 
