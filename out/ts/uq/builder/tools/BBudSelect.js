@@ -51,7 +51,7 @@ class BBudSelect {
                     .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)));
                 */
                 select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a))
-                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, c))
+                    .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, c))
                     .on(new exp_1.ExpEQ(new exp_1.ExpField('id', c), new exp_1.ExpField('sheet', a)));
                 break;
         }

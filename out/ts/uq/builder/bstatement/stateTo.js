@@ -84,7 +84,7 @@ class BuildStateToBase {
             { col: 'flow', val: new sql_1.ExpVar(this.vNewFlow) },
             { col: 'state', val: new sql_1.ExpSelect(stateIdSelect) },
         ];
-        updateFlow.table = this.context.sysTable(il_1.EnumSysTable.sheet);
+        updateFlow.table = this.context.sysTable(il_1.EnumSysTable.$sheet);
         updateFlow.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), this.idVal);
         if (archive === true) {
             let select = factory.createSelect();
@@ -101,11 +101,11 @@ class BuildStateToBase {
                 .column(new sql_1.ExpVar(this.vNewFlow))
                 .column(new sql_1.ExpField('discription'))
                 .column(new sql_1.ExpField('data'));
-            select.from(this.context.sysTable(il_1.EnumSysTable.sheet));
+            select.from(this.context.sysTable(il_1.EnumSysTable.$sheet));
             select.where(where);
             let del = factory.createDelete();
             sqls.push(del);
-            del.tables = [this.context.sysTable(il_1.EnumSysTable.sheet)];
+            del.tables = [this.context.sysTable(il_1.EnumSysTable.$sheet)];
             del.where(where);
             let whereSheet = new sql_1.ExpEQ(new sql_1.ExpField('sheet'), this.idVal);
             select = factory.createSelect();
@@ -165,7 +165,7 @@ class BuildSheetStateTo extends BuildStateToBase {
         sel.column(new sql_1.ExpAdd(new sql_1.ExpField('flow', ta), sql_1.ExpNum.num1), this.vNewFlow)
             .column(new sql_1.ExpField('name', tc), this.vState)
             .column(new sql_1.ExpField('name', tc), this.vPreState);
-        sel.from(this.context.sysTable(il_1.EnumSysTable.sheet, ta));
+        sel.from(this.context.sysTable(il_1.EnumSysTable.$sheet, ta));
         sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.flow, tb))
             .on(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('id', ta), new sql_1.ExpField('sheet', tb)), new sql_1.ExpEQ(new sql_1.ExpField('flow', ta), new sql_1.ExpField('flow', tb))));
         sel.join(il_1.JoinType.join, (0, dbContext_1.sysTable)(il_1.EnumSysTable.const, tc))

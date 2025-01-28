@@ -33,7 +33,7 @@ var EnumSysTable;
     EnumSysTable["ixCheck"] = "ixcheck";
     EnumSysTable["ixJson"] = "ixjson";
     EnumSysTable["bizBin"] = "bin";
-    EnumSysTable["bizSheet"] = "sheet";
+    EnumSysTable["sheet"] = "sheet";
     // bizDetail = 'detail',
     EnumSysTable["pend"] = "pend";
     EnumSysTable["binPend"] = "binpend";
@@ -51,7 +51,7 @@ var EnumSysTable;
     EnumSysTable["messageQueueFailed"] = "$message_queue_failed";
     // obsolete
     EnumSysTable["admin"] = "$admin";
-    EnumSysTable["sheet"] = "$sheet";
+    EnumSysTable["$sheet"] = "$sheet";
     EnumSysTable["sheetDetail"] = "$sheet_detail";
     EnumSysTable["sheetTo"] = "$sheet_to";
     EnumSysTable["archive"] = "$archive";

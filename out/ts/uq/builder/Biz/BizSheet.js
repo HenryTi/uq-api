@@ -437,7 +437,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
                 .on(new sql_1.ExpEQ(new sql_1.ExpField('id', t0), expId));
             expId = new sql_1.ExpField('sheet', t0);
         }
-        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, c))
+        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), expId));
     }
     buildBinProp(statements, tbl, binBud, bud, upMain) {

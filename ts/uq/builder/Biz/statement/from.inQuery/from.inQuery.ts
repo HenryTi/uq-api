@@ -10,12 +10,14 @@ import { Sqls } from "../../../bstatement";
 import { DbContext } from "../../../dbContext";
 import {
     ColVal, EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpGT, ExpIn,
-    ExpNum, ExpSelect, ExpVal, ExpVar, Select
+    ExpNum, ExpSelect, ExpVal, ExpVar, Select,
+    StatementBase
 } from "../../../sql";
 import { LockType } from "../../../sql/select";
 import { EntityTable, NameTable, VarTable } from "../../../sql/statementWithFrom";
 import { BFromStatement } from "../from";
 import { $idu } from "../biz.select";
+import { buildInsertIdTable } from "../../../tools";
 
 export const tblMain = 'main';
 export const tblDetail = 'detail';
@@ -86,7 +88,7 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
             bigIntField('id' + (ids.length - 1)),
             banField,
             valueField,
-            ...cols.map(v => { let f = charField(String(v.bud.id), 200); f.nullable = true; return f; }),
+            ...cols.map(v => v.bud.createField()),
         ];
         return varTable;
     }
@@ -473,6 +475,43 @@ export abstract class BFromStatementInQuery extends BFromStatement<FromStatement
     }
     protected buildRetSelectCols(arr: ExpVal[]) {
         arr.push(...this.buildSelectCols());
+    }
+
+    protected abstract get sheetTable(): string;
+
+    protected buildInsertSheetToProps(statements: StatementBase[]) {
+        const sheetTable = this.sheetTable;
+        if (sheetTable === undefined) return;
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new VarTable('props');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'bud', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(new ExpField('id', b));
+        select.column(ExpNum.num0);
+        select.column(new ExpFunc('JSON_ARRAY'
+            , new ExpField('base', b)
+            , new ExpField('no', b)
+            , new ExpField('operator', b)
+        ));
+        select.from(new VarTable(sheetTable, a))
+            .join(JoinType.join, new EntityTable(EnumSysTable.sheet, false, b))
+            .on(new ExpEQ(new ExpField('id', b), new ExpField('id0', a)));
+
+        const expId = new ExpField('operator', b)
+        const insertOperator = buildInsertIdTable(this.context, expId, false, (select) => {
+            select.from(new VarTable(sheetTable, a))
+                .join(JoinType.join, new EntityTable(EnumSysTable.sheet, false, b))
+                .on(new ExpEQ(new ExpField('id', b), new ExpField('id0', a)));
+        });
+        statements.push(insertOperator);
     }
 }
 

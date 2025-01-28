@@ -53,6 +53,7 @@ export class BizQueryTable extends BizQuery {
         let ret = (cols.findIndex(v => v.name === prop) >= 0);
         if (ret === true) return ret;
         if (prop === 'value' && value !== undefined) return true;
+
         return false;
     }
     db(dbContext: DbContext): BBizEntity {
@@ -60,7 +61,7 @@ export class BizQueryTable extends BizQuery {
     }
     override buildSchema(res: { [phrase: string]: string; }) {
         let ret = super.buildSchema(res);
-        const { ban, cols, subCols, fromEntity, ids, showIds/*, groupByBase*/ } = this.from;
+        const { ban, cols, mainCols, fromEntity, ids, showIds } = this.from;
         ret.ids = ids.map(v => ({
             ui: v.ui,
             alias: v.fromEntity.alias,
@@ -73,11 +74,6 @@ export class BizQueryTable extends BizQuery {
         if (ban !== undefined) {
             ret.ban = ban.caption ?? true;
         }
-        /*
-        if (groupByBase === true) {
-            ret.groupByBase = true;
-        }
-        */
         ret.params = this.params.map(v => v.buildSchema(res));
         let budCols = cols.filter(v => v.bud !== undefined);
         ret.cols = budCols.map(v => {
@@ -87,8 +83,8 @@ export class BizQueryTable extends BizQuery {
             if (hide === true) entityId = -entityId;
             return [entityId, bud.id];
         });
-        if (subCols !== undefined) {
-            ret.subCols = subCols.map(v => v.bud.id);
+        if (mainCols !== undefined) {
+            ret.mainCols = mainCols.map(v => v.bud.id);
         }
         ret.from = this.buildFromSchema(fromEntity);
         const { value } = this.from;

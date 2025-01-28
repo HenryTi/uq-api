@@ -57,7 +57,7 @@ class BFromInPendStatement extends from_1.BFromStatement {
             */
             .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, sheetBin))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheetBin), new sql_1.ExpField('sheet', b)))
-            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, sheet))
+            .join(il_1.JoinType.left, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, sheet))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', sheet), new sql_1.ExpField('id', sheetBin)));
         select.where(new sql_1.ExpEQ(new sql_1.ExpField('base', a), new sql_1.ExpNum(bizPend.id)), sql_1.EnumExpOP.and);
         let insert = factory.createInsert();

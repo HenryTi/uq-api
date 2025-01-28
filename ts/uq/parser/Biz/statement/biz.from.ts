@@ -30,9 +30,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                     this.ts.readToken();
                     break;
                 }
-                if (this.ts.isKeyword('sub') === true) {
+                if (this.ts.isKeyword('main') === true) {
                     this.ts.readToken();
-                    this.parseSubColumns();
+                    this.parseMainColumns();
                 }
                 else {
                     this.parseColumn();
@@ -46,9 +46,9 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
         }
     }
 
-    protected parseSubColumns() {
-        let { subCols } = this.element;
-        if (subCols === undefined) this.element.subCols = subCols = [];
+    protected parseMainColumns() {
+        let { mainCols } = this.element;
+        if (mainCols === undefined) this.element.mainCols = mainCols = [];
         this.ts.passToken(Token.LPARENTHESE);
         for (; ;) {
             if (this.ts.token === Token.RPARENTHESE as any) {
@@ -57,7 +57,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
             }
             let col = this.parseColumn();
             if (col !== undefined) {
-                subCols.push(col);
+                mainCols.push(col);
             }
             if (this.ts.token === Token.RPARENTHESE as any) {
                 this.ts.readToken();

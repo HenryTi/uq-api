@@ -31,7 +31,7 @@ export enum EnumSysTable {
     ixCheck = 'ixcheck',
     ixJson = 'ixjson',
     bizBin = 'bin',
-    bizSheet = 'sheet',
+    sheet = 'sheet',
     // bizDetail = 'detail',
     pend = 'pend',
     binPend = 'binpend',
@@ -52,7 +52,7 @@ export enum EnumSysTable {
 
     // obsolete
     admin = '$admin',
-    sheet = '$sheet',
+    $sheet = '$sheet',
     sheetDetail = '$sheet_detail',
     sheetTo = '$sheet_to',
     archive = '$archive',

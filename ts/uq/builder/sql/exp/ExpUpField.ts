@@ -14,7 +14,7 @@ abstract class ExpUpField extends Exp {
 
 export class ExpBinUpField extends ExpUpField {
     override to(sb: SqlBuilder): void {
-        sb.append('(SELECT ').fld(this.upField).append(' FROM ').dbName().dot().fld(EnumSysTable.bizSheet)
+        sb.append('(SELECT ').fld(this.upField).append(' FROM ').dbName().dot().fld(EnumSysTable.sheet)
             .append(' WHERE id=').fld(this.tblAlias).dot().fld('sheet').r();
     }
 }

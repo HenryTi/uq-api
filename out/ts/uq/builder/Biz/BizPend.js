@@ -181,7 +181,7 @@ class BBizPend extends BizEntity_1.BBizEntity {
         else {
             select.column(new sql_1.ExpField('id', c), 'id');
         }
-        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizSheet, false, c))
+        select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, c))
             .on(new sql_1.ExpEQ(new sql_1.ExpField('id', c), expBin));
         select.column(new sql_1.ExpNum(sysBud), 'bud');
         let valueCol;

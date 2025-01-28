@@ -23,9 +23,8 @@ export class FromStatement extends BizSelectStatement {
     readonly ids: IdColumn[] = [];
     readonly cols: FromColumn[] = [];
     value: FromColumn;
-    subCols: FromColumn[];          // 查询单据的时候，sub中的字段，会算为明细
+    mainCols: FromColumn[];             // 主从Group查询的主字段
     showIds: IdColumn[];
-    // groupByBase?: boolean;          // spec group by base atom
     ban: BanColumn;
     intoTables: IntoTables;
 

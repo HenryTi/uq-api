@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BFromStatementInQueryId = void 0;
+const BizPhraseType_1 = require("../../../../il/Biz/BizPhraseType");
 const sql_1 = require("../../../sql");
 // import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
 const from_inQuery_1 = require("./from.inQuery");
@@ -11,51 +12,26 @@ class BFromStatementInQueryId extends from_inQuery_1.BFromStatementInQuery {
         this.idsGroupBy.pop();
         this.showIds = showIds;
     }
+    get sheetTable() {
+        const { ids } = this.istatement;
+        if (ids[0].fromEntity.bizEntityArr[0].bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
+            return from_inQuery_1.$tblDetail;
+        }
+    }
     buildFromMain(cmpPage) {
-        const { factory } = this.context;
-        // let tblPageGroupBy = this.buildTablePage();
-        // let tblDetail = this.buildTalbeDetail();
-        // let selectPage = this.buildFromSelectPage(cmpPage);
-        // let insertPage = factory.createInsert();
-        // insertPage.select = selectPage;
-        // insertPage.table = new VarTable(pageGroupBy);
-        // insertPage.cols = this.buildInsertPageCols();
-        // let insertMain = this.buildInsertMain();
-        // let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
-        // let insertIdsForks = this.buildInsertIdsForks(pageGroupBy, this.idsGroupBy);
-        // let insertGroupDetail = this.buildInsertGroupDetail();
-        // let insertIdsTable = this.buildInsertIdsToIdTable();
-        /*
-        return [
-            tblPageGroupBy
-            , insertPage, insertMain
-            , ...insertIdsTable
-            // , insertIdsAtoms, insertIdsForks
-            // , ...insertGroupDetail
-        ];
-        */
-        // let tblPageGroupBy = this.buildTablePage();
         let tblDetail = this.buildTableDetail();
-        // let selectPage = this.buildFromSelectPage(cmpPage);
         let selectDetail = this.buildFromSelectDetail(cmpPage);
-        // let insertMain = this.buildInsertMain();
         let insertDetail = this.buildInsertDetail();
-        // let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
-        // let insertIdsForks = this.buildInsertIdsForks(pageGroupBy, this.idsGroupBy);
         let insertIdsTable = this.buildInsertIdsToIdTable();
-        return [
-            // tblPageGroupBy
+        let ret = [
             ,
-            tblDetail
-            // , selectPage
-            ,
-            selectDetail
-            // , insertMain
-            ,
+            tblDetail,
+            selectDetail,
             insertDetail,
             ...insertIdsTable
-            // , insertIdsAtoms, insertIdsForks
         ];
+        this.buildInsertSheetToProps(ret);
+        return ret;
     }
     buildDetailWhere(select, cmpPage) {
         this.buildWhereWithPage(select, cmpPage);

@@ -189,7 +189,7 @@ export class BBizPend extends BBizEntity<BizPend> {
         else {
             select.column(new ExpField('id', c), 'id');
         }
-        select.join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
+        select.join(JoinType.join, new EntityTable(EnumSysTable.sheet, false, c))
             .on(new ExpEQ(new ExpField('id', c), expBin));
         select.column(new ExpNum(sysBud), 'bud');
         let valueCol: string;

@@ -54,14 +54,14 @@ class BizPend extends Entity_1.BizID {
         ret.predefined = predefined;
         if (this.pendQuery !== undefined) {
             let { params, from } = this.pendQuery;
-            const { cols, subCols } = from;
+            const { cols, mainCols } = from;
             ret.params = params.map(v => v.buildSchema(res));
             ret.cols = cols.map(v => {
                 const bud = v.bud; // field.getBud();
                 return bud === null || bud === void 0 ? void 0 : bud.buildSchema(res);
             });
-            if (subCols !== undefined) {
-                ret.subCols = subCols.map(v => v.bud.id);
+            if (mainCols !== undefined) {
+                ret.mainCols = mainCols.map(v => v.bud.id);
             }
         }
         if (this.i !== undefined)

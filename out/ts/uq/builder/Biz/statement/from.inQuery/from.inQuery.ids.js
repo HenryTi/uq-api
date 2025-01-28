@@ -2,11 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BFromStatementInQueryIds = void 0;
 const il_1 = require("../../../../il");
+const BizPhraseType_1 = require("../../../../il/Biz/BizPhraseType");
 const sql_1 = require("../../../sql");
 const statementWithFrom_1 = require("../../../sql/statementWithFrom");
 const from_inQuery_1 = require("./from.inQuery");
-const a = 'a', b = 'b', c = 'c';
-const tblDetail = 'detail';
 const pageGroupBy = '$pageGroupBy';
 class BFromStatementInQueryIds extends from_inQuery_1.BFromStatementInQuery {
     buildFromMain(cmpPage) {
@@ -16,16 +15,15 @@ class BFromStatementInQueryIds extends from_inQuery_1.BFromStatementInQuery {
         let selectDetail = this.buildFromSelectDetail(cmpPage);
         let insertMain = this.buildInsertMain();
         let insertDetail = this.buildInsertDetail();
-        // let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
-        // let insertIdsForks = this.buildInsertIdsForks(pageGroupBy, this.idsGroupBy);
         let insertIdsTable = this.buildInsertIdsToIdTable();
-        return [
+        let ret = [
             tblPageGroupBy, tblDetail, selectPage, selectDetail,
             insertMain,
             insertDetail,
             ...insertIdsTable
-            // , insertIdsAtoms, insertIdsForks
         ];
+        this.buildInsertSheetToProps(ret);
+        return ret;
     }
     buildRetSelectCols(arr) { }
     setIds() {
@@ -33,6 +31,12 @@ class BFromStatementInQueryIds extends from_inQuery_1.BFromStatementInQuery {
         this.idsGroupBy = [...ids];
         this.idsGroupBy.pop();
         this.showIds = showIds;
+    }
+    get sheetTable() {
+        const { fromEntity } = this.istatement;
+        if (fromEntity.bizEntityArr[0].bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
+            return pageGroupBy;
+        }
     }
     buildFromSelectPage(cmpPage) {
         const { factory } = this.context;

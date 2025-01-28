@@ -8,6 +8,7 @@ const select_1 = require("../../../sql/select");
 const statementWithFrom_1 = require("../../../sql/statementWithFrom");
 const from_1 = require("../from");
 const biz_select_1 = require("../biz.select");
+const tools_1 = require("../../../tools");
 exports.tblMain = 'main';
 exports.tblDetail = 'detail';
 exports.$tblDetail = '$detail';
@@ -68,7 +69,7 @@ class BFromStatementInQuery extends from_1.BFromStatement {
             (0, il_1.bigIntField)('id' + (ids.length - 1)),
             banField,
             valueField,
-            ...cols.map(v => { let f = (0, il_1.charField)(String(v.bud.id), 200); f.nullable = true; return f; }),
+            ...cols.map(v => v.bud.createField()),
         ];
         return varTable;
     }
@@ -426,6 +427,36 @@ class BFromStatementInQuery extends from_1.BFromStatement {
     }
     buildRetSelectCols(arr) {
         arr.push(...this.buildSelectCols());
+    }
+    buildInsertSheetToProps(statements) {
+        const sheetTable = this.sheetTable;
+        if (sheetTable === undefined)
+            return;
+        const { factory } = this.context;
+        const insert = factory.createInsert();
+        statements.push(insert);
+        insert.ignore = true;
+        insert.table = new statementWithFrom_1.VarTable('props');
+        insert.cols = [
+            { col: 'id', val: undefined },
+            { col: 'bud', val: undefined },
+            { col: 'value', val: undefined },
+        ];
+        const select = factory.createSelect();
+        insert.select = select;
+        select.column(new sql_1.ExpField('id', b));
+        select.column(sql_1.ExpNum.num0);
+        select.column(new sql_1.ExpFunc('JSON_ARRAY', new sql_1.ExpField('base', b), new sql_1.ExpField('no', b), new sql_1.ExpField('operator', b)));
+        select.from(new statementWithFrom_1.VarTable(sheetTable, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, b))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id0', a)));
+        const expId = new sql_1.ExpField('operator', b);
+        const insertOperator = (0, tools_1.buildInsertIdTable)(this.context, expId, false, (select) => {
+            select.from(new statementWithFrom_1.VarTable(sheetTable, a))
+                .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, b))
+                .on(new sql_1.ExpEQ(new sql_1.ExpField('id', b), new sql_1.ExpField('id0', a)));
+        });
+        statements.push(insertOperator);
     }
 }
 exports.BFromStatementInQuery = BFromStatementInQuery;

@@ -1,12 +1,12 @@
 import { JoinType } from "../../../../il";
-import { EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpNum, ExpVal, ExpVar, Select, Statement } from "../../../sql";
+import { BizPhraseType } from "../../../../il/Biz/BizPhraseType";
+import {
+    EnumExpOP, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc,
+    ExpVal, ExpVar, Select, Statement
+} from "../../../sql";
 import { VarTable } from "../../../sql/statementWithFrom";
-// import { buildIdPhraseTable, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../../tools";
-import { $idu } from "../biz.select";
 import { BFromStatementInQuery, tblMain } from "./from.inQuery";
 
-const a = 'a', b = 'b', c = 'c';
-const tblDetail = 'detail';
 const pageGroupBy = '$pageGroupBy';
 
 export class BFromStatementInQueryIds extends BFromStatementInQuery {
@@ -17,16 +17,15 @@ export class BFromStatementInQueryIds extends BFromStatementInQuery {
         let selectDetail = this.buildFromSelectDetail(cmpPage);
         let insertMain = this.buildInsertMain();
         let insertDetail = this.buildInsertDetail();
-        // let insertIdsAtoms = this.buildInsertIdsAtoms(pageGroupBy, this.idsGroupBy);
-        // let insertIdsForks = this.buildInsertIdsForks(pageGroupBy, this.idsGroupBy);
         let insertIdsTable = this.buildInsertIdsToIdTable();
-        return [
+        let ret = [
             tblPageGroupBy, tblDetail, selectPage, selectDetail
             , insertMain
             , insertDetail
             , ...insertIdsTable
-            // , insertIdsAtoms, insertIdsForks
         ];
+        this.buildInsertSheetToProps(ret);
+        return ret;
     }
 
     protected override buildRetSelectCols(arr: ExpVal[]) { }
@@ -36,6 +35,13 @@ export class BFromStatementInQueryIds extends BFromStatementInQuery {
         this.idsGroupBy = [...ids];
         this.idsGroupBy.pop();
         this.showIds = showIds;
+    }
+
+    protected get sheetTable(): string {
+        const { fromEntity } = this.istatement;
+        if (fromEntity.bizEntityArr[0].bizPhraseType === BizPhraseType.sheet) {
+            return pageGroupBy;
+        }
     }
 
     private buildFromSelectPage(cmpPage: ExpCmp) {

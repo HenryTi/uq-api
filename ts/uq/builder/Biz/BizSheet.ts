@@ -485,7 +485,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
                 .on(new ExpEQ(new ExpField('id', t0), expId));
             expId = new ExpField('sheet', t0);
         }
-        select.join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
+        select.join(JoinType.join, new EntityTable(EnumSysTable.sheet, false, c))
             .on(new ExpEQ(new ExpField('id', c), expId));
     }
 

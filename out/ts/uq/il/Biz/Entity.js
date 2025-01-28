@@ -213,7 +213,7 @@ class BizEntity extends Base_1.BizBase {
                 bizEntityTable = EnumSysTable_1.EnumSysTable.bizBin;
                 break;
             case BizPhraseType_1.BizPhraseType.sheet:
-                bizEntityTable = EnumSysTable_1.EnumSysTable.sheet;
+                bizEntityTable = EnumSysTable_1.EnumSysTable.$sheet;
                 break;
             case BizPhraseType_1.BizPhraseType.pend:
                 bizEntityTable = EnumSysTable_1.EnumSysTable.pend;

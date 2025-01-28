@@ -27,9 +27,9 @@ class PFromStatementInQuery extends biz_from_1.PFromStatement {
                     this.ts.readToken();
                     break;
                 }
-                if (this.ts.isKeyword('sub') === true) {
+                if (this.ts.isKeyword('main') === true) {
                     this.ts.readToken();
-                    this.parseSubColumns();
+                    this.parseMainColumns();
                 }
                 else {
                     this.parseColumn();

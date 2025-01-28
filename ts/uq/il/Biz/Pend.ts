@@ -68,14 +68,14 @@ export class BizPend extends BizID {
         ret.predefined = predefined;
         if (this.pendQuery !== undefined) {
             let { params, from } = this.pendQuery;
-            const { cols, subCols } = from;
+            const { cols, mainCols } = from;
             ret.params = params.map(v => v.buildSchema(res));
             ret.cols = cols.map(v => {
                 const bud = v.bud; // field.getBud();
                 return bud?.buildSchema(res);
             });
-            if (subCols !== undefined) {
-                ret.subCols = subCols.map(v => v.bud.id);
+            if (mainCols !== undefined) {
+                ret.mainCols = mainCols.map(v => v.bud.id);
             }
         }
         if (this.i !== undefined) ret.i = this.i.buildSchema(res);

@@ -28,9 +28,9 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                     this.ts.readToken();
                     break;
                 }
-                if (this.ts.isKeyword('sub') === true) {
+                if (this.ts.isKeyword('main') === true) {
                     this.ts.readToken();
-                    this.parseSubColumns();
+                    this.parseMainColumns();
                 }
                 else {
                     this.parseColumn();
@@ -43,10 +43,10 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
             }
         }
     }
-    parseSubColumns() {
-        let { subCols } = this.element;
-        if (subCols === undefined)
-            this.element.subCols = subCols = [];
+    parseMainColumns() {
+        let { mainCols } = this.element;
+        if (mainCols === undefined)
+            this.element.mainCols = mainCols = [];
         this.ts.passToken(tokens_1.Token.LPARENTHESE);
         for (;;) {
             if (this.ts.token === tokens_1.Token.RPARENTHESE) {
@@ -55,7 +55,7 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
             }
             let col = this.parseColumn();
             if (col !== undefined) {
-                subCols.push(col);
+                mainCols.push(col);
             }
             if (this.ts.token === tokens_1.Token.RPARENTHESE) {
                 this.ts.readToken();

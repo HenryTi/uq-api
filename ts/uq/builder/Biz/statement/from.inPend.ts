@@ -67,7 +67,7 @@ export class BFromInPendStatement extends BFromStatement<FromStatementInPend> {
             */
             .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, sheetBin))
             .on(new ExpEQ(new ExpField('id', sheetBin), new ExpField('sheet', b)))
-            .join(JoinType.left, new EntityTable(EnumSysTable.bizSheet, false, sheet))
+            .join(JoinType.left, new EntityTable(EnumSysTable.sheet, false, sheet))
             .on(new ExpEQ(new ExpField('id', sheet), new ExpField('id', sheetBin)))
             ;
         select.where(new ExpEQ(new ExpField('base', a), new ExpNum(bizPend.id)), EnumExpOP.and);

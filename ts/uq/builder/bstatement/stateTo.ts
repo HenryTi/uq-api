@@ -83,7 +83,7 @@ export abstract class BuildStateToBase {
             { col: 'flow', val: new ExpVar(this.vNewFlow) },
             { col: 'state', val: new ExpSelect(stateIdSelect) },
         ];
-        updateFlow.table = this.context.sysTable(EnumSysTable.sheet);
+        updateFlow.table = this.context.sysTable(EnumSysTable.$sheet);
         updateFlow.where = new ExpEQ(new ExpField('id'), this.idVal);
 
         if (archive === true) {
@@ -100,11 +100,11 @@ export abstract class BuildStateToBase {
                 .column(new ExpVar(this.vNewFlow))
                 .column(new ExpField('discription'))
                 .column(new ExpField('data'));
-            select.from(this.context.sysTable(EnumSysTable.sheet));
+            select.from(this.context.sysTable(EnumSysTable.$sheet));
             select.where(where);
             let del = factory.createDelete();
             sqls.push(del);
-            del.tables = [this.context.sysTable(EnumSysTable.sheet)];
+            del.tables = [this.context.sysTable(EnumSysTable.$sheet)];
             del.where(where);
 
             let whereSheet: ExpCmp = new ExpEQ(new ExpField('sheet'), this.idVal);
@@ -173,7 +173,7 @@ export class BuildSheetStateTo extends BuildStateToBase {
         sel.column(new ExpAdd(new ExpField('flow', ta), ExpNum.num1), this.vNewFlow)
             .column(new ExpField('name', tc), this.vState)
             .column(new ExpField('name', tc), this.vPreState);
-        sel.from(this.context.sysTable(EnumSysTable.sheet, ta));
+        sel.from(this.context.sysTable(EnumSysTable.$sheet, ta));
         sel.join(JoinType.join, sysTable(EnumSysTable.flow, tb))
             .on(new ExpAnd(
                 new ExpEQ(new ExpField('id', ta), new ExpField('sheet', tb)),

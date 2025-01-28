@@ -217,7 +217,7 @@ export class SettingProcedures extends SysProcedures {
         // 但是，这里是取全局sheet max id，所以不能带$unit比较
         // 所以，需要改成下面这个语句
         // selectSheetSeed.from(this.context.sysTable(il.EnumSysTable.sheet));
-        selectSheetSeed.from(sysTable(il.EnumSysTable.sheet));
+        selectSheetSeed.from(sysTable(il.EnumSysTable.$sheet));
 
         p.statements.push(...createInitSetting(settingSheetSeed,
             'big',

@@ -44,7 +44,7 @@ export class SheetProcedures extends SysProcedures {
         stats.push(proc.createTransaction());
         let select = factory.createSelect();
         select.col('id');
-        select.from(this.context.sysTable(EnumSysTable.sheet));
+        select.from(this.context.sysTable(EnumSysTable.$sheet));
         select.where(new ExpAnd(
             new ExpEQ(new ExpField('id'), new ExpVar('id')),
             new ExpEQ(new ExpField('processing'), ExpVal.num1),
@@ -60,7 +60,7 @@ export class SheetProcedures extends SysProcedures {
 
         let update = factory.createUpdate();
         iff.else(update);
-        update.table = this.context.sysTable(EnumSysTable.sheet);
+        update.table = this.context.sysTable(EnumSysTable.$sheet);
         update.cols = [{ col: 'processing', val: new sql.ExpNum(1) }];
         let wheres = [];
         wheres.push(new sql.ExpEQ(new sql.ExpField('id'), new sql.ExpVar('id')));
@@ -224,7 +224,7 @@ export class SheetProcedures extends SysProcedures {
 
         let insert = factory.createInsert();
         stats.push(insert);
-        insert.table = this.context.sysTable(EnumSysTable.sheet);
+        insert.table = this.context.sysTable(EnumSysTable.$sheet);
         insert.cols = [
             { col: 'id', val: new sql.ExpVar('id') },
             { col: 'no', val: new sql.ExpVar(no) },
@@ -342,7 +342,7 @@ export class SheetProcedures extends SysProcedures {
         stats.push(ifSheet);
         let sheetSelect = factory.createSelect();
         ifSheet.cmp = new ExpNot(new ExpExists(sheetSelect));
-        sheetSelect.from(this.context.sysTable(EnumSysTable.sheet));
+        sheetSelect.from(this.context.sysTable(EnumSysTable.$sheet));
         sheetSelect.col('id');
         sheetSelect.where(new ExpEQ(new ExpField('id'), new ExpVar(sheet.name)));
         sheetSelect.lock = LockType.update;
@@ -505,7 +505,7 @@ export class SheetProcedures extends SysProcedures {
         selectConstStr.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(state.name)));
         let select = factory.createSelect();
         proc.statements.push(select);
-        select.from(this.context.sysTable(EnumSysTable.sheet, ta));
+        select.from(this.context.sysTable(EnumSysTable.$sheet, ta));
         select.join(JoinType.join, sysTable(EnumSysTable.flow, tf))
             .on(new sql.ExpAnd(
                 new sql.ExpEQ(new sql.ExpField('id', ta), new sql.ExpField('sheet', tf)),
@@ -553,7 +553,7 @@ export class SheetProcedures extends SysProcedures {
         selectConstStr.where(new sql.ExpEQ(new sql.ExpField('name'), new sql.ExpVar(state.name)));
         let select = factory.createSelect();
         proc.statements.push(select);
-        select.from(this.context.sysTable(EnumSysTable.sheet, ta));
+        select.from(this.context.sysTable(EnumSysTable.$sheet, ta));
         select.join(JoinType.join, sysTable(EnumSysTable.flow, tf))
             .on(new sql.ExpAnd(
                 new sql.ExpEQ(new sql.ExpField('id', ta), new sql.ExpField('sheet', tf)),
@@ -620,7 +620,7 @@ export class SheetProcedures extends SysProcedures {
             selectArchive.limit(varPageSize);
 
             let selectSheet = factory.createSelect();
-            selectSheet.from(this.context.sysTable(EnumSysTable.sheet, ta));
+            selectSheet.from(this.context.sysTable(EnumSysTable.$sheet, ta));
             sheetFields.forEach(f => selectSheet.column(new sql.ExpField(f, ta)));
             let sheetWheres: sql.ExpCmp[] = [];
             sheetWheres.push(new sql.ExpGT(new sql.ExpField('id', ta), new sql.ExpVar(pageStart.name)));
@@ -668,7 +668,7 @@ export class SheetProcedures extends SysProcedures {
         proc.statements.push(select);
         select.column(new sql.ExpSelect(selectConstStr), 'state');
         select.column(new sql.ExpFunc('count', new ExpField('sheet', 'a')), 'count');
-        select.from(this.context.sysTable(EnumSysTable.sheet, 'a'));
+        select.from(this.context.sysTable(EnumSysTable.$sheet, 'a'));
         select.join(JoinType.join, sysTable(EnumSysTable.flow, 'b'))
             .on(new sql.ExpAnd(
                 new sql.ExpEQ(new sql.ExpField('id', 'a'), new sql.ExpField('sheet', 'b')),
@@ -696,7 +696,7 @@ export class SheetProcedures extends SysProcedures {
             tblFlow = EnumSysTable.archiveFlow;
         }
         else {
-            tblSheet = EnumSysTable.sheet;
+            tblSheet = EnumSysTable.$sheet;
             tblFlow = EnumSysTable.flow;
         }
         let select = this.context.factory.createSelect();

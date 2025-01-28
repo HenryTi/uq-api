@@ -10,14 +10,6 @@ class FromStatementInQuery extends biz_from_1.FromStatement {
         this.values = [];
     }
     get type() { return 'from'; }
-    //ids: IdColumn[];
-    //value: FromColumn;
-    //cols: FromColumn[] = [];
-    //subCols: FromColumn[];          // 查询单据的时候，sub中的字段，会算为明细
-    //showIds: IdColumn[];
-    // groupByBase?: boolean;          // spec group by base atom
-    //ban: BanColumn;
-    //intoTables: IntoTables;
     db(db) {
         return db.fromStatementInQuery(this);
     }
