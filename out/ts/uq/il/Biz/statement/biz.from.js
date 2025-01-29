@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FromStatement = void 0;
 const parser_1 = require("../../../parser");
 const biz_select_1 = require("./biz.select");
-const BizPhraseType_1 = require("../BizPhraseType");
 class FromStatement extends biz_select_1.BizSelectStatement {
     constructor() {
         super(...arguments);
@@ -35,8 +34,8 @@ class FromStatement extends biz_select_1.BizSelectStatement {
         let bud = pointer.bud;
         if (bud === undefined)
             return;
-        if (bud.dataType !== BizPhraseType_1.BudDataType.atom)
-            return;
+        // 这一步为什么要屏蔽呢？没有想明白
+        // if (bud.dataType !== BudDataType.atom) return;
         col.valBud = bud;
     }
 }

@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PTextStatement = void 0;
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
-class PTextStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PTextStatement extends PStatement_1.PStatement {
     constructor(text, context) {
         super(text, context);
         this.text = text;

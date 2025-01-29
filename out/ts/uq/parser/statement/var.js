@@ -4,8 +4,8 @@ exports.PVarStatement = void 0;
 const il_1 = require("../../il");
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
-class PVarStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PVarStatement extends PStatement_1.PStatement {
     constructor(_var, context) {
         super(_var, context);
         this._var = _var;

@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PExecSqlStatement = void 0;
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
-class PExecSqlStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PExecSqlStatement extends PStatement_1.PStatement {
     constructor(execSqlStatement, context) {
         super(execSqlStatement, context);
         this.execSqlStatement = execSqlStatement;

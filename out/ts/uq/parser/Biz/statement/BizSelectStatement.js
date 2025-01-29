@@ -5,8 +5,8 @@ const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const space_1 = require("../../space");
 const tokens_1 = require("../../tokens");
-const statement_1 = require("../../statement/statement");
-class PBizSelectStatement extends statement_1.PStatement {
+const PStatement_1 = require("../../PStatement");
+class PBizSelectStatement extends PStatement_1.PStatement {
     constructor() {
         super(...arguments);
         this.pFromEntity = {

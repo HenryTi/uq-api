@@ -108,6 +108,9 @@ class IDUnique extends Bud_1.BizBud {
         this.dataType = BizPhraseType_1.BudDataType.unique;
         this.bizAtom = bizAtom;
     }
+    clone(entity, name, ui) {
+        return new IDUnique(this.bizAtom, name, ui);
+    }
     parser(context) {
         return new parser_1.PIDUnique(this, context);
     }

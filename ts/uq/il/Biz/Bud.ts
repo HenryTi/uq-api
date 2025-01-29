@@ -24,6 +24,7 @@ export enum BudValueSetType {
     equ = 1,            // 设置不可修改. 这是默认
     init = 2,           // 只提供初值，可修改
     show = 3,           // 只显示，不保存
+    bound = 4,          // Bin 字段跟pick字段的绑定，功能是equ
 }
 
 export type FieldShowItem = BizBud; // | (BizBud[]);
@@ -78,6 +79,7 @@ export abstract class BizBud extends BizBase {
         this.name = name;
         Object.assign(this.ui, ui);
     }
+    abstract clone(entity: BizEntity, name: string, ui: Partial<UI>): BizBud;
     buildBudValue(expStringify: (value: ValueExpression) => string) { }
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
@@ -133,6 +135,9 @@ export class BizBudFork extends BizBudValue {
     readonly canIndex = false;
     baseBudName: string;
     baseBud: BizBud;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudFork(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudFork(this, context);
     }
@@ -150,6 +155,9 @@ export class BizBudArr extends BizBudValue {
     readonly dataType = BudDataType.arr;
     readonly canIndex = false;
     readonly props: Map<string, BizBudValue> = new Map();
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudArr(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudArr(this, context);
     }
@@ -170,6 +178,9 @@ export class BizBudArr extends BizBudValue {
 export class BizUser extends BizBud {
     readonly dataType = BudDataType.user;
     readonly defaults: BizBudValue[] = [];
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizUser(entity, name, ui);
+    }
     override parser(context: PContext): PElement<IElement> {
         return new PBizUser(this, context);
     }
@@ -182,6 +193,9 @@ export class BizBudPickable extends BizBudValue {
     readonly dataType = BudDataType.atom;
     readonly canIndex = false;
     pick: string;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudPickable(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudPickable(this, context);
     }
@@ -196,6 +210,9 @@ export class BizBudPickable extends BizBudValue {
 export class BizBudAny extends BizBudValue {
     readonly dataType = BudDataType.any;
     readonly canIndex = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudAny(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudAny(this, context);
     }
@@ -203,6 +220,7 @@ export class BizBudAny extends BizBudValue {
         let ret = super.buildSchema(res);
         return ret;
     }
+    createDataType(): DataType { return new Char(200); }
 }
 
 export abstract class BizBudValueWithRange extends BizBudValue {
@@ -232,6 +250,9 @@ export abstract class BizBudValueWithRange extends BizBudValue {
 export class BizBudInt extends BizBudValueWithRange {
     readonly dataType = BudDataType.int;
     readonly canIndex = true;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudInt(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudInt(this, context);
     }
@@ -244,6 +265,9 @@ export class BizBudInt extends BizBudValueWithRange {
 export class BizBudDec extends BizBudValueWithRange {
     readonly dataType = BudDataType.dec;
     readonly canIndex = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudDec(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDec(this, context);
     }
@@ -271,6 +295,9 @@ export class BinValue extends BizBudDec {
 export class BizBudChar extends BizBudValueWithRange {
     readonly dataType = BudDataType.char;
     readonly canIndex = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudChar(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudCharBase(this, context);
     }
@@ -288,6 +315,9 @@ export class BizBudNO extends BizBudChar {
 export class BizBudDate extends BizBudValueWithRange {
     readonly dataType = BudDataType.date;
     readonly canIndex = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudDate(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudDate(this, context);
     }
@@ -393,6 +423,9 @@ export abstract class BizBudIDBase extends BizBudTieable {
 
 export class BizBudID extends BizBudIDBase {
     readonly isIxBase = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudID(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudID(this, context);
     }
@@ -401,6 +434,9 @@ export class BizBudID extends BizBudIDBase {
 // Base here is I.base or X.base
 export class BizBudIXBase extends BizBudIDBase {
     readonly isIxBase = true;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudIXBase(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIXBase(this, context);
     }
@@ -411,6 +447,9 @@ export class BizBudIXBase extends BizBudIDBase {
 export class BizBudIDIO extends BizBudValue {
     readonly dataType = BudDataType.ID;
     readonly canIndex = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudIDIO(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudIDIO(this, context);
     }
@@ -430,6 +469,9 @@ export class BizBudBin extends BizBudValue {
     sysNO: boolean;
     sysBuds: EnumSysBud[];
     showBuds: BizBud[][];
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudBin(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudBin(this, context);
     }
@@ -463,6 +505,9 @@ export abstract class BizBudOptions extends BizBudTieable {
 export class BizBudRadio extends BizBudOptions {
     readonly dataType = BudDataType.radio;
     readonly canIndex = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudRadio(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudRadio(this, context);
     }
@@ -471,6 +516,9 @@ export class BizBudRadio extends BizBudOptions {
 export class BizBudCheck extends BizBudOptions {
     readonly dataType = BudDataType.check;
     readonly canIndex = false;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudCheck(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBizBudCheck(this, context);
     }

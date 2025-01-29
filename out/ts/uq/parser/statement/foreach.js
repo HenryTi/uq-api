@@ -4,10 +4,10 @@ exports.PForEach = void 0;
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const wordsAfterOf = ['select', 'queue'];
-class PForEach extends statement_1.PStatement {
+class PForEach extends PStatement_1.PStatement {
     _parse() {
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();

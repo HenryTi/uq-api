@@ -108,7 +108,9 @@ export class IDUnique extends BizBud {
         super(bizAtom, name, ui);
         this.bizAtom = bizAtom;
     }
-
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new IDUnique(this.bizAtom, name, ui);
+    }
     override parser(context: PContext): PElement<IElement> {
         return new PIDUnique(this, context);
     }

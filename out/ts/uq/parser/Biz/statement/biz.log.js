@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizLog = void 0;
 const il_1 = require("../../../il");
-const statement_1 = require("../../statement");
+const PStatement_1 = require("../../PStatement");
 const tokens_1 = require("../../tokens");
-class PBizLog extends statement_1.PStatement {
+class PBizLog extends PStatement_1.PStatement {
     _parse() {
         // let val = this.element.val = new ValueExpression();
         // this.context.parseElement(val);

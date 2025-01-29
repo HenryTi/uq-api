@@ -5,7 +5,7 @@ import {
     Pointer, NamePointer, Var, createDataType, ForSelect, ForArr, ForQueue
     , Queue, ValueExpression, BigInt, BizIn, ForBizInOutArr, BizBudArr
 } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { BizPhraseType } from '../../il/Biz/BizPhraseType';
 
 const wordsAfterOf = ['select', 'queue'];

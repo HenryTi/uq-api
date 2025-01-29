@@ -2,7 +2,7 @@ import { VarStatement, ValueExpression, createDataType, Var, NamePointer, Select
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { PContext } from '../pContext';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 
 export class PVarStatement extends PStatement {
     _var: VarStatement;

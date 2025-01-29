@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PSleepStatement = void 0;
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
-class PSleepStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PSleepStatement extends PStatement_1.PStatement {
     constructor(sleepStatement, context) {
         super(sleepStatement, context);
         this.sleepStatement = sleepStatement;

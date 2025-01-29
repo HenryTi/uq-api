@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizQueryTableStatements = exports.PBizQueryValueStatements = exports.PBizQueryValue = exports.PBizQueryTable = void 0;
 const il_1 = require("../../il");
 const space_1 = require("../space");
-const statement_1 = require("../statement");
+const PStatement_1 = require("../PStatement");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
 class PBizQuery extends Base_1.PBizEntity {
@@ -178,7 +178,7 @@ class PBizQueryValue extends PBizQuery {
     }
 }
 exports.PBizQueryValue = PBizQueryValue;
-class PBizQueryValueStatements extends statement_1.PStatements {
+class PBizQueryValueStatements extends PStatement_1.PStatements {
     statementFromKey(parent, key) {
         switch (key) {
             default: return super.statementFromKey(parent, key);
@@ -187,7 +187,7 @@ class PBizQueryValueStatements extends statement_1.PStatements {
     }
 }
 exports.PBizQueryValueStatements = PBizQueryValueStatements;
-class PBizQueryTableStatements extends statement_1.PStatements {
+class PBizQueryTableStatements extends PStatement_1.PStatements {
     statementFromKey(parent, key) {
         switch (key) {
             default: return super.statementFromKey(parent, key);

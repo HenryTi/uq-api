@@ -343,12 +343,18 @@ export class TokenStream {
                 case Char.SEMICOLON: this.token = Token.SEMICOLON; this.advance(); break;
                 case Char.COLON:
                     this.advance();
-                    if (this.cur === Char.EQU) {
-                        this.token = Token.COLONEQU;
-                        this.advance();
-                    }
-                    else {
-                        this.token = Token.COLON;
+                    switch (this.cur) {
+                        case Char.EQU:
+                            this.token = Token.COLONEQU;
+                            this.advance();
+                            break;
+                        case Char.COLON:
+                            this.token = Token.COLONCOLON;
+                            this.advance();
+                            break;
+                        default:
+                            this.token = Token.COLON;
+                            break;
                     }
                     break;
                 case Char.TOPANGLE: this.token = Token.XOR; this.advance(); break;

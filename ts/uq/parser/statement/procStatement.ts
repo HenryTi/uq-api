@@ -1,6 +1,6 @@
 import { Space } from '../space';
 import { ProcStatement, ValueExpression, Proc, ProcParamType } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 import { Token } from '../tokens';
 import { ExpressionSpace } from '../expression';

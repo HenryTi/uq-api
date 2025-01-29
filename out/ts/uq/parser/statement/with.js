@@ -4,9 +4,9 @@ exports.PWithStatement = void 0;
 const il_1 = require("../../il");
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const PDefines_1 = require("../PDefines");
-class PWithStatement extends statement_1.PStatement {
+class PWithStatement extends PStatement_1.PStatement {
     constructor(_with, context) {
         super(_with, context);
         this.with = _with;

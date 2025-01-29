@@ -1,4 +1,4 @@
-import { BizBud, BizFromEntity } from './Biz';
+import { BizBud, BizBudID, BizFromEntity } from './Biz';
 import { BizPhraseType } from './Biz/BizPhraseType';
 import { ValueExpression, VarOperand } from './Exp';
 import { Stack } from './Exp/Stack';
@@ -99,13 +99,19 @@ export class ConstPointer extends Pointer {
     }
 }
 
-export class BizEntityBudPointer extends Pointer {
+abstract class BizEntityFieldBasePointer extends Pointer {
     readonly groupType: GroupType = GroupType.Both;
     readonly bizFromEntity: BizFromEntity;
-    readonly bud: BizBud;
-    constructor(bizFromEntity: BizFromEntity, bud: BizBud) {
+    bud: BizBud;
+    constructor(bizFromEntity: BizFromEntity) {
         super();
         this.bizFromEntity = bizFromEntity;
+    }
+}
+
+export class BizEntityBudPointer extends BizEntityFieldBasePointer {
+    constructor(bizFromEntity: BizFromEntity, bud: BizBud) {
+        super(bizFromEntity);
         this.bud = bud;
     }
     override to(stack: Stack, v: VarOperand): void {
@@ -115,18 +121,47 @@ export class BizEntityBudPointer extends Pointer {
 
 const $idu = ''; // '$idu';
 const $atom = '$atom';
-export class BizEntityFieldPointer extends Pointer {
-    readonly groupType: GroupType = GroupType.Single;
-    readonly bizFromEntity: BizFromEntity;
+
+export class BizEntityFieldIdPointer extends BizEntityFieldBasePointer {
+    constructor(bizFromEntity: BizFromEntity) {
+        super(bizFromEntity);
+        this.bud = new BizBudID(bizFromEntity.bizEntityArr[0], 'id', undefined);
+    }
+    override to(stack: Stack, v: VarOperand): void {
+        const { alias } = this.bizFromEntity;
+        const { isForkBase } = this.bizFromEntity;
+        let fn = 'id';
+        if (isForkBase === true) {
+            stack.dotVar([alias + $idu, fn]);
+            stack.dotVar([this.bizFromEntity.parent.alias + $idu, 'id']);
+            stack.func('IFNULL', 2, false);
+        }
+        else {
+            switch (this.bizFromEntity.bizPhraseType) {
+                default:
+                    stack.dotVar([alias, fn]);
+                    break;
+                case BizPhraseType.atom:
+                    stack.dotVar([alias + $atom, fn]);
+                    break;
+                case BizPhraseType.fork:
+                    stack.dotVar([alias + $idu, fn]);
+                    break;
+            }
+        }
+    }
+}
+
+export class BizEntityFieldPointer extends BizEntityFieldBasePointer {
+    // readonly groupType: GroupType = GroupType.Single;
     readonly fieldName: string;
-    readonly bud: BizBud;
     constructor(bizFromEntity: BizFromEntity, fieldName: string) {
-        super();
-        this.bizFromEntity = bizFromEntity;
-        this.fieldName = fieldName;
+        super(bizFromEntity);
         let bizEntity = bizFromEntity.bizEntityArr[0];
-        if (bizEntity === undefined) return;
-        this.bud = bizEntity.getBud(fieldName);
+        if (bizEntity !== undefined) {
+            this.bud = bizEntity.getBud(fieldName);
+        }
+        this.fieldName = fieldName;
     }
 
     override to(stack: Stack, v: VarOperand): void {

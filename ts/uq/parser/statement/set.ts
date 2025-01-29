@@ -2,7 +2,7 @@ import { SetStatement, Select } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { PContext } from '../pContext';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 
 export class PSetStatement extends PStatement {
     set: SetStatement;

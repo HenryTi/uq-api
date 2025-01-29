@@ -1,7 +1,7 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { ValueExpression, SendStatement, Templet, SendEmailStatement, SendSmsStatement, SendMsgStatement, SendAppStatement, VarOperand } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 import { PValueExpression, PVarOperand } from '..';
 

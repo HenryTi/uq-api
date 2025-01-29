@@ -1,6 +1,7 @@
 import {
     CompareExpression, FromStatement, ValueExpression, FromInQueryFieldSpace, BizBudAny
-    , EnumAsc, IdColumn, FromColumn
+    , EnumAsc, IdColumn, FromColumn,
+    BizBud
 } from "../../../il";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
@@ -332,7 +333,14 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
                 // let bud = new BizBudAny(bizEntitySpace.bizEntity, name, ui);
                 let bizEntity = space.getBizEntity();
                 if (bizEntity === undefined) debugger;
-                let bud = new BizBudAny(bizEntity, name, ui);
+                let bud: BizBud;
+                const { valBud } = col;
+                if (valBud !== undefined) {
+                    bud = valBud.clone(bizEntity, name, ui);
+                }
+                else {
+                    bud = new BizBudAny(bizEntity, name, ui);
+                }
                 col.bud = bud;
             }
 

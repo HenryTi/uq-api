@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PLogStatement = void 0;
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
-class PLogStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PLogStatement extends PStatement_1.PStatement {
     constructor(logStatement, context) {
         super(logStatement, context);
         this.logStatement = logStatement;

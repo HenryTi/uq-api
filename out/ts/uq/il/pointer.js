@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizEntityBinUpPointer = exports.BizEntityForkUpPointer = exports.BizEntityFieldPointer = exports.BizEntityBudPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.NamePointer = exports.Pointer = exports.GroupType = void 0;
+exports.BizEntityBinUpPointer = exports.BizEntityForkUpPointer = exports.BizEntityFieldPointer = exports.BizEntityFieldIdPointer = exports.BizEntityBudPointer = exports.ConstPointer = exports.UnitPointer = exports.UserPointer = exports.GroupByPointer = exports.FieldPointer = exports.DotVarPointer = exports.VarPointer = exports.NamePointer = exports.Pointer = exports.GroupType = void 0;
+const Biz_1 = require("./Biz");
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
 var GroupType;
 (function (GroupType) {
@@ -108,11 +109,16 @@ class ConstPointer extends Pointer {
     }
 }
 exports.ConstPointer = ConstPointer;
-class BizEntityBudPointer extends Pointer {
-    constructor(bizFromEntity, bud) {
+class BizEntityFieldBasePointer extends Pointer {
+    constructor(bizFromEntity) {
         super();
         this.groupType = GroupType.Both;
         this.bizFromEntity = bizFromEntity;
+    }
+}
+class BizEntityBudPointer extends BizEntityFieldBasePointer {
+    constructor(bizFromEntity, bud) {
+        super(bizFromEntity);
         this.bud = bud;
     }
     to(stack, v) {
@@ -122,16 +128,44 @@ class BizEntityBudPointer extends Pointer {
 exports.BizEntityBudPointer = BizEntityBudPointer;
 const $idu = ''; // '$idu';
 const $atom = '$atom';
-class BizEntityFieldPointer extends Pointer {
+class BizEntityFieldIdPointer extends BizEntityFieldBasePointer {
+    constructor(bizFromEntity) {
+        super(bizFromEntity);
+        this.bud = new Biz_1.BizBudID(bizFromEntity.bizEntityArr[0], 'id', undefined);
+    }
+    to(stack, v) {
+        const { alias } = this.bizFromEntity;
+        const { isForkBase } = this.bizFromEntity;
+        let fn = 'id';
+        if (isForkBase === true) {
+            stack.dotVar([alias + $idu, fn]);
+            stack.dotVar([this.bizFromEntity.parent.alias + $idu, 'id']);
+            stack.func('IFNULL', 2, false);
+        }
+        else {
+            switch (this.bizFromEntity.bizPhraseType) {
+                default:
+                    stack.dotVar([alias, fn]);
+                    break;
+                case BizPhraseType_1.BizPhraseType.atom:
+                    stack.dotVar([alias + $atom, fn]);
+                    break;
+                case BizPhraseType_1.BizPhraseType.fork:
+                    stack.dotVar([alias + $idu, fn]);
+                    break;
+            }
+        }
+    }
+}
+exports.BizEntityFieldIdPointer = BizEntityFieldIdPointer;
+class BizEntityFieldPointer extends BizEntityFieldBasePointer {
     constructor(bizFromEntity, fieldName) {
-        super();
-        this.groupType = GroupType.Single;
-        this.bizFromEntity = bizFromEntity;
-        this.fieldName = fieldName;
+        super(bizFromEntity);
         let bizEntity = bizFromEntity.bizEntityArr[0];
-        if (bizEntity === undefined)
-            return;
-        this.bud = bizEntity.getBud(fieldName);
+        if (bizEntity !== undefined) {
+            this.bud = bizEntity.getBud(fieldName);
+        }
+        this.fieldName = fieldName;
     }
     to(stack, v) {
         const { alias } = this.bizFromEntity;

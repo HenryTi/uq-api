@@ -15,6 +15,9 @@ var OptionsItemValueType;
 class OptionsItem extends Bud_1.BizBudValue {
     get bizPhraseType() { return BizPhraseType_1.BizPhraseType.optionsitem; }
     get optionsItemType() { return this._itemType; }
+    clone(entity, name, ui) {
+        return new OptionsItem(entity, name, ui);
+    }
     parser(context) {
         debugger;
         return;

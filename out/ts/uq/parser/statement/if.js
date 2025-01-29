@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PReturnStatement = exports.PContinueStatement = exports.PBreakStatement = exports.PIf = void 0;
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const expression_1 = require("../expression");
-class PIf extends statement_1.PStatement {
+class PIf extends PStatement_1.PStatement {
     constructor(_if, context) {
         super(_if, context);
         this._if = _if;
@@ -72,7 +72,7 @@ class PIf extends statement_1.PStatement {
     }
 }
 exports.PIf = PIf;
-class PBreakStatement extends statement_1.PStatement {
+class PBreakStatement extends PStatement_1.PStatement {
     constructor(breakStatement, context) {
         super(breakStatement, context);
         this.breakStatement = breakStatement;
@@ -89,7 +89,7 @@ class PBreakStatement extends statement_1.PStatement {
     }
 }
 exports.PBreakStatement = PBreakStatement;
-class PContinueStatement extends statement_1.PStatement {
+class PContinueStatement extends PStatement_1.PStatement {
     constructor(continueStatement, context) {
         super(continueStatement, context);
         this.continueStatement = continueStatement;
@@ -106,7 +106,7 @@ class PContinueStatement extends statement_1.PStatement {
     }
 }
 exports.PContinueStatement = PContinueStatement;
-class PReturnStatement extends statement_1.PStatement {
+class PReturnStatement extends PStatement_1.PStatement {
     constructor(returnStatement, context) {
         super(returnStatement, context);
         this.returnStatement = returnStatement;

@@ -4,7 +4,7 @@ import {
 } from '../../il';
 import { Space } from '../space';
 import { Token } from '../tokens';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 
 export class PValueStatement extends PStatement<ValueStatement> {
     private valueXi: ValueXi;

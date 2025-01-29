@@ -15,6 +15,9 @@ class PickParam extends Bud_1.BizBudValue {
         this.canIndex = false;
         this.dataType = BizPhraseType_1.BudDataType.none;
     }
+    clone(entity, name, ui) {
+        return new PickParam(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PPickParam(this, context);
     }
@@ -28,6 +31,9 @@ class BinPick extends Bud_1.BizBud {
         super(bin, name, ui);
         this.dataType = BizPhraseType_1.BudDataType.none;
         this.bin = bin;
+    }
+    clone(entity, name, ui) {
+        return new BinPick(this.bin, name, ui);
     }
     parser(context) {
         return new parser_1.PBinPick(this, context);
@@ -144,6 +150,9 @@ class BinInputFork extends BinInput {
         super(...arguments);
         this.params = [];
     }
+    clone(entity, name, ui) {
+        return new BinInputFork(this.bin, name, ui);
+    }
     parser(context) {
         return new parser_1.PBinInputFork(this, context);
     }
@@ -165,6 +174,9 @@ class BinInputFork extends BinInput {
 }
 exports.BinInputFork = BinInputFork;
 class BinInputAtom extends BinInput {
+    clone(entity, name, ui) {
+        return new BinInputAtom(this.bin, name, ui);
+    }
     parser(context) {
         return new parser_1.PBinInputAtom(this, context);
     }

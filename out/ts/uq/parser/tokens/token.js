@@ -50,6 +50,7 @@ var Token;
     Token[Token["QuestionEQU"] = 43] = "QuestionEQU";
     Token[Token["COLONEQU"] = 61] = "COLONEQU";
     Token[Token["SubGT"] = 62] = "SubGT";
+    Token[Token["COLONCOLON"] = 63] = "COLONCOLON";
     Token[Token["Exclamation"] = 66] = "Exclamation";
     Token[Token["ChinsePunctuation"] = 98] = "ChinsePunctuation";
     Token[Token["Memo"] = 99] = "Memo";

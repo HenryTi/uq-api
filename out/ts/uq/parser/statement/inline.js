@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PInlineStatement = void 0;
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const dbTypes = ['mysql', 'mssql', 'oracle'];
-class PInlineStatement extends statement_1.PStatement {
+class PInlineStatement extends PStatement_1.PStatement {
     constructor(inline, context) {
         super(inline, context);
         this.inline = inline;

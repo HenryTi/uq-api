@@ -1,6 +1,6 @@
 import { BizLog, LogArray, LogObject, LogScalar, LogType, LogValue, ValueExpression } from "../../../il";
 import { Space } from "../../space";
-import { PStatement } from "../../statement";
+import { PStatement } from "../../PStatement";
 import { Token } from "../../tokens";
 
 export class PBizLog extends PStatement<BizLog> {

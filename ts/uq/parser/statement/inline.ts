@@ -1,6 +1,6 @@
 import { Space } from '../space';
 import { InlineStatement } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 
 const dbTypes = ['mysql', 'mssql', 'oracle'];

@@ -4,8 +4,8 @@ exports.PPendingWrite = void 0;
 const space_1 = require("../space");
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
-class PPendingWrite extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PPendingWrite extends PStatement_1.PStatement {
     constructor(write, context) {
         super(write, context);
         this.write = write;

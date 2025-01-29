@@ -1,7 +1,7 @@
 import { PutStatement, ValueExpression } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
-import { PStatement } from "./statement";
+import { PStatement } from "../PStatement";
 
 export class PPutStatement extends PStatement<PutStatement> {
     protected _parse(): void {

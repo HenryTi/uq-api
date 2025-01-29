@@ -7,7 +7,7 @@ import {
     , BizStatementFork, BizStatementOut, BizBudArr, BizOut, BizStatementTie, BizTie
     , BizFromEntity, BizStatementError
 } from '../../../il';
-import { PStatement } from '../../statement/statement';
+import { PStatement } from '../../PStatement';
 import { PContext } from '../../pContext';
 import { Token } from '../../tokens';
 import { binFieldArr } from '../../../consts';

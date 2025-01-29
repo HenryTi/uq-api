@@ -1,7 +1,7 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { BusStatement, ValueExpression, BusAction, BusField, Uq } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 import { FaceAcceptSchema, FaceQuerySchema } from '../../il/busSchema';
 

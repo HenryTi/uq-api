@@ -1,6 +1,6 @@
 import { Space } from '../space';
 import { EnumTransaction, TransactionStatement } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 
 export class PTransactionStatement extends PStatement {

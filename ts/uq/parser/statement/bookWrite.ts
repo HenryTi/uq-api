@@ -1,34 +1,36 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
-import { BookWrite, SetEqu, ValueExpression, GroupType, 
-    Entity, Table, Pointer,Book, Map, TableVar, BookBase } from '../../il';
-import { PStatement } from './statement';
+import {
+    BookWrite, SetEqu, ValueExpression, GroupType,
+    Entity, Table, Pointer, Book, Map, TableVar, BookBase
+} from '../../il';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 
 export class PBookWrite extends PStatement {
-	private bookName: string;
-	private hasStar: boolean;
+    private bookName: string;
+    private hasStar: boolean;
     write: BookWrite;
     constructor(write: BookWrite, context: PContext) {
         super(write, context);
         this.write = write;
     }
-    
+
     protected _parse() {
         if (this.ts.token !== Token.VAR) {
             this.expect('book名称');
         }
-		this.bookName = this.ts.lowerVar;
-		this.hasStar = false;
+        this.bookName = this.ts.lowerVar;
+        this.hasStar = false;
         this.ts.readToken();
-		if (this.ts.isKeyword('as') === true) {
-			this.ts.readToken();
-			if (this.ts.token !== Token.VAR) {
-				this.ts.expect('table aliase');
-			}
-			this.write.alias = this.ts.lowerVar;
-			this.ts.readToken();
-		}
+        if (this.ts.isKeyword('as') === true) {
+            this.ts.readToken();
+            if (this.ts.token !== Token.VAR) {
+                this.ts.expect('table aliase');
+            }
+            this.write.alias = this.ts.lowerVar;
+            this.ts.readToken();
+        }
         if (this.ts.isKeyword('pull') === true) {
             this.write.isPull = true;
             this.ts.readToken();
@@ -37,19 +39,19 @@ export class PBookWrite extends PStatement {
         this.ts.readToken();
         this.ts.assertToken(Token.LPARENTHESE);
         this.ts.readToken();
-        for (;;) {
-			let valueExp: ValueExpression;
-			if (this.ts.token === Token.MUL) {
-				this.ts.readToken();
-				this.hasStar = true;
-				this.write.at.push(undefined);
-			}
-			else {
-				valueExp = new ValueExpression();
-				this.write.at.push(valueExp);
-				let parser = valueExp.parser(this.context);
-				parser.parse();
-			}
+        for (; ;) {
+            let valueExp: ValueExpression;
+            if (this.ts.token === Token.MUL) {
+                this.ts.readToken();
+                this.hasStar = true;
+                this.write.at.push(undefined);
+            }
+            else {
+                valueExp = new ValueExpression();
+                this.write.at.push(valueExp);
+                let parser = valueExp.parser(this.context);
+                parser.parse();
+            }
             if (this.ts.token === Token.RPARENTHESE) {
                 this.ts.readToken();
                 break;
@@ -63,7 +65,7 @@ export class PBookWrite extends PStatement {
         if (this.ts.lowerVar !== 'set') return;
         this.ts.assertKey('set');
         this.ts.readToken();
-        for (;;) {
+        for (; ;) {
             this.ts.assertToken(Token.VAR);
             let col = this.ts.lowerVar;
             this.ts.readToken();
@@ -78,7 +80,7 @@ export class PBookWrite extends PStatement {
             let valueExp = new ValueExpression();
             let parser = valueExp.parser(this.context);
             parser.parse();
-            this.write.set.push({col:col, field:undefined, equ:equ, value:valueExp});
+            this.write.set.push({ col: col, field: undefined, equ: equ, value: valueExp });
             if (this.ts.token === Token.SEMICOLON as any) {
                 this.ts.readToken();
                 return;
@@ -92,37 +94,37 @@ export class PBookWrite extends PStatement {
 
     scan(space: Space): boolean {
         let ok = true;
-		let bookName = this.bookName;
-		let book:BookBase|TableVar;
+        let bookName = this.bookName;
+        let book: BookBase | TableVar;
         let entity = space.getEntityTable(bookName) as BookBase;
         if (entity === undefined) {
-			let table = space.getLocalTable(bookName) as TableVar;
-			if (table === undefined) {
-				this.log(bookName + ' 没有定义');
-				return false;
-			}
-			book = table;
+            let table = space.getLocalTable(bookName) as TableVar;
+            if (table === undefined) {
+                this.log(bookName + ' 没有定义');
+                return false;
+            }
+            book = table;
         }
         else {
-            let {type} = entity;
+            let { type } = entity;
             if (type === 'map') {
-                let ent:Map = entity as Map;
+                let ent: Map = entity as Map;
                 if (ent.from !== undefined && !(this.write.isPull === true)) {
                     this.log(`导入的Map ${bookName}不可以直接创建和写入，只能从源拉取`);
                     ok = false;
                 }
-			}
-			else if (type === 'book') {
-				if (this.hasStar === true) {
-					this.log('BOOK 不支持 * 写入');
-					ok = false;
-				}
-			}
+            }
+            else if (type === 'book') {
+                if (this.hasStar === true) {
+                    this.log('BOOK 不支持 * 写入');
+                    ok = false;
+                }
+            }
             else {
                 this.log(bookName + ' 不是book也不是map');
                 ok = false;
-			}
-			book = entity;
+            }
+            book = entity;
         }
         this.write.book = book;
         let at = this.write.at;
@@ -132,12 +134,12 @@ export class PBookWrite extends PStatement {
         }
         let theSpace = new BookWriteSpace(space, this.write);
         for (let a of at) {
-			if (a === undefined) continue;
+            if (a === undefined) continue;
             if (a.pelement.scan(theSpace) === false) ok = false;
         }
         let set = this.write.set;
         for (let s of set) {
-            let {col, value} = s;
+            let { col, value } = s;
             let field = book.getField(col);
             if (field === undefined) {
                 ok = false;
@@ -155,12 +157,12 @@ export class PBookWrite extends PStatement {
 class BookWriteSpace extends Space {
     private _groupType: GroupType = GroupType.Both;
     private bookWrite: BookWrite;
-    constructor(outer:Space, bookWrite:BookWrite) {
+    constructor(outer: Space, bookWrite: BookWrite) {
         super(outer);
         this.bookWrite = bookWrite;
     }
-    get groupType():GroupType {return this._groupType;}
-    set groupType(value:GroupType) {this._groupType = value;}
+    get groupType(): GroupType { return this._groupType; }
+    set groupType(value: GroupType) { this._groupType = value; }
     protected _getEntityTable(name: string): Entity & Table {
         return;
     }

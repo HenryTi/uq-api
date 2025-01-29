@@ -1,8 +1,8 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
-import {StateToStatement} from '../../il';
-import {PStatement} from './statement';
-import {PContext} from '../pContext';
+import { StateToStatement } from '../../il';
+import { PStatement } from '../PStatement';
+import { PContext } from '../pContext';
 
 export class PStateTo extends PStatement {
     stateTo: StateToStatement;
@@ -10,7 +10,7 @@ export class PStateTo extends PStatement {
         super(stateTo, context);
         this.stateTo = stateTo;
     }
-    
+
     protected _parse() {
         if (this.ts.isKeyword('to') !== true) this.expect('to');
         this.ts.readToken();
@@ -19,11 +19,11 @@ export class PStateTo extends PStatement {
         this.ts.readToken();
     }
 
-    scan(space: Space):boolean {
+    scan(space: Space): boolean {
         let to = this.stateTo.to;
         switch (to) {
             case 'start':
-            case 'end': 
+            case 'end':
             case 'delete': return true;
         }
         let states = space.getStates();

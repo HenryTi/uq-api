@@ -2,7 +2,7 @@ import { Space } from '../space';
 import { Token } from '../tokens';
 import { SelectSpace } from '../select';
 import { SelectStatement, Select, Return, Column, ValueExpression, Field, Queue, OpTypeof } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 import { TokenStream } from '../tokens';
 

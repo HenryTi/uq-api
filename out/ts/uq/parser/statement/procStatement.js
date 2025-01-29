@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PProcStatement = void 0;
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const tokens_1 = require("../tokens");
 const expression_1 = require("../expression");
-class PProcStatement extends statement_1.PStatement {
+class PProcStatement extends PStatement_1.PStatement {
     constructor(proc, context) {
         super(proc, context);
         this.proc = proc;

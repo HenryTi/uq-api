@@ -5,8 +5,8 @@ const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
-class PUseStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PUseStatement extends PStatement_1.PStatement {
     _parse() {
         let key = this.ts.passKey();
         let useBase;

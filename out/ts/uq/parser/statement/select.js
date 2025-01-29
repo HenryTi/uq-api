@@ -4,10 +4,10 @@ exports.PSelectStatement = void 0;
 const tokens_1 = require("../tokens");
 const select_1 = require("../select");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const pContext_1 = require("../pContext");
 const tokens_2 = require("../tokens");
-class PSelectStatement extends statement_1.PStatement {
+class PSelectStatement extends PStatement_1.PStatement {
     constructor(selectStatement, context) {
         super(selectStatement, context);
         this.selectStatement = selectStatement;

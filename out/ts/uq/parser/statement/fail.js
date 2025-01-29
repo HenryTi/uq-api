@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PFail = void 0;
-const statement_1 = require("./statement");
-class PFail extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PFail extends PStatement_1.PStatement {
     constructor(fail, context) {
         super(fail, context);
         this.fail = fail;

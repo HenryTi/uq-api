@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PPutStatement = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
-class PPutStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PPutStatement extends PStatement_1.PStatement {
     _parse() {
         if (this.ts.token === tokens_1.Token.EQU) {
             this.ts.readToken();

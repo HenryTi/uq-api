@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PSettingStatement = void 0;
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
-class PSettingStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PSettingStatement extends PStatement_1.PStatement {
     constructor(setting, context) {
         super(setting, context);
         this.setting = setting;

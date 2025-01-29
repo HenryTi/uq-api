@@ -48,6 +48,7 @@ export enum Token {
 
     COLONEQU = 61,
     SubGT = 62,         // ->
+    COLONCOLON = 63,
     Exclamation = 66,   // !
 
     ChinsePunctuation = 98,

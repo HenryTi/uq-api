@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PTableStatement = void 0;
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
-class PTableStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PTableStatement extends PStatement_1.PStatement {
     constructor(table, context) {
         super(table, context);
         this.table = table;

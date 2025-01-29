@@ -1,7 +1,7 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { ValueExpression, Tuid, TuidWrite, NamePointer, TuidArr, SetEqu } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 
 export class PTuidWrite extends PStatement {

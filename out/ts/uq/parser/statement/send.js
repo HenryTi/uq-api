@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PSendStatement = void 0;
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const __1 = require("..");
 const messages = ['email', 'sms'];
 const methods = [...messages, 'app'];
-class PSendStatement extends statement_1.PStatement {
+class PSendStatement extends PStatement_1.PStatement {
     constructor(sendStatement, context) {
         super(sendStatement, context);
         this.sendStatement = sendStatement;

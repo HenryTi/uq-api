@@ -351,12 +351,18 @@ class TokenStream {
                     break;
                 case char_1.Char.COLON:
                     this.advance();
-                    if (this.cur === char_1.Char.EQU) {
-                        this.token = token_1.Token.COLONEQU;
-                        this.advance();
-                    }
-                    else {
-                        this.token = token_1.Token.COLON;
+                    switch (this.cur) {
+                        case char_1.Char.EQU:
+                            this.token = token_1.Token.COLONEQU;
+                            this.advance();
+                            break;
+                        case char_1.Char.COLON:
+                            this.token = token_1.Token.COLONCOLON;
+                            this.advance();
+                            break;
+                        default:
+                            this.token = token_1.Token.COLON;
+                            break;
                     }
                     break;
                 case char_1.Char.TOPANGLE:

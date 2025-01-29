@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizStatementError = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../../il");
-const statement_1 = require("../../statement/statement");
+const PStatement_1 = require("../../PStatement");
 const tokens_1 = require("../../tokens");
 const consts_1 = require("../../../consts");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const biz_statement_sub_1 = require("./biz.statement.sub");
-class PBizStatement extends statement_1.PStatement {
+class PBizStatement extends PStatement_1.PStatement {
     constructor(bizStatement, context) {
         super(bizStatement, context);
         this.bizSubs = {

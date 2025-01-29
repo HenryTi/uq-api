@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PStateTo = void 0;
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
-class PStateTo extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PStateTo extends PStatement_1.PStatement {
     constructor(stateTo, context) {
         super(stateTo, context);
         this.stateTo = stateTo;

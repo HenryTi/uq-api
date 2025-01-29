@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PScheduleStatement = void 0;
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
-class PScheduleStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PScheduleStatement extends PStatement_1.PStatement {
     constructor(schedule, context) {
         super(schedule, context);
         this.schedule = schedule;

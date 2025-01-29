@@ -36,7 +36,8 @@ export class FromStatementInQuery extends FromStatement {
         let { pointer } = atom as VarOperand;
         let bud: BizBud = (pointer as unknown as any).bud;
         if (bud === undefined) return;
-        if (bud.dataType !== BudDataType.atom) return;
+        // 这一步为什么要屏蔽呢？没有想明白
+        // if (bud.dataType !== BudDataType.atom) return;
         col.valBud = bud;
     }
 }

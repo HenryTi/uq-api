@@ -13,6 +13,7 @@ import { Select, Delete, CTE } from '../select';
 import { FaceDataType } from '../busSchema';
 import { BizAct, BizBinAct, BizInAct } from '../Biz';
 import { SetEqu } from '../tool';
+import { PActionStatement, PBusAcceptStatement, PBusQueryStatement, PQueryStatement, PUqStatement } from '../../parser/PStatement';
 
 export abstract class Statement extends IElement {
     protected readonly parent: Statement;
@@ -64,7 +65,7 @@ export abstract class Statements extends Statement {
 
 abstract class ActionBaseStatement extends Statements {
     parser(context: parser.PContext) {
-        return new parser.PActionStatement(this, context);
+        return new PActionStatement(this, context);
     }
     db(db: Builder): object { return; }
 }
@@ -80,7 +81,7 @@ export class ActionStatement extends ActionBaseStatement {
 export class UqStatement extends Statements {
     get type(): string { return 'uqstatement'; }
     parser(context: parser.PContext) {
-        return new parser.PUqStatement(this, context);
+        return new PUqStatement(this, context);
     }
     db(db: Builder): object { return; }
     createStatements = (parent: Statement) => { return new UqStatement(parent); }
@@ -110,7 +111,7 @@ export class BusAcceptStatement extends Statements {
     }
     get type(): string { return 'busacceptstatement'; }
     parser(context: parser.PContext) {
-        return new parser.PBusAcceptStatement(this, context);
+        return new PBusAcceptStatement(this, context);
     }
     createStatements = (parent: Statement) => { return new BusAcceptStatement(parent, this.busable); }
     db(db: Builder): object { return; }
@@ -118,7 +119,7 @@ export class BusAcceptStatement extends Statements {
 export class QueryBaseStatement extends Statements {
     get type(): string { return 'querystatement'; }
     parser(context: parser.PContext) {
-        return new parser.PQueryStatement(this, context);
+        return new PQueryStatement(this, context);
     }
     createStatements = (parent: Statement) => { return new QueryStatement(parent); }
     db(db: Builder): object { return; }
@@ -131,7 +132,7 @@ export class BusQueryStatement extends QueryBaseStatement {
     }
     get type(): string { return 'busacceptstatement'; }
     parser(context: parser.PContext) {
-        return new parser.PBusQueryStatement(this, context);
+        return new PBusQueryStatement(this, context);
     }
     createStatements = (parent: Statement) => { return new BusQueryStatement(parent, this.busable); }
     db(db: Builder): object { return; }
@@ -139,7 +140,7 @@ export class BusQueryStatement extends QueryBaseStatement {
 export class QueryStatement extends QueryBaseStatement {
     get type(): string { return 'querystatement'; }
     parser(context: parser.PContext) {
-        return new parser.PQueryStatement(this, context);
+        return new PQueryStatement(this, context);
     }
     createStatements = (parent: Statement) => { return new QueryStatement(parent); }
     db(db: Builder): object { return; }

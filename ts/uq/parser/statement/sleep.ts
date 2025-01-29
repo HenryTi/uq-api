@@ -1,7 +1,7 @@
 import { Space } from '../space';
-import {SleepStatement, ValueExpression} from '../../il';
-import {PStatement} from './statement';
-import {PContext} from '../pContext';
+import { SleepStatement, ValueExpression } from '../../il';
+import { PStatement } from '../PStatement';
+import { PContext } from '../pContext';
 
 export class PSleepStatement extends PStatement {
     private sleepStatement: SleepStatement;
@@ -11,17 +11,17 @@ export class PSleepStatement extends PStatement {
     }
 
     protected _parse() {
-		let val = new ValueExpression();
-		val.parser(this.context).parse();
-		this.sleepStatement.value = val;
-	}
+        let val = new ValueExpression();
+        val.parser(this.context).parse();
+        this.sleepStatement.value = val;
+    }
 
-	scan(space: Space):boolean {
-		let ok = true;
-		let {value} = this.sleepStatement;
-		if (value) {
-			if (value.pelement.scan(space) === false) ok = false;
-		}
-		return ok;
-	}
+    scan(space: Space): boolean {
+        let ok = true;
+        let { value } = this.sleepStatement;
+        if (value) {
+            if (value.pelement.scan(space) === false) ok = false;
+        }
+        return ok;
+    }
 }

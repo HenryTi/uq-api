@@ -145,7 +145,8 @@ class PVarOperand extends element_1.PElement {
                             pointer = new il_1.BizEntityBudPointer(_obj, bud);
                         }
                         else if (fieldName !== undefined) {
-                            pointer = new il_1.BizEntityFieldPointer(_obj, fieldName);
+                            pointer = fieldName === 'id' ? new il_1.BizEntityFieldIdPointer(_obj) :
+                                new il_1.BizEntityFieldPointer(_obj, fieldName);
                         }
                         else {
                             this.log(`Biz entity ${bizEntityArr.map(v => v.jName).join(',')} has not ${var1}`);
@@ -153,7 +154,7 @@ class PVarOperand extends element_1.PElement {
                         }
                     }
                     else if (var1 === 'id') {
-                        pointer = new il_1.BizEntityFieldPointer(_obj, var1);
+                        pointer = new il_1.BizEntityFieldIdPointer(_obj);
                     }
                     else {
                         this.log(`unknown ${var0}.${var1}`);

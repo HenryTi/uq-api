@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PContinueStatement = exports.PBreakStatement = exports.PWhile = void 0;
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
+const PStatement_1 = require("../PStatement");
 const expression_1 = require("../expression");
-class PWhile extends statement_1.PStatement {
+class PWhile extends PStatement_1.PStatement {
     constructor(whileLoop, context) {
         super(whileLoop, context);
         this.whileLoop = whileLoop;
@@ -31,7 +31,7 @@ class PWhile extends statement_1.PStatement {
     }
 }
 exports.PWhile = PWhile;
-class PBreakStatement extends statement_1.PStatement {
+class PBreakStatement extends PStatement_1.PStatement {
     constructor(breakStatement, context) {
         super(breakStatement, context);
         this.breakStatement = breakStatement;
@@ -48,7 +48,7 @@ class PBreakStatement extends statement_1.PStatement {
     }
 }
 exports.PBreakStatement = PBreakStatement;
-class PContinueStatement extends statement_1.PStatement {
+class PContinueStatement extends PStatement_1.PStatement {
     constructor(continueStatement, context) {
         super(continueStatement, context);
         this.continueStatement = continueStatement;

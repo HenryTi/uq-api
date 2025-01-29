@@ -4,6 +4,7 @@ import {
     , PIOAppID, PIOAppIn, PIOAppOptions, PIOAppOut, PIOPeerArr, PIOPeerID, PIOPeerOptions, PIOPeerScalar, PIOPeers
 } from "../../parser";
 import { IElement } from "../IElement";
+import { UI } from "../UI";
 import { BizAct } from "./Base";
 import { Biz } from "./Biz";
 import { IDUnique, BizAtom } from "./BizID";
@@ -68,6 +69,9 @@ export class IOAppID extends BizBud {
     readonly dataType = BudDataType.any;
     readonly atoms: BizAtom[] = [];
     unique: IDUnique;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new IOAppID(entity, name, ui);
+    }
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppID(this, context);
     }
@@ -81,6 +85,9 @@ export class IOAppID extends BizBud {
 export class IOAppOptions extends BizBud {
     readonly dataType = BudDataType.any;
     options: BizOptions;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new IOAppOptions(entity, name, ui);
+    }
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppOptions(this, context);
     }
@@ -173,6 +180,9 @@ export abstract class IOAppIO extends BizBud {
 }
 
 export class IOAppIn extends IOAppIO {
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new IOAppIn(this.ioApp);
+    }
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppIn(this, context);
     }
@@ -180,6 +190,9 @@ export class IOAppIn extends IOAppIO {
 
 export class IOAppOut extends IOAppIO {
     to: string;     // peer act name
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new IOAppOut(this.ioApp);
+    }
     override parser(context: PContext): PElement<IElement> {
         return new PIOAppOut(this, context);
     }

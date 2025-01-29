@@ -18,7 +18,7 @@ import {
 import { BizPhraseType } from "../../../il/Biz/BizPhraseType";
 import { Space } from "../../space";
 import { Token } from "../../tokens";
-import { PStatement } from "../../statement/statement";
+import { PStatement } from "../../PStatement";
 import { SameTypeEntityArrReturn } from "../../../il/Biz/Biz";
 
 interface PFromEntity {

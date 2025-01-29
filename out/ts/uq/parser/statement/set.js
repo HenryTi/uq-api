@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PSetStatement = void 0;
 const il_1 = require("../../il");
 const tokens_1 = require("../tokens");
-const statement_1 = require("./statement");
-class PSetStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PSetStatement extends PStatement_1.PStatement {
     constructor(set, context) {
         super(set, context);
         this.set = set;

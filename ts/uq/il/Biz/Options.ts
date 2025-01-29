@@ -1,8 +1,9 @@
 import { PBizOptions, PContext, PElement } from "../../parser";
 import { IElement } from "../IElement";
+import { UI } from "../UI";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
-import { BizID } from "./Entity";
+import { BizEntity, BizID } from "./Entity";
 
 export enum OptionsItemValueType {
     none = 0,
@@ -17,6 +18,9 @@ export class OptionsItem extends BizBudValue {
     _itemType: OptionsItemValueType;
     get optionsItemType(): OptionsItemValueType { return this._itemType; }
 
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new OptionsItem(entity, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         debugger;
         return;

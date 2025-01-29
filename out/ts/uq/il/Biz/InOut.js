@@ -62,6 +62,9 @@ class IOAppID extends Bud_1.BizBud {
         this.dataType = BizPhraseType_1.BudDataType.any;
         this.atoms = [];
     }
+    clone(entity, name, ui) {
+        return new IOAppID(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PIOAppID(this, context);
     }
@@ -76,6 +79,9 @@ class IOAppOptions extends Bud_1.BizBud {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.any;
+    }
+    clone(entity, name, ui) {
+        return new IOAppOptions(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PIOAppOptions(this, context);
@@ -165,12 +171,18 @@ class IOAppIO extends Bud_1.BizBud {
 }
 exports.IOAppIO = IOAppIO;
 class IOAppIn extends IOAppIO {
+    clone(entity, name, ui) {
+        return new IOAppIn(this.ioApp);
+    }
     parser(context) {
         return new parser_1.PIOAppIn(this, context);
     }
 }
 exports.IOAppIn = IOAppIn;
 class IOAppOut extends IOAppIO {
+    clone(entity, name, ui) {
+        return new IOAppOut(this.ioApp);
+    }
     parser(context) {
         return new parser_1.PIOAppOut(this, context);
     }

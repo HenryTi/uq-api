@@ -6,6 +6,7 @@ const parser = require("../../parser");
 const IElement_1 = require("../IElement");
 const field_1 = require("../field");
 const pointer_1 = require("../pointer");
+const PStatement_1 = require("../../parser/PStatement");
 class Statement extends IElement_1.IElement {
     constructor(parent) {
         super();
@@ -46,7 +47,7 @@ class Statements extends Statement {
 exports.Statements = Statements;
 class ActionBaseStatement extends Statements {
     parser(context) {
-        return new parser.PActionStatement(this, context);
+        return new PStatement_1.PActionStatement(this, context);
     }
     db(db) { return; }
 }
@@ -65,7 +66,7 @@ class UqStatement extends Statements {
     }
     get type() { return 'uqstatement'; }
     parser(context) {
-        return new parser.PUqStatement(this, context);
+        return new PStatement_1.PUqStatement(this, context);
     }
     db(db) { return; }
 }
@@ -95,7 +96,7 @@ class BusAcceptStatement extends Statements {
     }
     get type() { return 'busacceptstatement'; }
     parser(context) {
-        return new parser.PBusAcceptStatement(this, context);
+        return new PStatement_1.PBusAcceptStatement(this, context);
     }
     db(db) { return; }
 }
@@ -107,7 +108,7 @@ class QueryBaseStatement extends Statements {
     }
     get type() { return 'querystatement'; }
     parser(context) {
-        return new parser.PQueryStatement(this, context);
+        return new PStatement_1.PQueryStatement(this, context);
     }
     db(db) { return; }
 }
@@ -120,7 +121,7 @@ class BusQueryStatement extends QueryBaseStatement {
     }
     get type() { return 'busacceptstatement'; }
     parser(context) {
-        return new parser.PBusQueryStatement(this, context);
+        return new PStatement_1.PBusQueryStatement(this, context);
     }
     db(db) { return; }
 }
@@ -132,7 +133,7 @@ class QueryStatement extends QueryBaseStatement {
     }
     get type() { return 'querystatement'; }
     parser(context) {
-        return new parser.PQueryStatement(this, context);
+        return new PStatement_1.PQueryStatement(this, context);
     }
     db(db) { return; }
 }

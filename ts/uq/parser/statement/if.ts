@@ -2,7 +2,7 @@ import { PElement } from '../element';
 import { Space } from '../space';
 import { Token } from '../tokens';
 import { If, CompareExpression, BreakStatement, ContinueStatement, ReturnStatement, ValueExpression } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { ExpressionSpace } from '../expression';
 import { PContext } from '../pContext';
 

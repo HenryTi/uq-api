@@ -1,31 +1,31 @@
 import { Space } from '../space';
 import { Token } from '../tokens';
-import {ValueExpression, History, HistoryWrite, GroupType, Entity, Table, Pointer} from '../../il';
-import {PStatement} from './statement';
-import {PContext} from '../pContext';
+import { ValueExpression, History, HistoryWrite, GroupType, Entity, Table, Pointer } from '../../il';
+import { PStatement } from '../PStatement';
+import { PContext } from '../pContext';
 
 export class PHistoryWrite extends PStatement {
-	private historyName: string;
+    private historyName: string;
     write: HistoryWrite;
     constructor(write: HistoryWrite, context: PContext) {
         super(write, context);
         this.write = write;
     }
-    
+
     protected _parse() {
         if (this.ts.token !== Token.VAR) {
             this.expect('history名称');
         }
         this.historyName = this.ts.lowerVar;
         this.ts.readToken();
-		if (this.ts.isKeyword('as') === true) {
-			this.ts.readToken();
-			if (this.ts.token !== Token.VAR) {
-				this.ts.expect('table aliase');
-			}
-			this.write.alias = this.ts.lowerVar;
-			this.ts.readToken();
-		}
+        if (this.ts.isKeyword('as') === true) {
+            this.ts.readToken();
+            if (this.ts.token !== Token.VAR) {
+                this.ts.expect('table aliase');
+            }
+            this.write.alias = this.ts.lowerVar;
+            this.ts.readToken();
+        }
         /*
         if (this.ts.isKeyword('of')) this.ts.readToken();
         this.ts.assertToken(Token.LPARENTHESE);
@@ -60,7 +60,7 @@ export class PHistoryWrite extends PStatement {
 
         this.ts.assertKey('set');
         this.ts.readToken();
-        for (;;) {
+        for (; ;) {
             this.ts.assertToken(Token.VAR);
             let col = this.ts.lowerVar;
             this.ts.readToken();
@@ -69,7 +69,7 @@ export class PHistoryWrite extends PStatement {
             let valueExp = new ValueExpression();
             let parser = valueExp.parser(this.context);
             parser.parse();
-            this.write.set.push({col:col, field:undefined, value:valueExp});
+            this.write.set.push({ col: col, field: undefined, value: valueExp });
             if (this.ts.token === Token.SEMICOLON as any) {
                 this.ts.readToken();
                 return;
@@ -94,7 +94,7 @@ export class PHistoryWrite extends PStatement {
 
     scan(space: Space): boolean {
         let ok = true;
-        let {set, date} = this.write;
+        let { set, date } = this.write;
         let entity = space.getEntityTable(this.historyName);
         if (entity === undefined) {
             this.log(this.historyName + ' 没有定义');
@@ -121,7 +121,7 @@ export class PHistoryWrite extends PStatement {
 
         let theSpace = new HistoryWriteSpace(space, this.write);
         for (let s of set) {
-            let {col, value} = s;
+            let { col, value } = s;
             let field = history.getField(col);
             if (field === undefined) {
                 ok = false;
@@ -144,12 +144,12 @@ export class PHistoryWrite extends PStatement {
 class HistoryWriteSpace extends Space {
     private _groupType: GroupType = GroupType.Both;
     private write: HistoryWrite;
-    constructor(outer:Space, write:HistoryWrite) {
+    constructor(outer: Space, write: HistoryWrite) {
         super(outer);
         this.write = write;
     }
-    get groupType():GroupType {return this._groupType;}
-    set groupType(value:GroupType) {this._groupType = value;}
+    get groupType(): GroupType { return this._groupType; }
+    set groupType(value: GroupType) { this._groupType = value; }
     protected _getEntityTable(name: string): Entity & Table {
         return;
     }

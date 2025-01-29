@@ -22,6 +22,9 @@ import { BizOptions } from "./Options";
 export class PickParam extends BizBudValue {
     readonly canIndex = false;
     readonly dataType = BudDataType.none;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new PickParam(entity, name, ui);
+    }
     override parser(context: PContext): PElement<IElement> {
         return new PPickParam(this, context);
     }
@@ -41,6 +44,9 @@ export class BinPick extends BizBud {
     constructor(bin: BizBin, name: string, ui: Partial<UI>) {
         super(bin, name, ui);
         this.bin = bin;
+    }
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BinPick(this.bin, name, ui);
     }
     parser(context: PContext): PElement<IElement> {
         return new PBinPick(this, context);
@@ -162,6 +168,9 @@ export class BinInputFork extends BinInput {
     private baseValueStr: string;
     paramsArr: [number, string, string][];
 
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BinInputFork(this.bin, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBinInputFork(this, context);
     }
@@ -185,6 +194,9 @@ export class BinInputFork extends BinInput {
 
 export class BinInputAtom extends BinInput {
     atom: BizAtom;
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BinInputAtom(this.bin, name, ui);
+    }
     parser(context: PContext): PElement<IElement> {
         return new PBinInputAtom(this, context);
     }

@@ -1,6 +1,6 @@
 import { Space } from '../space';
 import { ExecSqlStatement, ValueExpression, NamePointer } from '../../il';
-import { PStatement } from './statement';
+import { PStatement } from '../PStatement';
 import { PContext } from '../pContext';
 
 export class PExecSqlStatement extends PStatement {

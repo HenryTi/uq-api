@@ -5,7 +5,7 @@ import {
     , Statements, Statement, budClasses, budClassKeys
     , BizUser, budClassesUser, BudValueSetType
 } from "../../il";
-import { PStatements } from "../statement";
+import { PStatements } from "../PStatement";
 import { UI } from "../../il/UI";
 import { binFieldArr } from "../../consts";
 import { PElement } from "../element";
@@ -105,6 +105,10 @@ export abstract class PBizBase<B extends BizBase> extends PElement<B> {
                 break;
             case Token.COLON:
                 setType = BudValueSetType.show;
+                this.ts.readToken();
+                break;
+            case Token.COLONCOLON:
+                setType = BudValueSetType.bound;
                 this.ts.readToken();
                 break;
         }

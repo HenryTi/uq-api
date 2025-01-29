@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizActStatements = exports.PBizAct = exports.PBizSearch = exports.PBizEntity = exports.PBizUser = exports.PBizBase = void 0;
 const il_1 = require("../../il");
-const statement_1 = require("../statement");
+const PStatement_1 = require("../PStatement");
 const consts_1 = require("../../consts");
 const element_1 = require("../element");
 const tokens_1 = require("../tokens");
@@ -131,6 +131,10 @@ class PBizBase extends element_1.PElement {
                 break;
             case tokens_1.Token.COLON:
                 setType = il_1.BudValueSetType.show;
+                this.ts.readToken();
+                break;
+            case tokens_1.Token.COLONCOLON:
+                setType = il_1.BudValueSetType.bound;
                 this.ts.readToken();
                 break;
         }
@@ -898,7 +902,7 @@ class PBizAct extends PBizBase {
     }
 }
 exports.PBizAct = PBizAct;
-class PBizActStatements extends statement_1.PStatements {
+class PBizActStatements extends PStatement_1.PStatements {
     constructor(statements, context, bizAct) {
         super(statements, context);
         this.bizAct = bizAct;

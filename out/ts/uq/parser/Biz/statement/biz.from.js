@@ -325,7 +325,14 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                 let bizEntity = space.getBizEntity();
                 if (bizEntity === undefined)
                     debugger;
-                let bud = new il_1.BizBudAny(bizEntity, name, ui);
+                let bud;
+                const { valBud } = col;
+                if (valBud !== undefined) {
+                    bud = valBud.clone(bizEntity, name, ui);
+                }
+                else {
+                    bud = new il_1.BizBudAny(bizEntity, name, ui);
+                }
                 col.bud = bud;
             }
         }

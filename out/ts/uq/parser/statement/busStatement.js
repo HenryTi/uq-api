@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBusStatement = void 0;
 const tokens_1 = require("../tokens");
 const il_1 = require("../../il");
-const statement_1 = require("./statement");
-class PBusStatement extends statement_1.PStatement {
+const PStatement_1 = require("../PStatement");
+class PBusStatement extends PStatement_1.PStatement {
     constructor(busStatement, context) {
         super(busStatement, context);
         this.fieldColl = {};

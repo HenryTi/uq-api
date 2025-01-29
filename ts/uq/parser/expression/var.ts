@@ -1,5 +1,9 @@
 import _ = require('lodash');
-import { Table, Pointer, UserPointer, UnitPointer, ConstPointer, BizEntityBudPointer, BizBud, BizEntity, BizEntityFieldPointer, OptionsItem, BizOptions, BizFromEntity, BizAtom, BizSheet, BizEntityForkUpPointer, BizEntityBinUpPointer } from '../../il';
+import {
+    Table, Pointer, UserPointer, UnitPointer, ConstPointer
+    , BizEntityBudPointer, BizBud, BizEntityFieldPointer, BizAtom, BizSheet
+    , BizEntityForkUpPointer, BizEntityBinUpPointer, BizEntityFieldIdPointer
+} from '../../il';
 import { VarOperand } from '../../il/Exp';
 import { PElement } from '../element';
 import { Space } from '../space';
@@ -147,7 +151,8 @@ export class PVarOperand extends PElement<VarOperand> {
                             pointer = new BizEntityBudPointer(_obj, bud);
                         }
                         else if (fieldName !== undefined) {
-                            pointer = new BizEntityFieldPointer(_obj, fieldName);
+                            pointer = fieldName === 'id' ? new BizEntityFieldIdPointer(_obj) :
+                                new BizEntityFieldPointer(_obj, fieldName);
                         }
                         else {
                             this.log(`Biz entity ${bizEntityArr.map(v => v.jName).join(',')} has not ${var1}`);
@@ -155,7 +160,7 @@ export class PVarOperand extends PElement<VarOperand> {
                         }
                     }
                     else if (var1 === 'id') {
-                        pointer = new BizEntityFieldPointer(_obj, var1);
+                        pointer = new BizEntityFieldIdPointer(_obj);
                     }
                     else {
                         this.log(`unknown ${var0}.${var1}`);

@@ -12,6 +12,7 @@ var BudValueSetType;
     BudValueSetType[BudValueSetType["equ"] = 1] = "equ";
     BudValueSetType[BudValueSetType["init"] = 2] = "init";
     BudValueSetType[BudValueSetType["show"] = 3] = "show";
+    BudValueSetType[BudValueSetType["bound"] = 4] = "bound";
 })(BudValueSetType || (exports.BudValueSetType = BudValueSetType = {}));
 exports.bizDecType = new datatype_1.Dec(18, 6);
 class BudGroup extends Base_1.BizBase {
@@ -103,6 +104,9 @@ class BizBudFork extends BizBudValue {
         this.dataType = BizPhraseType_1.BudDataType.fork;
         this.canIndex = false;
     }
+    clone(entity, name, ui) {
+        return new BizBudFork(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizBudFork(this, context);
     }
@@ -122,6 +126,9 @@ class BizBudArr extends BizBudValue {
         this.dataType = BizPhraseType_1.BudDataType.arr;
         this.canIndex = false;
         this.props = new Map();
+    }
+    clone(entity, name, ui) {
+        return new BizBudArr(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PBizBudArr(this, context);
@@ -146,6 +153,9 @@ class BizUser extends BizBud {
         this.dataType = BizPhraseType_1.BudDataType.user;
         this.defaults = [];
     }
+    clone(entity, name, ui) {
+        return new BizUser(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizUser(this, context);
     }
@@ -159,6 +169,9 @@ class BizBudPickable extends BizBudValue {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.atom;
         this.canIndex = false;
+    }
+    clone(entity, name, ui) {
+        return new BizBudPickable(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PBizBudPickable(this, context);
@@ -177,6 +190,9 @@ class BizBudAny extends BizBudValue {
         this.dataType = BizPhraseType_1.BudDataType.any;
         this.canIndex = false;
     }
+    clone(entity, name, ui) {
+        return new BizBudAny(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizBudAny(this, context);
     }
@@ -184,6 +200,7 @@ class BizBudAny extends BizBudValue {
         let ret = super.buildSchema(res);
         return ret;
     }
+    createDataType() { return new datatype_1.Char(200); }
 }
 exports.BizBudAny = BizBudAny;
 class BizBudValueWithRange extends BizBudValue {
@@ -214,6 +231,9 @@ class BizBudInt extends BizBudValueWithRange {
         this.dataType = BizPhraseType_1.BudDataType.int;
         this.canIndex = true;
     }
+    clone(entity, name, ui) {
+        return new BizBudInt(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizBudInt(this, context);
     }
@@ -228,6 +248,9 @@ class BizBudDec extends BizBudValueWithRange {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.dec;
         this.canIndex = false;
+    }
+    clone(entity, name, ui) {
+        return new BizBudDec(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PBizBudDec(this, context);
@@ -262,6 +285,9 @@ class BizBudChar extends BizBudValueWithRange {
         this.dataType = BizPhraseType_1.BudDataType.char;
         this.canIndex = false;
     }
+    clone(entity, name, ui) {
+        return new BizBudChar(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizBudChar(this, context);
     }
@@ -281,6 +307,9 @@ class BizBudDate extends BizBudValueWithRange {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.date;
         this.canIndex = false;
+    }
+    clone(entity, name, ui) {
+        return new BizBudDate(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PBizBudDate(this, context);
@@ -391,6 +420,9 @@ class BizBudID extends BizBudIDBase {
         super(...arguments);
         this.isIxBase = false;
     }
+    clone(entity, name, ui) {
+        return new BizBudID(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizBudID(this, context);
     }
@@ -401,6 +433,9 @@ class BizBudIXBase extends BizBudIDBase {
     constructor() {
         super(...arguments);
         this.isIxBase = true;
+    }
+    clone(entity, name, ui) {
+        return new BizBudIXBase(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PBizBudIXBase(this, context);
@@ -414,6 +449,9 @@ class BizBudIDIO extends BizBudValue {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.ID;
         this.canIndex = false;
+    }
+    clone(entity, name, ui) {
+        return new BizBudIDIO(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PBizBudIDIO(this, context);
@@ -434,6 +472,9 @@ class BizBudBin extends BizBudValue {
         this.canIndex = false;
     }
     get IDEntity() { return this.bin; }
+    clone(entity, name, ui) {
+        return new BizBudBin(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizBudBin(this, context);
     }
@@ -472,6 +513,9 @@ class BizBudRadio extends BizBudOptions {
         this.dataType = BizPhraseType_1.BudDataType.radio;
         this.canIndex = false;
     }
+    clone(entity, name, ui) {
+        return new BizBudRadio(entity, name, ui);
+    }
     parser(context) {
         return new parser_1.PBizBudRadio(this, context);
     }
@@ -482,6 +526,9 @@ class BizBudCheck extends BizBudOptions {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.check;
         this.canIndex = false;
+    }
+    clone(entity, name, ui) {
+        return new BizBudCheck(entity, name, ui);
     }
     parser(context) {
         return new parser_1.PBizBudCheck(this, context);

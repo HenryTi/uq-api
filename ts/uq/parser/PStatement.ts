@@ -1,20 +1,20 @@
 import {
-    Statement, Statements, Entity, SetStatement
-    , Table, VarStatement, If, ForEach, SelectStatement, BookWrite
-    , Pointer, HistoryWrite, TuidWrite, StateToStatement, BusStatement
-    , DeleteStatement, PendingWrite
-    , TableStatement, TextStatement, FailStatement, InlineStatement, ContinueStatement
-    , BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement
-    , ScheduleStatement, LogStatement, TransactionStatement, PokeStatement, SleepStatement
-    , QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement
-    , SendStatement, UseStatement,
+    Statement, Statements, Entity, SetStatement,
+    Table, VarStatement, If, ForEach, SelectStatement, BookWrite,
+    Pointer, HistoryWrite, TuidWrite, StateToStatement, BusStatement,
+    DeleteStatement, PendingWrite,
+    TableStatement, TextStatement, FailStatement, InlineStatement, ContinueStatement,
+    BreakStatement, SettingStatement, While, ReturnStatement, ProcStatement, Uq, WithStatement,
+    ScheduleStatement, TransactionStatement, PokeStatement, SleepStatement,
+    QueueStatement, ValueStatement, ExecSqlStatement, RoleStatement, AssertRoleStatement,
+    SendStatement, UseStatement,
     BizFor,
     BizLog
-} from '../../il';
-import { PElement } from '../element';
-import { Space } from '../space';
-import { Token } from '../tokens';
-import { PContext } from '../pContext';
+} from '../il';
+import { PElement } from './element';
+import { Space } from './space';
+import { Token } from './tokens';
+import { PContext } from './pContext';
 
 export abstract class PStatement<T extends Statement = Statement> extends PElement<T> {
 }

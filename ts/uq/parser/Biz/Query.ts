@@ -4,7 +4,7 @@ import {
     FromStatementInQuery
 } from "../../il";
 import { Space } from "../space";
-import { PStatements } from "../statement";
+import { PStatements } from "../PStatement";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
 
