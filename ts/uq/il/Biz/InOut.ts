@@ -67,7 +67,7 @@ export class BizInAct extends BizAct {
 
 export class IOAppID extends BizBud {
     readonly dataType = BudDataType.any;
-    readonly atoms: BizAtom[] = [];
+    readonly bizAtoms: BizAtom[] = [];
     unique: IDUnique;
     clone(entity: BizEntity, name: string, ui: Partial<UI>) {
         return new IOAppID(entity, name, ui);
@@ -77,7 +77,7 @@ export class IOAppID extends BizBud {
     }
     override buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        ret.atoms = this.atoms.map(v => v.id);
+        ret.atoms = this.bizAtoms.map(v => v.id);
         return ret;
     }
 }

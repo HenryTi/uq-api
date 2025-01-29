@@ -167,7 +167,7 @@ export class PInBusAction extends PActionBase<InBusAction> {
             varOperand._var = [vnExp];
             varOperand.pelement = new PVarOperand(varOperand, this.context);
             let exp = new ValueExpression();
-            exp.atoms = [varOperand];
+            exp.add(varOperand);
             exp.pelement = new PValueExpression(exp, this.context);
             return {
                 alias: vn,

@@ -246,29 +246,29 @@ class PIOAppID extends Base_1.PBizBase {
     }
     scan(space) {
         let ok = true;
-        const { atoms } = this.element;
+        const { bizAtoms } = this.element;
         for (let atomName of this.atomNames) {
             const { bizEntityArr: [bizAtom] } = space.getBizFromEntityArrFromName(atomName);
             if (bizAtom === undefined || bizAtom.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
                 ok = false;
                 this.log(`${atomName} is not an ATOM`);
             }
-            atoms.push(bizAtom);
+            bizAtoms.push(bizAtom);
         }
         if (this.unique !== undefined) {
             let un = this.unique;
-            let uniques = atoms.map(v => v.getUnique(un));
+            let uniques = bizAtoms.map(v => v.getUnique(un));
             let u0 = uniques[0];
             if (u0 === undefined) {
                 ok = false;
-                this.log(`${atoms[0].name} has not defined UNIQUE ${un}`);
-                let r = atoms.map(v => v.getUnique(un));
+                this.log(`${bizAtoms[0].name} has not defined UNIQUE ${un}`);
+                let r = bizAtoms.map(v => v.getUnique(un));
             }
             else {
                 let unique0 = uniques[0];
-                let atom0 = atoms[0];
+                let atom0 = bizAtoms[0];
                 for (let i = 1; i < uniques.length; i++) {
-                    let atom = atoms[i];
+                    let atom = bizAtoms[i];
                     let u = atom.getUnique(un);
                     if (u !== unique0) {
                         ok = false;

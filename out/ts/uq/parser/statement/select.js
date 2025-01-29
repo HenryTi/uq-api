@@ -110,7 +110,7 @@ class PSelectStatement extends PStatement_1.PStatement {
             let value = new il_1.ValueExpression();
             let opEntity = new il_1.OpTypeof();
             opEntity.entity = entity;
-            value.atoms.push(opEntity);
+            value.add(opEntity);
             columns.push({
                 alias: 'queue',
                 value,

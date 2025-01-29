@@ -103,14 +103,8 @@ export class PProcStatement extends PStatement {
                 const { paramType, value } = params[i];
                 if (value.pelement.scan(expSpace) === false) ok = false;
                 if (paramType === ProcParamType.inout || paramType === ProcParamType.out) {
-                    const { atoms } = value;
-                    let err = false;
-                    if (atoms.length > 1) {
-                        err = true;
-                    }
-                    else if (atoms[0].type !== 'var') {
-                        err = true;
-                    }
+                    // const { atoms } = value;
+                    let err = (value.isVar() === false);
                     if (err === true) {
                         this.log('Proc param after to must be variable');
                         ok = false;

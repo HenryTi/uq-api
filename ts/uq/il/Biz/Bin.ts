@@ -80,7 +80,7 @@ export class PickQuery implements PickBase {
         if (prop === undefined || prop === 'id') return true;
         return this.query.hasReturn(prop);
     }
-    getBud(name: string): BizBud { return; }
+    getBud(name: string): BizBud { return this.query.getBud(name); }
 }
 export class PickAtom implements PickBase {
     readonly bizPhraseType = BizPhraseType.atom;
@@ -97,7 +97,13 @@ export class PickAtom implements PickBase {
         // 不支持atom的其它字段属性。只能用查询
         return BizAtom.ownFields.includes(prop);
     }
-    getBud(name: string): BizBud { return; }
+    getBud(name: string): BizBud {
+        for (let f of this.from) {
+            let bud = f.getBud(name);
+            if (bud !== undefined) return bud;
+        }
+        return;
+    }
 }
 export class PickFork implements PickBase {
     readonly bizPhraseType = BizPhraseType.fork;
@@ -115,7 +121,9 @@ export class PickFork implements PickBase {
         if (bud !== undefined) return true;
         return false;
     }
-    getBud(name: string): BizBud { return; }
+    getBud(name: string): BizBud {
+        return this.from.getBud(name);
+    }
 }
 export class PickPend implements PickBase {
     readonly bizPhraseType = BizPhraseType.pend;

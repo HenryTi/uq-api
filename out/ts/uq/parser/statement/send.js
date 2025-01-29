@@ -172,7 +172,7 @@ class PSendStatement extends PStatement_1.PStatement {
                 varOperand._var = ['$importing'];
                 varOperand.pelement = new __1.PVarOperand(varOperand, this.context);
                 let exp = new il_1.ValueExpression();
-                exp.atoms = [varOperand];
+                exp.add(varOperand);
                 exp.pelement = new __1.PValueExpression(exp, this.context);
                 this.sendStatement.send.importing = exp;
                 if (exp.pelement.scan(space) === false)

@@ -507,9 +507,22 @@ class PBizBin extends Base_1.PBizEntity {
                 }
             }
         }
-        // check bud fork
+        // check bud fork and query bound
+        let budBound;
         for (let [, bud] of this.element.props) {
-            if (bud.dataType !== BizPhraseType_1.BudDataType.fork)
+            const { dataType, value } = bud;
+            if ((value === null || value === void 0 ? void 0 : value.setType) === il_1.BudValueSetType.bound) {
+                if (budBound !== undefined) {
+                    ok = false;
+                    this.log(`QUERY bound :: 只能有一个`);
+                }
+                else {
+                    if (this.scanBudBound(bud) === false)
+                        ok = false;
+                }
+                budBound = bud;
+            }
+            if (dataType !== BizPhraseType_1.BudDataType.fork)
                 continue;
             let budFork = bud;
             const { baseBudName } = budFork;
@@ -536,6 +549,55 @@ class PBizBin extends Base_1.PBizEntity {
             }
         }
         return ok;
+    }
+    scanBudBound(bud) {
+        const { dataType } = bud;
+        let jName = bud.getJName();
+        switch (dataType) {
+            case BizPhraseType_1.BudDataType.atom:
+            case BizPhraseType_1.BudDataType.ID:
+            case BizPhraseType_1.BudDataType.bin:
+                break;
+            default:
+                this.log(`${jName} 不是ID字段，不能::bound`);
+                return false;
+        }
+        const { value } = bud;
+        if (value !== undefined) {
+            //let {scalarValue} = value.exp;//.getBud();
+            let vBud = this.getBoundBud(value.exp);
+            if (vBud === undefined) {
+                this.log(`${jName} 只能bound Pick 的ID字段`);
+                return false;
+            }
+        }
+        return true;
+    }
+    getBoundBud(exp) {
+        const { scalarValue } = exp;
+        if (scalarValue === undefined)
+            return undefined;
+        if (Array.isArray(scalarValue) === false)
+            return undefined;
+        if (scalarValue.length !== 2)
+            return undefined;
+        const [pickName, fieldName] = scalarValue;
+        const { pickArr } = this.element;
+        if (pickArr === undefined)
+            return undefined;
+        let rearPick = pickArr[pickArr.length - 1];
+        if (pickName !== rearPick.name)
+            return undefined;
+        let pBud = rearPick.pick.getBud(fieldName);
+        if (pBud === undefined)
+            return undefined;
+        switch (pBud.dataType) {
+            default: return undefined;
+            case BizPhraseType_1.BudDataType.atom:
+            case BizPhraseType_1.BudDataType.ID:
+            case BizPhraseType_1.BudDataType.bin:
+                return pBud;
+        }
     }
     bizEntityScan2(bizEntity) {
         let ok = super.bizEntityScan2(bizEntity);

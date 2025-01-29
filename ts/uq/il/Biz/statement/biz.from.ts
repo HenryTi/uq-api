@@ -41,12 +41,15 @@ export class FromStatement extends BizSelectStatement {
 
     // 从值表达式推到bud
     setValBud(col: FromColumn) {
+        let bud = col.val.getBud();
+        /*
         const { val: { atoms } } = col;
         if (atoms.length !== 1) return;
         let atom = atoms[0];
         if (atom.type !== 'var') return;
         let { pointer } = atom as VarOperand;
         let bud: BizBud = (pointer as unknown as any).bud;
+        */
         if (bud === undefined) return;
         // 这一步为什么要屏蔽呢？没有想明白
         // if (bud.dataType !== BudDataType.atom) return;

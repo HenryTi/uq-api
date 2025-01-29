@@ -319,6 +319,12 @@ class VarOperand extends Atom {
             return false;
         return this._var[0] === v._var[0];
     }
+    get scalarValue() {
+        // return undefined; 
+        if (this._var.length !== 2)
+            return undefined;
+        return this._var;
+    }
 }
 exports.VarOperand = VarOperand;
 class OpMatch extends Atom {

@@ -790,6 +790,9 @@ export abstract class PEntityWithTable<T extends EntityWithTable> extends PEntit
                 }
                 let scalarValue: string | number | [string, string] = exp.scalarValue;
                 if (scalarValue === undefined) {
+                    const err = `only const value or enum value can be used`;
+                    this.ts.error(err);
+                    /*
                     const { atoms } = exp;
                     const constEnumOnly = () => {
                         const err = `only const value or enum value can be used`;
@@ -801,6 +804,7 @@ export abstract class PEntityWithTable<T extends EntityWithTable> extends PEntit
                     const { _var } = atom as VarOperand;
                     if (_var.length !== 2) constEnumOnly();
                     scalarValue = _var as [string, string];
+                    */
                 }
                 this.entity.keyValues[lowerVar] = {
                     key: lowerVar === _var ? undefined : _var,

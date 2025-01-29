@@ -34,6 +34,31 @@ class Expression extends IElement_1.IElement {
         let varOperand = e1;
         return varOperand.isSameVar(e2);
     }
+    isVar() {
+        if (this.atoms.length > 1) {
+            return false;
+        }
+        return this.atoms[0].type === 'var';
+    }
+    isScalar() {
+        if (this.isVar() === false)
+            return false;
+    }
+    getBud() {
+        if (this.atoms.length !== 1)
+            return;
+        let atom = this.atoms[0];
+        if (atom.type !== 'var')
+            return;
+        let { pointer } = atom;
+        let bud = pointer.bud;
+        // if (bud !== undefined) return bud;
+        return bud;
+    }
+    add(atom) {
+        this.atoms.push(atom);
+    }
+    getAtoms() { return this.atoms; }
 }
 exports.Expression = Expression;
 class ValueExpression extends Expression {
@@ -55,10 +80,17 @@ class ValueExpression extends Expression {
         return ret;
     }
     parser(context) { return new parser_1.PValueExpression(this, context); }
+    setScalarValue() {
+        if (this.atoms.length !== 1)
+            return;
+        const atom = this.atoms[0];
+        this.scalarValue = atom.scalarValue;
+    }
 }
 exports.ValueExpression = ValueExpression;
 class CompareExpression extends Expression {
     parser(context) { return new parser_1.PCompareExpression(this, context); }
+    setScalarValue() { }
 }
 exports.CompareExpression = CompareExpression;
 // 专门用于Select Of ID，比较的前半部分固定是id=exp

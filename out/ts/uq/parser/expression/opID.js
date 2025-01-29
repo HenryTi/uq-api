@@ -308,7 +308,7 @@ class POpID extends element_1.PElement {
                 if (val.pelement.scan(space) === false)
                     ok = false;
             }
-            for (let va of val.atoms) {
+            for (let va of val.getAtoms()) {
                 if (va.type === 'NO') {
                     let expNO = va;
                     if (expNO.id !== ID) {

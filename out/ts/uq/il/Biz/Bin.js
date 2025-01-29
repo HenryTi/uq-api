@@ -61,7 +61,7 @@ class PickQuery {
             return true;
         return this.query.hasReturn(prop);
     }
-    getBud(name) { return; }
+    getBud(name) { return this.query.getBud(name); }
 }
 exports.PickQuery = PickQuery;
 class PickAtom {
@@ -79,7 +79,14 @@ class PickAtom {
         // 不支持atom的其它字段属性。只能用查询
         return BizID_1.BizAtom.ownFields.includes(prop);
     }
-    getBud(name) { return; }
+    getBud(name) {
+        for (let f of this.from) {
+            let bud = f.getBud(name);
+            if (bud !== undefined)
+                return bud;
+        }
+        return;
+    }
 }
 exports.PickAtom = PickAtom;
 class PickFork {
@@ -99,7 +106,9 @@ class PickFork {
             return true;
         return false;
     }
-    getBud(name) { return; }
+    getBud(name) {
+        return this.from.getBud(name);
+    }
 }
 exports.PickFork = PickFork;
 class PickPend {

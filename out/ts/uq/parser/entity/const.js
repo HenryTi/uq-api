@@ -32,6 +32,7 @@ class PConst extends entity_1.PEntity {
                 let parser = val.parser(this.context);
                 parser.parse();
                 this.entity.values[lowerVar] = val;
+                /*
                 let { atoms } = val;
                 if (atoms.length === 1) {
                     let a = atoms[0];
@@ -42,6 +43,14 @@ class PConst extends entity_1.PEntity {
                             val: String(scalarValue).toLowerCase(),
                         };
                     }
+                }
+                */
+                const { scalarValue } = val;
+                if (scalarValue !== undefined && Array.isArray(scalarValue) !== true) {
+                    this.entity.keyValues[lowerVar] = {
+                        key: _var,
+                        val: String(scalarValue).toLowerCase(),
+                    };
                 }
                 if (this.ts.token === tokens_1.Token.RBRACE) {
                     this.ts.readToken();

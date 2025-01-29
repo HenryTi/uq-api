@@ -18,7 +18,7 @@ function convertExpInternal(stack, exp) {
     if (!exp)
         return;
     // let stack = new Stack(context);
-    for (let atom of exp.atoms) {
+    for (let atom of exp.getAtoms()) {
         atom.to(stack);
     }
     let ret = stack.getExp();

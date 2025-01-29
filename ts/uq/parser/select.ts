@@ -24,9 +24,9 @@ export abstract class PWithFrom<S extends WithFrom> extends PElement {
         let idField = new VarOperand();
         idField._var = ['id'];
         idField.parser(this.context).parse();
-        where.atoms.push(idField);
+        where.add(idField);
         this.context.parseElement(where);
-        where.atoms.push(new OpEQ());
+        where.add(new OpEQ());
         this.select.isFromID = true;
     }
 

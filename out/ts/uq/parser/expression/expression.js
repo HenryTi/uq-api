@@ -24,7 +24,7 @@ class PExpression extends element_1.PElement {
     scan(space) {
         let ok = true;
         let groupType;
-        let atoms = this.expression.atoms;
+        let atoms = this.expression.getAtoms();
         for (let atom of atoms) {
             let { pelement } = atom;
             if (pelement === undefined) {
@@ -47,7 +47,7 @@ class PExpression extends element_1.PElement {
         return ok;
     }
     add(atom) {
-        this.expression.atoms.push(atom);
+        this.expression.add(atom); //.atoms.push(atom);
     }
     _parse() {
         this._internalParse();
@@ -843,11 +843,14 @@ exports.ExpressionSpace = ExpressionSpace;
 class PValueExpression extends PExpression {
     _internalParse() {
         this.expValue();
+        /*
         const { atoms } = this.expression;
         if (atoms.length === 1) {
             const atom = atoms[0];
-            this.expression.scalarValue = atom.scalarValue;
+            (this.expression as Exp.ValueExpression).scalarValue = atom.scalarValue;
         }
+        */
+        this.expression.setScalarValue();
     }
 }
 exports.PValueExpression = PValueExpression;

@@ -28,7 +28,7 @@ export abstract class PExpression extends PElement {
     scan(space: Space) {
         let ok = true;
         let groupType: GroupType;
-        let atoms = this.expression.atoms;
+        let atoms = this.expression.getAtoms();
         for (let atom of atoms) {
             let { pelement } = atom;
             if (pelement === undefined) {
@@ -50,7 +50,7 @@ export abstract class PExpression extends PElement {
     }
 
     private add(atom: Exp.Atom) {
-        this.expression.atoms.push(atom);
+        this.expression.add(atom); //.atoms.push(atom);
     }
 
     protected abstract _internalParse(): void;
@@ -852,11 +852,14 @@ export class ExpressionSpace extends Space {
 export class PValueExpression extends PExpression {
     _internalParse() {
         this.expValue();
+        /*
         const { atoms } = this.expression;
         if (atoms.length === 1) {
             const atom = atoms[0];
             (this.expression as Exp.ValueExpression).scalarValue = atom.scalarValue;
         }
+        */
+        this.expression.setScalarValue();
     }
 }
 

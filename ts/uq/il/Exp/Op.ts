@@ -305,6 +305,11 @@ export class VarOperand extends Atom {
         if (v._var.length !== 1) return false;
         return this._var[0] === v._var[0];
     }
+    get scalarValue(): string | number | [string, string] {
+        // return undefined; 
+        if (this._var.length !== 2) return undefined;
+        return this._var as [string, string];
+    }
 }
 export class OpMatch extends Atom {
     varOperands: VarOperand[];

@@ -39,7 +39,7 @@ export class POpGroupCountFunc extends POpGroupFunc {
     _parse() {
         let exp = this.opGroupFunc.value = new ValueExpression();
         if (this.ts.token === Token.MUL) {
-            exp.atoms.push(new StarOperand());
+            exp.add(new StarOperand());
             this.ts.readToken();
         }
         else {

@@ -60,7 +60,7 @@ class IOAppID extends Bud_1.BizBud {
     constructor() {
         super(...arguments);
         this.dataType = BizPhraseType_1.BudDataType.any;
-        this.atoms = [];
+        this.bizAtoms = [];
     }
     clone(entity, name, ui) {
         return new IOAppID(entity, name, ui);
@@ -70,7 +70,7 @@ class IOAppID extends Bud_1.BizBud {
     }
     buildSchema(res) {
         let ret = super.buildSchema(res);
-        ret.atoms = this.atoms.map(v => v.id);
+        ret.atoms = this.bizAtoms.map(v => v.id);
         return ret;
     }
 }

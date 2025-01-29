@@ -16,9 +16,9 @@ class PWithFrom extends element_1.PElement {
         let idField = new il_1.VarOperand();
         idField._var = ['id'];
         idField.parser(this.context).parse();
-        where.atoms.push(idField);
+        where.add(idField);
         this.context.parseElement(where);
-        where.atoms.push(new il_1.OpEQ());
+        where.add(new il_1.OpEQ());
         this.select.isFromID = true;
     }
     // return: true=end of select

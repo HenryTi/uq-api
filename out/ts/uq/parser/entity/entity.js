@@ -774,20 +774,21 @@ class PEntityWithTable extends PEntity {
                 }
                 let scalarValue = exp.scalarValue;
                 if (scalarValue === undefined) {
+                    const err = `only const value or enum value can be used`;
+                    this.ts.error(err);
+                    /*
                     const { atoms } = exp;
                     const constEnumOnly = () => {
                         const err = `only const value or enum value can be used`;
                         this.ts.error(err);
-                    };
-                    if (atoms.length !== 1)
-                        constEnumOnly();
+                    }
+                    if (atoms.length !== 1) constEnumOnly();
                     const atom = atoms[0];
-                    if (atom.type !== 'var')
-                        constEnumOnly();
-                    const { _var } = atom;
-                    if (_var.length !== 2)
-                        constEnumOnly();
-                    scalarValue = _var;
+                    if (atom.type !== 'var') constEnumOnly();
+                    const { _var } = atom as VarOperand;
+                    if (_var.length !== 2) constEnumOnly();
+                    scalarValue = _var as [string, string];
+                    */
                 }
                 this.entity.keyValues[lowerVar] = {
                     key: lowerVar === _var ? undefined : _var,

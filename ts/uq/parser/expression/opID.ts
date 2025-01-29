@@ -314,7 +314,7 @@ export class POpID extends PElement<OpID> {
             if (val.pelement) {
                 if (val.pelement.scan(space) === false) ok = false;
             }
-            for (let va of val.atoms) {
+            for (let va of val.getAtoms()) {
                 if (va.type === 'NO') {
                     let expNO: OpNO = va as OpNO;
                     if (expNO.id !== ID) {

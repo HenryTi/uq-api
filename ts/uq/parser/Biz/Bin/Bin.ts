@@ -11,7 +11,8 @@ import {
     BizFieldSpace,
     BizField,
     BizBudFork,
-    BizBud
+    BizBud,
+    ValueExpression
 } from "../../../il";
 import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
 import { PContext } from "../../pContext";
@@ -554,9 +555,21 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
         }
 
-        // check bud fork
+        // check bud fork and query bound
+        let budBound: BizBud;
         for (let [, bud] of this.element.props) {
-            if (bud.dataType !== BudDataType.fork) continue;
+            const { dataType, value } = bud;
+            if (value?.setType === BudValueSetType.bound) {
+                if (budBound !== undefined) {
+                    ok = false;
+                    this.log(`QUERY bound :: 只能有一个`);
+                }
+                else {
+                    if (this.scanBudBound(bud) === false) ok = false;
+                }
+                budBound = bud;
+            }
+            if (dataType !== BudDataType.fork) continue;
             let budFork = bud as BizBudFork;
             const { baseBudName } = budFork;
             if (baseBudName !== undefined) {
@@ -576,6 +589,51 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
         }
         return ok;
+    }
+
+    private scanBudBound(bud: BizBud): boolean {
+        const { dataType } = bud;
+        let jName = bud.getJName();
+        switch (dataType) {
+            case BudDataType.atom:
+            case BudDataType.ID:
+            case BudDataType.bin:
+                break;
+            default:
+                this.log(`${jName} 不是ID字段，不能::bound`);
+                return false;
+        }
+        const { value } = bud;
+        if (value !== undefined) {
+            //let {scalarValue} = value.exp;//.getBud();
+            let vBud = this.getBoundBud(value.exp);
+            if (vBud === undefined) {
+                this.log(`${jName} 只能bound Pick 的ID字段`);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private getBoundBud(exp: ValueExpression) {
+        const { scalarValue } = exp;
+        if (scalarValue === undefined) return undefined;
+        if (Array.isArray(scalarValue) === false) return undefined;
+        if (scalarValue.length !== 2) return undefined;
+        const [pickName, fieldName] = scalarValue;
+        const { pickArr } = this.element;
+        if (pickArr === undefined) return undefined;
+        let rearPick = pickArr[pickArr.length - 1];
+        if (pickName !== rearPick.name) return undefined;
+        let pBud = rearPick.pick.getBud(fieldName);
+        if (pBud === undefined) return undefined;
+        switch (pBud.dataType) {
+            default: return undefined;
+            case BudDataType.atom:
+            case BudDataType.ID:
+            case BudDataType.bin:
+                return pBud;
+        }
     }
 
     bizEntityScan2(bizEntity: BizEntity): boolean {
