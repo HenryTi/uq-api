@@ -31,6 +31,25 @@ Biz Query GetUserBuds (
 RETURNS buds (
     bud ID,
     value JSON,
+)
+RETURNS props (
+    id ID,
+    bud ID,
+    value JSON,
+    (id, bud) KEY,
+)
+RETURNS atoms (
+    id ID,
+    phrase ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS forks (
+    id ID,
+    phrase ID,
+    seed ID,
+    (id) KEY,
 ) {
     IF userId IS NULL {
         SET userId=ME();
@@ -40,6 +59,10 @@ RETURNS buds (
         WHERE a.i=userId;
     -- INTO buds SELECT a.x as bud, a.value FROM IxStr as a WHERE a.i=userId;
     -- INTO buds SELECT a.x as bud, a.value FROM IxDec as a WHERE a.i=userId;
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
+    INTO IGNORE idtable SELECT b.id, b.base as phrase, b.seed, 0 as show
+        FROM buds as a JOIN IDU as b ON b.id=JSON_VALUE(a.value, '$[0]');
+    PROC ProcPropsOfIds();
 }
 
 Biz ACT SaveUserBuds (

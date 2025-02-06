@@ -263,7 +263,11 @@ RETURNS forks (
         ORDER BY a.id DESC
         LIMIT $pageSize;
     TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
-    INTO idtable SELECT id, mainPhrase as phrase, -1 as seed, 0 as show FROM $page;
+    INTO IGNORE idtable SELECT id, mainPhrase as phrase, -1 as seed, 0 as show FROM $page;
+    INTO IGNORE idtable SELECT b.id, b.base as phrase, b.seed, 0 as show
+        FROM $page as a JOIN IDU as b on b.id=a.i;
+    INTO IGNORE idtable SELECT b.id, b.base as phrase, b.seed, 0 as show
+        FROM $page as a JOIN IDU as b on b.id=a.x;
     PROC ProcPropsOfIds();
 };
 
