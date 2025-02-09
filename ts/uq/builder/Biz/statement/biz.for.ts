@@ -149,6 +149,7 @@ export class BBizFor extends BBizSelect<BizFor> {
         selInto.lock = LockType.none;
         forS.push(selInto);
         selInto.column(ExpNum.num1, row_ok);
+        selInto.column(new ExpField('$id'), row);
         for (let [n,] of ids) {
             let vr = vars[n];
             let vn = vr.varName();

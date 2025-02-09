@@ -131,6 +131,7 @@ class BBizFor extends biz_select_1.BBizSelect {
         selInto.lock = select_1.LockType.none;
         forS.push(selInto);
         selInto.column(sql_1.ExpNum.num1, row_ok);
+        selInto.column(new sql_1.ExpField('$id'), row);
         for (let [n,] of ids) {
             let vr = vars[n];
             let vn = vr.varName();
