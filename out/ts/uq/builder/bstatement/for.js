@@ -147,8 +147,10 @@ class BForSelect extends BForListWithVars {
         }
         let fromVarTable = new statementWithFrom_1.VarTable(varTable.name);
         selInto.from(fromVarTable);
-        let expWhere = new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('$id'), new sql_1.ExpVar(row)), new sql_1.ExpEQ(new sql_1.ExpField('$tbl'), new sql_1.ExpVar(vtKey)));
+        let expWhere = new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('$id'), new sql_1.ExpVar(row)), new sql_1.ExpEQ(new sql_1.ExpField('$tbl'), new sql_1.ExpVar(vtKey)));
         selInto.where(expWhere);
+        selInto.order(new sql_1.ExpField('$id'), 'asc');
+        selInto.limit(sql_1.ExpNum.num1);
         let iff = factory.createIf();
         iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(row_ok));
         forS.push(iff);

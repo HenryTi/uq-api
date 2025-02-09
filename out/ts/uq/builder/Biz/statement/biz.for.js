@@ -6,6 +6,7 @@ const sql_1 = require("../../sql");
 const statementWithFrom_1 = require("../../sql/statementWithFrom");
 const bstatement_1 = require("../../bstatement");
 const biz_select_1 = require("./biz.select");
+const select_1 = require("../../sql/select");
 class BBizFor extends biz_select_1.BBizSelect {
     body(sqls) {
         this.buildForSelect(sqls);
@@ -120,11 +121,14 @@ class BBizFor extends biz_select_1.BBizSelect {
         let rowOkNull = factory.createSet();
         forS.push(rowOkNull);
         rowOkNull.equ(row_ok, sql_1.ExpVal.null);
+        /*
         let incRow = factory.createSet();
         forS.push(incRow);
-        incRow.equ(row, new sql_1.ExpAdd(new sql_1.ExpVar(row), sql_1.ExpVal.num1));
+        incRow.equ(row, new ExpAdd(new ExpVar(row), ExpVal.num1));
+        */
         let selInto = factory.createSelect();
         selInto.toVar = true;
+        selInto.lock = select_1.LockType.none;
         forS.push(selInto);
         selInto.column(sql_1.ExpNum.num1, row_ok);
         for (let [n,] of ids) {
@@ -139,8 +143,10 @@ class BBizFor extends biz_select_1.BBizSelect {
         }
         let fromVarTable = new statementWithFrom_1.VarTable(varTable.name);
         selInto.from(fromVarTable);
-        let expWhere = new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('$id'), new sql_1.ExpVar(row)), new sql_1.ExpEQ(new sql_1.ExpField('$tbl'), new sql_1.ExpVar(vtKey)));
+        let expWhere = new sql_1.ExpAnd(new sql_1.ExpGT(new sql_1.ExpField('$id'), new sql_1.ExpVar(row)), new sql_1.ExpEQ(new sql_1.ExpField('$tbl'), new sql_1.ExpVar(vtKey)));
         selInto.where(expWhere);
+        selInto.order(new sql_1.ExpField('$id'), 'asc');
+        selInto.limit(sql_1.ExpNum.num1);
         let iff = factory.createIf();
         iff.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar(row_ok));
         forS.push(iff);

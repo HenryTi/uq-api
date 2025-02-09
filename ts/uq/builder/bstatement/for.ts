@@ -177,10 +177,12 @@ export class BForSelect extends BForListWithVars {
         let fromVarTable = new FromVarTable(varTable.name);
         selInto.from(fromVarTable);
         let expWhere = new ExpAnd(
-            new ExpEQ(new ExpField('$id'), new ExpVar(row)),
+            new ExpGT(new ExpField('$id'), new ExpVar(row)),
             new ExpEQ(new ExpField('$tbl'), new ExpVar(vtKey)),
         );
         selInto.where(expWhere);
+        selInto.order(new ExpField('$id'), 'asc');
+        selInto.limit(ExpNum.num1);
 
         let iff = factory.createIf();
         iff.cmp = new ExpIsNull(new ExpVar(row_ok));

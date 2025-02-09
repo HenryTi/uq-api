@@ -1,10 +1,11 @@
 import { EnumAsc, Field, Int, intField, tinyIntField } from '../../../il';
-import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar, SqlVarTable, EnumExpOP } from '../../sql';
+import { ExpIsNull, ExpNum, ExpVar, ExpEQ, ExpFunc, ExpVal, ExpAdd, ExpField, ExpAnd, ExpAtVar, SqlVarTable, EnumExpOP, ExpGT } from '../../sql';
 import { VarTable as FromVarTable } from '../../sql/statementWithFrom';
 
 import { BizFor } from "../../../il";
 import { Sqls } from "../../bstatement";
 import { BBizSelect } from './biz.select';
+import { LockType } from '../../sql/select';
 
 export class BBizFor extends BBizSelect<BizFor> {
     override body(sqls: Sqls): void {
@@ -137,12 +138,15 @@ export class BBizFor extends BBizSelect<BizFor> {
         let rowOkNull = factory.createSet();
         forS.push(rowOkNull);
         rowOkNull.equ(row_ok, ExpVal.null);
+        /*
         let incRow = factory.createSet();
         forS.push(incRow);
         incRow.equ(row, new ExpAdd(new ExpVar(row), ExpVal.num1));
+        */
 
         let selInto = factory.createSelect();
         selInto.toVar = true;
+        selInto.lock = LockType.none;
         forS.push(selInto);
         selInto.column(ExpNum.num1, row_ok);
         for (let [n,] of ids) {
@@ -158,10 +162,12 @@ export class BBizFor extends BBizSelect<BizFor> {
         let fromVarTable = new FromVarTable(varTable.name);
         selInto.from(fromVarTable);
         let expWhere = new ExpAnd(
-            new ExpEQ(new ExpField('$id'), new ExpVar(row)),
+            new ExpGT(new ExpField('$id'), new ExpVar(row)),
             new ExpEQ(new ExpField('$tbl'), new ExpVar(vtKey)),
         );
         selInto.where(expWhere);
+        selInto.order(new ExpField('$id'), 'asc');
+        selInto.limit(ExpNum.num1);
 
         let iff = factory.createIf();
         iff.cmp = new ExpIsNull(new ExpVar(row_ok));
