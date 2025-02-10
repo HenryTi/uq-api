@@ -50,10 +50,11 @@ BIZ AC ClearBook(
     IF EXISTS (SELECT id FROM $UserSite WHERE id=me AND (admin&1)=1) {
         SET @site=$site;
         SET @bud=bud;
+        SET @i=i;
         /-mysql
         -- 清零
         UPDATE ixdec as a
-            JOIN idu AS i ON a.i=i.id AND i.base=i
+            JOIN idu AS i ON a.i=i.id AND i.base=@i
             JOIN bizphrase AS b ON b.id=a.x
             JOIN bizphrase AS c ON c.id=b.base
             SET a.value=0

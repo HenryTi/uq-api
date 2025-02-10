@@ -193,10 +193,10 @@ class BizEntityFieldPointer extends BizEntityFieldBasePointer {
         }
         else {
             let tAlias = alias;
-            if (tAlias === undefined)
-                debugger;
             switch (this.bizFromEntity.bizPhraseType) {
                 case BizPhraseType_1.BizPhraseType.atom:
+                    if (tAlias === undefined)
+                        debugger;
                     tAlias += $atom;
                     break;
                 case BizPhraseType_1.BizPhraseType.pend:

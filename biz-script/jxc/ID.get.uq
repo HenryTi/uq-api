@@ -146,23 +146,28 @@ RETURNS forks VIRTUAL (
     (id) KEY,
 )
 {
-    TABLE ForkIdTable (KEY id ID,phrase ID,seed ID,show TINYINT);       -- 1: add showBuds
+    TABLE ForkIdTable (KEY id ID,phrase ID,seed ID);
     -- 暂时先3层fork吧，按理说应该是递归的
     INTO IGNORE ForkIdTable 
-        SELECT a.id, a.phrase, a.seed, a.show FROM IdTable as a 
+        SELECT a.id, a.phrase, a.seed FROM IdTable as a 
         WHERE a.seed>0;
     INTO IGNORE ForkIdTable 
-        SELECT b.id, b.base as phrase, b.seed, a.show 
+        SELECT b.id, b.base as phrase, b.seed
             FROM IdTable as a JOIN IDU as b ON b.id=a.seed
         WHERE b.seed>0;
     INTO IGNORE ForkIdTable 
-        SELECT c.id, c.base as phrase, c.seed, a.show 
+        SELECT c.id, c.base as phrase, c.seed
             FROM IdTable as a 
                 JOIN IDU as b ON b.id=a.seed
                 JOIN IDU as c ON c.id=b.seed
         WHERE c.seed>0;
-    INTO IGNORE IdTable SELECT b.id, b.base as phrase, b.seed, a.show
+    INTO IGNORE IdTable SELECT b.id, b.base as phrase, b.seed, 1 as show
         FROM ForkIdTable as a JOIN IDU as b ON b.id=a.seed;
+    /-mysql
+    INSERT INTO _idtable (id, phrase, seed, `show`)
+        SELECT a.id, a.phrase, a.seed, 1 FROM _forkidtable as a
+        ON DUPLICATE KEY UPDATE `show`=1;
+    -/
 
     TABLE PhraseBuds(KEY phrase BIGINT, KEY bud BIGINT);
     INTO IGNORE PhraseBuds WITH RECURSIVE pPhrase AS (
