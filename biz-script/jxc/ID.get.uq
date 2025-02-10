@@ -147,9 +147,20 @@ RETURNS forks VIRTUAL (
 )
 {
     TABLE ForkIdTable (KEY id ID,phrase ID,seed ID,show TINYINT);       -- 1: add showBuds
+    -- 暂时先3层fork吧，按理说应该是递归的
     INTO IGNORE ForkIdTable 
         SELECT a.id, a.phrase, a.seed, a.show FROM IdTable as a 
         WHERE a.seed>0;
+    INTO IGNORE ForkIdTable 
+        SELECT b.id, b.base as phrase, b.seed, a.show 
+            FROM IdTable as a JOIN IDU as b ON b.id=a.seed
+        WHERE b.seed>0;
+    INTO IGNORE ForkIdTable 
+        SELECT c.id, c.base as phrase, c.seed, a.show 
+            FROM IdTable as a 
+                JOIN IDU as b ON b.id=a.seed
+                JOIN IDU as c ON c.id=b.seed
+        WHERE c.seed>0;
     INTO IGNORE IdTable SELECT b.id, b.base as phrase, b.seed, a.show
         FROM ForkIdTable as a JOIN IDU as b ON b.id=a.seed;
 
