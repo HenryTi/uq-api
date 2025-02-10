@@ -522,6 +522,7 @@ export class BizBudCheck extends BizBudOptions {
     parser(context: PContext): PElement<IElement> {
         return new PBizBudCheck(this, context);
     }
+    createDataType(): DataType { return new JsonDataType(); }
 }
 
 export const budClassesIn: { [key: string]: new (entity: BizEntity, name: string, ui: Partial<UI>) => BizBudValue } = {

@@ -32,6 +32,8 @@ class Space {
     _varsPointer(names) { return; }
     get groupType() { return il_1.GroupType.Single; }
     set groupType(value) { }
+    logOn() { this.outer.logOn(); }
+    logOff() { this.outer.logOff(); }
     get inLoop() {
         if (this.outer === undefined)
             return false;

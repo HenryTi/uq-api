@@ -193,6 +193,12 @@ RETURNS forks VIRTUAL (
             JOIN PhraseBuds as b ON b.phrase=a.phrase
             JOIN IxStr as c ON c.i=a.id AND c.x=b.bud
         WHERE a.show=1;
+    INTO IGNORE props SELECT c.ii as id, c.i as bud, JSON_ARRAYAGG(c.x) as value
+        FROM idtable as a
+            JOIN PhraseBuds as b ON b.phrase=a.phrase
+            JOIN IxCheck as c ON c.ii=a.id AND c.i=b.bud
+        WHERE a.show=1
+        GROUP BY c.ii, c.i;
 
     -- id 对应的atoms or fork
     INTO IGNORE atoms SELECT c.id, d.base as phrase, c.no, c.ex

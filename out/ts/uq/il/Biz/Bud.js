@@ -533,6 +533,7 @@ class BizBudCheck extends BizBudOptions {
     parser(context) {
         return new parser_1.PBizBudCheck(this, context);
     }
+    createDataType() { return new datatype_1.JsonDataType(); }
 }
 exports.BizBudCheck = BizBudCheck;
 exports.budClassesIn = {

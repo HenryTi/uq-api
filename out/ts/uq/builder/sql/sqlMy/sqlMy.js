@@ -715,7 +715,7 @@ class VarTable extends stat.VarTable {
                 sb.r();
             }
         }
-        sb.r().append(' ENGINE=MEMORY').ln();
+        sb.r().append(' ENGINE=MyISAM').ln();
     }
 }
 class ForTable extends stat.ForTable {
@@ -770,7 +770,7 @@ class ForTable extends stat.ForTable {
             }
             sb.r();
         }
-        sb.r().append(' ENGINE=MEMORY').ln();
+        sb.r().append(' ENGINE=MyISAM').ln();
     }
 }
 class LeaveProc extends stat.LeaveProc {

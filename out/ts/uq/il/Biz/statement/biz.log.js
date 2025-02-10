@@ -6,9 +6,11 @@ const parser_1 = require("../../../parser");
 const statement_1 = require("../../statement");
 var LogType;
 (function (LogType) {
-    LogType[LogType["scalar"] = 0] = "scalar";
-    LogType[LogType["array"] = 1] = "array";
-    LogType[LogType["object"] = 2] = "object";
+    LogType[LogType["off"] = 0] = "off";
+    LogType[LogType["on"] = 1] = "on";
+    LogType[LogType["scalar"] = 2] = "scalar";
+    LogType[LogType["array"] = 3] = "array";
+    LogType[LogType["object"] = 4] = "object";
 })(LogType || (exports.LogType = LogType = {}));
 ;
 class BizLog extends statement_1.Statement {

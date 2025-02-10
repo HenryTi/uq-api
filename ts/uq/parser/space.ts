@@ -44,6 +44,8 @@ export abstract class Space {
 
     get groupType(): GroupType { return GroupType.Single; }
     set groupType(value: GroupType) { }
+    logOn() { this.outer.logOn(); }
+    logOff() { this.outer.logOff(); }
     get inLoop(): boolean {
         if (this.outer === undefined) return false;
         return this.outer.inLoop;

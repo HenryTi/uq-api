@@ -13,6 +13,20 @@ export class PBizLog extends PStatement<BizLog> {
     private parseValue(): LogValue {
         switch (this.ts.token) {
             default:
+                if (this.ts.isKeyword('on') === true) {
+                    this.ts.readToken();
+                    return {
+                        type: LogType.on,
+                        value: undefined,
+                    }
+                }
+                if (this.ts.isKeyword('off') === true) {
+                    this.ts.readToken();
+                    return {
+                        type: LogType.off,
+                        value: undefined,
+                    }
+                }
                 return {
                     type: LogType.scalar,
                     value: this.parseScalar(),
@@ -88,6 +102,8 @@ export class PBizLog extends PStatement<BizLog> {
     private scanValue(space: Space, { type, value }: LogValue): boolean {
         let ok = true;
         switch (type) {
+            case LogType.on: space.logOn(); break;
+            case LogType.on: space.logOff(); break;
             case LogType.scalar:
                 if (this.scanScalar(space, value as LogScalar) === false) {
                     ok = false;
@@ -111,7 +127,6 @@ export class PBizLog extends PStatement<BizLog> {
         let ok = true;
         if (val.pelement.scan(space) === false) {
             ok = false;
-            // val.pelement.scan(space);
         }
         return ok;
     }

@@ -3,7 +3,7 @@ import { PBizLog, PContext, PElement } from "../../../parser";
 import { ValueExpression } from "../../Exp";
 import { Statement } from "../../statement";
 
-export enum LogType { scalar, array, object };
+export enum LogType { off, on, scalar, array, object };
 export type LogScalar = ValueExpression;
 export type LogArray = LogValue[];
 export type LogObject = { [name: string]: LogValue };
