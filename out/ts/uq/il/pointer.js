@@ -193,8 +193,16 @@ class BizEntityFieldPointer extends BizEntityFieldBasePointer {
         }
         else {
             let tAlias = alias;
-            if (this.bizFromEntity.bizPhraseType === BizPhraseType_1.BizPhraseType.atom) {
-                tAlias += $atom;
+            if (tAlias === undefined)
+                debugger;
+            switch (this.bizFromEntity.bizPhraseType) {
+                case BizPhraseType_1.BizPhraseType.atom:
+                    tAlias += $atom;
+                    break;
+                case BizPhraseType_1.BizPhraseType.pend:
+                    if (tAlias === undefined)
+                        tAlias = 'pend';
+                    break;
             }
             stack.dotVar([tAlias, fn]);
         }

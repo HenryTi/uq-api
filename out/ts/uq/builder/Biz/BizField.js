@@ -253,6 +253,12 @@ class BBizFieldBinBinBudSelect extends BBizFieldBinBudSelect {
 exports.BBizFieldBinBinBudSelect = BBizFieldBinBinBudSelect;
 class BBizFieldPendBin extends BBizField {
     to(sb) {
+        if (sb.forClient === true) {
+            sb.append('pend').dot().append('bin');
+            return;
+        }
+        // BizFieldPendBin const bud = this.bizField.getBud();
+        //this.buildPendBud()
         sb.l().append(`SELECT bin FROM `).dbName().dot().name(il_1.EnumSysTable.pend)
             .append(' WHERE id=').var('$pend').r();
     }

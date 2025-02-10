@@ -276,6 +276,12 @@ export class BBizFieldBinBinBudSelect extends BBizFieldBinBudSelect<BizFieldBinB
 
 export class BBizFieldPendBin extends BBizField {
     override to(sb: SqlBuilder): void {
+        if (sb.forClient === true) {
+            sb.append('pend').dot().append('bin');
+            return;
+        }
+        // BizFieldPendBin const bud = this.bizField.getBud();
+        //this.buildPendBud()
         sb.l().append(`SELECT bin FROM `).dbName().dot().name(EnumSysTable.pend)
             .append(' WHERE id=').var('$pend').r();
     }
