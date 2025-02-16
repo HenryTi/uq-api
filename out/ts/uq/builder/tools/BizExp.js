@@ -20,36 +20,71 @@ class BBizExp {
             sb.exp(this.expSelect);
         }
         else {
-            sb.append('SELECT ');
-            const { bizEntitySys, bizEntity, expIDType } = this.bizExp;
-            if (bizEntity !== undefined) {
-                const { bizPhraseType } = bizEntity;
-                switch (bizPhraseType) {
-                    default:
-                        debugger;
-                        throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                    case BizPhraseType_1.BizPhraseType.bin:
-                        this.bin(sb);
-                        break;
-                    case BizPhraseType_1.BizPhraseType.book:
-                        this.book(sb);
-                        break;
-                    case BizPhraseType_1.BizPhraseType.tie:
-                        this.tie(sb);
-                        break;
-                    // case BizPhraseType.duo: this.duo(sb); break;
-                    case BizPhraseType_1.BizPhraseType.combo:
-                        this.combo(sb);
-                        break;
+            for (let iProp = 0;;) {
+                this.buildSelect(sb, iProp);
+                /*
+                sb.append('SELECT ');
+                const { bizEntitySys, bizEntity, expIDType, props } = this.bizExp;
+
+                if (bizEntity !== undefined) {
+                    const { bizPhraseType } = bizEntity;
+                    switch (bizPhraseType) {
+                        default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
+                        case BizPhraseType.bin: this.bin(sb); break;
+                        case BizPhraseType.book: this.book(sb); break;
+                        case BizPhraseType.tie: this.tie(sb); break;
+                        // case BizPhraseType.duo: this.duo(sb); break;
+                        case BizPhraseType.combo: this.combo(sb); break;
+                    }
                 }
-            }
-            else {
-                switch (expIDType) {
+                else {
+                    switch (expIDType) {
+                    }
+                    debugger;
                 }
-                debugger;
+                */
+                const { inSearch, props } = this.bizExp;
+                if (inSearch !== true)
+                    break;
+                if (props === undefined)
+                    break;
+                iProp++;
+                if (iProp >= props.length)
+                    break;
+                sb.append(' UNION ');
             }
         }
         sb.r();
+    }
+    buildSelect(sb, iProp) {
+        sb.append('SELECT ');
+        const { bizEntitySys, bizEntity, expIDType, props } = this.bizExp;
+        if (bizEntity !== undefined) {
+            const { bizPhraseType } = bizEntity;
+            switch (bizPhraseType) {
+                default:
+                    debugger;
+                    throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
+                case BizPhraseType_1.BizPhraseType.bin:
+                    this.bin(sb, iProp);
+                    break;
+                case BizPhraseType_1.BizPhraseType.book:
+                    this.book(sb, iProp);
+                    break;
+                case BizPhraseType_1.BizPhraseType.tie:
+                    this.tie(sb, iProp);
+                    break;
+                // case BizPhraseType.duo: this.duo(sb); break;
+                case BizPhraseType_1.BizPhraseType.combo:
+                    this.combo(sb, iProp);
+                    break;
+            }
+        }
+        else {
+            switch (expIDType) {
+            }
+            debugger;
+        }
     }
     convertFrom(context, bizExp) {
         this.db = context.dbName;
@@ -82,30 +117,30 @@ class BBizExp {
             this.expSelect = bBudSelect.build();
         }
     }
-    bin(sb) {
+    bin(sb, iProp) {
         const { bizEntity, props } = this.bizExp;
-        const { budProp, sysBud } = props[0];
+        const { budProp, sysBud } = props[iProp];
         if (budProp !== undefined)
-            this.binBud(sb);
+            this.binBud(sb, iProp);
         else {
             const binEntity = bizEntity;
             if (binEntity.main !== undefined) {
                 if (sysBud !== undefined)
-                    this.binSheetProp(sb);
+                    this.binSheetProp(sb, iProp);
                 else
-                    this.binField(sb);
+                    this.binField(sb, iProp);
             }
             else {
                 if (sysBud !== undefined)
-                    this.mainSheetProp(sb);
+                    this.mainSheetProp(sb, iProp);
                 else
-                    this.mainField(sb);
+                    this.mainField(sb, iProp);
             }
         }
     }
-    binSheetProp(sb) {
+    binSheetProp(sb, iProp) {
         const { props, isParent } = this.bizExp;
-        const { sysBud } = props[0];
+        const { sysBud } = props[iProp];
         const { ta, tb, tt } = this;
         const tSheet = 'tsheet';
         let col = tSheet + '.';
@@ -135,9 +170,9 @@ class BBizExp {
         sb.append(sql);
         sb.exp(this.params[0]);
     }
-    binField(sb) {
+    binField(sb, iProp) {
         const { bizEntity, props } = this.bizExp;
-        const { prop } = props[0];
+        const { prop } = props[iProp];
         const { ta, tb, tt } = this;
         let col = `${ta}.${prop !== null && prop !== void 0 ? prop : 'id'} `;
         // let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
@@ -160,9 +195,9 @@ class BBizExp {
             WHERE ${tt}.base=${bizEntity.id} AND ${tt}.id=`);
         sb.exp(this.params[0]);
     }
-    binBud(sb) {
+    binBud(sb, iProp) {
         const { props, isParent } = this.bizExp;
-        const { budProp } = props[0];
+        const { budProp } = props[iProp];
         const { ta, tb, tt } = this;
         let tbl;
         switch (budProp.dataType) {
@@ -193,9 +228,9 @@ class BBizExp {
             sb.exp(this.params[0]);
         }
     }
-    mainSheetProp(sb) {
+    mainSheetProp(sb, iProp) {
         const { props } = this.bizExp;
-        const { sysBud } = props[0];
+        const { sysBud } = props[iProp];
         const tSheet = 'tsheet';
         let col = tSheet + '.';
         switch (sysBud) {
@@ -215,16 +250,16 @@ class BBizExp {
         sb.append(sql);
         sb.exp(this.params[0]);
     }
-    mainField(sb) {
+    mainField(sb, iProp) {
         const { props } = this.bizExp;
-        const { prop } = props[0];
+        const { prop } = props[iProp];
         const { ta } = this;
         sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'} 
                 FROM \`${this.db}\`.bin as ${ta} 
                 WHERE ${ta}.id=`);
         sb.exp(this.params[0]);
     }
-    tie(sb) {
+    tie(sb, iProp) {
         const { bizEntity } = this.bizExp;
         const { ta, tb } = this;
         sb.append(`${ta}.x
@@ -232,9 +267,9 @@ class BBizExp {
             WHERE ${tb}.ext=`)
             .exp(this.params[0]);
     }
-    combo(sb) {
+    combo(sb, iProp) {
         const { bizEntity, isReadonly, props } = this.bizExp;
-        const { prop } = props[0];
+        const { prop } = props[iProp];
         const { ta } = this;
         const { site } = sb.factory.dbContext;
         const db = `${consts_1.$site}.${site}`;
@@ -257,7 +292,7 @@ class BBizExp {
             sb.r();
         }
     }
-    book(sb) {
+    book(sb, iProp) {
         const { props, in: inVar, param, combo } = this.bizExp;
         if (combo !== undefined) {
             this.bookCombo(sb);
@@ -266,17 +301,17 @@ class BBizExp {
         // if (props === undefined) return;
         // const { prop } = props[0];
         const { paramType } = param;
-        if (inVar === undefined || (props !== undefined && props[0].prop === 'value')) {
+        if (inVar === undefined || (props !== undefined && props[iProp].prop === 'value')) {
             let titleValue;
             switch (paramType) {
                 case il_1.BizExpParamType.scalar:
-                    titleValue = new BookValue(sb, this);
+                    titleValue = new BookValue(sb, this, iProp);
                     break;
                 case il_1.BizExpParamType.fork:
-                    titleValue = new BookForkSum(sb, this);
+                    titleValue = new BookForkSum(sb, this, iProp);
                     break;
                 case il_1.BizExpParamType.ix:
-                    titleValue = new BookIxSum(sb, this);
+                    titleValue = new BookIxSum(sb, this, iProp);
                     break;
             }
             titleValue.sql();
@@ -285,13 +320,13 @@ class BBizExp {
             let bookHistory;
             switch (paramType) {
                 case il_1.BizExpParamType.scalar:
-                    bookHistory = new BookHistory(sb, this);
+                    bookHistory = new BookHistory(sb, this, iProp);
                     break;
                 case il_1.BizExpParamType.fork:
-                    bookHistory = new BookForkHistory(sb, this);
+                    bookHistory = new BookForkHistory(sb, this, iProp);
                     break;
                 case il_1.BizExpParamType.ix:
-                    bookHistory = new BookIxHistory(sb, this);
+                    bookHistory = new BookIxHistory(sb, this, iProp);
                     break;
             }
             bookHistory.sql();
@@ -317,9 +352,10 @@ class BBizExp {
 }
 exports.BBizExp = BBizExp;
 class BookExpBase {
-    constructor(sb, bBizExp) {
+    constructor(sb, bBizExp, iProp) {
         this.sb = sb;
         this.bBizExp = bBizExp;
+        this.iProp = iProp;
     }
 }
 class BookValueBase extends BookExpBase {
@@ -351,7 +387,7 @@ class BookSum extends BookValueBase {
     sql() {
         const { bizExp, ta, tt, db, inVal, params: [param] } = this.bBizExp;
         const { budEntitySub: bud, props } = bizExp;
-        const { prop } = props[0];
+        const { prop } = props[this.iProp];
         const { sb } = this;
         sb.append(`sum(${ta}.value) `);
         this.from();
@@ -385,7 +421,7 @@ class BookHistoryBase extends BookExpBase {
     sql() {
         const { bizExp, ta, db, inVal } = this.bBizExp;
         const { budEntitySub: bud, props, in: ilInVar } = bizExp;
-        const { prop } = props[0];
+        const { prop } = props[this.iProp];
         const { varTimeSpan: timeSpan, op, statementNo } = ilInVar;
         this.sb.append(`${prop}(${ta}.value) FROM ${db}.history as ${ta} `);
         this.from();

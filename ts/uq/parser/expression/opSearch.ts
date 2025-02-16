@@ -1,4 +1,4 @@
-import { OpSearch, ValueExpression } from '../../il';
+import { BizExpOperand, OpSearch, ValueExpression } from '../../il';
 import { PElement } from '../element';
 import { Space } from '../space';
 import { PContext } from '../pContext';
@@ -34,7 +34,19 @@ export class POpSearch extends PElement<OpSearch> {
         let { key, values } = this.element;
         if (key.pelement.scan(space) === false) ok = false;
         for (let value of values) {
-            if (value.pelement.scan(space) === false) ok = false;
+            if (value.pelement.scan(space) === false) {
+                ok = false;
+            }
+            else {
+                let atoms = value.getAtoms();
+                if (atoms.length === 1) {
+                    let atom0 = atoms[0];
+                    if (atom0.type === 'bizexp') {
+                        let bizExpOperand = atom0 as BizExpOperand;
+                        bizExpOperand.bizExp.inSearch = true;
+                    }
+                }
+            }
         }
         return ok;
     }

@@ -62,8 +62,7 @@ export class BizExp extends IElement {
     type = 'BizExp';
     isReadonly: boolean = false;
     isParent: boolean;
-
-
+    inSearch: boolean;      // SEARCH((#bizExp) like '');
 
     // only used in 2 group by sum
     combo: BizCombo;

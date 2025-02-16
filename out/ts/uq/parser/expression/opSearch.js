@@ -36,8 +36,19 @@ class POpSearch extends element_1.PElement {
         if (key.pelement.scan(space) === false)
             ok = false;
         for (let value of values) {
-            if (value.pelement.scan(space) === false)
+            if (value.pelement.scan(space) === false) {
                 ok = false;
+            }
+            else {
+                let atoms = value.getAtoms();
+                if (atoms.length === 1) {
+                    let atom0 = atoms[0];
+                    if (atom0.type === 'bizexp') {
+                        let bizExpOperand = atom0;
+                        bizExpOperand.bizExp.inSearch = true;
+                    }
+                }
+            }
         }
         return ok;
     }
