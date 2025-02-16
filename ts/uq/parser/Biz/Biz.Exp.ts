@@ -537,7 +537,7 @@ export class PBizExpParam extends PElement<BizExpParam> {
             switch (params.length) {
                 case 0: paramType = BizExpParamType.none; break;
                 case 1: paramType = BizExpParamType.scalar; break;
-                case 2: paramType = BizExpParamType.duo; break;
+                // case 2: paramType = BizExpParamType.duo; break;
                 case 3: paramType = BizExpParamType.multi; break;
             }
             this.element.paramType = paramType;
@@ -545,8 +545,8 @@ export class PBizExpParam extends PElement<BizExpParam> {
     }
 
     private parseArray() {
-        if (this.ts.isKeyword('spec') === true) {
-            this.element.paramType = BizExpParamType.spec;
+        if (this.ts.isKeyword('fork') === true) {
+            this.element.paramType = BizExpParamType.fork;
             this.ts.readToken();
             this.ts.passKey('on');
             this.ts.passToken(Token.XOR);

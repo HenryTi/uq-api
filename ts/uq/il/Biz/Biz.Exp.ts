@@ -23,9 +23,8 @@ export interface BizExpIn {
 export enum BizExpParamType {
     none,
     scalar,
-    duo,
     multi,
-    spec,
+    fork,
     ix,
 }
 export class BizExpParam extends IElement {

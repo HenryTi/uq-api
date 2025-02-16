@@ -175,7 +175,6 @@ export class BBizExp {
             WHERE ${tt}.x=${budProp.id} AND ${tt}.i=`);
         if (isParent === true) {
             sb.l();
-            // sb.append(`SELECT ${tb}.base FROM \`${this.db}\`.detail as ${ta} JOIN \`${this.db}\`.bud as ${tb} ON ${tb}.id=${ta}.base WHERE `)
             sb.append(`SELECT ${ta}.sheet FROM \`${this.db}\`.${EnumSysTable.bizBin} as ${ta} WHERE `)
             sb.append(ta).dot().append('id=');
             sb.exp(this.params[0]);
@@ -222,23 +221,6 @@ export class BBizExp {
             .exp(this.params[0]);
     }
 
-    /*
-    private duo(sb: SqlBuilder) {
-        const { isReadonly, prop } = this.bizExp;
-        const { ta } = this;
-        let param = this.params[0];
-        let param2 = this.params[1];
-        if (param2 !== undefined) {
-            let w = isReadonly === true ? 0 : 1;
-            sb.dbName().dot().name('duo$id').append(`(_$site,_$user,${w},null,`).exp(param).comma().exp(param2).r();
-        }
-        else {
-            sb.append(`${ta}.${prop} FROM ${this.db}.duo as ${ta} WHERE ${ta}.id=`)
-                .exp(param);
-        }
-    }
-    */
-
     private combo(sb: SqlBuilder) {
         const { bizEntity, isReadonly, props } = this.bizExp;
         const { prop } = props[0];
@@ -271,38 +253,38 @@ export class BBizExp {
             this.bookCombo(sb);
             return;
         }
-        if (props === undefined) return;
-        const { prop } = props[0];
+        // if (props === undefined) return;
+        // const { prop } = props[0];
         const { paramType } = param;
-        if (inVar === undefined || prop === 'value') {
-            let titleValue: TitleValueBase;
+        if (inVar === undefined || (props !== undefined && props[0].prop === 'value')) {
+            let titleValue: BookValueBase;
             switch (paramType) {
                 case BizExpParamType.scalar:
-                    titleValue = new TitleValue(sb, this);
+                    titleValue = new BookValue(sb, this);
                     break;
-                case BizExpParamType.spec:
-                    titleValue = new TitleSpecSum(sb, this);
+                case BizExpParamType.fork:
+                    titleValue = new BookForkSum(sb, this);
                     break;
                 case BizExpParamType.ix:
-                    titleValue = new TitleIxSum(sb, this);
+                    titleValue = new BookIxSum(sb, this);
                     break;
             }
             titleValue.sql();
         }
         else {
-            let titleHistory: TitleHistoryBase;
+            let bookHistory: BookHistoryBase;
             switch (paramType) {
                 case BizExpParamType.scalar:
-                    titleHistory = new TitleHistory(sb, this);
+                    bookHistory = new BookHistory(sb, this);
                     break;
-                case BizExpParamType.spec:
-                    titleHistory = new TitleSpecHistory(sb, this);
+                case BizExpParamType.fork:
+                    bookHistory = new BookForkHistory(sb, this);
                     break;
                 case BizExpParamType.ix:
-                    titleHistory = new TitleIxHistory(sb, this);
+                    bookHistory = new BookIxHistory(sb, this);
                     break;
             }
-            titleHistory.sql();
+            bookHistory.sql();
         }
     }
 
@@ -324,7 +306,7 @@ export class BBizExp {
     }
 }
 
-abstract class TitleExpBase {
+abstract class BookExpBase {
     protected readonly sb: SqlBuilder;
     protected readonly bBizExp: BBizExp;
     constructor(sb: SqlBuilder, bBizExp: BBizExp) {
@@ -334,7 +316,7 @@ abstract class TitleExpBase {
     abstract sql(): void;
 }
 
-abstract class TitleValueBase extends TitleExpBase {
+abstract class BookValueBase extends BookExpBase {
     protected ixBudTbl() {
         const { budEntitySub: bud } = this.bBizExp.bizExp;
         let ixBudTbl: string;
@@ -346,7 +328,7 @@ abstract class TitleValueBase extends TitleExpBase {
     }
 }
 
-class TitleValue extends TitleValueBase {
+class BookValue extends BookValueBase {
     override sql() {
         const { bizExp, ta, db, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
@@ -357,7 +339,7 @@ class TitleValue extends TitleValueBase {
     }
 }
 
-abstract class TitleSum extends TitleValueBase {
+abstract class BookSum extends BookValueBase {
     abstract from(): void;
     override sql(): void {
         const { bizExp, ta, tt, db, inVal, params: [param] } = this.bBizExp;
@@ -371,20 +353,20 @@ abstract class TitleSum extends TitleValueBase {
     }
 }
 
-class TitleSpecSum extends TitleSum {
+class BookForkSum extends BookSum {
     override from() {
         const { ta, tt, db } = this.bBizExp;
         //this.titleValueSum(sb, 'spec', 'id', 'base');
         let tblBudValue = this.ixBudTbl();
         this.sb.append(`
-        FROM ${db}.spec as ${tt}
+        FROM ${db}.fork as ${tt}
         JOIN ${db}.${tblBudValue} as ${ta} ON ${ta}.i=${tt}.id
     WHERE ${tt}.base=`);
 
     }
 }
 
-class TitleIxSum extends TitleSum {
+class BookIxSum extends BookSum {
     override from() {
         const { ta, tt, db } = this.bBizExp;
         // this.titleValueSum(sb, 'ix', 'x', 'i');
@@ -397,7 +379,7 @@ class TitleIxSum extends TitleSum {
     }
 }
 
-abstract class TitleHistoryBase extends TitleExpBase {
+abstract class BookHistoryBase extends BookExpBase {
     override sql() {
         const { bizExp, ta, db, inVal } = this.bBizExp;
         const { budEntitySub: bud, props, in: ilInVar } = bizExp;
@@ -417,7 +399,7 @@ abstract class TitleHistoryBase extends TitleExpBase {
     abstract from(): void;
 }
 
-class TitleHistory extends TitleHistoryBase {
+class BookHistory extends BookHistoryBase {
     from() {
         const { bizExp, ta, db, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
@@ -428,16 +410,16 @@ WHERE ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, `).exp(param)
     }
 }
 
-class TitleSpecHistory extends TitleHistoryBase {
+class BookForkHistory extends BookHistoryBase {
     from() {
         const { ta, tt, db, bizExp, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;
-        this.sb.append(`JOIN ${db}.spec as ${tt} ON ${tt}.base=`).exp(param)
+        this.sb.append(`JOIN ${db}.fork as ${tt} ON ${tt}.base=`).exp(param)
             .append(` AND ${ta}.bud=${db}.bud$id(_$site,_$user, 0, null, ${tt}.id, ${bud.id}) WHERE `);
     }
 }
 
-class TitleIxHistory extends TitleHistoryBase {
+class BookIxHistory extends BookHistoryBase {
     from() {
         const { ta, tt, db, bizExp, params: [param] } = this.bBizExp;
         const { budEntitySub: bud } = bizExp;

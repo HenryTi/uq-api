@@ -549,9 +549,7 @@ class PBizExpParam extends element_1.PElement {
                 case 1:
                     paramType = il_1.BizExpParamType.scalar;
                     break;
-                case 2:
-                    paramType = il_1.BizExpParamType.duo;
-                    break;
+                // case 2: paramType = BizExpParamType.duo; break;
                 case 3:
                     paramType = il_1.BizExpParamType.multi;
                     break;
@@ -560,8 +558,8 @@ class PBizExpParam extends element_1.PElement {
         }
     }
     parseArray() {
-        if (this.ts.isKeyword('spec') === true) {
-            this.element.paramType = il_1.BizExpParamType.spec;
+        if (this.ts.isKeyword('fork') === true) {
+            this.element.paramType = il_1.BizExpParamType.fork;
             this.ts.readToken();
             this.ts.passKey('on');
             this.ts.passToken(tokens_1.Token.XOR);
