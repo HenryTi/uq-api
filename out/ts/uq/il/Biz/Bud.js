@@ -464,6 +464,8 @@ var EnumSysBud;
     EnumSysBud[EnumSysBud["sheetNo"] = 2] = "sheetNo";
     EnumSysBud[EnumSysBud["sheetOperator"] = 3] = "sheetOperator";
     EnumSysBud[EnumSysBud["sheetDate"] = 4] = "sheetDate";
+    EnumSysBud[EnumSysBud["atomNo"] = 5] = "atomNo";
+    EnumSysBud[EnumSysBud["atomEx"] = 6] = "atomEx";
 })(EnumSysBud || (exports.EnumSysBud = EnumSysBud = {}));
 class BizBudBin extends BizBudValue {
     constructor() {

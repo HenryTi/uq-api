@@ -11,7 +11,8 @@ class BBudSelect {
         this.bBizExp = bBizExp;
     }
     build() {
-        const { prop, budProp, isParent, bizEntitySys } = this.bBizExp.bizExp;
+        const { props, isParent, bizEntitySys } = this.bBizExp.bizExp;
+        const { prop, budProp } = props[0];
         if (bizEntitySys !== undefined) {
             return this.buildEntitySys();
         }
@@ -25,7 +26,8 @@ class BBudSelect {
     }
     buildEntitySys() {
         const a = 'a', b = 'b', c = 'c';
-        let { params, bizExp: { bizEntitySys, prop } } = this.bBizExp;
+        let { params, bizExp: { bizEntitySys, props } } = this.bBizExp;
+        const { prop } = props[0];
         let { factory } = this.context;
         let select = factory.createSelect();
         let t;

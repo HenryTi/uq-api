@@ -89,7 +89,15 @@ export class PBizExp extends PElement<BizExp> {
         if (this.ts.token === Token.XOR) {
             this.element.isParent = true;
             this.ts.readToken();
-            this.element.prop = this.ts.passVar();
+            for (; ;) {
+                this.element.props = [{
+                    prop: this.ts.passVar(),
+                    sysBud: undefined,
+                    budProp: undefined,
+                }]; // = this.ts.passVar();
+                if (this.ts.token !== Token.BITWISEOR as any) break;
+                this.ts.readToken();
+            }
         }
         else if (this.ts.token === Token.DOT) {
             this.ts.readToken();
@@ -97,7 +105,15 @@ export class PBizExp extends PElement<BizExp> {
                 this.element.isParent = true;
                 this.ts.readToken();
             }
-            this.element.prop = this.ts.passVar();
+            for (; ;) {
+                this.element.props = [{
+                    prop: this.ts.passVar(),
+                    sysBud: undefined,
+                    budProp: undefined,
+                }];
+                if (this.ts.token !== Token.BITWISEOR as any) break;
+                this.ts.readToken();
+            }
         }
         if (this.ts.isKeyword('in') === true) {
             this.ts.readToken();
@@ -152,22 +168,24 @@ export class PBizExp extends PElement<BizExp> {
                     }
                     else {
                         this.element.bizEntitySys = bizEntitySys;
-                        const { prop } = this.element;
-                        switch (bizEntitySys) {
-                            case EnumEntitySys.fork:
-                                const forkProps = BizAtom.ownFields; // ['id', 'no', 'ex'];
-                                if (forkProps.findIndex(v => v === prop) < 0) {
-                                    ok = false;
-                                    this.log(`FORK prop only ${forkProps.join(',')}`);
-                                }
-                                break;
-                            case EnumEntitySys.bin:
-                                const binProps = BizSheet.ownFields; // ['id', 'no', 'operator'];
-                                if (binProps.findIndex(v => v === prop) < 0) {
-                                    ok = false;
-                                    this.log(`BIN prop only ${forkProps.join(',')}`);
-                                }
-                                break;
+                        const { props } = this.element;
+                        for (const { prop } of props) {
+                            switch (bizEntitySys) {
+                                case EnumEntitySys.fork:
+                                    const forkProps = BizAtom.ownFields; // ['id', 'no', 'ex'];
+                                    if (forkProps.findIndex(v => v === prop) < 0) {
+                                        ok = false;
+                                        this.log(`FORK prop only ${forkProps.join(',')}`);
+                                    }
+                                    break;
+                                case EnumEntitySys.bin:
+                                    const binProps = BizSheet.ownFields; // ['id', 'no', 'operator'];
+                                    if (binProps.findIndex(v => v === prop) < 0) {
+                                        ok = false;
+                                        this.log(`BIN prop only ${forkProps.join(',')}`);
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
@@ -242,28 +260,45 @@ export class PBizExp extends PElement<BizExp> {
 
     private scanAtom(space: Space): boolean {
         let ok = true;
-        const { bizEntity, prop } = this.element;
+        const { bizEntity, props } = this.element;
         if (this.checkScalar() === false) ok = false;
         let bizAtom = bizEntity as BizAtom;
         let jName = bizEntity.getJName();
         if (this.bud !== undefined) {
-            let bud = this.element.budProp = bizAtom.getBud(this.bud);
+            let bud = bizAtom.getBud(this.bud);
             if (bud === undefined) {
                 this.log(`FORK ${jName} has not ${this.bud}.`);
                 ok = false;
             }
+            else {
+                this.element.props = [{
+                    prop: undefined,
+                    budProp: bud,
+                    sysBud: undefined,
+                }];
+            }
+            return ok;
         }
-        if (prop === undefined) {
-            this.element.prop = 'id';
-        }
-        else {
-            let bud = bizAtom.getBud(prop);
-            if (bud === undefined) {
-                this.log(`${jName} does not have prop ${prop}`);
-                ok = false;
+        for (let p of props) {
+            const { prop } = p;
+            if (prop === undefined) {
+                p.prop = 'id';
+            }
+            else if (prop === 'no') {
+                p.sysBud = EnumSysBud.atomNo;
+            }
+            else if (prop === 'ex') {
+                p.sysBud = EnumSysBud.atomEx;
             }
             else {
-                this.element.budProp = bud;
+                let bud = bizAtom.getBud(prop);
+                if (bud === undefined) {
+                    this.log(`${jName} does not have prop ${prop}`);
+                    ok = false;
+                }
+                else {
+                    p.budProp = bud;
+                }
             }
         }
         return ok;
@@ -271,28 +306,39 @@ export class PBizExp extends PElement<BizExp> {
 
     private scanFork(space: Space): boolean {
         let ok = true;
-        const { bizEntity, prop } = this.element;
+        const { bizEntity, props } = this.element;
         if (this.checkScalar() === false) ok = false;
         let bizSpec = bizEntity as BizFork;
         let jName = bizEntity.getJName();
         if (this.bud !== undefined) {
-            let bud = this.element.budProp = bizSpec.getBud(this.bud);
+            let bud = bizSpec.getBud(this.bud);
             if (bud === undefined) {
                 this.log(`FORK ${jName} has not ${this.bud}.`);
                 ok = false;
             }
+            else {
+                this.element.props = [{
+                    prop: undefined,
+                    budProp: bud,
+                    sysBud: undefined,
+                }];
+            }
+            return ok;
         }
-        if (prop === undefined) {
-            this.element.prop = 'id';
-        }
-        else {
-            let bud = bizSpec.getBud(prop);
-            if (bud === undefined) {
-                this.log(`${jName} does not have prop ${prop}`);
-                ok = false;
+        for (let p of props) {
+            const { prop } = p;
+            if (prop === undefined) {
+                p.prop = 'id';
             }
             else {
-                this.element.budProp = bud;
+                let bud = bizSpec.getBud(prop);
+                if (bud === undefined) {
+                    this.log(`${jName} does not have prop ${prop}`);
+                    ok = false;
+                }
+                else {
+                    p.budProp = bud;
+                }
             }
         }
         return ok;
@@ -300,52 +346,56 @@ export class PBizExp extends PElement<BizExp> {
 
     private scanBin(space: Space): boolean {
         let ok = true;
-        const { bizEntity, prop, isParent } = this.element;
+        const { bizEntity, props, isParent } = this.element;
         if (this.checkScalar() === false) ok = false;
         let bizBin = bizEntity as BizBin;
         if (this.bud !== undefined) {
             this.log(`BIN ${bizEntity.getJName()} should not .`);
             ok = false;
+            return ok;
         }
-        if (prop === undefined) {
-            this.element.prop = 'id';
-        }
-        else {
-            const arr = binFieldArr;
-            if (arr.includes(prop) === false) {
-                let sysBud: EnumSysBud;
-                switch (prop) {
-                    case 'id': sysBud = EnumSysBud.id; break;
-                    case 'no': sysBud = EnumSysBud.sheetNo; break;
-                    case 'operator': sysBud = EnumSysBud.sheetOperator; break;
-                }
-                if (sysBud !== undefined) {
-                    this.element.sysBud = sysBud;
-                    return ok;
-                }
-                let bud: BizBud;
-                if (isParent === true) {
-                    bud = bizBin.getSheetMainBud(prop);
-                    if (bud === undefined) {
-                        let { main } = bizBin;
-                        if (main === undefined) {
-                            this.log(`${bizBin.getJName()} must define MAIN if %sheet props used`);
-                        }
-                        else {
-                            this.log(`${main.getJName()} does not have prop ${prop}`);
-                        }
-                        ok = false;
+        for (let p of props) {
+            const { prop } = p;
+            if (prop === undefined) {
+                p.prop = 'id';
+            }
+            else {
+                const arr = binFieldArr;
+                if (arr.includes(prop) === false) {
+                    let sysBud: EnumSysBud;
+                    switch (prop) {
+                        case 'id': sysBud = EnumSysBud.id; break;
+                        case 'no': sysBud = EnumSysBud.sheetNo; break;
+                        case 'operator': sysBud = EnumSysBud.sheetOperator; break;
                     }
-                }
-                else {
-                    bud = bizBin.getBud(prop);
-                    if (bud === undefined) {
-                        this.log(`${bizBin.getJName()} does not have prop ${prop}`);
-                        ok = false;
+                    if (sysBud !== undefined) {
+                        p.sysBud = sysBud;
+                        return ok;
                     }
-                }
-                if (bud !== undefined) {
-                    this.element.budProp = bud;
+                    let bud: BizBud;
+                    if (isParent === true) {
+                        bud = bizBin.getSheetMainBud(prop);
+                        if (bud === undefined) {
+                            let { main } = bizBin;
+                            if (main === undefined) {
+                                this.log(`${bizBin.getJName()} must define MAIN if %sheet props used`);
+                            }
+                            else {
+                                this.log(`${main.getJName()} does not have prop ${prop}`);
+                            }
+                            ok = false;
+                        }
+                    }
+                    else {
+                        bud = bizBin.getBud(prop);
+                        if (bud === undefined) {
+                            this.log(`${bizBin.getJName()} does not have prop ${prop}`);
+                            ok = false;
+                        }
+                    }
+                    if (bud !== undefined) {
+                        p.budProp = bud;
+                    }
                 }
             }
         }
@@ -354,17 +404,19 @@ export class PBizExp extends PElement<BizExp> {
 
     private scanBook(space: Space): boolean {
         let ok = true;
-        const { bizEntity, prop } = this.element;
+        const { bizEntity, props } = this.element;
         let title = bizEntity as BizBook;
         if (this.bud === undefined) {
             this.log(`TITLE ${title.getJName()} should follow .`);
             ok = false;
+            return ok;
         }
         else {
             let bud = title.props.get(this.bud);
             if (bud === undefined) {
                 this.log(`TITLE ${title.getJName()} does not have ${this.bud} .`);
                 ok = false;
+                return;
             }
             else {
                 this.element.budEntitySub = bud;
@@ -395,13 +447,17 @@ export class PBizExp extends PElement<BizExp> {
                 }
             }
         }
-        if (prop === undefined) {
-            this.element.prop = 'value';
-        }
-        else {
-            const arr = ['value', 'count', 'sum', 'avg', 'average', 'max', 'min'];
-            if (arr.includes(prop) === false) {
-                this.log(`Title does not have function ${prop}`);
+        if (props === undefined) return ok;
+        for (let p of props) {
+            const { prop } = p;
+            if (prop === undefined) {
+                p.prop = 'value';
+            }
+            else {
+                const arr = ['value', 'count', 'sum', 'avg', 'average', 'max', 'min'];
+                if (arr.includes(prop) === false) {
+                    this.log(`Title does not have function ${prop}`);
+                }
             }
         }
         return ok;
@@ -698,8 +754,9 @@ export class PBizCheckBudOperand extends PElement<BizCheckBudOperand> {
     }
 
     private checkBudOptions(bizExp: BizExp): BizOptions {
-        let { budProp } = bizExp;
-        const notCheck = () => { this.log(`${bizExp.prop} is not options`); }
+        let { props } = bizExp;
+        const { budProp, prop } = props[0];
+        const notCheck = () => { this.log(`${prop} is not options`); }
         if (budProp === undefined) {
             notCheck();
             return;

@@ -42,19 +42,29 @@ export class BizExpParam extends IElement {
 // 1. (#Entity.Bud(id).^|Prop IN timeSpan +- delta)     -- sigle value
 // 2. (#Book.Bud#ID(*,*,1))                             -- group by Sum
 export enum BizExpIDType { fork, atom }
+export interface ExpProp {
+    prop: string;
+    budProp: BizBud;
+    sysBud: EnumSysBud;
+}
 export class BizExp extends IElement {
     bizEntity: BizEntity;
     bizEntitySys: EnumEntitySys;
     expIDType: BizExpIDType;
     budEntitySub: BizBud;
     param: BizExpParam;
+    props: ExpProp[];
+    /*
     prop: string;
     budProp: BizBud;
     sysBud: EnumSysBud;
+    */
     in: BizExpIn;
     type = 'BizExp';
     isReadonly: boolean = false;
     isParent: boolean;
+
+
 
     // only used in 2 group by sum
     combo: BizCombo;

@@ -460,6 +460,8 @@ export enum EnumSysBud {
     sheetNo = 2,
     sheetOperator = 3,
     sheetDate = 4,
+    atomNo = 5,
+    atomEx = 6,
 }
 export class BizBudBin extends BizBudValue {
     readonly dataType = BudDataType.bin;

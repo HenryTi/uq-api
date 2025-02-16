@@ -83,7 +83,8 @@ class BBizExp {
         }
     }
     bin(sb) {
-        const { bizEntity, budProp, sysBud } = this.bizExp;
+        const { bizEntity, props } = this.bizExp;
+        const { budProp, sysBud } = props[0];
         if (budProp !== undefined)
             this.binBud(sb);
         else {
@@ -103,7 +104,8 @@ class BBizExp {
         }
     }
     binSheetProp(sb) {
-        const { bizEntity, sysBud, isParent } = this.bizExp;
+        const { props, isParent } = this.bizExp;
+        const { sysBud } = props[0];
         const { ta, tb, tt } = this;
         const tSheet = 'tsheet';
         let col = tSheet + '.';
@@ -134,7 +136,8 @@ class BBizExp {
         sb.exp(this.params[0]);
     }
     binField(sb) {
-        const { bizEntity, prop, isParent } = this.bizExp;
+        const { bizEntity, props } = this.bizExp;
+        const { prop } = props[0];
         const { ta, tb, tt } = this;
         let col = `${ta}.${prop !== null && prop !== void 0 ? prop : 'id'} `;
         // let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
@@ -158,7 +161,8 @@ class BBizExp {
         sb.exp(this.params[0]);
     }
     binBud(sb) {
-        const { budProp, isParent } = this.bizExp;
+        const { props, isParent } = this.bizExp;
+        const { budProp } = props[0];
         const { ta, tb, tt } = this;
         let tbl;
         switch (budProp.dataType) {
@@ -191,7 +195,8 @@ class BBizExp {
         }
     }
     mainSheetProp(sb) {
-        const { sysBud } = this.bizExp;
+        const { props } = this.bizExp;
+        const { sysBud } = props[0];
         const tSheet = 'tsheet';
         let col = tSheet + '.';
         switch (sysBud) {
@@ -212,7 +217,8 @@ class BBizExp {
         sb.exp(this.params[0]);
     }
     mainField(sb) {
-        const { prop } = this.bizExp;
+        const { props } = this.bizExp;
+        const { prop } = props[0];
         const { ta } = this;
         sb.append(`${ta}.${prop !== null && prop !== void 0 ? prop : 'id'} 
                 FROM \`${this.db}\`.bin as ${ta} 
@@ -244,7 +250,8 @@ class BBizExp {
     }
     */
     combo(sb) {
-        const { bizEntity, isReadonly, prop } = this.bizExp;
+        const { bizEntity, isReadonly, props } = this.bizExp;
+        const { prop } = props[0];
         const { ta } = this;
         const { site } = sb.factory.dbContext;
         const db = `${consts_1.$site}.${site}`;
@@ -268,11 +275,14 @@ class BBizExp {
         }
     }
     book(sb) {
-        const { prop, in: inVar, param, combo } = this.bizExp;
+        const { props, in: inVar, param, combo } = this.bizExp;
         if (combo !== undefined) {
             this.bookCombo(sb);
             return;
         }
+        if (props === undefined)
+            return;
+        const { prop } = props[0];
         const { paramType } = param;
         if (inVar === undefined || prop === 'value') {
             let titleValue;
@@ -358,7 +368,8 @@ class TitleValue extends TitleValueBase {
 class TitleSum extends TitleValueBase {
     sql() {
         const { bizExp, ta, tt, db, inVal, params: [param] } = this.bBizExp;
-        const { budEntitySub: bud, prop, in: ilInVar } = bizExp;
+        const { budEntitySub: bud, props } = bizExp;
+        const { prop } = props[0];
         const { sb } = this;
         sb.append(`sum(${ta}.value) `);
         this.from();
@@ -391,7 +402,8 @@ class TitleIxSum extends TitleSum {
 class TitleHistoryBase extends TitleExpBase {
     sql() {
         const { bizExp, ta, db, inVal } = this.bBizExp;
-        const { budEntitySub: bud, prop, in: ilInVar } = bizExp;
+        const { budEntitySub: bud, props, in: ilInVar } = bizExp;
+        const { prop } = props[0];
         const { varTimeSpan: timeSpan, op, statementNo } = ilInVar;
         this.sb.append(`${prop}(${ta}.value) FROM ${db}.history as ${ta} `);
         this.from();

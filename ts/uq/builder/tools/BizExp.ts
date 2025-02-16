@@ -90,7 +90,8 @@ export class BBizExp {
     }
 
     private bin(sb: SqlBuilder) {
-        const { bizEntity, budProp, sysBud } = this.bizExp;
+        const { bizEntity, props } = this.bizExp;
+        const { budProp, sysBud } = props[0];
         if (budProp !== undefined) this.binBud(sb);
         else {
             const binEntity = bizEntity as BizBin;
@@ -106,7 +107,8 @@ export class BBizExp {
     }
 
     private binSheetProp(sb: SqlBuilder) {
-        const { bizEntity, sysBud, isParent } = this.bizExp;
+        const { props, isParent } = this.bizExp;
+        const { sysBud } = props[0];
         const { ta, tb, tt } = this;
         const tSheet = 'tsheet';
         let col = tSheet + '.';
@@ -132,7 +134,8 @@ export class BBizExp {
     }
 
     private binField(sb: SqlBuilder) {
-        const { bizEntity, prop, isParent } = this.bizExp;
+        const { bizEntity, props } = this.bizExp;
+        const { prop } = props[0];
         const { ta, tb, tt } = this;
         let col = `${ta}.${prop ?? 'id'} `
         // let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
@@ -157,7 +160,8 @@ export class BBizExp {
     }
 
     private binBud(sb: SqlBuilder) {
-        const { budProp, isParent } = this.bizExp;
+        const { props, isParent } = this.bizExp;
+        const { budProp } = props[0];
         const { ta, tb, tt } = this;
         let tbl: EnumSysTable;
         switch (budProp.dataType) {
@@ -183,7 +187,8 @@ export class BBizExp {
     }
 
     private mainSheetProp(sb: SqlBuilder) {
-        const { sysBud } = this.bizExp;
+        const { props } = this.bizExp;
+        const { sysBud } = props[0];
         const tSheet = 'tsheet';
         let col = tSheet + '.';
         switch (sysBud) {
@@ -199,7 +204,8 @@ export class BBizExp {
     }
 
     private mainField(sb: SqlBuilder) {
-        const { prop } = this.bizExp;
+        const { props } = this.bizExp;
+        const { prop } = props[0];
         const { ta } = this;
         sb.append(`${ta}.${prop ?? 'id'} 
                 FROM \`${this.db}\`.bin as ${ta} 
@@ -234,7 +240,8 @@ export class BBizExp {
     */
 
     private combo(sb: SqlBuilder) {
-        const { bizEntity, isReadonly, prop } = this.bizExp;
+        const { bizEntity, isReadonly, props } = this.bizExp;
+        const { prop } = props[0];
         const { ta } = this;
         const { site } = sb.factory.dbContext;
         const db = `${$site}.${site}`;
@@ -259,11 +266,13 @@ export class BBizExp {
     }
 
     private book(sb: SqlBuilder) {
-        const { prop, in: inVar, param, combo } = this.bizExp;
+        const { props, in: inVar, param, combo } = this.bizExp;
         if (combo !== undefined) {
             this.bookCombo(sb);
             return;
         }
+        if (props === undefined) return;
+        const { prop } = props[0];
         const { paramType } = param;
         if (inVar === undefined || prop === 'value') {
             let titleValue: TitleValueBase;
@@ -352,7 +361,8 @@ abstract class TitleSum extends TitleValueBase {
     abstract from(): void;
     override sql(): void {
         const { bizExp, ta, tt, db, inVal, params: [param] } = this.bBizExp;
-        const { budEntitySub: bud, prop, in: ilInVar } = bizExp;
+        const { budEntitySub: bud, props } = bizExp;
+        const { prop } = props[0];
         const { sb } = this;
         sb.append(`sum(${ta}.value) `);
         this.from();
@@ -390,7 +400,8 @@ class TitleIxSum extends TitleSum {
 abstract class TitleHistoryBase extends TitleExpBase {
     override sql() {
         const { bizExp, ta, db, inVal } = this.bBizExp;
-        const { budEntitySub: bud, prop, in: ilInVar } = bizExp;
+        const { budEntitySub: bud, props, in: ilInVar } = bizExp;
+        const { prop } = props[0];
         const { varTimeSpan: timeSpan, op, statementNo } = ilInVar;
         this.sb.append(`${prop}(${ta}.value) FROM ${db}.history as ${ta} `);
         this.from();
