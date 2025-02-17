@@ -30,42 +30,13 @@ export class BBizExp {
         this.tt = '$t' + bizEpxTblNo;
     }
 
-    to(sb: SqlBuilder): void {
+    to(sb: SqlBuilder, iProp: number): void {
         sb.l();
         if (this.expSelect !== undefined) {
             sb.exp(this.expSelect);
         }
         else {
-            for (let iProp = 0; ;) {
-                this.buildSelect(sb, iProp);
-                /*
-                sb.append('SELECT ');
-                const { bizEntitySys, bizEntity, expIDType, props } = this.bizExp;
-
-                if (bizEntity !== undefined) {
-                    const { bizPhraseType } = bizEntity;
-                    switch (bizPhraseType) {
-                        default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                        case BizPhraseType.bin: this.bin(sb); break;
-                        case BizPhraseType.book: this.book(sb); break;
-                        case BizPhraseType.tie: this.tie(sb); break;
-                        // case BizPhraseType.duo: this.duo(sb); break;
-                        case BizPhraseType.combo: this.combo(sb); break;
-                    }
-                }
-                else {
-                    switch (expIDType) {
-                    }
-                    debugger;
-                }
-                */
-                const { inSearch, props } = this.bizExp;
-                if (inSearch !== true) break;
-                if (props === undefined) break;
-                iProp++;
-                if (iProp >= props.length) break;
-                sb.append(' UNION ')
-            }
+            this.buildSelect(sb, iProp);
         }
         sb.r();
     }
@@ -81,7 +52,6 @@ export class BBizExp {
                 case BizPhraseType.bin: this.bin(sb, iProp); break;
                 case BizPhraseType.book: this.book(sb, iProp); break;
                 case BizPhraseType.tie: this.tie(sb, iProp); break;
-                // case BizPhraseType.duo: this.duo(sb); break;
                 case BizPhraseType.combo: this.combo(sb, iProp); break;
             }
         }
@@ -503,7 +473,7 @@ export class BBizCheckBud extends ExpVal {
             sb.append('EXISTS(SELECT ').append(t).dot().append('value FROM ');
             if (this.bExp1 !== undefined) {
                 sb.l();
-                this.bExp1.to(sb);
+                this.bExp1.to(sb, 0);
                 sb.r();
             }
             else {
@@ -522,7 +492,7 @@ export class BBizCheckBud extends ExpVal {
             sb.append(this.items.map(v => v.id).join(','));
         }
         else {
-            this.bExp2.to(sb);
+            this.bExp2.to(sb, 0);
         }
         sb.r();
     }

@@ -1,6 +1,8 @@
-import { ValueExpression } from "../../../il";
+import { BizExp, BizExpOperand, ValueExpression } from "../../../il";
+import { BBizExp } from "../../tools";
 import { SqlBuilder } from "../sqlBuilder";
 import { Exp } from "./Exp";
+import { BizExpOperand as BBizExpOperand } from "./ExpBizOperand";
 import { ExpCmp, ExpFunc, ExpLike, ExpStr, ExpVal } from "./exps";
 
 // memo 1
@@ -23,17 +25,33 @@ export class ExpSearch extends Exp {
                 new ExpStr(''),
             ),
             new ExpStr('%'));
-        // let ors: ExpCmp[] = [];
+        const ors: ExpCmp[] = this.values.map(v => {
+            const atoms = v.getAtoms();
+            if (atoms.length === 1 && atoms[0].type === 'bizexp') {
+                const { bizExp } = (atoms[0] as BizExpOperand);
+                return new ExpBizExpSearch(bizExp, valKey);
+                /*
+                sb.append('EXISTS(SELECT * FROM (SELECT NULL as a UNION ');
+                sb.exp(dbContext.convertExp(val));
+                sb.r().append(' AS t WHERE t.a LIKE ').exp(valKey).append(' LIMIT 1').r();
+                */
+            }
+            return new ExpLike(
+                dbContext.convertExp(v) as ExpVal,
+                valKey,
+            );
+        });
         sb.l();
+        /*
         let first = true;
         for (let val of this.values) {
             if (first === true) first = false;
             else sb.append(' OR ');
             const atoms = val.getAtoms();
             if (atoms.length === 1 && atoms[0].type === 'bizexp') {
-                sb.append('(SELECT COUNT(*) FROM (SELECT NULL as a UNION ');
+                sb.append('EXISTS(SELECT * FROM (SELECT NULL as a UNION ');
                 sb.exp(dbContext.convertExp(val));
-                sb.r().append(' AS t WHERE t.a LIKE ').exp(valKey).r().append('>0');
+                sb.r().append(' AS t WHERE t.a LIKE ').exp(valKey).append(' LIMIT 1').r();
             }
             else {
                 sb.exp(
@@ -44,13 +62,35 @@ export class ExpSearch extends Exp {
                 );
             }
         };
-        /*
+        */
         sb.sepStart(' OR ');
         for (let or of ors) {
             sb.sep().exp(or);
         }
         sb.sepEnd();
-        */
         sb.r();
+    }
+}
+
+class ExpBizExpSearch extends Exp {
+    private readonly bizExp: BizExp;
+    private readonly valLike: ExpVal;
+    constructor(bizExp: BizExp, valLike: ExpVal) {
+        super();
+        this.bizExp = bizExp;
+        this.valLike = valLike;
+    }
+
+    to(sb: SqlBuilder): void {
+        let bExp = new BBizExp();
+        bExp.convertFrom(sb.factory.dbContext, this.bizExp);
+        const { props } = this.bizExp;
+        for (let i = 0; i < props.length; i++) {
+            if (i > 0) sb.append(' OR ');
+            const bBizExpOperand = new BBizExpOperand(bExp, i);
+            bBizExpOperand.to(sb);
+            sb.append(' LIKE ');
+            sb.exp(this.valLike);
+        }
     }
 }

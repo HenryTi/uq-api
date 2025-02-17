@@ -157,7 +157,7 @@ class Stack {
     bizExp(exp) {
         let bExp = new tools_1.BBizExp();
         bExp.convertFrom(this.context, exp);
-        this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp));
+        this.arr.push(new ExpBizOperand_1.BizExpOperand(bExp, 0));
     }
     bizCheckBud(checkBud) {
         const { optionIdVal, bizExp1, bizExp2, bizField, items } = checkBud;

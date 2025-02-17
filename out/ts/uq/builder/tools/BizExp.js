@@ -14,45 +14,13 @@ class BBizExp {
         this.tb = '$b' + bizEpxTblNo;
         this.tt = '$t' + bizEpxTblNo;
     }
-    to(sb) {
+    to(sb, iProp) {
         sb.l();
         if (this.expSelect !== undefined) {
             sb.exp(this.expSelect);
         }
         else {
-            for (let iProp = 0;;) {
-                this.buildSelect(sb, iProp);
-                /*
-                sb.append('SELECT ');
-                const { bizEntitySys, bizEntity, expIDType, props } = this.bizExp;
-
-                if (bizEntity !== undefined) {
-                    const { bizPhraseType } = bizEntity;
-                    switch (bizPhraseType) {
-                        default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                        case BizPhraseType.bin: this.bin(sb); break;
-                        case BizPhraseType.book: this.book(sb); break;
-                        case BizPhraseType.tie: this.tie(sb); break;
-                        // case BizPhraseType.duo: this.duo(sb); break;
-                        case BizPhraseType.combo: this.combo(sb); break;
-                    }
-                }
-                else {
-                    switch (expIDType) {
-                    }
-                    debugger;
-                }
-                */
-                const { inSearch, props } = this.bizExp;
-                if (inSearch !== true)
-                    break;
-                if (props === undefined)
-                    break;
-                iProp++;
-                if (iProp >= props.length)
-                    break;
-                sb.append(' UNION ');
-            }
+            this.buildSelect(sb, iProp);
         }
         sb.r();
     }
@@ -74,7 +42,6 @@ class BBizExp {
                 case BizPhraseType_1.BizPhraseType.tie:
                     this.tie(sb, iProp);
                     break;
-                // case BizPhraseType.duo: this.duo(sb); break;
                 case BizPhraseType_1.BizPhraseType.combo:
                     this.combo(sb, iProp);
                     break;
@@ -493,7 +460,7 @@ class BBizCheckBud extends exp_1.ExpVal {
             sb.append('EXISTS(SELECT ').append(t).dot().append('value FROM ');
             if (this.bExp1 !== undefined) {
                 sb.l();
-                this.bExp1.to(sb);
+                this.bExp1.to(sb, 0);
                 sb.r();
             }
             else {
@@ -511,7 +478,7 @@ class BBizCheckBud extends exp_1.ExpVal {
             sb.append(this.items.map(v => v.id).join(','));
         }
         else {
-            this.bExp2.to(sb);
+            this.bExp2.to(sb, 0);
         }
         sb.r();
     }
