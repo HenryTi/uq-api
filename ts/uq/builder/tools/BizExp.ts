@@ -257,11 +257,11 @@ export class BBizExp {
 
     private combo(sb: SqlBuilder, iProp: number) {
         const { bizEntity, isReadonly, props } = this.bizExp;
-        const { prop } = props[iProp];
         const { ta } = this;
         const { site } = sb.factory.dbContext;
         const db = `${$site}.${site}`;
         const siteEntityId = bizEntity.id;
+        const prop = props?.[iProp]?.prop;
         if (prop !== undefined) {
             sb.append(`${ta}.${prop} FROM `)
                 .name(db).dot()

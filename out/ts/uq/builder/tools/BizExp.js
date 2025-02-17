@@ -268,12 +268,13 @@ class BBizExp {
             .exp(this.params[0]);
     }
     combo(sb, iProp) {
+        var _a;
         const { bizEntity, isReadonly, props } = this.bizExp;
-        const { prop } = props[iProp];
         const { ta } = this;
         const { site } = sb.factory.dbContext;
         const db = `${consts_1.$site}.${site}`;
         const siteEntityId = bizEntity.id;
+        const prop = (_a = props === null || props === void 0 ? void 0 : props[iProp]) === null || _a === void 0 ? void 0 : _a.prop;
         if (prop !== undefined) {
             sb.append(`${ta}.${prop} FROM `)
                 .name(db).dot()
