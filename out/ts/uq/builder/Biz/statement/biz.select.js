@@ -71,7 +71,13 @@ class BBizSelect extends bstatement_1.BStatement {
                 if (isForkBase === true) {
                     // isForkBase
                     joinAtom = il_1.JoinType.left;
-                    expOn$Atom = new sql_1.ExpOr(expOnEQAtom, new sql_1.ExpEQ(new sql_1.ExpField('id', subAliasAtom), new sql_1.ExpField('id', alias + exports.$idu)));
+                    expOn$Atom = expOnEQAtom;
+                    /*
+                    expOn$Atom = new ExpOr(
+                        expOnEQAtom,
+                        new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', alias + $idu)),
+                    );
+                    */
                 }
                 else {
                     joinAtom = il_1.JoinType.join;

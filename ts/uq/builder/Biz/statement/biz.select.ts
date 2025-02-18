@@ -78,10 +78,13 @@ export abstract class BBizSelect<T extends BizSelectStatement> extends BStatemen
                 if (isForkBase === true) {
                     // isForkBase
                     joinAtom = JoinType.left;
+                    expOn$Atom = expOnEQAtom;
+                    /*
                     expOn$Atom = new ExpOr(
                         expOnEQAtom,
                         new ExpEQ(new ExpField('id', subAliasAtom), new ExpField('id', alias + $idu)),
                     );
+                    */
                 }
                 else {
                     joinAtom = JoinType.join;
