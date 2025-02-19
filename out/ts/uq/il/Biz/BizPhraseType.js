@@ -5,6 +5,7 @@ const EnumSysTable_1 = require("../EnumSysTable");
 var BizPhraseType;
 (function (BizPhraseType) {
     BizPhraseType[BizPhraseType["any"] = 0] = "any";
+    BizPhraseType[BizPhraseType["flow"] = 10] = "flow";
     BizPhraseType[BizPhraseType["atom"] = 11] = "atom";
     BizPhraseType[BizPhraseType["fork"] = 12] = "fork";
     BizPhraseType[BizPhraseType["bud"] = 13] = "bud";

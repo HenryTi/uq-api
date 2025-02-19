@@ -27,11 +27,8 @@ export abstract class Space {
     protected _isOrderSwitch(_orderSwitch: string): boolean { return }
     protected _setTransactionOff(off: boolean): boolean { return false; }
     protected _getActionBase(): ActionBase { return undefined; }
-    protected _getBizBase(bizName: string[]): BizBase { return undefined; }
     protected _getBizFromEntityFromAlias(alias: string): BizFromEntity<BizEntity> { return undefined; }
     protected _getBizFromEntityFromName(name: string): BizFromEntity<BizEntity> { return undefined; }
-    // protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
-    // protected _getBizEntitySpace(): BizEntitySpace { return undefined; }
     protected _getBizEntity(): BizEntity { return undefined; } // 当前space的主BizEntity
     protected _getBizField(names: string[]): BizField { return undefined; }
     protected _regUseBizOut(out: BizOut, to: boolean): UseOut { return undefined; }
@@ -227,11 +224,5 @@ export abstract class Space {
         if (ret !== undefined) return ret;
         return this.outer?.getActionBase();
     }
-    getBizBase(bizName: string[]): BizBase {
-        let ret = this._getBizBase(bizName);
-        if (ret !== undefined) return ret;
-        return this.outer?.getBizBase(bizName);
-    }
-
     get isReadonly(): boolean { return false; }    // true: is in Biz From Statement
 }

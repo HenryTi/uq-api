@@ -19,11 +19,8 @@ class Space {
     _isOrderSwitch(_orderSwitch) { return; }
     _setTransactionOff(off) { return false; }
     _getActionBase() { return undefined; }
-    _getBizBase(bizName) { return undefined; }
     _getBizFromEntityFromAlias(alias) { return undefined; }
     _getBizFromEntityFromName(name) { return undefined; }
-    // protected _getBizFieldSpace(): BizFieldSpace { return undefined; }
-    // protected _getBizEntitySpace(): BizEntitySpace { return undefined; }
     _getBizEntity() { return undefined; } // 当前space的主BizEntity
     _getBizField(names) { return undefined; }
     _regUseBizOut(out, to) { return undefined; }
@@ -255,13 +252,6 @@ class Space {
         if (ret !== undefined)
             return ret;
         return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getActionBase();
-    }
-    getBizBase(bizName) {
-        var _a;
-        let ret = this._getBizBase(bizName);
-        if (ret !== undefined)
-            return ret;
-        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getBizBase(bizName);
     }
     get isReadonly() { return false; } // true: is in Biz From Statement
 }

@@ -7,7 +7,8 @@ import {
     BizCombo,
     BizTemplet,
     BizPrint,
-    BizIDExtendable
+    BizIDExtendable,
+    Flow
 } from "../../il";
 import { PContext } from "../pContext";
 import { Space } from "../space";
@@ -25,7 +26,6 @@ export class PBiz extends PEntity<Biz> {
             atom: BizAtom,
             spec: BizFork,
             fork: BizFork,
-            // duo: BizDuo,            // 取消，不再使用。用 BizCombo 替代
             combo: BizCombo,
 
             title: BizBook,
@@ -54,6 +54,7 @@ export class PBiz extends PEntity<Biz> {
             iosite: BizIOSite,
 
             console: BizConsole,
+            flow: Flow,
         };
     }
     parse(): void {

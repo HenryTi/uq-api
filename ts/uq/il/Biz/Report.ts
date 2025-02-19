@@ -5,7 +5,7 @@ import { BizAtom, BizCombo, BizFork } from "./BizID";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBud, BizBudValue } from "./Bud";
 import { BizEntity, BizNotID } from "./Entity";
-import { BizBook } from "./Title";
+import { BizBook } from "./Book";
 
 export interface ReportTitle {
     caption: string;

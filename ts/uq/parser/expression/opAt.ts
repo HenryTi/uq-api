@@ -3,7 +3,7 @@ import { PElement } from "../element";
 import { Space } from "../space";
 import { Token } from "../tokens";
 
-export class POpAt extends PElement<OpAt>  {
+export class POpAt extends PElement<OpAt> {
     protected _parse(): void {
         if (this.ts.token === Token.EQU) {
             this.ts.readToken();
@@ -30,14 +30,14 @@ export class POpAt extends PElement<OpAt>  {
         let ok = true;
         let { bizName, bizVal } = this.element;
         if (bizName !== undefined) {
-            let biz = space.getBizBase(bizName);
+            let biz = space.uq.biz.bizEntities.get(bizName[0]);
             if (biz === undefined) {
                 this.log(`unknown biz object '${bizName.join('.')}'`);
                 ok = false;
             }
             this.element.biz = biz;
         }
-        else {
+        else if (bizVal !== undefined) {
             bizVal.pelement.scan(space);
         }
         return ok;

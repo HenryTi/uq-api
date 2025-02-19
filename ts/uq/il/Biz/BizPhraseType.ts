@@ -2,6 +2,7 @@ import { EnumSysTable } from "../EnumSysTable";
 
 export enum BizPhraseType {
     any = 0,
+    flow = 10,
     atom = 11,
     fork = 12,
     bud = 13,

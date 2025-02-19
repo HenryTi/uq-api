@@ -264,7 +264,7 @@ class FromEntityScaner {
         const { bizEntityArr, bizPhraseType } = fromEntity;
         if (bizEntityArr.length > 0) {
             for (let _of of pFromEntity.ofIXs) {
-                let entity = this.space.getBizBase([_of]);
+                let entity = this.space.uq.biz.bizEntities.get(_of);
                 if (entity === undefined) {
                     ok = false;
                     this.log(`${_of} is not defined`);

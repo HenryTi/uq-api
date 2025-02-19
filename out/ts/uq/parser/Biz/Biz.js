@@ -13,7 +13,6 @@ class PBiz extends entity_1.PEntity {
             atom: il_1.BizAtom,
             spec: il_1.BizFork,
             fork: il_1.BizFork,
-            // duo: BizDuo,            // 取消，不再使用。用 BizCombo 替代
             combo: il_1.BizCombo,
             title: il_1.BizBook,
             book: il_1.BizBook,
@@ -36,6 +35,7 @@ class PBiz extends entity_1.PEntity {
             ioapp: il_1.BizIOApp,
             iosite: il_1.BizIOSite,
             console: il_1.BizConsole,
+            flow: il_1.Flow,
         };
     }
     parse() {
