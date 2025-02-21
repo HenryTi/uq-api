@@ -182,7 +182,7 @@ class Stack implements IlStack {
     bizExp(exp: BizExp) {
         let bExp = new BBizExp();
         bExp.convertFrom(this.context, exp);
-        this.arr.push(new BizExpOperand(bExp, 0));
+        this.arr.push(new BizExpOperand(bExp));
     }
     bizCheckBud(checkBud: BizCheckBudOperand) {
         const { optionIdVal, bizExp1, bizExp2, bizField, items } = checkBud;

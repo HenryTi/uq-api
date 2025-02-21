@@ -25,6 +25,7 @@ exports.PBizExpOperand = PBizExpOperand;
 // (#Entity.Bud(id)[^|.Prop] IN timeSpan +- delta)
 class PBizExp extends element_1.PElement {
     _parse() {
+        const { props } = this.element;
         if (this.ts.token === tokens_1.Token.MUL) {
             this.isStar = true;
             this.ts.readToken();
@@ -73,11 +74,11 @@ class PBizExp extends element_1.PElement {
             this.element.isParent = true;
             this.ts.readToken();
             for (;;) {
-                this.element.props = [{
-                        prop: this.ts.passVar(),
-                        sysBud: undefined,
-                        budProp: undefined,
-                    }]; // = this.ts.passVar();
+                props.push({
+                    prop: this.ts.passVar(),
+                    sysBud: undefined,
+                    budProp: undefined,
+                }); // = this.ts.passVar();
                 if (this.ts.token !== tokens_1.Token.BITWISEOR)
                     break;
                 this.ts.readToken();
@@ -90,11 +91,11 @@ class PBizExp extends element_1.PElement {
                 this.ts.readToken();
             }
             for (;;) {
-                this.element.props = [{
-                        prop: this.ts.passVar(),
-                        sysBud: undefined,
-                        budProp: undefined,
-                    }];
+                props.push({
+                    prop: this.ts.passVar(),
+                    sysBud: undefined,
+                    budProp: undefined,
+                });
                 if (this.ts.token !== tokens_1.Token.BITWISEOR)
                     break;
                 this.ts.readToken();
@@ -224,7 +225,6 @@ class PBizExp extends element_1.PElement {
                 case BizPhraseType_1.BizPhraseType.tie:
                     ret = this.scanTie(space);
                     break;
-                // case BizPhraseType.duo: ret = this.scanDuo(space); break;
                 case BizPhraseType_1.BizPhraseType.combo:
                     ret = this.scanCombo(space);
                     break;
@@ -273,11 +273,11 @@ class PBizExp extends element_1.PElement {
                 ok = false;
             }
             else {
-                this.element.props = [{
-                        prop: undefined,
-                        budProp: bud,
-                        sysBud: undefined,
-                    }];
+                props.push({
+                    prop: undefined,
+                    budProp: bud,
+                    sysBud: undefined,
+                });
             }
             return ok;
         }
@@ -319,11 +319,11 @@ class PBizExp extends element_1.PElement {
                 ok = false;
             }
             else {
-                this.element.props = [{
-                        prop: undefined,
-                        budProp: bud,
-                        sysBud: undefined,
-                    }];
+                props.push({
+                    prop: undefined,
+                    budProp: bud,
+                    sysBud: undefined,
+                });
             }
             return ok;
         }

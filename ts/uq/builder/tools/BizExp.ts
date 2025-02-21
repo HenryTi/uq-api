@@ -16,6 +16,7 @@ export class BBizExp {
     readonly ta: string;
     readonly tb: string;
     readonly tt: string;
+    readonly iProp: number;
 
     db: string;
     bizExp: BizExp;
@@ -23,36 +24,37 @@ export class BBizExp {
     inVal: ExpVal;
     expSelect: ExpVal;
 
-    constructor() {
+    constructor(iProp: number = 0) {
         ++bizEpxTblNo;
         this.ta = '$a' + bizEpxTblNo;
         this.tb = '$b' + bizEpxTblNo;
         this.tt = '$t' + bizEpxTblNo;
+        this.iProp = iProp;
     }
 
-    to(sb: SqlBuilder, iProp: number): void {
+    to(sb: SqlBuilder): void {
         sb.l();
         if (this.expSelect !== undefined) {
             sb.exp(this.expSelect);
         }
         else {
-            this.buildSelect(sb, iProp);
+            this.buildSelect(sb);
         }
         sb.r();
     }
 
-    private buildSelect(sb: SqlBuilder, iProp: number) {
+    private buildSelect(sb: SqlBuilder) {
         sb.append('SELECT ');
-        const { bizEntitySys, bizEntity, expIDType, props } = this.bizExp;
+        const { bizEntity, expIDType } = this.bizExp;
 
         if (bizEntity !== undefined) {
             const { bizPhraseType } = bizEntity;
             switch (bizPhraseType) {
                 default: debugger; throw new Error(`not implemented bizPhraseType ${this.bizExp.bizEntity}`);
-                case BizPhraseType.bin: this.bin(sb, iProp); break;
-                case BizPhraseType.book: this.book(sb, iProp); break;
-                case BizPhraseType.tie: this.tie(sb, iProp); break;
-                case BizPhraseType.combo: this.combo(sb, iProp); break;
+                case BizPhraseType.bin: this.bin(sb); break;
+                case BizPhraseType.book: this.book(sb); break;
+                case BizPhraseType.tie: this.tie(sb); break;
+                case BizPhraseType.combo: this.combo(sb); break;
             }
         }
         else {
@@ -93,26 +95,26 @@ export class BBizExp {
         }
     }
 
-    private bin(sb: SqlBuilder, iProp: number) {
+    private bin(sb: SqlBuilder) {
         const { bizEntity, props } = this.bizExp;
-        const { budProp, sysBud } = props[iProp];
-        if (budProp !== undefined) this.binBud(sb, iProp);
+        const { budProp, sysBud } = props[this.iProp];
+        if (budProp !== undefined) this.binBud(sb);
         else {
             const binEntity = bizEntity as BizBin;
             if (binEntity.main !== undefined) {
-                if (sysBud !== undefined) this.binSheetProp(sb, iProp);
-                else this.binField(sb, iProp);
+                if (sysBud !== undefined) this.binSheetProp(sb);
+                else this.binField(sb);
             }
             else {
-                if (sysBud !== undefined) this.mainSheetProp(sb, iProp);
-                else this.mainField(sb, iProp);
+                if (sysBud !== undefined) this.mainSheetProp(sb);
+                else this.mainField(sb);
             }
         }
     }
 
-    private binSheetProp(sb: SqlBuilder, iProp: number) {
+    private binSheetProp(sb: SqlBuilder) {
         const { props, isParent } = this.bizExp;
-        const { sysBud } = props[iProp];
+        const { sysBud } = props[this.iProp];
         const { ta, tb, tt } = this;
         const tSheet = 'tsheet';
         let col = tSheet + '.';
@@ -137,9 +139,9 @@ export class BBizExp {
         sb.exp(this.params[0]);
     }
 
-    private binField(sb: SqlBuilder, iProp: number) {
+    private binField(sb: SqlBuilder) {
         const { bizEntity, props } = this.bizExp;
-        const { prop } = props[iProp];
+        const { prop } = props[this.iProp];
         const { ta, tb, tt } = this;
         let col = `${ta}.${prop ?? 'id'} `
         // let joinBud = `JOIN ${this.db}.bud as ${tb} ON ${tb}.id = ${ta}.id AND ${tb}.ext = ${bizEntity.id} `;
@@ -163,9 +165,9 @@ export class BBizExp {
         sb.exp(this.params[0]);
     }
 
-    private binBud(sb: SqlBuilder, iProp: number) {
+    private binBud(sb: SqlBuilder) {
         const { props, isParent } = this.bizExp;
-        const { budProp } = props[iProp];
+        const { budProp } = props[this.iProp];
         const { ta, tb, tt } = this;
         let tbl: EnumSysTable;
         switch (budProp.dataType) {
@@ -189,9 +191,9 @@ export class BBizExp {
         }
     }
 
-    private mainSheetProp(sb: SqlBuilder, iProp: number) {
+    private mainSheetProp(sb: SqlBuilder) {
         const { props } = this.bizExp;
-        const { sysBud } = props[iProp];
+        const { sysBud } = props[this.iProp];
         const tSheet = 'tsheet';
         let col = tSheet + '.';
         switch (sysBud) {
@@ -206,9 +208,9 @@ export class BBizExp {
         sb.exp(this.params[0]);
     }
 
-    private mainField(sb: SqlBuilder, iProp: number) {
+    private mainField(sb: SqlBuilder) {
         const { props } = this.bizExp;
-        const { prop } = props[iProp];
+        const { prop } = props[this.iProp];
         const { ta } = this;
         sb.append(`${ta}.${prop ?? 'id'} 
                 FROM \`${this.db}\`.bin as ${ta} 
@@ -216,7 +218,7 @@ export class BBizExp {
         sb.exp(this.params[0]);
     }
 
-    private tie(sb: SqlBuilder, iProp: number) {
+    private tie(sb: SqlBuilder) {
         const { bizEntity } = this.bizExp;
         const { ta, tb } = this;
         sb.append(`${ta}.x
@@ -225,13 +227,13 @@ export class BBizExp {
             .exp(this.params[0]);
     }
 
-    private combo(sb: SqlBuilder, iProp: number) {
+    private combo(sb: SqlBuilder) {
         const { bizEntity, isReadonly, props } = this.bizExp;
         const { ta } = this;
         const { site } = sb.factory.dbContext;
         const db = `${$site}.${site}`;
         const siteEntityId = bizEntity.id;
-        const prop = props?.[iProp]?.prop;
+        const prop = props?.[this.iProp]?.prop;
         if (prop !== undefined) {
             sb.append(`${ta}.${prop} FROM `)
                 .name(db).dot()
@@ -251,26 +253,26 @@ export class BBizExp {
         }
     }
 
-    private book(sb: SqlBuilder, iProp: number) {
+    private book(sb: SqlBuilder) {
         const { props, in: inVar, param, combo } = this.bizExp;
         if (combo !== undefined) {
             this.bookCombo(sb);
             return;
         }
         // if (props === undefined) return;
-        // const { prop } = props[0];
+        // const { prop } = props[this.iProp];
         const { paramType } = param;
-        if (inVar === undefined || (props !== undefined && props[iProp].prop === 'value')) {
+        if (inVar === undefined || (props !== undefined && props[this.iProp].prop === 'value')) {
             let titleValue: BookValueBase;
             switch (paramType) {
                 case BizExpParamType.scalar:
-                    titleValue = new BookValue(sb, this, iProp);
+                    titleValue = new BookValue(sb, this);
                     break;
                 case BizExpParamType.fork:
-                    titleValue = new BookForkSum(sb, this, iProp);
+                    titleValue = new BookForkSum(sb, this);
                     break;
                 case BizExpParamType.ix:
-                    titleValue = new BookIxSum(sb, this, iProp);
+                    titleValue = new BookIxSum(sb, this);
                     break;
             }
             titleValue.sql();
@@ -279,13 +281,13 @@ export class BBizExp {
             let bookHistory: BookHistoryBase;
             switch (paramType) {
                 case BizExpParamType.scalar:
-                    bookHistory = new BookHistory(sb, this, iProp);
+                    bookHistory = new BookHistory(sb, this);
                     break;
                 case BizExpParamType.fork:
-                    bookHistory = new BookForkHistory(sb, this, iProp);
+                    bookHistory = new BookForkHistory(sb, this);
                     break;
                 case BizExpParamType.ix:
-                    bookHistory = new BookIxHistory(sb, this, iProp);
+                    bookHistory = new BookIxHistory(sb, this);
                     break;
             }
             bookHistory.sql();
@@ -313,13 +315,12 @@ export class BBizExp {
 abstract class BookExpBase {
     protected readonly sb: SqlBuilder;
     protected readonly bBizExp: BBizExp;
-    protected readonly iProp: number;
-    constructor(sb: SqlBuilder, bBizExp: BBizExp, iProp: number) {
+    constructor(sb: SqlBuilder, bBizExp: BBizExp) {
         this.sb = sb;
         this.bBizExp = bBizExp;
-        this.iProp = iProp;
     }
     abstract sql(): void;
+    get iProp(): number { return this.bBizExp.iProp; }
 }
 
 abstract class BookValueBase extends BookExpBase {
@@ -473,7 +474,7 @@ export class BBizCheckBud extends ExpVal {
             sb.append('EXISTS(SELECT ').append(t).dot().append('value FROM ');
             if (this.bExp1 !== undefined) {
                 sb.l();
-                this.bExp1.to(sb, 0);
+                this.bExp1.to(sb);
                 sb.r();
             }
             else {
@@ -492,7 +493,7 @@ export class BBizCheckBud extends ExpVal {
             sb.append(this.items.map(v => v.id).join(','));
         }
         else {
-            this.bExp2.to(sb, 0);
+            this.bExp2.to(sb);
         }
         sb.r();
     }

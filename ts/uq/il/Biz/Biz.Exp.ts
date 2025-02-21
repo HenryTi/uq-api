@@ -52,7 +52,7 @@ export class BizExp extends IElement {
     expIDType: BizExpIDType;
     budEntitySub: BizBud;
     param: BizExpParam;
-    props: ExpProp[];
+    readonly props: ExpProp[] = [];
     /*
     prop: string;
     budProp: BizBud;

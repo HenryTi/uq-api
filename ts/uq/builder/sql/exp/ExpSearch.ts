@@ -82,12 +82,12 @@ class ExpBizExpSearch extends Exp {
     }
 
     to(sb: SqlBuilder): void {
-        let bExp = new BBizExp();
-        bExp.convertFrom(sb.factory.dbContext, this.bizExp);
         const { props } = this.bizExp;
         for (let i = 0; i < props.length; i++) {
+            let bExp = new BBizExp(i);
+            bExp.convertFrom(sb.factory.dbContext, this.bizExp);
             if (i > 0) sb.append(' OR ');
-            const bBizExpOperand = new BBizExpOperand(bExp, i);
+            const bBizExpOperand = new BBizExpOperand(bExp);
             bBizExpOperand.to(sb);
             sb.append(' LIKE ');
             sb.exp(this.valLike);

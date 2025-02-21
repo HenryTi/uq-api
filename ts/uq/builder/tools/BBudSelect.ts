@@ -22,8 +22,10 @@ export class BBudSelect {
     }
 
     build(): ExpVal {
-        const { props, isParent, bizEntitySys } = this.bBizExp.bizExp;
-        const { prop, budProp } = props[0];
+        const { iProp, bizExp } = this.bBizExp;
+        const { props, isParent, bizEntitySys } = bizExp;
+
+        const { prop, budProp } = props[iProp];
         if (bizEntitySys !== undefined) {
             return this.buildEntitySys();
         }
@@ -38,8 +40,8 @@ export class BBudSelect {
 
     private buildEntitySys() {
         const a = 'a', b = 'b', c = 'c';
-        let { params, bizExp: { bizEntitySys, props } } = this.bBizExp;
-        const { prop } = props[0];
+        let { params, bizExp: { bizEntitySys, props }, iProp } = this.bBizExp;
+        const { prop } = props[iProp];
         let { factory } = this.context;
         let select = factory.createSelect();
         let t: string;

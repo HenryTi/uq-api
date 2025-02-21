@@ -67,13 +67,13 @@ class ExpBizExpSearch extends Exp_1.Exp {
         this.valLike = valLike;
     }
     to(sb) {
-        let bExp = new tools_1.BBizExp();
-        bExp.convertFrom(sb.factory.dbContext, this.bizExp);
         const { props } = this.bizExp;
         for (let i = 0; i < props.length; i++) {
+            let bExp = new tools_1.BBizExp(i);
+            bExp.convertFrom(sb.factory.dbContext, this.bizExp);
             if (i > 0)
                 sb.append(' OR ');
-            const bBizExpOperand = new ExpBizOperand_1.BizExpOperand(bExp, i);
+            const bBizExpOperand = new ExpBizOperand_1.BizExpOperand(bExp);
             bBizExpOperand.to(sb);
             sb.append(' LIKE ');
             sb.exp(this.valLike);

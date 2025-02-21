@@ -4,13 +4,11 @@ import { ExpVal } from "./exps";
 
 export class BizExpOperand extends ExpVal {
     protected readonly bizExp: BBizExp;
-    protected readonly iProp: number;
-    constructor(bizExp: BBizExp, iProp: number) {
+    constructor(bizExp: BBizExp) {
         super();
         this.bizExp = bizExp;
-        this.iProp = iProp;
     }
     to(sb: SqlBuilder) {
-        this.bizExp.to(sb, this.iProp);
+        this.bizExp.to(sb);
     }
 }

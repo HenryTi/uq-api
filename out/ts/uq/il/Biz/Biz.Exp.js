@@ -34,6 +34,7 @@ var BizExpIDType;
 class BizExp extends IElement_1.IElement {
     constructor() {
         super(...arguments);
+        this.props = [];
         this.type = 'BizExp';
         this.isReadonly = false;
     }
