@@ -2,7 +2,7 @@ import {
     BizBinVar,
     BizBud,
     bizDecType,
-    BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldOptionsItem, BizFieldPendBinBudSelect, BizFieldPendBudSelect, BizForkBaseField, EnumSysTable
+    BizField, BizFieldBinBinBudSelect, BizFieldBinBudSelect, BizFieldBud, BizFieldField, BizFieldOptionsItem, BizFieldPendBinBudSelect, BizFieldPendBudSelect, BizForkBaseField, BizPendVar, EnumSysTable
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { DbContext } from "../dbContext";
@@ -302,6 +302,12 @@ export class BBizFieldPendSheet extends BBizField {
 export class BBizFieldUser extends BBizField<BizField> {
     override to(sb: SqlBuilder): void {
         sb.append('%user').dot().append(this.bizField.tableAlias);
+    }
+}
+
+export class BBizPendVar extends BBizField<BizPendVar> {
+    override to(sb: SqlBuilder): void {
+        sb.append(this.bizField.name);
     }
 }
 

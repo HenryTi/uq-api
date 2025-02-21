@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinActFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromEntityFieldSpace = exports.BizFieldSpace = exports.BizFieldOptionsItem = exports.BizFieldUser = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldPendSheet = exports.BizFieldPendBin = exports.BizFieldBinBinBudSelect = exports.BizFieldPendBinBudSelect = exports.BizFieldPendBudSelect = exports.BizFieldBinBudSelect = exports.BizFieldBinBud = exports.BizFieldBud = exports.BizFieldTableAlias = exports.BizForkBaseField = exports.BizBinVar = exports.BizField = void 0;
+exports.BizBinActFieldSpace = exports.BizPendQueryFieldSpace = exports.FromInPendFieldSpace = exports.FromInQueryFieldSpace = exports.FromEntityFieldSpace = exports.BizFieldSpace = exports.BizFieldOptionsItem = exports.BizPendVar = exports.BizFieldUser = exports.BizFieldVar = exports.BizFieldJsonProp = exports.BizFieldField = exports.BizFieldPendSheet = exports.BizFieldPendBin = exports.BizFieldBinBinBudSelect = exports.BizFieldPendBinBudSelect = exports.BizFieldPendBudSelect = exports.BizFieldBinBudSelect = exports.BizFieldBinBud = exports.BizFieldBud = exports.BizFieldTableAlias = exports.BizForkBaseField = exports.BizBinVar = exports.BizField = void 0;
 const builder_1 = require("../builder");
 const BizPhraseType_1 = require("./Biz/BizPhraseType");
 // in FROM statement, columns use BizField
@@ -181,6 +181,22 @@ class BizFieldUser extends BizFieldTableAlias {
     }
 }
 exports.BizFieldUser = BizFieldUser;
+class BizPendVar extends BizField {
+    constructor(space, name) {
+        super(space);
+        this.name = name;
+    }
+    db(dbContext) {
+        return new builder_1.BBizPendVar(dbContext, this);
+    }
+    buildSchema() {
+        return;
+    }
+    get tableAlias() {
+        return 't1';
+    }
+}
+exports.BizPendVar = BizPendVar;
 class BizFieldOptionsItem extends BizField {
     constructor(options, optionsItem) {
         super(undefined);
@@ -334,6 +350,23 @@ class FromInPendFieldSpace extends FromEntityFieldSpace {
     }
 }
 exports.FromInPendFieldSpace = FromInPendFieldSpace;
+class BizPendQueryFieldSpace extends BizFieldSpace {
+    constructor(bizPend) {
+        super();
+        this.bizPend = bizPend;
+    }
+    buildBizFieldFromSolo(name) {
+        const pendVars = ['i', 'x'];
+        if (pendVars.indexOf(name) >= 0) {
+            return new BizPendVar(this, name);
+        }
+        return this.buildBizFieldFromDuo('$t1', name);
+    }
+    buildBizFieldFromDuo(n0, n1) {
+        return null;
+    }
+}
+exports.BizPendQueryFieldSpace = BizPendQueryFieldSpace;
 class BizBinActFieldSpace extends BizFieldSpace {
     constructor(bizBin) {
         super();

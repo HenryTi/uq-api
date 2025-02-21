@@ -45,6 +45,7 @@ export interface ExpProp {
     prop: string;
     budProp: BizBud;
     sysBud: EnumSysBud;
+    isParent: boolean;
 }
 export class BizExp extends IElement {
     bizEntity: BizEntity;
@@ -61,7 +62,6 @@ export class BizExp extends IElement {
     in: BizExpIn;
     type = 'BizExp';
     isReadonly: boolean = false;
-    isParent: boolean;
     inSearch: boolean;      // SEARCH((#bizExp) like '');
 
     // only used in 2 group by sum

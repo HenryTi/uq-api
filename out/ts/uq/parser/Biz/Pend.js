@@ -5,6 +5,7 @@ const il_1 = require("../../il");
 const Pend_1 = require("../../il/Biz/Pend");
 const tokens_1 = require("../tokens");
 const Base_1 = require("./Base");
+const Biz_1 = require("./Biz");
 const Query_1 = require("./Query");
 class PBizPend extends Base_1.PBizEntity {
     constructor() {
@@ -133,7 +134,8 @@ class PBizPend extends Base_1.PBizEntity {
             }
         }
         if (pendQuery !== undefined) {
-            if (pendQuery.pelement.scan(space) === false) {
+            let pendSpace = new BizPendSpace(space, this.element);
+            if (pendQuery.pelement.scan(pendSpace) === false) {
                 ok = false;
             }
             for (let param of pendQuery.params) {
@@ -182,4 +184,10 @@ class PBizQueryTableInPendStatements extends Query_1.PBizQueryTableStatements {
     }
 }
 exports.PBizQueryTableInPendStatements = PBizQueryTableInPendStatements;
+class BizPendSpace extends Biz_1.BizEntitySpace {
+    constructor(outer, bizPend) {
+        super(outer, bizPend);
+        this.bizFieldSpace = new il_1.BizPendQueryFieldSpace(bizPend);
+    }
+}
 //# sourceMappingURL=Pend.js.map

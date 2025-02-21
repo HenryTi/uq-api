@@ -12,8 +12,8 @@ class BBudSelect {
     }
     build() {
         const { iProp, bizExp } = this.bBizExp;
-        const { props, isParent, bizEntitySys } = bizExp;
-        const { prop, budProp } = props[iProp];
+        const { props, bizEntitySys } = bizExp;
+        const { prop, budProp, isParent } = props[iProp];
         if (bizEntitySys !== undefined) {
             return this.buildEntitySys();
         }
@@ -28,15 +28,17 @@ class BBudSelect {
     buildEntitySys() {
         const a = 'a', b = 'b', c = 'c';
         let { params, bizExp: { bizEntitySys, props }, iProp } = this.bBizExp;
-        const { prop } = props[iProp];
+        const { prop, isParent } = props[iProp];
         let { factory } = this.context;
         let select = factory.createSelect();
-        let t;
+        let t, bud = prop;
         switch (bizEntitySys) {
             case il_1.EnumEntitySys.fork:
                 select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, a));
                 if (prop === 'id') {
                     t = a;
+                    if (isParent === true)
+                        bud = 'seed';
                 }
                 else {
                     t = b;
@@ -46,19 +48,12 @@ class BBudSelect {
                 break;
             case il_1.EnumEntitySys.bin:
                 t = c;
-                /*
-                select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
-                    .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
-                    .join(JoinType.join, new EntityTable(EnumSysTable.bizSheet, false, c))
-                    .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)));
-                */
                 select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.bizBin, false, a))
                     .join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.sheet, false, c))
                     .on(new exp_1.ExpEQ(new exp_1.ExpField('id', c), new exp_1.ExpField('sheet', a)));
                 break;
         }
-        select.col(prop, undefined, t);
+        select.col(bud, undefined, t);
         select.where(new exp_1.ExpEQ(new exp_1.ExpField('id', a), params[0]));
         let ret = new exp_1.ExpSelect(select);
         return ret;

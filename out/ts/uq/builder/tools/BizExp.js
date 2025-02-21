@@ -107,8 +107,8 @@ class BBizExp {
         }
     }
     binSheetProp(sb) {
-        const { props, isParent } = this.bizExp;
-        const { sysBud } = props[this.iProp];
+        const { props } = this.bizExp;
+        const { sysBud, isParent } = props[this.iProp];
         const { ta, tb, tt } = this;
         const tSheet = 'tsheet';
         let col = tSheet + '.';
@@ -164,8 +164,8 @@ class BBizExp {
         sb.exp(this.params[0]);
     }
     binBud(sb) {
-        const { props, isParent } = this.bizExp;
-        const { budProp } = props[this.iProp];
+        const { props } = this.bizExp;
+        const { budProp, isParent } = props[this.iProp];
         const { ta, tb, tt } = this;
         let tbl;
         switch (budProp.dataType) {

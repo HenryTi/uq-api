@@ -8,7 +8,8 @@ import {
     BBizFieldPendSheet,
     BBizFieldOptionsItem,
     BBizForkBaseField,
-    BBizBinVar
+    BBizBinVar,
+    BBizPendVar
 } from "../builder";
 import { BinDiv, BizBin, FromStatement, FromStatementInPend, BizOptions, OptionsItem } from "./Biz";
 import { BizPhraseType, BudDataType } from "./Biz/BizPhraseType";
@@ -206,6 +207,23 @@ export class BizFieldUser extends BizFieldTableAlias {
     }
 }
 
+export class BizPendVar extends BizField {
+    readonly name: string;
+    constructor(space: BizFieldSpace, name: string) {
+        super(space);
+        this.name = name;
+    }
+    db(dbContext: DbContext): BBizField {
+        return new BBizPendVar(dbContext, this);
+    }
+    buildSchema() {
+        return;
+    }
+    get tableAlias(): string {
+        return 't1';
+    }
+}
+
 export class BizFieldOptionsItem extends BizField {
     options: BizOptions;
     optionsItem: OptionsItem;
@@ -365,6 +383,24 @@ export class FromInPendFieldSpace extends FromEntityFieldSpace<FromStatementInPe
     }
 
     protected bizFieldFromMulti(names: string[]): BizField {
+        return null;
+    }
+}
+
+export class BizPendQueryFieldSpace extends BizFieldSpace {
+    private readonly bizPend: BizPend
+    constructor(bizPend: BizPend) {
+        super();
+        this.bizPend = bizPend;
+    }
+    protected override buildBizFieldFromSolo(name: string) {
+        const pendVars = ['i', 'x']
+        if (pendVars.indexOf(name) >= 0) {
+            return new BizPendVar(this, name);
+        }
+        return this.buildBizFieldFromDuo('$t1', name);
+    }
+    protected buildBizFieldFromDuo(n0: string, n1: string): BizField {
         return null;
     }
 }

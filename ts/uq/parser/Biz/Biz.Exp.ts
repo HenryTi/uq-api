@@ -89,13 +89,14 @@ export class PBizExp extends PElement<BizExp> {
         this.context.parseElement(param);
         this.ts.passToken(Token.RPARENTHESE);
         if (this.ts.token === Token.XOR) {
-            this.element.isParent = true;
+            let isParent = true;
             this.ts.readToken();
             for (; ;) {
                 props.push({
                     prop: this.ts.passVar(),
                     sysBud: undefined,
                     budProp: undefined,
+                    isParent,
                 }); // = this.ts.passVar();
                 if (this.ts.token !== Token.BITWISEOR as any) break;
                 this.ts.readToken();
@@ -103,8 +104,9 @@ export class PBizExp extends PElement<BizExp> {
         }
         else if (this.ts.token === Token.DOT) {
             this.ts.readToken();
+            let isParent: boolean;
             if (this.ts.token === Token.XOR as any) {
-                this.element.isParent = true;
+                isParent = true;
                 this.ts.readToken();
             }
             for (; ;) {
@@ -112,6 +114,7 @@ export class PBizExp extends PElement<BizExp> {
                     prop: this.ts.passVar(),
                     sysBud: undefined,
                     budProp: undefined,
+                    isParent,
                 });
                 if (this.ts.token !== Token.BITWISEOR as any) break;
                 this.ts.readToken();
@@ -164,32 +167,46 @@ export class PBizExp extends PElement<BizExp> {
             else {
                 let { bizEntityArr, bizEntitySys } = fromEntity;
                 if (bizEntitySys !== undefined) {
+                    /*
                     if (this.element.isParent !== true) {
                         this.log('#FORK and #BIN only support ^id');
                         ok = false;
                     }
                     else {
-                        this.element.bizEntitySys = bizEntitySys;
-                        const { props } = this.element;
-                        for (const { prop } of props) {
-                            switch (bizEntitySys) {
-                                case EnumEntitySys.fork:
-                                    const forkProps = BizAtom.ownFields; // ['id', 'no', 'ex'];
-                                    if (forkProps.findIndex(v => v === prop) < 0) {
+                    */
+                    this.element.bizEntitySys = bizEntitySys;
+                    const { props } = this.element;
+                    for (const { prop, isParent } of props) {
+                        switch (bizEntitySys) {
+                            case EnumEntitySys.fork:
+                                if (isParent === true) {
+                                    if (prop !== 'id') {
+                                        this.log('#FORK support ^id');
                                         ok = false;
-                                        this.log(`FORK prop only ${forkProps.join(',')}`);
                                     }
-                                    break;
-                                case EnumEntitySys.bin:
-                                    const binProps = BizSheet.ownFields; // ['id', 'no', 'operator'];
-                                    if (binProps.findIndex(v => v === prop) < 0) {
+                                }
+                                const forkProps = BizAtom.ownFields; // ['id', 'no', 'ex'];
+                                if (forkProps.findIndex(v => v === prop) < 0) {
+                                    ok = false;
+                                    this.log(`FORK prop only ${forkProps.join(',')}`);
+                                }
+                                break;
+                            case EnumEntitySys.bin:
+                                if (isParent === true) {
+                                    if (prop !== 'id') {
+                                        this.log('#BIN support ^id');
                                         ok = false;
-                                        this.log(`BIN prop only ${forkProps.join(',')}`);
                                     }
-                                    break;
-                            }
+                                }
+                                const binProps = BizSheet.ownFields; // ['id', 'no', 'operator'];
+                                if (binProps.findIndex(v => v === prop) < 0) {
+                                    ok = false;
+                                    this.log(`BIN prop only ${forkProps.join(',')}`);
+                                }
+                                break;
                         }
                     }
+                    // }
                 }
                 else {
                     const [be] = bizEntityArr;
@@ -276,6 +293,7 @@ export class PBizExp extends PElement<BizExp> {
                     prop: undefined,
                     budProp: bud,
                     sysBud: undefined,
+                    isParent: undefined,
                 });
             }
             return ok;
@@ -322,6 +340,7 @@ export class PBizExp extends PElement<BizExp> {
                     prop: undefined,
                     budProp: bud,
                     sysBud: undefined,
+                    isParent: undefined,
                 });
             }
             return ok;
@@ -347,7 +366,7 @@ export class PBizExp extends PElement<BizExp> {
 
     private scanBin(space: Space): boolean {
         let ok = true;
-        const { bizEntity, props, isParent } = this.element;
+        const { bizEntity, props } = this.element;
         if (this.checkScalar() === false) ok = false;
         let bizBin = bizEntity as BizBin;
         if (this.bud !== undefined) {
@@ -356,7 +375,7 @@ export class PBizExp extends PElement<BizExp> {
             return ok;
         }
         for (let p of props) {
-            const { prop } = p;
+            const { prop, isParent } = p;
             if (prop === undefined) {
                 p.prop = 'id';
             }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizFieldOptionsItem = exports.BBizFieldUser = exports.BBizFieldPendSheet = exports.BBizFieldPendBin = exports.BBizFieldBinBinBudSelect = exports.BBizFieldPendBinBudSelect = exports.BBizFieldPendBudSelect = exports.BBizFieldBinBudSelect = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizForkBaseField = exports.BBizBinVar = exports.BBizField = void 0;
+exports.BBizFieldOptionsItem = exports.BBizPendVar = exports.BBizFieldUser = exports.BBizFieldPendSheet = exports.BBizFieldPendBin = exports.BBizFieldBinBinBudSelect = exports.BBizFieldPendBinBudSelect = exports.BBizFieldPendBudSelect = exports.BBizFieldBinBudSelect = exports.BBizFieldBinBud = exports.BBizFieldBinVar = exports.BBizFieldJsonProp = exports.BBizFieldField = exports.MapFieldTable = exports.BBizFieldBud = exports.BBizForkBaseField = exports.BBizBinVar = exports.BBizField = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 class BBizField {
@@ -282,6 +282,12 @@ class BBizFieldUser extends BBizField {
     }
 }
 exports.BBizFieldUser = BBizFieldUser;
+class BBizPendVar extends BBizField {
+    to(sb) {
+        sb.append(this.bizField.name);
+    }
+}
+exports.BBizPendVar = BBizPendVar;
 class BBizFieldOptionsItem extends BBizField {
     to(sb) {
         const { options, optionsItem } = this.bizField;

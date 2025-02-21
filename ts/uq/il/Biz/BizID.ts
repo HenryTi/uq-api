@@ -132,29 +132,6 @@ export class BizAtom extends BizIDExtendable {
     }
 }
 
-/*
-// 分子：atom 原子的合成
-// duo: 二重奏
-export class BizDuo extends BizIDWithShowBuds {
-    readonly bizPhraseType = BizPhraseType.duo;
-    readonly i = {} as IxField;
-    readonly x = {} as IxField;
-    readonly main = undefined;
-
-    parser(context: PContext): PElement<IElement> {
-        return new PBizDuo(this, context);
-    }
-    protected readonly fields = ['id', 'i', 'x'];
-
-    buildSchema(res: { [phrase: string]: string }) {
-        let ret = super.buildSchema(res);
-        ret.i = this.ixFieldSchema(this.i);
-        ret.x = this.ixFieldSchema(this.x);
-        return ret;
-    }
-}
-*/
-
 export abstract class BizIDWithBase extends BizIDExtendable {
     fork: BizIDWithBase;
     base: BizIDWithBase;    // only base, not base atom, then bizAtomFlag

@@ -1,11 +1,17 @@
 import {
     Statement, BizBudValue
-    , BizEntity, BizQueryTableStatements, FromStatementInPend
+    , BizEntity, BizQueryTableStatements, FromStatementInPend,
+    BizFieldSpace,
+    BizPendQueryFieldSpace,
+    Pointer,
+    NamePointer,
+    BizField
 } from "../../il";
 import { BizPend, BizQueryTableInPendStatements, PendQuery } from "../../il/Biz/Pend";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
+import { BizEntitySpace } from "./Biz";
 import { PBizBudValue } from "./Bud";
 import { PBizQueryTable, PBizQueryTableStatements } from "./Query";
 
@@ -144,7 +150,8 @@ export class PBizPend extends PBizEntity<BizPend> {
         }
 
         if (pendQuery !== undefined) {
-            if (pendQuery.pelement.scan(space) === false) {
+            let pendSpace = new BizPendSpace(space, this.element);
+            if (pendQuery.pelement.scan(pendSpace) === false) {
                 ok = false;
             }
             for (let param of pendQuery.params) {
@@ -191,4 +198,18 @@ export class PBizQueryTableInPendStatements extends PBizQueryTableStatements {
             case 'from': return new FromStatementInPend(parent, bizQueryTableInPendStatements.pendQuery);
         }
     }
+}
+
+class BizPendSpace extends BizEntitySpace<BizPend> {
+    protected readonly bizFieldSpace: BizFieldSpace;
+
+    constructor(outer: Space, bizPend: BizPend) {
+        super(outer, bizPend);
+        this.bizFieldSpace = new BizPendQueryFieldSpace(bizPend);
+    }
+    /*
+        protected override _getBizField(names: string[]): BizField {
+            return this.bizFieldSpace.getBizField(names);
+        }
+    */
 }

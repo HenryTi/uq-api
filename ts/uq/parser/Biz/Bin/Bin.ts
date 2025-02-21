@@ -320,8 +320,6 @@ export class PBizBin extends PBizEntity<BizBin> {
         act: this.parseAct,
     };
 
-
-
     scan0(space: Space): boolean {
         let ok = super.scan0(space);
         const { pickArr, act } = this.element;
