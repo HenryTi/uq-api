@@ -170,12 +170,14 @@ class PBizExp extends element_1.PElement {
                     for (const { prop, isParent } of props) {
                         switch (bizEntitySys) {
                             case il_1.EnumEntitySys.fork:
+                                /*
                                 if (isParent === true) {
                                     if (prop !== 'id') {
-                                        this.log('#FORK support ^id');
+                                        this.log('#FORK only support ^id');
                                         ok = false;
                                     }
                                 }
+                                */
                                 const forkProps = il_1.BizAtom.ownFields; // ['id', 'no', 'ex'];
                                 if (forkProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
@@ -183,12 +185,14 @@ class PBizExp extends element_1.PElement {
                                 }
                                 break;
                             case il_1.EnumEntitySys.bin:
+                                /*
                                 if (isParent === true) {
                                     if (prop !== 'id') {
                                         this.log('#BIN support ^id');
                                         ok = false;
                                     }
                                 }
+                                */
                                 const binProps = il_1.BizSheet.ownFields; // ['id', 'no', 'operator'];
                                 if (binProps.findIndex(v => v === prop) < 0) {
                                     ok = false;

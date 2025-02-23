@@ -179,12 +179,14 @@ export class PBizExp extends PElement<BizExp> {
                     for (const { prop, isParent } of props) {
                         switch (bizEntitySys) {
                             case EnumEntitySys.fork:
+                                /*
                                 if (isParent === true) {
                                     if (prop !== 'id') {
-                                        this.log('#FORK support ^id');
+                                        this.log('#FORK only support ^id');
                                         ok = false;
                                     }
                                 }
+                                */
                                 const forkProps = BizAtom.ownFields; // ['id', 'no', 'ex'];
                                 if (forkProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
@@ -192,12 +194,14 @@ export class PBizExp extends PElement<BizExp> {
                                 }
                                 break;
                             case EnumEntitySys.bin:
+                                /*
                                 if (isParent === true) {
                                     if (prop !== 'id') {
                                         this.log('#BIN support ^id');
                                         ok = false;
                                     }
                                 }
+                                */
                                 const binProps = BizSheet.ownFields; // ['id', 'no', 'operator'];
                                 if (binProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
