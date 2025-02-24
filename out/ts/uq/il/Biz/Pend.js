@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PendQuery = exports.BizQueryTableInPendStatements = exports.BizPend = void 0;
+exports.PendQuery = exports.BizQueryTableInPendStatements = exports.BizPend = exports.PendValueType = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const statement_1 = require("../statement");
@@ -8,6 +8,11 @@ const BizPhraseType_1 = require("./BizPhraseType");
 const Bud_1 = require("./Bud");
 const Entity_1 = require("./Entity");
 const Query_1 = require("./Query");
+var PendValueType;
+(function (PendValueType) {
+    PendValueType[PendValueType["dec"] = 0] = "dec";
+    PendValueType[PendValueType["bool"] = 1] = "bool";
+})(PendValueType || (exports.PendValueType = PendValueType = {}));
 class BizPend extends Entity_1.BizID {
     constructor(biz) {
         super(biz);
@@ -69,6 +74,7 @@ class BizPend extends Entity_1.BizID {
         if (this.x !== undefined)
             ret.x = this.x.buildSchema(res);
         ret.predefinedFields = this.predefinedFields;
+        ret.valueType = this.valueType;
         return ret;
     }
     getBud(name) {

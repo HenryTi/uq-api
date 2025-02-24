@@ -47,6 +47,22 @@ class PBizPend extends Base_1.PBizEntity {
             }
             this.ts.passToken(tokens_1.Token.SEMICOLON);
         };
+        this.parseValue = () => {
+            if (this.ts.token === tokens_1.Token.VAR) {
+                switch (this.ts.lowerVar) {
+                    default:
+                        this.ts.expect('BOOL', 'DEC');
+                        break;
+                    case 'dec':
+                        this.ts.readToken();
+                        break;
+                    case 'bool':
+                        this.element.valueType = Pend_1.PendValueType.bool;
+                        this.ts.readToken();
+                        break;
+                }
+            }
+        };
         this.keyColl = (() => {
             let ret = {
                 prop: this.parseProp,
@@ -54,6 +70,7 @@ class PBizPend extends Base_1.PBizEntity {
                 i: this.parseI,
                 x: this.parseX,
                 key: this.parseKeys,
+                value: this.parseValue,
             };
             const setRet = (n) => {
                 ret[n] = () => this.parsePredefined(n);

@@ -7,7 +7,7 @@ import {
     NamePointer,
     BizField
 } from "../../il";
-import { BizPend, BizQueryTableInPendStatements, PendQuery } from "../../il/Biz/Pend";
+import { BizPend, BizQueryTableInPendStatements, PendQuery, PendValueType } from "../../il/Biz/Pend";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizEntity } from "./Base";
@@ -68,6 +68,23 @@ export class PBizPend extends PBizEntity<BizPend> {
         this.ts.passToken(Token.SEMICOLON);
     }
 
+    private parseValue = () => {
+        if (this.ts.token === Token.VAR) {
+            switch (this.ts.lowerVar) {
+                default:
+                    this.ts.expect('BOOL', 'DEC');
+                    break;
+                case 'dec':
+                    this.ts.readToken();
+                    break;
+                case 'bool':
+                    this.element.valueType = PendValueType.bool;
+                    this.ts.readToken();
+                    break;
+            }
+        }
+    }
+
     readonly keyColl: { [key: string]: () => void } = (() => {
         let ret: { [key: string]: () => void } = {
             prop: this.parseProp,
@@ -75,6 +92,7 @@ export class PBizPend extends PBizEntity<BizPend> {
             i: this.parseI,
             x: this.parseX,
             key: this.parseKeys,
+            value: this.parseValue,
         };
         const setRet = (n: string) => {
             ret[n] = () => this.parsePredefined(n);

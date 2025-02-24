@@ -7,8 +7,13 @@ import { BizBin } from "./Bin";
 import { Biz } from "./Biz";
 import { BizPhraseType } from "./BizPhraseType";
 import { BizBudValue, BizBudID, BizBudDec, BizBud } from "./Bud";
-import { BizID, BizNotID } from "./Entity";
+import { BizID } from "./Entity";
 import { BizQueryTable } from "./Query";
+
+export enum PendValueType {
+    dec,                // 用于普通流程
+    bool,               // 审批流程
+}
 
 export class BizPend extends BizID {
     static predefinedId = ['si', 'sx', 's', 'sheet'];
@@ -21,6 +26,7 @@ export class BizPend extends BizID {
     readonly predefinedFields: string[] = [];
     pendQuery: PendQuery;
     readonly bizBins: BizBin[] = [];
+    valueType: PendValueType;
     i: BizBudID;
     x: BizBudID;
     keys: BizBud[];
@@ -81,6 +87,7 @@ export class BizPend extends BizID {
         if (this.i !== undefined) ret.i = this.i.buildSchema(res);
         if (this.x !== undefined) ret.x = this.x.buildSchema(res);
         ret.predefinedFields = this.predefinedFields;
+        ret.valueType = this.valueType;
         return ret;
     }
 
