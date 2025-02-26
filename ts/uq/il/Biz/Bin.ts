@@ -139,7 +139,9 @@ export class PickPend implements PickBase {
     }
     hasReturn(prop: string): boolean {
         if (prop === undefined || prop === 'id') return true;
-        return this.from.hasField(prop);
+        let ret = this.from.hasField(prop);
+        if (ret === true) return true;
+        return this.from.pendQuery.hasReturn(prop);
     }
     getBud(name: string): BizBud { return this.from.getBud(name); }
 }

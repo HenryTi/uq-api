@@ -124,7 +124,10 @@ class PickPend {
     hasReturn(prop) {
         if (prop === undefined || prop === 'id')
             return true;
-        return this.from.hasField(prop);
+        let ret = this.from.hasField(prop);
+        if (ret === true)
+            return true;
+        return this.from.pendQuery.hasReturn(prop);
     }
     getBud(name) { return this.from.getBud(name); }
 }
