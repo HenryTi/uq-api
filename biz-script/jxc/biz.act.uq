@@ -1177,6 +1177,7 @@ RETURNS forks (
     TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
     VAR sheetPhrase ID;
     SET sheetPhrase=a.base FROM Sheet as a WHERE a.id=id;
+    IF sheetPhrase IS NULL {RETURN;}
     INTO origins SELECT DISTINCT * b -- , IFNULL(c.value, 0) as done
         FROM (SELECT DISTINCT origin FROM details) as a
             JOIN Bin as b ON b.id=a.origin
