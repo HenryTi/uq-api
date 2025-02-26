@@ -1,5 +1,6 @@
 import {
-    EnumSysTable, BigInt, BizStatementAtom, JoinType
+    EnumSysTable, BigInt, BizStatementAtom, JoinType,
+    Char
 } from "../../../il";
 import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpVar, Statements } from "../../sql";
 import { EntityTable } from "../../sql/statementWithFrom";
@@ -16,17 +17,24 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         memo.text = 'Biz Atom';
         const { unique, inVals, atomCase, no, toVar, ex, sets } = this.istatement;
         let inExps = inVals.map(v => this.context.expVal(v));
+        let declare = factory.createDeclare();
+        sqls.push(declare);
+        // const atomNo = 'atomNo_' + no;
+        const atomPhrase = 'atomPhrase_' + no;
+        declare.var(atomPhrase, new BigInt());
+        // declare.var(atomNo, new Char(100));
+
+        /*
         if (inExps.length === 0) {
-            inExps.push(new ExpFuncInUq('NO', [
+            let setNo = factory.createSet();
+            sqls.push(setNo);
+            setNo.equ(atomNo, new ExpFuncInUq('$NO', [
                 new ExpVar('$site'), new ExpStr('atom'), ExpNull.null,
             ], true));
         }
-        let declare = factory.createDeclare();
-        sqls.push(declare);
-        const atomPhrase = 'atomPhrase_' + no;
-        declare.var(atomPhrase, new BigInt());
-        const varAtomPhrase = new ExpVar(atomPhrase);
+        */
 
+        const varAtomPhrase = new ExpVar(atomPhrase);
         const { bizID: bizID0, condition: condition0 } = atomCase[0];
         let setAtomPhrase0 = factory.createSet();
         setAtomPhrase0.equ(atomPhrase, new ExpNum(bizID0.id));
@@ -69,34 +77,36 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         let setVarIdNull = factory.createSet();
         sqls.push(setVarIdNull);
         setVarIdNull.equ(vId, ExpNull.null);
-        let select = factory.createSelect();
-        sqls.push(select);
-        select.toVar = true;
-        select.column(new ExpField('id', a), vId);
-        select.column(new ExpField('base', a), vBase);
-        select.from(new EntityTable(EnumSysTable.atom, false, a));
-        if (unique === undefined) {
-            select.where(new ExpEQ(new ExpField('no', a), inExps[0]));
-        }
-        else {
-            let len = inExps.length;
-            let expKey = new ExpFuncInUq('bud$id', [
-                ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
-                , new ExpNum(unique.id), inExps[0]
-            ], true);
-
-            for (let i = 1; i < len - 1; i++) {
-                expKey = new ExpFuncInUq('bud$id', [
-                    ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
-                    , expKey, inExps[i]
-                ], true);
+        if (inVals.length > 0) {
+            let select = factory.createSelect();
+            sqls.push(select);
+            select.toVar = true;
+            select.column(new ExpField('id', a), vId);
+            select.column(new ExpField('base', a), vBase);
+            select.from(new EntityTable(EnumSysTable.atom, false, a));
+            if (unique === undefined) {
+                select.where(new ExpEQ(new ExpField('no', a), inExps[0]));
             }
-            select.join(JoinType.join, new EntityTable(EnumSysTable.atomUnique, false, b))
-                .on(new ExpEQ(new ExpField('atom', b), new ExpField('id', a)));
-            select.where(new ExpAnd(
-                new ExpEQ(new ExpField('i', b), expKey),
-                new ExpEQ(new ExpField('x', b), inExps[len - 1]),
-            ));
+            else {
+                let len = inExps.length;
+                let expKey = new ExpFuncInUq('bud$id', [
+                    ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
+                    , new ExpNum(unique.id), inExps[0]
+                ], true);
+
+                for (let i = 1; i < len - 1; i++) {
+                    expKey = new ExpFuncInUq('bud$id', [
+                        ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
+                        , expKey, inExps[i]
+                    ], true);
+                }
+                select.join(JoinType.join, new EntityTable(EnumSysTable.atomUnique, false, b))
+                    .on(new ExpEQ(new ExpField('atom', b), new ExpField('id', a)));
+                select.where(new ExpAnd(
+                    new ExpEQ(new ExpField('i', b), expKey),
+                    new ExpEQ(new ExpField('x', b), inExps[len - 1]),
+                ));
+            }
         }
         let ifIdNull = factory.createIf();
         sqls.push(ifIdNull);
@@ -107,7 +117,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         let updateNo = factory.createUpdate();
         ifIdNull.then(updateNo);
         updateNo.cols = [
-            { col: 'no', val: new ExpFuncInUq('$no', [ExpNum.num0, new ExpStr('atom'), ExpNull.null], true) },
+            { col: 'no', val: new ExpFuncInUq('$no', [new ExpVar('$site'), new ExpStr('atom'), ExpNull.null], true) },
         ];
         updateNo.table = new EntityTable(EnumSysTable.atom, false);
         updateNo.where = new ExpEQ(new ExpField('id'), varId);
@@ -135,16 +145,18 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
             sqls.push(...statements);
         }
 
-        let sqlCall = factory.createExecSql();
-        sqls.push(sqlCall);
-        sqlCall.no = no;
-        sqlCall.sql = new ExpFunc(factory.func_concat,
-            new ExpStr('CALL `$site.'), // + this.context.site + '`.`'),
-            new ExpNum(this.context.site),
-            new ExpStr('`.`'),
-            varAtomPhrase,
-            new ExpStr('u`(?)'),
-        );
-        sqlCall.parameters = [varId];
+        if (unique !== undefined) {
+            let sqlCall = factory.createExecSql();
+            sqls.push(sqlCall);
+            sqlCall.no = no;
+            sqlCall.sql = new ExpFunc(factory.func_concat,
+                new ExpStr('CALL `$site.'), // + this.context.site + '`.`'),
+                new ExpNum(this.context.site),
+                new ExpStr('`.`'),
+                varAtomPhrase,
+                new ExpStr('u`(?)'),
+            );
+            sqlCall.parameters = [varId];
+        }
     }
 }

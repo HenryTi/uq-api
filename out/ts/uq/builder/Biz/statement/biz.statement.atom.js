@@ -15,15 +15,21 @@ class BBizStatementAtom extends biz_statement_ID_1.BBizStatementID {
         memo.text = 'Biz Atom';
         const { unique, inVals, atomCase, no, toVar, ex, sets } = this.istatement;
         let inExps = inVals.map(v => this.context.expVal(v));
-        if (inExps.length === 0) {
-            inExps.push(new sql_1.ExpFuncInUq('NO', [
-                new sql_1.ExpVar('$site'), new sql_1.ExpStr('atom'), sql_1.ExpNull.null,
-            ], true));
-        }
         let declare = factory.createDeclare();
         sqls.push(declare);
+        // const atomNo = 'atomNo_' + no;
         const atomPhrase = 'atomPhrase_' + no;
         declare.var(atomPhrase, new il_1.BigInt());
+        // declare.var(atomNo, new Char(100));
+        /*
+        if (inExps.length === 0) {
+            let setNo = factory.createSet();
+            sqls.push(setNo);
+            setNo.equ(atomNo, new ExpFuncInUq('$NO', [
+                new ExpVar('$site'), new ExpStr('atom'), ExpNull.null,
+            ], true));
+        }
+        */
         const varAtomPhrase = new sql_1.ExpVar(atomPhrase);
         const { bizID: bizID0, condition: condition0 } = atomCase[0];
         let setAtomPhrase0 = factory.createSet();
@@ -66,30 +72,32 @@ class BBizStatementAtom extends biz_statement_ID_1.BBizStatementID {
         let setVarIdNull = factory.createSet();
         sqls.push(setVarIdNull);
         setVarIdNull.equ(vId, sql_1.ExpNull.null);
-        let select = factory.createSelect();
-        sqls.push(select);
-        select.toVar = true;
-        select.column(new sql_1.ExpField('id', a), vId);
-        select.column(new sql_1.ExpField('base', a), vBase);
-        select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, a));
-        if (unique === undefined) {
-            select.where(new sql_1.ExpEQ(new sql_1.ExpField('no', a), inExps[0]));
-        }
-        else {
-            let len = inExps.length;
-            let expKey = new sql_1.ExpFuncInUq('bud$id', [
-                sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num_1,
-                new sql_1.ExpNum(unique.id), inExps[0]
-            ], true);
-            for (let i = 1; i < len - 1; i++) {
-                expKey = new sql_1.ExpFuncInUq('bud$id', [
-                    sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num_1,
-                    expKey, inExps[i]
-                ], true);
+        if (inVals.length > 0) {
+            let select = factory.createSelect();
+            sqls.push(select);
+            select.toVar = true;
+            select.column(new sql_1.ExpField('id', a), vId);
+            select.column(new sql_1.ExpField('base', a), vBase);
+            select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false, a));
+            if (unique === undefined) {
+                select.where(new sql_1.ExpEQ(new sql_1.ExpField('no', a), inExps[0]));
             }
-            select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false, b))
-                .on(new sql_1.ExpEQ(new sql_1.ExpField('atom', b), new sql_1.ExpField('id', a)));
-            select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), expKey), new sql_1.ExpEQ(new sql_1.ExpField('x', b), inExps[len - 1])));
+            else {
+                let len = inExps.length;
+                let expKey = new sql_1.ExpFuncInUq('bud$id', [
+                    sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num_1,
+                    new sql_1.ExpNum(unique.id), inExps[0]
+                ], true);
+                for (let i = 1; i < len - 1; i++) {
+                    expKey = new sql_1.ExpFuncInUq('bud$id', [
+                        sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num0, sql_1.ExpNum.num_1,
+                        expKey, inExps[i]
+                    ], true);
+                }
+                select.join(il_1.JoinType.join, new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atomUnique, false, b))
+                    .on(new sql_1.ExpEQ(new sql_1.ExpField('atom', b), new sql_1.ExpField('id', a)));
+                select.where(new sql_1.ExpAnd(new sql_1.ExpEQ(new sql_1.ExpField('i', b), expKey), new sql_1.ExpEQ(new sql_1.ExpField('x', b), inExps[len - 1])));
+            }
         }
         let ifIdNull = factory.createIf();
         sqls.push(ifIdNull);
@@ -100,7 +108,7 @@ class BBizStatementAtom extends biz_statement_ID_1.BBizStatementID {
         let updateNo = factory.createUpdate();
         ifIdNull.then(updateNo);
         updateNo.cols = [
-            { col: 'no', val: new sql_1.ExpFuncInUq('$no', [sql_1.ExpNum.num0, new sql_1.ExpStr('atom'), sql_1.ExpNull.null], true) },
+            { col: 'no', val: new sql_1.ExpFuncInUq('$no', [new sql_1.ExpVar('$site'), new sql_1.ExpStr('atom'), sql_1.ExpNull.null], true) },
         ];
         updateNo.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
         updateNo.where = new sql_1.ExpEQ(new sql_1.ExpField('id'), varId);
@@ -124,12 +132,14 @@ class BBizStatementAtom extends biz_statement_ID_1.BBizStatementID {
             let statements = (0, tools_1.buildSetAtomBud)(this.context, bud, varId, valExp, no);
             sqls.push(...statements);
         }
-        let sqlCall = factory.createExecSql();
-        sqls.push(sqlCall);
-        sqlCall.no = no;
-        sqlCall.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `$site.'), // + this.context.site + '`.`'),
-        new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('`.`'), varAtomPhrase, new sql_1.ExpStr('u`(?)'));
-        sqlCall.parameters = [varId];
+        if (unique !== undefined) {
+            let sqlCall = factory.createExecSql();
+            sqls.push(sqlCall);
+            sqlCall.no = no;
+            sqlCall.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr('CALL `$site.'), // + this.context.site + '`.`'),
+            new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('`.`'), varAtomPhrase, new sql_1.ExpStr('u`(?)'));
+            sqlCall.parameters = [varId];
+        }
     }
 }
 exports.BBizStatementAtom = BBizStatementAtom;
