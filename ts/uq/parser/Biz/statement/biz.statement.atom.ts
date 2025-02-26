@@ -11,11 +11,20 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
         this.parseIDEntity();
         let key = this.ts.passKey();
         switch (key) {
-            case 'no': break;
-            case 'unique': this.unique = this.ts.passVar(); break;
+            case 'no':
+                if (this.ts.isKeyword('auto') === true) {
+                    this.ts.readToken();
+                }
+                else {
+                    this.parseUnique();
+                }
+                break;
+            case 'unique':
+                this.unique = this.ts.passVar();
+                this.parseUnique();
+                break;
             default: this.ts.expect('no', 'unique');
         }
-        this.parseUnique();
         this.parseTo();
         this.parseSets();
     }
@@ -63,23 +72,30 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
                     ok = false;
                 }
             }
-            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(entityName);
-            if (entity === undefined) {
+            let fromEntityArr = space.getBizFromEntityArrFromName(entityName);
+            if (fromEntityArr === undefined) {
                 ok = false;
                 this.log(`${entityName} is not defined`);
             }
-            else if (entity.bizPhraseType !== BizPhraseType.atom) {
-                ok = false;
-                this.log(`${entityName} is not ATOM`);
-            }
             else {
-                this.element.atomCase.push({ bizID: entity as BizAtom, condition });
+                let { bizEntityArr: [entity] } = fromEntityArr;
+                if (entity === undefined) {
+                    ok = false;
+                    this.log(`${entityName} is not defined`);
+                }
+                else if (entity.bizPhraseType !== BizPhraseType.atom) {
+                    ok = false;
+                    this.log(`${entityName} is not ATOM`);
+                }
+                else {
+                    this.element.atomCase.push({ bizID: entity as BizAtom, condition });
+                }
             }
         }
         const { atomCase, sets, ex } = this.element;
         let { length } = this.inVals;
         if (this.unique === undefined) {
-            if (length !== 1) {
+            if (length > 1) {
                 ok = false;
                 this.log(`NO ${length} variables, can only have 1 variable`);
             }

@@ -16,6 +16,11 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         memo.text = 'Biz Atom';
         const { unique, inVals, atomCase, no, toVar, ex, sets } = this.istatement;
         let inExps = inVals.map(v => this.context.expVal(v));
+        if (inExps.length === 0) {
+            inExps.push(new ExpFuncInUq('NO', [
+                new ExpVar('$site'), new ExpStr('atom'), ExpNull.null,
+            ], true));
+        }
         let declare = factory.createDeclare();
         sqls.push(declare);
         const atomPhrase = 'atomPhrase_' + no;

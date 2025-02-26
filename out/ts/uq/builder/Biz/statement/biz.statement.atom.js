@@ -15,6 +15,11 @@ class BBizStatementAtom extends biz_statement_ID_1.BBizStatementID {
         memo.text = 'Biz Atom';
         const { unique, inVals, atomCase, no, toVar, ex, sets } = this.istatement;
         let inExps = inVals.map(v => this.context.expVal(v));
+        if (inExps.length === 0) {
+            inExps.push(new sql_1.ExpFuncInUq('NO', [
+                new sql_1.ExpVar('$site'), new sql_1.ExpStr('atom'), sql_1.ExpNull.null,
+            ], true));
+        }
         let declare = factory.createDeclare();
         sqls.push(declare);
         const atomPhrase = 'atomPhrase_' + no;
