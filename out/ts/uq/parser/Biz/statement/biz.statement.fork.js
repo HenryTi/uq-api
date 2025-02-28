@@ -6,20 +6,35 @@ const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 const biz_statement_ID_1 = require("./biz.statement.ID");
 const tokens_1 = require("../../tokens");
 class PBizStatementFork extends biz_statement_ID_1.PBizStatementID {
+    constructor() {
+        super(...arguments);
+        this.IDType = BizPhraseType_1.BizPhraseType.fork;
+    }
     _parse() {
-        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+        if (this.ts.token === tokens_1.Token.VAR) {
+            this.fork = this.ts.passVar();
+            this.element.inVals = this.parseValueArray();
+        }
+        else if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
-            let valFork = this.element.valFork = new il_1.ValueExpression();
-            this.context.parseElement(valFork);
+            this.element.valFork = new il_1.ValueExpression();
+            this.context.parseElement(this.element.valFork);
             this.ts.passToken(tokens_1.Token.RPARENTHESE);
         }
-        else {
-            this.entityName = this.ts.passVar();
-            this.ts.passKey('in');
-            this.ts.passToken(tokens_1.Token.EQU);
-            this.parseUnique();
+        if (this.ts.isKeyword('to') === true) {
+            this.ts.readToken();
+            this.toVar = this.ts.passVar();
         }
-        this.parseTo();
+        // this.parseIDEntity();
+        // this.parseId();
+        // this.parseSets();
+    }
+    parseUnique() {
+        if (this.ts.isKeyword('key') === false)
+            return;
+        this.ts.readToken();
+        let vals = this.parseValueArray();
+        return ['key', vals];
     }
     scan(space) {
         let ok = true;
@@ -27,25 +42,44 @@ class PBizStatementFork extends biz_statement_ID_1.PBizStatementID {
             ok = false;
             return ok;
         }
-        if (this.entityName !== undefined) {
-            let { bizEntityArr: [entity] } = space.getBizFromEntityArrFromName(this.entityName);
-            if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.fork) {
+        if (this.fork !== undefined) {
+            let fromEntityArr = space.getBizFromEntityArrFromName(this.fork);
+            if (fromEntityArr === undefined) {
                 ok = false;
-                this.log(`${this.entityName} is not SPEC`);
+                this.log(`FORK ${this.fork} not defined`);
             }
             else {
-                this.element.fork = entity;
-                let length = this.element.fork.keys.length + 1;
-                if (length !== this.inVals.length) {
+                const { bizEntityArr: [entity] } = fromEntityArr;
+                if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.fork) {
                     ok = false;
-                    this.log(`IN ${this.inVals.length} variables, must have ${length} variables`);
+                    this.log(`${this.fork} is not FORK`);
+                }
+                else {
+                    this.element.fork = entity;
                 }
             }
         }
-        else {
-            if (this.element.valFork.pelement.scan(space) === false) {
+        const { inVals, valFork } = this.element;
+        if (inVals !== undefined) {
+            for (let val of inVals) {
+                if (val.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        }
+        if (valFork !== undefined) {
+            if (valFork.pelement.scan(space) === false) {
                 ok = false;
             }
+        }
+        return ok;
+    }
+    scanUnique(space, bizID, un, vals) {
+        let ok = true;
+        const { keys } = bizID;
+        if (vals.length !== keys.length) {
+            ok = false;
+            this.log(`UNIQUE ${un} has ${keys.length} fields`);
         }
         return ok;
     }

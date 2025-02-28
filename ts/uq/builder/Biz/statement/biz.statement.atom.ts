@@ -1,30 +1,42 @@
 import {
     EnumSysTable, BigInt, BizStatementAtom, JoinType,
-    Char
+    Char,
+    BizAtom
 } from "../../../il";
-import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpVar, Statements } from "../../sql";
+import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Statements } from "../../sql";
 import { EntityTable } from "../../sql/statementWithFrom";
 import { buildSetAtomBud } from "../../tools";
 import { Sqls } from "../../bstatement/sqls";
 import { BBizStatementID } from "./biz.statement.ID";
 
 const a = 'a', b = 'b';
-export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
+export class BBizStatementAtom extends BBizStatementID<BizAtom, BizStatementAtom> {
     override body(sqls: Sqls): void {
+        this.buildSetBase(sqls);
+        this.buildSetId(sqls);
+        this.buildSetVals(sqls);
+        this.buildSetEx(sqls);
+        /*
         const { factory } = this.context;
         let memo = factory.createMemo();
         sqls.push(memo);
         memo.text = 'Biz Atom';
-        const { unique, inVals, atomCase, no, toVar, ex, sets } = this.istatement;
-        let inExps = inVals.map(v => this.context.expVal(v));
+        const { entityCase, no, toVar, ex, sets } = this.istatement;
         let declare = factory.createDeclare();
         sqls.push(declare);
-        // const atomNo = 'atomNo_' + no;
+        let vId: string;
+        if (toVar === undefined) {
+            vId = 'bizatom_' + no;
+        }
+        else {
+            vId = toVar.varName(undefined);
+        }
+        declare.var(vId, new BigInt());
+        const varId = new ExpVar(vId);
         const atomPhrase = 'atomPhrase_' + no;
         declare.var(atomPhrase, new BigInt());
         // declare.var(atomNo, new Char(100));
 
-        /*
         if (inExps.length === 0) {
             let setNo = factory.createSet();
             sqls.push(setNo);
@@ -32,13 +44,12 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
                 new ExpVar('$site'), new ExpStr('atom'), ExpNull.null,
             ], true));
         }
-        */
 
         const varAtomPhrase = new ExpVar(atomPhrase);
-        const { bizID: bizID0, condition: condition0 } = atomCase[0];
+        const { bizID: bizID0, condition: condition0 } = entityCase[0];
         let setAtomPhrase0 = factory.createSet();
         setAtomPhrase0.equ(atomPhrase, new ExpNum(bizID0.id));
-        let len = atomCase.length;
+        let len = entityCase.length;
         if (len === 1) {
             sqls.push(setAtomPhrase0);
         }
@@ -48,7 +59,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
             ifCase.cmp = this.context.expCmp(condition0);
             ifCase.then(setAtomPhrase0);
             for (let i = 1; i < len; i++) {
-                let { bizID, condition } = atomCase[i];
+                let { bizID, condition } = entityCase[i];
                 let statements = new Statements();
                 let setAtomPhrase = factory.createSet();
                 statements.statements.push(setAtomPhrase);
@@ -62,16 +73,24 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
             }
         }
 
+        let sqlNew = factory.createExecSql();
+        sqls.push(sqlNew);
+        sqlNew.no = no;
+        sqlNew.sql = new ExpFunc(factory.func_concat,
+            new ExpStr(`SET ${vId}=\`$site.`),
+            new ExpNum(this.context.site),
+            new ExpStr('`.`'),
+            varAtomPhrase,
+            new ExpStr('id`(?,?)'),
+        );
+        let varNo: ExpVal = ExpNull.null;
+        if (unique === unique && inExps.length > 0) {
+            varNo = inExps[0];
+        }
+        sqlNew.parameters = [varNo, varAtomPhrase];
+
         let vBase: string = 'bizatomBase_' + no;
         let varBase = new ExpVar(vBase);
-        let vId: string;
-        if (toVar === undefined) {
-            vId = 'bizatom_' + no;
-        }
-        else {
-            vId = toVar.varName(undefined);
-        }
-        declare.var(vId, new BigInt());
         declare.var(vBase, new BigInt());
         let varId = new ExpVar(vId);
         let setVarIdNull = factory.createSet();
@@ -93,7 +112,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
                     ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
                     , new ExpNum(unique.id), inExps[0]
                 ], true);
-
+        
                 for (let i = 1; i < len - 1; i++) {
                     expKey = new ExpFuncInUq('bud$id', [
                         ExpNum.num0, ExpNum.num0, ExpNum.num0, ExpNum.num_1
@@ -121,7 +140,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
         ];
         updateNo.table = new EntityTable(EnumSysTable.atom, false);
         updateNo.where = new ExpEQ(new ExpField('id'), varId);
-
+        
         let ifBaseChange = factory.createIf();
         ifIdNull.else(ifBaseChange);
         ifBaseChange.cmp = new ExpNE(varAtomPhrase, varBase);
@@ -150,7 +169,7 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
             sqls.push(sqlCall);
             sqlCall.no = no;
             sqlCall.sql = new ExpFunc(factory.func_concat,
-                new ExpStr('CALL `$site.'), // + this.context.site + '`.`'),
+                new ExpStr('CALL `$site.'),
                 new ExpNum(this.context.site),
                 new ExpStr('`.`'),
                 varAtomPhrase,
@@ -158,5 +177,44 @@ export class BBizStatementAtom extends BBizStatementID<BizStatementAtom> {
             );
             sqlCall.parameters = [varId];
         }
+        */
+    }
+
+    protected buildIdFromNo(sqls: Sqls): ExpVal {
+        const { no, noVal } = this.istatement;
+        if (noVal === undefined) return;
+        const { factory, varSite } = this.context;
+        const varBase = new ExpVar(this.vBase);
+        let sqlNew = factory.createExecSql();
+        sqls.push(sqlNew);
+        sqlNew.no = no;
+        sqlNew.sql = new ExpFunc(factory.func_concat,
+            new ExpStr(`SET ${this.vId}=\`$site.`),
+            new ExpNum(this.context.site),
+            new ExpStr('`.`'),
+            varBase,
+            new ExpStr('new`(?,?,?)'),
+        );
+        let varNo: ExpVal = ExpNull.null;
+        if (noVal !== null) {
+            varNo = this.context.expVal(noVal);
+        }
+        sqlNew.parameters = [varSite, varNo, varBase];
+    }
+
+    protected buildIdFromUnique(sqls: Sqls): ExpVal {
+        return;
+    }
+
+    private buildSetEx(sqls: Sqls) {
+        const { ex } = this.istatement;
+        const { factory } = this.context;
+        let updateEx = factory.createUpdate();
+        sqls.push(updateEx);
+        updateEx.cols = [{
+            col: 'ex', val: this.context.expVal(ex)
+        }];
+        updateEx.table = new EntityTable(EnumSysTable.atom, false);
+        updateEx.where = new ExpEQ(new ExpField('id'), this.varId);
     }
 }

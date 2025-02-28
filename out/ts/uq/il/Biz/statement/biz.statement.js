@@ -74,14 +74,14 @@ class BizStatementSheet extends BizStatementSub {
 }
 exports.BizStatementSheet = BizStatementSheet;
 class BizStatementID extends BizStatementSub {
+    constructor() {
+        super(...arguments);
+        this.entityCase = [];
+        this.sets = new Map();
+    }
 }
 exports.BizStatementID = BizStatementID;
 class BizStatementAtom extends BizStatementID {
-    constructor() {
-        super(...arguments);
-        this.atomCase = [];
-        this.sets = new Map();
-    }
     parser(context) {
         return new parser.PBizStatementAtom(this, context);
     }

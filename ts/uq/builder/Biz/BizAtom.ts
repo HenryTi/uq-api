@@ -5,11 +5,11 @@ import {
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import {
-    ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFuncInUq, ExpIsNotNull, ExpNE, ExpNot, ExpNull, ExpNum,
-    ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement
+    ExpAnd, ExpCmp, ExpEQ, ExpExists, ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpIsNull, ExpNE, ExpNot, ExpNull, ExpNum,
+    ExpOr, ExpSelect, ExpStr, ExpTableExists, ExpVal, ExpVar, If, Procedure, SqlVarTable, Statement,
 } from "../sql";
 import { LockType } from "../sql/select";
-import { EntityTable, VarTableWithSchema } from "../sql/statementWithFrom";
+import { EntityTable, NameTable, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { BBizBud } from "./BizBud";
 import { BBizEntity } from "./BizEntity";
 
@@ -23,6 +23,8 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         this.buildProcTitlePrime(procTitlePrime);
         const procGet = this.createSiteEntityProcedure('ag');
         this.buildProcGet(procGet);
+        const funcId = this.createSiteEntityFunction(new BigInt(), 'new');
+        this.buildFuncNew(funcId);
 
         if (uniques !== undefined) {
             const budUniques: Map<BizBud, IDUnique[]> = new Map();
@@ -270,38 +272,82 @@ export class BBizAtom extends BBizEntity<BizAtom> {
         }
     }
 
-    /*
-    private buildBudSelect(bud: BizBud) {
+    private buildFuncNew(proc: Procedure) {
+        const { parameters, statements } = proc;
         const { factory } = this.context;
+        parameters.push(bigIntField('$site'));
+        parameters.push(charField('no', 100));
+        parameters.push(bigIntField('base'));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.var('id', new BigInt());
+        declare.var('root', new BigInt());
+        const setId = factory.createSet();
+        statements.push(setId);
+        const selectEntity = factory.createSelect();
+        setId.equ('id', new ExpFuncInUq('$idnu', [new ExpSelect(selectEntity)], true));
+        selectEntity.col('id');
+        selectEntity.from(new EntityTable(EnumSysTable.entity, false));
+        selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr('atom')));
 
-        const { id, dataType } = bud;
-        const a = 'a';
-        let tbl: string;
-        let colValue: ExpVal = new ExpFuncCustom(factory.func_cast, new ExpField('value', a), new ExpDatePart('JSON'));
-        switch (dataType) {
-            default: tbl = EnumSysTable.ixInt; break;
-            case BudDataType.str:
-            case BudDataType.char:
-                tbl = EnumSysTable.ixStr;
-                colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', a));
-                break;
-            case BudDataType.dec: tbl = EnumSysTable.ixDec; break;
-            case BudDataType.fork: tbl = EnumSysTable.ixJson; break;
-        }
-        let select = factory.createSelect();
-        select.from(new EntityTable(tbl, false, a));
-        select.column(new ExpNum(id), 'phrase');
-        select.column(colValue, 'value');
-        select.column(new ExpVar('atomId'), 'id');
-        select.where(new ExpAnd(
-            new ExpEQ(new ExpField('i', a), new ExpVar('atomId')),
-            new ExpEQ(new ExpField('x', a), new ExpNum(id)),
-        ));
-        return select;
+        const ifNoNull = factory.createIf();
+        statements.push(ifNoNull);
+        ifNoNull.cmp = new ExpIsNull(new ExpVar('no'));
+        const setNo = factory.createSet();
+        ifNoNull.then(setNo);
+        setNo.equ(
+            'no',
+            new ExpFuncInUq('$no', [new ExpVar('$site'), new ExpStr('atom'), ExpNull.null], true)
+        );
+        const selectRoot = factory.createSelect();
+        statements.push(selectRoot);
+        selectRoot.toVar = true;
+        const cte = 'cte';
+        const selectCte = factory.createSelect();
+        selectCte.col('i');
+        selectCte.col('x');
+        selectCte.from(new EntityTable(EnumSysTable.ixPhrase, false));
+        selectCte.where(new ExpEQ(new ExpField('x'), new ExpVar('base')));
+        selectCte.unionsAll = true;
+        const selectCteR = factory.createSelect();
+        selectCte.unions = [
+            selectCteR,
+        ];
+        selectCteR.col('i', undefined, a);
+        selectCteR.col('x', undefined, a);
+        selectCteR.from(new EntityTable(EnumSysTable.ixPhrase, false, a))
+            .join(JoinType.join, new NameTable(cte))
+            .on(new ExpEQ(new ExpField('x', a), new ExpField('i', cte)));
+        selectRoot.cte = {
+            alias: cte,
+            recursive: true,
+            select: selectCte,
+        };
+        selectRoot.col('x', 'root');
+        selectRoot.from(new NameTable(cte));
+        selectRoot.where(new ExpEQ(new ExpField('i'), ExpNum.num0));
+
+        const upsert = factory.createUpsert();
+        statements.push(upsert);
+        upsert.table = new EntityTable(EnumSysTable.atom, false);
+        upsert.cols = [
+            { col: 'base', val: new ExpVar('root') },
+            { col: 'no', val: new ExpVar('no') },
+        ];
+        upsert.keys = [{ col: 'id', val: new ExpVar('id') }];
+
+        const upsertIDU = factory.createUpsert();
+        statements.push(upsertIDU);
+        upsertIDU.table = new EntityTable(EnumSysTable.idu, false);
+        upsertIDU.cols = [{ col: 'base', val: new ExpVar('base') }];
+        upsertIDU.keys = [{ col: 'id', val: new ExpVar('id') }];
+
+        const ret = factory.createReturn();
+        statements.push(ret);
+        ret.returnVar = 'id';
     }
-    */
 
-    private buildProcGet(proc: Procedure,) {
+    private buildProcGet(proc: Procedure) {
         const { parameters, statements } = proc;
         const { factory } = this.context;
         parameters.push(bigIntField('id'));

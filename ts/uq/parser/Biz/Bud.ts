@@ -610,6 +610,9 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
             return ok;
         }
         let { bin: bizBin } = this.element;
+        if (bizBin === undefined) {
+            return false;
+        }
         this.element.showBuds = [];
         this.element.sysBuds = [];
         const { showBuds, sysBuds } = this.element;
@@ -643,33 +646,6 @@ export class PBizBudBin extends PBizBudValue<BizBudBin> {
                 break;
             }
             arr.push(bud);
-            /*
-            for (let sbn of showBudName) {
-                if (pEntity === undefined) {
-                    ok = false;
-                    this.log(`${bud.getJName()} does not has ${sbn}`);
-                    break;
-                }
-                if (sbn === undefined) {
-                    pEntity = pEntity.main;
-                    if (pEntity === undefined) {
-                        ok = false;
-                        this.log(`${bizBin.getJName()} does not has MAIN`);
-                        break;
-                    }
-                    arr.push(undefined);
-                    continue;
-                }
-                bud = pEntity.getBud(sbn);
-                if (bud === undefined) {
-                    ok = false;
-                    this.log(`${pEntity.getJName()} does not has bud ${showBudName}`);
-                    break;
-                }
-                arr.push(bud);
-                pEntity = bud.IDEntity;
-            };
-            */
             showBuds.push(arr);
         }
         return ok;

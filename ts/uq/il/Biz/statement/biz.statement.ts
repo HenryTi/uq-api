@@ -5,10 +5,14 @@ import {
 } from '../../../builder';
 import * as parser from '../../../parser';
 import { IElement } from '../../IElement';
-import {
-    BizBudValue, BizBinAct, BizEntity, BizBud, BizAct
-    , BizInAct, BizBin, BizAtom, BizFork, UseOut, IDUnique, BizTie
-} from '..';
+import { BizAtom, BizFork, IDUnique, } from '../BizID';
+import { BizID, BizEntity } from '../Entity';
+import { UseOut } from '../InOut';
+import { BizTie } from '../Tie';
+import { BizBin, BizBinAct } from '../Bin';
+import { BizInAct } from '../InOut';
+import { BizAct } from '../Base';
+import { BizBud, BizBudValue } from '../Bud';
 import { CompareExpression, ValueExpression } from '../../Exp';
 import { SetEqu } from '../../tool';
 import { NamePointer } from '../../pointer';
@@ -97,25 +101,26 @@ export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSu
     db(db: DbContext): BStatement { return new BBizStatementSheet(db, this); }
 }
 
-export abstract class BizStatementID<T extends BizAct = BizAct> extends BizStatementSub<T> {
+export abstract class BizStatementID<I extends BizID, T extends BizAct = BizAct> extends BizStatementSub<T> {
+    readonly entityCase: { bizID: I; condition: CompareExpression; uniqueName: string; uniqueVals: ValueExpression[]; }[] = [];
+    idVal: ValueExpression;
     toVar: NamePointer;
-    inVals: ValueExpression[];
+    readonly sets: Map<BizBud, ValueExpression> = new Map();
 }
 
-export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<T> {
-    readonly atomCase: { bizID: BizAtom; condition: CompareExpression; }[] = [];
-    unique: IDUnique;   // if unique===undefined，no as unique, inVals are parameters of unique
+export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<BizAtom, T> {
+    noVal: ValueExpression;
     ex: ValueExpression;
-    readonly sets: Map<BizBud, ValueExpression> = new Map();
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementAtom(this, context);
     }
     db(db: DbContext): BStatement { return new BBizStatementAtom(db, this); }
 }
 
-export class BizStatementFork<T extends BizAct = BizAct> extends BizStatementID<T> {
+export class BizStatementFork<T extends BizAct = BizAct> extends BizStatementID<BizFork, T> {
     fork: BizFork;
     valFork: ValueExpression;
+    inVals: ValueExpression[];
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementFork(this, context);
     }

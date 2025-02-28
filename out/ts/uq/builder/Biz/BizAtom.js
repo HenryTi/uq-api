@@ -31,6 +31,8 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             this.buildProcTitlePrime(procTitlePrime);
             const procGet = this.createSiteEntityProcedure('ag');
             this.buildProcGet(procGet);
+            const funcId = this.createSiteEntityFunction(new il_1.BigInt(), 'new');
+            this.buildFuncNew(funcId);
             if (uniques !== undefined) {
                 const budUniques = new Map();
                 for (let uq of uniques) {
@@ -243,36 +245,73 @@ class BBizAtom extends BizEntity_1.BBizEntity {
             insert.select = select;
         }
     }
-    /*
-    private buildBudSelect(bud: BizBud) {
+    buildFuncNew(proc) {
+        const { parameters, statements } = proc;
         const { factory } = this.context;
-
-        const { id, dataType } = bud;
-        const a = 'a';
-        let tbl: string;
-        let colValue: ExpVal = new ExpFuncCustom(factory.func_cast, new ExpField('value', a), new ExpDatePart('JSON'));
-        switch (dataType) {
-            default: tbl = EnumSysTable.ixInt; break;
-            case BudDataType.str:
-            case BudDataType.char:
-                tbl = EnumSysTable.ixStr;
-                colValue = new ExpFunc('JSON_QUOTE', new ExpField('value', a));
-                break;
-            case BudDataType.dec: tbl = EnumSysTable.ixDec; break;
-            case BudDataType.fork: tbl = EnumSysTable.ixJson; break;
-        }
-        let select = factory.createSelect();
-        select.from(new EntityTable(tbl, false, a));
-        select.column(new ExpNum(id), 'phrase');
-        select.column(colValue, 'value');
-        select.column(new ExpVar('atomId'), 'id');
-        select.where(new ExpAnd(
-            new ExpEQ(new ExpField('i', a), new ExpVar('atomId')),
-            new ExpEQ(new ExpField('x', a), new ExpNum(id)),
-        ));
-        return select;
+        parameters.push((0, il_1.bigIntField)('$site'));
+        parameters.push((0, il_1.charField)('no', 100));
+        parameters.push((0, il_1.bigIntField)('base'));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        declare.var('id', new il_1.BigInt());
+        declare.var('root', new il_1.BigInt());
+        const setId = factory.createSet();
+        statements.push(setId);
+        const selectEntity = factory.createSelect();
+        setId.equ('id', new sql_1.ExpFuncInUq('$idnu', [new sql_1.ExpSelect(selectEntity)], true));
+        selectEntity.col('id');
+        selectEntity.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.entity, false));
+        selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('atom')));
+        const ifNoNull = factory.createIf();
+        statements.push(ifNoNull);
+        ifNoNull.cmp = new sql_1.ExpIsNull(new sql_1.ExpVar('no'));
+        const setNo = factory.createSet();
+        ifNoNull.then(setNo);
+        setNo.equ('no', new sql_1.ExpFuncInUq('$no', [new sql_1.ExpVar('$site'), new sql_1.ExpStr('atom'), sql_1.ExpNull.null], true));
+        const selectRoot = factory.createSelect();
+        statements.push(selectRoot);
+        selectRoot.toVar = true;
+        const cte = 'cte';
+        const selectCte = factory.createSelect();
+        selectCte.col('i');
+        selectCte.col('x');
+        selectCte.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixPhrase, false));
+        selectCte.where(new sql_1.ExpEQ(new sql_1.ExpField('x'), new sql_1.ExpVar('base')));
+        selectCte.unionsAll = true;
+        const selectCteR = factory.createSelect();
+        selectCte.unions = [
+            selectCteR,
+        ];
+        selectCteR.col('i', undefined, a);
+        selectCteR.col('x', undefined, a);
+        selectCteR.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixPhrase, false, a))
+            .join(il_1.JoinType.join, new statementWithFrom_1.NameTable(cte))
+            .on(new sql_1.ExpEQ(new sql_1.ExpField('x', a), new sql_1.ExpField('i', cte)));
+        selectRoot.cte = {
+            alias: cte,
+            recursive: true,
+            select: selectCte,
+        };
+        selectRoot.col('x', 'root');
+        selectRoot.from(new statementWithFrom_1.NameTable(cte));
+        selectRoot.where(new sql_1.ExpEQ(new sql_1.ExpField('i'), sql_1.ExpNum.num0));
+        const upsert = factory.createUpsert();
+        statements.push(upsert);
+        upsert.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.atom, false);
+        upsert.cols = [
+            { col: 'base', val: new sql_1.ExpVar('root') },
+            { col: 'no', val: new sql_1.ExpVar('no') },
+        ];
+        upsert.keys = [{ col: 'id', val: new sql_1.ExpVar('id') }];
+        const upsertIDU = factory.createUpsert();
+        statements.push(upsertIDU);
+        upsertIDU.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false);
+        upsertIDU.cols = [{ col: 'base', val: new sql_1.ExpVar('base') }];
+        upsertIDU.keys = [{ col: 'id', val: new sql_1.ExpVar('id') }];
+        const ret = factory.createReturn();
+        statements.push(ret);
+        ret.returnVar = 'id';
     }
-    */
     buildProcGet(proc) {
         const { parameters, statements } = proc;
         const { factory } = this.context;

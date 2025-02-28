@@ -13,7 +13,7 @@ import { BBizStatementID } from "./biz.statement.ID";
 import { $site, $user } from "../../consts";
 
 const a = 'a';
-export class BBizStatementFork extends BBizStatementID<BizStatementFork> {
+export class BBizStatementFork extends BBizStatementID<BizFork, BizStatementFork> {
     override body(sqls: Sqls): void {
         const { fork } = this.istatement;
         if (fork !== undefined) {
@@ -22,6 +22,14 @@ export class BBizStatementFork extends BBizStatementID<BizStatementFork> {
         else {
             this.buildFromForkVal(sqls);
         }
+    }
+
+    protected buildIdFromNo(sqls: Sqls): ExpVal {
+        return;
+    }
+
+    protected buildIdFromUnique(sqls: Sqls): ExpVal {
+        return;
     }
 
     private buildFromFork(sqls: Sqls, fork: BizFork) {

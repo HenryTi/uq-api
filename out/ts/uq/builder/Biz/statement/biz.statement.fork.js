@@ -18,6 +18,12 @@ class BBizStatementFork extends biz_statement_ID_1.BBizStatementID {
             this.buildFromForkVal(sqls);
         }
     }
+    buildIdFromNo(sqls) {
+        return;
+    }
+    buildIdFromUnique(sqls) {
+        return;
+    }
     buildFromFork(sqls, fork) {
         const { factory } = this.context;
         const { inVals } = this.istatement;

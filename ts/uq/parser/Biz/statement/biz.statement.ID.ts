@@ -1,12 +1,15 @@
 import { Space } from '../../space';
-import { ValueExpression, BizAct, NamePointer, BizStatementID, CompareExpression } from '../../../il';
+import { ValueExpression, BizAct, NamePointer, BizStatementID, CompareExpression, BizID, BizBud } from '../../../il';
 import { Token } from '../../tokens';
 import { PBizStatementSub } from './biz.statement.sub';
+import { BizPhraseType } from '../../../il/Biz/BizPhraseType';
 
-export abstract class PBizStatementID<A extends BizAct, T extends BizStatementID<A>> extends PBizStatementSub<A, T> {
-    protected readonly entityCase: { entityName: string; condition: CompareExpression; }[] = [];
+export abstract class PBizStatementID<A extends BizAct, I extends BizID, T extends BizStatementID<I, A>> extends PBizStatementSub<A, T> {
+    protected readonly entityCase: { entityName: string; condition: CompareExpression; uniqueName: string; uniqueVals: ValueExpression[]; }[] = [];
+    private sets: { [bud: string]: ValueExpression } = {};
     protected toVar: string;
-    protected inVals: ValueExpression[] = [];
+    protected hasUnique = true; // every entity has its unique
+    /*
     protected override _parse(): void {
         this.parseIDEntity();
         this.ts.passKey('in');
@@ -14,6 +17,9 @@ export abstract class PBizStatementID<A extends BizAct, T extends BizStatementID
         this.parseUnique();
         this.parseTo();
     }
+    */
+
+    protected abstract parseUnique(): [string, ValueExpression[]];
 
     protected parseIDEntity() {
         if (this.ts.token === Token.LPARENTHESE) {
@@ -23,51 +29,77 @@ export abstract class PBizStatementID<A extends BizAct, T extends BizStatementID
                 let condition = new CompareExpression();
                 this.context.parseElement(condition);
                 this.ts.passKey('then');
-                let entityName = this.ts.passVar();
-                this.entityCase.push({ condition, entityName });
+                this.parseEntityAndUnique(condition);
                 if (this.ts.isKeyword('else') === true) {
                     this.ts.readToken();
-                    entityName = this.ts.passVar();
-                    this.entityCase.push({ entityName, condition: undefined });
+                    this.parseEntityAndUnique(undefined);
                     break;
                 }
             }
             this.ts.passToken(Token.RPARENTHESE);
         }
         else {
-            this.entityCase.push({ entityName: this.ts.passVar(), condition: undefined });
+            this.parseEntityAndUnique(undefined);
         }
     }
 
-    protected parseUnique() {
-        if (this.ts.token === Token.LPARENTHESE) {
-            this.ts.readToken();
-            for (; ;) {
-                let val = new ValueExpression();
-                this.context.parseElement(val);
-                this.inVals.push(val);
-                const { token } = this.ts;
-                if (token === Token.COMMA as any) {
-                    this.ts.readToken();
-                    continue;
-                }
-                if (token === Token.RPARENTHESE as any) {
-                    this.ts.readToken();
-                    break;
-                }
-                this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
-            }
+
+
+    protected parseEntityAndUnique(condition: CompareExpression) {
+        let entityName = this.ts.passVar();
+        let retUnique = this.parseUnique();
+        if (retUnique === undefined) {
+            this.entityCase.push({ condition, entityName, uniqueName: undefined, uniqueVals: undefined });
         }
         else {
-            let val = new ValueExpression();
-            this.context.parseElement(val);
-            this.inVals.push(val);
+            const [uniqueName, uniqueVals] = retUnique;
+            this.entityCase.push({ condition, entityName, uniqueName, uniqueVals });
         }
     }
 
-    protected parseTo() {
-        this.ts.passKey('to');
-        this.toVar = this.ts.passVar();
+    protected setField(fieldName: string, val: ValueExpression): boolean {
+        return false;
+    }
+
+    protected parseSets() {
+        if (this.ts.token !== Token.VAR) return;
+        if (this.ts.varBrace === true || this.ts.lowerVar !== 'set') {
+            this.ts.expect('set');
+        }
+        this.ts.readToken();
+        for (; ;) {
+            let bud = this.ts.passVar();
+            this.ts.passToken(Token.EQU);
+            let val = new ValueExpression();
+            this.context.parseElement(val);
+            if (this.setField(bud, val) === false) {
+                this.sets[bud] = val;
+            }
+            const { token } = this.ts;
+            if (token === Token.SEMICOLON as any) {
+                // this.ts.readToken();
+                break;
+            }
+            if (token === Token.COMMA as any) {
+                this.ts.readToken();
+                continue;
+            }
+            this.ts.expectToken(Token.COMMA, Token.SEMICOLON);
+        }
+    }
+
+    protected parseId() {
+        if (this.ts.isKeyword('id') !== true) return;
+        this.ts.readToken();
+        if (this.ts.token === Token.EQU) {
+            this.ts.readToken();
+            this.element.idVal = new ValueExpression;
+            this.context.parseElement(this.element.idVal);
+        }
+        else {
+            this.ts.passKey('to');
+            this.toVar = this.ts.passVar();
+        }
     }
 
     override scan(space: Space): boolean {
@@ -75,18 +107,79 @@ export abstract class PBizStatementID<A extends BizAct, T extends BizStatementID
         if (super.scan(space) === false) {
             ok = false;
         }
-        this.element.toVar = space.varPointer(this.toVar, false) as NamePointer;
-        if (this.element.toVar === undefined) {
-            ok = false;
-            this.log(`${this.toVar} is not defined`);
+        if (this.toVar !== undefined) {
+            this.element.toVar = space.varPointer(this.toVar, false) as NamePointer;
+            if (this.element.toVar === undefined) {
+                ok = false;
+                this.log(`${this.toVar} is not defined`);
+            }
         }
-        for (let inVal of this.inVals) {
-            if (inVal.pelement.scan(space) === false) {
+        const { entityCase, idVal, sets } = this.element;
+        if (idVal !== undefined) {
+            if (idVal.pelement.scan(space) === false) {
                 ok = false;
             }
         }
-        this.element.inVals = this.inVals;
+        for (let { entityName, condition, uniqueName, uniqueVals } of this.entityCase) {
+            let bizID = this.scanEntity(space, entityName);
+            if (bizID === undefined) {
+                ok = false;
+            }
+            if (condition !== undefined) {
+                if (condition.pelement.scan(space) === false) ok = false;
+            }
+            if (uniqueName === uniqueName) this.hasUnique = false;
+            if (this.scanUnique(space, bizID, uniqueName, uniqueVals) === false) ok = false;
+            entityCase.push({ bizID, condition, uniqueName, uniqueVals });
+        }
+
+        function getBud(budName: string): BizBud {
+            for (let { bizID } of entityCase) {
+                let bud = bizID.getBud(budName);
+                if (bud !== undefined) return bud;
+            }
+        }
+        for (let i in this.sets) {
+            let val = this.sets[i];
+            if (val.pelement.scan(space) === false) {
+                ok = false;
+            }
+            let bud = getBud(i);
+            if (bud === undefined) {
+                ok = false;
+                this.log(`ATOM has no PROP ${i}`);
+            }
+            sets.set(bud, val);
+        }
+
+        if (this.keyDefined() === false) {
+            ok = false;
+            this.log('KEY must be defined');
+        }
+
         return ok;
     }
+
+    protected keyDefined(): boolean {
+        if (this.element.idVal !== undefined) return true;
+        if (this.hasUnique === true) return true;
+        return false;
+    }
+
+    protected abstract get IDType(): BizPhraseType;
+    protected scanEntity(space: Space, entityName: string): I {
+        let fromEntityArr = space.getBizFromEntityArrFromName(entityName);
+        if (fromEntityArr === undefined) {
+            this.log(`${entityName} is not defined`);
+            return undefined;
+        }
+        let { bizEntityArr: [entity] } = fromEntityArr;
+        if (entity.bizPhraseType !== this.IDType) {
+            return undefined;
+        }
+        return entity as I;
+    }
+
+    protected abstract scanUnique(space: Space, bizID: I, un: string, vals: ValueExpression[]): boolean;
 }
 
