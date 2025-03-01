@@ -20,6 +20,7 @@ export enum BizPhraseType {
     bin = 102,
     pend = 104,
     sheetState = 105,
+    binState = 106,
     act = 111,
     query = 151,
     pick = 161,

@@ -151,6 +151,13 @@ export class PBizSheet extends PBizEntity<BizSheet> {
             }
             this.element.details.push({ bin, caption, operate });
         }
+        const { states } = this.element;
+        if (states !== undefined) {
+            for (let i in states) {
+                let state = states[i];
+                if (state.pelement.scan0(space) === false) ok = false;
+            }
+        }
         return ok;
     }
 
@@ -161,6 +168,13 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         if (bizSearch !== undefined) {
             if (bizSearch.pelement.scan(space) === false) {
                 ok = false;
+            }
+        }
+        const { states } = this.element;
+        if (states !== undefined) {
+            for (let i in states) {
+                let state = states[i];
+                if (state.pelement.scan(space) === false) ok = false;
             }
         }
         return ok;
@@ -202,6 +216,13 @@ export class PBizSheet extends PBizEntity<BizSheet> {
                 ok = false;
                 const { out: bizOut } = out;
                 this.log(`Biz OUT ${bizOut.getJName()} in Sheet ${this.element.getJName()} without TO`);
+            }
+        }
+        const { states } = this.element;
+        if (states !== undefined) {
+            for (let i in states) {
+                let state = states[i];
+                if (state.pelement.scan2(uq) === false) ok = false;
             }
         }
         return ok;

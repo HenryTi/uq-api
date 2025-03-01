@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizStatementError = exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementFork = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBin = exports.BizStatement = void 0;
+exports.BizStatementError = exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementFork = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBinState = exports.BizStatementBin = exports.BizStatement = void 0;
 const builder_1 = require("../../../builder");
 const parser = require("../../../parser");
 const statement_1 = require("../../statement");
@@ -21,6 +21,10 @@ class BizStatementBin extends BizStatement {
     parser(context) { return new parser.PBizStatementBin(this, context); }
 }
 exports.BizStatementBin = BizStatementBin;
+class BizStatementBinState extends BizStatement {
+    parser(context) { return new parser.PBizStatementBinState(this, context); }
+}
+exports.BizStatementBinState = BizStatementBinState;
 class BizStatementIn extends BizStatement {
     parser(context) { return new parser.PBizStatementIn(this, context); }
 }

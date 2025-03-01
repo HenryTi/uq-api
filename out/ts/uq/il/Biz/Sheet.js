@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SheetState = exports.BizSheet = exports.EnumDetailOperate = void 0;
+exports.BinStateAct = exports.BinState = exports.SheetState = exports.BizSheet = exports.EnumDetailOperate = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
+const Bin_1 = require("./Bin");
 const BizPhraseType_1 = require("./BizPhraseType");
 const Entity_1 = require("./Entity");
 var EnumDetailOperate;
@@ -61,6 +62,7 @@ class SheetState extends Entity_1.BizNotID {
     constructor(sheet) {
         super(sheet.biz);
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.sheetState;
+        this.details = [];
         this.sheet = sheet;
     }
     parser(context) {
@@ -68,4 +70,27 @@ class SheetState extends Entity_1.BizNotID {
     }
 }
 exports.SheetState = SheetState;
+class BinState extends Bin_1.BizBinBase {
+    constructor(sheetState) {
+        super(sheetState.biz);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.binState;
+        this.fields = ['id'];
+        this.main = undefined;
+        this.sheetState = sheetState;
+    }
+    parser(context) {
+        return new parser_1.PBinState(this, context);
+    }
+}
+exports.BinState = BinState;
+class BinStateAct extends Bin_1.BizBinBaseAct {
+    constructor(binState) {
+        super(binState.biz, binState);
+        this.binState = binState;
+    }
+    parser(context) {
+        return new parser_1.PBinStateAct(this, context);
+    }
+}
+exports.BinStateAct = BinStateAct;
 //# sourceMappingURL=Sheet.js.map

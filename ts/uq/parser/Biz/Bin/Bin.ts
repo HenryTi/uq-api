@@ -12,7 +12,9 @@ import {
     BizField,
     BizBudFork,
     BizBud,
-    ValueExpression
+    ValueExpression,
+    BizBinBase,
+    BizBinBaseAct
 } from "../../../il";
 import { BizPhraseType, BudDataType } from "../../../il/Biz/BizPhraseType";
 import { PContext } from "../../pContext";
@@ -26,7 +28,22 @@ enum EnumIX {
     i, x
 }
 
-export class PBizBin extends PBizEntity<BizBin> {
+export abstract class PBizBinBase<T extends BizBinBase> extends PBizEntity<T> {
+    protected parseAct = () => {
+        const { act } = this.element;
+        if (act !== undefined) {
+            this.ts.error('ACT can only be defined once');
+        }
+        let bizBinAct = this.createBizBinBaseAct();
+        this.element.act = bizBinAct;
+        this.context.parseElement(bizBinAct);
+        this.ts.mayPassToken(Token.SEMICOLON);
+    }
+
+    protected abstract createBizBinBaseAct(): BizBinBaseAct<T>;
+}
+
+export class PBizBin extends PBizBinBase<BizBin> {
     private main: string;
     private pickPendPos: number;
     private div: BinDiv;
@@ -36,6 +53,10 @@ export class PBizBin extends PBizEntity<BizBin> {
         super(element, context);
         this.div = element.div;
         if (this.div === undefined) debugger;
+    }
+
+    protected createBizBinBaseAct(): BizBinAct {
+        return new BizBinAct(this.element.biz, this.element);
     }
 
     private parseMain = () => {
@@ -282,17 +303,6 @@ export class PBizBin extends PBizEntity<BizBin> {
             }
             this.ts.expectToken(Token.SEMICOLON, Token.COMMA);
         }
-    }
-
-    private parseAct = () => {
-        const { act } = this.element;
-        if (act !== undefined) {
-            this.ts.error('ACT can only be defined once');
-        }
-        let bizBinAct = new BizBinAct(this.element.biz, this.element);
-        this.element.act = bizBinAct;
-        this.context.parseElement(bizBinAct);
-        this.ts.mayPassToken(Token.SEMICOLON);
     }
 
     protected parseColonBuds = () => {

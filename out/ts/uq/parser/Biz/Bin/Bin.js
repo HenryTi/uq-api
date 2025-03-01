@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBinActStatements = exports.PBizBinAct = exports.binPreDefined = exports.PBizBin = void 0;
+exports.PBizBinActStatements = exports.PBizBinAct = exports.binPreDefined = exports.PBizBin = exports.PBizBinBase = void 0;
 const consts_1 = require("../../../consts");
 const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
@@ -12,7 +12,23 @@ var EnumIX;
     EnumIX[EnumIX["i"] = 0] = "i";
     EnumIX[EnumIX["x"] = 1] = "x";
 })(EnumIX || (EnumIX = {}));
-class PBizBin extends Base_1.PBizEntity {
+class PBizBinBase extends Base_1.PBizEntity {
+    constructor() {
+        super(...arguments);
+        this.parseAct = () => {
+            const { act } = this.element;
+            if (act !== undefined) {
+                this.ts.error('ACT can only be defined once');
+            }
+            let bizBinAct = this.createBizBinBaseAct();
+            this.element.act = bizBinAct;
+            this.context.parseElement(bizBinAct);
+            this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
+        };
+    }
+}
+exports.PBizBinBase = PBizBinBase;
+class PBizBin extends PBizBinBase {
     constructor(element, context) {
         super(element, context);
         this.parseMain = () => {
@@ -176,16 +192,6 @@ class PBizBin extends Base_1.PBizEntity {
                 this.ts.expectToken(tokens_1.Token.SEMICOLON, tokens_1.Token.COMMA);
             }
         };
-        this.parseAct = () => {
-            const { act } = this.element;
-            if (act !== undefined) {
-                this.ts.error('ACT can only be defined once');
-            }
-            let bizBinAct = new il_1.BizBinAct(this.element.biz, this.element);
-            this.element.act = bizBinAct;
-            this.context.parseElement(bizBinAct);
-            this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
-        };
         this.parseColonBuds = () => {
             this.parsePrimeBuds();
         };
@@ -208,6 +214,9 @@ class PBizBin extends Base_1.PBizEntity {
         this.div = element.div;
         if (this.div === undefined)
             debugger;
+    }
+    createBizBinBaseAct() {
+        return new il_1.BizBinAct(this.element.biz, this.element);
     }
     parsePickProp(name) {
         let ui = this.parseUI();

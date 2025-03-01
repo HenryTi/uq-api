@@ -271,7 +271,11 @@ export class BinPivot extends BinDiv {
     }
 }
 
-export class BizBin extends BizID {
+export abstract class BizBinBase extends BizID {
+    act: BizBinBaseAct<this>;
+}
+
+export class BizBin extends BizBinBase {
     protected readonly fields = ['id', 'pend', ...binFieldArr];
     readonly bizPhraseType = BizPhraseType.bin;
     readonly pickColl: { [name: string]: BinPick } = {};
@@ -284,7 +288,6 @@ export class BizBin extends BizID {
     pickArr: BinPick[];
     inputArr: BinInput[];
     pend: BizPend;
-    act: BizBinAct;
     i: BizBudID;
     x: BizBudID;
     iBase: BizBudIXBase;
@@ -432,16 +435,20 @@ export class BizBin extends BizID {
     }
 }
 
-export class BizBinAct extends BizAct {
-    readonly bizBin: BizBin;
-    idParam: Field;
+export abstract class BizBinBaseAct<T extends BizBinBase> extends BizAct {
+    readonly bizBin: T;
 
-    constructor(biz: Biz, bizBin: BizBin) {
+    constructor(biz: Biz, bizBin: T) {
         super(biz);
         this.bizBin = bizBin;
     }
 
-    get spaceEntity(): BizEntity { return this.bizBin; }
+    get spaceEntity(): T { return this.bizBin; }
+}
+
+export class BizBinAct extends BizBinBaseAct<BizBin> {
+    // readonly bizBin: BizBin;
+    idParam: Field;
 
     parser(context: PContext): PElement<IElement> {
         return new PBizBinAct(this, context);

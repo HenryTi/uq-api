@@ -11,7 +11,7 @@ import { FieldPointer, Pointer, NamePointer, VarPointer } from '../pointer';
 import { Builder } from '../builder';
 import { Select, Delete, CTE } from '../select';
 import { FaceDataType } from '../busSchema';
-import { BizAct, BizBinAct, BizInAct } from '../Biz';
+import { BinStateAct, BizAct, BizBinAct, BizInAct } from '../Biz';
 import { SetEqu } from '../tool';
 import { PActionStatement, PBusAcceptStatement, PBusQueryStatement, PQueryStatement, PUqStatement } from '../../parser/PStatement';
 
@@ -158,6 +158,22 @@ export class BizBinActStatements extends Statements {
     }
     createStatements = (parent: Statement) => {
         return new BizBinActStatements(parent, this.bizAct);
+    }
+    db(db: Builder): object { return; }
+}
+
+export class BinStateActStatements extends Statements {
+    private readonly bizAct: BinStateAct;
+    constructor(parent: Statement, bizAct: BinStateAct) {
+        super(parent);
+        this.bizAct = bizAct;
+    }
+    get type(): string { return 'bizactstatement'; }
+    parser(context: parser.PContext) {
+        return new parser.PBinStateActStatements(this, context, this.bizAct);
+    }
+    createStatements = (parent: Statement) => {
+        return new BinStateActStatements(parent, this.bizAct);
     }
     db(db: Builder): object { return; }
 }

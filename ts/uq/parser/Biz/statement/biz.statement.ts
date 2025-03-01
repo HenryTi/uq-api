@@ -5,7 +5,9 @@ import {
     , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
     , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet, BizStatementAtom
     , BizStatementFork, BizStatementOut, BizBudArr, BizOut, BizStatementTie, BizTie
-    , BizFromEntity, BizStatementError
+    , BizFromEntity, BizStatementError,
+    BinStateAct,
+    BizStatementBinState
 } from '../../../il';
 import { PStatement } from '../../PStatement';
 import { PContext } from '../../pContext';
@@ -74,6 +76,13 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
             fork: BizStatementFork,
             tie: BizStatementTie,
             error: BizStatementError,
+        };
+    }
+}
+
+export class PBizStatementBinState extends PBizStatement<BinStateAct, BizStatementBinState> {
+    protected getBizSubsEx() {
+        return {
         };
     }
 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizBinAct = exports.BizBin = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputFork = exports.BinInput = exports.PickOptions = exports.PickPend = exports.PickFork = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
+exports.BizBinAct = exports.BizBinBaseAct = exports.BizBin = exports.BizBinBase = exports.BinPivot = exports.BinDiv = exports.BinInputAtom = exports.BinInputFork = exports.BinInput = exports.PickOptions = exports.PickPend = exports.PickFork = exports.PickAtom = exports.PickQuery = exports.BinPick = exports.PickParam = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizID_1 = require("./BizID");
@@ -246,7 +246,10 @@ class BinPivot extends BinDiv {
     }
 }
 exports.BinPivot = BinPivot;
-class BizBin extends Entity_1.BizID {
+class BizBinBase extends Entity_1.BizID {
+}
+exports.BizBinBase = BizBinBase;
+class BizBin extends BizBinBase {
     constructor(biz) {
         super(biz);
         this.fields = ['id', 'pend', ...consts_1.binFieldArr];
@@ -393,12 +396,15 @@ class BizBin extends Entity_1.BizID {
     }
 }
 exports.BizBin = BizBin;
-class BizBinAct extends Base_1.BizAct {
+class BizBinBaseAct extends Base_1.BizAct {
     constructor(biz, bizBin) {
         super(biz);
         this.bizBin = bizBin;
     }
     get spaceEntity() { return this.bizBin; }
+}
+exports.BizBinBaseAct = BizBinBaseAct;
+class BizBinAct extends BizBinBaseAct {
     parser(context) {
         return new parser_1.PBizBinAct(this, context);
     }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementError = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementError = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBinState = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../../il");
 const PStatement_1 = require("../../PStatement");
 const tokens_1 = require("../../tokens");
@@ -65,6 +65,12 @@ class PBizStatementBin extends PBizStatement {
     }
 }
 exports.PBizStatementBin = PBizStatementBin;
+class PBizStatementBinState extends PBizStatement {
+    getBizSubsEx() {
+        return {};
+    }
+}
+exports.PBizStatementBinState = PBizStatementBinState;
 class PBizStatementIn extends PBizStatement {
     getBizSubsEx() {
         return {

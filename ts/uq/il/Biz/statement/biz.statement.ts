@@ -18,6 +18,7 @@ import { SetEqu } from '../../tool';
 import { NamePointer } from '../../pointer';
 import { BizPend } from '../Pend';
 import { Statement, UseSheet } from '../../statement';
+import { BinStateAct } from '../Sheet';
 
 export abstract class BizStatement<T extends BizAct> extends Statement {
     get type(): string { return 'bizstatement'; }
@@ -36,6 +37,10 @@ export abstract class BizStatement<T extends BizAct> extends Statement {
 
 export class BizStatementBin extends BizStatement<BizBinAct> {
     parser(context: parser.PContext) { return new parser.PBizStatementBin(this, context); }
+}
+
+export class BizStatementBinState extends BizStatement<BinStateAct> {
+    parser(context: parser.PContext) { return new parser.PBizStatementBinState(this, context); }
 }
 
 export class BizStatementIn extends BizStatement<BizInAct> {

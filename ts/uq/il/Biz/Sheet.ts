@@ -1,9 +1,9 @@
 import { BBizSheet, DbContext } from "../../builder";
-import { PBizSheet, PContext, PElement, PSheetState } from "../../parser";
+import { PBinState, PBinStateAct, PBizSheet, PContext, PElement, PSheetState } from "../../parser";
 import { IElement } from "../IElement";
 import { UI } from "../UI";
-import { BizSearch } from "./Base";
-import { BizBin } from "./Bin";
+import { BizAct, BizSearch } from "./Base";
+import { BizBin, BizBinBase, BizBinBaseAct } from "./Bin";
 import { BizPhraseType, BudDataType } from "./BizPhraseType";
 import { BizBud } from "./Bud";
 import { BizEntity, BizNotID } from "./Entity";
@@ -92,6 +92,8 @@ export class BizSheet extends BizNotID {
 export class SheetState extends BizNotID {
     readonly bizPhraseType = BizPhraseType.sheetState;
     readonly sheet: BizSheet;
+    main: BinState;
+    readonly details: BinState[] = [];
 
     constructor(sheet: BizSheet) {
         super(sheet.biz);
@@ -100,5 +102,33 @@ export class SheetState extends BizNotID {
 
     parser(context: PContext): PElement {
         return new PSheetState(this, context);
+    }
+}
+
+export class BinState extends BizBinBase {
+    readonly bizPhraseType = BizPhraseType.binState;
+    protected readonly fields = ['id'];
+    readonly sheetState: SheetState;
+    readonly main = undefined;
+
+    constructor(sheetState: SheetState) {
+        super(sheetState.biz);
+        this.sheetState = sheetState;
+    }
+
+    parser(context: PContext): PElement {
+        return new PBinState(this, context);
+    }
+}
+
+export class BinStateAct extends BizBinBaseAct<BinState> {
+    readonly binState: BinState;
+    constructor(binState: BinState) {
+        super(binState.biz, binState);
+        this.binState = binState;
+    }
+
+    parser(context: PContext): PElement {
+        return new PBinStateAct(this, context);
     }
 }
