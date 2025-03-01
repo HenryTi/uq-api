@@ -184,12 +184,15 @@ class BBizStatementAtom extends biz_statement_ID_1.BBizStatementID {
         let sqlNew = factory.createExecSql();
         sqls.push(sqlNew);
         sqlNew.no = no;
-        sqlNew.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr(`SET ${this.vId}=\`$site.`), new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('`.`'), varBase, new sql_1.ExpStr('new`(?,?,?)'));
+        sqlNew.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr(`SET @${this.vId}=\`$site.`), new sql_1.ExpNum(this.context.site), new sql_1.ExpStr('`.`'), varBase, new sql_1.ExpStr('new`(?,?,?)'));
         let varNo = sql_1.ExpNull.null;
         if (noVal !== null) {
             varNo = this.context.expVal(noVal);
         }
         sqlNew.parameters = [varSite, varNo, varBase];
+        let setId = factory.createSet();
+        sqls.push(setId);
+        setId.equ(this.vId, new sql_1.ExpAtVar(this.vId));
     }
     buildIdFromUnique(sqls) {
         return;

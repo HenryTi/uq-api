@@ -3,7 +3,7 @@ import {
     Char,
     BizAtom
 } from "../../../il";
-import { ExpAnd, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Statements } from "../../sql";
+import { ExpAnd, ExpAtVar, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpVal, ExpVar, Statements } from "../../sql";
 import { EntityTable } from "../../sql/statementWithFrom";
 import { buildSetAtomBud } from "../../tools";
 import { Sqls } from "../../bstatement/sqls";
@@ -189,7 +189,7 @@ export class BBizStatementAtom extends BBizStatementID<BizAtom, BizStatementAtom
         sqls.push(sqlNew);
         sqlNew.no = no;
         sqlNew.sql = new ExpFunc(factory.func_concat,
-            new ExpStr(`SET ${this.vId}=\`$site.`),
+            new ExpStr(`SET @${this.vId}=\`$site.`),
             new ExpNum(this.context.site),
             new ExpStr('`.`'),
             varBase,
@@ -200,6 +200,9 @@ export class BBizStatementAtom extends BBizStatementID<BizAtom, BizStatementAtom
             varNo = this.context.expVal(noVal);
         }
         sqlNew.parameters = [varSite, varNo, varBase];
+        let setId = factory.createSet();
+        sqls.push(setId);
+        setId.equ(this.vId, new ExpAtVar(this.vId));
     }
 
     protected buildIdFromUnique(sqls: Sqls): ExpVal {
