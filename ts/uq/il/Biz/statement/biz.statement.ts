@@ -102,13 +102,16 @@ export class BizStatementSheet<T extends BizAct = BizAct> extends BizStatementSu
 }
 
 export abstract class BizStatementID<I extends BizID, T extends BizAct = BizAct> extends BizStatementSub<T> {
-    readonly entityCase: { bizID: I; condition: CompareExpression; uniqueName: string; uniqueVals: ValueExpression[]; }[] = [];
+    // readonly entityCase: { bizID: I; condition: CompareExpression; uniqueName: string; uniqueVals: ValueExpression[]; }[] = [];
+    bizID: I;
+    uniqueVals: ValueExpression[];
     idVal: ValueExpression;
     toVar: NamePointer;
     readonly sets: Map<BizBud, ValueExpression> = new Map();
 }
 
 export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<BizAtom, T> {
+    uniqueName: string;
     noVal: ValueExpression;
     ex: ValueExpression;
     parser(context: parser.PContext): parser.PElement<IElement> {
@@ -120,7 +123,6 @@ export class BizStatementAtom<T extends BizAct = BizAct> extends BizStatementID<
 export class BizStatementFork<T extends BizAct = BizAct> extends BizStatementID<BizFork, T> {
     fork: BizFork;
     valFork: ValueExpression;
-    inVals: ValueExpression[];
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementFork(this, context);
     }

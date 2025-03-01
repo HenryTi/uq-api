@@ -34,7 +34,7 @@ export class BBizStatementFork extends BBizStatementID<BizFork, BizStatementFork
 
     private buildFromFork(sqls: Sqls, fork: BizFork) {
         const { factory } = this.context;
-        const { inVals } = this.istatement;
+        const { uniqueVals: inVals } = this.istatement;
         let select = factory.createSelect();
         sqls.push(select);
         select.toVar = true;

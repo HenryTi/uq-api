@@ -5,7 +5,8 @@ import { PBizStatementSub } from './biz.statement.sub';
 import { BizPhraseType } from '../../../il/Biz/BizPhraseType';
 
 export abstract class PBizStatementID<A extends BizAct, I extends BizID, T extends BizStatementID<I, A>> extends PBizStatementSub<A, T> {
-    protected readonly entityCase: { entityName: string; condition: CompareExpression; uniqueName: string; uniqueVals: ValueExpression[]; }[] = [];
+    // protected readonly entityCase: { entityName: string; condition: CompareExpression; uniqueName: string; uniqueVals: ValueExpression[]; }[] = [];
+    protected idName: string;
     private sets: { [bud: string]: ValueExpression } = {};
     protected toVar: string;
     protected hasUnique = true; // every entity has its unique
@@ -19,8 +20,9 @@ export abstract class PBizStatementID<A extends BizAct, I extends BizID, T exten
     }
     */
 
-    protected abstract parseUnique(): [string, ValueExpression[]];
+    // protected abstract parseUnique(): [string, ValueExpression[]];
 
+    /*
     protected parseIDEntity() {
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
@@ -42,9 +44,9 @@ export abstract class PBizStatementID<A extends BizAct, I extends BizID, T exten
             this.parseEntityAndUnique(undefined);
         }
     }
+    */
 
-
-
+    /*
     protected parseEntityAndUnique(condition: CompareExpression) {
         let entityName = this.ts.passVar();
         let retUnique = this.parseUnique();
@@ -56,9 +58,31 @@ export abstract class PBizStatementID<A extends BizAct, I extends BizID, T exten
             this.entityCase.push({ condition, entityName, uniqueName, uniqueVals });
         }
     }
+    */
 
     protected setField(fieldName: string, val: ValueExpression): boolean {
         return false;
+    }
+
+    protected scanBizID(space: Space): boolean {
+        let ok = true;
+        const bizPhraseType = this.IDType;
+        const fromAtom = space.getBizFromEntityArrFromName(this.idName);
+        if (fromAtom === undefined) {
+            ok = false;
+            this.log(`${this.idName} is not ${BizPhraseType[bizPhraseType]}`);
+        }
+        else {
+            const { bizEntityArr: [entity] } = fromAtom;
+            if (entity.bizPhraseType !== BizPhraseType.atom) {
+                ok = false;
+                this.log(`${this.idName} is not ${BizPhraseType[bizPhraseType]}`);
+            }
+            else {
+                this.element.bizID = entity as I;
+            }
+        }
+        return ok;
     }
 
     protected parseSets() {
@@ -107,6 +131,9 @@ export abstract class PBizStatementID<A extends BizAct, I extends BizID, T exten
         if (super.scan(space) === false) {
             ok = false;
         }
+        if (this.scanBizID(space) === false) {
+            ok = false;
+        }
         if (this.toVar !== undefined) {
             this.element.toVar = space.varPointer(this.toVar, false) as NamePointer;
             if (this.element.toVar === undefined) {
@@ -114,12 +141,22 @@ export abstract class PBizStatementID<A extends BizAct, I extends BizID, T exten
                 this.log(`${this.toVar} is not defined`);
             }
         }
-        const { entityCase, idVal, sets } = this.element;
+        const { uniqueVals, idVal, sets } = this.element;
         if (idVal !== undefined) {
             if (idVal.pelement.scan(space) === false) {
                 ok = false;
             }
         }
+
+        if (uniqueVals !== undefined) {
+            for (let val of uniqueVals) {
+                if (val.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        }
+
+        /*
         for (let { entityName, condition, uniqueName, uniqueVals } of this.entityCase) {
             let bizID = this.scanEntity(space, entityName);
             if (bizID === undefined) {
@@ -132,24 +169,31 @@ export abstract class PBizStatementID<A extends BizAct, I extends BizID, T exten
             if (this.scanUnique(space, bizID, uniqueName, uniqueVals) === false) ok = false;
             entityCase.push({ bizID, condition, uniqueName, uniqueVals });
         }
+        */
 
+        const { bizID } = this.element;
         function getBud(budName: string): BizBud {
-            for (let { bizID } of entityCase) {
-                let bud = bizID.getBud(budName);
-                if (bud !== undefined) return bud;
-            }
+            let bud = bizID.getBud(budName);
+            if (bud !== undefined) return bud;
         }
+
         for (let i in this.sets) {
             let val = this.sets[i];
             if (val.pelement.scan(space) === false) {
                 ok = false;
             }
-            let bud = getBud(i);
-            if (bud === undefined) {
+            if (bizID === undefined) {
                 ok = false;
-                this.log(`ATOM has no PROP ${i}`);
+                this.log(`no ID defined`);
             }
-            sets.set(bud, val);
+            else {
+                let bud = getBud(i);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`ATOM has no PROP ${i}`);
+                }
+                sets.set(bud, val);
+            }
         }
 
         if (this.keyDefined() === false) {

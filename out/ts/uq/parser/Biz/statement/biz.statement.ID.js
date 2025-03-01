@@ -4,19 +4,30 @@ exports.PBizStatementID = void 0;
 const il_1 = require("../../../il");
 const tokens_1 = require("../../tokens");
 const biz_statement_sub_1 = require("./biz.statement.sub");
+const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
 class PBizStatementID extends biz_statement_sub_1.PBizStatementSub {
     constructor() {
         super(...arguments);
-        this.entityCase = [];
         this.sets = {};
         this.hasUnique = true; // every entity has its unique
     }
-    parseIDEntity() {
-        if (this.ts.token === tokens_1.Token.LPARENTHESE) {
+    /*
+    protected override _parse(): void {
+        this.parseIDEntity();
+        this.ts.passKey('in');
+        this.ts.passToken(Token.EQU);
+        this.parseUnique();
+        this.parseTo();
+    }
+    */
+    // protected abstract parseUnique(): [string, ValueExpression[]];
+    /*
+    protected parseIDEntity() {
+        if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
-            for (;;) {
+            for (; ;) {
                 this.ts.passKey('when');
-                let condition = new il_1.CompareExpression();
+                let condition = new CompareExpression();
                 this.context.parseElement(condition);
                 this.ts.passKey('then');
                 this.parseEntityAndUnique(condition);
@@ -26,13 +37,15 @@ class PBizStatementID extends biz_statement_sub_1.PBizStatementSub {
                     break;
                 }
             }
-            this.ts.passToken(tokens_1.Token.RPARENTHESE);
+            this.ts.passToken(Token.RPARENTHESE);
         }
         else {
             this.parseEntityAndUnique(undefined);
         }
     }
-    parseEntityAndUnique(condition) {
+    */
+    /*
+    protected parseEntityAndUnique(condition: CompareExpression) {
         let entityName = this.ts.passVar();
         let retUnique = this.parseUnique();
         if (retUnique === undefined) {
@@ -43,8 +56,29 @@ class PBizStatementID extends biz_statement_sub_1.PBizStatementSub {
             this.entityCase.push({ condition, entityName, uniqueName, uniqueVals });
         }
     }
+    */
     setField(fieldName, val) {
         return false;
+    }
+    scanBizID(space) {
+        let ok = true;
+        const bizPhraseType = this.IDType;
+        const fromAtom = space.getBizFromEntityArrFromName(this.idName);
+        if (fromAtom === undefined) {
+            ok = false;
+            this.log(`${this.idName} is not ${BizPhraseType_1.BizPhraseType[bizPhraseType]}`);
+        }
+        else {
+            const { bizEntityArr: [entity] } = fromAtom;
+            if (entity.bizPhraseType !== BizPhraseType_1.BizPhraseType.atom) {
+                ok = false;
+                this.log(`${this.idName} is not ${BizPhraseType_1.BizPhraseType[bizPhraseType]}`);
+            }
+            else {
+                this.element.bizID = entity;
+            }
+        }
+        return ok;
     }
     parseSets() {
         if (this.ts.token !== tokens_1.Token.VAR)
@@ -92,6 +126,9 @@ class PBizStatementID extends biz_statement_sub_1.PBizStatementSub {
         if (super.scan(space) === false) {
             ok = false;
         }
+        if (this.scanBizID(space) === false) {
+            ok = false;
+        }
         if (this.toVar !== undefined) {
             this.element.toVar = space.varPointer(this.toVar, false);
             if (this.element.toVar === undefined) {
@@ -99,45 +136,56 @@ class PBizStatementID extends biz_statement_sub_1.PBizStatementSub {
                 this.log(`${this.toVar} is not defined`);
             }
         }
-        const { entityCase, idVal, sets } = this.element;
+        const { uniqueVals, idVal, sets } = this.element;
         if (idVal !== undefined) {
             if (idVal.pelement.scan(space) === false) {
                 ok = false;
             }
         }
+        if (uniqueVals !== undefined) {
+            for (let val of uniqueVals) {
+                if (val.pelement.scan(space) === false) {
+                    ok = false;
+                }
+            }
+        }
+        /*
         for (let { entityName, condition, uniqueName, uniqueVals } of this.entityCase) {
             let bizID = this.scanEntity(space, entityName);
             if (bizID === undefined) {
                 ok = false;
             }
             if (condition !== undefined) {
-                if (condition.pelement.scan(space) === false)
-                    ok = false;
+                if (condition.pelement.scan(space) === false) ok = false;
             }
-            if (uniqueName === uniqueName)
-                this.hasUnique = false;
-            if (this.scanUnique(space, bizID, uniqueName, uniqueVals) === false)
-                ok = false;
+            if (uniqueName === uniqueName) this.hasUnique = false;
+            if (this.scanUnique(space, bizID, uniqueName, uniqueVals) === false) ok = false;
             entityCase.push({ bizID, condition, uniqueName, uniqueVals });
         }
+        */
+        const { bizID } = this.element;
         function getBud(budName) {
-            for (let { bizID } of entityCase) {
-                let bud = bizID.getBud(budName);
-                if (bud !== undefined)
-                    return bud;
-            }
+            let bud = bizID.getBud(budName);
+            if (bud !== undefined)
+                return bud;
         }
         for (let i in this.sets) {
             let val = this.sets[i];
             if (val.pelement.scan(space) === false) {
                 ok = false;
             }
-            let bud = getBud(i);
-            if (bud === undefined) {
+            if (bizID === undefined) {
                 ok = false;
-                this.log(`ATOM has no PROP ${i}`);
+                this.log(`no ID defined`);
             }
-            sets.set(bud, val);
+            else {
+                let bud = getBud(i);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`ATOM has no PROP ${i}`);
+                }
+                sets.set(bud, val);
+            }
         }
         if (this.keyDefined() === false) {
             ok = false;

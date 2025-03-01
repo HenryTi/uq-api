@@ -76,7 +76,6 @@ exports.BizStatementSheet = BizStatementSheet;
 class BizStatementID extends BizStatementSub {
     constructor() {
         super(...arguments);
-        this.entityCase = [];
         this.sets = new Map();
     }
 }

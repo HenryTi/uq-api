@@ -26,7 +26,7 @@ class BBizStatementFork extends biz_statement_ID_1.BBizStatementID {
     }
     buildFromFork(sqls, fork) {
         const { factory } = this.context;
-        const { inVals } = this.istatement;
+        const { uniqueVals: inVals } = this.istatement;
         let select = factory.createSelect();
         sqls.push(select);
         select.toVar = true;

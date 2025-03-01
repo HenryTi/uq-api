@@ -13,40 +13,18 @@ class BBizStatementID extends bstatement_1.BStatement {
         }
     }
     buildSetBase(sqls) {
-        const { no, entityCase } = this.istatement;
+        const { no, bizID } = this.istatement;
         const { factory } = this.context;
         const declare = factory.createDeclare();
         sqls.push(declare);
         this.vBase = 'base_' + no;
         declare.var(this.vBase, new il_1.BigInt());
         this.varBase = new sql_1.ExpVar(this.vBase);
-        const { bizID: bizID0, condition: condition0, uniqueName, uniqueVals, } = entityCase[0];
-        let setAtomPhrase0 = factory.createSet();
-        setAtomPhrase0.equ(this.vBase, new sql_1.ExpNum(bizID0.id));
-        let len = entityCase.length;
-        if (len === 1) {
-            sqls.push(setAtomPhrase0);
-            this.buildIdFromUnique(sqls);
-        }
-        else {
-            let ifCase = factory.createIf();
-            sqls.push(ifCase);
-            ifCase.cmp = this.context.expCmp(condition0);
-            ifCase.then(setAtomPhrase0);
-            for (let i = 1; i < len; i++) {
-                let { bizID, condition } = entityCase[i];
-                let statements = new sql_1.Statements();
-                let setAtomPhrase = factory.createSet();
-                statements.statements.push(setAtomPhrase);
-                setAtomPhrase.equ(this.vBase, new sql_1.ExpNum(bizID.id));
-                if (condition !== undefined) {
-                    ifCase.elseIf(this.context.expCmp(condition), statements);
-                }
-                else {
-                    ifCase.else(...statements.statements);
-                }
-            }
-        }
+        // const { bizID: bizID0, condition: condition0, uniqueName, uniqueVals, } = entityCase[0];
+        let setAtomPhrase = factory.createSet();
+        setAtomPhrase.equ(this.vBase, new sql_1.ExpNum(bizID.id));
+        sqls.push(setAtomPhrase);
+        this.buildIdFromUnique(sqls);
     }
     buildSetId(sqls) {
         const { no, idVal, } = this.istatement;

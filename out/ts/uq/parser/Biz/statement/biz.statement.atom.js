@@ -11,20 +11,13 @@ class PBizStatementAtom extends biz_statement_ID_1.PBizStatementID {
         this.IDType = BizPhraseType_1.BizPhraseType.atom;
     }
     _parse() {
-        this.parseIDEntity();
+        this.idName = this.ts.passVar();
+        // this.parseIDEntity();
         this.parseId();
-        this.parseNo();
+        this.parseUnique();
         this.parseSets();
     }
     parseUnique() {
-        if (this.ts.isKeyword('unique') === false)
-            return;
-        this.ts.readToken();
-        let un = this.ts.passVar();
-        let vals = this.parseValueArray();
-        return [un, vals];
-    }
-    parseNo() {
         if (this.ts.isKeyword('no') === true) {
             this.ts.readToken();
             if (this.ts.token === tokens_1.Token.EQU) {
@@ -40,6 +33,12 @@ class PBizStatementAtom extends biz_statement_ID_1.PBizStatementID {
                 this.element.noVal = new il_1.ValueExpression();
                 this.context.parseElement(this.element.noVal);
             }
+            return;
+        }
+        if (this.ts.isKeyword('unique') === true) {
+            this.ts.readToken();
+            this.element.uniqueName = this.ts.passVar();
+            this.element.uniqueVals = this.parseValueArray();
         }
     }
     setField(fieldName, val) {

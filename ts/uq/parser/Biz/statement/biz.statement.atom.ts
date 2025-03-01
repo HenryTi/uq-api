@@ -6,21 +6,14 @@ import { PBizStatementID } from './biz.statement.ID';
 
 export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> extends PBizStatementID<A, BizAtom, T> {
     protected override _parse(): void {
-        this.parseIDEntity();
+        this.idName = this.ts.passVar();
+        // this.parseIDEntity();
         this.parseId();
-        this.parseNo();
+        this.parseUnique();
         this.parseSets();
     }
 
-    protected parseUnique(): [string, ValueExpression[]] {
-        if (this.ts.isKeyword('unique') === false) return;
-        this.ts.readToken();
-        let un = this.ts.passVar();
-        let vals = this.parseValueArray();
-        return [un, vals];
-    }
-
-    private parseNo() {
+    protected parseUnique() {
         if (this.ts.isKeyword('no') === true) {
             this.ts.readToken();
             if (this.ts.token === Token.EQU) {
@@ -36,6 +29,12 @@ export class PBizStatementAtom<A extends BizAct, T extends BizStatementAtom<A>> 
                 this.element.noVal = new ValueExpression();
                 this.context.parseElement(this.element.noVal);
             }
+            return;
+        }
+        if (this.ts.isKeyword('unique') === true) {
+            this.ts.readToken();
+            this.element.uniqueName = this.ts.passVar();
+            this.element.uniqueVals = this.parseValueArray();
         }
     }
 
