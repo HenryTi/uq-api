@@ -2,6 +2,7 @@ export { PBiz } from './Biz';
 export * from './BizID';
 export * from "./Flow";
 export * from './Sheet';
+export * from './SheetState';
 export * from './Bin';
 export * from './Pend';
 export * from './Book';

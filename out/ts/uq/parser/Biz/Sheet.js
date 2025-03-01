@@ -91,6 +91,15 @@ class PBizSheet extends Base_1.PBizEntity {
             this.ts.mayPassToken(tokens_1.Token.SEMICOLON);
             this.prints.push({ name, caption, main, details });
         };
+        this.parseState = () => {
+            let state = new il_1.SheetState(this.element);
+            this.context.parseElement(state);
+            let { states } = this.element;
+            if (states === undefined) {
+                this.element.states = states = {};
+            }
+            states[state.name] = state;
+        };
         this.keyColl = {
             io: this.parseIO,
             prop: this.parseProp,
@@ -98,6 +107,7 @@ class PBizSheet extends Base_1.PBizEntity {
             main: this.parseMain,
             x: this.parseDetail,
             detail: this.parseDetail,
+            state: this.parseState,
             permit: this.parsePermit,
             search: this.parseSheetSearch,
             user: this.parseBizUser,

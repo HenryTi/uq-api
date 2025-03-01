@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizSheet = exports.EnumDetailOperate = void 0;
+exports.SheetState = exports.BizSheet = exports.EnumDetailOperate = void 0;
 const builder_1 = require("../../builder");
 const parser_1 = require("../../parser");
 const BizPhraseType_1 = require("./BizPhraseType");
@@ -57,4 +57,15 @@ class BizSheet extends Entity_1.BizNotID {
 }
 exports.BizSheet = BizSheet;
 BizSheet.ownFields = ['id', 'no', 'operator'];
+class SheetState extends Entity_1.BizNotID {
+    constructor(sheet) {
+        super(sheet.biz);
+        this.bizPhraseType = BizPhraseType_1.BizPhraseType.sheetState;
+        this.sheet = sheet;
+    }
+    parser(context) {
+        return new parser_1.PSheetState(this, context);
+    }
+}
+exports.SheetState = SheetState;
 //# sourceMappingURL=Sheet.js.map

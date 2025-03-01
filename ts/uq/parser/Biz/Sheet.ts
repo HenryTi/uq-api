@@ -1,5 +1,5 @@
 import {
-    BizBin, BizSheet, EnumDetailOperate, Uq, UseOut
+    BizBin, BizSheet, EnumDetailOperate, SheetState, UI, Uq, UseOut
 } from "../../il";
 import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -105,6 +105,16 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         this.prints.push({ name, caption, main, details });
     }
 
+    parseState = () => {
+        let state = new SheetState(this.element);
+        this.context.parseElement(state);
+        let { states } = this.element;
+        if (states === undefined) {
+            this.element.states = states = {};
+        }
+        states[state.name] = state;
+    }
+
     readonly keyColl = {
         io: this.parseIO,
         prop: this.parseProp,
@@ -112,6 +122,7 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         main: this.parseMain,
         x: this.parseDetail,
         detail: this.parseDetail,
+        state: this.parseState,
         permit: this.parsePermit,
         search: this.parseSheetSearch,
         user: this.parseBizUser,

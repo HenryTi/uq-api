@@ -1,10 +1,12 @@
 import { BBizSheet, DbContext } from "../../builder";
-import { PBizSheet, PContext, PElement } from "../../parser";
+import { PBizSheet, PContext, PElement, PSheetState } from "../../parser";
 import { IElement } from "../IElement";
+import { UI } from "../UI";
 import { BizSearch } from "./Base";
 import { BizBin } from "./Bin";
-import { BizPhraseType } from "./BizPhraseType";
-import { BizNotID } from "./Entity";
+import { BizPhraseType, BudDataType } from "./BizPhraseType";
+import { BizBud } from "./Bud";
+import { BizEntity, BizNotID } from "./Entity";
 import { UseOut } from "./InOut";
 import { BizPrint } from "./Print";
 
@@ -37,6 +39,7 @@ export class BizSheet extends BizNotID {
     readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;
     readonly details: Detail[] = [];
+    states: { [name: string]: SheetState };
     io: boolean;
     bizSearch: BizSearch;
     print: Print;
@@ -83,5 +86,19 @@ export class BizSheet extends BizNotID {
 
     checkUserProp(prop: string) {
 
+    }
+}
+
+export class SheetState extends BizNotID {
+    readonly bizPhraseType = BizPhraseType.sheetState;
+    readonly sheet: BizSheet;
+
+    constructor(sheet: BizSheet) {
+        super(sheet.biz);
+        this.sheet = sheet;
+    }
+
+    parser(context: PContext): PElement {
+        return new PSheetState(this, context);
     }
 }
