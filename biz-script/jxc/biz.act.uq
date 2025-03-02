@@ -602,7 +602,7 @@ RETURNS checkBin (
     ExecSql sql USING $site, me, id;
 
     WITH IxState I=me X=id DEL;
-    WITH IxState I=id X=phraseId;
+    -- WITH IxState I=id X=phraseId; 移到sheet生成proc
 
     /-mysql
     IF JSON_LENGTH(@checkPend, '$')+JSON_LENGTH(@checkBin, '$')=0 THEN
@@ -869,13 +869,6 @@ RETURNS forks (
         FROM $page as a JOIN IDU as b ON b.id=a.i;
     INTO IGNORE idtable SELECT b.id, b.base as phrase, b.seed, 0 as show
         FROM $page as a JOIN IDU as b ON b.id=a.x;
-    /*
-    INTO IGNORE idtable SELECT c.value as id, d.base as phrase
-        FROM $page as a
-            JOIN BizBudShow as b ON b.i=entityMain
-            JOIN IxInt as c ON c.i=a.id AND c.x=b.x
-            JOIN Idu as d ON d.id=c.value;
-    */
     PROC ProcPropsOfIds();
 };
 

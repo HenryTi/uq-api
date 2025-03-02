@@ -1,7 +1,8 @@
 import {
     BBizStatementBinPend, BBizStatementBook as BBizStatementBook, BBizStatementInPend, BStatement, DbContext
     , BBizStatementSheet, BBizStatementAtom, BBizStatementFork as BBizStatementFork, BBizStatementOut, BBizStatementTie,
-    BBizStatementError
+    BBizStatementError,
+    BBizStatementState
 } from '../../../builder';
 import * as parser from '../../../parser';
 import { IElement } from '../../IElement';
@@ -18,7 +19,7 @@ import { SetEqu } from '../../tool';
 import { NamePointer } from '../../pointer';
 import { BizPend } from '../Pend';
 import { Statement, UseSheet } from '../../statement';
-import { BinStateAct } from '../Sheet';
+import { BinState, BinStateAct, BizSheet, SheetState } from '../Sheet';
 
 export abstract class BizStatement<T extends BizAct> extends Statement {
     get type(): string { return 'bizstatement'; }
@@ -57,6 +58,17 @@ export abstract class BizStatementSub<T extends BizAct> extends Statement {
     abstract db(db: DbContext): BStatement;
 }
 
+export class BizStatementState extends BizStatementSub<BinStateAct> {
+    sheet: BizSheet;
+    to: SheetState;
+    parser(context: parser.PContext): parser.PElement {
+        return new parser.PBizStatementState(this, context);
+    }
+    db(db: DbContext): BStatement {
+        return new BBizStatementState(db, this);
+    }
+}
+
 export abstract class BizStatementPend<T extends BizAct> extends BizStatementSub<T> {
     get type(): string { return 'bizpend'; }
     readonly sets: [BizBud, ValueExpression][] = [];
@@ -72,7 +84,7 @@ export class BizStatementBinPend extends BizStatementPend<BizBinAct> {
     parser(context: parser.PContext): parser.PElement<IElement> {
         return new parser.PBizStatementBinPend(this, context);
     }
-    db(db: DbContext): BStatement { return new BBizStatementBinPend(db, this); /* return db.bizBinActSubPend(this);*/ }
+    db(db: DbContext): BStatement { return new BBizStatementBinPend(db, this); }
 }
 
 export class BizStatementInPend extends BizStatementPend<BizInAct> {

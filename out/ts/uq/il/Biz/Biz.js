@@ -37,8 +37,9 @@ class Biz extends entity_1.Entity {
         }
         this.phrases = phrases;
     }
+    /*
     buildArrPhrases() {
-        let phrases = [];
+        let phrases: [string, string, string, string][] = [];
         for (let item of this.bizArr) {
             let { type } = item;
             phrases.push([type, '', '', item.typeNum]);
@@ -46,6 +47,7 @@ class Biz extends entity_1.Entity {
         }
         return phrases;
     }
+    */
     getBizBase(bizName) {
         if (bizName.length === 1) {
             return this.bizEntities.get(bizName[0]);

@@ -40,6 +40,10 @@ class BizSheet extends Entity_1.BizNotID {
                 }
             }
         }
+        let states;
+        if (this.states !== undefined) {
+            states = this.states.map(v => v.buildSchema(res));
+        }
         ret = Object.assign(Object.assign({}, ret), { io: this.io, main: this.main.id, details: this.details.map(v => {
                 const { bin, caption, operate } = v;
                 return {
@@ -47,13 +51,29 @@ class BizSheet extends Entity_1.BizNotID {
                     caption, // 此处暂时不做res翻译
                     operate,
                 };
-            }), search });
+            }), search,
+            states });
         return ret;
     }
     db(dbContext) {
         return new builder_1.BBizSheet(dbContext, this);
     }
     checkUserProp(prop) {
+    }
+    buildPhrases(phrases, prefix) {
+        super.buildPhrases(phrases, prefix);
+        if (this.states !== undefined) {
+            for (let state of this.states) {
+                state.buildPhrases(phrases, this.name);
+            }
+        }
+    }
+    forEachState(callback) {
+        if (this.states === undefined)
+            return;
+        for (let state of this.states) {
+            callback(state);
+        }
     }
 }
 exports.BizSheet = BizSheet;
@@ -67,6 +87,18 @@ class SheetState extends Entity_1.BizNotID {
     }
     parser(context) {
         return new parser_1.PSheetState(this, context);
+    }
+    buildPhrase(prefix) {
+        this.phrase = `${prefix}.${this.name}`;
+    }
+    buildPhrases(phrases, prefix) {
+        var _a;
+        this.buildPhrase(prefix);
+        let phrase = this.phrase;
+        this.forEachBud(bud => {
+            bud.buildPhrases(phrases, phrase);
+        });
+        phrases.push([this.phrase, (_a = this.ui.caption) !== null && _a !== void 0 ? _a : '', this.extendsPhrase, this.typeNum]);
     }
 }
 exports.SheetState = SheetState;

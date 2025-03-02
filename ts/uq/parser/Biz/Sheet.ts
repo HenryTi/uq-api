@@ -110,9 +110,9 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         this.context.parseElement(state);
         let { states } = this.element;
         if (states === undefined) {
-            this.element.states = states = {};
+            this.element.states = states = [];
         }
-        states[state.name] = state;
+        states.push(state);
     }
 
     readonly keyColl = {
@@ -153,10 +153,12 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         }
         const { states } = this.element;
         if (states !== undefined) {
-            for (let i in states) {
-                let state = states[i];
+            for (let state of states) {
                 if (state.pelement.scan0(space) === false) ok = false;
             }
+            let stateDiscard = new SheetState(this.element);
+            states.push(stateDiscard);
+            stateDiscard.name = '$discard';
         }
         return ok;
     }
@@ -172,9 +174,10 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         }
         const { states } = this.element;
         if (states !== undefined) {
-            for (let i in states) {
-                let state = states[i];
-                if (state.pelement.scan(space) === false) ok = false;
+            for (let state of states) {
+                const { pelement } = state;
+                if (pelement === undefined) continue;
+                if (pelement.scan(space) === false) ok = false;
             }
         }
         return ok;
@@ -220,9 +223,10 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         }
         const { states } = this.element;
         if (states !== undefined) {
-            for (let i in states) {
-                let state = states[i];
-                if (state.pelement.scan2(uq) === false) ok = false;
+            for (let state of states) {
+                const { pelement } = state;
+                if (pelement === undefined) continue;
+                if (pelement.scan2(uq) === false) ok = false;
             }
         }
         return ok;

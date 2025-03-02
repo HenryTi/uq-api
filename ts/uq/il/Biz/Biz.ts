@@ -54,7 +54,7 @@ export class Biz extends Entity {
         }
         this.phrases = phrases;
     }
-
+    /*
     buildArrPhrases() {
         let phrases: [string, string, string, string][] = [];
         for (let item of this.bizArr) {
@@ -64,7 +64,7 @@ export class Biz extends Entity {
         }
         return phrases;
     }
-
+    */
     getBizBase(bizName: string[]): BizBase {
         if (bizName.length === 1) {
             return this.bizEntities.get(bizName[0]);

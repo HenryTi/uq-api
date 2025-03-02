@@ -1,8 +1,10 @@
-import { BinState, BinStateAct, BinStateActStatements, BizBinBaseAct, BizField, BizFieldSpace, BizStatementBinState, Pointer, SheetState, Statement, Statements, UI, Uq } from "../../il";
+import { BinState, BinStateAct, BinStateActStatements, BizBinBaseAct, BizField, BizStatementBinState, Pointer, SheetState, Statement, Statements, UI, Uq } from "../../il";
 import { Space } from "../space";
 import { Token } from "../tokens";
 import { PBizAct, PBizActStatements, PBizEntity } from "./Base";
 import { PBizBinBase } from "./Bin";
+import { BizEntitySpace } from "./Biz";
+import { BizFieldSpace } from "../../il/BizField";
 
 export class PSheetState extends PBizEntity<SheetState> {
     private parseMain = () => {
@@ -47,6 +49,10 @@ export class PSheetState extends PBizEntity<SheetState> {
             if (main.pelement.scan(space) === false) ok = false;
         }
         for (let detail of details) {
+            if (detail.act !== undefined) {
+                ok = false;
+                this.log(`DETAIL in Sheet State can not define ACT`);
+            }
             if (detail.pelement.scan(space) === false) ok = false;
         }
         return ok;
@@ -66,18 +72,6 @@ export class PSheetState extends PBizEntity<SheetState> {
 }
 
 export class PBinState extends PBizBinBase<BinState> {
-    /*
-    private parseAct = () => {
-        const { act } = this.element;
-        if (act !== undefined) {
-            this.ts.error('ACT can only be defined once');
-        }
-        let binStateAct = new BinStateAct(this.element);
-        this.element.act = binStateAct;
-        this.context.parseElement(binStateAct);
-        this.ts.mayPassToken(Token.SEMICOLON);
-    }
-    */
     protected override createBizBinBaseAct(): BizBinBaseAct<BinState> {
         return new BinStateAct(this.element);
     }
@@ -94,21 +88,27 @@ export class PBinState extends PBizBinBase<BinState> {
     override scan0(space: Space): boolean {
         let ok = super.scan0(space);
         const { act } = this.element;
-        if (act.pelement.scan0(space) === false) ok = false;
+        if (act !== undefined) {
+            if (act.pelement.scan0(space) === false) ok = false;
+        }
         return ok;
     }
 
     override scan(space: Space): boolean {
         let ok = super.scan(space);
         const { act } = this.element;
-        if (act.pelement.scan(space) === false) ok = false;
+        if (act !== undefined) {
+            if (act.pelement.scan(space) === false) ok = false;
+        }
         return ok;
     }
 
     override scan2(uq: Uq): boolean {
         let ok = super.scan2(uq);
         const { act } = this.element;
-        if (act.pelement.scan2(uq) === false) ok = false;
+        if (act !== undefined) {
+            if (act.pelement.scan2(uq) === false) ok = false;
+        }
         return ok;
     }
 }
@@ -118,8 +118,7 @@ export class PBinStateAct extends PBizAct<BinStateAct> {
         return new BinStateActStatements(undefined, this.element);
     }
     protected createBizActSpace(space: Space): Space {
-        // return new BinStateActSpace(space, this.element.binState);
-        return undefined;
+        return new BinStateActSpace(space, this.element.binState);
     }
 }
 
@@ -128,8 +127,8 @@ export class PBinStateActStatements extends PBizActStatements<BinStateAct> {
         return new BizStatementBinState(parent, this.bizAct)
     }
 }
-/*
-class BinStateActSpace extends BizEntitySpace<BinState> { // BizBinSpace {
+
+class BinStateActSpace extends BizEntitySpace<BinState> {
     private varNo: number = 1;
     private readonly bizFieldSpace: BizFieldSpace;
 
@@ -174,4 +173,3 @@ export class BinStateActFieldSpace extends BizFieldSpace {
         return undefined;
     }
 }
-*/

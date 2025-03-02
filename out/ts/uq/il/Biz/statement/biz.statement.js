@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BizStatementError = exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementFork = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBinState = exports.BizStatementBin = exports.BizStatement = void 0;
+exports.BizStatementError = exports.BizStatementOut = exports.BizStatementTie = exports.BizStatementFork = exports.BizStatementAtom = exports.BizStatementID = exports.BizStatementSheet = exports.BizStatementBook = exports.BizStatementInPend = exports.BizStatementBinPend = exports.BizStatementPend = exports.BizStatementState = exports.BizStatementSub = exports.BizStatementIn = exports.BizStatementBinState = exports.BizStatementBin = exports.BizStatement = void 0;
 const builder_1 = require("../../../builder");
 const parser = require("../../../parser");
 const statement_1 = require("../../statement");
@@ -36,6 +36,15 @@ class BizStatementSub extends statement_1.Statement {
     }
 }
 exports.BizStatementSub = BizStatementSub;
+class BizStatementState extends BizStatementSub {
+    parser(context) {
+        return new parser.PBizStatementState(this, context);
+    }
+    db(db) {
+        return new builder_1.BBizStatementState(db, this);
+    }
+}
+exports.BizStatementState = BizStatementState;
 class BizStatementPend extends BizStatementSub {
     constructor() {
         super(...arguments);
@@ -48,7 +57,7 @@ class BizStatementBinPend extends BizStatementPend {
     parser(context) {
         return new parser.PBizStatementBinPend(this, context);
     }
-    db(db) { return new builder_1.BBizStatementBinPend(db, this); /* return db.bizBinActSubPend(this);*/ }
+    db(db) { return new builder_1.BBizStatementBinPend(db, this); }
 }
 exports.BizStatementBinPend = BizStatementBinPend;
 class BizStatementInPend extends BizStatementPend {

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BBizSheet = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
+const bstatement_1 = require("../bstatement");
 const consts_1 = require("../consts");
 const sql_1 = require("../sql");
 const select_1 = require("../sql/select");
@@ -48,12 +49,25 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             this.buildSubmitProc(procSubmit);
             const procGet = this.createSiteEntityProcedure('gs'); // gs = get sheet
             this.buildGetProc(procGet);
+            const { states } = this.bizEntity;
+            if (states !== undefined) {
+                for (let state of states) {
+                    const { main } = state;
+                    if (main === undefined)
+                        continue;
+                    const { act } = main;
+                    if (act === undefined)
+                        continue;
+                    const procState = this.createProcedure(`${state.id}state`);
+                    this.buildStateProc(procState, act);
+                }
+            }
         });
     }
     buildSubmitProc(proc) {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
-        const { main, details, outs } = this.bizEntity;
+        const { main, details, outs, states } = this.bizEntity;
         const site = '$site';
         const cId = '$id';
         parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.idField)(cId, 'big'));
@@ -86,6 +100,70 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             let out = outs[i];
             this.buildOut(statements, out);
         }
+        this.buildStates(statements);
+    }
+    buildStates(statements) {
+        const { states, id: phrase } = this.bizEntity;
+        const { factory, site } = this.context;
+        const varSheet = new sql_1.ExpVar(sheetId);
+        if (states === undefined) {
+            // WITH IxState I=id X=phraseId; 移到sheet生成proc
+            const insertEnd = factory.createInsert();
+            insertEnd.table = new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixState, false);
+            insertEnd.cols = [
+                { col: 'i', val: varSheet },
+                { col: 'x', val: new sql_1.ExpNum(phrase) }
+            ];
+            return;
+        }
+        const declare = factory.createDeclare();
+        const $state = '$state';
+        const $stateProc = '$stateProc';
+        statements.push(declare);
+        declare.var($state, new il_1.BigInt());
+        declare.var($stateProc, new il_1.BigInt());
+        const varState = new sql_1.ExpVar($state);
+        const varProc = new sql_1.ExpVar($stateProc);
+        const select$State = factory.createSelect();
+        statements.push(select$State);
+        select$State.toVar = true;
+        select$State.col('x', $state);
+        select$State.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.ixState, false));
+        select$State.where(new sql_1.ExpEQ(new sql_1.ExpField('i'), varSheet));
+        const ifState = factory.createIf();
+        statements.push(ifState);
+        ifState.cmp = new sql_1.ExpIsNull(varState);
+        let stateStart;
+        for (let state of states) {
+            const { id, name } = state;
+            if (name === '$') {
+                stateStart = state;
+                continue;
+            }
+            if (name === '$discard')
+                continue;
+            let ifStatements = new sql_1.Statements();
+            const expId = new sql_1.ExpNum(id);
+            ifState.elseIf(new sql_1.ExpEQ(varState, expId), ifStatements);
+            let setStateProc = factory.createSet();
+            ifStatements.statements.push(setStateProc);
+            setStateProc.equ($stateProc, expId);
+        }
+        let setStateProc = factory.createSet();
+        ifState.then(setStateProc);
+        setStateProc.equ($stateProc, new sql_1.ExpNum(stateStart.id));
+        const ifProc = factory.createIf();
+        statements.push(ifProc);
+        ifProc.cmp = new sql_1.ExpIsNotNull(varProc);
+        const execSql = factory.createExecSql();
+        execSql.no = 999;
+        ifProc.then(execSql);
+        execSql.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr(`CALL \`${consts_1.$site}.${site}\`.\``), varProc, new sql_1.ExpStr('state`(?,?,?)'));
+        execSql.parameters = [
+            new sql_1.ExpVar(consts_1.$user), // $user
+            varSheet,
+            varState,
+        ];
     }
     saveMainVPA(statements) {
         const { value, price, amount } = this.bizEntity.main;
@@ -537,6 +615,25 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             paramType: il_1.ProcParamType.in,
             value: new sql_1.ExpAtVar(vName),
         });
+    }
+    buildStateProc(proc, act) {
+        const { parameters, statements } = proc;
+        const { factory, userParam, site } = this.context;
+        const $state = '$state';
+        const $sheet = '$sheet';
+        parameters.push(userParam, (0, il_1.bigIntField)($sheet), (0, il_1.bigIntField)($state));
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        const bigint = new il_1.BigInt();
+        declare.var(consts_1.$site, bigint);
+        const setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ(consts_1.$site, new sql_1.ExpNum(site));
+        let sqls = new bstatement_1.Sqls(this.context, statements);
+        let { statements: actStatements } = act.statement;
+        sqls.head(actStatements);
+        sqls.body(actStatements);
+        sqls.foot(actStatements);
     }
 }
 exports.BBizSheet = BBizSheet;

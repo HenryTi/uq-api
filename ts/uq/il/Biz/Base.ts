@@ -57,7 +57,6 @@ export abstract class BizBase extends IElement {
             name: this.name,
             jName: this.jName,
             type: this.type,
-            // phrase: this.phrase,
             ui,
         };
     };

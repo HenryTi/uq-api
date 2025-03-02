@@ -1,13 +1,14 @@
 import { Space } from '../../space';
 import {
-    BizStatementPend, BizStatementSub
-    , BizStatementBook, ValueExpression
-    , SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn
-    , BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet, BizStatementAtom
-    , BizStatementFork, BizStatementOut, BizBudArr, BizOut, BizStatementTie, BizTie
-    , BizFromEntity, BizStatementError,
+    BizStatementPend, BizStatementSub,
+    BizStatementBook, ValueExpression,
+    SetEqu, BizBudValue, BizBin, BizStatement, BizStatementBin, BizStatementIn,
+    BizAct, BizBinAct, BizInAct, BizStatementBinPend, BizStatementSheet, BizStatementAtom,
+    BizStatementFork, BizStatementOut, BizBudArr, BizOut, BizStatementTie, BizTie,
+    BizFromEntity, BizStatementError,
     BinStateAct,
-    BizStatementBinState
+    BizStatementBinState,
+    BizStatementState
 } from '../../../il';
 import { PStatement } from '../../PStatement';
 import { PContext } from '../../pContext';
@@ -83,6 +84,7 @@ export class PBizStatementBin extends PBizStatement<BizBinAct, BizStatementBin> 
 export class PBizStatementBinState extends PBizStatement<BinStateAct, BizStatementBinState> {
     protected getBizSubsEx() {
         return {
+            state: BizStatementState,
         };
     }
 }

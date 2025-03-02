@@ -73,6 +73,17 @@ class UqBuilder {
                     flag: 0,
                 });
             });
+            if (entity.bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
+                entity.forEachState(state => {
+                    let { phrase, ui: { caption }, memo, bizPhraseType } = state;
+                    budParams.push({
+                        id: state.id,
+                        name: phrase, caption,
+                        type: bizPhraseType, memo,
+                        dataType: 0, objId: 0, flag: 0, show: 0
+                    });
+                });
+            }
             let [[ret], budIds] = yield this.runner.unitUserTablesFromProc('SaveBizObject', this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source, JSON.stringify(budParams));
             const { id } = ret;
             let obj = { id, phrase };
@@ -110,6 +121,17 @@ class UqBuilder {
                         res[phrase] = caption;
                 }
             });
+            if (entity.bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
+                entity.forEachState(state => {
+                    state.id = budIds[i++].id;
+                    const { phrase, ui } = state;
+                    if (ui) {
+                        const { caption } = ui;
+                        if (caption)
+                            res[phrase] = caption;
+                    }
+                });
+            }
         });
     }
     saveBizSchema(entity) {

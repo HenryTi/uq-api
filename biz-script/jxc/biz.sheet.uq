@@ -1,3 +1,59 @@
+Biz QUERY GetStateSheetCount(
+    phrase ID,
+)
+RETURNS ret (
+    state ID,
+    count INT,
+) {
+    INTO ret SELECT gid as state, count(*) as count
+        FROM bizphrase as a
+            JOIN ixstate as b ON b.x=a.id
+        WHERE a.base=phrase
+        GROUP BY a.id as gid;
+}
+
+Biz QUERY GetStateSheets (
+    state ID,
+)
+PAGE (
+    * SHEET ASC,
+    * Bin,
+    rowCount INT,
+)
+RETURNS props (
+    id ID,
+    bud ID,
+    value JSON,
+    (id, bud) KEY,
+)
+RETURNS atoms (
+    id ID,
+    phrase ID,
+    no NO,
+    ex EX,
+    (id) KEY,
+)
+RETURNS forks (
+    id ID,
+    phrase ID,
+    seed ID,
+    (id) KEY,
+) {
+    PAGE SELECT * a, * b
+        , (SELECT count(*) FROM Bin as x WHERE x.sheet=a.id AND x.id<>x.sheet AND x.value IS NOT NULL) as rowCount
+        FROM IxState as s
+            JOIN Sheet as a ON a.id=s.i
+            JOIN Bin as b ON b.id=a.id
+            JOIN BizPhrase as c ON c.id=a.base
+            JOIN IxState as d ON d.i=a.id AND d.x=a.base
+        WHERE s.x=state AND a.id>$pageStart AND c.base=$site
+        ORDER BY a.id ASC
+        LIMIT $pageSize;
+    TABLE idtable (KEY id ID, phrase ID, seed ID, show TINYINT);
+    INTO idtable SELECT id, base as phrase, -1 as seed, 0 as show FROM $page;
+    PROC ProcPropsOfIds();
+};
+
 Biz QUERY SearchAllSheets(
     no NO,
     phrase ID,

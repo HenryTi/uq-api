@@ -39,7 +39,7 @@ export class BizSheet extends BizNotID {
     readonly outs: { [name: string]: UseOut; } = {};
     main: BizBin;
     readonly details: Detail[] = [];
-    states: { [name: string]: SheetState };
+    states: SheetState[];
     io: boolean;
     bizSearch: BizSearch;
     print: Print;
@@ -63,6 +63,10 @@ export class BizSheet extends BizNotID {
                 }
             }
         }
+        let states: any[];
+        if (this.states !== undefined) {
+            states = this.states.map(v => v.buildSchema(res));
+        }
         ret = {
             ...ret,
             io: this.io,
@@ -76,6 +80,7 @@ export class BizSheet extends BizNotID {
                 }
             }),
             search,
+            states,
         };
         return ret;
     }
@@ -86,6 +91,22 @@ export class BizSheet extends BizNotID {
 
     checkUserProp(prop: string) {
 
+    }
+
+    override buildPhrases(phrases: [string, string, string, string][], prefix: string) {
+        super.buildPhrases(phrases, prefix);
+        if (this.states !== undefined) {
+            for (let state of this.states) {
+                state.buildPhrases(phrases, this.name);
+            }
+        }
+    }
+
+    forEachState(callback: (state: SheetState) => void) {
+        if (this.states === undefined) return;
+        for (let state of this.states) {
+            callback(state);
+        }
     }
 }
 
@@ -102,6 +123,19 @@ export class SheetState extends BizNotID {
 
     parser(context: PContext): PElement {
         return new PSheetState(this, context);
+    }
+
+    protected buildPhrase(prefix: string) {
+        this.phrase = `${prefix}.${this.name}`;
+    }
+
+    buildPhrases(phrases: [string, string, string, string][], prefix: string): void {
+        this.buildPhrase(prefix);
+        let phrase = this.phrase;
+        this.forEachBud(bud => {
+            bud.buildPhrases(phrases, phrase)
+        });
+        phrases.push([this.phrase, this.ui.caption ?? '', this.extendsPhrase, this.typeNum]);
     }
 }
 

@@ -67,7 +67,9 @@ class PBizStatementBin extends PBizStatement {
 exports.PBizStatementBin = PBizStatementBin;
 class PBizStatementBinState extends PBizStatement {
     getBizSubsEx() {
-        return {};
+        return {
+            state: il_1.BizStatementState,
+        };
     }
 }
 exports.PBizStatementBinState = PBizStatementBinState;

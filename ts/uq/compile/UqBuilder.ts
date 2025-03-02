@@ -1,7 +1,6 @@
 import { EntityRunner, getDbs } from "../../core";
-import { MyDbs } from "../../core/db/my";
 import { CompileOptions, DbContext } from "../builder";
-import { Biz, BizBin, BizBud, BizEntity } from "../il";
+import { Biz, BizBin, BizBud, BizEntity, BizSheet } from "../il";
 import { BizPhraseType } from "../il/Biz/BizPhraseType";
 import { Compiler } from "./Compiler";
 import { UqParser } from "./UqParser";
@@ -71,7 +70,17 @@ export class UqBuilder {
                 flag: 0,
             });
         });
-
+        if (entity.bizPhraseType === BizPhraseType.sheet) {
+            (entity as BizSheet).forEachState(state => {
+                let { phrase, ui: { caption }, memo, bizPhraseType } = state;
+                budParams.push({
+                    id: state.id,
+                    name: phrase, caption,
+                    type: bizPhraseType, memo,
+                    dataType: 0, objId: 0, flag: 0, show: 0
+                });
+            });
+        }
         let [[ret], budIds] = await this.runner.unitUserTablesFromProc(
             'SaveBizObject'
             , this.site, this.user, this.newSoleEntityId
@@ -110,6 +119,16 @@ export class UqBuilder {
                 if (caption) res[phrase] = caption;
             }
         });
+        if (entity.bizPhraseType === BizPhraseType.sheet) {
+            (entity as BizSheet).forEachState(state => {
+                state.id = budIds[i++].id;
+                const { phrase, ui } = state;
+                if (ui) {
+                    const { caption } = ui;
+                    if (caption) res[phrase] = caption;
+                }
+            });
+        }
     }
 
     private async saveBizSchema(entity: BizEntity) {

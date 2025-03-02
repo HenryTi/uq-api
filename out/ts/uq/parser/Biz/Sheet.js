@@ -96,9 +96,9 @@ class PBizSheet extends Base_1.PBizEntity {
             this.context.parseElement(state);
             let { states } = this.element;
             if (states === undefined) {
-                this.element.states = states = {};
+                this.element.states = states = [];
             }
-            states[state.name] = state;
+            states.push(state);
         };
         this.keyColl = {
             io: this.parseIO,
@@ -138,11 +138,13 @@ class PBizSheet extends Base_1.PBizEntity {
         }
         const { states } = this.element;
         if (states !== undefined) {
-            for (let i in states) {
-                let state = states[i];
+            for (let state of states) {
                 if (state.pelement.scan0(space) === false)
                     ok = false;
             }
+            let stateDiscard = new il_1.SheetState(this.element);
+            states.push(stateDiscard);
+            stateDiscard.name = '$discard';
         }
         return ok;
     }
@@ -158,9 +160,11 @@ class PBizSheet extends Base_1.PBizEntity {
         }
         const { states } = this.element;
         if (states !== undefined) {
-            for (let i in states) {
-                let state = states[i];
-                if (state.pelement.scan(space) === false)
+            for (let state of states) {
+                const { pelement } = state;
+                if (pelement === undefined)
+                    continue;
+                if (pelement.scan(space) === false)
                     ok = false;
             }
         }
@@ -208,9 +212,11 @@ class PBizSheet extends Base_1.PBizEntity {
         }
         const { states } = this.element;
         if (states !== undefined) {
-            for (let i in states) {
-                let state = states[i];
-                if (state.pelement.scan2(uq) === false)
+            for (let state of states) {
+                const { pelement } = state;
+                if (pelement === undefined)
+                    continue;
+                if (pelement.scan2(uq) === false)
                     ok = false;
             }
         }

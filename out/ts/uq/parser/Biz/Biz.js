@@ -150,7 +150,6 @@ class PBiz extends entity_1.PEntity {
             if (p.isIDScan === false) scan(p);
         }
         */
-        this.entity.buildPhrases();
         return ok;
     }
     scan2(uq) {
@@ -164,6 +163,7 @@ class PBiz extends entity_1.PEntity {
             }
         }
         this.foreachScan(scan2);
+        this.entity.buildPhrases();
         /*
         for (let [, p] of this.entity.bizEntities) {
             if (p.isIDScan === true) scan2(p);

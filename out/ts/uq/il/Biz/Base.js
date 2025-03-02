@@ -41,7 +41,6 @@ class BizBase extends IElement_1.IElement {
             name: this.name,
             jName: this.jName,
             type: this.type,
-            // phrase: this.phrase,
             ui,
         };
     }

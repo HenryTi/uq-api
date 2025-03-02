@@ -4,13 +4,17 @@ import {
     BizBud,
     BizBudBin,
     EnumSysBud,
-    BizBudID
+    BizBudID,
+    BinStateAct,
+    SheetState
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
-import { $site } from "../consts";
+import { Sqls } from "../bstatement";
+import { $site, $user } from "../consts";
 import {
     ExpAnd, ExpAtVar, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpNE, ExpNum
     , ExpRoutineExists, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement,
+    Statements,
 } from "../sql";
 import { LockType, Select, SelectTable } from "../sql/select";
 import { userParamName } from "../sql/sqlBuilder";
@@ -44,12 +48,23 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         this.buildSubmitProc(procSubmit);
         const procGet = this.createSiteEntityProcedure('gs'); // gs = get sheet
         this.buildGetProc(procGet);
+        const { states } = this.bizEntity;
+        if (states !== undefined) {
+            for (let state of states) {
+                const { main } = state;
+                if (main === undefined) continue;
+                const { act } = main;
+                if (act === undefined) continue;
+                const procState = this.createProcedure(`${state.id}state`);
+                this.buildStateProc(procState, act as BinStateAct);
+            }
+        }
     }
 
     private buildSubmitProc(proc: Procedure) {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
-        const { main, details, outs } = this.bizEntity;
+        const { main, details, outs, states } = this.bizEntity;
 
         const site = '$site';
         const cId = '$id';
@@ -105,6 +120,79 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             let out = outs[i];
             this.buildOut(statements, out);
         }
+
+        this.buildStates(statements);
+    }
+
+    private buildStates(statements: Statement[]) {
+        const { states, id: phrase } = this.bizEntity;
+        const { factory, site } = this.context;
+        const varSheet = new ExpVar(sheetId);
+        if (states === undefined) {
+            // WITH IxState I=id X=phraseId; 移到sheet生成proc
+            const insertEnd = factory.createInsert();
+            insertEnd.table = new EntityTable(EnumSysTable.ixState, false);
+            insertEnd.cols = [
+                { col: 'i', val: varSheet },
+                { col: 'x', val: new ExpNum(phrase) }
+            ];
+            return;
+        }
+        const declare = factory.createDeclare();
+        const $state = '$state';
+        const $stateProc = '$stateProc';
+        statements.push(declare);
+        declare.var($state, new BigInt());
+        declare.var($stateProc, new BigInt());
+        const varState = new ExpVar($state);
+        const varProc = new ExpVar($stateProc);
+
+        const select$State = factory.createSelect();
+        statements.push(select$State);
+        select$State.toVar = true;
+        select$State.col('x', $state);
+        select$State.from(new EntityTable(EnumSysTable.ixState, false));
+        select$State.where(new ExpEQ(new ExpField('i'), varSheet));
+
+        const ifState = factory.createIf();
+        statements.push(ifState);
+        ifState.cmp = new ExpIsNull(varState);
+        let stateStart: SheetState;
+        for (let state of states) {
+            const { id, name } = state;
+            if (name === '$') {
+                stateStart = state;
+                continue;
+            }
+            if (name === '$discard') continue;
+            let ifStatements = new Statements();
+            const expId = new ExpNum(id);
+            ifState.elseIf(new ExpEQ(varState, expId), ifStatements);
+            let setStateProc = factory.createSet();
+            ifStatements.statements.push(setStateProc);
+            setStateProc.equ($stateProc, expId);
+        }
+        let setStateProc = factory.createSet();
+        ifState.then(setStateProc);
+        setStateProc.equ($stateProc, new ExpNum(stateStart.id));
+
+        const ifProc = factory.createIf();
+        statements.push(ifProc);
+        ifProc.cmp = new ExpIsNotNull(varProc);
+        const execSql = factory.createExecSql();
+        execSql.no = 999;
+        ifProc.then(execSql);
+        execSql.sql = new ExpFunc(
+            factory.func_concat,
+            new ExpStr(`CALL \`${$site}.${site}\`.\``),
+            varProc,
+            new ExpStr('state`(?,?,?)'),
+        );
+        execSql.parameters = [
+            new ExpVar($user),         // $user
+            varSheet,
+            varState,
+        ];
     }
 
     private saveMainVPA(statements: Statement[]) {
@@ -600,5 +688,31 @@ export class BBizSheet extends BBizEntity<BizSheet> {
                 value: new ExpAtVar(vName),
             }
         );
+    }
+
+    private buildStateProc(proc: Procedure, act: BinStateAct) {
+        const { parameters, statements } = proc;
+        const { factory, userParam, site } = this.context;
+        const $state = '$state';
+        const $sheet = '$sheet';
+        parameters.push(
+            userParam,
+            bigIntField($sheet),
+            bigIntField($state),
+        );
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        const bigint = new BigInt();
+        declare.var($site, bigint);
+
+        const setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ($site, new ExpNum(site));
+
+        let sqls = new Sqls(this.context, statements);
+        let { statements: actStatements } = act.statement;
+        sqls.head(actStatements);
+        sqls.body(actStatements);
+        sqls.foot(actStatements);
     }
 }
