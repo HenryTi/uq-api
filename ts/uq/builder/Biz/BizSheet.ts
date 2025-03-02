@@ -127,7 +127,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     private buildStates(statements: Statement[]) {
         const { states, id: phrase } = this.bizEntity;
         const { factory, site } = this.context;
-        const varSheet = new ExpVar(sheetId);
+        const varSheet = new ExpVar('$id');
         if (states === undefined) {
             // WITH IxState I=id X=phraseId; 移到sheet生成proc
             const insertEnd = factory.createInsert();

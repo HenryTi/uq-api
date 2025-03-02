@@ -45,7 +45,7 @@ RETURNS forks (
             JOIN Sheet as a ON a.id=s.i
             JOIN Bin as b ON b.id=a.id
             JOIN BizPhrase as c ON c.id=a.base
-            JOIN IxState as d ON d.i=a.id AND d.x=a.base
+            -- JOIN IxState as d ON d.i=a.id AND d.x=a.base
         WHERE s.x=state AND a.id>$pageStart AND c.base=$site
         ORDER BY a.id ASC
         LIMIT $pageSize;
