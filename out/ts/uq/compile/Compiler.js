@@ -128,6 +128,14 @@ class Compiler {
                 if (saveBud !== undefined)
                     group.id = saveBud.id;
             });
+            if (entity.bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
+                entity.forEachState(state => {
+                    let s = buds[state.phrase];
+                    if (s === undefined)
+                        return;
+                    state.id = s.id;
+                });
+            }
         }
         // 
         if (indexTobeRemoved !== undefined) {

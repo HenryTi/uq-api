@@ -588,7 +588,14 @@ RETURNS checkBin (
             JOIN IxState as b ON b.x=a.id
         WHERE b.i=me AND a.id=id;
     IF phraseId IS NULL {
-        RETURN;
+        SET phraseId = a.base
+            FROM Sheet as a 
+                JOIN IxState as b ON b.i=a.id
+                JOIN BizPhrase as c ON c.id=a.base
+            WHERE c.base=$site AND a.id=id;
+        IF phraseId IS NULL {
+            RETURN;
+        }
     }
     SET @logstamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));
     SET @loglaststamp=UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3));

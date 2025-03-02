@@ -2,7 +2,7 @@ import * as jsonpack from 'jsonpack';
 import { EntityRunner, getDbs } from "../../core";
 import { UqBuilder } from "./UqBuilder";
 import { UqParser } from './UqParser';
-import { Biz, BizEntity } from '../il';
+import { Biz, BizEntity, BizSheet } from '../il';
 import { compileBizThoroughly } from './compileSource';
 import { BizPhraseType } from '../il/Biz/BizPhraseType';
 import { logger } from '../../tool';
@@ -122,6 +122,13 @@ export class Compiler {
                 let saveBud = buds[group.phrase];
                 if (saveBud !== undefined) group.id = saveBud.id;
             });
+            if (entity.bizPhraseType === BizPhraseType.sheet) {
+                (entity as BizSheet).forEachState(state => {
+                    let s = buds[state.phrase];
+                    if (s === undefined) return;
+                    state.id = s.id;
+                });
+            }
         }
         // 
         if (indexTobeRemoved !== undefined) {
