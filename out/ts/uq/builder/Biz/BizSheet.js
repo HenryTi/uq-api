@@ -19,6 +19,7 @@ const select_1 = require("../sql/select");
 const sqlBuilder_1 = require("../sql/sqlBuilder");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const tools_1 = require("../tools");
+const BizBin_1 = require("./BizBin");
 // import { buildIdPhraseTable, buildInsertSelectIdPhrase, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../tools";
 const BizEntity_1 = require("./BizEntity");
 const sheetId = 'sheet';
@@ -59,7 +60,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
                     if (act === undefined)
                         continue;
                     const procState = this.createProcedure(`${state.id}state`);
-                    this.buildStateProc(procState, act);
+                    this.buildStateProc(procState, state, act);
                 }
             }
         });
@@ -616,19 +617,24 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             value: new sql_1.ExpAtVar(vName),
         });
     }
-    buildStateProc(proc, act) {
+    buildStateProc(proc, sheetState, act) {
         const { parameters, statements } = proc;
-        const { factory, userParam, site } = this.context;
+        const { userParam } = this.context;
         const $state = '$state';
-        const $sheet = '$sheet';
+        const $sheet = '$bin';
         parameters.push(userParam, (0, il_1.bigIntField)($sheet), (0, il_1.bigIntField)($state));
+        /*
         const declare = factory.createDeclare();
         statements.push(declare);
-        const bigint = new il_1.BigInt();
-        declare.var(consts_1.$site, bigint);
+        const bigint = new BigInt();
+        declare.var($site, bigint);
+
         const setSite = factory.createSet();
         statements.push(setSite);
-        setSite.equ(consts_1.$site, new sql_1.ExpNum(site));
+        setSite.equ($site, new ExpNum(site));
+        */
+        let bBizBinBase = new BizBin_1.BBizBinBase(this.context, sheetState.main.bin);
+        bBizBinBase.buildSubmitProcPrefix(proc);
         let sqls = new bstatement_1.Sqls(this.context, statements);
         let { statements: actStatements } = act.statement;
         sqls.head(actStatements);

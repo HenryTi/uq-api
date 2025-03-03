@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BBizBin = void 0;
+exports.BBizBin = exports.BBizBinBase = void 0;
 const consts_1 = require("../../consts");
 const il_1 = require("../../il");
 const bstatement_1 = require("../bstatement");
@@ -48,47 +48,11 @@ var BinIType;
     BinIType[BinIType["fork"] = 1] = "fork";
     BinIType[BinIType["forkAtom"] = 2] = "forkAtom";
 })(BinIType || (BinIType = {}));
-class BBizBin extends BizEntity_1.BBizEntity {
-    buildBudsValue() {
-        const _super = Object.create(null, {
-            buildBudsValue: { get: () => super.buildBudsValue }
-        });
-        return __awaiter(this, void 0, void 0, function* () {
-            _super.buildBudsValue.call(this);
-            const { inputArr, pickArr } = this.bizEntity;
-            if (inputArr !== undefined) {
-                for (let input of inputArr) {
-                    input.buildBudValue(this.expStringify);
-                }
-            }
-            if (pickArr !== undefined) {
-                for (let pick of pickArr) {
-                    pick.buildBudValue(this.expStringify);
-                }
-            }
-        });
-    }
-    buildProcedures() {
-        const _super = Object.create(null, {
-            buildProcedures: { get: () => super.buildProcedures }
-        });
-        return __awaiter(this, void 0, void 0, function* () {
-            _super.buildProcedures.call(this);
-            // const { id } = this.bizEntity;
-            const procSubmit = this.createSiteEntityProcedure();
-            this.buildSubmitProc(procSubmit);
-            // const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
-            // this.buildGetProc(procGet);
-        });
-    }
-    buildSubmitProc(proc) {
+class BBizBinBase extends BizEntity_1.BBizEntity {
+    buildSubmitProcPrefix(proc) {
         const { parameters, statements } = proc;
         const { factory, userParam, site } = this.context;
-        const { act, div, main } = this.bizEntity;
-        parameters.push(userParam, (0, il_1.bigIntField)(bin));
-        if (act === undefined) {
-            return;
-        }
+        const { div, main } = this.bizEntity;
         const declare = factory.createDeclare();
         statements.push(declare);
         const bigint = new il_1.BigInt();
@@ -183,6 +147,152 @@ class BBizBin extends BizEntity_1.BBizEntity {
             if (pDiv.parent === undefined)
                 break;
         }
+    }
+}
+exports.BBizBinBase = BBizBinBase;
+class BBizBin extends BizEntity_1.BBizEntity {
+    buildBudsValue() {
+        const _super = Object.create(null, {
+            buildBudsValue: { get: () => super.buildBudsValue }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildBudsValue.call(this);
+            const { inputArr, pickArr } = this.bizEntity;
+            if (inputArr !== undefined) {
+                for (let input of inputArr) {
+                    input.buildBudValue(this.expStringify);
+                }
+            }
+            if (pickArr !== undefined) {
+                for (let pick of pickArr) {
+                    pick.buildBudValue(this.expStringify);
+                }
+            }
+        });
+    }
+    buildProcedures() {
+        const _super = Object.create(null, {
+            buildProcedures: { get: () => super.buildProcedures }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.buildProcedures.call(this);
+            // const { id } = this.bizEntity;
+            const procSubmit = this.createSiteEntityProcedure();
+            this.buildSubmitProc(procSubmit);
+            // const procGet = this.createProcedure(`${this.context.site}.${id}gb`);
+            // this.buildGetProc(procGet);
+        });
+    }
+    buildSubmitProc(proc) {
+        const { parameters, statements } = proc;
+        const { factory, userParam, site } = this.context;
+        const { act, div, main } = this.bizEntity;
+        parameters.push(userParam, (0, il_1.bigIntField)(bin));
+        if (act === undefined) {
+            return;
+        }
+        let bBizBinBase = new BBizBinBase(this.context, this.bizEntity);
+        bBizBinBase.buildSubmitProcPrefix(proc);
+        /*
+        const declare = factory.createDeclare();
+        statements.push(declare);
+        const bigint = new BigInt();
+        const decValue = bizDecType;
+        declare.var($site, bigint);
+        declare.var(sheetId, bigint);
+        declare.var(si, bigint);
+        declare.var(sx, bigint);
+        declare.var(svalue, decValue);
+        declare.var(samount, decValue);
+        declare.var(sprice, decValue);
+        declare.var(pendFrom, bigint);
+        declare.var(i, bigint);
+        declare.var(iBase, bigint);
+        declare.var(x, bigint);
+        declare.var(xBase, bigint);
+        declare.var(value, decValue);
+        declare.var(amount, decValue);
+        declare.var(price, decValue);
+        declare.var($origin, bigint);
+
+        let pDiv = div;
+        for (; ; pDiv = pDiv.div) {
+            declare.var(bin + pDiv.level, bigint);
+            if (pDiv.div === undefined) break;
+        }
+
+        const setSite = factory.createSet();
+        statements.push(setSite);
+        setSite.equ($site, new ExpNum(site));
+
+        const varBin = new ExpVar(bin);
+        const dt = 'dt';
+        const select = factory.createSelect();
+        statements.push(select);
+        select.toVar = true;
+        select.column(new ExpField('id', a), binId);
+        select.column(new ExpField('origin', a), bin + pDiv.level);
+        select.column(new ExpField('id', c), sheetId);
+        select.column(new ExpField('i', c), si);
+        select.column(new ExpField('x', c), sx);
+        select.column(new ExpField('value', c), svalue);
+        select.column(new ExpField('price', c), sprice);
+        select.column(new ExpField('amount', c), samount);
+        select.column(new ExpField('pendFrom', d), pendFrom);
+        select.column(new ExpField('i', a), i);
+        select.column(new ExpField('x', a), x);
+        select.column(new ExpField('value', a), value);
+        select.column(new ExpField('amount', a), amount);
+        select.column(new ExpField('price', a), price);
+        select.from(new EntityTable(EnumSysTable.bizBin, false, a))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bizDetail, false, dt))
+            // .on(new ExpEQ(new ExpField('id', dt), new ExpField('id', a)))
+            // .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
+            // .on(new ExpEQ(new ExpField('id', b), new ExpField('base', dt)))
+            .join(JoinType.left, new EntityTable(EnumSysTable.bizBin, false, c))
+            // .on(new ExpEQ(new ExpField('id', c), new ExpField('base', b)))
+            .on(new ExpEQ(new ExpField('id', c), new ExpField('sheet', a)))
+            .join(JoinType.left, new EntityTable(EnumSysTable.binPend, false, d))
+            .on(new ExpEQ(new ExpField('id', d), new ExpField('id', a)))
+            ;
+        select.where(new ExpEQ(new ExpField('id', a), varBin));
+
+        let setBinThis = factory.createSet();
+        statements.push(setBinThis);
+        setBinThis.equ(bin + pDiv.level, new ExpVar(bin));
+
+        if (main !== undefined) {
+            // build main bud field
+            let varSheetId = new ExpVar(sheetId);
+            for (let [, bud] of main.props) {
+                let { name } = bud;
+                if (binFieldsSet.has(name) === true) continue;
+                let varName = '$s' + name;
+                statements.push(...buildSelectBinBud(this.context, bud, varSheetId, varName))
+            }
+        }
+
+        for (; ; pDiv = pDiv.parent) {
+            const { level } = pDiv;
+            const selectDiv = factory.createSelect();
+            statements.push(selectDiv);
+            selectDiv.toVar = true;
+            selectDiv.column(new ExpField(origin, a), level === 1 ? $origin : bin + (level - 1));
+            const { buds } = pDiv;
+            for (let bud of buds) {
+                let { name } = bud;
+                if (binFieldsSet.has(name) === true) {
+                    selectDiv.column(new ExpField(name, a), name);
+                }
+                else {
+                    statements.push(...buildSelectBinBud(this.context, bud, varBin))
+                }
+            }
+            selectDiv.from(new EntityTable(EnumSysTable.bizBin, false, a));
+            selectDiv.where(new ExpEQ(new ExpField('id', a), new ExpVar(bin + level)));
+            if (pDiv.parent === undefined) break;
+        }
+        */
         let sqls = new bstatement_1.Sqls(this.context, statements);
         let { statements: actStatements } = act.statement;
         sqls.head(actStatements);

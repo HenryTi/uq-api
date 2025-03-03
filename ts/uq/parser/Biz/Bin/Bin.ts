@@ -668,7 +668,7 @@ export const binPreDefined = [
     , 's', 'si', 'sx', 'svalue', 'sprice', 'samount', 'pend'
     , ...binFieldArr
 ];
-class BizBinSpace extends BizEntitySpace<BizBin> {
+export class BizBinSpace extends BizEntitySpace<BizBin> {
     protected readonly bizFieldSpace: BizFieldSpace;
     readonly bizOuts: { [name: string]: UseOut; } = {};
 

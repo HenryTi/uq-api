@@ -1,17 +1,14 @@
 import {
-    EnumSysTable, BigInt, BizStatementPend, SetEqu, BizBinAct, BizAct, BizInAct, JoinType, JsonDataType,
-    BinStateAct,
-    BizStatementState
+    EnumSysTable, BizStatementState,
+    EnumStateTo
 } from "../../../il";
-import { ExpAdd, ExpAnd, ExpCmp, ExpEQ, ExpField, ExpFunc, ExpFuncInUq, ExpIsNotNull, ExpIsNull, ExpNE, ExpNull, ExpNum, ExpStr, ExpSub, ExpVal, ExpVar, Statement } from "../../sql";
-import { EntityTable, GlobalSiteTable } from "../../sql/statementWithFrom";
+import { ExpEQ, ExpField, ExpNum, ExpSelect, ExpVal, ExpVar } from "../../sql";
+import { EntityTable } from "../../sql/statementWithFrom";
 import { BStatement } from "../../bstatement/bstatement";
 import { Sqls } from "../../bstatement/sqls";
-
+import { LockType } from "../../sql/select";
 
 const a = 'a', b = 'b';
-const pendFrom = '$pend';
-const binId = '$bin';
 export class BBizStatementState extends BStatement<BizStatementState> {
     // 可以发送sheet主表，也可以是Detail
     override body(sqls: Sqls) {
@@ -20,14 +17,18 @@ export class BBizStatementState extends BStatement<BizStatementState> {
         const { to, bizStatement: { bizAct: { binState: { sheetState: { sheet } } } } } = this.istatement;
         const memo = factory.createMemo();
         sqls.push(memo);
-        let memoText = 'Biz State ';
+        let toText: string;
         if (to === undefined) {
-            memoText += 'END';
+            debugger;
+            toText = '';
+        }
+        else if (typeof to === 'number') {
+            toText = EnumStateTo[to].toUpperCase();
         }
         else {
-            memoText += to.name;
+            toText = to.name;
         }
-        memo.text = memoText;
+        memo.text = 'Biz State ' + toText;
 
         const tblIxState = new EntityTable(EnumSysTable.ixState, false);
         const varSheet = new ExpVar('$sheet');
@@ -37,13 +38,41 @@ export class BBizStatementState extends BStatement<BizStatementState> {
         del.from(new EntityTable(EnumSysTable.ixState, false, a));
         del.where(new ExpEQ(new ExpField('i', a), varSheet));
 
-        let insert = factory.createInsert();
-        sqls.push(insert);
-        let expTo = new ExpNum(to === undefined ? sheet.id : to.id);
-        insert.table = tblIxState;
-        insert.cols = [
-            { col: 'i', val: varSheet },
-            { col: 'x', val: expTo },
-        ];
+        function insertTo(toId: number) {
+            insertToCols(varSheet, new ExpNum(toId));
+        }
+        function insertToCols(iVal: ExpVal, xVal: ExpVal) {
+            let insert = factory.createInsert();
+            sqls.push(insert);
+            insert.table = tblIxState;
+            insert.cols = [
+                { col: 'i', val: iVal },
+                { col: 'x', val: xVal },
+            ];
+        }
+        if (typeof to === 'number') {
+            switch (to) {
+                default:
+                    debugger;
+                    break;
+                case EnumStateTo.start:
+                    let selectMe = factory.createSelect();
+                    insertToCols(new ExpSelect(selectMe), varSheet);
+                    selectMe.col('operator');
+                    selectMe.lock = LockType.none;
+                    selectMe.from(new EntityTable(EnumSysTable.sheet, false));
+                    selectMe.where(new ExpEQ(new ExpField('id'), varSheet));
+                    break;
+                case EnumStateTo.end:
+                    insertTo(sheet.id);
+                    break;
+                case EnumStateTo.back:
+                    debugger;
+                    break;
+            }
+        }
+        else {
+            insertTo(to.id);
+        }
     }
 }

@@ -144,6 +144,7 @@ export class BinState extends BizBinBase {
     protected readonly fields = ['id'];
     readonly sheetState: SheetState;
     readonly main = undefined;
+    bin: BizBin;    // 对应的bin
 
     constructor(sheetState: SheetState) {
         super(sheetState.biz);

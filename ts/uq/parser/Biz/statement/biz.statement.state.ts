@@ -1,5 +1,6 @@
 import {
-    BinStateAct, BizStatementState
+    BinStateAct, BizStatementState,
+    EnumStateTo
 } from '../../../il';
 import { Space } from '../../space';
 import { PBizStatementSub } from './biz.statement.sub';
@@ -10,6 +11,13 @@ export class PBizStatementState extends PBizStatementSub<BinStateAct, BizStateme
         let key = this.ts.passKey();
         switch (key) {
             case 'end':
+                this.element.to = EnumStateTo.end;
+                break;
+            case 'start':
+                this.element.to = EnumStateTo.start;
+                break;
+            case 'back':
+                this.element.to = EnumStateTo.back;
                 break;
             case 'discard':
                 this.to = '$' + key;
@@ -18,7 +26,7 @@ export class PBizStatementState extends PBizStatementSub<BinStateAct, BizStateme
                 this.to = this.ts.passVar();
                 break;
             default:
-                this.ts.expect('to', 'end', 'discard');
+                this.ts.expect('to', 'end', 'discard', 'start', 'back');
                 break;
         }
     }
@@ -29,13 +37,15 @@ export class PBizStatementState extends PBizStatementSub<BinStateAct, BizStateme
             const { bizStatement } = this.element;
             const { bizAct } = bizStatement;
             const { sheet } = bizAct.binState.sheetState;
-            let state = sheet.states.find(v => v.name === this.to);
-            if (state === undefined) {
-                ok = false;
-                this.log(`SHEET ${sheet.getJName()} has not STATE ${this.to}`);
-            }
-            else {
-                this.element.to = state;
+            if (this.element.to === undefined) {
+                let state = sheet.states.find(v => v.name === this.to);
+                if (state === undefined) {
+                    ok = false;
+                    this.log(`SHEET ${sheet.getJName()} has not STATE ${this.to}`);
+                }
+                else {
+                    this.element.to = state;
+                }
             }
         }
         return ok;

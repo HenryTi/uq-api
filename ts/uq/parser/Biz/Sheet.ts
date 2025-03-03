@@ -153,7 +153,13 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         }
         const { states } = this.element;
         if (states !== undefined) {
+            let statesSet = new Set<string>();
             for (let state of states) {
+                const { name } = state;
+                if (statesSet.has(name) === true) {
+                    ok = false;
+                    this.log(`STATE ${name} defined more than once`);
+                }
                 if (state.pelement.scan0(space) === false) ok = false;
             }
             let stateDiscard = new SheetState(this.element);

@@ -138,7 +138,13 @@ class PBizSheet extends Base_1.PBizEntity {
         }
         const { states } = this.element;
         if (states !== undefined) {
+            let statesSet = new Set();
             for (let state of states) {
+                const { name } = state;
+                if (statesSet.has(name) === true) {
+                    ok = false;
+                    this.log(`STATE ${name} defined more than once`);
+                }
                 if (state.pelement.scan0(space) === false)
                     ok = false;
             }

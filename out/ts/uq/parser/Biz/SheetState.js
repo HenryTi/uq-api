@@ -32,12 +32,34 @@ class PSheetState extends Base_1.PBizEntity {
     }
     scan0(space) {
         let ok = true;
-        const { main, details } = this.element;
+        const { sheet, main, details } = this.element;
         if (main !== undefined) {
+            main.bin = sheet.main;
             if (main.pelement.scan0(space) === false)
                 ok = false;
         }
         for (let detail of details) {
+            const { name } = detail;
+            const { details: sheetDetails } = sheet;
+            if (name === undefined || name === '$') {
+                if (sheetDetails.length > 1) {
+                    ok = false;
+                    this.log(`DETAIL must have name`);
+                }
+                else {
+                    detail.bin = sheetDetails[0].bin;
+                }
+            }
+            else {
+                let sheetDetail = sheetDetails.find(v => v.bin.name === name);
+                if (sheetDetail === undefined) {
+                    ok = false;
+                    this.log(`Sheet DETAIL ${name} not defined`);
+                }
+                else {
+                    detail.bin = sheetDetail.bin;
+                }
+            }
             if (detail.pelement.scan0(space) === false)
                 ok = false;
         }
@@ -91,18 +113,20 @@ class PBinState extends Bin_1.PBizBinBase {
     }
     scan0(space) {
         let ok = super.scan0(space);
-        const { act } = this.element;
+        const { act, bin } = this.element;
+        let binSpace = new Bin_1.BizBinSpace(space, bin);
         if (act !== undefined) {
-            if (act.pelement.scan0(space) === false)
+            if (act.pelement.scan0(binSpace) === false)
                 ok = false;
         }
         return ok;
     }
     scan(space) {
         let ok = super.scan(space);
-        const { act } = this.element;
+        const { act, bin } = this.element;
+        let binSpace = new Bin_1.BizBinSpace(space, bin);
         if (act !== undefined) {
-            if (act.pelement.scan(space) === false)
+            if (act.pelement.scan(binSpace) === false)
                 ok = false;
         }
         return ok;

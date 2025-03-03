@@ -58,9 +58,13 @@ export abstract class BizStatementSub<T extends BizAct> extends Statement {
     abstract db(db: DbContext): BStatement;
 }
 
+export enum EnumStateTo {
+    start,
+    end,
+    back,
+}
 export class BizStatementState extends BizStatementSub<BinStateAct> {
-    sheet: BizSheet;
-    to: SheetState;
+    to: SheetState | EnumStateTo;
     parser(context: parser.PContext): parser.PElement {
         return new parser.PBizStatementState(this, context);
     }

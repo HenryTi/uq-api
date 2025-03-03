@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizBinActStatements = exports.PBizBinAct = exports.binPreDefined = exports.PBizBin = exports.PBizBinBase = void 0;
+exports.PBizBinActStatements = exports.PBizBinAct = exports.BizBinSpace = exports.binPreDefined = exports.PBizBin = exports.PBizBinBase = void 0;
 const consts_1 = require("../../../consts");
 const il_1 = require("../../../il");
 const BizPhraseType_1 = require("../../../il/Biz/BizPhraseType");
@@ -712,6 +712,7 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
         return useOut;
     }
 }
+exports.BizBinSpace = BizBinSpace;
 class BizBinActSpace extends Biz_1.BizEntitySpace {
     constructor(outer, bizBin) {
         super(outer, bizBin);

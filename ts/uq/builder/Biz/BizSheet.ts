@@ -20,6 +20,7 @@ import { LockType, Select, SelectTable } from "../sql/select";
 import { userParamName } from "../sql/sqlBuilder";
 import { EntityTable, NameTable, Table, VarTable, VarTableWithSchema } from "../sql/statementWithFrom";
 import { buildInsertIdTable } from "../tools";
+import { BBizBinBase } from "./BizBin";
 // import { buildIdPhraseTable, buildInsertSelectIdPhrase, buildPhraseBudTable, buildSelectIdPhrases, buildSelectIxBuds, buildSelectPhraseBud } from "../tools";
 import { BBizEntity } from "./BizEntity";
 
@@ -56,7 +57,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
                 const { act } = main;
                 if (act === undefined) continue;
                 const procState = this.createProcedure(`${state.id}state`);
-                this.buildStateProc(procState, act as BinStateAct);
+                this.buildStateProc(procState, state, act as BinStateAct);
             }
         }
     }
@@ -690,16 +691,17 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         );
     }
 
-    private buildStateProc(proc: Procedure, act: BinStateAct) {
+    private buildStateProc(proc: Procedure, sheetState: SheetState, act: BinStateAct) {
         const { parameters, statements } = proc;
-        const { factory, userParam, site } = this.context;
+        const { userParam } = this.context;
         const $state = '$state';
-        const $sheet = '$sheet';
+        const $sheet = '$bin';
         parameters.push(
             userParam,
             bigIntField($sheet),
             bigIntField($state),
         );
+        /*
         const declare = factory.createDeclare();
         statements.push(declare);
         const bigint = new BigInt();
@@ -708,6 +710,10 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const setSite = factory.createSet();
         statements.push(setSite);
         setSite.equ($site, new ExpNum(site));
+        */
+
+        let bBizBinBase = new BBizBinBase(this.context, sheetState.main.bin);
+        bBizBinBase.buildSubmitProcPrefix(proc);
 
         let sqls = new Sqls(this.context, statements);
         let { statements: actStatements } = act.statement;
