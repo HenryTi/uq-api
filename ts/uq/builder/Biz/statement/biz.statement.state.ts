@@ -41,7 +41,7 @@ export class BBizStatementState extends BStatement<BizStatementState> {
         memo.text = 'Biz State ' + toText;
 
         const tblIxState = new EntityTable(EnumSysTable.ixState, false);
-        const varSheet = new ExpVar('$sheet');
+        const varSheet = new ExpVar('$bin');
         const budStates = sheet.props.get('$states');
         const varStatesId = new ExpNum(budStates.id);
 
@@ -74,7 +74,7 @@ export class BBizStatementState extends BStatement<BizStatementState> {
         insertStates.cols = [
             { col: 'i', val: varSheet },
             { col: 'x', val: varStatesId },
-            { col: 'value', val: new ExpFunc('JSON_ARRARY', varCur) },
+            { col: 'value', val: new ExpFunc('JSON_ARRAY', varCur) },
         ]
         let updateStates = factory.createUpdate();
         ifStates.else(updateStates);
@@ -106,6 +106,7 @@ export class BBizStatementState extends BStatement<BizStatementState> {
         function insertToCols(iVal: ExpVal, xVal: ExpVal) {
             let insert = factory.createInsert();
             sqls.push(insert);
+            insert.ignore = true;
             insert.table = tblIxState;
             insert.cols = [
                 { col: 'i', val: iVal },
