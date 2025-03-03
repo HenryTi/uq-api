@@ -104,6 +104,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         this.buildStates(statements);
     }
     buildStates(statements) {
+        var _a, _b;
         const { states, id: phrase } = this.bizEntity;
         const { factory, site } = this.context;
         const varSheet = new sql_1.ExpVar('$id');
@@ -143,6 +144,8 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             }
             if (name === '$discard')
                 continue;
+            if (((_a = state.main) === null || _a === void 0 ? void 0 : _a.act) === undefined)
+                continue;
             let ifStatements = new sql_1.Statements();
             const expId = new sql_1.ExpNum(id);
             ifState.elseIf(new sql_1.ExpEQ(varState, expId), ifStatements);
@@ -151,8 +154,13 @@ class BBizSheet extends BizEntity_1.BBizEntity {
             setStateProc.equ($stateProc, expId);
         }
         let setStateProc = factory.createSet();
+        if (((_b = stateStart.main) === null || _b === void 0 ? void 0 : _b.act) !== undefined) {
+            setStateProc.equ($stateProc, new sql_1.ExpNum(stateStart.id));
+        }
+        else {
+            setStateProc.equ($stateProc, sql_1.ExpNull.null);
+        }
         ifState.then(setStateProc);
-        setStateProc.equ($stateProc, new sql_1.ExpNum(stateStart.id));
         const ifProc = factory.createIf();
         statements.push(ifProc);
         ifProc.cmp = new sql_1.ExpIsNotNull(varProc);

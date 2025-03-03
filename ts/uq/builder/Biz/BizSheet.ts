@@ -12,7 +12,7 @@ import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Sqls } from "../bstatement";
 import { $site, $user } from "../consts";
 import {
-    ExpAnd, ExpAtVar, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpNE, ExpNum
+    ExpAnd, ExpAtVar, ExpCmp, ExpDatePart, ExpEQ, ExpField, ExpFunc, ExpFuncCustom, ExpGT, ExpIn, ExpIsNotNull, ExpIsNull, ExpNE, ExpNull, ExpNum
     , ExpRoutineExists, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure, Statement,
     Statements,
 } from "../sql";
@@ -166,6 +166,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
                 continue;
             }
             if (name === '$discard') continue;
+            if (state.main?.act === undefined) continue;
             let ifStatements = new Statements();
             const expId = new ExpNum(id);
             ifState.elseIf(new ExpEQ(varState, expId), ifStatements);
@@ -174,8 +175,13 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             setStateProc.equ($stateProc, expId);
         }
         let setStateProc = factory.createSet();
+        if (stateStart.main?.act !== undefined) {
+            setStateProc.equ($stateProc, new ExpNum(stateStart.id));
+        }
+        else {
+            setStateProc.equ($stateProc, ExpNull.null);
+        }
         ifState.then(setStateProc);
-        setStateProc.equ($stateProc, new ExpNum(stateStart.id));
 
         const ifProc = factory.createIf();
         statements.push(ifProc);
