@@ -190,9 +190,10 @@ class BBizStatementAtom extends biz_statement_ID_1.BBizStatementID {
             varNo = this.context.expVal(noVal);
         }
         sqlNew.parameters = [varSite, varNo, varBase];
-        let setId = factory.createSet();
-        sqls.push(setId);
-        setId.equ(this.vId, new sql_1.ExpAtVar(this.vId));
+        // let setId = factory.createSet();
+        // sqls.push(setId);
+        // setId.equ(this.vId, new ExpAtVar(this.vId));
+        return new sql_1.ExpAtVar(this.vId);
     }
     buildIdFromUnique(sqls) {
         return;

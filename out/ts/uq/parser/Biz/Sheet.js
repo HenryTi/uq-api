@@ -225,6 +225,9 @@ class PBizSheet extends Base_1.PBizEntity {
                 if (pelement.scan2(uq) === false)
                     ok = false;
             }
+            const $states = '$states';
+            let budStates = new il_1.BizBudJson(this.element, $states, undefined);
+            this.element.props.set($states, budStates);
         }
         return ok;
     }

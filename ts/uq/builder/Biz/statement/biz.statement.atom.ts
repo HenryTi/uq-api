@@ -200,9 +200,10 @@ export class BBizStatementAtom extends BBizStatementID<BizAtom, BizStatementAtom
             varNo = this.context.expVal(noVal);
         }
         sqlNew.parameters = [varSite, varNo, varBase];
-        let setId = factory.createSet();
-        sqls.push(setId);
-        setId.equ(this.vId, new ExpAtVar(this.vId));
+        // let setId = factory.createSet();
+        // sqls.push(setId);
+        // setId.equ(this.vId, new ExpAtVar(this.vId));
+        return new ExpAtVar(this.vId);
     }
 
     protected buildIdFromUnique(sqls: Sqls): ExpVal {

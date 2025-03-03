@@ -223,6 +223,16 @@ export class BizBudAny extends BizBudValue {
     createDataType(): DataType { return new Char(200); }
 }
 
+export class BizBudJson extends BizBudAny {
+    clone(entity: BizEntity, name: string, ui: Partial<UI>) {
+        return new BizBudJson(entity, name, ui);
+    }
+    parser(context: PContext): PElement<IElement> {
+        return; // new PBizBudJson(this, context);
+    }
+    createDataType(): DataType { return new JsonDataType(); }
+}
+
 export abstract class BizBudValueWithRange extends BizBudValue {
     min: BudValue;
     max: BudValue;

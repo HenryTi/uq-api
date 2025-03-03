@@ -1,5 +1,5 @@
 import {
-    BizBin, BizSheet, EnumDetailOperate, SheetState, UI, Uq, UseOut
+    BizBin, BizBud, BizBudJson, BizBudPickable, BizSheet, EnumDetailOperate, SheetState, UI, Uq, UseOut
 } from "../../il";
 import { BizPhraseType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -234,6 +234,9 @@ export class PBizSheet extends PBizEntity<BizSheet> {
                 if (pelement === undefined) continue;
                 if (pelement.scan2(uq) === false) ok = false;
             }
+            const $states = '$states';
+            let budStates = new BizBudJson(this.element, $states, undefined);
+            this.element.props.set($states, budStates);
         }
         return ok;
     }

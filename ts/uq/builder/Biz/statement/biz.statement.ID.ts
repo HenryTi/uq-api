@@ -53,8 +53,11 @@ export abstract class BBizStatementID<I extends BizID, T extends BizStatementID<
         if (expId === undefined) {
             expId = this.buildIdFromUnique(sqls);
         }
-        const setId = factory.createSet();
-        setId.equ(this.vId, expId);
+        if (expId !== undefined) {
+            const setId = factory.createSet();
+            sqls.push(setId);
+            setId.equ(this.vId, expId);
+        }
     }
 
     protected buildSetVals(sqls: Sqls) {
