@@ -180,10 +180,16 @@ export class PBizSheet extends PBizEntity<BizSheet> {
         }
         const { states } = this.element;
         if (states !== undefined) {
+            let hasStart = false;
             for (let state of states) {
-                const { pelement } = state;
+                const { name, pelement } = state;
+                if (name === '$') hasStart = true;
                 if (pelement === undefined) continue;
                 if (pelement.scan(space) === false) ok = false;
+            }
+            if (hasStart === false) {
+                ok = false;
+                this.log(`必须定义无名STATE作为其实状态`);
             }
         }
         return ok;
