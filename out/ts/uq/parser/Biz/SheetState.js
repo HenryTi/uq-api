@@ -73,10 +73,12 @@ class PSheetState extends Base_1.PBizEntity {
                 ok = false;
         }
         for (let detail of details) {
+            /*
             if (detail.act !== undefined) {
                 ok = false;
                 this.log(`DETAIL in Sheet State can not define ACT`);
             }
+            */
             if (detail.pelement.scan(space) === false)
                 ok = false;
         }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PBizStatementError = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBinState = exports.PBizStatementBin = exports.PBizStatement = void 0;
+exports.PBizStatementError = exports.PBizStatementBinAct = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBinState = exports.PBizStatementBin = exports.PBizStatement = void 0;
 const il_1 = require("../../../il");
 const PStatement_1 = require("../../PStatement");
 const tokens_1 = require("../../tokens");
@@ -69,6 +69,7 @@ class PBizStatementBinState extends PBizStatement {
     getBizSubsEx() {
         return {
             state: il_1.BizStatementState,
+            bizBin: il_1.BizStatementBinAct,
         };
     }
 }
@@ -592,6 +593,11 @@ class PBizStatementOut extends biz_statement_sub_1.PBizStatementSub {
     }
 }
 exports.PBizStatementOut = PBizStatementOut;
+class PBizStatementBinAct extends biz_statement_sub_1.PBizStatementSub {
+    _parse() {
+    }
+}
+exports.PBizStatementBinAct = PBizStatementBinAct;
 class PBizStatementError extends biz_statement_sub_1.PBizStatementSub {
     _parse() {
         let key = this.ts.passKey();

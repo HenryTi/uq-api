@@ -65,7 +65,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     private buildSubmitProc(proc: Procedure) {
         const { parameters, statements } = proc;
         const { factory, userParam } = this.context;
-        const { main, details, outs, states } = this.bizEntity;
+        const { id: phrase, main, details, outs, states } = this.bizEntity;
 
         const site = '$site';
         const cId = '$id';
@@ -111,24 +111,36 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             bigIntField(binId),
             bigIntField(pBinId),
         );
-        let len = details.length;
-        for (let i = 0; i < len; i++) {
-            let { bin } = details[i];
-            this.buildBin(statements, bin, i + 101);
+
+        if (states === undefined) {
+            // WITH IxState I=id X=phraseId; 移到sheet生成proc
+            const insertEnd = factory.createInsert();
+            insertEnd.table = new EntityTable(EnumSysTable.ixState, false);
+            insertEnd.cols = [
+                { col: 'i', val: new ExpVar(cId) },
+                { col: 'x', val: new ExpNum(phrase) }
+            ];
+            let len = details.length;
+            for (let i = 0; i < len; i++) {
+                let { bin } = details[i];
+                this.buildBin(statements, bin, i + 101);
+            }
+        }
+        else {
+            this.buildStates(statements);
         }
 
         for (let i in outs) {
             let out = outs[i];
             this.buildOut(statements, out);
         }
-
-        this.buildStates(statements);
     }
 
     private buildStates(statements: Statement[]) {
         const { states, id: phrase } = this.bizEntity;
         const { factory, site } = this.context;
         const varSheet = new ExpVar('$id');
+        /*
         if (states === undefined) {
             // WITH IxState I=id X=phraseId; 移到sheet生成proc
             const insertEnd = factory.createInsert();
@@ -139,6 +151,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             ];
             return;
         }
+        */
         const declare = factory.createDeclare();
         const $state = '$state';
         const $stateProc = '$stateProc';

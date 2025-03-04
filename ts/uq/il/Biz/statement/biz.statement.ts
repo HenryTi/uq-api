@@ -2,7 +2,8 @@ import {
     BBizStatementBinPend, BBizStatementBook as BBizStatementBook, BBizStatementInPend, BStatement, DbContext
     , BBizStatementSheet, BBizStatementAtom, BBizStatementFork as BBizStatementFork, BBizStatementOut, BBizStatementTie,
     BBizStatementError,
-    BBizStatementState
+    BBizStatementState,
+    BBizStatementBinAct
 } from '../../../builder';
 import * as parser from '../../../parser';
 import { IElement } from '../../IElement';
@@ -70,6 +71,15 @@ export class BizStatementState extends BizStatementSub<BinStateAct> {
     }
     db(db: DbContext): BStatement {
         return new BBizStatementState(db, this);
+    }
+}
+
+export class BizStatementBinAct extends BizStatementSub<BinStateAct> {
+    parser(context: parser.PContext): parser.PElement {
+        return new parser.PBizStatementBinAct(this, context);
+    }
+    db(db: DbContext): BStatement {
+        return new BBizStatementBinAct(db, this);
     }
 }
 

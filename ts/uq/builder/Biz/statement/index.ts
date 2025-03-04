@@ -1,6 +1,7 @@
 export * from "./biz.statement";
 export * from "./biz.statement.sheet";
 export * from "./biz.statement.state";
+export * from "./biz.statement.binAct";
 export * from "./biz.statement.pend";
 export * from "./biz.statement.atom";
 export * from "./biz.statement.book";

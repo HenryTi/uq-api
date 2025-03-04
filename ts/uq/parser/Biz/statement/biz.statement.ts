@@ -8,7 +8,8 @@ import {
     BizFromEntity, BizStatementError,
     BinStateAct,
     BizStatementBinState,
-    BizStatementState
+    BizStatementState,
+    BizStatementBinAct
 } from '../../../il';
 import { PStatement } from '../../PStatement';
 import { PContext } from '../../pContext';
@@ -85,6 +86,7 @@ export class PBizStatementBinState extends PBizStatement<BinStateAct, BizStateme
     protected getBizSubsEx() {
         return {
             state: BizStatementState,
+            bizBin: BizStatementBinAct,
         };
     }
 }
@@ -597,6 +599,11 @@ export class PBizStatementOut<A extends BizAct, T extends BizStatementOut<A>> ex
             }
         }
         return ok;
+    }
+}
+
+export class PBizStatementBinAct extends PBizStatementSub<BinStateAct, BizStatementBinAct> {
+    protected _parse(): void {
     }
 }
 

@@ -71,10 +71,12 @@ export class PSheetState extends PBizEntity<SheetState> {
             if (main.pelement.scan(space) === false) ok = false;
         }
         for (let detail of details) {
+            /*
             if (detail.act !== undefined) {
                 ok = false;
                 this.log(`DETAIL in Sheet State can not define ACT`);
             }
+            */
             if (detail.pelement.scan(space) === false) ok = false;
         }
         return ok;
