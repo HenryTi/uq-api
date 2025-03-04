@@ -86,7 +86,7 @@ export class PBizStatementBinState extends PBizStatement<BinStateAct, BizStateme
     protected getBizSubsEx() {
         return {
             state: BizStatementState,
-            bizBin: BizStatementBinAct,
+            binact: BizStatementBinAct,
         };
     }
 }

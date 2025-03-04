@@ -69,7 +69,7 @@ class PBizStatementBinState extends PBizStatement {
     getBizSubsEx() {
         return {
             state: il_1.BizStatementState,
-            bizBin: il_1.BizStatementBinAct,
+            binact: il_1.BizStatementBinAct,
         };
     }
 }
