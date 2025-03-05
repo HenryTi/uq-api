@@ -38,6 +38,7 @@ export abstract class Space {
     protected abstract _getTableByAlias(alias: string): Table;
     protected abstract _varPointer(name: string, isField: boolean): Pointer;
     protected _varsPointer(names: string[]): [Pointer, string] { return; }
+    protected get _isReadonly(): boolean { return; }
 
     get groupType(): GroupType { return GroupType.Single; }
     set groupType(value: GroupType) { }
@@ -224,5 +225,10 @@ export abstract class Space {
         if (ret !== undefined) return ret;
         return this.outer?.getActionBase();
     }
-    get isReadonly(): boolean { return false; }    // true: is in Biz From Statement
+    // true: is in Biz From Statement
+    get isReadonly(): boolean {
+        let ret = this._isReadonly;
+        if (ret !== undefined) return ret;
+        return this.outer?._isReadonly;
+    }
 }

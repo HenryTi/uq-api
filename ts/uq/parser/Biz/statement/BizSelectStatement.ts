@@ -184,7 +184,7 @@ export abstract class BizSelectStatementSpace<T extends BizSelectStatement = Biz
     }
     protected _getBizField(names: string[]): BizField { return this.bizFieldSpace.getBizField(names); }
 
-    get isReadonly(): boolean { return true; }    // true: is in Biz From Statement
+    protected get _isReadonly(): boolean { return true; }    // true: is in Biz From Statement
 }
 
 class FromEntityScaner {

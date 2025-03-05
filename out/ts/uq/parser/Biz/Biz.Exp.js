@@ -132,6 +132,7 @@ class PBizExp extends element_1.PElement {
         }
     }
     scan(space) {
+        var _a;
         let ok = true;
         let expIDType;
         if (this.isStar === true) {
@@ -185,7 +186,7 @@ class PBizExp extends element_1.PElement {
                 }
             }
         }
-        this.element.isReadonly = space.isReadonly;
+        this.element.isReadonly = (_a = space.isReadonly) !== null && _a !== void 0 ? _a : false;
         const { bizEntity, bizEntitySys, in: varIn, param } = this.element;
         if (param !== undefined) {
             if (param.pelement.scan(space) === false) {

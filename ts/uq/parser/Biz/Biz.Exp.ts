@@ -195,7 +195,7 @@ export class PBizExp extends PElement<BizExp> {
             }
         }
 
-        this.element.isReadonly = space.isReadonly;
+        this.element.isReadonly = space.isReadonly ?? false;
         const { bizEntity, bizEntitySys, in: varIn, param } = this.element;
         if (param !== undefined) {
             if (param.pelement.scan(space) === false) {

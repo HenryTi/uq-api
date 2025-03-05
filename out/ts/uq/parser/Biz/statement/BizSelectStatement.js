@@ -141,7 +141,7 @@ class BizSelectStatementSpace extends space_1.Space {
         return;
     }
     _getBizField(names) { return this.bizFieldSpace.getBizField(names); }
-    get isReadonly() { return true; } // true: is in Biz From Statement
+    get _isReadonly() { return true; } // true: is in Biz From Statement
 }
 exports.BizSelectStatementSpace = BizSelectStatementSpace;
 class FromEntityScaner {

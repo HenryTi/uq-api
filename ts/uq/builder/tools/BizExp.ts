@@ -242,7 +242,8 @@ export class BBizExp {
                 .exp(this.params[0]);
         }
         else {
-            let w = isReadonly === true ? 0 : 1;
+            // let w = isReadonly === true ? 0 : 1;
+            let w = 0;
             sb.name(db).dot();
             sb.fld(siteEntityId + '.ID');
             sb.l().append(w);

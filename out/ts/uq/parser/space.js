@@ -27,6 +27,7 @@ class Space {
     _getUse(name) { return undefined; }
     _addUse(name, statementNo, obj) { return undefined; }
     _varsPointer(names) { return; }
+    get _isReadonly() { return; }
     get groupType() { return il_1.GroupType.Single; }
     set groupType(value) { }
     logOn() { this.outer.logOn(); }
@@ -253,7 +254,14 @@ class Space {
             return ret;
         return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.getActionBase();
     }
-    get isReadonly() { return false; } // true: is in Biz From Statement
+    // true: is in Biz From Statement
+    get isReadonly() {
+        var _a;
+        let ret = this._isReadonly;
+        if (ret !== undefined)
+            return ret;
+        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a._isReadonly;
+    }
 }
 exports.Space = Space;
 //# sourceMappingURL=space.js.map

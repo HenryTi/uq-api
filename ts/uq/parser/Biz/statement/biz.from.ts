@@ -350,7 +350,7 @@ export class PFromStatement<T extends FromStatement = FromStatement> extends PBi
 }
 
 export class FromSpace extends BizSelectStatementSpace<FromStatement> {
-    get isReadonly(): boolean {
+    protected get _isReadonly(): boolean {
         return true;
     }
     protected createBizFieldSpace(from: FromStatement) {
