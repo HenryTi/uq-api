@@ -20,7 +20,7 @@ export class BBizStatementBinAct extends BStatement<BizStatementBinAct> {
             factory.func_concat,
             new ExpStr(`CALL \`${$site}.${site}\`.\``),
             new ExpNum(bin.id),
-            new ExpStr('`(?,?,?)'),
+            new ExpStr('`(?,?)'),
         );
         execSql.parameters = [
             varUser,                // $user

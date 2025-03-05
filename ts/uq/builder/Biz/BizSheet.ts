@@ -63,7 +63,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
     }
 
     private buildBinStateProc(binState: BinState) {
-        if (binState !== undefined) return;
+        if (binState === undefined) return;
         const { act } = binState;
         if (act === undefined) return;
         const { sheetState, bin } = binState;

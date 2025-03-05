@@ -15,7 +15,7 @@ class BBizStatementBinAct extends bstatement_1.BStatement {
         const execSql = factory.createExecSql();
         execSql.no = no;
         sqls.push(execSql);
-        execSql.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr(`CALL \`${consts_1.$site}.${site}\`.\``), new sql_1.ExpNum(bin.id), new sql_1.ExpStr('`(?,?,?)'));
+        execSql.sql = new sql_1.ExpFunc(factory.func_concat, new sql_1.ExpStr(`CALL \`${consts_1.$site}.${site}\`.\``), new sql_1.ExpNum(bin.id), new sql_1.ExpStr('`(?,?)'));
         execSql.parameters = [
             varUser, // $user
             new sql_1.ExpVar('$bin'),

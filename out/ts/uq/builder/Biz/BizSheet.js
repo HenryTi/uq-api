@@ -63,7 +63,7 @@ class BBizSheet extends BizEntity_1.BBizEntity {
         });
     }
     buildBinStateProc(binState) {
-        if (binState !== undefined)
+        if (binState === undefined)
             return;
         const { act } = binState;
         if (act === undefined)
