@@ -6,7 +6,8 @@ import {
     EnumSysBud,
     BizBudID,
     BinStateAct,
-    SheetState
+    SheetState,
+    BinState
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Sqls } from "../bstatement";
@@ -52,14 +53,22 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         const { states } = this.bizEntity;
         if (states !== undefined) {
             for (let state of states) {
-                const { main } = state;
-                if (main === undefined) continue;
-                const { act } = main;
-                if (act === undefined) continue;
-                const procState = this.createProcedure(`${state.id}state`);
-                this.buildStateProc(procState, state, act as BinStateAct);
+                const { main, details } = state;
+                this.buildBinStateProc(main);
+                for (let detail of details) {
+                    this.buildBinStateProc(detail);
+                }
             }
         }
+    }
+
+    private buildBinStateProc(binState: BinState) {
+        if (binState !== undefined) return;
+        const { act } = binState;
+        if (act === undefined) return;
+        const { sheetState, bin } = binState;
+        const procState = this.createProcedure(`${sheetState.id}.${bin.id}state`);
+        this.buildStateProc(procState, sheetState, act as BinStateAct);
     }
 
     private buildSubmitProc(proc: Procedure) {
@@ -102,8 +111,6 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         setBin.equ(binId, new ExpVar(cId));
         // sheet main 界面编辑的时候，value，amount，price 保存到 ixDec 里面了。现在转到bin表上
         this.saveMainVPA(statements);
-        let mainStatements = this.buildBinOneRow(main);
-        statements.push(...mainStatements);
 
         // details
         declare.vars(
@@ -113,6 +120,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         );
 
         if (states === undefined) {
+            let mainStatements = this.buildBinOneRow(main, undefined);
+            statements.push(...mainStatements);
             // WITH IxState I=id X=phraseId; 移到sheet生成proc
             const insertEnd = factory.createInsert();
             insertEnd.table = new EntityTable(EnumSysTable.ixState, false);
@@ -123,7 +132,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             let len = details.length;
             for (let i = 0; i < len; i++) {
                 let { bin } = details[i];
-                this.buildBin(statements, bin, i + 101);
+                this.buildBin(statements, bin, undefined, i + 101);
             }
         }
         else {
@@ -154,12 +163,12 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         */
         const declare = factory.createDeclare();
         const $state = '$state';
-        const $stateProc = '$stateProc';
+        // const $stateProc = '$stateProc';
         statements.push(declare);
         declare.var($state, new BigInt());
-        declare.var($stateProc, new BigInt());
+        // declare.var($stateProc, new BigInt());
         const varState = new ExpVar($state);
-        const varProc = new ExpVar($stateProc);
+        // const varProc = new ExpVar($stateProc);
 
         const select$State = factory.createSelect();
         statements.push(select$State);
@@ -183,10 +192,12 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             let ifStatements = new Statements();
             const expId = new ExpNum(id);
             ifState.elseIf(new ExpEQ(varState, expId), ifStatements);
-            let setStateProc = factory.createSet();
-            ifStatements.statements.push(setStateProc);
-            setStateProc.equ($stateProc, expId);
+            // let setStateProc = factory.createSet();
+            // ifStatements.statements.push(setStateProc);
+            // setStateProc.equ($stateProc, expId);
+            ifStatements.statements.push(...this.buildStateSubmit(state));
         }
+        /*
         let setStateProc = factory.createSet();
         if (stateStart.main?.act !== undefined) {
             setStateProc.equ($stateProc, new ExpNum(stateStart.id));
@@ -194,8 +205,9 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         else {
             setStateProc.equ($stateProc, ExpNull.null);
         }
-        ifState.then(setStateProc);
-
+        */
+        ifState.then(...this.buildStateSubmit(stateStart));
+        /*
         const ifProc = factory.createIf();
         statements.push(ifProc);
         ifProc.cmp = new ExpIsNotNull(varProc);
@@ -213,6 +225,20 @@ export class BBizSheet extends BBizEntity<BizSheet> {
             varSheet,
             varState,
         ];
+        */
+    }
+
+    private buildStateSubmit(state: SheetState) {
+        const statements: Statement[] = [];
+        const { main, details } = state;
+        // this.buildBinStateSubmit(statements, main);
+        let mainStatements = this.buildBinOneRow(main.bin, main);
+        statements.push(...mainStatements);
+        let i = 200;
+        for (let detail of details) {
+            this.buildBin(statements, detail.bin, detail, ++i);
+        }
+        return statements;
     }
 
     private saveMainVPA(statements: Statement[]) {
@@ -242,7 +268,8 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         statements.push(update);
     }
 
-    private buildBin(statements: Statement[], bin: BizBin, statementNo: number) {
+    private buildBin(statements: Statement[], bin: BizBin, binState: BinState, statementNo: number) {
+        if (binState !== undefined && binState.act === undefined) return;
         const { id: entityId, name } = bin;
         const { factory } = this.context;
         const memo = factory.createMemo();
@@ -261,19 +288,6 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         loop.statements.add(select);
         select.toVar = true;
         select.column(new ExpField('id', a), binId);
-        /*
-        select.from(new EntityTable(EnumSysTable.bizDetail, false, a))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bud, false, b))
-            .on(new ExpEQ(new ExpField('id', b), new ExpField('base', a)))
-            .join(JoinType.join, new EntityTable(EnumSysTable.bizBin, false, c))
-            .on(new ExpEQ(new ExpField('id', c), new ExpField('id', a)));
-        select.where(new ExpAnd(
-            new ExpGT(new ExpField('id', a), new ExpVar(pBinId)),
-            new ExpEQ(new ExpField('ext', b), new ExpNum(entityId)),
-            new ExpEQ(new ExpField('base', b), new ExpVar('$id')),
-            new ExpIsNotNull(new ExpField('value', c)),
-        ));
-        */
         select.from(new EntityTable(EnumSysTable.bizBin, false, a));
         select.where(new ExpAnd(
             new ExpGT(new ExpField('id', a), new ExpVar(pBinId)),
@@ -292,7 +306,7 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         iffExit.then(exit);
         exit.no = statementNo;
 
-        let binOneRow = this.buildBinOneRow(bin)
+        let binOneRow = this.buildBinOneRow(bin, binState);
         loop.statements.add(...binOneRow);
 
         const setPBin = factory.createSet();
@@ -304,27 +318,40 @@ export class BBizSheet extends BBizEntity<BizSheet> {
         setBinNull.equ(binId, ExpVal.null);
     }
 
-    private buildBinOneRow(bin: BizBin): Statement[] {
+    private buildBinOneRow(bin: BizBin, binState: BinState): Statement[] {
         const statements: Statement[] = [];
         const { act, id: entityId } = bin;
         const { factory, site, dbName } = this.context;
 
-        if (act !== undefined) {
+        if (binState === undefined) {
+            if (act !== undefined) {
+                const call = factory.createCall();
+                statements.push(call);
+                call.db = `${$site}.${site}`;
+                call.procName = `${entityId}`;
+                call.params = [
+                    { value: new ExpVar(userParamName) },
+                    { value: new ExpVar(binId) },
+                ];
+            }
+            const delBinPend = factory.createDelete();
+            statements.push(delBinPend);
+            delBinPend.tables = [a];
+            delBinPend.from(new EntityTable(EnumSysTable.binPend, false, a));
+            delBinPend.where(new ExpEQ(new ExpField('id', a), new ExpVar(binId)));
+        }
+        else if (binState.act !== undefined) {
+            const { id: stateId } = binState.sheetState;
             const call = factory.createCall();
             statements.push(call);
             call.db = `${$site}.${site}`;
-            call.procName = `${entityId}`;
+            call.procName = `${binState.sheetState.id}.${entityId}state`;
             call.params = [
                 { value: new ExpVar(userParamName) },
                 { value: new ExpVar(binId) },
+                { value: new ExpNum(stateId) },
             ];
         }
-        const delBinPend = factory.createDelete();
-        statements.push(delBinPend);
-        delBinPend.tables = [a];
-        delBinPend.from(new EntityTable(EnumSysTable.binPend, false, a));
-        delBinPend.where(new ExpEQ(new ExpField('id', a), new ExpVar(binId)));
-
         return statements;
     }
 

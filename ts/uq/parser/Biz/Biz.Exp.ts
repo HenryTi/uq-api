@@ -167,26 +167,11 @@ export class PBizExp extends PElement<BizExp> {
             else {
                 let { bizEntityArr, bizEntitySys } = fromEntity;
                 if (bizEntitySys !== undefined) {
-                    /*
-                    if (this.element.isParent !== true) {
-                        this.log('#FORK and #BIN only support ^id');
-                        ok = false;
-                    }
-                    else {
-                    */
                     this.element.bizEntitySys = bizEntitySys;
                     const { props } = this.element;
                     for (const { prop, isParent } of props) {
                         switch (bizEntitySys) {
                             case EnumEntitySys.fork:
-                                /*
-                                if (isParent === true) {
-                                    if (prop !== 'id') {
-                                        this.log('#FORK only support ^id');
-                                        ok = false;
-                                    }
-                                }
-                                */
                                 const forkProps = BizAtom.ownFields; // ['id', 'no', 'ex'];
                                 if (forkProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
@@ -194,14 +179,6 @@ export class PBizExp extends PElement<BizExp> {
                                 }
                                 break;
                             case EnumEntitySys.bin:
-                                /*
-                                if (isParent === true) {
-                                    if (prop !== 'id') {
-                                        this.log('#BIN support ^id');
-                                        ok = false;
-                                    }
-                                }
-                                */
                                 const binProps = BizSheet.ownFields; // ['id', 'no', 'operator'];
                                 if (binProps.findIndex(v => v === prop) < 0) {
                                     ok = false;
@@ -210,7 +187,6 @@ export class PBizExp extends PElement<BizExp> {
                                 break;
                         }
                     }
-                    // }
                 }
                 else {
                     const [be] = bizEntityArr;
@@ -469,6 +445,10 @@ export class PBizExp extends PElement<BizExp> {
                     }
                     return ok;
                 }
+                if (this.element.param.params.length !== 1) {
+                    ok = false;
+                    this.log(`Can only have one param`);
+                }
             }
         }
         if (props === undefined) return ok;
@@ -497,27 +477,6 @@ export class PBizExp extends PElement<BizExp> {
         }
         return ok;
     }
-    /*
-    private scanDuo(space: Space): boolean {
-        let ok = true;
-        const { bizEntity, param: bizParam } = this.element;
-        const { params: [param, param2] } = bizParam;
-        let duo = bizEntity as BizDuo;
-        if (param2 === undefined) {
-            if (this.bud !== 'i' && this.bud !== 'x') {
-                this.log(`DUO ${duo.getJName()}(p1, p2) should follow I or X`);
-                ok = false;
-            }
-        }
-        else {
-            if (this.bud !== undefined) {
-                this.log(`DUO ${duo.getJName()}(id) should not have prop`);
-                ok = false;
-            }
-        }
-        return ok;
-    }
-    */
     private scanCombo(space: Space): boolean {
         let ok = true;
         const { bizEntity, param: bizParam } = this.element;
@@ -561,8 +520,11 @@ export class PBizExpParam extends PElement<BizExpParam> {
             switch (params.length) {
                 case 0: paramType = BizExpParamType.none; break;
                 case 1: paramType = BizExpParamType.scalar; break;
-                // case 2: paramType = BizExpParamType.duo; break;
-                case 3: paramType = BizExpParamType.multi; break;
+                default:
+                    // 2: paramType = BizExpParamType.duo; break;
+                    // case 3: 
+                    paramType = BizExpParamType.multi;
+                    break;
             }
             this.element.paramType = paramType;
         }
@@ -596,7 +558,7 @@ export class PBizExpParam extends PElement<BizExpParam> {
             this.context.parseElement(param);
         }
         else {
-            this.ts.expect('SPEC or ties');
+            this.ts.expect('FORK or ties');
         }
     }
 
