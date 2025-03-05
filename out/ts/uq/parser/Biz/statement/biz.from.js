@@ -341,6 +341,9 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
 }
 exports.PFromStatement = PFromStatement;
 class FromSpace extends BizSelectStatement_1.BizSelectStatementSpace {
+    get isReadonly() {
+        return true;
+    }
     createBizFieldSpace(from) {
         return new il_1.FromInQueryFieldSpace(from);
     }
