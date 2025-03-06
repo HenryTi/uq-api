@@ -326,9 +326,12 @@ class PFromStatement extends BizSelectStatement_1.PBizSelectStatement {
                 if (bizEntity === undefined)
                     debugger;
                 let bud;
-                const { valBud } = col;
+                const { valBud, val } = col;
                 if (valBud !== undefined) {
                     bud = valBud.clone(bizEntity, name, ui);
+                }
+                else if (val !== undefined) {
+                    bud = new il_1.BizBudDec(bizEntity, name, ui);
                 }
                 else {
                     bud = new il_1.BizBudAny(bizEntity, name, ui);
