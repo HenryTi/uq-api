@@ -260,7 +260,7 @@ class Space {
         let ret = this._isReadonly;
         if (ret !== undefined)
             return ret;
-        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a._isReadonly;
+        return (_a = this.outer) === null || _a === void 0 ? void 0 : _a.isReadonly;
     }
 }
 exports.Space = Space;

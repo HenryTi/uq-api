@@ -229,6 +229,6 @@ export abstract class Space {
     get isReadonly(): boolean {
         let ret = this._isReadonly;
         if (ret !== undefined) return ret;
-        return this.outer?._isReadonly;
+        return this.outer?.isReadonly;
     }
 }
