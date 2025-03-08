@@ -1123,6 +1123,7 @@ RETURNS main (
     * SHEET,
     * Bin,
     phrase ID,
+    state ID,
 )
 RETURNS details (
     * Bin,
@@ -1159,10 +1160,11 @@ RETURNS forks (
         SET detail = id;
         SET id = maySheetId;
     }
-    INTO main SELECT * a, * b, a.base as phrase
+    INTO main SELECT * a, * b, a.base as phrase, s.x as state
         FROM Sheet as a
             LEFT JOIN Bin as b ON b.id=a.id
             JOIN BizPhrase as c ON c.id=a.base
+            LEFT JOIN IxState as s ON s.i=a.id
         WHERE a.id=id AND c.base=$site;
     INTO details SELECT * a
         , c.pendFrom as pend, d.value as pendValue

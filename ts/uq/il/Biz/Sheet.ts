@@ -137,6 +137,11 @@ export class SheetState extends BizNotID {
         });
         phrases.push([this.phrase, this.ui.caption ?? '', this.extendsPhrase, this.typeNum]);
     }
+
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = super.buildSchema(res);
+        return ret;
+    }
 }
 
 export class BinState extends BizBinBase {
@@ -145,6 +150,7 @@ export class BinState extends BizBinBase {
     readonly sheetState: SheetState;
     readonly main = undefined;
     bin: BizBin;    // 对应的bin
+    edit: BizBud[];
 
     constructor(sheetState: SheetState) {
         super(sheetState.biz);

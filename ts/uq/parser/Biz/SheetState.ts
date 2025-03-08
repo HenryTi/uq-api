@@ -71,12 +71,6 @@ export class PSheetState extends PBizEntity<SheetState> {
             if (main.pelement.scan(space) === false) ok = false;
         }
         for (let detail of details) {
-            /*
-            if (detail.act !== undefined) {
-                ok = false;
-                this.log(`DETAIL in Sheet State can not define ACT`);
-            }
-            */
             if (detail.pelement.scan(space) === false) ok = false;
         }
         return ok;
@@ -96,12 +90,43 @@ export class PSheetState extends PBizEntity<SheetState> {
 }
 
 export class PBinState extends PBizBinBase<BinState> {
+    private edit: string[];
+
     protected override createBizBinBaseAct(): BizBinBaseAct<BinState> {
         return new BinStateAct(this.element);
     }
 
+    private parseEdit = () => {
+        this.edit = [];
+        if (this.ts.token !== Token.LPARENTHESE) {
+            this.ts.expectToken(Token.LPARENTHESE);
+            return;
+        }
+        this.ts.readToken();
+        for (; ;) {
+            this.edit.push(this.ts.passVar());
+            const { token } = this.ts;
+            if (token === Token.RPARENTHESE as any) {
+                this.ts.readToken();
+                break;
+            }
+            if (token === Token.COMMA as any) {
+                this.ts.readToken();
+                if (this.ts.token === Token.RPARENTHESE as any) {
+                    this.ts.readToken();
+                    break;
+                }
+                continue;
+            }
+            this.ts.expectToken(Token.COMMA, Token.RPARENTHESE);
+            break;
+        }
+        this.ts.passToken(Token.SEMICOLON);
+    }
+
     readonly keyColl: { [key: string]: () => void; } = {
         act: this.parseAct,
+        edit: this.parseEdit,
     }
 
     protected parseHeader() {
@@ -125,6 +150,20 @@ export class PBinState extends PBizBinBase<BinState> {
         let binSpace = new BizBinSpace(space, bin);
         if (act !== undefined) {
             if (act.pelement.scan(binSpace) === false) ok = false;
+        }
+        if (this.edit !== undefined) {
+            this.element.edit = [];
+            let { edit, bin } = this.element;
+            for (let eb of this.edit) {
+                let bud = bin.getBud(eb);
+                if (bud === undefined) {
+                    ok = false;
+                    this.log(`${eb} not defined in BIN ${bin.getJName()}`);
+                }
+                else {
+                    edit.push(bud);
+                }
+            }
         }
         return ok;
     }

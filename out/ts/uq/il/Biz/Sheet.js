@@ -100,6 +100,10 @@ class SheetState extends Entity_1.BizNotID {
         });
         phrases.push([this.phrase, (_a = this.ui.caption) !== null && _a !== void 0 ? _a : '', this.extendsPhrase, this.typeNum]);
     }
+    buildSchema(res) {
+        let ret = super.buildSchema(res);
+        return ret;
+    }
 }
 exports.SheetState = SheetState;
 class BinState extends Bin_1.BizBinBase {
