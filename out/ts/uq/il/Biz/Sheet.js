@@ -101,7 +101,10 @@ class SheetState extends Entity_1.BizNotID {
         phrases.push([this.phrase, (_a = this.ui.caption) !== null && _a !== void 0 ? _a : '', this.extendsPhrase, this.typeNum]);
     }
     buildSchema(res) {
+        var _a;
         let ret = super.buildSchema(res);
+        ret.main = (_a = this.main) === null || _a === void 0 ? void 0 : _a.buildSchema(res);
+        ret.details = this.details.map(v => v.buildSchema(res));
         return ret;
     }
 }
@@ -116,6 +119,14 @@ class BinState extends Bin_1.BizBinBase {
     }
     parser(context) {
         return new parser_1.PBinState(this, context);
+    }
+    buildSchema(res) {
+        var _a;
+        let ret = {
+            id: this.bin.id,
+            edit: (_a = this.edit) === null || _a === void 0 ? void 0 : _a.map(v => v.id),
+        };
+        return ret;
     }
 }
 exports.BinState = BinState;

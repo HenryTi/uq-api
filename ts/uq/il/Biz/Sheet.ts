@@ -140,6 +140,8 @@ export class SheetState extends BizNotID {
 
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
+        ret.main = this.main?.buildSchema(res);
+        ret.details = this.details.map(v => v.buildSchema(res));
         return ret;
     }
 }
@@ -159,6 +161,14 @@ export class BinState extends BizBinBase {
 
     parser(context: PContext): PElement {
         return new PBinState(this, context);
+    }
+
+    buildSchema(res: { [phrase: string]: string }) {
+        let ret = {
+            id: this.bin.id,
+            edit: this.edit?.map(v => v.id),
+        }
+        return ret;
     }
 }
 
