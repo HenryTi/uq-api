@@ -1326,15 +1326,16 @@ RETURNS props VIRTUAL (
 ) {
     -- VAR jval JSON;
     WHILE 1=1 {
-        VAR base ID=a.base, phrase Phrase=c.id, type ENUM BizPhraseType=c.type 
-            FROM Fork as a 
-                JOIN IDU as b ON b.id=a.id 
+        -- VAR base ID=a.base, phrase Phrase=c.id, type ENUM BizPhraseType=c.type 
+        VAR seed ID=b.seed, phrase Phrase=c.id, type ENUM BizPhraseType=c.type 
+            FROM -- Fork as a JOIN 
+                IDU as b -- ON b.id=a.id 
                 JOIN BizPhrase as c ON c.id=b.base
-            WHERE a.id=id;
+            WHERE b.id=id;
         IF type IS NULL {
             BREAK;
         }
-        INTO props SELECT id, base, phrase, (
+        INTO props SELECT id, seed as base, phrase, (
                 SELECT JSON_ARRAYAGG(JSON_ARRAY(arr.x, arr.value)) FROM (
                     SELECT a.x, a.value FROM IxInt as a WHERE a.i=id
                     UNION SELECT a.x, a.value FROM IxDec as a WHERE a.i=id
@@ -1344,7 +1345,7 @@ RETURNS props VIRTUAL (
         IF type<>BizPhraseType.fork {
             BREAK;
         }
-        SET id=base;
+        SET id=seed;
     }
     INTO props SELECT id, 0 as base, a.base as phrase, JSON_ARRAY(a.no, a.ex) as value
         FROM Atom as a
