@@ -11,6 +11,7 @@ import {
     , ExpOr, ExpSelect, ExpStr, ExpVal, ExpVar, Procedure,
     Statement
 } from "../sql";
+import { LockType } from "../sql/select";
 import { EntityTable } from "../sql/statementWithFrom";
 import { BBizEntity } from "./BizEntity";
 
@@ -45,7 +46,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         const { factory, unitField, userParam } = this.context;
 
         const cOrgId = '$id';
-        const cBase = '$base';
+        const cSeed = '$base';
         // const cKeys = '$keys';
         // const cProps = '$props';
         const cValues = '$values';
@@ -57,7 +58,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         const site = '$site';
         const len = keys.length;
         // const varKeys = new ExpVar(cKeys);
-        const varBase = new ExpVar(cBase);
+        const varSeed = new ExpVar(cSeed);
         //const varProps = new ExpVar(cProps);
         const varValues = new ExpVar(cValues);
         const varSite = new ExpVar(site);
@@ -71,7 +72,7 @@ export class BBizFork extends BBizEntity<BizFork> {
             bigIntField(site),
             userParam,
             bigIntField(cOrgId),
-            idField(cBase, 'big'),
+            idField(cSeed, 'big'),
             jsonField(cValues),
         );
 
@@ -140,7 +141,8 @@ export class BBizFork extends BBizEntity<BizFork> {
         select.limit(ExpNum.num1);
         select.column(new ExpField('id', a), cNewId);
         select.from(new EntityTable(EnumSysTable.idu, false, a));
-        const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varBase)];
+        //const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varSeed)];
+        const wheres: ExpCmp[] = [new ExpEQ(new ExpField('seed', a), varSeed)];
 
         function tblAndValFromBud(bud: BizBud): { varVal: ExpVal; tbl: string; } {
             const { id, dataType } = bud;
@@ -213,9 +215,21 @@ export class BBizFork extends BBizEntity<BizFork> {
         setNew0.equ(cNewId, ExpNum.num0);
         const setId = factory.createSet();
         ifNewNullOrg.else(setId);
+        /*
         setId.equ(cNewId, new ExpFuncInUq(
             'fork$id',
             [varSite, new ExpVar(userParam.name), ExpNum.num1, ExpNull.null, varBase],
+            true
+        ));
+        */
+        const selectEntity = factory.createSelect();
+        selectEntity.col('id');
+        selectEntity.from(new EntityTable(EnumSysTable.entity, false));
+        selectEntity.where(new ExpEQ(new ExpField('name'), new ExpStr('fork')));
+        selectEntity.lock = LockType.none;
+        setId.equ(cNewId, new ExpFuncInUq(
+            '$IDMU',
+            [new ExpSelect(selectEntity), ExpNull.null],
             true
         ));
         const setKeysSet = factory.createSet();
@@ -232,6 +246,7 @@ export class BBizFork extends BBizEntity<BizFork> {
         insertIDU.cols = [
             { col: 'id', val: new ExpVar(cNewId) },
             { col: 'base', val: new ExpVar(cPhrase) },
+            { col: 'seed', val: varSeed },
         ];
 
         const ifNewOrg = factory.createIf();

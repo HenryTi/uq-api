@@ -13,6 +13,7 @@ exports.BBizFork = void 0;
 const il_1 = require("../../il");
 const BizPhraseType_1 = require("../../il/Biz/BizPhraseType");
 const sql_1 = require("../sql");
+const select_1 = require("../sql/select");
 const statementWithFrom_1 = require("../sql/statementWithFrom");
 const BizEntity_1 = require("./BizEntity");
 class BBizFork extends BizEntity_1.BBizEntity {
@@ -49,7 +50,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const { parameters, statements } = proc;
         const { factory, unitField, userParam } = this.context;
         const cOrgId = '$id';
-        const cBase = '$base';
+        const cSeed = '$base';
         // const cKeys = '$keys';
         // const cProps = '$props';
         const cValues = '$values';
@@ -61,7 +62,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const site = '$site';
         const len = keys.length;
         // const varKeys = new ExpVar(cKeys);
-        const varBase = new sql_1.ExpVar(cBase);
+        const varSeed = new sql_1.ExpVar(cSeed);
         //const varProps = new ExpVar(cProps);
         const varValues = new sql_1.ExpVar(cValues);
         const varSite = new sql_1.ExpVar(site);
@@ -70,7 +71,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         const props = [];
         for (let [, value] of propsMap)
             props.push(value);
-        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.bigIntField)(cOrgId), (0, il_1.idField)(cBase, 'big'), (0, il_1.jsonField)(cValues));
+        parameters.push((0, il_1.bigIntField)(site), userParam, (0, il_1.bigIntField)(cOrgId), (0, il_1.idField)(cSeed, 'big'), (0, il_1.jsonField)(cValues));
         const declare = factory.createDeclare();
         declare.var(cNewId, new il_1.BigInt());
         declare.vars((0, il_1.bigIntField)(cPhrase), (0, il_1.bigIntField)(cNewId), (0, il_1.tinyIntField)(cKeysSet), (0, il_1.tinyIntField)(cPropsSet));
@@ -126,7 +127,8 @@ class BBizFork extends BizEntity_1.BBizEntity {
         select.limit(sql_1.ExpNum.num1);
         select.column(new sql_1.ExpField('id', a), cNewId);
         select.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.idu, false, a));
-        const wheres = [new sql_1.ExpEQ(new sql_1.ExpField('base', a), varBase)];
+        //const wheres: ExpCmp[] = [new ExpEQ(new ExpField('base', a), varSeed)];
+        const wheres = [new sql_1.ExpEQ(new sql_1.ExpField('seed', a), varSeed)];
         function tblAndValFromBud(bud) {
             const { id, dataType } = bud;
             let varVal = new sql_1.ExpVar(`${prefixBud}${id}`);
@@ -187,7 +189,19 @@ class BBizFork extends BizEntity_1.BBizEntity {
         setNew0.equ(cNewId, sql_1.ExpNum.num0);
         const setId = factory.createSet();
         ifNewNullOrg.else(setId);
-        setId.equ(cNewId, new sql_1.ExpFuncInUq('fork$id', [varSite, new sql_1.ExpVar(userParam.name), sql_1.ExpNum.num1, sql_1.ExpNull.null, varBase], true));
+        /*
+        setId.equ(cNewId, new ExpFuncInUq(
+            'fork$id',
+            [varSite, new ExpVar(userParam.name), ExpNum.num1, ExpNull.null, varBase],
+            true
+        ));
+        */
+        const selectEntity = factory.createSelect();
+        selectEntity.col('id');
+        selectEntity.from(new statementWithFrom_1.EntityTable(il_1.EnumSysTable.entity, false));
+        selectEntity.where(new sql_1.ExpEQ(new sql_1.ExpField('name'), new sql_1.ExpStr('fork')));
+        selectEntity.lock = select_1.LockType.none;
+        setId.equ(cNewId, new sql_1.ExpFuncInUq('$IDMU', [new sql_1.ExpSelect(selectEntity), sql_1.ExpNull.null], true));
         const setKeysSet = factory.createSet();
         ifNewNullOrg.else(setKeysSet);
         setKeysSet.equ(cKeysSet, sql_1.ExpNum.num1);
@@ -201,6 +215,7 @@ class BBizFork extends BizEntity_1.BBizEntity {
         insertIDU.cols = [
             { col: 'id', val: new sql_1.ExpVar(cNewId) },
             { col: 'base', val: new sql_1.ExpVar(cPhrase) },
+            { col: 'seed', val: varSeed },
         ];
         const ifNewOrg = factory.createIf();
         ifNewIdNull.else(ifNewOrg);
