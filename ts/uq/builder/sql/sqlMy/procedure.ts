@@ -33,7 +33,7 @@ export class MyProcedure extends Procedure {
             sb.append('LANGUAGE SQL DETERMINISTIC MODIFIES SQL DATA').n();
         }
         sb.append('__proc_exit: BEGIN').n();
-        sb.append('-- Procedure build time: ').append(new Date().toLocaleTimeString()).n();
+        sb.append('-- Procedure build time: ').append(new Date().toLocaleString()).n();
     }
     protected end(sb: SqlBuilder) {
         sb.append('END').semicolon();

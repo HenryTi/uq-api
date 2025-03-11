@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PBizStatementError = exports.PBizStatementBinAct = exports.PBizStatementOut = exports.PBizStatementTie = exports.PBizStatementSheet = exports.PBizStatementBook = exports.PBizStatementInPend = exports.PBizStatementBinPend = exports.PBizStatementPend = exports.PBizStatementIn = exports.PBizStatementBinState = exports.PBizStatementBin = exports.PBizStatement = void 0;
+const space_1 = require("../../space");
 const il_1 = require("../../../il");
 const PStatement_1 = require("../../PStatement");
 const tokens_1 = require("../../tokens");
@@ -336,6 +337,7 @@ class PBizStatementBook extends biz_statement_sub_1.PBizStatementSub {
     }
     scan(space) {
         let ok = true;
+        space = new BizStatementSubSpace(space, this.element);
         let { val, of, setEqu } = this.element;
         let len = this.buds.length;
         let buds0 = this.buds[0];
@@ -634,4 +636,22 @@ class PBizStatementError extends biz_statement_sub_1.PBizStatementSub {
     }
 }
 exports.PBizStatementError = PBizStatementError;
+class BizStatementSubSpace extends space_1.Space {
+    constructor(outer, bizStatementSub) {
+        super(outer);
+        this.bizStatementSub = bizStatementSub;
+    }
+    _getEntityTable(name) {
+        return;
+    }
+    _getTableByAlias(alias) {
+        return;
+    }
+    _varPointer(name, isField) {
+        return;
+    }
+    get isReadonly() {
+        return false;
+    }
+}
 //# sourceMappingURL=biz.statement.js.map

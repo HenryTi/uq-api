@@ -9,7 +9,10 @@ import {
     BinStateAct,
     BizStatementBinState,
     BizStatementState,
-    BizStatementBinAct
+    BizStatementBinAct,
+    Pointer,
+    Table,
+    Entity
 } from '../../../il';
 import { PStatement } from '../../PStatement';
 import { PContext } from '../../pContext';
@@ -343,6 +346,7 @@ export class PBizStatementBook extends PBizStatementSub<BizAct, BizStatementBook
 
     scan(space: Space): boolean {
         let ok = true;
+        space = new BizStatementSubSpace(space, this.element);
         let { val, of, setEqu } = this.element;
         let len = this.buds.length;
         let buds0 = this.buds[0];
@@ -641,5 +645,26 @@ export class PBizStatementError<A extends BizAct, T extends BizStatementError<A>
             }
         }
         return ok;
+    }
+}
+
+class BizStatementSubSpace extends Space {
+    private readonly bizStatementSub: BizStatementSub<any>;
+
+    constructor(outer: Space, bizStatementSub: BizStatementSub<any>) {
+        super(outer);
+        this.bizStatementSub = bizStatementSub;
+    }
+    protected _getEntityTable(name: string): Entity & Table {
+        return;
+    }
+    protected _getTableByAlias(alias: string): Table {
+        return;
+    }
+    protected _varPointer(name: string, isField: boolean): Pointer {
+        return;
+    }
+    override get isReadonly(): boolean {
+        return false;
     }
 }
