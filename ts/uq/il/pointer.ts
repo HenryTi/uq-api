@@ -43,8 +43,14 @@ export class VarPointer extends NamePointer {
 }
 
 export class DotVarPointer extends Pointer {
+    type = 'dotVarPointer';
     readonly groupType: GroupType = GroupType.Single;
     no: number;     // 扫描之后的局部变量编号
+    readonly bud: BizBud;
+    constructor(bud: BizBud) {
+        super();
+        this.bud = bud;
+    }
     to(stack: Stack, v: VarOperand) {
         stack.dotVar(v._var);
     }

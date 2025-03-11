@@ -13,7 +13,12 @@ import {
     BizIDExtendable,
     BizTie,
     BudIndex,
-    EnumSysBud
+    EnumSysBud,
+    Uq,
+    VarOperand,
+    BizEntityBudPointer,
+    BizBudOptions,
+    DotVarPointer
 } from "../../il";
 import { BizPhraseType, BudDataType } from "../../il/Biz/BizPhraseType";
 import { Space } from "../space";
@@ -708,7 +713,9 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extend
             ok = false;
         }
         const { optionsName } = this;
-        if (optionsName === undefined) return ok;
+        if (optionsName === undefined) {
+            return ok;
+        }
         let options = space.uq.biz.bizEntities.get(optionsName);
         if (options === undefined) {
             this.log(`Options ${optionsName} not exists`);
@@ -723,6 +730,44 @@ abstract class PBizBudRadioOrCheck<T extends (BizBudRadio | BizBudCheck)> extend
             ok = false;
         }
         return ok;
+    }
+    scan2(uq: Uq): boolean {
+        let ok = true;
+        if (this.optionsName === undefined) {
+            const { value, name } = this.element;
+            if (value === undefined) {
+                ok = false;
+                this.log(`${name} 没有定义 OPTIONS`);
+            }
+            else {
+                const { exp } = value;
+                if (this.setOptions(exp) === false) {
+                    ok = false;
+                    this.log(`${name} 的表达式必须是 OPTIONS`);
+                }
+            }
+        }
+        return ok;
+    }
+
+    private setOptions(exp: ValueExpression): boolean {
+        const atoms = exp.getAtoms();
+        if (atoms.length !== 1) return false;
+        const atom = atoms[0] as VarOperand;
+        const { pointer } = atom;
+        if (pointer === undefined) return false;
+        let p = pointer as DotVarPointer;
+        if (p.type !== 'dotVarPointer') {
+            return false;
+        }
+        const { bud } = p;
+        if (bud === undefined) return false;
+        const { element } = this;
+        if (element.dataType !== bud.dataType) {
+            return false;
+        }
+        element.options = (bud as BizBudOptions).options;
+        return true;
     }
 }
 

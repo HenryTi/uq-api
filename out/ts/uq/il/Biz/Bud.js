@@ -511,12 +511,21 @@ class BizBudBin extends BizBudValue {
 exports.BizBudBin = BizBudBin;
 class BizBudOptions extends BizBudTieable {
     buildSchema(res) {
-        var _a;
         let ret = super.buildSchema(res);
-        ret.options = (_a = this.options) === null || _a === void 0 ? void 0 : _a.id;
+        if (this.options === undefined) {
+            // 如果是查询字段，有可能没有options定义
+            // debugger;
+        }
+        else {
+            ret.options = this.options.id;
+        }
         return ret;
     }
-    get objName() { var _a; return (_a = this.options) === null || _a === void 0 ? void 0 : _a.phrase; }
+    get objName() {
+        if (this.options === undefined)
+            return;
+        return this.options.phrase;
+    }
 }
 exports.BizBudOptions = BizBudOptions;
 class BizBudRadio extends BizBudOptions {

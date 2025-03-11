@@ -713,6 +713,19 @@ class PBizEntity extends PBizBase {
         let ok = true;
         if (this.bizEntityScan2(this.element) === false)
             ok = false;
+        if (this.scanBuds2(uq, this.element.props) === false)
+            ok = false;
+        return ok;
+    }
+    scanBuds2(uq, buds) {
+        let ok = true;
+        for (let [, value] of buds) {
+            const { pelement } = value;
+            if (pelement === undefined)
+                continue;
+            if (pelement.scan2(uq) === false)
+                ok = false;
+        }
         return ok;
     }
     bizEntityScan2(bizEntity) {

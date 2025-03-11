@@ -740,6 +740,17 @@ export abstract class PBizEntity<B extends BizEntity> extends PBizBase<B> {
     scan2(uq: Uq): boolean {
         let ok = true;
         if (this.bizEntityScan2(this.element) === false) ok = false;
+        if (this.scanBuds2(uq, this.element.props) === false) ok = false;
+        return ok;
+    }
+
+    protected scanBuds2(uq: Uq, buds: Map<string, BizBud>) {
+        let ok = true;
+        for (let [, value] of buds) {
+            const { pelement } = value;
+            if (pelement === undefined) continue;
+            if (pelement.scan2(uq) === false) ok = false;
+        }
         return ok;
     }
 

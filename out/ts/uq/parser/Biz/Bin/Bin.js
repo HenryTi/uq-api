@@ -682,7 +682,12 @@ class BizBinSpace extends Biz_1.BizEntitySpace {
         if (pickBase !== undefined && pickBase.hasReturn(pickProp) === false) {
             return [undefined, `Pick '${pickName}' has no return '${pickProp}'`];
         }
-        return [new il_1.DotVarPointer(), undefined];
+        let bud = pickBase.getBud(pickProp);
+        if (bud === undefined) {
+            //bud = pickBase.getBud(pickProp);
+            //return [undefined, `Pick '${pickName}' has no PROP '${pickProp}'`];
+        }
+        return [new il_1.DotVarPointer(bud), undefined];
     }
     _getBizFromEntityFromAlias(name) {
         switch (name) {

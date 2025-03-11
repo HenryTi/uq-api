@@ -40,9 +40,11 @@ class VarPointer extends NamePointer {
 }
 exports.VarPointer = VarPointer;
 class DotVarPointer extends Pointer {
-    constructor() {
-        super(...arguments);
+    constructor(bud) {
+        super();
+        this.type = 'dotVarPointer';
         this.groupType = GroupType.Single;
+        this.bud = bud;
     }
     to(stack, v) {
         stack.dotVar(v._var);

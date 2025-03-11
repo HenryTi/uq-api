@@ -508,10 +508,19 @@ export abstract class BizBudOptions extends BizBudTieable {
     options: BizOptions;
     buildSchema(res: { [phrase: string]: string }) {
         let ret = super.buildSchema(res);
-        ret.options = this.options?.id;
+        if (this.options === undefined) {
+            // 如果是查询字段，有可能没有options定义
+            // debugger;
+        }
+        else {
+            ret.options = this.options.id;
+        }
         return ret;
     }
-    get objName(): string { return this.options?.phrase; }
+    get objName(): string {
+        if (this.options === undefined) return;
+        return this.options.phrase;
+    }
 }
 
 export class BizBudRadio extends BizBudOptions {
