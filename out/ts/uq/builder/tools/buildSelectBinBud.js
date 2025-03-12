@@ -20,7 +20,7 @@ function buildSelectBinBud(context, bud, varBin, varName) {
     let declareType;
     let selectBud;
     switch (dataType) {
-        default: throw new Error('unknown type ' + il_1.EnumDataType[dataType]);
+        default: throw new Error('unknown type ' + BizPhraseType_1.BudDataType[dataType]);
         case BizPhraseType_1.BudDataType.none:
             return [];
         case BizPhraseType_1.BudDataType.atom:

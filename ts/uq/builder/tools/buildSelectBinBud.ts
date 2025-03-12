@@ -23,7 +23,7 @@ export function buildSelectBinBud(context: DbContext, bud: BizBud, varBin: ExpVa
     let declareType: DataType;
     let selectBud: Select;
     switch (dataType) {
-        default: throw new Error('unknown type ' + EnumDataType[dataType]);
+        default: throw new Error('unknown type ' + BudDataType[dataType]);
         case BudDataType.none:
             return [];
         case BudDataType.atom:

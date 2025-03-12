@@ -1288,8 +1288,8 @@ RETURNS ret (
             union select sx.name, s.value from IxStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
         ) as arr ) as keys,
         null as props
-        FROM Fork as a
-        WHERE a.base=base;
+        FROM IDU as a
+        WHERE a.seed=base;
 }
 
 -- 这是 GetSpecsFromBase 的新版本。之前的base应该有问题。spec base应该是bud of (base, bizphrase)
@@ -1309,9 +1309,11 @@ RETURNS ret (
             union select sx.id, s.value from IxStr as s join bizphrase as sx on sx.id=s.x where s.i=a.id
         ) as arr ) as keys,
         null as props
-        FROM Fork as a
-            JOIN IDU as b ON b.id=a.id
-        WHERE a.base=base AND b.base=phrase;
+        -- FROM Fork as a
+        --    JOIN IDU as b ON b.id=a.id
+        -- WHERE a.base=base AND b.base=phrase;
+        FROM IDU as a
+        WHERE a.base=phrase AND a.seed=base;
 }
 
 -- Fork or Atom
