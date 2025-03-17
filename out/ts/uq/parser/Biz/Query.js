@@ -17,6 +17,9 @@ class PBizQueryTable extends PBizQuery {
         if (this.ts.token === tokens_1.Token.VAR) {
             super.parseHeader();
         }
+        else {
+            this.element.name = '$';
+        }
         if (this.ts.token === tokens_1.Token.LPARENTHESE) {
             this.ts.readToken();
             for (;;) {

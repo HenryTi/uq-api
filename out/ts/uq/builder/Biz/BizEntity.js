@@ -70,7 +70,6 @@ class BBizEntity {
         return table;
     }
     createSiteEntityProcedure(suffix = undefined) {
-        //return this.createProcedure(`${this.context.site}.${procName}`);
         return this.createProcedure(`${this.bizEntity.id}` + (suffix !== null && suffix !== void 0 ? suffix : ''));
     }
     createSiteProcedure(objId, suffix = undefined) {

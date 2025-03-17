@@ -5,7 +5,8 @@ import {
     EnumSysBud,
     BizPend,
     Index,
-    jsonField
+    jsonField,
+    PendQuery
 } from "../../il";
 import { BudDataType } from "../../il/Biz/BizPhraseType";
 import { Sqls } from "../bstatement";
@@ -20,11 +21,12 @@ import { BBizEntity } from "./BizEntity";
 const a = 'a';
 const b = 'b';
 const c = 'c';
+const gp = 'gp';
 export class BBizPend extends BBizEntity<BizPend> {
     override async buildTables(): Promise<void> {
         const { id, keys } = this.bizEntity;
         if (keys === undefined) return;
-        let table = this.createSiteTable(id); // `${this.context.site}.${id}`);
+        let table = this.createSiteTable(id);
         let keyFields = keys.map(v => v.createField());
         let idField = bigIntField('id');
         table.keys = [idField];
@@ -36,12 +38,20 @@ export class BBizPend extends BBizEntity<BizPend> {
 
     override async buildProcedures(): Promise<void> {
         super.buildProcedures();
-        const procQuery = this.createSiteEntityProcedure('gp');
-        this.buildQueryProc(procQuery);
+        const { pendQueries } = this.bizEntity;
+        for (let pendQuery of pendQueries) {
+            let procQuery: Procedure;
+            if (pendQuery.name === '$') {
+                procQuery = this.createSiteEntityProcedure(gp);
+            }
+            else {
+                procQuery = this.createProcedure(`${pendQuery.id}${gp}`);
+            }
+            this.buildQueryProc(procQuery, pendQuery);
+        }
     }
 
-    private buildQueryProc(proc: Procedure) {
-        const { pendQuery } = this.bizEntity;
+    private buildQueryProc(proc: Procedure, pendQuery: PendQuery) {
         if (pendQuery === undefined) {
             proc.dropOnly = true;
             return;

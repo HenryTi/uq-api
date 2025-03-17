@@ -102,7 +102,7 @@ export class BizSheet extends BizNotID {
         }
     }
 
-    forEachState(callback: (state: SheetState) => void) {
+    forEachSubEntity(callback: (state: SheetState) => void) {
         if (this.states === undefined) return;
         for (let state of this.states) {
             callback(state);

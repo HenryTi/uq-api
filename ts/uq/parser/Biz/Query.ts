@@ -17,6 +17,9 @@ export class PBizQueryTable<T extends BizQueryTable = BizQueryTable> extends PBi
         if (this.ts.token === Token.VAR) {
             super.parseHeader();
         }
+        else {
+            this.element.name = '$';
+        }
         if (this.ts.token === Token.LPARENTHESE) {
             this.ts.readToken();
             for (; ;) {

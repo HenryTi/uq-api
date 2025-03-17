@@ -128,14 +128,21 @@ class Compiler {
                 if (saveBud !== undefined)
                     group.id = saveBud.id;
             });
-            if (entity.bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
-                entity.forEachState(state => {
+            entity.forEachSubEntity(sub => {
+                let s = buds[sub.phrase];
+                if (s === undefined)
+                    return;
+                sub.id = s.id;
+            });
+            /*
+            if (entity.bizPhraseType === BizPhraseType.sheet) {
+                (entity as BizSheet).forEachState(state => {
                     let s = buds[state.phrase];
-                    if (s === undefined)
-                        return;
+                    if (s === undefined) return;
                     state.id = s.id;
                 });
             }
+            */
         }
         // 
         if (indexTobeRemoved !== undefined) {

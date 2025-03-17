@@ -20,6 +20,7 @@ class BizPend extends Entity_1.BizID {
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
         this.main = undefined;
         this.predefinedFields = [];
+        this.pendQueries = [];
         this.bizBins = [];
         this.predefinedBuds = {};
         for (let n of BizPend.predefinedId) {
@@ -34,6 +35,10 @@ class BizPend extends Entity_1.BizID {
     }
     db(dbContext) {
         return new builder_1.BBizPend(dbContext, this);
+    }
+    getPendQueryFromName(queryName) {
+        let qn = queryName !== null && queryName !== void 0 ? queryName : '$';
+        return this.pendQueries.find(v => v.name === qn);
     }
     getBinBud(name) {
         for (let bizBin of this.bizBins) {
@@ -57,18 +62,22 @@ class BizPend extends Entity_1.BizID {
             predefined[i] = bud.buildSchema(res);
         }
         ret.predefined = predefined;
-        if (this.pendQuery !== undefined) {
-            let { params, from } = this.pendQuery;
+        let queries = [];
+        for (let pendQuery of this.pendQueries) {
+            let { params, from } = pendQuery;
             const { cols, mainCols } = from;
-            ret.params = params.map(v => v.buildSchema(res));
-            ret.cols = cols.map(v => {
+            const query = {};
+            query.params = params.map(v => v.buildSchema(res));
+            query.cols = cols.map(v => {
                 const bud = v.bud; // field.getBud();
                 return bud === null || bud === void 0 ? void 0 : bud.buildSchema(res);
             });
             if (mainCols !== undefined) {
-                ret.mainCols = mainCols.map(v => v.bud.id);
+                query.mainCols = mainCols.map(v => v.bud.id);
             }
+            queries.push(query);
         }
+        ret.queries = queries;
         if (this.i !== undefined)
             ret.i = this.i.buildSchema(res);
         if (this.x !== undefined)
@@ -100,18 +109,19 @@ class BizPend extends Entity_1.BizID {
             callback(this.i);
         if (this.x !== undefined)
             callback(this.x);
-        if (this.pendQuery === undefined)
-            return;
-        const { params, from } = this.pendQuery;
-        const { cols } = from;
-        for (let col of cols) {
-            let bud = col.bud; // field?.getBud();
-            if (bud === undefined)
-                continue;
-            callback(bud);
-        }
-        for (let param of params) {
-            callback(param);
+        //if (this.pendQuery === undefined) return;
+        for (let pendQuery of this.pendQueries) {
+            const { params, from } = pendQuery;
+            const { cols } = from;
+            for (let col of cols) {
+                let bud = col.bud; // field?.getBud();
+                if (bud === undefined)
+                    continue;
+                callback(bud);
+            }
+            for (let param of params) {
+                callback(param);
+            }
         }
     }
     hasField(fieldName) {
@@ -125,6 +135,17 @@ class BizPend extends Entity_1.BizID {
         if (this.props.has(fieldName) === true)
             return true;
         return false;
+    }
+    forEachSubEntity(callback) {
+        for (let pendQuery of this.pendQueries) {
+            callback(pendQuery);
+        }
+    }
+    buildPhrases(phrases, prefix) {
+        super.buildPhrases(phrases, prefix);
+        for (let pendQuery of this.pendQueries) {
+            pendQuery.buildPhrases(phrases, this.name);
+        }
     }
 }
 exports.BizPend = BizPend;
@@ -151,6 +172,9 @@ class PendQuery extends Query_1.BizQueryTable {
     }
     parser(context) {
         return new parser_1.PPendQuery(this, context);
+    }
+    buildPhrase(prefix) {
+        this.phrase = `${prefix}.${this.name}`;
     }
 }
 exports.PendQuery = PendQuery;

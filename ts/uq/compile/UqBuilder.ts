@@ -70,6 +70,16 @@ export class UqBuilder {
                 flag: 0,
             });
         });
+        entity.forEachSubEntity(sub => {
+            let { phrase, ui: { caption }, memo, bizPhraseType } = sub;
+            budParams.push({
+                id: sub.id,
+                name: `${entity.phrase}.${phrase}`, caption,
+                type: bizPhraseType, memo,
+                dataType: 0, objId: 0, flag: 0, show: 0
+            });
+        });
+        /*
         if (entity.bizPhraseType === BizPhraseType.sheet) {
             (entity as BizSheet).forEachState(state => {
                 let { phrase, ui: { caption }, memo, bizPhraseType } = state;
@@ -81,6 +91,7 @@ export class UqBuilder {
                 });
             });
         }
+        */
         let [[ret], budIds] = await this.runner.unitUserTablesFromProc(
             'SaveBizObject'
             , this.site, this.user, this.newSoleEntityId
@@ -119,6 +130,15 @@ export class UqBuilder {
                 if (caption) res[phrase] = caption;
             }
         });
+        entity.forEachSubEntity(sub => {
+            sub.id = budIds[i++].id;
+            const { phrase, ui } = sub;
+            if (ui) {
+                const { caption } = ui;
+                if (caption) res[phrase] = caption;
+            }
+        });
+        /*
         if (entity.bizPhraseType === BizPhraseType.sheet) {
             (entity as BizSheet).forEachState(state => {
                 state.id = budIds[i++].id;
@@ -129,6 +149,7 @@ export class UqBuilder {
                 }
             });
         }
+        */
     }
 
     private async saveBizSchema(entity: BizEntity) {

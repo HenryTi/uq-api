@@ -21,13 +21,14 @@ const BizEntity_1 = require("./BizEntity");
 const a = 'a';
 const b = 'b';
 const c = 'c';
+const gp = 'gp';
 class BBizPend extends BizEntity_1.BBizEntity {
     buildTables() {
         return __awaiter(this, void 0, void 0, function* () {
             const { id, keys } = this.bizEntity;
             if (keys === undefined)
                 return;
-            let table = this.createSiteTable(id); // `${this.context.site}.${id}`);
+            let table = this.createSiteTable(id);
             let keyFields = keys.map(v => v.createField());
             let idField = (0, il_1.bigIntField)('id');
             table.keys = [idField];
@@ -43,12 +44,20 @@ class BBizPend extends BizEntity_1.BBizEntity {
         });
         return __awaiter(this, void 0, void 0, function* () {
             _super.buildProcedures.call(this);
-            const procQuery = this.createSiteEntityProcedure('gp');
-            this.buildQueryProc(procQuery);
+            const { pendQueries } = this.bizEntity;
+            for (let pendQuery of pendQueries) {
+                let procQuery;
+                if (pendQuery.name === '$') {
+                    procQuery = this.createSiteEntityProcedure(gp);
+                }
+                else {
+                    procQuery = this.createProcedure(`${pendQuery.id}${gp}`);
+                }
+                this.buildQueryProc(procQuery, pendQuery);
+            }
         });
     }
-    buildQueryProc(proc) {
-        const { pendQuery } = this.bizEntity;
+    buildQueryProc(proc, pendQuery) {
         if (pendQuery === undefined) {
             proc.dropOnly = true;
             return;

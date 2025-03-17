@@ -184,6 +184,9 @@ export abstract class BizEntity extends BizBase {
         }
     }
 
+    forEachSubEntity(callBack: (sub: BizEntity) => void) {
+    }
+
     db(dbContext: DbContext): BBizEntity {
         return undefined;
     }

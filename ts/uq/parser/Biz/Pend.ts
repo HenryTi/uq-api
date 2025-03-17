@@ -28,9 +28,9 @@ export class PBizPend extends PBizEntity<BizPend> {
     }
 
     private parseQuery = () => {
-        this.element.pendQuery = new PendQuery(this.element);
-        let { pendQuery } = this.element;
+        let pendQuery = new PendQuery(this.element);
         this.context.parseElement(pendQuery);
+        this.element.pendQueries.push(pendQuery);
     }
 
     private parseI = () => {
@@ -134,7 +134,7 @@ export class PBizPend extends PBizEntity<BizPend> {
         if (super.scan(space) === false) {
             ok = false;
         }
-        let { props, pendQuery, i, x } = this.element;
+        let { props, pendQueries, i, x } = this.element;
         const predefines = [...BizPend.predefinedId, ...BizPend.predefinedValue];
 
         if (i !== undefined) {
@@ -167,7 +167,7 @@ export class PBizPend extends PBizEntity<BizPend> {
             }
         }
 
-        if (pendQuery !== undefined) {
+        for (let pendQuery of pendQueries) {
             let pendSpace = new BizPendSpace(space, this.element);
             if (pendQuery.pelement.scan(pendSpace) === false) {
                 ok = false;
@@ -200,9 +200,6 @@ export class PBizPend extends PBizEntity<BizPend> {
 }
 
 export class PPendQuery extends PBizQueryTable<PendQuery> {
-    override parseHeader() {
-    }
-
     protected createStatements(): BizQueryTableStatements {
         return new BizQueryTableInPendStatements(this.element);
     }

@@ -68,7 +68,7 @@ class BizSheet extends Entity_1.BizNotID {
             }
         }
     }
-    forEachState(callback) {
+    forEachSubEntity(callback) {
         if (this.states === undefined)
             return;
         for (let state of this.states) {

@@ -64,7 +64,6 @@ export class BBizEntity<B extends BizEntity = any> {
     }
 
     protected createSiteEntityProcedure(suffix: string = undefined) {
-        //return this.createProcedure(`${this.context.site}.${procName}`);
         return this.createProcedure(`${this.bizEntity.id}` + (suffix ?? ''));
     }
 

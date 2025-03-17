@@ -112,13 +112,18 @@ class PickFork {
 }
 exports.PickFork = PickFork;
 class PickPend {
-    constructor(from) {
+    constructor(from, queryName) {
         this.bizPhraseType = BizPhraseType_1.BizPhraseType.pend;
         this.from = from;
+        this.queryName = queryName;
     }
     fromSchema() { return [this.from.name]; }
+    get pendQuery() {
+        const pendQuery = this.from.getPendQueryFromName(this.queryName);
+        return pendQuery;
+    }
     hasParam(param) {
-        let { params } = this.from.pendQuery;
+        let { params } = this.pendQuery;
         return params.findIndex(v => v.name === param) >= 0;
     }
     hasReturn(prop) {
@@ -127,7 +132,7 @@ class PickPend {
         let ret = this.from.hasField(prop);
         if (ret === true)
             return true;
-        return this.from.pendQuery.hasReturn(prop);
+        return this.pendQuery.hasReturn(prop);
     }
     getBud(name) { return this.from.getBud(name); }
 }

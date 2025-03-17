@@ -154,6 +154,8 @@ class BizEntity extends Base_1.BizBase {
             callback(group);
         }
     }
+    forEachSubEntity(callBack) {
+    }
     db(dbContext) {
         return undefined;
     }

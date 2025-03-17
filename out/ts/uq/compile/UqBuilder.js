@@ -73,8 +73,18 @@ class UqBuilder {
                     flag: 0,
                 });
             });
-            if (entity.bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
-                entity.forEachState(state => {
+            entity.forEachSubEntity(sub => {
+                let { phrase, ui: { caption }, memo, bizPhraseType } = sub;
+                budParams.push({
+                    id: sub.id,
+                    name: `${entity.phrase}.${phrase}`, caption,
+                    type: bizPhraseType, memo,
+                    dataType: 0, objId: 0, flag: 0, show: 0
+                });
+            });
+            /*
+            if (entity.bizPhraseType === BizPhraseType.sheet) {
+                (entity as BizSheet).forEachState(state => {
                     let { phrase, ui: { caption }, memo, bizPhraseType } = state;
                     budParams.push({
                         id: state.id,
@@ -84,6 +94,7 @@ class UqBuilder {
                     });
                 });
             }
+            */
             let [[ret], budIds] = yield this.runner.unitUserTablesFromProc('SaveBizObject', this.site, this.user, this.newSoleEntityId, phrase, caption, entity.typeNum, memo, source, JSON.stringify(budParams));
             const { id } = ret;
             let obj = { id, phrase };
@@ -121,17 +132,27 @@ class UqBuilder {
                         res[phrase] = caption;
                 }
             });
-            if (entity.bizPhraseType === BizPhraseType_1.BizPhraseType.sheet) {
-                entity.forEachState(state => {
+            entity.forEachSubEntity(sub => {
+                sub.id = budIds[i++].id;
+                const { phrase, ui } = sub;
+                if (ui) {
+                    const { caption } = ui;
+                    if (caption)
+                        res[phrase] = caption;
+                }
+            });
+            /*
+            if (entity.bizPhraseType === BizPhraseType.sheet) {
+                (entity as BizSheet).forEachState(state => {
                     state.id = budIds[i++].id;
                     const { phrase, ui } = state;
                     if (ui) {
                         const { caption } = ui;
-                        if (caption)
-                            res[phrase] = caption;
+                        if (caption) res[phrase] = caption;
                     }
                 });
             }
+            */
         });
     }
     saveBizSchema(entity) {

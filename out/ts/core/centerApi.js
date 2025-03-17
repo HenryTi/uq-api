@@ -44,6 +44,7 @@ class CenterApi extends fetch_1.Fetch {
     }
     unitUnitx(unit) {
         return __awaiter(this, void 0, void 0, function* () {
+            // console.log('center base url', this.baseUrl, unit);
             let items = yield this.get('open/unit-unitx', { unit });
             let ret = {};
             for (let item of items) {

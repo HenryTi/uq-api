@@ -122,6 +122,12 @@ export class Compiler {
                 let saveBud = buds[group.phrase];
                 if (saveBud !== undefined) group.id = saveBud.id;
             });
+            entity.forEachSubEntity(sub => {
+                let s = buds[sub.phrase];
+                if (s === undefined) return;
+                sub.id = s.id;
+            });
+            /*
             if (entity.bizPhraseType === BizPhraseType.sheet) {
                 (entity as BizSheet).forEachState(state => {
                     let s = buds[state.phrase];
@@ -129,6 +135,7 @@ export class Compiler {
                     state.id = s.id;
                 });
             }
+            */
         }
         // 
         if (indexTobeRemoved !== undefined) {

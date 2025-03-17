@@ -127,21 +127,27 @@ export class PickFork implements PickBase {
 }
 export class PickPend implements PickBase {
     readonly bizPhraseType = BizPhraseType.pend;
+    readonly queryName: string;
     from: BizPend;
     hide: BizBud[];
-    constructor(from: BizPend) {
+    constructor(from: BizPend, queryName?: string) {
         this.from = from;
+        this.queryName = queryName;
     }
     fromSchema(): string[] { return [this.from.name]; }
+    protected get pendQuery() {
+        const pendQuery = this.from.getPendQueryFromName(this.queryName);
+        return pendQuery;
+    }
     hasParam(param: string): boolean {
-        let { params } = this.from.pendQuery;
+        let { params } = this.pendQuery;
         return params.findIndex(v => v.name === param) >= 0;
     }
     hasReturn(prop: string): boolean {
         if (prop === undefined || prop === 'id') return true;
         let ret = this.from.hasField(prop);
         if (ret === true) return true;
-        return this.from.pendQuery.hasReturn(prop);
+        return this.pendQuery.hasReturn(prop);
     }
     getBud(name: string): BizBud { return this.from.getBud(name); }
 }
